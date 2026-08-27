@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>12</text></svg>">
+<title>Pass 12 — Plan</title>
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Outfit', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.5; padding: 2rem 1.2rem 4rem; max-width: 1180px; margin: 0 auto;
+}
+code, .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; }
+.badge {
+    display: inline-block; font-family: 'JetBrains Mono', Menlo, monospace;
+    font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-glow);
+    border: 1px solid var(--accent); border-radius: 999px; padding: 0.25rem 0.8rem;
+}
+h1 { font-size: 2rem; font-weight: 700; margin: 0.7rem 0 0.4rem; }
+.sub { color: var(--text-dim); font-size: 0.95rem; max-width: 62ch; }
+h2 { font-size: 1.05rem; margin: 2.2rem 0 0.9rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
+
+.rulings { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.7rem; }
+.ruling {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: var(--radius); padding: 0.8rem 0.95rem; font-size: 0.86rem;
+}
+.ruling b { color: var(--text); }
+.ruling .who { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.3rem; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem 1.1rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.card-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.45rem; }
+.slice-id { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 0.68rem; padding: 0.1rem 0.45rem; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim); }
+.pri { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.pri.crit { color: var(--red); } .pri.high { color: var(--amber); } .pri.med { color: var(--green); } .pri.pol { color: var(--purple); }
+.card h3 { font-size: 1rem; font-weight: 600; }
+.card p { font-size: 0.84rem; color: var(--text-dim); margin: 0.35rem 0 0.55rem; }
+.card p b { color: var(--text); font-weight: 600; }
+.files { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.files span {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 0.62rem;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.12rem 0.4rem; color: var(--text-dim);
+}
+.dep { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 0.64rem; color: var(--amber); margin-top: 0.5rem; display: block; }
+
+.count-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.7rem; }
+.count {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.7rem 0.9rem; text-align: center;
+}
+.count .n { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 1.5rem; font-weight: 700; color: var(--accent); display: block; }
+.count.red .n { color: var(--red); } .count.amber .n { color: var(--amber); } .count.green .n { color: var(--green); }
+.count .l { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.rail { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 0.72rem; }
+.rail .node { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.3rem 0.6rem; }
+.rail .arrow { color: var(--text-dim); }
+.rail .node.hot { border-color: var(--amber); color: var(--amber); }
+.note { font-size: 0.82rem; color: var(--text-dim); margin-top: 0.6rem; max-width: 70ch; }
+.note b { color: var(--text); }
+footer { margin-top: 2.5rem; font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', Menlo, monospace; }
+</style>
+</head>
+<body>
+
+<span class="badge">Pre-implementation plan · Pass 12</span>
+<h1>Honest triggers, visible loot, 2012 parity</h1>
+<p class="sub">The grill closed after two rounds on 2026-08-26. Five rulings are recorded in design-thread-queue §4.21. Eight slices implement them. The brief for dispatched agents is <span class="mono">codex-briefs/pass12-owner-notes-handoff-2026-08-26.md</span>.</p>
+
+<h2>What the scouts measured</h2>
+<div class="count-row">
+    <div class="count red"><span class="n">146</span><span class="l">tasks fire on level, not deed</span></div>
+    <div class="count red"><span class="n">107</span><span class="l">latent tasks, category retired</span></div>
+    <div class="count amber"><span class="n">3→1</span><span class="l">clean guam level re-pin</span></div>
+    <div class="count amber"><span class="n">5+5</span><span class="l">stale runes in your save</span></div>
+    <div class="count green"><span class="n">2×500</span><span class="l">lamp XP, all 25 skills legal</span></div>
+    <div class="count green"><span class="n">4464</span><span class="l">tests green on main today</span></div>
+</div>
+
+<h2>Rulings (queue §4.21)</h2>
+<div class="rulings">
+    <div class="ruling"><span class="who">R1 · you, round 2</span><b>No latent achievements.</b> Every diary row gets a designed deed trigger under the settled 384-row curation contract. Untranslatable deeds swap for a same-family authentic task or get a flagged translated deed. The 22 anchors keep level triggers.</div>
+    <div class="ruling"><span class="who">R2 · you, round 2</span><b>Modal popup on automatic Bankstanding switches.</b> The activity materially stopped; you must queue a new action. Manual Stop stays silent. Every switch writes one event-log entry.</div>
+    <div class="ruling"><span class="who">R3 · you, round 2</span><b>Single ledger stands.</b> The carried grid is a truthful view: loot plus remaining supplies, both pack modes, on Equipment and on Bank. Death sends carried loot to the grave, pinned by tests.</div>
+    <div class="ruling"><span class="who">R4 · you, round 2</span><b>November 2012 Druidic Ritual.</b> Coin, chisel, fishing rod. No meats. Save migration included. Herblore has no quest gate; guam cleans at level 1.</div>
+    <div class="ruling"><span class="who">R5 · delegated, unvetoed</span><b>Lamps deliver through Bank Claims.</b> Two claim rows, icon-grid chooser, stronghold COMPLETE only after both claims.</div>
+</div>
+
+<h2>The eight slices</h2>
+<div class="grid">
+    <div class="card">
+        <div class="card-head"><span class="slice-id">S1</span><span class="pri crit">Critical · long pole</span></div>
+        <h3>diary-triggers</h3>
+        <p>Kill the generator fallback that turns prerequisites into triggers. Author a <b>curation ledger</b> (253 rows: trigger, citation, translation flag), cross-lineage review, then wire through the generator. Chain Store becomes buy-at-Wayne's + equip; Defence 10 stays an access gate.</p>
+        <div class="files"><span>generate_achievement_diary_data.py</span><span>achievement_diary_catalog.py</span><span>core/logic.py</span></div>
+        <span class="dep">blocks nothing · owner spot-checks the ledger</span>
+    </div>
+    <div class="card">
+        <div class="card-head"><span class="slice-id">S8</span><span class="pri crit">Critical · lands first</span></div>
+        <h3>rune-stale-repair</h3>
+        <p>Your save still holds Air×5 + Mind×5 from before Pass 11. Storage repair unloads class-incompatible loadouts on load, returns exact quantities to the bank, and refills for the real method. The test that asserts the stale phrase becomes a repair regression.</p>
+        <div class="files"><span>core/storage_pure.py</span><span>logic_pure_combat_engine.py</span><span>test_main_menu_widget.py</span></div>
+        <span class="dep">must land before S3</span>
+    </div>
+    <div class="card">
+        <div class="card-head"><span class="slice-id">S3</span><span class="pri high">High</span></div>
+        <h3>carried-grid</h3>
+        <p>One read-only grid below both pack modes: retained loot merged with remaining supplies. Equipment and Bank copies come from the shared builder. Ownership stays single-ledger; death-to-grave, coin exclusion, and the 28-slot bank run get pinned tests.</p>
+        <div class="files"><span>ui/ui.py 25229-25684</span><span>runtime_actions_combat.py</span><span>test_runtime_actions.py</span></div>
+        <span class="dep">after S8</span>
+    </div>
+    <div class="card">
+        <div class="card-head"><span class="slice-id">S4</span><span class="pri high">High</span></div>
+        <h3>druidic-2012</h3>
+        <p>Replace the retired meat quest with the 2012 rework; migrate in-progress saves forward and return stripped quest meats to the bank. Re-pin the clean-herb level column (guam 3→1, one citation per changed row). Your kick-out and your herb block both end here.</p>
+        <div class="files"><span>data/quest_data.py</span><span>data/herblore_data.py</span><span>core/storage_pure.py</span></div>
+        <span class="dep">migration order: S4 → S5 → S8 in storage_pure</span>
+    </div>
+    <div class="card">
+        <div class="card-head"><span class="slice-id">S2</span><span class="pri high">High</span></div>
+        <h3>bankstand-popup</h3>
+        <p><b>_switch_to_bankstanding()</b> becomes the one transition seam with a true-transition guard. Automatic switches show a modal naming the reason, after the XP feedback flush. Manual Stop silent; double-fire at the Agility path guarded.</p>
+        <div class="files"><span>__init__.py 1489-1505</span><span>ui/ui.py 4549-4581</span><span>test_direct_action_undo_seam.py</span></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><span class="slice-id">S5</span><span class="pri med">Medium</span></div>
+        <h3>lamp-flow</h3>
+        <p>Two stable claim IDs delivered on chest claim; remaining lamps derive from claim records. Shared icon-grid chooser (<b>click, then Claim</b>) replaces both QComboBox paths. COMPLETE only after route + chest + both claims. Title clipping fixed.</p>
+        <div class="files"><span>stronghold_player_safety_logic.py</span><span>logic_pure_claims.py</span><span>ui/ui.py 18060, 26506</span></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><span class="slice-id">S6</span><span class="pri med">Medium</span></div>
+        <h3>bigtop-visibility + evil-tree-icon</h3>
+        <p>Quest-gated acts (Fire-breathing, Flaming poi ← Firemaker's Curse; Magic Tricks ← Some Like It Cold) are absent until unlocked, not dimmed. Execution checks stay. Evil Tree gets the existing D&amp;D group icon, one line.</p>
+        <div class="files"><span>circus_logic.py 425-481</span><span>ui/ui.py 14834, 20037</span><span>test_circus.py</span></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><span class="slice-id">S7</span><span class="pri med">Medium</span></div>
+        <h3>hazeel-stage0</h3>
+        <p>Unstarted quests expose stage 0: no route buttons, and pre-start route mutations refuse. The choice appears at Clivet's offer mid-quest, irreversible, per the pinned 2012 walkthrough. Three tests that enshrine the pre-start choice get corrected.</p>
+        <div class="files"><span>logic_pure_quest.py 361-368</span><span>test_logic.py</span><span>test_main_menu_widget.py</span></div>
+    </div>
+</div>
+
+<h2>Landing order</h2>
+<div class="rail">
+    <span class="node">S8 rune repair</span><span class="arrow">→</span>
+    <span class="node">S3 carried grid</span><span class="arrow">·</span>
+    <span class="node hot">S4 → S5 → S8 share storage_pure migrations</span><span class="arrow">·</span>
+    <span class="node">S1 ledger runs long, blocks nothing</span>
+</div>
+<p class="note"><b>Closed with no code change:</b> the Herblore tab keeps no Druidic Ritual label (Jagex removed the requirement 2012-01-31; herb cleaning at level 1 is period-faithful), and the lamp's all-25-skills list was already correct. <b>Verification:</b> per-slice focused + neighbour suites, both lanes for UI slices, then one promotion gate on the merged tree after re-absorbing main.</p>
+
+<footer>pass12-plan-2026-08-26 · rulings: design-thread-queue §4.21 · brief: pass12-owner-notes-handoff-2026-08-26.md · plan artifact stays unmodified</footer>
+</body>
+</html>
