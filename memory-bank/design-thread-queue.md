@@ -2210,14 +2210,19 @@ The owner answered two grill rounds in the design thread on 2026-08-26. Full
 diagnosis and slice geography live in
 `memory-bank/codex-briefs/pass12-owner-notes-handoff-2026-08-26.md`.
 
-1. **Achievements carry no latent category.** Every diary row must be a fully
-   designed achievement under the settled curation contract (2026-08-03: eight
-   regions, four tiers, exactly 12 rows, 384 total) and the semantics contract
-   (2026-07-16). A level or quest prerequisite must never stand in as the
-   completion trigger of a deed task; the 22 labelled progression anchors stay.
-   Where a deed has no faithful AnkiScape action, swap the row for a better
-   same-family authentic task, or design a translated deed in the spirit of
-   the settled design, and mark the translation in the curation ledger.
+1. **Achievements carry no dead-end triggers.** Every diary row must be a
+   fully designed achievement under the settled curation contract (2026-08-03:
+   eight regions, four tiers, exactly 12 rows, 384 total) and the semantics
+   contract (2026-07-16). A level or quest prerequisite must never stand in as
+   the completion trigger of a deed task; the 22 labelled progression anchors
+   stay. Refined by the owner on 2026-08-26 23:11: the game is pre-alpha, so a
+   row whose deed awaits a plausible future AnkiScape system may stay
+   **dormant** — but only with its designed trigger already recorded in the
+   curation ledger, so the row activates when its system lands. What is
+   forbidden is a task predicated on a deed that can never translate (for
+   example world exploration); such a row is swapped for a better same-family
+   authentic task, or given a translated deed in the spirit of the settled
+   design, now, with the translation marked in the ledger.
 2. **Automatic Bankstanding switches get a modal popup** that names the reason.
    The owner's rationale: the activity materially stopped, and the player must
    queue a new action. A manual Stop stays silent. Every switch writes an

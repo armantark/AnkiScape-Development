@@ -14,6 +14,12 @@ Domain terms with one settled meaning each. Implementation detail stays out.
 - **Deed task** — a diary row whose completion requires a performed action. A
   level or quest prerequisite on a deed task is an access gate, never the
   trigger.
+- **Dormant task** — a deed task whose designed trigger awaits a named,
+  plausible future game system. Its trigger is fully designed and recorded in
+  the curation ledger; the row activates when its system lands. A dormant task
+  differs from the retired "latent" stub, which had no designed trigger at
+  all. A deed that can never translate must not be dormant; it is swapped or
+  translated instead.
 - **Translated deed** — a designed AnkiScape trigger for a deed whose literal
   form does not exist here (for example, world traversal). The curation ledger
   marks every translation, so a translation is never mistaken for a

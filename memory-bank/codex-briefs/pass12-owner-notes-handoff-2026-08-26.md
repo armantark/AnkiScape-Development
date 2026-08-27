@@ -48,11 +48,14 @@ the carried grid lives on both the Equipment tab and the Bank tab; November
 ## Rulings
 
 1. A deed task fires only on its deed. Level and quest prerequisites are
-   access gates. The 22 labelled anchors keep level triggers. No row is
-   latent. Untranslatable deeds are swapped for a better same-family authentic
-   task or given a translated deed, per §4.21 and the 2026-08-03 curation
-   contract; the curation ledger records every trigger with citation and a
-   translation flag.
+   access gates. The 22 labelled anchors keep level triggers. No row may be
+   predicated on a deed that can never translate to AnkiScape; such rows are
+   swapped for a better same-family authentic task or given a translated
+   deed, now. A row whose deed awaits a plausible future AnkiScape system may
+   stay dormant, but the curation ledger must already record its designed
+   trigger so the row activates when its system lands. Per §4.21 (refined
+   2026-08-26 23:11) and the 2026-08-03 curation contract; the ledger records
+   every trigger with citation and a translation/dormant flag.
 2. Automatic switches to Bankstanding show a modal popup that names the
    reason. Manual Stop is silent. Every switch writes one event-log entry.
 3. One item ledger. The carried grid is a truthful view (retained loot plus
@@ -92,9 +95,12 @@ proxies; 3 mixed rows with real deed predicates; 22 anchors; 107 latent.
 Stages, in order:
 1. Author the curation ledger: one row per task needing a trigger (146 active
    proxies + 107 latent), columns task → designed trigger (semantics-contract
-   predicate) → source citation → translation/swap flag. Swaps stay inside
-   the source family and keep tier and durable ID. Cross-lineage review of
-   the ledger before any wiring; the owner spot-checks it.
+   predicate) → source citation → disposition flag. Dispositions: `active`
+   (trigger wired now), `dormant` (deed awaits a named plausible future
+   system; designed trigger recorded, activates when the system lands),
+   `swapped`/`translated` (deed can never translate; replaced now). Swaps
+   stay inside the source family and keep tier and durable ID. Cross-lineage
+   review of the ledger before any wiring; the owner spot-checks it.
 2. Wire the ledger through the generator (never hand-edit the generated
    catalog), remove the prerequisite-as-trigger fallback, keep the anchors.
 3. Reference rewire, already evidenced: `falador_easy_chain_store` requires
