@@ -265,6 +265,7 @@ QUEST_UNLOCK_REPLACEMENT_GUARD: Dict[str, FrozenSet[str]] = {
 # Exact flat completion grants for every quest with a
 # QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID entry.
 QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
+    "a_fairy_tale_i_growing_pains": frozenset({}),
     "a_fairy_tale_iii_battle_at_orks_rift": frozenset({("Magic watering can", 1)}),
     "a_tail_of_two_cats": frozenset({("Catspeak amulet (e)", 1), ("Doctors hat", 1)}),
     "another_slice_of_h_a_m": frozenset({("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)}),
@@ -8843,7 +8844,7 @@ class TestLogic(unittest.TestCase):
                 "magic": 180,
                 "ranged": 0,
             },
-            "npc_configs": {"attack_style": "melee"},
+            "npc_configs": {"attack_style": "melee", "max_hit": 180},
         }
         explicit_zero_melee = {
             "npc_stats": {

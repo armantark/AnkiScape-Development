@@ -7691,7 +7691,6 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                     30,
                     f"{PRIEST_IN_PERIL_SOURCE}; {PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE}",
                     "Darkan Priest in Peril drops the key from Paterdomus Zamorak monk NPC ids 1044-1046; the level 30 id 1046 combatdef supplies the stats.",
-                    guaranteed_drops=(("Golden key", 1),),
                 ),
             ),
         ),
@@ -8736,7 +8735,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
         ),
     ),
-    "the_fremennik_trials": (
+    THE_FREMENNIK_TRIALS_ID: (
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_actions=("Complete The Fremennik Trials stage 1 objective",),
@@ -8757,7 +8756,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         ),
         QuestStageRequirementCleanup(
             stage=3,
-            remove_required_inventory=("Hatchet", "Raw potato"),
+            remove_required_inventory=("Raw shark", "Hatchet", "Raw potato", "Cabbage", "Onion"),
             remove_required_actions=("Complete The Fremennik Trials stage 3 objective",),
             add_required_tools=(("Hatchet", 1),),
             add_auto_actions=(
