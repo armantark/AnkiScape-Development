@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✓</text></svg>">
+<title>Pass 12 — Results</title>
+<style>
+:root {
+    --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c; --border: #2a3040;
+    --text: #e8ecf4; --text-dim: #8b95a8; --accent: #4f8cff;
+    --accent-glow: rgba(79,140,255,0.15); --red: #ff5c5c; --green: #4ade80;
+    --amber: #fbbf24; --purple: #a78bfa; --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit','Avenir Next','Segoe UI',system-ui,sans-serif; line-height:1.5; padding:2rem 1.2rem 4rem; max-width:1180px; margin:0 auto; }
+code,.mono { font-family:'JetBrains Mono','SF Mono',Menlo,monospace; }
+.badge { display:inline-block; font-family:'JetBrains Mono',Menlo,monospace; font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--green); background:rgba(74,222,128,0.12); border:1px solid var(--green); border-radius:999px; padding:0.25rem 0.8rem; }
+h1 { font-size:2rem; font-weight:700; margin:0.7rem 0 0.4rem; }
+.sub { color:var(--text-dim); font-size:0.95rem; max-width:66ch; }
+h2 { font-size:1.02rem; margin:2rem 0 0.8rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--text-dim); font-weight:600; }
+.count-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.7rem; }
+.count { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:0.7rem 0.9rem; text-align:center; }
+.count .n { font-family:'JetBrains Mono',Menlo,monospace; font-size:1.4rem; font-weight:700; color:var(--green); display:block; }
+.count.blue .n { color:var(--accent); } .count.amber .n { color:var(--amber); } .count.purple .n { color:var(--purple); }
+.count .l { font-size:0.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em; }
+.tablewrap { overflow-x:auto; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+table { border-collapse:collapse; width:100%; font-size:0.82rem; }
+th,td { text-align:left; padding:0.55rem 0.8rem; border-bottom:1px solid var(--border); vertical-align:top; }
+th { font-size:0.66rem; text-transform:uppercase; letter-spacing:0.09em; color:var(--text-dim); }
+tr:last-child td { border-bottom:none; }
+td .mono { font-size:0.72rem; color:var(--text-dim); }
+.v { font-family:'JetBrains Mono',Menlo,monospace; font-size:0.64rem; text-transform:uppercase; padding:0.1rem 0.4rem; border-radius:6px; }
+.v.rej { color:var(--red); border:1px solid var(--red); }
+.v.awf { color:var(--amber); border:1px solid var(--amber); }
+.v.ok { color:var(--green); border:1px solid var(--green); }
+.play { display:grid; grid-template-columns:1fr 1fr; gap:0.9rem; }
+@media (max-width:900px){ .play{ grid-template-columns:1fr; } }
+.pcard { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:var(--radius); padding:0.85rem 1rem; font-size:0.86rem; }
+.pcard b { color:var(--text); }
+.pcard.warn { border-left-color:var(--amber); }
+.note { font-size:0.84rem; color:var(--text-dim); margin-top:0.7rem; max-width:74ch; }
+.note b { color:var(--text); }
+footer { margin-top:2.5rem; font-size:0.72rem; color:var(--text-dim); font-family:'JetBrains Mono',Menlo,monospace; }
+</style>
+</head>
+<body>
+
+<span class="badge">Completed · landed on main</span>
+<h1>Pass 12: shipped and gated</h1>
+<p class="sub">Merge <span class="mono">eb04d838</span> on <span class="mono">main</span> (promotion head <span class="mono">9ddd2b1a</span>). Eight slices, each through author → adversarial cross-lineage review → fix round. Both full lanes green on the merged tree; all audits pass. Anki picks everything up on next restart. Compare against the plan at <span class="mono">pass12-plan-2026-08-26.html</span>.</p>
+
+<h2>Gate numbers (measured on the merged tree)</h2>
+<div class="count-row">
+    <div class="count"><span class="n">4506</span><span class="l">tests, both lanes green</span></div>
+    <div class="count blue"><span class="n">2217</span><span class="l">reachable items (+5)</span></div>
+    <div class="count blue"><span class="n">40/196</span><span class="l">quests completable</span></div>
+    <div class="count amber"><span class="n">v121</span><span class="l">save schema, 3 chained migrations</span></div>
+    <div class="count purple"><span class="n">16</span><span class="l">slice commits merged</span></div>
+    <div class="count purple"><span class="n">5</span><span class="l">audits pass</span></div>
+</div>
+
+<h2>What changes in your game</h2>
+<div class="play">
+    <div class="pcard"><b>Achievements only fire on deeds.</b> No more "Chain Store" at Defence 10 — it needs the Wayne's Chains purchase plus wearing the chainbody. 320 rows are dormant (visible, gated, unfireable) until the curation ledger wires designed triggers.</div>
+    <div class="pcard warn"><b>Transitional: 0 of 34 diary tiers claimable.</b> The 11 previously claimable tiers rested on proxy completions. Tier rewards return as the §5.21 ledger lands — that work is queued on the grinding loop and just got more urgent.</div>
+    <div class="pcard"><b>One modal per automatic Bankstanding switch,</b> naming the reason, deferred out of the answer flow. Your own Stop and abandons stay silent. Material exhaustion shows exactly one dialog, not two.</div>
+    <div class="pcard"><b>The carried grid is back on both tabs,</b> both pack modes: retained loot plus remaining supplies, with a compact header that provably fits 280px — no ellipsis.</div>
+    <div class="pcard"><b>Druidic Ritual is the 2012 rework</b> — coin, chisel, fishing rod, Stone fish (retained through repeat scale-gathering). Your mid-quest save migrates forward; stripped quest meats return to your bank. Guam cleans at Herblore 1.</div>
+    <div class="pcard"><b>Stronghold lamps live in Bank Claims</b> — two 500-XP claims, any skill, icon-grid click-then-confirm chooser, COMPLETE only after both are claimed. Titles no longer clip.</div>
+    <div class="pcard"><b>Big Top hides unmet quest acts</b> (Firemaker's Curse, Some Like It Cold) instead of dimming them, without losing hidden acts' queue state. Evil Tree has its D&amp;D icon.</div>
+    <div class="pcard"><b>Hazeel's choice happens mid-quest</b> at Clivet, irreversibly, per the pinned 2012 sources. And the stale "Air rune x5, Mind rune x5" on your melee save is repaired on load — runes return to the bank exactly once.</div>
+</div>
+
+<h2>Review scoreboard</h2>
+<div class="tablewrap"><table>
+<tr><th>Slice</th><th>Commits</th><th>Verdict → close</th><th>Best catch</th></tr>
+<tr><td>S8 rune repair</td><td class="mono">92f07abb + ce6edbb5</td><td><span class="v rej">reject</span> → <span class="v ok">closed</span></td><td>Repair fired inside 20 bank-sealed minigames; reproduced emptying a Fight Caves food pack mid-instance</td></tr>
+<tr><td>S1 diary honest-stop</td><td class="mono">13b13da3 + cede17d2</td><td><span class="v awf">findings</span> → <span class="v ok">closed</span></td><td>213 stale proxy completions would resurrect when real triggers land; v121 migration drops them</td></tr>
+<tr><td>S4 druidic 2012</td><td class="mono">5a6cecee + 3bd4542d</td><td><span class="v awf">findings</span> → <span class="v ok">closed</span></td><td>Migration stripped a still-live action flag; citations re-derived from cache and Darkan</td></tr>
+<tr><td>S5 lamp flow</td><td class="mono">787e385f + 395dc48c</td><td><span class="v awf">findings</span> → <span class="v ok">closed</span></td><td>Version-hole merge hazard could burn 1000 XP of claims; migration made self-identifying</td></tr>
+<tr><td>S2 bankstand popup</td><td class="mono">4dce3081 + d41f6f3f</td><td><span class="v awf">findings</span> → <span class="v ok">closed</span></td><td>Double modal on material exhaustion; one-notice-per-switch policy</td></tr>
+<tr><td>S6 bigtop visibility</td><td class="mono">9b23a764 + 074226e6</td><td><span class="v awf">findings</span> → <span class="v ok">closed</span></td><td>Visibility filter silently demoted hidden acts from the queue on save</td></tr>
+<tr><td>S3 carried grid</td><td class="mono">aeba8d4b + 4b94b376</td><td><span class="v awf">findings</span> → <span class="v ok">closed</span></td><td>916px header text in a 280px button; replaced with fitted counts</td></tr>
+<tr><td>S7 hazeel stage-0</td><td class="mono">6029e977 + 0cbe2d54</td><td><span class="v awf">findings</span> → <span class="v ok">closed</span></td><td>Blast radius proven one quest; started-gate made mutation-discriminating</td></tr>
+</table></div>
+
+<h2>Process notes</h2>
+<p class="note"><b>Three ownership races, one mechanism.</b> A harness interrupt severs transcript logging without stopping execution, and a message to a stopped agent spawns a parallel resumed stream. Both bit S4 and S8 before being characterized; the rules that came out (queue-vs-resume distinction, observed-gone before resume, never message a pipeline author) are in papercuts, the fleet hook config, and the peer loop's own practice now. <b>The complexity gate earned its keep</b> — it forced honest restructures on five slices, and the peer's constant-resolving duplicate-key guard passed both lanes on the merged tree. <b>Smoke path for tonight:</b> restart Anki → melee save shows no rune line; kill a chicken and open Equipment → carried grid with loot; open Big Top → three base acts only; start Druidic Ritual → coin/chisel/rod route; finish the Stronghold → two lamps in Bank Claims.</p>
+
+<footer>pass12-results-2026-08-27 · plan artifact: pass12-plan-2026-08-26.html (unmodified) · batch trace: codex-briefs/pass12-owner-notes-handoff-2026-08-26.md · landed eb04d838, docs 2eca125b</footer>
+</body>
+</html>
