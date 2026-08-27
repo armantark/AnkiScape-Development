@@ -354,7 +354,24 @@ def _item_option_groups(value: Any) -> tuple[dict[str, int], ...]:
             for name, amount in _item_counts(row).items()
         }
         return (options,) if options else ()
-    return tuple(options for row in rows if (options := _item_counts(row)))
+    return tuple(
+        filter(
+            None,
+            (
+                {
+                    name: amount
+                    for alternative in row
+                    for name, amount in _item_counts(
+                        tuple(alternative.items())
+                        if isinstance(alternative, Mapping)
+                        else (alternative,)
+                    ).items()
+                }
+                for row in rows
+                if isinstance(row, (tuple, list, set))
+            ),
+        )
+    )
 
 
 def _quantity_available(
