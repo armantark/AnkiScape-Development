@@ -7538,54 +7538,45 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(progressed["inventory"]["Chest key"], 1)
 
     def test_priest_in_peril_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "priest_in_peril"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in ("attack", "strength", "defense", "constitution", "ranged", "magic", "prayer"):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
 
-        player_data, ok = start_quest_pure(player_data, "priest_in_peril", QUEST_DATA)
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
-        self.assertEqual(player_data["current_quest"], "priest_in_peril")
-        self.assertNotIn("priest_in_peril", player_data["quest_stage_actions"])
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "priest_in_peril", QUEST_DATA),
-            (),
-        )
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
 
-        player_data, ok, completed_now = apply_quest_progress_pure(
-            player_data,
-            "priest_in_peril",
-            QUEST_DATA,
-        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 2)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            player_data["quest_stage_actions"]["priest_in_peril"],
+            player_data["quest_stage_actions"][quest_id],
             ["Speak through the Paterdomus temple door"],
         )
 
-        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
-        self.assertEqual(
-            blockers[0]["reason"],
-            "Combat locked until battle support is enabled: Temple guardian dog level 30",
-        )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
-        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_missing_stats",))
-        self.assertEqual(
-            blockers[0]["reason"],
-            "Combat stats required before battle support can resolve: Temple guardian dog level 30",
-        )
-        player_data["quest_combat_encounters"] = {
-            "priest_in_peril": ["priest_in_peril_temple_guardian_dog_30"]
-        }
-        player_data, ok, completed_now = apply_quest_progress_pure(
+        player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
-            "priest_in_peril",
+            quest_id,
             QUEST_DATA,
+            "priest_in_peril_temple_guardian_dog_30",
+            ticks=500,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+            stop_after_first_kill=True,
         )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["reason"], "combat_resolved")
+        self.assertEqual(result["completed_quantity"], 1)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 3)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
 
         for progress, actions in (
             (
@@ -7604,45 +7595,38 @@ class TestLogic(unittest.TestCase):
                 ],
             ),
         ):
-            player_data, ok, completed_now = apply_quest_progress_pure(
-                player_data,
-                "priest_in_peril",
-                QUEST_DATA,
-            )
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok)
             self.assertFalse(completed_now)
-            self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], progress)
-            self.assertEqual(player_data["quest_stage_actions"]["priest_in_peril"], actions)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(player_data["quest_stage_actions"][quest_id], actions)
 
-        player_data["attack_level"] = 40
-        player_data["strength_level"] = 40
-        player_data["defense_level"] = 40
-        player_data["constitution_level"] = 40
-        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
-        self.assertEqual(blockers[0]["reason"], "Battle required: Monk of Zamorak level 30")
-        player_data["quest_combat_encounters"]["priest_in_peril"].append(
-            "priest_in_peril_monk_of_zamorak_30"
-        )
-        player_data, ok, completed_now = apply_quest_progress_pure(
+        player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
-            "priest_in_peril",
+            quest_id,
             QUEST_DATA,
+            "priest_in_peril_monk_of_zamorak_30",
+            ticks=500,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+            stop_after_first_kill=True,
         )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["reason"], "combat_resolved")
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(player_data["inventory"]["Golden key"], 1)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 6)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(
-            player_data,
-            "priest_in_peril",
-            QUEST_DATA,
-        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 7)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 7)
+        self.assertEqual(player_data["inventory"]["Golden key"], 0)
         self.assertEqual(
-            player_data["quest_stage_actions"]["priest_in_peril"],
+            player_data["quest_stage_actions"][quest_id],
             [
                 "Speak through the Paterdomus temple door",
                 "Report the dead guard dog to King Roald",
@@ -7653,16 +7637,12 @@ class TestLogic(unittest.TestCase):
         )
 
         player_data["inventory"]["Bucket"] = 1
-        player_data, ok, completed_now = apply_quest_progress_pure(
-            player_data,
-            "priest_in_peril",
-            QUEST_DATA,
-        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 8)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 8)
         self.assertEqual(
-            player_data["quest_stage_actions"]["priest_in_peril"],
+            player_data["quest_stage_actions"][quest_id],
             [
                 "Speak through the Paterdomus temple door",
                 "Report the dead guard dog to King Roald",
@@ -7676,14 +7656,10 @@ class TestLogic(unittest.TestCase):
 
         player_data["inventory"]["Pure essence"] = 25
         player_data["inventory"]["Rune essence"] = 3
-        completed, ok, completed_now = apply_quest_progress_pure(
-            player_data,
-            "priest_in_peril",
-            QUEST_DATA,
-        )
+        completed, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertTrue(completed["quests"]["priest_in_peril"]["completed"])
+        self.assertTrue(completed["quests"][quest_id]["completed"])
         self.assertEqual(completed["inventory"]["Pure essence"], 0)
         self.assertEqual(completed["inventory"]["Rune essence"], 3)
         self.assertEqual(completed["inventory"]["Wolfbane dagger"], 1)
@@ -7693,7 +7669,7 @@ class TestLogic(unittest.TestCase):
 
         completed_again, ok, completed_now = apply_quest_progress_pure(
             completed,
-            "priest_in_peril",
+            quest_id,
             QUEST_DATA,
         )
         self.assertFalse(ok)
@@ -8563,10 +8539,22 @@ class TestLogic(unittest.TestCase):
             },
             "npc_configs": {"attack_style": "melee"},
         }
+        explicit_zero_melee = {
+            "npc_stats": {
+                "hitpoints": 450,
+                "attack": 0,
+                "strength": 0,
+                "defence": 0,
+                "magic": 0,
+                "ranged": 0,
+            },
+            "npc_configs": {"attack_style": "melee", "max_hit": 30},
+        }
 
         self.assertTrue(quest_combat_encounter_has_stats_pure(magic_encounter))
         self.assertTrue(quest_combat_encounter_has_stats_pure(ranged_encounter))
         self.assertFalse(quest_combat_encounter_has_stats_pure(incomplete_melee))
+        self.assertTrue(quest_combat_encounter_has_stats_pure(explicit_zero_melee))
 
     def test_beast_stat_fallback_ranged_rows_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

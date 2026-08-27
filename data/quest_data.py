@@ -7661,6 +7661,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                     30,
                     f"{PRIEST_IN_PERIL_SOURCE}; {PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE}",
                     "Darkan Priest in Peril drops the key from Paterdomus Zamorak monk NPC ids 1044-1046; the level 30 id 1046 combatdef supplies the stats.",
+                    guaranteed_drops=(("Golden key", 1),),
                 ),
             ),
         ),
@@ -7668,6 +7669,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             6,
             "Swap the golden key at the monument and unlock Drezel's cell.",
             f"{PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE}",
+            consumed_inventory=(("Golden key", 1),),
             auto_actions=("Swap the golden key at the Paterdomus monument", "Unlock Drezel's cell"),
         ),
         _stage_req(
@@ -9263,6 +9265,7 @@ QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncoun
                 ("attack_bonus", "crush_att"),
                 ("aggressiveness_type", "aggressive"),
             ),
+            guaranteed_drops=(("Golden key", 1),),
             npc_stats_source=PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE,
         ),
     },
