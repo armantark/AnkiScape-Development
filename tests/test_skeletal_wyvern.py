@@ -346,6 +346,13 @@ class SkeletalWyvernKernelTests(unittest.TestCase):
             if task.id == "falador_hard_why_oh_wyvern"
         )
         self.assertFalse(task_progress_pure(player, diary_task)[0])
+        self.assertEqual(
+            [
+                (gate.kind, gate.key, gate.amount)
+                for gate in diary_task.access_gates
+            ],
+            [("skill_level", "slayer", 72)],
+        )
         below_gate = copy.deepcopy(player)
         below_gate["slayer_level"] = 71
         below_gate["combat_kill_counts"]["skeletal_wyvern"] = 1

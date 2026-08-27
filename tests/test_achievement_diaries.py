@@ -1639,6 +1639,20 @@ class ClaimTest(unittest.TestCase):
         self.assertEqual(claim_state["status"], "Ready to Claim")
         self.assertTrue(claim_state["ready"])
 
+    def test_cabinet_view_enables_a_completed_synthetic_tier(self):
+        family = self.family
+        tier = family.tiers[0]
+        player = _complete_tier(_fresh(), tier)
+        with patch(
+            "ankiscape.logic.achievement_diary_logic.ACHIEVEMENT_DIARY_CATALOG",
+            (family,),
+        ):
+            view = achievement_cabinet_view_pure(player, family_filter=family.id)
+
+        tier_row = view["families"][0]["tiers"][0]
+        self.assertEqual(tier_row["status"], "Ready to Claim")
+        self.assertTrue(tier_row["ready"])
+
     def test_claiming_grants_the_item_and_creates_a_bank_claim_without_spending_it(self):
         family = self.family
         tier = family.tiers[0]
@@ -1870,6 +1884,19 @@ class CabinetViewTest(unittest.TestCase):
         for family in view["families"]:
             expected = 4 if family["kind"] == "regional" else 1
             self.assertEqual(len(family["tiers"]), expected)
+
+    def test_shipped_catalog_has_no_ready_to_claim_tiers_during_honest_stop(self):
+        view = achievement_cabinet_view_pure(_fresh())
+        tiers = [
+            tier
+            for family in view["families"]
+            for tier in family["tiers"]
+        ]
+        self.assertEqual(len(tiers), 34)
+        self.assertEqual(
+            sum(tier["status"] == "Ready to Claim" for tier in tiers),
+            0,
+        )
 
     def test_the_view_never_reports_a_moving_denominator_percentage(self):
         view = achievement_cabinet_view_pure(_fresh())
