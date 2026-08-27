@@ -2217,3 +2217,60 @@ to be correctly-but-wrongly reported as uncertified.
 **Status: AWAITING WORK.** Add a sourced acquisition route for Snake hide. Do
 not suppress the audit result: it is correct for the incomplete acquisition
 model.
+
+### 4.21 Pass 12 grill — rulings of 2026-08-26
+
+The owner answered two grill rounds in the design thread on 2026-08-26. Full
+diagnosis and slice geography live in
+`memory-bank/codex-briefs/pass12-owner-notes-handoff-2026-08-26.md`.
+
+1. **Achievements carry no dead-end triggers.** Every diary row must be a
+   fully designed achievement under the settled curation contract (2026-08-03:
+   eight regions, four tiers, exactly 12 rows, 384 total) and the semantics
+   contract (2026-07-16). A level or quest prerequisite must never stand in as
+   the completion trigger of a deed task; the 22 labelled progression anchors
+   stay. Refined by the owner on 2026-08-26 23:11: the game is pre-alpha, so a
+   row whose deed awaits a plausible future AnkiScape system may stay
+   **dormant** — but only with its designed trigger already recorded in the
+   curation ledger, so the row activates when its system lands. What is
+   forbidden is a task predicated on a deed that can never translate (for
+   example world exploration); such a row is swapped for a better same-family
+   authentic task, or given a translated deed in the spirit of the settled
+   design, now, with the translation marked in the ledger.
+2. **Automatic Bankstanding switches get a modal popup** that names the reason.
+   The owner's rationale: the activity materially stopped, and the player must
+   queue a new action. A manual Stop stays silent. Every switch writes an
+   event-log entry.
+3. **The single-ledger carried view stands as the loot abstraction.** The Bank
+   and the carried pack share one ledger; the carried grid is a truthful view.
+   The rulings' conditions: death must send retained carried loot to the grave,
+   and every other inventory consequence must apply to carried loot; both get
+   pinned regression tests. The carried grid (retained loot plus remaining
+   supplies) must be visible in both pack modes on the Equipment tab and the
+   Bank tab.
+4. **Druidic Ritual migrates to the November 2012 rework** (coin, chisel,
+   fishing rod; no meats), with a save migration for in-progress states. The
+   owner's words: "Yes I want parity with the November 2012 game." Herblore
+   stays ungated by the quest per the 31 January 2012 removal; the clean-herb
+   level column gets re-pinned (guam 3 → 1 per Grimy guam oldid 6560041).
+5. **Stronghold lamps deliver through the existing Bank Claims inbox** as two
+   claim rows; the stronghold shows complete only after both claims; the skill
+   chooser becomes a shared icon-grid select-then-confirm dialog. Delegated by
+   the owner ("up to you") and unvetoed.
+
+### 5.21 Diary curation ledger — the 253-row trigger authoring — AWAITING WORK
+
+Owner ruling of 2026-08-26 23:20: the full curation ledger moves to the
+grinding queue; Pass 12 keeps only the honest-stop cut (S1-lite in the Pass
+12 brief). Spec for this entry: §4.21 ruling 1 (as refined), the semantics
+contract (2026-07-16), the curation contract (2026-08-03), and the S1 stage-1
+ledger schema in
+`memory-bank/codex-briefs/pass12-owner-notes-handoff-2026-08-26.md`.
+
+Scope: one ledger row per task without a designed trigger (146 active proxies
+plus 107 empty stubs, counted on `a1c8fc90`), columns task → designed trigger
+→ source citation → disposition (`active` / `dormant` with the named future
+system / `swapped` / `translated`). Cross-lineage review before wiring; the
+owner spot-checks the ledger before the generator consumes it. Wiring lands
+through `tools/generate_achievement_diary_data.py`, never by hand-editing the
+generated catalog.
