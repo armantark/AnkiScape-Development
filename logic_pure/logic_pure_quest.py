@@ -562,7 +562,7 @@ def quest_combat_encounter_has_stats_pure(encounter):
     if (
         all(key in stats for key in required_keys)
         and _positive_int(stats.get("hitpoints", 0), 0) > 0
-        and all(_non_negative_int(stats[key], 0) == 0 for key in required_keys if key != "hitpoints")
+        and all(_non_negative_int(stats[key], -1) == 0 for key in required_keys if key != "hitpoints")
         and _positive_int(_quest_combat_configs(encounter).get("max_hit", 0), 0) > 0
     ):
         return True
