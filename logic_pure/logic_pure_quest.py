@@ -364,7 +364,7 @@ def _quest_choice_current_stage(player_data, quest_id, quest_data):
         return 0
     if state["started"]:
         return quest_current_stage_pure(player_data, quest_id, quest_data)
-    return 1
+    return 0
 
 
 def _quest_choice_selected(player_data, quest_id, options):
@@ -429,7 +429,7 @@ def apply_quest_route_choice_pure(player_data, quest_id, quest_data, route_id):
     if not route_id or quest_id not in quest_data:
         return player_data, False
     state = quest_state_pure(player_data, quest_id)
-    if state["completed"]:
+    if (state["started"], state["completed"]) != (True, False):
         return player_data, False
     stage = _quest_choice_current_stage(player_data, quest_id, quest_data)
     valid_choices = _quest_choices_for_stage(player_data, quest_id, quest_data, stage)
