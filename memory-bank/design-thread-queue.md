@@ -2063,6 +2063,12 @@ quest closure. Every pinned count must be recomputed afterwards.
 Stated plainly: until this is fixed, a green reachability audit is not evidence
 that a player can obtain an item.
 
+**Verdict: COMPLETE.** Commit `866838a209a1ce42208a8e5aed0211b4f9d6a579`
+moved combat and shop access into the branch-local fixed point and made combat
+reuse the runtime target-lock predicate. The current regression matrix proves
+that quest, encounter, Slayer, skill, item, equipment and loadout locks all
+block their drops.
+
 ### 5.13 Quest-combat guaranteed drops — complete
 
 Commit `660fb870316643ac136692425e7133694c81ee3f` landed the generic path.
