@@ -2280,3 +2280,9 @@ generated catalog.
 Ready to Claim; the parent had 11, but those tiers rested on proxy completions
 rather than proven deeds. Tier rewards reactivate as this ledger wires their
 real triggers.
+
+### 5.22 reclaim_gloves does not refresh an initialized Bank view — second-level finding, 2026-08-27
+
+Surfaced by the S5 author and deliberately left outside Pass 12 scope: the
+existing `reclaim_gloves` action does not refresh an already-initialized
+Bank/Equipment view. Small UI-refresh defect awaiting work.

@@ -235,3 +235,29 @@ once; magic staff + Wind Strike still loads; Vengeance stays magic-only.
 Per slice: focused suites plus neighbours, both lanes where UI changes.
 Promotion: `tools/promotion_gate.py` on the merged tree, one batch, with the
 five audits, after re-absorbing `main`.
+
+## Batch trace (closure, 2026-08-27)
+
+Landed on main as merge eb04d838 (promotion head 9ddd2b1a, base bdf7d365).
+Gate: both lanes 4,506 tests green (plain 410.244s skipped=512; offscreen Qt
+703.870s skipped=3); docs, test-quality, worktree, diff-check audits pass;
+reachability 1600 actions / 2217 reachable (+5) / 192 orphans / 284 blocked;
+quest closure 40/196 completable. Final CURRENT_CONFIG_VERSION 121 with
+chained migrations 119 (Druidic), 120 (lamps, self-identifying), 121 (diary).
+
+| Slice | Author path | Commits | Review path | Result |
+|---|---|---|---|---|
+| S8 rune-stale-repair | workflow + severed/steered streams, reconciled | 92f07abb + ce6edbb5 | out-of-band Opus REJECT (burst-site leak into 20 bank-sealed instances, reproduced) → fixed, mutation-proven → CLOSED-WITH-NOTES | landed |
+| S4 druidic-2012 | severed predecessor + interim reviewer + finishing owner | 5a6cecee + 3bd4542d | Opus ACCEPT-WITH-FINDINGS (retired-flag record, dead disjunct, citations) → fixed | landed |
+| S2 bankstand-popup | workflow author + fresh fix agent | 4dce3081 + d41f6f3f | pipeline ACCEPT-WITH-FINDINGS (double modal severe) → fixed, full lanes | landed |
+| S6 bigtop-visibility | workflow author + fresh fix agent | 9b23a764 + 074226e6 | pipeline ACCEPT-WITH-FINDINGS (persistence leak) → fixed, visual check | landed |
+| S3 carried-grid | workflow author + fresh fix agent | aeba8d4b + 4b94b376 | pipeline ACCEPT-WITH-FINDINGS (header truncation) → fixed with fit regression | landed |
+| S7 hazeel-stage0 | crash-inherited completion | 6029e977 + 0cbe2d54 | Opus ACCEPT-WITH-FINDINGS (dead branches, stale record, gate fixture) → fixed, mutation-proven | landed |
+| S5 lamp-flow | crash-inherited completion | 787e385f + 395dc48c | Opus ACCEPT-WITH-FINDINGS (version-hole merge hazard) → self-identifying migration fix by orchestrator | landed |
+| S1 diary-honest-stop | wrongly-stopped author, redispatched under carve-out ruling | 13b13da3 + cede17d2 | Opus ACCEPT-WITH-FINDINGS (3 HIGH: tier unclaimability ruled transitional; instrument restored; v121 stale-completion migration) → fixed | landed |
+
+Highest-value review catch: the S8 burst-site repair reproduced emptying a
+player's food pack mid-Fight-Caves. Second: the S1 resurrection hazard for
+213 stale proxy completions. Known record nuance: the ce6edbb5 commit message
+overstates the safe-recovery gating (a partial pack still tops up once
+instantly; only an empty pack defers to the bank-run walk).
