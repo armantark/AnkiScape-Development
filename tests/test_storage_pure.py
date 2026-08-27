@@ -594,10 +594,13 @@ class TestStoragePure(unittest.TestCase):
             (True, 1, False, 1),
             (True, 2, False, 2),
             (True, 3, False, 6),
+            (True, 4, False, 4),
             (True, 4, True, 8),
         )
         for started, old_progress, completed, new_progress in cases:
-            with self.subTest(started=started, old_progress=old_progress):
+            with self.subTest(
+                started=started, old_progress=old_progress, completed=completed
+            ):
                 legacy = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
                 legacy["config_version"] = 118
                 legacy["quests"]["druidic_ritual"] = {
@@ -660,7 +663,7 @@ class TestStoragePure(unittest.TestCase):
             self.assertNotIn(item_name, migrated["inventory"])
         self.assertEqual(
             migrated["quest_stage_actions"]["druidic_ritual"],
-            ["Keep this action"],
+            ["Keep this action", "Speak to Sanfew about the ritual ingredients"],
         )
 
         migrated_again = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)

@@ -10,8 +10,8 @@ The implemented contract covers the quest's requirements, ordered ingredients, i
 
 | Page | Revision | Timestamp (UTC) | Claims used |
 |---|---:|---|---|
-| `Druidic Ritual` | `6488185` | `2012-10-28T13:54:25Z` | 31 January 2012 rework, requirements, ingredient route, four quest points, 250 Herblore XP, 15 noted grimy guam, 15 noted eyes of newt, and removal of the old Herblore training gate |
-| `Druidic Ritual/Quick guide` | `6168973` | `2012-08-31T04:57:38Z` | Ordered Kaqemeex/Sanfew route; Living water; Wandering wyrmwood; coin-baited Stone fish; Chisel to Stone scales; Ointment of imbalance hand-in |
+| `Druidic Ritual` | `6488185` | `2012-10-28T13:54:25Z` | 31 January 2012 rework, requirements, ingredient route, Ointment of imbalance hand-in to Kaqemeex, four quest points, 250 Herblore XP, 15 noted grimy guam, 15 noted eyes of newt, and removal of the old Herblore training gate |
+| `Druidic Ritual/Quick guide` | `6168973` | `2012-08-31T04:57:38Z` | Ordered Kaqemeex/Sanfew route; Living water; Wandering wyrmwood; coin-baited Stone fish; Chisel to Stone scales |
 | `Living water` | `5871546` | `2012-07-02T00:40:07Z` | Vial requirement, cave source, and non-tradeable/non-stackable state |
 | `Wandering wyrmwood (item)` | `5987356` | `2012-07-25T01:53:38Z` | Quest ingredient identity; location in south Taverley, just north of Nora T. Hagg's house; and non-tradeable/non-stackable state |
 | `Stone fish` | `5907958` | `2012-07-08T12:21:10Z` | Coin-and-rod catch, retained Stone fish when Chiselled, repeatable scale gathering, and non-tradeable/non-stackable state |
@@ -23,6 +23,8 @@ The implemented contract covers the quest's requirements, ordered ingredients, i
 | `Grimy guam` | `6560041` | `2012-11-15T20:35:14Z` | Guam cleaning requires Herblore 1 and awards 2.5 XP |
 
 Stable URLs use the form `https://runescape.wiki/w/<page>?oldid=<revision>`. Literal revision text, including the quest-details, walkthrough, rewards, and historical gate statements, was inspected rather than relying on the current rendered pages.
+
+The two quest pages disagree on ingredient order. The main article at `6488185` walks Living water, then Stone scales, then Wandering wyrmwood ("head South until the wyrmwoods are seen"), while the Quick guide at `6168973` walks Living water, then Wandering wyrmwood, then Stone scales. The implementation follows the Quick guide order. Both orders are period-valid because the three ingredients are gathered independently before Sanfew's hand-in.
 
 ## Cache evidence
 
@@ -83,9 +85,9 @@ Schema v119 runs once for saves with `config_version < 119`:
 | 1 | 1 | Preserve the Kaqemeex-to-Sanfew boundary |
 | 2 | 2 | Continue at the first reworked ingredient stage and seed the quest-supplied Vial |
 | 3 | 6 | Move forward to Sanfew's ingredient hand-in and seed Living water, Wandering wyrmwood, and Stone scales |
-| completed / 4+ | completed / 8 | Preserve completion at the new final progress |
+| completed | completed / 8 | Preserve completion at the new final progress |
 
-Any enchanted bear meat, rat meat, beef, or chicken is converted back to the matching raw meat in the bank. Existing raw meat remains untouched. Only the three retired Druidic action flags are removed. Current and future schema saves are not remapped, so the conversion is forward-only and idempotent.
+Any enchanted bear meat, rat meat, beef, or chicken is converted back to the matching raw meat in the bank. Existing raw meat remains untouched. Only the two retired Druidic action flags are removed; the Sanfew-request flag survives because the reworked stage 1 still emits the same action. Current and future schema saves are not remapped, so the conversion is forward-only and idempotent.
 
 ## Review-native abstractions and unresolved values
 

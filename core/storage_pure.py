@@ -974,8 +974,8 @@ def _migrate_druidic_ritual_rework(
 
     state = data["quests"]["druidic_ritual"]
     progress = state["progress"]
-    if state["completed"] or progress >= 4:
-        state.update(started=True, completed=True, progress=8)
+    if state["completed"]:
+        state.update(started=True, progress=8)
     else:
         state["progress"] = {3: 6}.get(progress, progress)
         seed_items = {
@@ -991,7 +991,6 @@ def _migrate_druidic_ritual_rework(
 
     actions = data["quest_stage_actions"]
     retired_actions = {
-        "Speak to Sanfew about the ritual ingredients",
         "Dip the raw meats in the Cauldron of Thunder",
         "Give Sanfew the enchanted meats and return to Kaqemeex",
     }
