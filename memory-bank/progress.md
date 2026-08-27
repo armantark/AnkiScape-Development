@@ -6179,3 +6179,10 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Conditional sources participate in the fixed point, so a reachable quest can unlock a source item that unlocks another quest without pooling mutually exclusive branch state.
 - The audit moves from 1,600 actions / 2,468 reachable items / 36 orphan inputs / 35 blocked actions to 1,600 / 2,360 / 79 / 86. Exactly 108 items lose unsupported reachability certification.
 - Runtime-lock regressions cover Gorak, Suqah, Glacor, and Baba Yaga's Astral-rune stock; the Rune essence → Rune shards → Rune dust positive control remains reachable. Full discovery passes 4,448 tests with 506 expected skips.
+
+## Prerequisite quest progression repairs — 2026-08-27
+
+- The Fremennik Trials now replaces all seven generated objective blockers with pinned wiki and Darkan actions, models Beer → Strange object and quest materials → Lyre, and treats the Hatchet as a tool. Its normal-start proof resolves both battles, and Lunar Diplomacy enters the completable closure.
+- Priest in Peril now accepts its source combatdef's explicit zero combat levels with positive hitpoints and max hit, awards the monk's Golden key through real combat, and consumes it when Drezel's cell is unlocked. Missing combat stats without a sourced max hit remain blocked.
+- Nature Spirit now follows six sequential sourced stages: the locally acquired Washing bowl and Mirror are no longer false prerequisites, Filliman converts Silver sickle → Silver sickle (b) + Druid pouch, and the three real Ghast battles occur only afterward.
+- A fresh closure measurement moves from 33 to 37 completable quests out of 196 after these three repairs. Fairy Tale I and Fairy Tale II remain outside the closure pending the final prerequisite repair.

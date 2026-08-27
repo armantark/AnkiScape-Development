@@ -7676,6 +7676,179 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(completed_again["inventory"]["Wolfbane dagger"], 1)
 
+    def test_nature_spirit_completes_after_normal_prerequisites_and_real_combat(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in (
+            "attack",
+            "strength",
+            "defense",
+            "constitution",
+            "ranged",
+            "magic",
+            "prayer",
+            "crafting",
+        ):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
+
+        player_data, ok = start_quest_pure(player_data, "the_restless_ghost", QUEST_DATA)
+        self.assertTrue(ok)
+        for _ in range(3):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "the_restless_ghost",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "the_restless_ghost",
+            QUEST_DATA,
+            "the_restless_ghost_skeleton_warlock",
+            ticks=500,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+            stop_after_first_kill=True,
+        )
+        self.assertTrue(ok, result)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "the_restless_ghost",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["inventory"]["Ghostspeak amulet"], 1)
+
+        player_data, ok = start_quest_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertTrue(ok)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        for encounter_id in (
+            "priest_in_peril_temple_guardian_dog_30",
+            "priest_in_peril_monk_of_zamorak_30",
+        ):
+            if encounter_id.endswith("monk_of_zamorak_30"):
+                for _ in range(2):
+                    player_data, ok, completed_now = apply_quest_progress_pure(
+                        player_data,
+                        "priest_in_peril",
+                        QUEST_DATA,
+                    )
+                    self.assertTrue(ok)
+                    self.assertFalse(completed_now)
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "priest_in_peril",
+                QUEST_DATA,
+                encounter_id,
+                ticks=500,
+                rng=lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "priest_in_peril",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        player_data["inventory"]["Bucket"] = 1
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        player_data["inventory"]["Pure essence"] = 25
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+
+        player_data["inventory"]["Silver sickle"] = 1
+        player_data, ok = start_quest_pure(player_data, "nature_spirit", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertNotIn("nature_spirit", player_data["quest_stage_actions"])
+        for expected_progress in range(2, 6):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "nature_spirit",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["nature_spirit"]["progress"], expected_progress)
+        self.assertNotIn("Washing bowl", player_data["inventory"])
+        self.assertNotIn("Mirror", player_data["inventory"])
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "nature_spirit",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Silver sickle"], 0)
+        self.assertEqual(player_data["inventory"]["Silver sickle (b)"], 1)
+        self.assertEqual(player_data["inventory"]["Druid pouch"], 1)
+        self.assertEqual(player_data["quests"]["nature_spirit"]["progress"], 6)
+
+        for completed_quantity in range(1, 4):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "nature_spirit",
+                QUEST_DATA,
+                "nature_spirit_ghast_30",
+                ticks=500,
+                rng=lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["completed_quantity"], completed_quantity)
+
+        completed, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "nature_spirit",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(completed["quests"]["nature_spirit"]["completed"])
+        self.assertEqual(completed["inventory"]["Apple pie"], 3)
+        self.assertEqual(completed["quest_points"], 4)
+        self.assertEqual(
+            completed["quest_stage_actions"]["nature_spirit"][-4:],
+            [
+                "Operate the sickle in the swamp next to bushes, logs, or twigs.",
+                "Collect what grows and fill the Druid pouch with them.",
+                "Wander around until a Ghast attacks and kill it. (Or you could use the Druid pouch on the ghast, allowing them to be attacked)",
+                "Kill a total of three ghasts and return to Filliman.",
+            ],
+        )
+
     def test_source_backed_starter_quests_progress_through_stage_gates(self):
         cook = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         cook["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
