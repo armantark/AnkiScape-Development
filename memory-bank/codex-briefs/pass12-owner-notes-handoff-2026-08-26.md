@@ -85,27 +85,28 @@ the carried grid lives on both the Equipment tab and the Bank tab; November
 
 ## Slices
 
-### S1 `diary-triggers` — the full-catalog curation
+### S1 `diary-honest-stop` — the trigger firewall (full ledger moved to §5.21)
+
+Owner ruling 2026-08-26 23:20: the 253-row curation ledger is grinding-queue
+work (design-thread-queue §5.21, kanban row), not a Pass 12 slice. Pass 12
+ships only the honest-stop cut.
 
 Root cause: `tools/generate_achievement_diary_data.py:1006-1027` converts a
 task's prerequisites into its completion condition. Probe counts on
 `a1c8fc90`: 474 named rows; 112 strict level-only proxies; 34 level+quest
 proxies; 3 mixed rows with real deed predicates; 22 anchors; 107 latent.
 
-Stages, in order:
-1. Author the curation ledger: one row per task needing a trigger (146 active
-   proxies + 107 latent), columns task → designed trigger (semantics-contract
-   predicate) → source citation → disposition flag. Dispositions: `active`
-   (trigger wired now), `dormant` (deed awaits a named plausible future
-   system; designed trigger recorded, activates when the system lands),
-   `swapped`/`translated` (deed can never translate; replaced now). Swaps
-   stay inside the source family and keep tier and durable ID. Cross-lineage
-   review of the ledger before any wiring; the owner spot-checks it.
-2. Wire the ledger through the generator (never hand-edit the generated
-   catalog), remove the prerequisite-as-trigger fallback, keep the anchors.
+Honest-stop scope:
+1. Remove the prerequisite-as-trigger fallback in the generator. The 22
+   anchors and the 3 real-predicate tasks keep firing.
+2. Un-curated deed tasks present as dormant: visible, real description,
+   prerequisites shown as access gates, and no completion trigger until the
+   §5.21 ledger wires one. They must not fire, and they must not block the
+   Taskmaster incorrectly.
 3. Reference rewire, already evidenced: `falador_easy_chain_store` requires
    the Wayne's Chains purchase (`logic/shop_logic.py:1730-1766` writer,
    item 1107) plus body-slot equip; Defence 10 stays as an access gate only.
+   This is the pattern the §5.21 ledger will follow.
 
 Fix sites: `tools/generate_achievement_diary_data.py:603-1027,1309-1317`,
 `data/achievement_diary_catalog.py` (generated), `core/logic.py:95-147`.

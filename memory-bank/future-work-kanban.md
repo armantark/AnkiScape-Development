@@ -14,6 +14,15 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Diary curation ledger — 253 designed triggers
+
+Labels: `IMPLEMENT`.
+
+- Owner-ruled 2026-08-26 (design-thread-queue §4.21 ruling 1, §5.21): every
+  diary row becomes a designed achievement; no dead-end triggers; dormant
+  rows carry their designed trigger in the ledger. Full spec in the Pass 12
+  brief, slice S1 stage 1. Pass 12 ships only the honest-stop cut.
+
 ### Ranging Guild — shipped and closed 2026-08-10
 
 Labels: `SOURCE AUDIT` only for the hidden hit-quality resolver.
