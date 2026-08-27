@@ -2281,8 +2281,12 @@ Ready to Claim; the parent had 11, but those tiers rested on proxy completions
 rather than proven deeds. Tier rewards reactivate as this ledger wires their
 real triggers.
 
-### 5.22 reclaim_gloves does not refresh an initialized Bank view — second-level finding, 2026-08-27
+### 5.22 reclaim_gloves does not refresh an initialized Bank view — CLOSED 2026-08-27
 
-Surfaced by the S5 author and deliberately left outside Pass 12 scope: the
-existing `reclaim_gloves` action does not refresh an already-initialized
-Bank/Equipment view. Small UI-refresh defect awaiting work.
+Closed at the tip of branch `goal/reclaim-gloves-refresh-2026-08-27` (the
+branch's single slice commit). After a successful `reclaim_gloves` model action,
+the Stronghold dispatcher now calls the existing `_refresh_equipment_views()`
+seam. An offscreen Qt regression initializes the Bank without Safety gloves,
+reclaims them while that surface remains active, and proves the visible Bank
+grid repaints immediately; the same regression reproduced the stale grid before
+the dispatcher fix.

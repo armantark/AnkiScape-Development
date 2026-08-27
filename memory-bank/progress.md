@@ -6207,3 +6207,21 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Full discovery passes 4,474 tests in both lanes: plain skips 506 and real
   offscreen Qt skips three. The final reachability audit reports 1,600 actions,
   2,212 reachable items, 192 orphan inputs, and 284 blocked actions.
+
+## Safety gloves reclaim Bank refresh — 2026-08-27
+
+- A successful Stronghold `reclaim_gloves` command now calls the existing gear
+  refresh seam, so an already-initialized Bank grid repaints with Safety gloves
+  immediately. The model action, chest claim path, lamp claims, and failed
+  command path are unchanged.
+- The focused MacBook Pro offscreen Qt regression first reproduced the defect:
+  inventory gained Safety gloves while `_bank_grid_button()` raised
+  `AssertionError: Bank grid item 'Safety gloves' not found`. After the dispatcher
+  fix, the same selector passed one test in 1.039 seconds.
+- MacBook Pro audits passed test quality (4,472 tests across 220 files, zero hard
+  issues) and the asset cutoff audit. The required reachability JSON audit exited
+  1 with 1,600 actions, 2,217 reachable items, 192 orphan inputs, and 284 blocked
+  actions; this slice changes no item route or reachability data.
+- Local Git-backed checks passed `git diff --check`, the documentation audit (597
+  Markdown and 440 HTML files), and the guarded worktree audit. Closure is at the
+  single commit on `goal/reclaim-gloves-refresh-2026-08-27`.

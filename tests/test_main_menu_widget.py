@@ -19816,6 +19816,76 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_combat_target"], "cockroach_soldier")
         self.assertEqual(pd["combat_encounter"]["enemy_lifepoints"], 960)
 
+    def test_stronghold_reclaim_refreshes_an_initialized_bank_view(self) -> None:
+        from ankiscape.logic.stronghold_player_safety_logic import (
+            apply_stronghold_player_safety_command_pure,
+        )
+
+        pd = _make_player_data()
+        pd["stronghold_player_safety"] = {
+            "version": 2,
+            "stage": 3,
+            "crevice_unlocked": True,
+            "chest_claimed": True,
+            "safety_first_emote_unlocked": True,
+            "last_result": "Opened the chest.",
+        }
+
+        def stronghold_command(action_id, payload):
+            updated, ok, info = apply_stronghold_player_safety_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_stronghold_player_safety_command=stronghold_command,
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(3):
+            QApplication.processEvents()
+
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole)
+            == "stronghold_player_safety"
+        )
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(
+                QWidget, "strongholdPlayerSafetyPanel"
+            )
+            if widget.isVisible()
+        )
+        reclaim = panel.findChild(
+            QPushButton, "strongholdPlayerSafetyReclaimButton"
+        )
+        self.assertTrue(reclaim.isVisible())
+        self.assertTrue(reclaim.isEnabled())
+
+        _open_bank_tab(dialog)
+        self.assertNotIn(
+            "Safety gloves",
+            [button.property("bankItemName") for button in _bank_grid_buttons(dialog)],
+        )
+
+        reclaim.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["inventory"]["Safety gloves"], 1)
+        gloves = _bank_grid_button(dialog, "Safety gloves")
+        self.assertTrue(gloves.isVisibleTo(dialog))
+        self.assertEqual(gloves.property("bankQuantity"), 1)
+
     def test_varrock_museum_landmark_card_routes_claims_and_kit(self) -> None:
         from ankiscape.logic.varrock_museum_logic import apply_varrock_museum_command_pure
 
