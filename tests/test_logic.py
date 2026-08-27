@@ -10068,6 +10068,107 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["magic_exp"], 5000.0)
         self.assertEqual(player_data["runecrafting_exp"], 5000.0)
 
+    def test_fremennik_trials_real_stage_emitters_complete_from_normal_start(self):
+        quest_id = "the_fremennik_trials"
+        quest = QUEST_DATA[quest_id]
+        actions_by_stage = (
+            (
+                "Brundt requires seven distinct council votes. I may complete the trials in any order.",
+            ),
+            (
+                "Offer the beer to the Council workman. He will give you a cherry bomb, something he picked up from his outings, as a gift.",
+            ),
+            (
+                "The low-alcohol beer keeps you clear-headed and Manni concedes.",
+                "You perform on the longhall stage. As you finish, Fossegrimen's quest blessing leaves the lyre.",
+            ),
+            ("You escaped my house. My vote remains yours.",),
+            (
+                "You completed the bargain. My vote is yours.",
+                "You navigated the maze. My vote is yours.",
+            ),
+            (
+                "The Draugen is defeated. You have my vote.",
+                "Koschei tested your bravery. My vote is yours.",
+            ),
+            ("I am a citizen of Rellekka and have a Fremennik name.",),
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["inventory"].update(
+            {
+                "Beer": 1,
+                "Tinderbox": 1,
+                "Raw shark": 1,
+                "Bronze hatchet": 1,
+                "Potato": 1,
+                "Cabbage": 1,
+                "Onion": 1,
+                "Knife": 1,
+            }
+        )
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in ("attack", "strength", "defense", "constitution", "ranged", "magic", "prayer"):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_actions = []
+        for stage_index in range(5):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            expected_actions.extend(actions_by_stage[stage_index])
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage_index + 2)
+            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), tuple(expected_actions))
+
+        self.assertEqual(player_data["inventory"]["Beer"], 0)
+        self.assertEqual(player_data["inventory"]["Strange object"], 0)
+        self.assertEqual(player_data["inventory"]["Lyre"], 1)
+        for encounter_id in (
+            "the_fremennik_trials_borrokar_48",
+            "the_fremennik_trials_the_draugen_96",
+        ):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+                encounter_id,
+                ticks=500,
+                rng=lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["reason"], "combat_resolved")
+            self.assertEqual(result["completed_quantity"], 1)
+
+        for stage_index in range(5, len(actions_by_stage)):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage_index == len(actions_by_stage) - 1)
+            expected_actions.extend(actions_by_stage[stage_index])
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage_index + 2)
+            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), tuple(expected_actions))
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 3)
+        self.assertEqual(player_data["inventory"]["Fremennik blade"], 1)
+        self.assertEqual(player_data["inventory"]["Fremennik name"], 1)
+
     def test_elemental_workshop_ii_beaten_book_emits_and_is_produced_on_review(self):
         quest_id = "elemental_workshop_ii"
         quest = QUEST_DATA[quest_id]

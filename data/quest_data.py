@@ -178,6 +178,15 @@ LUNAR_DIPLOMACY_DARKAN_SOURCE = (
 LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE = (
     f"{LUNAR_DIPLOMACY_WIKI_SOURCE}; {LUNAR_DIPLOMACY_DARKAN_SOURCE}"
 )
+THE_FREMENNIK_TRIALS_WIKI_SOURCE = (
+    "https://runescape.wiki/w/The_Fremennik_Trials?oldid=6548589"
+)
+THE_FREMENNIK_TRIALS_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/fremenniktrials/FremennikTrials.kt"
+)
+THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE = (
+    f"{THE_FREMENNIK_TRIALS_WIKI_SOURCE}; {THE_FREMENNIK_TRIALS_DARKAN_SOURCE}"
+)
 DARKAN_MINIQUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/miniquests"
@@ -3724,6 +3733,7 @@ class QuestStageRequirementCleanup:
     remove_consumed_inventory: Tuple[str, ...] = ()
     remove_consumed_inventory_options: Tuple[str, ...] = ()
     remove_required_tools: Tuple[str, ...] = ()
+    add_required_tools: Tuple[Tuple[str, int], ...] = ()
     remove_required_actions: Tuple[str, ...] = ()
     add_required_actions: Tuple[str, ...] = ()
     add_auto_actions: Tuple[str, ...] = ()
@@ -8523,6 +8533,77 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
         ),
     ),
+    "the_fremennik_trials": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_actions=("Complete The Fremennik Trials stage 1 objective",),
+            add_auto_actions=(
+                "Brundt requires seven distinct council votes. I may complete the trials in any order.",
+            ),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_actions=("Complete The Fremennik Trials stage 2 objective",),
+            add_auto_actions=(
+                "Offer the beer to the Council workman. He will give you a cherry bomb, something he picked up from his outings, as a gift.",
+            ),
+            add_consumed_inventory=(("Beer", 1),),
+            add_produced_inventory=(("Strange object", 1),),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_inventory=("Hatchet", "Raw potato"),
+            remove_required_actions=("Complete The Fremennik Trials stage 3 objective",),
+            add_required_tools=(("Hatchet", 1),),
+            add_auto_actions=(
+                "The low-alcohol beer keeps you clear-headed and Manni concedes.",
+                "You perform on the longhall stage. As you finish, Fossegrimen's quest blessing leaves the lyre.",
+            ),
+            add_consumed_inventory=(
+                ("Strange object", 1),
+                ("Raw shark", 1),
+                ("Potato", 1),
+                ("Cabbage", 1),
+                ("Onion", 1),
+            ),
+            add_produced_inventory=(("Lyre", 1),),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_actions=("Complete The Fremennik Trials stage 4 objective",),
+            add_auto_actions=("You escaped my house. My vote remains yours.",),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_actions=("Complete The Fremennik Trials stage 5 objective",),
+            add_auto_actions=(
+                "You completed the bargain. My vote is yours.",
+                "You navigated the maze. My vote is yours.",
+            ),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=6,
+            remove_required_actions=("Complete The Fremennik Trials stage 6 objective",),
+            add_auto_actions=(
+                "The Draugen is defeated. You have my vote.",
+                "Koschei tested your bravery. My vote is yours.",
+            ),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=7,
+            remove_required_actions=("Complete The Fremennik Trials stage 7 objective",),
+            add_auto_actions=(
+                "I am a citizen of Rellekka and have a Fremennik name.",
+            ),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+    ),
     "enlightened_journey": (
         QuestStageRequirementCleanup(
             stage=1,
@@ -9608,7 +9689,10 @@ def _apply_stage_requirement_cleanup(
             cleanup.remove_consumed_inventory_options,
         ),
         produced_inventory=_append_stage_item_pairs(requirement.produced_inventory, cleanup.add_produced_inventory),
-        required_tools=_remove_stage_item_names(requirement.required_tools, cleanup.remove_required_tools),
+        required_tools=_append_stage_item_pairs(
+            _remove_stage_item_names(requirement.required_tools, cleanup.remove_required_tools),
+            cleanup.add_required_tools,
+        ),
         required_actions=_append_unique_strings(required_actions, cleanup.add_required_actions),
         auto_actions=_append_unique_strings(requirement.auto_actions, cleanup.add_auto_actions),
         required_routes=_append_unique_strings(required_routes, cleanup.add_required_routes),
