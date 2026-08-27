@@ -2203,3 +2203,38 @@ to be correctly-but-wrongly reported as uncertified.
 **Status: AWAITING WORK.** Add a sourced acquisition route for Snake hide. Do
 not suppress the audit result: it is correct for the incomplete acquisition
 model.
+
+### 4.21 Pass 12 grill — rulings of 2026-08-26
+
+The owner answered two grill rounds in the design thread on 2026-08-26. Full
+diagnosis and slice geography live in
+`memory-bank/codex-briefs/pass12-owner-notes-handoff-2026-08-26.md`.
+
+1. **Achievements carry no latent category.** Every diary row must be a fully
+   designed achievement under the settled curation contract (2026-08-03: eight
+   regions, four tiers, exactly 12 rows, 384 total) and the semantics contract
+   (2026-07-16). A level or quest prerequisite must never stand in as the
+   completion trigger of a deed task; the 22 labelled progression anchors stay.
+   Where a deed has no faithful AnkiScape action, swap the row for a better
+   same-family authentic task, or design a translated deed in the spirit of
+   the settled design, and mark the translation in the curation ledger.
+2. **Automatic Bankstanding switches get a modal popup** that names the reason.
+   The owner's rationale: the activity materially stopped, and the player must
+   queue a new action. A manual Stop stays silent. Every switch writes an
+   event-log entry.
+3. **The single-ledger carried view stands as the loot abstraction.** The Bank
+   and the carried pack share one ledger; the carried grid is a truthful view.
+   The rulings' conditions: death must send retained carried loot to the grave,
+   and every other inventory consequence must apply to carried loot; both get
+   pinned regression tests. The carried grid (retained loot plus remaining
+   supplies) must be visible in both pack modes on the Equipment tab and the
+   Bank tab.
+4. **Druidic Ritual migrates to the November 2012 rework** (coin, chisel,
+   fishing rod; no meats), with a save migration for in-progress states. The
+   owner's words: "Yes I want parity with the November 2012 game." Herblore
+   stays ungated by the quest per the 31 January 2012 removal; the clean-herb
+   level column gets re-pinned (guam 3 → 1 per Grimy guam oldid 6560041).
+5. **Stronghold lamps deliver through the existing Bank Claims inbox** as two
+   claim rows; the stronghold shows complete only after both claims; the skill
+   chooser becomes a shared icon-grid select-then-confirm dialog. Delegated by
+   the owner ("up to you") and unvetoed.
