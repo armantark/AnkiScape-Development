@@ -510,7 +510,7 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     required_items.update(spec.get("required_items", {}))
     if not has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA):
         missing = missing_materials_text(required_items, player_data["inventory"])
-        _switch_material_failure_to_bankstanding(ctx)
+        _switch_material_failure_to_bankstanding(ctx, caller_owns_notice=True)
         ctx.show_error_message(
             "Out of materials",
             f"You need {missing} to craft {display_name}, so AnkiScape switched to "
@@ -530,7 +530,7 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA, thread_roll)
     if not ok:
         missing = missing_materials_text(required_items, player_data["inventory"])
-        _switch_material_failure_to_bankstanding(ctx)
+        _switch_material_failure_to_bankstanding(ctx, caller_owns_notice=True)
         ctx.show_error_message(
             "Out of materials",
             f"You need {missing} to craft {display_name}, so AnkiScape switched to "

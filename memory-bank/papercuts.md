@@ -1295,3 +1295,47 @@
 - 2026-08-27 02:41 PDT — The first S4 commit attempt failed with `ccn-gate: cyclomatic complexity above 15 was introduced` for the new Druidic migration plus one-point increases in the parent migrator and reachability baseline test; move the schema gate into the migration and use direct route assertions so new behavior does not add branches to already-capped functions.
 - 2026-08-27 02:56 PDT — Re-running `tools/audit_item_reachability.py` to capture its known-baseline exit emitted all 199 orphan rows after the summary and overflowed the tool result; the audit needs a summary-only reporting option for expected-baseline verification.
 - 2026-08-27 03:02 PDT — A network connection reset killed the session's Monitor-attached Qt lane mid-run, leaving `/private/tmp/ankiscape-s4-final-qt.log` at 2821 bytes of platform noise with no result line; long verification lanes should run detached from the agent connection so a stream drop cannot cancel them.
+- 2026-08-26 23:36 PDT — A test edit matched two identical Bankstanding assertion blocks, and the first papercut read exceeded the 25,000-token tool limit because the log is 1,194 lines; exact replacements need a larger unique anchor and large logs need a line-count probe before a narrow read.
+- 2026-08-26 23:42 PDT — The first focused Bankstanding run failed 2 of 470 tests because `_record_review_event()` refreshes the event drawer immediately while both the activity-start caller and review finalizer refresh it again (`event_drawer: 2`, `events: 2`); transition code that already has a boundary refresh must append through `record_review_event_pure()` directly.
+- 2026-08-26 23:45 PDT — The combined focused Qt command exited 134 with `QWidget: Must construct a QApplication before a QWidget`; loading integration suites under an installed `aqt` can construct add-on widgets before the widget suite's `setUpClass`, so focused Qt batches need an application bootstrap.
+- 2026-08-26 23:56 PDT — Bootstrapping one QApplication for all four focused suites exceeded the 600-second cap and had to be stopped as task `b07d8ar4o`; the integration fake replaces `aqt` but leaves an already imported real `aqt.qt` in `sys.modules`, so modal-producing integration tests can inherit live Qt and block instead of using the intended non-Qt UI fallback.
+
+- 2026-08-27 00:03 PDT: While simplifying the Bankstanding direct-action seam, an exact Edit targeted the pre-simplification variable block after that block had already changed; had to locate the surviving references with rg before retrying.
+
+- 2026-08-27 00:07 PDT: The focused Qt retry accidentally used run_tests.py for direct-action and integration suites even though its eager aqt.qt import was already known to construct QWidget paths before QApplication; both exited 134 with `QWidget: Must construct a QApplication before a QWidget`, so those suites needed direct unittest loading in fresh interpreters.
+
+- 2026-08-27 00:27 PDT: Running the slice worktree's absolute run_tests.py path from the canonical checkout left cwd at the canonical root, so 33 asset-provenance assertions compared `../../ankiscape_worktrees/...` keys and the full plain lane failed (`Ran 4466 tests in 552.749s`, `FAILED (failures=33, skipped=507)`); reran with cwd explicitly set to the slice root.
+
+- 2026-08-27 00:28 PDT: A baseline reachability comparison completed but its reporting wrapper assigned to zsh's read-only `status` variable, so the wrapper exited 1 with `(eval):1: read-only variable: status`; the saved audit log remained usable.
+
+- 2026-08-27 00:30 PDT: A corrected full plain lane was still running when review found that direct actions could pre-stage `current_utility=bankstanding` before the central guard; stopped task `b3e19ydpe` immediately because tests against a changing worktree are invalid, then returned to focused verification before restarting the lane.
+
+- 2026-08-27 00:31 PDT: Replacing the direct-action `before_session` read matched the review-answer snapshot too; the exact Edit was rejected with `Found 2 matches`, requiring the refresh-music context as a unique anchor.
+
+- 2026-08-27 00:48 PDT: The required one-process full Qt lane stalled as task `bjfh0fr0u`; PID 92604 stayed in `QDialog::exec()` (sampled at `/tmp/ankiscape-s2-qt-sample.txt`) because earlier real `aqt.qt` imports contaminate later fake-integration modules, the same isolation flaw seen in focused batching. Stopped the invalid hang to identify the exact unclosed modal under verbose integration loading.
+
+- 2026-08-27 01:23 PDT: The final full plain lane took 619.717 seconds under concurrent repository verification and exceeded Bash's 600-second foreground cap, so it finished as background task `bj93nyc81` (`Ran 4466 tests in 619.717s`, `OK (skipped=507)`).
+
+- 2026-08-27 01:39 PDT: The first complete post-fix Qt lane ran 4,466 tests for 816.024 seconds but failed one later review-strip test (`TypeError: exec(self): first argument of unbound method must have type 'QDialog'`): deleting a process-global real `aqt.qt` module prevented fake-integration modal hangs but invalidated later PyQt wrapper identity. The isolation seam must shadow `aqt.qt` with a fake module and restore the original object, never unload it.
+
+- 2026-08-27 01:52 PDT: The final plain and offscreen Qt lanes were launched concurrently despite the standing contract's sequential-lane requirement; stopped the overlapping Qt task after the plain lane completed and restarted Qt on the unchanged tree so the reported lane is valid.
+
+- 2026-08-27 02:07 PDT: The sequential full Qt lane still failed after 4,466 tests in 667.815 seconds with `TypeError: exec(self): first argument of unbound method must have type 'QDialog'`; `test_hud_singleton_and_cleanup` replaced the process-global real `aqt.qt` module with a fake and then deleted it instead of restoring the original object, so a later import created incompatible PyQt wrapper identities.
+
+- 2026-08-27 02:33 PDT: The required guarded worktree-create command failed with `fatal: '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-pass12-bankstand-popup-2026-08-26' already exists` because this resumed slice inherited its dirty worktree without orchestration context saying so; recovery required inspecting the branch and diff before continuing.
+
+- 2026-08-27 03:23 PDT: A focused `run_tests.py` selector guessed `test_material_fallback_bankstanding_integration` from the package name and exited 2 with `No unambiguous unittest ID matched`; the actual test ID had to be recovered from `--list`/the nearby source instead of inferred.
+
+- 2026-08-27 03:25 PDT: The forked `code-review` skill returned only `Skill execution completed` while `ListAgents` still showed reviewer `a73be5271ad913ea6` running; `TaskStop` then refused with `Task a73be5271ad913ea6 is owned by a73be5271ad913ea6`, so the caller could neither consume nor clean up the dangling review task.
+
+- 2026-08-27 03:40 PDT: The checked-in `codex-review` skill's documented `codex review --uncommitted - < prompt` command exited 2 with `the argument '--uncommitted' cannot be used with '[PROMPT]'`; the installed Codex CLI no longer accepts the skill's stdin `-` prompt shape for an uncommitted review.
+
+- 2026-08-27 04:13 PDT: The frozen-tree one-process offscreen Qt lane exceeded Bash's 600-second foreground cap and was terminated with exit 143 before unittest printed a result; required full Qt verification needs the already-established monitored background path rather than another foreground attempt.
+
+- 2026-08-27 04:15 PDT: A resumed review subagent changed `__init__.py` and `tests/test_integration_smoke.py` after the final plain lane started, invalidating that run; stopped the subagent and the test process, then froze the tree again before verification.
+
+- 2026-08-27 04:41 PDT: The full offscreen Qt lane failed after 4,466 tests in 637.785 seconds with `TypeError: exec(self): first argument of unbound method must have type 'QDialog'`; `test_main_menu_widget` restored a monkeypatched PyQt method descriptor with `QDialog.exec = original`, which permanently corrupts binding in that interpreter, so Qt classes must be intercepted through a test-only subclass instead of mutating extension-class methods.
+
+- 2026-08-27T07:03:49-07:00 — A surgical `Edit` for the Agility command handler matched six identical `commit_direct_action(_change, after_apply=_after_apply)` lines and was rejected; include the surrounding handler context before replacing repeated call shapes.
+
+- 2026-08-27T07:08:06-07:00 — The first integration rerun correctly failed because `test_material_exhaustion_falls_back_once_then_bankstands` still required the now-forbidden second Bankstanding modal; existing end-to-end ordering assertions must be updated with notice-policy changes, not only supplemented by a new focused regression.
