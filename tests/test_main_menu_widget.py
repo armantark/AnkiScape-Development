@@ -6901,10 +6901,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._combat_style_calls[-1], ("defensive", "slash"))
 
-    def test_combat_exposes_loadout_controls(self) -> None:
+    def test_combat_repairs_stale_loadout_before_exposing_controls(self) -> None:
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+
         pd = _make_player_data()
         pd.update(
             {
+                "config_version": CURRENT_CONFIG_VERSION,
                 "inventory": {"Fire rune": 100},
                 "current_combat_target": "chicken",
                 "combat_auto_eat_threshold_percent": 55,
@@ -6917,6 +6921,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 },
             }
         )
+        pd = migrate_loaded_data(pd, ORE_DATA, ITEM_DEFINITIONS)
         dialog = self._open(pd, current_skill="Combat")
 
         # The supply-mode summary and bank-run status moved into the carried-pack
@@ -6936,11 +6941,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(threshold_spin.value(), 55)
         self.assertIn("Food: Lobster x3", summary_label.text())
         self.assertIn("Potions: Antipoison (1) x1", summary_label.text())
-        self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
-        self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
+        self.assertIn("Ammo: none loaded", summary_label.text())
+        self.assertIn("Runes: none loaded", summary_label.text())
         self.assertIn("ready", bank_run_label.text())
         _open_bank_tab(dialog)
-        self.assertIn("Fire rune x100", _bank_grid_texts(dialog))
+        bank_texts = _bank_grid_texts(dialog)
+        self.assertIn("Air rune x5", bank_texts)
+        self.assertIn("Mind rune x5", bank_texts)
+        self.assertIn("Fire rune x150", bank_texts)
 
         threshold_spin.setValue(60)
         QApplication.processEvents()

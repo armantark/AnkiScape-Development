@@ -60,6 +60,7 @@ from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
+    repair_combat_supply_loadout_class_pure,
     apply_cooking_action_pure,
     apply_crafting_pure,
     apply_firemaking_action_pure,
@@ -575,6 +576,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         result["xp_rewards"] = xp_rewards
     result["slayer"] = slayer_result
     player_data.update(new_data)
+    player_data.update(
+        repair_combat_supply_loadout_class_pure(player_data, EQUIPMENT_DATA)
+    )
     drops = result.get("drops", {}) if isinstance(result, dict) else {}
     if not isinstance(drops, dict):
         drops = {}

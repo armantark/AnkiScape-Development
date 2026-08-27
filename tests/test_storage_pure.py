@@ -1941,6 +1941,80 @@ class TestStoragePure(unittest.TestCase):
             ],
         )
 
+    def test_load_repairs_class_incompatible_runes_once(self):
+        saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        saved.update(
+            {
+                "inventory": {},
+                "equipment": {},
+                "combat_attack_style": "accurate",
+                "combat_encounter": {},
+                "combat_supply_loadout": {
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            }
+        )
+
+        migrated = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
+        reloaded = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(migrated["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(migrated["inventory"]["Air rune"], 5)
+        self.assertEqual(migrated["inventory"]["Mind rune"], 5)
+        self.assertEqual(reloaded["inventory"]["Air rune"], 5)
+        self.assertEqual(reloaded["inventory"]["Mind rune"], 5)
+
+    def test_load_preserves_wind_strike_runes_for_a_magic_staff(self):
+        saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        saved.update(
+            {
+                "inventory": {},
+                "equipment": {"weapon": "Staff of fire"},
+                "combat_attack_style": "magic_standard",
+                "current_combat_spell": "wind_strike",
+                "combat_encounter": {},
+                "combat_supply_loadout": {
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            }
+        )
+
+        migrated = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(
+            migrated["combat_supply_loadout"]["runes"],
+            {"Air rune": 5, "Mind rune": 5},
+        )
+        self.assertEqual(migrated["inventory"].get("Air rune", 0), 0)
+        self.assertEqual(migrated["inventory"].get("Mind rune", 0), 0)
+
+    def test_load_leaves_an_active_encounter_loadout_untouched(self):
+        saved = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        saved.update(
+            {
+                "inventory": {},
+                "equipment": {},
+                "combat_attack_style": "accurate",
+                "current_combat_target": "chicken",
+                "combat_encounter": {
+                    "target_id": "chicken",
+                    "enemy_lifepoints": 1,
+                },
+                "combat_supply_loadout": {
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            }
+        )
+
+        migrated = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(
+            migrated["combat_supply_loadout"]["runes"],
+            {"Air rune": 5, "Mind rune": 5},
+        )
+        self.assertEqual(migrated["inventory"].get("Air rune", 0), 0)
+        self.assertEqual(migrated["inventory"].get("Mind rune", 0), 0)
+
     def test_activity_session_allowlist_covers_every_runtime_writer(self):
         writer_ids, unresolved = _activity_session_writer_ids()
         self.assertEqual(

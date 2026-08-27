@@ -2929,6 +2929,43 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["saves"], 1)
 
+    def test_combat_handler_finisher_repairs_stale_runes_when_fight_ends(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "desert_lizard",
+            "combat_action": "finisher",
+            "combat_encounter": {
+                "target_id": "desert_lizard",
+                "enemy_lifepoints": 30,
+            },
+            "combat_supply_loadout": {
+                "runes": {"Air rune": 5, "Mind rune": 5},
+                "finishers": {"Ice cooler": 1},
+                "hazards": {"Waterskin (4)": 1},
+            },
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "slayer_level": 99,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(
+            _context(player_data, calls, [0.999999] * 40)
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["combat_encounter"], {})
+        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(player_data["inventory"]["Air rune"], 5)
+        self.assertEqual(player_data["inventory"]["Mind rune"], 5)
+        self.assertEqual(calls["saves"], 1)
+
     def test_combat_handler_routes_charged_zygomite_finisher_without_losing_remainder(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

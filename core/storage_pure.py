@@ -80,6 +80,7 @@ from .constants import (
     BAR_DATA,
     CONSTITUTION_STARTING_EXP,
     CONSTITUTION_STARTING_LEVEL,
+    EQUIPMENT_DATA,
     exp_table_for_skill,
     FISHING_OUTPUT_ITEMS,
     GEM_DATA,
@@ -115,6 +116,7 @@ from ..logic_pure.logic_pure import (
     calculate_new_level,
     combat_dream_thrift_locked_reasons_pure,
     refill_combat_supply_loadout_pure,
+    repair_combat_supply_loadout_class_pure,
     sanitize_action_telemetry_pure,
     sanitize_achievement_progress_pure,
     sanitize_combat_state_pure,
@@ -2445,7 +2447,10 @@ def migrate_loaded_data(
     )
     data.update(sanitize_combat_state_pure(data))
     if invalid_dream_latch:
-        data, _refilled, _reason = refill_combat_supply_loadout_pure(data)
+        data, _refilled, _reason = refill_combat_supply_loadout_pure(
+            data, EQUIPMENT_DATA
+        )
+    data = repair_combat_supply_loadout_class_pure(data, EQUIPMENT_DATA)
     data["wicked_hood"] = sanitize_wicked_hood_state_pure(
         data.get("wicked_hood"),
         review_day=wicked_hood_review_day_pure(data),

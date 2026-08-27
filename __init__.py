@@ -66,6 +66,7 @@ from .logic_pure.logic_pure import (
     refill_combat_supply_loadout_pure,
     request_combat_bank_run_now_pure,
     unload_combat_supply_loadout_pure,
+    repair_combat_supply_loadout_class_pure,
     reclaim_death_office_items_pure,
     start_combat_grave_walk_pure,
     firemaking_target_locked_reasons_pure,
@@ -5072,6 +5073,9 @@ def _prompt_near_death(source: str) -> None:
         # Training is already off either way; declining just keeps the fight
         # pending.
         player_data["combat_encounter"] = {}
+        player_data.update(
+            repair_combat_supply_loadout_class_pure(player_data, EQUIPMENT_DATA)
+        )
         _save_player_data_if_anki_ready()
         _refresh_skill_availability()
 

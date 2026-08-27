@@ -75,6 +75,7 @@ from ankiscape.logic_pure.logic_pure import (
     combat_poison_immunity_ticks_pure,
     combat_poison_ticks_for_initial_damage_pure,
     combat_status_summary_pure,
+    combat_supply_loadout_summary_pure,
     refill_combat_supply_loadout_pure,
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
@@ -5594,6 +5595,24 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(refilled["combat_supply_loadout"]["runes"], {})
         self.assertEqual(refilled["inventory"], runes)
 
+    def test_fresh_melee_loadout_summary_has_no_runes(self):
+        summary = combat_supply_loadout_summary_pure(_player(), EQUIPMENT_DATA)
+
+        self.assertEqual(summary["runes_loaded"], {})
+
+    def test_loadout_summary_hides_stale_melee_vengeance_runes(self):
+        summary = combat_supply_loadout_summary_pure(
+            _player(
+                combat_vengeance=True,
+                combat_supply_loadout={
+                    "runes": {"Astral rune": 4, "Death rune": 2},
+                },
+            ),
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(summary["runes_loaded"], {})
+
     def test_non_magic_vengeance_does_not_charge_or_arm_during_a_burst(self):
         cases = (
             ("melee", "accurate", {}, {}),
@@ -5632,6 +5651,48 @@ class CombatLogicTest(unittest.TestCase):
                         "vengeance_pending", False
                     )
                 )
+
+    def test_safe_recovery_repairs_a_stale_loadout_after_an_encounter_ends(self):
+        recovered = apply_safe_combat_recovery_pure(
+            _player(
+                combat_encounter={},
+                combat_supply_loadout={
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            ),
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(recovered["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(recovered["inventory"]["Air rune"], 5)
+        self.assertEqual(recovered["inventory"]["Mind rune"], 5)
+
+    def test_active_stale_loadout_reconciles_when_the_encounter_ends(self):
+        player = _player(
+            current_combat_target="chicken",
+            combat_attack_style="accurate",
+            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 1},
+            combat_supply_loadout={
+                "runes": {"Air rune": 5, "Mind rune": 5},
+            },
+        )
+
+        updated, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.0]),
+            stop_after_first_kill=True,
+            allow_bank_run=False,
+        )
+
+        self.assertTrue(ok, result)
+        self.assertTrue(result["killed"])
+        self.assertEqual(updated["combat_encounter"], {})
+        self.assertEqual(updated["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(updated["inventory"]["Air rune"], 5)
+        self.assertEqual(updated["inventory"]["Mind rune"], 5)
 
     def test_combat_method_reconciliation_reloads_for_the_new_spell(self):
         player = _player(
@@ -6728,6 +6789,9 @@ class CombatLogicTest(unittest.TestCase):
             },
             inventory={"Coins": 500, "Lobster": 3},
             carried_inventory={"earth_warrior": {"Lobster": 3}},
+            combat_supply_loadout={
+                "runes": {"Air rune": 5, "Mind rune": 5},
+            },
         )
 
         died, ok, result = apply_combat_burst_pure(
@@ -6743,7 +6807,16 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(result["wilderness_ambush"]["died"])
         self.assertEqual(len(died["equipment"]), 3)
         self.assertEqual(died.get("combat_grave", {}), {})
-        self.assertEqual(died["inventory"], {"Coins": 500, "Lobster": 3})
+        self.assertEqual(died["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(
+            died["inventory"],
+            {
+                "Coins": 500,
+                "Lobster": 3,
+                "Air rune": 5,
+                "Mind rune": 5,
+            },
+        )
         self.assertEqual(
             died["carried_inventory"],
             {"earth_warrior": {"Lobster": 3}},
