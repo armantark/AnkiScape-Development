@@ -887,7 +887,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "quest:started_gate_consumer",
         )
 
-    def test_unreachable_runtime_source_gates_seed_nothing(self):
+    def test_runtime_source_gates_follow_repaired_quest_closure(self):
         gated_targets = {
             "gorak": {
                 "stats": {"hitpoints": 1},
@@ -935,12 +935,17 @@ class TestItemReachabilityAudit(unittest.TestCase):
         with patch.dict(combat_data.COMBAT_ENEMY_DATA, gated_targets):
             report = build_reachability_report()
 
-        for item_name in ("Gorak claws", "Suqah tooth", "Shards of armadyl"):
+        expected_routes = {
+            "Gorak claws": "combat:gorak",
+            "Suqah tooth": "combat:suqah",
+            "Shards of armadyl": None,
+        }
+        for item_name, expected_route in expected_routes.items():
             with self.subTest(item=item_name):
-                self.assertIsNone(report["routes"].get(item_name))
+                self.assertEqual(report["routes"].get(item_name), expected_route)
         self.assertEqual(
             report["routes"].get("Astral rune"),
-            "Activity:shooting_stars:exchange",
+            "quest:lunar_diplomacy",
         )
 
     def test_inaccessible_shop_services_stay_blocked_with_reachable_inputs(self):
@@ -1354,15 +1359,15 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1600)
-        self.assertEqual(report["reachable_item_count"], 2173)
+        self.assertEqual(report["reachable_item_count"], 2212)
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 199)
-        self.assertEqual(report["root_orphan_count"], 44)
-        self.assertEqual(report["cascade_orphan_count"], 155)
-        self.assertEqual(report["unresolved_action_count"], 299)
-        self.assertEqual(report["seed_item_count"], 1125)
+        self.assertEqual(report["orphan_input_count"], 192)
+        self.assertEqual(report["root_orphan_count"], 40)
+        self.assertEqual(report["cascade_orphan_count"], 152)
+        self.assertEqual(report["unresolved_action_count"], 284)
+        self.assertEqual(report["seed_item_count"], 1159)
         self.assertFalse(
             [
                 row
@@ -1421,7 +1426,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         }
         self.assertEqual(
             orphan_items & quest_reward_items,
-            {"Blood talisman", "Jade vine seed", "Magic secateurs"},
+            {"Blood talisman", "Jade vine seed"},
         )
 
     def test_lost_city_branch_and_cinnamon_require_the_real_quest_chain(self):
@@ -1604,8 +1609,11 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Ale yeast"],
             "Shop service:blandebir_fill_ale_yeast",
         )
-        self.assertIsNone(report["routes"].get("Arctic pine logs"))
-        self.assertIn(
+        self.assertEqual(
+            report["routes"].get("Arctic pine logs"),
+            "Woodcutting:arctic_pine",
+        )
+        self.assertNotIn(
             "Woodcutting:arctic_pine",
             {action["id"] for action in report["unresolved_actions"]},
         )
@@ -1685,7 +1693,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
 
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         self.assertIn("Mining helmet (unlit)", orphan_items)
-        self.assertIn("Arctic pine logs", orphan_items)
+        self.assertNotIn("Arctic pine logs", orphan_items)
         for item_name in (
             "Candle lantern (empty)",
             "Candle lantern (unlit, 4529)",
