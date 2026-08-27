@@ -690,13 +690,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         # Seam for the Stronghold of Security landmark's "claim reward" click.
         self._stronghold_claim_calls: list = []
 
-        # Stop exec() from blocking; capture the live dialog so we can drive it.
-        def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
-            self._captured.append(self_dialog)
-            return 0
+        # Intercept through a subclass: restoring a monkeypatched PyQt method
+        # descriptor with setattr permanently corrupts its binding in this process.
+        self._orig_dialog = ui.QDialog
+        captured = self._captured
 
-        self._orig_exec = QDialog.exec
-        QDialog.exec = _fake_exec  # type: ignore[assignment,method-assign]
+        class CapturingDialog(self._orig_dialog):
+            def exec(instance):  # type: ignore[no-untyped-def]
+                captured.append(instance)
+                return 0
+
+        ui.QDialog = CapturingDialog
 
         # Developer mode on so the registry surfaces every category/skill.
         self._orig_cfg = ui.get_config_bool
@@ -1298,7 +1302,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         return self._captured[-1]
 
     def tearDown(self) -> None:
-        QDialog.exec = self._orig_exec  # type: ignore[assignment,method-assign]
+        self._ui.QDialog = self._orig_dialog
         self._ui.get_config_bool = self._orig_cfg
         for dialog in self._captured:
             try:

@@ -375,15 +375,13 @@ def start_activity_for_reviews(activity_id) -> bool:
         if not joined and info.get("unminable"):
             if not info.get("notice_created"):
                 return False
-            updated = record_review_event_pure(
-                updated,
-                "activity",
-                str(info.get("event_log_text", "Star unminable at your level")),
-            )
             player_data.clear()
             player_data.update(updated)
-            _switch_to_bankstanding()
+            _switch_to_bankstanding(
+                str(info.get("event_log_text", "Star unminable at your level")),
+            )
             save_player_data()
+            _show_pending_bankstanding_dialog()
             update_review_event_log_drawer(player_data)
             _update_review_context_surface()
             return False
@@ -417,6 +415,8 @@ _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _REVIEW_FEEDBACK_CONTEXT = None
 _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 _REVIEW_FEEDBACK_FLUSHING = False
+_PENDING_BANKSTANDING_NOTICE = None
+_PENDING_REVIEW_DIALOGS = []
 
 
 class _NamedExperience(float):
@@ -1016,7 +1016,14 @@ def _update_review_context_surface() -> None:
         pass
 
 
-def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None):
+def commit_direct_action(
+    apply_change,
+    *,
+    after_apply=None,
+    selected_skill=None,
+    bankstanding_reason=None,
+    bankstanding_automatic=True,
+):
     """Run one mutating menu action as a single undoable Anki operation.
 
     `apply_change` receives the live save and returns `(updated, ok)`. Returning
@@ -1046,16 +1053,18 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         random.setstate(before["random_state"])
         return False
     updated = refresh_music_log_pure(updated)[0]
-    skill_after_commit = selected_skill
+    before_session = before["player_data"].get("activity_session")
+    switch_to_bankstanding = bankstanding_reason is not None
     if _activity_session_cleared(
-        player_data.get("activity_session"),
+        before_session,
         updated.get("activity_session"),
     ):
-        # Stage the whole landing without touching live state. Anki must accept
-        # the undo entry before either the save or its review surface changes.
+        switch_to_bankstanding = True
+        if not bankstanding_reason:
+            bankstanding_reason = _activity_session_end_reason(before_session)
+    if switch_to_bankstanding:
         updated = dict(updated)
-        updated["current_utility"] = "bankstanding"
-        skill_after_commit = UTILITY_REVIEW_ACTION_DISPLAY_NAME
+        updated["current_utility"] = before["player_data"].get("current_utility")
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
@@ -1066,8 +1075,13 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
         del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(updated)
-    if skill_after_commit is not None:
-        current_skill = _normalize_legacy_utility_skill(skill_after_commit)
+    if switch_to_bankstanding:
+        _switch_to_bankstanding(
+            bankstanding_reason,
+            automatic=bool(bankstanding_automatic),
+        )
+    elif selected_skill is not None:
+        current_skill = _normalize_legacy_utility_skill(selected_skill)
         try:
             mw.col.set_config("ankiscape_current_skill", current_skill)
         except AttributeError:
@@ -1076,6 +1090,12 @@ def commit_direct_action(apply_change, *, after_apply=None, selected_skill=None)
     if after_apply is not None:
         after_apply()
     save_player_data()
+    if switch_to_bankstanding:
+        try:
+            update_review_event_log_drawer(player_data)
+        except Exception:
+            pass
+        _show_pending_bankstanding_dialog()
     try:
         mw.update_undo_actions()
     except (AttributeError, RuntimeError):
@@ -1298,11 +1318,29 @@ def _show_runtime_exp(value) -> None:
 
 
 def _runtime_action_context() -> RuntimeActionContext:
+    last_reason = {"text": ""}
+
+    def _show_runtime_error(title, message) -> None:
+        last_reason["text"] = str(message or "").strip()
+        _update_pending_bankstanding_reason(last_reason["text"])
+        show_error_message(title, message)
+
+    def _deactivate_runtime_action(reason=None) -> None:
+        _deactivate_current_skill(reason or last_reason["text"])
+
+    def _switch_runtime_action(reason=None) -> None:
+        _switch_to_bankstanding(reason or last_reason["text"])
+
+    def _show_runtime_gain(text) -> None:
+        last_reason["text"] = str(text or "").strip()
+        _update_pending_bankstanding_reason(last_reason["text"])
+        _show_activity_gain(text)
+
     return RuntimeActionContext(
         player_data=player_data,
         random_random=random.random,
-        show_error_message=show_error_message,
-        deactivate_current_skill=_deactivate_current_skill,
+        show_error_message=_show_runtime_error,
+        deactivate_current_skill=_deactivate_runtime_action,
         award_skill_exp=_award_skill_exp,
         award_hidden_skill_exp=_award_hidden_skill_exp,
         level_up_check=level_up_check,
@@ -1310,10 +1348,10 @@ def _runtime_action_context() -> RuntimeActionContext:
         save_player_data=save_player_data,
         refresh_skill_availability=_refresh_skill_availability,
         show_exp=_show_runtime_exp,
-        show_activity_gain=_show_activity_gain,
+        show_activity_gain=_show_runtime_gain,
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
         show_quest_exp_delta=_show_quest_exp_delta,
-        switch_to_bankstanding=_switch_to_bankstanding,
+        switch_to_bankstanding=_switch_runtime_action,
         review_action_multiplier=_review_action_multiplier(),
         cadence_shadow_enabled=False,
         cadence_live_enabled=_cadence_kernel_enabled(),
@@ -1474,7 +1512,68 @@ def show_skill_selection():
         return
     save_skill(selected, None)
 
-def _deactivate_current_skill() -> None:
+def _default_bankstanding_reason() -> str:
+    utility_id = str(player_data.get("current_utility", "") or "")
+    if (
+        current_skill
+        in {
+            UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+            ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
+            "Utility / Activities",
+        }
+        and utility_id
+        and utility_id != "bankstanding"
+    ):
+        action_name = utility_id.replace("_", " ").title()
+    else:
+        action_name = str(current_skill or "Current action")
+        if action_name == "None":
+            action_name = "Current action"
+    return f"{action_name} could not continue."
+
+
+def _bankstanding_event_text(reason: str) -> str:
+    return f"Switched to Bankstanding · {reason}"
+
+
+def _show_pending_bankstanding_dialog() -> None:
+    global _PENDING_BANKSTANDING_NOTICE
+    notice = _PENDING_BANKSTANDING_NOTICE
+    _PENDING_BANKSTANDING_NOTICE = None
+    if notice is not None:
+        ui.show_bankstanding_dialog(str(notice["reason"]))
+
+
+def _show_pending_review_dialogs() -> None:
+    callbacks = tuple(_PENDING_REVIEW_DIALOGS)
+    _PENDING_REVIEW_DIALOGS.clear()
+    if not callbacks:
+        return
+    try:
+        from aqt.qt import QTimer  # type: ignore
+    except Exception:
+        QTimer = None  # type: ignore
+    if QTimer is not None:
+        def _show_all() -> None:
+            for callback in callbacks:
+                callback()
+
+        QTimer.singleShot(0, _show_all)
+    else:
+        for callback in callbacks:
+            callback()
+
+
+def _update_pending_bankstanding_reason(reason) -> None:
+    notice = _PENDING_BANKSTANDING_NOTICE
+    reason_text = str(reason or "").strip()
+    if notice is None or not reason_text:
+        return
+    notice["reason"] = reason_text
+    notice["event"]["text"] = _bankstanding_event_text(reason_text)[:500]
+
+
+def _deactivate_current_skill(reason=None) -> None:
     """End the active skill by landing on Bankstanding.
 
     Owner ruling (Pass 11, clause 2): no path that ends, refuses, invalidates,
@@ -1483,14 +1582,33 @@ def _deactivate_current_skill() -> None:
     failure, death, and material exhaustion lands on the settled no-XP
     fallback so the ordinary review-paced market clock keeps moving.
     """
-    _switch_to_bankstanding()
+    _switch_to_bankstanding(reason)
 
 
-def _switch_to_bankstanding() -> None:
-    """Use the settled no-XP fallback after an action exhausts its inputs."""
-    global current_skill
+def _switch_to_bankstanding(reason=None, *, automatic: bool = True) -> bool:
+    """Land on the no-XP fallback once, then report the accepted transition."""
+    global current_skill, _PENDING_BANKSTANDING_NOTICE
+    if (
+        player_data.get("current_utility") == "bankstanding"
+        and _normalize_legacy_utility_skill(current_skill)
+        == UTILITY_REVIEW_ACTION_DISPLAY_NAME
+    ):
+        return False
+
+    reason_text = str(reason or "").strip() or _default_bankstanding_reason()
     current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     player_data["current_utility"] = "bankstanding"
+    updated = record_review_event_pure(
+        player_data,
+        "activity",
+        _bankstanding_event_text(reason_text),
+    )
+    player_data["review_event_log"] = updated["review_event_log"]
+    if automatic:
+        _PENDING_BANKSTANDING_NOTICE = {
+            "reason": reason_text,
+            "event": player_data["review_event_log"][-1],
+        }
     try:
         ui.update_menu_visibility(current_skill)
     except Exception:
@@ -1503,6 +1621,13 @@ def _switch_to_bankstanding() -> None:
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+    return True
+
+
+def _activity_session_end_reason(session) -> str:
+    active_id = str((session or {}).get("active_id", "") or "")
+    action_name = active_id.replace("_", " ").title() or "Activity"
+    return f"{action_name} ended."
 
 
 def _activity_session_cleared(before, after=None) -> bool:
@@ -2401,11 +2526,6 @@ def _on_main_menu(
                 level_up_check(skill_name, player_data)
                 _show_exp(gained)
             check_achievements(player_data)
-            if (
-                action_id in {"abandon", "leave_flash_powder_factory"}
-                and player_data.get("current_utility") == "bankstanding"
-            ):
-                _switch_to_bankstanding()
 
         committed = commit_direct_action(_change, after_apply=_after_apply)
         if not committed:
@@ -4501,7 +4621,8 @@ def _on_main_menu(
 
         return commit_direct_action(
             _change,
-            selected_skill=UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+            bankstanding_reason="Training was stopped manually.",
+            bankstanding_automatic=False,
         )
 
     ui.show_main_menu(
@@ -5039,16 +5160,11 @@ def _claim_stronghold_reward() -> bool:
 def _prompt_near_death(source: str) -> None:
     """Ask whether to leave when a review is refused for near-death with no food.
 
-    Deferred to the event loop for the same reason the Stronghold prompt is: the
-    modal must not open inside Anki's answer-card processing. The handler has
-    already switched training off, so declining simply leaves the player parked
-    where they are.
+    Queued behind the Bankstanding notice so neither modal can open inside
+    Anki's answer-card processing or cover the other. The handler has already
+    switched training off, so declining simply leaves the player parked where
+    they are.
     """
-
-    try:
-        from aqt.qt import QTimer  # type: ignore
-    except Exception:
-        QTimer = None  # type: ignore
 
     def _ask() -> None:
         try:
@@ -5075,24 +5191,12 @@ def _prompt_near_death(source: str) -> None:
         _save_player_data_if_anki_ready()
         _refresh_skill_availability()
 
-    if QTimer is not None:
-        QTimer.singleShot(0, _ask)
-    else:
-        _ask()
+    _PENDING_REVIEW_DIALOGS.append(_ask)
 
 
 def _prompt_stronghold_reward() -> None:
-    """Fired from the review-answer handler the moment the Stronghold is cleared.
-    Deferred to the event loop so the boot-choice modal never pops in the middle
-    of Anki's answer-card processing."""
-    try:
-        from aqt.qt import QTimer  # type: ignore
-    except Exception:
-        QTimer = None  # type: ignore
-    if QTimer is not None:
-        QTimer.singleShot(0, _claim_stronghold_reward)
-    else:
-        _claim_stronghold_reward()
+    """Queue the boot choice behind the Bankstanding transition notice."""
+    _PENDING_REVIEW_DIALOGS.append(_claim_stronghold_reward)
 
 
 def initialize_menu():
@@ -5890,9 +5994,13 @@ def on_answer_card(self, ease, _old):
     finally:
         if review_answered and before_state is not None:
             if _activity_session_cleared(before_session):
-                _switch_to_bankstanding()
+                _switch_to_bankstanding(
+                    _activity_session_end_reason(before_session),
+                )
             _save_player_data_if_anki_ready()
             _remember_review_award_snapshot(before_state)
+            _show_pending_bankstanding_dialog()
+            _show_pending_review_dialogs()
     try:
         update_review_status_badge(
             player_data, _open_activities_sheet, _open_farming_sheet

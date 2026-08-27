@@ -445,7 +445,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         # Nothing to eat and nothing to fetch: the next exchange can end the run,
         # so refuse the review rather than resolve it. The bank-run path already
         # covers the recoverable case where the bank still holds food.
-        ctx.deactivate_current_skill()
+        ctx.deactivate_current_skill(
+            "Lifepoints are critical and there is no food left in your pack or bank."
+        )
         if callable(ctx.prompt_near_death):
             ctx.prompt_near_death("combat")
         else:

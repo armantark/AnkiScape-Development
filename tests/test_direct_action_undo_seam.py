@@ -308,7 +308,12 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon.player_data["current_utility"] = "gather_flax"
         before = copy.deepcopy(addon.player_data)
         captured = {}
+        drawer_refreshes = []
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.ui.show_bankstanding_dialog = lambda reason: self.fail(reason)
+        addon.update_review_event_log_drawer = lambda data: drawer_refreshes.append(
+            len(data.get("review_event_log", ()))
+        )
         addon._refresh_skill_availability = lambda: None
         addon.check_achievements = lambda _data: None
 
@@ -319,6 +324,12 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(drawer_refreshes, [1])
+        self.assertIn(
+            "Training was stopped manually",
+            addon.player_data["review_event_log"][0]["text"],
+        )
 
         addon._on_state_did_undo(
             type("Changes", (), {"operation": "AnkiScape direct action"})()
@@ -1307,6 +1318,8 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertTrue(allowed, info)
         addon.player_data.clear()
         addon.player_data.update(entered)
+        popups = []
+        addon.ui.show_bankstanding_dialog = popups.append
         command = self._capture_agility_handler()
         addon.current_skill = "Activities"
         before = copy.deepcopy(addon.player_data)
@@ -1320,6 +1333,8 @@ class DirectActionUndoSeamTest(unittest.TestCase):
             addon.player_data["current_agility"],
             FLASH_POWDER_FACTORY_ACTIVITY_ID,
         )
+        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(popups, ["Flash Powder Factory ended."])
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.current_skill, "Activities")
         self.assertEqual(addon.player_data, before)

@@ -837,12 +837,6 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     if result.get("unminable"):
-        if result.get("notice_created"):
-            updated = record_review_event_pure(
-                updated,
-                "activity",
-                str(result.get("event_log_text", "Star unminable at your level")),
-            )
         ctx.player_data.clear()
         ctx.player_data.update(updated)
         mining_xp = float(result.get("mining_xp", 0.0) or 0.0)
@@ -860,7 +854,9 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
             ctx.level_up_check("Mining", ctx.player_data)
             ctx.check_achievements(ctx.player_data)
             ctx.show_exp(gained)
-        ctx.deactivate_current_skill()
+        ctx.deactivate_current_skill(
+            str(result.get("event_log_text", "Star unminable at your level"))
+        )
         ctx.save_player_data()
         ctx.refresh_skill_availability()
         return True

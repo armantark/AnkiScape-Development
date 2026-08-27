@@ -61,11 +61,16 @@ def _context(player_data, calls=None, random_values=None, review_action_multipli
         except StopIteration:
             return 0.0
 
+    def deactivate_current_skill(reason=None):
+        calls["deactivated"] = True
+        if reason:
+            calls.setdefault("deactivation_reasons", []).append(str(reason))
+
     return RuntimeActionContext(
         player_data=player_data,
         random_random=random_random,
         show_error_message=lambda title, message: calls["errors"].append((title, message)),
-        deactivate_current_skill=lambda: calls.setdefault("deactivated", True),
+        deactivate_current_skill=deactivate_current_skill,
         award_skill_exp=award_skill_exp,
         award_hidden_skill_exp=lambda exp_key, _level_key, base_exp: player_data.__setitem__(
             exp_key,
@@ -87,9 +92,11 @@ def _bankstanding_context(player_data, calls=None, **kwargs):
     calls = calls if calls is not None else {"xp": [], "saves": 0, "errors": []}
     ctx = _context(player_data, calls, **kwargs)
 
-    def switch_to_bankstanding():
+    def switch_to_bankstanding(reason=None):
         player_data["current_utility"] = "bankstanding"
         calls["bankstanding"] = calls.get("bankstanding", 0) + 1
+        if reason:
+            calls.setdefault("bankstanding_reasons", []).append(str(reason))
 
     ctx.switch_to_bankstanding = switch_to_bankstanding
     return ctx
@@ -1065,10 +1072,11 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["activity"], [])
         self.assertEqual(calls["xp"], [750.0])
         self.assertEqual(player_data["mining_exp"], 750.0)
-        self.assertEqual(len(player_data["review_event_log"]), 1)
+        self.assertEqual(player_data.get("review_event_log", []), [])
+        self.assertEqual(len(calls["deactivation_reasons"]), 1)
         self.assertIn(
             "Star unminable at your level",
-            player_data["review_event_log"][0]["text"],
+            calls["deactivation_reasons"][0],
         )
 
     def test_treasure_trail_routes_a_step_and_its_terminal_casket_through_utility(self):
@@ -3105,6 +3113,10 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertFalse(ok, "the review must not resolve")
         self.assertEqual(prompted, ["combat"], "the player must be asked")
+        self.assertEqual(
+            calls["deactivation_reasons"],
+            ["Lifepoints are critical and there is no food left in your pack or bank."],
+        )
         self.assertNotIn("combat_last_result", player_data)
 
     def test_near_death_with_food_in_the_bank_is_not_refused(self):

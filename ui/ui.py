@@ -4581,6 +4581,54 @@ def show_achievement_dialog(achievement: str, data: dict):
     dialog.exec()
 
 
+def show_bankstanding_dialog(reason: str) -> None:
+    """Tell the player why an automatic transition ended their active action."""
+    if not HAS_QT:
+        return
+    dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+    dialog.setWindowTitle("Switched to Bankstanding")
+    dialog.setMinimumWidth(440)
+    layout = QVBoxLayout()
+
+    icon_path = os.path.join(current_dir, "icon", "bank_icon.png")
+    if os.path.exists(icon_path):
+        icon_label = QLabel()
+        pixmap = QPixmap(icon_path)
+        icon_label.setPixmap(
+            pixmap.scaled(
+                56,
+                56,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
+        layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    title = QLabel("Now Bankstanding")
+    title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    title.setStyleSheet("font-size: 16px; font-weight: bold;")
+    layout.addWidget(title)
+
+    reason_label = QLabel(f"Reason: {str(reason or '').strip()}")
+    reason_label.setObjectName("bankstandingReason")
+    reason_label.setWordWrap(True)
+    reason_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    layout.addWidget(reason_label)
+
+    prompt = QLabel("Choose a new action when you are ready to continue.")
+    prompt.setWordWrap(True)
+    prompt.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    layout.addWidget(prompt)
+
+    ok_button = QPushButton("OK")
+    ok_button.clicked.connect(dialog.accept)
+    layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    dialog.setLayout(layout)
+    dialog.exec()
+
+
 def show_stronghold_reward_dialog() -> Optional[str]:
     """Boot-choice reward for clearing the Stronghold of Security. Both pairs are
     stat-identical, so the copy makes clear the pick is purely cosmetic. Returns

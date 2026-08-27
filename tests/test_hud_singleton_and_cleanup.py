@@ -122,6 +122,7 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self._bak_EVENT_LOG_DRAWER = getattr(_ui, "_EVENT_LOG_DRAWER", None)
         self._bak_cleanup_done = getattr(_ui, "_REVIEW_WIDGET_CLEANUP_DONE", False)
         self._bak_ReviewHUD = getattr(_ui, "ReviewHUD", None)
+        self._bak_aqt_qt = sys.modules.get("aqt.qt")
         # Install fake Qt into sys.modules where ui._cleanup_extra_huds imports from
         self.fake_qt = types.ModuleType("aqt.qt")
         self.fake_qt.QApplication = FakeQApplication
@@ -165,11 +166,12 @@ class TestHUDSingletonAndCleanup(unittest.TestCase):
         self.ui._REVIEW_WIDGET_CLEANUP_DONE = self._bak_cleanup_done
         if self._bak_ReviewHUD is not None:
             self.ui.ReviewHUD = self._bak_ReviewHUD
-        # Clean fake Qt
-        try:
-            del sys.modules["aqt.qt"]
-        except Exception:
-            pass
+        # Restore the exact process-global Qt module object; re-importing PyQt
+        # after deleting it creates incompatible wrapper identities.
+        if self._bak_aqt_qt is None:
+            sys.modules.pop("aqt.qt", None)
+        else:
+            sys.modules["aqt.qt"] = self._bak_aqt_qt
         FakeHUD.created = 0
         FakeQApplication.top_level = []
         FakeQApplication.top_level_calls = 0
