@@ -7849,6 +7849,139 @@ class TestLogic(unittest.TestCase):
             ],
         )
 
+    def test_fairy_tale_i_completes_from_normal_prerequisite_progression(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in (
+            "attack",
+            "strength",
+            "defense",
+            "constitution",
+            "ranged",
+            "magic",
+            "prayer",
+            "crafting",
+            "woodcutting",
+            "farming",
+            "herblore",
+            "thieving",
+        ):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["inventory"].update({"Bronze hatchet": 1, "Knife": 1})
+
+        def advance(quest_id, count=1):
+            nonlocal player_data
+            completed_now = False
+            for _ in range(count):
+                player_data, ok, completed_now = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertTrue(ok)
+            return completed_now
+
+        def fight(quest_id, encounter_id):
+            nonlocal player_data
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+                encounter_id,
+                ticks=500,
+                rng=lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["reason"], "combat_resolved")
+            return result
+
+        player_data, ok = start_quest_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(advance("lost_city", 2))
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
+        fight("lost_city", "lost_city_tree_spirit")
+        self.assertFalse(advance("lost_city", 2))
+        self.assertTrue(advance("lost_city"))
+        self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
+
+        player_data, ok = start_quest_pure(player_data, "the_restless_ghost", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(advance("the_restless_ghost", 3))
+        fight("the_restless_ghost", "the_restless_ghost_skeleton_warlock")
+        self.assertTrue(advance("the_restless_ghost"))
+
+        player_data, ok = start_quest_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(advance("priest_in_peril"))
+        fight("priest_in_peril", "priest_in_peril_temple_guardian_dog_30")
+        self.assertFalse(advance("priest_in_peril", 3))
+        fight("priest_in_peril", "priest_in_peril_monk_of_zamorak_30")
+        self.assertFalse(advance("priest_in_peril", 2))
+        player_data["inventory"]["Bucket"] = 1
+        self.assertFalse(advance("priest_in_peril"))
+        player_data["inventory"]["Pure essence"] = 25
+        self.assertTrue(advance("priest_in_peril"))
+
+        player_data["inventory"]["Silver sickle"] = 1
+        player_data, ok = start_quest_pure(player_data, "nature_spirit", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(advance("nature_spirit", 5))
+        for expected_quantity in range(1, 4):
+            result = fight("nature_spirit", "nature_spirit_ghast_30")
+            self.assertEqual(result["completed_quantity"], expected_quantity)
+        self.assertTrue(advance("nature_spirit"))
+
+        player_data["inventory"].update({"Secateurs": 1, "Spade": 1})
+        player_data, ok = start_quest_pure(
+            player_data,
+            "a_fairy_tale_i_growing_pains",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertNotIn("a_fairy_tale_i_growing_pains", player_data["quest_stage_actions"])
+        self.assertFalse(advance("a_fairy_tale_i_growing_pains", 2))
+        self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
+        self.assertFalse(advance("a_fairy_tale_i_growing_pains"))
+        self.assertEqual(player_data["inventory"]["Secateurs"], 0)
+        self.assertEqual(player_data["inventory"]["Magic secateurs"], 1)
+        player_data["inventory"]["Magic secateurs"] = 0
+        player_data["equipment"]["weapon"] = "Magic secateurs"
+
+        result = fight(
+            "a_fairy_tale_i_growing_pains",
+            "a_fairy_tale_i_growing_pains_tanglefoot_111",
+        )
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(player_data["inventory"]["Queen's secateurs"], 1)
+        self.assertFalse(advance("a_fairy_tale_i_growing_pains"))
+        self.assertTrue(advance("a_fairy_tale_i_growing_pains"))
+
+        self.assertTrue(player_data["quests"]["a_fairy_tale_i_growing_pains"]["completed"])
+        self.assertEqual(player_data["inventory"]["Queen's secateurs"], 0)
+        self.assertEqual(player_data["inventory"]["Magic secateurs"], 0)
+        self.assertEqual(player_data["equipment"]["weapon"], "Magic secateurs")
+        self.assertEqual(player_data["quest_points"], 9)
+        self.assertTrue(
+            can_start_quest_pure(
+                player_data,
+                "a_fairy_tale_ii_cure_a_queen",
+                QUEST_DATA,
+            )
+        )
+        self.assertEqual(
+            player_data["quest_stage_actions"]["a_fairy_tale_i_growing_pains"],
+            [
+                "Martin thinks fairies may be responsible. I should ask the Fairy Godfather in Zanaris.",
+                "Zandar Horfyre sent me to Malignius Mortifer near Port Sarim.",
+                "Malignius will tell you to go ask the Nature Spirit to perform the spell 'Phasma Phasmatis Natura' on an ordinary secateurs, along with three or four specific items.",
+                "Nature Spirit enchanted my secateurs. I must enter the shady grove and defeat the Tanglefoot.",
+                "I have the Queen's secateurs. I should return them to the Fairy Godfather.",
+            ],
+        )
+
     def test_source_backed_starter_quests_progress_through_stage_gates(self):
         cook = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         cook["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}

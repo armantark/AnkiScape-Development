@@ -166,6 +166,18 @@ DARKAN_QUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/quests"
 )
+FAIRY_TALE_I_ID = "a_fairy_tale_i_growing_pains"
+FAIRY_TALE_I_WIKI_SOURCE = (
+    "https://runescape.wiki/w/A_Fairy_Tale_I_-_Growing_Pains?oldid=6565661"
+)
+FAIRY_TALE_I_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/fairytales/fairytalept1/FairyTalePt1.kt"
+)
+FAIRY_TALE_I_TANGLEFOOT_NPC_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/"
+    "combatdefs/uncategorized/tanglefoot (noanims).json"
+)
+FAIRY_TALE_I_STAGE_ACTION_SOURCE = f"{FAIRY_TALE_I_WIKI_SOURCE}; {FAIRY_TALE_I_DARKAN_SOURCE}"
 FAIRY_TALE_II_WIKI_SOURCE = "https://runescape.wiki/w/A_Fairy_Tale_II_-_Cure_a_Queen?oldid=6572414"
 FAIRY_TALE_II_DARKAN_SOURCE = (
     f"{DARKAN_QUEST_SOURCE_ROOT}/fairytales/fairytalept2/FairyTalePt2.kt"
@@ -4274,6 +4286,7 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     SHEEP_HERDER_ID: (("Coins", 3100),),
     "cold_war": (),
     "hunt_for_red_raktuber": (),
+    FAIRY_TALE_I_ID: (),
     "a_fairy_tale_iii_battle_at_orks_rift": (("Magic watering can", 1),),
     "a_tail_of_two_cats": (("Catspeak amulet (e)", 1), ("Doctors hat", 1)),
     ANOTHER_SLICE_OF_H_A_M_ID: (("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)),
@@ -7796,6 +7809,81 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                     ),
                     npc_stats_source=NATURE_SPIRIT_GHAST_NPC_SOURCE,
                 ),
+            ),
+        ),
+    ),
+    FAIRY_TALE_I_ID: (
+        _stage_req(
+            1,
+            "Ask the Fairy Godfather why crops across Gielinor are failing.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            required_inventory_options=((("Dramen staff", 1), ("Lunar staff", 1)),),
+            auto_actions=(
+                "Martin thinks fairies may be responsible. I should ask the Fairy Godfather in Zanaris.",
+            ),
+        ),
+        _stage_req(
+            2,
+            "Take Fairy Nuff's symptoms to Zandar Horfyre, then find Malignius Mortifer.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            auto_actions=(
+                "Zandar Horfyre sent me to Malignius Mortifer near Port Sarim.",
+            ),
+        ),
+        _stage_req(
+            3,
+            "Have the Nature Spirit enchant ordinary secateurs with the assigned ingredients.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            required_inventory_options=((("Ghostspeak amulet", 1), ("Cramulet", 1)),),
+            consumed_inventory=(("Secateurs", 1),),
+            produced_inventory=(("Magic secateurs", 1),),
+            required_tools=(("Spade", 1),),
+            auto_actions=(
+                "Malignius will tell you to go ask the Nature Spirit to perform the spell 'Phasma Phasmatis Natura' on an ordinary secateurs, along with three or four specific items.",
+            ),
+        ),
+        _stage_req(
+            4,
+            "Enter the shady grove and defeat the Tanglefoot with Magic secateurs.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            required_tools=(("Magic secateurs", 1),),
+            auto_actions=(
+                "Nature Spirit enchanted my secateurs. I must enter the shady grove and defeat the Tanglefoot.",
+            ),
+            combat_encounters=(
+                _combat(
+                    FAIRY_TALE_I_ID,
+                    "tanglefoot_111",
+                    "Tanglefoot",
+                    111,
+                    f"{FAIRY_TALE_I_WIKI_SOURCE}; {FAIRY_TALE_I_DARKAN_SOURCE}; {FAIRY_TALE_I_TANGLEFOOT_NPC_SOURCE}",
+                    "Tanglefoot (level 111)",
+                    npc_stats=(
+                        ("hitpoints", 1020),
+                        ("attack", 97),
+                        ("strength", 97),
+                        ("defence", 91),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 110),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    guaranteed_drops=(("Queen's secateurs", 1),),
+                    npc_stats_source=FAIRY_TALE_I_TANGLEFOOT_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            5,
+            "Return the Queen's secateurs to the Fairy Godfather.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            consumed_inventory=(("Queen's secateurs", 1),),
+            auto_actions=(
+                "I have the Queen's secateurs. I should return them to the Fairy Godfather.",
             ),
         ),
     ),
