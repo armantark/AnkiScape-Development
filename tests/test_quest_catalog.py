@@ -1,6 +1,9 @@
+import ast
 import unittest
+from pathlib import Path
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data import quest_data
 from ankiscape.data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
 from ankiscape.data.summoning_data import SUMMONING_POUCHES
 from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG, PRE_EOC_QUEST_CATALOG_SOURCE
@@ -18,6 +21,35 @@ from tools.audit_quest_local_item_gates import quest_local_gate_candidates
 
 
 class TestQuestCatalog(unittest.TestCase):
+    def test_literal_quest_id_mappings_have_no_resolved_duplicate_keys(self):
+        module = ast.parse(Path(quest_data.__file__).read_text())
+        string_constants = {
+            getattr(node.targets[0], "id", ""): node.value.value
+            for node in module.body
+            if isinstance(node, ast.Assign)
+            and isinstance(node.value, ast.Constant)
+            and isinstance(node.value.value, str)
+        }
+        literal_mappings = (
+            node
+            for node in module.body
+            if isinstance(node, ast.AnnAssign)
+            and getattr(node.target, "id", "").endswith("_BY_ID")
+            and isinstance(node.value, ast.Dict)
+        )
+        collisions = []
+        for mapping in literal_mappings:
+            resolved_keys = [
+                key.value
+                if isinstance(key, ast.Constant) and isinstance(key.value, str)
+                else string_constants[key.id]
+                for key in mapping.value.keys
+            ]
+            if len(resolved_keys) != len(set(resolved_keys)):
+                collisions.append(mapping.target.id)
+
+        self.assertEqual(collisions, [])
+
     def test_live_stage_counts_preserve_a_completion_sentinel_after_every_requirement(self):
         live_quests = quests_as_dict()
         for quest_id, quest in live_quests.items():

@@ -8863,7 +8863,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
         ),
     ),
-    THE_FREMENNIK_TRIALS_ID: (
+    "the_fremennik_trials": (
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_actions=("Complete The Fremennik Trials stage 1 objective",),
@@ -9478,13 +9478,6 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Hatchet",),
             remove_required_inventory_options=("Fairytale III - Battle at Orks Rift",),
-        ),
-    ),
-    "the_fremennik_trials": (
-        QuestStageRequirementCleanup(
-            stage=3,
-            remove_required_inventory=("Hatchet",),
-            add_required_tools=(("Hatchet", 1),),
         ),
     ),
     "throne_of_miscellania": (

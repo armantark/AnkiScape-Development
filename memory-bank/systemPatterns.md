@@ -1095,3 +1095,10 @@ skill-output row can mask later cache-backed extra-item metadata. When those row
 overlap, keep the skill target's level and XP but overlay the authoritative item
 ID, stackability, and tradeability; order the owning extra-item map after
 consumer-only maps so incomplete rows cannot erase those fields.
+
+## Quest ID dict keys are source-unique after alias resolution
+
+Direct `*_BY_ID` dict literals can mix string constants and literal quest IDs;
+Python resolves both to the same key and silently keeps the later payload. The
+quest-catalog guard parses the module source and resolves module-level string
+constants before checking key uniqueness.

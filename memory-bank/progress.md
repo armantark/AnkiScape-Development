@@ -6190,3 +6190,20 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Independent read-only review tightened the explicit-zero combat exception to actual zero values, removed superseded Golden-key and duplicate Fremennik gates, and refreshed the reward and combat-gap measuring pins. The four target quests retain zero generated objective blockers.
 - Final targeted verification passes six normal-progression proofs and five reachability/promotion checks. Full plain discovery passes 4,469 tests with 506 expected Qt skips. Real offscreen Qt discovery passes the same 4,469 tests with three skips across the accepted contiguous A-L, M-R, and S-Z processes (2,301 + 1,107 + 1,061).
 - The final branch-local audit reports 1,600 actions, 2,212 reachable items, 192 orphan inputs, and 284 blocked actions; its exit 1 remains the expected inherited orphan finding rather than a test failure.
+
+## Quest requirement-shape promotion collision repair — 2026-08-27
+
+- The merged cleanup table defined The Fremennik Trials twice through a constant
+  alias and a literal ID, so the later stage-3-only tuple silently discarded the
+  source-backed stages 1–7 repair. The table now keeps one literal-keyed combined
+  tuple, matching its neighboring entries.
+- An AST regression scans every direct `*_BY_ID` dict literal and resolves
+  module-level string constants before comparing keys. It failed against the
+  collided source and passes after the repair; the other mappings have no
+  alias-resolved collision.
+- Quest closure moves from 38 completable / 104 startable / 149 blocked stage
+  rows to 40 / 109 / 148. The Fremennik Trials, Lunar Diplomacy, Fairy Tale II,
+  and The Tale of the Muspah are all completable.
+- Full discovery passes 4,474 tests in both lanes: plain skips 506 and real
+  offscreen Qt skips three. The final reachability audit reports 1,600 actions,
+  2,212 reachable items, 192 orphan inputs, and 284 blocked actions.
