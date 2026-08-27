@@ -24865,6 +24865,39 @@ def show_main_menu(
     # banks when full. Collapsible header. Casual packing is inferred (even split
     # for processing, action-filled for gathering) with approximate bank runs;
     # players who want to tune it use the advanced 4x7 grid below.
+    def _carried_inventory_display_items() -> tuple[tuple[str, int], ...]:
+        merged: dict[str, int] = {}
+
+        def _add_items(items) -> None:
+            for item_name, amount in items:
+                amount = int(amount)
+                if (
+                    isinstance(item_name, str)
+                    and item_name != inventory_pure.COIN_ITEM_NAME
+                    and amount > 0
+                ):
+                    merged[item_name] = merged.get(item_name, 0) + amount
+
+        _add_items(
+            get_carried_inventory_items()
+            if get_carried_inventory_items is not None
+            else ()
+        )
+        if carried_auto_is_combat:
+            supply_summary = combat_supply_loadout_summary_pure(player_data)
+            for section in (
+                "food_loaded_items",
+                "potions_loaded_items",
+                "stat_potions_loaded_items",
+                "ammo_loaded",
+                "runes_loaded",
+                "finishers_loaded",
+                "hazards_loaded",
+            ):
+                _add_items(supply_summary[section].items())
+            _add_items((("Cannonball", supply_summary["cannonballs_loaded"]),))
+        return tuple(merged.items())
+
     def _carried_panel_summary_text() -> str:
         carried = player_data.get("carried_inventory") or {}
         run = player_data.get("skilling_bank_run") or {}
@@ -24874,6 +24907,24 @@ def show_main_menu(
             if isinstance(view, dict) and view:
                 total_slots += inventory_pure.carried_slots_used(view, carried_stackable_names)
                 carried_targets += 1
+        if carried_auto_is_combat:
+            retained = {
+                item_name: int(amount)
+                for item_name, amount in (
+                    tuple(get_carried_inventory_items())
+                    if get_carried_inventory_items is not None
+                    else ()
+                )
+                if isinstance(item_name, str)
+                and item_name != inventory_pure.COIN_ITEM_NAME
+                and int(amount) > 0
+            }
+            displayed = dict(_carried_inventory_display_items())
+            total_slots += inventory_pure.carried_slots_used(
+                displayed, carried_stackable_names
+            ) - inventory_pure.carried_slots_used(retained, carried_stackable_names)
+            if not retained:
+                carried_targets += int(bool(displayed))
         if run:
             status = f"Banking… {int(run.get('reviews_remaining', 0))} review(s) left"
         elif total_slots:
@@ -24886,13 +24937,9 @@ def show_main_menu(
         )
 
     def _carried_header_text(expanded: bool = False) -> str:
-        items = (
-            tuple(get_carried_inventory_items())
-            if get_carried_inventory_items is not None
-            else ()
-        )
         summary = " · ".join(
-            f"{item_name} ×{int(amount)}" for item_name, amount in items
+            f"{item_name} ×{amount}"
+            for item_name, amount in _carried_inventory_display_items()
         ) or "Empty"
         return f"{'▾' if expanded else '▸'}  Carried inventory — {summary}"
 
@@ -25490,10 +25537,11 @@ def show_main_menu(
         clear_layout_row_layout.addWidget(clear_layout_btn)
         clear_layout_row_layout.addStretch(1)
         custom_layout.addWidget(clear_layout_row)
+        section_layout.addWidget(custom_view)
 
         current_label = QLabel("Current inventory")
         current_label.setStyleSheet("color: palette(text); font-weight: 600;")
-        custom_layout.addWidget(current_label)
+        section_layout.addWidget(current_label)
         current_inventory_host = QWidget()
         current_inventory_layout = QHBoxLayout(current_inventory_host)
         current_inventory_layout.setContentsMargins(4, 4, 4, 4)
@@ -25511,8 +25559,7 @@ def show_main_menu(
             + current_inventory_scroll.frameWidth() * 2
         )
         current_inventory_scroll.setWidget(current_inventory_host)
-        custom_layout.addWidget(current_inventory_scroll)
-        section_layout.addWidget(custom_view)
+        section_layout.addWidget(current_inventory_scroll)
 
         def _refresh_grid() -> None:
             if get_carried_layout_cells is not None:
@@ -25626,11 +25673,7 @@ def show_main_menu(
 
         def _refresh_current_inventory() -> None:
             _clear_layout(current_inventory_layout)
-            items = (
-                tuple(get_carried_inventory_items())
-                if get_carried_inventory_items is not None
-                else ()
-            )
+            items = _carried_inventory_display_items()
             if not items:
                 empty = QLabel("Nothing carried for this target yet.")
                 empty.setStyleSheet(f"color: {dim_text_css(empty)};")
@@ -25640,8 +25683,16 @@ def show_main_menu(
                 item_button.setObjectName(
                     f"carriedCurrentItem{name_suffix}::{item_name}"
                 )
-                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
                 icon_path = _item_icon_path(str(item_name))
+                item_button.setFixedSize(
+                    _CARRIED_CELL_WIDTH
+                    if icon_path
+                    else max(
+                        _CARRIED_CELL_WIDTH,
+                        item_button.fontMetrics().horizontalAdvance(str(item_name)) + 12,
+                    ),
+                    _CARRIED_CELL_HEIGHT,
+                )
                 _set_carried_cell_visual(item_button, str(item_name), int(amount), icon_path)
                 item_button.setToolTip(f"Currently carrying {item_name} ×{int(amount)}")
                 item_button.setAccessibleName(
