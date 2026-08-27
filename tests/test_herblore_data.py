@@ -66,6 +66,38 @@ class HerbloreDataTests(unittest.TestCase):
             },
         )
 
+    def test_period_clean_herb_levels_are_pinned(self):
+        expected_levels = {
+            "clean_guam": 1,
+            "clean_marrentill": 5,
+            "clean_tarromin": 11,
+            "clean_harralander": 20,
+            "clean_ranarr": 25,
+            "clean_toadflax": 30,
+            "clean_spirit_weed": 35,
+            "clean_irit": 40,
+            "clean_wergali": 41,
+            "clean_avantoe": 48,
+            "clean_kwuarm": 54,
+            "clean_snapdragon": 59,
+            "clean_cadantine": 65,
+            "clean_lantadyme": 67,
+            "clean_dwarf_weed": 70,
+            "clean_torstol": 75,
+            "clean_fellstalk": 91,
+        }
+        targets = {target.id: target for target in CLEAN_TARGETS}
+
+        self.assertEqual(
+            {target_id: targets[target_id].level for target_id in expected_levels},
+            expected_levels,
+        )
+        self.assertEqual(targets["clean_guam"].exp, 2.5)
+        self.assertEqual(
+            targets["clean_guam"].source,
+            "https://runescape.wiki/w/Grimy_guam?oldid=6560041",
+        )
+
     def test_daemonheim_target_family_is_not_in_overworld_catalog(self):
         herb_ids = {
             "sagawort",

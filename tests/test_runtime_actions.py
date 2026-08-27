@@ -2070,6 +2070,23 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["fishing_exp"], 80.0)
         self.assertEqual(calls["xp"], [80.0])
 
+    def test_level_one_player_can_clean_guam_without_druidic_ritual(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Grimy guam": 1},
+            "herblore_level": 1,
+            "herblore_exp": 0.0,
+            "current_herblore": "clean_guam",
+            "quests": {"druidic_ritual": {"started": False, "progress": 0, "completed": False}},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_herblore_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["inventory"], {"Grimy guam": 0, "Clean guam": 1})
+        self.assertEqual(player_data["herblore_exp"], 2.5)
+        self.assertEqual(calls["xp"], [2.5])
+
     def test_overload_handler_records_primary_output_and_four_vials(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         inputs = {
@@ -3513,7 +3530,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
         player_data["quests"]["druidic_ritual"] = {
             "started": True,
-            "progress": 4,
+            "progress": 8,
             "completed": True,
         }
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
