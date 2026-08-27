@@ -359,6 +359,8 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
+# Version 119 is reserved for the Pass 12 S4 Druidic Ritual rework migration
+# on its own branch; the promotion merge serializes S4 -> S5 numbering.
 CURRENT_CONFIG_VERSION = 120
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
@@ -1053,6 +1055,13 @@ def _migrate_stronghold_player_safety_lamps(
         return
     raw_stronghold = data.get("stronghold_player_safety")
     raw_stronghold = raw_stronghold if isinstance(raw_stronghold, dict) else {}
+    if "lamps_remaining" not in raw_stronghold:
+        # Self-identifying guard: only counter-era saves carry lamps_remaining.
+        # A save without it already uses claim records (or never claimed the
+        # chest), and rebuilding from the absent counter would stamp both
+        # lamps claimed, destroying pending claims if the version stamp is
+        # ever resolved wrongly at a merge.
+        return
     try:
         lamps_remaining = min(
             2, max(0, int(raw_stronghold.get("lamps_remaining", 0) or 0))

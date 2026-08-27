@@ -18081,7 +18081,7 @@ def show_main_menu(
 
         def _claim_stronghold_lamp() -> None:
             view = stronghold_player_safety_view_pure(player_data)
-            claim_id = str(view.get("next_lamp_claim_id", ""))
+            claim_id = str(view.get("next_lamp_claim_id") or "")
             claim = CLAIM_DATA.get(claim_id)
             if not isinstance(claim, Mapping) or on_claim_reward is None:
                 return
@@ -18099,11 +18099,6 @@ def show_main_menu(
                 and _skill_level(skill.id) >= minimum_level
             ]
             if not eligible_skill_ids:
-                QMessageBox.warning(
-                    stronghold_box,
-                    "No eligible skill",
-                    f"This lamp requires level {minimum_level} in an allowed skill.",
-                )
                 return
             skill_id = _choose_xp_lamp_skill(
                 stronghold_box,
