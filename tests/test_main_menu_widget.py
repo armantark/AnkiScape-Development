@@ -1165,6 +1165,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
 
         save_skill_callback = extra.pop("on_save_skill", lambda *a: None)
+        claim_reward_callback = extra.pop(
+            "on_claim_reward",
+            lambda claim_id, selected_skill_id=None: self._claim_calls.append(
+                (claim_id, selected_skill_id)
+            )
+            or True,
+        )
         combat_action_callback = extra.pop(
             "on_set_combat_action",
             lambda action: self._combat_action_calls.append(action),
@@ -1292,7 +1299,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_reclaim_death_office=lambda: self._death_office_calls.append(True) or True,
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
-            on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
+            on_claim_reward=claim_reward_callback,
             on_claim_stronghold_reward=lambda: self._stronghold_claim_calls.append(True) or True,
             on_mage_arena_action=_mage_arena_action,
             get_farming_projection=_farming_projection,
@@ -10430,8 +10437,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._claim_calls[-1], ("wicked_hood", None))
 
-    def test_bank_claims_expose_a_claimed_diary_tiers_reward_lamp(self) -> None:
-        from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+    def test_bank_claims_use_the_shared_icon_chooser_for_a_diary_lamp(self) -> None:
+        from ankiscape.data.achievement_diary_data import (
+            ACHIEVEMENT_DIARY_CATALOG,
+            diary_lamp_claim_id,
+        )
 
         pd = _make_player_data()
         family = next(family for family in ACHIEVEMENT_DIARY_CATALOG if family.id == "varrock")
@@ -10440,20 +10450,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd)
         _open_bank_tab(dialog)
 
+        title = f"{family.name} {tier.name}: reward lamp ({tier.lamp.experience:,} XP)"
         labels = [label.text() for label in dialog.findChildren(QLabel)]
-        self.assertIn(
-            f"{family.name} {tier.name}: reward lamp ({tier.lamp.experience:,} XP)",
-            labels,
-        )
+        self.assertIn(title, labels)
         self.assertTrue(
             any(label.startswith(f"{tier.lamp.experience:,} XP lamp") for label in labels)
         )
-        self.assertTrue(
-            any(
-                button.text() == "Choose skill"
-                for button in dialog.findChildren(QPushButton)
-            )
+        choose = next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Choose skill"
         )
+        with patch.object(
+            self._ui,
+            "_choose_xp_lamp_skill",
+            return_value="agility",
+        ) as chooser:
+            choose.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._claim_calls[-1],
+            (diary_lamp_claim_id(tier.id), "agility"),
+        )
+        parent, chooser_title, eligible_skill_ids = chooser.call_args.args
+        self.assertEqual(parent.objectName(), "bankClaimsBox")
+        self.assertEqual(chooser_title, title)
+        self.assertIn("agility", eligible_skill_ids)
 
     def test_bank_death_office_reclaim_row_uses_combat_office_state(self) -> None:
         pd = _make_player_data()
@@ -19628,19 +19651,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(progress.isVisible())
         dialog.close()
 
-    def test_stronghold_player_safety_chest_lamp_and_combat_entry_are_live(self) -> None:
-        from aqt.qt import QInputDialog
+    def test_stronghold_player_safety_claims_lamps_then_marks_complete(self) -> None:
+        from ankiscape.core.constants import CLAIM_DATA
+        from ankiscape.data.stronghold_player_safety_data import (
+            STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+        )
         from ankiscape.logic.stronghold_player_safety_logic import (
             apply_stronghold_player_safety_command_pure,
         )
+        from ankiscape.logic_pure.logic_pure_claims import apply_claim_pure
 
         pd = _make_player_data()
         pd["stronghold_player_safety"] = {
-            "version": 1,
+            "version": 2,
             "stage": 3,
             "crevice_unlocked": True,
             "chest_claimed": False,
-            "lamps_remaining": 0,
             "safety_first_emote_unlocked": False,
             "last_result": "Reached the reward passage.",
         }
@@ -19654,11 +19680,25 @@ class MainMenuWidgetTest(unittest.TestCase):
                 pd.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def claim_reward(claim_id, selected_skill_id=None):
+            self._claim_calls.append((claim_id, selected_skill_id))
+            updated, ok = apply_claim_pure(
+                pd,
+                claim_id,
+                CLAIM_DATA,
+                selected_skill_id=selected_skill_id,
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return ok
+
         saved_skills = []
         dialog = self._open(
             pd,
             current_skill="Activities",
             on_stronghold_player_safety_command=stronghold_command,
+            on_claim_reward=claim_reward,
             on_save_skill=saved_skills.append,
         )
         dialog.show()
@@ -19686,6 +19726,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             panel.findChild(QProgressBar, "strongholdPlayerSafetyProgress").value(),
             3,
         )
+        title = panel.findChild(QLabel, "strongholdPlayerSafetyTitle")
+        self.assertTrue(title.wordWrap())
+        self.assertGreaterEqual(title.height(), title.sizeHint().height())
+        status = panel.findChild(QLabel, "strongholdPlayerSafetyStatus")
+        self.assertEqual(status.text(), "CHEST READY")
+        self.assertGreaterEqual(status.width(), status.sizeHint().width())
+        self.assertLess(title.geometry().right(), status.geometry().left())
         fight = panel.findChild(QPushButton, "strongholdPlayerSafetyFightButton")
         self.assertTrue(fight.isVisible())
         self.assertTrue(fight.isEnabled())
@@ -19694,17 +19741,75 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(pd["inventory"]["Coins"], 10_000)
         self.assertEqual(pd["inventory"]["Safety gloves"], 1)
+        self.assertEqual(status.text(), "2 LAMPS LEFT")
+        self.assertIn(
+            "Two 500-XP Antique lamps are ready in Bank Claims",
+            panel.findChild(QLabel, "strongholdPlayerSafetySummary").text(),
+        )
+        self.assertEqual(
+            [
+                state
+                for claim_id, state in pd["claims"].items()
+                if claim_id in STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
+            ],
+            [
+                {"claimed": False, "delivered": True},
+                {"claimed": False, "delivered": True},
+            ],
+        )
+        _open_bank_tab(dialog)
+        bank_claim_titles = [
+            label.text()
+            for label in dialog.findChildren(QLabel, "bankClaimTitle")
+        ]
+        self.assertIn(
+            "Stronghold of Player Safety: Antique lamp 1 (500 XP)",
+            bank_claim_titles,
+        )
+        self.assertIn(
+            "Stronghold of Player Safety: Antique lamp 2 (500 XP)",
+            bank_claim_titles,
+        )
+        tree = self._open_activities(dialog)
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+
         lamp = panel.findChild(QPushButton, "strongholdPlayerSafetyLampButton")
         self.assertEqual(lamp.text(), "Use 500-XP lamp (2)")
         with patch.object(
-            QInputDialog,
-            "getItem",
-            return_value=("Agility", True),
-        ):
+            self._ui,
+            "_choose_xp_lamp_skill",
+            side_effect=("agility", "dungeoneering"),
+        ) as chooser:
             lamp.click()
-        QApplication.processEvents()
-        self.assertEqual(pd["agility_exp"], 1500.0)
-        self.assertEqual(lamp.text(), "Use 500-XP lamp (1)")
+            QApplication.processEvents()
+            self.assertEqual(pd["agility_exp"], 1500.0)
+            self.assertEqual(lamp.text(), "Use 500-XP lamp (1)")
+            self.assertEqual(status.text(), "1 LAMP LEFT")
+            lamp.click()
+            QApplication.processEvents()
+
+        self.assertEqual(pd["dungeoneering_exp"], 500.0)
+        self.assertEqual(lamp.text(), "Use 500-XP lamp (0)")
+        self.assertEqual(status.text(), "COMPLETE")
+        self.assertEqual(
+            self._claim_calls[-2:],
+            [
+                (STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS[0], "agility"),
+                (
+                    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS[1],
+                    "dungeoneering",
+                ),
+            ],
+        )
+        self.assertEqual(chooser.call_count, 2)
+        parent, chooser_title, eligible_skill_ids = chooser.call_args_list[0].args
+        self.assertEqual(parent.objectName(), "strongholdPlayerSafetyPanel")
+        self.assertEqual(chooser_title, "Use Stronghold XP lamp")
+        self.assertEqual(len(eligible_skill_ids), 25)
+        self.assertIn("attack", eligible_skill_ids)
+        self.assertIn("dungeoneering", eligible_skill_ids)
+
         fight.click()
         QApplication.processEvents()
         self.assertEqual(saved_skills, ["Combat"])

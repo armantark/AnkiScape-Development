@@ -14,6 +14,9 @@ from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
 from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure
 from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
 from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
+from ankiscape.data.stronghold_player_safety_data import (
+    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+)
 from ankiscape.core.constants import (
     BAR_DATA,
     CONSTITUTION_STARTING_EXP,
@@ -1892,31 +1895,52 @@ class TestStoragePure(unittest.TestCase):
             {"attacker": 0, "collector": 7, "defender": 0, "healer": 0},
         )
 
-    def test_migrate_adds_and_repairs_stronghold_player_safety_state(self):
-        migrated = migrate_loaded_data(
-            {
-                "config_version": 77,
-                "inventory": {},
-                "stronghold_player_safety": {
-                    "stage": 99,
-                    "crevice_unlocked": False,
-                    "chest_claimed": True,
-                    "lamps_remaining": 99,
-                },
-            },
-            ORE_DATA,
-            ITEM_DEFINITIONS,
-        )
+    def test_v120_migrates_old_stronghold_lamp_counts_once(self):
+        expected_claimed_by_count = {
+            2: (False, False),
+            1: (True, False),
+            0: (True, True),
+        }
+        for lamps_remaining, expected_claimed in expected_claimed_by_count.items():
+            with self.subTest(lamps_remaining=lamps_remaining):
+                migrated = migrate_loaded_data(
+                    {
+                        "config_version": 119,
+                        "inventory": {},
+                        "claims": {"wicked_hood": {"claimed": True}},
+                        "stronghold_player_safety": {
+                            "stage": 3,
+                            "crevice_unlocked": True,
+                            "chest_claimed": True,
+                            "lamps_remaining": lamps_remaining,
+                            "safety_first_emote_unlocked": True,
+                        },
+                    },
+                    ORE_DATA,
+                    ITEM_DEFINITIONS,
+                )
 
-        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
-        self.assertEqual(migrated["stronghold_player_safety"]["stage"], 3)
-        self.assertTrue(
-            migrated["stronghold_player_safety"]["crevice_unlocked"]
-        )
-        self.assertTrue(migrated["stronghold_player_safety"]["chest_claimed"])
-        self.assertEqual(
-            migrated["stronghold_player_safety"]["lamps_remaining"], 2
-        )
+                self.assertEqual(migrated["config_version"], 120)
+                self.assertNotIn(
+                    "lamps_remaining", migrated["stronghold_player_safety"]
+                )
+                self.assertTrue(
+                    migrated["stronghold_player_safety"]["chest_claimed"]
+                )
+                self.assertTrue(migrated["claims"]["wicked_hood"]["claimed"])
+                for claim_id, claimed in zip(
+                    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+                    expected_claimed,
+                ):
+                    self.assertEqual(
+                        migrated["claims"][claim_id],
+                        {"claimed": claimed, "delivered": True},
+                    )
+
+                self.assertEqual(
+                    migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS),
+                    migrated,
+                )
 
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}

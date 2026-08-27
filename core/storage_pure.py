@@ -92,6 +92,9 @@ from .constants import (
     WOODCUTTING_LOG_ITEMS,
 )
 from ..data.quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
+from ..data.stronghold_player_safety_data import (
+    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
+)
 from ..data.runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
 from ..logic.wicked_hood_logic import (
     default_wicked_hood_state_pure,
@@ -358,7 +361,9 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 119
+# Version 119 is reserved for the Pass 12 S4 Druidic Ritual rework migration
+# on its own branch; the promotion merge serializes S4 -> S5 numbering.
+CURRENT_CONFIG_VERSION = 120
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -1073,9 +1078,17 @@ def _migrate_claim_state(data: Dict[str, Any]) -> None:
         for claim_id, default_state in clean_claims.items():
             raw_state = claims.get(claim_id)
             if isinstance(raw_state, dict):
-                clean_claims[claim_id] = {"claimed": bool(raw_state.get("claimed", default_state["claimed"]))}
+                claimed = bool(raw_state.get("claimed", default_state["claimed"]))
+                clean_state = {"claimed": claimed}
+                if "delivered" in default_state:
+                    clean_state["delivered"] = claimed or bool(
+                        raw_state.get("delivered", default_state["delivered"])
+                    )
+                clean_claims[claim_id] = clean_state
             elif isinstance(raw_state, bool):
                 clean_claims[claim_id] = {"claimed": raw_state}
+                if "delivered" in default_state:
+                    clean_claims[claim_id]["delivered"] = raw_state
         for claim_id in DIARY_LAMP_CLAIM_IDS_BY_TIER.values():
             raw_state = claims.get(claim_id)
             if isinstance(raw_state, dict):
@@ -1083,6 +1096,39 @@ def _migrate_claim_state(data: Dict[str, Any]) -> None:
             elif isinstance(raw_state, bool):
                 clean_claims[claim_id] = {"claimed": raw_state}
     data["claims"] = clean_claims
+
+
+def _migrate_stronghold_player_safety_lamps(
+    data: Dict[str, Any], loaded_config_version: int
+) -> None:
+    if loaded_config_version >= 120:
+        return
+    raw_stronghold = data.get("stronghold_player_safety")
+    raw_stronghold = raw_stronghold if isinstance(raw_stronghold, dict) else {}
+    if "lamps_remaining" not in raw_stronghold:
+        # Self-identifying guard: only counter-era saves carry lamps_remaining.
+        # A save without it already uses claim records (or never claimed the
+        # chest), and rebuilding from the absent counter would stamp both
+        # lamps claimed, destroying pending claims if the version stamp is
+        # ever resolved wrongly at a merge.
+        return
+    try:
+        lamps_remaining = min(
+            2, max(0, int(raw_stronghold.get("lamps_remaining", 0) or 0))
+        )
+    except (TypeError, ValueError, OverflowError):
+        lamps_remaining = 0
+    chest_claimed = bool(
+        sanitize_stronghold_player_safety_state_pure(raw_stronghold)[
+            "chest_claimed"
+        ]
+    )
+    consumed_lamps = 2 - lamps_remaining
+    for index, claim_id in enumerate(STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS):
+        data["claims"][claim_id] = {
+            "claimed": chest_claimed and index < consumed_lamps,
+            "delivered": chest_claimed,
+        }
 
 
 def _retire_legacy_completion_reward_claims(data: Dict[str, Any]) -> None:
@@ -1485,6 +1531,9 @@ def migrate_loaded_data(
     # conversations. Older completed saves already received those items.
     if loaded_config_version < 118:
         _retire_legacy_completion_reward_claims(data)
+    # v120 moves the two Stronghold lamps into delivered Bank Claim records.
+    # The first claim is the deterministic first-consumed lamp for old count 1.
+    _migrate_stronghold_player_safety_lamps(data, loaded_config_version)
     _migrate_runecrafting_side_state(data)
     _migrate_unlocked_abilities(data)
     _migrate_toolbelt(data)

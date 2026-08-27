@@ -18020,15 +18020,19 @@ def show_main_menu(
                 )
             )
         stronghold_title = QLabel("Stronghold of Player Safety")
+        stronghold_title.setObjectName("strongholdPlayerSafetyTitle")
+        stronghold_title.setWordWrap(True)
         stronghold_title.setStyleSheet("font-weight: 700; color: palette(text);")
         stronghold_status = QLabel()
         stronghold_status.setObjectName("strongholdPlayerSafetyStatus")
+        stronghold_status.setSizePolicy(
+            QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred
+        )
         stronghold_status.setStyleSheet(
             f"color: {dim_text_css(stronghold_status)}; font-size: 10px; font-weight: 700;"
         )
         stronghold_header_layout.addWidget(stronghold_icon)
-        stronghold_header_layout.addWidget(stronghold_title)
-        stronghold_header_layout.addStretch(1)
+        stronghold_header_layout.addWidget(stronghold_title, 1)
         stronghold_header_layout.addWidget(stronghold_status)
         stronghold_layout.addWidget(stronghold_header)
 
@@ -18086,6 +18090,9 @@ def show_main_menu(
                     "Stronghold of Player Safety",
                     str(result.get("message", "That Stronghold action is unavailable.")),
                 )
+            elif action_id == "claim_chest":
+                _populate_claims()
+                _refresh_equipment_views()
             _refresh_stronghold_panel()
             return result
 
@@ -18093,15 +18100,29 @@ def show_main_menu(
             view = stronghold_player_safety_view_pure(player_data)
             stage = int(view["stage"])
             total = int(view["stage_count"])
+            lamps_remaining = int(view["lamps_remaining"])
+            plural = lamps_remaining != 1
             stronghold_progress.setRange(0, total)
             stronghold_progress.setValue(stage)
             stronghold_progress.setFormat("Route landmarks %v of %m")
-            if view["can_claim_chest"]:
-                stronghold_status.setText("CHEST READY")
-            elif view["chest_claimed"]:
-                stronghold_status.setText("COMPLETE")
-            else:
-                stronghold_status.setText(f"ROUTE {stage}/{total}")
+            status_candidates = (
+                (view["can_claim_chest"], "CHEST READY"),
+                (view["complete"], "COMPLETE"),
+                (
+                    view["chest_claimed"],
+                    f"{lamps_remaining} LAMP{'S' * plural} LEFT",
+                ),
+            )
+            stronghold_status.setText(
+                next(
+                    (
+                        text
+                        for active, text in status_candidates
+                        if active
+                    ),
+                    f"ROUTE {stage}/{total}",
+                )
+            )
             next_landmark = view.get("next_landmark")
             next_text = (
                 f"Next: {next_landmark['label']}."
@@ -18111,8 +18132,10 @@ def show_main_menu(
             extras = []
             if view["crevice_unlocked"]:
                 extras.append("surface crevice unlocked")
-            if int(view["lamps_remaining"]) > 0:
-                extras.append(f"{int(view['lamps_remaining'])} XP lamp(s) ready")
+            if lamps_remaining > 0:
+                extras.append(
+                    f"{lamps_remaining} XP lamp Bank Claim{'s' * plural} ready"
+                )
             stronghold_summary.setText(
                 next_text
                 + (" · " + " · ".join(extras) if extras else "")
@@ -18142,11 +18165,10 @@ def show_main_menu(
                 and bool(view["can_claim_chest"])
             )
             stronghold_lamp.setText(
-                f"Use 500-XP lamp ({int(view['lamps_remaining'])})"
+                f"Use 500-XP lamp ({lamps_remaining})"
             )
             stronghold_lamp.setEnabled(
-                on_stronghold_player_safety_command is not None
-                and int(view["lamps_remaining"]) > 0
+                on_claim_reward is not None and lamps_remaining > 0
             )
             stronghold_reclaim.setVisible(bool(view["can_reclaim_gloves"]))
             stronghold_reclaim.setEnabled(
@@ -18167,23 +18189,37 @@ def show_main_menu(
                 _refresh_stronghold_panel()
 
         def _claim_stronghold_lamp() -> None:
-            skills = trainable_skill_definitions()
-            labels = [skill.display_name for skill in skills]
-            choice, ok = QInputDialog.getItem(
+            view = stronghold_player_safety_view_pure(player_data)
+            claim_id = str(view.get("next_lamp_claim_id") or "")
+            claim = CLAIM_DATA.get(claim_id)
+            if not isinstance(claim, Mapping) or on_claim_reward is None:
+                return
+            minimum_level = int(claim.get("minimum_level", 1) or 1)
+            configured_skill_ids = frozenset(
+                map(str, claim.get("skill_options", ()) or ())
+            )
+            eligible_skill_ids = [
+                skill.id
+                for skill in trainable_skill_definitions()
+                if (
+                    not configured_skill_ids
+                    or skill.id in configured_skill_ids
+                )
+                and _skill_level(skill.id) >= minimum_level
+            ]
+            if not eligible_skill_ids:
+                return
+            skill_id = _choose_xp_lamp_skill(
                 stronghold_box,
                 "Use Stronghold XP lamp",
-                "Skill:",
-                labels,
-                0,
-                False,
+                eligible_skill_ids,
             )
-            if not ok:
+            if skill_id is None:
                 return
-            try:
-                skill_id = skills[labels.index(choice)].id
-            except ValueError:
-                return
-            _run_stronghold_command("claim_lamp", {"skill_id": skill_id})
+            if on_claim_reward(claim_id, skill_id):
+                _populate_claims()
+                _refresh_equipment_views()
+                _refresh_stronghold_panel()
 
         def _start_stronghold_soldier_fight() -> None:
             result = _run_stronghold_command("start_soldier_fight")
@@ -26713,14 +26749,11 @@ def show_main_menu(
         if not eligible:
             QMessageBox.warning(claims_box, "No eligible skill", f"This lamp requires level {minimum_level} in an allowed skill.")
             return None
-        labels = [_skill_display(skill_id) for skill_id in eligible]
-        choice, ok = QInputDialog.getItem(claims_box, "Claim XP lamp", "Skill:", labels, 0, False)
-        if not ok:
-            return None
-        try:
-            return eligible[labels.index(choice)]
-        except ValueError:
-            return None
+        return _choose_xp_lamp_skill(
+            claims_box,
+            str(row.get("display_name", "Claim XP lamp")),
+            eligible,
+        )
 
     def _populate_claims() -> None:
         _clear_layout(claims_layout)
@@ -28844,6 +28877,108 @@ def _exec_selection_dialog(dialog, selected_value) -> Optional[str]:
     selected = [None]
     dialog.accepted.connect(lambda: selected.__setitem__(0, selected_value()))
     return selected[0] if dialog.exec() else None
+
+
+def _choose_xp_lamp_skill(
+    parent,
+    title: str,
+    eligible_skill_ids,
+) -> Optional[str]:
+    skills = [
+        skill
+        for skill in (get_skill(str(skill_id)) for skill_id in eligible_skill_ids)
+        if skill is not None
+    ]
+    if not skills:
+        return None
+
+    dialog = QDialog(parent)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+    dialog.setObjectName("xpLampSkillDialog")
+    dialog.setWindowTitle(title)
+    dialog.setMinimumWidth(600)
+    layout = QVBoxLayout(dialog)
+    layout.setContentsMargins(14, 14, 14, 12)
+    layout.setSpacing(10)
+
+    title_label = QLabel(title)
+    title_label.setObjectName("xpLampSkillChooserTitle")
+    title_label.setWordWrap(True)
+    title_label.setStyleSheet(
+        "font-size: 16px; font-weight: 700; color: palette(text);"
+    )
+    layout.addWidget(title_label)
+
+    prompt = QLabel("Choose the skill that receives this lamp's XP.")
+    prompt.setObjectName("xpLampSkillChooserPrompt")
+    prompt.setStyleSheet(f"color: {dim_text_css(prompt)};")
+    layout.addWidget(prompt)
+
+    grid = QGridLayout()
+    grid.setContentsMargins(0, 0, 0, 0)
+    grid.setHorizontalSpacing(6)
+    grid.setVerticalSpacing(6)
+    button_group = QButtonGroup(dialog)
+
+    buttons = QDialogButtonBox(
+        QDialogButtonBox.StandardButton.Ok
+        | QDialogButtonBox.StandardButton.Cancel,
+        parent=dialog,
+    )
+    claim_button = buttons.button(QDialogButtonBox.StandardButton.Ok)
+    claim_button.setObjectName("xpLampClaimButton")
+    claim_button.setText("Claim")
+    claim_button.setEnabled(False)
+    cancel_button = buttons.button(QDialogButtonBox.StandardButton.Cancel)
+    cancel_button.setObjectName("xpLampCancelButton")
+    cancel_button.setText("Cancel")
+
+    for index, skill in enumerate(skills):
+        button = QToolButton(dialog)
+        button.setObjectName("xpLampSkillButton")
+        button.setProperty("skillId", skill.id)
+        button.setText(skill.display_name)
+        button.setAccessibleName(skill.display_name)
+        button.setCheckable(True)
+        button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        icon_path = skill_icon_path_for(skill.display_name)
+        if icon_path:
+            button.setIcon(QIcon(icon_path))
+        button.setIconSize(QSize(36, 36))
+        button.setMinimumSize(104, 72)
+        button.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed,
+        )
+        button.setStyleSheet(
+            "QToolButton { border: 1px solid palette(mid); border-radius: 5px; "
+            "padding: 5px; color: palette(text); background: palette(base); }"
+            "QToolButton:hover { border-color: palette(dark); }"
+            "QToolButton:checked { border: 2px solid #4CAF50; "
+            "background: rgba(76, 175, 80, 0.18); }"
+        )
+
+        button_group.addButton(button)
+        row, column = divmod(index, 5)
+        grid.addWidget(button, row, column)
+    for column in range(min(5, len(skills))):
+        grid.setColumnStretch(column, 1)
+    layout.addLayout(grid)
+
+    button_group.buttonClicked.connect(
+        lambda _button: claim_button.setEnabled(True)
+    )
+    buttons.accepted.connect(dialog.accept)
+    buttons.rejected.connect(dialog.reject)
+    layout.addWidget(buttons)
+    return _exec_selection_dialog(
+        dialog,
+        lambda: (
+            button_group.checkedButton().property("skillId")
+            if button_group.checkedButton() is not None
+            else None
+        ),
+    )
 
 
 def show_tree_selection_dialog(current_tree: str, woodcutting_level: int, TREE_DATA: dict, TREE_IMAGES: dict) -> Optional[str]:

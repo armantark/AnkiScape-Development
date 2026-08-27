@@ -119,20 +119,11 @@ from .logic_pure_state import (
 )
 
 
-def claim_locked_reasons_pure(player_data, claim_id, claim_data):
-    claim = claim_data.get(claim_id)
-    if not claim:
-        return ("unknown claim",)
-    state = (player_data.get("claims", {}) or {}).get(claim_id, {})
-    if isinstance(state, Mapping) and state.get("claimed"):
-        return ("claimed",)
-    reasons = []
-    required_quest = claim.get("required_quest")
-    if required_quest and not quest_completed_pure(player_data, str(required_quest)):
-        reasons.append("quest")
+def _missing_claim_tools(player_data, claim):
     required_tools = claim.get("required_tools", ()) or ()
     if isinstance(required_tools, Mapping):
         required_tools = required_tools.items()
+    missing = []
     for tool in required_tools:
         if not isinstance(tool, (tuple, list)) or len(tool) < 2:
             continue
@@ -142,7 +133,26 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
             and quantity > 0
             and not _has_quest_tool(player_data, tool_name, quantity)
         ):
-            reasons.append(tool_name)
+            missing.append(tool_name)
+    return missing
+
+
+def claim_locked_reasons_pure(player_data, claim_id, claim_data):
+    claim = claim_data.get(claim_id)
+    if not claim:
+        return ("unknown claim",)
+    state = (player_data.get("claims", {}) or {}).get(claim_id, {})
+    if isinstance(state, Mapping) and state.get("claimed"):
+        return ("claimed",)
+    reasons = []
+    if claim.get("delivery_required") and not (
+        isinstance(state, Mapping) and state.get("delivered")
+    ):
+        reasons.append("delivery")
+    required_quest = claim.get("required_quest")
+    if required_quest and not quest_completed_pure(player_data, str(required_quest)):
+        reasons.append("quest")
+    reasons.extend(_missing_claim_tools(player_data, claim))
     required_level = _positive_int(claim.get("required_runecrafting_level", 1), 1)
     if required_level > 1 and _positive_int(player_data.get("runecrafting_level", 1), 1) < required_level:
         reasons.append(f"Runecrafting level {required_level}")

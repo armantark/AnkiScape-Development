@@ -9070,11 +9070,10 @@ class TestIntegrationSmoke(unittest.TestCase):
             "death_office": {},
             "smithing_level": 1,
             "stronghold_player_safety": {
-                "version": 1,
+                "version": 2,
                 "stage": 3,
                 "crevice_unlocked": True,
                 "chest_claimed": False,
-                "lamps_remaining": 0,
                 "safety_first_emote_unlocked": False,
                 "last_result": "Reached the reward passage.",
             },
@@ -9089,6 +9088,11 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(addon.player_data["inventory"]["Coins"], 10_000)
         self.assertEqual(addon.player_data["inventory"]["Safety gloves"], 1)
+        for claim_id in result["claim_ids"]:
+            self.assertEqual(
+                addon.player_data["claims"][claim_id],
+                {"claimed": False, "delivered": True},
+            )
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
 

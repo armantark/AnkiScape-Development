@@ -54,11 +54,10 @@ def _wire_stronghold(addon, col):
         "death_office": {},
         "smithing_level": 1,
         "stronghold_player_safety": {
-            "version": 1,
+            "version": 2,
             "stage": 3,
             "crevice_unlocked": True,
             "chest_claimed": False,
-            "lamps_remaining": 0,
             "safety_first_emote_unlocked": False,
             "last_result": "Reached the reward passage.",
         },
@@ -115,7 +114,7 @@ class StrongholdUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
-    def test_a_refused_command_reports_the_refusal_and_writes_nothing(self):
+    def test_the_retired_lamp_command_reports_refusal_and_writes_nothing(self):
         addon = self.addon
         col = type(
             "_Col", (), {
@@ -130,7 +129,7 @@ class StrongholdUndoSeamTest(unittest.TestCase):
         result = command("claim_lamp", {"skill_id": "smithing"})
 
         self.assertFalse(result["ok"])
-        self.assertIn("No Stronghold XP lamp remains", result["message"])
+        self.assertIn("Unknown Stronghold command", result["message"])
         # Nothing was written or saved: the refused state must not leak.
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon.save_calls, [])
