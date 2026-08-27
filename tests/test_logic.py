@@ -4427,12 +4427,14 @@ class TestLogic(unittest.TestCase):
         expected_actions = (
             "Prepare bronze equipment for the High Priest's tests",
             "Reach the Agility Pyramid",
-            "Complete Dealing with Scabaras stage 2 objective",
-            "Complete Dealing with Scabaras stage 3 objective",
-            "Complete Dealing with Scabaras stage 4 objective",
-            "Complete Dealing with Scabaras stage 5 objective",
-            "Complete Dealing with Scabaras stage 6 objective",
-            "Complete Dealing with Scabaras stage 7 objective",
+            "Copy at least four distinct Scabarite note identities into the research book.",
+            "Use the key, allocate four unique power settings, stoke the furnace, "
+            "and complete all four rooms in one timed attempt.",
+            "After pulling all the levers you will be allowed to enter the antechamber.",
+            "Enter the newly opened hallway.",
+            "I must endure two different attack styles and persuade the High Priest that the "
+            "Devourer caused the heresy.",
+            "The High Priest of Scabaras has recovered. I should return to Sophanem.",
         )
 
         stage_action_counts = (2, 3, 4, 5, 6, 7, 8)
