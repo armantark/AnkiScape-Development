@@ -9939,6 +9939,135 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "demon_slayer", QUEST_DATA), ())
 
+    def test_fairy_tale_ii_real_stage_emitters_complete_from_normal_start(self):
+        quest_id = "a_fairy_tale_ii_cure_a_queen"
+        quest = QUEST_DATA[quest_id]
+        actions = (
+            "The crops are still failing. I should investigate Fairy Nuff's grotto in Zanaris.",
+            "The Godfather gave me permission to use fairy rings. Nuff's message says AIR, DLR, DJQ, AJS in order.",
+            "I must pickpocket the Queen's secateurs from the Fairy Godfather without being detected.",
+            "Fairy Nuff needs Magic essence: a Star flower from CKP and powdered Gorak claws from DIR.",
+            "Back at the hideout, use a dose of the magic essence potion on the queen, who finally regains her senses.",
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["inventory"].update({"Dramen staff": 1, "Vial of water": 1})
+        # Other generated-stub quests still occupy this quest's prerequisite chain.
+        # Isolate this stage chain instead of fabricating prerequisite completion state.
+        quest_data = {**QUEST_DATA, quest_id: {**quest, "required_quests": ()}}
+
+        player_data, ok = start_quest_pure(player_data, quest_id, quest_data)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        for index, action in enumerate(actions, start=1):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                quest_data,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, index == len(actions))
+            self.assertEqual(player_data["quests"][quest_id]["progress"], index + 1)
+            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:index])
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 2)
+        self.assertEqual(player_data["herblore_exp"], 3500.0)
+        self.assertEqual(player_data["thieving_exp"], 2500.0)
+
+    def test_lunar_diplomacy_real_stage_emitters_complete_from_normal_start(self):
+        quest_id = "lunar_diplomacy"
+        quest = QUEST_DATA[quest_id]
+        actions = (
+            "Brundt must issue me a Seal of passage before Lokar can take me to the Lady Zay.",
+            "The Lady Zay is jinxed. I must follow Captain Bentley and Bird's-Eye Jack's investigation.",
+            "The five emerald glyphs are visible. Captain Bentley can now sail to Lunar Isle.",
+            "The Oneiromancer needs a Waking sleep vial, a Lunar staff, and eight ceremonial garments.",
+            "I have the ritual equipment. I must wear the outfit and staff, soak the kindling, and light the brazier.",
+            "I must complete all six lessons in the Dream World. Finished lessons survive a failed visit.",
+            "I defeated Me and read My life. I should return to the Oneiromancer.",
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["inventory"].update(
+            {
+                "Coins": 1,
+                "Dramen staff": 1,
+                "Wicked hood": 1,
+                "Thread": 1,
+                "Clean guam": 1,
+                "Clean marrentill": 1,
+                "Spade": 1,
+                "Hammer": 1,
+                "Pickaxe": 1,
+            }
+        )
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in ("attack", "strength", "defense", "constitution", "ranged", "magic", "prayer"):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
+        # Other generated-stub quests still occupy this quest's prerequisite chain.
+        # Isolate this stage chain instead of fabricating prerequisite completion state.
+        quest_data = {**QUEST_DATA, quest_id: {**quest, "required_quests": ()}}
+
+        player_data, ok = start_quest_pure(player_data, quest_id, quest_data)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        for index in range(5):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                quest_data,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], index + 2)
+            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[: index + 1])
+            if index == 0:
+                self.assertEqual(player_data["inventory"]["Seal of passage"], 1)
+
+        for encounter_id, quantity in (
+            ("lunar_diplomacy_suqah_111", 5),
+            ("lunar_diplomacy_me_79", 1),
+        ):
+            for completed_quantity in range(1, quantity + 1):
+                player_data, ok, result = apply_quest_combat_encounter_pure(
+                    player_data,
+                    quest_id,
+                    quest_data,
+                    encounter_id,
+                    ticks=500,
+                    rng=lambda: 0.5,
+                    equipment_data=EQUIPMENT_DATA,
+                )
+                self.assertTrue(ok, result)
+                self.assertEqual(result["reason"], "combat_resolved")
+                self.assertEqual(result["completed_quantity"], completed_quantity)
+
+        for index in range(5, len(actions)):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                quest_data,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, index == len(actions) - 1)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], index + 2)
+            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[: index + 1])
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 2)
+        self.assertEqual(player_data["inventory"]["Astral rune"], 50)
+        self.assertEqual(player_data["magic_exp"], 5000.0)
+        self.assertEqual(player_data["runecrafting_exp"], 5000.0)
+
     def test_elemental_workshop_ii_beaten_book_emits_and_is_produced_on_review(self):
         quest_id = "elemental_workshop_ii"
         quest = QUEST_DATA[quest_id]
