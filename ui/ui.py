@@ -75,6 +75,7 @@ from ..core.constants import (
     EXP_TABLE,
     exp_table_for_skill,
     ORE_DATA,
+    EQUIPMENT_DATA,
     MINING_OUTPUT_ITEMS,
     MINING_PICKAXE_DATA,
     MINING_BONUS_ITEM_DATA,
@@ -4645,7 +4646,7 @@ def update_menu_visibility(current_skill: str):
 
 
 def _combat_loadout_summary_text(player_data: dict) -> str:
-    summary = combat_supply_loadout_summary_pure(player_data)
+    summary = combat_supply_loadout_summary_pure(player_data, EQUIPMENT_DATA)
 
     def _mapping_text(mapping: object) -> str:
         if not isinstance(mapping, dict) or not mapping:

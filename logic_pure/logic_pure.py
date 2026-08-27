@@ -371,6 +371,7 @@ from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     reclaim_death_office_items_pure,
     reconcile_combat_method_pure,
     refill_combat_supply_loadout_pure,
+    repair_combat_supply_loadout_class_pure,
     request_combat_bank_run_now_pure,
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,

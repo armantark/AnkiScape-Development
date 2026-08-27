@@ -273,6 +273,38 @@ class FightCavesMechanicsTests(unittest.TestCase):
         self.assertTrue(ok, result)
         self.assertEqual(updated["fight_caves"]["kill_counts"], {"ket_zek": 1})
 
+    def test_a_mid_instance_kill_never_unloads_or_refills_the_real_bank(self):
+        # A stale melee loadout (runes loaded) must ride out the instance
+        # untouched: the burst engine may not unload it into the real bank nor
+        # restock the pack from it mid-run.
+        data = _entered(
+            combat_supply_loadout={"runes": {"Air rune": 5, "Mind rune": 5}},
+        )
+        data["fight_caves"].update(
+            roster=[
+                {
+                    "instance_id": "stale-loadout-kill",
+                    "enemy_id": "tz_kih",
+                    "lifepoints": 1,
+                }
+            ],
+            engaged_instance_id="stale-loadout-kill",
+        )
+        bank_before = copy.deepcopy(data["inventory"])
+
+        updated, ok, result = apply_fight_caves_review_pure(
+            data, lambda: 0.0, equipment_data=EQUIPMENT_DATA
+        )
+
+        self.assertTrue(ok, result)
+        self.assertTrue(result["wave_completed"])
+        self.assertEqual(updated["inventory"], bank_before)
+        self.assertEqual(
+            updated["combat_supply_loadout"]["runes"],
+            {"Air rune": 5, "Mind rune": 5},
+        )
+        self.assertEqual(updated["combat_supply_loadout"]["food"], {})
+
     def test_fight_caves_kill_count_sanitizer_rejects_other_variants(self):
         sanitized = sanitize_fight_caves_state_pure(
             {

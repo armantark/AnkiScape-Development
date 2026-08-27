@@ -142,6 +142,7 @@ from ..logic_pure.logic_pure import (
     record_action_telemetry_pure,
     record_cadence_wait_telemetry_pure,
     record_achievement_progress_pure,
+    repair_combat_supply_loadout_class_pure,
     consume_ring_of_forging_charge_pure,
     smithing_success_probability_pure,
     smithing_target_locked_reasons_pure,
@@ -575,6 +576,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         result["xp_rewards"] = xp_rewards
     result["slayer"] = slayer_result
     player_data.update(new_data)
+    player_data.update(
+        repair_combat_supply_loadout_class_pure(player_data, EQUIPMENT_DATA)
+    )
     drops = result.get("drops", {}) if isinstance(result, dict) else {}
     if not isinstance(drops, dict):
         drops = {}
