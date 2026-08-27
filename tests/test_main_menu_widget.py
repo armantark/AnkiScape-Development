@@ -3325,7 +3325,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(body.isVisibleTo(body.parentWidget()))
         self.assertIn("▾", header.text())
 
-    def test_bank_run_refreshes_collapsed_carried_header_quantity(self) -> None:
+    def test_bank_run_refreshes_collapsed_carried_header_slot_count(self) -> None:
         carried_items = []
         dialog = self._open(
             _make_player_data(),
@@ -3347,7 +3347,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
 
-        self.assertEqual(header.text(), "▸  Carried inventory — Shark ×24")
+        self.assertEqual(header.text(), "▸ Carried — 24/28 slots")
         self.assertFalse(body.isVisibleTo(body.parentWidget()))
         dialog.deleteLater()
 
@@ -3542,9 +3542,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             "chicken": {"Shark": 2, "Uncut sapphire": 1}
         }
         pd["combat_supply_loadout"] = {
-            "food": {"Shark": 3},
+            "food": {"Shark": 3, "Lobster": 3},
             "potions": {"Antipoison (4)": 1},
-            "stat_potions": {},
+            "stat_potions": {"Prayer potion (4)": 1},
             "ammo": {},
             "runes": {},
             "finishers": {},
@@ -3567,6 +3567,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_equipment_tab(dialog)
         for _ in range(6):
             QApplication.processEvents()
+
+        with patch.object(
+            self._ui,
+            "combat_supply_loadout_summary_pure",
+            wraps=self._ui.combat_supply_loadout_summary_pure,
+        ) as supply_summary:
+            self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
+            for _ in range(4):
+                QApplication.processEvents()
+        self.assertEqual(supply_summary.call_count, 1)
 
         inventory_before = copy.deepcopy(pd["inventory"])
         loadout_before = copy.deepcopy(pd["combat_supply_loadout"])
@@ -3610,6 +3620,16 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         _open_bank_tab(dialog)
         header = dialog.findChild(QPushButton, "carriedInventoryHeader")
+        self.assertFalse(header.isChecked())
+        self.assertEqual(
+            header.text(),
+            "▸ Carried — 3 loot · 9 supplies · 12/28 slots",
+        )
+        self.assertNotIn("…", header.text())
+        self.assertLessEqual(
+            header.fontMetrics().horizontalAdvance(header.text()),
+            header.contentsRect().width(),
+        )
         if not header.isChecked():
             header.click()
         for _ in range(6):
