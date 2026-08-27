@@ -166,6 +166,18 @@ DARKAN_QUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/quests"
 )
+FAIRY_TALE_II_WIKI_SOURCE = "https://runescape.wiki/w/A_Fairy_Tale_II_-_Cure_a_Queen?oldid=6572414"
+FAIRY_TALE_II_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/fairytales/fairytalept2/FairyTalePt2.kt"
+)
+FAIRY_TALE_II_STAGE_ACTION_SOURCE = f"{FAIRY_TALE_II_WIKI_SOURCE}; {FAIRY_TALE_II_DARKAN_SOURCE}"
+LUNAR_DIPLOMACY_WIKI_SOURCE = "https://runescape.wiki/w/Lunar_Diplomacy?oldid=6569662"
+LUNAR_DIPLOMACY_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/lunardiplomacy/LunarDiplomacy.kt"
+)
+LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE = (
+    f"{LUNAR_DIPLOMACY_WIKI_SOURCE}; {LUNAR_DIPLOMACY_DARKAN_SOURCE}"
+)
 DARKAN_MINIQUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/miniquests"
@@ -8410,6 +8422,105 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             add_auto_actions=("Find the Beaten book in the Exam Centre and read its hidden scroll",),
             add_produced_inventory=(("Beaten book", 1),),
             source=ELEMENTAL_WORKSHOP_II_STAGE_ONE_SOURCE,
+        ),
+    ),
+    "a_fairy_tale_ii_cure_a_queen": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_actions=("Complete A Fairy Tale II - Cure a Queen stage 1 objective",),
+            add_auto_actions=("The crops are still failing. I should investigate Fairy Nuff's grotto in Zanaris.",),
+            source=FAIRY_TALE_II_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_actions=("Complete A Fairy Tale II - Cure a Queen stage 2 objective",),
+            add_auto_actions=(
+                "The Godfather gave me permission to use fairy rings. Nuff's message says AIR, DLR, DJQ, AJS in order.",
+            ),
+            source=FAIRY_TALE_II_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_actions=("Complete A Fairy Tale II - Cure a Queen stage 3 objective",),
+            add_auto_actions=(
+                "I must pickpocket the Queen's secateurs from the Fairy Godfather without being detected.",
+            ),
+            source=FAIRY_TALE_II_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_actions=("Complete A Fairy Tale II - Cure a Queen stage 4 objective",),
+            add_auto_actions=(
+                "Fairy Nuff needs Magic essence: a Star flower from CKP and powdered Gorak claws from DIR.",
+            ),
+            source=FAIRY_TALE_II_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_actions=("Complete A Fairy Tale II - Cure a Queen stage 5 objective",),
+            add_auto_actions=(
+                "Back at the hideout, use a dose of the magic essence potion on the queen, who finally regains her senses.",
+            ),
+            source=FAIRY_TALE_II_STAGE_ACTION_SOURCE,
+        ),
+    ),
+    "lunar_diplomacy": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_actions=("Complete Lunar Diplomacy stage 1 objective",),
+            add_auto_actions=(
+                "Brundt must issue me a Seal of passage before Lokar can take me to the Lady Zay.",
+            ),
+            add_produced_inventory=(("Seal of passage", 1),),
+            source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_actions=("Complete Lunar Diplomacy stage 2 objective",),
+            add_auto_actions=(
+                "The Lady Zay is jinxed. I must follow Captain Bentley and Bird's-Eye Jack's investigation.",
+            ),
+            source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_actions=("Complete Lunar Diplomacy stage 3 objective",),
+            add_auto_actions=(
+                "The five emerald glyphs are visible. Captain Bentley can now sail to Lunar Isle.",
+            ),
+            source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_actions=("Complete Lunar Diplomacy stage 4 objective",),
+            add_auto_actions=(
+                "The Oneiromancer needs a Waking sleep vial, a Lunar staff, and eight ceremonial garments.",
+            ),
+            source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_actions=("Complete Lunar Diplomacy stage 5 objective",),
+            add_auto_actions=(
+                "I have the ritual equipment. I must wear the outfit and staff, soak the kindling, and light the brazier.",
+            ),
+            source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=6,
+            remove_required_actions=("Complete Lunar Diplomacy stage 6 objective",),
+            add_auto_actions=(
+                "I must complete all six lessons in the Dream World. Finished lessons survive a failed visit.",
+            ),
+            source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=7,
+            remove_required_actions=("Complete Lunar Diplomacy stage 7 objective",),
+            add_auto_actions=(
+                "I defeated Me and read My life. I should return to the Oneiromancer.",
+            ),
+            source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
         ),
     ),
     "enlightened_journey": (

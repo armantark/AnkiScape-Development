@@ -645,12 +645,14 @@ queue for quest slices, not a reason to relax the reachability gate.
   missing action.
 - **Fix pattern:** preserve each stage's sourced action text and source
   constants, then connect the action through the established production
-  mechanism. For dialogue, hand-in, and puzzle steps abstracted by ordinary
-  quest review progression, the worked repairs move the exact string from
-  `required_actions` to `auto_actions`. See Rune Mysteries commit `8aafd995`
-  and Ernest the Chicken commit `3e4576fb`. The regression must
-  start the quest normally, drive `apply_quest_progress_pure`, and never
-  pre-seed `quest_stage_actions`.
+  mechanism. For a generated placeholder, remove that exact string from
+  `required_actions` and add the real sourced step to `auto_actions` in the
+  same cleanup. Removal unblocks the stage; the auto-action only records the
+  step after the blockers pass. If the step has an observable item result,
+  also model its sourced consumption and production. See Rune Mysteries commit
+  `8aafd995` and Ernest the Chicken commit `3e4576fb`. The regression must start
+  the quest normally, drive `apply_quest_progress_pure`, and never pre-seed
+  `quest_stage_actions` or inject completion state.
 - **Audit rail:** do **not** repair any quest below by weakening, filtering,
   suppressing, or changing the semantics of the quest-stage reachability
   audit. Repair the missing production path. Re-run the same regex split
@@ -2039,6 +2041,18 @@ Measured gate evidence for the blocked items, verbatim:
 
 Single unblock for the blocked remainder: add runtime emitters for the generated
 stage-1 objectives, or replace them with source-backed stage actions.
+
+Update 2026-08-26 on `goal/quest-stage1-stubs-2026-08-26`: Fairy Tale II stages
+1–5 and Lunar Diplomacy stages 1–7 now remove their generated gates and record
+verbatim pinned-source actions through `QuestStageRequirementCleanup`. Lunar
+stage 1 also produces the sourced `Seal of passage`. With every registered item
+available and combat satisfiable, both quests changed from
+`action_completable=False, first_blocked_stage=1` to
+`action_completable=True, first_blocked_stage=None`. Ritual of the Mahjarrat
+remains `False, 1`: Darkan has no implementation, and counterfactually removing
+its generated action gates exposes an independent stage-3 `Catspeak amulet (e)`
+item blocker. Do not force Ritual through this cleanup seam without a sourced
+stage model and acquisition path.
 
 ### 5.12 Reachability audit over-reports: it ignores quest gates and shop access
 
