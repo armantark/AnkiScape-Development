@@ -155,8 +155,10 @@ delete the meat/cauldron stages and their emitted actions; save migration
 maps started meat-version saves onto the new stages, forward only, and
 returns any enchanted/raw quest meats it strips to the bank. Re-pin the
 clean-herb level column in `data/herblore_data.py` (known: `clean_guam` 3→1)
-with one citation per changed row. No Herblore quest gate anywhere; Jungle
-Potion's entry gate stays. Sourcing follows the standing evidence order; the
+with one citation per changed row. No ORDINARY-overworld Herblore quest gate
+exists or may be added; Jungle Potion's entry gate stays, and the Daemonheim
+gate (Druidic Ritual to mix potions there, oldid 6555616, implemented in
+logic/dungeoneering_logic.py) stays untouched — ruled 2026-08-27 01:06. Sourcing follows the standing evidence order; the
 2026-06-22 starter-stage audit is superseded for this quest and the brief
 notes it there.
 Tests: `tests/test_logic.py` quest stages, `tests/test_runtime_actions.py`
