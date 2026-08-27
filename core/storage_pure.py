@@ -363,7 +363,7 @@ from ..data.woodcutting_data import (
 
 # Version 119 is reserved for the Pass 12 S4 Druidic Ritual rework migration
 # on its own branch; the promotion merge serializes S4 -> S5 numbering.
-CURRENT_CONFIG_VERSION = 120
+CURRENT_CONFIG_VERSION = 121
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -622,6 +622,32 @@ def _revalidate_v108_diary_deeds(data: Dict[str, Any]) -> None:
         task_id
         for task_id in state["completed_tasks"]
         if task_id not in deed_task_ids
+    ]
+    data["achievement_diaries"] = state
+
+
+def _revalidate_v121_dormant_diary_deeds(
+    data: Dict[str, Any], loaded_config_version: int
+) -> None:
+    """Drop proxy completions that no current catalog predicate can prove."""
+
+    if loaded_config_version >= 121:
+        return
+
+    from ..data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+
+    dormant_task_ids = {
+        task.id
+        for family in ACHIEVEMENT_DIARY_CATALOG
+        for tier in family.tiers
+        for task in tier.tasks
+        if not task.conditions
+    }
+    state = sanitize_achievement_diary_state_pure(data)["achievement_diaries"]
+    state["completed_tasks"] = [
+        task_id
+        for task_id in state["completed_tasks"]
+        if task_id not in dormant_task_ids
     ]
     data["achievement_diaries"] = state
 
@@ -2425,6 +2451,9 @@ def migrate_loaded_data(
         _seed_v108_diary_output_holdings(data)
         data.update(migrate_shop_diary_transaction_counts_pure(data))
         data.update(refresh_achievement_diaries_pure(data)[0])
+    # v121 removes completions for honest-stop rows whose prerequisite proxies
+    # were retired. Their eventual deed predicates must prove them again.
+    _revalidate_v121_dormant_diary_deeds(data, loaded_config_version)
     # These defaults are required for a new v30-shaped payload assembled outside
     # load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

@@ -2258,7 +2258,7 @@ diagnosis and slice geography live in
    chooser becomes a shared icon-grid select-then-confirm dialog. Delegated by
    the owner ("up to you") and unvetoed.
 
-### 5.21 Diary curation ledger — the 253-row trigger authoring — AWAITING WORK
+### 5.21 Diary curation ledger — the 320-row trigger authoring — AWAITING WORK
 
 Owner ruling of 2026-08-26 23:20: the full curation ledger moves to the
 grinding queue; Pass 12 keeps only the honest-stop cut (S1-lite in the Pass
@@ -2267,10 +2267,16 @@ contract (2026-07-16), the curation contract (2026-08-03), and the S1 stage-1
 ledger schema in
 `memory-bank/codex-briefs/pass12-owner-notes-handoff-2026-08-26.md`.
 
-Scope: one ledger row per task without a designed trigger (146 active proxies
-plus 107 empty stubs, counted on `a1c8fc90`), columns task → designed trigger
+Scope: one ledger row per task without a designed trigger: the review measured
+320 dormant rows out of 474, alongside 154 active rows comprising 129 other
+real-deed rows, 3 quest-deeds, and 22 anchors. Columns: task → designed trigger
 → source citation → disposition (`active` / `dormant` with the named future
 system / `swapped` / `translated`). Cross-lineage review before wiring; the
 owner spot-checks the ledger before the generator consumes it. Wiring lands
 through `tools/generate_achievement_diary_data.py`, never by hand-editing the
 generated catalog.
+
+2026-08-27 honest-stop note: the shipped catalog leaves 0 of 34 diary tiers
+Ready to Claim; the parent had 11, but those tiers rested on proxy completions
+rather than proven deeds. Tier rewards reactivate as this ledger wires their
+real triggers.

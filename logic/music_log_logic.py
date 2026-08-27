@@ -98,7 +98,7 @@ def track_is_latent_pure(track: MusicTrack) -> bool:
     gated on content that does not exist, which is how a reward becomes an
     ornament.
 
-    "The Task at Hand" needs 350 completed tasks. Latent diary rows reserve the
+    "The Task at Hand" needs 350 completed tasks. Dormant diary rows reserve the
     cutoff denominator but cannot complete, so the track activates only when at
     least 350 task predicates are obtainable. Tracks whose own trigger is
     explicitly latent stay excluded until their owning feature ships.
@@ -115,7 +115,7 @@ def track_is_latent_pure(track: MusicTrack) -> bool:
         for family in ACHIEVEMENT_DIARY_CATALOG
         for tier in family.tiers
         for task in tier.tasks
-        if not task.latent
+        if not task.dormant
     )
     return obtainable < MUSIC_UNLOCK_TASK_COUNT
 

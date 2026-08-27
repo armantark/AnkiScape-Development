@@ -13,6 +13,7 @@ from ankiscape.core.storage_pure import (
 from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
 from ankiscape.logic_pure.logic_pure import refill_combat_supply_loadout_pure
 from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
+from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
 from ankiscape.data.daily_challenges_data import DAILY_CHALLENGE_DATA
 from ankiscape.data.stronghold_player_safety_data import (
     STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
@@ -1342,7 +1343,40 @@ class TestStoragePure(unittest.TestCase):
             "ardougne_hard_who_wants_to_watch_the_watchtower",
             completed,
         )
-        self.assertIn("ardougne_easy_the_essence_of_magic", completed)
+        self.assertNotIn("ardougne_easy_the_essence_of_magic", completed)
+
+    def test_v121_drops_dormant_proxy_completions_once(self):
+        dormant_ids = {
+            task.id
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            for tier in family.tiers
+            for task in tier.tasks
+            if not task.conditions
+        }
+        real_deed_id = "ardougne_easy_vial_deeds"
+        self.assertTrue(dormant_ids)
+        self.assertNotIn(real_deed_id, dormant_ids)
+
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 120,
+                "achievement_diaries": {
+                    "version": 1,
+                    "completed_tasks": [*sorted(dormant_ids), real_deed_id],
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        completed = migrated["achievement_diaries"]["completed_tasks"]
+        self.assertTrue(dormant_ids.isdisjoint(completed))
+        self.assertIn(real_deed_id, completed)
+        self.assertEqual(migrated["config_version"], 121)
+        self.assertEqual(
+            migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS),
+            migrated,
+        )
 
     def test_v110_adds_and_sanitizes_observed_drop_log_without_disturbing_save(self):
         prior_save = {
