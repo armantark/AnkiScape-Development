@@ -4693,9 +4693,7 @@ def update_menu_visibility(current_skill: str):
     return
 
 
-def _combat_loadout_summary_text(player_data: dict) -> str:
-    summary = combat_supply_loadout_summary_pure(player_data, EQUIPMENT_DATA)
-
+def _combat_loadout_summary_text(summary: dict) -> str:
     def _mapping_text(mapping: object) -> str:
         if not isinstance(mapping, dict) or not mapping:
             return "none loaded"
@@ -24977,6 +24975,69 @@ def show_main_menu(
     # banks when full. Collapsible header. Casual packing is inferred (even split
     # for processing, action-filled for gathering) with approximate bank runs;
     # players who want to tune it use the advanced 4x7 grid below.
+    carried_inventory_projection = {
+        "retained": {},
+        "items": (),
+        "supply_summary": None,
+        "retained_slots": 0,
+        "total_slots": 0,
+    }
+
+    def _refresh_carried_inventory_projection() -> None:
+        retained: dict[str, int] = {}
+        supplies: dict[str, int] = {}
+
+        def _add_items(target: dict[str, int], items) -> None:
+            for item_name, amount in items:
+                amount = int(amount)
+                if (
+                    isinstance(item_name, str)
+                    and item_name != inventory_pure.COIN_ITEM_NAME
+                    and amount > 0
+                ):
+                    target[item_name] = target.get(item_name, 0) + amount
+
+        _add_items(
+            retained,
+            get_carried_inventory_items()
+            if get_carried_inventory_items is not None
+            else (),
+        )
+        supply_summary = None
+        if carried_auto_is_combat:
+            supply_summary = combat_supply_loadout_summary_pure(player_data, EQUIPMENT_DATA)
+            for section in (
+                "food_loaded_items",
+                "potions_loaded_items",
+                "stat_potions_loaded_items",
+                "ammo_loaded",
+                "runes_loaded",
+                "finishers_loaded",
+                "hazards_loaded",
+            ):
+                _add_items(supplies, supply_summary[section].items())
+            _add_items(
+                supplies,
+                (("Cannonball", supply_summary["cannonballs_loaded"]),),
+            )
+        merged = dict(retained)
+        _add_items(merged, supplies.items())
+        retained_slots = inventory_pure.carried_slots_used(
+            retained, carried_stackable_names
+        )
+        total_slots = inventory_pure.carried_slots_used(
+            merged, carried_stackable_names
+        )
+        carried_inventory_projection.update(
+            retained=retained,
+            items=tuple(merged.items()),
+            supply_summary=supply_summary,
+            retained_slots=retained_slots,
+            total_slots=total_slots,
+        )
+
+    _refresh_carried_inventory_projection()
+
     def _carried_panel_summary_text() -> str:
         carried = player_data.get("carried_inventory") or {}
         run = player_data.get("skilling_bank_run") or {}
@@ -24986,6 +25047,14 @@ def show_main_menu(
             if isinstance(view, dict) and view:
                 total_slots += inventory_pure.carried_slots_used(view, carried_stackable_names)
                 carried_targets += 1
+        if carried_auto_is_combat:
+            retained = carried_inventory_projection["retained"]
+            total_slots += (
+                carried_inventory_projection["total_slots"]
+                - carried_inventory_projection["retained_slots"]
+            )
+            if not retained:
+                carried_targets += int(bool(carried_inventory_projection["items"]))
         if run:
             status = f"Banking… {int(run.get('reviews_remaining', 0))} review(s) left"
         elif total_slots:
@@ -24998,15 +25067,23 @@ def show_main_menu(
         )
 
     def _carried_header_text(expanded: bool = False) -> str:
-        items = (
-            tuple(get_carried_inventory_items())
-            if get_carried_inventory_items is not None
-            else ()
-        )
-        summary = " · ".join(
-            f"{item_name} ×{int(amount)}" for item_name, amount in items
-        ) or "Empty"
-        return f"{'▾' if expanded else '▸'}  Carried inventory — {summary}"
+        if carried_auto_is_combat:
+            supply_slots = (
+                carried_inventory_projection["total_slots"]
+                - carried_inventory_projection["retained_slots"]
+            )
+            summary = (
+                f"{carried_inventory_projection['retained_slots']} loot · "
+                f"{supply_slots} supplies · "
+                f"{carried_inventory_projection['total_slots']}/"
+                f"{inventory_pure.CARRIED_CAPACITY} slots"
+            )
+        else:
+            summary = (
+                f"{carried_inventory_projection['total_slots']}/"
+                f"{inventory_pure.CARRIED_CAPACITY} slots"
+            )
+        return f"{'▾' if expanded else '▸'} Carried — {summary}"
 
     carried_header = QPushButton(_carried_header_text())
     carried_header.setObjectName("carriedInventoryHeader")
@@ -25094,6 +25171,7 @@ def show_main_menu(
         item_name: Optional[str],
         quantity: int = 0,
         icon_path: Optional[str] = None,
+        fit_caption_width: bool = False,
     ) -> None:
         visual = getattr(button, "_ankiscape_carried_cell_visual", None)
         if visual is None:
@@ -25123,8 +25201,6 @@ def show_main_menu(
             )
         else:
             visual, icon_label, caption = visual
-        visual.setGeometry(button.rect())
-        visual.raise_()
         button.setText("")
         button.setIcon(QIcon())
         icon_label.clear()
@@ -25132,8 +25208,7 @@ def show_main_menu(
             icon_label.hide()
             caption.setWordWrap(False)
             caption.setText("+")
-            return
-        if icon_path:
+        elif icon_path:
             icon_label.show()
             icon_label.setPixmap(
                 QPixmap(icon_path).scaled(
@@ -25145,10 +25220,19 @@ def show_main_menu(
             )
             caption.setWordWrap(False)
             caption.setText(f"×{int(quantity)}")
-            return
-        icon_label.hide()
-        caption.setWordWrap(True)
-        caption.setText(f"{item_name}\n×{int(quantity)}")
+        else:
+            icon_label.hide()
+            caption.setWordWrap(True)
+            caption.setText(f"{item_name}\n×{int(quantity)}")
+            if fit_caption_width:
+                button.setFixedWidth(
+                    max(
+                        button.width(),
+                        caption.fontMetrics().horizontalAdvance(item_name) + 12,
+                    )
+                )
+        visual.setGeometry(button.rect())
+        visual.raise_()
 
     def _refresh_carried_layout_grid() -> None:
         for _refresh in carried_grid_refreshers:
@@ -25403,7 +25487,7 @@ def show_main_menu(
                     )
                 )
                 supply_mode_combo.blockSignals(False)
-            _refresh_carried_sections()
+            _refresh_carried_panel()
 
         supply_mode_combo.currentIndexChanged.connect(_on_pack_mode)
         supply_mode_layout.addWidget(supply_mode_label)
@@ -25416,7 +25500,11 @@ def show_main_menu(
                 text = str(get_carried_auto_summary() or "")
                 if text:
                     return text
-            return _combat_loadout_summary_text(player_data)
+            summary = carried_inventory_projection["supply_summary"]
+            if summary is None:
+                summary = combat_supply_loadout_summary_pure(player_data, EQUIPMENT_DATA)
+                carried_inventory_projection["supply_summary"] = summary
+            return _combat_loadout_summary_text(summary)
 
         def _auto_bank_run_text() -> str:
             if get_carried_bank_run_summary is not None:
@@ -25446,7 +25534,7 @@ def show_main_menu(
         def _on_clear_inventory(_checked=False) -> None:
             if on_unload_combat_loadout is not None and on_unload_combat_loadout():
                 _refresh_equipment_views(refresh_visible_skill=True)
-            _refresh_carried_sections()
+            _refresh_carried_panel()
 
         clear_inv_btn.clicked.connect(_on_clear_inventory)
         clear_inv_row = QWidget()
@@ -25602,10 +25690,11 @@ def show_main_menu(
         clear_layout_row_layout.addWidget(clear_layout_btn)
         clear_layout_row_layout.addStretch(1)
         custom_layout.addWidget(clear_layout_row)
+        section_layout.addWidget(custom_view)
 
         current_label = QLabel("Current inventory")
         current_label.setStyleSheet("color: palette(text); font-weight: 600;")
-        custom_layout.addWidget(current_label)
+        section_layout.addWidget(current_label)
         current_inventory_host = QWidget()
         current_inventory_layout = QHBoxLayout(current_inventory_host)
         current_inventory_layout.setContentsMargins(4, 4, 4, 4)
@@ -25623,8 +25712,7 @@ def show_main_menu(
             + current_inventory_scroll.frameWidth() * 2
         )
         current_inventory_scroll.setWidget(current_inventory_host)
-        custom_layout.addWidget(current_inventory_scroll)
-        section_layout.addWidget(custom_view)
+        section_layout.addWidget(current_inventory_scroll)
 
         def _refresh_grid() -> None:
             if get_carried_layout_cells is not None:
@@ -25738,11 +25826,7 @@ def show_main_menu(
 
         def _refresh_current_inventory() -> None:
             _clear_layout(current_inventory_layout)
-            items = (
-                tuple(get_carried_inventory_items())
-                if get_carried_inventory_items is not None
-                else ()
-            )
+            items = carried_inventory_projection["items"]
             if not items:
                 empty = QLabel("Nothing carried for this target yet.")
                 empty.setStyleSheet(f"color: {dim_text_css(empty)};")
@@ -25752,9 +25836,15 @@ def show_main_menu(
                 item_button.setObjectName(
                     f"carriedCurrentItem{name_suffix}::{item_name}"
                 )
-                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
                 icon_path = _item_icon_path(str(item_name))
-                _set_carried_cell_visual(item_button, str(item_name), int(amount), icon_path)
+                item_button.setFixedSize(_CARRIED_CELL_WIDTH, _CARRIED_CELL_HEIGHT)
+                _set_carried_cell_visual(
+                    item_button,
+                    str(item_name),
+                    int(amount),
+                    icon_path,
+                    fit_caption_width=not icon_path,
+                )
                 item_button.setToolTip(f"Currently carrying {item_name} ×{int(amount)}")
                 item_button.setAccessibleName(
                     f"Current inventory: {item_name} ×{int(amount)}"
@@ -25804,6 +25894,7 @@ def show_main_menu(
     carried_header.toggled.connect(_toggle_carried_body)
 
     def _refresh_carried_panel() -> None:
+        _refresh_carried_inventory_projection()
         carried_header.setText(_carried_header_text(carried_header.isChecked()))
         carried_summary.setText(_carried_panel_summary_text())
         _refresh_carried_sections()

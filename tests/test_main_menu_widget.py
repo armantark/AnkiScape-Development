@@ -3329,7 +3329,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(body.isVisibleTo(body.parentWidget()))
         self.assertIn("▾", header.text())
 
-    def test_bank_run_refreshes_collapsed_carried_header_quantity(self) -> None:
+    def test_bank_run_refreshes_collapsed_carried_header_slot_count(self) -> None:
         carried_items = []
         dialog = self._open(
             _make_player_data(),
@@ -3351,7 +3351,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
 
-        self.assertEqual(header.text(), "▸  Carried inventory — Shark ×24")
+        self.assertEqual(header.text(), "▸ Carried — 24/28 slots")
         self.assertFalse(body.isVisibleTo(body.parentWidget()))
         dialog.deleteLater()
 
@@ -3536,6 +3536,126 @@ class MainMenuWidgetTest(unittest.TestCase):
         clear_btn.click()
         QApplication.processEvents()
         self.assertEqual(clear_calls, [True])
+        dialog.deleteLater()
+
+    def test_current_inventory_grid_merges_combat_loot_and_supplies_in_both_modes_and_tabs(self) -> None:
+        pd = _make_player_data()
+        pd["current_combat_target"] = "chicken"
+        pd["inventory"] = {"Shark": 2, "Uncut sapphire": 1, "Coins": 500}
+        pd["carried_inventory"] = {
+            "chicken": {"Shark": 2, "Uncut sapphire": 1}
+        }
+        pd["combat_supply_loadout"] = {
+            "food": {"Shark": 3, "Lobster": 3},
+            "potions": {"Antipoison (4)": 1},
+            "stat_potions": {"Prayer potion (4)": 1},
+            "ammo": {},
+            "runes": {},
+            "finishers": {},
+            "hazards": {},
+            "cannonballs": 25,
+        }
+        carried_items = [("Shark", 2), ("Uncut sapphire", 1), ("Coins", 500)]
+        advanced_calls: list[bool] = []
+        dialog = self._open(
+            pd,
+            current_skill="Combat",
+            carried_auto_is_combat=True,
+            carried_advanced_state=False,
+            get_carried_inventory_items=lambda: tuple(carried_items),
+            on_set_carried_advanced=lambda enabled: advanced_calls.append(enabled),
+            carried_stackable_names=frozenset({"Cannonball"}),
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        _open_equipment_tab(dialog)
+        for _ in range(6):
+            QApplication.processEvents()
+
+        with patch.object(
+            self._ui,
+            "combat_supply_loadout_summary_pure",
+            wraps=self._ui.combat_supply_loadout_summary_pure,
+        ) as supply_summary:
+            self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
+            for _ in range(4):
+                QApplication.processEvents()
+        self.assertEqual(supply_summary.call_count, 1)
+
+        inventory_before = copy.deepcopy(pd["inventory"])
+        loadout_before = copy.deepcopy(pd["combat_supply_loadout"])
+        primary_scroll = dialog.findChild(QScrollArea, "carriedCurrentInventory")
+        self.assertTrue(dialog.findChild(QPushButton, "carriedModeAuto").isChecked())
+        self.assertTrue(primary_scroll.isVisibleTo(dialog))
+        self.assertEqual(
+            dialog.findChild(QPushButton, "carriedCurrentItem::Shark")
+            .findChild(QLabel, "carriedCellCaption")
+            .text(),
+            "×5",
+        )
+        self.assertIsNotNone(
+            dialog.findChild(QPushButton, "carriedCurrentItem::Uncut sapphire")
+        )
+        antipoison = dialog.findChild(
+            QPushButton, "carriedCurrentItem::Antipoison (4)"
+        )
+        self.assertIsNotNone(antipoison)
+        antipoison_caption = antipoison.findChild(QLabel, "carriedCellCaption")
+        self.assertGreaterEqual(
+            antipoison_caption.width(),
+            antipoison_caption.fontMetrics().horizontalAdvance("Antipoison (4)"),
+        )
+        self.assertEqual(
+            dialog.findChild(QPushButton, "carriedCurrentItem::Cannonball")
+            .findChild(QLabel, "carriedCellCaption")
+            .text(),
+            "×25",
+        )
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "carriedCurrentItem::Coins")
+        )
+
+        dialog.findChild(QPushButton, "carriedModeCustom").click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertTrue(primary_scroll.isVisibleTo(dialog))
+        self.assertEqual(pd["inventory"], inventory_before)
+        self.assertEqual(pd["combat_supply_loadout"], loadout_before)
+
+        _open_bank_tab(dialog)
+        header = dialog.findChild(QPushButton, "carriedInventoryHeader")
+        self.assertFalse(header.isChecked())
+        self.assertEqual(
+            header.text(),
+            "▸ Carried — 3 loot · 9 supplies · 12/28 slots",
+        )
+        self.assertNotIn("…", header.text())
+        self.assertLessEqual(
+            header.fontMetrics().horizontalAdvance(header.text()),
+            header.contentsRect().width(),
+        )
+        if not header.isChecked():
+            header.click()
+        for _ in range(6):
+            QApplication.processEvents()
+        bank_scroll = dialog.findChild(QScrollArea, "carriedCurrentInventoryBank")
+        self.assertTrue(bank_scroll.isVisibleTo(dialog))
+        self.assertEqual(
+            dialog.findChild(QPushButton, "carriedCurrentItemBank::Shark")
+            .findChild(QLabel, "carriedCellCaption")
+            .text(),
+            "×5",
+        )
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "carriedCurrentItemBank::Coins")
+        )
+        dialog.findChild(QPushButton, "carriedModeAutoBank").click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertTrue(bank_scroll.isVisibleTo(dialog))
+        self.assertEqual(pd["inventory"], inventory_before)
+        self.assertEqual(pd["combat_supply_loadout"], loadout_before)
+        self.assertEqual(advanced_calls, [True, False])
         dialog.deleteLater()
 
     def test_custom_pack_bank_grid_icons_quantity_menu_and_live_inventory(self) -> None:
@@ -3785,8 +3905,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(current_inventory.isVisibleTo(dialog))
         dialog.findChild(QPushButton, "carriedModeAuto").click()
         QApplication.processEvents()
-        self.assertFalse(current_inventory.isVisibleTo(dialog))
-        self.assertFalse(current_loot.isVisibleTo(dialog))
+        self.assertTrue(current_inventory.isVisibleTo(dialog))
+        self.assertTrue(current_loot.isVisibleTo(dialog))
 
         carried_items[:] = [("Shark", 12)]
         self._ui._MAIN_MENU_CTX["refresh_carried_inventory"]()
