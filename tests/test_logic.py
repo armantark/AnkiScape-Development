@@ -5798,14 +5798,14 @@ class TestLogic(unittest.TestCase):
             with self.subTest(route=route_id):
                 player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
                 inventory_before = dict(player_data["inventory"])
+                player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+                self.assertTrue(ok)
                 player_data, ok = apply_quest_route_choice_pure(
                     player_data,
                     quest_id,
                     QUEST_DATA,
                     route_id,
                 )
-                self.assertTrue(ok)
-                player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
                 self.assertTrue(ok)
 
                 actions = player_data.setdefault("quest_stage_actions", {}).setdefault(quest_id, [])
@@ -5867,15 +5867,28 @@ class TestLogic(unittest.TestCase):
                 }
                 self.assertEqual(grants, expected_grants)
 
-    def test_quest_route_choices_cover_hazeel_and_heroes_inherited_shield_route(self):
+    def test_quest_route_choices_require_started_stage_and_cover_heroes_inherited_shield_route(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(quest_current_stage_choices_pure(player_data, "hazeel_cult", QUEST_DATA), ())
+        unstarted = copy.deepcopy(player_data)
+        rejected, ok = apply_quest_route_choice_pure(
+            player_data,
+            "hazeel_cult",
+            QUEST_DATA,
+            "Side with Hazeel's cult",
+        )
+        self.assertFalse(ok)
+        self.assertIs(rejected, player_data)
+        self.assertEqual(player_data, unstarted)
+
+        player_data, ok = start_quest_pure(player_data, "hazeel_cult", QUEST_DATA)
+        self.assertTrue(ok)
         hazeel_choices = quest_current_stage_choices_pure(player_data, "hazeel_cult", QUEST_DATA)
         self.assertEqual(hazeel_choices[0]["stage"], 1)
         self.assertEqual(
             tuple(option["route_id"] for option in hazeel_choices[0]["options"]),
             ("Side with Ceril Carnillean", "Side with Hazeel's cult"),
         )
-
         player_data, ok = apply_quest_route_choice_pure(
             player_data,
             "hazeel_cult",
@@ -5885,7 +5898,16 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["quest_route_states"]["hazeel_cult"], ["Side with Hazeel's cult"])
         self.assertEqual(quest_current_stage_choices_pure(player_data, "hazeel_cult", QUEST_DATA), ())
-        self.assertFalse(player_data["quests"].get("hazeel_cult", {}).get("started", False))
+        rejected, ok = apply_quest_route_choice_pure(
+            player_data,
+            "hazeel_cult",
+            QUEST_DATA,
+            "Side with Ceril Carnillean",
+        )
+        self.assertFalse(ok)
+        self.assertIs(rejected, player_data)
+        self.assertEqual(rejected["quest_route_states"]["hazeel_cult"], ["Side with Hazeel's cult"])
+        self.assertTrue(player_data["quests"]["hazeel_cult"]["started"])
 
         heroes = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         heroes["quests"]["heroes_quest"] = {"started": True, "progress": 9, "completed": False}

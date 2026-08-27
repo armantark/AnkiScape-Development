@@ -9233,14 +9233,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotIn("Use the weapon store key", action.toolTip())
         self.assertIn("Weaponsmaster level 23", action.toolTip())
 
-    def test_quests_tab_shows_hazeel_side_choice_before_start(self) -> None:
+    def test_quests_tab_hides_hazeel_side_choice_until_quest_starts(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "hazeel_cult"
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        self.assertIn("Choose path: Ceril Carnillean or Hazeel's cult", labels)
+        self.assertNotIn("Choose path: Ceril Carnillean or Hazeel's cult", labels)
+        action = dialog.findChild(QPushButton, "questAction_hazeel_cult")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "questChoice_hazeel_cult_side_with_hazeel_s_cult")
+        )
+
+        started_pd = _make_player_data()
+        started_pd["current_quest"] = "hazeel_cult"
+        started_pd["quests"]["hazeel_cult"] = {"started": True, "progress": 0, "completed": False}
+        dialog = self._open(started_pd)
+        _open_quests_tab(dialog)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Blocked: Choose path: Ceril Carnillean or Hazeel's cult", labels)
         action = dialog.findChild(QPushButton, "questAction_hazeel_cult")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
