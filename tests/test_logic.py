@@ -228,6 +228,11 @@ QUEST_UNLOCK_REPLACEMENT_GUARD: Dict[str, FrozenSet[str]] = {
         "Soul Wars is added to the available respawn points.",
     }),
     "observatory_quest": frozenset({"Talk to Historian Minas at the Varrock Museum to receive 5 Kudos."}),
+    "recipe_for_disaster_freeing_skrach_uglogwee": frozenset({
+        "(Further) access to the Culinaromancer's chest",
+        "Able to use the boat trip to travel between Karamja and Feldip Hills.",
+        "The ability to hunt Jubblies. (Counts for 1 point when hunting Chompies, though provides more range experience when killed, and Big Bones as a drop when killed, and the Raw jubbly gives more experience when cooked than a Raw chompy).",
+    }),
     "rocking_out": frozenset({
         "Ability to buy Braindeath 'rum' from The Rusty Anchor Inn",
         "Ability to catch Pirate implings with 76 Hunter",
@@ -290,6 +295,7 @@ QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "let_them_eat_pie": frozenset({("Expensive spices", 1), ("Meat pie", 5)}),
     "meeting_history": frozenset({("Enchanted key", 1)}),
     "missing_my_mummy": frozenset({("Coins", 5000)}),
+    "recipe_for_disaster_freeing_skrach_uglogwee": frozenset(),
     "monks_friend": frozenset({("Law rune", 8)}),
     "nomads_requiem": frozenset({("Soul Wars cape", 1)}),
     "observatory_quest": frozenset({("Maple longbow", 1), ("Uncut sapphire", 1)}),
@@ -303,6 +309,7 @@ QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "stolen_hearts": frozenset({("Coins", 2500)}),
     "the_dig_site": frozenset({("Fruit blast", 1), ("Gold bar", 2)}),
     "the_golem": frozenset({}),
+    "the_tale_of_the_muspah": frozenset({("Sapphire", 4)}),
     "the_grand_tree": frozenset({}),
     "tree_gnome_village": frozenset({("Gnome amulet", 1)}),
 }
@@ -3511,19 +3518,8 @@ class TestLogic(unittest.TestCase):
             player_data[f"{skill_id}_level"] = 10
         player_data["inventory"].update(
             {
-                "Amulet of glory": 1,
                 "Cosmic rune": 8,
-                "Desert clothing": 1,
-                "Explorer's ring": 1,
-                "Hatchet": 1,
-                "Knife": 1,
                 "Sapphire": 8,
-                "Spade": 1,
-                "Tinderbox": 1,
-                "Waterskin": 1,
-                "Water rune": 8,
-                "Water staff": 1,
-                "Weight-reducing clothing": 1,
             }
         )
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
@@ -3587,7 +3583,7 @@ class TestLogic(unittest.TestCase):
                     "Enchant the sapphires for Ali the Wise",
                     "Bore and enchant the sapphires around Jhallan",
                 ),
-                {"Sapphire": 8},
+                {"Sapphire": 12},
             ),
         )
         for progress, completed, actions, inventory in expected_steps:
@@ -3811,7 +3807,7 @@ class TestLogic(unittest.TestCase):
             }
         for requirement in quest["required_skills"]:
             player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
-        player_data["inventory"].update({"Gold bar": 1, "Ball of wool": 1, "Bananas": 5})
+        player_data["inventory"].update({"Gold bar": 1, "Ball of wool": 1, "Banana": 5})
 
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -3911,8 +3907,8 @@ class TestLogic(unittest.TestCase):
             player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
         player_data["inventory"].update(
             {
-                "Bronze helm": 1,
-                "Granite": 1,
+                "Bronze med helm": 1,
+                "Granite (500g)": 1,
                 "Iron chainbody": 1,
                 "Lockpick": 1,
             }
@@ -10746,6 +10742,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
+        player_data["inventory"]["Bronze hatchet"] = 1
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)

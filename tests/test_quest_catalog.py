@@ -2,9 +2,18 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from ankiscape.data.summoning_data import SUMMONING_POUCHES
 from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG, PRE_EOC_QUEST_CATALOG_SOURCE
 from ankiscape.core.constants import ITEM_DEFINITIONS
-from ankiscape.data.quest_data import CLAIMS_BY_ID, QUESTS, QUESTS_BY_ID, quest_reward_items_as_dict, quests_as_dict
+from ankiscape.data.quest_data import (
+    CLAIMS_BY_ID,
+    QUESTS,
+    QUESTS_BY_ID,
+    QUEST_REWARD_ITEM_NAME_OVERRIDES,
+    QUEST_STAGE_ITEM_NAME_OVERRIDES,
+    quest_reward_items_as_dict,
+    quests_as_dict,
+)
 from tools.audit_quest_local_item_gates import quest_local_gate_candidates
 
 
@@ -1426,16 +1435,32 @@ class TestQuestCatalog(unittest.TestCase):
         data = quests_as_dict()
         forbidden_by_quest = {
             "monkey_madness": {"Monkey Dentures", "M'Amulet mould", "Monkey talisman"},
-            "rat_catchers": {"Rat poison"},
-            "mournings_end_part_i": {"Lletya", "Oronwen", "Rotten apple"},
+            "rat_catchers": {"Rat poison", "Cat", "Hellcat"},
+            "mournings_end_part_ii": {"Mourner gear"},
+            "mournings_end_part_i": {
+                "Lletya",
+                "Oronwen",
+                "Rotten apple",
+                "Bow",
+                "Rope",
+                "Plank",
+                "Barrel",
+                "Barrel of coal-tar",
+                "Arrows",
+                "Dye",
+            },
+            "a_tail_of_two_cats": {"Cat", "Hellcat", "Kitten"},
             "death_to_the_dorgeshuun": {"Tears of Guthix cavern"},
             "elemental_workshop_ii": {"Beaten Book", "Slashed book"},
-            "enlightened_journey": {"Willow branch"},
             "icthlarins_little_helper": {
                 "About 750 coins",
                 "Poison Purge",
                 "Nardah Teleport Scroll",
                 "Bucket of sap",
+                "Kitten",
+                "Cat",
+                "Overgrown cat",
+                "Hellcat",
             },
             "making_history": {
                 "Ardougne",
@@ -1463,14 +1488,29 @@ class TestQuestCatalog(unittest.TestCase):
             "in_pyre_need": {"Fairy Rings", "Phoenix lair teleport"},
             "kings_ransom": {"Animate rock scroll"},
             "dealing_with_scabaras": {"Agility Pyramid", "Random Bronze armours/weapons"},
-            "roving_elves": {"Good Food"},
+            "roving_elves": {"Good Food", "Antipoison potion"},
+            "horror_from_the_deep": {"Sword", "Arrow"},
+            "ghosts_ahoy": {"Dye"},
             "rum_deal": {"Armour", "Food"},
             "spirits_of_the_elid": {"Telegrab"},
-            "enakhras_lament": {"Crumble Undead"},
-            "in_aid_of_the_myreque": {"Food", "Enchant sapphire"},
+            "enakhras_lament": {"Crumble Undead", "Sandstone", "Runes", "Fire Bolt", "Wind Bolt"},
+            "in_aid_of_the_myreque": {"Food", "Enchant sapphire", "Nails"},
             "dream_mentor": {"Food"},
-            "back_to_my_roots": {"Food", "Shilo Village"},
-            "rocking_out": {"Brimhaven tablet", "Ectophial", "Rimmington", "Rimmington tablet", "Love Story"},
+            "back_to_my_roots": {
+                "Food",
+                "Shilo Village",
+                "Any woodcutting hatchet",
+                "Antipoison",
+                "Prayer Book",
+            },
+            "rocking_out": {
+                "Pirate clothing",
+                "Brimhaven tablet",
+                "Ectophial",
+                "Rimmington",
+                "Rimmington tablet",
+                "Love Story",
+            },
             "glorious_memories": {
                 "Teleport to House",
                 "Player-owned house",
@@ -1497,12 +1537,14 @@ class TestQuestCatalog(unittest.TestCase):
                 "Pollnivneach",
                 "Enchant sapphire",
                 "Food",
+                "Water rune",
+                "Water staff",
             },
             "legacy_of_seergaze": {"Enchant Level 2 Jewellery"},
             "meeting_history": {"Making History"},
             "while_guthix_sleeps": {"NPC Contact"},
             "blood_runs_deep": {"Food", "Prayer Potion", "Armour"},
-            "desert_treasure": {"Thieving"},
+            "desert_treasure": {"Thieving", "Antipoison"},
             "troll_romance": {"Combat gear and good food"},
             "the_fremennik_isles": {"Mining", "Yak hide armour", "Fremennik round shield"},
             "within_the_light": {
@@ -1512,11 +1554,68 @@ class TestQuestCatalog(unittest.TestCase):
                 "Tarnished key",
                 "Crystal trinket",
                 "Colour wheel",
+                "Mourner gear",
                 "Shadow",
                 "Prayer potions",
             },
-            "the_firemakers_curse": {"Food", "Let Them Eat Pie"},
+            "regicide": {"Bow", "Arrows", "Underground Pass (dungeon)"},
+            "wanted": {"Seers' headband", "Rope", "Lumbridge Swamp Caves", "Tinderbox"},
+            "the_hand_in_the_sand": {"Brimhaven", "Yanille", "Explorer's Ring 3"},
+            "the_slug_menace": {"Abyss", "Great Orb Project"},
+            "gunnars_ground": {
+                "The lodestone in Edgeville activated",
+                "Amulet of glory",
+                "Using a skull sceptre",
+            },
+            "mountain_daughter": {
+                "White Wolf Mountain",
+                "Super energy potion",
+                "Enchanted Lyre",
+                "Weight-reducing clothing",
+                "Games Necklace",
+                "Ring of slaying",
+            },
+            "recipe_for_disaster_freeing_evil_dave": {
+                "Wily cat",
+                "Lazy cat",
+                "Cat",
+                "Kitten",
+            },
+            "recipe_for_disaster_freeing_sir_amik_varze": {
+                "Fairytale III - Battle at Orks Rift",
+                "Hatchet",
+            },
+            "throne_of_miscellania": {"Woodcutting", "Rake", "Ring", "Harpoon"},
+            "legends_quest": {
+                "RuneScape Germany",
+                "RuneScape France",
+                "RuneScape Brazilian",
+            },
+            "royal_trouble": {"Energy potion", "Giant Sea Snake", "Agility potion", "Agility"},
+            "summers_end": {"Summoning pouch", "Blue charm", "Giant chinchompa", "Albino Rat"},
+            "smoking_kills": {"Kitten", "Cat", "Overgrown cat", "Hellcat"},
+            "do_no_evil": {"Cat"},
+            "the_giant_dwarf": {"Telekinetic Grab"},
+            "the_temple_at_senntisten": {"Telekinetic Grab"},
+            "the_darkness_of_hallowvale": {"Nails", "Telekinetic Grab"},
+            "the_great_brain_robbery": {"Nails", "Fur"},
+            "nomads_requiem": {"Fire wave"},
+            "my_arms_big_adventure": {"Tool leprechaun"},
+            "the_chosen_commander": {"Seers' Village Tasks"},
+            "as_a_first_resort": {"Hatchet", "Spears", "Larupia furs"},
+            "the_golem": {"Jug", "Water"},
+            "perils_of_ice_mountain": {"Nail"},
+            "toktz_ket_dill": {"A crush weapon"},
+            "land_of_the_goblins": {"Recommends Combat level 85 +"},
+            "the_firemakers_curse": {
+                "Food",
+                "Let Them Eat Pie",
+                "Weight-reducing clothing",
+                "Attack speed",
+                "Expensive_spices_(necklace)",
+            },
         }
+
         violations = []
         for quest_id, forbidden_items in forbidden_by_quest.items():
             for requirement in data[quest_id]["stage_requirements"]:
@@ -1548,6 +1647,139 @@ class TestQuestCatalog(unittest.TestCase):
             {"Vial": 1, "Clean kwuarm": 1, "Red spiders' eggs": 1},
         )
         self.assertEqual(rat_catchers_stage_1["produced_inventory"], {"Rat poison": 1})
+
+    def test_stage_item_aliases_resolve_to_canonical_storage_keys(self):
+        storage_keys = {definition.storage_key for definition in ITEM_DEFINITIONS}
+        self.assertEqual(set(QUEST_STAGE_ITEM_NAME_OVERRIDES.values()) - storage_keys, set())
+        self.assertEqual(set(QUEST_REWARD_ITEM_NAME_OVERRIDES.values()) - storage_keys, set())
+        self.assertEqual(
+            set(QUEST_REWARD_ITEM_NAME_OVERRIDES) & set(quest_reward_items_as_dict()),
+            set(),
+        )
+        aliases = set(QUEST_STAGE_ITEM_NAME_OVERRIDES)
+        violations = []
+        for quest_id, quest in quests_as_dict().items():
+            for requirement in quest["stage_requirements"]:
+                item_names = set(requirement["required_inventory"])
+                item_names.update(requirement["consumed_inventory"])
+                item_names.update(requirement["produced_inventory"])
+                item_names.update(requirement["required_tools"])
+                for option_group in requirement["required_inventory_options"]:
+                    for option in option_group:
+                        item_names.update(option)
+                for option_group in requirement["consumed_inventory_options"]:
+                    for option in option_group:
+                        item_names.update(option)
+                for item_name in sorted(item_names & aliases):
+                    violations.append((quest_id, requirement["stage"], item_name))
+
+        self.assertEqual(violations, [])
+
+    def test_source_backed_requirement_repairs_preserve_real_predicates(self):
+        data = quests_as_dict()
+        stages = {
+            quest_id: {row["stage"]: row for row in quest["stage_requirements"]}
+            for quest_id, quest in data.items()
+        }
+
+        enlightened_stage_3 = stages["enlightened_journey"][3]
+        self.assertEqual(enlightened_stage_3["required_inventory"]["Willow branch"], 12)
+
+        mourning_by_stage = stages["mournings_end_part_i"]
+        self.assertEqual(mourning_by_stage[1]["required_inventory"], {"Coal": 1})
+        sir_amik_stage_1 = data["recipe_for_disaster_freeing_sir_amik_varze"]["stage_requirements"][0]
+        self.assertEqual(
+            sir_amik_stage_1["required_inventory_options"],
+            (({"Dramen staff": 1}, {"Lunar Staff": 1}),),
+        )
+        self.assertEqual(sir_amik_stage_1["required_tools"], {})
+
+        regicide_stage_1 = data["regicide"]["stage_requirements"][0]
+        self.assertEqual(regicide_stage_1["required_inventory"]["Rope"], 1)
+
+        royal_by_stage = stages["royal_trouble"]
+        self.assertEqual(royal_by_stage[1]["required_inventory"], {})
+        self.assertEqual(royal_by_stage[1]["required_inventory_options"], ())
+        self.assertEqual(
+            tuple(encounter["display_name"] for encounter in royal_by_stage[5]["combat_encounters"]),
+            ("Giant Sea Snake",),
+        )
+
+        path_stage_4 = stages["the_path_of_glouphrie"][4]
+        self.assertEqual(
+            path_stage_4["required_inventory"],
+            {"Crossbow": 1, "Mith grapple": 1},
+        )
+
+        summer_stage_1 = data["summers_end"]["stage_requirements"][0]
+        self.assertEqual(
+            summer_stage_1["required_inventory_options"],
+            (
+                tuple(
+                    {pouch.pouch_name: 1}
+                    for pouch in SUMMONING_POUCHES
+                    if pouch.charm == "Blue charm"
+                ),
+            ),
+        )
+        self.assertEqual(summer_stage_1["required_tools"]["Hatchet"], 1)
+
+        tale = data["the_tale_of_the_muspah"]
+        tale_stage_1 = tale["stage_requirements"][0]
+        self.assertEqual(tale["rewards"], {"Sapphire": 4})
+        reward_items = quest_reward_items_as_dict()
+        self.assertNotIn("Mahjarrat Ritual Site Cavern", reward_items)
+        self.assertNotIn("Karamja", reward_items)
+        self.assertNotIn("Sapphires", reward_items)
+        self.assertIn("Sapphire", reward_items)
+        self.assertEqual(tale_stage_1["required_inventory"], {"Cosmic rune": 8})
+        self.assertEqual(tale_stage_1["required_inventory_options"], ())
+
+        skrach = data["recipe_for_disaster_freeing_skrach_uglogwee"]
+        self.assertEqual(skrach["rewards"], {})
+        self.assertIn(
+            "Able to use the boat trip to travel between Karamja and Feldip Hills.",
+            skrach["unlocks"],
+        )
+
+        slug_stage_1 = data["the_slug_menace"]["stage_requirements"][0]
+        self.assertEqual(slug_stage_1["required_inventory"], {"Swamp paste": 1})
+        self.assertEqual(
+            slug_stage_1["required_inventory_options"],
+            (
+                ({"Rune essence": 5}, {"Pure essence": 5}),
+                ({"Earth talisman": 1}, {"Elemental talisman": 1}, {"Omni-talisman": 1}),
+                ({"Water talisman": 1}, {"Elemental talisman": 1}, {"Omni-talisman": 1}),
+                ({"Fire talisman": 1}, {"Elemental talisman": 1}, {"Omni-talisman": 1}),
+                ({"Air talisman": 1}, {"Elemental talisman": 1}, {"Omni-talisman": 1}),
+                ({"Mind talisman": 1}, {"Omni-talisman": 1}),
+            ),
+        )
+
+        lost_city_stage_4 = stages["lost_city"][4]
+        self.assertEqual(lost_city_stage_4["required_inventory_options"], ())
+        self.assertEqual(lost_city_stage_4["required_tools"], {"Hatchet": 1})
+
+        nail_stages = {
+            "in_aid_of_the_myreque": 2,
+            "the_darkness_of_hallowvale": 1,
+            "the_great_brain_robbery": 1,
+        }
+        for quest_id, stage_number in nail_stages.items():
+            stage = stages[quest_id][stage_number]
+            self.assertNotIn("Nails", stage["required_inventory"])
+            self.assertEqual(stage["required_inventory_options"], ())
+
+        kings_stage_1 = data["kings_ransom"]["stage_requirements"][0]
+        self.assertEqual(kings_stage_1["required_inventory"]["Bronze med helm"], 1)
+        enakhra_stage_2 = stages["enakhras_lament"][2]
+        self.assertEqual(enakhra_stage_2["required_inventory"], {"Granite (5kg)": 1})
+        zogre_stage_4 = stages["zogre_flesh_eaters"][4]
+        self.assertEqual(zogre_stage_4["required_inventory"]["Clean rogue's purse"], 1)
+
+        golem_stage_2 = stages["the_golem"][2]
+        self.assertEqual(golem_stage_2["required_inventory"], {"Soft clay": 4})
+        self.assertEqual(golem_stage_2["required_inventory_options"], ())
 
     def test_generated_catalog_enriches_safe_combat_name_matches(self):
         data = quests_as_dict()
@@ -2010,10 +2242,8 @@ class TestQuestCatalog(unittest.TestCase):
                 for action in row["required_actions"]
             )
         )
-        self.assertEqual(
-            by_stage[1]["required_inventory_options"],
-            (({"Kitten": 1}, {"Cat": 1}, {"Overgrown cat": 1}, {"Hellcat": 1}),),
-        )
+        for stage in (1, 2):
+            self.assertEqual(by_stage[stage]["required_inventory_options"], ())
         self.assertEqual(
             by_stage[1]["consumed_inventory"],
             {"Tinderbox": 1, "Waterskin (4)": 1},
@@ -2078,10 +2308,8 @@ class TestQuestCatalog(unittest.TestCase):
             )
         )
         self.assertEqual(tuple(by_stage), tuple(range(1, 13)))
-        self.assertEqual(
-            by_stage[1]["required_inventory_options"],
-            (({"Kitten": 1}, {"Cat": 1}, {"Overgrown cat": 1}, {"Hellcat": 1}),),
-        )
+        for stage in (1, 2, 5):
+            self.assertEqual(by_stage[stage]["required_inventory_options"], ())
         self.assertEqual(by_stage[2]["required_tools"], {"Catspeak amulet": 1, "Pickaxe": 1})
         self.assertEqual(
             by_stage[3]["produced_inventory"],

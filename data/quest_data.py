@@ -9,6 +9,7 @@ from typing import Dict, Mapping, Tuple, Union
 from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
+from .summoning_data import SUMMONING_POUCHES
 
 from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
 from .herblore_data import (
@@ -968,14 +969,77 @@ COUNT_DRAYNOR_NPC_SOURCE_PATH = (
 )
 HUNTER_PRIEST_IN_PERIL_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_29"
 
+QUEST_REWARD_NON_ITEM_NAMES = frozenset({
+    "Karamja",
+    "Mahjarrat Ritual Site Cavern",
+})
+
+
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
     "Amulet of ghostspeak": "Ghostspeak amulet",
     "Ring of charos": "Ring of Charos",
+    "Sapphires": "Sapphire",
     # Eagles' Peak's pinned revision lists "A box trap." — parser mangling of a
     # real rev-742 item (10008, the placeable trap with the Lay action), not a
     # junk string. Normalise it onto the canonical item instead of prohibiting
     # the name and dropping a genuine reward.
     "A box trap.": "Box trap",
+}
+
+# The pinned quest pages often spell one canonical item with link labels,
+# plurals, or historical display-name ordering. Keep those source words in the
+# generated catalogue, then resolve them onto the storage keys used by actions.
+QUEST_STAGE_ITEM_NAME_OVERRIDES = {
+    "Amulet of Ghostspeak": "Ghostspeak amulet",
+    "Bananas": "Banana",
+    "Bat Bones": "Bat bones",
+    "Black Candle": "Black candle",
+    "Blood runes": "Blood rune",
+    "Bronze helm": "Bronze med helm",
+    "Body runes": "Body rune",
+    "Bowstring": "Bow string",
+    "Bronze hatchets": "Bronze hatchet",
+    "Buckets": "Bucket",
+    "Clean Guam": "Clean guam",
+    "Ecto token": "Ecto-token",
+    "Ectotokens": "Ecto-token",
+    "Emeralds": "Emerald",
+    "Empty Pot": "Empty pot",
+    "Feathers": "Feather",
+    "Fruit Blast": "Fruit blast",
+    "Ghostspeak Amulet": "Ghostspeak amulet",
+    "Granite rock": "Granite (5kg)",
+    "Ground Bat bones": "Ground bat bones",
+    "Jade (gem)": "Jade",
+    "Jangerberry": "Jangerberries",
+    "Lava runes": "Lava rune",
+    "Log": "Logs",
+    "Magic log": "Magic logs",
+    "Maple log": "Maple logs",
+    "Mind runes": "Mind rune",
+    "Mist runes": "Mist rune",
+    "Mithril bars": "Mithril bar",
+    "Mithril grapple": "Mith grapple",
+    "Mort Myre Fungus": "Mort myre fungus",
+    "Oak log": "Oak logs",
+    "Oak planks": "Oak plank",
+    "Ogre arrows": "Ogre arrow",
+    "Pestle and Mortar": "Pestle and mortar",
+    "Planks": "Plank",
+    "Pot of Flour": "Pot of flour",
+    "Potatoes": "Potato",
+    "Rock Climbing boots": "Rock climbing boots",
+    "Rogue's purse": "Clean rogue's purse",
+    "Rune Pickaxe": "Rune pickaxe",
+    "Secateur": "Secateurs",
+    "Steam runes": "Steam rune",
+    "Steel bars": "Steel bar",
+    "Steel nail": "Steel nails",
+    "Stripy feathers": "Stripy feather",
+    "Tinderboxes": "Tinderbox",
+    "Willow branches": "Willow branch",
+    "Willow log": "Willow logs",
+    "Wolf Bones": "Wolf bones",
 }
 
 
@@ -3771,6 +3835,9 @@ class QuestStageRequirementCleanup:
     remove_required_tools: Tuple[str, ...] = ()
     add_required_tools: Tuple[Tuple[str, int], ...] = ()
     remove_required_actions: Tuple[str, ...] = ()
+    add_required_inventory: Tuple[Tuple[str, int], ...] = ()
+    add_required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
+    add_required_tools: Tuple[Tuple[str, int], ...] = ()
     add_required_actions: Tuple[str, ...] = ()
     add_auto_actions: Tuple[str, ...] = ()
     remove_required_routes: Tuple[str, ...] = ()
@@ -4327,6 +4394,10 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     "in_aid_of_the_myreque": (),
     "let_them_eat_pie": (("Expensive spices", 1), ("Meat pie", 5)),
     "meeting_history": (("Enchanted key", 1),),
+    "recipe_for_disaster_freeing_skrach_uglogwee": (),
+    # The pinned reward is four sapphires; the cavern text is an access unlock,
+    # not an inventory item.
+    "the_tale_of_the_muspah": (("Sapphire", 4),),
     "missing_my_mummy": (("Coins", 5000),),
     "nomads_requiem": (("Soul Wars cape", 1),),
     "observatory_quest": (("Maple longbow", 1), ("Uncut sapphire", 1)),
@@ -4362,6 +4433,11 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
     ),
     "a_tail_of_two_cats": (
         "Talk to Historian Minas in the Varrock Museum to receive 5 Kudos.",
+    ),
+    "recipe_for_disaster_freeing_skrach_uglogwee": (
+        "Able to use the boat trip to travel between Karamja and Feldip Hills.",
+        "(Further) access to the Culinaromancer's chest",
+        "The ability to hunt Jubblies. (Counts for 1 point when hunting Chompies, though provides more range experience when killed, and Big Bones as a drop when killed, and the Raw jubbly gives more experience when cooked than a Raw chompy).",
     ),
     ANOTHER_SLICE_OF_H_A_M_ID: (
         "Ability to buy Goblin Village teleport orbs",
@@ -8586,6 +8662,16 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
 }
 
 
+CAT_FOLLOWER_STATE_NAMES: Tuple[str, ...] = (
+    "Kitten",
+    "Cat",
+    "Overgrown cat",
+    "Hellcat",
+    "Wily cat",
+    "Lazy cat",
+)
+
+
 QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {
     "monkey_madness": (
         QuestStageRequirementCleanup(
@@ -8601,28 +8687,63 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Rat poison",),
+            remove_required_inventory_options=CAT_FOLLOWER_STATE_NAMES,
             remove_required_actions=("Complete Rat Catchers stage 1 objective",),
             add_auto_actions=("Have Hooknosed Jack make rat poison",),
             add_consumed_inventory=(("Vial", 1), ("Clean kwuarm", 1), ("Red spiders' eggs", 1)),
             add_produced_inventory=(("Rat poison", 1),),
         ),
     ),
+    "mournings_end_part_ii": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Mourner gear",),
+        ),
+    ),
     "mournings_end_part_i": (
         QuestStageRequirementCleanup(
             stage=1,
-            remove_required_inventory=("Lletya", "Elf teleport crystal"),
+            remove_required_inventory=(
+                "Lletya",
+                "Elf teleport crystal",
+                "Bow",
+                "Rope",
+                "Plank",
+                "Barrel of coal-tar",
+                "Barrel",
+            ),
             remove_required_actions=("Complete Mourning's End Part I stage 1 objective",),
             add_auto_actions=("Reach Lletya",),
         ),
         QuestStageRequirementCleanup(
             stage=3,
-            remove_required_inventory=("Oronwen",),
+            remove_required_inventory=("Oronwen", "Dye"),
             add_required_actions=("Have Oronwen repair the mourner trousers",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_inventory=("Arrows",),
         ),
         QuestStageRequirementCleanup(
             stage=5,
             remove_required_inventory=("Rotten apple",),
             add_required_actions=("Use the rotten apple to sabotage the mourner food stores",),
+        ),
+    ),
+    "icthlarins_little_helper": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory_options=CAT_FOLLOWER_STATE_NAMES,
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory_options=CAT_FOLLOWER_STATE_NAMES,
+        ),
+    ),
+    "a_tail_of_two_cats": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory_options=CAT_FOLLOWER_STATE_NAMES,
         ),
     ),
     "death_to_the_dorgeshuun": (
@@ -8832,10 +8953,6 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             add_consumed_inventory=(("Sack", 8),),
             add_produced_inventory=(("Sandbag", 8),),
         ),
-        QuestStageRequirementCleanup(
-            stage=3,
-            remove_required_inventory=("Willow branch",),
-        ),
     ),
     "making_history": (
         QuestStageRequirementCleanup(
@@ -8902,7 +9019,9 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Wicked hood",
                 "Fairy Ring",
                 "Wizard's Tower",
+                "Hatchet",
             ),
+            remove_required_inventory_options=("Summer pie", "Agility potion"),
             remove_required_actions=("Complete Myths of the White Lands stage 1 objective",),
             add_auto_actions=("Reach the Wizard's Tower ice cave",),
         ),
@@ -8917,6 +9036,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
     ),
     "the_fremennik_isles": (
         QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Mining",)),
+        QuestStageRequirementCleanup(stage=3, remove_required_inventory=("Hatchet",)),
         QuestStageRequirementCleanup(
             stage=5,
             remove_required_inventory=("Yak hide armour", "Fremennik round shield"),
@@ -8927,6 +9047,20 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Animate rock scroll",),
+            remove_required_inventory_options=(
+                "Granite",
+                "Ring of stone",
+                "Telekinetic Grab",
+                "Lockpick",
+            ),
+            add_required_inventory_options=(
+                (
+                    ("Granite (500g)", 1),
+                    ("Granite (2kg)", 1),
+                    ("Granite (5kg)", 1),
+                    ("Ring of stone", 1),
+                ),
+            ),
             remove_required_actions=("Complete King's Ransom stage 1 objective",),
             add_auto_actions=(
                 "Receive the animate rock scroll from Wizard Cromperty after recovering the Holy Grail",
@@ -8996,10 +9130,19 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             source=DEALING_WITH_SCABARAS_DARKAN_SOURCE,
         ),
     ),
+    "horror_from_the_deep": (
+        QuestStageRequirementCleanup(
+            stage=6,
+            remove_required_inventory=("Sword", "Arrow"),
+        ),
+    ),
+    "ghosts_ahoy": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Dye",)),
+    ),
     "roving_elves": (
         QuestStageRequirementCleanup(
             stage=1,
-            remove_required_inventory=("Good Food",),
+            remove_required_inventory=("Good Food", "Antipoison potion"),
         ),
     ),
     "rum_deal": (
@@ -9017,8 +9160,16 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
     ),
     "enakhras_lament": (
         QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Sandstone", "Runes"),
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_inventory=("Fire Bolt",),
+        ),
+        QuestStageRequirementCleanup(
             stage=5,
-            remove_required_inventory=("Crumble Undead",),
+            remove_required_inventory=("Crumble Undead", "Wind Bolt"),
             add_required_actions=("Cast Crumble Undead during the boneguard fight",),
         ),
     ),
@@ -9027,6 +9178,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             stage=1,
             remove_required_inventory=("Food",),
         ),
+        QuestStageRequirementCleanup(stage=2, remove_required_inventory=("Nails",)),
         QuestStageRequirementCleanup(
             stage=6,
             remove_required_inventory_options=("Enchant sapphire",),
@@ -9043,7 +9195,8 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=1,
             remove_required_inventory=("Food",),
-            remove_required_inventory_options=("Shilo Village",),
+            remove_required_inventory_options=("Shilo Village", "Antipoison", "Prayer Book"),
+            remove_required_tools=("Any woodcutting hatchet",),
             remove_required_actions=("Complete Back to my Roots stage 1 objective",),
             add_auto_actions=("Reach the Karamja jungle route",),
         ),
@@ -9051,7 +9204,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
     "rocking_out": (
         QuestStageRequirementCleanup(
             stage=1,
-            remove_required_inventory=("Brimhaven tablet", "Ectophial"),
+            remove_required_inventory=("Pirate clothing", "Brimhaven tablet", "Ectophial"),
             remove_required_inventory_options=("Rimmington", "Rimmington tablet", "Love Story"),
             remove_required_actions=("Complete Rocking Out stage 1 objective",),
             add_auto_actions=("Reach the Rimmington customs office",),
@@ -9060,7 +9213,28 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
     "glorious_memories": (
         QuestStageRequirementCleanup(
             stage=1,
-            remove_required_inventory=("Teleport to House", "Player-owned house", "Rellekka", "Rellekka tablet", "Ring of wealth"),
+            remove_required_inventory=(
+                "Teleport to House",
+                "Player-owned house",
+                "Rellekka",
+                "Rellekka tablet",
+                "Ring of wealth",
+                "Earth rune",
+                "Earth staff",
+                "Lava battlestaff",
+                "Mindspike (earth)",
+                "Mud battlestaff",
+            ),
+            remove_required_inventory_options=("Staff", "Pole"),
+            add_required_inventory_options=(
+                (
+                    ("Earth rune", 10),
+                    ("Staff of earth", 1),
+                    ("Lava battlestaff", 1),
+                    ("Mindspike (earth)", 1),
+                    ("Mud battlestaff", 1),
+                ),
+            ),
             remove_required_actions=("Complete Glorious Memories stage 1 objective",),
             add_auto_actions=("Reach Rellekka and Miscellania",),
         ),
@@ -9101,7 +9275,20 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Broomstick",
                 "Sorceress's Garden",
                 "Food",
+                "Water rune",
+                "Water staff",
+                "Desert clothing",
+                "Weight-reducing clothing",
             ),
+            remove_required_inventory_options=(
+                "Waterskin",
+                "Enchanted water tiara",
+                "Explorer's ring",
+                "Energy potion",
+                "Amulet of glory",
+                "Ring of duelling",
+            ),
+            remove_required_tools=("Tinderbox", "Hatchet"),
             add_auto_actions=(
                 "Cast Enchant Level 1 Jewellery for the sapphire preparations",
                 "Reach the Muspah cave route through Rellekka and Pollnivneach",
@@ -9111,12 +9298,14 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=2,
             remove_required_inventory=("Rellekka",),
+            remove_required_tools=("Knife",),
             remove_required_actions=("Complete The Tale of the Muspah stage 2 objective",),
             add_auto_actions=("Reach Rellekka",),
         ),
         QuestStageRequirementCleanup(
             stage=3,
             remove_required_inventory=("Pollnivneach",),
+            remove_required_tools=("Spade",),
             remove_required_actions=("Complete The Tale of the Muspah stage 3 objective",),
             add_auto_actions=("Reach Pollnivneach",),
         ),
@@ -9166,11 +9355,13 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
     ),
     "desert_treasure": (
         QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Thieving",)),
+        QuestStageRequirementCleanup(stage=7, remove_required_inventory=("Antipoison",)),
     ),
     "troll_romance": (
         QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Combat gear and good food",)),
     ),
     "do_no_evil": (
+        QuestStageRequirementCleanup(stage=2, remove_required_inventory=CAT_FOLLOWER_STATE_NAMES),
         QuestStageRequirementCleanup(
             stage=3,
             remove_required_inventory=("M'amulet mould",),
@@ -9187,6 +9378,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Tarnished key",
                 "Crystal trinket",
                 "Colour wheel",
+                "Mourner gear",
                 "Shadow",
                 "Prayer potions",
             ),
@@ -9199,11 +9391,250 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
                 "Recover the Temple of Light keys and crystal puzzle pieces",
             ),
         ),
+        QuestStageRequirementCleanup(stage=3, remove_required_inventory=("Hatchet",)),
+    ),
+    "regicide": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Bow", "Arrows", "Underground Pass (dungeon)"),
+            add_required_inventory=(("Rope", 1),),
+        ),
+    ),
+    "wanted": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Seers' headband", "Rope", "Lumbridge Swamp Caves"),
+            remove_required_tools=("Tinderbox",),
+        ),
+    ),
+    "the_hand_in_the_sand": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Brimhaven", "Yanille", "Explorer's Ring 3"),
+        ),
+    ),
+    "the_slug_menace": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Earth talisman",
+                "Water talisman",
+                "Fire talisman",
+                "Air talisman",
+                "Mind talisman",
+                "Elemental talisman",
+                "Omni-talisman",
+                "Abyss",
+                "Great Orb Project",
+            ),
+            remove_required_inventory_options=("Rune essence", "Pure essence"),
+            add_required_inventory_options=(
+                (("Rune essence", 5), ("Pure essence", 5)),
+                (("Earth talisman", 1), ("Elemental talisman", 1), ("Omni-talisman", 1)),
+                (("Water talisman", 1), ("Elemental talisman", 1), ("Omni-talisman", 1)),
+                (("Fire talisman", 1), ("Elemental talisman", 1), ("Omni-talisman", 1)),
+                (("Air talisman", 1), ("Elemental talisman", 1), ("Omni-talisman", 1)),
+                (("Mind talisman", 1), ("Omni-talisman", 1)),
+            ),
+        ),
+    ),
+    "gunnars_ground": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "The lodestone in Edgeville activated",
+                "Amulet of glory",
+                "Using a skull sceptre",
+            ),
+        ),
+    ),
+    "mountain_daughter": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Hatchet",
+                "White Wolf Mountain",
+                "Super energy potion",
+                "Enchanted Lyre",
+                "Weight-reducing clothing",
+                "Games Necklace",
+                "Ring of slaying",
+            ),
+            add_required_tools=(("Hatchet", 1),),
+        ),
+    ),
+    "recipe_for_disaster_freeing_evil_dave": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=CAT_FOLLOWER_STATE_NAMES,
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory=CAT_FOLLOWER_STATE_NAMES,
+        ),
+    ),
+    "recipe_for_disaster_freeing_sir_amik_varze": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Hatchet",),
+            remove_required_inventory_options=("Fairytale III - Battle at Orks Rift",),
+        ),
+    ),
+    "the_fremennik_trials": (
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_inventory=("Hatchet",),
+            add_required_tools=(("Hatchet", 1),),
+        ),
+    ),
+    "throne_of_miscellania": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Woodcutting", "Hatchet", "Rake", "Ring"),
+            remove_required_inventory_options=("Harpoon",),
+            remove_required_tools=("Pickaxe", "Hammer"),
+        ),
+    ),
+    "legends_quest": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Hatchet",
+                "RuneScape Germany",
+                "RuneScape France",
+                "RuneScape Brazilian",
+                "Air rune",
+                "Blood rune",
+                "Nature rune",
+                "Death rune",
+                "Fire rune",
+            ),
+            add_required_inventory_options=(
+                (("Rune hatchet", 1), ("Dragon hatchet", 1)),
+            ),
+        ),
+    ),
+    "royal_trouble": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Energy potion", "Giant Sea Snake", "Rope"),
+            remove_required_inventory_options=("Coal", "Agility potion", "Agility"),
+        ),
+    ),
+    "summers_end": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Summoning pouch",
+                "Blue charm",
+                "Giant chinchompa",
+                "Albino Rat",
+                "Hatchet",
+            ),
+            add_required_inventory_options=(
+                tuple(
+                    (pouch.pouch_name, 1)
+                    for pouch in SUMMONING_POUCHES
+                    if pouch.charm == "Blue charm"
+                ),
+            ),
+            add_required_tools=(("Hatchet", 1),),
+        ),
+    ),
+    "smoking_kills": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory_options=CAT_FOLLOWER_STATE_NAMES,
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory_options=CAT_FOLLOWER_STATE_NAMES,
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_inventory_options=CAT_FOLLOWER_STATE_NAMES,
+        ),
+    ),
+    "the_giant_dwarf": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Telekinetic Grab",)),
+    ),
+    "the_temple_at_senntisten": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Telekinetic Grab",)),
+    ),
+    "the_darkness_of_hallowvale": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Nails",)),
+        QuestStageRequirementCleanup(stage=9, remove_required_inventory=("Telekinetic Grab",)),
+    ),
+    "nomads_requiem": (
+        QuestStageRequirementCleanup(stage=5, remove_required_inventory=("Fire wave",)),
+    ),
+    "my_arms_big_adventure": (
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory=("Coins", "Tool leprechaun"),
+            remove_required_inventory_options=("Compost", "Supercompost"),
+            add_required_inventory_options=(
+                (("Compost", 1), ("Supercompost", 8)),
+            ),
+        ),
+    ),
+    "the_chosen_commander": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Seers' Village Tasks", "Coins"),
+        ),
+    ),
+    "olafs_quest": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Hatchet",),
+            add_required_tools=(("Hatchet", 1),),
+        ),
+    ),
+    "as_a_first_resort": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Hatchet",)),
+        QuestStageRequirementCleanup(stage=3, remove_required_inventory=("Spears",)),
+        QuestStageRequirementCleanup(stage=4, remove_required_inventory=("Larupia furs",)),
+    ),
+    "the_branches_of_darkmeyer": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Hatchet",),
+            add_required_tools=(("Hatchet", 1),),
+        ),
+    ),
+    "the_great_brain_robbery": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Nails", "Fur")),
+    ),
+    "the_golem": (
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory_options=("Soft clay", "Jug", "Water"),
+            add_required_inventory=(("Soft clay", 4),),
+        ),
+    ),
+    "perils_of_ice_mountain": (
+        QuestStageRequirementCleanup(stage=3, remove_required_inventory=("Nail",)),
+    ),
+    "toktz_ket_dill": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("A crush weapon",)),
+    ),
+    "land_of_the_goblins": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Recommends Combat level 85 +",),
+        ),
     ),
     "the_firemakers_curse": (
         QuestStageRequirementCleanup(
             stage=1,
-            remove_required_inventory=("Food", "Let Them Eat Pie"),
+            remove_required_inventory=(
+                "Food",
+                "Let Them Eat Pie",
+                "Weight-reducing clothing",
+                "Attack speed",
+                "Expensive_spices_(necklace)",
+            ),
         ),
     ),
 }
@@ -9570,6 +10001,8 @@ def _catalog_journal_stages(row: Dict[str, object], display_name: str, stages: i
 
 def _quest_reward_item_name(name: object) -> str:
     raw_name = str(name)
+    if raw_name in QUEST_REWARD_NON_ITEM_NAMES:
+        return ""
     return QUEST_REWARD_ITEM_NAME_OVERRIDES.get(raw_name, raw_name)
 
 
@@ -9891,6 +10324,51 @@ def _append_stage_item_pairs(
     return tuple(rows)
 
 
+def _append_stage_item_options(
+    existing: Tuple[Tuple[Tuple[str, int], ...], ...],
+    additions: Tuple[Tuple[Tuple[str, int], ...], ...],
+) -> Tuple[Tuple[Tuple[str, int], ...], ...]:
+    rows = list(existing)
+    for option in additions:
+        if option and option not in rows:
+            rows.append(option)
+    return tuple(rows)
+
+
+def _override_stage_item_pairs(
+    items: Tuple[Tuple[str, int], ...],
+) -> Tuple[Tuple[str, int], ...]:
+    return _append_stage_item_pairs(
+        (),
+        tuple((QUEST_STAGE_ITEM_NAME_OVERRIDES.get(name, name), amount) for name, amount in items),
+    )
+
+
+def _apply_stage_item_name_overrides(
+    requirements: Tuple[QuestStageRequirement, ...],
+) -> Tuple[QuestStageRequirement, ...]:
+    rows = []
+    for requirement in requirements:
+        rows.append(
+            replace(
+                requirement,
+                required_inventory=_override_stage_item_pairs(requirement.required_inventory),
+                required_inventory_options=tuple(
+                    _override_stage_item_pairs(option)
+                    for option in requirement.required_inventory_options
+                ),
+                consumed_inventory=_override_stage_item_pairs(requirement.consumed_inventory),
+                consumed_inventory_options=tuple(
+                    _override_stage_item_pairs(option)
+                    for option in requirement.consumed_inventory_options
+                ),
+                produced_inventory=_override_stage_item_pairs(requirement.produced_inventory),
+                required_tools=_override_stage_item_pairs(requirement.required_tools),
+            )
+        )
+    return tuple(rows)
+
+
 def _apply_stage_requirement_cleanup(
     requirement: QuestStageRequirement,
     cleanup: QuestStageRequirementCleanup,
@@ -9903,10 +10381,16 @@ def _apply_stage_requirement_cleanup(
     )
     return replace(
         requirement,
-        required_inventory=_remove_stage_item_names(requirement.required_inventory, cleanup.remove_required_inventory),
-        required_inventory_options=_remove_stage_option_item_names(
-            requirement.required_inventory_options,
-            cleanup.remove_required_inventory_options,
+        required_inventory=_append_stage_item_pairs(
+            _remove_stage_item_names(requirement.required_inventory, cleanup.remove_required_inventory),
+            cleanup.add_required_inventory,
+        ),
+        required_inventory_options=_append_stage_item_options(
+            _remove_stage_option_item_names(
+                requirement.required_inventory_options,
+                cleanup.remove_required_inventory_options,
+            ),
+            cleanup.add_required_inventory_options,
         ),
         consumed_inventory=_append_stage_item_pairs(
             _remove_stage_item_names(requirement.consumed_inventory, cleanup.remove_consumed_inventory),
@@ -9960,12 +10444,14 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
         base = _catalog_stage_requirements(row.get("stage_requirements", ()))
 
     additions = QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID.get(quest.id, ())
-    requirements = _apply_combat_encounter_replacements(
-        quest.id,
-        _apply_stage_requirement_cleanups(
+    requirements = _apply_stage_item_name_overrides(
+        _apply_combat_encounter_replacements(
             quest.id,
-            _dedupe_stage_requirements((*base, *additions)),
-        ),
+            _apply_stage_requirement_cleanups(
+                quest.id,
+                _dedupe_stage_requirements((*base, *additions)),
+            ),
+        )
     )
     max_requirement_stage = max((requirement.stage for requirement in requirements), default=0)
     configured_stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, quest.stages)

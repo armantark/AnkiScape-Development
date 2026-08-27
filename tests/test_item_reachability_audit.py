@@ -14,6 +14,7 @@ from tools.audit_item_reachability import (
     _claim_item_sources,
     _close_actions,
     _close_quest_reachability,
+    _item_option_groups,
     _quest_completion_sets,
     _quest_stage_sources,
     _stage_satisfiability,
@@ -22,6 +23,34 @@ from tools.audit_item_reachability import (
 
 
 class TestItemReachabilityAudit(unittest.TestCase):
+    def test_item_option_groups_parse_live_nested_mapping_shape(self):
+        self.assertEqual(
+            _item_option_groups(
+                (
+                    ({"Bronze hatchet": 1}, {"Iron hatchet": 1}),
+                    ({"Earth talisman": 1}, {"Omni-talisman": 1}),
+                )
+            ),
+            (
+                {"Bronze hatchet": 1, "Iron hatchet": 1},
+                {"Earth talisman": 1, "Omni-talisman": 1},
+            ),
+        )
+
+    def test_item_option_groups_parse_dataclass_pair_shape(self):
+        self.assertEqual(
+            _item_option_groups(
+                (
+                    (("Bronze hatchet", 1), ("Iron hatchet", 1)),
+                    (("Earth talisman", 1), ("Omni-talisman", 1)),
+                )
+            ),
+            (
+                {"Bronze hatchet": 1, "Iron hatchet": 1},
+                {"Earth talisman": 1, "Omni-talisman": 1},
+            ),
+        )
+
     def test_blocked_quest_stage_hard_stops_all_later_products(self):
         quest_data = {
             "blocked": {

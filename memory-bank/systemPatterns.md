@@ -412,6 +412,7 @@ expected file and provenance key in the asset test.
 - Hunter separates reusable gear from consumables. `requirements` are deleted only on successful catches; `tools` are bank/inventory gates that remain after a catch. Current reusable gates cover bird snares, box traps, butterfly nets for butterfly/Puro-Puro rows, and small fishing net plus rope for tree-net rows. Hunter supplies now come from live NPC shops; the retired `Buy Hunter supplies` Utility bridge must not return.
 - The broad quest catalog is generated, not hand-maintained. `tools/build_pre_eoc_quest_catalog.py` produces a 194-row pre-EOC catalog by real release order, with Recipe for Disaster split into separate subquests. Catalog/stage-row presence is coverage scaffolding, not a claim of full quest parity: later passes must still verify authentic stages, routes, branches, item transformations, combat, rewards, and unlocks under `memory-bank/pre-eoc-source-verification-standard.md`, waiting for high-fidelity Darkan where necessary. Each row should carry source oldids, strict prerequisites, point/XP/item rewards, lamp rewards, and source-backed journal stages. Hand-audited overrides belong in `data/quest_data.py` when pinned pre-EOC evidence is stricter than generated or emulator data.
 - Generated quest reward prose can misclassify an unlock or post-quest XP as an immediate item or XP reward. Correct runtime rewards through `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` and `QUEST_XP_REWARD_REPLACEMENTS_BY_ID`, then also correct `quest_reward_items_as_dict()`: it reads generated catalog rows independently, so an obsolete generated item otherwise remains a fake Bank definition and changes the reachability seed set even when runtime no longer grants it. Reward regressions must complete every `QUEST_DATA` entry through `apply_quest_progress_pure()`, because reachable-only sets leave latent catalog rewards untested. Whole-tuple guards pin exact flat grants for every item replacement, exact lamp definitions for every lamp replacement, and exact unlocks only for quests with unlock replacements; they must not claim union coverage.
+  Because quest reward definitions feed the canonical item registry, removing a fake reward identity can also retire a generated Grand Exchange alias; regenerate `generated/grand_exchange_period_generated.py` so its keys remain a subset of the live market catalog.
 - Quest starts are strict. A quest with incomplete prerequisite quests or unimplemented required skills must be impossible to start. Completion XP for implemented skills is granted immediately; XP for unimplemented skills is stored in `pending_skill_exp_rewards` and applied by migration when the skill becomes implemented.
 - Quest-list availability should flow through `quest_availability_state_pure()`, not ad hoc UI checks. Its states are `can_start`, `in_progress`, `blocked_at_stage`, `completed`, and `locked`. `locked` means the quest cannot start; `blocked_at_stage` means a started quest is waiting on current-stage inventory, tools, actions, routes, or combat. Keep that separation: stage requirements are not start locks.
 - Product implementation readiness and player progression eligibility are separate gates. Exhaustive source/completeness ledgers may contain unfinished content, but live UI, search, rolls, rewards, and action registries must not expose implementation gaps as disabled, locked, placeholder, inert, or `coming later` rows. Derive readiness from stable dependency identities so content materializes automatically when its complete runtime graph exists, without a migration, cleanup pass, release allowlist, or duplicated registry. Replace hidden player-facing debt with a developer audit that assigns every catalog row a machine-checkable readiness result and rejects unknown or stale blockers. Only after a row is runtime-ready should authentic player quest/level/item/unlock eligibility run; a finished surface may show those real progression locks where its owner-approved design calls for them.
@@ -449,6 +450,17 @@ expected file and provenance key in the asset test.
   `consumed_inventory`, `consumed_inventory_options`, `produced_inventory`,
   `required_tools`, and `combat_encounters`; option groups must preserve
   alternatives instead of flattening them into separate hard requirements.
+  The outer option tuple is conjunctive and each inner tuple is disjunctive:
+  `((A, B),)` means A or B, while `((A,), (B,))` means A and B.
+  `quests_as_dict()` emits each inner group as a tuple of item-count mappings;
+  reachability tooling must merge those mappings within the group instead of
+  passing the whole tuple to the flat item-count parser. Focused callers can
+  also pass the native dataclass tuple-pair shape, so audit parsers must preserve
+  both representations.
+  When the source predicate needs mixed family quantities, a compound bundle,
+  an excluded family member, worn equipment/follower/performed state, or an equivalent-item
+  capability that the schema cannot express, remove the false item gate and
+  report the missing predicate instead of narrowing valid source paths.
   `data/quest_data.py`
   deserializes them into the same `QuestStageRequirement` contract used by hand
   overrides. `logic_pure/logic_pure.py` treats consumed option groups as current-stage
@@ -1071,7 +1083,9 @@ silent: the test suite stayed green because the unlock check used `issubset`.
 The check that catches it: load `QUEST_DATA` on canonical main and on the
 branch, then difference the reward, unlock, and experience sets for all 196
 quests. Any quest that loses an entry is a regression unless the loss is a
-deliberate, sourced rewrite.
+deliberate, sourced rewrite. Access text belongs in `unlocks`, never in the item
+reward tuple; use a whole-tuple replacement only after verifying every genuine
+item reward on the pinned source.
 
 
 ## Item registry ownership is first-write-wins
