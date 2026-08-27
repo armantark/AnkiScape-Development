@@ -6179,3 +6179,14 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Conditional sources participate in the fixed point, so a reachable quest can unlock a source item that unlocks another quest without pooling mutually exclusive branch state.
 - The audit moves from 1,600 actions / 2,468 reachable items / 36 orphan inputs / 35 blocked actions to 1,600 / 2,360 / 79 / 86. Exactly 108 items lose unsupported reachability certification.
 - Runtime-lock regressions cover Gorak, Suqah, Glacor, and Baba Yaga's Astral-rune stock; the Rune essence → Rune shards → Rune dust positive control remains reachable. Full discovery passes 4,448 tests with 506 expected skips.
+
+## Prerequisite quest progression repairs — 2026-08-27
+
+- The Fremennik Trials now replaces all seven generated objective blockers with pinned wiki and Darkan actions, models Beer → Strange object and quest materials → Lyre, and treats the Hatchet as a tool. Its normal-start proof resolves both battles, and Lunar Diplomacy enters the completable closure.
+- Priest in Peril now accepts its source combatdef's explicit zero combat levels with positive hitpoints and max hit, awards the monk's Golden key through real combat, and consumes it when Drezel's cell is unlocked. Missing combat stats without a sourced max hit remain blocked.
+- Nature Spirit now follows six sequential sourced stages: the locally acquired Washing bowl and Mirror are no longer false prerequisites, Filliman converts Silver sickle → Silver sickle (b) + Druid pouch, and the three real Ghast battles occur only afterward.
+- Fairy Tale I now accepts either fairy-ring staff, converts Secateurs → Magic secateurs, requires a Spade and Magic secateurs at their sourced gates, awards the Tanglefoot's Queen's secateurs through real combat, and consumes them at hand-in without duplicating Magic secateurs at completion.
+- A fresh closure measurement moves from 33 to 39 completable quests out of 196. All four repaired prerequisites, Lunar Diplomacy, and Fairy Tale II are now inside the branch-local completable closure.
+- Independent read-only review tightened the explicit-zero combat exception to actual zero values, removed superseded Golden-key and duplicate Fremennik gates, and refreshed the reward and combat-gap measuring pins. The four target quests retain zero generated objective blockers.
+- Final targeted verification passes six normal-progression proofs and five reachability/promotion checks. Full plain discovery passes 4,469 tests with 506 expected Qt skips. Real offscreen Qt discovery passes the same 4,469 tests with three skips across the accepted contiguous A-L, M-R, and S-Z processes (2,301 + 1,107 + 1,061).
+- The final branch-local audit reports 1,600 actions, 2,212 reachable items, 192 orphan inputs, and 284 blocked actions; its exit 1 remains the expected inherited orphan finding rather than a test failure.

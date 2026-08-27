@@ -18,7 +18,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 92)
+        self.assertEqual(len(self.gaps), 91)
         self.assertEqual(
             counts,
             {
@@ -26,7 +26,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
                 "darkan_missing_resolver_stats": 15,
                 "darkan_same_name_wrong_level": 6,
                 "darkan_identical_available": 1,
-                "no_local_source_match": 7,
+                "no_local_source_match": 6,
                 "parser_or_variant_level": 14,
             },
         )
@@ -34,14 +34,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_known_combat_gap_examples_explain_why_rows_remain_statless(self):
         self.assertNotIn(("priest_in_peril", "Monk of Zamorak"), self.by_quest_and_name)
         self.assertNotIn(("carnillean_rising", "Cave wolf matriarch"), self.by_quest_and_name)
-        self.assertEqual(
-            audit.classify_gap(
-                self.by_quest_and_name[("priest_in_peril", "Temple guardian dog")],
-                self.darkan_groups,
-                self.partial_groups,
-            ),
-            "no_local_source_match",
-        )
+        self.assertNotIn(("priest_in_peril", "Temple guardian dog"), self.by_quest_and_name)
         self.assertNotIn(("troll_stronghold", "Dad"), self.by_quest_and_name)
         self.assertNotIn(("lost_city", "Tree spirit"), self.by_quest_and_name)
         self.assertNotIn(("observatory_quest", "Poisonous Spider"), self.by_quest_and_name)

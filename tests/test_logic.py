@@ -265,6 +265,7 @@ QUEST_UNLOCK_REPLACEMENT_GUARD: Dict[str, FrozenSet[str]] = {
 # Exact flat completion grants for every quest with a
 # QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID entry.
 QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
+    "a_fairy_tale_i_growing_pains": frozenset({}),
     "a_fairy_tale_iii_battle_at_orks_rift": frozenset({("Magic watering can", 1)}),
     "a_tail_of_two_cats": frozenset({("Catspeak amulet (e)", 1), ("Doctors hat", 1)}),
     "another_slice_of_h_a_m": frozenset({("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)}),
@@ -7540,54 +7541,45 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(progressed["inventory"]["Chest key"], 1)
 
     def test_priest_in_peril_real_stage_emitters_complete_and_reward_once(self):
+        quest_id = "priest_in_peril"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in ("attack", "strength", "defense", "constitution", "ranged", "magic", "prayer"):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
 
-        player_data, ok = start_quest_pure(player_data, "priest_in_peril", QUEST_DATA)
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
-        self.assertEqual(player_data["current_quest"], "priest_in_peril")
-        self.assertNotIn("priest_in_peril", player_data["quest_stage_actions"])
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "priest_in_peril", QUEST_DATA),
-            (),
-        )
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
 
-        player_data, ok, completed_now = apply_quest_progress_pure(
-            player_data,
-            "priest_in_peril",
-            QUEST_DATA,
-        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 2)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            player_data["quest_stage_actions"]["priest_in_peril"],
+            player_data["quest_stage_actions"][quest_id],
             ["Speak through the Paterdomus temple door"],
         )
 
-        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
-        self.assertEqual(
-            blockers[0]["reason"],
-            "Combat locked until battle support is enabled: Temple guardian dog level 30",
-        )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
-        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_missing_stats",))
-        self.assertEqual(
-            blockers[0]["reason"],
-            "Combat stats required before battle support can resolve: Temple guardian dog level 30",
-        )
-        player_data["quest_combat_encounters"] = {
-            "priest_in_peril": ["priest_in_peril_temple_guardian_dog_30"]
-        }
-        player_data, ok, completed_now = apply_quest_progress_pure(
+        player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
-            "priest_in_peril",
+            quest_id,
             QUEST_DATA,
+            "priest_in_peril_temple_guardian_dog_30",
+            ticks=500,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+            stop_after_first_kill=True,
         )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["reason"], "combat_resolved")
+        self.assertEqual(result["completed_quantity"], 1)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 3)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
 
         for progress, actions in (
             (
@@ -7606,45 +7598,38 @@ class TestLogic(unittest.TestCase):
                 ],
             ),
         ):
-            player_data, ok, completed_now = apply_quest_progress_pure(
-                player_data,
-                "priest_in_peril",
-                QUEST_DATA,
-            )
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok)
             self.assertFalse(completed_now)
-            self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], progress)
-            self.assertEqual(player_data["quest_stage_actions"]["priest_in_peril"], actions)
+            self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
+            self.assertEqual(player_data["quest_stage_actions"][quest_id], actions)
 
-        player_data["attack_level"] = 40
-        player_data["strength_level"] = 40
-        player_data["defense_level"] = 40
-        player_data["constitution_level"] = 40
-        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
-        self.assertEqual(blockers[0]["reason"], "Battle required: Monk of Zamorak level 30")
-        player_data["quest_combat_encounters"]["priest_in_peril"].append(
-            "priest_in_peril_monk_of_zamorak_30"
-        )
-        player_data, ok, completed_now = apply_quest_progress_pure(
+        player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
-            "priest_in_peril",
+            quest_id,
             QUEST_DATA,
+            "priest_in_peril_monk_of_zamorak_30",
+            ticks=500,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+            stop_after_first_kill=True,
         )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["reason"], "combat_resolved")
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(player_data["inventory"]["Golden key"], 1)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 6)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
 
-        player_data, ok, completed_now = apply_quest_progress_pure(
-            player_data,
-            "priest_in_peril",
-            QUEST_DATA,
-        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 7)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 7)
+        self.assertEqual(player_data["inventory"]["Golden key"], 0)
         self.assertEqual(
-            player_data["quest_stage_actions"]["priest_in_peril"],
+            player_data["quest_stage_actions"][quest_id],
             [
                 "Speak through the Paterdomus temple door",
                 "Report the dead guard dog to King Roald",
@@ -7655,16 +7640,12 @@ class TestLogic(unittest.TestCase):
         )
 
         player_data["inventory"]["Bucket"] = 1
-        player_data, ok, completed_now = apply_quest_progress_pure(
-            player_data,
-            "priest_in_peril",
-            QUEST_DATA,
-        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 8)
+        self.assertEqual(player_data["quests"][quest_id]["progress"], 8)
         self.assertEqual(
-            player_data["quest_stage_actions"]["priest_in_peril"],
+            player_data["quest_stage_actions"][quest_id],
             [
                 "Speak through the Paterdomus temple door",
                 "Report the dead guard dog to King Roald",
@@ -7678,14 +7659,10 @@ class TestLogic(unittest.TestCase):
 
         player_data["inventory"]["Pure essence"] = 25
         player_data["inventory"]["Rune essence"] = 3
-        completed, ok, completed_now = apply_quest_progress_pure(
-            player_data,
-            "priest_in_peril",
-            QUEST_DATA,
-        )
+        completed, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertTrue(completed["quests"]["priest_in_peril"]["completed"])
+        self.assertTrue(completed["quests"][quest_id]["completed"])
         self.assertEqual(completed["inventory"]["Pure essence"], 0)
         self.assertEqual(completed["inventory"]["Rune essence"], 3)
         self.assertEqual(completed["inventory"]["Wolfbane dagger"], 1)
@@ -7695,12 +7672,318 @@ class TestLogic(unittest.TestCase):
 
         completed_again, ok, completed_now = apply_quest_progress_pure(
             completed,
-            "priest_in_peril",
+            quest_id,
             QUEST_DATA,
         )
         self.assertFalse(ok)
         self.assertFalse(completed_now)
         self.assertEqual(completed_again["inventory"]["Wolfbane dagger"], 1)
+
+    def test_nature_spirit_completes_after_normal_prerequisites_and_real_combat(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in (
+            "attack",
+            "strength",
+            "defense",
+            "constitution",
+            "ranged",
+            "magic",
+            "prayer",
+            "crafting",
+        ):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
+
+        player_data, ok = start_quest_pure(player_data, "the_restless_ghost", QUEST_DATA)
+        self.assertTrue(ok)
+        for _ in range(3):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "the_restless_ghost",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "the_restless_ghost",
+            QUEST_DATA,
+            "the_restless_ghost_skeleton_warlock",
+            ticks=500,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+            stop_after_first_kill=True,
+        )
+        self.assertTrue(ok, result)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "the_restless_ghost",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["inventory"]["Ghostspeak amulet"], 1)
+
+        player_data, ok = start_quest_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertTrue(ok)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        for encounter_id in (
+            "priest_in_peril_temple_guardian_dog_30",
+            "priest_in_peril_monk_of_zamorak_30",
+        ):
+            if encounter_id.endswith("monk_of_zamorak_30"):
+                for _ in range(2):
+                    player_data, ok, completed_now = apply_quest_progress_pure(
+                        player_data,
+                        "priest_in_peril",
+                        QUEST_DATA,
+                    )
+                    self.assertTrue(ok)
+                    self.assertFalse(completed_now)
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "priest_in_peril",
+                QUEST_DATA,
+                encounter_id,
+                ticks=500,
+                rng=lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "priest_in_peril",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        player_data["inventory"]["Bucket"] = 1
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        player_data["inventory"]["Pure essence"] = 25
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "priest_in_peril",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+
+        player_data["inventory"]["Silver sickle"] = 1
+        player_data, ok = start_quest_pure(player_data, "nature_spirit", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertNotIn("nature_spirit", player_data["quest_stage_actions"])
+        for expected_progress in range(2, 6):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "nature_spirit",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["nature_spirit"]["progress"], expected_progress)
+        self.assertNotIn("Washing bowl", player_data["inventory"])
+        self.assertNotIn("Mirror", player_data["inventory"])
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "nature_spirit",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Silver sickle"], 0)
+        self.assertEqual(player_data["inventory"]["Silver sickle (b)"], 1)
+        self.assertEqual(player_data["inventory"]["Druid pouch"], 1)
+        self.assertEqual(player_data["quests"]["nature_spirit"]["progress"], 6)
+
+        for completed_quantity in range(1, 4):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "nature_spirit",
+                QUEST_DATA,
+                "nature_spirit_ghast_30",
+                ticks=500,
+                rng=lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["completed_quantity"], completed_quantity)
+
+        completed, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "nature_spirit",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(completed["quests"]["nature_spirit"]["completed"])
+        self.assertEqual(completed["inventory"]["Apple pie"], 3)
+        self.assertEqual(completed["quest_points"], 4)
+        self.assertEqual(
+            completed["quest_stage_actions"]["nature_spirit"][-4:],
+            [
+                "Operate the sickle in the swamp next to bushes, logs, or twigs.",
+                "Collect what grows and fill the Druid pouch with them.",
+                "Wander around until a Ghast attacks and kill it. (Or you could use the Druid pouch on the ghast, allowing them to be attacked)",
+                "Kill a total of three ghasts and return to Filliman.",
+            ],
+        )
+
+    def test_fairy_tale_i_completes_from_normal_prerequisite_progression(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in (
+            "attack",
+            "strength",
+            "defense",
+            "constitution",
+            "ranged",
+            "magic",
+            "prayer",
+            "crafting",
+            "woodcutting",
+            "farming",
+            "herblore",
+            "thieving",
+        ):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["inventory"].update({"Bronze hatchet": 1, "Knife": 1})
+
+        def advance(quest_id, count=1):
+            nonlocal player_data
+            completed_now = False
+            for _ in range(count):
+                player_data, ok, completed_now = apply_quest_progress_pure(
+                    player_data,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertTrue(ok)
+            return completed_now
+
+        def fight(quest_id, encounter_id):
+            nonlocal player_data
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+                encounter_id,
+                ticks=500,
+                rng=lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["reason"], "combat_resolved")
+            return result
+
+        player_data, ok = start_quest_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(advance("lost_city", 2))
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
+        fight("lost_city", "lost_city_tree_spirit")
+        self.assertFalse(advance("lost_city", 2))
+        self.assertTrue(advance("lost_city"))
+        self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
+
+        player_data, ok = start_quest_pure(player_data, "the_restless_ghost", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(advance("the_restless_ghost", 3))
+        fight("the_restless_ghost", "the_restless_ghost_skeleton_warlock")
+        self.assertTrue(advance("the_restless_ghost"))
+
+        player_data, ok = start_quest_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(advance("priest_in_peril"))
+        fight("priest_in_peril", "priest_in_peril_temple_guardian_dog_30")
+        self.assertFalse(advance("priest_in_peril", 3))
+        fight("priest_in_peril", "priest_in_peril_monk_of_zamorak_30")
+        self.assertFalse(advance("priest_in_peril", 2))
+        player_data["inventory"]["Bucket"] = 1
+        self.assertFalse(advance("priest_in_peril"))
+        player_data["inventory"]["Pure essence"] = 25
+        self.assertTrue(advance("priest_in_peril"))
+
+        player_data["inventory"]["Silver sickle"] = 1
+        player_data, ok = start_quest_pure(player_data, "nature_spirit", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(advance("nature_spirit", 5))
+        for expected_quantity in range(1, 4):
+            result = fight("nature_spirit", "nature_spirit_ghast_30")
+            self.assertEqual(result["completed_quantity"], expected_quantity)
+        self.assertTrue(advance("nature_spirit"))
+
+        player_data["inventory"].update({"Secateurs": 1, "Spade": 1})
+        player_data, ok = start_quest_pure(
+            player_data,
+            "a_fairy_tale_i_growing_pains",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertNotIn("a_fairy_tale_i_growing_pains", player_data["quest_stage_actions"])
+        self.assertFalse(advance("a_fairy_tale_i_growing_pains", 2))
+        self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
+        self.assertFalse(advance("a_fairy_tale_i_growing_pains"))
+        self.assertEqual(player_data["inventory"]["Secateurs"], 0)
+        self.assertEqual(player_data["inventory"]["Magic secateurs"], 1)
+        player_data["inventory"]["Magic secateurs"] = 0
+        player_data["equipment"]["weapon"] = "Magic secateurs"
+
+        result = fight(
+            "a_fairy_tale_i_growing_pains",
+            "a_fairy_tale_i_growing_pains_tanglefoot_111",
+        )
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(player_data["inventory"]["Queen's secateurs"], 1)
+        self.assertFalse(advance("a_fairy_tale_i_growing_pains"))
+        self.assertTrue(advance("a_fairy_tale_i_growing_pains"))
+
+        self.assertTrue(player_data["quests"]["a_fairy_tale_i_growing_pains"]["completed"])
+        self.assertEqual(player_data["inventory"]["Queen's secateurs"], 0)
+        self.assertEqual(player_data["inventory"]["Magic secateurs"], 0)
+        self.assertEqual(player_data["equipment"]["weapon"], "Magic secateurs")
+        self.assertEqual(player_data["quest_points"], 9)
+        self.assertTrue(
+            can_start_quest_pure(
+                player_data,
+                "a_fairy_tale_ii_cure_a_queen",
+                QUEST_DATA,
+            )
+        )
+        self.assertEqual(
+            player_data["quest_stage_actions"]["a_fairy_tale_i_growing_pains"],
+            [
+                "Martin thinks fairies may be responsible. I should ask the Fairy Godfather in Zanaris.",
+                "Zandar Horfyre sent me to Malignius Mortifer near Port Sarim.",
+                "Malignius will tell you to go ask the Nature Spirit to perform the spell 'Phasma Phasmatis Natura' on an ordinary secateurs, along with three or four specific items.",
+                "Nature Spirit enchanted my secateurs. I must enter the shady grove and defeat the Tanglefoot.",
+                "I have the Queen's secateurs. I should return them to the Fairy Godfather.",
+            ],
+        )
 
     def test_source_backed_starter_quests_progress_through_stage_gates(self):
         cook = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -8563,12 +8846,24 @@ class TestLogic(unittest.TestCase):
                 "magic": 180,
                 "ranged": 0,
             },
-            "npc_configs": {"attack_style": "melee"},
+            "npc_configs": {"attack_style": "melee", "max_hit": 180},
+        }
+        explicit_zero_melee = {
+            "npc_stats": {
+                "hitpoints": 450,
+                "attack": 0,
+                "strength": 0,
+                "defence": 0,
+                "magic": 0,
+                "ranged": 0,
+            },
+            "npc_configs": {"attack_style": "melee", "max_hit": 30},
         }
 
         self.assertTrue(quest_combat_encounter_has_stats_pure(magic_encounter))
         self.assertTrue(quest_combat_encounter_has_stats_pure(ranged_encounter))
         self.assertFalse(quest_combat_encounter_has_stats_pure(incomplete_melee))
+        self.assertTrue(quest_combat_encounter_has_stats_pure(explicit_zero_melee))
 
     def test_beast_stat_fallback_ranged_rows_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -10069,6 +10364,107 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Astral rune"], 50)
         self.assertEqual(player_data["magic_exp"], 5000.0)
         self.assertEqual(player_data["runecrafting_exp"], 5000.0)
+
+    def test_fremennik_trials_real_stage_emitters_complete_from_normal_start(self):
+        quest_id = "the_fremennik_trials"
+        quest = QUEST_DATA[quest_id]
+        actions_by_stage = (
+            (
+                "Brundt requires seven distinct council votes. I may complete the trials in any order.",
+            ),
+            (
+                "Offer the beer to the Council workman. He will give you a cherry bomb, something he picked up from his outings, as a gift.",
+            ),
+            (
+                "The low-alcohol beer keeps you clear-headed and Manni concedes.",
+                "You perform on the longhall stage. As you finish, Fossegrimen's quest blessing leaves the lyre.",
+            ),
+            ("You escaped my house. My vote remains yours.",),
+            (
+                "You completed the bargain. My vote is yours.",
+                "You navigated the maze. My vote is yours.",
+            ),
+            (
+                "The Draugen is defeated. You have my vote.",
+                "Koschei tested your bravery. My vote is yours.",
+            ),
+            ("I am a citizen of Rellekka and have a Fremennik name.",),
+        )
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in quest["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        player_data["inventory"].update(
+            {
+                "Beer": 1,
+                "Tinderbox": 1,
+                "Raw shark": 1,
+                "Bronze hatchet": 1,
+                "Potato": 1,
+                "Cabbage": 1,
+                "Onion": 1,
+                "Knife": 1,
+            }
+        )
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for skill_id in ("attack", "strength", "defense", "constitution", "ranged", "magic", "prayer"):
+            player_data[f"{skill_id}_level"] = 99
+        player_data["combat_lifepoints"] = 990
+        player_data["equipment"].update({"weapon": "Rune sword", "shield": "Rune kiteshield"})
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], quest_id)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        expected_actions = []
+        for stage_index in range(5):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            expected_actions.extend(actions_by_stage[stage_index])
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage_index + 2)
+            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), tuple(expected_actions))
+
+        self.assertEqual(player_data["inventory"]["Beer"], 0)
+        self.assertEqual(player_data["inventory"]["Strange object"], 0)
+        self.assertEqual(player_data["inventory"]["Lyre"], 1)
+        for encounter_id in (
+            "the_fremennik_trials_borrokar_48",
+            "the_fremennik_trials_the_draugen_96",
+        ):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+                encounter_id,
+                ticks=500,
+                rng=lambda: 0.5,
+                equipment_data=EQUIPMENT_DATA,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["reason"], "combat_resolved")
+            self.assertEqual(result["completed_quantity"], 1)
+
+        for stage_index in range(5, len(actions_by_stage)):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                quest_id,
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(completed_now, stage_index == len(actions_by_stage) - 1)
+            expected_actions.extend(actions_by_stage[stage_index])
+            self.assertEqual(player_data["quests"][quest_id]["progress"], stage_index + 2)
+            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), tuple(expected_actions))
+
+        self.assertTrue(player_data["quests"][quest_id]["completed"])
+        self.assertEqual(player_data["quest_points"], 3)
+        self.assertEqual(player_data["inventory"]["Fremennik blade"], 1)
+        self.assertEqual(player_data["inventory"]["Fremennik name"], 1)
 
     def test_elemental_workshop_ii_beaten_book_emits_and_is_produced_on_review(self):
         quest_id = "elemental_workshop_ii"

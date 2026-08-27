@@ -554,7 +554,17 @@ def _quest_combat_required_stat_keys(encounter):
 
 def quest_combat_encounter_has_stats_pure(encounter):
     stats = _quest_combat_stats(encounter)
-    if all(_positive_int(stats.get(key, 0), 0) > 0 for key in _quest_combat_required_stat_keys(encounter)):
+    required_keys = _quest_combat_required_stat_keys(encounter)
+    if all(_positive_int(stats.get(key, 0), 0) > 0 for key in required_keys):
+        return True
+    # Some source combatdefs explicitly use zero combat levels and drive damage
+    # through maxHit. Missing stat keys remain unresolved rather than becoming zero.
+    if (
+        all(key in stats for key in required_keys)
+        and _positive_int(stats.get("hitpoints", 0), 0) > 0
+        and all(_non_negative_int(stats[key], -1) == 0 for key in required_keys if key != "hitpoints")
+        and _positive_int(_quest_combat_configs(encounter).get("max_hit", 0), 0) > 0
+    ):
         return True
     if _quest_combat_attack_style(encounter):
         melee_fallback = ("hitpoints", "attack", "strength", "defence")

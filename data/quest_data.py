@@ -166,6 +166,18 @@ DARKAN_QUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/quests"
 )
+FAIRY_TALE_I_ID = "a_fairy_tale_i_growing_pains"
+FAIRY_TALE_I_WIKI_SOURCE = (
+    "https://runescape.wiki/w/A_Fairy_Tale_I_-_Growing_Pains?oldid=6565661"
+)
+FAIRY_TALE_I_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/fairytales/fairytalept1/FairyTalePt1.kt"
+)
+FAIRY_TALE_I_TANGLEFOOT_NPC_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/"
+    "combatdefs/uncategorized/tanglefoot (noanims).json"
+)
+FAIRY_TALE_I_STAGE_ACTION_SOURCE = f"{FAIRY_TALE_I_WIKI_SOURCE}; {FAIRY_TALE_I_DARKAN_SOURCE}"
 FAIRY_TALE_II_WIKI_SOURCE = "https://runescape.wiki/w/A_Fairy_Tale_II_-_Cure_a_Queen?oldid=6572414"
 FAIRY_TALE_II_DARKAN_SOURCE = (
     f"{DARKAN_QUEST_SOURCE_ROOT}/fairytales/fairytalept2/FairyTalePt2.kt"
@@ -177,6 +189,15 @@ LUNAR_DIPLOMACY_DARKAN_SOURCE = (
 )
 LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE = (
     f"{LUNAR_DIPLOMACY_WIKI_SOURCE}; {LUNAR_DIPLOMACY_DARKAN_SOURCE}"
+)
+THE_FREMENNIK_TRIALS_WIKI_SOURCE = (
+    "https://runescape.wiki/w/The_Fremennik_Trials?oldid=6548589"
+)
+THE_FREMENNIK_TRIALS_DARKAN_SOURCE = (
+    f"{DARKAN_QUEST_SOURCE_ROOT}/fremenniktrials/FremennikTrials.kt"
+)
+THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE = (
+    f"{THE_FREMENNIK_TRIALS_WIKI_SOURCE}; {THE_FREMENNIK_TRIALS_DARKAN_SOURCE}"
 )
 DARKAN_MINIQUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
@@ -822,6 +843,23 @@ PRIEST_IN_PERIL_DARKAN_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/priestinperil/Pries
 PRIEST_IN_PERIL_DARKAN_CERBERUS_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/priestinperil/Cerberus.java"
 PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/priestinperil/DrezelInJailD.java"
 PRIEST_IN_PERIL_DARKAN_DREZEL_MAUSOLEUM_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/priestinperil/DrezelMausoleumD.java"
+NATURE_SPIRIT_ID = "nature_spirit"
+NATURE_SPIRIT_SOURCE = "https://runescape.wiki/w/Nature_Spirit?oldid=6555508"
+NATURE_SPIRIT_QUICK_GUIDE_SOURCE = (
+    "https://runescape.wiki/w/Nature_Spirit%2FQuick_guide?oldid=6283910"
+)
+NATURE_SPIRIT_DARKAN_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/naturespirit"
+NATURE_SPIRIT_DIALOGUES_SOURCE = f"{NATURE_SPIRIT_DARKAN_SOURCE_ROOT}/Dialogues.kt"
+NATURE_SPIRIT_BLOOMING_SOURCE = f"{NATURE_SPIRIT_DARKAN_SOURCE_ROOT}/Blooming.kt"
+NATURE_SPIRIT_GHASTS_SOURCE = f"{NATURE_SPIRIT_DARKAN_SOURCE_ROOT}/Ghasts.kt"
+NATURE_SPIRIT_GHAST_NPC_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/"
+    "combatdefs/uncategorized/ghast/ghast_(30).json"
+)
+NATURE_SPIRIT_STAGE_ACTION_SOURCE = (
+    f"{NATURE_SPIRIT_QUICK_GUIDE_SOURCE}; {NATURE_SPIRIT_DIALOGUES_SOURCE}; "
+    f"{NATURE_SPIRIT_BLOOMING_SOURCE}; {NATURE_SPIRIT_GHASTS_SOURCE}"
+)
 TROLL_STRONGHOLD_ID = "troll_stronghold"
 THE_FREMENNIK_ISLES_ID = "the_fremennik_isles"
 THE_FREMENNIK_ISLES_SOURCE = "https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919"
@@ -3731,6 +3769,7 @@ class QuestStageRequirementCleanup:
     remove_consumed_inventory: Tuple[str, ...] = ()
     remove_consumed_inventory_options: Tuple[str, ...] = ()
     remove_required_tools: Tuple[str, ...] = ()
+    add_required_tools: Tuple[Tuple[str, int], ...] = ()
     remove_required_actions: Tuple[str, ...] = ()
     add_required_actions: Tuple[str, ...] = ()
     add_auto_actions: Tuple[str, ...] = ()
@@ -4254,6 +4293,7 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     SHEEP_HERDER_ID: (("Coins", 3100),),
     "cold_war": (),
     "hunt_for_red_raktuber": (),
+    FAIRY_TALE_I_ID: (),
     "a_fairy_tale_iii_battle_at_orks_rift": (("Magic watering can", 1),),
     "a_tail_of_two_cats": (("Catspeak amulet (e)", 1), ("Doctors hat", 1)),
     ANOTHER_SLICE_OF_H_A_M_ID: (("Ancient mace", 1), ("Dorgesh-kaan sphere", 1)),
@@ -7665,6 +7705,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             6,
             "Swap the golden key at the monument and unlock Drezel's cell.",
             f"{PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE}",
+            consumed_inventory=(("Golden key", 1),),
             auto_actions=("Swap the golden key at the Paterdomus monument", "Unlock Drezel's cell"),
         ),
         _stage_req(
@@ -7679,6 +7720,177 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Give Drezel essence to purify the River Salve.",
             f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_DREZEL_MAUSOLEUM_SOURCE}",
             consumed_inventory_options=((("Rune essence", 50), ("Pure essence", 25)),),
+        ),
+    ),
+    NATURE_SPIRIT_ID: (
+        _stage_req(
+            1,
+            "Speak to Drezel in the passage beneath Paterdomus.",
+            NATURE_SPIRIT_STAGE_ACTION_SOURCE,
+            auto_actions=(
+                "Talk to Drezel who is located in the passageway between Silvarea and Morytania.",
+            ),
+        ),
+        _stage_req(
+            2,
+            "Travel through Mort Myre Swamp to Filliman's grotto.",
+            NATURE_SPIRIT_STAGE_ACTION_SOURCE,
+            auto_actions=(
+                "Exit into Morytania and travel Southeast to a fence.",
+                "Look along the fence for a gate and go through it.",
+                "Go South until a round island is found with a grotto tree.",
+                "Jump across the broken bridge and onto the island.",
+            ),
+        ),
+        _stage_req(
+            3,
+            "Help Filliman remember who he is and ask Drezel for a blessing.",
+            NATURE_SPIRIT_STAGE_ACTION_SOURCE,
+            required_inventory=(("Ghostspeak amulet", 1),),
+            auto_actions=(
+                "Equip a Ghostspeak amulet and attempt to enter the grotto.",
+                "Take the Washing bowl off of the nearby table and use the Mirror on Filliman.",
+                "Search the grotto tree to find his journal and give it to him.",
+                "Ask him what his plans are.",
+                "Ask him how you can help.",
+                "Have Drezel bless you.",
+            ),
+        ),
+        _stage_req(
+            4,
+            "Complete Filliman's grotto ritual.",
+            NATURE_SPIRIT_STAGE_ACTION_SOURCE,
+            auto_actions=(
+                "Find a rotting log in the swamp and use the druidic spell next to it.",
+                "Take a mushroom from the log and show it to Filliman.",
+                "Use the mushroom on the brown stone.",
+                "Use the used spell card on the grey stone.",
+                "Stand on top of the orange stone.",
+                "Tell Filliman the puzzle is solved.",
+                "Go in the tree and search the grotto.",
+            ),
+        ),
+        _stage_req(
+            5,
+            "Give Filliman a silver sickle to bless.",
+            NATURE_SPIRIT_STAGE_ACTION_SOURCE,
+            consumed_inventory=(("Silver sickle", 1),),
+            produced_inventory=(("Silver sickle (b)", 1), ("Druid pouch", 1)),
+            auto_actions=("Give Filliman a Silver sickle.",),
+        ),
+        _stage_req(
+            6,
+            "Bloom the swamp, fill the druid pouch, and defeat three Ghasts.",
+            NATURE_SPIRIT_STAGE_ACTION_SOURCE,
+            required_inventory=(("Silver sickle (b)", 1), ("Druid pouch", 1)),
+            auto_actions=(
+                "Operate the sickle in the swamp next to bushes, logs, or twigs.",
+                "Collect what grows and fill the Druid pouch with them.",
+                "Wander around until a Ghast attacks and kill it. (Or you could use the Druid pouch on the ghast, allowing them to be attacked)",
+                "Kill a total of three ghasts and return to Filliman.",
+            ),
+            combat_encounters=(
+                _combat(
+                    NATURE_SPIRIT_ID,
+                    "ghast_30",
+                    "Ghast",
+                    30,
+                    f"{NATURE_SPIRIT_SOURCE}; {NATURE_SPIRIT_GHASTS_SOURCE}; {NATURE_SPIRIT_GHAST_NPC_SOURCE}",
+                    "3 Ghasts (level 30)",
+                    quantity=3,
+                    npc_stats=(
+                        ("hitpoints", 450),
+                        ("attack", 22),
+                        ("strength", 22),
+                        ("defence", 18),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 30),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "slash_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=NATURE_SPIRIT_GHAST_NPC_SOURCE,
+                ),
+            ),
+        ),
+    ),
+    FAIRY_TALE_I_ID: (
+        _stage_req(
+            1,
+            "Ask the Fairy Godfather why crops across Gielinor are failing.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            required_inventory_options=((("Dramen staff", 1), ("Lunar staff", 1)),),
+            auto_actions=(
+                "Martin thinks fairies may be responsible. I should ask the Fairy Godfather in Zanaris.",
+            ),
+        ),
+        _stage_req(
+            2,
+            "Take Fairy Nuff's symptoms to Zandar Horfyre, then find Malignius Mortifer.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            auto_actions=(
+                "Zandar Horfyre sent me to Malignius Mortifer near Port Sarim.",
+            ),
+        ),
+        _stage_req(
+            3,
+            "Have the Nature Spirit enchant ordinary secateurs with the assigned ingredients.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            required_inventory_options=((("Ghostspeak amulet", 1), ("Cramulet", 1)),),
+            consumed_inventory=(("Secateurs", 1),),
+            produced_inventory=(("Magic secateurs", 1),),
+            required_tools=(("Spade", 1),),
+            auto_actions=(
+                "Malignius will tell you to go ask the Nature Spirit to perform the spell 'Phasma Phasmatis Natura' on an ordinary secateurs, along with three or four specific items.",
+            ),
+        ),
+        _stage_req(
+            4,
+            "Enter the shady grove and defeat the Tanglefoot with Magic secateurs.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            required_tools=(("Magic secateurs", 1),),
+            auto_actions=(
+                "Nature Spirit enchanted my secateurs. I must enter the shady grove and defeat the Tanglefoot.",
+            ),
+            combat_encounters=(
+                _combat(
+                    FAIRY_TALE_I_ID,
+                    "tanglefoot_111",
+                    "Tanglefoot",
+                    111,
+                    f"{FAIRY_TALE_I_WIKI_SOURCE}; {FAIRY_TALE_I_DARKAN_SOURCE}; {FAIRY_TALE_I_TANGLEFOOT_NPC_SOURCE}",
+                    "Tanglefoot (level 111)",
+                    npc_stats=(
+                        ("hitpoints", 1020),
+                        ("attack", 97),
+                        ("strength", 97),
+                        ("defence", 91),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 110),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    guaranteed_drops=(("Queen's secateurs", 1),),
+                    npc_stats_source=FAIRY_TALE_I_TANGLEFOOT_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            5,
+            "Return the Queen's secateurs to the Fairy Godfather.",
+            FAIRY_TALE_I_STAGE_ACTION_SOURCE,
+            consumed_inventory=(("Queen's secateurs", 1),),
+            auto_actions=(
+                "I have the Queen's secateurs. I should return them to the Fairy Godfather.",
+            ),
         ),
     ),
     A_SOULS_BANE_ID: (
@@ -8530,6 +8742,77 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             source=LUNAR_DIPLOMACY_STAGE_ACTION_SOURCE,
         ),
     ),
+    THE_FREMENNIK_TRIALS_ID: (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_actions=("Complete The Fremennik Trials stage 1 objective",),
+            add_auto_actions=(
+                "Brundt requires seven distinct council votes. I may complete the trials in any order.",
+            ),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_actions=("Complete The Fremennik Trials stage 2 objective",),
+            add_auto_actions=(
+                "Offer the beer to the Council workman. He will give you a cherry bomb, something he picked up from his outings, as a gift.",
+            ),
+            add_consumed_inventory=(("Beer", 1),),
+            add_produced_inventory=(("Strange object", 1),),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_inventory=("Raw shark", "Hatchet", "Raw potato", "Cabbage", "Onion"),
+            remove_required_actions=("Complete The Fremennik Trials stage 3 objective",),
+            add_required_tools=(("Hatchet", 1),),
+            add_auto_actions=(
+                "The low-alcohol beer keeps you clear-headed and Manni concedes.",
+                "You perform on the longhall stage. As you finish, Fossegrimen's quest blessing leaves the lyre.",
+            ),
+            add_consumed_inventory=(
+                ("Strange object", 1),
+                ("Raw shark", 1),
+                ("Potato", 1),
+                ("Cabbage", 1),
+                ("Onion", 1),
+            ),
+            add_produced_inventory=(("Lyre", 1),),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_actions=("Complete The Fremennik Trials stage 4 objective",),
+            add_auto_actions=("You escaped my house. My vote remains yours.",),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_actions=("Complete The Fremennik Trials stage 5 objective",),
+            add_auto_actions=(
+                "You completed the bargain. My vote is yours.",
+                "You navigated the maze. My vote is yours.",
+            ),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=6,
+            remove_required_actions=("Complete The Fremennik Trials stage 6 objective",),
+            add_auto_actions=(
+                "The Draugen is defeated. You have my vote.",
+                "Koschei tested your bravery. My vote is yours.",
+            ),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=7,
+            remove_required_actions=("Complete The Fremennik Trials stage 7 objective",),
+            add_auto_actions=(
+                "I am a citizen of Rellekka and have a Fremennik name.",
+            ),
+            source=THE_FREMENNIK_TRIALS_STAGE_ACTION_SOURCE,
+        ),
+    ),
     "enlightened_journey": (
         QuestStageRequirementCleanup(
             stage=1,
@@ -9207,6 +9490,7 @@ QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncoun
                 ("attack_bonus", "crush_att"),
                 ("aggressiveness_type", "aggressive"),
             ),
+            guaranteed_drops=(("Golden key", 1),),
             npc_stats_source=PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE,
         ),
     },
@@ -9633,7 +9917,10 @@ def _apply_stage_requirement_cleanup(
             cleanup.remove_consumed_inventory_options,
         ),
         produced_inventory=_append_stage_item_pairs(requirement.produced_inventory, cleanup.add_produced_inventory),
-        required_tools=_remove_stage_item_names(requirement.required_tools, cleanup.remove_required_tools),
+        required_tools=_append_stage_item_pairs(
+            _remove_stage_item_names(requirement.required_tools, cleanup.remove_required_tools),
+            cleanup.add_required_tools,
+        ),
         required_actions=_append_unique_strings(required_actions, cleanup.add_required_actions),
         auto_actions=_append_unique_strings(requirement.auto_actions, cleanup.add_auto_actions),
         required_routes=_append_unique_strings(required_routes, cleanup.add_required_routes),
