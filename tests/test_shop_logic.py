@@ -310,11 +310,20 @@ class TestShopLogic(unittest.TestCase):
                     data, "benny_buy_varrock_herald", 1
                 ),
             ),
+            (
+                "waynes_black_chainbody",
+                lambda data: apply_shop_buy_pure(
+                    data,
+                    "waynes_chains",
+                    "waynes_chains:3:1107",
+                    1,
+                ),
+            ),
         )
         for key, apply in cases:
             with self.subTest(key=key):
                 data = build_shop_fixture_player_data()
-                data["inventory"].update({"Coins": 1000, "Raw shrimps": 1})
+                data["inventory"].update({"Coins": 10_000, "Raw shrimps": 1})
                 updated, result = apply(data)
                 self.assertTrue(result["allowed"], result)
                 self.assertEqual(updated["shop_transaction_counts"], {key: 1})
@@ -355,6 +364,7 @@ class TestShopLogic(unittest.TestCase):
                 "lumbridge_raw_shrimps_sale",
                 "candle_maker_candle",
                 "benny_varrock_herald",
+                "waynes_black_chainbody",
             },
         )
         self.assertEqual(

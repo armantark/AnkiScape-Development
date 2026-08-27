@@ -242,7 +242,7 @@ def task_progress_pure(
 ) -> tuple[bool, int, int]:
     """Return ``(satisfied_now, have, need)`` for a whole task.
 
-    Latent rows intentionally have no predicate. They reserve an authentic cutoff
+    Dormant rows intentionally have no predicate. They reserve an authentic cutoff
     task's place and can never complete until the generator emits a real condition.
     A multi-condition task reports its progress as the number of conditions met,
     because summing unrelated units would be meaningless. A single-condition
@@ -250,7 +250,7 @@ def task_progress_pure(
     is worth showing. Binary feats stay binary.
     """
 
-    if task.latent:
+    if task.dormant:
         return False, 0, 0
     if len(task.conditions) == 1:
         have, need = condition_progress_pure(player_data, task.conditions[0])
@@ -285,7 +285,7 @@ _TASKS_BY_ID = {task.id: (family, tier, task) for family, tier, task in _CATALOG
 _TIERS_BY_ID = {tier.id: (family, tier) for family, tier in _CATALOG_TIERS}
 _TASK_IDS = frozenset(_TASKS_BY_ID)
 _ACTIVE_TASK_IDS = frozenset(
-    task.id for _, _, task in _CATALOG_TASKS if not task.latent
+    task.id for _, _, task in _CATALOG_TASKS if not task.dormant
 )
 _DESIGNED_TASK_TOTAL = sum(tier.total_tasks for _, tier in _CATALOG_TIERS)
 
@@ -376,7 +376,7 @@ def tier_claim_state_pure(
     state = _state(player_data)
     completed = set(state["completed_tasks"])
     claimed = set(state["claimed_tiers"])
-    done = sum(1 for task in tier.tasks if not task.latent and task.id in completed)
+    done = sum(1 for task in tier.tasks if not task.dormant and task.id in completed)
     total = tier.total_tasks
     predecessor = None
     for index, candidate in enumerate(family.tiers):
@@ -404,7 +404,7 @@ def tier_claim_state_pure(
         "tier_id": tier.id,
         "done": done,
         "total": total,
-        "latent": sum(1 for task in tier.tasks if task.latent),
+        "latent": sum(1 for task in tier.tasks if task.dormant),
         "source_gap": total - len(tier.tasks),
         "claimed": tier.id in claimed,
         "ready": bool(total) and done >= total and not blocked_by and tier.id not in claimed,
@@ -634,7 +634,7 @@ def achievement_cabinet_view_pure(
     from .music_log_logic import music_log_totals_pure
 
     state = _state(player_data)
-    completed = set(state["completed_tasks"])
+    completed = set(state["completed_tasks"]) & _ACTIVE_TASK_IDS
     pinned = state["pinned_task"]
     needle = search.strip().lower()
     families: list[dict[str, Any]] = []
@@ -647,7 +647,7 @@ def achievement_cabinet_view_pure(
                 continue
             rows: list[dict[str, Any]] = []
             for task in tier.tasks:
-                done = not task.latent and task.id in completed
+                done = task.id in completed
                 if completion_filter == "complete" and not done:
                     continue
                 if completion_filter == "incomplete" and done:
@@ -660,16 +660,16 @@ def achievement_cabinet_view_pure(
                         "task_id": task.id,
                         "name": task.name,
                         "description": task.description,
-                        "requirements": (
-                            ()
-                            if task.latent
-                            else tuple(
-                                condition.label or condition.key
-                                for condition in task.conditions
-                            )
+                        "requirements": tuple(
+                            condition.label or condition.key
+                            for condition in task.conditions
+                        )
+                        + tuple(
+                            f"Access gate — {condition.label or condition.key}"
+                            for condition in task.access_gates
                         ),
                         "completed": done,
-                        "latent": task.latent,
+                        "latent": task.dormant,
                         "curation_anchor": task.curation_anchor,
                         "have": need if done else have,
                         "need": need,

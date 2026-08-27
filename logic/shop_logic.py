@@ -51,6 +51,11 @@ _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY = {
         "aemads_adventuring_supplies:9:227",
     ): "aemads_vial_of_water",
     (
+        "buy",
+        "waynes_chains",
+        "waynes_chains:3:1107",
+    ): "waynes_black_chainbody",
+    (
         "sell",
         "lumbridge_fishing_supplies",
         "lumbridge_fishing_supplies:6:317",

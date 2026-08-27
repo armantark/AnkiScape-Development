@@ -349,7 +349,7 @@ class SkeletalWyvernKernelTests(unittest.TestCase):
         below_gate = copy.deepcopy(player)
         below_gate["slayer_level"] = 71
         below_gate["combat_kill_counts"]["skeletal_wyvern"] = 1
-        self.assertFalse(task_progress_pure(below_gate, diary_task)[0])
+        self.assertTrue(task_progress_pure(below_gate, diary_task)[0])
 
         saved_states = []
         with patch.dict(

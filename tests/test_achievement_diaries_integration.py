@@ -53,14 +53,13 @@ def _varrock():
     return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")
 
 
-def _claim_family():
-    return next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "ardougne")
-
-
 # Shared with the pure diary tests rather than reimplemented here, because a
 # local copy that silently skipped the kinds it had never heard of is what made
 # a whole tier quietly unfinishable when a new kind arrived.
-from tests.test_achievement_diaries import _satisfy  # noqa: E402
+from tests.test_achievement_diaries import (  # noqa: E402
+    _active_claim_family,
+    _satisfy,
+)
 
 
 class DiaryReviewDispatchTest(unittest.TestCase):
@@ -241,7 +240,7 @@ class DiaryReviewDispatchTest(unittest.TestCase):
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for task in tier.tasks
-            if not task.latent
+            if not task.dormant
         )
         activity_track = next(
             track for track in MUSIC_TRACKS if track.trigger_kind == "activity"
@@ -276,13 +275,24 @@ class DiaryUndoSeamTest(unittest.TestCase):
         self.collection = _FakeCollection()
         self.addon.mw = _DummyMW(self.collection)
 
+        self.claim_family = _active_claim_family()
+        self._tier_patch = patch.dict(
+            "ankiscape.logic.achievement_diary_logic._TIERS_BY_ID",
+            {
+                tier.id: (self.claim_family, tier)
+                for tier in self.claim_family.tiers
+            },
+        )
+        self._tier_patch.start()
+
     def tearDown(self) -> None:
+        self._tier_patch.stop()
         sys.modules.clear()
         sys.modules.update(self._orig_modules)
 
     def _ready_to_claim(self):
         player = self.addon.player_data
-        tier = _claim_family().tiers[0]
+        tier = self.claim_family.tiers[0]
         for task in tier.tasks:
             _satisfy(player, task)
         updated = refresh_achievement_diaries_pure(player)[0]

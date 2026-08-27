@@ -54,7 +54,7 @@ def _all_task_ids() -> list[str]:
         for family in ACHIEVEMENT_DIARY_CATALOG
         for tier in family.tiers
         for task in tier.tasks
-        if not task.latent
+        if not task.dormant
     ]
 
 
@@ -99,7 +99,7 @@ class MusicCatalogTest(unittest.TestCase):
     def test_feature_owned_missing_rows_are_latent_but_stay_in_the_denominator(self):
         latent = [track for track in MUSIC_TRACKS if track_is_latent_pure(track)]
         self.assertGreater(len(latent), 600)
-        self.assertNotIn("The Task at Hand", {track.name for track in latent})
+        self.assertIn("The Task at Hand", {track.name for track in latent})
         self.assertTrue(any(track.trigger_kind == "latent" for track in latent))
         totals = music_log_totals_pure(_player())
         self.assertEqual(totals["latent"], len(latent))
