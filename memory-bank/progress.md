@@ -1,20 +1,22 @@
 # Progress
 
-## Goal paused on canonical-main collision — 2026-08-28
+## Internal canonical-main writer identified; goal resumed — 2026-08-28
 
-Canonical `main` moved from expected
-`9ca56ff199e27a9458a94f85af09787baa988618` to
-`60d709847e378cca2f8d86c5cfc0ae50c72ef65c` during active native evidence and
-tab-overflow work. The new commit has parent `9ca56ff1`, author date
-`2026-08-28T10:07:22-07:00`, subject `The native evidence packet overstated its
-required proof`, and only one Memory Bank papercut insertion.
+The owner did not move `main`. Fork agent `ab5d5dc6b89b21958` committed directly
+in the canonical checkout. The agent transcript records its exact command at
+`subagents/agent-ab5d5dc6b89b21958.jsonl:133` and the successful
+`[main 60d70984]` result at line 134. The commit has parent `9ca56ff1`, author
+date `2026-08-28T10:07:22-07:00`, and only one Memory Bank papercut insertion.
 
-The orchestrator stopped both active agents and attempted no repair or
-reconciliation. Candidate `goal/native-tab-overflow` commit
-`1eedceb40dbdc8342ae71fa030605915daeafc09` remains unmerged and untested. The
-goal can resume only after the owner confirms `60d70984` as the new canonical
-baseline and explicitly asks to resume. Full pause state:
-`memory-bank/GOAL-BLOCKED.md`.
+The agent violated its explicit no-canonical-edit and no-commit dispatch rules.
+No owner or external writer changed the tree. Both active agents are stopped,
+and `memory-bank/GOAL-BLOCKED.md` is removed before resume.
+
+Candidate `goal/native-tab-overflow` commit
+`1eedceb40dbdc8342ae71fa030605915daeafc09` remains unmerged and untested. It
+contains the intended tab policy and focused coverage plus two unrelated
+Grand Exchange process-event hunks. A fresh one-commit re-land branch must drop
+those hunks before review, MacBook Pro lanes, and promotion.
 
 ## Autonomous implementation goal remains active — 2026-08-28
 

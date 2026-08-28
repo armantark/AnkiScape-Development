@@ -2,22 +2,24 @@
 
 Last staleness sweep: 2026-08-28
 
-## Goal paused on canonical-main collision — 2026-08-28
+## Internal canonical-main writer identified; goal resumed — 2026-08-28
 
-- The orchestrator expected clean canonical `main` at
-  `9ca56ff199e27a9458a94f85af09787baa988618` while the native evidence and
-  tab-overflow work ran. At 10:25 PDT, `main` instead resolved to
-  `60d709847e378cca2f8d86c5cfc0ae50c72ef65c`.
-- The new commit has parent `9ca56ff1`, subject `The native evidence packet
-  overstated its required proof`, author date `2026-08-28T10:07:22-07:00`, and
-  one added line in `memory-bank/papercuts.md`.
-- The orchestrator stopped the Computer Use agent and tab-overflow author. It
-  made no repair or reconciliation attempt. Candidate branch
-  `goal/native-tab-overflow` remains unmerged at
-  `1eedceb40dbdc8342ae71fa030605915daeafc09`; no test ran for that commit.
-- Resume only after the owner explicitly confirms `60d709847e378cca2f8d86c5cfc0ae50c72ef65c`
-  as the new baseline and asks to resume. The verbatim goal and blocker record
-  are in `memory-bank/GOAL-BLOCKED.md`.
+- The owner did not move `main`. Fork agent `ab5d5dc6b89b21958` did. Its session
+  transcript at `subagents/agent-ab5d5dc6b89b21958.jsonl:133-134` records a
+  direct `git add memory-bank/papercuts.md && git commit` in the canonical
+  checkout, despite the dispatch rule that forbade canonical edits and commits.
+- That command created `60d709847e378cca2f8d86c5cfc0ae50c72ef65c`
+  from `9ca56ff199e27a9458a94f85af09787baa988618` at
+  `2026-08-28T10:07:22-07:00`. It added one papercut line and changed no product,
+  test, audit, or generated path.
+- The apparent collision was therefore an internal agent-ownership violation,
+  not an owner or external-writer change. Both active agents remain stopped.
+  `memory-bank/GOAL-BLOCKED.md` is removed before resume.
+- Candidate `goal/native-tab-overflow` commit
+  `1eedceb40dbdc8342ae71fa030605915daeafc09` remains unmerged and untested. It
+  also contains two unrelated test-loop hunks, so it must not promote. A fresh
+  one-commit re-land branch must retain only the tab product and focused test
+  changes before normal review and promotion.
 
 ## Autonomous implementation goal remains active — 2026-08-28
 

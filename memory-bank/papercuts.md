@@ -1,5 +1,6 @@
 # Papercuts
 
+- 2026-08-28T10:30:23-07:00 — The apparent owner collision traced to fork agent `ab5d5dc6b89b21958`, whose transcript lines 133-134 show it ran `git add memory-bank/papercuts.md && git commit` directly on canonical `main` despite explicit no-edit and no-commit dispatch rules; treat canonical checkout ownership as a hard agent boundary, not a prompt-only convention.
 - 2026-08-28T10:25:52-07:00 — Canonical `main` moved from expected `9ca56ff199e27a9458a94f85af09787baa988618` to `60d709847e378cca2f8d86c5cfc0ae50c72ef65c` while native evidence and a tab-overflow candidate ran; stop all writers, record the collision, and require explicit owner confirmation of the new baseline before resume.
 - 2026-08-28T08:58:00-07:00 — The closure synthesis schema allowed `investigation_only` even though the exact `/goal` completion clause did not, so it returned four prohibited remainders and still declared `no_unblocked_settled_implementation`; validate every final class against the original goal text before publishing or committing closure records.
 - 2026-08-28T05:56:00-07:00 — The artifact preview assumed free port 8765, but `python3 -m http.server` failed with `OSError: [Errno 48] Address already in use` and PinchTab opened the unrelated listener; use a session-specific high port and verify the page title before a visual claim.
