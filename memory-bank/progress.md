@@ -6234,3 +6234,79 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Local Git-backed checks passed `git diff --check`, the documentation audit (597
   Markdown and 440 HTML files), and the guarded worktree audit. Closure is at the
   single commit on `goal/reclaim-gloves-refresh-2026-08-27`.
+
+## Full global main-tab labels — 2026-08-27
+
+- A real Anki 26.05 run at 1141×768 failed with `Gra...`, `Que...`, `Equi...`,
+  `Cha...`, `Ach...`, `Coll...`, and no Settings label. The accepted product
+  replacement is `9f2b59223f80b05cf3d2c42c8fbd705920f8fc7c`: set document mode,
+  retain 18-pixel icons, explicitly expand the tab bar, and scope
+  `min-width: 0px` plus five-pixel left/right padding to its tabs. Dialog width,
+  labels, icons, settled order, lazy builders, Bank geometry, body layout, and
+  narrow-window policy are unchanged.
+- The focused shipping-QSS regression failed before the product change in all
+  four cases: Anki had 1,146 natural pixels and -39 headroom, while Native had
+  1,178 and -70; Settings exceeded the bar in both. The accepted product commit
+  measured Anki light/dark at 1,080 natural pixels inside a 1,107-pixel bar and
+  Native light/dark at 1,068 inside 1,108. Every case has at least 27 spare
+  pixels, fills the wider bar, preserves exact labels and order, and allocates
+  each rendered tab at or above its polished Qt hint.
+- The final regression corrects one blocking test defect: on the MacBook
+  offscreen lane, `QApplication.style().objectName()` is `fusion`, so the old
+  `Native` branch reused Fusion. The test now imports `QStyleFactory` through
+  `aqt.qt`, uses the current style only when non-Fusion, otherwise selects and
+  asserts an available non-Fusion style, and keeps the exact Anki/Native ×
+  light/dark matrix, shipping Anki QSS, order, natural-width and 16-pixel
+  headroom checks, expansion, real Bank pointer click, shown dialog, and empty
+  accept/reject checks.
+- Cross-lineage Opus accepted the product floor. Its 27-pixel headroom concern
+  beyond the exact 1140-pixel contract is a non-blocking narrow-window and
+  larger-font follow-up; the 720-pixel minimum remains. Native appearance needs
+  no product change because Computer Use evidence now exists. Offscreen Native
+  reuse of Fusion was confirmed and fixed in the test. The proposed `hint_bar`
+  `deleteLater()` is rejected because the local wrapper is replaced on each
+  iteration and released at exit.
+- Native Computer Use reports final `PASS` for product commit `9f2b592` at
+  `/tmp/ankiscape-tabs-ready-cu3.JBFRgu/report.md`. Loaded SHA-256 values are
+  `508ff2e94c26c6fca9db4cbad77111e0f60d21a6b1adf247853f85a73466532a` for
+  `ui/ui.py` and
+  `842df7cffa5b1ed49380ad24c8e757eaf0ce70e6d747e3e615f06135ed2e8137` for
+  `__init__.py`.
+- Runtime order in both Anki and Native is `Skills`, `Stats`, `Bank`,
+  `Equipment`, `Shop`, `Grand Exchange`, `Challenges`, `Quests`,
+  `Achievements`, `Collections`, `Settings`. Every final pixel shows complete
+  labels, full Settings at the right edge, no scroll controls, no clipping or
+  overlap, and no horizontal body scrollbar. Anki screenshots are 1291×768;
+  Native screenshots are 1109×768. The offscreen geometry gate remains exactly
+  1140×768, and the Anki screenshot is not claimed as 1140 pixels wide. The only
+  body ellipsis is the intentional `Search Bank...` placeholder.
+- Accessibility Bank and pointer Bank activation both selected Bank and kept the
+  dialog open. Settings then Skills caused no strip shift. A separate disposable
+  helper add-on only recorded state and triggered the existing product `QAction`;
+  it did not alter product style, geometry, data, or source. Final process proof
+  found no Anki, mpv, audio, or sandbox target process; all exact Anki and mpv
+  paths remained under `/tmp/ankiscape-tabs-ready-cu3.JBFRgu`.
+- Failed attempt 1 used `/tmp/ankiscape-tabs-ready-cu.CyX5fz`: an empty `--base`
+  under `nohup` detached Anki as PID `13773`, unexpectedly exposed the normal
+  profile, and spawned mpv PID `13782` with
+  `--config-dir=/Users/armantarkhanian/Library/Application Support/Anki2`. The
+  run stopped before add-on staging, left no process, and did not inspect or
+  repair live state. Failed attempt 2 used
+  `/tmp/ankiscape-tabs-ready-cu2.0rOqKe`: isolation and exact source hashes
+  passed, but the run falsely searched the macOS Anki application menu instead
+  of the separate top-level `AnkiScape` menu.
+- Final MacBook verification against the attribution worktree passes the
+  corrected focused regression (`Ran 1 test in 2.462s`) and the complete
+  main-menu module (`Ran 421 tests in 103.277s`). Both full lanes discover 4,516
+  tests: plain has 513 skips and 4,003 active tests; offscreen Qt has three skips
+  and 4,513 active tests. No test ran on the Mac Studio.
+- Documentation audits 597 Markdown and 440 HTML files. Test quality reports
+  4,481 tests across 220 files, zero hard issues, and 31 non-blocking structural
+  clone groups. The scratch-report asset cutoff audit reports 616 post-cutoff
+  assets and zero pending rows. `git diff --check` and guarded-worktree audits
+  pass. Pinned reachability accepts the established raw exit 1 because its output
+  matches 1,600 actions, 2,217 reachable items, 192 orphan inputs (40 root and
+  152 cascade), 284 unresolved actions, and 1,164 seed items.
+- Collections value elision (`at the north dock of...`, `at the Mining Guild in
+  Falador...`, and `darkan-world-server c95aca409f397...`) remains a separate
+  second-level table-layout follow-up.
