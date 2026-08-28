@@ -6216,3 +6216,21 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - `python3 tools/promotion_gate.py run <promotion-worktree> --remote-lanes` sends only the serial plain and Qt lanes through the existing MacBook runner. Dispatches from this machine share a fixed absolute flock through sync and polling while the local process lives; the lock does not cover another machine or a detached lane after interruption or timeout. Run IDs prevent false evidence mixing, but an orphaned lane requires operator reconciliation before retry. Local audits, exact-commit evidence, locks, logs, and landing authority remain in the promotion worktree or canonical Git common directory; the unchanged landing command is `python3 tools/promotion_gate.py land <promotion-worktree>`.
 - Preserved branches `goal/remote-promotion-gate-2026-08-27` at `d79e27473830fa9bd353e5a664bc32ea38d9f247` and `goal/remote-promotion-gate-revised-2026-08-27` at `faaed0895d98366d1d0db77ed1115ecc351902c5` are superseded by the final reviewed replacement, `goal/remote-promotion-gate-final-2026-08-27`. Both prior unmerged worktrees remain intact under the worktree safety rule.
 - On the disposable MacBook mirror, the complete `tests.test_remote_test_host`, `tests.test_promotion_gate`, and global UI-asset normalization modules passed 37 tests in 18.305s.
+
+## Safety gloves reclaim Bank refresh — 2026-08-27
+
+- A successful Stronghold `reclaim_gloves` command now calls the existing gear
+  refresh seam, so an already-initialized Bank grid repaints with Safety gloves
+  immediately. The model action, chest claim path, lamp claims, and failed
+  command path are unchanged.
+- The focused MacBook Pro offscreen Qt regression first reproduced the defect:
+  inventory gained Safety gloves while `_bank_grid_button()` raised
+  `AssertionError: Bank grid item 'Safety gloves' not found`. After the dispatcher
+  fix, the same selector passed one test in 1.039 seconds.
+- MacBook Pro audits passed test quality (4,472 tests across 220 files, zero hard
+  issues) and the asset cutoff audit. The required reachability JSON audit exited
+  1 with 1,600 actions, 2,217 reachable items, 192 orphan inputs, and 284 blocked
+  actions; this slice changes no item route or reachability data.
+- Local Git-backed checks passed `git diff --check`, the documentation audit (597
+  Markdown and 440 HTML files), and the guarded worktree audit. Closure is at the
+  single commit on `goal/reclaim-gloves-refresh-2026-08-27`.

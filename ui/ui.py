@@ -18093,6 +18093,8 @@ def show_main_menu(
             elif action_id == "claim_chest":
                 _populate_claims()
                 _refresh_equipment_views()
+            elif action_id == "reclaim_gloves":
+                _refresh_equipment_views()
             _refresh_stronghold_panel()
             return result
 
