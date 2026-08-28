@@ -1,5 +1,12 @@
 # Papercuts
 
+- 2026-08-28T05:56:00-07:00 — The artifact preview assumed free port 8765, but `python3 -m http.server` failed with `OSError: [Errno 48] Address already in use` and PinchTab opened the unrelated listener; use a session-specific high port and verify the page title before a visual claim.
+- 2026-08-28T05:34:00-07:00 — A resumed workflow call reconstructed the encoded project path as `...addons21/ankiscape_fork/...` and failed with `Workflow script file not found`; copy the exact script path from the prior tool result instead of typing an encoded segment.
+- 2026-08-28T05:22:00-07:00 — Two broad queue readers failed with `Prompt is too long · automatic compaction failed: summarization produced empty response`, then the barrier failed with `Error: expected 3 audits, got 1`; preserve the completed report and resume only bounded missing lenses with explicit file lists.
+- 2026-08-28T04:30:00-07:00 — The first promotion merge used `git merge -F -` and failed with `error: could not read file '-'`; write the message to the session scratchpad and pass its path to `-F`.
+- 2026-08-28T04:08:00-07:00 — A canonical-checkout status command treated another worktree as a pathspec and failed with `fatal: ... is outside repository`; inspect another worktree with `git -C <worktree> status`.
+- 2026-08-28T03:55:00-07:00 — Reconstructed encoded paths caused `File does not exist` and `No such file or directory` after valid tool results already supplied exact paths; reuse returned paths without manual edits.
+
 - 2026-08-27T09:08:49-07:00 — The full plain promotion-gate wrapper omitted an explicit worktree `cd` and then assigned zsh's read-only `status` variable, so tests resolved asset paths from the canonical checkout before the wrapper discarded their exit code and tail; enter the worktree in the same shell command and use `rc` for every exit-code capture.
 - 2026-08-27T03:34:00-07:00 — A mutate-run-restore probe proving a regression test bites used `git checkout -- logic_pure/logic_pure_combat_engine.py` to undo the probe, which also reverted two uncommitted review fixes in the same file; restore probe mutations with the inverse string replacement, never with git, when the file carries uncommitted work.
 - 2026-08-27T01:08:11-07:00 — A final runtime/integration neighbor rerun exited 137 after partial output while five other test processes were active with a combined ~4.3 GB RSS; wait for concurrent slice lanes to release memory before retrying instead of treating SIGKILL as a product failure.

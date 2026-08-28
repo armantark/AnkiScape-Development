@@ -2,46 +2,35 @@
 
 Last staleness sweep: 2026-08-28
 
-## Diary curation ledger review closure — 2026-08-28
+## Autonomous implementation goal closed — 2026-08-28
 
-- The records-only slice remains uncommitted on branch
-  `goal/diary-curation-ledger-2026-08-27` at exact parent
-  `ef860086c56a30bef05fd4f46692cb3921e38ac2`. Its sole canonical file is
-  `memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl`.
-- The branch catalog measures 474 named rows: 320 source-ordered honest-stop rows
-  with `conditions == ()` and 154 condition-bearing rows, split into 129
-  ordinary deeds, 3 quest deeds, and 22 labelled progression anchors. The
-  designed denominator is 534 with 60 unnamed slots.
-- Both 2026-08-27 Opus ranges and the dated 2026-08-28 final review are
-  resolved in `memory-bank/diary-curation-ledger/cross-lineage-review.md`. All
-  23 underlying issues were accepted, with two review counts corrected from
-  direct evidence. Rows 128, 165, and 301 moved to `active`; rows 216, 225, and 282
-  moved to `dormant`; the totals remain exactly 43 `active`, 247 `dormant`, 30
-  `translated`, and 0 `swapped`. The review also records the measured 25-row
-  rotated skill-gate conflict, same-frame Farming and Runecrafting boundaries, 94
-  absolute-path normalizations across 65 rows, corrected symbols and fields,
-  source-only gate context, and the pending row 135 Fire-cape owner choice.
-- Deterministic validation passes all 320 rows: exact task/source order, unique
-  task and source IDs, exact ten-key order, canonical dispositions and 20-value
-  future-system vocabulary, zero latent rows, 320 resolved citations, 43 exact
-  active seams, all 25 rotated source-skill conflicts, 231 repository-Python
-  references, no unsupported Frozen trigger qualifier, no level/quest deed
-  substitution, and all 22 anchors excluded and byte-unchanged.
-- Branch gates pass on the corrected snapshot. On the MacBook Pro, full plain
-  discovery runs 4,516 tests in 239.618s with 513 skips, and full offscreen Qt
-  runs 4,516 tests in 443.463s with 3 skips; no test ran on the Mac Studio.
-  Documentation audits 599 Markdown and 440 HTML files. Test quality reports
-  4,481 tests across 220 files, zero hard issues, and 31 non-blocking clone
-  groups. Pinned reachability accepts its expected raw exit 1 and matches 1,600
-  actions, 2,217 reachable items, 192 orphan inputs (40 root and 152 cascade),
-  284 unresolved actions, and 1,164 seed items. The scratch-report asset audit
-  records 616 post-cutoff assets and zero pending rows; diff and guarded-worktree
-  checks pass.
-- The final diff is memory-bank-only. The diary generator was not run, and no
-  source, data, tools, logic, UI, test, generated, source-audit, or asset-report
-  file changed. The owner spot-check remains mandatory before generator wiring,
-  and the rotated skill-type map must be fixed in that later slice. No commit,
-  owner approval, or wiring is claimed.
+- Canonical `main` is clean at
+  `1d461b16ba423a69488097c1e0d01365df914c48`. The goal landed four accepted
+  promotions after Pass 12: remote promotion safety, Safety-gloves refresh,
+  complete main-tab labels, and the Achievement Diary curation ledger. No
+  remote push occurred.
+- The exact merged-tree gate for `1d461b16` ran both full lanes on the MacBook
+  Pro. Plain ran 4,516 tests in 245.936s with 513 skips, or 4,003 active tests.
+  Offscreen Qt ran 4,516 tests in 441.197s with 3 skips, or 4,513 active tests.
+- The same gate audited 599 Markdown and 440 HTML files. Test quality measured
+  4,481 tests across 220 files with zero hard issues. Reachability measured
+  1,600 actions, 2,217 reachable items, 192 orphan inputs, and 284 blocked
+  actions. All eight promotion checks passed.
+- The diary ledger branch `goal/diary-curation-ledger-2026-08-27` is merged as
+  parent `98e6630fa1d1f56ea45681c55662755501477072`. The ledger has 320 unique
+  task IDs and 320 unique source IDs: 43 `active`, 247 `dormant`, 30
+  `translated`, and 0 `swapped` rows across 20 future systems.
+- The owner spot-check still gates diary generator and runtime work. The owner
+  must choose the row 135 Fire-cape interpretation. The later wiring slice must
+  also repair source skill types 17, 18, and 19 before generation.
+- A fresh three-lens queue audit returned
+  `no_unblocked_settled_implementation`. It verified that the Jungle Potion,
+  Shattered Heart, documentation selector, main-tab, Pass 12, and diary-ledger
+  work is present on current main. It found no accepted unmerged slice.
+- All remaining records are owner-blocked, source-blocked, dependency-blocked,
+  integration-blocked, deferred data depth, or investigation-only. The final
+  results artifact is
+  `memory-bank/status-updates/goal-closure-results-2026-08-28.html`.
 
 ## Skeletal Wyvern re-land verified — 2026-08-19
 
