@@ -1468,3 +1468,4 @@
 - 2026-08-28: diary-review-1-160 stalled after 741s; the workflow retried the event.
 - 2026-08-28 03:33 PDT — Two broad recursive source probes emitted 87.8KB and 2.4MB and were moved to persisted outputs; query named tools and pin files directly.
 - 2026-08-28 03:53 PDT — The first local audit batch used relative tool paths from the canonical checkout, so documentation reported 597 Markdown files instead of the diary worktree; rerun every audit with explicit worktree roots or working directory.
+- 2026-08-28 10:07 PDT — The native four-gate report claimed `manifest.txt` existed and that all lanes ran in one process, but the copied packet contains no manifest and records isolated relaunches after Lane B exited; verify required deliverables and session invariants from the copied files before accepting an evidence report.
