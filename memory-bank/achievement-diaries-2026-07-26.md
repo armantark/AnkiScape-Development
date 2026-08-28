@@ -61,6 +61,12 @@ live 384-row mechanic.
 
 ## The translation rule, and why it is a design fork
 
+**Superseded 2026-08-28:** the access-gate flattening described below is retained
+as historical breadth-one context only. The 2026-08-26 deed-only ruling now
+requires each deed task to complete on its deed; levels and quests are access
+gates, with only the 22 explicitly labelled progression anchors retaining level
+triggers.
+
 A period task is kept only when its pinned wiki row states a requirement, and
 its predicate is exactly that stated requirement. Rows that state nothing
 measurable are dropped rather than given an invented predicate. 171 tasks

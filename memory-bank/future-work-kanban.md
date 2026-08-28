@@ -14,7 +14,7 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
-### Diary curation ledger — 253 designed triggers
+### Diary curation ledger — 320 dormant rows of 474 named tasks
 
 Labels: `IMPLEMENT`.
 
@@ -22,6 +22,11 @@ Labels: `IMPLEMENT`.
   diary row becomes a designed achievement; no dead-end triggers; dormant
   rows carry their designed trigger in the ledger. Full spec in the Pass 12
   brief, slice S1 stage 1. Pass 12 ships only the honest-stop cut.
+- Wiring blocker from the 2026-08-27 cross-lineage review:
+  `tools/generate_achievement_diary_data.py::_SKILL_TYPE_IDS` rotates source
+  skill types 17, 18, and 19 across Firemaking, Woodcutting, and Fletching. Fix
+  that mapping before any generator run. The owner spot-check also remains
+  pending, including the row 135 Fire-cape interpretation.
 
 ### Ranging Guild — shipped and closed 2026-08-10
 

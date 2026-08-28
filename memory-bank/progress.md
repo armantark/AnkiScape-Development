@@ -1,5 +1,54 @@
 # Progress
 
+## Diary curation ledger cross-lineage closure — 2026-08-28
+
+The uncommitted records-only slice on
+`goal/diary-curation-ledger-2026-08-27` remains based on
+`ef860086c56a30bef05fd4f46692cb3921e38ac2`. The catalog has 474 named rows: the
+canonical ledger records the exact 320 source-ordered rows whose completion
+conditions are empty, while 129 ordinary deed rows, 3 quest-deed rows, and 22
+labelled progression anchors make up the other 154. Together with 60 unnamed
+slots, the designed denominator is 534.
+
+Both 2026-08-27 Opus ranges and the dated 2026-08-28 final review are resolved
+in `memory-bank/diary-curation-ledger/cross-lineage-review.md`. All 23
+underlying issues were accepted, with two review counts corrected from direct
+evidence. Rows 128, 165, and 301 are now `active`; rows 216, 225, and 282 are now
+`dormant`; totals remain 43 `active`, 247 `dormant`, 30 `translated`, and 0
+`swapped`. The resolution also preserves the source/catalog conflict on all 25
+measured Firemaking/Woodcutting/Fletching gate rows, rewrites every affected
+Farming deed to its same-frame result, makes every batch-rune deed use the live
+per-action output, normalizes 94 absolute-path occurrences across 65 rows,
+corrects the Brimhaven, Castle Wars, equipment-slot, Magic, Stronghold, Bork,
+and access-gate claims, and records both owner candidates for row 135.
+
+Deterministic validation passes exactly 320 rows, the exact empty-condition
+source ID set and source order, 320 unique task IDs, 320 unique source IDs, the
+exact ten-key schema, allowed dispositions, zero latent rows, canonical dormant
+future systems, null non-dormant future systems, 320 harvest/catalog citations,
+43 exact active seams, all 25 rotated source-skill conflicts, 231 resolved
+repository-Python references, zero unsupported Frozen trigger qualifiers, zero
+level/quest trigger substitutions, and all 22 anchors excluded and unchanged.
+
+Every branch gate passes on the corrected snapshot. The existing locked remote
+runner executed both full lanes serially on the MacBook Pro and no test on the
+Mac Studio: plain ran 4,516 tests in 239.618s with 513 skips, and offscreen Qt
+ran 4,516 tests in 443.463s with 3 skips. Documentation audited 599 Markdown and
+440 HTML files. Test quality measured 4,481 tests across 220 files, zero hard
+issues, and 31 non-blocking structural clone groups. Pinned reachability
+accepted its established raw exit 1 and matched 1,600 actions, 2,217 reachable
+items, 192 orphan inputs (40 root and 152 cascade), 284 unresolved actions, and
+1,164 seed items. The scratch-report asset audit measured 616 post-cutoff
+assets and zero pending rows. `git diff --check` and the guarded-worktree audit
+pass.
+
+The final uncommitted diff contains only intended memory-bank paths. The diary
+generator was not run, and no source, data, tool, logic, UI, test, generated,
+source-audit, or asset-report path changed. The owner's interpretation spot-check
+still gates generator wiring, including the row 135 Fire-cape choice. The later
+wiring slice must first repair `tools/generate_achievement_diary_data.py` skill
+types 17, 18, and 19. No commit, owner approval, or wiring is claimed.
+
 ## Repository papercut tooling re-land — 2026-08-19
 
 The unmerged 2026-08-11 guardrail slice now sits on main snapshot
