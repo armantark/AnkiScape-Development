@@ -96,6 +96,15 @@ task's prerequisites into its completion condition. Probe counts on
 `a1c8fc90`: 474 named rows; 112 strict level-only proxies; 34 level+quest
 proxies; 3 mixed rows with real deed predicates; 22 anchors; 107 latent.
 
+**Superseded census note — 2026-08-28:** the 253-row queue estimate and the
+107-latent probe category above remain exact historical figures for their
+recorded states. The honest-stop catalog at
+`ef860086c56a30bef05fd4f46692cb3921e38ac2` instead measures 474 named rows:
+320 rows with `conditions == ()` and 154 condition-bearing rows, comprising 129
+ordinary deed rows, 3 quest-deed rows, and 22 labelled anchors. The canonical
+ledger therefore covers all 320 honest-stop rows, and `latent` is no longer a
+current disposition.
+
 Honest-stop scope:
 1. Remove the prerequisite-as-trigger fallback in the generator. The 22
    anchors and the 3 real-predicate tasks keep firing.
