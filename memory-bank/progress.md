@@ -1,39 +1,25 @@
 # Progress
 
-## Autonomous implementation goal closure — 2026-08-28
+## Autonomous implementation goal remains active — 2026-08-28
 
-The final verified product head is
-`1d461b16ba423a69488097c1e0d01365df914c48`. Canonical `main` was clean at that
-commit before the closure records landed above it. Four accepted promotions
-landed after Pass 12: exact remote promotion gates at `9587ebdb`, Safety-gloves
-refresh at `806a2f63`, complete main-tab labels at `ef860086`, and the diary
-ledger at `1d461b16`. No remote push occurred.
+The prior completion claim was invalid. The exact `/goal` condition permits
+complete work, deferred data depth, or an exact owner, source, dependency,
+quota, or integration blocker. The synthesis schema also permitted
+`investigation_only`, then returned four such rows and still declared
+`no_unblocked_settled_implementation`.
 
-The final promotion gate ran against exact merged commit `1d461b16` on the
-MacBook Pro. Plain ran 4,516 tests in 245.936s with 513 skips, or 4,003 active
-tests. Offscreen Qt ran 4,516 tests in 441.197s with 3 skips, or 4,513 active
-tests. Documentation audited 599 Markdown and 440 HTML files. Test quality
-measured 4,481 tests across 220 files with zero hard issues. Reachability
-measured 1,600 actions, 2,217 reachable items, 192 orphan inputs, and 284
-blocked actions. The gate passed all eight required checks.
+The active loop must now resolve or reclassify these four gates: the Kinship
+party-simulation packet, main-tab narrow-window and larger-font headroom,
+Collections table value elision, and custom Cooking-row native activation. The
+next audit must compare every result class directly with the exact goal clause
+before it can claim completion.
 
-The Achievement Diary ledger is merged through parent
-`98e6630fa1d1f56ea45681c55662755501477072`. It has 320 rows, 320 unique task
-IDs, 320 unique source IDs, and 20 future systems. Its dispositions are exactly
-43 `active`, 247 `dormant`, 30 `translated`, and 0 `swapped`. The generator was
-not run. The owner spot-check and row 135 Fire-cape choice still gate all wiring.
-The later wiring slice must also repair source skill types 17, 18, and 19.
+The four accepted promotions remain valid. The final verified product head is
+`1d461b16ba423a69488097c1e0d01365df914c48`, with exact MacBook Pro lanes and
+all eight promotion checks green. The diary owner spot-check still blocks
+wiring, and no remote push occurred.
 
-A fresh bounded queue audit used two independent Terra readers, the completed
-dependency audit, and an Opus synthesis. The synthesis returned
-`no_unblocked_settled_implementation`, `accepted_unmerged: []`, and
-`next_slice: null`. It verified current-main implementation for Jungle Potion,
-Shattered Heart output eligibility, documentation selector drift, full main-tab
-labels, Pass 12, and the diary ledger. It classified every other live item as
-owner-blocked, source-blocked, dependency-blocked, integration-blocked,
-deferred data depth, or investigation-only.
-
-The exact result is in
+The corrected active status is in
 `memory-bank/status-updates/goal-closure-results-2026-08-28.html`.
 
 ## Repository papercut tooling re-land — 2026-08-19

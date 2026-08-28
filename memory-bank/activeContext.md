@@ -2,36 +2,32 @@
 
 Last staleness sweep: 2026-08-28
 
-## Autonomous implementation goal closed — 2026-08-28
+## Autonomous implementation goal remains active — 2026-08-28
 
-- The final verified product head is
+- The prior closure was invalid. The exact goal condition does not permit an
+  `investigation_only` remainder, but the closure synthesis returned four such
+  items and still declared completion. The active loop must resolve or reclassify
+  each item before another completion claim.
+- The four unresolved investigation gates are the Kinship party-simulation
+  packet, main-tab narrow-window and larger-font headroom, Collections table
+  value elision, and custom Cooking-row native activation.
+- The final verified product head remains
   `1d461b16ba423a69488097c1e0d01365df914c48`. Canonical `main` was clean at
-  that commit before the closure records landed above it. The goal landed four
-  accepted promotions after Pass 12: remote promotion safety, Safety-gloves
-  refresh, complete main-tab labels, and the Achievement Diary curation ledger.
-  No remote push occurred.
-- The exact merged-tree gate for `1d461b16` ran both full lanes on the MacBook
-  Pro. Plain ran 4,516 tests in 245.936s with 513 skips, or 4,003 active tests.
-  Offscreen Qt ran 4,516 tests in 441.197s with 3 skips, or 4,513 active tests.
-- The same gate audited 599 Markdown and 440 HTML files. Test quality measured
-  4,481 tests across 220 files with zero hard issues. Reachability measured
-  1,600 actions, 2,217 reachable items, 192 orphan inputs, and 284 blocked
-  actions. All eight promotion checks passed.
-- The diary ledger branch `goal/diary-curation-ledger-2026-08-27` is merged as
-  parent `98e6630fa1d1f56ea45681c55662755501477072`. The ledger has 320 unique
-  task IDs and 320 unique source IDs: 43 `active`, 247 `dormant`, 30
-  `translated`, and 0 `swapped` rows across 20 future systems.
-- The owner spot-check still gates diary generator and runtime work. The owner
-  must choose the row 135 Fire-cape interpretation. The later wiring slice must
-  also repair source skill types 17, 18, and 19 before generation.
-- A fresh three-lens queue audit returned
-  `no_unblocked_settled_implementation`. It verified that the Jungle Potion,
-  Shattered Heart, documentation selector, main-tab, Pass 12, and diary-ledger
-  work is present on current main. It found no accepted unmerged slice.
-- All remaining records are owner-blocked, source-blocked, dependency-blocked,
-  integration-blocked, deferred data depth, or investigation-only. The final
-  results artifact is
-  `memory-bank/status-updates/goal-closure-results-2026-08-28.html`.
+  that commit before the incorrect closure records landed above it. Four accepted
+  promotions remain valid: remote promotion safety, Safety-gloves refresh,
+  complete main-tab labels, and the Achievement Diary curation ledger. No remote
+  push occurred.
+- The exact merged-tree gate for `1d461b16` remains valid. Plain ran 4,516 tests
+  in 245.936s with 513 skips, or 4,003 active tests. Offscreen Qt ran 4,516 tests
+  in 441.197s with 3 skips, or 4,513 active tests. All eight promotion checks
+  passed.
+- The diary ledger branch remains merged through parent
+  `98e6630fa1d1f56ea45681c55662755501477072`. The owner spot-check still gates
+  generator and runtime work, including the row 135 Fire-cape choice and the
+  later repair for source skill types 17, 18, and 19.
+- The active status artifact is
+  `memory-bank/status-updates/goal-closure-results-2026-08-28.html`. It no longer
+  claims goal completion.
 
 ## Skeletal Wyvern re-land verified — 2026-08-19
 

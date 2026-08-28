@@ -1,5 +1,6 @@
 # Papercuts
 
+- 2026-08-28T08:58:00-07:00 — The closure synthesis schema allowed `investigation_only` even though the exact `/goal` completion clause did not, so it returned four prohibited remainders and still declared `no_unblocked_settled_implementation`; validate every final class against the original goal text before publishing or committing closure records.
 - 2026-08-28T05:56:00-07:00 — The artifact preview assumed free port 8765, but `python3 -m http.server` failed with `OSError: [Errno 48] Address already in use` and PinchTab opened the unrelated listener; use a session-specific high port and verify the page title before a visual claim.
 - 2026-08-28T05:34:00-07:00 — A resumed workflow call reconstructed the encoded project path as `...addons21/ankiscape_fork/...` and failed with `Workflow script file not found`; copy the exact script path from the prior tool result instead of typing an encoded segment.
 - 2026-08-28T05:22:00-07:00 — Two broad queue readers failed with `Prompt is too long · automatic compaction failed: summarization produced empty response`, then the barrier failed with `Error: expected 3 audits, got 1`; preserve the completed report and resume only bounded missing lenses with explicit file lists.
