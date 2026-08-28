@@ -16,6 +16,7 @@ from tools.promotion_gate import (
     FULL_GATE_CHECKS,
     PLAIN_GATE_CHECKS,
     GateError,
+    GateEvidence,
     LockRecord,
     _read_reachability_pins,
     _run_gate_checks,
@@ -27,6 +28,7 @@ from tools.promotion_gate import (
     evidence_path_for,
     claim_landing_lock,
     land,
+    main as promotion_main,
     register_gate,
     run_gate,
 )
@@ -172,10 +174,20 @@ class PromotionRepo:
         return path
 
 
-def pass_gate(repo: PromotionRepo, *, plain_only: bool = False) -> Path:
+def pass_gate(
+    repo: PromotionRepo,
+    *,
+    plain_only: bool = False,
+    remote_lanes: bool = False,
+) -> Path:
     checks = PLAIN_GATE_CHECKS if plain_only else FULL_GATE_CHECKS
     with patch("tools.promotion_gate._run_gate_checks", return_value=(checks, ())):
-        run_gate(repo.target, plain_only=plain_only, stdout=io.StringIO())
+        run_gate(
+            repo.target,
+            plain_only=plain_only,
+            remote_lanes=remote_lanes,
+            stdout=io.StringIO(),
+        )
     return evidence_path_for(repo.target, repo.target_commit)
 
 
@@ -202,6 +214,7 @@ class PromotionGateTest(unittest.TestCase):
 
             self.assertEqual(payload["commit"], repo.target_commit)
             self.assertEqual(tuple(payload["passed_checks"]), PLAIN_GATE_CHECKS)
+            self.assertIs(payload["remote_lanes"], False)
             with self.assertRaisesRegex(
                 GateError,
                 rf"^Landing refused: evidence for {repo.target_commit} did not pass every "
@@ -210,6 +223,33 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
             self.assertEqual(repo.head(repo.main), repo.main_commit)
+
+    def test_remote_gate_evidence_records_lane_origin(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            evidence_path = pass_gate(repo, remote_lanes=True)
+
+            payload = json.loads(evidence_path.read_text(encoding="utf-8"))
+
+            self.assertIs(payload["remote_lanes"], True)
+            self.assertEqual(tuple(payload["passed_checks"]), FULL_GATE_CHECKS)
+
+    def test_evidence_parser_defaults_old_records_to_local_lanes(self):
+        payload = {
+            "schema_version": 1,
+            "commit": "abc123",
+            "worktree": "/scratch/promotion",
+            "plain_only": False,
+            "passed_checks": list(FULL_GATE_CHECKS),
+            "completed_at": "2026-08-27T17:00:00-07:00",
+        }
+
+        evidence = GateEvidence.from_json(json.dumps(payload))
+
+        self.assertFalse(evidence.remote_lanes)
+        payload["remote_lanes"] = "false"
+        with self.assertRaisesRegex(GateError, "remote_lanes must be a boolean"):
+            GateEvidence.from_json(json.dumps(payload))
 
     def test_running_gate_for_same_commit_cannot_land_early(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -383,6 +423,7 @@ class PromotionGateTest(unittest.TestCase):
             self.assertEqual(payload["commit"], repo.target_commit)
             self.assertEqual(tuple(payload["passed_checks"]), FULL_GATE_CHECKS)
             self.assertFalse(payload["plain_only"])
+            self.assertIs(payload["remote_lanes"], False)
             self.assertEqual(landed, repo.target_commit)
             self.assertEqual(repo.head(repo.main), repo.target_commit)
             self.assertIn(f"Landed {repo.target_commit}", stdout.getvalue())
@@ -408,7 +449,20 @@ class PromotionGateTest(unittest.TestCase):
             with self.assertRaisesRegex(GateError, "no passed full-gate evidence"):
                 land(repo.target)
 
-    def test_qt_gate_uses_the_project_runner_and_canonical_interpreter(self):
+    def test_remote_lanes_flag_reaches_run_gate(self):
+        with patch("tools.promotion_gate.run_gate") as gate:
+            result = promotion_main(
+                ["run", "/scratch/promotion", "--remote-lanes"]
+            )
+
+        self.assertEqual(result, 0)
+        gate.assert_called_once_with(
+            Path("/scratch/promotion"),
+            plain_only=False,
+            remote_lanes=True,
+        )
+
+    def test_default_gate_uses_local_lane_commands(self):
         canonical = Path("/canonical/ankiscape_fork")
         with (
             patch("tools.promotion_gate.main_worktree", return_value=canonical),
@@ -421,17 +475,106 @@ class PromotionGateTest(unittest.TestCase):
                 log=io.StringIO(),
             )
 
-        qt_call = next(
-            call
+        lane_calls = {
+            call.kwargs["heading"]: call
             for call in run_check.call_args_list
-            if call.kwargs["heading"] == "=== QT LANE (monolithic) ==="
-        )
+            if call.kwargs["heading"]
+            in ("=== PLAIN LANE ===", "=== QT LANE (monolithic) ===")
+        }
         self.assertEqual(
-            qt_call.kwargs["command"],
+            lane_calls["=== PLAIN LANE ==="].kwargs["command"],
+            ("/opt/homebrew/bin/python3", "run_tests.py"),
+        )
+        self.assertIsNone(lane_calls["=== PLAIN LANE ==="].kwargs["environment"])
+        self.assertEqual(
+            lane_calls["=== QT LANE (monolithic) ==="].kwargs["command"],
             (str(canonical / ".venv-qt" / "bin" / "python"), "run_tests.py"),
         )
-        self.assertEqual(qt_call.kwargs["environment"], {"QT_QPA_PLATFORM": "offscreen"})
+        self.assertEqual(
+            lane_calls["=== QT LANE (monolithic) ==="].kwargs["environment"],
+            {"QT_QPA_PLATFORM": "offscreen"},
+        )
         self.assertEqual(passed, FULL_GATE_CHECKS)
+        self.assertEqual(failures, ())
+
+    def test_remote_gate_uses_exact_serial_runner_commands(self):
+        worktree = Path("/scratch/promotion")
+        with (
+            patch("tools.promotion_gate.main_worktree") as main_worktree,
+            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
+            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+        ):
+            passed, failures = _run_gate_checks(
+                worktree,
+                plain_only=False,
+                remote_lanes=True,
+                log=io.StringIO(),
+            )
+
+        lane_calls = [
+            call
+            for call in run_check.call_args_list
+            if call.kwargs["heading"]
+            in ("=== PLAIN LANE ===", "=== QT LANE (monolithic) ===")
+        ]
+        self.assertEqual(
+            [call.kwargs["command"] for call in lane_calls],
+            [
+                (
+                    "/opt/homebrew/bin/python3",
+                    "tools/run_remote_tests.py",
+                    str(worktree.resolve()),
+                    "plain",
+                ),
+                (
+                    "/opt/homebrew/bin/python3",
+                    "tools/run_remote_tests.py",
+                    str(worktree.resolve()),
+                    "qt",
+                ),
+            ],
+        )
+        self.assertEqual(
+            [call.kwargs["environment"] for call in lane_calls],
+            [None, None],
+        )
+        main_worktree.assert_not_called()
+        self.assertEqual(passed, FULL_GATE_CHECKS)
+        self.assertEqual(failures, ())
+
+    def test_remote_plain_only_gate_omits_qt_runner(self):
+        worktree = Path("/scratch/promotion")
+        with (
+            patch("tools.promotion_gate.main_worktree") as main_worktree,
+            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
+            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+        ):
+            passed, failures = _run_gate_checks(
+                worktree,
+                plain_only=True,
+                remote_lanes=True,
+                log=io.StringIO(),
+            )
+
+        lane_calls = [
+            call
+            for call in run_check.call_args_list
+            if call.kwargs["heading"]
+            in ("=== PLAIN LANE ===", "=== QT LANE (monolithic) ===")
+        ]
+        self.assertEqual(len(lane_calls), 1)
+        self.assertEqual(
+            lane_calls[0].kwargs["command"],
+            (
+                "/opt/homebrew/bin/python3",
+                "tools/run_remote_tests.py",
+                str(worktree.resolve()),
+                "plain",
+            ),
+        )
+        self.assertIsNone(lane_calls[0].kwargs["environment"])
+        main_worktree.assert_not_called()
+        self.assertEqual(passed, PLAIN_GATE_CHECKS)
         self.assertEqual(failures, ())
 
     def test_dirty_worktree_fails_clean_commit_check(self):

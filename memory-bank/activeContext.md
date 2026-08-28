@@ -21,12 +21,14 @@ reachable items / 84 orphan inputs / 87 blocked actions to 1,571 / 2,278 / 72 /
 71. The durable source and re-land audit remains
 `memory-bank/source-audits/wyvern-bones-acquisition-2026-08-11.md`.
 
-## MacBook remote verification host — 2026-08-19
+## MacBook remote promotion lanes — 2026-08-27
 
-- The laptop mirror lives at `/Users/armantarkhanian/ankiscape-remote-test-host`; it is outside Anki and is never canonical.
-- `tools/run_remote_tests.py <local-worktree> {plain,qt}` rsyncs the requested tree, launches the lane detached with `nohup`, polls report files, streams the log, validates a real unittest summary, and rejects Qt false passes above 10 skips.
-- The exact Qt freeze, isolated plain Pillow pin, portable game-main/Darkan source overrides, four required OpenRS2 caches, Java 25, and Darkan Java dependencies are pinned in `memory-bank/remote-test-host.md`.
-- The MacBook passed the unchanged 4,144-test corpus: plain `125.215s`, `skipped=499`; offscreen Qt `295.116s`, `skipped=3`.
+- The disposable laptop mirror remains `/Users/armantarkhanian/ankiscape-remote-test-host`; it is outside Anki and is never canonical.
+- The active procedure is `python3 tools/promotion_gate.py run <promotion-worktree> --remote-lanes`, then `python3 tools/promotion_gate.py land <promotion-worktree>`. Only the serial plain and Qt lanes run remotely; every audit, lock, evidence, exact-commit, and landing authority remains local or in the canonical Git common directory.
+- Remote summaries must discover at least 4,506 tests and retain at least 3,994 active plain tests or 4,503 active Qt tests, where active coverage is `tests - skipped`. Absolute skip caps are retired.
+- Dispatches started on this machine share one fixed absolute lock path, and the exclusive local flock covers sync and polling only while the dispatching process lives. It does not exclude another machine or an orphaned `nohup` lane after interruption or timeout; run IDs prevent false evidence mixing, but an operator must reconcile the orphan before retry.
+- Direct main measurements are 4,506/512 in 251.835s for plain and 4,506/3 in 446.244s for Qt. The pending UI branch measured 4,507/513 in 247.142s and 4,507/3 in 444.064s; its plain suite passed before the obsolete 500-skip cap rejected it.
+- Environment pins and standalone focused-run commands remain in `memory-bank/remote-test-host.md`.
 
 ## Pass 10 CLOSED — 2026-08-15
 
