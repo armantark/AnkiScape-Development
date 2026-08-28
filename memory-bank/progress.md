@@ -6207,3 +6207,12 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Full discovery passes 4,474 tests in both lanes: plain skips 506 and real
   offscreen Qt skips three. The final reachability audit reports 1,600 actions,
   2,212 reachable items, 192 orphan inputs, and 284 blocked actions.
+
+## MacBook-backed promotion evidence — 2026-08-27
+
+- The pending UI branch's MacBook plain lane emitted `Ran 4507 tests in 247.142s` and `OK (skipped=513)`, then the old runner rejected that successful suite because 513 exceeded its absolute cap of 500. Verbose accounting confirmed that all 513 skips were legitimate.
+- The same branch's MacBook Qt lane emitted `Ran 4507 tests in 444.064s` and `OK (skipped=3)`.
+- Active coverage is the stable invariant: `tests - skipped` gives 3,994 active plain tests and 4,504 active Qt tests for those observations. Direct main runs measured 4,506/512 in 251.835s for plain and 4,506/3 in 446.244s for Qt, establishing discovery of 4,506 plus active floors of 3,994 plain and 4,503 Qt tests. A new Qt-only test can therefore increase plain skips without masking lost executable coverage.
+- `python3 tools/promotion_gate.py run <promotion-worktree> --remote-lanes` sends only the serial plain and Qt lanes through the existing MacBook runner. Dispatches from this machine share a fixed absolute flock through sync and polling while the local process lives; the lock does not cover another machine or a detached lane after interruption or timeout. Run IDs prevent false evidence mixing, but an orphaned lane requires operator reconciliation before retry. Local audits, exact-commit evidence, locks, logs, and landing authority remain in the promotion worktree or canonical Git common directory; the unchanged landing command is `python3 tools/promotion_gate.py land <promotion-worktree>`.
+- Preserved branches `goal/remote-promotion-gate-2026-08-27` at `d79e27473830fa9bd353e5a664bc32ea38d9f247` and `goal/remote-promotion-gate-revised-2026-08-27` at `faaed0895d98366d1d0db77ed1115ecc351902c5` are superseded by the final reviewed replacement, `goal/remote-promotion-gate-final-2026-08-27`. Both prior unmerged worktrees remain intact under the worktree safety rule.
+- On the disposable MacBook mirror, the complete `tests.test_remote_test_host`, `tests.test_promotion_gate`, and global UI-asset normalization modules passed 37 tests in 18.305s.

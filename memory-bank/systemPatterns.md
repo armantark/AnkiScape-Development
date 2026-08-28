@@ -1048,35 +1048,60 @@ activation.
 
 ## Promotion gate and landing lock
 
-Run promotion checks with `python3 tools/promotion_gate.py run <promotion-worktree>`.
-Use `--plain-only` only for a branch-side check when the merged-tree promotion
-seat will run the offscreen Qt lane; plain-only evidence cannot authorize a
-landing. The command keeps the established `ankiscape_worktrees/gate-<short-sha>.log`
-and `ankiscape_worktrees/gateplain-<short-sha>.log` outputs. Gates for different
-commits may run together, and each active marker is protected by an OS file lock
-so a recycled PID cannot impersonate the gate process.
+The active remote procedure is
+`python3 tools/promotion_gate.py run <promotion-worktree> --remote-lanes`,
+followed by the unchanged
+`python3 tools/promotion_gate.py land <promotion-worktree>`. Remote mode runs
+only the plain and Qt test lanes, serially, through
+`/opt/homebrew/bin/python3 tools/run_remote_tests.py <exact-worktree> {plain,qt}`.
+Documentation, test-quality, reachability, worktree-layout, clean-tree, and diff
+checks still run locally in the promotion worktree. Omitting `--remote-lanes`
+keeps the original local lane commands. Use `--plain-only` only for a
+branch-side check when the merged-tree promotion seat will run the Qt lane;
+plain-only evidence cannot authorize a landing.
 
-A successful full gate atomically records the exact commit and every passed
-check in the shared Git common directory. The gate requires a clean worktree so
-those checks measure that commit rather than uncommitted files. The reachability
-check reads all seven reachability pins from the gated tree, compares them with
-that tree's own JSON audit and expected exit code, and accepts only an exact
-match. A content addition must update those pinned assertions in the same
-commit. This supersedes the 2026-08-22 05:52 papercut's interim rule to preserve
-the old grep-based informational behavior. Starting any rerun removes that
-commit's prior evidence, and a failed rerun writes none.
+The remote runner accepts a lane only when discovery is at least 4,506 tests and
+active coverage (`tests - skipped`) is at least 3,994 tests for plain or 4,503
+for Qt. Pin active coverage rather than an absolute skip count: adding a valid
+Qt-only test increases plain skips without reducing the plain lane's executed
+coverage. Dispatches started on the same machine share one fixed absolute lock
+path and hold its exclusive local flock through rsync and polling while the
+local dispatching process lives. Promotion gates may still register
+concurrently, but a second dispatch from that machine reports the lock path and
+waits before touching the shared mirror. The flock provides neither
+cross-machine nor remote-process-lifetime exclusion: interruption or timeout can
+leave the detached MacBook lane running after lock release. Run-specific IDs
+prevent that orphan from mixing its logs or report into later evidence, but a
+later dispatch can still fail spuriously and requires operator reconciliation
+before retry.
 
-The remote Qt verification checkout is an rsync mirror of the working tree and
-has no `.git` directory. Tests that run in that lane must build fixtures from
-the filesystem and must not shell out to Git.
+A successful gate atomically records the exact commit, every passed check, and
+a real `remote_lanes` boolean in the shared Git common directory; old evidence
+without that field parses as local evidence. Remote evidence is recorded, not a
+global landing requirement, because local mode remains supported. The gate
+requires a clean worktree so those checks measure that commit rather than
+uncommitted files. The reachability check reads all seven reachability pins from
+the gated tree, compares them with that tree's own JSON audit and expected exit
+code, and accepts only an exact match. A content addition must update those
+pinned assertions in the same commit. This supersedes the 2026-08-22 05:52
+papercut's interim rule to preserve the old grep-based informational behavior.
+Starting any rerun removes that commit's prior evidence, and a failed rerun
+writes none. The established `ankiscape_worktrees/gate-<short-sha>.log` and
+`ankiscape_worktrees/gateplain-<short-sha>.log` paths remain unchanged.
 
-Land only with
-`python3 tools/promotion_gate.py land <promotion-worktree>`, not a hand-written
-`git merge --ff-only`. Landing is serialized, requires full-gate evidence for
-the exact target commit, refuses while another tree is being gated, and refuses
-a target that is not descended from current `main`. An unlocked active-gate
-marker is stale regardless of the PID written inside it and is reported before
-removal.
+The remote verification checkout is an rsync mirror of the working tree and has
+no `.git` directory. Tests that run there must build fixtures from the
+filesystem and must not shell out to Git. Gate registration, exact-commit
+checks, evidence, landing locks, and landing state remain authoritative in the
+canonical Git common directory. Gates for different commits may run together,
+and each active marker is protected by an OS file lock so a recycled PID cannot
+impersonate the gate process.
+
+Land only with the command above, not a hand-written `git merge --ff-only`.
+Landing is serialized, requires full-gate evidence for the exact target commit,
+refuses while another tree is being gated, and refuses a target that is not
+descended from current `main`. An unlocked active-gate marker is stale
+regardless of the PID written inside it and is reported before removal.
 - A global pseudo-item removal in `quest_reward_items_as_dict()` is safe only after every catalog quest that parsed the same name has a `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` entry; enumerate all catalog references first.
 
 ## Quest reward replacement dicts REPLACE, not extend

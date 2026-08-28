@@ -80,6 +80,7 @@ class GateEvidence:
     commit: str
     worktree: str
     plain_only: bool
+    remote_lanes: bool
     passed_checks: tuple[str, ...]
     completed_at: str
 
@@ -95,11 +96,15 @@ class GateEvidence:
             plain_only = payload["plain_only"]
             if not isinstance(plain_only, bool):
                 raise TypeError("plain_only must be a boolean")
+            remote_lanes = payload.get("remote_lanes", False)
+            if not isinstance(remote_lanes, bool):
+                raise TypeError("remote_lanes must be a boolean")
             return cls(
                 schema_version=int(payload["schema_version"]),
                 commit=str(payload["commit"]),
                 worktree=str(payload["worktree"]),
                 plain_only=plain_only,
+                remote_lanes=remote_lanes,
                 passed_checks=tuple(passed_checks),
                 completed_at=str(payload["completed_at"]),
             )
@@ -514,9 +519,26 @@ def _run_gate_checks(
     worktree: Path,
     *,
     plain_only: bool,
+    remote_lanes: bool = False,
     log: TextIO,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    canonical = main_worktree(worktree)
+    if remote_lanes:
+        remote_runner = (
+            "/opt/homebrew/bin/python3",
+            "tools/run_remote_tests.py",
+            str(worktree.resolve()),
+        )
+        plain_command = (*remote_runner, "plain")
+        qt_command = (*remote_runner, "qt")
+        qt_environment = None
+    else:
+        canonical = main_worktree(worktree)
+        plain_command = ("/opt/homebrew/bin/python3", "run_tests.py")
+        qt_command = (
+            str(canonical / ".venv-qt" / "bin" / "python"),
+            "run_tests.py",
+        )
+        qt_environment = {"QT_QPA_PLATFORM": "offscreen"}
     checks: list[
         tuple[
             str,
@@ -530,7 +552,7 @@ def _run_gate_checks(
         (
             "plain lane",
             "=== PLAIN LANE ===",
-            ("/opt/homebrew/bin/python3", "run_tests.py"),
+            plain_command,
             lambda lines: _tail_without_progress(lines, 20 if plain_only else 30),
             None,
             None,
@@ -540,12 +562,9 @@ def _run_gate_checks(
         checks.append((
             "Qt lane",
             "=== QT LANE (monolithic) ===",
-            (
-                str(canonical / ".venv-qt" / "bin" / "python"),
-                "run_tests.py",
-            ),
+            qt_command,
             lambda lines: _tail_without_progress(lines, 30),
-            {"QT_QPA_PLATFORM": "offscreen"},
+            qt_environment,
             None,
         ))
     checks.extend((
@@ -621,6 +640,7 @@ def _write_evidence(
     *,
     commit: str,
     plain_only: bool,
+    remote_lanes: bool,
     passed_checks: tuple[str, ...],
 ) -> Path:
     evidence = GateEvidence(
@@ -628,6 +648,7 @@ def _write_evidence(
         commit=commit,
         worktree=str(worktree.resolve()),
         plain_only=plain_only,
+        remote_lanes=remote_lanes,
         passed_checks=passed_checks,
         completed_at=datetime.now().astimezone().isoformat(timespec="seconds"),
     )
@@ -658,6 +679,7 @@ def run_gate(
     worktree: Path,
     *,
     plain_only: bool,
+    remote_lanes: bool = False,
     stdout: TextIO = sys.stdout,
     stderr: TextIO = sys.stderr,
 ) -> Path:
@@ -678,6 +700,7 @@ def run_gate(
             passed_checks, failures = _run_gate_checks(
                 worktree,
                 plain_only=plain_only,
+                remote_lanes=remote_lanes,
                 log=log,
             )
             ending_commit = commit_at(worktree)
@@ -696,6 +719,7 @@ def run_gate(
                 worktree,
                 commit=commit,
                 plain_only=plain_only,
+                remote_lanes=remote_lanes,
                 passed_checks=passed_checks,
             )
     finally:
@@ -820,13 +844,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="skip the offscreen Qt lane for a branch-side promotion check",
     )
+    run_parser.add_argument(
+        "--remote-lanes",
+        action="store_true",
+        help="run the plain and Qt lanes through the MacBook remote test host",
+    )
     land_parser = subparsers.add_parser("land", help="fast-forward main to a gated worktree")
     land_parser.add_argument("worktree", type=Path)
     args = parser.parse_args(argv)
 
     try:
         if args.command == "run":
-            run_gate(args.worktree, plain_only=args.plain_only)
+            run_gate(
+                args.worktree,
+                plain_only=args.plain_only,
+                remote_lanes=args.remote_lanes,
+            )
         else:
             land(args.worktree)
     except (GateError, OSError) as exc:

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import re
 import shlex
 import subprocess
@@ -24,9 +25,12 @@ REMOTE_GAME_MAIN = REMOTE_ROOT / "sources" / "game-main"
 REMOTE_DARKAN = REMOTE_ROOT / "sources" / "darkan-world-server"
 SSH = ("ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", HOST)
 RSYNC_SSH = "ssh -o BatchMode=yes -o ConnectTimeout=10"
-MIN_TESTS = 4_144
-MAX_PLAIN_SKIPS = 500
-MAX_QT_SKIPS = 10
+LOCAL_MIRROR_LOCK_PATH = (
+    Path.home() / "Library" / "Caches" / "ankiscape-remote-test-host.lock"
+)
+MIN_TESTS = 4_506
+MIN_PLAIN_ACTIVE_TESTS = 3_994
+MIN_QT_ACTIVE_TESTS = 4_503
 NETWORK_ATTEMPTS = 3
 
 
@@ -58,12 +62,15 @@ def validate_test_summary(lane: str, summary: TestSummary) -> None:
             f"remote {lane} lane false pass: ran {summary.tests} tests, "
             f"expected at least {MIN_TESTS}"
         )
-    max_skips = MAX_PLAIN_SKIPS if lane == "plain" else MAX_QT_SKIPS
-    if summary.skipped > max_skips:
-        lane_label = "Qt" if lane == "qt" else "plain"
+    minimum_active = (
+        MIN_PLAIN_ACTIVE_TESTS if lane == "plain" else MIN_QT_ACTIVE_TESTS
+    )
+    active_tests = summary.tests - summary.skipped
+    if active_tests < minimum_active:
         raise RuntimeError(
-            f"remote {lane_label} lane false pass: skipped={summary.skipped}, "
-            f"expected at most {max_skips}"
+            f"remote {lane} lane false pass: active={active_tests} "
+            f"(tests={summary.tests}, skipped={summary.skipped}), "
+            f"expected at least {minimum_active} active tests"
         )
 
 
@@ -241,17 +248,33 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     try:
         _preflight(args.lane)
-        _sync(local_worktree)
-        returncode, output = _stream_remote_run(
-            args.lane,
-            timeout=args.timeout,
-            poll_interval=args.poll_interval,
-        )
+        LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with LOCAL_MIRROR_LOCK_PATH.open("a+", encoding="utf-8") as mirror_lock:
+            try:
+                fcntl.flock(
+                    mirror_lock.fileno(),
+                    fcntl.LOCK_EX | fcntl.LOCK_NB,
+                )
+            except BlockingIOError:
+                print(
+                    f"Remote mirror busy; waiting for {LOCAL_MIRROR_LOCK_PATH}",
+                    file=sys.stderr,
+                )
+                fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_EX)
+            try:
+                _sync(local_worktree)
+                returncode, output = _stream_remote_run(
+                    args.lane,
+                    timeout=args.timeout,
+                    poll_interval=args.poll_interval,
+                )
+            finally:
+                fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_UN)
         if returncode != 0:
             raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
         summary = parse_unittest_summary(output)
         validate_test_summary(args.lane, summary)
-    except (RuntimeError, TimeoutError, ValueError) as exc:
+    except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

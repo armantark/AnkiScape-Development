@@ -15,7 +15,21 @@ Screen Recording and Accessibility approval on the laptop screen. For
 AnkiScape, this laptop is the pass-6 prober host; the original setup and role
 record remains in `memory-bank/pass5-triage-2026-07-31.md`.
 
-Use the checked-in runner from any local AnkiScape worktree:
+Run the active full promotion procedure from the promotion worktree:
+
+```bash
+python3 tools/promotion_gate.py run <promotion-worktree> --remote-lanes
+python3 tools/promotion_gate.py land <promotion-worktree>
+```
+
+`--remote-lanes` changes only the two serial test-lane commands. The promotion
+controller still runs documentation, test-quality, reachability,
+worktree-layout, clean-tree, and diff checks locally, while locks, logs,
+evidence, exact-commit checks, and landing state remain in the canonical Git
+common directory. Omitting the flag keeps the supported local default.
+
+For focused verification, use the checked-in runner directly from any local
+AnkiScape worktree:
 
 ```bash
 /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain
@@ -27,9 +41,21 @@ The runner uses exactly
 rsyncs to `/Users/armantarkhanian/ankiscape-remote-test-host/repo`, and excludes
 `.git`, `__pycache__`, `.venv-qt`, and `ankiscape_debug.log*`. It launches the
 lane through `nohup`, writes logs and completion reports under
-`/Users/armantarkhanian/ankiscape-remote-test-host/reports`, polls those files,
-and rejects any success below 4,144 tests, a plain success above 500 skips,
-or a Qt success above 10 skips.
+`/Users/armantarkhanian/ankiscape-remote-test-host/reports`, and polls those
+files. Dispatches started on this machine share the fixed mirror, so the runner
+holds an exclusive local flock at `~/Library/Caches/ankiscape-remote-test-host.lock`
+through rsync and polling while the local dispatching process lives. A concurrent
+gate started on this machine may register normally, then reports the lock path
+and waits before it can sync or run. The flock does not coordinate a dispatcher
+on another machine and cannot outlive the local process. If the local poller is
+interrupted or times out, its detached `nohup` MacBook lane can continue after
+the lock is released; a later dispatch can then sync or run while that orphan is
+active and fail spuriously. Run-specific IDs keep logs and reports separate and
+prevent false evidence mixing, but an operator must reconcile an orphaned lane
+before retrying. A successful summary must report at least 4,506 discovered
+tests and at least 3,994 active plain tests or 4,503 active Qt tests, where active
+tests equal `tests - skipped`. There is no absolute skip cap: legitimate Qt-only
+tests can increase plain skips while active plain coverage stays constant.
 
 ## Python environments
 
@@ -85,5 +111,36 @@ OK (skipped=499)
 
 ```text
 Ran 4144 tests in 295.116s
+OK (skipped=3)
+```
+
+The directly measured 2026-08-27 main baseline established the current floors:
+
+```text
+Ran 4506 tests in 251.835s
+OK (skipped=512)
+```
+
+```text
+Ran 4506 tests in 446.244s
+OK (skipped=3)
+```
+
+Those results establish 4,506 discovered tests, 3,994 active plain tests, and
+4,503 active Qt tests as the current-main minimums.
+
+The 2026-08-27 pending UI branch measured the current invariant directly. Its
+plain lane ran 4,507 tests in 247.142s with 513 legitimate skips, leaving 3,994
+active tests; the obsolete absolute skip cap rejected the result only after
+`OK`. Its Qt lane ran the same 4,507 tests in 444.064s with three skips, leaving
+4,504 active tests:
+
+```text
+Ran 4507 tests in 247.142s
+OK (skipped=513)
+```
+
+```text
+Ran 4507 tests in 444.064s
 OK (skipped=3)
 ```
