@@ -2,6 +2,23 @@
 
 Last staleness sweep: 2026-08-28
 
+## Goal paused on canonical-main collision — 2026-08-28
+
+- The orchestrator expected clean canonical `main` at
+  `9ca56ff199e27a9458a94f85af09787baa988618` while the native evidence and
+  tab-overflow work ran. At 10:25 PDT, `main` instead resolved to
+  `60d709847e378cca2f8d86c5cfc0ae50c72ef65c`.
+- The new commit has parent `9ca56ff1`, subject `The native evidence packet
+  overstated its required proof`, author date `2026-08-28T10:07:22-07:00`, and
+  one added line in `memory-bank/papercuts.md`.
+- The orchestrator stopped the Computer Use agent and tab-overflow author. It
+  made no repair or reconciliation attempt. Candidate branch
+  `goal/native-tab-overflow` remains unmerged at
+  `1eedceb40dbdc8342ae71fa030605915daeafc09`; no test ran for that commit.
+- Resume only after the owner explicitly confirms `60d709847e378cca2f8d86c5cfc0ae50c72ef65c`
+  as the new baseline and asks to resume. The verbatim goal and blocker record
+  are in `memory-bank/GOAL-BLOCKED.md`.
+
 ## Autonomous implementation goal remains active — 2026-08-28
 
 - The prior closure was invalid. The exact goal condition does not permit an
