@@ -251,8 +251,8 @@
       "title": "Add Runespan",
       "detail": "Released 2012 pre-EOC; defining late-pre-EOC RC method. Source nodes/points/level bands from wiki.",
       "source": "wiki:Runespan",
-      "status": "merged",
-      "note": "Owner grill closed 2026-07-10; implement after the Darkan fidelity revamp and historical method-rate audit establish source-grade session mechanics and effective XP rates.",
+      "status": "design_settled_waiting_source",
+      "note": "Owner grill closed 2026-07-10; implement after the Darkan fidelity revamp and historical method-rate audit establish source-grade session mechanics and effective XP rates. Commit e3ce8722c6f644d287f4f8871f595a81b0ad83a2 changed this row to merged while adding no Runespan implementation; source-blocked status restored 2026-08-28.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#runecrafting-runespan-and-training-time-calibration",
       "decision_summary": {
         "session": "Use a geographically abstracted, fully simulated Runespan session with visible current-activity state; each review resolves one source-defined action in the current loop.",
@@ -321,8 +321,8 @@
       "title": "Add Artisan's Workshop + burial armour + ceremonial swords",
       "detail": "Major 2010 Smithing progression surface absent from emulator plugin.",
       "source": "wiki:Artisan's Workshop",
-      "status": "implemented",
-      "note": "Aksel-order scheduling settled 2026-07-18: orders surface through the reviewer contextual action row (Accept bronze order / Ignore), no modal and no backlog; ignored offers expire, an explicit prior click becomes the remembered resolution, and accepting replaces the next successful Workshop action with the bronze-sword attempt. Exact pipe timing still waits for stronger evidence or Darkan fidelity work.",
+      "status": "design_settled_waiting_source",
+      "note": "Aksel-order scheduling settled 2026-07-18: orders surface through the reviewer contextual action row (Accept bronze order / Ignore), no modal and no backlog; ignored offers expire, an explicit prior click becomes the remembered resolution, and accepting replaces the next successful Workshop action with the bronze-sword attempt. Exact pipe timing still waits for stronger evidence or Darkan fidelity work. Commit e3ce8722c6f644d287f4f8871f595a81b0ad83a2 changed this row to implemented while adding no Artisan's Workshop implementation; source-blocked status restored 2026-08-28.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#smithing-artisans-workshop-burial-armour-and-ceremonial-swords",
       "decision_summary": {
         "surface": "Use a compact Smithing sub-UI showing metal/ingot grade, current assignment or plan, Respect, and a deep link to Activity Rewards.",

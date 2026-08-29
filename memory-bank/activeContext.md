@@ -2,11 +2,42 @@
 
 Last staleness sweep: 2026-08-28
 
-## Native tab overflow passed; Cooking native verification is blocked — 2026-08-28
+## Bounded Memory Bank queue packet awaits final remote gates — 2026-08-28
 
-- Branch `goal/native-tab-overflow-final-2026-08-28` starts from current verified
-  main `a70d3971`. Old candidate `1eedceb4` remains rejected and unmerged. The tab slice is ready
-  for commit and promotion review, but it is not committed, promoted, or landed.
+- Branch `goal/bounded-queue-packet-2026-08-28` adds the standard-library
+  `tools/memory_bank_queue_packet.py` CLI and a focused module that now contains
+  nine tests. The CLI reads one or more repository/worktree roots, preserves
+  source line references, emits only bounded current queue signals, and reports
+  every omitted or truncated source under a 32,768-byte default cap.
+- Two consecutive local builds produced byte-identical packets of exactly 26,089
+  UTF-8 bytes. Local static checks also cover syntax compilation, CLI help,
+  reduced-cap behavior, source-category presence, explicit omission reporting,
+  and source-tree non-mutation.
+- Runespan and Artisan's Workshop are restored to
+  `design_settled_waiting_source`. Commit
+  `e3ce8722c6f644d287f4f8871f595a81b0ad83a2` changed their rows to `merged` and
+  `implemented` while adding neither implementation; the queue again records
+  both source blockers.
+- Pre-hardening MacBook support is exact focused output `Ran 5 tests in 0.010s`,
+  `OK`; plain `Ran 4521 tests in 246.473s`, `OK (skipped=513)`, 4,008 active;
+  and Qt `Ran 4521 tests in 458.932s`, `OK (skipped=3)`, 4,518 active. These runs
+  do not verify the current nine-test module.
+- The final MacBook focused run passed: `Ran 9 tests in 0.025s`, `OK`.
+  Final exact-commit plain and Qt promotion gates remain pending. Independent
+  Opus review accepted the hardening delta subject to those external gates.
+  Promotion has not occurred.
+
+## Native tab overflow landed; Cooking native verification is blocked — 2026-08-28
+
+- Commit `873b505e4111dd3a93e5f33b1f9af9329d3d59ed` is landed on local `main`
+  by fast-forward from `goal/native-tab-overflow-final-2026-08-28`. Old candidate
+  `1eedceb4` remains rejected and unmerged.
+- Exact promotion evidence is the Git common-directory record
+  `ankiscape-promotion-evidence/873b505e4111dd3a93e5f33b1f9af9329d3d59ed.json`,
+  completed at `2026-08-28T20:02:42-07:00`. It records `remote_lanes: true`,
+  `plain_only: false`, and all eight passed checks: plain lane, Qt lane,
+  `audit_docs`, `audit_test_quality`, reachability, `worktree_guard`, worktree
+  clean, and diff check.
 - The final tab policy uses document mode, 16x16 icons,
   `setExpanding(False)`, `setUsesScrollButtons(True)`, `ElideNone`, and 1px left
   and right tab padding. The 1px padding is deliberate. A 2px candidate passed
@@ -1820,8 +1851,9 @@ skip. Test quality, documentation, compilation, JSON, diff, normalized assets,
 reachability, and worktree safety pass. A fully restarted native Anki check
 showed one launcher and one menu, separate Utilities and Activities, the hidden
 unclaimed hood card, and the compact Great Orb reward card. Runespan outfit
-acquisition remains later data depth; its cap effects are ready. Ourania remains
-source-blocked on the exact rune roll table. Durable record:
+acquisition and session mechanics remain source-blocked; only the hood's future
+allowance-cap constants exist. Ourania remains source-blocked on the exact rune
+roll table. Durable record:
 `source-audits/gap-grill-11-runecrafting-provenance-2026-07-10.md`.
 Results: `status-updates/wicked-hood-horizontal-results-2026-07-21.html`;
 mobile copy: `https://8c7s96iiatk5.postplan.dev`.

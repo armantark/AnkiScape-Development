@@ -66,6 +66,15 @@
   object-schema mistakes before provider startup. Frozen reviewers must still
   receive explicit untracked-file contents and enough budget for inherited
   instructions; no manifest can force a model to honor a read boundary.
+- Select the next slice with `python3 tools/memory_bank_queue_packet.py
+  <repository-or-worktree-root> [<root> ...]`, not a whole-Memory-Bank read. The
+  deterministic packet defaults to a 32,768-byte UTF-8 cap, retains repository
+  line references, and reports every source omitted or truncated by either a
+  context limit or the byte cap; raise `--max-bytes` only deliberately.
+- Treat a packet-size record as a fixpoint because `activeContext.md` and
+  `progress.md` enter the packet. Rebuild twice after each count edit until the
+  size is stable, especially when digit width changes. Keep the SHA-256 outside
+  packet sources so the digest does not become self-referential.
 - Import `pkg_alias` before direct `ankiscape.*` probes, or set
   `PYTHONPATH="$PWD"` for a harness outside the checkout. Run the equipment
   generator directly or as a module; its `--game-root` is the external

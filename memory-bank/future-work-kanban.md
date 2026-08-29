@@ -1406,8 +1406,9 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   hood, fed access, real pack space, one non-stacking 240-answer allowance
   pool, persistent loss/reclaim state, and direct/review undo. Elemental and
   Omni feeds are reachable through Great Orb Project. Runespan outfit
-  acquisition remains data depth; its allowance-cap effects are ready for that
-  shop. Ourania remains source-blocked on its exact rune distribution. See
+  acquisition and session mechanics remain source-blocked; only the hood's
+  future allowance-cap constants exist. Ourania remains source-blocked on its
+  exact rune distribution. See
   `memory-bank/source-audits/gap-grill-11-runecrafting-provenance-2026-07-10.md`.
 - Managing Miscellania is mechanic-complete as an Activities-only persistent
   kingdom surface. It ships the Throne/Royal Trouble gates and upgrades,
