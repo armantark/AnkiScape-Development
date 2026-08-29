@@ -197,9 +197,12 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [ ] Recover the Frost dragon bone ID-to-route mapping. No period source maps
      item `18830` and item `18832` one-to-one to the Asgarnian Ice Dungeon and
      Daemonheim routes. Preserve both IDs until a period source settles the pair.
-5. [ ] The goal is active. Native tab cases 1–4 PASS and the tab slice is ready
-   for commit and promotion review, but it is not committed, promoted, or
-   landed. Cooking remains `native-verification-blocked`: a native Qt
-   accessibility-bridge crash during a posted accessibility update for the
-   Skills `QTreeWidget`; no Cooking selector or persistence pass is claimed.
-   Collections is the pipelined next slice.
+5. [x] The active goal is paused through `memory-bank/GOAL-BLOCKED.md`.
+   Native tab overflow and bounded queue tooling passed exact MacBook promotion
+   gates and landed. The final audit found no unblocked remainder, no
+   `implementation_ready`, no accepted unmerged slice, and no
+   `investigation_only` item. Collections remains `integration_blocked` because
+   normal-profile Anki PID `85356` and four descendants remain live. The single
+   unblock action is a normal owner quit through Anki's user interface on the
+   MacBook Pro. Cooking remains `native_verification_blocked`; all other active
+   remainders have exact owner, source, quota, or deferred-depth classes.

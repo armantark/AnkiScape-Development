@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✓</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏸</text></svg>">
 <title>AnkiScape Goal Status</title>
 <style>
 :root {
@@ -20,7 +20,7 @@
     --amber: #fbbf24;
     --purple: #a78bfa;
     --radius: 12px;
-    --rail: #30486f;
+    --rail: #5f4a1d;
 }
 * { box-sizing: border-box; }
 html { background: var(--bg); }
@@ -36,14 +36,14 @@ code, .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; }
 .hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 1.2rem; align-items: stretch; }
 .hero-copy, .seal { background: var(--surface); border: 1px solid var(--border); }
 .hero-copy { padding: 1.5rem 1.6rem; border-radius: var(--radius) 2px 2px var(--radius); }
-.eyebrow { display: inline-flex; gap: .5rem; align-items: center; color: var(--green); font: 700 .68rem/1 'JetBrains Mono', Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
-.eyebrow::before { content: ''; width: 1.8rem; height: 2px; background: var(--green); box-shadow: 0 0 14px rgba(74, 222, 128, .65); }
+.eyebrow { display: inline-flex; gap: .5rem; align-items: center; color: var(--amber); font: 700 .68rem/1 'JetBrains Mono', Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
+.eyebrow::before { content: ''; width: 1.8rem; height: 2px; background: var(--amber); box-shadow: 0 0 14px rgba(251, 191, 36, .55); }
 h1 { margin: .72rem 0 .55rem; font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1.02; letter-spacing: -.035em; text-wrap: balance; }
 .lede { color: var(--text-dim); max-width: 68ch; margin: 0; font-size: .98rem; }
-.seal { border-radius: 2px var(--radius) var(--radius) 2px; display: grid; place-items: center; padding: 1.2rem; text-align: center; background: radial-gradient(circle at 50% 42%, var(--accent-glow), transparent 58%), var(--surface); }
-.seal-ring { width: 9rem; aspect-ratio: 1; border: 2px solid var(--green); border-radius: 50%; display: grid; place-items: center; box-shadow: 0 0 0 7px rgba(74, 222, 128, .07), inset 0 0 28px rgba(74, 222, 128, .08); transform: rotate(-4deg); }
+.seal { border-radius: 2px var(--radius) var(--radius) 2px; display: grid; place-items: center; padding: 1.2rem; text-align: center; background: radial-gradient(circle at 50% 42%, rgba(251, 191, 36, .13), transparent 58%), var(--surface); }
+.seal-ring { width: 9rem; aspect-ratio: 1; border: 2px solid var(--amber); border-radius: 50%; display: grid; place-items: center; box-shadow: 0 0 0 7px rgba(251, 191, 36, .06), inset 0 0 28px rgba(251, 191, 36, .08); transform: rotate(-4deg); }
 .seal strong { display: block; font-size: 1.25rem; line-height: 1.05; letter-spacing: .05em; text-transform: uppercase; }
-.seal small { display: block; margin-top: .45rem; color: var(--green); font: .62rem/1.3 'JetBrains Mono', Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; }
+.seal small { display: block; margin-top: .45rem; color: var(--amber); font: .62rem/1.3 'JetBrains Mono', Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; }
 .commit { margin-top: .9rem; color: var(--text-dim); font-size: .7rem; overflow-wrap: anywhere; }
 .metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; margin-top: 1.1rem; padding: 1px; background: var(--border); border: 1px solid var(--border); }
 .metric { background: var(--surface); padding: .85rem .75rem; min-width: 0; }
@@ -55,8 +55,12 @@ section { margin-top: 2rem; }
 .section-head { display: flex; justify-content: space-between; gap: 1rem; align-items: end; border-bottom: 1px solid var(--border); padding-bottom: .6rem; }
 h2 { margin: 0; font-size: 1.05rem; letter-spacing: .06em; text-transform: uppercase; }
 .section-head p { margin: 0; color: var(--text-dim); font-size: .75rem; text-align: right; }
-.route { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.1rem; }
-.route::before { content: ''; position: absolute; top: 1.05rem; left: 8%; right: 8%; height: 2px; background: linear-gradient(90deg, var(--rail), var(--accent), var(--green)); }
+.action { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center; margin-top: 1.1rem; padding: 1.15rem; border: 1px solid var(--amber); background: linear-gradient(105deg, rgba(251, 191, 36, .12), transparent 55%), var(--surface); }
+.action-num { width: 2.4rem; height: 2.4rem; display: grid; place-items: center; color: var(--bg); background: var(--amber); font: 800 1rem/1 'JetBrains Mono', Menlo, monospace; }
+.action h3 { margin: 0; font-size: 1.02rem; }
+.action p { margin: .32rem 0 0; color: var(--text-dim); font-size: .8rem; }
+.route { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.1rem; }
+.route::before { display: none; }
 .stop { position: relative; padding-top: 2.25rem; }
 .node { position: absolute; top: .58rem; left: .8rem; width: .95rem; height: .95rem; border: 3px solid var(--bg); border-radius: 50%; background: var(--green); box-shadow: 0 0 0 2px var(--green), 0 0 18px rgba(74, 222, 128, .35); }
 .stop-card { height: 100%; background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--accent); padding: .9rem; }
@@ -67,15 +71,12 @@ h2 { margin: 0; font-size: 1.05rem; letter-spacing: .06em; text-transform: upper
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .panel { background: var(--surface); border: 1px solid var(--border); padding: 1rem; }
 .panel h3 { margin: 0 0 .75rem; font-size: .9rem; }
-.ledger-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .55rem; }
-.ledger-cell { background: var(--surface-2); padding: .7rem; border-left: 2px solid var(--green); }
-.ledger-cell b { display: block; font: 700 1.1rem/1 'JetBrains Mono', Menlo, monospace; }
-.ledger-cell span { display: block; color: var(--text-dim); font-size: .68rem; margin-top: .3rem; }
 .gate-list { display: grid; gap: .55rem; }
 .gate { display: grid; grid-template-columns: auto 1fr; gap: .7rem; align-items: start; background: var(--surface-2); padding: .72rem; }
 .gate-mark { color: var(--green); font: 700 .72rem/1 'JetBrains Mono', Menlo, monospace; padding-top: .15rem; }
+.gate.warn .gate-mark { color: var(--amber); }
 .gate b { display: block; font-size: .78rem; }
-.gate span { display: block; color: var(--text-dim); font-size: .7rem; margin-top: .18rem; }
+.gate span { display: block; color: var(--text-dim); font-size: .7rem; margin-top: .18rem; overflow-wrap: anywhere; }
 .table-wrap { overflow-x: auto; margin-top: 1rem; border: 1px solid var(--border); background: var(--surface); }
 table { width: 100%; border-collapse: collapse; min-width: 820px; font-size: .75rem; }
 th, td { padding: .68rem .75rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
@@ -84,9 +85,9 @@ tr:last-child td { border-bottom: 0; }
 .state { display: inline-block; padding: .14rem .42rem; border: 1px solid currentColor; font: 700 .58rem/1.2 'JetBrains Mono', Menlo, monospace; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
 .owner { color: var(--amber); }
 .source { color: var(--red); }
-.dependency { color: #f59e71; }
 .integration { color: var(--accent); }
-.investigation { color: var(--purple); }
+.native { color: var(--purple); }
+.quota { color: #67e8f9; }
 .deferred { color: var(--text-dim); }
 .proof { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1rem; }
 .proof-main { background: var(--surface); border: 1px solid var(--border); padding: 1rem; }
@@ -112,6 +113,7 @@ footer { margin-top: 2.2rem; padding-top: .8rem; border-top: 1px solid var(--bor
     .route { grid-template-columns: 1fr; }
     .section-head { align-items: start; flex-direction: column; }
     .section-head p { text-align: left; }
+    .action { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 </style>
@@ -120,24 +122,38 @@ footer { margin-top: 2.2rem; padding-top: .8rem; border-top: 1px solid var(--bor
 <main>
 <header class="hero">
     <div class="hero-copy">
-        <span class="eyebrow">Goal active · prior closure rejected</span>
-        <h1>Four investigation gates remain.</h1>
-        <p class="lede">The accepted slices remain valid. The exact goal does not permit an investigation-only remainder, so the loop must resolve four open gates.</p>
-        <p class="commit mono">verified product head · 1d461b16ba423a69488097c1e0d01365df914c48 · clean · no remote push</p>
+        <span class="eyebrow">Goal paused · owner action required</span>
+        <h1>One live Anki process blocks Collections.</h1>
+        <p class="lede">All unblocked work is landed. Native Collections verification cannot start while the owner's normal Anki profile remains open.</p>
+        <p class="commit mono">verified main · 3fd9728b6b9aeb9819ee7ff372352755e0d98b7c · clean · no remote push</p>
     </div>
-    <div class="seal" aria-label="Promotion gate complete">
-        <div class="seal-ring"><div><strong>Slice gates<br>passed</strong><small>Goal remains<br>active</small></div></div>
+    <div class="seal" aria-label="Goal paused on an owner action">
+        <div class="seal-ring"><div><strong>Queue<br>closed</strong><small>Native gate<br>blocked</small></div></div>
     </div>
 </header>
 
-<div class="metrics" aria-label="Final measured results">
-    <div class="metric"><b>4</b><span>accepted promotions</span></div>
-    <div class="metric"><b>4,516</b><span>tests per full lane</span></div>
-    <div class="metric"><b>4,003</b><span>active plain tests</span></div>
-    <div class="metric"><b>4,513</b><span>active Qt tests</span></div>
+<div class="metrics" aria-label="Latest measured results">
+    <div class="metric"><b>6</b><span>landed goal slices</span></div>
+    <div class="metric"><b>4,526</b><span>tests per latest lane</span></div>
+    <div class="metric"><b>4,012</b><span>active plain tests</span></div>
+    <div class="metric"><b>4,523</b><span>active Qt tests</span></div>
     <div class="metric"><b>8 / 8</b><span>promotion checks</span></div>
     <div class="metric"><b>0</b><span>accepted unmerged slices</span></div>
 </div>
+
+<section>
+    <div class="section-head">
+        <h2>The one unblock action</h2>
+        <p>The action must close the SQLite write-ahead log through Anki.</p>
+    </div>
+    <div class="action">
+        <div class="action-num">1</div>
+        <div>
+            <h3>Quit Anki PID 85356 normally on the MacBook Pro.</h3>
+            <p>Use Anki's own user interface and Cmd-Q. Do not use a signal or force kill.</p>
+        </div>
+    </div>
+</section>
 
 <section>
     <div class="section-head">
@@ -145,52 +161,51 @@ footer { margin-top: 2.2rem; padding-top: .8rem; border-top: 1px solid var(--bor
         <p>Each stop reached canonical main through an attributable branch and a promotion gate.</p>
     </div>
     <div class="route">
-        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 01</span><h3>Remote gate safety</h3><p>The promotion gate now runs both full lanes on the MacBook Pro. Local evidence stays exact and authoritative.</p><code>9587ebdb</code></div></article>
-        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 02</span><h3>Safety-gloves refresh</h3><p>An open Bank and Equipment view now shows reclaimed Safety gloves without a menu restart.</p><code>806a2f63</code></div></article>
-        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 03</span><h3>Complete tab labels</h3><p>Anki no longer truncates the main tab names. Native evidence also proves Bank activation keeps the dialog open.</p><code>ef860086</code></div></article>
-        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 04</span><h3>Diary deed ledger</h3><p>The source-ordered ledger now records honest deed triggers, citations, and explicit future-system stops for all 320 rows.</p><code>1d461b16</code></div></article>
+        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 01</span><h3>Remote gate safety</h3><p>Both full repository lanes run on the MacBook Pro. Local evidence remains exact.</p><code>9587ebdb</code></div></article>
+        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 02</span><h3>Safety-gloves refresh</h3><p>Open Bank and Equipment views now show reclaimed Safety gloves without a menu restart.</p><code>806a2f63</code></div></article>
+        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 03</span><h3>Complete tab labels</h3><p>The main menu keeps complete tab names and preserves pointer activation.</p><code>ef860086</code></div></article>
+        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 04</span><h3>Diary deed ledger</h3><p>The source-ordered ledger records honest triggers and explicit future-system stops.</p><code>1d461b16</code></div></article>
+        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 05</span><h3>Native tab overflow</h3><p>Four native cases prove complete labels, scroll controls, and no dialog closure.</p><code>873b505e</code></div></article>
+        <article class="stop"><span class="node"></span><div class="stop-card"><span class="index">Stop 06</span><h3>Bounded queue packet</h3><p>The Memory Bank queue now has a byte cap, line references, and truthful omissions.</p><code>3fd9728b</code></div></article>
     </div>
 </section>
 
 <section class="split">
     <div class="panel">
-        <h3>Diary ledger census</h3>
-        <div class="ledger-grid">
-            <div class="ledger-cell"><b>43</b><span>active deeds</span></div>
-            <div class="ledger-cell"><b>247</b><span>dormant deeds</span></div>
-            <div class="ledger-cell"><b>30</b><span>translated deeds</span></div>
-            <div class="ledger-cell"><b>0</b><span>swapped deeds</span></div>
-            <div class="ledger-cell"><b>320</b><span>unique task IDs</span></div>
-            <div class="ledger-cell"><b>20</b><span>future systems</span></div>
+        <h3>Latest exact promotion proof</h3>
+        <div class="gate-list">
+            <div class="gate"><span class="gate-mark">✓</span><div><b>The plain lane passed.</b><span>4,526 tests in 245.643 seconds, with 514 skips.</span></div></div>
+            <div class="gate"><span class="gate-mark">✓</span><div><b>The Qt lane passed.</b><span>4,526 tests in 452.841 seconds, with three skips.</span></div></div>
+            <div class="gate"><span class="gate-mark">✓</span><div><b>All repository checks passed.</b><span>Documentation, test quality, reachability, worktree, worktree-clean, and diff checks passed.</span></div></div>
+            <div class="gate"><span class="gate-mark">✓</span><div><b>The promotion record is exact.</b><span>It completed at 2026-08-28T21:13:15-07:00 for commit 3fd9728b.</span></div></div>
         </div>
     </div>
     <div class="panel">
-        <h3>Exact merged-tree proof</h3>
+        <h3>Native safety proof</h3>
         <div class="gate-list">
-            <div class="gate"><span class="gate-mark">✓</span><div><b>Both MacBook Pro lanes passed.</b><span>Plain: 245.936s and 513 skips. Qt: 441.197s and 3 skips.</span></div></div>
-            <div class="gate"><span class="gate-mark">✓</span><div><b>The repository checks passed.</b><span>599 Markdown files, 440 HTML files, 4,481 tests across 220 files, and zero hard issues.</span></div></div>
-            <div class="gate"><span class="gate-mark">✓</span><div><b>The reachability pin matched.</b><span>1,600 actions, 2,217 reachable items, 192 orphan inputs, and 284 blocked actions.</span></div></div>
-            <div class="gate"><span class="gate-mark">✓</span><div><b>The asset audit has no pending row.</b><span>616 post-cutoff assets; 137 differ, 223 lack an earlier revision, 121 remain unresolved, and 135 need inspection.</span></div></div>
+            <div class="gate warn"><span class="gate-mark">!</span><div><b>Five normal-profile processes remain.</b><span>Anki 85356, mpv 85362, and QtWebEngineProcess 85360, 85361, and 85363 remained live at 21:27 PDT.</span></div></div>
+            <div class="gate"><span class="gate-mark">✓</span><div><b>The replacement guard fails closed.</b><span>It stops before mirror sync while any full argv starts with /Applications/Anki.app/.</span></div></div>
+            <div class="gate"><span class="gate-mark">✓</span><div><b>The clean baseline is pinned.</b><span>205 lines; SHA-256 11e497a37c2e56811b92c5190ff5c2aaa89fd04e8da41ac2f4d14f5272da0d6f.</span></div></div>
+            <div class="gate"><span class="gate-mark">✓</span><div><b>Independent safety review accepted the retry.</b><span>Opus verified the launch, process, metadata, cleanup, and report gates.</span></div></div>
         </div>
     </div>
 </section>
 
 <section>
     <div class="section-head">
-        <h2>Why the goal stays active</h2>
-        <p>The final audit used one class that the exact goal does not permit. Four rows need action or an allowed blocker.</p>
+        <h2>Final queue classes</h2>
+        <p>The fresh audit found no unblocked remainder and no prohibited class.</p>
     </div>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>Class</th><th>Remaining work</th><th>Gate</th></tr></thead>
+            <thead><tr><th>Class</th><th>Remaining work</th><th>Exact gate</th></tr></thead>
             <tbody>
-                <tr><td><span class="state owner">Owner blocked</span></td><td>Diary wiring, row 135 Fire cape, and source skill types 17–19</td><td>The owner must accept the ledger interpretation. The later wiring slice then repairs the map and runs generation.</td></tr>
-                <tr><td><span class="state owner">Owner blocked</span></td><td>Do No Evil clue policy, typed quest rewards, and the open policy forks</td><td>Each item needs a separate owner decision. The code must not infer a product policy.</td></tr>
-                <tr><td><span class="state source">Source blocked</span></td><td>Dealing with Scabaras stages, Frost dragon route IDs, Glacor values, and registered placeholders</td><td>Each item needs the exact historical evidence that its record names.</td></tr>
-                <tr><td><span class="state dependency">Dependency blocked</span></td><td>Snake hide and Tai Bwo Wannai Cleanup</td><td>The route needs a Cleanup action, a favour writer, and a source-backed Bush-snake producer.</td></tr>
-                <tr><td><span class="state integration">Integration blocked</span></td><td>Darkan source work and the old Herblore secondaries branches</td><td>The source ledger owns harvest claims. The old branches need re-derivation and a new review, not a merge.</td></tr>
-                <tr><td><span class="state investigation">Must resolve</span></td><td>Kinship packet, narrow-window fonts, Collections elision, and custom Cooking activation</td><td>This class is not allowed at completion. The loop must resolve each item or record an exact allowed blocker.</td></tr>
-                <tr><td><span class="state deferred">Deferred depth</span></td><td>Catalog depth, hidden values, timed spawns, food breadth, and post-cutoff art</td><td>This evidence lane does not block the player-visible mechanics that are on main.</td></tr>
+                <tr><td><span class="state owner">Owner blocked</span></td><td>Kinship party simulation and diary interpretation</td><td>The owner must settle the recorded choices before implementation.</td></tr>
+                <tr><td><span class="state native">Native blocked</span></td><td>Custom Cooking-row activation</td><td>A native Qt accessibility-bridge crash stopped the run before the target page opened.</td></tr>
+                <tr><td><span class="state integration">Integration blocked</span></td><td>Collections value elision</td><td>The owner must quit PID 85356. Then the accepted runbook can execute four native cases.</td></tr>
+                <tr><td><span class="state source">Source blocked</span></td><td>Runespan, Artisan's Workshop, Frost bone mapping, and named source rows</td><td>Each row names the missing period evidence. The code must not invent it.</td></tr>
+                <tr><td><span class="state quota">Quota blocked</span></td><td>The deferred GPT queue</td><td>The queue waits for its configured quota gate.</td></tr>
+                <tr><td><span class="state deferred">Deferred depth</span></td><td>Remaining catalog and placeholder depth</td><td>This debt does not block the complete player paths on main.</td></tr>
             </tbody>
         </table>
     </div>
@@ -198,29 +213,30 @@ footer { margin-top: 2.2rem; padding-top: .8rem; border-top: 1px solid var(--bor
 
 <section>
     <div class="section-head">
-        <h2>Rejected closure audit</h2>
-        <p>The code checks were useful, but the final verdict violated the exact completion clause.</p>
+        <h2>Closure audit</h2>
+        <p>The exact goal pause clause now applies.</p>
     </div>
     <div class="proof">
         <div class="proof-main">
             <ul>
-                <li>Commit <code>02c77af9</code> already contains the Jungle Potion and Shattered Heart rulings.</li>
-                <li>Commit <code>3fd9f4e0</code> already contains the qualified documentation selector check.</li>
-                <li>Current <code>ui/ui.py</code> matches the accepted complete-label product content.</li>
-                <li>The diary branch head <code>98e6630f</code> is a direct parent of verified product head.</li>
-                <li>Pass 12 commits are ancestors of verified product head.</li>
-                <li>The final result is <code>accepted_unmerged: []</code> and <code>next_slice: null</code>.</li>
+                <li>The final queue packet is 51,814 UTF-8 bytes.</li>
+                <li>Its SHA-256 is <code>eb4b85539c9beacad8b5cd42af8148bebbed56608b58fff1002e5f7acd249ef1</code>.</li>
+                <li>The audit found no <code>implementation_ready</code> item.</li>
+                <li>The audit found no accepted unmerged slice.</li>
+                <li>The audit found no <code>investigation_only</code> item.</li>
+                <li>Two separate waits each found five processes after 540 seconds.</li>
+                <li>The orchestrator did not stop, focus, reuse, or force-kill the owner's process.</li>
             </ul>
         </div>
         <div class="audit-stamp">
-            <b>closure audit rejected</b>
-            <p>The synthesis returned four investigation-only rows. The exact goal does not permit that class at completion.</p>
+            <b>no unblocked remainder</b>
+            <p>The queue is closed. The one live owner process is a genuine integration blocker.</p>
         </div>
     </div>
 </section>
 
 <footer>
-goal active · verified product head 1d461b16ba423a69488097c1e0d01365df914c48 · four investigation gates remain · no remote push
+goal paused · verified main 3fd9728b6b9aeb9819ee7ff372352755e0d98b7c · unblock: normal Anki quit on the MacBook Pro · no remote push
 </footer>
 </main>
 </body>

@@ -1,5 +1,40 @@
 # Progress
 
+## Goal paused on the owner-owned Anki process — 2026-08-28
+
+Canonical `main` is clean at
+`3fd9728b6b9aeb9819ee7ff372352755e0d98b7c`. Bounded queue tooling passed the
+exact MacBook Pro promotion gate at `2026-08-28T21:13:15-07:00` and landed by
+fast-forward. Plain ran 4,526 tests in 245.643 seconds with 514 skips. Qt ran
+4,526 tests in 452.841 seconds with three skips. All eight checks passed.
+
+A fresh 51,814-byte queue packet has SHA-256
+`eb4b85539c9beacad8b5cd42af8148bebbed56608b58fff1002e5f7acd249ef1`.
+Independent Terra audit found no `implementation_ready`, accepted unmerged, or
+`investigation_only` item and returned `NO UNBLOCKED REMAINDER`. Kinship and
+diary interpretation are `owner_blocked`; Cooking is
+`native_verification_blocked`; Runespan, Artisan's Workshop, Frost bone mapping,
+and the named source ledger are `source_blocked`; the GPT queue is
+`quota_blocked`; and remaining catalog debt is `deferred_data_depth`.
+
+Collections remains `integration_blocked` in guarded worktree
+`goal/collections-value-elision-final-2026-08-28`. Its 326-pixel candidate is
+uncommitted and unaccepted. Four native cases remain unrun. Full-argument scans
+at `2026-08-28 21:27 PDT` still found normal-profile Anki PID `85356`, mpv PID
+`85362`, and QtWebEngineProcess PIDs `85360`, `85361`, and `85363`. Two separate
+non-invasive waits each ended with exact output
+`MacBook Anki runtime still has 5 matching processes after 540 seconds.`
+
+The orchestrator did not stop, focus, reuse, or force-kill those processes. The
+repaired native runner stops before mirror sync while any Anki-bundle process
+exists. The normal-base metadata baseline has 205 lines and SHA-256
+`11e497a37c2e56811b92c5190ff5c2aaa89fd04e8da41ac2f4d14f5272da0d6f`.
+Final independent Opus safety review returned `ACCEPT`.
+
+The single unblock action is: quit Anki PID `85356` normally through Anki's own
+user interface on the MacBook Pro. Do not use a signal or force kill.
+`memory-bank/GOAL-BLOCKED.md` preserves the active goal verbatim for resume.
+
 ## Bounded Memory Bank queue packet awaits final remote gates — 2026-08-28
 
 Branch `goal/bounded-queue-packet-2026-08-28` adds the standard-library
