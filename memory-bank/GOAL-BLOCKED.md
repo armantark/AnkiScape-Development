@@ -7,7 +7,7 @@
 
 ## Goal (restore verbatim)
 
-Finish all unblocked, owner-settled AnkiScape implementation recorded in the newest Memory Bank, one atomic breadth-first slice at a time, with every accepted slice landed on canonical main through the promotion gate below. Preserve mechanic-complete end-to-end paths for every skill, activity, feature family, and shared substrate. With horizontal breadth complete, prioritize shared tooling, player-visible defects, readily recoverable period values, registered placeholders, and recorded data-depth debt.
+<!-- restore-goal-start -->Finish all unblocked, owner-settled AnkiScape implementation recorded in the newest Memory Bank, one atomic breadth-first slice at a time, with every accepted slice landed on canonical main through the promotion gate below. Preserve mechanic-complete end-to-end paths for every skill, activity, feature family, and shared substrate. With horizontal breadth complete, prioritize shared tooling, player-visible defects, readily recoverable period values, registered placeholders, and recorded data-depth debt.
 
      Sourcing and scope: follow the pre-EOC evidence standard and the newest owner-approved contracts. Settled designs stay settled. Coordinate with the Darkan restoration thread instead of duplicating its quest work or source harvesting. Use a registered placeholder only for a period value that remains unrecovered. Record contract conflicts and owner-only decisions in the Memory Bank and continue independent work.
 
@@ -21,4 +21,4 @@ Finish all unblocked, owner-settled AnkiScape implementation recorded in the new
 
      Run the work through dynamic workflows and dispatched agents; the orchestrator verifies and never authors code. Utilize the /agentic-loop-design skill. Use Computer Use agent on the MacBook Pro on the network for in-game testing; and use the same MBP over Tailscale/SSH for headless testing instead of this Mac Studio.
 
-     This goal is also satisfied if I record a genuine blocker in memory-bank/GOAL-BLOCKED.md (or ./GOAL-BLOCKED.md where there is no memory bank) naming what is blocked, what I tried, and the single thing that would unblock it. Quota exhaustion, a needed decision only the owner can make, and a missing external dependency all count. Preferring not to do the work does not.
+     This goal is also satisfied if I record a genuine blocker in memory-bank/GOAL-BLOCKED.md (or ./GOAL-BLOCKED.md where there is no memory bank) naming what is blocked, what I tried, and the single thing that would unblock it. Quota exhaustion, a needed decision only the owner can make, and a missing external dependency all count. Preferring not to do the work does not.<!-- restore-goal-end -->
