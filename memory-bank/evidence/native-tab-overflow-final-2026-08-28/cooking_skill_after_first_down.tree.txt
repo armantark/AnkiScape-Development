@@ -1,0 +1,238 @@
+Window: "AnkiScape Menu", App: Anki.
+0 dialog AnkiScape Menu, Secondary Actions: Raise
+	1 container AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget
+		2 text Value: Training: nothing selected World time: 12:00 PM, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QLabel
+		3 button (disabled) Stop training, Description: Stop training (no skill earns progress during reviews), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QPushButton
+		4 text Value: Categories, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QLabel
+		5 button Combat, Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QPushButton
+		6 button Gathering, Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QPushButton
+		7 button Artisan, Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QPushButton
+		8 button Support, Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QPushButton
+		9 button Utilities, Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QPushButton
+		10 button Activities, Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QPushButton
+		11 text Value: Skills, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.skillColumnLabel
+		12 text Value: Crafting — Lv 1, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QWidget.QLabel
+		13 button (disabled) Train this skill, Description: Gather materials or level up to craft an item., ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QWidget.QPushButton
+		14 text Value: Select Item to Craft, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QLabel
+		15 outline Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget (showing 0-100 of 102 items)
+			16 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				17 container Stone  (1), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			18 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				19 container Gem cutting  (9), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			20 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				21 container Pottery  (90), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			22 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				23 container Cracked mining urn (nr) (Lvl 1), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			24 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				25 container Cracked mining urn (r) (Lvl 1), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			26 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				27 container Cracked mining urn (unf) (Lvl 1), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			28 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				29 container Empty pot (Lvl 1), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			30 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				31 container ✓ Pot (unfired) (Lvl 1), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			32 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				33 container Cracked cooking urn (nr) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			34 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				35 container Cracked cooking urn (r) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			36 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				37 container Cracked cooking urn (unf) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			38 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				39 container Cracked fishing urn (nr) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			40 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				41 container Cracked fishing urn (r) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			42 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				43 container Cracked fishing urn (unf) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			44 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				45 container Impious urn (nr) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			46 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				47 container Impious urn (r) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			48 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				49 container Impious urn (unf) (Lvl 2), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			50 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				51 container Clay ring (Lvl 4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			52 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				53 container Clay ring (unfired) (Lvl 4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			54 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				55 container Cracked smelting urn (nr) (Lvl 4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			56 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				57 container Cracked smelting urn (r) (Lvl 4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			58 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				59 container Cracked smelting urn (unf) (Lvl 4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			60 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				61 container Cracked woodcutting urn (nr) (Lvl 4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			62 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				63 container Cracked woodcutting urn (r) (Lvl 4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			64 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				65 container Cracked woodcutting urn (unf) (Lvl 4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			66 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				67 container Pie dish (Lvl 7), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			68 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				69 container Pie dish (unfired) (Lvl 7), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			70 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				71 container Bowl (Lvl 8), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			72 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				73 container Bowl (unfired) (Lvl 8), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			74 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				75 container Fragile cooking urn (nr) (Lvl 12), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			76 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				77 container Fragile cooking urn (r) (Lvl 12), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			78 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			79 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			80 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				81 container Fragile fishing urn (r) (Lvl 15), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			82 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				83 container Fragile fishing urn (unf) (Lvl 15), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			84 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				85 container Fragile woodcutting urn (nr) (Lvl 15), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			86 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				87 container Fragile woodcutting urn (r) (Lvl 15), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			88 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				89 container Fragile woodcutting urn (unf) (Lvl 15), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			90 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				91 container Fragile mining urn (nr) (Lvl 17), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			92 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				93 container Fragile mining urn (r) (Lvl 17), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			94 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				95 container Fragile mining urn (unf) (Lvl 17), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			96 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				97 container Fragile smelting urn (nr) (Lvl 17), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			98 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				99 container Fragile smelting urn (r) (Lvl 17), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			100 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				101 container Fragile smelting urn (unf) (Lvl 17), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			102 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				103 container Plant pot (Lvl 19), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			104 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				105 container Plant pot (unfired) (Lvl 19), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			106 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			107 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				108 container Pot lid (unfired) (Lvl 25), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			109 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				110 container Accursed urn (nr) (Lvl 26), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			111 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				112 container Accursed urn (r) (Lvl 26), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			113 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				114 container Accursed urn (unf) (Lvl 26), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			115 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				116 container Mining urn (nr) (Lvl 32), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			117 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				118 container Mining urn (r) (Lvl 32), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			119 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				120 container Mining urn (unf) (Lvl 32), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			121 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				122 container Smelting urn (nr) (Lvl 35), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			123 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				124 container Smelting urn (r) (Lvl 35), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			125 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				126 container Smelting urn (unf) (Lvl 35), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			127 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				128 container Cooking urn (nr) (Lvl 36), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			129 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				130 container Cooking urn (r) (Lvl 36), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			131 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				132 container Cooking urn (unf) (Lvl 36), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			133 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				134 container Fishing urn (nr) (Lvl 41), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			135 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				136 container Fishing urn (r) (Lvl 41), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			137 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			138 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			139 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				140 container Woodcutting urn (r) (Lvl 44), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			141 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				142 container Woodcutting urn (unf) (Lvl 44), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			143 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				144 container Strong mining urn (nr) (Lvl 48), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			145 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				146 container Strong mining urn (r) (Lvl 48), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			147 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				148 container Strong mining urn (unf) (Lvl 48), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			149 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				150 container Strong smelting urn (nr) (Lvl 49), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			151 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				152 container Strong smelting urn (r) (Lvl 49), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			153 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				154 container Strong smelting urn (unf) (Lvl 49), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			155 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				156 container Strong cooking urn (nr) (Lvl 51), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			157 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				158 container Strong cooking urn (r) (Lvl 51), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			159 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				160 container Strong cooking urn (unf) (Lvl 51), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			161 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				162 container Strong fishing urn (nr) (Lvl 53), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			163 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				164 container Strong fishing urn (r) (Lvl 53), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			165 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				166 container Strong fishing urn (unf) (Lvl 53), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			167 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				168 container Decorated mining urn (nr) (Lvl 59), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			169 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				170 container Decorated mining urn (r) (Lvl 59), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			171 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				172 container Decorated mining urn (unf) (Lvl 59), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			173 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				174 container Strong woodcutting urn (nr) (Lvl 61), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			175 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				176 container Strong woodcutting urn (r) (Lvl 61), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			177 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				178 container Strong woodcutting urn (unf) (Lvl 61), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			179 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				180 container Infernal urn (nr) (Lvl 62), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			181 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				182 container Infernal urn (r) (Lvl 62), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			183 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				184 container Infernal urn (unf) (Lvl 62), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			185 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				186 container Decorated fishing urn (nr) (Lvl 76), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			187 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				188 container Decorated fishing urn (r) (Lvl 76), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			189 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				190 container Decorated fishing urn (unf) (Lvl 76), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			191 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				192 container Decorated cooking urn (nr) (Lvl 81), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			193 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				194 container Decorated cooking urn (r) (Lvl 81), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			195 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				196 container Decorated cooking urn (unf) (Lvl 81), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			197 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				198 container Spinning  (11), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			199 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			200 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			201 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				202 container Leather  (27), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			203 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				204 container Glassblowing  (10), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			205 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				206 container Battlestaves  (4), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+			207 row Secondary Actions: Raise, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+				208 container Weaving  (13), ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_stackedwidget.QWidget.QWidget.QWidget.QTreeWidget
+	209 tab group Skills, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar, Secondary Actions: Raise
+		210 tab Skills, Description: Pick a category, choose a skill, then select what to train on, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		211 tab Stats, Description: View your skill stats, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		212 tab Bank, Description: View all your items, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		213 tab Equipment, Description: View and manage your worn equipment, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		214 tab Shop, Description: Browse source-backed NPC shops and vendor services, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		215 tab Grand Exchange, Description: Place and manage review-paced Grand Exchange offers, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		216 tab Challenges, Description: Read the Noticeboard and hand finished Daily Challenges to the Quartermaster, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		217 tab Quests, Description: View quest journals and active quest progress, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		218 tab Achievements, Description: Review your achievements, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		219 tab Collections, Description: Review passive collections such as the Music Log, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		220 tab Settings, Description: Configure widget, experience HUD, notifications, and developer tools, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar
+		221 button (disabled) Scroll Left, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar.ScrollLeftButton
+		222 button Scroll Right, ID: AnkiApp.QDialog.mainMenuContent.QTabWidget.qt_tabwidget_tabbar.ScrollRightButton, Secondary Actions: Raise
+	223 button Open contextual Help Center, Description: Help for Skills (F1), ID: AnkiApp.QDialog.mainMenuFooter.mainMenuHelpButton, Secondary Actions: Raise
+	224 button Close, ID: AnkiApp.QDialog.mainMenuFooter.QPushButton, Secondary Actions: Raise
+	225 close button
+	226 zoom button
+	227 text AnkiScape Menu
+228 menu bar
+	229 Anki
+	230 File
+	231 Edit
+	232 View
+	233 Tools
+	234 Help
+	235 Native Verification
+	236 AnkiScape

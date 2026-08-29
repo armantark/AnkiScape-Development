@@ -1,5 +1,104 @@
 # Progress
 
+## Native tab overflow passed; Cooking native verification is blocked — 2026-08-28
+
+Branch `goal/native-tab-overflow-final-2026-08-28` starts from current verified
+main `a70d3971`. Old candidate `1eedceb4` remains rejected and unmerged. The final policy uses
+document mode, 16x16 icons, `setExpanding(False)`,
+`setUsesScrollButtons(True)`, `ElideNone`, and 1px left and right tab padding.
+The 1px padding is deliberate: the 2px candidate failed the full MacBook Pro Qt
+lane at 125% with exact `AssertionError: 9 not greater than or equal to 16`.
+Final review resolved the WHY comment and `hint_bar` cleanup.
+
+The isolated native process loaded `ui/ui.py` SHA-256
+`d55b987a308a82e13f8a9c9b1aa3fefa9472e60403609edf0c96fa1699185d8c` and
+`__init__.py` SHA-256
+`842df7cffa5b1ed49380ad24c8e757eaf0ce70e6d747e3e615f06135ed2e8137`.
+All four native tab cases contained the same 11 exact labels in order: `Skills`,
+`Stats`, `Bank`, `Equipment`, `Shop`, `Grand Exchange`, `Challenges`, `Quests`,
+`Achievements`, `Collections`, `Settings`.
+
+Native tab case 1, normal font and wide dialog, is **PASS**. The observed wide
+geometry was `1140x767`; natural-width headroom was 203 pixels, both scroll
+controls were hidden and disabled, native pointer input selected Bank, no body
+horizontal scrollbar appeared, and the dialog remained open. Native tab case 2,
+125% font and wide dialog, is **PASS**. Its observed wide geometry was
+`1145x769`; headroom was 43 pixels, both controls were hidden and disabled,
+native pointer input selected Bank, no body horizontal scrollbar appeared, and
+the dialog remained open. These observed sizes are native geometry caveats, not
+claims that the windows measured exactly 1140x768.
+
+Native tab case 3, normal font and narrow dialog, is **PASS**. Headroom was -284
+pixels, both arrows were visible and distinct, native right scrolling exposed
+the complete Settings tab, and native pointer input selected Settings. One left
+action moved the strip 31 pixels and re-enabled right scroll. Native tab case 4,
+125% font and narrow dialog, is **PASS**. Headroom was -382 pixels, both arrows
+were visible and distinct, Settings was exposed and selected, and one left
+action moved the strip 32 pixels and re-enabled right scroll. Neither narrow
+case showed a body horizontal scrollbar, and both dialogs remained open.
+
+The normal Anki base remained unchanged. The product PID exited, no child
+remained, and no `Anki`, `mpv`, `QtWebEngineProcess`, or other process from the
+isolated run remained. The durable evidence packet is
+`memory-bank/evidence/native-tab-overflow-final-2026-08-28/`. It retains six
+inspected product-only tab-strip crops and structured geometry. It excludes the
+four full-dialog screenshots and the raw `.ips` crash packet. The retained
+`report.md` has SHA-256
+`b460ac9c1f7df2824de05ca1cb22d449e9dd22fbf09caad19061ad58ab179b3c`.
+The retained `manifest.txt` has SHA-256
+`9fb575f111d4c0d74db28d29c49af7a6bb4325aa3dcca1cedbc5c24345f05e47`
+and verifies 23 companion files. Byte-for-byte `source_report.md` and
+`source_manifest.txt` preserve source hashes
+`f7af19f50febf1081b91a06b539394a3b1ba0b81304bbcfe81cbc13d07a73313` and
+`5b28910056a253b488cf5642abe08e78780fc15262b93270e45b385b63865d74`.
+The source manifest verifies 4,729 remote files.
+
+Cooking is separately **native-verification-blocked**. The least-specific
+supported class is a native Qt accessibility-bridge crash during a posted
+accessibility update for the Skills `QTreeWidget`. Pointer activation returned
+exact `Accessibility error: AXError.notImplemented`; continued keyboard
+navigation returned exact `Computer Use server error -10005: App quit`. The
+crash records `EXC_BAD_ACCESS`, `SIGSEGV`,
+`QAccessibleCache::deleteInterface`, `QAccessible::updateAccessibility`,
+`QAbstractItemView::event`, `sipQTreeWidget::event`, and `QDialog::exec`.
+No AnkiScape Python frame appears, so the evidence does not prove an AnkiScape
+product defect. No control run without an accessibility client exists, so it
+does not prove a Qt-only defect. The process exited before the target page
+opened; do not claim that the Cooking selector or persistence passed.
+
+Focused verification passed with exact output `Ran 3 tests in 2.691s` and `OK`.
+Plain run `plain-1787949374-081d77b7` completed with
+`Ran 4517 tests in 245.057s`, `OK (skipped=514)`, and 4,003 active tests. Qt run
+`qt-1787949632-bb622650` completed with `Ran 4517 tests in 448.447s`,
+`OK (skipped=3)`, and 4,514 active tests. The 12-case offscreen visual workflow
+remains supporting evidence across width, palette, font, Fusion, and native
+macOS-style variants. The real `QTabWidget`-owned tab bar still rejects direct
+`tabSizeHint(index)` at every index with exact
+`RuntimeError: no access to protected functions or signals for objects not created from Python`; the Python-owned natural-width helper remains required.
+
+The direct `--base` canary remains useful failure history: its mpv child used
+`--config-dir=/Users/armantarkhanian/Library/Application Support/Anki2`, and
+normal-base metadata changed. The final run instead used a disposable `HOME`, an
+empty canary, child command-line inspection, normal-base metadata comparison,
+and fail-closed staging.
+
+The repository audit workflow counted 599 Markdown files, 441 HTML files, and
+4,482 tests across 220 files. It found 0 hard issues and 31 structural clone
+candidates. Reachability measured 1,600 actions, 2,217 reachable items, 192
+orphan inputs, and 284 unresolved actions. One test was added and none were
+deleted. Independent Opus review resolved all five initial and two delta issues.
+Direct independent Kimi audit returned PASS for the tab-overflow slice and
+BLOCKED for Cooking.
+
+The tab slice is ready for commit and promotion review. It is not committed,
+promoted, or landed. Cooking retains the exact `native-verification-blocked`
+class above. The remaining queue classes are unchanged: Collections navigation
+truncation is the active independent slice; Kinship, diary wiring, row 135, and
+skill types 17–19 are `owner_blocked`; Snake hide, Herblore secondaries, Darkan
+translation, and Frost bone mapping are `source_blocked`; deferred depth is
+`deferred_data_depth`; and the GPT queue is `quota_blocked`. Collections remains
+in its own guarded worktree and is not complete.
+
 ## Internal canonical-main writer identified; goal resumed — 2026-08-28
 
 The owner did not move `main`. Fork agent `ab5d5dc6b89b21958` committed directly
@@ -6277,9 +6376,14 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 
 ## Full global main-tab labels — 2026-08-27
 
+- Historical record only: the `9f2b592` expanding-tab replacement and its
+  native packet were valid for the 2026-08-27 slice, but the current
+  tab-overflow authority is the 16x16 non-expanding policy and durable
+  2026-08-28 evidence recorded above. The remaining bullets are not current
+  commit or promotion authority.
 - A real Anki 26.05 run at 1141×768 failed with `Gra...`, `Que...`, `Equi...`,
-  `Cha...`, `Ach...`, `Coll...`, and no Settings label. The accepted product
-  replacement is `9f2b59223f80b05cf3d2c42c8fbd705920f8fc7c`: set document mode,
+  `Cha...`, `Ach...`, `Coll...`, and no Settings label. The then-accepted product
+  replacement was `9f2b59223f80b05cf3d2c42c8fbd705920f8fc7c`: set document mode,
   retain 18-pixel icons, explicitly expand the tab bar, and scope
   `min-width: 0px` plus five-pixel left/right padding to its tabs. Dialog width,
   labels, icons, settled order, lazy builders, Bank geometry, body layout, and
@@ -6299,14 +6403,14 @@ Sources, the omitted rateless drops and the rest of the judgements are in
   light/dark matrix, shipping Anki QSS, order, natural-width and 16-pixel
   headroom checks, expansion, real Bank pointer click, shown dialog, and empty
   accept/reject checks.
-- Cross-lineage Opus accepted the product floor. Its 27-pixel headroom concern
-  beyond the exact 1140-pixel contract is a non-blocking narrow-window and
+- Cross-lineage Opus accepted that historical product floor. Its 27-pixel
+  headroom concern beyond the exact 1140-pixel contract is a non-blocking narrow-window and
   larger-font follow-up; the 720-pixel minimum remains. Native appearance needs
   no product change because Computer Use evidence now exists. Offscreen Native
   reuse of Fusion was confirmed and fixed in the test. The proposed `hint_bar`
   `deleteLater()` is rejected because the local wrapper is replaced on each
   iteration and released at exit.
-- Native Computer Use reports final `PASS` for product commit `9f2b592` at
+- Native Computer Use recorded a historical `PASS` for product commit `9f2b592` at
   `/tmp/ankiscape-tabs-ready-cu3.JBFRgu/report.md`. Loaded SHA-256 values are
   `508ff2e94c26c6fca9db4cbad77111e0f60d21a6b1adf247853f85a73466532a` for
   `ui/ui.py` and

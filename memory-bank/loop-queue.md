@@ -197,4 +197,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [ ] Recover the Frost dragon bone ID-to-route mapping. No period source maps
      item `18830` and item `18832` one-to-one to the Asgarnian Ice Dungeon and
      Daemonheim routes. Preserve both IDs until a period source settles the pair.
-5. [ ] Paused by the owner until the quota resets. Select no new slice.
+5. [ ] The goal is active. Native tab cases 1–4 PASS and the tab slice is ready
+   for commit and promotion review, but it is not committed, promoted, or
+   landed. Cooking remains `native-verification-blocked`: a native Qt
+   accessibility-bridge crash during a posted accessibility update for the
+   Skills `QTreeWidget`; no Cooking selector or persistence pass is claimed.
+   Collections is the pipelined next slice.

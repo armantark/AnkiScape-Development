@@ -1,0 +1,31 @@
+Cleanup proof for the isolated native Anki run.
+HOST=Armans-MacBook-Pro.local
+TIMESTAMP_UTC=2026-08-29T02:00:24Z
+ARTIFACT_ROOT=/private/tmp/ankiscape-native-tab-final.utu7VD
+PRODUCT_PID=48896
+The product process ended by SIGSEGV before explicit UI close; no process from this run remains.
+--- product_process_post_exit.txt ---
+HOST=Armans-MacBook-Pro.local
+TIMESTAMP_UTC=2026-08-29T02:00:24Z
+PRODUCT_PID=48896
+PRODUCT_BASE=/private/tmp/ankiscape-native-tab-final.utu7VD/product-base
+PRODUCT_PROCESS_EXITED=YES
+--- product PID after exit ---
+none
+--- children of product PID after exit ---
+none
+--- exact process name: Anki ---
+none
+--- exact process name: mpv ---
+none
+--- exact process name: QtWebEngineProcess ---
+none
+NORMAL_BASE_METADATA_UNCHANGED=YES
+--- normal base metadata comparison ---
+normal_base_metadata_before.txt vs normal_base_metadata_after_product.txt: YES
+NORMAL_BASE_METADATA_UNCHANGED=YES
+--- canary metadata comparison ---
+CANARY2_NORMAL_BASE_UNCHANGED=YES
+--- final assertions ---
+NO_ISOLATED_RUN_PROCESSES=YES
+NO_GUI_APP_STATE_QUERY_AFTER_PRODUCT_EXIT=YES
