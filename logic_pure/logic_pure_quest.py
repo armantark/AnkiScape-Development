@@ -736,6 +736,25 @@ def _dedupe_quest_blockers(blockers):
     return tuple(rows)
 
 
+def _quest_stage_skill_blockers(player_data, stage, source, requirements):
+    blockers = []
+    for requirement in requirements or ():
+        reason = _skill_requirement_reason(player_data, requirement)
+        if not reason:
+            continue
+        blockers.append(
+            _quest_blocker(
+                stage,
+                "missing_skill",
+                reason,
+                source,
+                skill_id=requirement.get("skill_id"),
+                level=_positive_int(requirement.get("level", 1), 1),
+            )
+        )
+    return tuple(blockers)
+
+
 def _quest_requirement_blockers(player_data, quest_id, requirement):
     stage = _positive_int(requirement.get("stage", 0), 0)
     source = str(requirement.get("source", ""))
@@ -795,6 +814,15 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
                     options=tuple({"item_name": item_name, "quantity": amount} for item_name, amount in options),
                 )
             )
+
+    blockers.extend(
+        _quest_stage_skill_blockers(
+            player_data,
+            stage,
+            source,
+            requirement.get("required_skills"),
+        )
+    )
 
     for tool_name, amount in _quest_stage_item_pairs(requirement, "required_tools"):
         if not _has_quest_tool(player_data, tool_name, amount):
@@ -995,6 +1023,7 @@ def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
 _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS = {
     "missing_item",
     "missing_item_option",
+    "missing_skill",
     "missing_tool",
     "required_action",
     "unmet_route",
@@ -1005,6 +1034,7 @@ _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS = {
 _QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
     "missing_item",
     "missing_item_option",
+    "missing_skill",
     "missing_tool",
     "unmet_route",
     "quest_choice",

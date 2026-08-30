@@ -371,6 +371,7 @@ DARKAN_GERTRUDES_CAT_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/GertrudesCat.
 DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/GertrudeD.java"
 DARKAN_GERTRUDES_CAT_CHILDREN_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/ShilopWiloughD.java"
 GERTRUDES_CAT_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/5819038"
+THE_LOST_TRIBE_WIKI_SOURCE = "https://runescape.wiki/w/The_Lost_Tribe?oldid=6534350"
 DARKAN_CLOCK_TOWER_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/clocktower"
 DARKAN_CLOCK_TOWER_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTower.java"
 DARKAN_CLOCK_TOWER_DUNGEON_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTowerDungeon.java"
@@ -1071,6 +1072,7 @@ class QuestStageRequirement:
     consumed_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
     produced_inventory: Tuple[Tuple[str, int], ...] = ()
     repeatable_until_consumed: bool = False
+    required_skills: Tuple[QuestSkillRequirement, ...] = ()
     required_tools: Tuple[Tuple[str, int], ...] = ()
     required_actions: Tuple[str, ...] = ()
     auto_actions: Tuple[str, ...] = ()
@@ -3757,6 +3759,7 @@ def _stage_req(
     consumed_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = (),
     produced_inventory: Tuple[Tuple[str, int], ...] = (),
     repeatable_until_consumed: bool = False,
+    required_skills: Tuple[QuestSkillRequirement, ...] = (),
     required_tools: Tuple[Tuple[str, int], ...] = (),
     required_actions: Tuple[str, ...] = (),
     auto_actions: Tuple[str, ...] = (),
@@ -3773,6 +3776,7 @@ def _stage_req(
         consumed_inventory_options=consumed_inventory_options,
         produced_inventory=produced_inventory,
         repeatable_until_consumed=repeatable_until_consumed,
+        required_skills=required_skills,
         required_tools=required_tools,
         required_actions=required_actions,
         auto_actions=auto_actions,
@@ -3825,6 +3829,7 @@ class QuestStageRequirementCleanup:
     remove_consumed_inventory_options: Tuple[str, ...] = ()
     remove_required_tools: Tuple[str, ...] = ()
     add_required_tools: Tuple[Tuple[str, int], ...] = ()
+    add_required_skills: Tuple[QuestSkillRequirement, ...] = ()
     remove_required_actions: Tuple[str, ...] = ()
     add_required_inventory: Tuple[Tuple[str, int], ...] = ()
     add_required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
@@ -4262,6 +4267,20 @@ TREE_GNOME_VILLAGE_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(7, "I recovered the remaining Orbs of protection and should return them to King Bolren."),
     _simple_stage(8, "King Bolren replaced the orbs and rewarded me.", "Quest complete!"),
 )
+
+
+QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
+    "the_lost_tribe": (
+        QuestPrerequisite(GOBLIN_DIPLOMACY_ID, "Goblin Diplomacy"),
+        QuestPrerequisite(RUNE_MYSTERIES_ID, "Rune Mysteries"),
+    ),
+}
+
+
+# Clears generated acceptance gates; the source-backed skills live on quest stages.
+QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestSkillRequirement, ...]] = {
+    "the_lost_tribe": (),
+}
 
 
 QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
@@ -8683,6 +8702,34 @@ CAT_FOLLOWER_STATE_NAMES: Tuple[str, ...] = (
 
 
 QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {
+    "the_lost_tribe": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_tools=("Tinderbox",),
+            remove_required_actions=("Complete The Lost Tribe stage 1 objective",),
+            add_required_inventory_options=(
+                tuple((item_name, 1) for item_name in LIT_LIGHT_SOURCE_ITEMS),
+            ),
+            add_required_tools=(("Pickaxe", 1),),
+            add_required_skills=(
+                QuestSkillRequirement("agility", "Agility", 13),
+                QuestSkillRequirement("mining", "Mining", 17),
+            ),
+            add_auto_actions=(
+                "Mine the Lumbridge cellar rubble and squeeze through the resulting hole",
+            ),
+            source=THE_LOST_TRIBE_WIKI_SOURCE,
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory_options=LIT_LIGHT_SOURCE_ITEMS,
+            remove_required_tools=("Pickaxe",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            add_required_skills=(QuestSkillRequirement("thieving", "Thieving", 13),),
+        ),
+    ),
     "monkey_madness": (
         QuestStageRequirementCleanup(
             stage=1,
@@ -10125,6 +10172,15 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
                 repeatable_until_consumed=_catalog_bool(
                     dict(raw), "repeatable_until_consumed"
                 ),
+                required_skills=tuple(
+                    QuestSkillRequirement(
+                        str(skill.get("skill_id")),
+                        str(skill.get("display_name", skill.get("skill_id"))),
+                        _catalog_int(dict(skill), "level", 1),
+                    )
+                    for skill in raw.get("required_skills", ()) or ()
+                    if isinstance(skill, Mapping) and skill.get("skill_id")
+                ),
                 required_tools=_catalog_item_pairs(raw.get("required_tools", {})),
                 required_actions=_catalog_strings(raw.get("required_actions", ())),
                 auto_actions=_catalog_strings(raw.get("auto_actions", ())),
@@ -10155,6 +10211,8 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         for req in row.get("required_skills", ()) or ()
         if isinstance(req, dict) and req.get("skill_id")
     )
+    required_quests = QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID.get(quest_id, required_quests)
+    required_skills = QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID.get(quest_id, required_skills)
     xp_rewards = tuple(
         QuestXpReward(str(reward.get("skill_id")), float(reward.get("amount", 0) or 0))
         for reward in row.get("xp_rewards", ()) or ()
@@ -10237,6 +10295,7 @@ def _dedupe_stage_requirements(requirements: Tuple[QuestStageRequirement, ...]) 
             requirement.consumed_inventory,
             requirement.consumed_inventory_options,
             requirement.produced_inventory,
+            requirement.required_skills,
             requirement.required_tools,
             requirement.required_actions,
             requirement.required_routes,
@@ -10404,6 +10463,9 @@ def _apply_stage_requirement_cleanup(
             cleanup.remove_consumed_inventory_options,
         ),
         produced_inventory=_append_stage_item_pairs(requirement.produced_inventory, cleanup.add_produced_inventory),
+        required_skills=tuple(
+            dict.fromkeys((*requirement.required_skills, *cleanup.add_required_skills))
+        ),
         required_tools=_append_stage_item_pairs(
             _remove_stage_item_names(requirement.required_tools, cleanup.remove_required_tools),
             cleanup.add_required_tools,
@@ -11325,6 +11387,9 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
         ),
         "produced_inventory": dict(requirement.produced_inventory),
         "repeatable_until_consumed": requirement.repeatable_until_consumed,
+        "required_skills": tuple(
+            _skill_requirement_dict(skill) for skill in requirement.required_skills
+        ),
         "required_tools": dict(requirement.required_tools),
         "required_actions": requirement.required_actions,
         "auto_actions": requirement.auto_actions,

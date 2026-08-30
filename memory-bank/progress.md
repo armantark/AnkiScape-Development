@@ -42,6 +42,48 @@ passed 4,539 tests in 700.027 seconds with three skips. Documentation audited
 files and zero hard issues. `Snake hide (swamp)` remains separate follow-up
 work; it was not aliased to ordinary item `6287`.
 
+## The Lost Tribe stage-1 cellar path is source-backed — 2026-08-30
+
+A Darkan doorbell identified the stage-1 cellar contract in the read-only target
+record, baseline world commit `e720c3e1f18960653695042b392f4d1180a07b76` and
+tree `69353b61f8cd7a2783729fcf7e99df5de4ce23a4`. AnkiScape independently fetched
+literal historical wikitext and pinned The Lost Tribe oldid `6534350` at
+`2012-11-04T20:05:19Z` and Template:Questreq oldid `6552449` at
+`2012-11-13T19:50:29Z`. The article, resolved requirement template, and Darkan
+contract agree on Goblin Diplomacy, Rune Mysteries, Mining `17`, Agility `13`,
+Thieving `13`, the pickaxe, and the lit source. The local revision-667
+2011Scape snapshot confirms varbit `532` only; its intermediate semantics remain
+inside the exact
+`PARTIAL[source_blocked,conflicting_sources,missing_data]` source block and were
+not inferred.
+
+The generated `Complete The Lost Tribe stage 1 objective` gate is gone. Quest
+acceptance now uses only the two direct quest prerequisites. Stage `1` reuses the
+existing quest skill, toolbelt, lit-source alternative, blocker, and auto-action
+contracts to require Mining `17`, Agility `13`, a pickaxe, and an illuminated
+source before recording the mine-then-squeeze action. Missing requirements and
+stage-2 attempts leave state unchanged. The duplicate stage-2 cellar gates were
+removed, and Thieving `13` moved to stage `5`. No mining or Agility minigame, UI
+change, placeholder value, or intermediate varbit model was introduced.
+
+All seven reachability pins remain `1601 / 2237 / 190 / 39 / 151 / 277 / 1177`.
+The exact stage-1 sentinel has no remaining location in
+`missing_required_actions`; the quest now reaches its still-generated stage-2
+sentinel. Completable quests remain `43 → 43`, startable quests move
+`114 → 113`, and the global blocked quest-stage count remains `146`.
+
+Final verification passed. The accepted slice's focused lane ran 88 tests in
+74.237 seconds. After rebase, the plain lane ran 4,544 tests in 381.617 seconds
+with 514 skips, and the offscreen Qt lane ran 4,544 tests in 680.376 seconds
+with three skips. The documentation audit passed across 608 Markdown and 441
+HTML files. The accepted slice's test-quality audit measured 4,503 tests across
+221 files, zero hard issues, and 31 structural-clone candidate groups. Kimi K3
+was unavailable with HTTP 403
+`You've reached your weekly (7-day) usage limit`; the GLM 5.3 Flash substitute
+found one order-coupled test assertion, which was corrected before the final
+focused pass. The reachability command retains exit 1 because 277 unrelated
+actions remain globally unresolved, and the final worktree layout audit is safe.
+
 ## Doogle leaves acquisition closes the Gertrude stage blocker — 2026-08-30
 
 The Darkan thread supplied oldid `5819038` through a doorbell, and AnkiScape

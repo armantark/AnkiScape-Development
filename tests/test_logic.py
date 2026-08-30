@@ -5,6 +5,7 @@ from typing import Dict, FrozenSet, Tuple
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.quest_data import (
     KINGS_RANSOM_SCROLL_SOURCE,
+    THE_LOST_TRIBE_WIKI_SOURCE,
     QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID,
     QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID,
     QUEST_UNLOCK_REPLACEMENTS_BY_ID,
@@ -3804,6 +3805,97 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["quest_points"], 1)
         self.assertEqual(after_complete["thieving_exp"], 1775.0)
         self.assertEqual(after_complete["inventory"]["Swordfish"], 5)
+
+    def test_lost_tribe_cellar_action_requires_real_tools_and_emits_on_review(self):
+        quest_id = "the_lost_tribe"
+        quest = QUEST_DATA[quest_id]
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(
+            quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA),
+            ("Goblin Diplomacy", "Rune Mysteries"),
+        )
+        for prerequisite_id in ("goblin_diplomacy", "rune_mysteries"):
+            prerequisite = QUEST_DATA[prerequisite_id]
+            player_data["quests"][prerequisite_id] = {
+                "started": True,
+                "progress": prerequisite["stages"],
+                "completed": True,
+            }
+        self.assertEqual(quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA), ())
+        player_data["inventory"] = {
+            name: amount
+            for name, amount in player_data["inventory"].items()
+            if not name.lower().endswith("pickaxe")
+        }
+        player_data["toolbelt"]["mining"] = []
+
+        player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+
+        self.assertTrue(ok)
+        blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
+        self.assertEqual(
+            {blocker["kind"] for blocker in blockers},
+            {"missing_item_option", "missing_skill", "missing_tool"},
+        )
+        self.assertEqual(
+            {
+                blocker["reason"]
+                for blocker in blockers
+                if blocker["kind"] == "missing_skill"
+            },
+            {"Agility 13", "Mining 17"},
+        )
+        self.assertEqual(
+            tuple(
+                blocker["reason"]
+                for blocker in blockers
+                if blocker["kind"] == "missing_tool"
+            ),
+            ("Needs Pickaxe",),
+        )
+        blocked, progressed, completed = apply_quest_progress_pure(
+            player_data, quest_id, QUEST_DATA
+        )
+        self.assertFalse(progressed)
+        self.assertFalse(completed)
+        self.assertEqual(blocked, player_data)
+        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+
+        player_data["agility_level"] = 13
+        player_data["mining_level"] = 17
+        player_data["inventory"]["Lit candle"] = 1
+        player_data["toolbelt"]["mining"] = [1265]
+        progressed_data, progressed, completed = apply_quest_progress_pure(
+            player_data, quest_id, QUEST_DATA
+        )
+
+        self.assertTrue(progressed)
+        self.assertFalse(completed)
+        self.assertEqual(progressed_data["quests"][quest_id]["progress"], 2)
+        self.assertEqual(
+            progressed_data["quest_stage_actions"][quest_id],
+            ["Mine the Lumbridge cellar rubble and squeeze through the resulting hole"],
+        )
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(
+                progressed_data, quest_id, QUEST_DATA
+            ),
+            ("Action required: Complete The Lost Tribe stage 2 objective",),
+        )
+        self.assertEqual(
+            next(
+                row["source"]
+                for row in quest["stage_requirements"]
+                if row["stage"] == 1
+            ),
+            THE_LOST_TRIBE_WIKI_SOURCE,
+        )
+        wrong_stage, progressed, completed = apply_quest_progress_pure(
+            progressed_data, quest_id, QUEST_DATA
+        )
+        self.assertFalse(progressed)
+        self.assertFalse(completed)
+        self.assertEqual(wrong_stage, progressed_data)
 
     def test_monkey_madness_ape_atoll_infiltration_emits_on_review(self):
         quest_id = "monkey_madness"

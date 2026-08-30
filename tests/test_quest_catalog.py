@@ -14,6 +14,7 @@ from ankiscape.data.quest_data import (
     QUESTS_BY_ID,
     QUEST_REWARD_ITEM_NAME_OVERRIDES,
     QUEST_STAGE_ITEM_NAME_OVERRIDES,
+    THE_LOST_TRIBE_WIKI_SOURCE,
     quest_reward_items_as_dict,
     quests_as_dict,
 )
@@ -69,7 +70,7 @@ class TestQuestCatalog(unittest.TestCase):
         light_source_stages = {
             "temple_of_ikov": 1,
             "tears_of_guthix": 1,
-            "the_lost_tribe": 2,
+            "the_lost_tribe": 1,
             "wanted": 5,
             "rag_and_bone_man": 2,
             "land_of_the_goblins": 7,
@@ -140,6 +141,39 @@ class TestQuestCatalog(unittest.TestCase):
             if stage["stage"] == 6
         )
         self.assertEqual(wgs_stage["required_inventory"], {"Sapphire lantern (lit)": 1})
+
+    def test_lost_tribe_uses_source_backed_acceptance_and_stage_gates(self):
+        quest = quests_as_dict()["the_lost_tribe"]
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+
+        self.assertEqual(
+            quest["required_quests"],
+            (
+                {"quest_id": "goblin_diplomacy", "display_name": "Goblin Diplomacy"},
+                {"quest_id": "rune_mysteries", "display_name": "Rune Mysteries"},
+            ),
+        )
+        self.assertEqual(quest["required_skills"], ())
+        self.assertEqual(
+            by_stage[1]["required_skills"],
+            (
+                {"skill_id": "agility", "display_name": "Agility", "level": 13},
+                {"skill_id": "mining", "display_name": "Mining", "level": 17},
+            ),
+        )
+        self.assertEqual(by_stage[1]["required_tools"], {"Pickaxe": 1})
+        self.assertEqual(by_stage[1]["required_actions"], ())
+        self.assertEqual(
+            by_stage[1]["auto_actions"],
+            ("Mine the Lumbridge cellar rubble and squeeze through the resulting hole",),
+        )
+        self.assertEqual(by_stage[1]["source"], THE_LOST_TRIBE_WIKI_SOURCE)
+        self.assertEqual(by_stage[2]["required_inventory_options"], ())
+        self.assertEqual(by_stage[2]["required_tools"], {})
+        self.assertEqual(
+            by_stage[5]["required_skills"],
+            ({"skill_id": "thieving", "display_name": "Thieving", "level": 13},),
+        )
 
     def test_pre_eoc_catalog_has_expected_cutoff_shape(self):
         ids = {quest["id"] for quest in PRE_EOC_QUEST_CATALOG}

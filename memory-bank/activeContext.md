@@ -38,6 +38,50 @@
 
 Last staleness sweep: 2026-08-30
 
+## The Lost Tribe cellar action replaces its stage-1 sentinel — 2026-08-30
+
+- A Darkan doorbell supplied the read-only target contract at
+  `/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/the-lost-tribe-target-contract.json`,
+  baseline world commit `e720c3e1f18960653695042b392f4d1180a07b76` and tree
+  `69353b61f8cd7a2783729fcf7e99df5de4ce23a4`. Its verdict remains exactly
+  `PARTIAL[source_blocked,conflicting_sources,missing_data]`; the exact
+  intermediate meanings of varbit `532` remain source-blocked and were neither
+  recovered nor inferred.
+- Literal `curl` fetches independently pinned The Lost Tribe oldid `6534350`,
+  timestamp `2012-11-04T20:05:19Z`, and Template:Questreq oldid `6552449`,
+  timestamp `2012-11-13T19:50:29Z`. Their permanent URLs are
+  `https://runescape.wiki/w/The_Lost_Tribe?oldid=6534350` and
+  `https://runescape.wiki/w/Template:Questreq?oldid=6552449`. The article and
+  historical template corroborate Goblin Diplomacy, Rune Mysteries, Mining
+  `17`, Agility `13`, Thieving `13`, a pickaxe, and an illuminated light source.
+  The local revision-667 2011Scape snapshot confirms varbit `532` but contains no
+  Lost Tribe quest implementation that could define its intermediate values.
+- Quest acceptance now requires only Goblin Diplomacy and Rune Mysteries.
+  Stage `1` requires Mining `17`, Agility `13`, a pickaxe through the existing
+  inventory/toolbelt contract, and one of the eleven already pinned lit light
+  states. A successful review records the source-backed mine-then-squeeze action
+  and advances to stage `2`; missing-requirement and wrong-stage attempts are
+  inert. The misplaced stage-2 cellar gates are gone, and Thieving `13` now
+  gates stage `5`. No minigame, interface change, placeholder, or intermediate
+  quest-state model was added.
+- Reachability remains exactly `1601 / 2237 / 190 / 39 / 151 / 277 / 1177` for
+  actions, reachable items, orphan inputs, root orphans, cascade orphans,
+  unresolved actions, and seed items. The exact stage-1 sentinel is absent from
+  every `missing_required_actions` row; The Lost Tribe now stops at its stage-2
+  sentinel. Completable quests remain `43 → 43`, startable quests move
+  `114 → 113` after restoring the prerequisites, and blocked quest-stage rows
+  remain `146`.
+- Final local verification is green. The accepted slice's focused lane ran
+  `88 tests in 74.237s`. After rebase, plain ran `4544 tests in 381.617s` with
+  `skipped=514`, and offscreen Qt ran `4544 tests in 680.376s` with `skipped=3`.
+  The documentation audit passed across 608 Markdown and 441 HTML files. The
+  accepted slice's test-quality audit measured 4,503 tests across 221 files with
+  zero hard issues and 31 structural-clone candidate groups. The required Kimi
+  K3 review was unavailable with HTTP 403
+  `You've reached your weekly (7-day) usage limit`; GLM 5.3 Flash found one
+  order-coupled test assertion, and the final focused lane passed after that
+  assertion was made contract-based.
+
 ## Doogle leaves now close Gertrude's Cat stage 5 — 2026-08-30
 
 - The Darkan thread supplied RuneScape Wiki revision `5819038` through a
