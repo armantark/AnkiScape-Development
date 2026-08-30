@@ -34,6 +34,8 @@ class CitationDriftAuditTests(unittest.TestCase):
             "GIT_AUTHOR_EMAIL": "citation-test@example.invalid",
             "GIT_COMMITTER_NAME": "Citation test",
             "GIT_COMMITTER_EMAIL": "citation-test@example.invalid",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_SYSTEM": os.devnull,
         })
         subprocess.run(["git", "add", "--all"], cwd=root, check=True, env=env)
         subprocess.run(["git", "commit", "-q", "-m", message], cwd=root, check=True, env=env)

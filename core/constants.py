@@ -395,8 +395,14 @@ from ..data.hunter_data import (
 )
 from .item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
 from ..data.quest_data import (
+    BLUE_DYE_WIKI_SOURCE,
+    BLUE_GOBLIN_MAIL_WIKI_SOURCE,
     CLAIMS_BY_ID,
     GERTRUDES_CAT_WIKI_SOURCE,
+    GOBLIN_DIPLOMACY_WIKI_SOURCE,
+    GOBLIN_MAIL_WIKI_SOURCE,
+    ORANGE_DYE_WIKI_SOURCE,
+    ORANGE_GOBLIN_MAIL_WIKI_SOURCE,
     QUESTS_BY_ID,
     claims_as_dict,
     quest_reward_items_as_dict,
@@ -666,6 +672,78 @@ UTILITY_ACTIVITY_DATA = {
         "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "doogle_leaves.png"),
         "group": "gathering",
         "source": GERTRUDES_CAT_WIKI_SOURCE,
+    },
+    "gather_goblin_mail": {
+        "display_name": "Search Goblin Village crates",
+        "requirements": {},
+        "output_item": "Goblin mail",
+        "output_qty": 1,
+        "batch_size": 3,
+        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "goblin_mail.png"),
+        "group": "gathering",
+        "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {GOBLIN_MAIL_WIKI_SOURCE}",
+    },
+    "aggie_make_red_dye": {
+        "display_name": "Ask Aggie to make red dye",
+        "requirements": {"Redberries": 3, "Coins": 5},
+        "output_item": "Red dye",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(CONSTRUCTION_ITEMS_FOLDER, "red_dye.png"),
+        "group": "material_processing",
+        "source": GOBLIN_DIPLOMACY_WIKI_SOURCE,
+    },
+    "aggie_make_yellow_dye": {
+        "display_name": "Ask Aggie to make yellow dye",
+        "requirements": {"Onion": 2, "Coins": 5},
+        "output_item": "Yellow dye",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "yellow_dye.png"),
+        "group": "material_processing",
+        "source": GOBLIN_DIPLOMACY_WIKI_SOURCE,
+    },
+    "mix_orange_dye": {
+        "display_name": "Mix orange dye",
+        "requirements": {"Red dye": 1, "Yellow dye": 1},
+        "output_item": "Orange dye",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "orange_dye.png"),
+        "group": "material_processing",
+        "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {ORANGE_DYE_WIKI_SOURCE}",
+    },
+    "aggie_make_blue_dye": {
+        "display_name": "Ask Aggie to make blue dye",
+        "requirements": {"Woad leaf": 2, "Coins": 5},
+        "output_item": "Blue dye",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "blue_dye.png"),
+        "group": "material_processing",
+        "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {BLUE_DYE_WIKI_SOURCE}",
+    },
+    "dye_goblin_mail_orange": {
+        "display_name": "Dye goblin mail orange",
+        "requirements": {"Goblin mail": 1, "Orange dye": 1},
+        "output_item": "Orange goblin mail",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "orange_goblin_mail.png"),
+        "group": "material_processing",
+        "source": (
+            f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {ORANGE_GOBLIN_MAIL_WIKI_SOURCE}"
+        ),
+    },
+    "dye_goblin_mail_blue": {
+        "display_name": "Dye goblin mail blue",
+        "requirements": {"Goblin mail": 1, "Blue dye": 1},
+        "output_item": "Blue goblin mail",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "blue_goblin_mail.png"),
+        "group": "material_processing",
+        "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {BLUE_GOBLIN_MAIL_WIKI_SOURCE}",
     },
     "grab_desert_phoenix_feather": {
         "display_name": "Grab Desert Phoenix feather",
@@ -1262,6 +1340,13 @@ UTILITY_ITEM_IMAGES = {
     "Potato cactus": os.path.join(SUMMONING_ITEMS_FOLDER, "potato_cactus.png"),
     "Black mushroom": os.path.join(HERBLORE_ITEMS_FOLDER, "black_mushroom.png"),
     "Black mushroom ink": os.path.join(HERBLORE_ITEMS_FOLDER, "black_mushroom_ink.png"),
+    "Goblin mail": os.path.join(QUEST_ITEMS_FOLDER, "goblin_mail.png"),
+    "Red dye": os.path.join(CONSTRUCTION_ITEMS_FOLDER, "red_dye.png"),
+    "Yellow dye": os.path.join(SHOP_ITEMS_FOLDER, "yellow_dye.png"),
+    "Orange dye": os.path.join(SHOP_ITEMS_FOLDER, "orange_dye.png"),
+    "Blue dye": os.path.join(SHOP_ITEMS_FOLDER, "blue_dye.png"),
+    "Orange goblin mail": os.path.join(QUEST_ITEMS_FOLDER, "orange_goblin_mail.png"),
+    "Blue goblin mail": os.path.join(QUEST_ITEMS_FOLDER, "blue_goblin_mail.png"),
     "Phoenix feather": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "desert_phoenix.png"),
     "Feather": os.path.join(FLETCHED_ITEMS_FOLDER, "feather.png"),
     "Fishing bait": os.path.join(FISHING_ITEMS_FOLDER, "fishing_bait.png"),
@@ -2573,7 +2658,7 @@ def _known_non_shop_item_names():
         if isinstance(outputs, dict):
             names.update(outputs)
         names.update(spec.get("requirements", {}))
-    return names
+    return names - ({spec.get("output_item") for spec in UTILITY_ACTIVITY_DATA.values() if spec.get("group") == "material_processing"} & SHOP_EXTRA_ITEM_DATA.keys())
 
 
 def _extra_item_category(spec):

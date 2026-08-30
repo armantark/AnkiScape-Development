@@ -5703,6 +5703,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             ("gather_potato_cacti", "Potato cactus", 3),
             ("gather_black_mushrooms", "Black mushroom", 1),
             ("gather_doogle_leaves", "Doogle leaves", 2),
+            ("gather_goblin_mail", "Goblin mail", 3),
         )
         for action_id, output_item, output_qty in cases:
             with self.subTest(action_id=action_id):
@@ -5746,6 +5747,63 @@ class TestIntegrationSmoke(unittest.TestCase):
                 addon._on_state_did_undo(changes)
 
                 self.assertEqual(addon.player_data["inventory"], {})
+                self.assertEqual(addon.player_data["crafting_exp"], 0)
+                self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+                self.assertGreaterEqual(calls["save"], 2)
+
+    def test_goblin_diplomacy_processing_actions_roll_back_on_answer_undo(self):
+        cases = (
+            ("aggie_make_red_dye", {"Redberries": 3, "Coins": 5}, "Red dye"),
+            ("aggie_make_yellow_dye", {"Onion": 2, "Coins": 5}, "Yellow dye"),
+            ("mix_orange_dye", {"Red dye": 1, "Yellow dye": 1}, "Orange dye"),
+            ("aggie_make_blue_dye", {"Woad leaf": 2, "Coins": 5}, "Blue dye"),
+            ("dye_goblin_mail_orange", {"Goblin mail": 1, "Orange dye": 1}, "Orange goblin mail"),
+            ("dye_goblin_mail_blue", {"Goblin mail": 1, "Blue dye": 1}, "Blue goblin mail"),
+        )
+        for action_id, starting_inventory, output_item in cases:
+            with self.subTest(action_id=action_id):
+                addon = _load_addon_as_package(
+                    f"ankiscape_{action_id}_undo_integration"
+                )
+                calls = {"save": 0}
+                addon.check_achievements = lambda _data: None
+                addon.save_player_data = lambda: calls.__setitem__(
+                    "save",
+                    calls["save"] + 1,
+                )
+                addon.update_review_hud = lambda _data, _skill: None
+                addon._refresh_skill_availability = lambda: None
+                addon.show_error_message = lambda _title, message: self.fail(message)
+                addon.player_data = {
+                    "inventory": dict(starting_inventory),
+                    "crafting_exp": 0,
+                    "current_utility": action_id,
+                    "completed_achievements": [],
+                }
+                addon.current_skill = "Utility / Activities"
+                addon.card_turned = True
+                addon.answer_shown = True
+                addon.exp_awarded = False
+
+                addon.on_answer_card(
+                    _FakeReviewer(),
+                    4,
+                    lambda _self, _ease: "answered",
+                )
+
+                self.assertEqual(addon.player_data["inventory"][output_item], 1)
+                for item_name in starting_inventory:
+                    self.assertEqual(addon.player_data["inventory"][item_name], 0)
+                self.assertEqual(addon.player_data["crafting_exp"], 0)
+                self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+                changes = types.SimpleNamespace(
+                    operation="Answer Card",
+                    changes=types.SimpleNamespace(study_queues=True, card=True),
+                )
+                addon._on_state_did_undo(changes)
+
+                self.assertEqual(addon.player_data["inventory"], starting_inventory)
                 self.assertEqual(addon.player_data["crafting_exp"], 0)
                 self.assertEqual(addon._REVIEW_UNDO_STACK, [])
                 self.assertGreaterEqual(calls["save"], 2)

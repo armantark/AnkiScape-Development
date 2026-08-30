@@ -17,6 +17,7 @@ from ankiscape.data.pyramid_plunder_data import (
 )
 from ankiscape.logic.pyramid_plunder_logic import (
     _room_bundle,
+    _stackable_names,
     apply_pyramid_plunder_review_pure,
     enter_pyramid_plunder_pure,
     leave_pyramid_plunder_pure,
@@ -75,6 +76,7 @@ class PyramidPlunderPureTests(unittest.TestCase):
         self.assertEqual(row["mode"], "activity_group")
         self.assertEqual(row["source_status"], "sourced_with_fallbacks")
         self.assertIn("up to M rooms", row["multiplier_behavior"])
+        self.assertNotIn("Onion", _stackable_names())
 
     def test_entry_gates_accept_quest_or_charged_sceptre_and_reject_other_sessions(self):
         low = _player(thieving_level=20)

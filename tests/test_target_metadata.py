@@ -2199,6 +2199,8 @@ class TargetMetadataTest(unittest.TestCase):
         blue_scales = _row(rows, "gather_blue_dragon_scales")
         potato_cacti = _row(rows, "gather_potato_cacti")
         black_mushrooms = _row(rows, "gather_black_mushrooms")
+        goblin_mail = _row(rows, "gather_goblin_mail")
+        red_dye = _row(rows, "aggie_make_red_dye")
         nests = _row(rows, "open_bird_nest")
         crystal_chest = _row(rows, "open_crystal_chest")
         ogre_coffin = _row(rows, "loot_ogre_coffin")
@@ -2231,6 +2233,22 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Processes up to 1", black_mushrooms.tooltip)
         self.assertIn("Output: Black mushroom x1", black_mushrooms.tooltip)
         self.assertIn("No materials required", black_mushrooms.tooltip)
+        self.assertTrue(goblin_mail.enabled)
+        self.assertEqual(
+            os.path.basename(goblin_mail.icon_path or ""),
+            "goblin_mail.png",
+        )
+        self.assertIn("Processes up to 3", goblin_mail.tooltip)
+        self.assertIn("Output: Goblin mail x1", goblin_mail.tooltip)
+        self.assertIn("No materials required", goblin_mail.tooltip)
+        self.assertFalse(red_dye.enabled)
+        self.assertEqual(
+            os.path.basename(red_dye.icon_path or ""),
+            "red_dye.png",
+        )
+        self.assertIn("Redberries x3 (you have 0)", red_dye.tooltip)
+        self.assertIn("Coins x5 (you have 0)", red_dye.tooltip)
+        self.assertIn("Output: Red dye x1", red_dye.tooltip)
         self.assertIn("Processes up to 7", blue_scales.tooltip)
         self.assertIn("Output: Blue dragon scale x1", blue_scales.tooltip)
         self.assertIn("No materials required", blue_scales.tooltip)
@@ -2288,6 +2306,20 @@ class TargetMetadataTest(unittest.TestCase):
         funded_tanning = _row(funded_rows, "tan_soft_leather")
         self.assertTrue(funded_tanning.current)
         self.assertTrue(funded_tanning.enabled)
+
+        dye_rows = utility_activity_rows(
+            {
+                "inventory": {"Redberries": 3, "Coins": 5},
+                "current_utility": "aggie_make_red_dye",
+            },
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        funded_red_dye = _row(dye_rows, "aggie_make_red_dye")
+        self.assertTrue(funded_red_dye.current)
+        self.assertTrue(funded_red_dye.enabled)
 
         pestle_rows = utility_activity_rows(
             {"inventory": {"Anchovies": 1}, "current_utility": "grind_anchovies"},

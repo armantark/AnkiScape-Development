@@ -708,6 +708,14 @@ _FARMING_ITEM_OVERRIDES: Mapping[str, Mapping[str, object]] = MappingProxyType(
                 "source": "Willow branch oldid 6092914; OpenRS2 rev-742 item 5933",
             }
         ),
+        "Woad leaf": MappingProxyType(
+            {
+                "source_item_id": 1793,
+                "stackable": True,
+                "tradeable": True,
+                "source": "Goblin Diplomacy oldid 6485448; OpenRS2 rev-742 item 1793",
+            }
+        ),
     }
 )
 

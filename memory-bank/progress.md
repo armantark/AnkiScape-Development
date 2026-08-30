@@ -1,5 +1,45 @@
 # Progress
 
+## Goblin Diplomacy acquisition chain closed — 2026-08-30
+
+Goblin Diplomacy consumed Orange goblin mail, Blue goblin mail, and plain Goblin
+mail, but the dye and recolour products had no player-finishable producers. The
+period route is now live through the established Utility contract. One review
+searches the three documented Goblin Village crates. Aggie consumes three
+Redberries and 5 Coins for Red dye, two Onions and 5 Coins for Yellow dye, and
+two Woad leaves and 5 Coins for Blue dye. Red plus Yellow makes Orange dye, and
+each coloured dye consumes one plain mail. The complete chain starts with 15
+Coins and leaves one orange, one blue, and one unchanged brown mail for the
+three ordered quest turn-ins.
+
+The source audit pins six exact pre-cutoff wiki revisions, literal wikitext,
+rev-727/rev-742 item definitions, rev-742 crate/NPC options, 2011Scape source
+paths, and read-only Darkan paths and supplying commits. It also records the
+baseline correction: the items and plain-mail combat route already existed;
+the original `--names` search had inspected file names. Item identities now
+preserve mail IDs `286`/`287`/`288`, dye IDs `1763`/`1765`/`1767`/`1769`, Woad
+leaf `1793`, Redberries `1951`, and Onion `1957`, together with the cutoff flags
+and existing provenance-pinned art. No placeholder is needed by the guaranteed
+crate and deterministic recipe chain.
+
+The seven reachability pins change from 1,601 actions, 2,237 reachable items,
+190 orphan inputs, 39 root orphans, 151 cascade orphans, 277 unresolved actions,
+and 1,177 seed items to 1,608 / 2,243 / 190 / 39 / 151 / 277 / 1,177. Goblin
+Diplomacy clears `blocked_quest_stage_products`; blocked quest-stage rows fall
+from 146 to 145. Completable quests move from 43 to 44, and startable quests
+from 113 to 114. The Lost Tribe is now startable but remains non-completable at
+`Complete The Lost Tribe stage 2 objective`, so this slice does not claim that
+chain is closed.
+
+Focused verification passed six plain tests and two offscreen Qt tests. Full
+plain passed 4,548 tests in 407.900 seconds with 515 skips. Genuine offscreen Qt passed 4,548 tests in 697.572 seconds with three skips. The
+documentation audit passed across 609 Markdown and 441 HTML files; the test
+quality audit measured 4,513 tests across 221 files, zero hard issues, and 31
+structural-clone candidate groups. Geometry and screenshots at default 720×540
+and laptop-height 1080×560 showed no label truncation or horizontal overflow.
+The final reachability command retains exit 1 only because 190 unrelated orphan
+inputs remain globally, and the guarded worktree layout is safe.
+
 ## Ordinary Snake-hide acquisition route closed — 2026-08-30
 
 The ordinary Snake hide item and its six downstream states were registered but

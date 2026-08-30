@@ -529,6 +529,8 @@ SOURCE_NONSTACKABLE_ITEMS = frozenset(
         "Barley",
         "Barley malt",
         "Ale yeast",
+        "Onion",
+        "Redberries",
     }
 )
 

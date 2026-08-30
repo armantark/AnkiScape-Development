@@ -902,6 +902,46 @@ class TestLogic(unittest.TestCase):
         self.assertEqual((exp, processed), (0, 2))
         self.assertEqual(new_inv, {"Doogle leaves": 2})
 
+    def test_goblin_diplomacy_material_chain_uses_the_exact_quest_inputs(self):
+        inventory = {
+            "Redberries": 3,
+            "Onion": 2,
+            "Woad leaf": 2,
+            "Coins": 15,
+        }
+        sequence = (
+            ("gather_goblin_mail", 3),
+            ("aggie_make_red_dye", 1),
+            ("aggie_make_yellow_dye", 1),
+            ("mix_orange_dye", 1),
+            ("aggie_make_blue_dye", 1),
+            ("dye_goblin_mail_orange", 1),
+            ("dye_goblin_mail_blue", 1),
+        )
+
+        for action_id, expected_processed in sequence:
+            with self.subTest(action_id=action_id):
+                inventory, exp, ok, processed = apply_utility_activity_pure(
+                    action_id,
+                    inventory,
+                    UTILITY_ACTIVITY_DATA,
+                )
+                self.assertTrue(ok)
+                self.assertEqual(exp, 0)
+                self.assertEqual(processed, expected_processed)
+
+        self.assertEqual(inventory["Coins"], 0)
+        self.assertEqual(inventory["Redberries"], 0)
+        self.assertEqual(inventory["Onion"], 0)
+        self.assertEqual(inventory["Woad leaf"], 0)
+        self.assertEqual(inventory["Red dye"], 0)
+        self.assertEqual(inventory["Yellow dye"], 0)
+        self.assertEqual(inventory["Orange dye"], 0)
+        self.assertEqual(inventory["Blue dye"], 0)
+        self.assertEqual(inventory["Orange goblin mail"], 1)
+        self.assertEqual(inventory["Blue goblin mail"], 1)
+        self.assertEqual(inventory["Goblin mail"], 1)
+
     def test_black_mushroom_ink_requires_and_consumes_an_empty_vial(self):
         locked_inv, exp, ok, processed = apply_utility_activity_pure(
             "grind_black_mushroom",

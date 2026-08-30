@@ -1400,8 +1400,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1601)
-        self.assertEqual(report["reachable_item_count"], 2237)
+        self.assertEqual(report["action_count"], 1608)
+        self.assertEqual(report["reachable_item_count"], 2243)
         self.assertEqual(
             report["routes"].get("Living water"),
             "quest-stage:druidic_ritual:2",
@@ -1430,62 +1430,36 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["cascade_orphan_count"], 151)
         self.assertEqual(report["unresolved_action_count"], 277)
         self.assertEqual(report["seed_item_count"], 1177)
-        self.assertFalse(
-            [
-                row
-                for row in report["blocked_quest_stage_products"]
-                if row["quest_id"] == "tribal_totem"
-            ]
+        blocked_quest_ids = {row["quest_id"] for row in report["blocked_quest_stage_products"]}
+        self.assertEqual(
+            {
+                "clock_tower",
+                "deadliest_catch",
+                "gertrudes_cat",
+                "goblin_diplomacy",
+                "icthlarins_little_helper",
+                "lost_city",
+                "monks_friend",
+                "smoking_kills",
+                "some_like_it_cold",
+                "song_from_the_depths",
+                "the_restless_ghost",
+                "tribal_totem",
+                "wolf_whistle",
+            }
+            & blocked_quest_ids,
+            set(),
         )
-        self.assertFalse(
-            [
-                row
-                for row in report["blocked_quest_stage_products"]
-                if row["quest_id"] == "clock_tower"
-            ]
-        )
-        self.assertFalse(
-            [
-                row
-                for row in report["blocked_quest_stage_products"]
-                if row["quest_id"] == "deadliest_catch"
-            ]
-        )
-        self.assertFalse(
-            [
-                row
-                for row in report["blocked_quest_stage_products"]
-                if row["quest_id"] == "monks_friend"
-            ]
-        )
-        self.assertFalse(
-            [
-                row
-                for row in report["blocked_quest_stage_products"]
-                if row["quest_id"] == "the_restless_ghost"
-            ]
-        )
-        self.assertFalse(
-            [
-                row
-                for row in report["blocked_quest_stage_products"]
-                if row["quest_id"] == "lost_city"
-            ]
-        )
-        self.assertFalse(
-            [
-                row
-                for row in report["blocked_quest_stage_products"]
-                if row["quest_id"]
-                in {
-                    "gertrudes_cat",
-                    "icthlarins_little_helper",
-                    "smoking_kills",
-                    "some_like_it_cold",
-                    "song_from_the_depths",
-                    "wolf_whistle",
-                }
-            ]
+        lost_tribe_rows = [
+            row
+            for row in report["blocked_quest_stage_products"]
+            if row["quest_id"] == "the_lost_tribe"
+        ]
+        self.assertEqual(len(lost_tribe_rows), 1)
+        self.assertEqual(lost_tribe_rows[0]["stage"], 2)
+        self.assertEqual(
+            lost_tribe_rows[0]["missing_required_actions"],
+            ["Complete The Lost Tribe stage 2 objective"],
         )
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
@@ -1627,6 +1601,30 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(
             report["routes"]["Doogle leaves"],
             "Utility:gather_doogle_leaves",
+        )
+        self.assertEqual(
+            report["routes"]["Red dye"],
+            "Utility:aggie_make_red_dye",
+        )
+        self.assertEqual(
+            report["routes"]["Yellow dye"],
+            "Utility:aggie_make_yellow_dye",
+        )
+        self.assertEqual(
+            report["routes"]["Orange dye"],
+            "Utility:mix_orange_dye",
+        )
+        self.assertEqual(
+            report["routes"]["Blue dye"],
+            "Utility:aggie_make_blue_dye",
+        )
+        self.assertEqual(
+            report["routes"]["Orange goblin mail"],
+            "Utility:dye_goblin_mail_orange",
+        )
+        self.assertEqual(
+            report["routes"]["Blue goblin mail"],
+            "Utility:dye_goblin_mail_blue",
         )
         self.assertEqual(
             report["routes"]["Doogle sardine"],

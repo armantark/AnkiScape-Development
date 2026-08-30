@@ -1,5 +1,45 @@
 # Active Context
 
+## Goblin Diplomacy mail and dye chain is completable — 2026-08-30
+
+- Literal `curl` fetches pinned Goblin Diplomacy oldid `6485448`, Goblin mail
+  `6293293`, Orange dye `6169860`, Blue dye `6536075`, Orange goblin mail
+  `6435504`, and Blue goblin mail `6435506`, all before the `2012-11-20`
+  cutoff. Rev-742 IDs and flags, 2011Scape's Aggie dialogue, and read-only
+  Darkan reconstruction corroborate the complete chain. The durable record is
+  `memory-bank/source-audits/goblin-mail-dye-chain-2026-08-30.md`.
+- The reproduced baseline corrected the premise: all seven dye/mail items were
+  already registered, and plain Goblin mail was already reachable through a
+  combat drop. The missing links were dye and recolour producers; the premise's
+  `tools/repo_search.py ... --names` probe had searched file names, not content.
+- The existing Utility contract now supplies the source-backed route: search the
+  three named Goblin Village crates; pay Aggie three Redberries plus 5 Coins for
+  Red dye, two Onions plus 5 Coins for Yellow dye, and two Woad leaves plus 5
+  Coins for Blue dye; mix Red and Yellow; then dye one mail orange and one blue.
+  One plain mail remains for the brown turn-in. Every action is zero-XP, saved,
+  and answer-undo safe. No runtime or interface implementation changed.
+- Rev-742 item semantics are now explicit for mail `286`/`287`/`288`, dyes
+  `1763`/`1765`/`1767`/`1769`, Woad leaf `1793`, Redberries `1951`, and Onion
+  `1957`. Existing pre-cutoff art and provenance are reused. Redberries and
+  Onion are corrected to non-stackable; Woad leaf remains stackable.
+- Reachability moves from `1601 / 2237 / 190 / 39 / 151 / 277 / 1177` to
+  `1608 / 2243 / 190 / 39 / 151 / 277 / 1177` for actions, reachable items,
+  orphan inputs, root orphans, cascade orphans, unresolved actions, and seed
+  items. Goblin Diplomacy is absent from `blocked_quest_stage_products`; global
+  blocked quest-stage rows fall from 146 to 145. Completable quests rise from
+  43 to 44 and startable quests from 113 to 114. The Lost Tribe becomes
+  startable but remains blocked at its own stage-2 generated sentinel.
+- Focused checks passed six plain and two Qt tests. Full plain passed 4,548 tests
+  in 407.900 seconds with 515 skips. Genuine offscreen Qt passed 4,548 tests in 697.572 seconds with three skips. Documentation audited 609
+  Markdown and 441 HTML files. Test quality measured 4,513 tests across 221
+  files with zero hard issues. Default 720×540 and 1080×560 offscreen visual
+  checks showed every new processing label in full with horizontal-scroll
+  maximum 0. The guarded worktree audit is safe.
+- No placeholder was added: the implemented three-crate path and every recipe
+  quantity are directly stated. Ali the Dyer's alternate Blue-dye service and
+  the existing emulator-derived Goblin drop probabilities remain second-level
+  surfaces and are not generalized or described as period-settled.
+
 ## Ordinary Snake hide is player-finishable through Bush snake — 2026-08-30
 
 - `combat:bush_snake` now supplies ordinary item `6287` before EOC through the

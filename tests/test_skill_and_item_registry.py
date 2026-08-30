@@ -1093,6 +1093,67 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertEqual(provenance[asset_key]["sha1"], sha1)
                 self.assertIn("/archive/", provenance[asset_key]["image_url"])
 
+    def test_goblin_diplomacy_chain_preserves_period_recipes_identity_and_art(self):
+        expected_action_assets = {
+            "gather_goblin_mail": ("goblin_mail.png", "6485448"),
+            "aggie_make_red_dye": ("red_dye.png", "6485448"),
+            "aggie_make_yellow_dye": ("yellow_dye.png", "6485448"),
+            "mix_orange_dye": ("orange_dye.png", "6169860"),
+            "aggie_make_blue_dye": ("blue_dye.png", "6536075"),
+            "dye_goblin_mail_orange": ("orange_goblin_mail.png", "6435504"),
+            "dye_goblin_mail_blue": ("blue_goblin_mail.png", "6435506"),
+        }
+        for action_id, (filename, oldid) in expected_action_assets.items():
+            with self.subTest(action_id=action_id):
+                action = UTILITY_ACTIVITY_DATA[action_id]
+                self.assertEqual(os.path.basename(action["icon_path"]), filename)
+                self.assertIn(oldid, action["source"])
+                self.assertTrue(os.path.isfile(action["icon_path"]))
+
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected_items = {
+            "Orange goblin mail": (286, False, False),
+            "Blue goblin mail": (287, False, False),
+            "Goblin mail": (288, False, True),
+            "Red dye": (1763, False, True),
+            "Yellow dye": (1765, False, True),
+            "Blue dye": (1767, False, True),
+            "Orange dye": (1769, False, True),
+            "Woad leaf": (1793, True, True),
+            "Redberries": (1951, False, True),
+            "Onion": (1957, False, True),
+        }
+        for item_name, (item_id, stackable, tradeable) in expected_items.items():
+            with self.subTest(item_name=item_name):
+                item = by_storage_key[item_name]
+                self.assertEqual(item.source_item_id, item_id)
+                self.assertEqual(item.stackable, stackable)
+                self.assertEqual(item.tradeable, tradeable)
+                self.assertTrue(os.path.isfile(item.asset_path or ""))
+
+        with open(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets_provenance.json"),
+            encoding="utf-8",
+        ) as file_obj:
+            provenance = json.load(file_obj)
+        expected_provenance = {
+            "constructionitems/red_dye.png": ("2009-09-06T16:24:59Z", "d0dfdcc6cef46f838ad7888617e7f0dca31ff277"),
+            "shopitems/yellow_dye.png": ("2009-09-06T16:28:45Z", "4601a46ad231461e9341610ab95a3b654f037779"),
+            "shopitems/orange_dye.png": ("2009-09-06T16:29:57Z", "22ccd860345dcaa457c5e52e0337e626edfebd37"),
+            "shopitems/blue_dye.png": ("2009-09-05T14:21:22Z", "051d587e277c459a3a8ac95a3469fd2d651e25ff"),
+            "questitems/goblin_mail.png": ("2012-10-17T17:16:16Z", "b1f24492992d7104e5489a09af2367588db0124e"),
+            "questitems/orange_goblin_mail.png": ("2012-10-17T17:17:46Z", "598931ae7e87d67afec3b287364a4bf50df6aa78"),
+            "questitems/blue_goblin_mail.png": ("2012-10-17T17:27:06Z", "046e2019f976fa46d3d190d31825e67b8ed979a5"),
+            "farmingitems/woad_leaf.png": ("2011-12-05T06:56:45Z", "95781fe175ede07ffadb808a58187fbde06ea131"),
+            "cookingitems/redberries.png": ("2011-11-27T15:58:21Z", "284229e880a37512af504f0d76e06ff5cd509b6f"),
+            "cookingitems/onion.png": ("2010-06-10T12:00:13Z", "e0b2bc51f25b7055258fd9f22552ba536137faa8"),
+        }
+        for asset_key, (timestamp, sha1) in expected_provenance.items():
+            with self.subTest(asset_key=asset_key):
+                self.assertEqual(provenance[asset_key]["timestamp"], timestamp)
+                self.assertEqual(provenance[asset_key]["sha1"], sha1)
+                self.assertIn("/archive/", provenance[asset_key]["image_url"])
+
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name in (

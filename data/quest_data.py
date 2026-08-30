@@ -371,6 +371,12 @@ DARKAN_GERTRUDES_CAT_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/GertrudesCat.
 DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/GertrudeD.java"
 DARKAN_GERTRUDES_CAT_CHILDREN_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/ShilopWiloughD.java"
 GERTRUDES_CAT_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/5819038"
+GOBLIN_DIPLOMACY_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6485448"
+GOBLIN_MAIL_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6293293"
+ORANGE_DYE_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6169860"
+BLUE_DYE_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6536075"
+ORANGE_GOBLIN_MAIL_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6435504"
+BLUE_GOBLIN_MAIL_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6435506"
 THE_LOST_TRIBE_WIKI_SOURCE = "https://runescape.wiki/w/The_Lost_Tribe?oldid=6534350"
 DARKAN_CLOCK_TOWER_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/clocktower"
 DARKAN_CLOCK_TOWER_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTower.java"
@@ -12357,17 +12363,46 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             "category": "material",
             "source": f"{DARKAN_DEMON_SLAYER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
+        "Red dye": {
+            "category": "material",
+            "item_id": 1763,
+            "tradeable": True,
+            "stackable": False,
+            "source": (
+                f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; OpenRS2 cache rev 742 item 1763; "
+                "src/main/java/com/rs/game/content/skills/construction/playerOwnedHouse/"
+                "HouseObjects.kt:485 @ 7e7d67b481f1b94599de38a98c470419ab7c96b3"
+            ),
+        },
         "Orange goblin mail": {
             "category": "material",
-            "source": f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            "item_id": 286,
+            "tradeable": False,
+            "stackable": False,
+            "source": (
+                f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {ORANGE_GOBLIN_MAIL_WIKI_SOURCE}; "
+                f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; OpenRS2 cache rev 742 item 286"
+            ),
         },
         "Blue goblin mail": {
             "category": "material",
-            "source": f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            "item_id": 287,
+            "tradeable": False,
+            "stackable": False,
+            "source": (
+                f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {BLUE_GOBLIN_MAIL_WIKI_SOURCE}; "
+                f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; OpenRS2 cache rev 742 item 287"
+            ),
         },
         "Goblin mail": {
             "category": "material",
-            "source": f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            "item_id": 288,
+            "tradeable": True,
+            "stackable": False,
+            "source": (
+                f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {GOBLIN_MAIL_WIKI_SOURCE}; "
+                f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; OpenRS2 cache rev 742 item 288"
+            ),
         },
         "Fish food": {
             "category": "material",

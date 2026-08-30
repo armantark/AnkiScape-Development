@@ -16584,6 +16584,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ("gather_potato_cacti", "Potato cactus"),
             ("gather_black_mushrooms", "Black mushroom"),
             ("gather_doogle_leaves", "Doogle leaves"),
+            ("gather_goblin_mail", "Goblin mail"),
         ):
             with self.subTest(action_id=action_id):
                 row = _utility_row(utility_tree, action_id)
@@ -16604,8 +16605,32 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "gather_potato_cacti",
                 "gather_black_mushrooms",
                 "gather_doogle_leaves",
+                "gather_goblin_mail",
             ],
         )
+
+    def test_goblin_diplomacy_processing_rows_use_the_existing_utility_contract(self) -> None:
+        utility_tree = self._open_utility(self._open(_make_player_data() | {"inventory": {"Redberries": 3, "Coins": 5}}))
+        expected = {
+            "aggie_make_red_dye": ("Ask Aggie to make red dye", "Redberries x3", "Coins x5", "Red dye x1"),
+            "aggie_make_yellow_dye": ("Ask Aggie to make yellow dye", "Onion x2", "Coins x5", "Yellow dye x1"),
+            "mix_orange_dye": ("Mix orange dye", "Red dye x1", "Yellow dye x1", "Orange dye x1"),
+            "aggie_make_blue_dye": ("Ask Aggie to make blue dye", "Woad leaf x2", "Coins x5", "Blue dye x1"),
+            "dye_goblin_mail_orange": ("Dye goblin mail orange", "Goblin mail x1", "Orange dye x1", "Orange goblin mail x1"),
+            "dye_goblin_mail_blue": ("Dye goblin mail blue", "Goblin mail x1", "Blue dye x1", "Blue goblin mail x1"),
+        }
+        for action_id, (label, first_input, second_input, output) in expected.items():
+            with self.subTest(action_id=action_id):
+                row = _utility_row(utility_tree, action_id)
+                self.assertFalse(row.icon(0).isNull())
+                self.assertIn(label, row.text(0))
+                self.assertNotIn("…", row.text(0))
+                self.assertNotIn("...", row.text(0))
+                self.assertFalse([text for text in (first_input, second_input, f"Output: {output}", "No skill XP") if text not in row.toolTip(0)])
+        funded_row = _utility_row(utility_tree, "aggie_make_red_dye")
+        utility_tree.itemClicked.emit(funded_row, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._utility_calls, ["aggie_make_red_dye"])
 
     def test_stronghold_landmark_row_selects_activity_when_unfinished(self) -> None:
         pd = _make_player_data()
