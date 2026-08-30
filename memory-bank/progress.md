@@ -6531,4 +6531,5 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Commits `d5da2f3a1921f6592fd4ec32c3b86542b0ca71a6` and `03ea285df1a9b7d120179e9e5bbf5356468a3b8a` remove those changes.
 - `ui/ui.py` and `tests/test_main_menu_widget.py` now match the owner-settled `806a2f63` versions exactly.
 - An independent Opus review accepted the restoration and found no valid replacement style test.
-- The MacBook promotion gate is still in progress. Native confirmation requires the owner to restart Anki normally.
+- The MacBook promotion gate passed at `03ea285df1a9b7d120179e9e5bbf5356468a3b8a`: both lanes ran 4,525 tests; plain skipped 513 and Qt skipped three. Documentation audited 602 Markdown and 441 HTML files, test quality found zero hard issues, reachability matched 1,600 actions and 2,217 reachable items, and worktree plus diff checks passed.
+- Native confirmation still requires the owner to restart Anki normally.
