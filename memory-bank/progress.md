@@ -1,5 +1,26 @@
 # Progress
 
+## Two accepted papercut branches landed — 2026-08-30
+
+Canonical `main` is at `28c4984cc2858cd9b7d197b8fcd851220745750f` and clean.
+Two of the three reviewed papercut branches merged cleanly into one promotion
+worktree and landed by fast-forward after a fully green remote gate.
+
+The evidence record
+`.git/ankiscape-promotion-evidence/28c4984cc2858cd9b7d197b8fcd851220745750f.json`
+completed at `2026-08-30T09:45:42-07:00` and records `remote_lanes: true`,
+`plain_only: false`, and all eight passed checks. The plain lane ran
+`Ran 4528 tests in 252.020s`, `OK (skipped=513)`. The Qt lane ran
+`Ran 4528 tests in 444.751s`, `OK (skipped=3)`. Reachability held its baseline
+exactly at `1600 actions; 2217 reachable items; 192 orphan inputs; 284 blocked
+actions`.
+
+The third branch, `goal/papercut-reachability-check-2026-08-30`, conflicts with
+its landed sibling in `tests/test_papercut_tools.py` alone. Both branches added
+tests to that one file, and both test sets are wanted. A dedicated agent rebases
+it rather than resolving the conflict by textual union, which this project
+forbids after three integrations broke the tree in 2026-07.
+
 ## Goal resumed, the another-writer collision is repaired — 2026-08-30
 
 The owner set a new goal. Under it this seat repairs an another-writer

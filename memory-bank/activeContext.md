@@ -2,6 +2,31 @@
 
 Last staleness sweep: 2026-08-30
 
+## Two accepted papercut branches landed — 2026-08-30
+
+- Canonical `main` is at `28c4984cc2858cd9b7d197b8fcd851220745750f`, clean, and
+  fully gated. `goal/papercut-test-cwd-2026-08-30` and
+  `goal/papercut-worktree-bootstrap-2026-08-30` merged cleanly into promotion
+  worktree `promote-papercuts-2026-08-30` and landed by fast-forward.
+- The gate ran with `--remote-lanes` on the MacBook Pro. Evidence record
+  `.git/ankiscape-promotion-evidence/28c4984cc2858cd9b7d197b8fcd851220745750f.json`
+  completed at `2026-08-30T09:45:42-07:00` with `remote_lanes: true`,
+  `plain_only: false`, and all eight checks passed.
+- Plain: `Ran 4528 tests in 252.020s`, `OK (skipped=513)`, 4,015 active against
+  a floor of 3,994. Qt: `Ran 4528 tests in 444.751s`, `OK (skipped=3)`, 4,525
+  active against a floor of 4,503. The three-skip count proves the Qt lane ran.
+- `audit_docs` audited 604 Markdown and 441 HTML files and passed.
+  `audit_test_quality` reported 4,493 tests across 221 files with zero hard
+  issues. Reachability held the known baseline exactly:
+  `1600 actions; 2217 reachable items; 192 orphan inputs; 284 blocked actions`.
+- The gate removed a stale marker from the previous session. It recorded gate
+  PID `9675` for `63a3409c` since `2026-08-30T08:50:02-07:00`. That removal is
+  the documented self-heal, not a fault.
+- `goal/papercut-reachability-check-2026-08-30` cannot merge directly. It
+  conflicts with its landed sibling in `tests/test_papercut_tools.py` only,
+  because both branches added tests to that file. A dedicated agent rebases it
+  onto `28c4984c` and keeps both test sets. Textual union is forbidden here.
+
 ## Goal resumed, the another-writer collision is repaired — 2026-08-30
 
 - The owner set a new goal at `2026-08-30 09:30 PDT`. It changes the collision
