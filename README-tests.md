@@ -19,6 +19,10 @@ Run the full real Qt suite separately through the checked-in environment:
 QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
 ```
 
+Worktrees created by `tools/worktree_guard.py add` receive `.venv-qt` as an
+ignored local link to the canonical checkout's Qt environment, so this command
+stays unchanged in each guard-provisioned worktree.
+
 The non-Qt runner deliberately skips environment-dependent Qt cases; the
 offscreen command is the release gate for those surfaces.
 

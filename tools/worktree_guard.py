@@ -19,11 +19,14 @@ def worktree_paths(porcelain: str) -> tuple[Path, ...]:
 
 
 def unsafe_registered_worktrees(paths: Sequence[Path], canonical: Path) -> tuple[Path, ...]:
-    addons_dir = canonical.resolve().parent
+    canonical = canonical.resolve()
+    addons_dir = canonical.parent
+    resolved_paths = (path.resolve() for path in paths)
     return tuple(
-        path.resolve()
-        for path in paths
-        if path.resolve() != canonical.resolve() and path.resolve().is_relative_to(addons_dir)
+        resolved
+        for resolved in resolved_paths
+        if resolved.is_relative_to(addons_dir)
+        and not resolved.is_relative_to(canonical)
     )
 
 
@@ -93,6 +96,10 @@ def audit(repo: Path) -> None:
 def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str) -> None:
     audit(repo)
     canonical, _ = canonical_and_paths(repo)
+    qt_environment = canonical / ".venv-qt"
+    qt_interpreter = qt_environment / "bin/python"
+    if not qt_interpreter.exists():
+        raise RuntimeError(f"Qt test interpreter not found: {qt_interpreter}")
     leaf = validate_worktree_name(name or branch.replace("/", "-"))
     destination = safe_worktree_root(canonical) / leaf
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -111,6 +118,7 @@ def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str)
         _git(canonical, "worktree", "add", str(destination), branch)
     else:
         _git(canonical, "worktree", "add", "-b", branch, str(destination), start_point)
+    (destination / ".venv-qt").symlink_to(qt_environment, target_is_directory=True)
     audit(repo)
     print(f"Created worktree: {destination}")
 
