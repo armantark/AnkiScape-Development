@@ -223,6 +223,20 @@ AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **20
 - **Dated cache cross-checks:** the seven OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md`. They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` require Java 25 and the locally cached Darkan core 2.0.5 jars.
 - **Darkan:** use the fidelity-revamped implementation as server-mechanics evidence only after reconciling it with pinned pre-EOC sources. A modern Darkan commit is a reconstruction, not automatically period proof. Wait when the necessary high-fidelity behavior or corroborating history does not yet exist.
 
+Seven tools read the Darkan thread's checkout at
+`/Users/ArmanTarkhanian1/Documents/2012scape with bots/` by absolute path:
+`audit_citation_drift.py`, `build_pre_eoc_quest_catalog.py`,
+`generate_construction_data.py`, `generate_npc_shop_data.py`,
+`generate_achievement_diary_data.py` through its harvest input,
+`harvest_achievement_tasks.py`, and `harvest_music_log.py`. Every one is
+read-only there. That checkout belongs to another team, so never write to it and
+never run a mutating Git command in it. Two tools pin exact commits, so a
+rebase, a force-push, or a garbage collection in `darkan-world-server` can break
+an AnkiScape citation audit. `tools/generate_construction_data.py:101` and
+`tools/audit_citation_drift.py:153-155` reach that repository through `git -C`,
+which no working-directory scan can observe; detect such a reader by matching
+full process argument strings.
+
 Current Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure/logic_pure.py` adapt them to Anki review cadence.
 
 Current Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
