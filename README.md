@@ -83,6 +83,10 @@ QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
   Activities behavior in an offscreen Qt runtime.
 - Keeps UI contracts covered without requiring a visible Anki window.
 
+Worktrees created by `tools/worktree_guard.py add` receive `.venv-qt` as an
+ignored local link to the canonical checkout's Qt environment, so this command
+stays unchanged in each guard-provisioned worktree.
+
 ### Audit documentation
 
 Run the tracked Markdown/HTML integrity audit from the repository root:
