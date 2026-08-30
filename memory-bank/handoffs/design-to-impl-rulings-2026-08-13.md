@@ -139,3 +139,339 @@ the main quota is also over. Recorded through the goal's own pause mechanism in
 `memory-bank/GOAL-BLOCKED.md`, which the goal text accepts as satisfying it.
 That file names the blocker, what was tried, and the single unblocking
 condition, and must be deleted before work resumes.
+
+## 10. Queue-audit checkpoint — 2026-08-30
+
+This audit uses `main` commit `d51f0f84df4d4cea3ab307954a01562f0b71f52d`.
+It preserves sections 1 through 9 without edits.
+The next section will apply the R4 formula after this checkpoint.
+
+### Override lane verification
+
+The cadence override defect is fixed.
+`sanitize_cadence_profile_state_pure` still accepts nonnegative integers at
+`logic/cadence_kernel.py:107-127`.
+`advance_cadence_pure` now caps persisted credit at
+`logic/cadence_kernel.py:243-253` before rate arithmetic.
+A pure probe used a credit of `10^1000` with threshold `10`.
+The call returned credit `0`, emitted one opportunity, and raised no exception.
+No dedicated oversized persisted-credit regression test exists.
+The current override lane is empty.
+
+### Section 8 verification
+
+| recorded claim | current result | current evidence |
+| --- | --- | --- |
+| `311` unsatisfiable quest steps | Still false. No tracked audit emits this measure. The current fixed point has 148 blocked quest-stage products and 284 unresolved actions. | `tools/audit_item_reachability.py:1950-1965`; `tools/audit_item_reachability.py:2036-2057` |
+| Max requires 24 of 25 skills | Still false. Dungeoneering is partial and trainable. Floor completion still returns Dungeoneering XP. | `core/skill_registry.py:300-308`; `logic/dungeoneering_logic.py:2686-2702` |
+| 31 direct-action handlers have no shared seam | Still false. A fresh Abstract Syntax Tree scan found 54 handlers, 54 seam calls, and 0 bypasses. | `memory-bank/design-thread-queue.md:1738-1744`; `__init__.py:1020` |
+| Wicked hood has art, but Evil Tree kindling does not | Now fully false. Both asset rows and both files exist. | `assets_provenance.json:36954`; `assets_provenance.json:48402`; `woodcuttingitems/evil_tree_kindling.png:1` |
+
+The direct-action correction in section 8 also contains a stale follow-up.
+The stated 30-handler migration now has zero open handlers.
+The art correction also has no open art row.
+
+### New stale claims found by this audit
+
+| location | stale claim | current evidence |
+| --- | --- | --- |
+| Section 5 row 1 | `167` quest definitions are absent. | The generated catalog has 194 rows. Two miniquests make 196 definitions. See `generated/quest_catalog_generated.py:12` and `data/quest_data.py:10844-10914`. |
+| Section 5 row 3 | 30 of 54 direct-action handlers bypass the undo seam. | The fresh scan found 0 bypasses. See `memory-bank/design-thread-queue.md:1738-1744`. |
+| Section 5 row 5 | Quest rewards skip the one-clue filter. | Quest completion calls the central filter at `logic_pure/logic_pure_quest.py:1530-1537`. |
+| Section 5 row 8 | Evil Tree kindling is the last stale art row. | The asset and provenance row exist at `woodcuttingitems/evil_tree_kindling.png:1` and `assets_provenance.json:48402`. |
+| Section 5 row 10 | All four housekeeping records remain open. | The pause record is checked at `memory-bank/loop-queue.md:200`. The roadmap uses the current skill model at `memory-bank/roadmap.md:8`. The GPT art row remains stale at `memory-bank/gpt-deferred-queue.md:21`. |
+
+The other section 5 premises still hold at this checkpoint.
+`COMBAT_ENEMY_DATA` still records 130 enemies at
+`memory-bank/future-work-kanban.md:1374`.
+Daily Challenge XP remains registered at
+`memory-bank/placeholder-values.md:71`.
+The placeholder register has 179 rows.
+Chaeldar remains at 25 of 34 families at
+`memory-bank/future-work-kanban.md:810`.
+The Dungeoneering floor XP curve remains registered at
+`memory-bank/placeholder-values.md:191`.
+
+## 11. Re-score after the 2026-08-30 queue audit
+
+### 11.1 Audit frame
+
+This section updates the ledger under R11. Sections 1 through 10 stay unchanged. Their rulings remain authoritative, but later audit facts supersede stale checkpoint facts.
+
+The audit uses code baseline `d51f0f84df4d4cea3ab307954a01562f0b71f52d`. At audit time, `main` was `fa24b0bf4208a6f6b7b3254dbca19b40f9012e94`. The later commit adds two papercut records and changes no score input.
+
+The score formula remains:
+
+```text
+priority = Reach × StageWeight × Gap × SubstrateBump × EvidenceBump
+```
+
+`DEFERRED` is a status, not a score. Each deferred item keeps its score and one exact reason.
+
+The selection override lane is empty. The oversized cadence credit probe used persisted credit `10^1000`. The kernel clamped it to `threshold_denominator - 1`. The step then emitted one reward and returned credit `0` at threshold `10`. No flashcard-review blocker, save corruption, or undo breakage enters before the scored queue.
+
+### 11.2 Source coverage
+
+The audit read all current queue sources. A source can supply many references but still represent one backlog family.
+
+| Source | Audited units | Treatment |
+| --- | ---: | --- |
+| Design queue section 3.x and 5.x headings | 58 | Score live implementation work. Exclude owner forks under section 2. |
+| Future-work Kanban headings | 53 | Retire 31 closed-only headings. Map 21 active or residual headings below. Merge the diary duplicate into rank 7. |
+| Gap backlog status rows | 45 | Map each non-final row to a scored family. Keep final and rejected rows as dispositions. |
+| Placeholder register rows | 179 | Keep each live placeholder in the registered-placeholder family unless it has a separate score. |
+| Loop queue checklist records | 69 | Retire completed re-walks. Keep the remaining depth work. |
+| Breadth tranche rows | 10 | All 10 rows are complete and stay at score 0. |
+| Encounter-ranking rows | 14 | Re-measure before selection. Do not reuse stale counts. |
+| Diary gate records | 2 | Keep the curation gate and the runtime gate together. |
+| Papercut corpus | 1 | Treat the append-only corpus as one source, not one score per entry. |
+| Named papercut branches | 3 | Record each branch disposition. |
+| **Total source references** | **434** | **All references have a treatment above and a source map below.** |
+
+The requested baseline has 771 papercut entries. At audit time, `main` had 773. This audit does not use the two later records as score inputs.
+
+### 11.3 Current audit fixed point
+
+The current reachability audit reports:
+
+- 1,600 actions.
+- 2,217 reachable items.
+- 192 orphan inputs.
+- 284 unresolved actions.
+- 148 unreachable quest-stage products in `blocked_quest_stage_products`.
+- 40 completable quests.
+- 109 startable quests.
+- 196 total quest definitions.
+
+The quest counts come from `_close_quest_reachability` at `tools/audit_item_reachability.py:1950`. The audit does not emit them in `--json` or `--summary` output.
+
+The current quest-stage census reports:
+
+- 701 generated sentinel actions.
+- 138 quests with at least one sentinel.
+- 132 first-block rows with one sentinel.
+- 100 sentinel rows with no missing `required_inventory` item.
+- 95 sentinel rows with no additional item, alternative, tool, or combat blocker.
+
+Across all 148 unresolved quest-stage rows, the census reports:
+
+- 44 rows with missing required items.
+- 75 missing required-item occurrences.
+- 10 rows with missing item alternatives.
+- 11 missing alternative groups.
+- 2 rows with missing required tools.
+- 0 rows with missing required routes.
+- 1 row with an unresolved combat encounter.
+
+These numbers replace the older encounter-matrix counts. The older counts are not score inputs.
+
+### 11.4 Section 5 re-score
+
+The following table re-scores every original section 5 row. A score of zero means that the audited defect is complete or its premise is false.
+
+| Original row | Old score | New score | Exact audit fact that changed or retained the score | Disposition |
+| --- | ---: | ---: | --- | --- |
+| Missing quest definitions | 18 | 0 | The catalog changed from 167 missing definitions to 0. It now has 194 generated quests and 2 miniquests. | COMPLETE. Generated stage work is a different family. |
+| All-pre-Evolution-of-Combat bestiary expansion | 18 | 18 | `COMBAT_ENEMY_DATA` changed from the stale card count of 130 to 201 runtime keys. The period roster is still incomplete. This supersedes the stale 130-enemy sentence in section 10. | DEFERRED — select and remeasure one atomic encounter family before implementation. |
+| Direct-action undo migration | 12 | 0 | The bypass count changed from 30 to 0. All 54 `_apply_*_command` handlers call `commit_direct_action`. | COMPLETE. |
+| Daily Challenge reward XP | 9 | 9 | The `100 × challenge level` fallback remains after the complete local source re-walk. | DEFERRED — no local server or cache table establishes the period payout value. |
+| Quest rewards bypass the one-clue rule | 6 | 0 | Quest completion now calls `filter_clue_scroll_outputs_pure` before it grants inventory. | COMPLETE. |
+| Generic rev-727 placeholder harvest | 6 | 0 | All cache, interface, item, diary, boss, and named-placeholder re-walks are complete. | COMPLETE as a generic harvest program. Live placeholders keep separate scores. |
+| Chaeldar readiness | 6 | 6 | Readiness remains 25 of 34 families. Nine exact families remain absent. | DEFERRED — select one source-backed missing family as the atomic slice. |
+| Evil Tree kindling art | 4 | 0 | The missing asset count changed from 1 to 0. The file and provenance record exist. | COMPLETE. |
+| Dungeoneering payout curves | 3 | 3 | The live fallback remains. Local code does not establish the period curve. | DEFERRED — local code proves the fallback is live but does not establish the period payout curve. |
+| Housekeeping rider | rider | rider | Three of four named records are complete. One stale GPT art queue record remains. | RETAINED as a reduced maintenance rider. It does not enter the scored top ten. |
+
+Five original numeric scores changed: `18 → 0`, `12 → 0`, `6 → 0`, `6 → 0`, and `4 → 0`.
+
+The reachability-check papercut does not enter the score table. It is a maintenance rider like the section 5 row 10 housekeeping rider. Its exact status is `DEFERRED — integration is in progress on goal/promote-reachability-check-2026-08-30`.
+
+### 11.5 Other stale queue claims
+
+The audit also corrected claims outside the original section 5 table.
+
+| Claim | Current fact | Score |
+| --- | --- | ---: |
+| Quest rewards still grant non-item labels as inventory | Tests cover 47 known non-item reward occurrences across 24 quests. The current reward census has 261 occurrences, 245 distinct name-and-amount pairs, 228 names, and 0 unregistered names. | 0 |
+| Four callers own Shattered Heart output eligibility | The shared hook now accepts only tradeable item keys. Two explicit runtime overrides remain and do not own eligibility. | 0 |
+| Jungle Potion still needs the accepted stage fix | The repeatable herb searches and the quest-end exemption are both present. | 0 |
+| The source audit accepts dead `unittest` selectors | `tools/audit_docs.py` now builds selectors and rejects dangling selectors. The audit passes. | 0 |
+| The Kinship analysis packet is absent | The 534-line packet exists and defines owner decisions P1 through P8. Runtime work still needs approval. | 6 |
+| The generic local placeholder harvest remains open | The full local re-walk is complete. Only source-limited individual placeholders remain. | 0 |
+
+The complete rows above must not return to the ranked queue unless a new audit reproduces a defect.
+
+### 11.6 Ranked atomic ledger
+
+R10 requires the loop to select an atomic slice. A large program can stay as a family, but the loop must split it before implementation.
+
+| Rank | Atomic slice or family gate | R | S | G | R8 | R9 | Score | Status and exact reason |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 1 | The Lost Tribe generated stage-1 objective | 2 | 3 | 3 | 1 | 1 | 18 | READY for source harvesting. It gates 13 prerequisite descendants. No exact local stage-1 implementation source was found. |
+| 2 | Gertrude's Cat Doogle-leaf acquisition | 2 | 3 | 3 | 1 | 1 | 18 | READY for source harvesting. It gates 12 prerequisite descendants. Local evidence proves use and identity, but no acquisition-route source was found. |
+| 3 | Fight Arena Khazard ogre resolver stats | 2 | 3 | 3 | 1 | 1 | 18 | DEFERRED — no authentic resolver-ready stat block exists in the inspected local evidence. |
+| 4 | All-pre-Evolution-of-Combat bestiary family | 2 | 3 | 2 | 1 | 1.5 | 18 | DEFERRED — select and remeasure one atomic encounter family before implementation. |
+| 5 | Mogres master-certification slice | 2 | 2 | 2 | 1 | 1.5 | 12 | READY. One family raises both Mazchna and Vannaka readiness. |
+| 6 | Snake hide acquisition route | 2 | 2 | 3 | 1 | 1 | 12 | READY for a sourced route. Two tanning actions consume the item, and no producer exists. |
+| 7 | Achievement Diary curation and wiring gate | 2 | 2 | 2 | 1 | 1.5 | 12 | DEFERRED — owner spot-check remains pending, and the generator mapping prerequisite must be fixed before wiring. |
+| 8 | Skill-mechanics residual family | 2 | 3 | 2 | 1 | 1 | 12 | READY to split. Start with `rc-method-selection`. Section 11.9 keeps exact deferrals for the other members. |
+| 9 | Daily Challenge reward XP | 3 | 3 | 1 | 1 | 1 | 9 | DEFERRED — no local server or cache table establishes the period payout value. |
+| 10 | Later quest-specific actions behind generated sentinels | 2 | 1 | 3 | 1 | 1.5 | 9 | DEFERRED — clear and remeasure the earlier generated stage before selecting a hidden action. |
+| 11 | Fancy boots and Fighter boots period art | 2 | 3 | 1 | 1 | 1.5 | 9 | DEFERRED — owner approval for generated replacement art remains pending. |
+| 12 | Herblore secondary acquisition remainder | 2 | 1 | 3 | 1 | 1 | 6 | DEFERRED — split one source-backed secondary after the complete Rune shard chain. |
+| 13 | Frost dragon bone route | 2 | 1 | 3 | 1 | 1 | 6 | DEFERRED — no period source maps the identified bone to an authentic acquisition route. |
+| 14 | Glacor boot component identities | 2 | 1 | 3 | 1 | 1 | 6 | DEFERRED — no inspected local source identifies the three authentic component items. |
+| 15 | Chaeldar missing-family gate | 2 | 1 | 2 | 1 | 1.5 | 6 | DEFERRED — select one source-backed family from the nine missing families. |
+| 16 | Kinship party simulation | 2 | 1 | 2 | 1 | 1.5 | 6 | DEFERRED — owner approval is required for P1 through P8. No current call-site count earns R8. |
+| 17 | Registered source-limited placeholders | 2 | 2 | 1 | 1 | 1 | 4 | DEFERRED — the complete local re-walk found no authoritative replacement value. Score one row again when new evidence exists. |
+| 18 | Explicit quest eligibility predicates | 2 | 1 | 2 | 1 | 1 | 4 | DEFERRED — build an atomic predicate census before implementation. |
+| 19 | Dungeoneering payout curves | 2 | 1 | 1 | 1 | 1.5 | 3 | DEFERRED — local code proves the fallback is live but does not establish the period payout curve. |
+| 20 | Later Slayer master readiness family | 1 | 1 | 2 | 1 | 1 | 2 | DEFERRED — select and remeasure one atomic missing family shared by Sumona and Duradel. |
+
+The bestiary and skill-mechanics rows are family gates. They keep a score under R2. They cannot enter implementation until R10 yields one atomic slice.
+
+The top ten are ranks 1 through 10 in this table. On equal scores, the smaller slice goes first under R10. Within equal-size slices, prerequisite leverage sets the order.
+
+### 11.7 Exact candidate evidence
+
+The generated-sentinel candidates with the largest prerequisite reach are:
+
+- The Lost Tribe: 13 descendants.
+- Underground Pass: 12 descendants.
+- Recipe for Disaster: Another Cook's Quest: 12 descendants.
+- Regicide: 11 descendants.
+
+The item or tool candidates with the largest prerequisite reach are:
+
+- Gertrude's Cat: 12 descendants.
+- Recipe for Disaster: Another Cook's Quest: 12 descendants.
+- Creature of Fenkenstrain: 10 descendants.
+
+The only current unresolved combat encounter is Fight Arena stage 8, `fight_arena_khazard_ogre_63`. The two missing required tools are Holy Grail stage 5 `Excalibur` and Smoking Kills stage 1 `Catspeak amulet`.
+
+Slayer readiness is:
+
+- Turael and Spria: 23 of 23.
+- Mazchna and Achtryn: 26 of 27.
+- Vannaka: 34 of 35.
+- Chaeldar: 25 of 34.
+- Sumona: 20 of 37.
+- Duradel and Lapalok: 15 of 35.
+
+Mogres is the shared next family for Mazchna and Vannaka. Chaeldar still lacks Fever spiders, Fungal magi, Grifolapines, Grifolaroos, Jungle strykewyrms, Kurasks, Trolls, Vyrewatch, and Warped tortoises.
+
+Sumona lacks 17 families. Duradel and Lapalok lack 20. Rank 20 requires a new atomic census before the loop selects one shared family.
+
+The diary generator rotates source skill types 17, 18, and 19. The correct targets are Firemaking 11, Woodcutting 8, and Fletching 9. The current wrong map is at `tools/generate_achievement_diary_data.py:556-582`.
+
+The harvest has 33 affected rows and 34 affected requirements. Source ID 982 has both type 18 and type 19. The diary ledger contains 25 of those 33 rows. The eight rows outside the ledger are source IDs 110, 199, 200, 246, 247, 250, 357, and 962.
+
+The read-only Darkan authorities are `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/achievements/AchievementDef.java:216-244` and `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/model/entity/player/Skills.java:77-78`. The generator fix exists on `goal/diary-skill-rotation-2026-08-30` but is not in this audit baseline.
+
+Two verification seams can cause false negatives:
+
+- `data.combat_data.COMBAT_ENEMY_DATA` has 197 base keys. `core/constants.py:818` adds four bone-source enemies with `COMBAT_ENEMY_DATA.update(bone_source_enemies_as_dict())`. Count the exported runtime registry to get 201.
+- `root_orphan_leverage` and `--rank-roots` do not compute quest descendants. Follow the transitive `required_quests[].quest_id` graph to reproduce the descendant counts above.
+
+### 11.8 Deferred register
+
+Use these exact reasons until an audit changes the underlying fact.
+
+| Item | Exact deferral reason |
+| --- | --- |
+| Fight Arena Khazard ogre resolver stats | No authentic resolver-ready stat block exists in the inspected local evidence. |
+| All-pre-Evolution-of-Combat bestiary family | Select and remeasure one atomic encounter family before implementation. |
+| Achievement Diary curation and wiring gate | Owner spot-check remains pending, and the generator mapping prerequisite must be fixed before wiring. |
+| Daily Challenge reward XP | No local server or cache table establishes the period payout value. |
+| Later quest-specific actions | Clear and remeasure the earlier generated stage before selecting a hidden action. |
+| Fancy boots and Fighter boots period art | Owner approval for generated replacement art remains pending. |
+| Herblore secondary acquisition remainder | Split one source-backed secondary after the complete Rune shard chain. |
+| Frost dragon bone route | No period source maps the identified bone to an authentic acquisition route. |
+| Glacor boot component identities | No inspected local source identifies the three authentic component items. |
+| Chaeldar missing-family gate | Select one source-backed family from the nine missing families. |
+| Kinship party simulation | Owner approval is required for P1 through P8. |
+| Registered source-limited placeholders | The complete local re-walk found no authoritative replacement value. Score one row again when new evidence exists. |
+| Explicit quest eligibility predicates | Build an atomic predicate census before implementation. |
+| Dungeoneering payout curves | Local code proves the fallback is live but does not establish the period payout curve. |
+| Later Slayer master readiness family | Select and remeasure one atomic missing family shared by Sumona and Duradel. |
+
+The queue uses no `blocked` status.
+
+### 11.9 Source map and accounting
+
+The source census has no unscored in-scope implementation item.
+
+The 45 gap-backlog rows have 29 final or rejected dispositions and 16 non-final records. The exact non-final map is:
+
+| Group | Exact non-final IDs | Disposition |
+| --- | --- | --- |
+| Hunter source residuals | `hunter-tracking-pitfall-snare`, `hunter-grenwall-herb-table` | Rank 8, score 12. DEFERRED — exact selectors, rates, or reward distributions remain unrecovered after the Darkan reconciliation. |
+| Hunter Farming dependency | `hunter-habitat-jadinko` | Rank 8, score 12. DEFERRED — the Farming runtime and persistent habitat configuration do not exist. |
+| Runecrafting source residuals | `rc-runespan`, `rc-abyss`, `rc-zmi-gop-wickedhood` | Rank 8, score 12. DEFERRED — period session mechanics, route rates, or exact output rolls remain unrecovered. |
+| Runecrafting method selection | `rc-method-selection` | Rank 8, score 12. READY — the owner ruling is settled; select one current unlocked-method slice. |
+| Firemaking source residuals | `fm-bonfires`, `fm-pyres-beacons` | Rank 8, score 12. DEFERRED — exact odds, reward rolls, or timers remain unreconciled. |
+| Firemaking owner decision | `fm-barbarian-bow-lighting` | OUT OF SCOPE under section 2 until the owner decides the representation. |
+| Smithing residuals | `smith-artisan-burial`, `smith-blastfurnace-goldsmith` | Rank 8, score 12. DEFERRED — exact pipe timing and the remaining Darkan mechanics are unresolved. |
+| Herblore residual | `herb-overload-sanfew` | Rank 8, score 12. DEFERRED — Sanfew stages, poison application, and combat-potion runtime work remain. |
+| Woodcutting residual | `wc-arctic-euc-cursed` | Rank 8, score 12. DEFERRED — Cursed Magic requires the absent Spirit of Summer quest substrate. |
+| Mining residual | `mine-lrc-stars` | Rank 8, score 12. DEFERRED — the Living mineral yield conflict of 5–20 versus 5–24 remains unresolved. |
+| Fishing residual | `fish-trawler-flingers` | Rank 8, score 12. DEFERRED — the Daemonheim session and temporary inventory do not exist. |
+
+The 53 future-work headings have 31 complete-only headings, 21 active or residual headings, and one merged diary duplicate. The active or residual map is:
+
+| Active or residual Kanban card | Disposition |
+| --- | --- |
+| Existing-skill parity ledger | Ranks 5, 8, 15, 19, and 20. |
+| Slayer | Ranks 5, 15, and 20. |
+| Summoning | Rank 8. |
+| Dungeoneering depth | Ranks 8, 17, and 19. |
+| Quest-by-quest fidelity across the complete definition catalog | Ranks 1, 2, 3, 10, and 18. |
+| Complete pre-Evolution-of-Combat bestiary | Rank 4. |
+| Large special methods and activities | Ranks 8 and 16. |
+| Missing skill server behavior | Rank 8. |
+| Fancy and fighter boots have no art | Rank 11. |
+| Whole-save deep-copy convention | Score 0. The sweep classified the 44 retained sites as deliberate. |
+| Shared modular list search and filters | Score 0 for the shared substrate. The Slayer filter residual is DEFERRED — it waits on the Slayer runtime delivered by ranks 5, 15, and 20. |
+| In-product help and mechanics reference | Score 0. The card records implementation and review as closed. |
+| Activities, minigames, D&Ds, and reward shops | Ranks 8 and 16. |
+| Bosses and instanced Combat | Ranks 3 and 4. |
+| Acquisition and item/equipment completeness | Ranks 2, 6, 12, 13, and 14. |
+| Achievement diaries, clues, collections, and one-time content | Ranks 7, 8, and 10. |
+| Random events and timed world content | OUT OF SCOPE under section 2 while owner design decisions remain open. |
+| Road to Restoration comparator | OUT OF SCOPE under section 2 while owner adopt, adapt, or reject decisions remain open. |
+| Grand Exchange | Score 0. The card records full closure. |
+| Level 1-99 time and economy balance | Ranks 17 and 19 for source-limited values. |
+| Release readiness | OUT OF SCOPE under section 2 as owner playtest and external-release work. |
+
+The remaining source families map as follows:
+
+- All 58 design-queue headings map to a score-0 correction, ranks 1 through 20, or an owner decision under section 2. Audit and incident records do not create duplicate work.
+- The 179 placeholder rows map to rank 17 unless this ledger names a separate row.
+- The 69 loop records have 66 checked records and 3 open records. Two open records describe the same rank-13 Frost dragon item. The last open record is this matrix update.
+- All 10 breadth-tranche rows are complete and stay at score 0.
+- Thirteen encounter rows supply candidate evidence for the ranked ledger. The diary encounter row merges into rank 7.
+- Both diary gate records merge into rank 7.
+- The papercut corpus remains one append-only source unit. It does not become one score per entry.
+- Two named papercut branches are complete. The reachability-check branch is a maintenance rider and stays outside the scored top ten.
+- Owner decisions and owner playtest passes stay outside the matrix under section 2.
+- Rejected claims keep their source disposition. They do not receive a live implementation score.
+- Complete claims stay at score 0. They do not enter the top ten.
+
+The Achievement Diary row keeps an implementation score because R2 requires one. Its owner gate changes only the status. The Kinship row uses the same rule.
+
+### 11.10 Maintenance instructions
+
+After each merged batch, do these steps in order:
+
+1. Check the R3 override lane first.
+2. Run the current audits and record their exact counts.
+3. Re-score every live row with the formula in section 3.
+4. Give R8 only when one atomic change affects at least five families or call sites.
+5. Give R9 only when the evidence for that repair already exists on local disk.
+6. Split a family into one atomic slice before implementation.
+7. Record one exact reason for each `DEFERRED` row.
+8. Keep complete work at score 0.
+9. Append a new dated score audit. Do not edit this section or sections 1 through 10.
+10. Run `/opt/homebrew/bin/python3 tools/audit_docs.py` before promotion.
+
+The ledger outranks old queue prose when the two sources disagree. A later audit can change a score only when it records the exact fact that changed.
