@@ -7457,35 +7457,6 @@
       "status": "different",
       "wiki": "rs3"
     },
-    "hunteritems/withered_vine.png": {
-      "cross_wiki_lookup": null,
-      "earlier_revision": {
-        "archive_url": "https://runescape.wiki/images/archive/20140511082658%21Withered_vine.png?2e5e9",
-        "sha1": "bf1eeb11c854f0f465ce384a966a468064eec81e",
-        "size": 366,
-        "timestamp": "2010-11-25T04:29:18Z"
-      },
-      "file_title": "Withered vine.png",
-      "provenance_source_wiki": "rs3",
-      "recorded_revision": {
-        "image_url": "https://runescape.wiki/images/Withered_vine.png?a1335",
-        "sha1": "f945f32a2b70ea3ddcea4687e9a335a4ac1ce199",
-        "size": 463,
-        "timestamp": "2016-05-02T09:21:04Z"
-      },
-      "source_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140511082658%21Withered_vine.png?2e5e9",
-          "sha1": "bf1eeb11c854f0f465ce384a966a468064eec81e",
-          "size": 366,
-          "timestamp": "2010-11-25T04:29:18Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "status": "different",
-      "wiki": "rs3"
-    },
     "icon/achievement_icon.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -16010,16 +15981,16 @@
       "queried": 279,
       "unresolved": 83
     },
-    "different": 138,
+    "different": 137,
     "needs_inspection": 135,
     "no_earlier_revision": 223,
     "pending": 0,
-    "post_cutoff_assets": 617,
+    "post_cutoff_assets": 616,
     "unresolved": 121,
     "unresolved_reasons": {
       "The OSRS source lookup had no pre-cutoff revision; the RS3 same-title lookup was unresolved: The requested file page is now missing from the queried wiki.": 83,
       "The requested file page is now missing from the queried wiki.": 38
     }
   },
-  "updated_at": "2026-08-22T00:54:41.477241Z"
+  "updated_at": "2026-08-30T08:39:46.335596Z"
 }
