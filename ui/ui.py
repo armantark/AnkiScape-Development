@@ -4897,14 +4897,12 @@ def show_main_menu(
 
     tabs = QTabWidget()
     tabs.setDocumentMode(True)
-    tabs.setIconSize(QSize(16, 16))
+    tabs.setIconSize(QSize(18, 18))
+    # Document mode disables expansion; compact natural widths fit before spanning.
     tab_bar = tabs.tabBar()
-    tab_bar.setExpanding(False)
-    tab_bar.setUsesScrollButtons(True)
-    tab_bar.setElideMode(Qt.TextElideMode.ElideNone)
-    # One-pixel padding preserves the 16-pixel headroom gate at 125% Anki fonts.
+    tab_bar.setExpanding(True)
     tab_bar.setStyleSheet(
-        "QTabBar::tab { min-width: 0px; padding-left: 1px; padding-right: 1px; }"
+        "QTabBar::tab { min-width: 0px; padding-left: 5px; padding-right: 5px; }"
     )
 
     def _set_global_tab_icon(tab: QWidget, filename: str) -> None:

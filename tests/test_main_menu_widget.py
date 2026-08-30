@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QFont, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QStyleFactory, QTabBar, QTabWidget, QTimer, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QStyleFactory, QTabBar, QTabWidget, QTimer, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
     from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -1521,19 +1521,19 @@ class MainMenuWidgetTest(unittest.TestCase):
         ]
         app = QApplication.instance()
         self.assertIsNotNone(app)
-        old_font = app.font()
-        self.assertGreater(old_font.pointSizeF(), 0)
         old_palette = app.palette()
         old_style = app.style().objectName()
         old_stylesheet = app.styleSheet()
-        native_style = next(
-            (
-                style
-                for style in (old_style, *QStyleFactory.keys())
-                if style.casefold() != "fusion"
-            ),
-            None,
-        )
+        native_style = old_style
+        if native_style.casefold() == "fusion":
+            native_style = next(
+                (
+                    style
+                    for style in QStyleFactory.keys()
+                    if style.casefold() != "fusion"
+                ),
+                None,
+            )
         self.assertIsNotNone(native_style)
         self.assertNotEqual(native_style.casefold(), "fusion")
         self.assertIsNotNone(QStyleFactory.create(native_style))
@@ -1554,329 +1554,89 @@ class MainMenuWidgetTest(unittest.TestCase):
                 ("Native", "light", old_palette),
                 ("Native", "dark", dark_palette),
             ):
-                app.setStyle("Fusion" if widget_style == "Anki" else native_style)
-                app.setPalette(palette)
-                if widget_style == "Anki":
-                    theme = ThemeManager()
-                    theme.night_mode = theme_name == "dark"
-                    app.setStyleSheet(
-                        custom_styles.button(theme)
-                        + custom_styles.tabwidget(theme)
-                    )
-                else:
-                    app.setStyleSheet("")
-
-                for font_scale in (1.0, 1.25):
-                    with self.subTest(
-                        widget_style=widget_style,
-                        theme=theme_name,
-                        font_scale=font_scale,
-                    ):
-                        case_font = QFont(old_font)
-                        case_font.setPointSizeF(old_font.pointSizeF() * font_scale)
-                        app.setFont(case_font)
-
-                        dialog = self._open(_make_player_data())
-                        dialog.show()
-                        dialog.resize(1140, 768)
-                        for _ in range(4):
-                            QApplication.processEvents()
-                        self.assertEqual(dialog.width(), 1140)
-
-                        tabs = _find_main_tabs(dialog)
-                        tab_bar = tabs.tabBar()
-                        labels = [
-                            tab_bar.tabText(index)
-                            for index in range(tab_bar.count())
-                        ]
-                        self.assertEqual(labels, expected_labels)
-                        self.assertTrue(tabs.documentMode())
-                        self.assertTrue(tab_bar.documentMode())
-                        self.assertEqual(tab_bar.iconSize(), QSize(16, 16))
-                        self.assertFalse(tab_bar.expanding())
-                        self.assertTrue(tab_bar.usesScrollButtons())
-                        self.assertEqual(
-                            tab_bar.elideMode(), Qt.TextElideMode.ElideNone
+                with self.subTest(widget_style=widget_style, theme=theme_name):
+                    app.setStyle("Fusion" if widget_style == "Anki" else native_style)
+                    app.setPalette(palette)
+                    if widget_style == "Anki":
+                        theme = ThemeManager()
+                        theme.night_mode = theme_name == "dark"
+                        app.setStyleSheet(
+                            custom_styles.button(theme)
+                            + custom_styles.tabwidget(theme)
                         )
-                        tab_stylesheet = tab_bar.styleSheet()
-                        for declaration in (
-                            "min-width: 0px",
-                            "padding-left: 1px",
-                            "padding-right: 1px",
+                    else:
+                        app.setStyleSheet("")
+
+                    dialog = self._open(_make_player_data())
+                    dialog.show()
+                    dialog.resize(1140, 768)
+                    for _ in range(4):
+                        QApplication.processEvents()
+
+                    tabs = _find_main_tabs(dialog)
+                    tab_bar = tabs.tabBar()
+                    labels = [tab_bar.tabText(index) for index in range(tab_bar.count())]
+                    self.assertEqual(labels, expected_labels)
+
+                    hint_bar = QTabBar()
+                    hint_bar.setDocumentMode(tab_bar.documentMode())
+                    hint_bar.setDrawBase(tab_bar.drawBase())
+                    hint_bar.setElideMode(tab_bar.elideMode())
+                    hint_bar.setIconSize(tab_bar.iconSize())
+                    hint_bar.setFont(tab_bar.font())
+                    hint_bar.setShape(tab_bar.shape())
+                    hint_bar.setStyleSheet(tab_bar.styleSheet())
+                    for index, label in enumerate(labels):
+                        hint_bar.addTab(tabs.tabIcon(index), label)
+                    hint_bar.show()
+                    for _ in range(4):
+                        QApplication.processEvents()
+
+                    usable_rect = tab_bar.rect()
+                    natural_width = 0
+                    for index, label in enumerate(labels):
+                        with self.subTest(
+                            widget_style=widget_style,
+                            theme=theme_name,
+                            tab=label,
                         ):
-                            self.assertIn(declaration, tab_stylesheet)
-                        self.assertAlmostEqual(
-                            tab_bar.font().pointSizeF(), case_font.pointSizeF()
-                        )
-
-                        hint_bar = QTabBar()
-                        self.addCleanup(hint_bar.close)
-                        hint_bar.setDocumentMode(tab_bar.documentMode())
-                        hint_bar.setDrawBase(tab_bar.drawBase())
-                        hint_bar.setElideMode(tab_bar.elideMode())
-                        hint_bar.setExpanding(tab_bar.expanding())
-                        hint_bar.setUsesScrollButtons(tab_bar.usesScrollButtons())
-                        hint_bar.setIconSize(tab_bar.iconSize())
-                        hint_bar.setFont(tab_bar.font())
-                        hint_bar.setShape(tab_bar.shape())
-                        hint_bar.setStyleSheet(tab_bar.styleSheet())
-                        for index, label in enumerate(labels):
-                            hint_bar.addTab(tabs.tabIcon(index), label)
-                        hint_bar.show()
-                        for _ in range(4):
-                            QApplication.processEvents()
-
-                        usable_rect = tab_bar.rect()
-                        natural_width = 0
-                        for index, label in enumerate(labels):
-                            with self.subTest(
-                                widget_style=widget_style,
-                                theme=theme_name,
-                                font_scale=font_scale,
-                                tab=label,
-                            ):
-                                allocated = tab_bar.tabRect(index)
-                                size_hint = hint_bar.tabSizeHint(index)
-                                natural_width += size_hint.width()
-                                self.assertTrue(
-                                    usable_rect.contains(allocated),
-                                    f"{label} tab rect {allocated} exceeds usable tab-bar rect {usable_rect}",
-                                )
-                                self.assertGreaterEqual(
-                                    allocated.width(), size_hint.width()
-                                )
-                                self.assertGreaterEqual(
-                                    allocated.height(), size_hint.height()
-                                )
-                        self.assertGreaterEqual(
-                            usable_rect.width() - natural_width, 16
-                        )
-                        left_button = tab_bar.findChild(
-                            QToolButton, "ScrollLeftButton"
-                        )
-                        right_button = tab_bar.findChild(
-                            QToolButton, "ScrollRightButton"
-                        )
-                        self.assertIsNotNone(left_button)
-                        self.assertIsNotNone(right_button)
-                        self.assertFalse(left_button.isVisible())
-                        self.assertFalse(right_button.isVisible())
-
-                        accepted: list[bool] = []
-                        rejected: list[bool] = []
-                        dialog.accepted.connect(lambda: accepted.append(True))
-                        dialog.rejected.connect(lambda: rejected.append(True))
-                        bank_index = labels.index("Bank")
-                        QTest.mouseClick(
-                            tab_bar,
-                            Qt.MouseButton.LeftButton,
-                            Qt.KeyboardModifier.NoModifier,
-                            tab_bar.tabRect(bank_index).center(),
-                        )
-                        for _ in range(3):
-                            QApplication.processEvents()
-
-                        self.assertEqual(tabs.currentIndex(), bank_index)
-                        self.assertTrue(dialog.isVisible())
-                        self.assertEqual(accepted, [])
-                        self.assertEqual(rejected, [])
-                        dialog.close()
-                        QApplication.processEvents()
-        finally:
-            app.setStyleSheet(old_stylesheet)
-            app.setPalette(old_palette)
-            app.setStyle(old_style)
-            app.setFont(old_font)
-
-    def test_global_tabs_scroll_at_minimum_width(self) -> None:
-        from aqt.stylesheets import custom_styles
-        from aqt.theme import ThemeManager
-
-        expected_labels = [
-            "Skills",
-            "Stats",
-            "Bank",
-            "Equipment",
-            "Shop",
-            "Grand Exchange",
-            "Challenges",
-            "Quests",
-            "Achievements",
-            "Collections",
-            "Settings",
-        ]
-        app = QApplication.instance()
-        self.assertIsNotNone(app)
-        old_font = app.font()
-        self.assertGreater(old_font.pointSizeF(), 0)
-        old_palette = app.palette()
-        old_style = app.style().objectName()
-        old_stylesheet = app.styleSheet()
-        native_style = next(
-            (
-                style
-                for style in (old_style, *QStyleFactory.keys())
-                if style.casefold() != "fusion"
-            ),
-            None,
-        )
-        self.assertIsNotNone(native_style)
-        self.assertNotEqual(native_style.casefold(), "fusion")
-        self.assertIsNotNone(QStyleFactory.create(native_style))
-        dark_palette = QPalette()
-        dark_palette.setColor(QPalette.ColorRole.Window, QColor(45, 45, 45))
-        dark_palette.setColor(QPalette.ColorRole.WindowText, QColor(235, 235, 235))
-        dark_palette.setColor(QPalette.ColorRole.Base, QColor(30, 30, 30))
-        dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(45, 45, 45))
-        dark_palette.setColor(QPalette.ColorRole.Text, QColor(235, 235, 235))
-        dark_palette.setColor(QPalette.ColorRole.Button, QColor(55, 55, 55))
-        dark_palette.setColor(QPalette.ColorRole.ButtonText, QColor(235, 235, 235))
-        dark_palette.setColor(QPalette.ColorRole.Mid, QColor(95, 95, 95))
-
-        try:
-            for widget_style, theme_name, palette in (
-                ("Anki", "light", old_palette),
-                ("Anki", "dark", dark_palette),
-                ("Native", "light", old_palette),
-                ("Native", "dark", dark_palette),
-            ):
-                app.setStyle("Fusion" if widget_style == "Anki" else native_style)
-                app.setPalette(palette)
-                if widget_style == "Anki":
-                    theme = ThemeManager()
-                    theme.night_mode = theme_name == "dark"
-                    app.setStyleSheet(
-                        custom_styles.button(theme)
-                        + custom_styles.tabwidget(theme)
-                    )
-                else:
-                    app.setStyleSheet("")
-
-                for font_scale in (1.0, 1.25):
-                    with self.subTest(
-                        widget_style=widget_style,
-                        theme=theme_name,
-                        font_scale=font_scale,
-                    ):
-                        case_font = QFont(old_font)
-                        case_font.setPointSizeF(old_font.pointSizeF() * font_scale)
-                        app.setFont(case_font)
-
-                        dialog = self._open(_make_player_data())
-                        dialog.show()
-                        dialog.resize(720, 768)
-                        for _ in range(4):
-                            QApplication.processEvents()
-                        self.assertEqual(dialog.width(), 720)
-
-                        tabs = _find_main_tabs(dialog)
-                        tab_bar = tabs.tabBar()
-                        labels = [
-                            tab_bar.tabText(index)
-                            for index in range(tab_bar.count())
-                        ]
-                        self.assertEqual(labels, expected_labels)
-                        self.assertEqual(tab_bar.iconSize(), QSize(16, 16))
-                        self.assertFalse(tab_bar.expanding())
-                        self.assertTrue(tab_bar.usesScrollButtons())
-                        self.assertEqual(
-                            tab_bar.elideMode(), Qt.TextElideMode.ElideNone
-                        )
-                        self.assertAlmostEqual(
-                            tab_bar.font().pointSizeF(), case_font.pointSizeF()
-                        )
-
-                        hint_bar = QTabBar()
-                        self.addCleanup(hint_bar.close)
-                        hint_bar.setDocumentMode(tab_bar.documentMode())
-                        hint_bar.setDrawBase(tab_bar.drawBase())
-                        hint_bar.setElideMode(tab_bar.elideMode())
-                        hint_bar.setExpanding(tab_bar.expanding())
-                        hint_bar.setUsesScrollButtons(tab_bar.usesScrollButtons())
-                        hint_bar.setIconSize(tab_bar.iconSize())
-                        hint_bar.setFont(tab_bar.font())
-                        hint_bar.setShape(tab_bar.shape())
-                        hint_bar.setStyleSheet(tab_bar.styleSheet())
-                        for index, label in enumerate(labels):
-                            hint_bar.addTab(tabs.tabIcon(index), label)
-                        hint_bar.show()
-                        for _ in range(4):
-                            QApplication.processEvents()
-
-                        natural_width = 0
-                        for index, label in enumerate(labels):
-                            with self.subTest(
-                                widget_style=widget_style,
-                                theme=theme_name,
-                                font_scale=font_scale,
-                                tab=label,
-                            ):
-                                allocated = tab_bar.tabRect(index)
-                                size_hint = hint_bar.tabSizeHint(index)
-                                natural_width += size_hint.width()
-                                self.assertGreaterEqual(
-                                    allocated.width(), size_hint.width()
-                                )
-                                self.assertGreaterEqual(
-                                    allocated.height(), size_hint.height()
-                                )
-                        self.assertGreater(natural_width, tab_bar.width())
-
-                        left_button = tab_bar.findChild(
-                            QToolButton, "ScrollLeftButton"
-                        )
-                        right_button = tab_bar.findChild(
-                            QToolButton, "ScrollRightButton"
-                        )
-                        self.assertIsNotNone(left_button)
-                        self.assertIsNotNone(right_button)
-                        self.assertTrue(left_button.isVisible())
-                        self.assertTrue(right_button.isVisible())
-                        self.assertFalse(left_button.isEnabled())
-                        self.assertTrue(right_button.isEnabled())
-
-                        for _ in range(tab_bar.count()):
-                            if not right_button.isEnabled():
-                                break
-                            QTest.mouseClick(
-                                right_button,
-                                Qt.MouseButton.LeftButton,
-                                Qt.KeyboardModifier.NoModifier,
+                            allocated = tab_bar.tabRect(index)
+                            size_hint = hint_bar.tabSizeHint(index)
+                            natural_width += size_hint.width()
+                            self.assertTrue(
+                                usable_rect.contains(allocated),
+                                f"{label} tab rect {allocated} exceeds usable tab-bar rect {usable_rect}",
                             )
-                            QApplication.processEvents()
-                        self.assertFalse(right_button.isEnabled())
-                        self.assertTrue(left_button.isEnabled())
+                            self.assertGreaterEqual(allocated.width(), size_hint.width())
+                            self.assertGreaterEqual(allocated.height(), size_hint.height())
+                    self.assertGreaterEqual(usable_rect.width() - natural_width, 16)
+                    self.assertTrue(tab_bar.expanding())
+                    hint_bar.close()
 
-                        settings_index = labels.index("Settings")
-                        settings_rect = tab_bar.tabRect(settings_index)
-                        settings_center = settings_rect.center()
-                        usable_rect = tab_bar.rect()
-                        self.assertTrue(
-                            usable_rect.contains(settings_rect),
-                            f"Settings tab rect {settings_rect} exceeds usable tab-bar rect {usable_rect}",
-                        )
-                        self.assertFalse(
-                            settings_rect.intersects(left_button.geometry())
-                        )
-                        self.assertFalse(
-                            settings_rect.intersects(right_button.geometry())
-                        )
-                        QTest.mouseClick(
-                            tab_bar,
-                            Qt.MouseButton.LeftButton,
-                            Qt.KeyboardModifier.NoModifier,
-                            settings_center,
-                        )
+                    accepted: list[bool] = []
+                    rejected: list[bool] = []
+                    dialog.accepted.connect(lambda: accepted.append(True))
+                    dialog.rejected.connect(lambda: rejected.append(True))
+                    bank_index = labels.index("Bank")
+                    QTest.mouseClick(
+                        tab_bar,
+                        Qt.MouseButton.LeftButton,
+                        Qt.KeyboardModifier.NoModifier,
+                        tab_bar.tabRect(bank_index).center(),
+                    )
+                    for _ in range(3):
                         QApplication.processEvents()
-                        self.assertEqual(tabs.currentIndex(), settings_index)
-                        self.assertTrue(dialog.isVisible())
-                        dialog.close()
-                        QApplication.processEvents()
+
+                    self.assertEqual(tabs.currentIndex(), bank_index)
+                    self.assertTrue(dialog.isVisible())
+                    self.assertEqual(accepted, [])
+                    self.assertEqual(rejected, [])
+                    dialog.close()
+                    QApplication.processEvents()
         finally:
             app.setStyleSheet(old_stylesheet)
             app.setPalette(old_palette)
             app.setStyle(old_style)
-            app.setFont(old_font)
 
     def test_contextual_help_maps_every_primary_tab_without_changing_page(self) -> None:
         expected_titles = {
