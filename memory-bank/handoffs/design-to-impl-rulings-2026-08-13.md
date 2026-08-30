@@ -139,3 +139,55 @@ the main quota is also over. Recorded through the goal's own pause mechanism in
 `memory-bank/GOAL-BLOCKED.md`, which the goal text accepts as satisfying it.
 That file names the blocker, what was tried, and the single unblocking
 condition, and must be deleted before work resumes.
+
+## 10. Queue-audit checkpoint — 2026-08-30
+
+This audit uses `main` commit `d51f0f84df4d4cea3ab307954a01562f0b71f52d`.
+It preserves sections 1 through 9 without edits.
+The next section will apply the R4 formula after this checkpoint.
+
+### Override lane verification
+
+The cadence override defect is fixed.
+`sanitize_cadence_profile_state_pure` still accepts nonnegative integers at
+`logic/cadence_kernel.py:107-127`.
+`advance_cadence_pure` now caps persisted credit at
+`logic/cadence_kernel.py:243-253` before rate arithmetic.
+A pure probe used a credit of `10^1000` with threshold `10`.
+The call returned credit `0`, emitted one opportunity, and raised no exception.
+No dedicated oversized persisted-credit regression test exists.
+The current override lane is empty.
+
+### Section 8 verification
+
+| recorded claim | current result | current evidence |
+| --- | --- | --- |
+| `311` unsatisfiable quest steps | Still false. No tracked audit emits this measure. The current fixed point has 148 blocked quest-stage products and 284 unresolved actions. | `tools/audit_item_reachability.py:1950-1965`; `tools/audit_item_reachability.py:2036-2057` |
+| Max requires 24 of 25 skills | Still false. Dungeoneering is partial and trainable. Floor completion still returns Dungeoneering XP. | `core/skill_registry.py:300-308`; `logic/dungeoneering_logic.py:2686-2702` |
+| 31 direct-action handlers have no shared seam | Still false. A fresh Abstract Syntax Tree scan found 54 handlers, 54 seam calls, and 0 bypasses. | `memory-bank/design-thread-queue.md:1738-1744`; `__init__.py:1020` |
+| Wicked hood has art, but Evil Tree kindling does not | Now fully false. Both asset rows and both files exist. | `assets_provenance.json:36954`; `assets_provenance.json:48402`; `woodcuttingitems/evil_tree_kindling.png:1` |
+
+The direct-action correction in section 8 also contains a stale follow-up.
+The stated 30-handler migration now has zero open handlers.
+The art correction also has no open art row.
+
+### New stale claims found by this audit
+
+| location | stale claim | current evidence |
+| --- | --- | --- |
+| Section 5 row 1 | `167` quest definitions are absent. | The generated catalog has 194 rows. Two miniquests make 196 definitions. See `generated/quest_catalog_generated.py:12` and `data/quest_data.py:10844-10914`. |
+| Section 5 row 3 | 30 of 54 direct-action handlers bypass the undo seam. | The fresh scan found 0 bypasses. See `memory-bank/design-thread-queue.md:1738-1744`. |
+| Section 5 row 5 | Quest rewards skip the one-clue filter. | Quest completion calls the central filter at `logic_pure/logic_pure_quest.py:1530-1537`. |
+| Section 5 row 8 | Evil Tree kindling is the last stale art row. | The asset and provenance row exist at `woodcuttingitems/evil_tree_kindling.png:1` and `assets_provenance.json:48402`. |
+| Section 5 row 10 | All four housekeeping records remain open. | The pause record is checked at `memory-bank/loop-queue.md:200`. The roadmap uses the current skill model at `memory-bank/roadmap.md:8`. The GPT art row remains stale at `memory-bank/gpt-deferred-queue.md:21`. |
+
+The other section 5 premises still hold at this checkpoint.
+`COMBAT_ENEMY_DATA` still records 130 enemies at
+`memory-bank/future-work-kanban.md:1374`.
+Daily Challenge XP remains registered at
+`memory-bank/placeholder-values.md:71`.
+The placeholder register has 179 rows.
+Chaeldar remains at 25 of 34 families at
+`memory-bank/future-work-kanban.md:810`.
+The Dungeoneering floor XP curve remains registered at
+`memory-bank/placeholder-values.md:191`.
