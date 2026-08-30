@@ -2073,7 +2073,49 @@ def main() -> int:
         metavar="N",
         help="Print the N root acquisitions with the largest transitive item gain.",
     )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Check the report against pinned audit counts.",
+    )
+    parser.add_argument(
+        "--actions",
+        type=int,
+        metavar="N",
+        help="Expected report action count for --check.",
+    )
+    parser.add_argument(
+        "--reachable-items",
+        type=int,
+        metavar="N",
+        help="Expected report reachable item count for --check.",
+    )
+    parser.add_argument(
+        "--orphan-inputs",
+        type=int,
+        metavar="N",
+        help="Expected report orphan input count for --check.",
+    )
+    parser.add_argument(
+        "--blocked-actions",
+        type=int,
+        metavar="N",
+        help="Expected report blocked action count for --check.",
+    )
     args = parser.parse_args()
+    if args.check:
+        missing_pins = [
+            option
+            for option, value in (
+                ("--actions", args.actions),
+                ("--reachable-items", args.reachable_items),
+                ("--orphan-inputs", args.orphan_inputs),
+                ("--blocked-actions", args.blocked_actions),
+            )
+            if value is None
+        ]
+        if missing_pins:
+            parser.error(f"--check requires {', '.join(missing_pins)}")
     report = build_reachability_report()
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
@@ -2100,6 +2142,28 @@ def main() -> int:
         )
         for row in report["orphan_inputs"]:
             print(f"- {row['item']}: {', '.join(row['consumers'][:4])}")
+    if args.check:
+        mismatches = [
+            (field, expected, observed)
+            for field, expected, observed in (
+                ("actions", args.actions, report["action_count"]),
+                (
+                    "reachable-items",
+                    args.reachable_items,
+                    report["reachable_item_count"],
+                ),
+                ("orphan-inputs", args.orphan_inputs, report["orphan_input_count"]),
+                (
+                    "blocked-actions",
+                    args.blocked_actions,
+                    report["unresolved_action_count"],
+                ),
+            )
+            if expected != observed
+        ]
+        for field, expected, observed in mismatches:
+            print(f"{field}: expected {expected}, observed {observed}", file=sys.stderr)
+        return int(bool(mismatches))
     return 1 if report["orphan_input_count"] else 0
 
 

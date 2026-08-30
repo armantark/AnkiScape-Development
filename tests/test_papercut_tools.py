@@ -1,10 +1,11 @@
 import io
+import json
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -305,6 +306,114 @@ class PapercutToolTests(unittest.TestCase):
             returncodes = {returncode for returncode, _output in results.values()}
             self.assertEqual(len(returncodes), 1)
             self.assertEqual(returncodes.pop(), int(bool(orphan_input_count)))
+
+    def test_reachability_check_mode_requires_and_compares_all_pins(self):
+        from tools import audit_item_reachability
+
+        report = {
+            "action_count": 17,
+            "reachable_item_count": 23,
+            "orphan_input_count": 2,
+            "unresolved_action_count": 5,
+            "orphan_inputs": [],
+            "root_orphan_leverage": [],
+        }
+
+        def run_main(*args):
+            output = io.StringIO()
+            errors = io.StringIO()
+            with (
+                patch.object(sys, "argv", ["audit_item_reachability.py", *args]),
+                patch.object(
+                    audit_item_reachability,
+                    "build_reachability_report",
+                    return_value=report,
+                ),
+                redirect_stdout(output),
+                redirect_stderr(errors),
+            ):
+                returncode = audit_item_reachability.main()
+            return returncode, output.getvalue(), errors.getvalue()
+
+        matching_args = (
+            "--json",
+            "--check",
+            "--actions",
+            "17",
+            "--reachable-items",
+            "23",
+            "--orphan-inputs",
+            "2",
+            "--blocked-actions",
+            "5",
+        )
+        returncode, output, errors = run_main(*matching_args)
+
+        self.assertEqual(returncode, 0)
+        self.assertEqual(json.loads(output), report)
+        self.assertEqual(errors, "")
+
+        mismatching_args = (
+            "--json",
+            "--check",
+            "--actions",
+            "16",
+            "--reachable-items",
+            "24",
+            "--orphan-inputs",
+            "1",
+            "--blocked-actions",
+            "6",
+        )
+        returncode, output, errors = run_main(*mismatching_args)
+
+        self.assertEqual(returncode, 1)
+        self.assertEqual(json.loads(output), report)
+        self.assertEqual(
+            errors.splitlines(),
+            [
+                "actions: expected 16, observed 17",
+                "reachable-items: expected 24, observed 23",
+                "orphan-inputs: expected 1, observed 2",
+                "blocked-actions: expected 6, observed 5",
+            ],
+        )
+
+        for field, expected, observed in (
+            ("actions", 16, 17),
+            ("reachable-items", 24, 23),
+            ("orphan-inputs", 1, 2),
+            ("blocked-actions", 6, 5),
+        ):
+            single_mismatch_args = list(matching_args)
+            pin_index = single_mismatch_args.index(f"--{field}") + 1
+            single_mismatch_args[pin_index] = str(expected)
+            with self.subTest(field=field):
+                returncode, output, errors = run_main(*single_mismatch_args)
+                self.assertEqual(returncode, 1)
+                self.assertEqual(json.loads(output), report)
+                self.assertEqual(
+                    errors,
+                    f"{field}: expected {expected}, observed {observed}\n",
+                )
+
+        errors = io.StringIO()
+        with (
+            patch.object(
+                sys,
+                "argv",
+                ["audit_item_reachability.py", "--check", "--actions", "17"],
+            ),
+            redirect_stderr(errors),
+            self.assertRaises(SystemExit) as raised,
+        ):
+            audit_item_reachability.main()
+
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn(
+            "--check requires --reachable-items, --orphan-inputs, --blocked-actions",
+            errors.getvalue(),
+        )
 
     def test_list_truncation_refuses_to_look_complete(self):
         completed = subprocess.run(

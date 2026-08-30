@@ -34,6 +34,10 @@ exists, which is the shape of a partially loaded module. Both lanes passed
 immediately afterwards when run sequentially. If you see an ImportError naming a
 function you can grep at column zero, check whether the other lane was running.
 
+For compound `&&` verification chains, run
+`python3 tools/audit_item_reachability.py --check --actions <N> --reachable-items <N> --orphan-inputs <N> --blocked-actions <N>`
+so the chain advances only when all four pinned counts match.
+
 ## Debug logging during development
 
 This add-on now uses a centralized, rotating debug log stored next to the package as `ankiscape_debug.log`.
