@@ -155,6 +155,10 @@ The four final findings were checked against the catalog, harvest, cited symbols
 
 Disposition: accepted, with the reported count corrected. The harvest has exactly 25 ledger rows whose requirements use source skill types 17, 18, or 19. Source deed verbs and shipped action identities consistently prove 17 as Firemaking, 18 as Woodcutting, and 19 as Fletching, while the generated catalog rotates them to Woodcutting, Fletching, and Firemaking. The final-review text mentioned both 25 affected rows and a 24-row update; direct enumeration resolves the canonical count as 25 because row 273 is additional to the 13 first-range rows and 11 later rows. All 25 notes now carry the exact catalog label, deed-proven source skill, and deed-evidence warning. The generator map remains unchanged and blocks later wiring until repaired.
 
+Resolution — 2026-08-30: The generator is repaired on branch
+`goal/diary-skill-rotation-2026-08-30`; the 25 ledger notes now state the
+corrected labels without the obsolete wiring blocker.
+
 ### 21. Rows 311 and 312: unsupported Frozen qualifier
 
 Disposition: accepted. Row 311's cited `action_id='enter'` seam proves expedition entry, not a theme predicate, and row 312's `dungeoneering.floors_completed` counter increments on floor completion without encoding a theme in the achievement predicate. The two designed triggers now say "a floor" and "a Daemonheim floor". No theme-aware condition or additional runtime claim was introduced.

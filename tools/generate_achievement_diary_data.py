@@ -466,7 +466,7 @@ PREFERRED_SOURCE_IDS = {
 # anchors in any tier.
 PROGRESSION_ANCHORS = {
     ("falador", "easy"): (("strength", 37),),
-    ("falador", "medium"): (("fletching", 60),),
+    ("falador", "medium"): (("woodcutting", 60),),
     ("falador", "hard"): (("mining", 80),),
     ("falador", "elite"): (("cooking", 93),),
     ("fremennik", "easy"): (("strength", 35), ("agility", 35)),
@@ -480,8 +480,8 @@ PROGRESSION_ANCHORS = {
     ("karamja", "elite"): (("fishing", 65),),
     ("seers", "easy"): (("crafting", 10), ("mining", 30)),
     ("seers", "medium"): (("fishing", 46), ("magic", 57)),
-    ("seers", "hard"): (("firemaking", 65), ("smithing", 73)),
-    ("seers", "elite"): (("magic", 83), ("firemaking", 80)),
+    ("seers", "hard"): (("fletching", 65), ("smithing", 73)),
+    ("seers", "elite"): (("magic", 83), ("fletching", 80)),
 }
 
 # Burthorpe/Taverley pays one starter-equipment bundle for the whole set, not a
@@ -570,9 +570,9 @@ _SKILL_TYPE_IDS = {
     14: "smithing",
     15: "fishing",
     16: "cooking",
-    17: "woodcutting",
-    18: "fletching",
-    19: "firemaking",
+    17: "firemaking",
+    18: "woodcutting",
+    19: "fletching",
     20: "slayer",
     21: "farming",
     22: "construction",

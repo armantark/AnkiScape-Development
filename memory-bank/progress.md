@@ -1,5 +1,49 @@
 # Progress
 
+## Achievement Diary skill rotation repaired — 2026-08-30
+
+Branch `goal/diary-skill-rotation-2026-08-30` corrects
+`tools/generate_achievement_diary_data.py` so skill types 17, 18, and 19 map to
+Firemaking, Woodcutting, and Fletching. Direct reads of Darkan's
+`AchievementDef.toRealSkillId()` and `Skills.SKILL_NAME` verify the chain. The
+495-task harvest contains 34 affected skill requirements across 33 distinct
+tasks: type 17 occurs 12 times, type 18 occurs 16 times, and type 19 occurs 6
+times.
+
+The required regeneration first stopped with exact error `falador medium
+progression anchor ('fletching', 60) is not a sourced requirement in that
+family`. Three source-backed progression anchors depended on the rotated labels
+and are now Woodcutting 60, Fletching 65, and Fletching 80. The generated
+catalog keeps 474 task rows and changes exactly 36: Arriving in Style; Almost
+Made in Ardougne; Weeping Willow; Willow the Wisp of Smoke; Blinded With
+Science; It Spoiled My View; Pyre At Will; They Like Me! They Really Like Me!;
+I'm a Lumberjack and I'm Okay; I Sleep All Night and I Work All Day; The Roots
+of All Evil; Deadwing; A Palm For Each Finger; Can Opener; Familiar Fire
+Familiarity; See Yew at Five; The Short of It; Twisted Fire Starter; Engage;
+Waka-Waka-Waka; I Swear I Heard It Scream; No Smoke Without Pyre; Make a Bolt
+For It; The Long of It; Double Jointed; It All Adze Up; A Bolt from the Blue;
+Are Yew As Fired Up As I Am?; Barking Up the Wrong Tree; Raising The Stakes;
+Better Than Cursing The Darkness; Set It On Fiyr; Tai Bwo Wannai Cleanup; Reach
+Level 60 Woodcutting; Reach Level 65 Fletching; and Reach Level 80 Fletching.
+No task row was added or removed, and only string labels and the three
+label-derived anchor identities changed.
+
+A deed-grounded regression checks Pyre At Will, I'm a Lumberjack and I'm Okay,
+and Make a Bolt For It. The corrected map passes; a negative control with the
+old rotation produced three subtest failures. Exactly 25 curation-ledger notes
+were corrected without changing any other field or row order. The 320-row
+ledger recounts to 43 `active`, 247 `dormant`, 30 `translated`, and 0 `swapped`.
+
+Verification passed: focused `Ran 2 tests in 2.718s` / `OK`; plain `Ran 4526
+tests in 383.704s` / `OK (skipped=513)`; documentation `Audited 602 Markdown
+and 441 HTML files.` / `Documentation audit passed.`; test quality `4491 tests
+across 221 files` / `hard issues: 0`; Qt `Ran 4526 tests in 681.030s` /
+`OK (skipped=3)`; and the guarded-worktree audit reported the canonical
+checkout and linked-worktree root safe. Reachability remains at the seven
+pinned values before and after: 1,600 / 2,217 / 192 / 40 / 152 / 284 /
+1,164 for actions / reachable items / orphan inputs / root orphans / cascade
+orphans / unresolved actions / seed items.
+
 ## Goal resumed, the another-writer collision is repaired — 2026-08-30
 
 The owner set a new goal. Under it this seat repairs an another-writer

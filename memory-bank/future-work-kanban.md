@@ -24,9 +24,10 @@ Labels: `IMPLEMENT`.
   brief, slice S1 stage 1. Pass 12 ships only the honest-stop cut.
 - Wiring blocker from the 2026-08-27 cross-lineage review:
   `tools/generate_achievement_diary_data.py::_SKILL_TYPE_IDS` rotates source
-  skill types 17, 18, and 19 across Firemaking, Woodcutting, and Fletching. Fix
-  that mapping before any generator run. The owner spot-check also remains
-  pending, including the row 135 Fire-cape interpretation.
+  skill types 17, 18, and 19 across Firemaking, Woodcutting, and Fletching. The
+  mapping was repaired on 2026-08-30 in branch
+  `goal/diary-skill-rotation-2026-08-30`. The owner spot-check remains pending,
+  including the row 135 Fire-cape interpretation.
 
 ### Ranging Guild — shipped and closed 2026-08-10
 

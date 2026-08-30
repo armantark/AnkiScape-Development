@@ -2,6 +2,40 @@
 
 Last staleness sweep: 2026-08-30
 
+## Achievement Diary skill rotation repaired — 2026-08-30
+
+- Branch `goal/diary-skill-rotation-2026-08-30` repairs the generator's
+  Darkan skill translation: source skill type 17 is Firemaking, 18 is
+  Woodcutting, and 19 is Fletching. The two read-only authorities are
+  `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/achievements/AchievementDef.java:216-244`
+  and
+  `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/model/entity/player/Skills.java:56-78`.
+- The harvest contains exactly 495 `task_definitions`. The correction reaches
+  34 skill requirements across 33 source tasks: 12 occurrences of type 17, 16
+  of type 18, and 6 of type 19. `Raising The Stakes` carries both types 18 and
+  19.
+- The first regeneration exposed three dependent curation anchors with exact
+  error `falador medium progression anchor ('fletching', 60) is not a sourced
+  requirement in that family`. The sourced anchors are now Woodcutting 60,
+  Fletching 65, and Fletching 80. Regeneration changed 36 catalog task rows:
+  the 33 source tasks plus those three anchors, with no row addition, removal,
+  structural change, or non-string constant change.
+- Exactly 25 rows in
+  `memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl` now state the
+  corrected catalog labels and omit the obsolete generator blocker. The ledger
+  remains exactly 320 rows: 43 `active`, 247 `dormant`, 30 `translated`, and 0
+  `swapped`. Finding 20 in
+  `memory-bank/diary-curation-ledger/cross-lineage-review.md` records the branch
+  resolution.
+- Focused generator coverage passed 2 tests in 2.718 seconds. The plain lane
+  passed 4,526 tests in 383.704 seconds with 513 skips. Documentation audited
+  602 Markdown and 441 HTML files. Test quality reported 4,491 tests across 221
+  files and 0 hard issues. After the Qt environment was linked into this
+  pre-existing worktree, the offscreen lane passed 4,526 tests in 681.030
+  seconds with 3 skips. All seven reachability pins remain unchanged:
+  1,600 actions, 2,217 reachable items, 192 orphan inputs, 40 root orphans,
+  152 cascade orphans, 284 unresolved actions, and 1,164 seed items.
+
 ## Goal resumed, the another-writer collision is repaired — 2026-08-30
 
 - The owner set a new goal at `2026-08-30 09:30 PDT`. It changes the collision

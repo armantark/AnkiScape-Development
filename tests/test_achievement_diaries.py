@@ -66,6 +66,7 @@ from tools.generate_achievement_diary_data import (
     FAMILIES,
     MORYTANIA_LEG_BONUSES,
     _equipment_rows,
+    _requirement_conditions,
     build,
     resolve_condition_key,
 )
@@ -110,6 +111,31 @@ class GeneratorSourceInputTest(unittest.TestCase):
                     f"bonuses=EquipmentBonuses(attack_stab={tier_index})",
                     block,
                 )
+
+    def test_rotated_skill_types_resolve_to_the_deeds_they_gate(self):
+        harvest = (
+            ROOT
+            / "memory-bank/source-audits/achievement-diary-harvest-2026-07-26.json"
+        )
+        definitions = json.loads(harvest.read_text(encoding="utf-8"))[
+            "task_definitions"
+        ]
+        cases = (
+            (177, "Pyre At Will", "firemaking"),
+            (199, "I'm a Lumberjack and I'm Okay", "woodcutting"),
+            (333, "Make a Bolt For It", "fletching"),
+        )
+
+        for source_id, deed_name, expected_skill in cases:
+            with self.subTest(deed=deed_name):
+                task = definitions[str(source_id)]
+                self.assertEqual(task["name"], deed_name)
+                resolved_skills = {
+                    condition[1]
+                    for condition in _requirement_conditions(task)
+                    if condition[0] == "skill_level"
+                }
+                self.assertIn(expected_skill, resolved_skills)
 
     def test_generator_reproduces_every_shipped_task_row(self):
         harvest = (
