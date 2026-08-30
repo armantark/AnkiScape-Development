@@ -11,7 +11,7 @@ Use the helper at repo root:
 /opt/homebrew/bin/python3 run_tests.py
 ```
 
-It discovers and runs all `tests/test_*.py` files. The script adds the repo root to `PYTHONPATH` so tests can import modules like `logic_pure` directly.
+It discovers and runs all `tests/test_*.py` files. The script adds the repo root to `PYTHONPATH` so tests can import modules like `logic_pure` directly. Before importing optional Anki/Qt modules or discovering tests, the helper also anchors the process working directory to the checkout that contains `run_tests.py`.
 
 Run the full real Qt suite separately through the checked-in environment:
 

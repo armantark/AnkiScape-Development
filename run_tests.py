@@ -71,6 +71,9 @@ def test_result_exit_code(result: unittest.TestResult, *, focused: bool) -> int:
 
 
 def main() -> int:
+    root = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(root)
+
     parser = argparse.ArgumentParser(
         description="Discover AnkiScape tests and select them by verified test-id fragments.",
     )
@@ -109,7 +112,6 @@ def main() -> int:
         parser.error("--max-results must be at least 1")
 
     # Ensure project root is importable for tests
-    root = os.path.dirname(os.path.abspath(__file__))
     if root not in sys.path:
         sys.path.insert(0, root)
 
