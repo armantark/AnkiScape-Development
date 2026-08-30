@@ -1,5 +1,47 @@
 # Progress
 
+## Ordinary Snake-hide acquisition route closed — 2026-08-30
+
+The ordinary Snake hide item and its six downstream states were registered but
+not reachable from any player-finishable producer. The live Combat catalog now
+adds Bush snake as the period Tai Bwo Wannai Cleanup source. The target uses the
+existing selector and requires completed Jungle Potion, Woodcutting 10, and a
+carried or equipped Machete. It preserves the period level-35 identity, 250 LP,
+38 maximum hit, Melee style, attack speed 7, guaranteed Bones, and guaranteed
+1–5 ordinary hides, together with Darkan's reconstructed hidden combat levels
+and respawn delay.
+
+The evidence chain pins Bush snake oldids `6352282` and non-beta `5190727`,
+Snake hide oldid `6009794`, Tai Bwo Wannai Cleanup oldid `6539724`, Jungle
+Potion oldid `6555418`, OpenRS2 revision 742 NPCs `2489`/`2490` and item `6287`,
+and Darkan commits `14e49a561bab1441384022421d10dc03a8d837f0` and
+`c6fbe036b1743f4dd6067ec178332c69c3708856`. The hidden 1–5 quantity weighting
+uses registered placeholder `combat.bush_snake_hide_quantity_distribution`,
+and the absent numeric combat bonuses use
+`combat.bush_snake_combat_bonuses`. The period 68-LP poison is represented by
+the shared engine's nearest 70-LP tier; the rev-742 `attackDelay=3` conflict and
+Darkan's fixed-one-hide conflict are recorded rather than hidden.
+
+The ordinary item now explicitly retains item id `6287`, non-stackability, and
+tradeability. Its existing 28×28 sprite remains registered. The new 48×42 Bush
+snake sprite is source-period and provenance-pinned. Integration coverage kills
+a real low-HP copy of the target, tans the resulting hide through the real
+Utility reducer, verifies save persistence through the real review runtime,
+and restores the exact pre-review state through Anki answer undo. The shown and
+resized offscreen Qt row has its icon, full text, no horizontal overflow, and no
+truncation.
+
+The seven pinned reachability metrics changed from 1,600 actions, 2,217
+reachable items, 192 orphan inputs, 40 root orphans, 152 cascade orphans, 284
+unresolved actions, and 1,164 seed items to 1,600, 2,224, 190, 39, 151, 277,
+and 1,165. Routes now resolve for ordinary Snake hide, Snakeskin, and all five
+Snakeskin armour pieces. Focused non-Qt verification passed 712 tests. Full
+plain passed 4,539 tests in 402.985 seconds with 514 skips; genuine offscreen Qt
+passed 4,539 tests in 700.027 seconds with three skips. Documentation audited
+606 Markdown and 441 HTML files. Test quality reports 4,504 tests across 221
+files and zero hard issues. `Snake hide (swamp)` remains separate follow-up
+work; it was not aliased to ordinary item `6287`.
+
 ## Doogle leaves acquisition closes the Gertrude stage blocker — 2026-08-30
 
 The Darkan thread supplied oldid `5819038` through a doorbell, and AnkiScape

@@ -1388,7 +1388,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1601)
-        self.assertEqual(report["reachable_item_count"], 2230)
+        self.assertEqual(report["reachable_item_count"], 2237)
         self.assertEqual(
             report["routes"].get("Living water"),
             "quest-stage:druidic_ritual:2",
@@ -1412,11 +1412,11 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 192)
-        self.assertEqual(report["root_orphan_count"], 40)
-        self.assertEqual(report["cascade_orphan_count"], 152)
-        self.assertEqual(report["unresolved_action_count"], 284)
-        self.assertEqual(report["seed_item_count"], 1176)
+        self.assertEqual(report["orphan_input_count"], 190)
+        self.assertEqual(report["root_orphan_count"], 39)
+        self.assertEqual(report["cascade_orphan_count"], 151)
+        self.assertEqual(report["unresolved_action_count"], 277)
+        self.assertEqual(report["seed_item_count"], 1177)
         self.assertFalse(
             [
                 row
@@ -1637,6 +1637,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "combat:chaos_druid",
         )
         self.assertEqual(
+            report["routes"]["Snake hide"],
+            "combat:bush_snake",
+        )
+        self.assertEqual(
             report["routes"]["Stardust"],
             "Activity:shooting_stars:mine",
         )
@@ -1786,6 +1790,13 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Black mushroom",
             "Black mushroom ink",
             "Unholy mould",
+            "Snake hide",
+            "Snakeskin",
+            "Snakeskin bandana",
+            "Snakeskin body",
+            "Snakeskin boots",
+            "Snakeskin chaps",
+            "Snakeskin vambraces",
         ):
             self.assertNotIn(item_name, orphan_items)
 

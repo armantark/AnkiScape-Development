@@ -268,6 +268,18 @@ def summoning_extra_items_as_dict() -> dict[str, dict[str, object]]:
     if "Swamp toad" in items:
         items["Swamp toad"]["stackable"] = False
         items["Swamp toad"]["tradeable"] = True
+    if "Snake hide" in items:
+        items["Snake hide"].update(
+            {
+                "source_item_id": 6287,
+                "stackable": False,
+                "tradeable": True,
+                "source": (
+                    "RuneScape Wiki Snake hide oldid=6009794 "
+                    "(2012-07-29T12:51:10Z); OpenRS2 rev-742 item 6287"
+                ),
+            }
+        )
     if "Willow branch" in items:
         items["Willow branch"].update(
             {

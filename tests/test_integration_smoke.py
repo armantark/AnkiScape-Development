@@ -3475,6 +3475,138 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(after_craft["Unholy mould"], 1)
         self.assertEqual(after_craft["Unstrung emblem"], 1)
 
+    def test_snake_kill_closes_the_snakeskin_tanning_chain(self):
+        from ankiscape.core.constants import (
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            UTILITY_ACTIVITY_DATA,
+        )
+        from ankiscape.logic_pure.logic_pure import (
+            apply_combat_burst_pure,
+            apply_utility_activity_pure,
+        )
+
+        enemies = dict(COMBAT_ENEMY_DATA)
+        snake = dict(enemies["bush_snake"])
+        snake["stats"] = dict(snake["stats"], hitpoints=1, defence=1)
+        enemies["bush_snake"] = snake
+        player = {
+            "inventory": {"Coins": 15, "Machete": 1},
+            "equipment": {},
+            "quests": {"jungle_potion": {"completed": True}},
+            "woodcutting_level": 10,
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "current_combat_target": "bush_snake",
+            "combat_attack_style": "aggressive",
+            "combat_auto_eat_food": [],
+        }
+
+        after_kill, combat_ok, combat_result = apply_combat_burst_pure(
+            player,
+            enemies,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=lambda: 0.0,
+            stop_after_first_kill=True,
+            allow_bank_run=False,
+        )
+        after_tan, _exp, tan_ok, processed = apply_utility_activity_pure(
+            "tan_snakeskin",
+            after_kill["inventory"],
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(combat_ok)
+        self.assertEqual(combat_result["drops"], {"Bones": 1, "Snake hide": 1})
+        self.assertTrue(tan_ok)
+        self.assertEqual(processed, 1)
+        self.assertEqual(after_tan["Snake hide"], 0)
+        self.assertEqual(after_tan["Coins"], 0)
+        self.assertEqual(after_tan["Snakeskin"], 1)
+
+    def test_snake_hide_combat_review_persists_and_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_snake_hide_review_undo_integration")
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+
+        addon.mw = _DummyMW(_DummyCol())
+        saved_states = []
+        addon.save_player_data = lambda: saved_states.append(
+            copy.deepcopy(addon.player_data)
+        )
+        addon.level_up_check = lambda *_args: None
+        addon.check_achievements = lambda *_args: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
+        addon.update_review_event_log_drawer = lambda *_args: None
+        addon._update_review_bank_run_surface = lambda: None
+        addon._update_review_context_surface = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda *_args: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        addon.player_data.update(
+            {
+                "attack_level": 99,
+                "strength_level": 99,
+                "defense_level": 99,
+                "constitution_level": 99,
+                "current_combat_target": "bush_snake",
+                "combat_attack_style": "aggressive",
+                "combat_lifepoints": 990,
+                "loot_value_threshold": 0,
+                "woodcutting_level": 10,
+            }
+        )
+        addon.player_data["inventory"]["Machete"] = 1
+        addon.player_data["quests"]["jungle_potion"] = {
+            "started": True,
+            "progress": 5,
+            "completed": True,
+        }
+        addon.current_skill = "Combat"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon._REVIEW_UNDO_STACK.clear()
+        initial = copy.deepcopy(addon.player_data)
+
+        combat_runtime = sys.modules[
+            f"{addon.__name__}.runtime.runtime_actions_combat"
+        ]
+        original_enemies = combat_runtime.COMBAT_ENEMY_DATA
+        enemies = dict(original_enemies)
+        snake = dict(enemies["bush_snake"])
+        snake["stats"] = dict(snake["stats"], hitpoints=1, defence=1)
+        enemies["bush_snake"] = snake
+        original_random = addon.random.random
+        combat_runtime.COMBAT_ENEMY_DATA = enemies
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(
+                _FakeReviewer(),
+                4,
+                lambda _self, _ease: "answered",
+            )
+        finally:
+            addon.random.random = original_random
+            combat_runtime.COMBAT_ENEMY_DATA = original_enemies
+
+        self.assertGreater(addon.player_data["inventory"]["Snake hide"], 0)
+        self.assertTrue(
+            any(state["inventory"].get("Snake hide", 0) > 0 for state in saved_states)
+        )
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_ectoplasmator_kill_rewards_and_counters_roll_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_ectoplasmator_undo_integration")
         addon.level_up_check = lambda _skill, _data: None

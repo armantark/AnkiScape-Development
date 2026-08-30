@@ -1,5 +1,41 @@
 # Active Context
 
+## Ordinary Snake hide is player-finishable through Bush snake — 2026-08-30
+
+- `combat:bush_snake` now supplies ordinary item `6287` before EOC through the
+  existing Combat target-row contract. Selection requires completed Jungle
+  Potion, Woodcutting 10, and a carried or equipped Machete, matching the
+  minimum Tai Bwo Wannai Cleanup jungle-hacking access instead of exposing an
+  ungated world spawn.
+- The live record pins Bush snake oldids `6352282` and non-beta corroboration
+  `5190727`, Snake hide oldid `6009794`, Tai Bwo Wannai Cleanup oldid
+  `6539724`, Jungle Potion oldid `6555418`, rev-742 NPCs `2489`/`2490` and item
+  `6287`, and the exact Darkan combat/drop files and commits. The source audit
+  is `memory-bank/source-audits/snake-hide-bush-snake-acquisition-2026-08-30.md`.
+- Every kill guarantees Bones ×1 and one inclusive 1–5 Snake-hide roll.
+  `combat.bush_snake_hide_quantity_distribution` records the unrecovered
+  quantity weighting; `combat.bush_snake_combat_bonuses` records the
+  unrecovered numeric bonus vector. The 68-LP historical poison opens at 70 LP
+  because the shared engine has 10-LP tiers, and rev-742 `attackDelay=3` is
+  disclosed rather than substituted for the period attack speed 7.
+- The existing ordinary-hide sprite remains in use, while
+  `combatenemies/bush_snake.png` adds the period Bush-snake art and provenance.
+  A real Combat review saves the hide, and Anki answer undo restores the exact
+  pre-review state. A real kill followed by `tan_snakeskin` closes Snakeskin
+  and the five armour recipes.
+- Reachability moved from `1600 / 2217 / 192 / 40 / 152 / 284 / 1164` to
+  `1600 / 2224 / 190 / 39 / 151 / 277 / 1165` for actions, reachable items,
+  orphan inputs, root orphans, cascade orphans, unresolved actions, and seed
+  items. The seven family routes are present and none remains orphaned.
+- Focused non-Qt verification passed 712 tests; the shown offscreen row check
+  passed separately. Full plain passed 4,539 tests in 402.985 seconds with 514
+  skips; genuine offscreen Qt passed 4,539 tests in 700.027 seconds with three
+  skips. Documentation and test-quality audits passed, with 4,504 tests across
+  221 files and zero hard issues. Guarded worktree placement is safe.
+- `Snake hide (swamp)` remains a distinct missing registry identity. A complete
+  Cleanup encounter-frequency and favour system also remains outside this
+  ordinary-hide producer slice.
+
 Last staleness sweep: 2026-08-30
 
 ## Doogle leaves now close Gertrude's Cat stage 5 — 2026-08-30

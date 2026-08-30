@@ -13634,6 +13634,87 @@ COMBAT_ENEMY_DATA["skeletal_wyvern"] = {
     ),
 }
 
+COMBAT_ENEMY_DATA["bush_snake"] = {
+    "display_name": "Bush snake",
+    "level": 35,
+    "group": "Animals",
+    "skill_requirements": {"woodcutting": 10},
+    "quest_gate": "jungle_potion",
+    "quest_gate_label": "Complete Jungle Potion",
+    "required_item_options": (("Machete",),),
+    "required_item_options_label": "Machete",
+    "attack_style": "melee",
+    "attack_speed": 7,
+    "respawn_delay": 59,
+    "max_hit": 38,
+    # The Combat poison engine resolves 10-LP tiers, so the sourced 68-LP opening tick runs as the nearest 70-LP tier.
+    "poison_damage": 7,
+    "slayer_xp": 25.0,
+    "stats": {
+        "hitpoints": 250,
+        "attack": 25,
+        "strength": 25,
+        "defence": 50,
+        "magic": 1,
+        "ranged": 1,
+    },
+    # PLACEHOLDER(combat.bush_snake_combat_bonuses): no period source or reconstruction states numeric attack, defence, or strength bonuses.
+    "bonuses": {
+        "attack_stab": 0,
+        "attack_slash": 0,
+        "attack_crush": 0,
+        "defence_stab": 0,
+        "defence_slash": 0,
+        "defence_crush": 0,
+        "defence_magic": 0,
+        "defence_ranged": 0,
+        "melee_strength": 0,
+    },
+    "drops": {
+        "guaranteed": (("Bones", 1),),
+        "tables": (
+            {
+                "name": "Main",
+                "total": 1,
+                "slots": (
+                    {
+                        "item": "Snake hide",
+                        # PLACEHOLDER(combat.bush_snake_hide_quantity_distribution): period sources close the always-on 1-5 range but not its hidden weighting.
+                        "quantity_range": (1, 5),
+                        "slots": 1,
+                    },
+                ),
+            },
+        ),
+    },
+    "source": (
+        "RuneScape Wiki Bush snake oldids 6352282 and 5190727; "
+        "RuneScape Wiki Snake hide oldid 6009794; "
+        "RuneScape Wiki Tai Bwo Wannai Cleanup oldid 6539724; "
+        "RuneScape Wiki Jungle Potion oldid 6555418; "
+        "OpenRS2 rev-742 NPCs 2489/2490 and item 6287; "
+        "Darkan data/npcs/combatdefs/uncategorized/bush_snake (noanims).json @ "
+        "14e49a561bab1441384022421d10dc03a8d837f0; "
+        "Darkan data/npcs/drops/bush_snake.json @ "
+        "c6fbe036b1743f4dd6067ec178332c69c3708856"
+    ),
+    "source_status": (
+        "period exact identity, combat level, LP, maximum hit, 68-LP poison, "
+        "seven-tick attack speed, melee style, completed-Jungle-Potion Cleanup "
+        "access, Machete use, Woodcutting 10 minimum, guaranteed bones, and "
+        "always-on 1-5 hide range; rev-742 exact client identities. Its "
+        "attackDelay=3 is not substituted for the period attack-speed 7. Darkan "
+        "reconstructed hidden combat levels and respawn. The live poison tier "
+        "rounds 68 LP to 70 LP, and placeholder "
+        "combat.bush_snake_hide_quantity_distribution supplies uniform weighting "
+        "because Darkan's fixed quantity 1 conflicts with the period 1-5 range; "
+        "combat.bush_snake_combat_bonuses supplies the zero bonus vector. "
+        "The selectable target translates the period random jungle-hacking "
+        "encounter without claiming an encounter frequency."
+    ),
+}
+
+
 COMBAT_ENEMY_DATA[COCKROACH_SOLDIER_TARGET_ID] = cockroach_soldier_enemy_as_dict()
 COMBAT_ENEMY_DATA[SOUL_WARS_COMBAT_TARGET_ID] = soul_wars_avatar_enemy_pure()
 COMBAT_ENEMY_DATA[SHADES_OF_MORTTON_COMBAT_TARGET_ID] = (

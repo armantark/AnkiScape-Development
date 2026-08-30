@@ -13,6 +13,7 @@ from ankiscape.core.action_registry import (
 )
 from ankiscape.core.constants import (
     BAR_DATA,
+    COMBAT_ENEMY_IMAGES,
     COMBAT_ITEM_IMAGES,
     COOKING_BURNT_ITEMS,
     COOKING_DATA,
@@ -56,6 +57,7 @@ from ankiscape.core.constants import (
     RUNECRAFTING_POUCH_DATA,
     SHOP_ITEM_IMAGES,
     SMITHING_OUTPUT_ITEMS,
+    SUMMONING_ITEM_IMAGES,
     TROUBLE_BREWING_ITEM_IMAGES,
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
@@ -220,6 +222,38 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(
             provenance["combatitems/edible_seaweed.png"]["timestamp"],
             "2011-04-26T00:12:28Z",
+        )
+
+    def test_snake_hide_keeps_period_identity_and_both_assets(self):
+        definition = item_definitions_by_storage_key(ITEM_DEFINITIONS)["Snake hide"]
+
+        self.assertEqual(definition.source_item_id, 6287)
+        self.assertFalse(definition.stackable)
+        self.assertTrue(definition.tradeable)
+        self.assertEqual(definition.asset_path, SUMMONING_ITEM_IMAGES["Snake hide"])
+        self.assertTrue(os.path.exists(definition.asset_path))
+        self.assertTrue(
+            COMBAT_ENEMY_IMAGES["bush_snake"].endswith(
+                "combatenemies/bush_snake.png"
+            )
+        )
+        self.assertTrue(
+            os.path.exists(COMBAT_ENEMY_IMAGES["bush_snake"])
+        )
+
+        with open("assets_provenance.json", encoding="utf-8") as file_obj:
+            provenance = json.load(file_obj)
+        hide_asset = provenance["summoningitems/snake_hide.png"]
+        self.assertEqual(hide_asset["timestamp"], "2011-03-13T13:04:58Z")
+        self.assertEqual(
+            hide_asset["sha1"],
+            "7d7a0d0bf40b57b877c45fbed93187deac7a5f27",
+        )
+        enemy_asset = provenance["combatenemies/bush_snake.png"]
+        self.assertEqual(enemy_asset["timestamp"], "2011-07-29T13:54:56Z")
+        self.assertEqual(
+            enemy_asset["sha1"],
+            "1a7e9ae59cd2c0ee81b819f19321f0504aba13a3",
         )
 
     def test_brine_sabre_keeps_cache_identity_equipment_and_asset(self):

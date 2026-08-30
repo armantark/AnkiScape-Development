@@ -6345,6 +6345,35 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")
 
+    def test_bush_snake_row_is_selectable_and_uses_its_icon(self) -> None:
+        pd = _make_player_data()
+        pd["current_combat_target"] = "bush_snake"
+        pd["combat_examined_monsters"] = ["bush_snake"]
+        pd["woodcutting_level"] = 10
+        pd["inventory"]["Machete"] = 1
+        pd["quests"]["jungle_potion"] = {
+            "started": True,
+            "progress": 5,
+            "completed": True,
+        }
+        dialog = self._open(pd, current_skill="Combat")
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(4):
+            QApplication.processEvents()
+
+        tree = _find_tree_with_user_role(dialog, "bush_snake")
+        snake = _tree_row(tree, "bush_snake")
+        self.assertFalse(snake.isDisabled())
+        self.assertEqual(snake.text(0), "✓ Bush snake (Lvl 35)")
+        self.assertIn("Enemy LP: 250/250", snake.toolTip(0))
+        self.assertIn("Enemy max hit: 38 LP", snake.toolTip(0))
+        self.assertIn("Snake hide x1-5", snake.toolTip(0))
+        self.assertFalse(snake.icon(0).isNull())
+        self.assertTrue(snake.parent().isExpanded())
+        self.assertTrue(tree.viewport().rect().intersects(tree.visualItemRect(snake)))
+        dialog.deleteLater()
+
     def test_combat_search_filters_without_changing_or_activating_the_saved_target(self) -> None:
         from aqt.qt import QEvent, QKeyEvent
 

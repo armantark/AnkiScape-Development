@@ -7636,6 +7636,57 @@ class CombatLogicTest(unittest.TestCase):
             {"Impious ashes": 1, "Green charm": 1},
         )
 
+    def test_bush_snake_preserves_period_combat_and_hide_range(self):
+        snake = COMBAT_ENEMY_DATA["bush_snake"]
+
+        self.assertEqual(snake["display_name"], "Bush snake")
+        self.assertEqual(snake["group"], "Animals")
+        self.assertEqual(snake["level"], 35)
+        self.assertEqual(snake["stats"]["hitpoints"], 250)
+        self.assertEqual(snake["max_hit"], 38)
+        self.assertEqual(snake["poison_damage"], 7)
+        self.assertEqual(snake["attack_style"], "melee")
+        self.assertEqual(snake["attack_speed"], 7)
+        self.assertEqual(snake["respawn_delay"], 59)
+        self.assertEqual(snake["skill_requirements"], {"woodcutting": 10})
+        self.assertEqual(snake["quest_gate"], "jungle_potion")
+        self.assertEqual(snake["quest_gate_label"], "Complete Jungle Potion")
+        self.assertEqual(snake["required_item_options"], (("Machete",),))
+        self.assertEqual(snake["required_item_options_label"], "Machete")
+        self.assertEqual(snake["drops"]["guaranteed"], (("Bones", 1),))
+        (hide_table,) = snake["drops"]["tables"]
+        self.assertEqual(hide_table["total"], 1)
+        self.assertEqual(
+            hide_table["slots"],
+            ({"item": "Snake hide", "quantity_range": (1, 5), "slots": 1},),
+        )
+        self.assertEqual(
+            _combat_roll_drops(snake, _rng((0.0, 0.0))),
+            {"Bones": 1, "Snake hide": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(snake, _rng((0.999999, 0.999999))),
+            {"Bones": 1, "Snake hide": 5},
+        )
+        for source_marker in (
+            "oldids 6352282 and 5190727",
+            "oldid 6009794",
+            "oldid 6539724",
+            "oldid 6555418",
+            "OpenRS2 rev-742 NPCs 2489/2490 and item 6287",
+            "bush_snake (noanims).json @ 14e49a561bab1441384022421d10dc03a8d837f0",
+            "drops/bush_snake.json @ c6fbe036b1743f4dd6067ec178332c69c3708856",
+        ):
+            self.assertIn(source_marker, snake["source"])
+        self.assertIn("attackDelay=3", snake["source_status"])
+        self.assertIn("rounds 68 LP to 70 LP", snake["source_status"])
+        self.assertIn(
+            "combat.bush_snake_hide_quantity_distribution",
+            snake["source_status"],
+        )
+        self.assertIn("combat.bush_snake_combat_bonuses", snake["source_status"])
+        self.assertIn("without claiming an encounter frequency", snake["source_status"])
+
     def test_sea_snake_variants_preserve_cutoff_combat_and_poison(self):
         hatchling = COMBAT_ENEMY_DATA["sea_snake_hatchling"]
         young = COMBAT_ENEMY_DATA["sea_snake_young"]

@@ -752,6 +752,88 @@ class TargetMetadataTest(unittest.TestCase):
             ready.tooltip,
         )
 
+    def test_bush_snake_row_requires_completed_jungle_potion(self):
+        player = {
+            "current_combat_target": "chicken",
+            "combat_attack_style": "accurate",
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "woodcutting_level": 1,
+            "inventory": {"Machete": 1},
+            "equipment": {},
+            "combat_supply_loadout": {},
+            "combat_examined_monsters": ["bush_snake"],
+            "quests": {"jungle_potion": {"completed": True}},
+        }
+        blocked = _row(
+            combat_target_rows(
+                player,
+                COMBAT_ENEMY_DATA,
+                {},
+                EQUIPMENT_ITEM_DATA,
+                DEFAULT_COMBAT_TARGET,
+                COMBAT_ENEMY_IMAGES,
+            ),
+            "bush_snake",
+        )
+        self.assertFalse(blocked.enabled)
+        self.assertEqual(blocked.locked_reasons, ("Woodcutting level 10",))
+
+        player["woodcutting_level"] = 10
+        player["inventory"] = {}
+        blocked = _row(
+            combat_target_rows(
+                player,
+                COMBAT_ENEMY_DATA,
+                {},
+                EQUIPMENT_ITEM_DATA,
+                DEFAULT_COMBAT_TARGET,
+                COMBAT_ENEMY_IMAGES,
+            ),
+            "bush_snake",
+        )
+        self.assertFalse(blocked.enabled)
+        self.assertEqual(blocked.locked_reasons, ("Machete",))
+
+        player["inventory"] = {"Machete": 1}
+        player["quests"] = {}
+        blocked = _row(
+            combat_target_rows(
+                player,
+                COMBAT_ENEMY_DATA,
+                {},
+                EQUIPMENT_ITEM_DATA,
+                DEFAULT_COMBAT_TARGET,
+                COMBAT_ENEMY_IMAGES,
+            ),
+            "bush_snake",
+        )
+        self.assertFalse(blocked.enabled)
+        self.assertEqual(blocked.locked_reasons, ("Complete Jungle Potion",))
+
+        player["quests"] = {"jungle_potion": {"completed": True}}
+        ready = _row(
+            combat_target_rows(
+                player,
+                COMBAT_ENEMY_DATA,
+                {},
+                EQUIPMENT_ITEM_DATA,
+                DEFAULT_COMBAT_TARGET,
+                COMBAT_ENEMY_IMAGES,
+            ),
+            "bush_snake",
+        )
+        self.assertTrue(ready.enabled)
+        self.assertEqual(ready.group, "Animals")
+        self.assertTrue(ready.icon_path.endswith("combatenemies/bush_snake.png"))
+        self.assertIn("Enemy LP: 250/250", ready.tooltip)
+        self.assertIn("Enemy max hit: 38 LP", ready.tooltip)
+        self.assertIn("Poison: 70 LP initial", ready.tooltip)
+        self.assertIn("Snake hide x1-5", ready.tooltip)
+
     def test_mutated_zygomite_rows_show_access_and_charged_spray_state(self):
         player = {
             "current_combat_target": "mutated_zygomite_level_74",
