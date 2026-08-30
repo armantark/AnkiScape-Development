@@ -475,3 +475,53 @@ After each merged batch, do these steps in order:
 10. Run `/opt/homebrew/bin/python3 tools/audit_docs.py` before promotion.
 
 The ledger outranks old queue prose when the two sources disagree. A later audit can change a score only when it records the exact fact that changed.
+
+## 12. Selection corrections found while working section 11 — 2026-08-30
+
+These corrections come from implementing section 11's ranked rows. They change how a
+later loop must read that table. Sections 1 through 11 stay unchanged.
+
+### 12.1 Sentinel scores understate the work, because the audit truncates at the first blocker
+
+`tools/audit_item_reachability.py` reports only each quest's EARLIEST blocked stage.
+A later stage can hold its own generated sentinel that the report never shows.
+
+Rank 1 scored 18 because The Lost Tribe "gates 13 prerequisite descendants". The
+stage-1 sentinel is now replaced with the source-backed requirement and is live in
+zero places, yet the quest stays blocked: stage 2 holds its own sentinel. Completable
+quests did not move. Blocked stage rows fell from 148 to 146.
+
+Rule for the next loop: never treat a sentinel row's descendant count as the closure
+value of one slice. Enumerate every blocked stage of that quest first, then score the
+whole chain, or score only the single stage the slice can actually clear.
+
+### 12.2 Rank 8's premise is false; do not start with `rc-method-selection`
+
+Rank 8 says "READY to split. Start with `rc-method-selection`." That row is settled
+design, but its selectable set does not exist. No Abyss, Ourania/ZMI, or Runespan
+route ships, so a method selector would offer one ordinary route. Building it now
+would add an abstraction over nothing.
+
+`rc-method-selection` becomes real only after at least one further Runecrafting method
+lands. Those methods are `rc-abyss`, `rc-zmi-gop-wickedhood` (ZMI residual), and
+`rc-runespan`, all recorded source-blocked in `memory-bank/gap-backlog.json`.
+
+### 12.3 New lead: `Orange goblin mail` gates a quest chain
+
+Restoring The Lost Tribe's true prerequisites exposed a dependency that first-blocker
+truncation had hidden. Goblin Diplomacy is blocked at stage 1 on the missing item
+`Orange goblin mail`. Goblin Diplomacy gates The Lost Tribe, which gates descendants.
+
+This is why startable quests moved from 114 to 113. The old count was inflated by
+generated prerequisite data that named the wrong gates; the new count is the honest
+one. `Orange goblin mail` is an acquisition candidate with real chain leverage and did
+not appear in section 11 because the audit never reported it.
+
+### 12.4 Reviewer seating during this pass
+
+Kimi K3 returned HTTP 403 `You've reached your weekly (7-day) usage limit` on every
+attempt. Fable stays barred under section 9 ruling O1 and design-queue entry 4.18; the
+owner has not been asked to lift it for the current goal. Opus covered the diary slice.
+GLM 5.3 Flash covered the Doogle leaves and Lost Tribe slices and found one real
+order-coupled assertion. From `2026-08-30 14:03` the Claude plan is also exhausted, so
+no Opus seat remains until it resets.
