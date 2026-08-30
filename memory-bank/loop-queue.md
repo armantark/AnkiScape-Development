@@ -197,14 +197,11 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [ ] Recover the Frost dragon bone ID-to-route mapping. No period source maps
      item `18830` and item `18832` one-to-one to the Asgarnian Ice Dungeon and
      Daemonheim routes. Preserve both IDs until a period source settles the pair.
-5. [x] The active goal is paused through `memory-bank/GOAL-BLOCKED.md`.
-   The owner requested a clean break on 2026-08-30. Canonical `main` remains at
-   `faa4add6cc2e03bb797af504970f9b290f3c559b` with an another-writer change to
-   `memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json`.
-   Resume only after canonical `main` is clean at one stable `HEAD`.
-   Papercut remediation was a separate owner request, not an original-goal
-   queue item. Three clean, reviewed branches remain unmerged: `63a3409c`,
-   `b861cdec`, and `8f1092db`. Only `63a3409c` completed its MacBook plain lane;
-   its Qt lane and both later gates remain unrun. Collections contains no
-   non-UI product correction and now also requires an explicit owner decision
-   under the existing-interface approval boundary.
+5. [x] The paused goal is resumed and its blocker is repaired.
+   The owner set a new goal on 2026-08-30. It makes an another-writer collision
+   on canonical `main` this seat's repair work rather than a stop condition.
+   Commit `324066da` adopts the verified asset-cutoff audit re-run, commit
+   `732643e7` lands the previous session's records, and
+   `memory-bank/GOAL-BLOCKED.md` is deleted. Three reviewed papercut branches
+   remain unmerged: `63a3409c`, `b861cdec`, and `8f1092db`.
+6. [ ] Build the stored priority matrix the new goal requires, then work it.

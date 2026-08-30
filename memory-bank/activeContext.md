@@ -2,6 +2,42 @@
 
 Last staleness sweep: 2026-08-30
 
+## Goal resumed, the another-writer collision is repaired — 2026-08-30
+
+- The owner set a new goal at `2026-08-30 09:30 PDT`. It changes the collision
+  rule: this seat now repairs an another-writer collision on canonical `main`
+  instead of stopping at it. It also requires a stored priority matrix in the
+  Memory Bank, doorbell coordination with the Darkan thread, and no user
+  interface change except a contained new feature reviewed by a frontend-taste
+  model.
+- The collision is repaired. Commit `324066da` adopts the foreign
+  `tools/audit_asset_cutoff.py` re-run of
+  `memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json`. The
+  re-run is correct: `assets_provenance.json` already pins
+  `hunteritems/withered_vine.png` to the archived pre-cutoff revision
+  `2010-11-25T04:29:18Z` with SHA-1
+  `bf1eeb11c854f0f465ce384a966a468064eec81e`, so the tracked audit row was
+  stale. Recomputed totals equal the file's own summary exactly: 223
+  `no_earlier_revision`, 121 `unresolved`, 137 `different`, and 135
+  `needs_inspection` sum to 616, and the assets map holds 616 entries.
+- No Codex CLI or `codex exec` process was running when this seat checked. The
+  audit file's last write time was `2026-08-30 01:39:46`, and the quota record
+  reported the Codex plan idle. The writer had finished.
+- Commit `732643e7` lands the previous session's uncommitted clean-break
+  records and the new orchestrator lessons handoff.
+- `memory-bank/GOAL-BLOCKED.md` is deleted. Its blocker no longer exists.
+- The MacBook Pro verification host answers over SSH at
+  `armans-macbook-pro`, runs macOS 26.4, and still has
+  `/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt/bin/python`.
+- AnkiScape tooling reads the Darkan thread's checkout by absolute path in
+  seven tools, and every one of them is read-only. Two pin exact commits, so a
+  rebase, a force-push, or a garbage collection in `darkan-world-server` can
+  break an AnkiScape citation audit. `tools/generate_construction_data.py:101`
+  and `tools/audit_citation_drift.py:153-155` reach that repository with
+  `git -C`, which a working-directory scan cannot see; match full process
+  argument strings instead. The Darkan seat confirmed on 2026-08-30 that it
+  will not rewrite that history without raising an owner gate first.
+
 ## Clean break — 2026-08-30
 
 - The owner requested a clean break. The papercut implementation workflow and all dispatched reviews are complete. The sequential MacBook gate task was stopped, and no background task remains.

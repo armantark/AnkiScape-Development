@@ -1,5 +1,26 @@
 # Progress
 
+## Goal resumed, the another-writer collision is repaired — 2026-08-30
+
+The owner set a new goal. Under it this seat repairs an another-writer
+collision on canonical `main` rather than stopping at it, keeps a stored
+priority matrix in the Memory Bank, coordinates with the Darkan thread through
+doorbells, and changes no existing user interface.
+
+The collision is repaired and `main` is clean again. Commit `324066da` adopts
+the foreign asset-cutoff audit re-run after verification: `assets_provenance.json`
+already pinned `hunteritems/withered_vine.png` to its archived pre-cutoff
+revision, so the tracked audit row was stale rather than wrong. The file's
+recomputed status counts equal its recorded summary exactly, and its assets map
+holds 616 entries against a recorded 616. No Codex process was running, and the
+file had been idle since `2026-08-30 01:39:46`.
+
+Commit `732643e7` lands the previous session's clean-break records, which that
+session wrote but never committed, together with
+`memory-bank/handoffs/orchestrator-lessons-2026-08-30.md`.
+
+`memory-bank/GOAL-BLOCKED.md` is deleted because its blocker no longer exists.
+
 ## Clean break — 2026-08-30
 
 The owner requested a clean break. All active workflows and agents are complete. The sequential MacBook gate task was stopped.
