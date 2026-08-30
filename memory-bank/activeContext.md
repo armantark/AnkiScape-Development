@@ -5560,3 +5560,10 @@ the obsolete percent key is no longer touched.
   offscreen Qt skips three. The branch adds no panel rule or unmarked
   reconstruction; the placeholder-register suites pass all 22 tests.
 - Evidence: `source-audits/quest-jungle-potion-playable-2026-08-13.md`.
+
+## UI approval boundary — 2026-08-29
+
+- Do not change an existing user interface unless the owner explicitly requests that interface change.
+- A defect report about clipping, reachability, or another behavior does not authorize a layout or style redesign.
+- A new interface that belongs to an approved implementation is permitted only after a frontend-taste model reviews it.
+- Commit `03ea285df1a9b7d120179e9e5bbf5356468a3b8a` restores the main menu to the owner-settled Qt behavior from `806a2f63`.

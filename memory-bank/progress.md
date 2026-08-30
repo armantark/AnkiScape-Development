@@ -6524,3 +6524,11 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Collections value elision (`at the north dock of...`, `at the Mining Guild in
   Falador...`, and `darkan-world-server c95aca409f397...`) remains a separate
   second-level table-layout follow-up.
+
+## Main-menu restoration — 2026-08-29
+
+- No owner request authorized the autonomous main-menu tab layout or style changes.
+- Commits `d5da2f3a1921f6592fd4ec32c3b86542b0ca71a6` and `03ea285df1a9b7d120179e9e5bbf5356468a3b8a` remove those changes.
+- `ui/ui.py` and `tests/test_main_menu_widget.py` now match the owner-settled `806a2f63` versions exactly.
+- An independent Opus review accepted the restoration and found no valid replacement style test.
+- The MacBook promotion gate is still in progress. Native confirmation requires the owner to restart Anki normally.

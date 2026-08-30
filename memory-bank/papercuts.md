@@ -1507,3 +1507,4 @@
 - 2026-08-28 21:58 PDT — A manual documentation recheck again invoked the canonical `tools/audit_docs.py` and reported 601 Markdown files instead of the closure worktree's 602; invoke the worktree's absolute tool path for manual gate rechecks.
 - 2026-08-28 21:58 PDT — The completed closure reviewer was no longer reachable by its assigned name when the gate fix needed a recheck; start a fresh bounded reviewer instead of relying on completed-agent reachability.
 - 2026-08-28 22:02 PDT — The first goal-marker assertion included the start marker's newline in its delimiter and hid a leading LF from the literal span; make the goal text abut both hidden markers before byte comparison.
+- 2026-08-29 23:35 PDT — Full-file reads of `memory-bank/activeContext.md` and `memory-bank/progress.md` again exceeded the 256KB Read limit; use line counts and bounded tail reads for these append-only records.
