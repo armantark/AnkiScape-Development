@@ -198,11 +198,13 @@ Process one unblocked item per iteration. Move discovered design gaps to
      item `18830` and item `18832` one-to-one to the Asgarnian Ice Dungeon and
      Daemonheim routes. Preserve both IDs until a period source settles the pair.
 5. [x] The active goal is paused through `memory-bank/GOAL-BLOCKED.md`.
-   Native tab overflow and bounded queue tooling passed exact MacBook promotion
-   gates and landed. The final audit found no unblocked remainder, no
-   `implementation_ready`, no accepted unmerged slice, and no
-   `investigation_only` item. Collections remains `integration_blocked` because
-   normal-profile Anki PID `85356` and four descendants remain live. The single
-   unblock action is a normal owner quit through Anki's user interface on the
-   MacBook Pro. Cooking remains `native_verification_blocked`; all other active
-   remainders have exact owner, source, quota, or deferred-depth classes.
+   The owner requested a clean break on 2026-08-30. Canonical `main` remains at
+   `faa4add6cc2e03bb797af504970f9b290f3c559b` with an another-writer change to
+   `memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json`.
+   Resume only after canonical `main` is clean at one stable `HEAD`.
+   Papercut remediation was a separate owner request, not an original-goal
+   queue item. Three clean, reviewed branches remain unmerged: `63a3409c`,
+   `b861cdec`, and `8f1092db`. Only `63a3409c` completed its MacBook plain lane;
+   its Qt lane and both later gates remain unrun. Collections contains no
+   non-UI product correction and now also requires an explicit owner decision
+   under the existing-interface approval boundary.

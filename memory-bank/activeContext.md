@@ -1,8 +1,22 @@
 # Active Context
 
-Last staleness sweep: 2026-08-28
+Last staleness sweep: 2026-08-30
 
-## Goal paused on the owner-owned Anki process — 2026-08-28
+## Clean break — 2026-08-30
+
+- The owner requested a clean break. The papercut implementation workflow and all dispatched reviews are complete. The sequential MacBook gate task was stopped, and no background task remains.
+- Canonical `main` remains at `faa4add6cc2e03bb797af504970f9b290f3c559b`. It has two uncommitted Memory Bank files: this session's pause record in `memory-bank/GOAL-BLOCKED.md`, and an another-writer change to `memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json`. The foreign change has three inserted lines, 32 deleted lines, and working blob `8ecc6d48a58b41f416a0186eac66d83d932b69f5`. This session did not stage, revert, repair, or commit it.
+- Main-menu commits `d5da2f3a1921f6592fd4ec32c3b86542b0ca71a6` and `03ea285df1a9b7d120179e9e5bbf5356468a3b8a` removed every autonomous tab layout and style change. An independent Opus review accepted the exact restoration, and both MacBook lanes plus all repository checks passed at `03ea285d`. Native confirmation still needs a normal Anki restart.
+- The durable UI boundary is: do not change an existing interface without explicit owner approval. Each new interface in approved work needs a frontend-taste model review before promotion.
+- Papercut remediation came from the owner's separate direct request, not from the original goal text. Triage found 14 eligible classes and independently verified four. Three bounded non-UI slices were implemented and received final cross-lineage `accept` verdicts with no findings.
+- `goal/papercut-test-cwd-2026-08-30` is clean at `63a3409c0dd3b45f87548fdbcd74056bbc758e19`. `goal/papercut-worktree-bootstrap-2026-08-30` is clean at `b861cdecf96d729e1f46b200e6e9313fd0730cb8`. `goal/papercut-reachability-check-2026-08-30` is clean at `8f1092db1b6355fe83a02eeb32b0715c36cb9d99`.
+- The first papercut branch passed the MacBook plain lane: `Ran 4526 tests in 251.013s`, `OK (skipped=513)`. Its Qt lane and both later branch gates did not run because the owner requested the break. No repository test ran on the Mac Studio. All three branches remain unmerged.
+- The preserved Collections worktree contains only an existing-interface width change, tests for that interface contract, and Memory Bank state. It contains no non-UI product correction. Do not continue or delete it without a later owner decision.
+- The 2026-08-28 normal-profile Anki process evidence below is historical. Recheck exact process arguments before any resumed native work; do not assume those PIDs remain live.
+- `memory-bank/GOAL-BLOCKED.md` preserves the active goal verbatim. Resume only after canonical `main` is clean at one stable `HEAD`.
+- Read `memory-bank/handoffs/orchestrator-lessons-2026-08-30.md` before new fan-out. It records the GLM traffic failure, corrected workflow shape, scope boundary, and exact preserved branches.
+
+## Historical normal-profile Anki pause — 2026-08-28
 
 - Canonical `main` is clean at
   `3fd9728b6b9aeb9819ee7ff372352755e0d98b7c`. Bounded queue tooling passed the
