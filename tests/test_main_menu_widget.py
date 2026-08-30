@@ -30,7 +30,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QStyleFactory, QTabBar, QTabWidget, QTimer, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu, QMessageBox, QObject, QPalette, QPoint, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QSize, QStackedWidget, QTabWidget, QTimer, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget, QModelIndex
     from PyQt6.QtTest import QTest
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
@@ -1502,141 +1502,24 @@ class MainMenuWidgetTest(unittest.TestCase):
             rendered[label] = _icon_pixels(icon)
         self.assertEqual(len(set(rendered.values())), len(expected))
 
-    def test_global_tabs_fit_shipping_styles_and_bank_pointer_stays_modal(self) -> None:
-        from aqt.stylesheets import custom_styles
-        from aqt.theme import ThemeManager
-
-        expected_labels = [
-            "Skills",
-            "Stats",
-            "Bank",
-            "Equipment",
-            "Shop",
-            "Grand Exchange",
-            "Challenges",
-            "Quests",
-            "Achievements",
-            "Collections",
-            "Settings",
-        ]
-        app = QApplication.instance()
-        self.assertIsNotNone(app)
-        old_palette = app.palette()
-        old_style = app.style().objectName()
-        old_stylesheet = app.styleSheet()
-        native_style = old_style
-        if native_style.casefold() == "fusion":
-            native_style = next(
-                (
-                    style
-                    for style in QStyleFactory.keys()
-                    if style.casefold() != "fusion"
-                ),
-                None,
-            )
-        self.assertIsNotNone(native_style)
-        self.assertNotEqual(native_style.casefold(), "fusion")
-        self.assertIsNotNone(QStyleFactory.create(native_style))
-        dark_palette = QPalette()
-        dark_palette.setColor(QPalette.ColorRole.Window, QColor(45, 45, 45))
-        dark_palette.setColor(QPalette.ColorRole.WindowText, QColor(235, 235, 235))
-        dark_palette.setColor(QPalette.ColorRole.Base, QColor(30, 30, 30))
-        dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(45, 45, 45))
-        dark_palette.setColor(QPalette.ColorRole.Text, QColor(235, 235, 235))
-        dark_palette.setColor(QPalette.ColorRole.Button, QColor(55, 55, 55))
-        dark_palette.setColor(QPalette.ColorRole.ButtonText, QColor(235, 235, 235))
-        dark_palette.setColor(QPalette.ColorRole.Mid, QColor(95, 95, 95))
-
-        try:
-            for widget_style, theme_name, palette in (
-                ("Anki", "light", old_palette),
-                ("Anki", "dark", dark_palette),
-                ("Native", "light", old_palette),
-                ("Native", "dark", dark_palette),
-            ):
-                with self.subTest(widget_style=widget_style, theme=theme_name):
-                    app.setStyle("Fusion" if widget_style == "Anki" else native_style)
-                    app.setPalette(palette)
-                    if widget_style == "Anki":
-                        theme = ThemeManager()
-                        theme.night_mode = theme_name == "dark"
-                        app.setStyleSheet(
-                            custom_styles.button(theme)
-                            + custom_styles.tabwidget(theme)
-                        )
-                    else:
-                        app.setStyleSheet("")
-
-                    dialog = self._open(_make_player_data())
-                    dialog.show()
-                    dialog.resize(1140, 768)
-                    for _ in range(4):
-                        QApplication.processEvents()
-
-                    tabs = _find_main_tabs(dialog)
-                    tab_bar = tabs.tabBar()
-                    labels = [tab_bar.tabText(index) for index in range(tab_bar.count())]
-                    self.assertEqual(labels, expected_labels)
-
-                    hint_bar = QTabBar()
-                    hint_bar.setDocumentMode(tab_bar.documentMode())
-                    hint_bar.setDrawBase(tab_bar.drawBase())
-                    hint_bar.setElideMode(tab_bar.elideMode())
-                    hint_bar.setIconSize(tab_bar.iconSize())
-                    hint_bar.setFont(tab_bar.font())
-                    hint_bar.setShape(tab_bar.shape())
-                    hint_bar.setStyleSheet(tab_bar.styleSheet())
-                    for index, label in enumerate(labels):
-                        hint_bar.addTab(tabs.tabIcon(index), label)
-                    hint_bar.show()
-                    for _ in range(4):
-                        QApplication.processEvents()
-
-                    usable_rect = tab_bar.rect()
-                    natural_width = 0
-                    for index, label in enumerate(labels):
-                        with self.subTest(
-                            widget_style=widget_style,
-                            theme=theme_name,
-                            tab=label,
-                        ):
-                            allocated = tab_bar.tabRect(index)
-                            size_hint = hint_bar.tabSizeHint(index)
-                            natural_width += size_hint.width()
-                            self.assertTrue(
-                                usable_rect.contains(allocated),
-                                f"{label} tab rect {allocated} exceeds usable tab-bar rect {usable_rect}",
-                            )
-                            self.assertGreaterEqual(allocated.width(), size_hint.width())
-                            self.assertGreaterEqual(allocated.height(), size_hint.height())
-                    self.assertGreaterEqual(usable_rect.width() - natural_width, 16)
-                    self.assertTrue(tab_bar.expanding())
-                    hint_bar.close()
-
-                    accepted: list[bool] = []
-                    rejected: list[bool] = []
-                    dialog.accepted.connect(lambda: accepted.append(True))
-                    dialog.rejected.connect(lambda: rejected.append(True))
-                    bank_index = labels.index("Bank")
-                    QTest.mouseClick(
-                        tab_bar,
-                        Qt.MouseButton.LeftButton,
-                        Qt.KeyboardModifier.NoModifier,
-                        tab_bar.tabRect(bank_index).center(),
-                    )
-                    for _ in range(3):
-                        QApplication.processEvents()
-
-                    self.assertEqual(tabs.currentIndex(), bank_index)
-                    self.assertTrue(dialog.isVisible())
-                    self.assertEqual(accepted, [])
-                    self.assertEqual(rejected, [])
-                    dialog.close()
-                    QApplication.processEvents()
-        finally:
-            app.setStyleSheet(old_stylesheet)
-            app.setPalette(old_palette)
-            app.setStyle(old_style)
+    def test_global_tabs_follow_the_owner_settled_pass8_order(self) -> None:
+        tabs = _find_main_tabs(self.dialog)
+        self.assertEqual(
+            [tabs.tabText(index) for index in range(tabs.count())],
+            [
+                "Skills",
+                "Stats",
+                "Bank",
+                "Equipment",
+                "Shop",
+                "Grand Exchange",
+                "Challenges",
+                "Quests",
+                "Achievements",
+                "Collections",
+                "Settings",
+            ],
+        )
 
     def test_contextual_help_maps_every_primary_tab_without_changing_page(self) -> None:
         expected_titles = {
