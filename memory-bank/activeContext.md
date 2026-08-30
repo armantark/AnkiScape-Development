@@ -2,6 +2,33 @@
 
 Last staleness sweep: 2026-08-30
 
+## Stale diary identities no longer affect live state — 2026-08-30
+
+- The three corrected progression-anchor identities can remain in version-121
+  saves as stale `completed_tasks` or `pinned_task` strings. A rename-remap
+  migration would not reach saves already at `CURRENT_CONFIG_VERSION = 121`,
+  so the live consumers now fail closed instead.
+- `logic/achievement_diary_logic.py::_award_task_coins` counts only
+  `_ACTIVE_TASK_IDS` when deriving the Miscellaneous reward ordinal. Before the
+  filter, three stale anchor ids changed the next payout from 100 coins to 400
+  and raised the synthetic 35-row maximum from 63,000 to 73,500 coins, an exact
+  10,500-coin overpayment. After the filter, the next payout is 100 with or
+  without stale ids; the same probe pays 52,000 in both cases and the excess is
+  0.
+- `sanitize_achievement_diary_state_pure` clears a non-empty `pinned_task` when
+  `diary_task_by_id_pure` cannot resolve it. Valid pins retain the existing
+  behavior. The curation-ledger README now says only that the 22 progression
+  anchors are outside its scope; it no longer claims they remain unchanged.
+- Red tests reproduced exact failures `AssertionError: 400 != 100` and
+  `AssertionError: 'falador_medium_reach_level_60_fletching' != ''`. The two
+  focused regressions then passed in 0.001 seconds. Plain passed 4,528 tests in
+  401.638 seconds with 513 skips; genuine offscreen Qt passed 4,528 tests in
+  694.772 seconds with 3 skips. Test quality reports 4,493 tests across 221
+  files and 0 hard issues. All seven item-reachability pins remain unchanged.
+- A proposed test that derives all 25 skill mappings from the external Darkan
+  checkout remains deliberately declined: repository tests must stay hermetic
+  rather than depend on that checkout being present at a particular revision.
+
 ## Achievement Diary skill rotation repaired — 2026-08-30
 
 - Branch `goal/diary-skill-rotation-2026-08-30` repairs the generator's

@@ -71,7 +71,7 @@ Allowed values are exactly:
 
 ## Deed-only rule
 
-A diary task completes only when its deed occurs. Skill levels, quest states, inventory ownership, equipment ownership, and route access are access gates unless the source deed itself requires that state at action time. They must never substitute for the deed. The only level-trigger exceptions are the 22 explicitly labelled progression anchors, which are outside this ledger and remain unchanged.
+A diary task completes only when its deed occurs. Skill levels, quest states, inventory ownership, equipment ownership, and route access are access gates unless the source deed itself requires that state at action time. They must never substitute for the deed. The only level-trigger exceptions are the 22 explicitly labelled progression anchors, which are outside this ledger.
 
 ## Citation rule
 

@@ -46,6 +46,7 @@ from ankiscape.logic.achievement_diary_derived import (
     DIARY_DERIVED_VALUES,
 )
 from ankiscape.logic.achievement_diary_logic import (
+    _award_task_coins,
     achievement_cabinet_view_pure,
     apply_achievement_diary_command_pure,
     claim_diary_tier_pure,
@@ -54,6 +55,7 @@ from ankiscape.logic.achievement_diary_logic import (
     diary_totals_pure,
     pin_diary_task_pure,
     refresh_achievement_diaries_pure,
+    sanitize_achievement_diary_state_pure,
     task_progress_pure,
     tier_claim_state_pure,
     tier_reward_names_pure,
@@ -1590,6 +1592,31 @@ class TaskProgressTest(unittest.TestCase):
         self.assertGreater(ordinal, 1)
         self.assertEqual(player["inventory"]["Coins"] - before, 100 * ordinal)
 
+    def test_stale_task_ids_do_not_inflate_the_next_miscellaneous_reward(self):
+        task = next(
+            task
+            for family in ACHIEVEMENT_DIARY_CATALOG
+            if family.id == "miscellaneous"
+            for tier in family.tiers
+            for task in tier.tasks
+            if task.coin_reward
+        )
+        player = _fresh()
+        player["achievement_diaries"]["completed_tasks"] = [
+            "falador_medium_reach_level_60_fletching",
+            "seers_hard_reach_level_65_firemaking",
+            "seers_elite_reach_level_80_firemaking",
+            task.id,
+        ]
+        before = int(player["inventory"].get("Coins", 0))
+
+        player = _award_task_coins(player, (task.id,))
+
+        self.assertEqual(
+            player["inventory"]["Coins"] - before,
+            task.coin_reward,
+        )
+
     def test_burthorpe_course_gameplay_completes_lapping_it_up(self):
         from ankiscape.data.agility_data import AGILITY_TARGETS_BY_ID
         from ankiscape.logic.agility_logic import apply_agility_review_pure
@@ -1869,6 +1896,16 @@ class PinAndCommandTest(unittest.TestCase):
         rows = view["families"][0]["tiers"][0]["tasks"]
         self.assertEqual(rows[0]["task_id"], target.id)
         self.assertTrue(rows[0]["pinned"])
+
+    def test_sanitizer_clears_a_pin_for_a_removed_task(self):
+        player = _fresh()
+        player["achievement_diaries"][
+            "pinned_task"
+        ] = "falador_medium_reach_level_60_fletching"
+
+        sanitized = sanitize_achievement_diary_state_pure(player)
+
+        self.assertEqual(sanitized["achievement_diaries"]["pinned_task"], "")
 
     def test_pinning_the_pinned_task_clears_the_pin(self):
         family = next(f for f in ACHIEVEMENT_DIARY_CATALOG if f.id == "varrock")

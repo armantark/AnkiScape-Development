@@ -1,5 +1,37 @@
 # Progress
 
+## Stale diary identities no longer affect live state — 2026-08-30
+
+The skill-label correction renamed three progression-anchor task ids. Current
+version-121 saves can therefore retain stale ids even though no migration can
+reach them. The follow-up keeps the smaller live-state boundary: Miscellaneous
+coin ordinals intersect `completed_tasks` with `_ACTIVE_TASK_IDS`, and diary
+state sanitization clears a pin that no catalog task resolves. No rename-remap
+migration was added.
+
+The pre-fix measurement used all three stale anchor ids. A clean next task paid
+100 coins while the stale save paid 400. Across the 35 coin-bearing
+Miscellaneous rows, the clean synthetic total was 63,000, the stale total was
+73,500, and the maximum excess was 10,500. After the fix, clean and stale next
+tasks both pay 100; the two 35-row probes both pay 52,000 and the excess is 0.
+The probe invokes all 35 rows directly, including 5 dormant rows; its purpose is
+to bound stale-id influence, not to model a reachable completion sequence.
+
+The payout regression failed before the fix with `AssertionError: 400 != 100`.
+The stale-pin regression failed with
+`AssertionError: 'falador_medium_reach_level_60_fletching' != ''`. Both pass
+after the fix: `Ran 2 tests in 0.001s` / `OK`. Full plain verification reports
+`Ran 4528 tests in 401.638s` / `OK (skipped=513)`, and genuine offscreen Qt
+reports `Ran 4528 tests in 694.772s` / `OK (skipped=3)`. Test quality reports
+`4493 tests across 221 files` and `hard issues: 0`; reachability remains at
+1,600 actions, 2,217 reachable items, 192 orphan inputs, 40 root orphans, 152
+cascade orphans, 284 unresolved actions, and 1,164 seed items.
+
+`memory-bank/diary-curation-ledger/README.md` now states only that the 22
+progression anchors are outside the ledger. The suggested non-hermetic test
+that parses all 25 mappings from the external Darkan checkout remains declined:
+it would make repository tests depend on that checkout's presence and revision.
+
 ## Achievement Diary skill rotation repaired — 2026-08-30
 
 Branch `goal/diary-skill-rotation-2026-08-30` corrects
