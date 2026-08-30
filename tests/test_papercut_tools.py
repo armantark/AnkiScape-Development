@@ -1,4 +1,5 @@
 import io
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -16,6 +17,37 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PapercutToolTests(unittest.TestCase):
+    def test_runner_anchors_process_cwd_to_its_checkout_root(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            checkout = temp_root / "Anki2" / "ankiscape_worktrees" / "cwd-fixture"
+            tests_dir = checkout / "tests"
+            unrelated_cwd = temp_root / "unrelated"
+            tests_dir.mkdir(parents=True)
+            unrelated_cwd.mkdir()
+            shutil.copy2(ROOT / "run_tests.py", checkout / "run_tests.py")
+            (tests_dir / "test_cwd_probe.py").write_text(
+                "import unittest\n"
+                "from pathlib import Path\n"
+                "\n"
+                "\n"
+                "class RunnerCwdProbe(unittest.TestCase):\n"
+                "    def test_process_cwd_is_fixture_checkout_root(self):\n"
+                "        self.assertEqual(Path.cwd(), Path(__file__).resolve().parents[1])\n",
+                encoding="utf-8",
+            )
+
+            completed = subprocess.run(
+                [sys.executable, str((checkout / "run_tests.py").resolve())],
+                cwd=unrelated_cwd,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("Ran 1 test", completed.stderr)
+
     def test_focused_runner_selects_discovered_ids_without_guessed_attributes(self):
         class AlphaFixture(unittest.TestCase):
             def test_first_branch(self):
