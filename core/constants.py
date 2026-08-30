@@ -396,6 +396,7 @@ from ..data.hunter_data import (
 from .item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
 from ..data.quest_data import (
     CLAIMS_BY_ID,
+    GERTRUDES_CAT_WIKI_SOURCE,
     QUESTS_BY_ID,
     claims_as_dict,
     quest_reward_items_as_dict,
@@ -655,6 +656,16 @@ UTILITY_ACTIVITY_DATA = {
         "icon_path": os.path.join(HERBLORE_ITEMS_FOLDER, "black_mushroom.png"),
         "group": "gathering",
         "source": "https://runescape.wiki/w/Black_mushroom?oldid=5513228",
+    },
+    "gather_doogle_leaves": {
+        "display_name": "Gather Doogle leaves",
+        "requirements": {},
+        "output_item": "Doogle leaves",
+        "output_qty": 1,
+        "batch_size": 2,
+        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "doogle_leaves.png"),
+        "group": "gathering",
+        "source": GERTRUDES_CAT_WIKI_SOURCE,
     },
     "grab_desert_phoenix_feather": {
         "display_name": "Grab Desert Phoenix feather",

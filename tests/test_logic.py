@@ -890,6 +890,17 @@ class TestLogic(unittest.TestCase):
         self.assertEqual((exp, processed), (0, 1))
         self.assertEqual(new_inv, {"Black mushroom": 1})
 
+    def test_doogle_leaves_trip_gathers_the_two_quest_spawns_without_xp(self):
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "gather_doogle_leaves",
+            {},
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 2))
+        self.assertEqual(new_inv, {"Doogle leaves": 2})
+
     def test_black_mushroom_ink_requires_and_consumes_an_empty_vial(self):
         locked_inv, exp, ok, processed = apply_utility_activity_pure(
             "grind_black_mushroom",

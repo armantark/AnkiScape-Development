@@ -1387,8 +1387,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1600)
-        self.assertEqual(report["reachable_item_count"], 2217)
+        self.assertEqual(report["action_count"], 1601)
+        self.assertEqual(report["reachable_item_count"], 2230)
         self.assertEqual(
             report["routes"].get("Living water"),
             "quest-stage:druidic_ritual:2",
@@ -1416,7 +1416,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["root_orphan_count"], 40)
         self.assertEqual(report["cascade_orphan_count"], 152)
         self.assertEqual(report["unresolved_action_count"], 284)
-        self.assertEqual(report["seed_item_count"], 1164)
+        self.assertEqual(report["seed_item_count"], 1176)
         self.assertFalse(
             [
                 row
@@ -1464,7 +1464,14 @@ class TestItemReachabilityAudit(unittest.TestCase):
                 row
                 for row in report["blocked_quest_stage_products"]
                 if row["quest_id"]
-                in {"wolf_whistle", "song_from_the_depths", "some_like_it_cold"}
+                in {
+                    "gertrudes_cat",
+                    "icthlarins_little_helper",
+                    "smoking_kills",
+                    "some_like_it_cold",
+                    "song_from_the_depths",
+                    "wolf_whistle",
+                }
             ]
         )
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
@@ -1603,6 +1610,18 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(
             report["routes"]["Black mushroom ink"],
             "Utility:grind_black_mushroom",
+        )
+        self.assertEqual(
+            report["routes"]["Doogle leaves"],
+            "Utility:gather_doogle_leaves",
+        )
+        self.assertEqual(
+            report["routes"]["Doogle sardine"],
+            "quest-stage:gertrudes_cat:5",
+        )
+        self.assertEqual(
+            report["routes"]["Kitten"],
+            "quest:gertrudes_cat",
         )
         self.assertEqual(
             report["routes"]["Dramen branch"],

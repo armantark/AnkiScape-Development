@@ -16554,6 +16554,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ("gather_blue_dragon_scales", "Blue dragon scale"),
             ("gather_potato_cacti", "Potato cactus"),
             ("gather_black_mushrooms", "Black mushroom"),
+            ("gather_doogle_leaves", "Doogle leaves"),
         ):
             with self.subTest(action_id=action_id):
                 row = _utility_row(utility_tree, action_id)
@@ -16573,6 +16574,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "gather_blue_dragon_scales",
                 "gather_potato_cacti",
                 "gather_black_mushrooms",
+                "gather_doogle_leaves",
             ],
         )
 

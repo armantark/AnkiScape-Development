@@ -5570,6 +5570,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             ("gather_blue_dragon_scales", "Blue dragon scale", 7),
             ("gather_potato_cacti", "Potato cactus", 3),
             ("gather_black_mushrooms", "Black mushroom", 1),
+            ("gather_doogle_leaves", "Doogle leaves", 2),
         )
         for action_id, output_item, output_qty in cases:
             with self.subTest(action_id=action_id):

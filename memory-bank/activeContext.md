@@ -2,6 +2,37 @@
 
 Last staleness sweep: 2026-08-30
 
+## Doogle leaves now close Gertrude's Cat stage 5 — 2026-08-30
+
+- The Darkan thread supplied RuneScape Wiki revision `5819038` through a
+  doorbell. AnkiScape independently fetched
+  `https://runescape.wiki/w/Special:PermanentLink/5819038`, which resolved with
+  HTTP 200 to oldid `5819038`; the API pinned title `Gertrude's Cat`, parent
+  `5807360`, and UTC timestamp `2012-06-24T05:50:56Z`. The literal walkthrough
+  says to pick up two Doogle leaves behind Gertrude's house and use the leaves
+  on a raw sardine. The source audit is the stop marker so neither project
+  harvests this evidence again.
+- `Utility:gather_doogle_leaves` now grants the directly stated two-item batch,
+  with no requirements and no XP. It reuses the generic Utility saved-target,
+  runtime, telemetry, persistence, and review-undo paths; the existing Qt
+  selector contract adds only the new row.
+- The pre-cutoff `questitems/doogle_leaves.png` asset and provenance are reused.
+  OpenRS2 revisions 727 and 742 agree that Doogle leaves are item `1573` and
+  Doogle sardine is item `1552`; both are non-stackable and non-exchangeable.
+  The source states the batch quantity directly, so no placeholder was added.
+- The seven reachability pins move from `1600 / 2217 / 192 / 40 / 152 / 284 /
+  1164` to `1601 / 2230 / 192 / 40 / 152 / 284 / 1176`. Gertrude's Cat stage 5
+  no longer appears in `blocked_quest_stage_products`, and completable quests
+  rise from 40 to 43 by adding Gertrude's Cat, Icthlarin's Little Helper, and
+  Smoking Kills.
+- Final local verification is green. Plain ran `4535 tests in 396.606s` with
+  `skipped=513`; offscreen Qt ran `4535 tests in 686.415s` with `skipped=3`.
+  The documentation audit passed across 606 Markdown and 441 HTML files, and
+  the test-quality audit found 4,500 tests across 221 files with zero hard
+  issues. The reachability command retains exit 1 because the global baseline
+  still has 284 unresolved actions; the Doogle routes and stage blocker are
+  resolved.
+
 ## Remote promotion mirror rejects Studio-only worktree links — 2026-08-30
 
 - Commit `b861cdecf96d729e1f46b200e6e9313fd0730cb8` made every newly

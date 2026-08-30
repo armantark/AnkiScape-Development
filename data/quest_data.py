@@ -370,6 +370,7 @@ DARKAN_GERTRUDES_CAT_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/gertrudescat"
 DARKAN_GERTRUDES_CAT_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/GertrudesCat.java"
 DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/GertrudeD.java"
 DARKAN_GERTRUDES_CAT_CHILDREN_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/ShilopWiloughD.java"
+GERTRUDES_CAT_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/5819038"
 DARKAN_CLOCK_TOWER_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/clocktower"
 DARKAN_CLOCK_TOWER_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTower.java"
 DARKAN_CLOCK_TOWER_DUNGEON_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTowerDungeon.java"
@@ -11847,11 +11848,24 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         },
         "Doogle leaves": {
             "category": "material",
-            "source": f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            "item_id": 1573,
+            "tradeable": False,
+            "stackable": False,
+            "source": (
+                f"{GERTRUDES_CAT_WIKI_SOURCE}; {DARKAN_GERTRUDES_CAT_SOURCE}; "
+                f"{DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE}; "
+                "OpenRS2 cache rev 727 and rev-742 item 1573"
+            ),
         },
         "Doogle sardine": {
             "category": "food",
-            "source": f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            "item_id": 1552,
+            "tradeable": False,
+            "stackable": False,
+            "source": (
+                f"{GERTRUDES_CAT_WIKI_SOURCE}; {DARKAN_GERTRUDES_CAT_SOURCE}; "
+                "OpenRS2 cache rev 727 and rev-742 item 1552"
+            ),
         },
         "Three little kittens": {
             "category": "material",

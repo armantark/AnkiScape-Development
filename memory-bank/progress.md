@@ -1,5 +1,48 @@
 # Progress
 
+## Doogle leaves acquisition closes the Gertrude stage blocker — 2026-08-30
+
+The Darkan thread supplied oldid `5819038` through a doorbell, and AnkiScape
+independently pinned the permanent URL
+`https://runescape.wiki/w/Special:PermanentLink/5819038`. The fetched revision
+is `Gertrude's Cat`, parent `5807360`, timestamp `2012-06-24T05:50:56Z`. Its
+literal wikitext identifies the source behind Gertrude's house, tells the
+player to pick up two Doogle leaves, and confirms that the leaves are rubbed on
+a raw sardine to produce a Doogle sardine. The new source audit records the
+handoff so neither project harvests the revision again.
+
+The established Utility gathering contract now exposes
+`gather_doogle_leaves`: no materials, no XP, two Doogle leaves per successful
+review, and the existing period sprite. The generic Utility path owns target
+persistence, runtime recording, and answer undo. OpenRS2 revisions 727 and 742
+both identify Doogle leaves as item `1573` and Doogle sardine as item `1552`,
+non-stackable and non-exchangeable, so the quest-item registry no longer uses
+generic defaults for either item. The source states the batch quantity; there
+is no hidden roll and no placeholder register entry.
+
+Reachability moves from 1,600 actions, 2,217 reachable items, 192 orphan
+inputs, 40 root orphans, 152 cascade orphans, 284 unresolved actions, and 1,164
+seed items to 1,601 / 2,230 / 192 / 40 / 152 / 284 / 1,176. Gertrude's Cat
+stage 5 is absent from `blocked_quest_stage_products`. The completable-quest
+count rises from 40 to 43; the newly completable quests are Gertrude's Cat,
+Icthlarin's Little Helper, and Smoking Kills.
+
+The audit keeps `Stew` reachable but changes its selected route from
+`shop:warrior_guild_food_shop` to `quest:gertrudes_cat`; that pre-existing
+route-attribution order dependence is recorded but not changed here. Doogle
+sardine also retains its pre-existing `food` category because the pinned quest
+revision proves only that Fluffs consumes it; a separate item-page audit must
+settle player edibility before changing the category.
+
+Final local verification passed. Plain ran `4535 tests in 396.606s`,
+`OK (skipped=513)`; offscreen Qt ran `4535 tests in 686.415s`,
+`OK (skipped=3)`. The documentation audit passed across 606 Markdown and 441
+HTML files. The test-quality audit measured 4,500 tests across 221 files with
+zero hard issues. The required Kimi K3 review was unavailable with HTTP 403
+`You've reached your weekly (7-day) usage limit`; Opus supplied the disclosed
+taste substitute and GLM 5.3 Flash found no actionable issues in the final
+cross-lineage check.
+
 ## Remote promotion sync excludes guarded-worktree links — 2026-08-30
 
 Commit `b861cdecf96d729e1f46b200e6e9313fd0730cb8` created each guarded

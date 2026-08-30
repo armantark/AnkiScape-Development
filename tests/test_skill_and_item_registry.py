@@ -1012,6 +1012,53 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         )
         self.assertTrue(os.path.isfile(item.asset_path or ""))
 
+    def test_doogle_leaves_acquisition_preserves_period_chain_and_art(self):
+        action = UTILITY_ACTIVITY_DATA["gather_doogle_leaves"]
+        self.assertEqual(action["requirements"], {})
+        self.assertEqual(action["output_item"], "Doogle leaves")
+        self.assertEqual(action["batch_size"], 2)
+        self.assertEqual(action["group"], "gathering")
+        self.assertIn("5819038", action["source"])
+
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Doogle leaves": (1573, "doogle_leaves.png", (29, 22)),
+            "Doogle sardine": (1552, "doogle_sardine.png", (32, 24)),
+        }
+        for item_name, (item_id, filename, dimensions) in expected.items():
+            with self.subTest(item_name=item_name):
+                item = by_storage_key[item_name]
+                self.assertEqual(item.source_item_id, item_id)
+                self.assertFalse(item.stackable)
+                self.assertFalse(item.tradeable)
+                self.assertEqual(os.path.basename(item.asset_path or ""), filename)
+                with open(item.asset_path or "", "rb") as icon_file:
+                    self.assertEqual(
+                        struct.unpack(">II", icon_file.read(24)[16:24]),
+                        dimensions,
+                    )
+
+        with open(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets_provenance.json"),
+            encoding="utf-8",
+        ) as file_obj:
+            provenance = json.load(file_obj)
+        expected_provenance = {
+            "questitems/doogle_leaves.png": (
+                "2011-11-20T04:06:53Z",
+                "ab8edfd7de3a2bf9503ee43ed99e39f52250bfbd",
+            ),
+            "questitems/doogle_sardine.png": (
+                "2011-11-28T11:28:05Z",
+                "e8d2006198864a4959b66be100b21bb9e7970f4c",
+            ),
+        }
+        for asset_key, (timestamp, sha1) in expected_provenance.items():
+            with self.subTest(asset_key=asset_key):
+                self.assertEqual(provenance[asset_key]["timestamp"], timestamp)
+                self.assertEqual(provenance[asset_key]["sha1"], sha1)
+                self.assertIn("/archive/", provenance[asset_key]["image_url"])
+
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name in (
