@@ -225,7 +225,7 @@ DIARY_FAMILIES = (
                 30,
                 0,
                 False,
-                access_gates=(DiaryCondition('quest', 'enlightened_journey', 1, 'Complete Enlightened Journey'), DiaryCondition('skill_level', 'woodcutting', 50, 'Level 50 Woodcutting'),),
+                access_gates=(DiaryCondition('quest', 'enlightened_journey', 1, 'Complete Enlightened Journey'), DiaryCondition('skill_level', 'firemaking', 50, 'Level 50 Firemaking'),),
             ),
             DiaryTask(
                 'ardougne_medium_meeting_history_again',
@@ -530,7 +530,7 @@ DIARY_FAMILIES = (
                 60,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'smithing', 91, 'Level 91 Smithing'), DiaryCondition('skill_level', 'firemaking', 69, 'Level 69 Firemaking'),),
+                access_gates=(DiaryCondition('skill_level', 'smithing', 91, 'Level 91 Smithing'), DiaryCondition('skill_level', 'fletching', 69, 'Level 69 Fletching'),),
             ),
             DiaryTask(
                 'ardougne_hard_a_taste_of_the_exotic',
@@ -830,7 +830,7 @@ DIARY_FAMILIES = (
                 136,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'woodcutting', 49, 'Level 49 Woodcutting'),),
+                access_gates=(DiaryCondition('skill_level', 'firemaking', 49, 'Level 49 Firemaking'),),
             ),
             DiaryTask(
                 'falador_medium_they_have_families_to_feed',
@@ -888,10 +888,10 @@ DIARY_FAMILIES = (
                 access_gates=(DiaryCondition('quest', 'recruitment_drive', 1, 'Complete Recruitment Drive'), DiaryCondition('skill_level', 'defense', 20, 'Level 20 Defense'), DiaryCondition('skill_level', 'prayer', 10, 'Level 10 Prayer'),),
             ),
             DiaryTask(
-                'falador_medium_reach_level_60_fletching',
-                'Reach Level 60 Fletching',
+                'falador_medium_reach_level_60_woodcutting',
+                'Reach Level 60 Woodcutting',
                 'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'fletching', 60, 'Level 60 Fletching'),),
+                (DiaryCondition('skill_level', 'woodcutting', 60, 'Level 60 Woodcutting'),),
                 'AnkiScape progression anchor derived from Darkan FaladorTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
                 900111,
                 0,
@@ -943,7 +943,7 @@ DIARY_FAMILIES = (
                 145,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'farming', 60, 'Level 60 Farming'), DiaryCondition('skill_level', 'fletching', 60, 'Level 60 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'farming', 60, 'Level 60 Farming'), DiaryCondition('skill_level', 'woodcutting', 60, 'Level 60 Woodcutting'),),
             ),
             DiaryTask(
                 'falador_hard_the_stonemasons',
@@ -1097,7 +1097,7 @@ DIARY_FAMILIES = (
                 312,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'farming', 75, 'Level 75 Farming'), DiaryCondition('skill_level', 'fletching', 75, 'Level 75 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'farming', 75, 'Level 75 Farming'), DiaryCondition('skill_level', 'woodcutting', 75, 'Level 75 Woodcutting'),),
             ),
             DiaryTask(
                 'falador_elite_i_ve_changed_my_mind',
@@ -1541,7 +1541,7 @@ DIARY_FAMILIES = (
                 177,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'crafting', 52, 'Level 52 Crafting'), DiaryCondition('skill_level', 'woodcutting', 52, 'Level 52 Woodcutting'),),
+                access_gates=(DiaryCondition('skill_level', 'crafting', 52, 'Level 52 Crafting'), DiaryCondition('skill_level', 'firemaking', 52, 'Level 52 Firemaking'),),
             ),
             DiaryTask(
                 'fremennik_hard_fish_fingers',
@@ -1695,7 +1695,7 @@ DIARY_FAMILIES = (
                 321,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'crafting', 85, 'Level 85 Crafting'), DiaryCondition('skill_level', 'woodcutting', 85, 'Level 85 Woodcutting'),),
+                access_gates=(DiaryCondition('skill_level', 'crafting', 85, 'Level 85 Crafting'), DiaryCondition('skill_level', 'firemaking', 85, 'Level 85 Firemaking'),),
             ),
             DiaryTask(
                 'fremennik_elite_this_hasta_work',
@@ -1979,7 +1979,7 @@ DIARY_FAMILIES = (
                 196,
                 0,
                 False,
-                access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'fletching', 10, 'Level 10 Fletching'),),
+                access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'woodcutting', 10, 'Level 10 Woodcutting'),),
             ),
             DiaryTask(
                 'karamja_medium_arachnophagia',
@@ -2012,7 +2012,7 @@ DIARY_FAMILIES = (
                 199,
                 0,
                 False,
-                access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'fletching', 35, 'Level 35 Fletching'),),
+                access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'woodcutting', 35, 'Level 35 Woodcutting'),),
             ),
             DiaryTask(
                 'karamja_medium_i_sleep_all_night_and_i_work_all_day',
@@ -2023,7 +2023,7 @@ DIARY_FAMILIES = (
                 200,
                 0,
                 False,
-                access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'fletching', 50, 'Level 50 Fletching'),),
+                access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'woodcutting', 50, 'Level 50 Woodcutting'),),
             ),
             DiaryTask(
                 'karamja_medium_to_catch_a_karambwan',
@@ -2114,7 +2114,7 @@ DIARY_FAMILIES = (
                 216,
                 0,
                 False,
-                access_gates=(DiaryCondition('quest', 'legends_quest', 1, "Complete Legends' Quest"), DiaryCondition('skill_level', 'fletching', 15, 'Level 15 Fletching'), DiaryCondition('skill_level', 'agility', 50, 'Level 50 Agility'), DiaryCondition('skill_level', 'strength', 50, 'Level 50 Strength'), DiaryCondition('skill_level', 'thieving', 50, 'Level 50 Thieving'), DiaryCondition('skill_level', 'mining', 52, 'Level 52 Mining'),),
+                access_gates=(DiaryCondition('quest', 'legends_quest', 1, "Complete Legends' Quest"), DiaryCondition('skill_level', 'woodcutting', 15, 'Level 15 Woodcutting'), DiaryCondition('skill_level', 'agility', 50, 'Level 50 Agility'), DiaryCondition('skill_level', 'strength', 50, 'Level 50 Strength'), DiaryCondition('skill_level', 'thieving', 50, 'Level 50 Thieving'), DiaryCondition('skill_level', 'mining', 52, 'Level 52 Mining'),),
             ),
             DiaryTask(
                 'karamja_hard_quick_as_a_shot',
@@ -2136,7 +2136,7 @@ DIARY_FAMILIES = (
                 218,
                 0,
                 False,
-                access_gates=(DiaryCondition('quest', 'legends_quest', 1, "Complete Legends' Quest"), DiaryCondition('skill_level', 'fletching', 15, 'Level 15 Fletching'),),
+                access_gates=(DiaryCondition('quest', 'legends_quest', 1, "Complete Legends' Quest"), DiaryCondition('skill_level', 'woodcutting', 15, 'Level 15 Woodcutting'),),
             ),
             DiaryTask(
                 'karamja_hard_yes_my_master',
@@ -2158,7 +2158,7 @@ DIARY_FAMILIES = (
                 220,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'agility', 12, 'Level 12 Agility'), DiaryCondition('skill_level', 'fletching', 34, 'Level 34 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'agility', 12, 'Level 12 Agility'), DiaryCondition('skill_level', 'woodcutting', 34, 'Level 34 Woodcutting'),),
             ),
             DiaryTask(
                 'karamja_hard_flawless_victory',
@@ -2200,7 +2200,7 @@ DIARY_FAMILIES = (
                 206,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'fletching', 10, 'Level 10 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'woodcutting', 10, 'Level 10 Woodcutting'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.karamja.hard.lamp_minimum_level): the exact period
@@ -2691,7 +2691,7 @@ DIARY_FAMILIES = (
                 106,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'fletching', 30, 'Level 30 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'woodcutting', 30, 'Level 30 Woodcutting'),),
             ),
             DiaryTask(
                 'lumbridge_medium_always_be_prepared',
@@ -2735,7 +2735,7 @@ DIARY_FAMILIES = (
                 110,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'woodcutting', 30, 'Level 30 Woodcutting'),),
+                access_gates=(DiaryCondition('skill_level', 'firemaking', 30, 'Level 30 Firemaking'),),
             ),
             DiaryTask(
                 'lumbridge_medium_hi_ho_silver',
@@ -2870,7 +2870,7 @@ DIARY_FAMILIES = (
                 357,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'woodcutting', 60, 'Level 60 Woodcutting'),),
+                access_gates=(DiaryCondition('skill_level', 'firemaking', 60, 'Level 60 Firemaking'),),
             ),
             DiaryTask(
                 'lumbridge_easy_nowt_tool_look_at',
@@ -3134,7 +3134,7 @@ DIARY_FAMILIES = (
                 962,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'fletching', 40, 'Level 40 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'woodcutting', 40, 'Level 40 Woodcutting'),),
             ),
             DiaryTask(
                 'morytania_medium_gate_spectre_ations',
@@ -3324,7 +3324,7 @@ DIARY_FAMILIES = (
                 982,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'fletching', 76, 'Level 76 Fletching'), DiaryCondition('skill_level', 'firemaking', 70, 'Level 70 Firemaking'),),
+                access_gates=(DiaryCondition('skill_level', 'woodcutting', 76, 'Level 76 Woodcutting'), DiaryCondition('skill_level', 'fletching', 70, 'Level 70 Fletching'),),
             ),
             DiaryTask(
                 'morytania_hard_trekkin_ain_t_easy',
@@ -3345,7 +3345,7 @@ DIARY_FAMILIES = (
                 984,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'woodcutting', 62, 'Level 62 Woodcutting'), DiaryCondition('quest', 'all_fired_up', 1, 'Complete All Fired Up'),),
+                access_gates=(DiaryCondition('skill_level', 'firemaking', 62, 'Level 62 Firemaking'), DiaryCondition('quest', 'all_fired_up', 1, 'Complete All Fired Up'),),
             ),
             DiaryTask(
                 'morytania_hard_i_brought_your_stuff_back',
@@ -3447,7 +3447,7 @@ DIARY_FAMILIES = (
                 992,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'woodcutting', 80, 'Level 80 Woodcutting'),),
+                access_gates=(DiaryCondition('skill_level', 'firemaking', 80, 'Level 80 Firemaking'),),
             ),
             DiaryTask(
                 'morytania_elite_bros_before_barrows',
@@ -3776,7 +3776,7 @@ DIARY_FAMILIES = (
                 241,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'woodcutting', 45, 'Level 45 Woodcutting'), DiaryCondition('skill_level', 'summoning', 46, 'Level 46 Summoning'),),
+                access_gates=(DiaryCondition('skill_level', 'firemaking', 45, 'Level 45 Firemaking'), DiaryCondition('skill_level', 'summoning', 46, 'Level 46 Summoning'),),
             ),
             DiaryTask(
                 'seers_medium_all_your_bass',
@@ -3833,7 +3833,7 @@ DIARY_FAMILIES = (
                 246,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'fletching', 60, 'Level 60 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'woodcutting', 60, 'Level 60 Woodcutting'),),
             ),
             DiaryTask(
                 'seers_hard_the_short_of_it',
@@ -3844,7 +3844,7 @@ DIARY_FAMILIES = (
                 247,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'firemaking', 80, 'Level 80 Firemaking'),),
+                access_gates=(DiaryCondition('skill_level', 'fletching', 80, 'Level 80 Fletching'),),
             ),
             DiaryTask(
                 'seers_hard_prayer_of_attorney',
@@ -3866,7 +3866,7 @@ DIARY_FAMILIES = (
                 250,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'woodcutting', 75, 'Level 75 Woodcutting'),),
+                access_gates=(DiaryCondition('skill_level', 'firemaking', 75, 'Level 75 Firemaking'),),
             ),
             DiaryTask(
                 'seers_hard_alch_aholic',
@@ -3934,10 +3934,10 @@ DIARY_FAMILIES = (
                 False,
             ),
             DiaryTask(
-                'seers_hard_reach_level_65_firemaking',
-                'Reach Level 65 Firemaking',
+                'seers_hard_reach_level_65_fletching',
+                'Reach Level 65 Fletching',
                 'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'firemaking', 65, 'Level 65 Firemaking'),),
+                (DiaryCondition('skill_level', 'fletching', 65, 'Level 65 Fletching'),),
                 'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
                 900621,
                 0,
@@ -3988,7 +3988,7 @@ DIARY_FAMILIES = (
                 333,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'magic', 57, 'Level 57 Magic'), DiaryCondition('skill_level', 'firemaking', 65, 'Level 65 Firemaking'), DiaryCondition('skill_level', 'smithing', 73, 'Level 73 Smithing'),),
+                access_gates=(DiaryCondition('skill_level', 'magic', 57, 'Level 57 Magic'), DiaryCondition('skill_level', 'fletching', 65, 'Level 65 Fletching'), DiaryCondition('skill_level', 'smithing', 73, 'Level 73 Smithing'),),
             ),
             DiaryTask(
                 'seers_elite_the_long_of_it',
@@ -3999,7 +3999,7 @@ DIARY_FAMILIES = (
                 334,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'crafting', 10, 'Level 10 Crafting'), DiaryCondition('skill_level', 'firemaking', 85, 'Level 85 Firemaking'),),
+                access_gates=(DiaryCondition('skill_level', 'crafting', 10, 'Level 10 Crafting'), DiaryCondition('skill_level', 'fletching', 85, 'Level 85 Fletching'),),
             ),
             DiaryTask(
                 'seers_elite_plentypotionentiary',
@@ -4085,10 +4085,10 @@ DIARY_FAMILIES = (
                 True,
             ),
             DiaryTask(
-                'seers_elite_reach_level_80_firemaking',
-                'Reach Level 80 Firemaking',
+                'seers_elite_reach_level_80_fletching',
+                'Reach Level 80 Fletching',
                 'An AnkiScape curation anchor, not a period task identity.',
-                (DiaryCondition('skill_level', 'firemaking', 80, 'Level 80 Firemaking'),),
+                (DiaryCondition('skill_level', 'fletching', 80, 'Level 80 Fletching'),),
                 'AnkiScape progression anchor derived from Darkan SeersVillageTasks and rev-727 cache enum 3483 requirement rows; not a period task identity',
                 900632,
                 0,
@@ -4392,7 +4392,7 @@ DIARY_FAMILIES = (
                 292,
                 0,
                 False,
-                access_gates=(DiaryCondition('quest', 'enlightened_journey', 1, 'Complete Enlightened Journey'), DiaryCondition('skill_level', 'woodcutting', 40, 'Level 40 Woodcutting'),),
+                access_gates=(DiaryCondition('quest', 'enlightened_journey', 1, 'Complete Enlightened Journey'), DiaryCondition('skill_level', 'firemaking', 40, 'Level 40 Firemaking'),),
             ),
             ),
             # PLACEHOLDER(achievement_diaries.varrock.medium.lamp_minimum_level): the exact period
@@ -4516,7 +4516,7 @@ DIARY_FAMILIES = (
                 307,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'fletching', 57, 'Level 57 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'woodcutting', 57, 'Level 57 Woodcutting'),),
             ),
             DiaryTask(
                 'varrock_hard_living_on_the_edge',
@@ -4585,7 +4585,7 @@ DIARY_FAMILIES = (
                 339,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'fletching', 80, 'Level 80 Fletching'),),
+                access_gates=(DiaryCondition('skill_level', 'woodcutting', 80, 'Level 80 Woodcutting'),),
             ),
             DiaryTask(
                 'varrock_elite_it_all_adze_up',
@@ -4596,7 +4596,7 @@ DIARY_FAMILIES = (
                 340,
                 0,
                 False,
-                access_gates=(DiaryCondition('quest', 'all_fired_up', 1, 'Complete All Fired Up'), DiaryCondition('skill_level', 'woodcutting', 92, 'Level 92 Woodcutting'), DiaryCondition('skill_level', 'farming', 15, 'Level 15 Farming'),),
+                access_gates=(DiaryCondition('quest', 'all_fired_up', 1, 'Complete All Fired Up'), DiaryCondition('skill_level', 'firemaking', 92, 'Level 92 Firemaking'), DiaryCondition('skill_level', 'farming', 15, 'Level 15 Farming'),),
             ),
             DiaryTask(
                 'varrock_elite_mind_your_back',
@@ -4640,7 +4640,7 @@ DIARY_FAMILIES = (
                 344,
                 0,
                 False,
-                access_gates=(DiaryCondition('skill_level', 'firemaking', 69, 'Level 69 Firemaking'), DiaryCondition('skill_level', 'smithing', 88, 'Level 88 Smithing'),),
+                access_gates=(DiaryCondition('skill_level', 'fletching', 69, 'Level 69 Fletching'), DiaryCondition('skill_level', 'smithing', 88, 'Level 88 Smithing'),),
             ),
             DiaryTask(
                 'varrock_elite_a_ton_of_earth',
@@ -5457,7 +5457,7 @@ DIARY_FAMILIES = (
                 3016,
                 100,
                 False,
-                access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'fletching', 10, 'Level 10 Fletching'),),
+                access_gates=(DiaryCondition('quest', 'jungle_potion', 1, 'Complete Jungle Potion'), DiaryCondition('skill_level', 'woodcutting', 10, 'Level 10 Woodcutting'),),
             ),
             DiaryTask(
                 'miscellaneous_miscellaneous_fight_caves',

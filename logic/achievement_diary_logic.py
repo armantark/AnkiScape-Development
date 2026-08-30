@@ -92,12 +92,15 @@ def sanitize_achievement_diary_state_pure(
     player_data: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
     source = _mapping(_mapping(player_data).get("achievement_diaries"))
+    pinned_task = str(source.get("pinned_task", "") or "")[:120]
+    if pinned_task and diary_task_by_id_pure(pinned_task) is None:
+        pinned_task = ""
     return {
         "achievement_diaries": {
             "version": ACHIEVEMENT_DIARY_STATE_VERSION,
             "completed_tasks": _str_list(source.get("completed_tasks")),
             "claimed_tiers": _str_list(source.get("claimed_tiers")),
-            "pinned_task": str(source.get("pinned_task", "") or "")[:120],
+            "pinned_task": pinned_task,
             "taskmaster": bool(source.get("taskmaster", False)),
             "taskmaster_presented": bool(source.get("taskmaster_presented", False)),
         }
@@ -349,7 +352,7 @@ def _award_task_coins(data: dict[str, Any], task_ids: Sequence[str]) -> dict[str
     """Pay Miscellaneous rewards on the cache-proven completion-count curve."""
 
     payout = 0
-    completed_total = len(_state(data)["completed_tasks"])
+    completed_total = len(_ACTIVE_TASK_IDS & set(_state(data)["completed_tasks"]))
     starting_ordinal = max(0, completed_total - len(task_ids))
     for offset, task_id in enumerate(task_ids, start=1):
         found = diary_task_by_id_pure(task_id)

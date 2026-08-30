@@ -56,6 +56,81 @@ its landed sibling in `tests/test_papercut_tools.py` alone. Both branches added
 tests to that one file, and both test sets are wanted. A dedicated agent rebases
 it rather than resolving the conflict by textual union, which this project
 forbids after three integrations broke the tree in 2026-07.
+## Stale diary identities no longer affect live state — 2026-08-30
+
+The skill-label correction renamed three progression-anchor task ids. Current
+version-121 saves can therefore retain stale ids even though no migration can
+reach them. The follow-up keeps the smaller live-state boundary: Miscellaneous
+coin ordinals intersect `completed_tasks` with `_ACTIVE_TASK_IDS`, and diary
+state sanitization clears a pin that no catalog task resolves. No rename-remap
+migration was added.
+
+The pre-fix measurement used all three stale anchor ids. A clean next task paid
+100 coins while the stale save paid 400. Across the 35 coin-bearing
+Miscellaneous rows, the clean synthetic total was 63,000, the stale total was
+73,500, and the maximum excess was 10,500. After the fix, clean and stale next
+tasks both pay 100; the two 35-row probes both pay 52,000 and the excess is 0.
+The probe invokes all 35 rows directly, including 5 dormant rows; its purpose is
+to bound stale-id influence, not to model a reachable completion sequence.
+
+The payout regression failed before the fix with `AssertionError: 400 != 100`.
+The stale-pin regression failed with
+`AssertionError: 'falador_medium_reach_level_60_fletching' != ''`. Both pass
+after the fix: `Ran 2 tests in 0.001s` / `OK`. Full plain verification reports
+`Ran 4528 tests in 401.638s` / `OK (skipped=513)`, and genuine offscreen Qt
+reports `Ran 4528 tests in 694.772s` / `OK (skipped=3)`. Test quality reports
+`4493 tests across 221 files` and `hard issues: 0`; reachability remains at
+1,600 actions, 2,217 reachable items, 192 orphan inputs, 40 root orphans, 152
+cascade orphans, 284 unresolved actions, and 1,164 seed items.
+
+`memory-bank/diary-curation-ledger/README.md` now states only that the 22
+progression anchors are outside the ledger. The suggested non-hermetic test
+that parses all 25 mappings from the external Darkan checkout remains declined:
+it would make repository tests depend on that checkout's presence and revision.
+
+## Achievement Diary skill rotation repaired — 2026-08-30
+
+Branch `goal/diary-skill-rotation-2026-08-30` corrects
+`tools/generate_achievement_diary_data.py` so skill types 17, 18, and 19 map to
+Firemaking, Woodcutting, and Fletching. Direct reads of Darkan's
+`AchievementDef.toRealSkillId()` and `Skills.SKILL_NAME` verify the chain. The
+495-task harvest contains 34 affected skill requirements across 33 distinct
+tasks: type 17 occurs 12 times, type 18 occurs 16 times, and type 19 occurs 6
+times.
+
+The required regeneration first stopped with exact error `falador medium
+progression anchor ('fletching', 60) is not a sourced requirement in that
+family`. Three source-backed progression anchors depended on the rotated labels
+and are now Woodcutting 60, Fletching 65, and Fletching 80. The generated
+catalog keeps 474 task rows and changes exactly 36: Arriving in Style; Almost
+Made in Ardougne; Weeping Willow; Willow the Wisp of Smoke; Blinded With
+Science; It Spoiled My View; Pyre At Will; They Like Me! They Really Like Me!;
+I'm a Lumberjack and I'm Okay; I Sleep All Night and I Work All Day; The Roots
+of All Evil; Deadwing; A Palm For Each Finger; Can Opener; Familiar Fire
+Familiarity; See Yew at Five; The Short of It; Twisted Fire Starter; Engage;
+Waka-Waka-Waka; I Swear I Heard It Scream; No Smoke Without Pyre; Make a Bolt
+For It; The Long of It; Double Jointed; It All Adze Up; A Bolt from the Blue;
+Are Yew As Fired Up As I Am?; Barking Up the Wrong Tree; Raising The Stakes;
+Better Than Cursing The Darkness; Set It On Fiyr; Tai Bwo Wannai Cleanup; Reach
+Level 60 Woodcutting; Reach Level 65 Fletching; and Reach Level 80 Fletching.
+No task row was added or removed, and only string labels and the three
+label-derived anchor identities changed.
+
+A deed-grounded regression checks Pyre At Will, I'm a Lumberjack and I'm Okay,
+and Make a Bolt For It. The corrected map passes; a negative control with the
+old rotation produced three subtest failures. Exactly 25 curation-ledger notes
+were corrected without changing any other field or row order. The 320-row
+ledger recounts to 43 `active`, 247 `dormant`, 30 `translated`, and 0 `swapped`.
+
+Verification passed: focused `Ran 2 tests in 2.718s` / `OK`; plain `Ran 4526
+tests in 383.704s` / `OK (skipped=513)`; documentation `Audited 602 Markdown
+and 441 HTML files.` / `Documentation audit passed.`; test quality `4491 tests
+across 221 files` / `hard issues: 0`; Qt `Ran 4526 tests in 681.030s` /
+`OK (skipped=3)`; and the guarded-worktree audit reported the canonical
+checkout and linked-worktree root safe. Reachability remains at the seven
+pinned values before and after: 1,600 / 2,217 / 192 / 40 / 152 / 284 /
+1,164 for actions / reachable items / orphan inputs / root orphans / cascade
+orphans / unresolved actions / seed items.
 
 ## Goal resumed, the another-writer collision is repaired — 2026-08-30
 

@@ -68,6 +68,66 @@ Last staleness sweep: 2026-08-30
   conflicts with its landed sibling in `tests/test_papercut_tools.py` only,
   because both branches added tests to that file. A dedicated agent rebases it
   onto `28c4984c` and keeps both test sets. Textual union is forbidden here.
+## Stale diary identities no longer affect live state — 2026-08-30
+
+- The three corrected progression-anchor identities can remain in version-121
+  saves as stale `completed_tasks` or `pinned_task` strings. A rename-remap
+  migration would not reach saves already at `CURRENT_CONFIG_VERSION = 121`,
+  so the live consumers now fail closed instead.
+- `logic/achievement_diary_logic.py::_award_task_coins` counts only
+  `_ACTIVE_TASK_IDS` when deriving the Miscellaneous reward ordinal. Before the
+  filter, three stale anchor ids changed the next payout from 100 coins to 400
+  and raised the synthetic 35-row maximum from 63,000 to 73,500 coins, an exact
+  10,500-coin overpayment. After the filter, the next payout is 100 with or
+  without stale ids; the same probe pays 52,000 in both cases and the excess is
+  0.
+- `sanitize_achievement_diary_state_pure` clears a non-empty `pinned_task` when
+  `diary_task_by_id_pure` cannot resolve it. Valid pins retain the existing
+  behavior. The curation-ledger README now says only that the 22 progression
+  anchors are outside its scope; it no longer claims they remain unchanged.
+- Red tests reproduced exact failures `AssertionError: 400 != 100` and
+  `AssertionError: 'falador_medium_reach_level_60_fletching' != ''`. The two
+  focused regressions then passed in 0.001 seconds. Plain passed 4,528 tests in
+  401.638 seconds with 513 skips; genuine offscreen Qt passed 4,528 tests in
+  694.772 seconds with 3 skips. Test quality reports 4,493 tests across 221
+  files and 0 hard issues. All seven item-reachability pins remain unchanged.
+- A proposed test that derives all 25 skill mappings from the external Darkan
+  checkout remains deliberately declined: repository tests must stay hermetic
+  rather than depend on that checkout being present at a particular revision.
+
+## Achievement Diary skill rotation repaired — 2026-08-30
+
+- Branch `goal/diary-skill-rotation-2026-08-30` repairs the generator's
+  Darkan skill translation: source skill type 17 is Firemaking, 18 is
+  Woodcutting, and 19 is Fletching. The two read-only authorities are
+  `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/achievements/AchievementDef.java:216-244`
+  and
+  `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/model/entity/player/Skills.java:56-78`.
+- The harvest contains exactly 495 `task_definitions`. The correction reaches
+  34 skill requirements across 33 source tasks: 12 occurrences of type 17, 16
+  of type 18, and 6 of type 19. `Raising The Stakes` carries both types 18 and
+  19.
+- The first regeneration exposed three dependent curation anchors with exact
+  error `falador medium progression anchor ('fletching', 60) is not a sourced
+  requirement in that family`. The sourced anchors are now Woodcutting 60,
+  Fletching 65, and Fletching 80. Regeneration changed 36 catalog task rows:
+  the 33 source tasks plus those three anchors, with no row addition, removal,
+  structural change, or non-string constant change.
+- Exactly 25 rows in
+  `memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl` now state the
+  corrected catalog labels and omit the obsolete generator blocker. The ledger
+  remains exactly 320 rows: 43 `active`, 247 `dormant`, 30 `translated`, and 0
+  `swapped`. Finding 20 in
+  `memory-bank/diary-curation-ledger/cross-lineage-review.md` records the branch
+  resolution.
+- Focused generator coverage passed 2 tests in 2.718 seconds. The plain lane
+  passed 4,526 tests in 383.704 seconds with 513 skips. Documentation audited
+  602 Markdown and 441 HTML files. Test quality reported 4,491 tests across 221
+  files and 0 hard issues. After the Qt environment was linked into this
+  pre-existing worktree, the offscreen lane passed 4,526 tests in 681.030
+  seconds with 3 skips. All seven reachability pins remain unchanged:
+  1,600 actions, 2,217 reachable items, 192 orphan inputs, 40 root orphans,
+  152 cascade orphans, 284 unresolved actions, and 1,164 seed items.
 
 ## Goal resumed, the another-writer collision is repaired — 2026-08-30
 
