@@ -1,5 +1,41 @@
 # Progress
 
+## Remote promotion sync excludes guarded-worktree links — 2026-08-30
+
+Commit `b861cdecf96d729e1f46b200e6e9313fd0730cb8` created each guarded
+worktree's `.venv-qt` as an absolute Mac Studio symlink, but the remote sync
+used the directory-only pattern `--exclude=.venv-qt/`. Rsync `-a` copied the
+symlink to `/Users/armantarkhanian/ankiscape-remote-test-host/repo/.venv-qt`.
+Its target, `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt`,
+was absent. Six calls to `tests/test_promotion_gate.py:41-47` then failed with
+this exact receiver-side error:
+
+```
+shutil.Error: [('/Users/armantarkhanian/ankiscape-remote-test-host/repo/.venv-qt', '/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/tmpf_2g1nbd/.venv-qt', "[Errno 2] No such file or directory: '/Users/armantarkhanian/ankiscape-remote-test-host/repo/.venv-qt'")]
+```
+
+Both failed gate lanes ran 4,529 tests and reported exactly six errors: plain
+ran for 239.071 seconds with 513 skips, and Qt ran for 435.650 seconds with
+three skips.
+
+The production-built rsync command now uses the type-neutral
+`--exclude=.venv-qt` and `--delete-excluded`. The first option stops a new
+Studio-only symlink, and the second removes one already present on the
+receiver. Deleting excluded receiver entries is safe because the target is a
+dedicated code mirror; its real Qt environment lives outside the mirror at
+`/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt`. The existing
+`.git` and debug-log excludes were already type-neutral, and the supported
+`__pycache__` entries are directories, so no other pattern changed.
+
+The new behavioral test uses `_rsync_command` itself and runs rsync against a
+fresh mirror and a mirror preloaded with a stale `.venv-qt` symlink. It failed
+both cases before the fix, failed only the stale case after dropping the slash,
+and passes after adding `--delete-excluded`. `copy_reachability_tree` remains
+unchanged so the high-level gate continues to reject any unportable symlink
+that crosses the transfer boundary. Final local verification was green: plain
+ran `4529 tests in 385.436s` with `skipped=513`; Qt ran
+`4529 tests in 698.524s` with `skipped=3`.
+
 ## Two accepted papercut branches landed — 2026-08-30
 
 Canonical `main` is at `28c4984cc2858cd9b7d197b8fcd851220745750f` and clean.

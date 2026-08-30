@@ -91,25 +91,30 @@ def _ssh(remote_command: str, *, label: str) -> str:
     return _run_with_retries((*SSH, remote_command), label=label).stdout
 
 
+def _rsync_command(local_worktree: Path, destination: str) -> tuple[str, ...]:
+    return (
+        "rsync",
+        "-a",
+        "--delete",
+        "--delete-excluded",
+        "-e",
+        RSYNC_SSH,
+        "--exclude=.git",
+        "--exclude=__pycache__/",
+        "--exclude=.venv-qt",
+        "--exclude=ankiscape_debug.log*",
+        f"{local_worktree}/",
+        destination,
+    )
+
+
 def _sync(local_worktree: Path) -> None:
     _ssh(
         f"mkdir -p {shlex.quote(str(REMOTE_REPO))} "
         f"{shlex.quote(str(REMOTE_ROOT / 'reports'))}",
         label="remote mirror setup",
     )
-    command = (
-        "rsync",
-        "-a",
-        "--delete",
-        "-e",
-        RSYNC_SSH,
-        "--exclude=.git",
-        "--exclude=__pycache__/",
-        "--exclude=.venv-qt/",
-        "--exclude=ankiscape_debug.log*",
-        f"{local_worktree}/",
-        f"{HOST}:{REMOTE_REPO}/",
-    )
+    command = _rsync_command(local_worktree, f"{HOST}:{REMOTE_REPO}/")
     _run_with_retries(command, label="worktree sync")
 
 

@@ -61,6 +61,48 @@ class RemoteTestHostTests(unittest.TestCase):
 
         self.assertIsNone(run_remote_tests.validate_test_summary("plain", summary))
 
+    def test_rsync_excludes_local_worktree_links_from_fresh_and_stale_mirrors(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source"
+            source.mkdir()
+            (source / "tracked.txt").write_text("tracked\n", encoding="utf-8")
+            (source / ".git").write_text(
+                "gitdir: /studio-only/.git/worktrees/fixture\n",
+                encoding="utf-8",
+            )
+            (source / ".venv-qt").symlink_to(
+                "/studio-only/.venv-qt",
+                target_is_directory=True,
+            )
+
+            for stale in (False, True):
+                with self.subTest(stale=stale):
+                    destination = root / f"mirror-{stale}"
+                    destination.mkdir()
+                    if stale:
+                        (destination / ".venv-qt").symlink_to(
+                            "/previous-studio/.venv-qt",
+                            target_is_directory=True,
+                        )
+
+                    subprocess.run(
+                        run_remote_tests._rsync_command(
+                            source,
+                            f"{destination}/",
+                        ),
+                        check=True,
+                        text=True,
+                        capture_output=True,
+                    )
+
+                    self.assertEqual(
+                        (destination / "tracked.txt").read_text(encoding="utf-8"),
+                        "tracked\n",
+                    )
+                    self.assertFalse((destination / ".git").exists())
+                    self.assertFalse((destination / ".venv-qt").is_symlink())
+
     def test_remote_mirror_lock_path_is_absolute_and_shared_across_imports(self):
         source = Path(run_remote_tests.__file__)
         probe = (

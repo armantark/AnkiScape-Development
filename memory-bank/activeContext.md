@@ -2,6 +2,48 @@
 
 Last staleness sweep: 2026-08-30
 
+## Remote promotion mirror rejects Studio-only worktree links — 2026-08-30
+
+- Commit `b861cdecf96d729e1f46b200e6e9313fd0730cb8` made every newly
+  guarded worktree contain `.venv-qt` as an absolute symlink to the canonical
+  Mac Studio environment. `tools/run_remote_tests.py` still used
+  `--exclude=.venv-qt/`; rsync's trailing slash matches directories only, and
+  `-a` therefore copied the symlink itself to
+  `/Users/armantarkhanian/ankiscape-remote-test-host/repo/.venv-qt`. Its target,
+  `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt`,
+  does not exist on the MacBook.
+- `tests/test_promotion_gate.py:41-47` dereferenced that dangling mirror link in
+  `shutil.copytree`. Exactly six reachability tests call that helper. Both gate
+  lanes therefore reached `Ran 4529 tests` and failed with `errors=6`: plain in
+  `239.071s` with `skipped=513`, and Qt in `435.650s` with `skipped=3`. The exact
+  first plain-lane error was:
+
+  ```
+  shutil.Error: [('/Users/armantarkhanian/ankiscape-remote-test-host/repo/.venv-qt', '/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/tmpf_2g1nbd/.venv-qt', "[Errno 2] No such file or directory: '/Users/armantarkhanian/ankiscape-remote-test-host/repo/.venv-qt'")]
+  ```
+
+- The sync now builds its real rsync vector through `_rsync_command`, excludes
+  `.venv-qt` without a trailing slash, and adds `--delete-excluded`. The bare
+  pattern blocks both a directory and a symlink; `--delete-excluded` removes a
+  link left by an earlier sync instead of protecting it from `--delete`.
+  This is safe because `REMOTE_REPO` is a dedicated code mirror and the actual
+  MacBook Qt environment is its sibling at
+  `/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt`; the other
+  excludes cover only Git metadata, Python caches, and debug logs.
+- The other excludes need no change: `.git` and `ankiscape_debug.log*` already
+  match independent of node type, while every observed and supported
+  `__pycache__` entry is a generated directory. No speculative exclude was
+  added. `copy_reachability_tree` remains strict because ignoring `.venv-qt`
+  there would mask a future transfer-boundary regression instead of rejecting
+  the contaminated mirror.
+- A behavioral regression test executes the production-built rsync command
+  against both fresh and already-contaminated local mirrors. Before the fix it
+  failed both subtests because `.venv-qt` remained a symlink; after only the
+  type-neutral exclude, the stale-mirror subtest still failed; with
+  `--delete-excluded`, it passes. Local plain then ran `4529 tests in 385.436s`,
+  `OK (skipped=513)`. Local Qt ran `4529 tests in 698.524s`,
+  `OK (skipped=3)`.
+
 ## Two accepted papercut branches landed — 2026-08-30
 
 - Canonical `main` is at `28c4984cc2858cd9b7d197b8fcd851220745750f`, clean, and
