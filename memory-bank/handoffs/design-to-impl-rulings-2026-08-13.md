@@ -850,3 +850,32 @@ audit's idealised-player assumption explicit rather than accidental.
 
 A matching pin over `xp_rewards` rows belongs with the 13.5 fix, not before it, because
 the one offending row must land somewhere first.
+
+### 13.8 Reviewer seating from 2026-08-31 07:35, and two orchestration corrections
+
+The Anthropic plan reached its day limit at `claude 39/39 OVER` with the next block
+`+12h24m`. Kimi remains over with the next block `+14h35m`. Fable stays barred under
+section 9 ruling O1 and design-queue entry 4.18. The GPT plan reset to `codex 11/80`.
+
+Every slice this pass was authored by Sol, so the required cross-lineage reviewer must
+not be a GPT model. Until the Anthropic block returns, the only available cross-lineage
+seat is GLM 5.3 Flash, which draws on no plan but is recorded as never a sole reviewer.
+Any slice needing code review should therefore wait for the Anthropic reset, or be
+paired with GLM plus a deep orchestrator verification and that limitation recorded on
+the slice.
+
+Work that produces no code needs no such seat. That is why the next dispatched unit is
+the section 13.5 source harvest rather than an implementation slice.
+
+Two orchestration mistakes from this pass, both the orchestrator's:
+
+1. The orchestrator rebased `goal/combat-quest-gate-2026-08-31` onto a newer main while
+   its author was still running. The author correctly restored the base its brief named,
+   and the promotion gate failed with `Gate failed: HEAD moved from df8765b8dd3ed18e4667ce2ecff4a47b7e662d79 to f67d6d78b99d4d7bf0b9ab9fd5c6936267898e1c`.
+   The gate did its job. The rule that was broken is the ordinary one: a branch has
+   exactly one writer, and the author holds it until it reports. Rebase after the final
+   report, never during.
+
+2. Stopping a running promotion gate leaves its marker behind. The next run recovered by
+   itself with `Stale promotion gate marker: it recorded gate PID 51985 ... Removing .git/ankiscape-promotion-gates/b9f88f4293584cfc961085e014cfac96.json`,
+   so nothing was lost, but a stopped gate should be expected to leave that trace.
