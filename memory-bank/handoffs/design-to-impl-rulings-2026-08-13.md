@@ -1257,3 +1257,102 @@ It stays unmerged anyway, because section 14.3 recorded that an instrument chang
 two reviewers and the Anthropic block returns in roughly eight hours. The hold now rests
 on that rule rather than on any doubt about the slice. Recording the distinction matters:
 a rail that bends the moment waiting becomes inconvenient is not a rail.
+
+### 16.11 Retraction: section 16.4 called the combat-gate fix settled, and it is not
+
+Section 16.4 stated that "the fix direction is already settled: absence of an explicit
+value means no gate, not a gate at the enemy's level." **That is wrong and is retracted.**
+A source investigation established the opposite, and two of that section's supporting
+figures were also wrong.
+
+**The probe was wrong.** `minimum_player_combat` is nested, not a top-level encounter
+key. The correct path is
+`QUEST_DATA[qid]["stage_requirements"][*]["combat_encounters"][*]["npc_configs"]["minimum_player_combat"]`,
+declared at `data/quest_data.py:1057-1069` and read at
+`logic_pure/logic_pure_quest.py:525-527`. Re-probed with the correct key, **10
+encounters set it explicitly**, not zero:
+
+| Quest, stage | Encounter | NPC level | `minimum_player_combat` |
+| --- | --- | ---: | ---: |
+| `family_crest` 13 | `family_crest_chronozon_170` | 170 | 1 |
+| `hunt_for_surok` 5 | `hunt_for_surok_bork` | 267 | 1 |
+| `lair_of_tarn_razorlor` 5 | `lair_of_tarn_razorlor_mutant_tarn` | 69 | 1 |
+| `lair_of_tarn_razorlor` 6 | `lair_of_tarn_razorlor_tarn_ghost` | 69 | 1 |
+| `smoking_kills` 2, 3, 5, 6, 9, 11 | six encounters, NPC levels 20 to 111 | | 85 |
+
+**The Smoking Kills figures were wrong too.** Section 16.4 said that quest carries
+sourced gates "at levels 90 and 111". Those are NPC levels. The sourced PLAYER gate is
+85, and all six encounters carry 85.
+
+**The enemy-level fallback is deliberate, not an oversight.**
+`memory-bank/source-audits/quest-smoking-kills-playable-2026-07-18.md:148-152` records
+the field's introduction and states plainly:
+
+> Existing quest encounters retain their prior enemy-level gate unless they opt into
+> this field.
+
+**The convention is narrower than section 16.4 claimed.** The miniquest ledger's "No
+invented player-combat gate" sentence applies to three named encounters, Bork and Tarn's
+two forms, and establishes only that an explicit `1` is the correct way to record a
+period-sourced ABSENCE of a gate. It is not a global rule that every encounter should
+read 1.
+
+**Neither 2026-08-12 document recorded a decision.** The handoff at
+`memory-bank/handoffs/claude-handoff-2026-08-12-overnight.md:70-74` is explicit that its
+conclusion is provisional:
+
+> Correct the default for quest encounters only after period sourcing for each
+> encounter.
+
+So changing the fallback is not settled implementation. It is either an owner decision
+that reverses a recorded design choice, or a per-encounter sourcing programme across 131
+predicates. Section 16.5's measured leverage of +23 completable quests and +39 items
+stands; the route to it does not.
+
+### 16.12 The period evidence, which is now gathered for three quests
+
+The investigation pinned three pre-cutoff revisions with `curl` and read the raw
+wikitext. None documents a required aggregate player Combat level:
+
+- Nomad's Requiem, `oldid=6386610`, `2012-10-11T19:13:29Z`. Constitution 76 and "very
+  high (85+) stats" appear under **Recommended**. The level 699 Nomad is a fight, not a
+  gate.
+- The Void Stares Back, `oldid=6549183`, `2012-11-12T07:10:29Z`. Hard unboostable
+  requirements exist for Magic 80, Attack 78, Strength 78 and Defence 10, but no
+  aggregate Combat level. The level 599 Pest Queen is a fight, not a gate.
+- Glorious Memories, `oldid=6354777`, `2012-10-05T19:59:44Z`. It states a functional
+  capability, "Be able to defeat a level 156 opponent who attacks with Melee and Ranged",
+  which is prose, not a numeric threshold.
+
+The read-only Darkan server agrees in shape. It gates exactly two quests on aggregate
+player combat, both at 85 and both at quest ENTRY rather than per encounter: Smoking
+Kills at `SmokingKills.kt:76-89` and Dream Mentor at `DreamMentor.kt:250-261`. A search
+across both `.java` and `.kt` found no generic per-encounter gate keyed to the NPC's own
+level.
+
+So the period record supports entry-level gates on specific quests and does not support
+deriving a player gate from an enemy's level. That is the evidence an owner decision
+would rest on, and it is now assembled.
+
+### 16.13 The eleven, re-classified on better evidence
+
+A second investigation found item-level evidence the first missed, and where they
+disagree the better-evidenced reading wins:
+
+- `do_no_evil` 3, m'amulet mould: **already modelled**. The item is purchasable, shop
+  `hamabs_crafting_emporium`, row `hamabs_crafting_emporium:3:4020`, item id `4020`,
+  price 10, at `data/shop_data.py:19`. The first pass reported no registry exists.
+- `enakhras_lament` 5, Crumble Undead: **already modelled** as a spell. `crumble_undead`
+  is a standard Magic 39 spell with effect `undead_only` at `data/magic_data.py:528-535`,
+  merged into combat data at `data/combat_data.py:780-782`. The encounter itself is still
+  missing.
+- `cold_war` 2, clockwork penguin: `crafting_table_3` DOES exist in `CONSTRUCTION_DATA`
+  at `data/construction_data.py:21`, level 34, `Molten glass x2`. What is missing is a
+  station action, not the furniture.
+- `the_fremennik_isles` 5, round shield: `CONSTRUCTION_DATA["round_shield"]` exists but
+  is a level 66 dining-room furnishing from `Oak plank x2`, not the quest item. Do not
+  reuse it.
+
+The unchanged conclusion, and the one that governs, is section 16.8's: every one of the
+eleven stays blocked regardless of classification, because no runtime path writes
+`quest_stage_actions`. An already-modelled mechanic is not a passable requirement.
