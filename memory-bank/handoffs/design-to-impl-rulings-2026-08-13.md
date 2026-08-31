@@ -660,3 +660,49 @@ section 12.6 requires for honest scoring:
 The Lost Tribe is not in that sequence, and it is being worked first because its four
 sentinel stages gate 13 quest descendants, which is more leverage than any row above.
 After it lands, take Big Chompy Bird Hunting and follow the recorded order.
+
+### 12.11 "Gates N descendants" is not a leverage number, and this pass proved it twice
+
+Section 11.6 ranked The Lost Tribe first because it "gates 13 prerequisite
+descendants". Section 12.1 already warned that a sentinel row's descendant count is
+not the closure value of one slice. This pass produced the measurement that settles it.
+
+Clearing all four remaining Lost Tribe sentinels made the quest itself completable and
+moved nothing else. Measured across the change:
+
+| Measure | Before | After |
+| --- | ---: | ---: |
+| `completable_quests` | 44 | 45 |
+| `reachable_item_count` | 2243 | 2244 |
+| `seed_item_count` | 1177 | 1179 |
+| Blocked stage rows | 145 | 144 |
+| `the_lost_tribe` blocked | yes | no |
+
+The single added completable quest is The Lost Tribe. All 13 descendants stay blocked,
+because each holds its own sentinel stages. The 13 is a dependency-graph fact about
+what sits behind the quest, not an unlock any one slice delivers.
+
+The scoring rule that follows is narrow and mechanical. Score a quest slice by its own
+sentinel-stage count and by the items its own stages produce. Treat a descendant count
+as reach only when every intervening quest is already sentinel-free. Under that rule
+the section 12.6 census table is the queue, and the descendant column in section 11.7
+is background rather than score.
+
+### 12.12 Follow-on leads from the Lost Tribe pass
+
+These quest-local items are named by the Darkan source and have no faithful AnkiScape
+acquisition contract. None of them blocks the quest, because the stages that use them
+now carry auto actions instead of item requirements. They are leads in the same sense
+`Orange goblin mail` was a lead, and they are recorded here so a later pass does not
+rediscover them:
+
+- Brooch, item `5008`
+- Goblin symbol book, item `5009`
+- Sigmund's key, item `5010`
+- Silverware, item `5011`
+- Peace treaty, item `5012`
+- The seven H.A.M. outfit pieces, items `4298`, `4300`, `4302`, `4304`, `4306`,
+  `4308` and `4310`
+
+One reachability side effect is worth keeping. Lumbridge Swamp Caves became reachable,
+and The Lost Tribe is now the preferred source for `Ring of life`.
