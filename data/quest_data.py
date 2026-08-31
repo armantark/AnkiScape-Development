@@ -4605,6 +4605,11 @@ QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
         QuestXpReward("fishing", 40000),
         QuestXpReward("thieving", 10000),
     ),
+    THE_FREMENNIK_ISLES_ID: (
+        QuestXpReward("construction", 5000),
+        QuestXpReward("crafting", 5000),
+        QuestXpReward("woodcutting", 10000),
+    ),
 }
 
 QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
@@ -4613,31 +4618,11 @@ QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
             "Carnillean lamp",
             1500,
             (
-                "agility",
-                "attack",
-                "constitution",
-                "construction",
-                "cooking",
-                "crafting",
-                "defense",
-                "dungeoneering",
-                "farming",
-                "firemaking",
-                "fishing",
-                "fletching",
-                "herblore",
-                "hunter",
-                "magic",
-                "mining",
-                "prayer",
-                "ranged",
-                "runecrafting",
-                "slayer",
-                "smithing",
-                "strength",
-                "summoning",
-                "thieving",
-                "woodcutting",
+                "agility", "attack", "constitution", "construction", "cooking",
+                "crafting", "defense", "dungeoneering", "farming", "firemaking",
+                "fishing", "fletching", "herblore", "hunter", "magic", "mining",
+                "prayer", "ranged", "runecrafting", "slayer", "smithing", "strength",
+                "summoning", "thieving", "woodcutting",
             ),
             31,
             "https://runescape.wiki/w/Carnillean_lamp?oldid=6153995",
@@ -4645,6 +4630,21 @@ QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
                 "Two Carnillean lamps are awarded for completing the Carnillean Rising quest. "
                 "They may be claimed from the chest by Ceril inside the Carnillean mansion. "
                 "Each lamp gives 1,500 experience in a skill (above level 30) of your choice."
+            ),
+            quantity=2,
+        ),
+    ),
+    THE_FREMENNIK_ISLES_ID: (
+        QuestLampReward(
+            "Combat experience choice",
+            10000,
+            ("attack", "strength", "defense", "constitution"),
+            1,
+            THE_FREMENNIK_ISLES_SOURCE,
+            (
+                "After giving him the Ice Troll King head, the player is offered two 10,000 "
+                "experience rewards to any two of Attack, Strength, Defence, or Constitution. "
+                "The player can select the same skill twice if desired."
             ),
             quantity=2,
         ),

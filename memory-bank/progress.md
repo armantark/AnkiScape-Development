@@ -6925,3 +6925,13 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - A max-player skill-filter probe produced the same full audit report. The before and after measurements remain 1,609 / 2,257 / 179 / 37 / 142 / 266 / 1,182, with 143 blocked rows and 46 completable quests.
 - A catalog pin covers every quest-level and stage-level required skill ID, including the exact lowercase `combat` pseudo-skill.
 - The focused combat quest test module passes six tests. Full lane results follow in the final verification record.
+
+## The Fremennik Isles combat choices — 2026-08-31
+
+- Replaced the stranded `combat_exp` completion row with two independent 10,000 XP lamp claims using the existing quest replacement and Bank Claims contracts.
+- Pinned the four allowed skill IDs, minimum level 1, quantity 2, same-skill-twice behavior, refusal outside the choice set, the three unchanged fixed XP rewards, and the absence of pending XP after real review completion.
+- Added a catalog-wide guard that every direct quest XP reward resolves to a trainable skill, plus an end-to-end review-answer and real claim-application pass.
+- Existing completed saves receive both claims on load. Their old `combat_exp: 10000.0` pending record remains preserved but has no runtime consumer or visible effect, so no migration was added.
+- The before and after reachability values are unchanged at 1,609 / 2,257 / 179 / 37 / 142 / 266 / 1,182, with 143 blocked quest-stage rows.
+- Full discovery passes 4,566 tests in both lanes; plain skips 515 and offscreen Qt skips three.
+- Source and migration evidence are recorded in `source-audits/the-fremennik-isles-combat-lamps-2026-08-31.md`.

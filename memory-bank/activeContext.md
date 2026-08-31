@@ -5947,3 +5947,13 @@ the obsolete percent key is no longer touched.
 - The audit and all pins remain unchanged at 1,609 actions, 2,257 reachable items, 179 orphan inputs, 37 root orphans, 142 cascade orphans, 266 unresolved actions, 1,182 seed items, 143 blocked rows, and 46 completable quests.
 - A real add-on review starts Zogre Flesh Eaters and reaches the key plus Zogre bones before quest completion. Existing route tests cover the three coffin bones and all four bonemeals.
 - Evidence: `source-audits/combat-quest-level-requirement-2026-08-31.md`.
+
+## The Fremennik Isles combat choices — 2026-08-31
+
+- The invalid 10,000 `combat` XP row is replaced by two independent 10,000 XP Bank Claims choices over Attack, Strength, Defence, and Constitution. Both choices may target the same skill and have no level requirement beyond the claim contract's minimum level 1.
+- Construction 5,000 XP, Crafting 5,000 XP, and Woodcutting 10,000 XP remain direct quest-completion rewards.
+- A catalog pin now rejects every direct quest XP reward whose skill ID does not resolve to a trainable `SkillDefinition`.
+- Existing completed saves automatically gain both unclaimed, eligible lamp claims. A previously parked `combat_exp: 10000.0` record remains inert and invisible; no migration was added because it causes no visible defect.
+- Reachability remains 1,609 actions, 2,257 reachable items, 179 orphan inputs, 37 root orphans, 142 cascade orphans, 266 unresolved actions, 1,182 seed items, and 143 blocked quest-stage rows.
+- Both complete lanes pass 4,566 tests: plain skips 515 and offscreen Qt skips three.
+- Evidence: `source-audits/the-fremennik-isles-combat-lamps-2026-08-31.md`.
