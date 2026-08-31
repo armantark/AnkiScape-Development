@@ -624,3 +624,39 @@ forbidden in every read-only brief.
    `memory-bank/future-work-kanban.md:1758` stays accurate while they stand.
 3. The Achievement Diary curation ledger spot-check, gate 2 of section 5.21. Gate 1
    passed. Until gate 2 clears, 0 of 34 diary tiers are claimable.
+
+### 12.10 Two corrections to section 12.7, and the recorded quest order to follow
+
+Section 12.7 lists the `dream_mentor` sentinel as the blocker for `Astral rune shards`.
+That is true but incomplete. The merged and approved backlog item at
+`memory-bank/gap-backlog.json:697-724` says verbatim "do not add acquisition, XP,
+Combat, or Prayer behavior" and repeats that the shipped work "adds no acquisition".
+The item is therefore scope-excluded as well as sentinel-blocked. Do not select it.
+
+`Ogre coffin key` carries a second, separate restriction. Its selector weights are a
+registered source-blocked placeholder, and
+`memory-bank/handoffs/orchestration-handoff-2026-08-19.md:117-121` states that
+"Placeholder retirement is NOT open work". Clearing the `zogre_flesh_eaters` sentinels
+makes the key obtainable; it does not license touching those weights.
+
+The queue order is already recorded and this thread must follow it rather than
+re-derive one. `memory-bank/future-work-kanban.md:1104-1110` and
+`memory-bank/progress.md:5090-5092` both give the same sequence: repair Jungle Potion's
+generated stage buttons, then Big Chompy Bird Hunting, Zogre Flesh Eaters, Rum Deal and
+Cabin Fever, and only then the Mos Le'Harmless, Cave horror, Black mask and
+Slayer-helmet runtime.
+
+Jungle Potion is done. A direct census of its stage requirements on `fed8f00a` finds
+zero sentinel stages of six. The remaining members, with the sentinel-stage counts that
+section 12.6 requires for honest scoring:
+
+| Quest | Sentinel stages | Of total | What clearing it reaches |
+| --- | ---: | ---: | --- |
+| `big_chompy_bird_hunting` | 3 | 4 | `Raw chompy`, 3 items |
+| `zogre_flesh_eaters` | 6 | 7 | `Ogre coffin key`, 9 items |
+| `rum_deal` | 4 | 5 | Slayer-helmet route |
+| `cabin_fever` | 3 | 5 | Slayer-helmet route |
+
+The Lost Tribe is not in that sequence, and it is being worked first because its four
+sentinel stages gate 13 quest descendants, which is more leverage than any row above.
+After it lands, take Big Chompy Bird Hunting and follow the recorded order.
