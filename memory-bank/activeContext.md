@@ -5926,3 +5926,13 @@ the obsolete percent key is no longer touched.
 - A defect report about clipping, reachability, or another behavior does not authorize a layout or style redesign.
 - A new interface that belongs to an approved implementation is permitted only after a frontend-taste model reviews it.
 - Commit `03ea285df1a9b7d120179e9e5bbf5356468a3b8a` restores the main menu to the owner-settled Qt behavior from `806a2f63`.
+
+## Big Chompy Bird Hunting completion — 2026-08-31
+
+- All three generated Big Chompy Bird Hunting stage sentinels are removed. The existing Cooking 30, Ranged 30, Fletching 5, Feather, Wolf-bones, and Chompy-bird combat gates remain live, and stage 3 includes the required raw-chompy hand-off and three seasoning requests before spit-roasting.
+- Completed Big Chompy Bird Hunting unlocks `Utility:hunt_chompy_birds`. Each action consumes one Ogre arrow, requires a non-consumed Ogre bow, produces one Raw chompy, displays `cookingitems/raw_chompy.png`, and names the missing arrow when materials run out.
+- The reachability instrument still reports a move from 1,608 actions / 2,244 reachable items / 190 orphan inputs / 277 unresolved actions to 1,609 / 2,257 / 179 / 266. Root and cascade orphans report 39 / 151 to 37 / 142, seed items 1,179 to 1,182, and blocked stage rows 144 to 143.
+- This slice actually delivers exactly four items: Ogre bow, Raw chompy, Raw wild pie, and Wild pie. Big Chompy Bird Hunting is the sole newly completable quest.
+- The audit's other nine credited Zogre/coffin items are phantom. `tools/audit_item_reachability.py:943-948` omits required skills from startability, while runtime returns `Combat 89 (not implemented)` at `logic_pure/logic_pure_quest.py:146` and refuses to start Zogre Flesh Eaters. Six combat-category quests share the instrument gap; the audit and requirement fixes belong to the next slice.
+- The combat equipment registry also lacks Ogre bow and uses plural `Ogre arrows` while the item registry uses canonical singular `Ogre arrow`; that equipability gap remains a follow-on.
+- Evidence: `source-audits/big-chompy-bird-hunting-completion-2026-08-31.md`.

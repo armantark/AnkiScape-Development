@@ -6905,3 +6905,13 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - An independent Opus review accepted the restoration and found no valid replacement style test.
 - The MacBook promotion gate passed at `03ea285df1a9b7d120179e9e5bbf5356468a3b8a`: both lanes ran 4,525 tests; plain skipped 513 and Qt skipped three. Documentation audited 602 Markdown and 441 HTML files, test quality found zero hard issues, reachability matched 1,600 actions and 2,217 reachable items, and worktree plus diff checks passed.
 - Native confirmation still requires the owner to restart Anki normally.
+
+## Big Chompy Bird Hunting completion — 2026-08-31
+
+- Replaced stages 1–3's impossible generated objectives with pinned quest actions while retaining the quest's level, item, and battle gates; stage 3 now preserves the raw-chompy hand-off and Rantz, Fycie, and Bugs seasoning sequence.
+- Added the quest-completion unlock and Utility/Activity producer for Raw chompy. The route consumes one Ogre arrow, retains the Ogre bow, renders the existing Raw chompy cooking icon, and produces the correct named out-of-materials failure through the real review-answer entry point.
+- The actual delivered set is exactly Ogre bow, Raw chompy, Raw wild pie, and Wild pie. Their routes are the quest reward, `Utility:hunt_chompy_birds`, `Utility:assemble_wild_pie`, and `Cooking:cook_wild_pie`.
+- The pinned instrument values remain 1,609 actions, 2,257 reachable items, 179 orphan inputs (37 root and 142 cascade), 266 unresolved actions, 1,182 seed items, 143 blocked quest-stage rows, and 46 completable quests.
+- Nine additional Zogre/coffin items in that report are not player-reachable: the audit ignores required skills when computing startable quests, while runtime permanently blocks Zogre Flesh Eaters with `Combat 89 (not implemented)`. The six affected combat-category quests and the audit correction are recorded for the separate next slice.
+- `EQUIPMENT_DATA` still has plural `Ogre arrows` and no Ogre bow row while item storage uses singular `Ogre arrow`; combat equipability remains a separate source-closure lead.
+- The source audit records the exact pinned wiki revisions, Darkan revision `a2568b880390ef697b1b17e825fdef7868bed67f`, honest instrument limits, and both excluded follow-ons.

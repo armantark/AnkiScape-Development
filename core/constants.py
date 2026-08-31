@@ -167,15 +167,12 @@ from ..data.crucible_data import (
     crucible_extra_items_as_dict,
 )
 
-from ..data.daily_challenges_data import (
-    daily_challenge_extra_items_as_dict,
-)
+from ..data.daily_challenges_data import daily_challenge_extra_items_as_dict
 from ..data.bone_sources_data import (
-    bone_source_enemies_as_dict,
-    bone_source_extra_items_as_dict,
-    bone_source_utility_activities_as_dict,
+    bone_source_enemies_as_dict, bone_source_extra_items_as_dict, bone_source_utility_activities_as_dict,
 )
 
+from ..data.chompy_hunting_data import chompy_hunting_activity_as_dict
 from ..data.treasure_trails_data import (
     TREASURE_TRAILS_ACTIVITY_ID,
     TREASURE_TRAILS_ART_ITEMS,
@@ -903,7 +900,7 @@ UTILITY_ACTIVITY_DATA.update(managing_miscellania_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
-UTILITY_ACTIVITY_DATA.update(compost_potion_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update({**compost_potion_activities_as_dict(), **chompy_hunting_activity_as_dict()})
 COMBAT_ENEMY_DATA.update(bone_source_enemies_as_dict())
 UTILITY_ACTIVITY_DATA[CRYSTAL_CHEST_ACTIVITY_ID] = {
     **crystal_chest_utility_spec(),
@@ -1817,6 +1814,7 @@ for _item_name in PRAYER_EXTRA_ITEM_DATA:
     if os.path.exists(_path):
         PRAYER_ITEM_IMAGES[_item_name] = _path
 UTILITY_ITEM_IMAGES.update(PRAYER_ITEM_IMAGES)
+UTILITY_ITEM_IMAGES["Raw chompy"] = COOKING_ITEM_IMAGES["Raw chompy"]
 
 MAGIC_EXTRA_ITEM_DATA = magic_extra_items_as_dict()
 MAGIC_ITEM_IMAGES = {}
@@ -2562,6 +2560,7 @@ for _item_name, _finished_item in {
         continue
     if _path:
         FLETCHED_ITEM_IMAGES[_item_name] = _path
+UTILITY_ITEM_IMAGES["Ogre arrow"] = SHOP_ITEM_IMAGES["Ogre arrow"]
 
 # Pestle-and-mortar grinding and Herblore input preparation route their
 # inputs/outputs through the utility-material registration, so surface any icon

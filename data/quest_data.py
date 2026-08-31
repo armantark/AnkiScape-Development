@@ -8,13 +8,13 @@ from typing import Dict, Mapping, Tuple, Union
 
 from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
+from . import chompy_hunting_data
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 from .stronghold_player_safety_data import (
     STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
     STRONGHOLD_PLAYER_SAFETY_LAMP_SOURCE,
 )
 from .summoning_data import SUMMONING_POUCHES
-
 from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
 from .herblore_data import (
     DARKAN_HERB_CLEANING_SOURCE_PATH,
@@ -33,6 +33,7 @@ DRUIDIC_RITUAL_ID = "druidic_ritual"
 PIRATES_TREASURE_ID = "pirates_treasure"
 VAMPYRE_SLAYER_ID = "vampyre_slayer"
 THE_RESTLESS_GHOST_ID = "the_restless_ghost"
+BIG_CHOMPY_BIRD_HUNTING_ID = "big_chompy_bird_hunting"
 LOST_CITY_ID = "lost_city"
 DEMON_SLAYER_ID = "demon_slayer"
 DRAGON_SLAYER_ID = "dragon_slayer"
@@ -8696,7 +8697,6 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
     ),
 }
 
-
 CAT_FOLLOWER_STATE_NAMES: Tuple[str, ...] = (
     "Kitten",
     "Cat",
@@ -8706,8 +8706,7 @@ CAT_FOLLOWER_STATE_NAMES: Tuple[str, ...] = (
     "Lazy cat",
 )
 
-
-QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {
+QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {BIG_CHOMPY_BIRD_HUNTING_ID: tuple(QuestStageRequirementCleanup(**row) for row in chompy_hunting_data.BIG_CHOMPY_STAGE_REQUIREMENT_CLEANUPS),
     "the_lost_tribe": (
         QuestStageRequirementCleanup(
             stage=1,
@@ -10987,7 +10986,7 @@ QUEST_DISPLAY_NAMES: Dict[str, str] = {quest.id: quest.display_name for quest in
 QUEST_REFERENCES: Tuple[QuestReference, ...] = ()
 QUEST_REFERENCES_BY_ID: Dict[str, QuestReference] = {}
 
-QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
+QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (QuestUnlockRule(BIG_CHOMPY_BIRD_HUNTING_ID, "target", "utility", (chompy_hunting_data.CHOMPY_HUNTING_ACTIVITY_ID,), "Big Chompy Bird Hunting", chompy_hunting_data.BIG_CHOMPY_BIRD_HUNTING_STAGE_ACTION_SOURCE),
     QuestUnlockRule(RUNE_MYSTERIES_ID, "target", "mining", ("rune_essence",), "Rune Mysteries", RUNE_ESSENCE_MINE_SOURCE),
     QuestUnlockRule(
         LOST_CITY_ID,
