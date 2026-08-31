@@ -879,3 +879,63 @@ Two orchestration mistakes from this pass, both the orchestrator's:
 2. Stopping a running promotion gate leaves its marker behind. The next run recovered by
    itself with `Stale promotion gate marker: it recorded gate PID 51985 ... Removing .git/ankiscape-promotion-gates/b9f88f4293584cfc961085e014cfac96.json`,
    so nothing was lost, but a stopped gate should be expected to leave that trace.
+
+## 14. The reachability audit models one point-reward minigame and misses the rest — 2026-08-31
+
+### 14.1 The gap, and how large it actually is
+
+`tools/audit_item_reachability.py` models Fist of Guthix as a point economy. It creates a
+synthetic match node that produces the currency and one buy node per reward:
+
+```
+1530:    fog_match_key = "Activity:fist_of_guthix:match"
+1541:    for reward_id, reward in fist_of_guthix_data.FIST_OF_GUTHIX_REWARDS.items():
+1548:        buy_key = f"Activity:fist_of_guthix:buy:{reward_id}"
+```
+
+No other point-reward minigame is modelled. A reference count against the audit source
+gives zero for `vinesweeper`, `stealing_creation`, `pest_control`, `barbarian_assault`,
+`castle_wars`, `soul_wars`, `duel_arena`, `mobilising_armies`, `conquest` and
+`trouble_brewing`, while `fist_of_guthix` scores 8.
+
+This failure runs the OPPOSITE way to the one in section 13. There the audit
+over-credited routes the player could not run. Here it under-credits rewards the player
+can buy, which sends acquisition work at items that are already obtainable. That is what
+the section 12.7 census was half-seeing.
+
+The gap is real but far smaller than the reference count suggests. Measured on
+`ba2ee961` against the live report's 179 orphan inputs and 37 root orphans, by testing
+which orphaned item names each data file actually mentions:
+
+| Minigame data file | Orphan inputs named | Root orphans named |
+| --- | ---: | ---: |
+| `vinesweeper` | 5 | 5 |
+| `trouble_brewing` | 1 | 0 |
+| the other eight | 0 | 0 |
+
+The union across all ten files is six orphan inputs. Vinesweeper carries essentially the
+whole effect, and its five root orphans are `Wergali seed` and the four Compost potion
+doses. `Wergali seed` is currently the single highest-leverage root orphan at 8
+transitive items and 9 unblocked actions.
+
+### 14.2 The slice this implies
+
+Model Vinesweeper's point economy the way Fist of Guthix is already modelled: one
+synthetic match node producing points, one buy node per reward in `VINESWEEPER_REWARDS`
+at `data/vinesweeper_data.py:39-55`, priced by each row's `point_price`. The activity
+carries `"requirements": {}` at `:123-131` and no quest gate, so nothing else gates it.
+
+Two things the implementing pass must establish rather than assume. First, whether the
+audit can express point EARNING at all for this activity, because a buy node is useless
+if no node produces the currency; follow whatever the Fist of Guthix match node does.
+Second, whether each seed the table sells is genuinely obtainable in play, so that this
+fix does not repeat section 13 in the opposite direction by crediting a shop the player
+cannot reach.
+
+Expect the orphan and root-orphan counts to fall and every pinned baseline to move.
+Re-measure them; do not carry any number forward from this section.
+
+Trouble Brewing names one orphan input and no root orphan, so it is a separate, much
+smaller follow-on rather than part of this slice. The remaining eight minigames name no
+orphaned item at all, so modelling them would change no current number and is not
+work this queue should schedule.
