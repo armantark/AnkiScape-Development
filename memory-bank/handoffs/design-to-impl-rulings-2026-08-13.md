@@ -1408,3 +1408,86 @@ completable quest, so scoring them would repeat the section 12.1 error.
 The three `Pickaxe`, `Hatchet` and `Axe` aliases were correctly excluded as false
 positives, because the evaluator accepts a toolbelt or equipped match for those at
 `logic_pure/logic_pure_quest.py:485-512`.
+
+## 17. The 34 workable item gaps are not one problem, they are four — 2026-08-31
+
+A source pass covered all 34 independently workable item predicates from section 16.15.
+Every one has a pinned pre-cutoff revision and, in almost every case, Darkan
+corroboration. The dossier's own grouping is useful, but the orchestrator's probe of the
+live routes found the more actionable split: these are four distinct defects wearing one
+costume.
+
+### 17.1 A name mismatch, and it is one letter
+
+```
+'Karamja rum'   -> None
+'Karamjan rum'  -> shop:karamja_wines_spirits_and_beers
+```
+
+`pirates_treasure` stage 1 consumes `Karamja rum`. The item registry holds
+`Karamjan rum`, which is already purchasable, and the pinned period page confirms
+`Karamjan rum` is the canonical title, sold at Karamja Wines, Spirits, and Beers for 30
+coins, `oldid=6552630`, `2012-11-13T22:37:26Z`.
+
+So Pirate's Treasure is blocked by a spelling. This is the "one field, one meaning" rule
+exactly: the same item carries two names across two tables. Fix the quest predicate to
+the registry's name, not the reverse, because the shop row and the period page agree.
+
+### 17.2 A missing item definition
+
+`Ugthanki dung` does not appear in `ITEM_DEFINITIONS` at all. A search of every display
+name for `dung` returns nothing. The period route is established,
+`oldid=6288566`, `2012-09-24T05:31:50Z`: red hot sauce on the animal trough, a camel
+eats and drops dung, a bucket collects it. Darkan implements exactly that in The Feud at
+`TheFeud.kt:603-631`, item `4601`.
+
+### 17.3 An audit that may not traverse Agility stage outputs
+
+`Pyramid top` has no route, yet `data/agility_data.py:218-223` gives the
+`agility_pyramid` target a `retrieve_top` stage whose `output_item` is exactly
+`Pyramid top`. The item exists in the registry.
+
+That is the same shape as the Vinesweeper gap: a real producer the instrument does not
+see. It needs checking before anything is implemented, because if the audit is blind to
+Agility stage outputs then other items are wrongly listed as orphans too. Do not assume
+it; measure it.
+
+### 17.4 A genuine circularity to check, not to assume
+
+`Raw karambwan` has no route. `data/fishing_data.py:237-244` defines `catch_karambwan`,
+and `data/quest_data.py:11016-11017` gates it behind `tai_bwo_wannai_trio`, whose stage 2
+requires two `Raw karambwan`. The pinned period page resolves the loop in the player's
+favour: `oldid=6096116` says karambwans are caught by members "who must have at least
+STARTED the Tai Bwo Wannai Trio quest", and the same revision records Tiadeche selling
+them for 440 coins each.
+
+So the period rule is started, not completed, and a shop route exists besides. Establish
+which one AnkiScape's unlock rule encodes before changing anything.
+
+### 17.5 Everything else in the 34 already has a producer
+
+The dossier's central result is that most of these items are already produced by a quest
+stage in AnkiScape: `Pressure gauge` at `data/quest_data.py:7444-7449`, `Grimy key` at
+`:7451-7456`, `Blamish snail slime` at `:2091-2103`, `Research package` at `:7725-7732`,
+`Stake` and `Stake hammer` at `:7516-7521`, `Top-quality milk` at `:5777-5784`, and so
+on through eighteen quest-internal grants and five player-made items.
+
+They show as route-less because their chain breaks at one of the roots above, or at a
+world-obtainable item with no producer at all. From the world-obtainable group, only
+these genuinely lack any producer: `Fish food`, `Insect repellent`, plus the two roots in
+17.1 and 17.2. `Pyramid top` and `Raw karambwan` are the two under investigation.
+
+That is the whole shape of it. Four defects, two of which are a rename and a missing item
+row, gate a chain of eighteen already-modelled quest grants.
+
+### 17.6 What the slice looks like, and why it has not been dispatched
+
+This is one atomic slice: correct the `Karamja rum` predicate, add the `Ugthanki dung`
+item and its sourced route, resolve the `Pyramid top` and `Raw karambwan` questions by
+measurement, and add producers for `Fish food` and `Insect repellent` from their pinned
+sources, both of which Darkan corroborates, the latter at `Beekeeper.java:29-36`.
+
+It is not dispatched because it needs code review and no cross-lineage reviewer seat is
+available. The Anthropic block returns at approximately `+7h27m` from `2026-08-31 12:32`.
+That is a quota block with exact evidence, and the work is ready to start the moment it
+lifts.
