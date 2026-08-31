@@ -96,4 +96,6 @@ Do not run `tools/generate_achievement_diary_data.py` while assembling, reviewin
 1. **Cross-lineage review gate:** an independent reviewer must check all 320 rows, the source-order census, every disposition, every active seam, every translation, every citation, and every dormant future-system assignment. Assembly alone does not satisfy this gate.
 2. **Owner spot-check gate:** the owner must spot-check the reviewed ledger and accept the deed interpretations before any generator or runtime wiring begins. No owner spot-check is claimed by this slice.
 
-The cross-lineage review and its resolutions are recorded in `cross-lineage-review.md`. The owner spot-check remains pending. Until that final interpretation gate passes, the ledger remains uncommitted curation input and must not be treated as owner-approved, committed, or wired.
+The cross-lineage review and its resolutions are recorded in `cross-lineage-review.md`.
+
+**Gate 2 passed by owner ruling of 2026-08-31** (`memory-bank/design-thread-queue.md` §4.22 ruling 3): conformance to the settled contracts, verified row-by-row by the gate-1 review, substitutes for an owner read of all 320 rows. Interpretation corrections land as post-wiring patches: a ledger-row edit plus a regeneration through `tools/generate_achievement_diary_data.py`, never a hand edit of the generated catalog. Row 135 (Fire cape) defaults to the closer equipped-item candidate; the owner can veto it as a patch. Generator and runtime wiring may begin.

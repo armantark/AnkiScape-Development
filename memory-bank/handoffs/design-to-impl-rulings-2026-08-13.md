@@ -557,6 +557,13 @@ This is a recorded contract conflict. Their `quest_implementation_lane` is
 thread's own kanban line 1065 forbids it. Only the owner can resolve it. Rank 5 is
 DEFERRED with that exact reason until he does.
 
+RESOLVED 2026-08-31 by direct owner ruling (`design-thread-queue.md` §4.22 ruling 2):
+the waiver is granted. Either thread may implement `skippy_and_the_mogres` — whoever
+gets to it first works it, and neither duplicates the other's source harvesting.
+The 2012scape thread holds no pinned evidence for it, so an AnkiScape harvest
+duplicates nothing; doorbell them to claim the work before starting. Rank 5 leaves
+DEFERRED and becomes eligible.
+
 ### 12.6 The real remaining debt is 700 generated stage sentinels across 138 quests
 
 A direct census of `QUESTS_BY_ID` stage requirements, counting stages whose

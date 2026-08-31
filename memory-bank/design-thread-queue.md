@@ -2290,3 +2290,51 @@ seam. An offscreen Qt regression initializes the Bank without Safety gloves,
 reclaims them while that surface remains active, and proves the visible Bank
 grid repaints immediately; the same regression reproduced the stale grid before
 the dispatcher fix.
+
+### 4.22 Goal-pause rulings of 2026-08-31 — ruled directly by the owner
+
+The owner ruled on all four decision items in `memory-bank/GOAL-BLOCKED.md`
+(paused 2026-08-31 15:35, pause commit `d04c09d1`) in the design thread on
+2026-08-31. The pause file is deleted; the goal may re-arm.
+
+1. **Quest combat gate: a missing player gate means no gate.** Owner: "Umm
+   sure, why is this a question? The combat gates for quests should be
+   obviously implemented." The fallback at
+   `logic_pure/logic_pure_quest.py:690-696`, which defaults
+   `minimum_player_combat` to the enemy's own level, is reversed: an encounter
+   with no explicit `npc_configs.minimum_player_combat` has no aggregate
+   player-combat gate. With it, per the accepted recommendation, add the only
+   two sourced aggregate gates: quest ENTRY at combat 85 for Smoking Kills
+   (`SmokingKills.kt:76-89`) and Dream Mentor (`DreamMentor.kt:250-261`).
+   This supersedes the retained-fallback record at
+   `memory-bank/source-audits/quest-smoking-kills-playable-2026-07-18.md:148-152`.
+   Measured leverage at ruling time: +23 completable quests, +39 items.
+2. **Mogres self-sourcing waiver granted.** Owner: "Yes, the
+   cross-communication is for 'whoever gets to it first gets to work on it,
+   just don't duplicate source harvesting'." AnkiScape may implement the
+   cutoff Mogre miniquest (completion ID `skippy_and_the_mogres`). Doorbell
+   the Darkan thread before harvesting so no source work is duplicated.
+   Ledger section 12.5 and `memory-bank/future-work-kanban.md` are amended.
+3. **Diary spot-check gate passes by spec-conformance.** Owner: "I just want
+   it to be according to my spec and then we can patch it afterwards. I am
+   hoping I don't have to do yet another complete rebuild due to something
+   misunderstood from the spec." Gate 2 of §5.21 is satisfied by conformance
+   to the settled contracts (2026-08-03 curation, 2026-07-16 semantics), as
+   verified row-by-row by the gate-1 cross-lineage review, in place of an
+   owner read of all 320 rows. Interpretation corrections land as post-wiring
+   patches. To keep patches cheap and rebuilds impossible, wiring stays
+   generator-driven: a patch is a ledger-row edit plus a regeneration, never
+   a hand edit of the generated catalog. The one row the review deferred to
+   the owner, row 135 (Fire cape), defaults to the closer equipped-item
+   candidate per the translation-fidelity principle; the owner can veto it as
+   a patch.
+4. **Quest-action proof bridge approved as one generalized mechanism.**
+   Owner: "Isn't the general principle regarding quests well-understood and
+   generalizable?" Yes — and that is the ruling: build one shared quest-proof
+   mechanism (actions write durable proofs when performed; any quest reads
+   them, so proofs are global, not quest-local), then wire quests to it as
+   ordinary data work. No per-quest owner rulings are needed. Loop default,
+   owner-vetoable: proofs accrue forward from the mechanism's landing, with
+   no retroactive credit from telemetry, consistent with §4.21 ruling 1's
+   honest-trigger standard. Measured leverage at ruling time: +33 completable
+   quests, +58 items.

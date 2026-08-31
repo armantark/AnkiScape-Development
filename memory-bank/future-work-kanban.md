@@ -1061,9 +1061,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-darkan-drop-selector-correction-2026-07-18.md`.
 - Mogre combat is source-closed, including its atomic Fishing-explosive lure,
   poison immunity, exact 128-slot Darkan table, tertiary bones, and target
-  icon. Keep it marked `DEPENDENCY: QUEST` until the Darkan quest pass adds the
-  cutoff Mogre miniquest with completion ID `skippy_and_the_mogres`; do not
-  advance readiness with a permanently locked partial target. See
+  icon. Keep it marked `DEPENDENCY: QUEST` until a quest pass adds the cutoff
+  Mogre miniquest with completion ID `skippy_and_the_mogres`; do not advance
+  readiness with a permanently locked partial target. Owner waiver of
+  2026-08-31 (design-thread-queue §4.22 ruling 2): either thread may implement
+  the miniquest — whoever gets to it first works it; doorbell the Darkan
+  thread first so source harvesting is not duplicated. See
   `source-audits/slayer-mogre-combat-2026-07-18.md`.
 - Cyclopes are closed through their honest Warriors' Guild boundary rather than
   a context-free row: all five token sources, entry and residual drain,
