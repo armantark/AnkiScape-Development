@@ -1196,3 +1196,64 @@ idealised maxed player attains: 485 skill requirements, zero blockers, against a
 combat ceiling of 138 versus a maximum requirement of 100. The audit was correct; only
 the runtime was wrong, and that half is merged as `5c4eb06c`. A later queue pass
 classified this as remaining work; it is complete.
+
+### 16.8 Blocker one is one missing bridge, not 704 data edits
+
+An investigation of the eleven hand-written action requirements found the structural
+reason they cannot pass, and it applies to all 704.
+
+`logic_pure/logic_pure_quest.py:841-850` gates a stage until the action string appears
+under `quest_stage_actions[quest_id]`. The only non-test writer is
+`_mark_quest_stage_actions` at `:1328-1345`, and it runs only after the current stage
+already has no blockers. So a required action can never be satisfied by anything the
+quest system itself emits.
+
+The decisive finding is what happens when the mechanic DOES exist elsewhere. Existing
+Crafting and Magic actions record telemetry, not quest-stage proofs:
+`runtime/runtime_actions_production.py:500-543` and
+`runtime/runtime_actions_magic.py:417-499`. **Nothing bridges a performed runtime action
+to a quest-stage proof.** An enchant the player really casts leaves no mark the quest
+gate can see.
+
+That reframes the whole family. The measured +33 completable quests and +58 items from
+section 16.5 are not behind 704 separate data repairs. They are behind one missing
+mechanism plus per-quest wiring.
+
+A second structural limit sits beside it. The lookup is quest-LOCAL. Mourning's End
+Part I stage 5 requires "Use the rotten apple to sabotage the mourner food stores", and
+Biohazard already models exactly that: it produces `Rotten apple` at
+`data/quest_data.py:6603-6615` and emits its own action at `:6616-6630`. Biohazard is a
+recorded prerequisite of Mourning's End Part I. The proof exists and the dependent quest
+cannot see it, because proofs do not cross quest boundaries.
+
+### 16.9 The eleven, classified by what they would actually need
+
+| Required action | Shape | Evidence |
+| --- | --- | --- |
+| `mournings_end_part_i` 5, rotten apple | Already modelled, blocked only by the quest-local lookup | Biohazard `data/quest_data.py:6603-6630` |
+| `the_fremennik_isles` 5, cure and stitch yak-hide armour | Existing contract, one gap | Recipes `leather_yakhide_armour_10824` and `leather_yakhide_armour` exist at `data/crafting_data.py:281-282`; the tanning list at `:373-381` omits yak hide |
+| `the_fremennik_isles` 5, Fremennik round shield | Existing `CraftingRecipe` contract | Registry and execution at `data/crafting_data.py:434-456` and `logic_pure/logic_pure_production.py:221-245` |
+| `in_aid_of_the_myreque` 6, enchant sapphire | Existing Magic target contract | `enchant_sapphire_ring` and siblings, `data/magic_data.py:332-348` |
+| `legacy_of_seergaze` 5, Enchant Level 2 Jewellery | Existing Magic target contract | Emerald tier at `data/magic_data.py:335` |
+| `spirits_of_the_elid` 2, Telegrab | Existing contract, but the text is wrong | `telegrab_wine_of_zamorak` at `data/magic_data.py:392-397` is Wine-specific. The source journal says Telegrab the Ancestral key at `generated/quest_catalog_generated.py:13720-13726`; the water-channel steps are later at `:13733-13741`. The requirement conflates two guide steps |
+| `mournings_end_part_i` 3, Oronwen repair | Needs new mechanics | No NPC interaction id exists |
+| `cold_war` 2, clockwork penguin | Needs new mechanics | No `Clockwork penguin` target or `Crafting table 3` station exists |
+| `enakhras_lament` 5, Crumble Undead on the boneguard | Needs new mechanics | Spell `crumble_undead` exists at `data/magic_data.py:528-546`, but stage 5 has `combat_encounters: ()` at `generated/quest_catalog_generated.py:14180-14187`, and the undead test at `logic_pure/logic_pure_combat_model.py:2503-2506` matches only names containing skeleton, zombie, ghost, shade or undead, not Boneguard |
+| `the_eyes_of_glouphrie` 3, bucket of sap | Needs new mechanics | No evergreen-sap action; the former pseudo-tool was removed per `memory-bank/source-audits/quest-generated-pseudo-item-cleanup-2026-06-23.md:25-29` |
+| `do_no_evil` 3, m'amulet mould | Needs new mechanics | No registry for Do No Evil; the similar Monkey Madness auto action at `data/quest_data.py:8735-8743` belongs to a quest Do No Evil does not require |
+
+So of eleven: one is already modelled, five ride existing contracts with at most a small
+data gap, and five need genuinely new mechanics. None is a simple string edit, and all
+eleven still need the bridge from 16.8 before any of them can pass.
+
+### 16.10 Why the Vinesweeper slice is still held
+
+`d3365324` is gated green on all eight checks with `remote_lanes: true`, for the second
+time, after its one review finding was resolved. It has a full cross-lineage review from
+GLM 5.3 Flash, which went deeper than expected: AST-level assertion comparison,
+independent arithmetic on the probe figure, and runtime tracing of every link.
+
+It stays unmerged anyway, because section 14.3 recorded that an instrument change gets
+two reviewers and the Anthropic block returns in roughly eight hours. The hold now rests
+on that rule rather than on any doubt about the slice. Recording the distinction matters:
+a rail that bends the moment waiting becomes inconvenient is not a rail.
