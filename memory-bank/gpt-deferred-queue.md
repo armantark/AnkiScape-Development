@@ -18,7 +18,7 @@ reaching breadth level one, so deferring them costs nothing today.
 | --- | --- | --- |
 | ~~Independent verification pass over every family that reached breadth one this week~~ **done 2026-07-26.** Found four real bugs three earlier passes missed; all four fixed and merged | Sol is the right verifier for did-this-actually-run questions, and a different lineage from the Claude models that wrote all nine families | none; a quality gate, not a blocker |
 | Exhaustive drop-table and rare-roll harvest for the boss families | high-volume, bounded extraction from Darkan and the rev-727 cache | none; the breadth rule defers exhaustive catalogs |
-| Period-art provenance sweep across the asset library | mechanical, ~83% of the library, tedious rather than hard | Evil Tree, Wicked hood |
+| Period-art provenance sweep across the asset library | mechanical, ~83% of the library, tedious rather than hard | Evil Tree only; `woodcuttingitems/evil_tree_kindling.png` is pinned to `2020-11-24T10:56:22Z`, after the cutoff. Wicked hood cleared: `runecraftingitems/wicked_hood.png` is pinned to `2011-10-17T18:06:33Z` |
 | Placeholder retirement pass | each row in `placeholder-values.md` is a bounded dig | none by construction |
 
 ## Rules for draining it

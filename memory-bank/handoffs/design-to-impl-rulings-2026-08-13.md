@@ -982,3 +982,77 @@ compressing unrelated code elsewhere in the file. Three consecutive slices did e
 that, and each time the compression showed up as diff noise on code the change did not
 otherwise touch. The structural answer is to split the file; that is a decision for the
 owner, not something this seat should do unilaterally.
+
+## 15. Corrections from the fresh queue audit — 2026-08-31
+
+A read-only audit re-derived every open entry from the live tree rather than from this
+file. It found four of this ledger's own figures stale. The code wins; the figures below
+replace the earlier ones.
+
+### 15.1 Section 12.9 decision 2 was never open
+
+Section 12.9 listed "whether ruling O1 and design-queue entry 4.18 survive into the
+current goal" as a decision waiting on the owner. It is not waiting. The owner ruled it
+directly to this seat on 2026-08-23, and the ruling is recorded verbatim at
+`memory-bank/design-thread-queue.md:1567-1584`:
+
+> "Do not ever use fable again during this goal."
+
+The same entry already prescribes what to do when no other reviewer seat is free:
+
+> If none is available, record the slice as quota-blocked rather than seating Fable or
+> accepting a same-lineage review.
+
+So the Vinesweeper hold in section 14.3 is not an improvised judgement; it is the
+owner's own instruction applied. Two owner decisions remain genuinely open, not three:
+the Mogres self-sourcing waiver in section 12.5, and the Achievement Diary spot-check,
+gate 2 of section 5.21.
+
+### 15.2 Three counts in this ledger are stale
+
+| Figure | This ledger said | Live measurement on `dc358d2c` |
+| --- | ---: | ---: |
+| Generated stage sentinels | 700 | 693 |
+| Quests holding at least one sentinel | 138 | 136 |
+| Registered placeholder rows | 179 | 181 |
+
+The sentinel drop is this pass's own work landing: `the_lost_tribe` and
+`big_chompy_bird_hunting` both now measure zero. Use 693 and 136 for scoring. The ten
+heaviest quests are `desert_treasure`, `do_no_evil`, `garden_of_tranquillity`,
+`mournings_end_part_ii`, `ritual_of_the_mahjarrat` and `the_darkness_of_hallowvale` at
+nine each, `monkey_madness` and `rat_catchers` at eight, and `a_clockwork_syringe` and
+`a_tail_of_two_cats` at seven.
+
+### 15.3 Two ranked rows are complete, and their prose is stale
+
+Rank 11, Fancy boots and Fighter boots period art, is shipped; the registrations are at
+`core/constants.py:2272-2285` and `:2817-2846`, so the owner-approval sentence beside it
+no longer applies. The `mine-lrc-stars` leaf is shipped as the 5 to 24 Living-mineral
+route, so the former 5 to 20 conflict is closed.
+
+### 15.4 The housekeeping rider was half stale, not wholly stale
+
+The audit reported the blocked-family note on the period-art provenance sweep row of
+`memory-bank/gpt-deferred-queue.md` as stale in full. It is stale in half. Checking the
+provenance file directly:
+
+- `runecraftingitems/wicked_hood.png` is pinned to `2011-10-17T18:06:33Z`, before the
+  cutoff, so Wicked hood is genuinely cleared.
+- `woodcuttingitems/evil_tree_kindling.png` is pinned to `2020-11-24T10:56:22Z`, after
+  the cutoff, so Evil Tree still blocks that sweep.
+
+The row is narrowed rather than deleted. Deleting it would have destroyed a true record,
+which is why a reported stale entry gets checked against the data before it is removed.
+
+### 15.5 Where the queue stands
+
+Of 41 classified entries, exactly two are unblocked and workable: rank 18's read-only
+predicate census, measured at 146 predicate rows carrying 488 skill requirements across
+145 quests, and the housekeeping row corrected in 15.4. Sixteen are source-blocked, six
+dependency-blocked, five owner-blocked, four quota-blocked, three deferred data depth,
+and five complete.
+
+One accepted slice is unmerged: `goal/vinesweeper-audit-2026-08-31`, commit `e5dd136a`,
+gated green on all eight checks with `remote_lanes: true`, held for the second reviewer
+under section 4.18's instruction. Its measured leverage is `Wergali seed: +8 items;
++9 actions`.
