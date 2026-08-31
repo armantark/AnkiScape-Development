@@ -706,3 +706,86 @@ rediscover them:
 
 One reachability side effect is worth keeping. Lumbridge Swamp Caves became reachable,
 and The Lost Tribe is now the preferred source for `Ring of life`.
+
+## 13. Six quests are permanently unstartable, and the audit does not know it — 2026-08-31
+
+### 13.1 The defect
+
+`core/skill_registry.py` treats `combat` as a skill CATEGORY, not a `SkillDefinition`.
+The individual combat skills are registered but carry `trainable=False`, because the
+player trains them through Combat rather than through a skill hub.
+
+A quest that requires a `combat` level therefore hits
+`logic_pure/logic_pure_quest.py:146`:
+
+```python
+if skill is None or not skill.trainable:
+    return f"{label} {level_required} (not implemented)"
+```
+
+That blocker is permanent. No player at any level can clear it, so `start_quest_pure`
+refuses forever. Six quests carry such a requirement:
+
+| Quest | Required combat level |
+| --- | ---: |
+| `dream_mentor` | 85 |
+| `grim_tales` | 100 |
+| `legends_quest` | 75 |
+| `smoking_kills` | 85 |
+| `underground_pass` | 79 |
+| `zogre_flesh_eaters` | 89 |
+
+AnkiScape already computes the value the requirement wants.
+`logic_pure/logic_pure_combat_engine.py:2864` defines `player_combat_level_pure`, which
+derives the combat level from Attack, Strength, Defence, Constitution, Prayer, Ranged,
+Magic and Summoning. The quest blocker path simply has no case that reaches it.
+
+### 13.2 The instrument does not see the defect
+
+`tools/audit_item_reachability.py:943-948` builds the `startable` set from
+`required_quests` and `required_quest_points` only:
+
+```python
+startable = {
+    quest_id
+    for quest_id, quest in quest_data.items()
+    if _required_quest_ids(quest) <= completed
+    and int(quest.get("required_quest_points", 0) or 0) <= quest_points
+}
+```
+
+It never consults `required_skills`. So the audit reports these six quests as startable
+and credits every route behind them, while the runtime denies all of them.
+
+### 13.3 What it cost this pass, and a correction on the record
+
+The Big Chompy slice measured `reachable_item_count` rising by 13. Only four of those
+are real: `Ogre bow`, `Raw chompy`, `Raw wild pie` and `Wild pie`. The other nine are
+the Zogre bone family, credited because the audit believes `zogre_flesh_eaters` becomes
+startable once Big Chompy completes.
+
+The orchestrator verified `data/bone_sources_data.py:143-145`, saw
+`row["quest_gate_state"] = "started"`, and concluded the cascade was genuine. That was
+one level too shallow: the gate is correct, and the quest behind it can never be
+started. An independent reviewer found the real blocker. Of the two root orphans this
+pass cleared, `Raw chompy` is real and `Ogre coffin key` is not.
+
+Section 12.7 named `zogre_flesh_eaters` stage sentinels as the blocker for
+`Ogre coffin key`. That is now known to be the second blocker, not the first. The first
+is the unstartable combat requirement recorded here.
+
+### 13.4 The slice this implies, and why it ranks above the remaining quest queue
+
+Fix the requirement resolution so a `combat` requirement compares against
+`player_combat_level_pure`, and fix the audit's `startable` filter so it accounts for
+skill requirements. That is one coherent slice in shared substrate. It converts six
+quests from permanently unstartable to genuinely gated, and it stops the reachability
+report over-crediting every route behind them.
+
+It outranks the remaining rows of the section 12.10 queue because those rows are quest
+data depth, while this is a player-visible defect in shared substrate and a correction
+to a measuring instrument. The goal sentence puts shared tooling and player-visible
+defects ahead of recorded data-depth debt.
+
+Take it before Zogre Flesh Eaters. Clearing that quest's six sentinels while it stays
+unstartable would deliver nothing.
