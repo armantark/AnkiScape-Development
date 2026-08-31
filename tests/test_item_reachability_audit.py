@@ -630,18 +630,14 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Waterfall Quest still blocks on a specific action",
         )
 
-    def test_lost_tribe_stage_one_action_has_a_runtime_emitter(self):
+    def test_lost_tribe_has_no_blocked_stage_products(self):
         report = build_reachability_report()
-        missing_actions = {
-            action
+        blocked_quest_ids = {
+            row["quest_id"]
             for row in report["blocked_quest_stage_products"]
-            for action in row["missing_required_actions"]
         }
 
-        self.assertNotIn(
-            "Complete The Lost Tribe stage 1 objective",
-            missing_actions,
-        )
+        self.assertNotIn("the_lost_tribe", blocked_quest_ids)
 
     def test_gertrudes_cat_dialogue_actions_have_runtime_emitters(self):
         report = build_reachability_report()
@@ -1401,7 +1397,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1608)
-        self.assertEqual(report["reachable_item_count"], 2243)
+        self.assertEqual(report["reachable_item_count"], 2244)
         self.assertEqual(
             report["routes"].get("Living water"),
             "quest-stage:druidic_ritual:2",
@@ -1429,7 +1425,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["root_orphan_count"], 39)
         self.assertEqual(report["cascade_orphan_count"], 151)
         self.assertEqual(report["unresolved_action_count"], 277)
-        self.assertEqual(report["seed_item_count"], 1177)
+        self.assertEqual(report["seed_item_count"], 1179)
+        self.assertEqual(len(report["blocked_quest_stage_products"]), 144)
         blocked_quest_ids = {row["quest_id"] for row in report["blocked_quest_stage_products"]}
         self.assertEqual(
             {
@@ -1450,17 +1447,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             & blocked_quest_ids,
             set(),
         )
-        lost_tribe_rows = [
-            row
-            for row in report["blocked_quest_stage_products"]
-            if row["quest_id"] == "the_lost_tribe"
-        ]
-        self.assertEqual(len(lost_tribe_rows), 1)
-        self.assertEqual(lost_tribe_rows[0]["stage"], 2)
-        self.assertEqual(
-            lost_tribe_rows[0]["missing_required_actions"],
-            ["Complete The Lost Tribe stage 2 objective"],
-        )
+        self.assertNotIn("the_lost_tribe", blocked_quest_ids)
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item

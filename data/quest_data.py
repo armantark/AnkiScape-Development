@@ -378,6 +378,7 @@ BLUE_DYE_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6536075"
 ORANGE_GOBLIN_MAIL_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6435504"
 BLUE_GOBLIN_MAIL_WIKI_SOURCE = "https://runescape.wiki/w/Special:PermanentLink/6435506"
 THE_LOST_TRIBE_WIKI_SOURCE = "https://runescape.wiki/w/The_Lost_Tribe?oldid=6534350"
+THE_LOST_TRIBE_STAGE_ACTION_SOURCE = f"{THE_LOST_TRIBE_WIKI_SOURCE}; {DARKAN_QUEST_SOURCE_ROOT}/the_lost_tribe/TheLostTribe.kt"
 DARKAN_CLOCK_TOWER_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/clocktower"
 DARKAN_CLOCK_TOWER_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTower.java"
 DARKAN_CLOCK_TOWER_DUNGEON_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTowerDungeon.java"
@@ -3839,7 +3840,6 @@ class QuestStageRequirementCleanup:
     remove_required_actions: Tuple[str, ...] = ()
     add_required_inventory: Tuple[Tuple[str, int], ...] = ()
     add_required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
-    add_required_tools: Tuple[Tuple[str, int], ...] = ()
     add_required_actions: Tuple[str, ...] = ()
     add_auto_actions: Tuple[str, ...] = ()
     remove_required_routes: Tuple[str, ...] = ()
@@ -8726,15 +8726,12 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             ),
             source=THE_LOST_TRIBE_WIKI_SOURCE,
         ),
-        QuestStageRequirementCleanup(
-            stage=2,
-            remove_required_inventory_options=LIT_LIGHT_SOURCE_ITEMS,
-            remove_required_tools=("Pickaxe",),
-        ),
-        QuestStageRequirementCleanup(
-            stage=5,
-            add_required_skills=(QuestSkillRequirement("thieving", "Thieving", 13),),
-        ),
+        QuestStageRequirementCleanup(stage=2, remove_required_inventory_options=LIT_LIGHT_SOURCE_ITEMS, remove_required_tools=("Pickaxe",), remove_required_actions=("Complete The Lost Tribe stage 2 objective",),
+            add_auto_actions=("Find the stone brooch, show it to Duke Horacio and Sigmund, ask Reldo about it, then recover the Goblin symbol book",), source=THE_LOST_TRIBE_STAGE_ACTION_SOURCE),
+        QuestStageRequirementCleanup(stage=3, remove_required_actions=("Complete The Lost Tribe stage 3 objective",), add_auto_actions=("Read the Goblin symbol book and question the two generals in Goblin Village about the Dorgeshuun",), source=THE_LOST_TRIBE_STAGE_ACTION_SOURCE),
+        QuestStageRequirementCleanup(stage=4, remove_required_actions=("Complete The Lost Tribe stage 4 objective",), add_auto_actions=("Translate the tunnel symbols, follow the safe route, and perform Goblin Bow before Mistag, then follow him back to Lumbridge",), source=THE_LOST_TRIBE_STAGE_ACTION_SOURCE),
+        QuestStageRequirementCleanup(stage=5, add_required_skills=(QuestSkillRequirement("thieving", "Thieving", 13),), remove_required_actions=("Complete The Lost Tribe stage 5 objective",),
+            add_auto_actions=("Pickpocket Sigmund's key, search his chest, recover the castle silverware, receive Duke Horacio's peace treaty, follow Kazgar, deliver the treaty to Mistag, and witness its signing",), source=THE_LOST_TRIBE_STAGE_ACTION_SOURCE),
     ),
     "monkey_madness": (
         QuestStageRequirementCleanup(

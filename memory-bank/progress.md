@@ -82,6 +82,34 @@ passed 4,539 tests in 700.027 seconds with three skips. Documentation audited
 files and zero hard issues. `Snake hide (swamp)` remains separate follow-up
 work; it was not aliased to ordinary item `6287`.
 
+## The Lost Tribe stages 2–5 are source-backed and completable — 2026-08-31
+
+The direct Darkan Kotlin implementation now closes the intermediate varbit
+`532` meanings that the older derived evidence contract could not name.
+`TheLostTribeState.kt` defines all twelve states, and `TheLostTribe.kt` provides
+executable transitions for the brooch, symbol book, goblin generals, tunnel
+symbols, Mistag's return to Lumbridge, Sigmund's chest, silverware, treaty
+delivery, and final signing.
+
+The four remaining generated sentinels are replaced by same-stage automatic
+actions. Thieving `13` remains the only stage-5 skill gate. Quest-local items
+Brooch `5008`, Goblin symbol book `5009`, Sigmund's key `5010`, Silverware
+`5011`, Peace treaty `5012`, and all seven H.A.M. outfit pieces remain follow-on
+acquisition leads; no unavailable item was turned into a blocker and no new
+interface or runtime path was added.
+
+Re-measured reachability moves from `1608 / 2243 / 190 / 39 / 151 / 277 / 1177`
+to `1608 / 2244 / 190 / 39 / 151 / 277 / 1179`. Blocked quest-stage rows fall
+from `145` to `144`, and The Lost Tribe has no row in
+`blocked_quest_stage_products`. Completable quests move from `44` to `45`, with
+The Lost Tribe as the sole addition; its `13` transitive descendants remain
+blocked by their own generated sentinels. Focused tests pass seven cases;
+test quality
+reports 4,516 tests across 222 files with zero hard issues, and the documentation
+audit passes across 610 Markdown and 441 HTML files. Full source evidence and
+the item follow-on list are in
+`memory-bank/source-audits/the-lost-tribe-stages-2-5-2026-08-31.md`.
+
 ## The Lost Tribe stage-1 cellar path is source-backed — 2026-08-30
 
 A Darkan doorbell identified the stage-1 cellar contract in the read-only target

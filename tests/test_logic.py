@@ -3920,7 +3920,7 @@ class TestLogic(unittest.TestCase):
             quest_current_stage_blocker_reasons_pure(
                 progressed_data, quest_id, QUEST_DATA
             ),
-            ("Action required: Complete The Lost Tribe stage 2 objective",),
+            (),
         )
         self.assertEqual(
             next(
@@ -3930,12 +3930,12 @@ class TestLogic(unittest.TestCase):
             ),
             THE_LOST_TRIBE_WIKI_SOURCE,
         )
-        wrong_stage, progressed, completed = apply_quest_progress_pure(
+        next_stage, progressed, completed = apply_quest_progress_pure(
             progressed_data, quest_id, QUEST_DATA
         )
-        self.assertFalse(progressed)
+        self.assertTrue(progressed)
         self.assertFalse(completed)
-        self.assertEqual(wrong_stage, progressed_data)
+        self.assertEqual(next_stage["quests"][quest_id]["progress"], 3)
 
     def test_monkey_madness_ape_atoll_infiltration_emits_on_review(self):
         quest_id = "monkey_madness"

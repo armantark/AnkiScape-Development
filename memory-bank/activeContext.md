@@ -76,7 +76,38 @@
   Cleanup encounter-frequency and favour system also remains outside this
   ordinary-hide producer slice.
 
-Last staleness sweep: 2026-08-30
+Last staleness sweep: 2026-08-31
+
+## The Lost Tribe has no generated stage blockers — 2026-08-31
+
+- The direct read-only Kotlin authority at
+  `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/the_lost_tribe/TheLostTribeState.kt`
+  explicitly names all twelve values of varbit `532`, from `NOT_STARTED 0` to
+  `COMPLETE 11`. This supersedes only the older derived evidence contract's
+  claim that the intermediate meanings were source-blocked; the contract had
+  not inspected this implementation.
+- Stages `2` through `5` now remove all four generated
+  `Complete The Lost Tribe stage N objective` sentinels and record the
+  source-backed brooch and symbol-book search, goblin-general investigation,
+  tunnel-symbol route and return to Lumbridge, and Sigmund chest-to-treaty
+  sequence. Stage `5` keeps its exact
+  Thieving `13` gate. No runtime, interface, placeholder, or new item route was
+  added.
+- Brooch `5008`, Goblin symbol book `5009`, Sigmund's key `5010`, Silverware
+  `5011`, Peace treaty `5012`, and the seven H.A.M. outfit pieces `4298` through
+  `4310` have no faithful AnkiScape acquisition contracts. They remain explicit
+  follow-on leads instead of unreachable required-item gates.
+- Re-measured reachability moves from
+  `1608 / 2243 / 190 / 39 / 151 / 277 / 1177` to
+  `1608 / 2244 / 190 / 39 / 151 / 277 / 1179`. Blocked quest-stage rows move
+  from `145` to `144`, and `the_lost_tribe` is absent from
+  `blocked_quest_stage_products`. Completable quests move from `44` to `45`,
+  with The Lost Tribe as the sole addition; its `13` transitive descendants
+  remain blocked by their own sentinels. Focused coverage passes seven
+  tests, the test
+  quality audit reports 4,516 tests across 222 files with zero hard issues, and
+  documentation audits 610 Markdown and 441 HTML files.
+- Evidence: `memory-bank/source-audits/the-lost-tribe-stages-2-5-2026-08-31.md`.
 
 ## The Lost Tribe cellar action replaces its stage-1 sentinel — 2026-08-30
 
