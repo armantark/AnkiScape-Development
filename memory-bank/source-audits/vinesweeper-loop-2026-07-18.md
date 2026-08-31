@@ -231,3 +231,73 @@ one launcher, one menu, the paginated Minigames catalog, and the unclipped
 Vinesweeper card without entering the activity or mutating the player save.
 The exact closure passes all 2,024 non-Qt tests (266 expected environment
 skips) and all 2,024 real offscreen-Qt tests (one intentional skip).
+
+## Reachability point-economy closure — 2026-08-31
+
+The live runtime chain was re-established before changing the instrument. The
+Activities catalog registers Vinesweeper, entry accepts an inventory or tool-belt
+Spade, review answers execute the activity operation, point state persists, and
+`buy_reward` delivers every non-Flag shop row into inventory. The Flag row is a
+capped activity-state purchase and never creates an inventory item.
+
+Vinesweeper point state has no maximum. Safe uncovers award one point and
+correct flags or defended rabbits award up to 325 points. The attainability probe
+seeded all 170 operations into a maximum-award band, accumulated the 55,250-point
+ceiling for that sequence, bought the highest-priced 55,000-point Spirit tree seed,
+and kept 250 points. This is not an expected earning rate: ordinary play averages
+about 130.45 points per operation and needs roughly 424 operations to reproduce
+that balance, while the forced ceiling proves that every listed price is reachable.
+
+The checked `93197a3d` table has 46 reward rows, not 16:
+
+- `Wergali seed` and `Compost potion (4)` had no baseline route and gain their
+  direct Vinesweeper buy routes.
+- `Flag` is state-only and is deliberately absent from the item graph.
+- The other 43 item rewards already had a route. Cabbage, tomato, and sweetcorn
+  seeds came from Black knights; strawberry, watermelon, marrentill, tarromin,
+  ranarr, limpwurt, wildblood, jangerberry, and whiteberry seeds from level-75
+  Ankous; guam, nasturtium, redberry, cadavaberry, and dwellberry seeds from
+  Master Farmers; avantoe, kwuarm, cadantine, snapdragon, lantadyme, dwarf weed,
+  torstol, cactus, belladonna, and poison ivy seeds from Aberrant spectres;
+  rosemary and krandorian seeds from Draynor Seed Market; woad, asgarnian, and
+  jute seeds from Mutated zygomites; bittercap mushroom spores and yanillian
+  seeds from Cyclopes; and acorns plus willow, maple, yew, pineapple, papaya,
+  palm, calquat, and spirit seeds from seed nests.
+- Of the 44 seed/spore rewards, 42 feed a live Farming or sapling action.
+  `Bittercap mushroom spore` has no crop consumer, and `Spirit seed` is attached
+  to a source-blocked, non-runnable Spirit tree crop. Both were already
+  reachable and remain separate downstream implementation gaps.
+
+The audit now follows the Fist of Guthix point-economy shape while retaining the
+runtime gates that make the route executable. A Spade-gated operation produces
+a repeatable synthetic `Vinesweeper point`; 45 buy nodes cover every
+inventory-delivered reward and exclude Flag. Four dose-specific Compost potion
+uses require both Compost and the current dose and preserve the exact next dose
+or Vial plus Supercompost. The point shop also changes the preferred route for
+nine already-reachable nest rewards: Acorn, Willow seed, Maple seed, Yew seed,
+Pineapple seed, Papaya tree seed, Palm tree seed, Calquat tree seed, and Spirit
+seed.
+
+Measured report changes on this tree are:
+
+| Audit value | Before | After |
+| --- | ---: | ---: |
+| `action_count` | 1,609 | 1,659 |
+| `reachable_item_count` | 2,257 | 2,270 |
+| `orphan_input_count` | 179 | 167 |
+| `root_orphan_count` | 37 | 32 |
+| `cascade_orphan_count` | 142 | 135 |
+| `unresolved_action_count` | 266 | 256 |
+| `seed_item_count` | 1,182 | 1,182 |
+| blocked quest-stage rows | 143 | 143 |
+
+The 13 new graph routes are the synthetic Vinesweeper point plus Wergali seed,
+Grimy wergali, Clean wergali, Wergali potion (unf), Crafting potion (1) through
+(4), and Compost potion (1) through (4). This removes five root orphans and
+seven cascade orphans without changing quest-stage blocking.
+
+Focused runtime and instrument coverage passes 74 tests. Complete discovery
+passes 4,567 tests in both lanes: plain skips 515 and real offscreen Qt skips
+three. The oversized audit and existing audit-test files do not grow; the
+extracted Vinesweeper builder has cyclomatic and cognitive complexity 4, while
+`build_reachability_report` remains at its baseline cyclomatic complexity 161.

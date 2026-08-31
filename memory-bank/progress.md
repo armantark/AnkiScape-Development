@@ -6935,3 +6935,14 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - The before and after reachability values are unchanged at 1,609 / 2,257 / 179 / 37 / 142 / 266 / 1,182, with 143 blocked quest-stage rows.
 - Full discovery passes 4,566 tests in both lanes; plain skips 515 and offscreen Qt skips three.
 - Source and migration evidence are recorded in `source-audits/the-fremennik-isles-combat-lamps-2026-08-31.md`.
+
+## Vinesweeper reachability audit closure — 2026-08-31
+
+- Added a Spade-gated repeatable Vinesweeper operation, 45 inventory reward buy nodes, and four Compost potion remainder actions to the shared reachability graph. Flag remains activity state and is not credited as an item.
+- Pinned the operation gate, complete non-Flag buy catalog, Compost plus dose requirements, exact dose outputs, Wergali route, highest-priced Spirit seed route, and the absence of a Flag item route.
+- Re-measured every audit baseline at 1,659 actions, 2,270 reachable items, 167 orphan inputs, 32 root orphans, 135 cascade orphans, 256 unresolved actions, 1,182 seed items, and 143 blocked quest-stage rows.
+- The twelve newly reachable player items are Wergali seed, Grimy wergali, Clean wergali, Wergali potion (unf), Crafting potion (1)–(4), and Compost potion (1)–(4); the synthetic point currency is the thirteenth new graph route.
+- Runtime proof forced all 170 operations into a maximum-award band, reached the 55,250-point ceiling for that sequence, and bought the 55,000-point Spirit seed. This proves attainability rather than typical pacing: ordinary play averages about 130.45 points per operation and needs roughly 424 operations to reproduce that balance.
+- Forty-two of 44 seed/spore rewards have live Farming consumers. Bittercap mushroom spore has none, while Spirit seed leads only to a source-blocked Spirit tree crop; both are recorded follow-ons, not inflated into this slice.
+- Focused coverage passes 74 tests. Full discovery passes 4,567 tests in each lane: plain skips 515 and real offscreen Qt skips three.
+- Evidence: `source-audits/vinesweeper-loop-2026-07-18.md`.

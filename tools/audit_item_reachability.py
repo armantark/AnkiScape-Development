@@ -988,6 +988,38 @@ def _rank_root_orphans(
     )
 
 
+def _add_vinesweeper_actions(
+    actions: list[dict[str, Any]],
+    consumers: dict[str, set[str]],
+    producers: dict[str, set[str]],
+) -> None:
+    from ankiscape.data import vinesweeper_data
+
+    operation_key = "Activity:vinesweeper:operation"
+    point = "Vinesweeper point"
+    actions.append({"id": operation_key, "required": {"Spade"}, "alternatives": (), "outputs": {point}})
+    consumers["Spade"].add(operation_key)
+    producers[point].add(operation_key)
+    for reward in vinesweeper_data.VINESWEEPER_REWARDS:
+        # Flags are activity state, not inventory items.
+        if reward.id == "flag":
+            continue
+        buy_key = f"Activity:vinesweeper:buy:{reward.id}"
+        actions.append({"id": buy_key, "required": {point}, "alternatives": (), "outputs": {reward.item_name}})
+        consumers[point].add(buy_key)
+        producers[reward.item_name].add(buy_key)
+
+    # The shared Utility row cannot express the dose-dependent remainder.
+    remainders = vinesweeper_data.COMPOST_POTION_DOSES[1:] + ("Vial",)
+    for current, remainder in zip(vinesweeper_data.COMPOST_POTION_DOSES, remainders):
+        use_key = f"Utility:use_compost_potion:{current}"
+        actions.append({"id": use_key, "required": {current, "Compost"}, "alternatives": (), "outputs": {remainder, "Supercompost"}})
+        consumers[current].add(use_key)
+        consumers["Compost"].add(use_key)
+        producers[remainder].add(use_key)
+        producers["Supercompost"].add(use_key)
+
+
 def build_reachability_report() -> dict[str, Any]:
     from ankiscape.data import combat_data
     from ankiscape.core import constants
@@ -1529,53 +1561,23 @@ def build_reachability_report() -> dict[str, Any]:
 
     fog_match_key = "Activity:fist_of_guthix:match"
     fog_token = "Fist of guthix token"
-    actions.append(
-        {
-            "id": fog_match_key,
-            "required": set(),
-            "alternatives": (),
-            "outputs": {fog_token},
-        }
-    )
+    actions.append({"id": fog_match_key, "required": set(), "alternatives": (), "outputs": {fog_token}})
     producers[fog_token].add(fog_match_key)
     for reward_id, reward in fist_of_guthix_data.FIST_OF_GUTHIX_REWARDS.items():
-        family = fist_of_guthix_data.FIST_OF_GUTHIX_CONDITION_DATA[
-            reward["family_id"]
-        ]
+        family = fist_of_guthix_data.FIST_OF_GUTHIX_CONDITION_DATA[reward["family_id"]]
         names_by_percent = family["names_by_percent"]
         charged = names_by_percent[max(names_by_percent)]
         spent = names_by_percent[min(names_by_percent)]
         buy_key = f"Activity:fist_of_guthix:buy:{reward_id}"
-        actions.append(
-            {
-                "id": buy_key,
-                "required": {fog_token},
-                "alternatives": (),
-                "outputs": {charged},
-            }
-        )
+        actions.append({"id": buy_key, "required": {fog_token}, "alternatives": (), "outputs": {charged}})
         consumers[fog_token].add(buy_key)
         producers[charged].add(buy_key)
         uncharge_key = f"Activity:fist_of_guthix:uncharge:{reward_id}"
-        actions.append(
-            {
-                "id": uncharge_key,
-                "required": {charged},
-                "alternatives": (),
-                "outputs": {spent},
-            }
-        )
+        actions.append({"id": uncharge_key, "required": {charged}, "alternatives": (), "outputs": {spent}})
         consumers[charged].add(uncharge_key)
         producers[spent].add(uncharge_key)
         recharge_key = f"Activity:fist_of_guthix:recharge:{reward_id}"
-        actions.append(
-            {
-                "id": recharge_key,
-                "required": {spent, fog_token},
-                "alternatives": (),
-                "outputs": {charged},
-            }
-        )
+        actions.append({"id": recharge_key, "required": {spent, fog_token}, "alternatives": (), "outputs": {charged}})
         consumers[spent].add(recharge_key)
         consumers[fog_token].add(recharge_key)
         producers[charged].add(recharge_key)
@@ -1584,19 +1586,12 @@ def build_reachability_report() -> dict[str, Any]:
             for percent in sorted(names_by_percent, reverse=True)
         ]
         for current, remainder in zip(ordered_names, ordered_names[1:]):
-            degrade_key = (
-                f"Activity:fist_of_guthix:degrade:{reward_id}:{current}"
-            )
-            actions.append(
-                {
-                    "id": degrade_key,
-                    "required": {current},
-                    "alternatives": (),
-                    "outputs": {remainder},
-                }
-            )
+            degrade_key = f"Activity:fist_of_guthix:degrade:{reward_id}:{current}"
+            actions.append({"id": degrade_key, "required": {current}, "alternatives": (), "outputs": {remainder}})
             consumers[current].add(degrade_key)
             producers[remainder].add(degrade_key)
+
+    _add_vinesweeper_actions(actions, consumers, producers)
 
     garden_key = "Activity:sorceress_garden:harvest"
     garden_outputs = set(sorceress_garden_data.SORCERESS_GARDEN_HERB_POOL)

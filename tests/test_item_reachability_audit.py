@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core import constants
 from ankiscape.core.constants import ITEM_DEFINITIONS, QUEST_DATA
-from ankiscape.data import combat_data, shop_data
+from ankiscape.data import combat_data, shop_data, vinesweeper_data
 from ankiscape.logic import shop_logic
 from ankiscape.logic_pure.logic_pure import (
     combat_target_locked_reasons_pure,
@@ -1396,8 +1396,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1609)
-        self.assertEqual(report["reachable_item_count"], 2257)
+        self.assertEqual(report["action_count"], 1659)
+        self.assertEqual(report["reachable_item_count"], 2270)
         self.assertEqual(
             report["routes"].get("Living water"),
             "quest-stage:druidic_ritual:2",
@@ -1421,10 +1421,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 179)
-        self.assertEqual(report["root_orphan_count"], 37)
-        self.assertEqual(report["cascade_orphan_count"], 142)
-        self.assertEqual(report["unresolved_action_count"], 266)
+        self.assertEqual(report["orphan_input_count"], 167)
+        self.assertEqual(report["root_orphan_count"], 32)
+        self.assertEqual(report["cascade_orphan_count"], 135)
+        self.assertEqual(report["unresolved_action_count"], 256)
         self.assertEqual(report["seed_item_count"], 1182)
         self.assertEqual(len(report["blocked_quest_stage_products"]), 143)
         blocked_quest_ids = {row["quest_id"] for row in report["blocked_quest_stage_products"]}
@@ -1643,22 +1643,22 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Activity:shooting_stars:mine",
         )
 
-        self.assertEqual(
-            report["routes"]["Fist of guthix token"],
-            "Activity:fist_of_guthix:match",
-        )
-        self.assertEqual(
-            report["routes"]["Combat hood 100"],
-            "Activity:fist_of_guthix:buy:combat_hood",
-        )
-        self.assertEqual(
-            report["routes"]["Combat hood 0"],
-            "Activity:fist_of_guthix:uncharge:combat_hood",
-        )
-        self.assertEqual(
-            report["routes"]["Bronze gauntlets"],
-            "Activity:fist_of_guthix:buy:bronze_gauntlets",
-        )
+        self.assertEqual(report["routes"]["Fist of guthix token"], "Activity:fist_of_guthix:match")
+        self.assertEqual(report["routes"]["Combat hood 100"], "Activity:fist_of_guthix:buy:combat_hood")
+        self.assertEqual(report["routes"]["Combat hood 0"], "Activity:fist_of_guthix:uncharge:combat_hood")
+        self.assertEqual(report["routes"]["Bronze gauntlets"], "Activity:fist_of_guthix:buy:bronze_gauntlets")
+        self.assertEqual(report["routes"]["Vinesweeper point"], "Activity:vinesweeper:operation")
+        self.assertEqual(report["routes"]["Wergali seed"], "Activity:vinesweeper:buy:wergali_seed")
+        self.assertEqual(report["routes"]["Compost potion (4)"], "Activity:vinesweeper:buy:compost_potion_4")
+        self.assertEqual(report["routes"]["Compost potion (3)"], "Utility:use_compost_potion:Compost potion (4)")
+        self.assertEqual(report["routes"]["Compost potion (1)"], "Utility:use_compost_potion:Compost potion (2)")
+        self.assertEqual(report["routes"]["Spirit seed"], "Activity:vinesweeper:buy:spirit_tree_seed")
+        self.assertNotIn("Flag", report["routes"])
+        reward_items = {
+            reward.item_name for reward in vinesweeper_data.VINESWEEPER_REWARDS
+            if reward.id != "flag"
+        }
+        self.assertTrue(reward_items <= report["routes"].keys())
         self.assertEqual(
             report["routes"]["Summer sq'irkjuice"],
             "Activity:sorceress_garden:harvest",

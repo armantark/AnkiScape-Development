@@ -5957,3 +5957,13 @@ the obsolete percent key is no longer touched.
 - Reachability remains 1,609 actions, 2,257 reachable items, 179 orphan inputs, 37 root orphans, 142 cascade orphans, 266 unresolved actions, 1,182 seed items, and 143 blocked quest-stage rows.
 - Both complete lanes pass 4,566 tests: plain skips 515 and offscreen Qt skips three.
 - Evidence: `source-audits/the-fremennik-isles-combat-lamps-2026-08-31.md`.
+
+## Vinesweeper point-economy reachability — 2026-08-31
+
+- The reachability instrument now requires a reachable Spade before a repeatable Vinesweeper operation can produce the synthetic point currency, then models all 45 inventory reward purchases while excluding the state-only Flag row.
+- Dose-specific Compost potion actions require Compost and preserve each lower dose through the final Vial, matching the runtime rather than crediting free degradation.
+- Measured pins move from 1,609 / 2,257 / 179 / 37 / 142 / 266 / 1,182 to 1,659 / 2,270 / 167 / 32 / 135 / 256 / 1,182; blocked quest-stage rows remain 143.
+- Exactly 12 player items gain routes: the eight-item Wergali chain and all four Compost potion doses. The thirteenth new graph route is the synthetic Vinesweeper point.
+- The live table has 46 rows. Two direct reward outputs were newly reachable, 43 were already reachable, and Flag is not an item. Bittercap mushroom spore and Spirit seed are the only two of 44 seed/spore rewards without a live consumer.
+- Vinesweeper points persist without a cap. An attainability probe forced all 170 operations into a maximum-award band and reached the 55,250-point ceiling for that sequence; ordinary play averages about 130.45 points per operation and needs roughly 424 operations to reproduce that balance and buy the top reward.
+- Evidence: `source-audits/vinesweeper-loop-2026-07-18.md`.
