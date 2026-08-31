@@ -1056,3 +1056,143 @@ One accepted slice is unmerged: `goal/vinesweeper-audit-2026-08-31`, commit `e5d
 gated green on all eight checks with `remote_lanes: true`, held for the second reviewer
 under section 4.18's instruction. Its measured leverage is `Wergali seed: +8 items;
 +9 actions`.
+
+## 16. The rank 18 predicate census, and the two systemic blockers it measured — 2026-08-31
+
+Rank 18 asked for an atomic predicate census before any behavioural work. It is done.
+It is also the most useful artefact of this pass, because it replaces the queue's
+item-by-item guesswork with two measured systemic numbers.
+
+### 16.1 What the catalog contains
+
+196 quests and 1,130 stage-requirement rows. The predicate inventory, measured live:
+
+| Scope | Predicate | Rows | Atomic entries |
+| --- | --- | ---: | ---: |
+| Quest | `required_quests` | 113 | 465 |
+| Quest | `required_skills` | 144 | 485 |
+| Quest | `required_quest_points` | 6 | 6 |
+| Stage | `required_inventory` | 229 | 612 |
+| Stage | `consumed_inventory` | 137 | 199 |
+| Stage | `required_inventory_options` | 59 | 245 |
+| Stage | `required_tools` | 154 | 211 |
+| Stage | `required_actions` | 693 | 704 |
+| Stage | `required_routes` | 28 | 28 |
+| Stage | `combat_encounters` | 143 | 293 |
+
+### 16.2 What is clean
+
+No skill id fails to resolve. No level exceeds its ceiling, measured as 99 for every
+trainable skill except Dungeoneering at 120, and 138 for derived combat. No prerequisite
+quest id is unknown, and no prerequisite cycle exists. All 196 quests are reachable in
+the prerequisite closure. Quest points obtainable total 333, and the largest gate is
+`while_guthix_sleeps` at 270. All 28 route gates have a timely choice.
+
+Two apparent problems were checked and are not problems. Thirteen quests repeat a lower
+skill level than a prerequisite already demands, which is redundant rather than
+contradictory. Thirteen stages both require and consume the same item, which the code
+handles correctly by checking possession at `logic_pure/logic_pure_quest.py:770-777`
+before consuming at `:1327-1345`.
+
+### 16.3 Blocker one: 704 action predicates that nothing can emit
+
+Every `required_actions` entry is impassable, not just the generated ones. The
+structural proof is that `_mark_quest_stage_actions` at
+`logic_pure/logic_pure_quest.py:1334` is the only writer of `quest_stage_actions`, and
+it emits a stage's `auto_actions` only after that stage already has no blockers. A
+catalog-wide ordered comparison found zero cases where a required action matches an
+earlier `auto_actions` value in the same quest.
+
+693 are the generated sentinels. The other **11 are hand-written strings**, which this
+ledger has never recorded and which no earlier pass noticed:
+
+| Quest | Stage | Required action |
+| --- | ---: | --- |
+| `mournings_end_part_i` | 3 | Have Oronwen repair the mourner trousers |
+| `mournings_end_part_i` | 5 | Use the rotten apple to sabotage the mourner food stores |
+| `spirits_of_the_elid` | 2 | Cast Telegrab for the water channel puzzle |
+| `enakhras_lament` | 5 | Cast Crumble Undead during the boneguard fight |
+| `in_aid_of_the_myreque` | 6 | Enchant sapphire for the Myreque preparations |
+| `the_eyes_of_glouphrie` | 3 | Collect a bucket of sap from an evergreen tree |
+| `cold_war` | 2 | Build the clockwork penguin on a crafting table 3 |
+| `the_fremennik_isles` | 5 | Cure and stitch yak-hide armour |
+| `the_fremennik_isles` | 5 | Make a Fremennik round shield |
+| `legacy_of_seergaze` | 5 | Cast Enchant Level 2 Jewellery for the emerald preparations |
+| `do_no_evil` | 3 | Recover an m'amulet mould before making the monkeyspeak amulet |
+
+### 16.4 Blocker two: the quest combat gate defaults to the enemy's own level
+
+`logic_pure/logic_pure_quest.py:690-696` reads:
+
+```python
+minimum_player_combat = _positive_int(
+    _quest_combat_configs(encounter).get("minimum_player_combat", encounter_level),
+    encounter_level,
+)
+...
+if minimum_player_combat > 0 and player_level < minimum_player_combat:
+    return False, "combat_underpowered"
+```
+
+When an encounter carries no explicit `minimum_player_combat`, the requirement falls
+back to the ENEMY's combat level. So killing the level 699 Nomad requires the player to
+be combat 699, against an attainable maximum of 138. A live count finds **66 encounters
+above level 138**, and the census measured 64 of them as permanently `combat_underpowered`,
+plus 91 permanently `combat_missing_stats`, giving 131 impossible encounter predicates
+across 60 quests.
+
+**This is a known defect with a settled convention, not an open design question.** A
+handoff of 2026-08-12 already stated it plainly at
+`memory-bank/handoffs/claude-handoff-2026-08-12-overnight.md:72`:
+
+> The default value for `minimum_player_combat` is very likely wrong for quest combat.
+> It uses the enemy's level. In the period game, the player fights Nial during Glorious
+> Memories regardless of level.
+
+and `memory-bank/audits/quest-stage-reachability-truth-2026-08-12.md:334` recorded the
+same for Nial Swiftfling. The convention already exists too:
+`memory-bank/source-audits/miniquest-ledger-2026-07-29.md:101` records "**No invented
+player-combat gate.** `minimum_player_combat` is set to 1 on all", and the field was
+introduced by the Smoking Kills work precisely to carry SOURCED gates, at levels 90 and
+111, per `memory-bank/source-audits/quest-smoking-kills-playable-2026-07-18.md:149`.
+
+So the fix direction is already settled: absence of an explicit value means no gate, not
+a gate at the enemy's level. An orchestrator probe of the resolved catalog found zero
+encounters carrying an explicit `minimum_player_combat`, which does not match the
+Smoking Kills record; the implementing pass must resolve that discrepancy against the
+data before changing the fallback.
+
+### 16.5 Measured leverage, by controlled rerun rather than assertion
+
+The census did not assert leverage; it measured it by changing one predicate family at a
+time in a copied catalog and rerunning the audit:
+
+| Rank | Family | Completable quests | Reachable items |
+| ---: | --- | --- | --- |
+| 1 | The 704 unemittable action predicates | 46 → 79, so +33 | 2,257 → 2,315, so +58 |
+| 2 | The 131 impossible combat predicates, after family 1 clears | 79 → 102, so +23 | 2,315 → 2,354, so +39 |
+
+The 153 item, tool and option gates with no route were deliberately NOT scored, because
+each can be downstream of the two families above. That restraint is correct and is the
+lesson of section 12.1 finally applied at the right level.
+
+These two numbers now govern the queue. Every remaining acquisition row is small next to
+them, and the combat-gate fix is one change to one fallback rather than 131 data edits.
+
+### 16.6 Guard coverage, which is where the next defect will hide
+
+Two catalog-wide pins exist: `required_skills` in `tests/test_combat_quest_gate.py:113-122`
+and `xp_rewards` in `tests/test_fremennik_isles_lamps.py:76-84`. Everything else is
+unguarded: `required_quests`, `required_quest_points`, quest `required_items`, stage
+`required_inventory`, `consumed_inventory`, both option fields, `required_tools`,
+`required_actions`, `auto_actions`, `required_routes` and `combat_encounters`.
+
+### 16.7 Correction to sections 13.2 and 13.4
+
+Those sections proposed fixing the reachability audit's `startable` filter to consider
+`required_skills`. That work is NOT needed and should not be scheduled. Three
+independent measurements agree that no quest skill requirement exceeds what the audit's
+idealised maxed player attains: 485 skill requirements, zero blockers, against a derived
+combat ceiling of 138 versus a maximum requirement of 100. The audit was correct; only
+the runtime was wrong, and that half is merged as `5c4eb06c`. A later queue pass
+classified this as remaining work; it is complete.
