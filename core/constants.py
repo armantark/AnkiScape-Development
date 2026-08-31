@@ -16,7 +16,6 @@ from ..data.fist_of_guthix_data import (
     fist_of_guthix_activity_as_dict,
     fist_of_guthix_extra_items_as_dict,
 )
-
 from ..data.court_cases_data import (
     COURT_CASES_ACTIVITY_ID,
     court_cases_activity_as_dict,
@@ -435,6 +434,7 @@ from ..data.herblore_data import (
     pestle_and_mortar_activities_as_dict,
 )
 from ..data.grind_source_data import grind_source_activities_as_dict
+from ..data.quest_item_acquisition_data import quest_item_acquisition_activities_as_dict, quest_item_acquisition_extra_items_as_dict
 from ..data.shop_data import shop_extra_items_as_dict
 from ..data.summoning_data import summoning_extra_items_as_dict
 from ..data.potion_data import potion_items_as_dict, potion_item_names
@@ -833,7 +833,7 @@ UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(pestle_and_mortar_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
-UTILITY_ACTIVITY_DATA.update(grind_source_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update({**grind_source_activities_as_dict(), **quest_item_acquisition_activities_as_dict()})
 UTILITY_ACTIVITY_DATA.update(jungle_potion_search_activities_as_dict())
 for _activity_id, _icon_name in zip(
     JUNGLE_POTION_SEARCH_ACTIVITY_IDS,
@@ -1503,7 +1503,7 @@ MAGIC_DATA = magic_targets_as_dict()
 QUEST_DATA = quests_as_dict()
 QUEST_REFERENCE_DATA = quest_references_as_dict()
 QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
-QUEST_REWARD_ITEM_DATA = quest_reward_items_as_dict()
+QUEST_REWARD_ITEM_DATA = {**quest_reward_items_as_dict(), **quest_item_acquisition_extra_items_as_dict()}
 CLAIM_DATA = claims_as_dict()
 
 

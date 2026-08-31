@@ -5967,3 +5967,15 @@ the obsolete percent key is no longer touched.
 - The live table has 46 rows. Two direct reward outputs were newly reachable, 43 were already reachable, and Flag is not an item. Bittercap mushroom spore and Spirit seed are the only two of 44 seed/spore rewards without a live consumer.
 - Vinesweeper points persist without a cap. An attainability probe forced all 170 operations into a maximum-award band and reached the 55,250-point ceiling for that sequence; ordinary play averages about 130.45 points per operation and needs roughly 424 operations to reproduce that balance and buy the top reward.
 - Evidence: `source-audits/vinesweeper-loop-2026-07-18.md`.
+
+## Early quest item roots — 2026-08-31
+
+- Pirate's Treasure now consumes canonical `Karamjan rum`, matching the existing Karamja Wines, Spirits, and Beers stock row.
+- Source-backed Utility routes produce Ugthanki dung, Fish food, and Insect repellent. Ugthanki dung is registered as unstackable, untradeable item `4601` and its route unlocks when The Feud starts.
+- The reachability audit now traverses Agility stage outputs. Exactly one modelled Agility stage output was omitted: `agility_pyramid:retrieve_top` now routes `Pyramid top`. Nineteen other Agility reward identities still have no stage producer and remain outside this slice.
+- `catch_karambwan` and Tiadeche's Karambwan Stall both unlock when Tai Bwo Wannai Trio starts. They previously encoded quest completion and created the stage-2 circularity.
+- Against rebased main, reachability moves from 1,659 / 2,270 / 167 / 32 / 135 / 256 / 1,182 to 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215 for actions / reachable items / orphan inputs / root orphans / cascade orphans / unresolved actions / seed items. Blocked quest-stage rows move from 143 to 139.
+- Thirty-one items gain routes: ten direct or adjacent economy items and twenty-one existing quest-owned products or rewards. No downstream quest producer was added.
+- The newly exposed `dealing_with_scabaras_skeletons_1` and `tai_bwo_wannai_trio_monkey` combat rows remain blocked. They are second-level combat-resolver gaps, not item-source gaps.
+- Real Qt checks at 900×560 in light and dark palettes show all three Utility labels without clipping or horizontal overflow. No UI code changed.
+- Evidence: `source-audits/early-quest-item-roots-2026-08-31.md`.

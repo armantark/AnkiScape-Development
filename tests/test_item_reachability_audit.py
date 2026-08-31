@@ -1396,8 +1396,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = build_reachability_report()
 
-        self.assertEqual(report["action_count"], 1659)
-        self.assertEqual(report["reachable_item_count"], 2270)
+        self.assertEqual(report["action_count"], 1663)
+        self.assertEqual(report["reachable_item_count"], 2301)
         self.assertEqual(
             report["routes"].get("Living water"),
             "quest-stage:druidic_ritual:2",
@@ -1421,12 +1421,12 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 167)
+        self.assertEqual(report["orphan_input_count"], 165)
         self.assertEqual(report["root_orphan_count"], 32)
-        self.assertEqual(report["cascade_orphan_count"], 135)
-        self.assertEqual(report["unresolved_action_count"], 256)
-        self.assertEqual(report["seed_item_count"], 1182)
-        self.assertEqual(len(report["blocked_quest_stage_products"]), 143)
+        self.assertEqual(report["cascade_orphan_count"], 133)
+        self.assertEqual(report["unresolved_action_count"], 252)
+        self.assertEqual(report["seed_item_count"], 1215)
+        self.assertEqual(len(report["blocked_quest_stage_products"]), 139)
         blocked_quest_ids = {row["quest_id"] for row in report["blocked_quest_stage_products"]}
         self.assertEqual(
             {

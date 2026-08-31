@@ -1021,7 +1021,7 @@ def _add_vinesweeper_actions(
 
 
 def build_reachability_report() -> dict[str, Any]:
-    from ankiscape.data import combat_data
+    from ankiscape.data import agility_data, combat_data
     from ankiscape.core import constants
     from ankiscape.data import farming_data
     from ankiscape.data import fist_of_guthix_data
@@ -1353,6 +1353,7 @@ def build_reachability_report() -> dict[str, Any]:
         )
 
     action_tables = {
+        "Agility": agility_data.agility_reachability_actions_as_dict(),
         "Mining": constants.ORE_DATA,
         "Woodcutting": constants.TREE_DATA,
         "Fishing": constants.FISHING_DATA,
@@ -1368,7 +1369,6 @@ def build_reachability_report() -> dict[str, Any]:
         "Prayer": constants.PRAYER_DATA,
         "Utility": constants.UTILITY_ACTIVITY_DATA,
     }
-
     actions: list[dict[str, Any]] = []
     consumers: dict[str, set[str]] = defaultdict(set)
     producers: dict[str, set[str]] = defaultdict(set)

@@ -6946,3 +6946,15 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Forty-two of 44 seed/spore rewards have live Farming consumers. Bittercap mushroom spore has none, while Spirit seed leads only to a source-blocked Spirit tree crop; both are recorded follow-ons, not inflated into this slice.
 - Focused coverage passes 74 tests. Full discovery passes 4,567 tests in each lane: plain skips 515 and real offscreen Qt skips three.
 - Evidence: `source-audits/vinesweeper-loop-2026-07-18.md`.
+
+## Early quest item roots — 2026-08-31
+
+- Normalized all Pirate's Treasure predicates and stage actions to `Karamjan rum` while preserving the existing item and shop identity.
+- Added sourced, live Utility acquisitions for Ugthanki dung, Fish food, and Insect repellent, including item `4601` and a started-The-Feud unlock for the dung route.
+- Added the existing Agility stage-output shape to the reachability action table, making `Pyramid top` visible without adding a second producer.
+- Replaced the completed-quest karambwan fishing gate with the existing `quest_started` target-rule form and changed Tiadeche's generator-owned shop access from completed to started.
+- Added focused route, runtime production, unlock, registry, downstream cascade, a full real-runtime Agility Pyramid lap, and real review-answer coverage in `tests/test_early_quest_item_routes.py`.
+- Re-pinned the rebased report from 1,659 / 2,270 / 167 / 32 / 135 / 256 / 1,182 and 143 blocked rows to 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215 and 139 blocked rows.
+- The report gains 31 routes. Twenty-one are existing quest-owned routes; the larger-than-expected cascade is measured rather than filled with duplicate producers.
+- Two later combat encounters become the next visible blockers: `dealing_with_scabaras_skeletons_1` and `tai_bwo_wannai_trio_monkey`. They remain for the separate combat data slice.
+- Source and visual evidence are recorded in `source-audits/early-quest-item-roots-2026-08-31.md`.

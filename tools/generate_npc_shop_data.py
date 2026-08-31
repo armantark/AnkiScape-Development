@@ -394,7 +394,7 @@ SHOP_ACCESS_RULES: dict[str, dict[str, Any]] = {
     "seddus_adventure_store": {"kind": "quest", "quest_id": "shilo_village", "stage": "completed", "label": "Shilo Village"},
     "duradels_slayer_equipment": {"kind": "quest", "quest_id": "shilo_village", "stage": "completed", "label": "Shilo Village"},
     # Tai Bwo Wannai Trio unlocks Tiadeche's stall
-    "tiadeches_karambwan_stall": {"kind": "quest", "quest_id": "tai_bwo_wannai_trio", "stage": "completed", "label": "Tai Bwo Wannai Trio"},
+    "tiadeches_karambwan_stall": {"kind": "quest", "quest_id": "tai_bwo_wannai_trio", "stage": "started", "label": "Tai Bwo Wannai Trio"},
     # Skill-guild walls
     "fishing_guild_shop": {"kind": "skill", "skill": "fishing", "level": 68, "label": "68 Fishing"},
     "magic_guild_store_robes": {"kind": "skill", "skill": "magic", "level": 66, "label": "66 Magic"},

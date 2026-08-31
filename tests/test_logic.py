@@ -7700,7 +7700,7 @@ class TestLogic(unittest.TestCase):
                 "stage_requirements": (
                     {
                         "stage": 1,
-                        "consumed_inventory": {"Karamja rum": 1},
+                        "consumed_inventory": {"Karamjan rum": 1},
                         "produced_inventory": {"Chest key": 1},
                         "source": "source",
                     },
@@ -7708,7 +7708,7 @@ class TestLogic(unittest.TestCase):
             }
         }
         player_data = {
-            "inventory": {"Karamja rum": 1},
+            "inventory": {"Karamjan rum": 1},
             "quests": {"key_quest": {"started": True, "progress": 1, "completed": False}},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
@@ -7717,7 +7717,7 @@ class TestLogic(unittest.TestCase):
         progressed, ok, completed_now = apply_quest_progress_pure(player_data, "key_quest", quest_data)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertEqual(progressed["inventory"]["Karamja rum"], 0)
+        self.assertEqual(progressed["inventory"]["Karamjan rum"], 0)
         self.assertEqual(progressed["inventory"]["Chest key"], 1)
 
     def test_priest_in_peril_real_stage_emitters_complete_and_reward_once(self):
@@ -8380,7 +8380,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(pirate["current_quest"], "pirates_treasure")
         self.assertNotIn("pirates_treasure", pirate["quest_stage_actions"])
 
-        pirate["inventory"]["Karamja rum"] = 1
+        pirate["inventory"]["Karamjan rum"] = 1
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(pirate, "pirates_treasure", QUEST_DATA),
             (),
@@ -8391,9 +8391,9 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(pirate["quests"]["pirates_treasure"]["progress"], 2)
         self.assertEqual(
             pirate["quest_stage_actions"]["pirates_treasure"],
-            ["Smuggle Karamja rum off Karamja"],
+            ["Smuggle Karamjan rum off Karamja"],
         )
-        self.assertEqual(pirate["inventory"]["Karamja rum"], 0)
+        self.assertEqual(pirate["inventory"]["Karamjan rum"], 0)
         self.assertEqual(pirate["inventory"]["Chest key"], 1)
 
         pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
@@ -8403,7 +8403,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             pirate["quest_stage_actions"]["pirates_treasure"],
             [
-                "Smuggle Karamja rum off Karamja",
+                "Smuggle Karamjan rum off Karamja",
                 "Open One-Eyed Hector's chest at the Blue Moon Inn",
             ],
         )
@@ -8422,7 +8422,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             pirate["quest_stage_actions"]["pirates_treasure"],
             [
-                "Smuggle Karamja rum off Karamja",
+                "Smuggle Karamjan rum off Karamja",
                 "Open One-Eyed Hector's chest at the Blue Moon Inn",
                 "Read the pirate message and dig in Falador Park",
             ],
@@ -11478,7 +11478,7 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_karambwan", QUEST_UNLOCK_RULES),
-            ("Tai Bwo Wannai Trio",),
+            ("Start Tai Bwo Wannai Trio",),
         )
         player_data["quests"]["swan_song"] = {"started": True, "progress": 6, "completed": True}
         player_data["quests"]["tai_bwo_wannai_trio"] = {"started": True, "progress": 6, "completed": True}

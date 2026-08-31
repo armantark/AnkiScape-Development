@@ -2176,7 +2176,7 @@ class TestQuestCatalog(unittest.TestCase):
 
         pirate_by_stage = {row["stage"]: row for row in data["pirates_treasure"]["stage_requirements"]}
         self.assertEqual(data["pirates_treasure"]["rewards"], {"Casket (Pirate's Treasure)": 1})
-        self.assertEqual(pirate_by_stage[1]["consumed_inventory"], {"Karamja rum": 1})
+        self.assertEqual(pirate_by_stage[1]["consumed_inventory"], {"Karamjan rum": 1})
         self.assertEqual(pirate_by_stage[1]["produced_inventory"], {"Chest key": 1})
         self.assertEqual(pirate_by_stage[2]["consumed_inventory"], {"Chest key": 1})
         self.assertEqual(pirate_by_stage[2]["produced_inventory"], {"Pirate message": 1})

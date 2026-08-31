@@ -846,7 +846,7 @@ RUNECRAFTING_BASICS_SOURCE = "https://www.2011.rs/kb/runecrafting_the_basics"
 RUNECRAFTING_ALTARS_SOURCE = "https://www.2011.rs/kb/runecrafting_locating_the_altars"
 RUNE_ESSENCE_MINE_SOURCE = "https://www.2011.rs/kb/mining_the_rune_essence_mine"
 RAW_MONKFISH_SOURCE = "https://runescape.fandom.com/wiki/Raw_monkfish"
-RAW_KARAMBWAN_SOURCE = "https://runescape.fandom.com/wiki/Raw_karambwan"
+RAW_KARAMBWAN_SOURCE = "https://runescape.wiki/w/Raw_karambwan?oldid=6096116"
 GEM_ROCK_SOURCE = "https://runescape.wiki/w/Gem_rock?oldid=37044944"
 PRIEST_IN_PERIL_ID = "priest_in_peril"
 PRIEST_IN_PERIL_SOURCE = "https://runescape.wiki/w/Priest_in_Peril?oldid=6487728"
@@ -1357,7 +1357,7 @@ JUNGLE_POTION_STAGES: Tuple[QuestStage, ...] = (
 )
 
 PIRATES_TREASURE_STAGES: Tuple[QuestStage, ...] = (
-    _simple_stage(1, "Redbeard Frank wants Karamja rum in exchange for the treasure location."),
+    _simple_stage(1, "Redbeard Frank wants Karamjan rum in exchange for the treasure location."),
     _simple_stage(2, "Redbeard Frank gave me One-Eyed Hector's chest key for the Blue Moon Inn."),
     _simple_stage(3, "The Blue Moon Inn chest contained a pirate message pointing to Falador Park."),
     _simple_stage(4, "I dug up One-Eyed Hector's treasure in Falador Park.", "Quest complete!"),
@@ -3356,7 +3356,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         point_reward=2,
         rewards=(("Casket (Pirate's Treasure)", 1),),
         start_point="Talk to Redbeard Frank just south of The Rusty Anchor pub in Port Sarim.",
-        requirements=("Used during quest: Karamja rum x1, Spade x1",),
+        requirements=("Used during quest: Karamjan rum x1, Spade x1",),
         required_items=(),
         combat="Optional level 4 gardener near the digging spot.",
         source=f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_REDBEARD_SOURCE_PATH}; {PIRATES_TREASURE_CHEST_SOURCE_PATH}",
@@ -7642,11 +7642,11 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
     PIRATES_TREASURE_ID: (
         _stage_req(
             1,
-            "Give Redbeard Frank smuggled Karamja rum.",
+            "Give Redbeard Frank smuggled Karamjan rum.",
             f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_REDBEARD_SOURCE_PATH}",
-            consumed_inventory=(("Karamja rum", 1),),
+            consumed_inventory=(("Karamjan rum", 1),),
             produced_inventory=(("Chest key", 1),),
-            auto_actions=("Smuggle Karamja rum off Karamja",),
+            auto_actions=("Smuggle Karamjan rum off Karamja",),
         ),
         _stage_req(
             2,
@@ -11014,7 +11014,6 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (QuestUnlockRule(BIG_CHOMPY_BI
         RUNECRAFTING_BASICS_SOURCE,
     ),
     QuestUnlockRule(SWAN_SONG_ID, "target", "fishing", ("catch_monkfish",), "Swan Song", RAW_MONKFISH_SOURCE),
-    QuestUnlockRule(TAI_BWO_WANNAI_TRIO_ID, "target", "fishing", ("catch_karambwan",), "Tai Bwo Wannai Trio", RAW_KARAMBWAN_SOURCE),
     QuestUnlockRule(
         TAI_BWO_WANNAI_TRIO_ID,
         "target",
@@ -11104,7 +11103,8 @@ def _quest_target_unlock_rule(rule: QuestUnlockRule) -> TargetUnlockRule:
 
 TARGET_UNLOCK_RULES: Tuple[TargetUnlockRule, ...] = tuple(
     _quest_target_unlock_rule(rule) for rule in QUEST_UNLOCK_RULES
-) + (
+) + (TargetUnlockRule("target", "fishing", ("catch_karambwan",), (TargetUnlockRequirement("quest_started", "Start Tai Bwo Wannai Trio", RAW_KARAMBWAN_SOURCE, TAI_BWO_WANNAI_TRIO_ID),)),
+    TargetUnlockRule("target", "utility", ("collect_ugthanki_dung",), (TargetUnlockRequirement("quest_started", "Start The Feud", "https://runescape.wiki/w/Ugthanki_dung?oldid=6288566", THE_FEUD_ID),)),
     TargetUnlockRule(
         gate_kind="target",
         skill_id="cooking",

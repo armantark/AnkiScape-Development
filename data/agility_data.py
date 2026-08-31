@@ -323,6 +323,24 @@ AGILITY_TARGETS: Tuple[AgilityTarget, ...] = COURSE_TARGETS + tuple(
 AGILITY_TARGETS_BY_ID = {
     target.id: target for target in COURSE_TARGETS + ACTIVITY_TARGETS
 }
+
+
+def agility_reachability_actions_as_dict() -> dict[str, dict[str, object]]:
+    return {
+        f"{target.id}:{stage.id}": {
+            "required_items": target.required_items,
+            "required_item_options": target.required_item_options,
+            "output_item": stage.output_item,
+            "output_qty": stage.output_qty,
+            "quest_gate": target.quest_gate,
+            "unlock_target_id": target.id,
+        }
+        for target in AGILITY_TARGETS_BY_ID.values()
+        for stage in target.stages
+        if stage.output_item and stage.output_qty > 0
+    }
+
+
 DEFAULT_AGILITY_TARGET = "burthorpe_course"
 
 
