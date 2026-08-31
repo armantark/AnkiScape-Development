@@ -525,3 +525,102 @@ owner has not been asked to lift it for the current goal. Opus covered the diary
 GLM 5.3 Flash covered the Doogle leaves and Lost Tribe slices and found one real
 order-coupled assertion. From `2026-08-30 14:03` the Claude plan is also exhausted, so
 no Opus seat remains until it resets.
+
+### 12.5 Rank 5 is not READY; Mogres is dependency-blocked and the two threads disagree
+
+Section 11.6 rank 5 says the Mogres master-certification slice is READY. It is not.
+`tools/audit_slayer_readiness.py` reports `mogres:combat_target` as the single
+remaining blocker for two masters at once:
+
+```
+mazchna_achtryn: blocked, hidden, 26/27 families ready
+vannaka: blocked, hidden, 34/35 families ready
+```
+
+Adding that combat target would certify both masters in the audit while leaving the
+family permanently unplayable. `data/slayer_data.py:266-270` declares the family with
+`required_quest_id="skippy_and_the_mogres"`, and `logic/slayer_logic.py:79` gates the
+family on that quest being complete. The id appears nowhere in `data/quest_data.py`.
+`memory-bank/future-work-kanban.md:1065` already records the correct disposition: keep
+the Mogre work marked `DEPENDENCY: QUEST` and do not advance readiness with a
+permanently locked partial target.
+
+A doorbell to the 2012scape design thread on 2026-08-30 returned three facts. First,
+`skippy_and_the_mogres` is not planned, not in progress, and not inventoried in any of
+their twelve ledgers; they call it an unrecorded coverage gap and are surfacing it to
+the owner. Second, they hold no pinned evidence for it, so an AnkiScape harvest would
+duplicate nothing. Third, they cannot rule on whether AnkiScape may self-source the
+miniquest, because their R25 bars that seat from goal-scoped design decisions.
+
+This is a recorded contract conflict. Their `quest_implementation_lane` is
+`ankiscape_external`, which reads as quest work belonging to this thread, while this
+thread's own kanban line 1065 forbids it. Only the owner can resolve it. Rank 5 is
+DEFERRED with that exact reason until he does.
+
+### 12.6 The real remaining debt is 700 generated stage sentinels across 138 quests
+
+A direct census of `QUESTS_BY_ID` stage requirements, counting stages whose
+`required_actions` match `Complete <Quest> stage <N> objective`, gives 138 quests
+holding 700 sentinel stages. The per-quest distribution is 2 quests with one sentinel
+stage, 1 with two, 26 with three, 20 with four, 40 with five, 19 with six, 22 with
+seven, 2 with eight, and 6 with nine.
+
+Section 12.1 said never to score a sentinel row by its descendant count. This census
+is the constructive form of that rule. Score a quest by its full sentinel-stage count,
+because the audit shows only the earliest one:
+
+| Quest | Sentinel stages | Of total stages |
+| --- | ---: | ---: |
+| `big_chompy_bird_hunting` | 3 | 4 |
+| `the_lost_tribe` | 4 | 6 |
+| `death_to_the_dorgeshuun` | 5 | 7 |
+| `dream_mentor` | 5 | 6 |
+| `zogre_flesh_eaters` | 6 | 7 |
+
+### 12.7 The 39 root orphans are not an implementation queue
+
+The top five root orphans by leverage do not need new acquisition data. Each already
+has a modelled producer, and each is unreachable only because a quest in front of it
+holds a sentinel. Measured on `2df4709c`:
+
+| Root orphan | Items it unlocks | Modelled producer | Real blocker |
+| --- | ---: | --- | --- |
+| `Ogre coffin key` | 9 | Zogre bone source, `data/bone_sources_data.py:71-75` | `zogre_flesh_eaters` stage 1 sentinel, itself behind `big_chompy_bird_hunting` |
+| `Wergali seed` | 8 | Molanisk drop, `data/combat_data.py:3201-3225`; Vinesweeper reward | `death_to_the_dorgeshuun` stage 1 sentinel |
+| `Raw chompy` | 3 | Chompy bird drop in the read-only Darkan tree | `big_chompy_bird_hunting` stage 1 sentinel |
+| `Shaikahan bones` | 2 | Shaikahan bone source, `data/bone_sources_data.py:80-83` | `tai_bwo_wannai_trio` stage 2, missing `Raw karambwan` |
+| `Astral rune shards` | 2 | Astral rune on anvil, Darkan `DreamMentor.kt:402-411` | `dream_mentor` stage 1 sentinel |
+
+One hypothesis was tested and rejected. The reachability audit imports
+`ankiscape.data.combat_data` rather than the runtime registry, which looked like it
+would hide the four bone-source enemies. It does not: `core/constants.py` mutates that
+dict in place, `constants.COMBAT_ENEMY_DATA is combat_data.COMBAT_ENEMY_DATA` is
+`True`, and both expose 202 keys including `zogre`, `jogre`, `shaikahan` and
+`frost_dragon`. The audit is correct. The items really are unreachable.
+
+The consequence for selection is that acquisition work and quest-sentinel work are the
+same queue. Clearing sentinels is the higher-leverage half of it.
+
+### 12.8 Orchestration corrections from this pass
+
+A dispatched reviewer with a read-only brief used stash-based comparisons inside the
+worktree that its author was concurrently running both test lanes in. Both trees
+finished clean and the final lanes ran afterwards, so no result was lost, but the
+runs during that window are contaminated. A worktree has exactly one writer. Give a
+reviewer the canonical checkout and two commit shas, never the author's worktree.
+
+A second reviewer ran `tools/audit_asset_cutoff.py` against a read-only mandate, which
+performs network lookups and rewrote an `updated_at` timestamp in
+`memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json`. It restored
+the file, and `git diff` confirmed byte identity afterwards. Name that tool as
+forbidden in every read-only brief.
+
+### 12.9 Decisions parked for the owner
+
+1. Whether AnkiScape may self-source the `skippy_and_the_mogres` miniquest, given the
+   conflict recorded in section 12.5. Unblocking it certifies two Slayer masters.
+2. Whether ruling O1 and design-queue entry 4.18, which bar the Fable seat, survive
+   into the current goal. The `QA: FABLE BLOCKED` label at
+   `memory-bank/future-work-kanban.md:1758` stays accurate while they stand.
+3. The Achievement Diary curation ledger spot-check, gate 2 of section 5.21. Gate 1
+   passed. Until gate 2 clears, 0 of 34 diary tiers are claimable.
