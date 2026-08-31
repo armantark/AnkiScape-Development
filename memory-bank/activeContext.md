@@ -5936,3 +5936,14 @@ the obsolete percent key is no longer touched.
 - The audit's other nine credited Zogre/coffin items are phantom. `tools/audit_item_reachability.py:943-948` omits required skills from startability, while runtime returns `Combat 89 (not implemented)` at `logic_pure/logic_pure_quest.py:146` and refuses to start Zogre Flesh Eaters. Six combat-category quests share the instrument gap; the audit and requirement fixes belong to the next slice.
 - The combat equipment registry also lacks Ogre bow and uses plural `Ogre arrows` while the item registry uses canonical singular `Ogre arrow`; that equipability gap remains a follow-on.
 - Evidence: `source-audits/big-chompy-bird-hunting-completion-2026-08-31.md`.
+
+## Combat quest level requirements — 2026-08-31
+
+- A `combat` quest requirement now uses `player_combat_level_pure`. A low player gets the normal `Combat N` blocker.
+- The unknown-skill path still returns `(not implemented)`. The skill registry remains unchanged.
+- All six affected quests start for a player who meets their combat level, other skill levels, quest points, and prerequisite quests.
+- A catalog pin rejects any quest-level or stage-level required skill ID that is neither a trainable skill nor the exact `combat` pseudo-skill.
+- A max-player differential probe found 196 of 196 live quests skill-eligible. The current and skill-aware reachability reports were identical.
+- The audit and all pins remain unchanged at 1,609 actions, 2,257 reachable items, 179 orphan inputs, 37 root orphans, 142 cascade orphans, 266 unresolved actions, 1,182 seed items, 143 blocked rows, and 46 completable quests.
+- A real add-on review starts Zogre Flesh Eaters and reaches the key plus Zogre bones before quest completion. Existing route tests cover the three coffin bones and all four bonemeals.
+- Evidence: `source-audits/combat-quest-level-requirement-2026-08-31.md`.

@@ -3,9 +3,7 @@
 from typing import Iterable, Mapping, Optional
 
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
-
 from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
-
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
 from ..logic.treasure_trails_logic import (
@@ -142,6 +140,8 @@ def _skill_requirement_reason(player_data, requirement):
     skill = get_skill(skill_id)
     label = str(display_name or (skill.display_name if skill is not None else skill_id.replace("_", " ").title()))
     level_required = _positive_int(requirement.get("level", 1), 1)
+    if skill_id == "combat":
+        return None if player_combat_level_pure(player_data) >= level_required else f"{label} {level_required}"
     if skill is None or not skill.trainable:
         return f"{label} {level_required} (not implemented)"
     level_key = skill.level_key

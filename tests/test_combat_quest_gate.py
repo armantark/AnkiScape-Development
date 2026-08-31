@@ -1,0 +1,273 @@
+from __future__ import annotations
+
+import copy
+import sys
+import unittest
+
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
+from ankiscape.core.skill_registry import get_skill, trainable_skill_definitions
+from ankiscape.core.storage_pure import default_player_data
+from ankiscape.logic_pure.logic_pure_combat_engine import player_combat_level_pure
+from ankiscape.logic_pure.logic_pure_quest import (
+    quest_locked_reasons_pure,
+    start_quest_pure,
+)
+from tests.test_integration_smoke import (
+    _FakeReviewer,
+    _install_runtime_fakes,
+    _load_addon_as_package,
+)
+
+
+QUEST_ID = "zogre_flesh_eaters"
+COMBAT_STAT_IDS = (
+    "attack",
+    "defense",
+    "strength",
+    "constitution",
+    "prayer",
+    "ranged",
+    "magic",
+    "summoning",
+)
+AFFECTED_QUEST_IDS = (
+    "dream_mentor",
+    "grim_tales",
+    "legends_quest",
+    "smoking_kills",
+    "underground_pass",
+    "zogre_flesh_eaters",
+)
+
+
+def _combat_requirement(level: int = 89) -> dict:
+    return {
+        "required_skills": (
+            {"skill_id": "combat", "display_name": "Combat", "level": level},
+        ),
+    }
+
+
+def _set_all_combat_stats(player: dict, level: int) -> None:
+    for skill_id in COMBAT_STAT_IDS:
+        player[f"{skill_id}_level"] = level
+
+
+def _complete_prerequisites(player: dict, quest_id: str) -> None:
+    for requirement in QUEST_DATA[quest_id].get("required_quests", ()):
+        prerequisite_id = requirement["quest_id"]
+        player["quests"][prerequisite_id] = {
+            "started": True,
+            "progress": QUEST_DATA[prerequisite_id]["stages"] + 1,
+            "completed": True,
+        }
+
+
+def _maxed_player_for_quest(quest_id: str) -> dict:
+    player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+    for skill in trainable_skill_definitions():
+        player[skill.level_key] = 120 if skill.id == "dungeoneering" else 99
+    _set_all_combat_stats(player, 99)
+    _complete_prerequisites(player, quest_id)
+    player["quest_points"] = 1_000
+    return player
+
+
+def _zogre_player(*, combat_level: int) -> dict:
+    player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+    _set_all_combat_stats(player, combat_level)
+    player.update(
+        fletching_level=30,
+        herblore_level=8,
+        smithing_level=4,
+    )
+    _complete_prerequisites(player, QUEST_ID)
+    return player
+
+
+def _low_combat_zogre_player() -> dict:
+    player = _zogre_player(combat_level=1)
+    player.update(
+        constitution_level=10,
+        prayer_level=40,
+        ranged_level=30,
+        strength_level=20,
+    )
+    return player
+
+
+def _answer_review(addon) -> None:
+    addon.card_turned = True
+    addon.answer_shown = True
+    addon.exp_awarded = False
+    addon.on_answer_card(
+        _FakeReviewer(),
+        4,
+        lambda _self, _ease: "answered",
+    )
+
+
+class TestCombatQuestRequirementResolution(unittest.TestCase):
+    def test_quest_required_skill_ids_are_trainable_or_combat(self):
+        for quest_id, quest in QUEST_DATA.items():
+            for row in (quest, *quest.get("stage_requirements", ())):
+                for requirement in row.get("required_skills", ()):
+                    skill_id = requirement.get("skill_id")
+                    skill = get_skill(skill_id) if isinstance(skill_id, str) else None
+                    self.assertTrue(
+                        skill_id == "combat" or (skill is not None and skill.trainable),
+                        f"{quest_id}: invalid required skill id {skill_id!r}",
+                    )
+
+    def test_combat_requirement_boundaries_use_the_derived_combat_level(self):
+        quest_data = {"combat_gate": _combat_requirement()}
+        cases = (
+            (63, 87, ("Combat 89",)),
+            (64, 89, ()),
+            (65, 90, ()),
+        )
+
+        for stat_level, expected_combat, expected_reasons in cases:
+            with self.subTest(stat_level=stat_level):
+                player = {}
+                _set_all_combat_stats(player, stat_level)
+                self.assertEqual(player_combat_level_pure(player), expected_combat)
+                self.assertEqual(
+                    quest_locked_reasons_pure(player, "combat_gate", quest_data),
+                    expected_reasons,
+                )
+
+    def test_genuinely_unimplemented_skill_keeps_the_sentinel(self):
+        quest_data = {
+            "unknown_gate": {
+                "required_skills": (
+                    {
+                        "skill_id": "unimplemented_skill",
+                        "display_name": "Unimplemented Skill",
+                        "level": 5,
+                    },
+                ),
+            }
+        }
+
+        self.assertEqual(
+            quest_locked_reasons_pure({}, "unknown_gate", quest_data),
+            ("Unimplemented Skill 5 (not implemented)",),
+        )
+
+
+class TestCombatQuestStartIntegration(unittest.TestCase):
+    def test_low_combat_is_blocked_and_combat_89_starts_zogre_flesh_eaters(self):
+        low_player = _low_combat_zogre_player()
+        self.assertLess(player_combat_level_pure(low_player), 89)
+        self.assertEqual(
+            quest_locked_reasons_pure(low_player, QUEST_ID, QUEST_DATA),
+            ("Combat 89",),
+        )
+        unchanged, started = start_quest_pure(low_player, QUEST_ID, QUEST_DATA)
+        self.assertFalse(started)
+        self.assertEqual(unchanged, low_player)
+
+        ready_player = _zogre_player(combat_level=64)
+        self.assertEqual(player_combat_level_pure(ready_player), 89)
+        started_player, started = start_quest_pure(
+            ready_player,
+            QUEST_ID,
+            QUEST_DATA,
+        )
+        self.assertTrue(started)
+        self.assertTrue(started_player["quests"][QUEST_ID]["started"])
+        self.assertFalse(started_player["quests"][QUEST_ID]["completed"])
+
+    def test_all_six_combat_quest_requirements_are_startable_when_met(self):
+        for quest_id in AFFECTED_QUEST_IDS:
+            with self.subTest(quest_id=quest_id):
+                player = _maxed_player_for_quest(quest_id)
+                started_player, started = start_quest_pure(
+                    player,
+                    quest_id,
+                    QUEST_DATA,
+                )
+                self.assertTrue(
+                    started,
+                    quest_locked_reasons_pure(player, quest_id, QUEST_DATA),
+                )
+                self.assertTrue(started_player["quests"][quest_id]["started"])
+
+
+class TestCombatQuestProductFlow(unittest.TestCase):
+    def setUp(self) -> None:
+        self._original_modules = dict(sys.modules)
+        _install_runtime_fakes()
+
+    def tearDown(self) -> None:
+        sys.modules.clear()
+        sys.modules.update(self._original_modules)
+
+    def test_starting_zogre_unlocks_the_coffin_chain_before_quest_completion(self):
+        addon = _load_addon_as_package("ankiscape_combat_quest_gate_e2e")
+        errors = []
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _text: None
+        addon._show_exp = lambda _amount: None
+        addon.level_up_check = lambda _skill, _data: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.show_error_message = lambda title, message: errors.append(
+            (title, message)
+        )
+        addon.player_data = _zogre_player(combat_level=64)
+        addon.current_skill = "Quests"
+        addon._REVIEW_UNDO_STACK.clear()
+
+        self.assertTrue(addon.on_set_quest(QUEST_ID), errors)
+        self.assertEqual(addon.player_data["current_quest"], QUEST_ID)
+        self.assertTrue(addon.player_data["quests"][QUEST_ID]["started"])
+        self.assertEqual(addon.player_data["quests"][QUEST_ID]["progress"], 0)
+        self.assertFalse(addon.player_data["quests"][QUEST_ID]["completed"])
+
+        addon.player_data.update(
+            current_combat_target="zogre",
+            combat_attack_style="aggressive",
+            combat_lifepoints=640,
+            combat_auto_flee=False,
+            combat_supply_loadout={},
+            combat_encounter={},
+            combat_kill_counts={},
+        )
+        addon.current_skill = "Combat"
+        combat_runtime = sys.modules[
+            f"{addon.__name__}.runtime.runtime_actions_combat"
+        ]
+        original_enemies = combat_runtime.COMBAT_ENEMY_DATA
+        enemies = dict(original_enemies)
+        zogre = copy.deepcopy(enemies["zogre"])
+        zogre["stats"].update(
+            hitpoints=1,
+            attack=1,
+            strength=1,
+            defence=1,
+        )
+        enemies["zogre"] = zogre
+        original_random = addon.random.random
+        combat_runtime.COMBAT_ENEMY_DATA = enemies
+        addon.random.random = lambda: 0.0
+        try:
+            _answer_review(addon)
+        finally:
+            addon.random.random = original_random
+            combat_runtime.COMBAT_ENEMY_DATA = original_enemies
+
+        inventory = addon.player_data["inventory"]
+        self.assertGreaterEqual(inventory.get("Ogre coffin key", 0), 1)
+        self.assertGreaterEqual(inventory.get("Zogre bones", 0), 1)
+        self.assertEqual(addon.player_data["quests"][QUEST_ID]["progress"], 0)
+        self.assertFalse(addon.player_data["quests"][QUEST_ID]["completed"])
+
+        self.assertFalse(errors)
+
+
+if __name__ == "__main__":
+    unittest.main()

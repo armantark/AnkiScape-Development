@@ -6915,3 +6915,13 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Nine additional Zogre/coffin items in that report are not player-reachable: the audit ignores required skills when computing startable quests, while runtime permanently blocks Zogre Flesh Eaters with `Combat 89 (not implemented)`. The six affected combat-category quests and the audit correction are recorded for the separate next slice.
 - `EQUIPMENT_DATA` still has plural `Ogre arrows` and no Ogre bow row while item storage uses singular `Ogre arrow`; combat equipability remains a separate source-closure lead.
 - The source audit records the exact pinned wiki revisions, Darkan revision `a2568b880390ef697b1b17e825fdef7868bed67f`, honest instrument limits, and both excluded follow-ons.
+
+## Combat quest level requirements — 2026-08-31
+
+- The quest requirement substrate now compares `combat` against the existing derived combat level.
+- Boundary coverage passes below, at, and above combat 89. The unknown-skill sentinel remains live.
+- Integration coverage passes for a blocked low-combat Zogre player and for all six affected quests at sufficient levels.
+- The real add-on review path starts Zogre Flesh Eaters and reaches the key plus Zogre bones. Existing route tests cover the remaining seven item identities without quest completion.
+- A max-player skill-filter probe produced the same full audit report. The before and after measurements remain 1,609 / 2,257 / 179 / 37 / 142 / 266 / 1,182, with 143 blocked rows and 46 completable quests.
+- A catalog pin covers every quest-level and stage-level required skill ID, including the exact lowercase `combat` pseudo-skill.
+- The focused combat quest test module passes six tests. Full lane results follow in the final verification record.
