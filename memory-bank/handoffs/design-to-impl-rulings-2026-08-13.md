@@ -1356,3 +1356,55 @@ disagree the better-evidenced reading wins:
 The unchanged conclusion, and the one that governs, is section 16.8's: every one of the
 eleven stays blocked regardless of classification, because no runtime path writes
 `quest_stage_actions`. An already-modelled mechanic is not a passable requirement.
+
+### 16.14 How much of the game is actually playable today
+
+An earlier census reported zero quest-point gates above the obtainable total, measuring
+against the theoretical 333. That is correct in principle and misleading in practice,
+because most of those points sit behind quests the action blocker makes uncompletable.
+
+Measured against what is genuinely reachable today, on `2d5bae77`:
+
+```
+action-free quests: 60 of 196
+closure size: 53 | quest points obtainable: 101
+total theoretical points: 333
+```
+
+So a player can finish 53 quests and earn 101 quest points, against a catalog of 196 and
+333. That closure ignores item and combat blockers, so it is an optimistic ceiling; the
+reachability audit's 46 completable quests is the honest figure with those included.
+
+Two quest-point gates sit above the real ceiling as a CONSEQUENCE of the action blocker,
+not as defects of their own:
+
+| Quest | Requires | Source |
+| --- | ---: | --- |
+| `recipe_for_disaster_defeating_the_culinaromancer` | 176 | `generated/quest_catalog_generated.py:15610` |
+| `while_guthix_sleeps` | 270 | `generated/quest_catalog_generated.py:24633` |
+
+One quest sits exactly on the boundary. `swan_song` requires 101 and exactly 101 are
+obtainable, so a single point fewer would block it too. Record that, because any change
+touching quest rewards can silently take it out.
+
+Do not open these as separate work. They close when the action family closes.
+
+### 16.15 The item gaps that are NOT downstream of the action blocker
+
+Section 16.5 declined to score the 153 route-less item predicates because each could sit
+behind the action family. A later pass split them, and that split is the useful form:
+**34 stage rows in quests that have no unemittable action of their own.** These are the
+only item gaps that are independently workable, and they cluster in early quests:
+
+`heroes_quest` carries 7 of them, `holy_grail` 5, `ernest_the_chicken` 4,
+`merlins_crystal` 3, `pirates_treasure` 3, `rune_mysteries` 2, and one each in
+`a_fairy_tale_i_growing_pains`, `cooks_assistant`, `dealing_with_scabaras`,
+`nature_spirit`, `priest_in_peril`, `tai_bwo_wannai_trio`, `the_fremennik_trials`,
+`the_restless_ghost` and `vampyre_slayer`.
+
+The remaining 69 sit inside action-gated quests and create no distinct path to a
+completable quest, so scoring them would repeat the section 12.1 error.
+
+The three `Pickaxe`, `Hatchet` and `Axe` aliases were correctly excluded as false
+positives, because the evaluator accepts a toolbelt or equipped match for those at
+`logic_pure/logic_pure_quest.py:485-512`.
