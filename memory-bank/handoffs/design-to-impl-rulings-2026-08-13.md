@@ -789,3 +789,64 @@ defects ahead of recorded data-depth debt.
 
 Take it before Zogre Flesh Eaters. Clearing that quest's six sentinels while it stays
 unstartable would deliver nothing.
+
+### 13.5 The same registry gap strands 10,000 experience points on a second path
+
+The combat-requirement fix in section 13.4 covers quest ENTRY. A reviewer found that the
+identical registry gap also destroys a quest REWARD, on a different code path.
+
+`generated/quest_catalog_generated.py:19446` gives The Fremennik Isles an experience
+reward row of `{'skill_id': 'combat', 'amount': 10000.0}`.
+`_apply_quest_xp_rewards` at `logic_pure/logic_pure_quest.py:1596-1607` resolves
+`get_skill("combat")` to `None`, falls back to the experience key `combat_exp`, finds it
+is not a trainable experience key, and parks the amount in
+`pending_skill_exp_rewards`.
+
+That parking lot exists so an award survives until a planned skill is implemented, and
+`core/storage_pure.py:1041-1097` preserves unrecognised keys indefinitely. But `combat`
+is a category and will never gain a `SkillDefinition`, so the award is stranded forever.
+Measured on a fresh player completing the quest: `pending: {'combat_exp': 10000.0}`,
+`woodcutting_exp` correctly `+10000`, `attack_exp` `+0`.
+
+An independent census of every experience-reward row across all live quests found
+exactly one such row, so this is a single-row defect:
+
+```
+xp_reward rows naming an unresolvable or untrainable skill: 1
+  ('the_fremennik_isles', 'combat', 10000.0)
+```
+
+### 13.6 Why 13.5 is not simply the next slice
+
+The mechanical repair is small. Deciding where 10,000 combat experience points LAND is
+not, and it splits into a sourcing question and a possible interface question.
+
+Source the period award first. If the period record awards the experience to one named
+combat skill, the fix is a data correction and this thread can take it outright. If the
+period record lets the player choose the skill, then AnkiScape needs a chooser, and a
+new chooser is an interface change. The project rule is that an existing interface does
+not change without the owner's explicit approval, and that a new interface needs a
+frontend-taste review before promotion.
+
+Recommended order: harvest the period source as its own small step, then either
+implement the data correction directly or bring the owner one question with the two
+options and a lean. Do not guess a skill split; a silently wrong destination for 10,000
+experience points is worse than the current stranding, because stranding is at least
+recoverable from the pending record.
+
+### 13.7 The class-elimination pin this pass adds
+
+Both halves of this defect were invisible for as long as they existed, because
+`"Combat 89 (not implemented)"` reads as a deliberate statement rather than a bug, and
+neither the runtime nor the audit complains. Another prose rule would not have caught
+it.
+
+The combat-gate slice therefore carries a data pin: every `skill_id` in any
+`required_skills` row of `QUEST_DATA`, including stage-level rows, must either resolve
+to a trainable `SkillDefinition` or be exactly `"combat"`. It fails loudly on a seventh
+combat quest with a typo, on a new pseudo-skill id, and on the capitalised spelling
+`"Combat"` that would otherwise skip the new branch. It also makes the reachability
+audit's idealised-player assumption explicit rather than accidental.
+
+A matching pin over `xp_rewards` rows belongs with the 13.5 fix, not before it, because
+the one offending row must land somewhere first.
