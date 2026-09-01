@@ -2146,3 +2146,15 @@ Ruling for item 2b:
 
 Section 28.2's Utility-row shape is withdrawn. Sequence unchanged: 2b after
 item 2's generator change lands.
+
+### 28.4 Refinement: the fourth `action_type` branch is expected, not a stop — 15:08 PDT
+
+The seat's count stands: 84 rows from 6 providers, 78 of them Bogrog pouch
+exchanges, so the precedent is thin. Every existing row has fixed inputs, and
+Bill's service acts on items the player picks, so the new handler and a picker
+are the real work. `ui/ui_tab_shop.py:1140-1196` branches on `action_type`; a
+fourth branch that renders the item picker for Bill is contained new-feature
+interface on the existing surface. It is allowed and expected, and it takes the
+frontend-taste model review before promotion (goal rails: a model with good
+frontend taste, kept contained). The stop-and-report condition in 28.3 narrows
+to this: a change to how the existing three service kinds or the shop stock render.
