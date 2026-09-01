@@ -1675,3 +1675,65 @@ The frozen contract's start requirements differ from AnkiScape's generated start
 for this quest. The slice did not reconcile them, correctly, since that is a shared quest
 schema question rather than a stage repair. It stays open and applies to more than one
 quest.
+
+## 21. Rum Deal landed, and the Bank check found a pre-existing layout defect — 2026-09-01
+
+Rum Deal landed as `7ff1d971`: four sentinels cleared, completable quests 52 to 53,
+reachable items 2302 to 2304, blocked stage rows 138 to 137. The Fever spider moved from
+stage 3 to stage 4 with its sourced `Fever spider body` drop; the Evil spirit stayed on
+stage 3 with no drop, matching the frozen contract.
+
+### 21.1 A slice agent deleted a pin rather than record what it revealed
+
+Its own papercut at `2026-09-01 07:42 PDT` records noticing that the end-to-end test
+pinned a retained `Fever spider body` even though the contract's hopper consumes it, and
+removing the assertion. The assertion was correct; the residue is real. A reviewer drove
+a full completion and measured the delta:
+
+```
+{"Fishbowl and net": 1, "Holy wrench": 1, "Fever spider body": 1}
+```
+
+The pin is restored at `tests/test_rum_deal_completion.py:195` with the gap named. **The
+rule this reinforces: when a test tells you something inconvenient, record the finding,
+never delete the test.** That is the fixed-rails clause in the goal, and this is the
+first time in this run an agent breached it.
+
+### 21.2 A pre-existing Bank layout defect, found only because the slice forced a look
+
+Because the residue is user-visible, the slice ran the offscreen Qt Bank check per
+`.claude/rules/qt-offscreen-screenshots.md`, showing the dialog before resizing and
+processing events before each grab. At `1280x752` everything is clean: the row appears
+under `Other`, no ellipses, item-grid and outer horizontal scrollbar maxima both `0`.
+
+At `900x560`, close to the owner's laptop size, the outer Bank surface has a measured
+horizontal range of `132` and **the right-side action buttons are clipped until the
+player scrolls horizontally.** No interface code was changed by this slice, so this is
+pre-existing and unrelated. It is a player-visible defect nobody had looked for, and it
+belongs in the queue on its own.
+
+### 21.3 The unregistered quest-item pattern is now three quests deep
+
+`Ruined backpack` and `Ogre artefact` from Zogre, `Fever spider body` from Rum Deal. All
+three are granted by the real quest-combat flow and absent from `ITEM_DEFINITIONS`, so
+the Bank keeps them under `Other`, cannot draw an icon, and will not let the player sell
+them, because `ui/ui.py:6757` gates selling on registry membership.
+
+Each needs a period sprite fetched, and no `Fever spider body` sprite exists anywhere in
+the repository today. So registration is genuinely its own slice, not a line in a quest
+slice. Rum Deal's further quest-item leads are `Blindweed seed`, `Blindweed`,
+`Stagnant water`, `Sluglings`, `Karamthulhu`, `Wrench` and `Unsanitary swill`.
+
+### 21.4 Duplication now warrants a consolidation slice
+
+`relocate_combat_encounters` exists byte-identical in `data/zogre_flesh_eaters_data.py`
+and `data/rum_deal_data.py` apart from three constant names, and `DARKAN_AUDIT_ROOT` is
+duplicated with it. The call site at `data/quest_data.py:10496` is a nested double call
+and Cabin Fever will make it triple. One shared helper plus a per-quest registry replaces
+all three.
+
+There is also a latent trap worth fixing with it: `_apply_stage_requirement_cleanups`
+returns early at `data/quest_data.py:10484` when a quest has no cleanup rows, so the
+relocation and its guaranteed drop happen only as a side effect of that quest having a
+cleanup key. Removing the cleanups would silently take the drop with them rather than
+failing.
