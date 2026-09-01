@@ -2110,3 +2110,39 @@ parked as an optional owner question, not a blocker; the design seat carries it.
 
 Sequence unchanged: 2b waits for item 2's generator change, then the ledger-row
 edit plus regeneration activates `lumbridge_medium_where_s_the_beef`.
+
+### 28.3 Supersedes 28.2: Beefy Bill's banking is a shop-service row, Shape 2 — 15:05 PDT
+
+The owner delegated the shape to the design seat ("Use your best judgment as to
+what you should do about Bill"). The tree settles it: NPC services already have a
+home. `data/shop_data.py::SHOP_SERVICES` holds 84 rows (Blandebir's ale-yeast fill,
+Bob Barter's decanting, Teplin's flasks, Thakkrad's yak-hide curing), each with a
+provider, location, price, inputs, outputs, `action_type`, access gate and source,
+applied through `logic/shop_logic.py::apply_shop_service_pure` and rendered by the
+existing "Shops and service providers" surface. Beefy Bill's banking is that
+pattern, not a Utility activity, and it lives where the NPC already lives.
+
+Ruling for item 2b:
+
+1. Add Beefy Bill's banking to `SHOP_SERVICES` under provider `Beefy Bill`,
+   location Lumbridge cow field, with a new `action_type` whose handler moves the
+   chosen carried items into the Bank proper and keeps Bill's sourced cut. In the
+   single-ledger model (section 4.21 ruling 3 of the design queue) "banking"
+   means moving retained carried items out of the death-loss view; that is the
+   meaningful, period-faithful service. One batchable row per accepted item type
+   is acceptable if the source lists few items; the slice picks the smaller diff.
+2. Source the accepted items and the cut in evidence order (Darkan, rev-727,
+   game-main, wiki at a pre-cutoff oldid). No invented terms; an unrecovered value
+   is a registered placeholder.
+3. The service action's telemetry records `service_id` and the transferred
+   quantity, which is exactly the ledger's designed trigger for
+   `lumbridge_medium_where_s_the_beef`; the row moves to `active` by ledger-row
+   edit plus regeneration.
+4. No new interface: a new row on an existing generic surface. The standard
+   offscreen visual check of the rendered row still applies (owner rule: any
+   user-visible diff gets a visual check; watch for truncation). The
+   frontend-taste review is not required unless the surface itself changes; if
+   the slice finds it must change the surface, it stops and reports.
+
+Section 28.2's Utility-row shape is withdrawn. Sequence unchanged: 2b after
+item 2's generator change lands.
