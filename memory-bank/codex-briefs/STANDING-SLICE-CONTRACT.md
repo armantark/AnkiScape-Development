@@ -25,6 +25,8 @@ this Anki install for real study.
 - Run `python3 tools/worktree_guard.py audit` before and after any worktree
   change.
 - Never give `git worktree add` a destination beneath `addons21`.
+- The global pooled-`treehouse` worktree rule does not apply to this repo;
+  create AnkiScape worktrees only through `tools/worktree_guard.py`.
 - Do not delete a dirty or unmerged worktree. Move it to the safe root instead.
 
 ## 2. Git
