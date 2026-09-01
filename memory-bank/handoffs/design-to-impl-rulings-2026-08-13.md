@@ -1737,3 +1737,60 @@ returns early at `data/quest_data.py:10484` when a quest has no cleanup rows, so
 relocation and its guaranteed drop happen only as a side effect of that quest having a
 cleanup key. Removing the cleanups would silently take the drop with them rather than
 failing.
+
+## 22. Cabin Fever landed, and the pre-harvested queue is exhausted — 2026-09-01
+
+Cabin Fever landed as `e4dae8e2`. Three sentinels cleared, and it moved more than any
+quest slice in this run because it sat at the head of a chain:
+
+| Measure | Before | After |
+| --- | ---: | ---: |
+| reachable items | 2304 | 2343 |
+| orphan inputs | 165 | 163 |
+| root orphans | 32 | 31 |
+| cascade orphans | 133 | 132 |
+| unresolved actions | 252 | 249 |
+| seed items | 1219 | 1230 |
+| blocked stage rows | 137 | 136 |
+| completable quests | 53 | 54 |
+
+The slice directly produces only `Book o' piracy -> quest:cabin_fever`; the other 38
+newly reachable routes are existing descendants that its unlocks opened, and it correctly
+declined to claim them as its own output.
+
+An independent review found no blocking defect: all three sentinels genuinely removed
+rather than merely paired with auto actions, no unsupported drop or reward asserted, the
+oracle independent, no third copy of the relocation helper, all 18 deleted test lines
+reappearing in moved or strengthened form, and no unregistered granted item.
+
+### 22.1 The slice removed an unsourced claim, which is worth noting as the good case
+
+The catalog asserted `Charter Ship prices are halved.` in the unlock list. The frozen
+contract lists the charter discount under `source_blocked`, so the slice deleted the
+claim rather than implementing it. That is the correct handling of an unsourced value
+and the opposite of registering a placeholder for it.
+
+### 22.2 A pre-existing claim contradicts the contract, and it is not this slice's doing
+
+`data/quest_data.py:11222` defines `cabin_fever_bill_teach_coins`, granting `Coins`
+`10000` on `required_quest="cabin_fever"`, sourced to
+`https://runescape.wiki/w/Cabin_Fever?oldid=6533785`.
+
+The frozen contract neither grants nor excludes those coins; the source investigation
+classified them as unrecovered and said plainly they must not be asserted. Both wiki
+revisions do mention them and a 2014 transcript echoes them, so the claim is not
+baseless, but it rests on a post-cutoff-adjacent reading the contract declined to make.
+
+It predates this slice and was untouched by it, so it is not a defect of `e4dae8e2`. It
+is nonetheless live: a player who finishes Cabin Fever can claim 10,000 coins today on
+evidence the frozen contract would not accept. Either the contract is incomplete or the
+claim is unsourced. Resolving it needs the Darkan thread's reading, so doorbell them
+rather than deciding it here.
+
+### 22.3 The pre-harvested queue is now empty
+
+Zogre Flesh Eaters, Rum Deal and Cabin Fever were the three quests the Darkan thread held
+frozen contracts for. All three are landed. Every remaining sentinel quest has no dossier
+on their side, so the next quest slice pays full harvesting cost, and the doorbell must
+be rung BEFORE dispatch to check ownership and avoid the duplication recorded in
+section 19.
