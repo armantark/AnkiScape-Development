@@ -6017,3 +6017,12 @@ the obsolete percent key is no longer touched.
 - All 213 assertions that pinned the old store were moved to the proof ledger or migration-removal checks. No assertion was deleted. The shared 18-line test helper keeps quest-stage assertions exact without growing any oversized file or deleting prose.
 - A catalog-wide safety pin holds all 528 unique `auto_actions` IDs to one quest owner and rejects any `required_actions` gate satisfied by a different quest's auto-action proof. Both duplicate-owner and cross-quest-gate mutation probes fail the pin.
 - Reachability remains 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215, with 139 blocked quest-stage rows and 51 completable quests. No pin moved. Both complete lanes pass 4,601 tests: plain skips 515 and real offscreen Qt skips three. No user interface changed. Evidence: `source-audits/quest-proof-store-cleanup-2026-09-01.md`.
+
+## Rum Deal stage closure — 2026-09-01
+
+- Replaced all four impossible generated Rum Deal objectives with actions mapped from the pre-existing frozen Darkan contract and pinned dossier; no source was harvested or repinned.
+- Removed quest-supplied and optional preparation gates, while moving the mandatory equipment-aware `Slayer gloves x1` gate to stage `4`, where the Fever spider fight occurs.
+- Kept the Evil spirit on stage `3`, moved the Fever spider to stage `4`, and added its guaranteed `Fever spider body x1` quest drop. Completion rewards remain exactly the existing `7,000` Farming, Fishing, and Prayer XP plus Fishbowl and net and Holy wrench.
+- Added stage-contract, pure-flow, and dynamically loaded real review-answer coverage in `tests/test_rum_deal_completion.py`; `tests/test_quest_catalog.py` now rejects the complete source-excluded generated item set while the focused test separately requires the gloves gate.
+- Re-measured reachability at `1663 / 2304 / 165 / 32 / 133 / 252 / 1219`, with 137 blocked stage rows and 53 completable quests. Fishbowl and net and Holy wrench are the only newly reachable registered items; the retained, unregistered Fever spider body permanently appears as an iconless, valueless, unsellable Bank row under `Other`.
+- The source audit is `memory-bank/source-audits/rum-deal-stages-1-4-2026-09-01.md`. The missing Priest in Peril and Zogre Flesh Eaters start prerequisites, current-470-Prayer resource predicate, and quest-local item custody nodes remain explicit follow-ons.

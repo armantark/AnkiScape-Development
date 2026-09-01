@@ -1557,7 +1557,7 @@ class TestQuestCatalog(unittest.TestCase):
             "roving_elves": {"Good Food", "Antipoison potion"},
             "horror_from_the_deep": {"Sword", "Arrow"},
             "ghosts_ahoy": {"Dye"},
-            "rum_deal": {"Armour", "Food"},
+            "rum_deal": {"Armour", "Food", "Seed dibber", "Rake", "Bucket", "Ectophial", "Relicym's balm", "Ring of charos"},
             "spirits_of_the_elid": {"Telegrab"},
             "enakhras_lament": {"Crumble Undead", "Sandstone", "Runes", "Fire Bolt", "Wind Bolt"},
             "in_aid_of_the_myreque": {"Food", "Enchant sapphire", "Nails"},

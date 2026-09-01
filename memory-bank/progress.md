@@ -6998,3 +6998,13 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Added lean stage-contract, pure-flow, and real review-answer coverage in `tests/test_zogre_flesh_eaters_completion.py`; the action oracle cites the frozen contract, duplicate stage rows fail, and the add-on assertion uses the dynamically loaded package catalog.
 - Re-measured reachability at `1663 / 2302 / 165 / 32 / 133 / 252 / 1217`, with 138 blocked stage rows and 52 completable quests. Black prism is the sole newly reachable item; the unregistered Ruined backpack and Ogre artefact drops are runtime-verified but not credited by the graph.
 - Focused verification passes 49 tests. The source audit is `memory-bank/source-audits/zogre-flesh-eaters-stages-1-6-2026-09-01.md`.
+
+## Rum Deal stages 1–4 — 2026-09-01
+
+- The four generated Rum Deal stage sentinels are gone. Each row now removes its exact `Complete Rum Deal stage N objective` blocker and records one same-stage action from the frozen contract.
+- Stages `1` and `2` model Pirate Pete, Blindweed, and stagnant water without treating the quest-supplied farming tools or Bucket as external inputs. Stage `3` contains the Evil spirit. Stage `4` uses the equipment-aware `Slayer gloves x1` gate, contains the Fever spider, and grants `Fever spider body x1`.
+- The generated XP and item rewards already matched the contract and remain exactly Farming, Fishing, and Prayer at `7,000` XP each, plus Fishbowl and net and Holy wrench. The excluded spins remain absent.
+- Focused unit, pure integration, real review-answer, catalog, action-owner, and reachability-pin tests pass. The end-to-end test reads the loaded add-on catalog and pins four rows with stages `{1, 2, 3, 4}`.
+- Reachability moves from `1663 / 2302 / 165 / 32 / 133 / 252 / 1217` to `1663 / 2304 / 165 / 32 / 133 / 252 / 1219`; blocked stage rows move `138 -> 137`, and completable quests move `52 -> 53`.
+- The exact new registered routes are `Fishbowl and net -> quest:rum_deal` and `Holy wrench -> quest:rum_deal`. `Fever spider body` remains at completion, lacks global registration, and permanently renders in Bank under `Other` without an icon, value, or sell action; shown-dialog checks confirm the row at `1280×752` and `900×560` without item-text ellipses.
+- Evidence: `source-audits/rum-deal-stages-1-4-2026-09-01.md`.

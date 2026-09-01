@@ -8,7 +8,7 @@ from typing import Dict, Mapping, Tuple, Union
 
 from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
-from . import chompy_hunting_data, zogre_flesh_eaters_data
+from . import chompy_hunting_data, rum_deal_data, zogre_flesh_eaters_data
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 from .stronghold_player_safety_data import (
     STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
@@ -9204,12 +9204,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             remove_required_inventory=("Good Food", "Antipoison potion"),
         ),
     ),
-    "rum_deal": (
-        QuestStageRequirementCleanup(
-            stage=1,
-            remove_required_inventory=("Armour", "Food"),
-        ),
-    ),
+    "rum_deal": tuple(QuestStageRequirementCleanup(**row) for row in rum_deal_data.RUM_DEAL_STAGE_REQUIREMENT_CLEANUPS),
     "spirits_of_the_elid": (
         QuestStageRequirementCleanup(
             stage=2,
@@ -10485,7 +10480,7 @@ def _apply_stage_requirement_cleanups(
 ) -> Tuple[QuestStageRequirement, ...]:
     cleanups = QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID.get(quest_id)
     if not cleanups:
-        return requirements
+        return requirements  # Encounter relocation hooks below require a cleanup-table key.
     changed = False
     rows = []
     for requirement in requirements:
@@ -10498,7 +10493,7 @@ def _apply_stage_requirement_cleanups(
             updated = _apply_stage_requirement_cleanup(updated, cleanup)
         changed = changed or updated != requirement
         rows.append(updated)
-    return zogre_flesh_eaters_data.relocate_combat_encounters(quest_id, tuple(rows) if changed else requirements)
+    return rum_deal_data.relocate_combat_encounters(quest_id, zogre_flesh_eaters_data.relocate_combat_encounters(quest_id, tuple(rows) if changed else requirements))
 
 
 def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object]) -> QuestDefinition:
