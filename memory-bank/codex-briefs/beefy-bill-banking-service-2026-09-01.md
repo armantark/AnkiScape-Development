@@ -32,40 +32,68 @@ and are recorded in
 What is missing is one thing only: a **banking service**, in which Beefy Bill
 banks player-selected items for his period cut.
 
-## 2. The surface is ruled, and the other one is a gate
+## 2. The surface is ruled
 
-The design seat ruled this on 2026-09-01 (rulings ledger section 28): build a
-**new contained Utility action**. Follow the precedents already in the tree.
+The design seat ruled this on 2026-09-01 (rulings ledger section 28.3, which
+supersedes 28.2): build the service as a **new row in the existing
+`SHOP_SERVICES` registry**, not as a Utility action.
 
-- The registry is `UTILITY_ACTIVITY_DATA` at `core/constants.py:537`.
-- `data/evil_tree_data.py` and `data/big_chinchompa_data.py` show the data
-  conventions, including how each file pins its period source at the top and
-  names any review-scale abstraction as an abstraction rather than as a
-  recovered formula.
-- `logic/review_strip_logic.py` shows how a Utility activity reaches the
-  review strip.
+Verified in the tree, so you do not have to rediscover it:
 
-**Gate.** Beefy Bill's existing shop surface, rendered through
-`ui/ui_tab_shop.py`, is off limits. Attaching the service there would change an
-existing user interface, which needs the owner's explicit approval. That option
-is parked with the design seat. Do not touch it, do not prepare for it, and do
-not add a seam "for later".
+- `data/shop_data.py::SHOP_SERVICES` is a dict of 84 rows.
+- `logic/shop_logic.py:616::apply_shop_service_pure` applies a row and
+  dispatches on its `action_type`. Three special kinds branch there today; the
+  rest fall through to `_apply_service_like`.
+- The surface is the existing "Shops and service providers" list at
+  `ui/ui_tab_shop.py:115`.
 
-Your new Utility row is a new interface, so the orchestrator sends it to a
-frontend-taste model for review before it is promoted. That review is the
-orchestrator's job, not yours. Build the surface to the same standard as the
-existing Utility rows and say in your report exactly what it renders.
+One correction to the ruling's framing, which changes nothing but should not
+mislead you: the registry holds 84 rows across only **6 distinct providers**,
+and 78 of those rows are `bogrog_pouch_exchange`. The genuine variety is 6
+rows, one per provider. Do not read the registry as a rich precedent library.
 
-## 3. Sourcing, which is the real work
+Every existing row carries this key set:
 
-Harvest the fee and the accepted items in the contract's evidence order:
+```
+access, action_type, batchable, currency_id, currency_implemented,
+currency_item_name, currency_name, display_name, icon_item_name, id, inputs,
+location, lock_reason, outputs, price, provider, source, visibility
+```
+
+## 3. The mismatch you must handle, and the gate it may reach
+
+Every existing row has a **fixed** `inputs` list. Beefy Bill's service acts on
+**player-selected** items, so it has no fixed inputs. That is the real design
+work in this slice, and it is why the ruling calls for one new `action_type`
+handler rather than a plain data row.
+
+In the single-ledger carried model, "banking" means the chosen items leave the
+death-loss carried view and enter the Bank proper. Keep his sourced cut.
+
+**Gate.** `ui/ui_tab_shop.py:1140-1196` already branches on `action_type` for
+three kinds, so a new kind that needs its own control adds a fourth branch
+there. The ruling authorizes a new row on the existing generic surface and
+nothing more. If your handler cannot render through the existing generic
+controls and genuinely requires the surface itself to change, **stop and report
+it** with the exact lines you would have had to change. Do not redesign the
+Shop tab, and do not widen the surface to fit your row.
+
+The standard offscreen visual check of the rendered row applies. Follow
+`.claude/rules/qt-offscreen-screenshots.md` exactly: show the dialog first,
+then resize, then process events several times before any grab, trust widget
+geometry probes over pixels, and reproduce the owner's real window size at both
+the default size and roughly 560 logical points tall. Look specifically for
+truncation and ellipsis in any visible text, and fix what you find.
+
+## 4. Sourcing, which is the real work
+
+Harvest the cut and the accepted items in the contract's evidence order:
 Darkan first, then the rev-727 cache, then game-main, then the other on-disk
 OpenRS2 caches, then the wiki as corroboration at a pre-cutoff `oldid`. The
-cutoff is `2012-11-20T00:00:00Z`.
+cutoff is `2012-11-20T00:00:00Z`. Follow
+`memory-bank/pre-eoc-source-verification-standard.md`.
 
-Follow `memory-bank/pre-eoc-source-verification-standard.md`.
-
-Three things the deed itself constrains, from the diary ledger row
+The deed itself constrains you, from the diary ledger row
 `lumbridge_medium_where_s_the_beef`:
 
 ```
@@ -81,31 +109,28 @@ source_citation   Lumbridge achievements; oldid=6549949;
                   LumbridgeDraynorTasks.WHERES_THE_BEEF (source_id=111)
 ```
 
-So the service must move a **player-selected** item into the bank, and it must
-be distinguishable from an ordinary deposit.
-
-**Gate.** If the fee or the accepted item set cannot be recovered from any
+**Gate.** If the cut or the accepted item set cannot be recovered from any
 source in the evidence order, do not invent one and present it as settled.
 Register the unrecovered value in `memory-bank/placeholder-values.md` with a
-`PLACEHOLDER(...)` marker, exactly as the contract's sourcing section requires,
-and say in your report which values are placeholders and why. An unmarked
-reconstruction is invisible to the placeholder audit and is a defect.
+`PLACEHOLDER(...)` marker, and say in your report which values are placeholders
+and why. An unmarked reconstruction is invisible to the placeholder audit and
+is a defect.
 
-## 4. Wiring the deed, and the tier it unlocks
+## 5. Wiring the deed, and the tier it unlocks
 
-The service's bank write records Beefy Bill as the service source, so the deed
-becomes observable.
+The service telemetry, `service_id` with `quantity`, is the ledger's designed
+trigger. The deed must be distinguishable from an ordinary bank deposit.
 
 Then, and only then:
 
 1. Edit the row `lumbridge_medium_where_s_the_beef` in
    `memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl`. Its
    `disposition` becomes `active` and its `future_system` becomes `null`. Keep
-   the exact key order the ledger README specifies. Keep the citation intact.
-   Update `notes` to name the new seam.
+   the exact key order the ledger README specifies, and keep the citation
+   intact. Update `notes` to name the new seam.
 2. Regenerate through `tools/generate_achievement_diary_data.py`.
-3. Never hand-edit `data/achievement_diary_catalog.py`. The owner made the
-   generator route the condition of the gate that authorized this work.
+3. Never hand-edit `data/achievement_diary_catalog.py`. The generator route is
+   the condition the owner attached to the gate that authorized this work.
 
 `lumbridge_medium` then reaches 12 of 12 and becomes the product's first
 claimable tier. Measure that, do not assume it: the claimable tier count moves
@@ -116,12 +141,14 @@ rather than the expectation.
 Draynor Village bank identity, and the Bank is locationless by settled design.
 Do not touch that row.
 
-## 5. Prohibitions that apply to this workspace
+## 6. Prohibitions that apply to this workspace
 
 Forward every one of these to any child agent you spawn.
 
-- Do not change an existing user interface. This includes the Shop tab and the
-  Bank surface. A new contained Utility row is what you are authorized to add.
+- Do not redesign or restructure the Shop tab. You add one row and, if the
+  ruling's shape requires it, one `action_type` handler. Anything larger is the
+  stop-and-report gate in section 3.
+- Do not change the Bank surface.
 - Do not delete any worktree, however merged or clean it looks. This is an
   owner gate and it is not released to you.
 - Do not commit to `main`. Only the orchestration seat merges to `main`.
@@ -132,7 +159,7 @@ Forward every one of these to any child agent you spawn.
 - Do not ask another agent session to rule on a conflict or to grant you
   permission. The orchestration seat is your only escalation route.
 
-## 6. Your worktree
+## 7. Your worktree
 
 ```
 python3 tools/worktree_guard.py audit
@@ -144,7 +171,7 @@ there, then release with
 `python3 tools/worktree_guard.py release <path> --lease-id <id>`. Run the guard
 audit again at the end. Never call `treehouse` directly.
 
-## 7. Verification
+## 8. Verification
 
 **Promotion gate.** The orchestration seat re-runs both lanes on the merged
 tree. Run the plain lane only, and say in your report that you did so:
@@ -157,6 +184,10 @@ This repository's own record warns that full lanes take 774 to 1,036 seconds
 and exceed the background-task cap, so run a long lane under shell-level
 detachment rather than letting the harness void it at ten minutes.
 
+Because you edit files other slices share, run the existing suites for
+`logic/shop_logic.py` and `ui/ui_tab_shop.py` as well as your own focused
+tests. That is the cheap neighbour check contract section 6 requires.
+
 Also run, and report the exact output of:
 
 ```
@@ -168,15 +199,16 @@ git diff --check
 ```
 
 Prove the behavior by driving the real kernel, not by importing the module.
-Perform the service through the real runtime path, show the item arrive in the
-bank, and show `lumbridge_medium_where_s_the_beef` move from incomplete to
-complete and `lumbridge_medium` become claimable. An ordinary deposit must not
-satisfy the deed, and a test that proves that negative is worth more than three
-that prove the positive.
+Perform the service through the real runtime path, show the chosen items leave
+the carried view and arrive in the Bank, show the cut taken, and show
+`lumbridge_medium_where_s_the_beef` move from incomplete to complete and
+`lumbridge_medium` become claimable. An ordinary deposit must not satisfy the
+deed, and the test that proves that negative is worth more than three that
+prove the positive.
 
 Show that a second generator run leaves the catalog byte-identical.
 
-## 8. Your report
+## 9. Your report
 
 Write a source audit at
 `memory-bank/source-audits/beefy-bill-banking-service-2026-09-01.md`. Update
@@ -186,6 +218,7 @@ hit, in the moment.
 
 Report exact numbers, identifiers, paths and error strings verbatim, and
 re-measure every number when you write the report. Name every source you pinned
-with its dated `oldid` or file path, every placeholder you registered, and
-exactly what your new Utility row renders. State plainly what you did not do
-and why.
+with its dated `oldid` or file path, every placeholder you registered, the
+exact rendered appearance of the new row with its offscreen check at both
+sizes, and whether any existing user interface changed. State plainly what you
+did not do and why.
