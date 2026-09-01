@@ -1,10 +1,9 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
-
-import subprocess
 
 from tools.worktree_guard import (
     add_worktree,
@@ -125,13 +124,16 @@ class WorktreeGuardTest(unittest.TestCase):
             patch(
                 "tools.worktree_guard._git",
                 return_value=Mock(stdout=" M core/storage_pure.py\n"),
-            ),
+            ) as git,
             patch("tools.worktree_guard._treehouse") as treehouse,
         ):
             with self.assertRaises(RuntimeError) as context:
                 release_worktree(canonical, pooled, "lease-1")
         self.assertIn("uncommitted work", str(context.exception))
         treehouse.assert_not_called()
+        # The status probe is the only git call: the detach never ran.
+        self.assertEqual(git.call_count, 1)
+        self.assertEqual(git.call_args.args[1], "status")
 
     def test_release_rejects_path_outside_pool(self):
         canonical = Path("/tmp/Anki2/addons21/ankiscape_fork")
@@ -149,6 +151,72 @@ class WorktreeGuardTest(unittest.TestCase):
         self.assertIn("not a pooled worktree", str(context.exception))
         git.assert_not_called()
         treehouse.assert_not_called()
+
+    def test_release_detaches_before_returning_with_the_lease_id(self):
+        canonical = Path("/tmp/Anki2/addons21/ankiscape_fork")
+        pooled = pool_root(canonical) / ".treehouse/ankiscape_fork-1/1/ankiscape_fork"
+        events = []
+
+        def fake_git(_path, *args, **_kwargs):
+            events.append(("git", args[0]))
+            return Mock(stdout="")
+
+        def fake_treehouse(_canonical, *args):
+            events.append(("treehouse", args))
+            return Mock(stdout="")
+
+        with (
+            patch("tools.worktree_guard.audit"),
+            patch(
+                "tools.worktree_guard.canonical_and_paths",
+                return_value=(canonical, (canonical,)),
+            ),
+            patch("tools.worktree_guard._git", side_effect=fake_git),
+            patch("tools.worktree_guard._treehouse", side_effect=fake_treehouse),
+        ):
+            release_worktree(canonical, pooled, "lease-1")
+
+        self.assertEqual(
+            events,
+            [
+                ("git", "status"),
+                ("git", "checkout"),
+                (
+                    "treehouse",
+                    ("return", "--force", "--if-lease-id", "lease-1", str(pooled)),
+                ),
+            ],
+        )
+
+    def test_lease_returns_a_lease_pointing_outside_the_pool(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            canonical = (Path(temp_dir) / "Anki2/addons21/ankiscape_fork").resolve()
+            qt_interpreter = canonical / ".venv-qt/bin/python"
+            qt_interpreter.parent.mkdir(parents=True)
+            qt_interpreter.write_text("", encoding="utf-8")
+            escaped = canonical.parent / "escaped_worktree"
+            lease = {"path": str(escaped), "lease_id": "lease-1"}
+            with (
+                patch("tools.worktree_guard.audit"),
+                patch(
+                    "tools.worktree_guard.canonical_and_paths",
+                    return_value=(canonical, (canonical,)),
+                ),
+                patch("tools.worktree_guard._git") as git,
+                patch(
+                    "tools.worktree_guard._treehouse",
+                    return_value=Mock(stdout=json.dumps(lease)),
+                ) as treehouse,
+            ):
+                with self.assertRaises(RuntimeError) as context:
+                    lease_worktree(canonical, "goal/feature", None, "main")
+
+            self.assertIn("outside the pool", str(context.exception))
+            git.assert_not_called()
+            self.assertEqual(
+                treehouse.call_args_list[-1].args[1:],
+                ("return", "--force", "--if-lease-id", "lease-1", str(escaped)),
+            )
 
     def test_lease_returns_lease_when_branch_checkout_fails(self):
         with tempfile.TemporaryDirectory() as temp_dir:

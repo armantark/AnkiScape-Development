@@ -156,20 +156,30 @@ def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: 
         "--lease-holder",
         holder or "worktree_guard",
     )
-    lease = json.loads(result.stdout)
-    destination = Path(lease["path"])
-    exists = (
-        _git(
-            canonical,
-            "show-ref",
-            "--verify",
-            "--quiet",
-            f"refs/heads/{branch}",
-            check=False,
-        ).returncode
-        == 0
-    )
     try:
+        lease = json.loads(result.stdout)
+        destination = Path(lease["path"]).resolve()
+        lease_id = lease["lease_id"]
+    except (ValueError, KeyError):
+        raise RuntimeError(
+            "treehouse returned an unparseable lease; reconcile with 'treehouse status':\n"
+            f"{result.stdout.strip()}"
+        ) from None
+    try:
+        # Never trust the returned path: verify the answer, not just the request.
+        if not destination.is_relative_to(pool_root(canonical)):
+            raise RuntimeError(f"treehouse leased a worktree outside the pool: {destination}")
+        exists = (
+            _git(
+                canonical,
+                "show-ref",
+                "--verify",
+                "--quiet",
+                f"refs/heads/{branch}",
+                check=False,
+            ).returncode
+            == 0
+        )
         if exists:
             _git(destination, "checkout", branch, capture=True)
         else:
@@ -177,11 +187,11 @@ def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: 
         link = destination / ".venv-qt"
         if not link.is_symlink():
             link.symlink_to(qt_environment, target_is_directory=True)
+        audit(repo)
     except BaseException:
-        _treehouse(canonical, "return", "--force", "--if-lease-id", lease["lease_id"], str(destination))
+        _treehouse(canonical, "return", "--force", "--if-lease-id", lease_id, str(destination))
         raise
-    audit(repo)
-    print(json.dumps({"path": str(destination), "lease_id": lease["lease_id"], "branch": branch}))
+    print(json.dumps({"path": str(destination), "lease_id": lease_id, "branch": branch}))
 
 
 def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
