@@ -8,7 +8,7 @@ from typing import Dict, Mapping, Tuple, Union
 
 from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
-from . import chompy_hunting_data
+from . import chompy_hunting_data, zogre_flesh_eaters_data
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 from .stronghold_player_safety_data import (
     STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
@@ -4360,7 +4360,7 @@ QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
 QUEST_ITEM_REWARD_ADDITIONS_BY_ID = varrock_museum_quest_reward_additions_as_dict()
 
 
-QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
+QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {"zogre_flesh_eaters": zogre_flesh_eaters_data.ZOGRE_FLESH_EATERS_ITEM_REWARDS,
     TREE_GNOME_VILLAGE_ID: (("Gnome amulet", 1),),
     PLAGUE_CITY_ID: (("A magic scroll", 1),),
     BIOHAZARD_ID: (),
@@ -4580,7 +4580,7 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
 }
 
 
-QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
+QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {"zogre_flesh_eaters": tuple(QuestXpReward(*row) for row in zogre_flesh_eaters_data.ZOGRE_FLESH_EATERS_XP_REWARDS),
     "royal_trouble": (QuestXpReward("agility", 5000),),
     "grim_tales": (QuestXpReward("agility", 6000),),
     "stolen_hearts": (QuestXpReward("constitution", 250),),
@@ -8705,8 +8705,8 @@ CAT_FOLLOWER_STATE_NAMES: Tuple[str, ...] = (
     "Wily cat",
     "Lazy cat",
 )
-
 QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {BIG_CHOMPY_BIRD_HUNTING_ID: tuple(QuestStageRequirementCleanup(**row) for row in chompy_hunting_data.BIG_CHOMPY_STAGE_REQUIREMENT_CLEANUPS),
+    "zogre_flesh_eaters": tuple(QuestStageRequirementCleanup(**row) for row in zogre_flesh_eaters_data.ZOGRE_FLESH_EATERS_STAGE_REQUIREMENT_CLEANUPS),
     "the_lost_tribe": (
         QuestStageRequirementCleanup(
             stage=1,
@@ -10498,7 +10498,7 @@ def _apply_stage_requirement_cleanups(
             updated = _apply_stage_requirement_cleanup(updated, cleanup)
         changed = changed or updated != requirement
         rows.append(updated)
-    return tuple(rows) if changed else requirements
+    return zogre_flesh_eaters_data.relocate_combat_encounters(quest_id, tuple(rows) if changed else requirements)
 
 
 def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object]) -> QuestDefinition:

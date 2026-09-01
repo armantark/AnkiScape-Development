@@ -1,5 +1,14 @@
 # Active Context
 
+## Zogre Flesh Eaters is completable — 2026-09-01
+
+- The frozen Darkan contract at `/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/zogre-flesh-eaters-target-contract.json` and its existing final pre-EOC and build-727 dossiers control the stage reconstruction. The evidence remains capped at `PARTIAL[source_blocked,conflicting_sources,missing_data]`; no independent wiki harvest or placeholder was added.
+- All six generated stage sentinels are removed. The level-39 Zombie now blocks stage `2`, and Slash Bash level `111` blocks stage `6`, matching both the frozen route and `ZogreFleshEatersState.kt` / `ZogreFleshEatersContent.kt`. The Zombie grants one Ruined backpack; Slash Bash grants two Zogre bones, three Ourg bones, and one Ogre artefact.
+- Optional self-made bow and balm ingredients are no longer stage gates. The stale stage-4 catalog expectation for `Clean rogue's purse` is removed. The false undosed `Relicym's balm` item reward is also removed: the contract grants potion-making knowledge, while the recipe produces `Relicym's balm (3)`.
+- Completion now pays exactly 2,000 XP each in Fletching, Herblore, and Ranged, with no unsupported 162.5 Prayer XP. The real review-answer flow completes the quest, stores all six source-backed action proofs, and preserves the direct completion flag.
+- Reachability moves from `1663 / 2301 / 165 / 32 / 133 / 252 / 1215` to `1663 / 2302 / 165 / 32 / 133 / 252 / 1217`. Blocked quest-stage rows move `139 → 138`, and completable quests move `51 → 52`. Black prism is the only newly reachable item; Ourg bones prefer the sourced Slash Bash route. No descendant count is claimed.
+- Focused verification passes 49 tests, including the explicit quest catalog, global reward/action pins, pure combat progression, runtime drops, XP, and the real `on_answer_card()` completion path. Evidence: `memory-bank/source-audits/zogre-flesh-eaters-stages-1-6-2026-09-01.md`.
+
 ## Goblin Diplomacy mail and dye chain is completable — 2026-08-30
 
 - Literal `curl` fetches pinned Goblin Diplomacy oldid `6485448`, Goblin mail

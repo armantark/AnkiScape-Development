@@ -6989,3 +6989,12 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Re-measured unchanged reachability at 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked stage rows, and 51 completable quests.
 - Re-measured unchanged reachability at 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked stage rows, and 51 completable quests. Full plain verification passes 4,601 tests in 769.861 seconds with 515 skips; real offscreen Qt passes 4,601 tests in 1,036.410 seconds with three skips. No UI code changed.
 - Evidence: `source-audits/quest-proof-store-cleanup-2026-09-01.md`.
+
+## Zogre Flesh Eaters stage closure — 2026-09-01
+
+- Replaced all six impossible generated stage objectives through the existing cleanup registry and moved the mandatory Zombie and Slash Bash encounters to stages `2` and `6` respectively.
+- Reconciled the implementation against the pre-existing frozen Darkan target contract and source dossiers. The source-backed combat drops are Ruined backpack ×1, Zogre bones ×2, Ourg bones ×3, and Ogre artefact ×1.
+- Removed optional balm/bow preparation materials from stage gates, removed the false undosed Relicym's balm reward, and replaced the generated XP set with exactly Fletching, Herblore, and Ranged at 2,000 each.
+- Added lean stage-contract, pure-flow, and real review-answer coverage in `tests/test_zogre_flesh_eaters_completion.py`; the action oracle cites the frozen contract, duplicate stage rows fail, and the add-on assertion uses the dynamically loaded package catalog.
+- Re-measured reachability at `1663 / 2302 / 165 / 32 / 133 / 252 / 1217`, with 138 blocked stage rows and 52 completable quests. Black prism is the sole newly reachable item; the unregistered Ruined backpack and Ogre artefact drops are runtime-verified but not credited by the graph.
+- Focused verification passes 49 tests. The source audit is `memory-bank/source-audits/zogre-flesh-eaters-stages-1-6-2026-09-01.md`.

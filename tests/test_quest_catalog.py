@@ -1841,7 +1841,7 @@ class TestQuestCatalog(unittest.TestCase):
         enakhra_stage_2 = stages["enakhras_lament"][2]
         self.assertEqual(enakhra_stage_2["required_inventory"], {"Granite (5kg)": 1})
         zogre_stage_4 = stages["zogre_flesh_eaters"][4]
-        self.assertEqual(zogre_stage_4["required_inventory"]["Clean rogue's purse"], 1)
+        self.assertEqual(zogre_stage_4["required_inventory"], {})
 
         golem_stage_2 = stages["the_golem"][2]
         self.assertEqual(golem_stage_2["required_inventory"], {"Soft clay": 4})

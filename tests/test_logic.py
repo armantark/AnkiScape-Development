@@ -313,7 +313,7 @@ QUEST_ITEM_REWARD_REPLACEMENT_GUARD: Dict[str, FrozenSet[Tuple[str, int]]] = {
     "the_golem": frozenset({}),
     "the_tale_of_the_muspah": frozenset({("Sapphire", 4)}),
     "the_grand_tree": frozenset({}),
-    "tree_gnome_village": frozenset({("Gnome amulet", 1)}),
+    "tree_gnome_village": frozenset({("Gnome amulet", 1)}), "zogre_flesh_eaters": frozenset({("Black prism", 1)}),
 }
 
 

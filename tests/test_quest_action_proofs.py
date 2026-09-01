@@ -729,7 +729,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
         auto_action_owners = _quest_action_owners("auto_actions")
         required_action_owners = _quest_action_owners("required_actions")
 
-        self.assertEqual(len(auto_action_owners), 528)
+        self.assertEqual(len(auto_action_owners), 534)
         self.assertEqual(
             {
                 action_id: tuple(sorted(owners))
