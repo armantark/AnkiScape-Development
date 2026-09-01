@@ -2047,3 +2047,26 @@ not act on it. **Named gate: Dormant-system plausibility — awaiting owner.**
 
 1 Mogres (running) → 2 diary wiring (A scope) → 2b Beefy Bill service → 3 three
 proof bindings → 4 consolidation → 5 next sentinel quest.
+
+## 27. Worktree sweep executed by the design seat — 2026-09-01 14:35 PDT
+
+The owner released the section 25.3 gate to the design seat only ("Yes, sweep. And
+you can do that Fable"). The orchestrator's no-delete prohibition is unchanged.
+
+Method: every linked worktree was classified read-only first, then removed with
+`git worktree remove` without `--force`, so any tree that became dirty between
+classification and removal would have been refused. Removed only trees that were
+clean, whose HEAD was already an ancestor of `main`, and that were not dated
+2026-09-01 with zero own commits. The seat was notified before the batch and
+confirmed the running Mogres tree intact; the seat held item 2's pooled lease until
+the sweep finished so a lease could not race a removal.
+
+```
+removed 311 | refused 0 | kept: dirty 9, unmerged 26, fresh 2026-09-01 4, pool 1
+after: 39 linked worktrees registered; safe root holds 40 directories (39 + pool)
+       and 138 gate/baseline log files; guard audit safe
+```
+
+Branch refs were not deleted. The class fix for the accumulation is the pooled
+lease/release path (sections 25.2 and the standing contract section 1): a slice
+that leases returns its tree, so one-shot trees stop piling up.
