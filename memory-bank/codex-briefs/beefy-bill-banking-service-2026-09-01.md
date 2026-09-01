@@ -70,13 +70,18 @@ handler rather than a plain data row.
 In the single-ledger carried model, "banking" means the chosen items leave the
 death-loss carried view and enter the Bank proper. Keep his sourced cut.
 
-**Gate.** `ui/ui_tab_shop.py:1140-1196` already branches on `action_type` for
-three kinds, so a new kind that needs its own control adds a fourth branch
-there. The ruling authorizes a new row on the existing generic surface and
-nothing more. If your handler cannot render through the existing generic
-controls and genuinely requires the surface itself to change, **stop and report
-it** with the exact lines you would have had to change. Do not redesign the
-Shop tab, and do not widen the surface to fit your row.
+`ui/ui_tab_shop.py:1140-1196` already branches on `action_type` for three
+kinds. **Your fourth branch is expected work, not a gate.** Build the item
+picker Bill's service needs as contained new-feature interface on the existing
+surface. The design seat authorized exactly that (rulings ledger section 28.4),
+and the orchestrator sends your new control to a frontend-taste model for
+review before promotion.
+
+**Gate, narrowed.** Stop and report only if your work would change how the
+three existing service kinds render, or how the shop stock renders. Those are
+settled surfaces and they are not yours. If you reach that point, report the
+exact lines you would have had to change and why the new control cannot sit
+beside them. Do not redesign the Shop tab.
 
 The standard offscreen visual check of the rendered row applies. Follow
 `.claude/rules/qt-offscreen-screenshots.md` exactly: show the dialog first,
@@ -145,8 +150,9 @@ Do not touch that row.
 
 Forward every one of these to any child agent you spawn.
 
-- Do not redesign or restructure the Shop tab. You add one row and, if the
-  ruling's shape requires it, one `action_type` handler. Anything larger is the
+- Do not redesign or restructure the Shop tab. You add one row, one
+  `action_type` handler, and the contained item picker that handler needs.
+  Changing how the three existing service kinds or the shop stock render is the
   stop-and-report gate in section 3.
 - Do not change the Bank surface.
 - Do not delete any worktree, however merged or clean it looks. This is an
