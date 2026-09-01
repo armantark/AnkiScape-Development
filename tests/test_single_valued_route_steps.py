@@ -150,7 +150,7 @@ def _record_required_actions(player_data, quest_id):
     """
     for reason in quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA):
         if reason.startswith("Action required: "):
-            player_data.setdefault("quest_stage_actions", {}).setdefault(quest_id, []).append(
+            player_data.setdefault("quest_action_proofs", []).append(
                 reason[len("Action required: ") :]
             )
 

@@ -1,9 +1,4 @@
-"""Pure NPC shop runtime logic.
-
-The UI should call these functions through a thin adapter. They own source
-disposition checks, stock mutation, event history, rollback, and the review-card
-market clock without importing Anki.
-"""
+"""Pure NPC shop logic for stock, events, rollback, and the review-card clock."""
 
 from __future__ import annotations
 
@@ -29,6 +24,7 @@ from ..data.crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
 
 from ..core.constants import EXTRA_ITEM_DATA
 
+from ..logic_pure.quest_action_proofs import record_runtime_quest_action_proofs_pure, retract_shop_event_quest_action_proofs_pure
 from ..data.potion_data import (
     EMPTY_FLASK_ITEM,
     POTION_FAMILIES,
@@ -302,7 +298,6 @@ def shop_access_lock_reason_pure(player_data: Mapping[str, Any], shop: Mapping[s
     return None
 
 
-
 def resolve_shop_id(shop_id: str) -> str:
     return SHOP_ID_ALIASES.get(shop_id, shop_id)
 
@@ -499,7 +494,6 @@ def _apply_wilderness_ambush(data: Dict[str, Any], shop: Mapping[str, Any], row:
     }
 
 
-
 def apply_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: str, quantity: int = 1, rng=None) -> tuple[Dict[str, Any], Dict[str, Any]]:
     data = ensure_shop_state_pure(player_data)
     shop = _shop_or_none(shop_id)
@@ -542,6 +536,7 @@ def apply_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: st
     if ambush is not None:
         event["wilderness_ambush"] = copy.deepcopy(ambush)
     _append_event(data, event)
+    record_runtime_quest_action_proofs_pure(data, "shop_buy", row["id"])
     result = dict(preview)
     result["event_id"] = event["event_id"]
     if ambush is not None:
@@ -706,6 +701,7 @@ def rollback_shop_event_pure(player_data: Mapping[str, Any], event_id: Optional[
                         data.pop(key, None)  # the key did not exist pre-ambush
                     else:
                         data[key] = copy.deepcopy(restore[key])
+    retract_shop_event_quest_action_proofs_pure(data, event)
     _adjust_diary_transaction_count(data, event, -1)
     rollback_event = {
         "event_id": _next_event_id(data),
@@ -1568,6 +1564,7 @@ def _apply_service_like(data: Dict[str, Any], service: Mapping[str, Any], event_
         stock_delta={},
     )
     _append_event(data, event)
+    record_runtime_quest_action_proofs_pure(data, f"shop_{event_type}", str(service["id"]))
     result = dict(preview)
     result["event_id"] = event["event_id"]
     return data, result

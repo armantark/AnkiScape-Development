@@ -289,7 +289,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         }
         seed_sources = {}
 
-        _blocked, completed, _startable = _close_quest_reachability(
+        _blocked, completed, _startable, _proofs = _close_quest_reachability(
             (),
             seed_sources,
             {},
@@ -393,7 +393,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         seed_sources = {}
         scenario_sources = []
 
-        _blocked, completed, _startable = _close_quest_reachability(
+        _blocked, completed, _startable, _proofs = _close_quest_reachability(
             actions,
             seed_sources,
             {},
@@ -434,7 +434,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         }
         seed_sources = {}
 
-        _blocked, completed, _startable = _close_quest_reachability(
+        _blocked, completed, _startable, _proofs = _close_quest_reachability(
             (),
             seed_sources,
             {},
@@ -762,7 +762,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         }
         seed_sources = {}
 
-        _blocked, completed, _startable = _close_quest_reachability(
+        _blocked, completed, _startable, _proofs = _close_quest_reachability(
             (),
             seed_sources,
             {},
@@ -1321,7 +1321,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         registered_items = {
             definition.storage_key for definition in ITEM_DEFINITIONS
         }
-        _blocked, completed, _startable = _close_quest_reachability(
+        _blocked, completed, _startable, _proofs = _close_quest_reachability(
             (),
             {},
             {},
@@ -1398,14 +1398,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
 
         self.assertEqual(report["action_count"], 1663)
         self.assertEqual(report["reachable_item_count"], 2301)
-        self.assertEqual(
-            report["routes"].get("Living water"),
-            "quest-stage:druidic_ritual:2",
-        )
-        self.assertEqual(
-            report["routes"].get("Wandering wyrmwood"),
-            "quest-stage:druidic_ritual:3",
-        )
+        self.assertEqual(report["routes"].get("Living water"), "quest-stage:druidic_ritual:2")
+        self.assertEqual(report["routes"].get("Wandering wyrmwood"), "quest-stage:druidic_ritual:3")
         self.assertEqual(
             report["routes"].get("Stone fish"),
             "quest-stage:druidic_ritual:4",
@@ -1426,6 +1420,8 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["cascade_orphan_count"], 133)
         self.assertEqual(report["unresolved_action_count"], 252)
         self.assertEqual(report["seed_item_count"], 1215)
+        self.assertEqual(report["completable_quest_count"], 51)
+        self.assertIn("Use the rotten apple to sabotage the mourner food stores", report["earned_quest_action_proofs"])
         self.assertEqual(len(report["blocked_quest_stage_products"]), 139)
         blocked_quest_ids = {row["quest_id"] for row in report["blocked_quest_stage_products"]}
         self.assertEqual(

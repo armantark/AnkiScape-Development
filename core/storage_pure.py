@@ -92,9 +92,7 @@ from .constants import (
     WOODCUTTING_LOG_ITEMS,
 )
 from ..data.quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
-from ..data.stronghold_player_safety_data import (
-    STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
-)
+from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
 from ..data.runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
 from ..logic.wicked_hood_logic import (
     default_wicked_hood_state_pure,
@@ -106,6 +104,7 @@ from ..data.fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
 from ..data.hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
 from ..data.herblore_data import DEFAULT_HERBLORE_TARGET, HERBLORE_TARGETS_BY_ID
 from ..data.fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
+from ..logic_pure.quest_action_proofs import sanitize_quest_action_proofs_pure
 from ..logic_pure.logic_pure import (
     default_action_telemetry_pure,
     default_achievement_progress_pure,
@@ -361,9 +360,8 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-# Version 119 is reserved for the Pass 12 S4 Druidic Ritual rework migration
-# on its own branch; the promotion merge serializes S4 -> S5 numbering.
-CURRENT_CONFIG_VERSION = 121
+# Version 119 was reserved for the S4 Druidic Ritual branch before promotion serialized the numbering.
+CURRENT_CONFIG_VERSION = 122
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -710,6 +708,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["quest_combat_encounter_counts"] = {}
     data["quest_combat_active_encounters"] = default_quest_combat_active_encounters_pure()
     data["quest_stage_actions"] = {}
+    data["quest_action_proofs"] = []
     data["quest_route_states"] = {}
     data["pending_skill_exp_rewards"] = {}
     data["claims"] = default_claim_states()
@@ -1489,8 +1488,7 @@ def migrate_loaded_data(
     data = dict(loaded) if loaded else {}
 
     # Add config_version if missing
-    if "config_version" not in data:
-        data["config_version"] = 1
+    data.setdefault("config_version", 1)
     try:
         loaded_config_version = int(data.get("config_version", 1))
     except (TypeError, ValueError):
@@ -1551,6 +1549,7 @@ def migrate_loaded_data(
     _migrate_herblore_target(data)
     _migrate_quest_state(data)
     _migrate_quest_stage_side_state(data)
+    data["quest_action_proofs"] = sanitize_quest_action_proofs_pure(data.get("quest_action_proofs")) if loaded_config_version >= 122 else []
     _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)
     # v118 moves two guaranteed completion items behind later Bill Teach

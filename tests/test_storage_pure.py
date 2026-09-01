@@ -1372,7 +1372,7 @@ class TestStoragePure(unittest.TestCase):
         completed = migrated["achievement_diaries"]["completed_tasks"]
         self.assertTrue(dormant_ids.isdisjoint(completed))
         self.assertIn(real_deed_id, completed)
-        self.assertEqual(migrated["config_version"], 121)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(
             migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS),
             migrated,
@@ -1954,7 +1954,7 @@ class TestStoragePure(unittest.TestCase):
                     ITEM_DEFINITIONS,
                 )
 
-                self.assertEqual(migrated["config_version"], 121)
+                self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
                 self.assertNotIn(
                     "lamps_remaining", migrated["stronghold_player_safety"]
                 )

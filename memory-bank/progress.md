@@ -6967,3 +6967,15 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Re-measured 293 encounter rows: 91 lack resolver stats, 64 previously inherited an above-ceiling gate, and 24 are in both groups. The impossible union moves from 131 to 91, so this slice clears 40 encounters while leaving the stat-sourcing backlog unchanged.
 - Reachability remains 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215, with 139 blocked quest-stage rows and 51 completable quests. No pin moved because earlier required-action blockers still stop the affected branches before their combat rows.
 - Focused verification passes 64 tests. Source and measurement evidence are recorded in `source-audits/quest-combat-gate-fallback-2026-08-31.md`.
+
+## Shared global quest-action proofs — 2026-08-31
+
+- Added a durable, global, forward-only proof ledger and moved quest action gates off the quest-local stage-action ledger.
+- Added declarative proof rules for Do No Evil's M'amulet mould purchase, The Fremennik Isles' cure-and-stitch sequence, and Biohazard's cross-quest Mourner food sabotage.
+- Added config-122 migration coverage that rejects all telemetry, inventory, completed-quest, and local-stage backfill for old saves.
+- Added unit, pure-flow integration, real Shop/Crafting, Shop rollback, real review-answer, earned-proof reachability, and recursive production-writer ownership coverage.
+- Kept `core/storage_pure.py`, `logic/shop_logic.py`, `logic_pure/logic_pure_quest.py`, and `tools/audit_item_reachability.py` line-neutral or smaller. Mutation probes prove the rollback and audit tests fail without their fixes.
+- Re-measured unchanged reachability at 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked stage rows, and 51 completable quests.
+- Deliberately left eight unsupported hand-written actions and all 693 generated sentinels. No user interface changed.
+- Evidence: `source-audits/shared-quest-action-proofs-2026-08-31.md`.
+- Both complete lanes pass 4,596 tests: plain skips 515 and real offscreen Qt skips three.

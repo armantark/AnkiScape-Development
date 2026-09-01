@@ -6,6 +6,8 @@ import dataclasses
 
 from typing import Any, Callable, Optional
 
+from ..logic_pure.quest_action_proofs import record_runtime_quest_action_proofs_pure
+
 from ..core.constants import (
     BIRD_NEST_DROP_CHANCE,
     BIRD_NEST_DROP_TABLE,
@@ -643,6 +645,7 @@ def _record_action(
         output_items=progress_outputs,
     )
     if success:
+        record_runtime_quest_action_proofs_pure(ctx.player_data, skill_id, action_id)
         # Daily Challenges accrue from ordinary gameplay rather than from their
         # own action rows, so this shared post-outcome seam is where the
         # noticeboard watches the work happen.

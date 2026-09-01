@@ -4632,9 +4632,9 @@ class TestLogic(unittest.TestCase):
         }
         player_data["inventory"]["Bullseye lantern (empty)"] = 1
         player_data["inventory"]["Sapphire"] = 1
-        player_data["quest_stage_actions"] = {
-            "tears_of_guthix": ["Complete Tears of Guthix stage 2 objective"]
-        }
+        player_data["quest_action_proofs"] = [
+            "Complete Tears of Guthix stage 2 objective"
+        ]
 
         player_data, ok, completed_now = apply_quest_progress_pure(
             player_data,
@@ -4655,7 +4655,7 @@ class TestLogic(unittest.TestCase):
         )
 
         player_data["inventory"]["Sapphire lantern (lit)"] = 1
-        player_data["quest_stage_actions"]["tears_of_guthix"].append(
+        player_data["quest_action_proofs"].append(
             "Complete Tears of Guthix stage 3 objective"
         )
         player_data, ok, completed_now = apply_quest_progress_pure(
@@ -5942,7 +5942,7 @@ class TestLogic(unittest.TestCase):
                 )
                 self.assertTrue(ok)
 
-                actions = player_data.setdefault("quest_stage_actions", {}).setdefault(quest_id, [])
+                actions = player_data["quest_action_proofs"]
                 actions.append("Complete Hazeel Cult stage 1 objective")
                 player_data, ok, completed_now = apply_quest_progress_pure(
                     player_data,
@@ -5952,7 +5952,7 @@ class TestLogic(unittest.TestCase):
                 self.assertTrue(ok)
                 self.assertFalse(completed_now)
 
-                actions = player_data.setdefault("quest_stage_actions", {}).setdefault(quest_id, [])
+                actions = player_data["quest_action_proofs"]
                 actions.append("Complete Hazeel Cult stage 2 objective")
                 if route_id == "Side with Ceril Carnillean":
                     player_data.update(
@@ -5985,7 +5985,7 @@ class TestLogic(unittest.TestCase):
                 if route_id == "Side with Ceril Carnillean":
                     self.assertEqual(player_data["inventory"]["Carnillean armour"], 2)
 
-                actions = player_data.setdefault("quest_stage_actions", {}).setdefault(quest_id, [])
+                actions = player_data["quest_action_proofs"]
                 actions.append("Complete Hazeel Cult stage 3 objective")
                 player_data, ok, completed_now = apply_quest_progress_pure(
                     player_data,
@@ -7519,7 +7519,7 @@ class TestLogic(unittest.TestCase):
 
         player_data["inventory"]["Cake"] = 1
         player_data["inventory"]["Rope"] = 1
-        player_data["quest_stage_actions"] = {"proof_quest": ["Mine blurite ore"]}
+        player_data["quest_action_proofs"] = ["Mine blurite ore"]
         player_data["quest_route_states"] = {"proof_quest": ["Reach Thurgo's cave"]}
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)

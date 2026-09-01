@@ -251,7 +251,7 @@ def _complete_quest_for_reward(player, quest_id):
         ),
         {},
     )
-    player["quest_stage_actions"][quest_id] = list(
+    player.setdefault("quest_action_proofs", []).extend(
         final_requirement.get("required_actions", ())
     )
     player, ok, completed = apply_quest_progress_pure(player, quest_id, QUEST_DATA)

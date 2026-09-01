@@ -6,10 +6,7 @@ from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
-from ..logic.treasure_trails_logic import (
-    clue_refusal_reason_pure,
-    filter_clue_scroll_outputs_pure,
-)
+from ..logic.treasure_trails_logic import clue_refusal_reason_pure, filter_clue_scroll_outputs_pure
 
 from ..data.combat_data import (
     COMBAT_ATTACK_STYLE_DATA,
@@ -103,6 +100,7 @@ from .logic_pure_state import (
     quest_state_pure,
     sanitize_quest_combat_active_encounters_pure,
 )
+from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
 
 
 QUEST_COMBAT_CONFIG_VERSION = 1
@@ -316,6 +314,7 @@ def _mark_quest_stage_actions(data, quest_id, action_ids):
             completed.append(action_id)
             seen.add(action_id)
     raw_collection[quest_id] = completed
+    record_quest_stage_action_proofs_pure(data, quest_id, actions)
 
 
 _QUEST_ROUTE_INHERITANCE = {
@@ -837,7 +836,7 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
             )
 
     for action_id in _quest_stage_strings(requirement, "required_actions"):
-        if not _quest_flag_completed(player_data, "quest_stage_actions", quest_id, action_id):
+        if not quest_action_proof_completed_pure(player_data, action_id):
             blockers.append(
                 _quest_blocker(
                     stage,

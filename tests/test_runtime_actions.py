@@ -3464,7 +3464,7 @@ class TestRuntimeActions(unittest.TestCase):
         final_requirement = next(
             row for row in quest["stage_requirements"] if row["stage"] == final_stage
         )
-        player_data["quest_stage_actions"][quest_id] = list(
+        player_data["quest_action_proofs"] = list(
             final_requirement["required_actions"]
         )
         calls = {"xp": [], "saves": 0, "errors": []}
@@ -3501,7 +3501,7 @@ class TestRuntimeActions(unittest.TestCase):
             for row in quest["stage_requirements"]
             if row["stage"] == final_stage
         )
-        player_data["quest_stage_actions"][quest_id] = list(
+        player_data["quest_action_proofs"] = list(
             final_requirement["required_actions"]
         )
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
@@ -3544,7 +3544,7 @@ class TestRuntimeActions(unittest.TestCase):
             "progress": final_stage,
             "completed": False,
         }
-        player_data["quest_stage_actions"][quest_id] = list(
+        player_data["quest_action_proofs"] = list(
             final_requirement["required_actions"]
         )
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
@@ -3707,9 +3707,8 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {"Bullseye lantern (empty)": 1, "Sapphire": 1},
             "current_quest": "tears_of_guthix",
             "quests": {"tears_of_guthix": {"started": True, "progress": 2, "completed": False}},
-            "quest_stage_actions": {
-                "tears_of_guthix": ["Complete Tears of Guthix stage 2 objective"]
-            },
+            "quest_action_proofs": ["Complete Tears of Guthix stage 2 objective"],
+            "quest_stage_actions": {},
             "quest_points": 0,
             "crafting_exp": 0,
             "pending_skill_exp_rewards": {},
@@ -3728,7 +3727,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertIn("Needs Sapphire lantern (lit) x1", calls["errors"][-1][1])
 
         player_data["inventory"]["Sapphire lantern (lit)"] = 1
-        player_data["quest_stage_actions"]["tears_of_guthix"].append(
+        player_data["quest_action_proofs"].append(
             "Complete Tears of Guthix stage 3 objective"
         )
         self.assertTrue(handle_quest_answer(_context(player_data, calls)))

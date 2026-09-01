@@ -2,6 +2,8 @@
 
 from typing import Iterable, Mapping, Optional
 
+from .quest_action_proofs import sanitize_quest_action_proofs_pure
+
 from ..data.potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
 
 from ..data.combat_data import (
@@ -327,6 +329,7 @@ def _copy_player_data_with_nested(player_data):
         player_data.get("quest_combat_active_encounters")
     )
     copied["quest_stage_actions"] = _copy_quest_side_state("quest_stage_actions")
+    copied["quest_action_proofs"] = sanitize_quest_action_proofs_pure(player_data.get("quest_action_proofs"))
     copied["quest_route_states"] = _copy_quest_side_state("quest_route_states")
     copied["combat_encounter"] = dict(player_data.get("combat_encounter", {}) or {})
     copied["combat_kill_counts"] = dict(player_data.get("combat_kill_counts", {}) or {})

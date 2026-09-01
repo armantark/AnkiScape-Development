@@ -5989,3 +5989,13 @@ the obsolete percent key is no longer touched.
 - Current fixed-point reachability remains 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked quest-stage rows, and 51 completable quests. Earlier action blockers mask the combat change in this immediate report, so no pin moved.
 - Focused combat and reachability coverage passes 64 tests, including a real review-answer defeat of the formerly impossible Sea Troll Queen.
 - Evidence: `source-audits/quest-combat-gate-fallback-2026-08-31.md`.
+
+## Shared global quest-action proofs — 2026-08-31
+
+- Config version 122 adds the sorted `quest_action_proofs` ledger. Every pre-122 save starts with an empty ledger; telemetry, inventory, completed quests, and `quest_stage_actions` do not backfill it. Repeatable Shop and Crafting actions can earn proofs afterward, but an already-passed one-time Biohazard cauldron stage is not replayed.
+- Quest `required_actions` now read global proofs. A proof earned while another quest is current can satisfy the matching gate. Rolling back a Shop event retracts the proof that event emitted.
+- Three hand-written actions are wired through genuine paths: Hamab's M'amulet mould purchase for Do No Evil, Thakkrad cure plus successful Yak-hide Crafting for The Fremennik Isles, and Biohazard's cauldron action for Mourning's End Part I.
+- The other eight hand-written actions remain unwired because their exact mechanics are absent or a generic substitute would not match the source. All 693 generated stage-objective sentinels remain separate source work.
+- The proof-aware reachability closure requires the exact bound action or item source and exposes its earned global proof set. The Biohazard-to-Mourning's End proof is pinned. All seven graph pins remain 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215; blocked stage rows remain 139 and completable quests remain 51.
+- No user interface changed. Evidence: `source-audits/shared-quest-action-proofs-2026-08-31.md`.
+- Both complete lanes pass 4,596 tests: plain skips 515 and real offscreen Qt skips three.

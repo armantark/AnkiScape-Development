@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Audit whether live AnkiScape action inputs have an acquisition route.
 
-This is deliberately a reachability audit, not a claim that every route has
-full historical fidelity. It treats live shops, Combat drops, quest-granted
-items and rewards, gathering outputs, and zero-input actions as source nodes,
-then closes over the current action graph. The JSON output is stable enough for
-tests and later completion-audit tooling.
+This reachability audit is not a claim that every route has historical fidelity.
+It treats live shops, Combat drops, quest items, gathering outputs, and
+zero-input actions as source nodes, then closes over the action graph.
+The JSON output supports tests and later completion audits.
 """
 
 from __future__ import annotations
@@ -222,6 +221,8 @@ def _combat_drop_gate_reachable(
 
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.quest_action_proofs import quest_action_proofs_after_stage_actions_pure
+from ankiscape.tools import quest_action_proof_reachability
 
 
 def _close_actions(
@@ -488,6 +489,8 @@ def _quest_stage_sources(
     eligible_quests: set[str] | None = None,
     combat_encounter_satisfiable: Callable[[Mapping[str, Any]], bool] | None = None,
     quest_progress_out: dict[str, int] | None = None,
+    available_action_proofs: Iterable[str] = (),
+    earned_action_proofs_out: set[str] | None = None,
 ) -> tuple[dict[str, set[str]], list[dict[str, Any]], set[str]]:
     sources: dict[str, set[str]] = defaultdict(set)
     blocked: list[dict[str, Any]] = []
@@ -497,6 +500,9 @@ def _quest_stage_sources(
     repeatable_items = set(repeatable_items or ())
     finite_item_counts = dict(finite_item_counts or {})
     selected_variants = dict(selected_variants or {})
+    eligible_quests = set(quest_data) if eligible_quests is None else eligible_quests
+    earned_action_proofs_out = set() if earned_action_proofs_out is None else earned_action_proofs_out
+    available_action_proofs = set(available_action_proofs)
     available_base_counts = {
         item: max(1, finite_item_counts.get(item, 1))
         for item in reachable_items
@@ -556,7 +562,7 @@ def _quest_stage_sources(
             available_counts = dict(available_base_counts)
             for item_name, amount in _item_counts(quest.get("start_inventory")).items():
                 available_counts[item_name] = available_counts.get(item_name, 0) + amount
-            emitted_actions: set[str] = set()
+            emitted_actions: set[str] = set(available_action_proofs)
             available_routes: set[str] = set()
             selected_routes = branch_routes[variant]
             branch_sources: dict[str, set[str]] = defaultdict(set)
@@ -650,12 +656,6 @@ def _quest_stage_sources(
                         first_blocked_without_products = diagnostic
                     branch_blocked = True
                     break
-                if eligible_quests is None or quest_id in eligible_quests:
-                    for item in products:
-                        branch_sources[item].add(f"quest-stage:{quest_id}:{stage_id}")
-                    for encounter_id, items in combat_products.items():
-                        for item in items:
-                            branch_sources[item].add(f"quest-combat:{quest_id}:{encounter_id}")
                 for stage in stage_rows:
                     for item_name, amount in _item_counts(stage.get("consumed_inventory")).items():
                         if item_name not in repeatable_items:
@@ -668,7 +668,14 @@ def _quest_stage_sources(
                                 break
                     for item_name, amount in _item_counts(stage.get("produced_inventory")).items():
                         available_counts[item_name] = available_counts.get(item_name, 0) + amount
-                    emitted_actions.update(_names(stage.get("auto_actions")))
+                    emitted_actions = set(quest_action_proofs_after_stage_actions_pure(emitted_actions, quest_id, _names(stage.get("auto_actions"))))
+                if quest_id in eligible_quests:
+                    earned_action_proofs_out.update(emitted_actions - available_action_proofs)
+                    for item in products:
+                        branch_sources[item].add(f"quest-stage:{quest_id}:{stage_id}")
+                    for encounter_id, items in combat_products.items():
+                        for item in items:
+                            branch_sources[item].add(f"quest-combat:{quest_id}:{encounter_id}")
                 for items in combat_products_all.values():
                     for item_name in items:
                         available_counts[item_name] = available_counts.get(item_name, 0) + 1
@@ -677,9 +684,7 @@ def _quest_stage_sources(
                 completed_branch_source_sets.append(branch_sources)
             branch_source_sets.append(branch_sources)
             branch_progresses.append(branch_progress)
-        if quest_progress_out is not None and (
-            eligible_quests is None or quest_id in eligible_quests
-        ):
+        if quest_progress_out is not None and quest_id in eligible_quests:
             quest_progress_out[quest_id] = max(branch_progresses, default=0)
         if quest_completable:
             action_completable.add(quest_id)
@@ -711,7 +716,7 @@ def _close_quest_reachability(
     conditional_seed_sources: Iterable[Mapping[str, Any]] = (),
     scenario_sources_out: list[dict[str, set[str]]] | None = None,
     scenario_action_ids_out: list[set[str]] | None = None,
-) -> tuple[list[dict[str, Any]], set[str], set[str]]:
+) -> tuple[list[dict[str, Any]], set[str], set[str], set[str]]:
     variant_ids = {
         quest_id: tuple(sorted({
             str(row.get("variant") or "")
@@ -736,25 +741,15 @@ def _close_quest_reachability(
         scenario_repeatable_seed_items = set(repeatable_seed_items)
         active_conditional_sources: set[str] = set()
         active_action_ids: set[str] = set()
-        previous_state: tuple[
-            frozenset[str],
-            frozenset[str],
-            frozenset[str],
-            frozenset[tuple[str, int]],
-            frozenset[str],
-            frozenset[str],
-            frozenset[tuple[str, int]],
-        ] | None = None
+        scenario_action_proofs: set[str] = set()
+        previous_state = None
         blocked: list[dict[str, Any]] = []
         completable: set[str] = set()
         startable: set[str] = set()
         claim_item_counts: dict[str, int] = {}
         while True:
-            reachable_items, route, _unresolved = _close_actions(
-                actions,
-                scenario_sources,
-                active_action_ids=active_action_ids,
-            )
+            reachable_items, route, scenario_action_proofs = quest_action_proof_reachability.close_actions_with_quest_proofs(
+                _close_actions, actions, scenario_sources, active_action_ids, scenario_action_proofs)
             repeatable_items = scenario_repeatable_seed_items | {
                 item_name
                 for item_name, source in route.items()
@@ -774,6 +769,7 @@ def _close_quest_reachability(
                 selected_variants=selected_variants,
                 eligible_quests=set(),
                 combat_encounter_satisfiable=combat_encounter_satisfiable,
+                available_action_proofs=scenario_action_proofs,
             )
             completable, startable = _quest_completion_sets(quest_data, stage_completable)
             quest_progress: dict[str, int] = {}
@@ -787,6 +783,7 @@ def _close_quest_reachability(
                 eligible_quests=startable,
                 combat_encounter_satisfiable=combat_encounter_satisfiable,
                 quest_progress_out=quest_progress,
+                available_action_proofs=scenario_action_proofs, earned_action_proofs_out=scenario_action_proofs,
             )
             for quest_id in completable:
                 quest = quest_data[quest_id]
@@ -845,6 +842,7 @@ def _close_quest_reachability(
                 frozenset(next_claim_item_counts.items()),
                 frozenset(active_conditional_sources),
                 frozenset(active_action_ids),
+                frozenset(scenario_action_proofs),
                 frozenset(quest_progress.items()),
             )
             claim_item_counts = next_claim_item_counts
@@ -856,6 +854,7 @@ def _close_quest_reachability(
                         completable,
                         startable,
                         active_action_ids,
+                        set(scenario_action_proofs),
                     )
                 )
                 break
@@ -864,39 +863,39 @@ def _close_quest_reachability(
     if scenario_sources_out is not None:
         scenario_sources_out.extend(
             {item: set(item_sources) for item, item_sources in sources.items()}
-            for sources, _blocked, _complete, _startable, _actions in scenario_results
+            for sources, _blocked, _complete, _startable, _actions, _proofs in scenario_results
         )
     if scenario_action_ids_out is not None:
         scenario_action_ids_out.extend(
             set(active_action_ids)
-            for _sources, _blocked, _complete, _startable, active_action_ids in scenario_results
+            for _sources, _blocked, _complete, _startable, active_action_ids, _proofs in scenario_results
         )
     reachable_items = set.union(
         *(
             set(sources)
-            for sources, _blocked, _complete, _startable, _actions in scenario_results
+            for sources, _blocked, _complete, _startable, _actions, _proofs in scenario_results
         )
     )
     for item in reachable_items:
         seed_sources.setdefault(item, set()).update(
             source
-            for sources, _blocked, _complete, _startable, _actions in scenario_results
+            for sources, _blocked, _complete, _startable, _actions, _proofs in scenario_results
             for source in sources.get(item, ())
         )
     completable = set.union(
         *(
             set(complete)
-            for _sources, _blocked, complete, _startable, _actions in scenario_results
+            for _sources, _blocked, complete, _startable, _actions, _proofs in scenario_results
         )
     )
     startable = set.union(
         *(
             set(startable)
-            for _sources, _blocked, _complete, startable, _actions in scenario_results
+            for _sources, _blocked, _complete, startable, _actions, _proofs in scenario_results
         )
     )
     blocked_by_key = {}
-    for _sources, rows, _complete, _startable, _actions in scenario_results:
+    for _sources, rows, _complete, _startable, _actions, _proofs in scenario_results:
         for row in rows:
             key = _blocked_diagnostic_key(row)
             blocked_by_key.setdefault(key, row)
@@ -904,7 +903,7 @@ def _close_quest_reachability(
         blocked_by_key.values(),
         key=lambda row: (row["quest_id"], int(row["stage"]) if str(row["stage"]).isdigit() else 0, row["variant"]),
     )
-    return blocked, completable, startable
+    return blocked, completable, startable, quest_action_proof_reachability.merged_scenario_action_proofs(scenario_results)
 
 
 def _required_quest_ids(quest: Mapping[str, Any]) -> set[str]:
@@ -1942,7 +1941,7 @@ def build_reachability_report() -> dict[str, Any]:
 
     scenario_sources: list[dict[str, set[str]]] = []
     scenario_action_ids: list[set[str]] = []
-    blocked_quest_stage_products, completable_quests, startable_quests = (
+    blocked_quest_stage_products, completable_quests, startable_quests, earned_quest_action_proofs = (
         _close_quest_reachability(
             actions,
             seed_sources,
@@ -2017,8 +2016,6 @@ def build_reachability_report() -> dict[str, Any]:
                 "outputs": sorted(action["outputs"]),
             }
         )
-    # Root leverage remains an optimistic quantity-free diagnostic. Branch-local
-    # conjunction truth is preserved in the primary reachable/unresolved figures.
     root_orphan_leverage = _rank_root_orphans(
         root_orphans,
         actions,
@@ -2049,6 +2046,8 @@ def build_reachability_report() -> dict[str, Any]:
         ],
         "root_orphan_leverage": root_orphan_leverage,
         "blocked_quest_stage_products": blocked_quest_stage_products,
+        "completable_quest_count": len(completable_quests),
+        "earned_quest_action_proofs": sorted(earned_quest_action_proofs),
         "unresolved_actions": sorted(unresolved_actions, key=lambda row: row["id"]),
         "routes": {item: route[item] for item in sorted(route)},
     }
