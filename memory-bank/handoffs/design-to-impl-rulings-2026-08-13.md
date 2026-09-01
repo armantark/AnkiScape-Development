@@ -1622,3 +1622,56 @@ Doorbell before dispatch for every remaining quest unit, and ask two questions: 
 hold a harvest, and do you claim the unit. Start from their dossier where one exists.
 A late doorbell is better than none, but it does not prevent the duplication it exists
 to prevent.
+
+## 20. Two leads and one design limit from the Zogre slice — 2026-09-01
+
+The Zogre Flesh Eaters slice landed as `0c0c20e2`: six sentinels cleared, completable
+quests 51 to 52, reachable items 2301 to 2302, blocked stage rows 139 to 138. Nine
+defects were caught in review before it landed, and the two that mattered came from the
+Darkan thread's frozen contract rather than from our own reading.
+
+### 20.1 Quest-combat drops can grant items the item graph does not know
+
+The slice implements sourced boss drops, but two of them are not registered items. I
+verified against `ITEM_DEFINITIONS`:
+
+```
+'Ruined backpack'      in registry: False
+'Ogre artefact'        in registry: False
+'Ogre gate key'        in registry: False
+'Torn page'            in registry: False
+'Strange potion'       in registry: False
+'Black prism'          in registry: True
+```
+
+So the runtime grants `Ruined backpack` and `Ogre artefact` through the real combat flow
+while the reachability audit cannot credit either, because neither exists in the graph.
+That is the inverse of the Vinesweeper gap in section 14: there the audit could not see a
+producer, here it cannot see the product.
+
+This is a small, bounded slice: register the quest-local identities the stage actions
+already name. The full list from the Zogre pass is `Ruined backpack`, `Ogre artefact`,
+`Ogre gate key`, `Torn page`, `Dragon inn tankard`, `Poor portrait`, `Accurate portrait`,
+`Signed portrait`, `Book of portraiture`, `Book of 'h.a.m'`, `Strange potion` and
+`Necromancy book`. Check each against the frozen contract before registering; do not
+invent identities for narrative props that were never items.
+
+### 20.2 A design limit in the stage system, worth the owner's attention
+
+The frozen contract consumes `Ogre artefact` during completion. The current stage system
+treats `consumed_inventory` as a PRE-combat blocker, so modelling that consumption on the
+same stage as the Slash Bash fight would block the player from starting the fight with
+`Needs Ogre artefact x1` — the item the fight itself drops.
+
+The slice therefore implements the drop and leaves the hand-off unmodelled. That is the
+right call for one slice, but the limitation is general: any quest whose final stage both
+wins an item and spends it cannot currently be modelled faithfully. Fixing it means
+either ordering consumption after combat within a stage, or splitting such stages. Both
+are shared-substrate changes and neither is settled.
+
+### 20.3 A start-gate discrepancy carried forward
+
+The frozen contract's start requirements differ from AnkiScape's generated start gates
+for this quest. The slice did not reconcile them, correctly, since that is a shared quest
+schema question rather than a stage repair. It stays open and applies to more than one
+quest.
