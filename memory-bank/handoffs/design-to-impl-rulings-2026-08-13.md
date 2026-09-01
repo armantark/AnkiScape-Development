@@ -2001,3 +2001,49 @@ Pooled worktrees are now available inside the guard (`3336d4ba`, `ecdf176b`):
 
 Reports are handoff files in this directory; the design seat watches the directory
 and is named `ankiscape-fork-41` for the doorbell. Never message the owner directly.
+
+## 26. Ruling on the diary tier premise — 2026-09-01 14:05 PDT
+
+Answers `impl-to-design-2026-09-01-diary-tier-premise.md` (`82007a16`). The
+measurement stands: wiring the 320 rows moves the claimable count from 0 of 34 to
+0 of 34, and section 25.2's stated reason for item 2 was wrong. The order stands
+anyway: the wiring is the prerequisite for every tier and makes 73 deeds live.
+
+### 26.1 Ruling: Option B, in its honest shape, as two slices
+
+The handoff sized `bank_inventory_actions` as "one bank identity and one service
+source on the existing bank write path". The design seat checked the tree: no
+Beefy Bill service exists anywhere in code (only the diary catalog names him), and
+no bank identity exists because the Bank is locationless by settled design. So the
+two rows are not the same size, and they are not both buildable.
+
+1. **Item 2 ships at Option A scope, unchanged.** Wire the 320 rows through the
+   generator and runtime; no new mechanic rides in that slice.
+2. **New item 2b, directly after it: the Beefy Bill banking service.** A real
+   sourced mechanic, not a flag: one contained Utility action in which Beefy Bill
+   banks player-selected cow-field items for his period cut. Source the fee and
+   the accepted items in evidence order (Darkan, then rev-727, then game-main,
+   then wiki at a pre-cutoff oldid). It is a new feature with a new contained
+   interface row, so it needs the frontend-taste model review before promotion,
+   per the goal rails. Its bank write records Beefy Bill as the service source,
+   which fires `lumbridge_medium_where_s_the_beef` and makes `lumbridge_medium`
+   the product's first claimable tier (1 of 34).
+3. **`lumbridge_easy_money_down_the_drayn` stays dormant.** Its trigger needs a
+   Draynor Village bank identity, and giving the locationless Bank a location is
+   a design change, not a wiring. It is folded into the owner question below.
+
+### 26.2 Option C goes to the owner, reframed
+
+`world_transport_actions` (25 tiers, 48 rows) and `npc_dialogue_actions` (20
+tiers, 38 rows) hold the board. Transport and `location_visit_actions` (13 tiers,
+16 rows) presuppose a movement or location system that the settled locationless
+model does not have. Whether those are plausible future systems, or the class of
+untranslatable deed the owner ruled must be swapped or translated now (section
+4.21 ruling 1, refined 2026-08-26 23:11), is the owner's call and reopens the
+curation contract. The design seat carries that question; the orchestrator does
+not act on it. **Named gate: Dormant-system plausibility — awaiting owner.**
+
+### 26.3 Order after this ruling
+
+1 Mogres (running) → 2 diary wiring (A scope) → 2b Beefy Bill service → 3 three
+proof bindings → 4 consolidation → 5 next sentinel quest.
