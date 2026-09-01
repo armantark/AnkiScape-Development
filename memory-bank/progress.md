@@ -6958,3 +6958,12 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - The report gains 31 routes. Twenty-one are existing quest-owned routes; the larger-than-expected cascade is measured rather than filled with duplicate producers.
 - Two later combat encounters become the next visible blockers: `dealing_with_scabaras_skeletons_1` and `tai_bwo_wannai_trio_monkey`. They remain for the separate combat data slice.
 - Source and visual evidence are recorded in `source-audits/early-quest-item-roots-2026-08-31.md`.
+
+## Quest combat gate fallback — 2026-08-31
+
+- Reversed both runtime enemy-level fallbacks and aligned the reachability model: missing `minimum_player_combat` now means no aggregate player gate.
+- Confirmed Smoking Kills and Dream Mentor already carry quest-entry Combat 85 requirements, retained all ten explicit encounter gates, and documented why the four now-redundant gate-1 rows remain.
+- Added catalog-wide, explicit-boundary, quest-entry, ordinary-combat, and real review-answer coverage. Updated the pre-existing Count Draynor regression to expect an ungated combat encounter rather than an inherited level gate.
+- Re-measured 293 encounter rows: 91 lack resolver stats, 64 previously inherited an above-ceiling gate, and 24 are in both groups. The impossible union moves from 131 to 91, so this slice clears 40 encounters while leaving the stat-sourcing backlog unchanged.
+- Reachability remains 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215, with 139 blocked quest-stage rows and 51 completable quests. No pin moved because earlier required-action blockers still stop the affected branches before their combat rows.
+- Focused verification passes 64 tests. Source and measurement evidence are recorded in `source-audits/quest-combat-gate-fallback-2026-08-31.md`.

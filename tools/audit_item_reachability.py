@@ -1282,7 +1282,7 @@ def build_reachability_report() -> dict[str, Any]:
 
     def quest_combat_source_satisfiable(encounter: Mapping[str, Any]) -> bool:
         configs = encounter.get("npc_configs", {}) or {}
-        minimum_combat = int(configs.get("minimum_player_combat", encounter.get("level", 0)) or 0)
+        minimum_combat = int(configs.get("minimum_player_combat", 0) or 0)
         # Model the runtime with battle support enabled and a normal maxed player.
         return (
             quest_combat_encounter_has_stats_pure(encounter)

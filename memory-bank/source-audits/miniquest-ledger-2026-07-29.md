@@ -98,12 +98,14 @@ then a ghost form with the same level and life points but melee only; that is
 the same shape as Shilo Village's three-form Nazastarool, so it ships as two
 ordered encounters rather than one.
 
-**No invented player-combat gate.** `minimum_player_combat` is set to 1 on all
-three encounters. The engine otherwise gates an encounter on the enemy's own
-level, and a level-267 gate is unreachable — the pre-EOC ceiling is 138. The
-period states no combat requirement for either fight: Bork's own Slayer
-requirement is level 1, and Tarn's sourced gate is Slayer 40, which is already
-a quest requirement. Adding a combat gate would have been an invention.
+**No invented player-combat gate.** `minimum_player_combat` remains set to 1 on
+all three encounters. The values are redundant after the 2026-08-31 owner ruling
+made a missing field mean no aggregate player-combat gate, but retaining them is
+harmless and preserves the sourced record that these fights intentionally have
+no such threshold. The period states no combat requirement for either fight:
+Bork's own Slayer requirement is level 1, and Tarn's sourced gate is Slayer 40,
+which is already a quest requirement. Adding a combat gate would be an
+invention.
 
 **Bork's core stats use the settled 72% conversion.** Darkan's Bork row is a
 `nostats` file with zeroed combat levels. Copying his composite combat level

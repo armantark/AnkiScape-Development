@@ -146,10 +146,18 @@ into that battle, and states the abstraction in both journal and combat text.
 Hidden combat stats use a labeled level-based adapter.
 
 The quest's sourced player requirement is Combat 85 even though its enemies are
-levels 90 and 111. A new optional `minimum_player_combat` encounter configuration
-separates the historical NPC level shown to the player from the sourced player
-gate. Existing quest encounters retain their prior enemy-level gate unless they
-opt into this field.
+levels 90 and 111. The quest-level `required_skills` row and the explicit
+`minimum_player_combat` encounter configurations both preserve that sourced
+threshold.
+
+**Superseded 2026-08-31.** Formerly:
+
+> Existing quest encounters retain their prior enemy-level gate unless they opt into this field.
+
+This is reversed by the owner's ruling in `memory-bank/design-thread-queue.md`
+section 4.22 item 1. An encounter without an explicit
+`minimum_player_combat` now has no aggregate player-combat gate; it does not
+inherit the enemy's level.
 
 ## Rewards and Slayer boundary
 

@@ -687,10 +687,8 @@ def quest_combat_encounter_ready_pure(player_data, encounter):
         return False, "combat_locked"
     if not quest_combat_encounter_has_stats_pure(encounter):
         return False, "combat_missing_stats"
-    encounter_level = _positive_int(encounter.get("level", 0), 0)
     minimum_player_combat = _positive_int(
-        _quest_combat_configs(encounter).get("minimum_player_combat", encounter_level),
-        encounter_level,
+        _quest_combat_configs(encounter).get("minimum_player_combat", 0), 0
     )
     player_level = player_combat_level_pure(player_data)
     if minimum_player_combat > 0 and player_level < minimum_player_combat:
@@ -910,8 +908,7 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
             continue
         player_level = player_combat_level_pure(player_data)
         minimum_player_combat = _positive_int(
-            _quest_combat_configs(encounter).get("minimum_player_combat", level),
-            level,
+            _quest_combat_configs(encounter).get("minimum_player_combat", 0), 0
         )
         if minimum_player_combat > 0 and player_level < minimum_player_combat:
             blockers.append(

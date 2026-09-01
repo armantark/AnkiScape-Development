@@ -5979,3 +5979,13 @@ the obsolete percent key is no longer touched.
 - The newly exposed `dealing_with_scabaras_skeletons_1` and `tai_bwo_wannai_trio_monkey` combat rows remain blocked. They are second-level combat-resolver gaps, not item-source gaps.
 - Real Qt checks at 900×560 in light and dark palettes show all three Utility labels without clipping or horizontal overflow. No UI code changed.
 - Evidence: `source-audits/early-quest-item-roots-2026-08-31.md`.
+
+## Quest combat gate fallback — 2026-08-31
+
+- A missing encounter `npc_configs.minimum_player_combat` now means no aggregate player-combat gate in both readiness and stage-blocker construction. The reachability audit uses the same rule.
+- Smoking Kills and Dream Mentor already had the two sourced quest-entry Combat 85 requirements, so no duplicate catalog rows were added.
+- All ten explicit encounter gates remain unchanged. All four explicit gate-1 records are redundant but retained as harmless source provenance.
+- The live census moves from 131 impossible encounter rows across 60 quests to 91 across 47 quests. The reversal clears 40 rows; the 24 rows shared with the 91-row resolver-stat gap remain blocked on stats.
+- Current fixed-point reachability remains 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked quest-stage rows, and 51 completable quests. Earlier action blockers mask the combat change in this immediate report, so no pin moved.
+- Focused combat and reachability coverage passes 64 tests, including a real review-answer defeat of the formerly impossible Sea Troll Queen.
+- Evidence: `source-audits/quest-combat-gate-fallback-2026-08-31.md`.

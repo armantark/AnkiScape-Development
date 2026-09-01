@@ -8657,8 +8657,8 @@ class TestLogic(unittest.TestCase):
             "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
         }
         blockers = quest_current_stage_blockers_pure(low_level, "proof_quest", quest_data)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_underpowered",))
-        self.assertFalse(can_attempt_quest_review_pure(low_level, "proof_quest", quest_data))
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertTrue(can_attempt_quest_review_pure(low_level, "proof_quest", quest_data))
 
         ready = dict(low_level)
         ready.update(
