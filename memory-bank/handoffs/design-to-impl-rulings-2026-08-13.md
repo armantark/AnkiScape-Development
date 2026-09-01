@@ -1498,3 +1498,79 @@ It is not dispatched because it needs code review and no cross-lineage reviewer 
 available. The Anthropic block returns at approximately `+7h27m` from `2026-08-31 12:32`.
 That is a quota block with exact evidence, and the work is ready to start the moment it
 lifts.
+
+## 18. The proof bridge works, and it reaches 11 of 702 predicates — 2026-08-31
+
+The owner's ruling 4.22 item 4 approved one shared quest-proof mechanism, then "wire
+quests to it as ordinary data work". The mechanism is built and the global claim is real.
+The wiring estimate is wrong by roughly two orders of magnitude, and that correction
+matters more than the code.
+
+### 18.1 The measurement
+
+Counted distinct strings on `35b912a0`, not references:
+
+```
+distinct required_actions: 702 | generated: 691 | substantive: 11
+```
+
+Earlier ledger sections said 704 and 693. Both are right; they counted references while
+this counts distinct strings. Use 702 and 691 for planning, because a predicate satisfied
+once is satisfied everywhere now that proofs are global.
+
+**Only the 11 substantive strings are reachable by data wiring.** The 691 generated
+sentinels cannot be, and a reviewer proved the deadlock directly with a synthetic quest
+whose `required_actions` and `auto_actions` are the same string on one stage:
+
+```
+attempt 1: progressed=False proofs=[] blockers=['required_action']
+attempt 2: progressed=False proofs=[] blockers=['required_action']
+attempt 3: progressed=False proofs=[] blockers=['required_action']
+```
+
+The only quest-side emitter is `auto_actions`, and `_consume_quest_current_stage_items`
+at `logic_pure/logic_pure_quest.py:1324-1330` fires it only once a stage has no blockers.
+A stage blocked by its own sentinel can therefore never emit that sentinel. No proof
+mechanism can break that loop.
+
+So each of the 691 needs a real mechanic invented, or the sentinel deleted from the
+generated catalog. Neither is data work. The census in section 16.6 measured leverage by
+clearing all of them at once, which is why the ruling's `+33 completable quests` figure
+attaches to a programme rather than to this slice.
+
+### 18.2 An owner decision the ruling did not price
+
+Forward-only has a consequence the ruling did not consider. A one-time bridge locks out
+players who already passed it. Biohazard stage 7 fires once; a save that finished
+Biohazard can never earn `MOURNER_FOOD_STORES_PROOF`, so Mourning's End Part I stage 5
+becomes permanently unpassable for that player.
+
+Nobody is harmed today, because that stage also carries an unpassable sentinel. But this
+is not "no retroactive credit", it is a permanent dead end, and it recurs for every
+future one-time wiring. Options: accept it, add a one-time backfill for proofs whose
+source event is unrepeatable, or make such bridges repeatable. Recommend deciding before
+more one-time wirings land.
+
+### 18.3 Two follow-ups recorded rather than fixed
+
+`quest_stage_actions` is now dual-written with no gameplay reader. Its only non-test
+readers are defaults and migration bookkeeping at `core/storage_pure.py:710`, `:988` and
+`:1024`. Under clean-break the retired store should go, but roughly 200 assertions in
+`tests/test_logic.py` pin it, so it is its own slice.
+
+There is no proof-retraction path. `migrate_quest_action_proofs_pure` preserves or wipes
+wholesale. Because proofs are global and keyed by free-form English, a retired name later
+reused as another quest's requirement grants silent credit. The precedent to mirror is
+the Druidic Ritual retirement at `core/storage_pure.py:1024-1037`.
+
+### 18.4 What the review confirmed
+
+All four proof writers represent real work; nothing derives a proof from telemetry, a
+counter, item ownership, save loading or sanitisation. The cross-quest bridge is genuine:
+`test_real_review_action_satisfies_another_quests_global_requirement` answers a real
+review card on Biohazard, then asserts Mourning's End Part I no longer lists that
+blocker. Discarding old quest-local flags is safe, because the overlap between
+`required_actions` and `auto_actions` on the base commit is exactly 0, so no player could
+ever have legitimately passed such a stage. The audit gained a pinned
+`completable_quest_count` of 51 and folds proofs into its fixed point, and it never grants
+itself a proof a player could not earn.
