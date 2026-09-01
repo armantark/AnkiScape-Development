@@ -1574,3 +1574,51 @@ blocker. Discarding old quest-local flags is safe, because the overlap between
 ever have legitimately passed such a stage. The audit gained a pinned
 `completable_quest_count` of 51 and folds proofs into its fixed point, and it never grants
 itself a proof a player could not earn.
+
+## 19. The Darkan thread already holds the next three quests' harvests — 2026-09-01
+
+A doorbell answer settles the sourcing question for the whole remaining quest queue, and
+records one process failure of this seat.
+
+### 19.1 The failure
+
+The standing slice contract requires a claim-first doorbell to the other thread BEFORE
+any harvest of a dual-eligible cutoff quest, under the owner's ruling 4.22 item 2:
+whoever reaches a unit first works it, "just don't duplicate source harvesting". This
+seat dispatched the Zogre Flesh Eaters slice and rang afterwards.
+
+The duplication was real, not theoretical. The Darkan thread holds
+`zogre-flesh-eaters-final-preeoc-oldid-6441901.json`, the same revision the slice
+independently re-pinned. Ring before dispatching, not after.
+
+### 19.2 What they hold, verified by this seat
+
+All paths under `/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/`:
+
+| Quest | Frozen contract | Pinned sources |
+| --- | --- | ---: |
+| Zogre Flesh Eaters | `evidence/static/zogre-flesh-eaters-target-contract.json` | 14 files, `sources/zogre-*.json` |
+| Rum Deal | `evidence/static/rum-deal-target-contract.json` | 6 files, `sources/rum-deal-*.json` |
+| Cabin Fever | `evidence/static/cabin-fever-target-contract.json` | 3 files, `sources/cabin-fever-*.json` |
+
+Their Zogre row stands at PARTIAL with evidence E0/E1 dated 2026-07-09 and E2 dated
+2026-07-14. Rum Deal and Cabin Fever are both PARTIAL and contract-frozen. Their message
+is explicit: "there is nothing left to harvest for either".
+
+**So the next two quest slices harvest nothing.** They start from those dossiers. That
+removes the slowest part of a quest slice and should be stated in the brief.
+
+### 19.3 Ownership, which is not in dispute
+
+They own the Darkan-side audit unit; they recorded no claim on an AnkiScape-side stage
+unit, and this product's implementation is its own mirror. They also drew a distinction
+worth keeping: these three quests are implemented in the Darkan tree and inventoried
+there, unlike `skippy_and_the_mogres`, which is absent everywhere. Whether that changes
+what "dual-eligible" covers is the owner's to say, not either seat's, under their R25.
+
+### 19.4 The rule this seat now follows
+
+Doorbell before dispatch for every remaining quest unit, and ask two questions: do you
+hold a harvest, and do you claim the unit. Start from their dossier where one exists.
+A late doorbell is better than none, but it does not prevent the duplication it exists
+to prevent.
