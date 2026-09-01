@@ -2070,3 +2070,17 @@ after: 39 linked worktrees registered; safe root holds 40 directories (39 + pool
 Branch refs were not deleted. The class fix for the accumulation is the pooled
 lease/release path (sections 25.2 and the standing contract section 1): a slice
 that leases returns its tree, so one-shot trees stop piling up.
+
+### 27.1 Clarification: "one slice at a time" governs promotion, not authoring
+
+Section 25.2's "one slice at a time" means one slice through the promotion gate at
+a time. Authoring may run in parallel when the slices' code and data file sets are
+disjoint; memory-bank records overlap is resolved by the serial merge, as it was for
+the eight parallel Pass 12 slices. The owner's standing preference is tokens over
+wall-clock. So item 2 (diary wiring: generator and diary catalog) may run alongside
+item 1 (Mogres: quest, combat and Slayer data) now.
+
+Also for the record: the safe root holds 138 loose `gate-<sha>.log` and
+`gateplain-<sha>.log` promotion logs outside any worktree. They are evidence cited
+by ledger records and are not part of the section 27 sweep; the orchestrator does
+not touch them, and any archiving is a separate owner decision.
