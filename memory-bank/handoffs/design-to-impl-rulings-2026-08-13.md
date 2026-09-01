@@ -1948,3 +1948,56 @@ trouser repair.
 
 Items 2 through 4 are small enough to be one slice together, since all three are the same
 shape: bind an existing mechanic to a proof rule.
+
+## 25. Reseat and standing work order — 2026-09-01 13:50 PDT
+
+The design seat (session `ankiscape-fork-41`, Fable) reseated the orchestrator at
+13:50 PDT after the previous seat ended; the new seat is `Orchestrator [c79eb6]`,
+thread `4ec95e6a-4b6d-40db-8f86-e94f740c0cd2`. The record at `68364cae` is complete;
+nothing the previous seat held only in context is needed.
+
+### 25.1 What the previous seat left in flight
+
+Section 24.5 item 1 (Mogres) says "Dispatched", but the dispatch produced nothing:
+branch `goal/skippy-mogres-2026-09-01` sits at main's `4c2d5a33` with zero commits,
+and its worktree at `ankiscape_worktrees/skippy-mogres-2026-09-01` is clean (last
+touched 11:21 PDT). There is no author work to inherit. Redispatch it; the branch
+and worktree may be reused or released through the guard.
+
+### 25.2 Standing work order
+
+Execute the workable queue in this order, one slice at a time, under the standing
+slice contract and the promotion gate, without waiting for the owner between items:
+
+1. Mogres and `skippy_and_the_mogres` (section 24.5 item 1), redispatched. Doorbell
+   the Darkan thread to claim it first, per the claim-first rule in
+   `codex-briefs/STANDING-SLICE-CONTRACT.md` section 4; their 2026-08-30 answer was
+   no-claim, no-dossier.
+2. **Achievement Diary wiring, `design-thread-queue.md` section 5.21.** The section
+   24 audit still carries this as owner-blocked. It is not: the owner passed gate 2
+   on 2026-08-31 by spec-conformance (`design-thread-queue.md` section 4.22 ruling 3,
+   mirrored in `diary-curation-ledger/README.md`). Wire the reviewed 320-row ledger
+   through `tools/generate_achievement_diary_data.py` and the runtime: 43 active, 30
+   translated, 247 dormant with recorded triggers. Row 135 defaults to the
+   equipped-item candidate. This is the largest player-visible item on the board: 0
+   of 34 diary tiers are claimable until it lands. Corrections after landing are
+   ledger-row edits plus regeneration, never hand edits of the generated catalog.
+3. The three one-predicate proof bindings as one slice (section 24.5 items 2-4).
+4. Consolidate the duplicated `relocate_combat_encounters` implementations (item 5).
+5. The next sentinel quest (item 6), with its per-quest doorbell.
+
+Pooled worktrees are now available inside the guard (`3336d4ba`, `ecdf176b`):
+`python3 tools/worktree_guard.py lease <branch> --holder <who>` and
+`release <path> --lease-id <id>`. Prefer them over `add` for new slices.
+
+### 25.3 Named gates for the owner
+
+- **Worktree sweep.** The safe root holds dozens of merged one-shot worktrees (for
+  example `zogre-flesh-eaters-2026-09-01`, already on main at `0c0c20e2`). Removing
+  even merged-and-clean ones is destructive and awaits the owner's word. Do not
+  sweep; do not delete any worktree.
+
+### 25.4 Reporting
+
+Reports are handoff files in this directory; the design seat watches the directory
+and is named `ankiscape-fork-41` for the doorbell. Never message the owner directly.
