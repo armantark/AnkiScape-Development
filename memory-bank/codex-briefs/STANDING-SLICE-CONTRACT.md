@@ -25,8 +25,15 @@ this Anki install for real study.
 - Run `python3 tools/worktree_guard.py audit` before and after any worktree
   change.
 - Never give `git worktree add` a destination beneath `addons21`.
-- The global pooled-`treehouse` worktree rule does not apply to this repo;
-  create AnkiScape worktrees only through `tools/worktree_guard.py`.
+- Prefer a pooled worktree over a fresh `add`: acquire with
+  `python3 tools/worktree_guard.py lease <branch> --holder <who>`; the last
+  stdout line is JSON with `path` and `lease_id`. After your slice commit is
+  on its branch, release with
+  `python3 tools/worktree_guard.py release <path> --lease-id <id>`; release
+  refuses uncommitted work, and unreleased leases survive for the next agent.
+  Never call `treehouse` directly — the global treehouse rule reaches this
+  repo only through the guard, which pins the pool inside the safe root and
+  audits every acquire and release.
 - Do not delete a dirty or unmerged worktree. Move it to the safe root instead.
 
 ## 2. Git

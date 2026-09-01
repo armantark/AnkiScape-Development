@@ -4,9 +4,14 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import subprocess
+
 from tools.worktree_guard import (
     add_worktree,
     duplicate_enabled_addons,
+    lease_worktree,
+    pool_root,
+    release_worktree,
     safe_worktree_root,
     unsafe_registered_worktrees,
     validate_worktree_name,
@@ -108,6 +113,76 @@ class WorktreeGuardTest(unittest.TestCase):
             self.assertTrue(link.is_symlink())
             self.assertTrue(link.readlink().is_absolute())
             self.assertEqual(link.readlink(), qt_environment)
+
+    def test_release_refuses_uncommitted_work(self):
+        canonical = Path("/tmp/Anki2/addons21/ankiscape_fork")
+        pooled = pool_root(canonical) / ".treehouse/ankiscape_fork-1/1/ankiscape_fork"
+        with (
+            patch(
+                "tools.worktree_guard.canonical_and_paths",
+                return_value=(canonical, (canonical,)),
+            ),
+            patch(
+                "tools.worktree_guard._git",
+                return_value=Mock(stdout=" M core/storage_pure.py\n"),
+            ),
+            patch("tools.worktree_guard._treehouse") as treehouse,
+        ):
+            with self.assertRaises(RuntimeError) as context:
+                release_worktree(canonical, pooled, "lease-1")
+        self.assertIn("uncommitted work", str(context.exception))
+        treehouse.assert_not_called()
+
+    def test_release_rejects_path_outside_pool(self):
+        canonical = Path("/tmp/Anki2/addons21/ankiscape_fork")
+        outside = safe_worktree_root(canonical) / "feature-2026-08-31"
+        with (
+            patch(
+                "tools.worktree_guard.canonical_and_paths",
+                return_value=(canonical, (canonical,)),
+            ),
+            patch("tools.worktree_guard._git") as git,
+            patch("tools.worktree_guard._treehouse") as treehouse,
+        ):
+            with self.assertRaises(RuntimeError) as context:
+                release_worktree(canonical, outside, "lease-1")
+        self.assertIn("not a pooled worktree", str(context.exception))
+        git.assert_not_called()
+        treehouse.assert_not_called()
+
+    def test_lease_returns_lease_when_branch_checkout_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            canonical = (Path(temp_dir) / "Anki2/addons21/ankiscape_fork").resolve()
+            qt_interpreter = canonical / ".venv-qt/bin/python"
+            qt_interpreter.parent.mkdir(parents=True)
+            qt_interpreter.write_text("", encoding="utf-8")
+            pooled = pool_root(canonical) / ".treehouse/ankiscape_fork-1/1/ankiscape_fork"
+            lease = {"path": str(pooled), "lease_id": "lease-1"}
+
+            def fake_git(_path, *args, **_kwargs):
+                if args[0] == "show-ref":
+                    return Mock(returncode=1)
+                raise subprocess.CalledProcessError(1, ("git", *args))
+
+            with (
+                patch("tools.worktree_guard.audit"),
+                patch(
+                    "tools.worktree_guard.canonical_and_paths",
+                    return_value=(canonical, (canonical,)),
+                ),
+                patch("tools.worktree_guard._git", side_effect=fake_git),
+                patch(
+                    "tools.worktree_guard._treehouse",
+                    return_value=Mock(stdout=json.dumps(lease)),
+                ) as treehouse,
+            ):
+                with self.assertRaises(subprocess.CalledProcessError):
+                    lease_worktree(canonical, "goal/feature", None, "main")
+
+            self.assertEqual(
+                treehouse.call_args_list[-1].args[1:],
+                ("return", "--force", "--if-lease-id", "lease-1", str(pooled)),
+            )
 
     def test_worktree_name_cannot_escape_safe_root(self):
         for name in ("", ".", "..", "../unsafe", "/tmp/unsafe", "nested/unsafe"):

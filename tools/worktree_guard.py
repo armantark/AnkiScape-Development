@@ -53,6 +53,10 @@ def safe_worktree_root(canonical: Path) -> Path:
     return canonical.resolve().parent.parent / "ankiscape_worktrees"
 
 
+def pool_root(canonical: Path) -> Path:
+    return safe_worktree_root(canonical) / "pool"
+
+
 def validate_worktree_name(name: str) -> str:
     if not name or name in {".", ".."} or Path(name).name != name:
         raise ValueError("worktree name must be one path component")
@@ -71,6 +75,20 @@ def _git(
         text=True,
         capture_output=capture,
     )
+
+
+def _treehouse(canonical: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    # The pool root is always pinned explicitly so neither TREEHOUSE_ROOT nor a
+    # config file can steer pooled worktrees outside the audited safe root.
+    result = subprocess.run(
+        ("treehouse", *args, "--root", str(pool_root(canonical))),
+        text=True,
+        capture_output=True,
+        cwd=str(canonical),
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"treehouse {args[0]} failed:\n{result.stderr.strip()}")
+    return result
 
 
 def canonical_and_paths(repo: Path) -> tuple[Path, tuple[Path, ...]]:
@@ -123,6 +141,67 @@ def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str)
     print(f"Created worktree: {destination}")
 
 
+def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: str) -> None:
+    audit(repo)
+    canonical, _ = canonical_and_paths(repo)
+    qt_environment = canonical / ".venv-qt"
+    if not (qt_environment / "bin/python").exists():
+        raise RuntimeError(f"Qt test interpreter not found: {qt_environment / 'bin/python'}")
+    result = _treehouse(
+        canonical,
+        "get",
+        "--lease",
+        "--no-fetch",
+        "--json",
+        "--lease-holder",
+        holder or "worktree_guard",
+    )
+    lease = json.loads(result.stdout)
+    destination = Path(lease["path"])
+    exists = (
+        _git(
+            canonical,
+            "show-ref",
+            "--verify",
+            "--quiet",
+            f"refs/heads/{branch}",
+            check=False,
+        ).returncode
+        == 0
+    )
+    try:
+        if exists:
+            _git(destination, "checkout", branch, capture=True)
+        else:
+            _git(destination, "checkout", "-b", branch, start_point, capture=True)
+        link = destination / ".venv-qt"
+        if not link.is_symlink():
+            link.symlink_to(qt_environment, target_is_directory=True)
+    except BaseException:
+        _treehouse(canonical, "return", "--force", "--if-lease-id", lease["lease_id"], str(destination))
+        raise
+    audit(repo)
+    print(json.dumps({"path": str(destination), "lease_id": lease["lease_id"], "branch": branch}))
+
+
+def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
+    canonical, _ = canonical_and_paths(repo)
+    destination = path.resolve()
+    if not destination.is_relative_to(pool_root(canonical)):
+        raise RuntimeError(f"not a pooled worktree: {destination}")
+    dirty = _git(destination, "status", "--porcelain", capture=True).stdout.strip()
+    if dirty:
+        raise RuntimeError(
+            f"refusing to return a worktree with uncommitted work; commit it first:\n{dirty}"
+        )
+    # Detach so the branch is not left checked out by an idle pooled worktree,
+    # which would block the same branch from being checked out anywhere else.
+    _git(destination, "checkout", "--detach", capture=True)
+    _treehouse(canonical, "return", "--force", "--if-lease-id", lease_id, str(destination))
+    audit(repo)
+    print(f"Returned pooled worktree: {destination}")
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
@@ -132,13 +211,24 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     add_parser.add_argument("branch")
     add_parser.add_argument("--name")
     add_parser.add_argument("--start-point", default="main")
+    lease_parser = subparsers.add_parser("lease")
+    lease_parser.add_argument("branch")
+    lease_parser.add_argument("--holder")
+    lease_parser.add_argument("--start-point", default="main")
+    release_parser = subparsers.add_parser("release")
+    release_parser.add_argument("path", type=Path)
+    release_parser.add_argument("--lease-id", required=True)
     args = parser.parse_args(argv)
     try:
         if args.command == "audit":
             audit(args.repo)
-        else:
+        elif args.command == "add":
             add_worktree(args.repo, args.branch, args.name, args.start_point)
-    except (RuntimeError, ValueError, subprocess.CalledProcessError) as exc:
+        elif args.command == "lease":
+            lease_worktree(args.repo, args.branch, args.holder, args.start_point)
+        else:
+            release_worktree(args.repo, args.path, args.lease_id)
+    except (RuntimeError, ValueError, OSError, subprocess.CalledProcessError) as exc:
         parser.exit(2, f"error: {exc}\n")
     return 0
 
