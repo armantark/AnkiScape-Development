@@ -13,6 +13,7 @@ from ankiscape.logic_pure.logic_pure_quest import (
     quest_current_stage_blocker_reasons_pure,
     start_quest_pure,
 )
+from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 from tests.test_integration_smoke import (
     _FakeReviewer,
     _install_runtime_fakes,
@@ -122,7 +123,7 @@ class TestLostTribeStageContract(unittest.TestCase):
         self.assertTrue(completed)
         self.assertTrue(player["quests"][QUEST_ID]["completed"])
         self.assertEqual(player["quests"][QUEST_ID]["progress"], 6)
-        self.assertEqual(player["quest_stage_actions"][QUEST_ID], list(STAGE_ACTIONS))
+        self.assertEqual(quest_action_proofs_for_quest(player, QUEST_ID, QUEST_DATA), STAGE_ACTIONS)
         self.assertEqual(player["quest_points"], 1)
         self.assertEqual(player["mining_exp"], 3000.0)
         self.assertEqual(player["inventory"]["Ring of life"], 1)
@@ -169,8 +170,8 @@ class TestLostTribeProductFlow(unittest.TestCase):
 
         self.assertTrue(addon.player_data["quests"][QUEST_ID]["completed"])
         self.assertEqual(
-            addon.player_data["quest_stage_actions"][QUEST_ID],
-            list(STAGE_ACTIONS),
+            quest_action_proofs_for_quest(addon.player_data, QUEST_ID, QUEST_DATA),
+            STAGE_ACTIONS,
         )
         self.assertEqual(addon.player_data["quest_points"], 1)
         self.assertEqual(addon.player_data["mining_exp"], 3000.0)

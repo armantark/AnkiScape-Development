@@ -361,7 +361,8 @@ from ..data.woodcutting_data import (
 )
 
 # Version 119 was reserved for the S4 Druidic Ritual branch before promotion serialized the numbering.
-CURRENT_CONFIG_VERSION = 122
+CURRENT_CONFIG_VERSION = 123
+RETIRED_QUEST_ACTION_PROOFS: set[str] = set()
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
     "barbarian_assault",
@@ -707,7 +708,6 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["quest_combat_encounters"] = {}
     data["quest_combat_encounter_counts"] = {}
     data["quest_combat_active_encounters"] = default_quest_combat_active_encounters_pure()
-    data["quest_stage_actions"] = {}
     data["quest_action_proofs"] = []
     data["quest_route_states"] = {}
     data["pending_skill_exp_rewards"] = {}
@@ -985,8 +985,15 @@ def _migrate_quest_stage_side_state(data: Dict[str, Any]) -> None:
     data["quest_combat_active_encounters"] = sanitize_quest_combat_active_encounters_pure(
         data.get("quest_combat_active_encounters")
     )
-    _migrate_quest_flag_collection(data, "quest_stage_actions")
+    data.pop("quest_stage_actions", None)
     _migrate_quest_flag_collection(data, "quest_route_states")
+
+
+def _migrate_quest_action_proofs(data: Dict[str, Any], loaded_config_version: int) -> None:
+    proofs = sanitize_quest_action_proofs_pure(data.get("quest_action_proofs")) if loaded_config_version >= 122 else []
+    if loaded_config_version < CURRENT_CONFIG_VERSION:
+        proofs = [proof for proof in proofs if proof not in RETIRED_QUEST_ACTION_PROOFS]
+    data["quest_action_proofs"] = proofs
 
 
 def _migrate_druidic_ritual_rework(
@@ -1020,21 +1027,6 @@ def _migrate_druidic_ritual_rework(
             except (TypeError, ValueError):
                 amount = 0
             inventory[item_name] = max(1, amount)
-
-    actions = data["quest_stage_actions"]
-    retired_actions = {
-        "Dip the raw meats in the Cauldron of Thunder",
-        "Give Sanfew the enchanted meats and return to Kaqemeex",
-    }
-    surviving_actions = [
-        action
-        for action in actions.get("druidic_ritual", ())
-        if action not in retired_actions
-    ]
-    if surviving_actions:
-        actions["druidic_ritual"] = surviving_actions
-    else:
-        actions.pop("druidic_ritual", None)
 
 
 def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
@@ -1549,7 +1541,7 @@ def migrate_loaded_data(
     _migrate_herblore_target(data)
     _migrate_quest_state(data)
     _migrate_quest_stage_side_state(data)
-    data["quest_action_proofs"] = sanitize_quest_action_proofs_pure(data.get("quest_action_proofs")) if loaded_config_version >= 122 else []
+    _migrate_quest_action_proofs(data, loaded_config_version)
     _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)
     # v118 moves two guaranteed completion items behind later Bill Teach

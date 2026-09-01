@@ -5999,3 +5999,12 @@ the obsolete percent key is no longer touched.
 - The proof-aware reachability closure requires the exact bound action or item source and exposes its earned global proof set. The Biohazard-to-Mourning's End proof is pinned. All seven graph pins remain 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215; blocked stage rows remain 139 and completable quests remain 51.
 - No user interface changed. Evidence: `source-audits/shared-quest-action-proofs-2026-08-31.md`.
 - Both complete lanes pass 4,596 tests: plain skips 515 and real offscreen Qt skips three.
+
+## Quest proof store clean break — 2026-09-01
+
+- Config version 123 retires the quest-local `quest_stage_actions` model. New and copied player data omit it, completed stages write only the global `quest_action_proofs` ledger, and migration drops the old key from existing saves.
+- Version-121 and older saves still start with empty proofs. Version-122 saves retain sanitized non-retired proofs. `RETIRED_QUEST_ACTION_PROOFS` is empty today; every schema upgrade subtracts it from older saves, including the currently shipped cohort on the next bump, and a patched retirement test proves a retired proof no longer satisfies a gate while a non-retired proof survives.
+- The recursive production census covers root `__init__.py`, nested modules, and `generated/`, and detects direct, alias-backed, and mutation-method writes, including writes through a value returned by `pop`; the bare migration `pop` is deliberately allowed.
+- All 213 assertions that pinned the old store were moved to the proof ledger or migration-removal checks. No assertion was deleted. The shared 18-line test helper keeps quest-stage assertions exact without growing any oversized file or deleting prose.
+- A catalog-wide safety pin holds all 528 unique `auto_actions` IDs to one quest owner and rejects any `required_actions` gate satisfied by a different quest's auto-action proof. Both duplicate-owner and cross-quest-gate mutation probes fail the pin.
+- Reachability remains 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215, with 139 blocked quest-stage rows and 51 completable quests. No pin moved. Both complete lanes pass 4,601 tests: plain skips 515 and real offscreen Qt skips three. No user interface changed. Evidence: `source-audits/quest-proof-store-cleanup-2026-09-01.md`.

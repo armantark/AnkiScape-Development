@@ -101,6 +101,8 @@ def _install_quest_combat_mid_rolls(testcase, addon, repeats=2000):
 
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import QUEST_DATA
+from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 class TestIntegrationSmoke(unittest.TestCase):
     def setUp(self):
         # Isolate sys.modules pollution between tests
@@ -1114,7 +1116,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Research notes": 1},
             "current_quest": "rune_mysteries",
             "quests": {"rune_mysteries": {"started": True, "progress": 5, "completed": False}},
-            "quest_stage_actions": {"rune_mysteries": ["Return Aubury's research notes to Sedridor"]},
+            "quest_action_proofs": ["Return Aubury's research notes to Sedridor"],
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1262,10 +1264,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertFalse(addon.player_data["quests"]["fishing_contest"]["completed"])
         self.assertEqual(addon.player_data["quests"]["fishing_contest"]["progress"], 2)
         self.assertEqual(addon.player_data["inventory"]["Fishing pass"], 1)
-        self.assertEqual(
-            addon.player_data["quest_stage_actions"]["fishing_contest"],
-            ["Receive a fishing pass from Austri or Vestri"],
-        )
+        self.assertEqual(quest_action_proofs_for_quest(addon.player_data, "fishing_contest", QUEST_DATA), ("Receive a fishing pass from Austri or Vestri",))
         self.assertEqual(addon.player_data["quest_points"], 0)
         self.assertEqual(addon.player_data["fishing_exp"], 0)
         self.assertEqual(calls["save"], 1)
@@ -1291,7 +1290,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {},
             "current_quest": "waterfall_quest",
             "quests": {"waterfall_quest": {"started": True, "progress": 2, "completed": False}},
-            "quest_stage_actions": {"waterfall_quest": ["Search the Baxtorian bookcase", "Read the Book on Baxtorian"]},
+            "quest_action_proofs": ["Search the Baxtorian bookcase", "Read the Book on Baxtorian"],
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1331,13 +1330,11 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {},
             "current_quest": "biohazard",
             "quests": {"biohazard": {"started": True, "progress": 3, "completed": False}},
-            "quest_stage_actions": {
-                "biohazard": [
-                    "Ask Jerico about using messenger pigeons",
-                    "Search Jerico's cupboard for bird feed",
-                    "Take a pigeon cage from Jerico's house",
-                ]
-            },
+            "quest_action_proofs": [
+                "Ask Jerico about using messenger pigeons",
+                "Search Jerico's cupboard for bird feed",
+                "Take a pigeon cage from Jerico's house",
+            ],
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1378,7 +1375,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {},
             "current_quest": "heroes_quest",
             "quests": {"heroes_quest": {"started": True, "progress": 2, "completed": False}},
-            "quest_stage_actions": {"heroes_quest": ["Ask Gerrant how to catch lava eels"]},
+            "quest_action_proofs": ["Ask Gerrant how to catch lava eels"],
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1592,7 +1589,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "equipment": {"body": "Iron chainbody", "head": "Bronze med helm"},
             "current_quest": "black_knights_fortress",
             "quests": {"black_knights_fortress": {"started": True, "progress": 1, "completed": False}},
-            "quest_stage_actions": {"black_knights_fortress": ["Infiltrate the Black Knights' Fortress"]},
+            "quest_action_proofs": ["Infiltrate the Black Knights' Fortress"],
             "quest_points": 12,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1668,7 +1665,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_quest": "temple_of_ikov",
             "quests": {"temple_of_ikov": {"started": True, "progress": 10, "completed": False}},
             "quest_route_states": {"temple_of_ikov": ["Side with Lucien"]},
-            "quest_stage_actions": {"temple_of_ikov": ["Give the Staff of Armadyl to Lucien in Varrock"]},
+            "quest_action_proofs": ["Give the Staff of Armadyl to Lucien in Varrock"],
             "quest_points": 0,
             "thieving_level": 42,
             "fletching_level": 1,
@@ -1806,7 +1803,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {},
             "current_quest": "a_souls_bane",
             "quests": {"a_souls_bane": {"started": True, "progress": 3, "completed": False}},
-            "quest_stage_actions": {"a_souls_bane": ["Fill the rage meter with an anger weapon"]},
+            "quest_action_proofs": ["Fill the rage meter with an anger weapon"],
             "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},

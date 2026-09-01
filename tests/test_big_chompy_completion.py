@@ -31,6 +31,7 @@ from ankiscape.logic_pure.logic_pure_quest import (
     quest_locked_reasons_pure,
     start_quest_pure,
 )
+from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 from tests.test_integration_smoke import (
     _FakeReviewer,
     _install_runtime_fakes,
@@ -223,7 +224,7 @@ class TestBigChompyPureFlow(unittest.TestCase):
         self.assertTrue(completed)
         self.assertTrue(player["quests"][QUEST_ID]["completed"])
         self.assertEqual(player["quests"][QUEST_ID]["progress"], 4)
-        self.assertEqual(player["quest_stage_actions"][QUEST_ID], list(STAGE_ACTIONS))
+        self.assertEqual(quest_action_proofs_for_quest(player, QUEST_ID, QUEST_DATA), STAGE_ACTIONS)
         self.assertEqual(player["quest_points"], 2)
         self.assertEqual(player["cooking_exp"], 1470.0)
         self.assertEqual(player["fletching_exp"], 262.0)
@@ -296,8 +297,8 @@ class TestBigChompyProductFlow(unittest.TestCase):
         self.assertLess(review_count, 8)
         self.assertTrue(addon.player_data["quests"][QUEST_ID]["completed"])
         self.assertEqual(
-            addon.player_data["quest_stage_actions"][QUEST_ID],
-            list(STAGE_ACTIONS),
+            quest_action_proofs_for_quest(addon.player_data, QUEST_ID, QUEST_DATA),
+            STAGE_ACTIONS,
         )
         self.assertEqual(addon.player_data["inventory"]["Ogre bow"], 1)
         self.assertEqual(calls["dialogs"][-1][0], "Quest complete")

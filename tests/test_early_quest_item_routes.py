@@ -28,6 +28,7 @@ from tests.test_integration_smoke import (
     _install_runtime_fakes,
     _load_addon_as_package,
 )
+from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 from tests.test_runtime_actions import _context
 from tools.audit_item_reachability import build_reachability_report
 
@@ -241,12 +242,12 @@ class TestPiratesTreasureRepairedProductFlow(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Karamjan rum"], 0)
         self.assertEqual(addon.player_data["inventory"]["Casket (Pirate's Treasure)"], 1)
         self.assertEqual(
-            addon.player_data["quest_stage_actions"]["pirates_treasure"],
-            [
+            quest_action_proofs_for_quest(addon.player_data, "pirates_treasure", QUEST_DATA),
+            (
                 "Smuggle Karamjan rum off Karamja",
                 "Open One-Eyed Hector's chest at the Blue Moon Inn",
                 "Read the pirate message and dig in Falador Park",
-            ],
+            ),
         )
 
 

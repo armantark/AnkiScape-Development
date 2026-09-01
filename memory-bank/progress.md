@@ -6975,7 +6975,17 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Added config-122 migration coverage that rejects all telemetry, inventory, completed-quest, and local-stage backfill for old saves.
 - Added unit, pure-flow integration, real Shop/Crafting, Shop rollback, real review-answer, earned-proof reachability, and recursive production-writer ownership coverage.
 - Kept `core/storage_pure.py`, `logic/shop_logic.py`, `logic_pure/logic_pure_quest.py`, and `tools/audit_item_reachability.py` line-neutral or smaller. Mutation probes prove the rollback and audit tests fail without their fixes.
-- Re-measured unchanged reachability at 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked stage rows, and 51 completable quests.
+- Added a catalog pin for 528 unique auto-action IDs, single-quest ownership, and zero cross-quest required-action overlaps. Duplicate-auto-owner and cross-quest-gate mutation probes each fail this pin.
 - Deliberately left eight unsupported hand-written actions and all 693 generated sentinels. No user interface changed.
 - Evidence: `source-audits/shared-quest-action-proofs-2026-08-31.md`.
 - Both complete lanes pass 4,596 tests: plain skips 515 and real offscreen Qt skips three.
+
+## Quest proof store clean break — 2026-09-01
+
+- Removed `quest_stage_actions` from live defaults, nested player copies, quest-stage writes, and six split-module re-exports. `core/storage_pure.py` now keeps only the unconditional migration pop for old saves.
+- Bumped config version 122 to 123. Pre-122 proofs remain forward-only and empty; v122 proofs sanitize and survive. The empty `RETIRED_QUEST_ACTION_PROOFS` set is subtracted whenever the loaded version is older than `CURRENT_CONFIG_VERSION`, so the shipped cohort is covered by the next schema bump.
+- Added migration coverage for dropping the retired key, subtracting a retired proof, restoring the required-action blocker, preserving a non-retired proof, and retracting from the current cohort under a simulated next schema bump. Extended the production census across root and generated files with assignment, alias, mutation-method, and pop-alias probes.
+- Moved all 213 old-store assertion sites to the global proof ledger or explicit migration-removal expectations. No assertion was deleted. The 18-line shared helper now compares the complete per-quest proof view, so injected over-recording fails both pure-runtime and dynamic-package integration tests.
+- Re-measured unchanged reachability at 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked stage rows, and 51 completable quests.
+- Re-measured unchanged reachability at 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked stage rows, and 51 completable quests. Full plain verification passes 4,601 tests in 769.861 seconds with 515 skips; real offscreen Qt passes 4,601 tests in 1,036.410 seconds with three skips. No UI code changed.
+- Evidence: `source-audits/quest-proof-store-cleanup-2026-09-01.md`.

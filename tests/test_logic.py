@@ -123,6 +123,7 @@ from ankiscape.logic_pure.logic_pure import (
     normalize_xp_rewards_pure,
 )
 from ankiscape.core.storage_pure import default_player_data
+from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 from ankiscape.core.constants import (
     CRAFTING_DATA,
     ACHIEVEMENTS,
@@ -3469,7 +3470,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "rune_mysteries")
         self.assertEqual(player_data["inventory"]["Air talisman"], 1)
-        self.assertNotIn("rune_mysteries", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "rune_mysteries", QUEST_DATA), ())
 
         expected_steps = (
             (
@@ -3526,7 +3527,7 @@ class TestLogic(unittest.TestCase):
                 progress,
             )
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"]["rune_mysteries"]),
+                quest_action_proofs_for_quest(player_data, "rune_mysteries", QUEST_DATA),
                 actions,
             )
             self.assertEqual(
@@ -3572,7 +3573,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_steps = (
             (
@@ -3642,7 +3643,7 @@ class TestLogic(unittest.TestCase):
             self.assertTrue(ok)
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
-            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
             self.assertEqual(
                 {item_name: player_data["inventory"].get(item_name, 0) for item_name in inventory},
                 inventory,
@@ -3673,7 +3674,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_steps = (
             (
@@ -3736,7 +3737,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 actions,
             )
             self.assertEqual(
@@ -3776,7 +3777,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         cromperty_action = "Ask Wizard Cromperty about the teleportation block"
         depot_actions = (
@@ -3814,7 +3815,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             if actions is not None:
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     actions,
                 )
             self.assertEqual(
@@ -3894,7 +3895,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(progressed)
         self.assertFalse(completed)
         self.assertEqual(blocked, player_data)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         player_data["agility_level"] = 13
         player_data["mining_level"] = 17
@@ -3908,8 +3909,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed)
         self.assertEqual(progressed_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            progressed_data["quest_stage_actions"][quest_id],
-            ["Mine the Lumbridge cellar rubble and squeeze through the resulting hole"],
+            quest_action_proofs_for_quest(progressed_data, quest_id, QUEST_DATA),
+            ("Mine the Lumbridge cellar rubble and squeeze through the resulting hole",),
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(
@@ -3950,7 +3951,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             (),
@@ -3965,10 +3966,10 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            player_data["quest_stage_actions"][quest_id],
-            [
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
+            (
                 "Acquire the monkey dentures, m'amulet mould, and monkey talisman during the Ape Atoll infiltration"
-            ],
+            ,),
         )
 
     def test_rat_catchers_rat_poison_emitter_advances_real_stage(self):
@@ -4002,7 +4003,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             (),
@@ -4017,8 +4018,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            player_data["quest_stage_actions"][quest_id],
-            ["Have Hooknosed Jack make rat poison"],
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
+            ("Have Hooknosed Jack make rat poison",),
         )
         self.assertEqual(player_data["inventory"]["Vial"], 0)
         self.assertEqual(player_data["inventory"]["Clean kwuarm"], 0)
@@ -4064,7 +4065,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             (),
@@ -4078,7 +4079,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
-        self.assertEqual(player_data["quest_stage_actions"][quest_id], [action])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), (action,))
         self.assertEqual(player_data["inventory"]["Animate rock scroll"], 1)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
@@ -4091,7 +4092,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "clock_tower", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "clock_tower")
-        self.assertNotIn("clock_tower", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "clock_tower", QUEST_DATA), ())
 
         expected_actions = (
             "Pick up rat poison in the Clock Tower dungeon",
@@ -4129,7 +4130,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, stage == 5)
             self.assertEqual(player_data["quests"]["clock_tower"]["progress"], stage + 1)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"]["clock_tower"]),
+                quest_action_proofs_for_quest(player_data, "clock_tower", QUEST_DATA),
                 expected_actions[:stage],
             )
             self.assertEqual(
@@ -4175,7 +4176,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_actions = (
             "Reach the Witchaven shrine tunnels",
@@ -4205,7 +4206,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, stage == 5)
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 expected_actions[:action_count],
             )
 
@@ -4240,7 +4241,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "deadliest_catch", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "deadliest_catch")
-        self.assertNotIn("deadliest_catch", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "deadliest_catch", QUEST_DATA), ())
 
         expected_actions = (
             ("Pickpocket the Master fisher for the sea chart",),
@@ -4278,7 +4279,7 @@ class TestLogic(unittest.TestCase):
                 stage + 1,
             )
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"]["deadliest_catch"]),
+                quest_action_proofs_for_quest(player_data, "deadliest_catch", QUEST_DATA),
                 actions,
             )
 
@@ -4314,7 +4315,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_actions = (
             "Find Scalectrix at the Taverley well",
@@ -4338,7 +4339,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, stage == 3)
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 expected_actions[:action_count],
             )
 
@@ -4372,7 +4373,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_actions = (
             "Drink the restless sleep potion",
@@ -4397,7 +4398,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, stage == 3)
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 expected_actions[:action_count],
             )
 
@@ -4455,7 +4456,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_actions = (
             "Speak to Chuck again for teleport",
@@ -4485,7 +4486,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, stage == 6)
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 expected_actions[:action_count],
             )
 
@@ -4549,7 +4550,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             (
@@ -4596,7 +4597,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, stage == 7)
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 expected_actions[:action_count],
             )
 
@@ -4795,7 +4796,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 0)
-        self.assertNotIn("dwarf_cannon", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "dwarf_cannon", QUEST_DATA), ())
         self.assertTrue(can_progress_quest_pure(player_data, "dwarf_cannon", QUEST_DATA))
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
@@ -4838,8 +4839,8 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(tuple(player_data["inventory"].get(item_name, 0) for item_name in inventory_names), inventory)
 
         self.assertEqual(
-            player_data["quest_stage_actions"]["dwarf_cannon"],
-            [
+            quest_action_proofs_for_quest(player_data, "dwarf_cannon", QUEST_DATA),
+            (
                 "Accept replacement railings from Captain Lawgof",
                 "Report the repaired stockade to Captain Lawgof",
                 "Take Gilob's remains from the watchtower",
@@ -4850,7 +4851,7 @@ class TestLogic(unittest.TestCase):
                 "Tell Captain Lawgof that the cannon is repaired",
                 "Speak to Nulodion about Captain Lawgof's cannon",
                 "Receive Captain Lawgof's cannon recommendation",
-            ],
+            ),
         )
         self.assertTrue(player_data["quests"]["dwarf_cannon"]["completed"])
         self.assertEqual(player_data["inventory"]["Hammer"], 1)
@@ -4882,7 +4883,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             (),
@@ -4916,7 +4917,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 actions,
             )
             self.assertEqual(
@@ -4959,7 +4960,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         for progress, expected_actions in ((2, actions[:1]), (3, actions[:2])):
             player_data, ok, completed_now = apply_quest_progress_pure(
@@ -4971,7 +4972,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 expected_actions,
             )
             self.assertEqual(player_data["inventory"]["Scorpion cage"], 1)
@@ -5011,7 +5012,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertFalse(completed_now)
         self.assertEqual(blocked["quests"][quest_id]["progress"], 3)
-        self.assertEqual(tuple(blocked["quest_stage_actions"][quest_id]), actions[:2])
+        self.assertEqual(quest_action_proofs_for_quest(blocked, quest_id, QUEST_DATA), actions[:2])
         self.assertEqual(blocked["strength_exp"], 0)
 
         player_data["quest_combat_encounters"] = {
@@ -5033,7 +5034,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 expected_actions,
             )
             self.assertEqual(player_data["inventory"].get("Scorpion cage", 0), cage_count)
@@ -5093,7 +5094,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_steps = (
             (2, False, actions[:1], (100, 1, 0, 0, 0, 0, 0, 0, 0)),
@@ -5112,7 +5113,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 expected_actions,
             )
             self.assertEqual(
@@ -5215,7 +5216,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         # Stage 1: give Alrena the dwellberries; she makes the gas mask, and
         # the picture of Elena is picked up inside her house.
@@ -5229,10 +5230,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(player_data["inventory"]["Dwellberries"], 0)
         self.assertEqual(player_data["inventory"]["Gas mask"], 1)
-        self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
-            actions[:1],
-        )
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:1])
 
         # Stage 9 requires a picture of Elena produced back at stage 1.
         for expected_progress in range(3, 10):
@@ -5243,7 +5241,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Bucket of water"], 0)
         self.assertEqual(player_data["inventory"]["Bucket"], 4)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:10],
         )
 
@@ -5265,7 +5263,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], expected_progress)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:16],
         )
 
@@ -5297,7 +5295,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quests"][quest_id]["progress"], 17)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions,
         )
         self.assertEqual(player_data["inventory"]["A small key"], 1)
@@ -5344,7 +5342,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
         player_data["inventory"].update({"Rope": 1, "Water rune": 6, "Air rune": 6, "Earth rune": 6})
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
@@ -5352,7 +5350,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"].get(quest_id, ())),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:1],
         )
 
@@ -5361,7 +5359,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Book on Baxtorian"], 1)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:3])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:3])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -5369,7 +5367,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Old key"], 1)
         self.assertEqual(player_data["inventory"]["Glarial's pebble"], 1)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:6])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:6])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -5378,14 +5376,14 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Glarial's amulet"], 1)
         self.assertEqual(player_data["inventory"]["Glarial's urn"], 1)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:9])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:9])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
         self.assertEqual(player_data["inventory"]["Water rune"], 0)
         self.assertEqual(player_data["inventory"]["Air rune"], 0)
         self.assertEqual(player_data["inventory"]["Earth rune"], 0)
@@ -5420,7 +5418,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "biohazard")
-        self.assertNotIn("biohazard", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "biohazard", QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "biohazard", QUEST_DATA),
             (),
@@ -5578,7 +5576,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(player_data["thieving_exp"], 1250.0)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"]["biohazard"]),
+            quest_action_proofs_for_quest(player_data, "biohazard", QUEST_DATA),
             expected_actions,
         )
 
@@ -5607,7 +5605,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "carnillean_rising", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "carnillean_rising")
-        self.assertNotIn("carnillean_rising", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "carnillean_rising", QUEST_DATA), ())
         expected_actions = (
             "Speak to Xenia",
             "Speak to Ceril Carnillean",
@@ -5640,7 +5638,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"]["carnillean_rising"]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"]["carnillean_rising"]),
+                quest_action_proofs_for_quest(player_data, "carnillean_rising", QUEST_DATA),
                 actions,
             )
 
@@ -5728,7 +5726,7 @@ class TestLogic(unittest.TestCase):
                 player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
                 self.assertTrue(ok)
                 self.assertEqual(player_data["current_quest"], quest_id)
-                self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+                self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
                 self.assertNotIn(quest_id, player_data.get("quest_route_states", {}))
 
                 # Stage 1: accepting Achietties' challenge emits with the start.
@@ -5737,7 +5735,7 @@ class TestLogic(unittest.TestCase):
                 self.assertFalse(completed_now)
                 self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     common_actions[:1],
                 )
 
@@ -5770,7 +5768,7 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(player_data["inventory"]["Fishing bait"], 0)
                 self.assertEqual(player_data["inventory"]["Raw lava eel"], 1)
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     common_actions[:3],
                 )
 
@@ -5780,7 +5778,7 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(player_data["inventory"]["Raw lava eel"], 0)
                 self.assertEqual(player_data["inventory"]["Lava eel"], 1)
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     common_actions[:4],
                 )
 
@@ -5804,7 +5802,7 @@ class TestLogic(unittest.TestCase):
                 self.assertFalse(completed_now)
                 self.assertEqual(player_data["inventory"]["Ice gloves"], 1)
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     common_actions[:6],
                 )
 
@@ -5823,7 +5821,7 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
                 self.assertEqual(player_data["inventory"]["Fire feather"], 1)
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     common_actions,
                 )
 
@@ -5876,7 +5874,7 @@ class TestLogic(unittest.TestCase):
                     self.assertEqual(player_data["inventory"]["Pete's candlestick"], 1)
 
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     (*common_actions, *route_actions[:-1]),
                 )
 
@@ -5886,7 +5884,7 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(player_data["inventory"]["Pete's candlestick"], 0)
                 self.assertEqual(player_data["inventory"]["Thieves' armband"], 1)
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     (*common_actions, *route_actions),
                 )
 
@@ -6133,7 +6131,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         # Stage 2: the Caleb fish-salad dialogue emits through normal review
         # progression, without any pre-seeded action flags.
@@ -6141,13 +6139,13 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:1])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:1])
 
         # Stages 4 through 7: the Avan dialogue chain.
         for expected_progress in range(4, 9):
@@ -6155,7 +6153,7 @@ class TestLogic(unittest.TestCase):
             self.assertTrue(ok)
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], expected_progress)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:5])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:5])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -6165,7 +6163,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Shrimps"], 0)
         self.assertEqual(player_data["inventory"]["Swordfish"], 0)
         self.assertEqual(player_data["inventory"]["Caleb crest"], 1)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:8])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:8])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -6190,7 +6188,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Perfect ruby ring"], 0)
         self.assertEqual(player_data["inventory"]["Perfect ruby necklace"], 0)
         self.assertEqual(player_data["inventory"]["Avan crest"], 1)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:10])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:10])
 
         # Stage 12: any unnoted antipoison dose satisfies Johnathon.
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
@@ -6198,7 +6196,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 13)
         self.assertEqual(player_data["inventory"]["Antipoison (4)"], 0)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:12])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:12])
 
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
@@ -6226,7 +6224,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 14)
         self.assertEqual(player_data["inventory"]["Johnathon crest"], 1)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:14])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:14])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -6236,7 +6234,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Avan crest"], 0)
         self.assertEqual(player_data["inventory"]["Johnathon crest"], 0)
         self.assertEqual(player_data["inventory"]["Family crest"], 1)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -6292,7 +6290,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         # Stages 1-3: entry emits its action; the web cut and boots pickup emit
         # together on stage 2, and the bridge crossing plus lever pickup emit
@@ -6306,7 +6304,7 @@ class TestLogic(unittest.TestCase):
             self.assertTrue(ok)
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:3])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:3])
         self.assertEqual(player_data["inventory"]["Boots of lightness"], 1)
 
         # Stage 4 emits bridge and lever pickup; stage 5 consumes the lever.
@@ -6320,7 +6318,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
         self.assertEqual(player_data["inventory"]["Lever"], 0)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:6])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:6])
 
         # Stage 6 searches the ice chamber chests and produces ice arrows.
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
@@ -6328,7 +6326,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
         self.assertEqual(player_data["inventory"]["Ice arrows"], 1)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:7])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:7])
 
         # Stage 7 disarms and pulls the trapped Fire Warrior lever.
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
@@ -6336,7 +6334,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 7)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:9],
         )
 
@@ -6359,7 +6357,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
         self.assertEqual(player_data["inventory"]["Limpwurt root"], 0)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:10])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:10])
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             ("Choose path: Guardians of Armadyl or Lucien",),
@@ -6377,7 +6375,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(guardians_data["quests"][quest_id]["progress"], 10)
         self.assertEqual(guardians_data["inventory"]["Armadyl pendant"], 1)
         self.assertEqual(
-            tuple(guardians_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(guardians_data, quest_id, QUEST_DATA),
             (*actions[:10], actions[10]),
         )
         self.assertEqual(
@@ -6411,7 +6409,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(lucien_data["quests"][quest_id]["progress"], 10)
         self.assertEqual(lucien_data["inventory"]["Staff of armadyl"], 1)
         self.assertEqual(
-            tuple(lucien_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(lucien_data, quest_id, QUEST_DATA),
             (*actions[:10], actions[11]),
         )
 
@@ -6424,7 +6422,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(lucien_data["inventory"]["Staff of armadyl"], 0)
         self.assertEqual(lucien_data["inventory"]["Shiny key"], 1)
         self.assertEqual(
-            tuple(lucien_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(lucien_data, quest_id, QUEST_DATA),
             (*actions[:10], actions[11], actions[12]),
         )
 
@@ -6440,7 +6438,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "holy_grail", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "holy_grail")
-        self.assertNotIn("holy_grail", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "holy_grail", QUEST_DATA), ())
         expected_actions = (
             "Ask Merlin about the Holy Grail",
             "Travel to Entrana",
@@ -6465,7 +6463,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"]["holy_grail"]["progress"], expected_progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"]["holy_grail"]),
+                quest_action_proofs_for_quest(player_data, "holy_grail", QUEST_DATA),
                 expected_actions[: stage_action_counts[offset]],
             )
 
@@ -6491,7 +6489,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["holy_grail"]["progress"], 6)
         self.assertEqual(player_data["inventory"]["Grail bell"], 1)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"]["holy_grail"]),
+            quest_action_proofs_for_quest(player_data, "holy_grail", QUEST_DATA),
             expected_actions[:8],
         )
 
@@ -6501,7 +6499,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"]["holy_grail"]["progress"], expected_progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"]["holy_grail"]),
+                quest_action_proofs_for_quest(player_data, "holy_grail", QUEST_DATA),
                 expected_actions[:action_count],
             )
 
@@ -6515,7 +6513,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["holy_grail"]["progress"], 10)
         self.assertEqual(player_data["inventory"]["Holy grail"], 1)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"]["holy_grail"]),
+            quest_action_proofs_for_quest(player_data, "holy_grail", QUEST_DATA),
             expected_actions,
         )
 
@@ -6549,7 +6547,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
         self.assertNotIn(quest_id, player_data["quest_route_states"])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
@@ -6557,7 +6555,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
                 "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
@@ -6575,7 +6573,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
                 "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
@@ -6588,7 +6586,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
                 "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
@@ -6646,7 +6644,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
         self.assertEqual(player_data["inventory"]["Orb of protection"], 1)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
                 "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
@@ -6689,7 +6687,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Orb of protection"], 0)
         self.assertEqual(player_data["inventory"]["Orbs of protection"], 1)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
                 "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
@@ -6792,7 +6790,7 @@ class TestLogic(unittest.TestCase):
                 player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
                 self.assertTrue(ok)
                 self.assertEqual(player_data["current_quest"], quest_id)
-                self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+                self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
                 for progress, action_count in ((2, 1), (3, 2), (4, 3)):
                     player_data, ok, completed_now = apply_quest_progress_pure(
@@ -6804,7 +6802,7 @@ class TestLogic(unittest.TestCase):
                     self.assertFalse(completed_now)
                     self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
                     self.assertEqual(
-                        tuple(player_data["quest_stage_actions"][quest_id]),
+                        quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                         common_actions[:action_count],
                     )
 
@@ -6834,7 +6832,7 @@ class TestLogic(unittest.TestCase):
                 self.assertFalse(completed_now)
                 self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
                 self.assertEqual(
-                    tuple(player_data["quest_stage_actions"][quest_id]),
+                    quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                     common_actions + route_actions[:1],
                 )
 
@@ -6874,7 +6872,7 @@ class TestLogic(unittest.TestCase):
                     self.assertEqual(completed_now, stage == 11)
                     self.assertEqual(player_data["quests"][quest_id]["progress"], stage + 1)
                     self.assertEqual(
-                        tuple(player_data["quest_stage_actions"][quest_id]),
+                        quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                         common_actions + route_actions[:action_count],
                     )
 
@@ -6961,26 +6959,26 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["shield_of_arrav"]["progress"], 6)
         self.assertEqual(player_data["inventory"]["Intel report"], 1)
 
-        player_data["quest_stage_actions"] = {"shield_of_arrav": ["Hand Straven Jonny's intelligence report"]}
+        player_data["quest_action_proofs"] = ["Hand Straven Jonny's intelligence report"]
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Intel report"], 0)
         self.assertEqual(player_data["inventory"]["Weapon store key"], 1)
 
-        player_data["quest_stage_actions"]["shield_of_arrav"].append("Search the Phoenix Gang shield chest")
+        player_data["quest_action_proofs"].append("Search the Phoenix Gang shield chest")
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Broken shield (Phoenix half)"], 1)
 
-        player_data["quest_stage_actions"]["shield_of_arrav"].append("Show King Roald the Phoenix shield half")
+        player_data["quest_action_proofs"].append("Show King Roald the Phoenix shield half")
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Broken shield (Phoenix half)"], 1)
 
-        player_data["quest_stage_actions"]["shield_of_arrav"].append(
+        player_data["quest_action_proofs"].append(
             "Have Curator Haig Halen authenticate the Phoenix shield half"
         )
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
@@ -6996,7 +6994,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"].get("Half certificate (Black Arm)", 0), 0)
         self.assertEqual(player_data["inventory"]["Certificate"], 1)
 
-        player_data["quest_stage_actions"]["shield_of_arrav"].append("Claim the Shield of Arrav reward from King Roald")
+        player_data["quest_action_proofs"].append("Claim the Shield of Arrav reward from King Roald")
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
@@ -7051,7 +7049,7 @@ class TestLogic(unittest.TestCase):
 
         player_data, ok = start_quest_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
-        self.assertNotIn("fight_arena", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "fight_arena", QUEST_DATA), ())
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
@@ -7073,8 +7071,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 4)
         self.assertEqual(
-            player_data["quest_stage_actions"]["fight_arena"],
-            ["Talk to Jeremy about the key holder"],
+            quest_action_proofs_for_quest(player_data, "fight_arena", QUEST_DATA),
+            ("Talk to Jeremy about the key holder",),
         )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
@@ -7096,11 +7094,11 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Khazard cell keys"], 1)
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 7)
         self.assertEqual(
-            player_data["quest_stage_actions"]["fight_arena"],
-            [
+            quest_action_proofs_for_quest(player_data, "fight_arena", QUEST_DATA),
+            (
                 "Talk to Jeremy about the key holder",
                 "Steal the Khazard cell keys from the lazy guard",
-            ],
+            ),
         )
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
@@ -7108,12 +7106,12 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 8)
         self.assertEqual(
-            player_data["quest_stage_actions"]["fight_arena"],
-            [
+            quest_action_proofs_for_quest(player_data, "fight_arena", QUEST_DATA),
+            (
                 "Talk to Jeremy about the key holder",
                 "Steal the Khazard cell keys from the lazy guard",
                 "Use the Khazard cell keys on Jeremy's cell",
-            ],
+            ),
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
@@ -7173,12 +7171,12 @@ class TestLogic(unittest.TestCase):
             (),
         )
         self.assertEqual(
-            player_data["quest_stage_actions"]["fight_arena"],
-            [
+            quest_action_proofs_for_quest(player_data, "fight_arena", QUEST_DATA),
+            (
                 "Talk to Jeremy about the key holder",
                 "Steal the Khazard cell keys from the lazy guard",
                 "Use the Khazard cell keys on Jeremy's cell",
-            ],
+            ),
         )
 
         attack_before_reward = player_data["attack_exp"]
@@ -7192,13 +7190,13 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["thieving_exp"], 2175.0)
         self.assertEqual(player_data["inventory"]["Coins"], 1000)
         self.assertEqual(
-            player_data["quest_stage_actions"]["fight_arena"],
-            [
+            quest_action_proofs_for_quest(player_data, "fight_arena", QUEST_DATA),
+            (
                 "Talk to Jeremy about the key holder",
                 "Steal the Khazard cell keys from the lazy guard",
                 "Use the Khazard cell keys on Jeremy's cell",
                 "Return to Lady Servil for the reward",
-            ],
+            ),
         )
 
     def test_witchs_house_stage_gates_items_route_combat_and_reward(self):
@@ -7215,20 +7213,20 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(player_data["inventory"]["Door key"], 1)
-        self.assertEqual(tuple(player_data["quest_stage_actions"].get(quest_id, ())), ())
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:1])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:1])
         self.assertEqual(player_data["inventory"]["Door key"], 1)
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
@@ -7248,13 +7246,13 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
         self.assertEqual(player_data["inventory"]["Cheese"], 0)
         self.assertEqual(player_data["inventory"]["Magnet"], 1)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:2])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:2])
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 6)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:3])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:3])
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             ("Needs Leather gloves",),
@@ -7276,7 +7274,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 9)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:4])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions[:4])
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             (
@@ -7333,7 +7331,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 4)
         self.assertEqual(player_data["inventory"]["Ball"], 0)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
         self.assertEqual(player_data["constitution_exp"] - constitution_before_reward, 6325.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
@@ -7341,7 +7339,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quest_points"], 4)
-        self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions)
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
 
     def test_merlins_crystal_completes_from_a_normal_start(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -7361,7 +7359,7 @@ class TestLogic(unittest.TestCase):
         )
         self.assertIn(
             "Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",
-            player_data["quest_stage_actions"]["merlins_crystal"],
+            quest_action_proofs_for_quest(player_data, "merlins_crystal", QUEST_DATA),
         )
 
         # Stage 3 is the Sir Mordred combat gate; stage 2 emits the crate route.
@@ -7371,7 +7369,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 3)
         self.assertIn(
             "Reach Keep Le Faye through the Catherby crate delivery",
-            player_data["quest_stage_actions"]["merlins_crystal"],
+            quest_action_proofs_for_quest(player_data, "merlins_crystal", QUEST_DATA),
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
@@ -7419,7 +7417,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 5)
         self.assertIn(
             "Question Morgan Le Faye about Excalibur and the binding words",
-            player_data["quest_stage_actions"]["merlins_crystal"],
+            quest_action_proofs_for_quest(player_data, "merlins_crystal", QUEST_DATA),
         )
 
         # Stage 5 candle-maker exchange and stage 6 Excalibur trial are both automatic.
@@ -7432,7 +7430,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 6)
         self.assertIn(
             "Ask the Catherby candle-maker for a black candle",
-            player_data["quest_stage_actions"]["merlins_crystal"],
+            quest_action_proofs_for_quest(player_data, "merlins_crystal", QUEST_DATA),
         )
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
         self.assertTrue(ok)
@@ -7447,7 +7445,7 @@ class TestLogic(unittest.TestCase):
                     "Accept the Lady of the Lake's test in Taverley",
                     "Give bread to the Port Sarim beggar",
                 )
-                if action not in player_data["quest_stage_actions"]["merlins_crystal"]
+                if action not in quest_action_proofs_for_quest(player_data, "merlins_crystal", QUEST_DATA)
             ],
             [],
         )
@@ -7476,7 +7474,7 @@ class TestLogic(unittest.TestCase):
             "Shatter Merlin's crystal with Excalibur",
             "Report Merlin's freedom to King Arthur",
         ):
-            self.assertIn(action, player_data["quest_stage_actions"]["merlins_crystal"])
+            self.assertIn(action, quest_action_proofs_for_quest(player_data, "merlins_crystal", QUEST_DATA))
 
     def test_stage_requirement_model_exposes_tool_action_route_and_combat_blockers(self):
         quest_data = {
@@ -7732,15 +7730,15 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            player_data["quest_stage_actions"][quest_id],
-            ["Speak through the Paterdomus temple door"],
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
+            ("Speak through the Paterdomus temple door",),
         )
 
         player_data, ok, result = apply_quest_combat_encounter_pure(
@@ -7764,25 +7762,25 @@ class TestLogic(unittest.TestCase):
         for progress, actions in (
             (
                 4,
-                [
+                (
                     "Speak through the Paterdomus temple door",
                     "Report the dead guard dog to King Roald",
-                ],
+                ),
             ),
             (
                 5,
-                [
+                (
                     "Speak through the Paterdomus temple door",
                     "Report the dead guard dog to King Roald",
                     "Find Drezel imprisoned in the Paterdomus cell",
-                ],
+                ),
             ),
         ):
             player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok)
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
-            self.assertEqual(player_data["quest_stage_actions"][quest_id], actions)
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
 
         player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
@@ -7809,14 +7807,14 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"][quest_id]["progress"], 7)
         self.assertEqual(player_data["inventory"]["Golden key"], 0)
         self.assertEqual(
-            player_data["quest_stage_actions"][quest_id],
-            [
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
+            (
                 "Speak through the Paterdomus temple door",
                 "Report the dead guard dog to King Roald",
                 "Find Drezel imprisoned in the Paterdomus cell",
                 "Swap the golden key at the Paterdomus monument",
                 "Unlock Drezel's cell",
-            ],
+            ),
         )
 
         player_data["inventory"]["Bucket"] = 1
@@ -7825,8 +7823,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 8)
         self.assertEqual(
-            player_data["quest_stage_actions"][quest_id],
-            [
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
+            (
                 "Speak through the Paterdomus temple door",
                 "Report the dead guard dog to King Roald",
                 "Find Drezel imprisoned in the Paterdomus cell",
@@ -7834,7 +7832,7 @@ class TestLogic(unittest.TestCase):
                 "Unlock Drezel's cell",
                 "Bless Salve water with Drezel",
                 "Pour blessed Salve water over the vampire coffin",
-            ],
+            ),
         )
 
         player_data["inventory"]["Pure essence"] = 25
@@ -7973,7 +7971,7 @@ class TestLogic(unittest.TestCase):
         player_data["inventory"]["Silver sickle"] = 1
         player_data, ok = start_quest_pure(player_data, "nature_spirit", QUEST_DATA)
         self.assertTrue(ok)
-        self.assertNotIn("nature_spirit", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "nature_spirit", QUEST_DATA), ())
         for expected_progress in range(2, 6):
             player_data, ok, completed_now = apply_quest_progress_pure(
                 player_data,
@@ -8023,13 +8021,13 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(completed["inventory"]["Apple pie"], 3)
         self.assertEqual(completed["quest_points"], 4)
         self.assertEqual(
-            completed["quest_stage_actions"]["nature_spirit"][-4:],
-            [
+            quest_action_proofs_for_quest(completed, "nature_spirit", QUEST_DATA)[-4:],
+            (
                 "Operate the sickle in the swamp next to bushes, logs, or twigs.",
                 "Collect what grows and fill the Druid pouch with them.",
                 "Wander around until a Ghast attacks and kill it. (Or you could use the Druid pouch on the ghast, allowing them to be attacked)",
                 "Kill a total of three ghasts and return to Filliman.",
-            ],
+            ),
         )
 
     def test_fairy_tale_i_completes_from_normal_prerequisite_progression(self):
@@ -8124,7 +8122,7 @@ class TestLogic(unittest.TestCase):
             QUEST_DATA,
         )
         self.assertTrue(ok)
-        self.assertNotIn("a_fairy_tale_i_growing_pains", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "a_fairy_tale_i_growing_pains", QUEST_DATA), ())
         self.assertFalse(advance("a_fairy_tale_i_growing_pains", 2))
         self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
         self.assertFalse(advance("a_fairy_tale_i_growing_pains"))
@@ -8155,14 +8153,14 @@ class TestLogic(unittest.TestCase):
             )
         )
         self.assertEqual(
-            player_data["quest_stage_actions"]["a_fairy_tale_i_growing_pains"],
-            [
+            quest_action_proofs_for_quest(player_data, "a_fairy_tale_i_growing_pains", QUEST_DATA),
+            (
                 "Martin thinks fairies may be responsible. I should ask the Fairy Godfather in Zanaris.",
                 "Zandar Horfyre sent me to Malignius Mortifer near Port Sarim.",
                 "Malignius will tell you to go ask the Nature Spirit to perform the spell 'Phasma Phasmatis Natura' on an ordinary secateurs, along with three or four specific items.",
                 "Nature Spirit enchanted my secateurs. I must enter the shady grove and defeat the Tanglefoot.",
                 "I have the Queen's secateurs. I should return them to the Fairy Godfather.",
-            ],
+            ),
         )
 
     def test_source_backed_starter_quests_progress_through_stage_gates(self):
@@ -8304,7 +8302,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(druidic["quest_points"], 4)
         self.assertEqual(druidic["herblore_exp"], 250.0)
         self.assertEqual(druidic["pending_skill_exp_rewards"], {})
-        actions = druidic["quest_stage_actions"]["druidic_ritual"]
+        actions = quest_action_proofs_for_quest(druidic, "druidic_ritual", QUEST_DATA)
         self.assertIn("Catch a Stone fish at the Sparkling Fishing Spot", actions)
         self.assertIn("Use a chisel on the Stone fish", actions)
         self.assertFalse(any("meat" in action.lower() or "cauldron" in action.lower() for action in actions))
@@ -8313,21 +8311,21 @@ class TestLogic(unittest.TestCase):
         vampyre, ok = start_quest_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(vampyre["current_quest"], "vampyre_slayer")
-        self.assertNotIn("vampyre_slayer", vampyre["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(vampyre, "vampyre_slayer", QUEST_DATA), ())
         blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertEqual(blockers, ())
         vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(vampyre["quest_stage_actions"]["vampyre_slayer"], ["Speak to Dr Harlow at the Blue Moon Inn"])
+        self.assertEqual(quest_action_proofs_for_quest(vampyre, "vampyre_slayer", QUEST_DATA), ("Speak to Dr Harlow at the Blue Moon Inn",))
         blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertEqual(blockers, ())
         vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(
-            vampyre["quest_stage_actions"]["vampyre_slayer"],
-            ["Speak to Dr Harlow at the Blue Moon Inn", "Buy Dr Harlow a beer at the Blue Moon Inn"],
+            quest_action_proofs_for_quest(vampyre, "vampyre_slayer", QUEST_DATA),
+            ("Speak to Dr Harlow at the Blue Moon Inn", "Buy Dr Harlow a beer at the Blue Moon Inn"),
         )
         self.assertEqual(vampyre["inventory"].get("Beer", 0), 0)
         self.assertEqual(vampyre["inventory"]["Stake"], 1)
@@ -8361,12 +8359,12 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertEqual(vampyre["quests"]["vampyre_slayer"]["progress"], 5)
         self.assertEqual(
-            vampyre["quest_stage_actions"]["vampyre_slayer"],
-            [
+            quest_action_proofs_for_quest(vampyre, "vampyre_slayer", QUEST_DATA),
+            (
                 "Speak to Dr Harlow at the Blue Moon Inn",
                 "Buy Dr Harlow a beer at the Blue Moon Inn",
                 "Tell Morgan that Count Draynor is dead",
-            ],
+            ),
         )
         self.assertEqual(vampyre["quest_points"], 3)
         self.assertEqual(vampyre["attack_exp"] - attack_before_reward, 4825.0)
@@ -8378,7 +8376,7 @@ class TestLogic(unittest.TestCase):
         pirate, ok = start_quest_pure(pirate, "pirates_treasure", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(pirate["current_quest"], "pirates_treasure")
-        self.assertNotIn("pirates_treasure", pirate["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(pirate, "pirates_treasure", QUEST_DATA), ())
 
         pirate["inventory"]["Karamjan rum"] = 1
         self.assertEqual(
@@ -8390,8 +8388,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(pirate["quests"]["pirates_treasure"]["progress"], 2)
         self.assertEqual(
-            pirate["quest_stage_actions"]["pirates_treasure"],
-            ["Smuggle Karamjan rum off Karamja"],
+            quest_action_proofs_for_quest(pirate, "pirates_treasure", QUEST_DATA),
+            ("Smuggle Karamjan rum off Karamja",),
         )
         self.assertEqual(pirate["inventory"]["Karamjan rum"], 0)
         self.assertEqual(pirate["inventory"]["Chest key"], 1)
@@ -8401,11 +8399,11 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(pirate["quests"]["pirates_treasure"]["progress"], 3)
         self.assertEqual(
-            pirate["quest_stage_actions"]["pirates_treasure"],
-            [
+            quest_action_proofs_for_quest(pirate, "pirates_treasure", QUEST_DATA),
+            (
                 "Smuggle Karamjan rum off Karamja",
                 "Open One-Eyed Hector's chest at the Blue Moon Inn",
-            ],
+            ),
         )
         self.assertEqual(pirate["inventory"]["Chest key"], 0)
         self.assertEqual(pirate["inventory"]["Pirate message"], 1)
@@ -8420,12 +8418,12 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertEqual(pirate["quests"]["pirates_treasure"]["progress"], 4)
         self.assertEqual(
-            pirate["quest_stage_actions"]["pirates_treasure"],
-            [
+            quest_action_proofs_for_quest(pirate, "pirates_treasure", QUEST_DATA),
+            (
                 "Smuggle Karamjan rum off Karamja",
                 "Open One-Eyed Hector's chest at the Blue Moon Inn",
                 "Read the pirate message and dig in Falador Park",
-            ],
+            ),
         )
         self.assertEqual(pirate["inventory"]["Pirate message"], 1)
         self.assertEqual(pirate["inventory"]["Casket (Pirate's Treasure)"], 1)
@@ -8474,7 +8472,7 @@ class TestLogic(unittest.TestCase):
         ernest, ok = start_quest_pure(ernest, "ernest_the_chicken", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(ernest["current_quest"], "ernest_the_chicken")
-        self.assertNotIn("ernest_the_chicken", ernest["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(ernest, "ernest_the_chicken", QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(ernest, "ernest_the_chicken", QUEST_DATA),
             (),
@@ -8485,8 +8483,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(ernest["quests"]["ernest_the_chicken"]["progress"], 2)
         self.assertEqual(
-            ernest["quest_stage_actions"]["ernest_the_chicken"],
-            ["Ask Professor Oddenstein about Ernest"],
+            quest_action_proofs_for_quest(ernest, "ernest_the_chicken", QUEST_DATA),
+            ("Ask Professor Oddenstein about Ernest",),
         )
 
         ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
@@ -8494,11 +8492,11 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(ernest["quests"]["ernest_the_chicken"]["progress"], 3)
         self.assertEqual(
-            ernest["quest_stage_actions"]["ernest_the_chicken"],
-            [
+            quest_action_proofs_for_quest(ernest, "ernest_the_chicken", QUEST_DATA),
+            (
                 "Ask Professor Oddenstein about Ernest",
                 "Agree to retrieve Oddenstein's machine parts",
-            ],
+            ),
         )
 
         ernest["inventory"].update({"Fish food": 1, "Poison": 1, "Spade": 1})
@@ -8530,12 +8528,12 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(ernest["inventory"]["Oil can"], 1)
         self.assertEqual(
-            ernest["quest_stage_actions"]["ernest_the_chicken"],
-            [
+            quest_action_proofs_for_quest(ernest, "ernest_the_chicken", QUEST_DATA),
+            (
                 "Ask Professor Oddenstein about Ernest",
                 "Agree to retrieve Oddenstein's machine parts",
                 "Solve the Draynor Manor basement lever puzzle",
-            ],
+            ),
         )
 
         ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
@@ -8558,7 +8556,7 @@ class TestLogic(unittest.TestCase):
         black, ok = start_quest_pure(black, "black_knights_fortress", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(black["current_quest"], "black_knights_fortress")
-        self.assertNotIn("black_knights_fortress", black["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(black, "black_knights_fortress", QUEST_DATA), ())
         self.assertEqual(quest_current_stage_blockers_pure(black, "black_knights_fortress", QUEST_DATA), ())
 
         black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
@@ -8566,8 +8564,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(black["quests"]["black_knights_fortress"]["progress"], 2)
         self.assertEqual(
-            black["quest_stage_actions"]["black_knights_fortress"],
-            ["Infiltrate the Black Knights' Fortress"],
+            quest_action_proofs_for_quest(black, "black_knights_fortress", QUEST_DATA),
+            ("Infiltrate the Black Knights' Fortress",),
         )
 
         black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
@@ -8575,11 +8573,11 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(black["quests"]["black_knights_fortress"]["progress"], 3)
         self.assertEqual(
-            black["quest_stage_actions"]["black_knights_fortress"],
-            [
+            quest_action_proofs_for_quest(black, "black_knights_fortress", QUEST_DATA),
+            (
                 "Infiltrate the Black Knights' Fortress",
                 "Listen at the grill above the Black Knights' meeting",
-            ],
+            ),
         )
 
         self.assertEqual(
@@ -8597,12 +8595,12 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertEqual(
-            black["quest_stage_actions"]["black_knights_fortress"],
-            [
+            quest_action_proofs_for_quest(black, "black_knights_fortress", QUEST_DATA),
+            (
                 "Infiltrate the Black Knights' Fortress",
                 "Listen at the grill above the Black Knights' meeting",
                 "Report the ruined potion to Sir Amik Varze",
-            ],
+            ),
         )
         self.assertEqual(black["quest_points"], 15)
         self.assertEqual(black["inventory"]["Coins"], 2500)
@@ -9244,7 +9242,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "a_souls_bane", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "a_souls_bane")
-        self.assertNotIn("a_souls_bane", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "a_souls_bane", QUEST_DATA), ())
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(
                 player_data,
@@ -9263,7 +9261,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["a_souls_bane"]["progress"], 2)
-        self.assertNotIn("a_souls_bane", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "a_souls_bane", QUEST_DATA), ())
 
         player_data, ok, completed_now = apply_quest_progress_pure(
             player_data,
@@ -9274,8 +9272,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["a_souls_bane"]["progress"], 3)
         self.assertEqual(
-            player_data["quest_stage_actions"]["a_souls_bane"],
-            ["Fill the rage meter with an anger weapon"],
+            quest_action_proofs_for_quest(player_data, "a_souls_bane", QUEST_DATA),
+            ("Fill the rage meter with an anger weapon",),
         )
 
         stage_three_encounters = (
@@ -9441,7 +9439,7 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"]["Muddy skull"] = 1
         player_data["quests"]["the_restless_ghost"] = {"started": True, "progress": 4, "completed": False}
-        player_data["quest_stage_actions"] = {"the_restless_ghost": ["Return the muddy skull to the ghost's coffin"]}
+        player_data["quest_action_proofs"] = ["Return the muddy skull to the ghost's coffin"]
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 20
         player_data["strength_level"] = 20
@@ -9474,7 +9472,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_steps = (
             (
@@ -9510,7 +9508,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"][quest_id]),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 actions,
             )
             self.assertEqual(
@@ -9547,7 +9545,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
                 "Receive the ghostspeak amulet from Father Urhney",
                 "Speak to the restless ghost",
@@ -10254,7 +10252,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "demon_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "demon_slayer")
-        self.assertNotIn("demon_slayer", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "demon_slayer", QUEST_DATA), ())
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
         self.assertTrue(ok)
@@ -10342,8 +10340,8 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["demon_slayer"]["completed"])
         self.assertEqual(
-            player_data["quest_stage_actions"]["demon_slayer"],
-            ["Recite Aber, Gabindo, Purchai, Camerinthum, Carlem"],
+            quest_action_proofs_for_quest(player_data, "demon_slayer", QUEST_DATA),
+            ("Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",),
         )
         self.assertEqual(player_data["quest_points"], 3)
         self.assertEqual(player_data["inventory"]["Silverlight"], 1)
@@ -10381,7 +10379,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_steps = (
             (2, actions[:1], {"Coins": 1000, "Bucket of milk": 1}),
@@ -10407,7 +10405,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"].get(quest_id, ())),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 recorded_actions,
             )
             self.assertEqual(
@@ -10427,7 +10425,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions,
         )
         self.assertEqual(player_data["quest_points"], 1)
@@ -10488,7 +10486,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, quest_data)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, quest_data), ())
 
         for index, action in enumerate(actions, start=1):
             player_data, ok, completed_now = apply_quest_progress_pure(
@@ -10499,7 +10497,7 @@ class TestLogic(unittest.TestCase):
             self.assertTrue(ok)
             self.assertEqual(completed_now, index == len(actions))
             self.assertEqual(player_data["quests"][quest_id]["progress"], index + 1)
-            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[:index])
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, quest_data), actions[:index])
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 2)
@@ -10546,7 +10544,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, quest_data)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, quest_data), ())
 
         for index in range(5):
             player_data, ok, completed_now = apply_quest_progress_pure(
@@ -10557,7 +10555,7 @@ class TestLogic(unittest.TestCase):
             self.assertTrue(ok)
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], index + 2)
-            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[: index + 1])
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, quest_data), actions[: index + 1])
             if index == 0:
                 self.assertEqual(player_data["inventory"]["Seal of passage"], 1)
 
@@ -10588,7 +10586,7 @@ class TestLogic(unittest.TestCase):
             self.assertTrue(ok)
             self.assertEqual(completed_now, index == len(actions) - 1)
             self.assertEqual(player_data["quests"][quest_id]["progress"], index + 2)
-            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), actions[: index + 1])
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, quest_data), actions[: index + 1])
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 2)
@@ -10645,7 +10643,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         expected_actions = []
         for stage_index in range(5):
@@ -10658,7 +10656,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             expected_actions.extend(actions_by_stage[stage_index])
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage_index + 2)
-            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), tuple(expected_actions))
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), tuple(expected_actions))
 
         self.assertEqual(player_data["inventory"]["Beer"], 0)
         self.assertEqual(player_data["inventory"]["Strange object"], 0)
@@ -10690,7 +10688,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(completed_now, stage_index == len(actions_by_stage) - 1)
             expected_actions.extend(actions_by_stage[stage_index])
             self.assertEqual(player_data["quests"][quest_id]["progress"], stage_index + 2)
-            self.assertEqual(tuple(player_data["quest_stage_actions"][quest_id]), tuple(expected_actions))
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), tuple(expected_actions))
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])
         self.assertEqual(player_data["quest_points"], 3)
@@ -10715,7 +10713,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         stage_one = next(
             requirement
@@ -10752,8 +10750,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            player_data["quest_stage_actions"][quest_id],
-            ["Find the Beaten book in the Exam Centre and read its hidden scroll"],
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
+            ("Find the Beaten book in the Exam Centre and read its hidden scroll",),
         )
         self.assertEqual(player_data["inventory"]["Beaten book"], 1)
         self.assertEqual(player_data["inventory"].get("Slashed book", 0), 0)
@@ -10775,7 +10773,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         stage_one = next(
             requirement
@@ -10798,8 +10796,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            player_data["quest_stage_actions"][quest_id],
-            ["Find and read the Ragged book in the workshop"],
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
+            ("Find and read the Ragged book in the workshop",),
         )
 
     def test_elemental_workshop_identical_darkan_sources_are_resolver_ready(self):
@@ -10927,7 +10925,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 0)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         # Stage 1: chopping the swamp tree reveals Shamus.
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
@@ -10935,7 +10933,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:1],
         )
 
@@ -10946,7 +10944,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 3)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:3],
         )
 
@@ -10983,7 +10981,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 5)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:4],
         )
         self.assertEqual(player_data["inventory"]["Dramen branch"], 1)
@@ -11001,7 +10999,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Dramen branch"], 0)
         self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions,
         )
         self.assertEqual(
@@ -11027,7 +11025,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         stage_one = next(
             requirement
@@ -11049,8 +11047,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            player_data["quest_stage_actions"][quest_id],
-            ["Cast NPC Contact to reach the quest contacts"],
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
+            ("Cast NPC Contact to reach the quest contacts",),
         )
 
     def test_within_the_light_real_stage_emitters_advance_first_stage(self):
@@ -11071,7 +11069,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         stage_one = next(
             requirement
@@ -11093,7 +11091,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
                 "Reach the Temple of Light through West Ardougne and Lletya",
                 "Recover the Temple of Light keys and crystal puzzle pieces",
@@ -11103,7 +11101,7 @@ class TestLogic(unittest.TestCase):
     def test_quest_completion_awards_trainable_xp_and_parks_unimplemented_xp(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["lunar_diplomacy"] = {"started": True, "progress": 7, "completed": False}
-        player_data["quest_stage_actions"] = {"lunar_diplomacy": ["Complete Lunar Diplomacy stage 7 objective"]}
+        player_data["quest_action_proofs"] = ["Complete Lunar Diplomacy stage 7 objective"]
 
         player_data, ok, completed_now = apply_quest_progress_pure(
             player_data,
@@ -11158,7 +11156,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
-        self.assertNotIn(quest_id, player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
         for progress, action_count in ((2, 0), (3, 1), (4, 2), (5, 3)):
             player_data, ok, completed_now = apply_quest_progress_pure(
@@ -11170,7 +11168,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
             self.assertEqual(
-                tuple(player_data["quest_stage_actions"].get(quest_id, ())),
+                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
                 actions[:action_count],
             )
 
@@ -11215,7 +11213,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:4],
         )
         self.assertEqual(player_data["inventory"]["Coins"], 2000)
@@ -11254,7 +11252,7 @@ class TestLogic(unittest.TestCase):
             self.assertFalse(completed_now)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:6],
         )
         blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
@@ -11279,7 +11277,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"][quest_id]["progress"], 15)
         self.assertEqual(player_data["inventory"]["Elvarg's head"], 1)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions[:6],
         )
 
@@ -11292,7 +11290,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 16)
         self.assertEqual(
-            tuple(player_data["quest_stage_actions"][quest_id]),
+            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             actions,
         )
         self.assertEqual(player_data["quest_points"], 34)
@@ -11353,7 +11351,7 @@ class TestLogic(unittest.TestCase):
         )
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "tai_bwo_wannai_trio")
-        self.assertNotIn("tai_bwo_wannai_trio", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "tai_bwo_wannai_trio", QUEST_DATA), ())
 
         player_data, ok, completed_now = apply_quest_progress_pure(
             player_data,
@@ -11363,7 +11361,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 2)
-        self.assertNotIn("tai_bwo_wannai_trio", player_data["quest_stage_actions"])
+        self.assertEqual(quest_action_proofs_for_quest(player_data, "tai_bwo_wannai_trio", QUEST_DATA), ())
 
         player_data, ok, completed_now = apply_quest_progress_pure(
             player_data,
@@ -11374,8 +11372,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 3)
         self.assertEqual(
-            player_data["quest_stage_actions"]["tai_bwo_wannai_trio"],
-            ["Catch karambwanji for Tiadeche"],
+            quest_action_proofs_for_quest(player_data, "tai_bwo_wannai_trio", QUEST_DATA),
+            ("Catch karambwanji for Tiadeche",),
         )
 
         # The source-backed Monkey encounter has no combat stats to resolve yet;
@@ -11403,11 +11401,11 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 4)
         self.assertEqual(
-            player_data["quest_stage_actions"]["tai_bwo_wannai_trio"],
-            [
+            quest_action_proofs_for_quest(player_data, "tai_bwo_wannai_trio", QUEST_DATA),
+            (
                 "Catch karambwanji for Tiadeche",
                 "Repair and poison Tamayu's spear",
-            ],
+            ),
         )
 
         player_data, ok, completed_now = apply_quest_progress_pure(
@@ -11419,13 +11417,13 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 5)
         self.assertEqual(
-            player_data["quest_stage_actions"]["tai_bwo_wannai_trio"],
-            [
+            quest_action_proofs_for_quest(player_data, "tai_bwo_wannai_trio", QUEST_DATA),
+            (
                 "Catch karambwanji for Tiadeche",
                 "Repair and poison Tamayu's spear",
                 "Prepare the sliced banana in rum",
                 "Burn and grind the jogre bones",
-            ],
+            ),
         )
 
         attack_before_reward = player_data["attack_exp"]
@@ -11439,13 +11437,13 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertEqual(player_data["quests"]["tai_bwo_wannai_trio"]["progress"], 6)
         self.assertEqual(
-            player_data["quest_stage_actions"]["tai_bwo_wannai_trio"],
-            [
+            quest_action_proofs_for_quest(player_data, "tai_bwo_wannai_trio", QUEST_DATA),
+            (
                 "Catch karambwanji for Tiadeche",
                 "Repair and poison Tamayu's spear",
                 "Prepare the sliced banana in rum",
                 "Burn and grind the jogre bones",
-            ],
+            ),
         )
         self.assertEqual(player_data["quest_points"], 2)
         self.assertEqual(player_data["inventory"]["Coins"], 2000)

@@ -4,7 +4,6 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.logic_pure.logic_pure import (
-    _mark_quest_stage_actions,
     apply_quest_combat_encounter_pure,
     apply_quest_progress_pure,
     quest_current_stage_blocker_reasons_pure,
@@ -12,6 +11,7 @@ from ankiscape.logic_pure.logic_pure import (
     quest_current_stage_pure,
     start_quest_pure,
 )
+from ankiscape.logic_pure.quest_action_proofs import record_quest_stage_action_proofs_pure
 
 
 _ALL_SKILLS = (
@@ -168,7 +168,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         player_data = _player_ready_through_stage(quest_id, target_stage)
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok, f"{quest_id} should start normally")
-        self.assertEqual(player_data["quest_stage_actions"], {})
+        self.assertEqual(player_data["quest_action_proofs"], [])
         self.assertEqual(player_data["quest_route_states"], {})
 
         while player_data["quests"][quest_id]["progress"] <= target_stage:
@@ -191,7 +191,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
                     self.assertIn(expected_text, recorded_steps)
 
             for requirement in rows:
-                _mark_quest_stage_actions(player_data, quest_id, requirement.get("required_actions", ()))
+                record_quest_stage_action_proofs_pure(player_data, quest_id, requirement.get("required_actions", ()))
 
             guard = 0
             while guard < 20:
@@ -219,7 +219,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
             player_data, ok, _ = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok, f"{quest_id} stage {stage} should progress")
             for expected_text in expected_by_stage.get(stage, ()):
-                self.assertIn(expected_text, player_data["quest_stage_actions"][quest_id])
+                self.assertIn(expected_text, player_data["quest_action_proofs"])
 
         self.assertNotIn(quest_id, player_data.get("quest_route_states", {}))
 
@@ -379,7 +379,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         )
         player_data, ok, _ = apply_quest_progress_pure(player_data, "mournings_end_part_i", QUEST_DATA)
         self.assertTrue(ok)
-        self.assertIn("Reach Lletya", player_data["quest_stage_actions"]["mournings_end_part_i"])
+        self.assertIn("Reach Lletya", player_data["quest_action_proofs"])
 
     def test_death_to_the_dorgeshuun_reach_tears_cavern_is_a_recorded_step(self):
         quest_id = "death_to_the_dorgeshuun"
@@ -418,7 +418,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn(
             "Reach the Tears of Guthix cavern",
-            player_data["quest_stage_actions"][quest_id],
+            player_data["quest_action_proofs"],
         )
 
     def test_enlightened_journey_reach_auguste_is_a_recorded_step(self):
@@ -426,7 +426,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         player_data, ok, _ = apply_quest_progress_pure(player_data, "enlightened_journey", QUEST_DATA)
         self.assertTrue(ok)
         self.assertIn(
-            "Reach Auguste on Entrana", player_data["quest_stage_actions"]["enlightened_journey"]
+            "Reach Auguste on Entrana", player_data["quest_action_proofs"]
         )
 
     def test_making_history_travel_legs_are_a_recorded_step(self):
@@ -437,7 +437,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn(
             "Reach the Outpost, Rellekka, and Port Phasmatys travel legs",
-            player_data["quest_stage_actions"]["making_history"],
+            player_data["quest_action_proofs"],
         )
 
     def test_cabin_fever_charter_route_is_a_recorded_step(self):
@@ -448,14 +448,14 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn(
             "Reach the Port Phasmatys charter route",
-            player_data["quest_stage_actions"]["cabin_fever"],
+            player_data["quest_action_proofs"],
         )
 
     def test_in_pyre_need_phoenix_lair_is_a_recorded_step(self):
         player_data = self._drive_through_converted_stage("in_pyre_need", 1, [])
         player_data, ok, _ = apply_quest_progress_pure(player_data, "in_pyre_need", QUEST_DATA)
         self.assertTrue(ok)
-        self.assertIn("Reach the Phoenix lair", player_data["quest_stage_actions"]["in_pyre_need"])
+        self.assertIn("Reach the Phoenix lair", player_data["quest_action_proofs"])
 
     def test_back_to_my_roots_karamja_route_is_a_recorded_step(self):
         player_data = self._drive_through_converted_stage(
@@ -465,7 +465,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn(
             "Reach the Karamja jungle route",
-            player_data["quest_stage_actions"]["back_to_my_roots"],
+            player_data["quest_action_proofs"],
         )
 
     def test_rocking_out_customs_office_is_a_recorded_step(self):
@@ -488,7 +488,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn(
             "Reach the Rimmington customs office",
-            player_data["quest_stage_actions"]["rocking_out"],
+            player_data["quest_action_proofs"],
         )
 
     def test_glorious_memories_rellekka_miscellania_is_a_recorded_step(self):
@@ -507,7 +507,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn(
             "Reach Rellekka and Miscellania",
-            player_data["quest_stage_actions"]["glorious_memories"],
+            player_data["quest_action_proofs"],
         )
 
     def test_tale_of_the_muspah_all_three_route_legs_are_recorded_steps(self):
@@ -521,7 +521,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         ):
             player_data, ok, _ = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok)
-            self.assertIn(expected_text, player_data["quest_stage_actions"][quest_id])
+            self.assertIn(expected_text, player_data["quest_action_proofs"])
         self.assertEqual(player_data["quests"][quest_id]["progress"], 4)
 
     def test_within_the_light_temple_route_is_a_recorded_step(self):
@@ -545,7 +545,7 @@ class TestSingleValuedRoutesAreRecordedSteps(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn(
             "Reach the Temple of Light through West Ardougne and Lletya",
-            player_data["quest_stage_actions"]["within_the_light"],
+            player_data["quest_action_proofs"],
         )
 
 

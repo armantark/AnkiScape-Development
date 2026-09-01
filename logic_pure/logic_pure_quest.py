@@ -289,34 +289,6 @@ def _quest_flag_completed(player_data, collection_key, quest_id, flag_id):
     return False
 
 
-def _mark_quest_stage_actions(data, quest_id, action_ids):
-    actions = tuple(action_id for action_id in action_ids if isinstance(action_id, str) and action_id)
-    if not actions:
-        return
-    raw_collection = data.get("quest_stage_actions", {})
-    if not isinstance(raw_collection, Mapping):
-        raw_collection = {}
-        data["quest_stage_actions"] = raw_collection
-
-    raw_values = raw_collection.get(quest_id, ())
-    if isinstance(raw_values, Mapping):
-        completed = [action_id for action_id, enabled in raw_values.items() if isinstance(action_id, str) and enabled]
-    elif isinstance(raw_values, str):
-        completed = [raw_values]
-    elif isinstance(raw_values, Iterable):
-        completed = [action_id for action_id in raw_values if isinstance(action_id, str)]
-    else:
-        completed = []
-
-    seen = set(completed)
-    for action_id in actions:
-        if action_id not in seen:
-            completed.append(action_id)
-            seen.add(action_id)
-    raw_collection[quest_id] = completed
-    record_quest_stage_action_proofs_pure(data, quest_id, actions)
-
-
 _QUEST_ROUTE_INHERITANCE = {
     ("heroes_quest", "Join the Phoenix Gang"): ("shield_of_arrav",),
     ("heroes_quest", "Join the Black Arm Gang"): ("shield_of_arrav",),
@@ -1327,7 +1299,7 @@ def _consume_quest_current_stage_items(data, quest_id, quest):
     if blockers:
         return
     for requirement in requirements:
-        _mark_quest_stage_actions(data, quest_id, _quest_stage_strings(requirement, "auto_actions"))
+        record_quest_stage_action_proofs_pure(data, quest_id, _quest_stage_strings(requirement, "auto_actions"))
         for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
             inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
         for options in _quest_stage_item_option_groups(requirement, "consumed_inventory_options"):

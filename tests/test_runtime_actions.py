@@ -4,7 +4,8 @@ import unittest
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.brawling_gloves_data import BRAWLING_GLOVE_DATA
 from ankiscape.data.dungeoneering_data import DUNGEONEERING_ACTIVITY_ID
@@ -3681,7 +3682,7 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {"Research notes": 1},
             "current_quest": "rune_mysteries",
             "quests": {"rune_mysteries": {"started": True, "progress": 5, "completed": False}},
-            "quest_stage_actions": {"rune_mysteries": ["Return Aubury's research notes to Sedridor"]},
+            "quest_action_proofs": ["Return Aubury's research notes to Sedridor"],
             "quest_points": 0,
             "runecrafting_exp": 0,
             "pending_skill_exp_rewards": {},
@@ -3708,7 +3709,6 @@ class TestRuntimeActions(unittest.TestCase):
             "current_quest": "tears_of_guthix",
             "quests": {"tears_of_guthix": {"started": True, "progress": 2, "completed": False}},
             "quest_action_proofs": ["Complete Tears of Guthix stage 2 objective"],
-            "quest_stage_actions": {},
             "quest_points": 0,
             "crafting_exp": 0,
             "pending_skill_exp_rewards": {},
@@ -3822,18 +3822,16 @@ class TestRuntimeActions(unittest.TestCase):
             "quest_route_states": {
                 "biohazard": ["Reach Guidor's house without Varrock guards confiscating the vials"]
             },
-            "quest_stage_actions": {
-                "biohazard": [
-                    "Give sulphuric broline to Hops",
-                    "Give ethenea to Da Vinci",
-                    "Give liquid honey to Chancy",
-                    "Collect the sulphuric broline from Hops in Varrock",
-                    "Collect the ethenea from Da Vinci in Varrock",
-                    "Collect the liquid honey from Chancy in Varrock",
-                    "Enter Guidor's room wearing priest gowns",
-                    "Give Guidor the vials, plague sample, and touch paper",
-                ]
-            },
+            "quest_action_proofs": [
+                "Give sulphuric broline to Hops",
+                "Give ethenea to Da Vinci",
+                "Give liquid honey to Chancy",
+                "Collect the sulphuric broline from Hops in Varrock",
+                "Collect the ethenea from Da Vinci in Varrock",
+                "Collect the liquid honey from Chancy in Varrock",
+                "Enter Guidor's room wearing priest gowns",
+                "Give Guidor the vials, plague sample, and touch paper",
+            ],
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -3858,9 +3856,7 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {"Lava eel": 1, "Thieves' armband": 1},
             "current_quest": "heroes_quest",
             "quests": {"heroes_quest": {"started": True, "progress": 12, "completed": False}},
-            "quest_stage_actions": {
-                "heroes_quest": ["Hand Achietties the Lava eel, Thieves' armband, and Fire feather"]
-            },
+            "quest_action_proofs": ["Hand Achietties the Lava eel, Thieves' armband, and Fire feather"],
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -3891,9 +3887,7 @@ class TestRuntimeActions(unittest.TestCase):
             },
             "current_quest": "family_crest",
             "quests": {"family_crest": {"started": True, "progress": 10, "completed": False}},
-            "quest_stage_actions": {
-                "family_crest": ["Craft the perfect ruby ring and perfect ruby necklace"]
-            },
+            "quest_action_proofs": ["Craft the perfect ruby ring and perfect ruby necklace"],
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -3944,7 +3938,7 @@ class TestRuntimeActions(unittest.TestCase):
             "equipment": {"body": "Iron chainbody", "head": "Bronze med helm"},
             "current_quest": "black_knights_fortress",
             "quests": {"black_knights_fortress": {"started": True, "progress": 1, "completed": False}},
-            "quest_stage_actions": {"black_knights_fortress": ["Infiltrate the Black Knights' Fortress"]},
+            "quest_action_proofs": ["Infiltrate the Black Knights' Fortress"],
             "quest_points": 12,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -3965,7 +3959,7 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {"Hammer": 1},
             "current_quest": "dwarf_cannon",
             "quests": {"dwarf_cannon": {"started": True, "progress": 1, "completed": False}},
-            "quest_stage_actions": {"dwarf_cannon": ["Accept replacement railings from Captain Lawgof"]},
+            "quest_action_proofs": ["Accept replacement railings from Captain Lawgof"],
             "quest_points": 0,
             "crafting_exp": 0,
             "pending_skill_exp_rewards": {},
@@ -3988,7 +3982,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["activity"], ["Dwarf Cannon 2/14"])
 
         calls = {"xp": [], "saves": 0, "errors": []}
-        player_data["quest_stage_actions"] = {"dwarf_cannon": []}
+        player_data["quest_action_proofs"] = []
 
         ok = handle_quest_answer(_context(player_data, calls))
 
@@ -4017,8 +4011,8 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 2)
         self.assertEqual(player_data["inventory"]["Fishing pass"], 1)
         self.assertEqual(
-            player_data["quest_stage_actions"]["fishing_contest"],
-            ["Receive a fishing pass from Austri or Vestri"],
+            quest_action_proofs_for_quest(player_data, "fishing_contest", QUEST_DATA),
+            ("Receive a fishing pass from Austri or Vestri",),
         )
         self.assertEqual(player_data["quest_points"], 0)
         self.assertEqual(player_data["fishing_exp"], 0)
@@ -4050,8 +4044,8 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 2)
         self.assertEqual(player_data["inventory"]["Sheep feed"], 1)
         self.assertEqual(
-            player_data["quest_stage_actions"]["sheep_herder"],
-            ["Accept poisoned sheep feed from Councillor Halgrive"],
+            quest_action_proofs_for_quest(player_data, "sheep_herder", QUEST_DATA),
+            ("Accept poisoned sheep feed from Councillor Halgrive",),
         )
         self.assertEqual(player_data["quest_points"], 0)
         self.assertEqual(calls["saves"], 1)
@@ -4064,7 +4058,7 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {},
             "current_quest": "waterfall_quest",
             "quests": {"waterfall_quest": {"started": True, "progress": 2, "completed": False}},
-            "quest_stage_actions": {"waterfall_quest": ["Search the Baxtorian bookcase", "Read the Book on Baxtorian"]},
+            "quest_action_proofs": ["Search the Baxtorian bookcase", "Read the Book on Baxtorian"],
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -4137,9 +4131,7 @@ class TestRuntimeActions(unittest.TestCase):
             "quest_route_states": {
                 "holy_grail": ["Reach the Fisher Realm crossing at the six stone heads"]
             },
-            "quest_stage_actions": {
-                "holy_grail": ["Blow the Magic whistle at the six stone heads"]
-            },
+            "quest_action_proofs": ["Blow the Magic whistle at the six stone heads"],
             "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
@@ -4305,7 +4297,7 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {},
             "current_quest": "a_souls_bane",
             "quests": {"a_souls_bane": {"started": True, "progress": 3, "completed": False}},
-            "quest_stage_actions": {"a_souls_bane": ["Fill the rage meter with an anger weapon"]},
+            "quest_action_proofs": ["Fill the rage meter with an anger weapon"],
             "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},

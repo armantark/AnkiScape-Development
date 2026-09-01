@@ -12,6 +12,7 @@ from ankiscape.core.constants import (
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.grind_source_data import grind_source_activities_as_dict
 from ankiscape.logic.shop_logic import apply_shop_buy_pure, apply_shop_sell_pure
+from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 from ankiscape.logic_pure.logic_pure import (
     apply_mining_action_pure,
     apply_quest_progress_pure,
@@ -189,8 +190,8 @@ class RuneShardChainTests(unittest.TestCase):
                 ),
                 "quest_started": started,
                 "quest_progress": quest_progress,
-                "quest_actions": tuple(
-                    player["quest_stage_actions"]["rune_mysteries"]
+                "quest_actions": quest_action_proofs_for_quest(
+                    player, "rune_mysteries", QUEST_DATA
                 ),
                 "quest_completed": player["quests"]["rune_mysteries"]["completed"],
                 "essence_locks": (initial_essence_locks, essence_locks),

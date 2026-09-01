@@ -9558,18 +9558,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["quest_route_states"] = {
             "biohazard": ["Reach Guidor's house without Varrock guards confiscating the vials"]
         }
-        pd["quest_stage_actions"] = {
-            "biohazard": [
-                "Give sulphuric broline to Hops",
-                "Give ethenea to Da Vinci",
-                "Give liquid honey to Chancy",
-                "Collect the sulphuric broline from Hops in Varrock",
-                "Collect the ethenea from Da Vinci in Varrock",
-                "Collect the liquid honey from Chancy in Varrock",
-                "Enter Guidor's room wearing priest gowns",
-                "Give Guidor the vials, plague sample, and touch paper",
-            ]
-        }
+        pd["quest_action_proofs"] = [
+            "Give sulphuric broline to Hops",
+            "Give ethenea to Da Vinci",
+            "Give liquid honey to Chancy",
+            "Collect the sulphuric broline from Hops in Varrock",
+            "Collect the ethenea from Da Vinci in Varrock",
+            "Collect the liquid honey from Chancy in Varrock",
+            "Enter Guidor's room wearing priest gowns",
+            "Give Guidor the vials, plague sample, and touch paper",
+        ]
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
@@ -9587,9 +9585,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "heroes_quest"
         pd["quests"]["heroes_quest"] = {"started": True, "progress": 10, "completed": False}
         pd["quest_route_states"] = {"heroes_quest": ["Join the Black Arm Gang"]}
-        pd["quest_stage_actions"] = {
-            "heroes_quest": ["Show the Id papers to Garv", "Search Scarface Pete's candlestick chest"]
-        }
+        pd["quest_action_proofs"] = ["Show the Id papers to Garv", "Search Scarface Pete's candlestick chest"]
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
@@ -9645,7 +9641,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "holy_grail"
         pd["quests"]["holy_grail"] = {"started": True, "progress": 5, "completed": False}
         pd["quest_route_states"] = {"holy_grail": ["Reach the Fisher Realm crossing at the six stone heads"]}
-        pd["quest_stage_actions"] = {"holy_grail": ["Blow the Magic whistle at the six stone heads"]}
+        pd["quest_action_proofs"] = ["Blow the Magic whistle at the six stone heads"]
         dialog = self._open(pd)
         _open_quests_tab(dialog)
 
@@ -10001,7 +9997,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "a_souls_bane"
         pd["quests"]["a_souls_bane"] = {"started": True, "progress": 3, "completed": False}
-        pd["quest_stage_actions"] = {"a_souls_bane": ["Fill the rage meter with an anger weapon"]}
+        pd["quest_action_proofs"] = ["Fill the rage meter with an anger weapon"]
         pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 100
         pd["strength_level"] = 100
@@ -10245,7 +10241,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "the_restless_ghost"
         pd["inventory"]["Muddy skull"] = 1
         pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 4, "completed": False}
-        pd["quest_stage_actions"] = {"the_restless_ghost": ["Return the muddy skull to the ghost's coffin"]}
+        pd["quest_action_proofs"] = ["Return the muddy skull to the ghost's coffin"]
         pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 20
         pd["strength_level"] = 20

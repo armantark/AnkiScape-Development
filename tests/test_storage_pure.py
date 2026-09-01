@@ -436,7 +436,7 @@ class TestStoragePure(unittest.TestCase):
             "quest_combat_config",
             "quest_combat_encounters",
             "quest_combat_encounter_counts",
-            "quest_stage_actions",
+            "quest_action_proofs",
             "quest_route_states",
             "pending_skill_exp_rewards",
             "claims",
@@ -531,7 +531,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["quest_combat_config"], {"version": 1, "resolver_enabled": False})
         self.assertEqual(data["quest_combat_encounters"], {})
         self.assertEqual(data["quest_combat_encounter_counts"], {})
-        self.assertEqual(data["quest_stage_actions"], {})
+        self.assertNotIn("quest_stage_actions", data)
         self.assertEqual(data["quest_route_states"], {})
         self.assertEqual(data["pending_skill_exp_rewards"], {})
         self.assertEqual(data["claims"]["wicked_hood"], {"claimed": False})
@@ -626,7 +626,7 @@ class TestStoragePure(unittest.TestCase):
                     self.assertEqual(migrated["inventory"]["Wandering wyrmwood"], 1)
                     self.assertEqual(migrated["inventory"]["Stone scales"], 1)
 
-    def test_v119_migration_returns_retired_meats_and_actions_to_safe_state(self):
+    def test_v119_migration_returns_retired_meats_and_drops_legacy_stage_actions(self):
         legacy = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         legacy["config_version"] = 118
         legacy["quests"]["druidic_ritual"] = {
@@ -665,10 +665,7 @@ class TestStoragePure(unittest.TestCase):
             "Enchanted chicken",
         ):
             self.assertNotIn(item_name, migrated["inventory"])
-        self.assertEqual(
-            migrated["quest_stage_actions"]["druidic_ritual"],
-            ["Keep this action", "Speak to Sanfew about the ritual ingredients"],
-        )
+        self.assertNotIn("quest_stage_actions", migrated)
 
         migrated_again = migrate_loaded_data(migrated, ORE_DATA, ITEM_DEFINITIONS)
         self.assertEqual(migrated_again["inventory"]["Raw bear meat"], 3)
@@ -676,7 +673,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated_again["inventory"]["Raw beef"], 3)
         self.assertEqual(migrated_again["inventory"]["Raw chicken"], 4)
 
-    def test_current_schema_does_not_remigrate_druidic_ritual_state(self):
+    def test_current_schema_drops_legacy_stage_actions_without_remigrating_druidic_ritual(self):
         current = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         current["quests"]["druidic_ritual"] = {
             "started": True,
@@ -693,10 +690,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["quests"]["druidic_ritual"]["progress"], 3)
         self.assertEqual(migrated["inventory"]["Enchanted bear meat"], 1)
         self.assertEqual(migrated["inventory"].get("Living water", 0), 0)
-        self.assertEqual(
-            migrated["quest_stage_actions"]["druidic_ritual"],
-            ["Dip the raw meats in the Cauldron of Thunder"],
-        )
+        self.assertNotIn("quest_stage_actions", migrated)
 
     def test_v111_migration_restores_constitution_starting_xp_once(self):
         untouched = migrate_loaded_data({"config_version": 110}, ORE_DATA)
@@ -1124,7 +1118,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(mining["outputs"]["Iron ore"], 7)
         self.assertEqual(firemaking["outputs"]["Ashes"], 10)
 
-    def test_migrate_sanitizes_quest_stage_side_state(self):
+    def test_migrate_drops_legacy_stage_actions_and_sanitizes_quest_side_state(self):
         migrated = migrate_loaded_data(
             {
                 "quest_combat_config": {"resolver_enabled": True},
@@ -1140,7 +1134,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["quest_combat_config"], {"version": 1, "resolver_enabled": True})
         self.assertEqual(migrated["quest_combat_encounters"], {"dragon_slayer": ["elvarg"]})
         self.assertEqual(migrated["quest_combat_encounter_counts"], {"toktz_ket_dill": {"lava_monster": 1}})
-        self.assertEqual(migrated["quest_stage_actions"], {"the_knights_sword": ["Mine blurite ore"]})
+        self.assertNotIn("quest_stage_actions", migrated)
         self.assertEqual(migrated["quest_route_states"], {"heroes_quest": ["member_route"]})
 
     def test_migrate_can_seed_registered_items_without_losing_custom_entries(self):
