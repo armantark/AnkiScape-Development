@@ -2,7 +2,12 @@
 
 Date: `2026-07-25`
 
-Status: **open. Read the canonical file before any harvest task.**
+Status: **the canonical file is a historical pinned-result index; its live
+work-in-progress coordination is retired.** Read its pinned results before any
+harvest task so you never re-harvest a settled subject. Live claims on
+dual-eligible units go by doorbell between the two orchestrator threads, per
+the standing rule in `codex-briefs/STANDING-SLICE-CONTRACT.md` §4 (owner
+ruling of 2026-08-31).
 
 ## 1. Goal
 
