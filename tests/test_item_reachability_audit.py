@@ -1397,11 +1397,11 @@ class TestItemReachabilityAudit(unittest.TestCase):
         report = build_reachability_report()
 
         self.assertEqual(report["action_count"], 1663)
-        self.assertEqual(report["reachable_item_count"], 2304)
+        self.assertEqual(report["reachable_item_count"], 2343)
         self.assertEqual(report["routes"].get("Living water"), "quest-stage:druidic_ritual:2")
         self.assertEqual(report["routes"].get("Wandering wyrmwood"), "quest-stage:druidic_ritual:3")
         self.assertEqual(report["routes"].get("Stone fish"), "quest-stage:druidic_ritual:4")
-        self.assertEqual(report["routes"].get("Black prism"), "quest:zogre_flesh_eaters")
+        self.assertEqual((report["routes"].get("Black prism"), report["routes"].get("Book o' piracy")), ("quest:zogre_flesh_eaters", "quest:cabin_fever"))
         self.assertEqual((report["routes"].get("Fishbowl and net"), report["routes"].get("Holy wrench"), report["routes"].get("Relicym's balm")), ("quest:rum_deal", "quest:rum_deal", None))
         self.assertEqual(report["routes"].get("Stone scales"), "quest-stage:druidic_ritual:5")
         self.assertEqual(report["routes"].get("Ourg bones"), "quest-combat:zogre_flesh_eaters:zogre_flesh_eaters_slash_bash_111")
@@ -1412,14 +1412,14 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertTrue(
             {"Combat Training Camp", "Coin", "Law Rune"}.isdisjoint(report["routes"])
         )
-        self.assertEqual(report["orphan_input_count"], 165)
-        self.assertEqual(report["root_orphan_count"], 32)
-        self.assertEqual(report["cascade_orphan_count"], 133)
-        self.assertEqual(report["unresolved_action_count"], 252)
-        self.assertEqual(report["seed_item_count"], 1219)
-        self.assertEqual(report["completable_quest_count"], 53)
+        self.assertEqual(report["orphan_input_count"], 163)
+        self.assertEqual(report["root_orphan_count"], 31)
+        self.assertEqual(report["cascade_orphan_count"], 132)
+        self.assertEqual(report["unresolved_action_count"], 249)
+        self.assertEqual(report["seed_item_count"], 1230)
+        self.assertEqual(report["completable_quest_count"], 54)
         self.assertIn("Use the rotten apple to sabotage the mourner food stores", report["earned_quest_action_proofs"])
-        self.assertEqual(len(report["blocked_quest_stage_products"]), 137)
+        self.assertEqual(len(report["blocked_quest_stage_products"]), 136)
         blocked_quest_ids = {row["quest_id"] for row in report["blocked_quest_stage_products"]}
         self.assertEqual(
             {
@@ -1441,7 +1441,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             set(),
         )
         self.assertNotIn("the_lost_tribe", blocked_quest_ids)
-        self.assertTrue({"zogre_flesh_eaters", "rum_deal"}.isdisjoint(blocked_quest_ids))
+        self.assertTrue({"zogre_flesh_eaters", "rum_deal", "cabin_fever"}.isdisjoint(blocked_quest_ids))
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         quest_reward_items = {
             item

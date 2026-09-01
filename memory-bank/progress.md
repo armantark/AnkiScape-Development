@@ -7008,3 +7008,15 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Reachability moves from `1663 / 2302 / 165 / 32 / 133 / 252 / 1217` to `1663 / 2304 / 165 / 32 / 133 / 252 / 1219`; blocked stage rows move `138 -> 137`, and completable quests move `52 -> 53`.
 - The exact new registered routes are `Fishbowl and net -> quest:rum_deal` and `Holy wrench -> quest:rum_deal`. `Fever spider body` remains at completion, lacks global registration, and permanently renders in Bank under `Other` without an icon, value, or sell action; shown-dialog checks confirm the row at `1280×752` and `900×560` without item-text ellipses.
 - Evidence: `source-audits/rum-deal-stages-1-4-2026-09-01.md`.
+
+## Cabin Fever stages 2–4 — 2026-09-01
+
+- Removed `Complete Cabin Fever stage 2 objective`, `stage 3 objective`, and `stage 4 objective` through the existing cleanup registry and replaced them with literal frozen-contract actions.
+- Stage `2` consumes one quest rope per swing, disables the enemy cannon with one fuse and retained tinderbox, and records three hull repairs at two planks, ten tacks, and one swamp paste each. Stage `3` stores exactly ten plunder. Stage `4` repairs one cannon barrel, enforces the ordered load/clean sequence in the action proof, and records one canister plus three cannonball hits.
+- Added no Cabin Fever combat encounter or guaranteed drop. The frozen contract does not require a kill, and its pirate aggression details remain source-blocked, so encounter relocation was unnecessary.
+- Kept the exact existing completion item and XP rewards, replaced the unlock list with Mos Le'Harmless travel plus Fever spider, Cave horror, and Jungle horror Slayer assignments, and added the missing Cabin Fever predicate to Fever spiders.
+- Added focused stage-contract, pure-flow, Slayer-predicate, dynamically loaded review-answer, action-owner, reachability, reward, and catalog coverage. The completion inventory delta is exactly `Book o' piracy ×1`, and that item is registered.
+- Re-pinned measured reachability from `1663 / 2304 / 165 / 32 / 133 / 252 / 1219` and 137 blocked rows to `1663 / 2343 / 163 / 31 / 132 / 249 / 1230` and 136 blocked rows. Completable quests move `53 -> 54`; Book o' piracy is the only direct new route.
+- The read-only Kotlin corroboration is `darkan-world-server/src/main/java/com/rs/game/content/quests/cabin_fever/CabinFever.kt` plus `CabinFeverState.kt`. No source was harvested or repinned, no placeholder was registered, and no UI code changed.
+- Full discovery passes 4,611 tests in both lanes: plain takes `885.390s` with 515 skips, and real offscreen Qt takes `1158.408s` with three skips. The explicit quest-catalog module passes 37 tests.
+- Evidence: `source-audits/cabin-fever-stages-2-4-2026-09-01.md`.

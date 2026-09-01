@@ -8,7 +8,7 @@ from typing import Dict, Mapping, Tuple, Union
 
 from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
-from . import chompy_hunting_data, rum_deal_data, zogre_flesh_eaters_data
+from . import cabin_fever_data, chompy_hunting_data, rum_deal_data, zogre_flesh_eaters_data
 from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 from .stronghold_player_safety_data import (
     STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS,
@@ -4563,13 +4563,7 @@ QUEST_UNLOCK_REPLACEMENTS_BY_ID: Dict[str, Tuple[str, ...]] = {
         "Magic carpet route opened to the ruins of Uzer.",
         "Ability to collect multiple Phoenix feathers",
     ),
-    "cabin_fever": (
-        # The pinned revision awards no ship; its reward line is that Charter
-        # Ship prices are halved (Cabin Fever oldid=6533785, reward list).
-        "Access to Mos Le'Harmless",
-        "Access to kill Cave horrors.",
-        "Charter Ship prices are halved.",
-    ),
+    "cabin_fever": cabin_fever_data.CABIN_FEVER_UNLOCKS,
     "the_grand_tree": (
         "Ability to use the Grand Tree mine under The Grand Tree",
         "Ability to use the Gnome glider transportation system",
@@ -9031,13 +9025,9 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             add_auto_actions=("Reach the Outpost, Rellekka, and Port Phasmatys travel legs",),
         ),
     ),
-    "cabin_fever": (
-        QuestStageRequirementCleanup(
-            stage=1,
-            remove_required_inventory_options=("Ghosts Ahoy",),
-            remove_required_actions=("Complete Cabin Fever stage 1 objective",),
-            add_auto_actions=("Reach the Port Phasmatys charter route",),
-        ),
+    "cabin_fever": tuple(
+        QuestStageRequirementCleanup(**row)
+        for row in cabin_fever_data.CABIN_FEVER_STAGE_REQUIREMENT_CLEANUPS
     ),
     "cold_war": (
         QuestStageRequirementCleanup(

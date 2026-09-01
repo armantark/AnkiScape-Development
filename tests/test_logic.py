@@ -178,9 +178,9 @@ QUEST_UNLOCK_REPLACEMENT_GUARD: Dict[str, FrozenSet[str]] = {
         "Use of the Combat Training Camp north of Ardougne",
     }),
     "cabin_fever": frozenset({
-        "Access to Mos Le'Harmless",
-        "Access to kill Cave horrors.",
-        "Charter Ship prices are halved.",
+        "Mos Le'Harmless travel",
+        "Fever spider Slayer assignments", "Cave horror Slayer assignments",
+        "Jungle horror Slayer assignments",
     }),
     "catapult_construction": frozenset({"Increased damage when using the Castle Wars catapults"}),
     "deadliest_catch": frozenset({
@@ -11946,9 +11946,9 @@ class TestLogic(unittest.TestCase):
                 "Increased damage when using the Castle Wars catapults"
             },
             "cabin_fever": {
-                "Access to Mos Le'Harmless",
-                "Access to kill Cave horrors.",
-                "Charter Ship prices are halved.",
+                "Mos Le'Harmless travel",
+                "Fever spider Slayer assignments", "Cave horror Slayer assignments",
+                "Jungle horror Slayer assignments",
             },
             "deadliest_catch": {
                 "Bank deposit box north-west of Bedabin Camp",

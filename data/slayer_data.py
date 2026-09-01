@@ -563,7 +563,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         "fever_spiders",
         "Fever spiders",
         ("fever_spider",),
-        required_slayer_level=42,
+        required_slayer_level=42, required_quest_id="cabin_fever",
         readiness_features=("protective_equipment", "disease_damage"),
         source=CHAELDAR_AUDIT_SOURCE,
     ),

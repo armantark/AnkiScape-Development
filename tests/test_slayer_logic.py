@@ -209,7 +209,7 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         )
         self.assertEqual(
             CHAELDAR_FAMILIES_BY_ID["fever_spiders"].required_quest_id,
-            "",
+            "cabin_fever",
         )
         self.assertEqual(
             CHAELDAR_FAMILIES_BY_ID["jungle_strykewyrms"].readiness_features,
