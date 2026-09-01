@@ -1859,3 +1859,92 @@ nothing in their record contradicts it; they decline only to certify the amount.
 claim on our own sources and needs no change. **The general rule to carry forward: a
 frozen contract's silence never licenses deleting one of our sourced claims.** Read a
 missing entry as unproven, not as refuted.
+
+## 24. Fresh queue audit on `3576f500`, and three corrections to this ledger — 2026-09-01
+
+70 canonical entries classified: 25 complete, 25 source-blocked, 5 owner-blocked, 4
+dependency-blocked, 3 deferred data depth, 2 integration-blocked, **6 unblocked and
+workable**, and zero quota-blocked now that the model plans have reset.
+
+### 24.1 Live measurements
+
+```
+1663 actions; 2343 reachable items; 163 orphan inputs; 249 blocked actions
+generated stage sentinels: 680 across 133 quests
+placeholder register: 181 rows
+```
+
+The sentinel drop from 693 across 136 is exactly the `6 + 4 + 3 = 13` cleared by Zogre
+Flesh Eaters, Rum Deal and Cabin Fever, which is the arithmetic check that the three
+slices did what they claimed.
+
+### 24.2 Correction: section 20.1 undercounted the unregistered drops
+
+Section 20.1 said the unregistered quest-combat drop problem was "three quests deep". A
+scan of every live `guaranteed_drops` occurrence finds **seven occurrences, five of them
+unregistered**:
+
+```
+('priest_in_peril', 5, 'priest_in_peril_monk_of_zamorak_30', 'Golden key', 1)
+('zogre_flesh_eaters', 2, 'zogre_flesh_eaters_zombie_39', 'Ruined backpack', 1)
+('zogre_flesh_eaters', 6, 'zogre_flesh_eaters_slash_bash_111', 'Ogre artefact', 1)
+('rum_deal', 4, 'rum_deal_fever_spider_49', 'Fever spider body', 1)
+('a_fairy_tale_i_growing_pains', 4, 'a_fairy_tale_i_growing_pains_tanglefoot_111', "Queen's secateurs", 1)
+```
+
+`Golden key` and `Queen's secateurs` predate this run entirely and were never named. Each
+leaves the same permanent iconless unsellable Bank row. The registration slice covers
+five items, not three.
+
+### 24.3 Correction: section 12.7 was wrong about Shaikahan bones
+
+Section 12.7 listed `Shaikahan bones` as having a modelled producer that was merely
+gated. In the audit graph it is a **root orphan with no producer at all**. The audit's own
+classification makes this definitional: a producer that exists but is gated yields a
+CASCADE orphan, not a ROOT. All 31 current roots have no graph producer.
+
+That distinction matters for scoring, because a gated producer is a quest problem while a
+missing producer is an acquisition problem, and they take different slices.
+
+### 24.4 Correction: the eight remaining substantive actions, not eleven
+
+Sections 16.3 and 18.1 said all eleven hand-written `required_actions` remain unemittable.
+The proof bridge changed that. Live census:
+
+```
+distinct required_actions: 689 | generated: 678 | substantive: 11
+substantive actions emitted by proof rules: 3
+substantive actions not emitted by proof rules: 8
+```
+
+Now emittable: `Cure and stitch yak-hide armour`, `Recover an m'amulet mould before
+making the monkeyspeak amulet`, `Use the rotten apple to sabotage the mourner food
+stores`.
+
+Still unemittable, and three of these eight have their mechanic already implemented so
+they are wiring rather than invention: `Cast Enchant Level 2 Jewellery for the emerald
+preparations`, `Enchant sapphire for the Myreque preparations`, `Make a Fremennik round
+shield`. The other five need a mechanic built: the clockwork penguin, Crumble Undead in
+the boneguard fight, Telegrab for the water channel, the bucket of sap, and Oronwen's
+trouser repair.
+
+### 24.5 The six workable entries, in the order this seat will take them
+
+1. **Mogres and `skippy_and_the_mogres`.** Highest measured leverage: the live Slayer
+   audit shows `mogres:combat_target` is the sole remaining blocker for BOTH
+   `mazchna_achtryn` at 26 of 27 and `vannaka` at 34 of 35. The owner's waiver is at
+   `memory-bank/design-thread-queue.md:2312-2317` and the Darkan thread has already
+   answered no-claim, no-dossier for this exact unit. **Dispatched.**
+2. `Cast Enchant Level 2 Jewellery`, one predicate, mechanic exists at
+   `data/magic_data.py:335`.
+3. `Enchant sapphire for the Myreque preparations`, one predicate, mechanic exists at
+   `data/magic_data.py:332-348`.
+4. `Make a Fremennik round shield`, one predicate, recipe exists at
+   `data/crafting_data.py:434-456`.
+5. Consolidating the two duplicated `relocate_combat_encounters` implementations. No
+   reachability gain; pure maintenance.
+6. The next sentinel quest, chosen after checking its row in the other thread's
+   `quests.jsonl` and ringing the per-quest doorbell.
+
+Items 2 through 4 are small enough to be one slice together, since all three are the same
+shape: bind an existing mechanic to a proof rule.
