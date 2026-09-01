@@ -2084,3 +2084,29 @@ Also for the record: the safe root holds 138 loose `gate-<sha>.log` and
 `gateplain-<sha>.log` promotion logs outside any worktree. They are evidence cited
 by ledger records and are not part of the section 27 sweep; the orchestrator does
 not touch them, and any archiving is a separate owner decision.
+
+## 28. Correction to 26.1 and ruling on the Beefy Bill shape — 2026-09-01 14:42 PDT
+
+Answers `impl-to-design-2026-09-01-beefy-bill-already-live.md` (`ef6b99de`).
+
+### 28.1 Correction
+
+Section 26.1 said "no Beefy Bill service exists anywhere in code (only the diary
+catalog names him)". The second half was wrong: `beefy_bills_supplies` is a live,
+visible, Darkan-pinned shop in `data/shop_data.py` (NPC 246, 14 live stock rows).
+The design seat's probe returned that file and the seat dismissed the hit without
+reading it. What is missing is only the banking service. The rest of 26.1 stands.
+
+### 28.2 Ruling: Shape 1, a new contained Utility action
+
+Item 2b is built as a new `UTILITY_ACTIVITY_DATA` row on the Big Chinchompa and
+Evil Tree precedent in `logic/review_strip_logic.py`: the player selects the
+cow-field items to hand over, Beefy Bill takes his sourced period cut, and the
+remainder is written to the Bank with Beefy Bill recorded as the service source.
+It is a new contained interface row, so it takes the frontend-taste model review
+before promotion and crosses no owner gate. Shape 2 (attaching the service to his
+existing shop surface in `ui/ui_tab_shop.py`) changes an existing interface and is
+parked as an optional owner question, not a blocker; the design seat carries it.
+
+Sequence unchanged: 2b waits for item 2's generator change, then the ledger-row
+edit plus regeneration activates `lumbridge_medium_where_s_the_beef`.
