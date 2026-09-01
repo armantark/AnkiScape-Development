@@ -1794,3 +1794,68 @@ frozen contracts for. All three are landed. Every remaining sentinel quest has n
 on their side, so the next quest slice pays full harvesting cost, and the doorbell must
 be rung BEFORE dispatch to check ownership and avoid the duplication recorded in
 section 19.
+
+## 23. Correction: 143 of 193 quests already have dossiers — 2026-09-01
+
+Section 22.3 said the pre-harvested queue was empty and every remaining sentinel quest
+would pay full harvesting cost. **That is wrong, and it was wrong by a wide margin.** A
+doorbell answer, verified independently here, gives the real numbers.
+
+### 23.1 What the other thread actually holds
+
+Measured from `/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/`:
+
+```
+ledgers/quests.jsonl rows: 193
+rows with source_dossier: 143
+frozen contracts in evidence/static/: 220
+status distribution: PARTIAL 82, COMPLETE 62, STUB 45, UNCERTAIN 3, BROKEN 1
+```
+
+So roughly three quarters of the catalog is already harvested on their side. The three
+contracts this run used were not the whole set; they were the three we happened to ask
+about.
+
+**The lookup procedure, which replaces guessing:** read the quest's row in
+`memory-bank/audit/ledgers/quests.jsonl` and check its `source_dossier` field. Frozen
+contracts sit at `memory-bank/audit/evidence/static/*-target-contract.json`; pinned dated
+sources at `memory-bank/audit/sources/` under per-quest filename prefixes. Their
+instruction is explicit: check the row before harvesting anything, and **never infer "no
+dossier" from silence.**
+
+Every future quest slice brief must name that lookup and require the author to check the
+row first. Harvesting a quest that already has a dossier is the duplication the owner's
+ruling forbids, and this seat has now nearly caused it twice.
+
+### 23.2 The doorbell is for claims, not for dossier discovery
+
+Standing arrangement now agreed: ring once per quest with just the quest name before
+dispatch, and they answer claim or no claim. Dossier discovery is a file read, not a
+question.
+
+Their loop makes **no implementation claim on any AnkiScape-side unit**.
+`loop-state.json` records `quest_implementation_lane = "ankiscape_external"`, and their
+matrix-order restoration work never conflicts with our stage mirrors. One quest unit is
+explicitly handed to this side: `quests-swept-away`, status `STUB`, with a frozen
+contract. It is the only row in their quest ledger that mentions AnkiScape at all, which
+I verified.
+
+### 23.3 Section 22.2 framed the coins conflict wrongly, and is corrected here
+
+Section 22.2 said the 10,000-coin Cabin Fever claim meant "either the contract is
+incomplete or the claim is unsourced". Neither is true, and the framing misread how their
+contracts work.
+
+Their convention, recorded in their `GLOSSARY.md` as a claim ceiling: behaviour outside
+the proven boundary is never claimed **in either direction**. An exclusion is always an
+explicit entry, and absence of an entry is absence of proof, not proof of absence.
+
+So the Cabin Fever contract's silence on the Bill Teach payout means **unrecovered, never
+excluded**. Their words: "your coins claim stands on your own sourcing, and our contract
+simply does not vouch for it." Both their pinned revisions do mention the payout, so
+nothing in their record contradicts it; they decline only to certify the amount.
+
+`cabin_fever_bill_teach_coins` at `data/quest_data.py:11222` is therefore a legitimate
+claim on our own sources and needs no change. **The general rule to carry forward: a
+frozen contract's silence never licenses deleting one of our sourced claims.** Read a
+missing entry as unproven, not as refuted.
