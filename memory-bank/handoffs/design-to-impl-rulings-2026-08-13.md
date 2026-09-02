@@ -2768,3 +2768,34 @@ audit stayed live. Queue defect, not urgent: `worktree_guard.py audit` warns tha
 the freeze hook is missing inside linked worktrees, where it can never matter
 (`main` cannot be checked out there); the check must require the hook only in the
 canonical checkout, or every worktree agent will try to fix a non-defect.
+
+## 44. The vacuous-scanner check lands with its one repair, layout-independent — 2026-09-02 04:00 PDT
+
+The ruling-43 check (`goal/vacuous-scanner-audit-2026-09-02`, `5e42b040`) is right:
+one real finding on main, zero false positives across 49 `parents[1]` expressions,
+a fixture that proves an assertion inside an empty loop does not count, and
+`audit_test_suite` back at its exact prior complexity. Landing it as-is would make
+`audit_test_quality` exit 1 on main and freeze every gate until the quest split
+lands, and that split waits on the owner.
+
+Ruling: the seat's option 2, not 3. No tolerated-baseline validator for
+`audit_test_quality`: an audit that finds a real defect on main must block, that
+is the fixed rail, and the cure is the repair, which here is one test. The repair
+ships in the same small slice as the check, and it must be written so it is
+blocked by nothing and depends on nothing:
+
+1. **Layout-independent.** `tests/test_quest_catalog.py` scans by AST, not by one
+   file's text: every module under the data package that defines the literal
+   `*_BY_ID` mappings, whatever the layout, collecting their literal keys; it
+   asserts the collected set is non-empty and exactly equal to the expected keys.
+   It passes on today's single file and on the split layout unchanged, so the
+   quest split inherits it with no edit of its own.
+2. **Under the ratchet.** The earlier repoint grew to cyclomatic 23 from 15 and was
+   refused for it; this one is a table-driven walk that stays at or under 15. That
+   is a real change, not a move, so simplification is allowed and required.
+3. Mutation proof both ways, as the roster split showed: a removed quest fails
+   naming it; a duplicated literal key fails on the count.
+
+Option 3 is declined on the record because a pinned "known issue" in the test
+audit would be a place for the next real finding to hide, and the reachability
+validator that inspired it tolerates a measured count, not a named defect.
