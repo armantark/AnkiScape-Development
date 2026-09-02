@@ -94,6 +94,7 @@ from .data.construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .logic.cadence_kernel import sanitize_cadence_kernel_enabled_pure
 from .core.logic import (
     combat_level_up_check as _core_combat_level_up_check,
+    DeferredAchievementDialogs,
     level_up_check as _core_level_up_check,
     check_achievements,
 )
@@ -111,7 +112,6 @@ from .ui.ui import (
     hide_review_hud,
     ensure_review_context_action_strip,
     update_review_context_action_strip,
-    update_review_bank_run_button,
     ensure_review_status_badge,
     update_review_status_badge,
     update_review_fill_drawer,
@@ -418,7 +418,7 @@ _REVIEW_FEEDBACK_CONTEXT = None
 _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 _REVIEW_FEEDBACK_FLUSHING = False
 _PENDING_BANKSTANDING_NOTICE = None
-_PENDING_REVIEW_DIALOGS = []
+_PENDING_REVIEW_DIALOGS = DeferredAchievementDialogs()
 
 
 class _NamedExperience(float):
@@ -1333,7 +1333,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         award_skill_exp=_award_skill_exp,
         award_hidden_skill_exp=_award_hidden_skill_exp,
         level_up_check=level_up_check,
-        check_achievements=check_achievements,
+        check_achievements=_PENDING_REVIEW_DIALOGS.defer(check_achievements),
         save_player_data=save_player_data,
         refresh_skill_availability=_refresh_skill_availability,
         show_exp=_show_runtime_exp,

@@ -27,6 +27,7 @@ class PapercutToolTests(unittest.TestCase):
             tests_dir.mkdir(parents=True)
             unrelated_cwd.mkdir()
             shutil.copy2(ROOT / "run_tests.py", checkout / "run_tests.py")
+            shutil.copy2(ROOT / "tests/__init__.py", tests_dir / "__init__.py")
             (tests_dir / "test_cwd_probe.py").write_text(
                 "import unittest\n"
                 "from pathlib import Path\n"

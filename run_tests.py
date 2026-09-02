@@ -115,6 +115,10 @@ def main() -> int:
     if root not in sys.path:
         sys.path.insert(0, root)
 
+    from tests import install_offscreen_modal_guard
+
+    install_offscreen_modal_guard()
+
     try:
         from aqt.qt import QFont
     except ImportError:

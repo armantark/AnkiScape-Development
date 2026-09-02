@@ -17,6 +17,7 @@ except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
 
 import pkg_alias  # noqa: F401
+from tests import allow_modal_dialogs
 
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
@@ -69,10 +70,47 @@ class DialogLifecycleTest(unittest.TestCase):
         if modal is not None:
             modal.close()
 
+    def test_offscreen_harness_refuses_modal_entry_points(self) -> None:
+        cases = (
+            ("QDialog.exec", lambda: QDialog(self.parent).exec()),
+            (
+                "QMessageBox.information",
+                lambda: QMessageBox.information(
+                    self.parent, "Unexpected modal", "Must fail fast."
+                ),
+            ),
+            (
+                "QMessageBox.warning",
+                lambda: QMessageBox.warning(
+                    self.parent, "Unexpected modal", "Must fail fast."
+                ),
+            ),
+            (
+                "QMessageBox.critical",
+                lambda: QMessageBox.critical(
+                    self.parent, "Unexpected modal", "Must fail fast."
+                ),
+            ),
+            (
+                "QMessageBox.question",
+                lambda: QMessageBox.question(
+                    self.parent, "Unexpected modal", "Must fail fast."
+                ),
+            ),
+        )
+        for name, open_modal in cases:
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(
+                    AssertionError,
+                    f"{name} opened a modal in the offscreen Qt test lane",
+                ):
+                    open_modal()
+
     def _assert_deleted_on_close(self, open_dialog) -> None:
         start = len(self.held)
         QTimer.singleShot(0, self._close_modal)
-        open_dialog()
+        with allow_modal_dialogs():
+            open_dialog()
         for _ in range(4):
             QApplication.processEvents()
         self.assertEqual(len(self.held), start + 1)
@@ -84,7 +122,8 @@ class DialogLifecycleTest(unittest.TestCase):
             0,
             lambda: QApplication.activeModalWidget().accept(),
         )
-        selected = self.ui.show_skill_selection_dialog("Mining", True)
+        with allow_modal_dialogs():
+            selected = self.ui.show_skill_selection_dialog("Mining", True)
         for _ in range(4):
             QApplication.processEvents()
 
@@ -122,11 +161,12 @@ class DialogLifecycleTest(unittest.TestCase):
             claim.click()
 
         QTimer.singleShot(0, _select_and_confirm)
-        selected = self.ui._choose_xp_lamp_skill(
-            self.parent,
-            "Stronghold of Player Safety: Antique lamp 1 (500 XP)",
-            ("attack", "agility"),
-        )
+        with allow_modal_dialogs():
+            selected = self.ui._choose_xp_lamp_skill(
+                self.parent,
+                "Stronghold of Player Safety: Antique lamp 1 (500 XP)",
+                ("attack", "agility"),
+            )
         for _ in range(4):
             QApplication.processEvents()
 
@@ -151,11 +191,12 @@ class DialogLifecycleTest(unittest.TestCase):
             ).click()
 
         QTimer.singleShot(0, _cancel)
-        selected = self.ui._choose_xp_lamp_skill(
-            self.parent,
-            "Claim XP lamp",
-            ("attack", "agility"),
-        )
+        with allow_modal_dialogs():
+            selected = self.ui._choose_xp_lamp_skill(
+                self.parent,
+                "Claim XP lamp",
+                ("attack", "agility"),
+            )
         for _ in range(4):
             QApplication.processEvents()
 
@@ -201,7 +242,8 @@ class DialogLifecycleTest(unittest.TestCase):
             modal.accept()
 
         QTimer.singleShot(0, _capture_and_close)
-        self.ui.show_level_up_dialog("Attack", 8, 9)
+        with allow_modal_dialogs():
+            self.ui.show_level_up_dialog("Attack", 8, 9)
 
         self.assertEqual(captured["message"], "Your Attack level increased.")
         self.assertEqual(captured["transition"], "Level 8 → 9")
@@ -224,7 +266,8 @@ class DialogLifecycleTest(unittest.TestCase):
             modal.accept()
 
         QTimer.singleShot(0, _capture_and_close)
-        self.ui.show_level_up_dialog("Combat", 3, 4)
+        with allow_modal_dialogs():
+            self.ui.show_level_up_dialog("Combat", 3, 4)
 
         self.assertEqual(captured["message"], "Your Combat level increased.")
         self.assertEqual(captured["transition"], "Level 3 → 4")

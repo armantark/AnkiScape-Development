@@ -538,6 +538,11 @@ class CurationLedgerWiringTest(unittest.TestCase):
 
 
 class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
+    def setUp(self):
+        popups = patch("ankiscape.core.logic._popups_enabled", return_value=False)
+        popups.start()
+        self.addCleanup(popups.stop)
+
     @staticmethod
     def _context(player, random_values=()):
         return _runtime_context(player, [], random_values)
@@ -777,6 +782,82 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
         )
 
         self.assertTrue(self._is_complete(player, task_id))
+
+    def test_real_answer_context_defers_agility_deed_dialog_until_return(self):
+        original_modules = dict(sys.modules)
+        try:
+            from tests.test_integration_smoke import (
+                _install_runtime_fakes,
+                _load_addon_as_package,
+            )
+
+            _install_runtime_fakes()
+            addon = _load_addon_as_package("ankiscape_diary_dialog_deferral")
+            package = addon.__name__
+            storage = sys.modules[f"{package}.core.storage_pure"]
+            constants = sys.modules[f"{package}.core.constants"]
+            agility_data = sys.modules[f"{package}.data.agility_data"]
+            runtime_actions = sys.modules[f"{package}.runtime.runtime_actions"]
+            logic = sys.modules[f"{package}.core.logic"]
+            target = agility_data.AGILITY_TARGETS_BY_ID["barbarian_advanced"]
+            addon.player_data = storage.default_player_data(
+                constants.ORE_DATA, constants.ITEM_DEFINITIONS
+            )
+            addon.save_player_data = lambda: None
+            addon._refresh_skill_availability = lambda: None
+            addon._show_activity_gain = lambda _message: None
+            addon.player_data.update(
+                {
+                    "current_agility": target.id,
+                    "agility_level": 99,
+                    "bar_crawl_completed": True,
+                    "equipment": {"body": "Agile top"},
+                    "agility_course_state": {
+                        "target": target.id,
+                        "stage": len(target.stages) - 1,
+                        "checkpoint": "start",
+                        "flawless": True,
+                        "lap_xp_valid": True,
+                        "requested_item_valid": True,
+                        "status": "",
+                    },
+                }
+            )
+            dialogs = []
+            inside_answer = True
+
+            def _show_dialog(title, data):
+                if inside_answer:
+                    self.fail(
+                        "show_achievement_dialog reached QDialog.exec inside "
+                        "handle_agility_answer"
+                    )
+                dialogs.append((title, data))
+
+            with (
+                patch.object(logic, "_popups_enabled", return_value=True),
+                patch.object(logic, "show_achievement_dialog", _show_dialog),
+            ):
+                self.assertTrue(
+                    runtime_actions.handle_agility_answer(
+                        addon._runtime_action_context()
+                    )
+                )
+                inside_answer = False
+                self.assertEqual(dialogs, [])
+                callbacks = tuple(addon._PENDING_REVIEW_DIALOGS)
+                addon._PENDING_REVIEW_DIALOGS.clear()
+                self.assertGreaterEqual(len(callbacks), 1)
+                for callback in callbacks:
+                    callback()
+
+            self.assertIn(
+                "Limber Lumber Jumper",
+                [title for title, _data in dialogs],
+            )
+        finally:
+            sys.modules.clear()
+            sys.modules.update(original_modules)
 
     def test_real_mining_review_completes_translated_iron_deed(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
