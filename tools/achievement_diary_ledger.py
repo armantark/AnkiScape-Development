@@ -21,7 +21,6 @@ ROOT = Path(__file__).resolve().parents[1]
 CURATION_LEDGER_PATH = (
     ROOT / "memory-bank" / "diary-curation-ledger" / "dormant-task-ledger.jsonl"
 )
-_WIRING_MARKER = "\nWiring: "
 _SPEC_KINDS = frozenset({
     "any_of", "combat_kill", "counter", "equipped_item", "event", "hold_item",
     "ledger_action", "ledger_action_family", "ledger_output", "shop_transaction",
@@ -106,21 +105,13 @@ def _condition_from_spec(spec: dict, task_id: str) -> tuple:
 
 
 def _conditions_from_row(row: dict) -> list[tuple]:
-    task_id, trigger = str(row["task_id"]), str(row.get("designed_trigger", ""))
+    task_id, specs = str(row["task_id"]), row.get("wiring")
     if row["disposition"] == "dormant":
-        if _WIRING_MARKER in trigger:
+        if specs is not None:
             raise SystemExit(f"dormant diary ledger task {task_id} carries wiring")
         return []
-    if trigger.count(_WIRING_MARKER) != 1:
-        raise SystemExit(
-            f"live diary ledger task {task_id} has no single structured Wiring clause"
-        )
-    try:
-        specs = json.loads(trigger.split(_WIRING_MARKER, 1)[1])
-    except json.JSONDecodeError as error:
-        raise SystemExit(f"invalid Wiring clause for diary ledger task {task_id}: {error}")
     if not isinstance(specs, list) or not specs:
-        raise SystemExit(f"live diary ledger task {task_id} has no wired conditions")
+        raise SystemExit(f"live diary ledger task {task_id} has no valid wiring clause")
     return [_condition_from_spec(spec, task_id) for spec in specs]
 
 

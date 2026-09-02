@@ -31,11 +31,12 @@ Every row uses this exact key order:
 3. `family` — canonical catalog family ID.
 4. `current_tier` — current full catalog tier ID.
 5. `original_tier` — source-family tier from the harvest, or `null` when absent.
-6. `designed_trigger` — concrete runtime-checkable completion event for the deed. Active and translated rows append one `Wiring:` JSON clause that the generator compiles into existing condition kinds; dormant rows carry no clause.
-7. `source_citation` — pinned source identity and permanent citation.
-8. `disposition` — one allowed curation disposition.
-9. `future_system` — one canonical future-system ID for dormant rows, otherwise `null`.
-10. `notes` — source conflicts, translation boundaries, exact current seams, and unresolved evidence.
+6. `designed_trigger` — reviewed human-readable completion event for the deed.
+7. `wiring` — machine-readable condition JSON compiled by the generator for active and translated rows, otherwise `null`.
+8. `source_citation` — pinned source identity and permanent citation.
+9. `disposition` — one allowed curation disposition.
+10. `future_system` — one canonical future-system ID for dormant rows, otherwise `null`.
+11. `notes` — source conflicts, translation boundaries, exact current seams, and unresolved evidence.
 
 ## Dispositions
 

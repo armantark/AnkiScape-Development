@@ -25,7 +25,7 @@ from ankiscape.runtime.runtime_actions import (
     handle_thieving_answer,
 )
 from ankiscape.runtime.runtime_actions_shared import _apply_farming_queue_result
-from tools.achievement_diary_ledger import _condition_from_spec
+from tools.achievement_diary_ledger import _condition_from_spec, _conditions_from_row
 from tools.generate_achievement_diary_data import resolve_condition_key
 
 
@@ -89,7 +89,16 @@ class CurationLedgerWiringTest(unittest.TestCase):
                     row["disposition"] in {"active", "translated"},
                 )
                 self.assertEqual(
-                    "\nWiring: " in row["designed_trigger"],
+                    list(row),
+                    [
+                        "task_id", "source_id", "family", "current_tier",
+                        "original_tier", "designed_trigger", "wiring",
+                        "source_citation", "disposition", "future_system", "notes",
+                    ],
+                )
+                self.assertNotIn("\nWiring: ", row["designed_trigger"])
+                self.assertEqual(
+                    isinstance(row["wiring"], list) and bool(row["wiring"]),
                     row["disposition"] in {"active", "translated"},
                 )
 
@@ -178,6 +187,28 @@ class CurationLedgerWiringTest(unittest.TestCase):
                 "synthetic_task",
             )
 
+    def test_live_row_without_wiring_fails_closed(self):
+        with self.assertRaisesRegex(SystemExit, "no valid wiring clause"):
+            _conditions_from_row(
+                {
+                    "task_id": "synthetic_live",
+                    "disposition": "active",
+                    "designed_trigger": "Reviewed prose only",
+                    "wiring": None,
+                }
+            )
+
+    def test_dormant_row_with_wiring_is_rejected(self):
+        with self.assertRaisesRegex(SystemExit, "carries wiring"):
+            _conditions_from_row(
+                {
+                    "task_id": "synthetic_dormant",
+                    "disposition": "dormant",
+                    "designed_trigger": "Reviewed prose only",
+                    "wiring": [{"kind": "counter"}],
+                }
+            )
+
     def test_skipped_farming_result_cannot_complete_a_chop_deed(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         task = next(
@@ -244,7 +275,7 @@ class CurationLedgerWiringTest(unittest.TestCase):
             )
         self.assertFalse(task_progress_pure(player, task)[0])
 
-    def test_fire_cape_row_uses_the_owner_selected_equipped_candidate(self):
+    def test_fire_cape_wiring_uses_the_owner_selected_equipped_candidate(self):
         row = next(
             json.loads(line)
             for line in (
@@ -252,10 +283,24 @@ class CurationLedgerWiringTest(unittest.TestCase):
             ).read_text(encoding="utf-8").splitlines()
             if '"task_id": "karamja_elite_the_power_of_lava"' in line
         )
-        prose = row["designed_trigger"].split("\nWiring: ", 1)[0]
-        self.assertIn('activity_session.active_id="tzhaar_fight_pit"', prose)
-        self.assertIn("cape equipment slot contains Fire cape", prose)
-        self.assertNotIn("win", prose.casefold())
+        self.assertEqual(
+            row["wiring"],
+            [
+                {
+                    "kind": "state_equals",
+                    "key": "activity_session.active_id",
+                    "amount": 1,
+                    "label": "Be in a TzHaar activity",
+                    "expected": "tzhaar_fight_pit",
+                },
+                {
+                    "kind": "equipped_item",
+                    "key": "cape|Fire cape",
+                    "amount": 1,
+                    "label": "Equip a Fire cape",
+                },
+            ],
+        )
 
 
 class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
