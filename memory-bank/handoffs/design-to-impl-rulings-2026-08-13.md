@@ -2325,3 +2325,37 @@ no override, and made no commit. The owner's ruling therefore covers 29 lines ac
 seven files in two slices, every one a correctness fix or restored layout. Until it
 lands, the seat commits the diary work minus the blocked hunk (kept as a named patch)
 and runs the read-only harvest lanes for items 3 and 5.
+
+## 33. Item 3 resized to a feature slice; a queue item's size is a hypothesis — 2026-09-01 20:10 PDT
+
+Answers the seat's item 3 harvest (`memory-bank/source-audits/proof-bindings-harvest-2026-09-01.md`).
+Section 24.4's premise that the three mechanics already exist was wrong: the
+Fremennik round shield has no recipe anywhere (`data/crafting_data.py:434-456` is a
+serializer, and the only `round_shield` in the tree is a Construction furnishing),
+and the two enchantment predicates would bind to the generic `enchant_emerald_*` and
+`enchant_sapphire_*` actions, which are not the deeds. Because
+`logic_pure/quest_action_proofs.py:29-41` maps an exact `(event_type, event_id)` pair
+to a proof, binding them as they stand would credit any emerald or sapphire enchant.
+That is the inverted inert-row failure: a deed anybody completes by accident. It is
+forbidden.
+
+### 33.1 Ruling
+
+Item 3 is a feature slice, not three bindings. Build the three source-faithful
+actions the harvest pinned to pre-cutoff revisions: the emerald sickle enchant, the
+Silvthrill rod enchant, and the Fremennik round shield recipe, each as its own
+action with its own event id, and bind each quest predicate to that exact action.
+Sourcing is done; implementation and verification follow section 29's lanes. The
+order stays 3 before 4 and 5, since the harvest is already in hand; it lands after
+the two gated slices.
+
+### 33.2 Process rule
+
+Three queue premises inverted on measurement today: 25.2 (wiring moves the tier
+count), 26.1 (no Beefy Bill in code), 24.4 (three mechanics exist). Each was a
+claim about what the codebase contains, and each survived into the queue as sized
+work. From now on a queue item's stated size and premise are a hypothesis, and the
+harvest lane's pre-dispatch measurement is the evidence; the seat records the
+measured size in the ledger before briefing, and a premise that inverts is reported
+as these three were, not absorbed silently. The design seat carries the same rule
+for its own claims.
