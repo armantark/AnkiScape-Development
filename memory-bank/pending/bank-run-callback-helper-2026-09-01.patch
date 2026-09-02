@@ -3,7 +3,7 @@ diff --git a/runtime/runtime_actions_carried.py b/runtime/runtime_actions_carrie
 index aa2e0cdf..302ceae0 100644
 --- a/runtime/runtime_actions_carried.py
 +++ b/runtime/runtime_actions_carried.py
-@@ -865,6 +865,19 @@ def _try_pack_yak_winter_storage_overlay(
+@@ -865,4 +865,17 @@ def _try_pack_yak_winter_storage_overlay(
      return updated_view, max(0, churn - 1), True
  
  
@@ -21,7 +21,7 @@ index aa2e0cdf..302ceae0 100644
 +
 +
  def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
-@@ -1270,17 +1283,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
+@@ -1270,15 +1283,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
              if not event.get("completed")
              else f"Bank run — {route_label} · arrived and restocked"
          )
