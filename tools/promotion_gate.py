@@ -126,7 +126,6 @@ class GateEvidence:
 class HeldLock:
     path: Path
     stream: IO[str]
-    unlink_on_release: bool
     record: LockRecord
 
     def refresh(self) -> None:
@@ -143,8 +142,7 @@ class HeldLock:
     def release(self) -> None:
         if self.stream.closed:
             return
-        if self.unlink_on_release:
-            self.path.unlink(missing_ok=True)
+        self.path.unlink(missing_ok=True)
         self.stream.close()
 
 
@@ -215,6 +213,8 @@ def _write_record(stream: IO[str], record: LockRecord) -> None:
 def _read_record_path(path: Path) -> LockRecord:
     try:
         return LockRecord.from_json(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        raise
     except OSError as exc:
         raise GateError(f"Cannot read promotion lock {path}: {exc}") from exc
     except GateError as exc:
@@ -248,6 +248,8 @@ def claim_landing_lock(
     except BlockingIOError:
         try:
             existing = _read_record_path(path)
+        except FileNotFoundError:
+            return claim_landing_lock(repo, operation=operation, worktree=worktree, commit=commit, wait=wait)
         except GateError as exc:
             raise GateError(f"Promotion landing lock held: {exc}") from None
         age = _record_age(existing)
@@ -268,7 +270,7 @@ def claim_landing_lock(
         raise GateError(f"Promotion landing lock held: {detail}") from None
     record = _new_lock_record(operation, worktree, commit)
     _write_record(stream, record)
-    return HeldLock(path, stream, unlink_on_release=True, record=record)
+    return HeldLock(path, stream, record=record)
 
 
 def claim_gate_marker(worktree: Path, commit: str) -> HeldLock:
@@ -279,7 +281,7 @@ def claim_gate_marker(worktree: Path, commit: str) -> HeldLock:
     stream = path.open("x+", encoding="utf-8")
     fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     _write_record(stream, record)
-    return HeldLock(path, stream, unlink_on_release=True, record=record)
+    return HeldLock(path, stream, record=record)
 
 
 def _invalidate_evidence(repo: Path, commit: str) -> None:

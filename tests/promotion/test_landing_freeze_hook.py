@@ -15,6 +15,7 @@ from tools.promotion_gate import (
     _write_record,
     claim_landing_lock,
     install_hook,
+    landing_lock_path_for,
 )
 from tools.worktree_guard import audit, landing_freeze_hook_installed
 
@@ -74,6 +75,23 @@ class LandingFreezeHookTest(unittest.TestCase):
             finally:
                 lock.release()
             self.assertIn("Landing freeze stale", stderr.getvalue())
+
+    def test_disappearing_lock_leaves_main_unblocked(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            path = landing_lock_path_for(repo.main)
+            for flock_result in (None, BlockingIOError()):
+                with self.subTest(contended=flock_result is not None):
+                    path.write_text("{}", encoding="utf-8")
+                    with (
+                        patch.object(landing_freeze_hook.fcntl, "flock", side_effect=flock_result),
+                        patch.object(
+                            landing_freeze_hook,
+                            "_read_record_path",
+                            side_effect=FileNotFoundError,
+                        ),
+                    ):
+                        self.assertEqual(check(repo.main, stderr=io.StringIO()), 0)
 
     def test_no_lock_leaves_main_untouched(self):
         with tempfile.TemporaryDirectory() as temp_dir:

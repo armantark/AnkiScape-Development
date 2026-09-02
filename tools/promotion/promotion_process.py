@@ -26,6 +26,9 @@ def open_locked_file(path: Path, *, wait: bool) -> IO[str]:
                 return stream
         except FileNotFoundError:
             pass
+        except BaseException:
+            stream.close()
+            raise
         stream.close()
 
 

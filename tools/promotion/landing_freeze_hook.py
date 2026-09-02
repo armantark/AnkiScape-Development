@@ -50,7 +50,10 @@ def check(repo: Path, *, stderr=sys.stderr) -> int:
         try:
             fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            record = _read_record_path(path)
+            try:
+                record = _read_record_path(path)
+            except FileNotFoundError:
+                return 0
             age = _record_age(record)
             if not pid_is_alive(record.pid) or age > LONGEST_LANE_TIMEOUT:
                 print(
@@ -67,7 +70,10 @@ def check(repo: Path, *, stderr=sys.stderr) -> int:
                 file=stderr,
             )
             return 1
-        record = _read_record_path(path)
+        try:
+            record = _read_record_path(path)
+        except FileNotFoundError:
+            return 0
         age = _record_age(record)
         if not pid_is_alive(record.pid) or age > LONGEST_LANE_TIMEOUT:
             print(

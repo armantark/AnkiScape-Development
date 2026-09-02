@@ -13,6 +13,7 @@ from dataclasses import asdict
 from pathlib import Path
 from unittest.mock import patch
 
+from tools.promotion.promotion_process import open_locked_file
 from tools.promotion_gate import (
     FULL_GATE_CHECKS,
     PLAIN_GATE_CHECKS,
@@ -225,6 +226,42 @@ class PromotionGateTest(unittest.TestCase):
                 subprocess.run(("ps", "-p", str(child_pid)), check=False).returncode,
                 0,
             )
+
+    def test_locked_file_closes_stream_when_path_stat_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "landing.lock"
+            stream = path.open("a+", encoding="utf-8")
+            with (
+                patch.object(Path, "open", return_value=stream),
+                patch.object(Path, "stat", side_effect=PermissionError("denied")),
+            ):
+                with self.assertRaisesRegex(PermissionError, "denied"):
+                    open_locked_file(path, wait=False)
+            self.assertTrue(stream.closed)
+
+    def test_landing_lock_retries_when_contended_record_disappears(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            held = claim_landing_lock(
+                repo.target,
+                operation="landing",
+                worktree=repo.target,
+                commit=repo.target_commit,
+            )
+
+            def remove_record(_path: Path) -> LockRecord:
+                held.release()
+                raise FileNotFoundError
+
+            with patch("tools.promotion_gate._read_record_path", side_effect=remove_record):
+                acquired = claim_landing_lock(
+                    repo.target,
+                    operation="landing",
+                    worktree=repo.target,
+                    commit=repo.target_commit,
+                )
+            acquired.release()
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
 
     def test_landing_lock_refusal_includes_its_age(self):
         with tempfile.TemporaryDirectory() as temp_dir:
