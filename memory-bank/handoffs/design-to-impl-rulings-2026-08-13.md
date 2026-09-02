@@ -3008,3 +3008,97 @@ rejected by its conformance check (131 rows changed where ruling 31 requires 136
 every resolved row with `wiring: null`, an unsupported `invented` disposition
 crashing the compiler, 28 triggers naming seams that do not exist) and its
 consolidated fix round runs under ruling 49.
+
+### 47.3 A split part inherits its origin's fan-out baseline — 09:40 PDT
+
+The activities split (3,152 lines into an aggregator of 938 plus five modules of 28
+to 840; digest `0f9d099a...` under both interpreters; 56 function and 4 constant
+ASTs identical; preserved as `refs/preserved/split-runtime-activities-2026-09-02`
+at `1d88fe86`) was refused for fan-out 32 and 27 "(new)" on two parts whose edges
+all existed in the origin file. Ruled as the seat's option A, the rule seen from
+the part's side: a part counts only edges outside its own family (origin and
+sibling parts) and ratchets against the origin file's head fan-out, so
+redistributing existing edges introduces nothing while a genuinely new edge still
+does (fleet commit, 20 tests green). Option B, cutting the parts again to reach a
+number, is what 34.3 forbids. Batch 2 (root dispatchers `a8bb0fa7`, carried
+`89f2666e`) is gating at `8300e8ad` with the merged-tree surface test passed first.
+
+## 50. Horror from the Deep folds in Bar Crawl — 09:42 PDT
+
+Fourth queue premise inverted on measurement (ruling 33.2): Horror from the Deep
+was selected for having no prerequisites, and it has one, the Bar Crawl miniquest,
+whose flag `bar_crawl_completed` the code reads once
+(`logic/agility_logic.py:282`) and never writes. Ruling: the slice grows to include
+a player-reachable Bar Crawl completion route, since a gate nobody can pass is the
+section-13 unstartable-quest defect either way; Bar Crawl is a dual-eligible
+miniquest, so the claim-first doorbell to the Darkan thread precedes its harvest.
+The harvest's corrections (one-plank and stage-six combat readings; Prayer 43
+recommended, not required) stand. The activities split is committed at `3d3ed9d9`
+as preserved and waits for the next batch, keeping the running window honest.
+
+## 51. Gate lanes move to the MacBook; a bound is a quiet-baseline times 1.3 — 09:55 PDT
+
+Gate `8300e8ad` refused with `TIMEOUT: exceeded 1000 seconds`: the plain lane took
+826 s quiet and 1,071 to 1,171 s today with six agent lanes competing for the
+machine. The timeout worked as ruling 40 designed it. Rulings: (A) now, re-gate
+when the machine is quiet, and from now on no agent lane or audit runs on this
+host while a gate runs; (C) as the fix, and it is what the goal text already
+orders — "use the same MBP over Tailscale/SSH for headless testing instead of this
+Mac Studio" — the gate's `--remote-lanes` path to the MacBook becomes the default
+for every gate, so lane time never competes with agent work. Bounds are not raised
+for load: each lane's bound is its measured quiet baseline on the host that runs
+it, times 1.3, re-measured when the tree changes materially, and recorded in the
+gate log with the baseline it came from. The promotion-gate follow-up's
+simplification review stands as the seat relayed it: the impossible-state recheck
+and its test go, the ghost-inode guard stays, and the missing failed-land test is
+added.
+
+### 39.1 The turn-end machinery is installed — 10:00 PDT
+
+Ruling 39's proposed Stop hook is installed for every seat as fleet `e8d90ed`
+(`no-unacted-intent.py`, beside the anti-swallow hook). Per the owner's rule
+against string heuristics on model output, the judgment is made by Gemini 3.8
+Flash at low effort through `agy` with a strict JSON schema, fail-open on any
+judge error. Calibrated on 60 real turn-final messages: 3 of 30 orchestrator
+finals flagged, each the failure shape, 0 of 30 design-seat finals, about 6 s per
+call. A running seat picks it up at its next reseat.
+
+### 51.1 Clarification and the baseline record — 10:05 PDT
+
+The quiet-host rule in 51 covers test lanes and the five repository audits, which
+load the CPU; `worktree_guard.py audit`, a millisecond git query, is not in it, so
+guarded lease release may run during a gate. Baseline record: a plain lane on this
+host under load ran 4,632 tests in 1,326.318 s against the quiet 826.119 s; the
+1.3 bound (1,074 s) would still refuse it, which is the argument for the remote
+default, not against the formula. The remote host answers (`armans-macbook-pro`,
+`/Users/armantarkhanian/ankiscape-remote-test-host`, 14 cores). The promotion-gate
+follow-up is complete at `7cfe9f2f`: the lock survived successful lands because it
+was built with `unlink_on_release=False`, now removed; the linked-worktree warning
+came from checking the hook against the invoking worktree's own git dir; four
+regressions fail without their fix; `tools/promotion_gate.py` sits at 999 lines,
+so its split (first-wave file twelve) precedes any further change to it.
+
+## 52. Invisible dark-mode text is a measured player-visible slice; fabricated citations void a report — 10:40 PDT
+
+An undispatched review surfaced `palette(mid)` used as a text color
+(`ui/ui.py:28421`, `:28431`; `ui/clan_wars_panel.py:92`), which
+`.claude/rules/qt-dark-mode-text.md` already names as invisible text on a dark
+base. The lines exist; the review's framing (a regression in the diff) is false —
+they date from `8dea34b2` and `711a87c8` — and it cites
+`tools/worktree_guard.py:267513` in a 263-line file, so none of its other claims
+counts as verified. Rulings:
+
+1. The seat measures first, read-only: of the 281 `palette(mid)` sites outside the
+   pool, how many style a text role on something a player reads. That number, not
+   281, sizes the slice.
+2. Fixing a text role to `palette(text)` is a defect fix, not an interface change,
+   so it needs no owner approval; it is one gated slice with the offscreen
+   dark-mode check (Fusion dark `QPalette`, per
+   `.claude/rules/qt-offscreen-screenshots.md`) as its proof, and because every
+   fix is a same-line edit it grows no file and may run before `ui/ui.py` is
+   split, which keeps the two from colliding.
+3. The 28 `except Exception: pass` blocks are a separate item: measure them, then
+   queue them under the fail-explicitly principle; none is touched inside this
+   slice.
+4. A report with a fabricated citation is set aside whole; its true findings are
+   re-measured from the tree before they enter the queue, as here.
