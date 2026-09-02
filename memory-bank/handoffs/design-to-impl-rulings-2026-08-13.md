@@ -2707,3 +2707,29 @@ after the splits. Not a false positive in the same refusal:
 grew from 15 to 23; a move does not change a test's complexity, and the seat is
 asking that agent what it changed before the slice proceeds. Gate hardening
 landed at `a6a8e42d` (plain `OK (skipped=516)`, Qt `OK (skipped=4)`).
+
+## 43. A test that scans a file by path passes vacuously after a split — 2026-09-02 02:50 PDT
+
+`tests/test_quest_catalog.py` parsed `Path(quest_data.__file__).read_text()` to
+check literal quest-id mappings; after the split that path is an import-only
+aggregator, the scan returned an empty set, and the assertions passed over nothing.
+No gate, digest, or lane can see that. Repointing the scan is part of the move,
+because the behavior preserved is "this invariant is enforced"; that is why the
+test's complexity grew 15 -> 23, and the challenge to it is withdrawn. The agent
+proved the repointed test load-bearing both ways (a removed quest fails with
+`Items in the first set but not the second: 'cooks_assistant'`; a duplicate key
+fails with `46 != 45`). The seat's corrected sweep (by `<module>.__file__`, not by
+filename — the first sweep gave a false all-clear) finds exactly one instance,
+fixed; `tests/test_achievement_diaries.py` names the diary catalog by path and
+its split inherits the rule. Contract section 5d (`0128255a`) stands.
+
+Rulings:
+1. A repointed scan asserts a **non-empty, exact key set**; a scan that can pass on
+   nothing is a defect wherever the code later moves.
+2. Machinery, as a small tooling slice: `tools/audit_test_quality.py` flags any test
+   that reads a module by `<module>.__file__` or by a literal source path unless the
+   same test asserts a non-empty result on what it read. The audit runs in every
+   gate, so this class fails loudly from now on.
+3. For the record: this is the fourth check tonight that is right for ordinary work
+   and wrong for a move; the three ratchets fail loudly and are with the owner,
+   this one failed silently and is fixed here.
