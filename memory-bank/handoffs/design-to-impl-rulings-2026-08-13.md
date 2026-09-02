@@ -2587,3 +2587,24 @@ author in parallel):
 
 The seat dispatches the freeze-hook slice and the first splits now, as approved;
 this slice joins them as a third parallel author on `tools/promotion_gate.py`.
+
+### 40.1 Gate hardening done; the promotion gate itself is the twelfth first-wave file — 02:05 PDT
+
+`goal/gate-hardening-2026-09-02` (`b23e2f52`, `5ef46809`): lanes bounded at 1,000 s
+and 1,300 s over the known 850 s and 1,150 s, process tree killed on timeout,
+timeout recorded as a refusal, heartbeat on the lock, refusals print the lock's age,
+stale reclaim kills the tree first; the ruling-38 freeze hook and its `install-hook`
+installer are in, with `worktree_guard.py audit` reporting when the hook is absent.
+Both mutation proofs fail without the fix (`AssertionError: 0 != 124`; the live-lock
+`GateError`).
+
+Two findings from the slice. First, `tools/audit_test_quality.py` did not recurse
+into subdirectories under `tests/`, so every test split (which the contract sends
+into subdirectories, `tests/` holding 236 files) would have removed its own tests
+from the audit's view while reporting a clean, smaller count; fixed with a test,
+count now 234 not 233. Every test-split report states the audit's file count before
+and after, and a drop is a defect, never success. Second, `tools/promotion_gate.py`
+now sits at exactly 1,000 lines: it commits today and can never gain a line.
+Ruling: it is the **twelfth first-wave file**, split at its seams (lock and
+heartbeat, lane execution and bounds, land, CLI) with the same pure-move proof, now
+while the reviewers are warm.

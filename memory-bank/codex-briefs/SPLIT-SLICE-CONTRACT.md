@@ -149,11 +149,20 @@ the wave, and skipping its proof would leave the riskiest split unverified.
 
 ## 6. Verification
 
-Run on your branch and report the exact output of each:
+**Promotion-gate exception, and it applies to every split after the first.** Do
+NOT run the two full lanes. The orchestration seat runs both on the merged tree
+as the promotion gate. Ten slices each starting two lanes would put twenty
+concurrent lanes on one machine, and this project's record already contains an
+occasion where eight concurrent agents running the Qt lane stalled it. Say in
+your report that you ran focused tests under this exception.
+
+Run instead: the focused tests for every file you touch, plus the existing suite
+for any shared file, plus the module-surface proof in section 5, plus the audits
+below.
+
+Report the exact output of each:
 
 ```
-/opt/homebrew/bin/python3 run_tests.py
-QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
 python3 tools/audit_docs.py
 python3 tools/audit_test_quality.py
 python3 tools/audit_item_reachability.py
