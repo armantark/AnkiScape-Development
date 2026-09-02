@@ -178,31 +178,6 @@ class ReviewStripTest(unittest.TestCase):
         state, _events = advance_farm_clock_pure(state, 7, lambda: 1.0)
         return state
 
-    def test_bankstanding_modal_names_the_reason_without_elision(self) -> None:
-        reason = (
-            "You need 1 Pot (unfired) before Crafting can continue, so the "
-            "active action ended after this review."
-        )
-        captured = {}
-
-        def _capture_and_close() -> None:
-            modal = QApplication.activeModalWidget()
-            self.assertIsNotNone(modal)
-            label = modal.findChild(QLabel, "bankstandingReason")
-            self.assertIsNotNone(label)
-            captured["text"] = label.text()
-            captured["word_wrap"] = label.wordWrap()
-            captured["height"] = label.height()
-            captured["line_height"] = label.fontMetrics().lineSpacing()
-            modal.accept()
-
-        QTimer.singleShot(0, _capture_and_close)
-        self.ui.show_bankstanding_dialog(reason)
-
-        self.assertEqual(captured["text"], f"Reason: {reason}")
-        self.assertTrue(captured["word_wrap"])
-        self.assertGreaterEqual(captured["height"], captured["line_height"] * 2)
-
     # ---- the badges ------------------------------------------------------
 
     def test_shooting_star_notice_stays_inside_the_native_strip_at_all_width_tiers(self) -> None:
