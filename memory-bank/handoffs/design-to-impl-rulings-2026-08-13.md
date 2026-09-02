@@ -2860,3 +2860,34 @@ unreleased land lock and the linked-worktree hook warning); hold the four preser
 splits until the owner's ruling on 42.3 is relayed; announce every landing window
 before its gate starts with the log monitor armed in the same turn; and end every
 turn on an action or an armed wake (ruling 39). Path-scoped staging only.
+
+## 47. Owner ruling on 42.3: move-aware now, then simplify what the moves expose — 2026-09-02 09:05 PDT
+
+Owner: "You can have it move and then simplify the measured complexity." The fleet
+slop gate is patched and committed (fleet repo, "slop-gate: a moved definition
+introduces nothing"): a def, class, or top-level assignment re-added with an
+identical normalized AST after leaving another file in the same commit ratchets no
+complexity, cognitive, or Halstead check; dead-code findings inside such a
+definition are pre-existing; and a cycle whose new files trace back to files that
+already cycled, by moved definitions or by adding no import edge of their own, is
+not new. A changed body or a copy still counts. The hook file runs in place, so it
+is live for every commit now.
+
+Verified against the four preserved splits, staged in place and reset:
+
+| Split | Remaining refusals | Reading |
+| --- | --- | --- |
+| diary catalog | none | lands as staged |
+| root `__init__.py` dispatchers | none | lands as staged |
+| roster test | `test_new_slayer_family_assets_are_present_and_provenanced` 22 / 41 (new) | body changed in the move (the `parents[2]` fix); honest |
+| quest data | `data/quest/reward_items.py::quest_reward_items_as_dict` 20 (new); `test_literal_quest_id_mappings...` 23 (was 15) | function adapted to the layout; the test is superseded by ruling 44's layout-independent version on main and disappears on rebase |
+
+Rulings: the two clean splits commit and gate now (batched per ruling 41 after
+their digests are re-verified on the merged tree). For the two honest rows: a
+function that had to change in the move is a real change, so it is simplified
+under the threshold in the same slice, with a behavior test, and stops being a
+pure move only for that function, which the report names. The **simplification
+program** is queue item 0b, after the first wave: every function the moves expose
+above threshold, measured from the gate's own reports as the splits land,
+simplified with behavior tests, largest first (`on_answer_card` 93,
+`logic_pure_combat_engine` 348), never inside a move.
