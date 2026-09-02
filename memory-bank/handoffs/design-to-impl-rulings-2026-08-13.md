@@ -3290,3 +3290,66 @@ rule: an agent may amend its own unlanded, unpushed slice commit for the message
 only, when the orchestrator requests it and the report records it, because the
 contract requires one attributable commit per branch and a follow-up commit
 cannot repair a message; content changes still take a new commit.
+
+### 54.4 The live checkout ran unreviewed guard code; the gate will refuse a dirty canonical tree — 13:45 PDT
+
+The canonical checkout carried the unlanded preserved-ref guard edits
+(byte-identical to `d45a20ce`, 147 insertions against main) because one brief
+omitted the canonical-checkout prohibition every other brief carried, and the
+agent, disclosing it, ran one `unittest` iteration there to exercise the check
+against the real refs. Restored with `git checkout --` on the two files; the guard
+reports the layout safe. Rulings: (1) the prohibition moves into
+`STANDING-SLICE-CONTRACT.md` section 1, beside the placement rules, so every
+brief inherits it and none can omit it; (2) machinery: `promotion_gate.py run`
+refuses to start when the canonical checkout has uncommitted modifications to
+tracked files, naming them, since that state both caused this and would have
+refused the land; a small gated slice on the freshly split tool, with a
+regression. The contract edit waits in `memory-bank/pending/` until the running
+window closes.
+
+### 54.5 The hang was the achievement popup inside the answer flow — 13:50 PDT
+
+Fixed at `81fbb2ad`, traced: `Reviewer._answerCard` -> `on_good_answer` ->
+`handle_agility_answer` -> `check_achievements` -> `show_achievement_dialog` ->
+`dialog.exec()` on "Achievement Unlocked!" for `fremennik_elite_limber_lumber_jumper`.
+It hid because `_popups_enabled()` needs a process-global `QApplication`, which
+only an earlier Qt-lane test creates, so the hang was test-order dependent and the
+file alone never showed it. Product fix: achievement notices join
+`_PENDING_REVIEW_DIALOGS`, drained from `on_answer_card` after Anki's wrapped
+answer returns, the deferred caller-owned pattern of `_prompt_near_death`.
+Harness fix: `tests/__init__.py` rejects `QDialog.exec` and the four `QMessageBox`
+statics, installed by `run_tests.py` before discovery; an unhandled modal now
+fails in 0.002 s with a named error. Both regressions fail without their fix.
+The canonical checkout was checked clean first. Requirement added: because the
+popup's timing is player-visible, the slice proves the notice still appears
+after the answer (a regression that the pending dialog is drained and shown once,
+and an offscreen visual smoke of the dialog under the stale-geometry rules), so
+deferral never becomes loss. 2c then re-gates behind the guard gate.
+
+### 54.6 The freeze hook did not freeze: the gate must hold the lock from launch — 14:05 PDT
+
+Ledger commit `5cdf4c54` (design seat, 13:40:02) landed while `gate-a92de9ef` was
+running (launched about a minute earlier, announced after), so the land refused,
+correctly, and the guard branch re-gates at `b0b723ab`; the refused run was fully
+green (plain 511.3 s, Qt 708.0 s, 4,635 tests, audits clean) and the lock released
+cleanly on the refusal path, the follow-up working. Fifth move of main under an
+open gate today, and the announcement race is not the root cause: ruling 38's
+freeze hook allowed the commit, so the gate was not holding the landing lock while
+its lanes ran. Ruling: `promotion_gate.py run` claims the landing lock at launch,
+before any lane, local or remote, and holds it through `land` or refusal, so the
+freeze hook refuses every commit on `main` for the whole window whether or not an
+announcement arrived; proof is the hook refusing a commit during a running gate.
+This joins the dirty-canonical slice (`00e68104`, 61 insertions, mutation-proven)
+as one gated tooling slice on the split tool. Announcements stay as they are;
+they are courtesy, the lock is the rule.
+
+Correction, 14:05, from the seat's measurement during the re-gate: the lock IS
+claimed before the lanes (present, written 14:01; hook: "Commit refused:
+promotion gate holds b0b723ab... (PID 58351) for 60s"). The claim comes about one
+second after process start, while `run` resolves the worktree and writes its
+marker, and the design seat's commit at 13:40:02 fell into that second after a
+13:40:01 launch. 54.6 narrows to: claim the lock as the very first action of
+`run`, before resolving the worktree, checking the canonical tree, or opening the
+log; proof is the hook refusing a commit attempted immediately after launch as
+well as during the lanes. Neither seat was careless; for one second nothing on
+disk said a gate was running.
