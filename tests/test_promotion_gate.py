@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from dataclasses import asdict
 from pathlib import Path
@@ -26,6 +27,7 @@ from tools.promotion_gate import (
     active_gate_dir_for,
     active_gate_records,
     evidence_path_for,
+    landing_lock_path_for,
     claim_landing_lock,
     land,
     main as promotion_main,
@@ -192,6 +194,112 @@ def pass_gate(
 
 
 class PromotionGateTest(unittest.TestCase):
+    def test_hung_lane_times_out_kills_children_and_records_refusal(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            child_pid_path = Path(temp_dir) / "child.pid"
+            command = (
+                sys.executable,
+                "-c",
+                (
+                    "import pathlib, subprocess, sys, time; "
+                    "child=subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)']); "
+                    f"pathlib.Path({str(child_pid_path)!r}).write_text(str(child.pid)); "
+                    "child.wait()"
+                ),
+            )
+            log = io.StringIO()
+
+            returncode = _run_check(
+                log,
+                heading="=== hanging lane ===",
+                command=command,
+                worktree=PROJECT_ROOT,
+                selector=lambda lines: lines,
+                timeout=0.2,
+            )
+
+            self.assertEqual(returncode, 124)
+            self.assertIn("TIMEOUT: exceeded 0.2 seconds", log.getvalue())
+            child_pid = int(child_pid_path.read_text(encoding="utf-8"))
+            self.assertNotEqual(
+                subprocess.run(("ps", "-p", str(child_pid)), check=False).returncode,
+                0,
+            )
+
+    def test_landing_lock_refusal_includes_its_age(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            lock = claim_landing_lock(
+                repo.target,
+                operation="landing",
+                worktree=repo.target,
+                commit=repo.target_commit,
+            )
+            try:
+                with self.assertRaisesRegex(GateError, r"held for \d+s"):
+                    claim_landing_lock(
+                        repo.target,
+                        operation="landing",
+                        worktree=repo.target,
+                        commit=repo.target_commit,
+                    )
+            finally:
+                lock.release()
+
+    def test_stale_live_landing_lock_is_reclaimed_after_tree_kill(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            path = landing_lock_path_for(repo.target)
+            script = (
+                "import fcntl, json, os, sys, time; "
+                "path=sys.argv[1]; stream=open(path, 'a+', encoding='utf-8'); "
+                "fcntl.flock(stream.fileno(), fcntl.LOCK_EX); stream.seek(0); "
+                "payload=json.load(stream); payload['pid']=os.getpid(); "
+                "stream.seek(0); stream.truncate(); json.dump(payload, stream); stream.flush(); "
+                "time.sleep(30)"
+            )
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                json.dumps(
+                    {
+                        "pid": 0,
+                        "operation": "running a gate",
+                        "worktree": str(repo.target),
+                        "commit": repo.target_commit,
+                        "started_at": "2020-01-01T00:00:00+00:00",
+                        "heartbeat_at": "2020-01-01T00:00:00+00:00",
+                        "token": "stale",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            holder = subprocess.Popen((sys.executable, "-c", script, str(path)))
+            try:
+                deadline = time.monotonic() + 5
+                published = False
+                while holder.poll() is None and not published:
+                    if time.monotonic() >= deadline:
+                        self.fail("lock holder did not publish its pid")
+                    try:
+                        published = json.loads(path.read_text(encoding="utf-8"))["pid"] != 0
+                    except (OSError, json.JSONDecodeError):
+                        pass
+                    time.sleep(0.01)
+                self.assertTrue(published)
+                acquired = claim_landing_lock(
+                    repo.target,
+                    operation="landing",
+                    worktree=repo.target,
+                    commit=repo.target_commit,
+                )
+                acquired.release()
+                holder.wait(timeout=5)
+                self.assertIsNotNone(holder.returncode)
+            finally:
+                if holder.poll() is None:
+                    holder.kill()
+                    holder.wait(timeout=5)
+
     def test_landing_without_a_passed_gate_is_refused(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = PromotionRepo(Path(temp_dir))

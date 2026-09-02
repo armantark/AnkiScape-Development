@@ -57,6 +57,20 @@ def pool_root(canonical: Path) -> Path:
     return safe_worktree_root(canonical) / "pool"
 
 
+def repo_local_hook_path(repo: Path) -> Path:
+    raw_git_dir = Path(_git(repo, "rev-parse", "--git-dir", capture=True).stdout.strip())
+    git_dir = raw_git_dir if raw_git_dir.is_absolute() else repo / raw_git_dir
+    return git_dir.resolve() / "hooks" / "pre-commit"
+
+
+def landing_freeze_hook_installed(repo: Path) -> bool:
+    path = repo_local_hook_path(repo)
+    try:
+        return path.is_file() and path.stat().st_mode & 0o111 and "tools.promotion.landing_freeze_hook" in path.read_text(encoding="utf-8")
+    except OSError:
+        return False
+
+
 def validate_worktree_name(name: str) -> str:
     if not name or name in {".", ".."} or Path(name).name != name:
         raise ValueError("worktree name must be one path component")
@@ -109,6 +123,8 @@ def audit(repo: Path) -> None:
         raise RuntimeError(f"Anki would load linked/duplicate AnkiScape checkouts:\n{joined}")
     print(f"Worktree layout safe: {canonical}")
     print(f"Linked worktree root: {safe_worktree_root(canonical)}")
+    if not landing_freeze_hook_installed(repo):
+        print(f"WARNING: repo-local landing freeze hook missing: {repo_local_hook_path(repo)}")
 
 
 def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str) -> None:

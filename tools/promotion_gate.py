@@ -18,6 +18,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, IO, Sequence, TextIO
 
+try:
+    from tools.promotion.promotion_process import format_age, kill_process_tree, pid_is_alive
+except ModuleNotFoundError:  # direct execution from tools/
+    from promotion.promotion_process import format_age, kill_process_tree, pid_is_alive
+
 
 LAND_LOCK_NAME = "ankiscape-promotion-land.lock"
 ACTIVE_GATE_DIR_NAME = "ankiscape-promotion-gates"
@@ -43,6 +48,9 @@ PLAIN_GATE_CHECKS = (
     "diff check",
 )
 FULL_GATE_CHECKS = ("plain lane", "Qt lane", *PLAIN_GATE_CHECKS[1:])
+PLAIN_LANE_TIMEOUT = 1000.0
+QT_LANE_TIMEOUT = 1300.0
+LONGEST_LANE_TIMEOUT = max(PLAIN_LANE_TIMEOUT, QT_LANE_TIMEOUT)
 
 
 class GateError(RuntimeError):
@@ -57,6 +65,7 @@ class LockRecord:
     commit: str
     started_at: str
     token: str
+    heartbeat_at: str = ""
 
     @classmethod
     def from_json(cls, text: str) -> "LockRecord":
@@ -69,6 +78,7 @@ class LockRecord:
                 commit=str(payload["commit"]),
                 started_at=str(payload["started_at"]),
                 token=str(payload["token"]),
+                heartbeat_at=str(payload.get("heartbeat_at", payload["started_at"])),
             )
         except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
             raise GateError(f"Promotion lock is unreadable: {exc}") from exc
@@ -117,6 +127,18 @@ class HeldLock:
     path: Path
     stream: IO[str]
     unlink_on_release: bool
+    record: LockRecord
+
+    def refresh(self) -> None:
+        if self.stream.closed:
+            return
+        self.record = LockRecord(
+            **{
+                **asdict(self.record),
+                "heartbeat_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+            }
+        )
+        _write_record(self.stream, self.record)
 
     def release(self) -> None:
         if self.stream.closed:
@@ -169,13 +191,15 @@ def evidence_path_for(repo: Path, commit: str) -> Path:
 
 
 def _new_lock_record(operation: str, worktree: Path, commit: str) -> LockRecord:
+    now = datetime.now().astimezone().isoformat(timespec="seconds")
     return LockRecord(
         pid=os.getpid(),
         operation=operation,
         worktree=str(worktree.resolve()),
         commit=commit,
-        started_at=datetime.now().astimezone().isoformat(timespec="seconds"),
+        started_at=now,
         token=uuid.uuid4().hex,
+        heartbeat_at=now,
     )
 
 
@@ -197,6 +221,18 @@ def _read_record_path(path: Path) -> LockRecord:
         raise GateError(f"{exc} at {path}; inspect it before proceeding") from exc
 
 
+def _record_age(record: LockRecord) -> float:
+    try:
+        heartbeat = datetime.fromisoformat(record.heartbeat_at or record.started_at)
+    except ValueError:
+        return float("inf")
+    return max(0.0, (datetime.now().astimezone() - heartbeat).total_seconds())
+
+
+def _reclaim_stale_lock(path: Path, record: LockRecord) -> None:
+    kill_process_tree(record.pid)
+
+
 def claim_landing_lock(
     repo: Path,
     *,
@@ -215,16 +251,27 @@ def claim_landing_lock(
         stream.close()
         try:
             existing = _read_record_path(path)
-            detail = (
-                f"PID {existing.pid} is {existing.operation} for {existing.commit} in "
-                f"{existing.worktree} since {existing.started_at}"
-            )
         except GateError as exc:
-            detail = str(exc)
+            raise GateError(f"Promotion landing lock held: {exc}") from None
+        age = _record_age(existing)
+        if age > LONGEST_LANE_TIMEOUT:
+            _reclaim_stale_lock(path, existing)
+            return claim_landing_lock(
+                repo,
+                operation=operation,
+                worktree=worktree,
+                commit=commit,
+                wait=wait,
+            )
+        detail = (
+            f"PID {existing.pid} is {existing.operation} for {existing.commit} in "
+            f"{existing.worktree} since {existing.started_at}; "
+            f"held for {format_age(_record_age(existing))}"
+        )
         raise GateError(f"Promotion landing lock held: {detail}") from None
     record = _new_lock_record(operation, worktree, commit)
     _write_record(stream, record)
-    return HeldLock(path, stream, unlink_on_release=False)
+    return HeldLock(path, stream, unlink_on_release=False, record=record)
 
 
 def claim_gate_marker(worktree: Path, commit: str) -> HeldLock:
@@ -235,7 +282,7 @@ def claim_gate_marker(worktree: Path, commit: str) -> HeldLock:
     stream = path.open("x+", encoding="utf-8")
     fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     _write_record(stream, record)
-    return HeldLock(path, stream, unlink_on_release=True)
+    return HeldLock(path, stream, unlink_on_release=True, record=record)
 
 
 def _invalidate_evidence(repo: Path, commit: str) -> None:
@@ -268,6 +315,20 @@ def register_gate(
         coordination.release()
 
 
+def install_hook(repo: Path) -> Path:
+    repo = repo.resolve()
+    raw_git_dir = Path(_git(repo, "rev-parse", "--git-dir").stdout.strip())
+    git_dir = (raw_git_dir if raw_git_dir.is_absolute() else repo / raw_git_dir).resolve()
+    hook_path = git_dir / "hooks" / "pre-commit"
+    hook_path.parent.mkdir(parents=True, exist_ok=True)
+    source = """#!/bin/sh
+exec python3 -m tools.promotion.landing_freeze_hook \"$@\"
+"""
+    hook_path.write_text(source, encoding="utf-8")
+    hook_path.chmod(0o755)
+    return hook_path
+
+
 def active_gate_records(
     repo: Path,
     *,
@@ -288,11 +349,22 @@ def active_gate_records(
             except BlockingIOError:
                 stream.seek(0)
                 try:
-                    active.append(LockRecord.from_json(stream.read()))
+                    record = LockRecord.from_json(stream.read())
                 except GateError as exc:
                     raise GateError(
                         f"{exc} at active gate marker {path}; inspect it before proceeding"
                     ) from exc
+                age = _record_age(record)
+                if age > LONGEST_LANE_TIMEOUT:
+                    print(
+                        f"Stale promotion gate marker: {record.commit} PID {record.pid} "
+                        f"held for {format_age(age)}. Killing its process tree.",
+                        file=stderr,
+                    )
+                    _reclaim_stale_lock(path, record)
+                    path.unlink(missing_ok=True)
+                else:
+                    active.append(record)
                 continue
 
             stream.seek(0)
@@ -347,6 +419,35 @@ def _tail_without_progress(lines: list[str], count: int) -> list[str]:
     return [line for line in lines if not PROGRESS_LINE.fullmatch(line)][-count:]
 
 
+def _run_bounded(
+    command: Sequence[str],
+    *,
+    worktree: Path,
+    environment: dict[str, str] | None,
+    timeout: float | None,
+) -> tuple[subprocess.CompletedProcess[str], bool]:
+    options = dict(
+        cwd=worktree,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env={**os.environ, **environment} if environment else None,
+    )
+    try:
+        process = subprocess.Popen(command, **options, start_new_session=True)
+    except PermissionError:
+        process = subprocess.Popen(command, **options)
+    try:
+        stdout_text, stderr_text = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        kill_process_tree(process.pid, process_group=True)
+        stdout_text, stderr_text = process.communicate()
+        stdout_text = stdout_text or exc.stdout or ""
+        stderr_text = stderr_text or exc.stderr or ""
+        return subprocess.CompletedProcess(command, 124, stdout_text, stderr_text), True
+    return subprocess.CompletedProcess(command, process.returncode, stdout_text, stderr_text), False
+
+
 def _run_check(
     log: TextIO,
     *,
@@ -357,16 +458,15 @@ def _run_check(
     environment: dict[str, str] | None = None,
     validator: ResultValidator | None = None,
     parse_stdout_only: bool = False,
+    timeout: float | None = None,
 ) -> int:
     print(heading, file=log)
     try:
-        completed = subprocess.run(
+        completed, timed_out = _run_bounded(
             command,
-            cwd=worktree,
-            check=False,
-            text=True,
-            capture_output=True,
-            env={**os.environ, **environment} if environment else None,
+            worktree=worktree,
+            environment=environment,
+            timeout=timeout,
         )
         stderr_lines = completed.stderr.splitlines()
         lines = (
@@ -380,6 +480,11 @@ def _run_check(
         if parse_stdout_only:
             for line in stderr_lines:
                 print(line, file=log)
+        if timed_out:
+            print(f"TIMEOUT: exceeded {timeout:g} seconds", file=log)
+            print("FAILED: exit 124 (TIMEOUT)", file=log)
+            log.flush()
+            return 124
         accepted = (
             validator(completed.returncode, lines)
             if validator is not None
@@ -521,6 +626,7 @@ def _run_gate_checks(
     plain_only: bool,
     remote_lanes: bool = False,
     log: TextIO,
+    heartbeat: Callable[[], None] = lambda: None,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     if remote_lanes:
         remote_runner = (
@@ -547,6 +653,7 @@ def _run_gate_checks(
             Callable[[list[str]], list[str]],
             dict[str, str] | None,
             ResultValidator | None,
+            float | None,
         ]
     ] = [
         (
@@ -556,6 +663,7 @@ def _run_gate_checks(
             lambda lines: _tail_without_progress(lines, 20 if plain_only else 30),
             None,
             None,
+            PLAIN_LANE_TIMEOUT,
         ),
     ]
     if not plain_only:
@@ -566,6 +674,7 @@ def _run_gate_checks(
             lambda lines: _tail_without_progress(lines, 30),
             qt_environment,
             None,
+            QT_LANE_TIMEOUT,
         ))
     checks.extend((
         (
@@ -573,6 +682,7 @@ def _run_gate_checks(
             "=== audit_docs ===",
             ("python3", "tools/audit_docs.py"),
             lambda lines: lines[-3:],
+            None,
             None,
             None,
         ),
@@ -583,12 +693,14 @@ def _run_gate_checks(
             lambda lines: lines[:3],
             None,
             None,
+            None,
         ),
         (
             "worktree_guard",
             "=== worktree_guard ===",
             ("python3", "tools/worktree_guard.py", "audit"),
             lambda lines: lines[-2:],
+            None,
             None,
             None,
         ),
@@ -599,6 +711,7 @@ def _run_gate_checks(
             lambda lines: lines or ["clean"],
             None,
             _worktree_is_clean,
+            None,
         ),
         (
             "diff check",
@@ -607,12 +720,14 @@ def _run_gate_checks(
             lambda lines: lines or ["clean"],
             None,
             None,
+            None,
         ),
     ))
 
     passed: list[str] = []
     failures: list[str] = []
-    for label, heading, command, selector, environment, validator in checks:
+    for label, heading, command, selector, environment, validator, timeout in checks:
+        heartbeat()
         returncode = _run_check(
             log,
             heading=heading,
@@ -621,6 +736,7 @@ def _run_gate_checks(
             selector=selector,
             environment=environment,
             validator=validator,
+            timeout=timeout,
         )
         if returncode == 0:
             passed.append(label)
@@ -686,9 +802,16 @@ def run_gate(
     worktree = worktree.resolve()
     commit = commit_at(worktree)
     gate_marker = register_gate(worktree, commit, stderr=stderr)
+    landing_lock: HeldLock | None = None
     passed_checks: tuple[str, ...] = ()
     failures: tuple[str, ...] = ()
     try:
+        landing_lock = claim_landing_lock(
+            worktree,
+            operation="running a gate",
+            worktree=worktree,
+            commit=commit,
+        )
         prefix = "gateplain" if plain_only else "gate"
         short_commit = _git(worktree, "rev-parse", "--short", "HEAD").stdout.strip()
         log_path = safe_log_root(worktree) / f"{prefix}-{short_commit}.log"
@@ -702,6 +825,7 @@ def run_gate(
                 plain_only=plain_only,
                 remote_lanes=remote_lanes,
                 log=log,
+                heartbeat=gate_marker.refresh,
             )
             ending_commit = commit_at(worktree)
             if ending_commit != commit:
@@ -724,6 +848,8 @@ def run_gate(
             )
     finally:
         gate_marker.release()
+        if landing_lock is not None:
+            landing_lock.release()
 
     print(log_path, file=stdout)
     if failures:
@@ -849,6 +975,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="run the plain and Qt lanes through the MacBook remote test host",
     )
+    subparsers.add_parser("install-hook", help="install the repo-local landing freeze hook")
     land_parser = subparsers.add_parser("land", help="fast-forward main to a gated worktree")
     land_parser.add_argument("worktree", type=Path)
     args = parser.parse_args(argv)
@@ -860,8 +987,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                 plain_only=args.plain_only,
                 remote_lanes=args.remote_lanes,
             )
-        else:
+        elif args.command == "land":
             land(args.worktree)
+        else:
+            print(install_hook(Path.cwd()))
     except (GateError, OSError) as exc:
         parser.exit(2, f"error: {exc}\n")
     return 0
