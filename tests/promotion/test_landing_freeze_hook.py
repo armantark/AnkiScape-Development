@@ -82,7 +82,7 @@ class LandingFreezeHookTest(unittest.TestCase):
             self.assertEqual(check(repo.main, stderr=stderr), 0)
             self.assertEqual(stderr.getvalue(), "")
 
-    def test_audit_reports_missing_hook_then_quiets_after_install(self):
+    def test_audit_requires_hook_only_in_canonical_checkout(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = PromotionRepo(Path(temp_dir))
             (repo.main / "meta.json").write_text(
@@ -95,6 +95,10 @@ class LandingFreezeHookTest(unittest.TestCase):
                 text=True,
             )
             self.assertIn("landing freeze hook missing", missing.stdout)
+            linked = io.StringIO()
+            with patch("sys.stdout", linked):
+                audit(repo.target)
+            self.assertNotIn("landing freeze hook missing", linked.getvalue())
             install_hook(repo.main)
             self.assertTrue(landing_freeze_hook_installed(repo.main))
             present = io.StringIO()

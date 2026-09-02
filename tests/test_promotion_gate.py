@@ -313,6 +313,7 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
             self.assertEqual(repo.head(repo.main), repo.main_commit)
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
 
     def test_plain_only_gate_records_checks_but_does_not_authorize_landing(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -534,6 +535,7 @@ class PromotionGateTest(unittest.TestCase):
             self.assertIs(payload["remote_lanes"], False)
             self.assertEqual(landed, repo.target_commit)
             self.assertEqual(repo.head(repo.main), repo.target_commit)
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
             self.assertIn(f"Landed {repo.target_commit}", stdout.getvalue())
 
     def test_failed_rerun_removes_prior_landable_evidence(self):

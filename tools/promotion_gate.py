@@ -19,9 +19,9 @@ from pathlib import Path
 from typing import Callable, IO, Sequence, TextIO
 
 try:
-    from tools.promotion.promotion_process import format_age, kill_process_tree, pid_is_alive
+    from tools.promotion.promotion_process import format_age, kill_process_tree, open_locked_file, pid_is_alive
 except ModuleNotFoundError:  # direct execution from tools/
-    from promotion.promotion_process import format_age, kill_process_tree, pid_is_alive
+    from promotion.promotion_process import format_age, kill_process_tree, open_locked_file, pid_is_alive
 
 
 LAND_LOCK_NAME = "ankiscape-promotion-land.lock"
@@ -243,12 +243,9 @@ def claim_landing_lock(
 ) -> HeldLock:
     path = landing_lock_path_for(repo)
     path.parent.mkdir(parents=True, exist_ok=True)
-    stream = path.open("a+", encoding="utf-8")
     try:
-        flags = fcntl.LOCK_EX if wait else fcntl.LOCK_EX | fcntl.LOCK_NB
-        fcntl.flock(stream.fileno(), flags)
+        stream = open_locked_file(path, wait=wait)
     except BlockingIOError:
-        stream.close()
         try:
             existing = _read_record_path(path)
         except GateError as exc:
@@ -271,7 +268,7 @@ def claim_landing_lock(
         raise GateError(f"Promotion landing lock held: {detail}") from None
     record = _new_lock_record(operation, worktree, commit)
     _write_record(stream, record)
-    return HeldLock(path, stream, unlink_on_release=False, record=record)
+    return HeldLock(path, stream, unlink_on_release=True, record=record)
 
 
 def claim_gate_marker(worktree: Path, commit: str) -> HeldLock:

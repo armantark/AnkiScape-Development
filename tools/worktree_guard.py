@@ -123,7 +123,7 @@ def audit(repo: Path) -> None:
         raise RuntimeError(f"Anki would load linked/duplicate AnkiScape checkouts:\n{joined}")
     print(f"Worktree layout safe: {canonical}")
     print(f"Linked worktree root: {safe_worktree_root(canonical)}")
-    if not landing_freeze_hook_installed(repo):
+    if repo.resolve() == canonical and not landing_freeze_hook_installed(repo):
         print(f"WARNING: repo-local landing freeze hook missing: {repo_local_hook_path(repo)}")
 
 
