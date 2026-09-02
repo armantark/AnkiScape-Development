@@ -147,6 +147,68 @@ your report with the reason.
 the offscreen lane. Do not skip it: it is the largest and most central file in
 the wave, and skipping its proof would leave the riskiest split unverified.
 
+## 5a. Keep a moved class publishing from the aggregator
+
+`tools/module_surface.py` normalises a class through its qualified name, which
+embeds `__module__`. Move a dataclass into a part module and its qualified name
+changes, so the digest moves even though nothing about the class changed.
+
+The Slayer canary solved this and it is why its digest held: the moved
+dataclasses keep the aggregator's path as their public module identity.
+
+**So when you move a class out of an aggregator, keep its public module identity
+as the aggregator's path.** This is not a trick to satisfy the tool. A consumer
+that unpickles a saved object, or reads `type(x).__module__`, sees what it saw
+before, which is what "no consumer changes" means for a class. A split that lets
+the qualified name drift has changed the public surface in a way that reaches
+saved player data.
+
+## 5b. For a data table, prove the serialized data too
+
+The digest proves the surface. For a file that is nothing but data, prove the
+data as well: serialize the assembled tables deterministically before and after
+and compare byte-for-byte. The quest split did this and reported
+`SHA-256 9f29e6124c0e633ab7262c1f18fdeaf74ebbf1b7d650ccd7e97c06a11c35b048,
+2,037,883 bytes` identical across the move.
+
+That is the stronger check for a data module, because it inspects every row
+rather than the shape of the names. Use it for every data table in this
+programme.
+
+## 5c. Test files are not data modules
+
+Two agents stopped on the same conflict rather than resolving it, which is why
+this is written down rather than guessed at.
+
+**The digest cannot be preserved for a test split, and would not be worth
+preserving.** Moving a class changes its qualified name, so the digest must
+move. Measured on `tests/test_combat_enemy_roster.py`: the dump is 1,033,939
+bytes, almost all of it imported combat data, and the 36 test methods the file
+exists to run appear nowhere. The digest would stay identical while every test
+method vanished. **Re-pin** under section 5's own exception and say so.
+
+**No aggregator.** Nothing imports a test module; its only reference is the
+digest pin. Keeping one forces a bad trade: parts named `test_*.py` are
+discovered twice under two IDs, parts named otherwise escape discovery.
+
+**The `__init__.py` is mandatory, and its absence is silent.** `unittest
+discover` recurses only into importable packages. Proved directly:
+
+```
+tests/withinit/test_a.py   (has __init__.py)  -> collected
+tests/noinit/test_b.py     (no __init__.py)   -> silently skipped
+Ran 1 test — OK
+```
+
+No error, no warning, and the run still reports `OK`. Since the directory cap
+forces every test split into a subdirectory, one omission deletes coverage while
+making the suite greener.
+
+**What proves a test split instead:** the collection count from
+`python3 -m unittest discover tests` before and after, which must match; the
+test-quality audit's file and test counts before and after, where a drop is a
+defect; and both lanes, gated singly rather than batched.
+
 ## 6. Verification
 
 **Who runs the lanes, corrected by ruling 41.** As the split author you run
