@@ -3212,3 +3212,32 @@ State: 65 oversized files, no gate running, no lock. Order: `tools/promotion_gat
 split (first-wave file twelve, at 999 lines), 2c's remote verification starting
 with its 233-versus-236 file count, the seam slice under 53.1, then item 2's
 re-expansion.
+
+## 54. A modal in the answer path hangs the Qt lane; the lane must refuse modals — 2026-09-02 12:55 PDT
+
+2c's remote Qt lane blocked in `QDialog::exec()` at
+`tests/test_achievement_diary_ledger_wiring.py:750`
+(`test_real_advanced_barbarian_lap_completes_agile_top_deed`): the real kernel
+path for an advanced barbarian lap opens a modal dialog under the offscreen
+interpreter with no loop to close it. The plain lane skips the widget path, so it
+never showed. Hypothesis held until the runner's 1,800 s timeout prints it: this
+is what hung the diary gate on 2026-09-01 for five hours. The bounded lanes and
+the remote host turned that wedge into a fifteen-minute diagnosis, as ruling 40
+and 51 intended. The test also sets `bar_crawl_completed: True` by hand, a second
+confirmation that the Bar Crawl flag has no writer (ruling 50).
+
+Rulings, inside the 2c slice:
+1. **Find which dialog and why it is synchronous.** If the modal is a deed or
+   notice opened inside the answer path, that is the product defect Pass 12
+   ruling 2 already settled for Bankstanding: notices are deferred out of the
+   answer flow and owned by the caller. Fix the product, not the test, with a
+   regression proving no `exec()` runs inside the kernel path.
+2. **The Qt lane refuses modals.** The offscreen test harness patches
+   `QDialog.exec` (and `QMessageBox` static helpers) to raise immediately, so a
+   modal in a test path fails in seconds with a stack trace instead of hanging
+   for 1,800 s. That is the class fix for the hanging-child incident and lands
+   with this slice.
+3. 2c does not land until both are in. The promotion-gate split (`6bfeafe4`: 999
+   lines into a 210-line entry point and six modules, largest 505, 40 definitions
+   AST-identical, every part importing standalone, no rebinding) gates when the
+   remote host is free.
