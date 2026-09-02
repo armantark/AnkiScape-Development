@@ -825,6 +825,8 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
             )
             dialogs = []
             inside_answer = True
+            drain_calls = 0
+            real_drain = addon._show_pending_review_dialogs
 
             def _show_dialog(title, data):
                 if inside_answer:
@@ -834,27 +836,41 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
                     )
                 dialogs.append((title, data))
 
+            def _answer_returns(_reviewer, _ease):
+                nonlocal inside_answer
+                inside_answer = False
+                return "answered"
+
+            def _drain_pending_dialogs():
+                nonlocal drain_calls
+                drain_calls += 1
+                real_drain()
+
+            addon.current_skill = "Agility"
+            addon.card_turned = True
+            addon.answer_shown = True
+            addon.exp_awarded = False
             with (
                 patch.object(logic, "_popups_enabled", return_value=True),
                 patch.object(logic, "show_achievement_dialog", _show_dialog),
+                patch.object(
+                    addon,
+                    "_show_pending_review_dialogs",
+                    _drain_pending_dialogs,
+                ),
+                patch.object(addon.random, "random", return_value=0.99),
             ):
-                self.assertTrue(
-                    runtime_actions.handle_agility_answer(
-                        addon._runtime_action_context()
-                    )
-                )
-                inside_answer = False
-                self.assertEqual(dialogs, [])
-                callbacks = tuple(addon._PENDING_REVIEW_DIALOGS)
-                addon._PENDING_REVIEW_DIALOGS.clear()
-                self.assertGreaterEqual(len(callbacks), 1)
-                for callback in callbacks:
-                    callback()
+                result = addon.on_answer_card(object(), 4, _answer_returns)
 
-            self.assertIn(
-                "Limber Lumber Jumper",
-                [title for title, _data in dialogs],
+            self.assertEqual(result, "answered")
+            self.assertEqual(
+                [title for title, _data in dialogs].count(
+                    "Limber Lumber Jumper"
+                ),
+                1,
             )
+            self.assertEqual(drain_calls, 1)
+            self.assertEqual(addon._PENDING_REVIEW_DIALOGS, [])
         finally:
             sys.modules.clear()
             sys.modules.update(original_modules)

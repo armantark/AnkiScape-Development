@@ -204,6 +204,94 @@ class DialogLifecycleTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.held[-1].objectName()
 
+    def test_achievement_dialog_visual_smoke_at_laptop_height(self) -> None:
+        achievement = "Limber Lumber Jumper"
+        description = (
+            "Complete the high-level section of the Barbarian Agility course "
+            "while wearing an agile top."
+        )
+        captures = {}
+
+        def capture_at_parent_height(label, height):
+            self.parent.resize(900, height)
+            for _ in range(4):
+                QApplication.processEvents()
+
+            def _capture_and_close() -> None:
+                modal = QApplication.activeModalWidget()
+                self.assertIsNotNone(modal)
+                modal.show()
+                modal.resize(420, 240)
+                for _ in range(5):
+                    QApplication.processEvents()
+                labels = modal.findChildren(self.ui.QLabel)
+                title = next(
+                    row for row in labels if row.text() == achievement
+                )
+                detail = next(
+                    row for row in labels if row.text() == description
+                )
+                screenshot = modal.grab()
+                captures[label] = {
+                    "parent_size": (
+                        self.parent.width(),
+                        self.parent.height(),
+                    ),
+                    "title": title.text(),
+                    "title_width": title.width(),
+                    "title_required_width": (
+                        title.fontMetrics().horizontalAdvance(title.text())
+                    ),
+                    "description": detail.text(),
+                    "description_height": detail.height(),
+                    "description_required_height": detail.heightForWidth(
+                        detail.width()
+                    ),
+                    "screenshot_size": (
+                        screenshot.width(),
+                        screenshot.height(),
+                    ),
+                    "screenshot_is_null": screenshot.isNull(),
+                }
+                modal.accept()
+
+            QTimer.singleShot(0, _capture_and_close)
+            with allow_modal_dialogs():
+                self.ui.show_achievement_dialog(
+                    achievement,
+                    {"description": description},
+                )
+
+        capture_at_parent_height("default", 700)
+        capture_at_parent_height("laptop", 560)
+
+        expected_parent_sizes = {
+            "default": (900, 700),
+            "laptop": (900, 560),
+        }
+        for label, capture in captures.items():
+            with self.subTest(parent_height=label):
+                self.assertEqual(
+                    capture["parent_size"],
+                    expected_parent_sizes[label],
+                )
+                self.assertEqual(capture["title"], achievement)
+                self.assertEqual(capture["description"], description)
+                self.assertNotIn("…", capture["title"])
+                self.assertNotIn("…", capture["description"])
+                self.assertFalse(capture["title"].endswith("..."))
+                self.assertFalse(capture["description"].endswith("..."))
+                self.assertGreaterEqual(
+                    capture["title_width"],
+                    capture["title_required_width"],
+                )
+                self.assertGreaterEqual(
+                    capture["description_height"],
+                    capture["description_required_height"],
+                )
+                self.assertEqual(capture["screenshot_size"], (420, 240))
+                self.assertFalse(capture["screenshot_is_null"])
+
     def test_parented_dialogs_destroy_their_qt_objects_on_close(self):
         cases = (
             lambda: self.ui.show_level_up_dialog("Mining", 32, 33),
