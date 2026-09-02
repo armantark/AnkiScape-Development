@@ -3,15 +3,19 @@
 import os
 import re
 
-from .constants_parts.skill_foundations import *
-from .constants_parts.competitive_activities import *
-from .constants_parts.world_activities import *
+from .constants_parts.skill_sources import *
+from .constants_parts.competitive_minigame_sources import *
+from .constants_parts.combat_minigame_sources import *
+from .constants_parts.skill_minigame_sources import *
+from .constants_parts.distraction_sources import *
+from .constants_parts.landmark_and_boss_sources import *
+from .constants_parts.utility_sources import *
+from .constants_parts.equipment_sources import *
+from .constants_parts.registry_sources import *
 from ..data.achievement_diary_data import (
     ACHIEVEMENT_DIARY_CATALOG,
     diary_equipment_data_as_dict,
 )
-from .constants_parts.catalog_sources import *
-from .constants_parts.gathering_sources import *
 from ..data.quest_data import (
     BLUE_DYE_WIKI_SOURCE,
     BLUE_GOBLIN_MAIL_WIKI_SOURCE,
@@ -28,179 +32,8 @@ from ..data.quest_data import (
     quest_unlock_rules_as_dict,
     quests_as_dict,
 )
-from .constants_parts.production_sources import *
 from .constants_parts.paths import *
 from .constants_parts.activity_base import *
-
-UTILITY_ACTIVITY_DATA.update({
-    "gather_doogle_leaves": {
-        "display_name": "Gather Doogle leaves",
-        "requirements": {},
-        "output_item": "Doogle leaves",
-        "output_qty": 1,
-        "batch_size": 2,
-        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "doogle_leaves.png"),
-        "group": "gathering",
-        "source": GERTRUDES_CAT_WIKI_SOURCE,
-    },
-    "gather_goblin_mail": {
-        "display_name": "Search Goblin Village crates",
-        "requirements": {},
-        "output_item": "Goblin mail",
-        "output_qty": 1,
-        "batch_size": 3,
-        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "goblin_mail.png"),
-        "group": "gathering",
-        "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {GOBLIN_MAIL_WIKI_SOURCE}",
-    },
-    "aggie_make_red_dye": {
-        "display_name": "Ask Aggie to make red dye",
-        "requirements": {"Redberries": 3, "Coins": 5},
-        "output_item": "Red dye",
-        "output_qty": 1,
-        "batch_size": 1,
-        "icon_path": os.path.join(CONSTRUCTION_ITEMS_FOLDER, "red_dye.png"),
-        "group": "material_processing",
-        "source": GOBLIN_DIPLOMACY_WIKI_SOURCE,
-    },
-    "aggie_make_yellow_dye": {
-        "display_name": "Ask Aggie to make yellow dye",
-        "requirements": {"Onion": 2, "Coins": 5},
-        "output_item": "Yellow dye",
-        "output_qty": 1,
-        "batch_size": 1,
-        "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "yellow_dye.png"),
-        "group": "material_processing",
-        "source": GOBLIN_DIPLOMACY_WIKI_SOURCE,
-    },
-    "mix_orange_dye": {
-        "display_name": "Mix orange dye",
-        "requirements": {"Red dye": 1, "Yellow dye": 1},
-        "output_item": "Orange dye",
-        "output_qty": 1,
-        "batch_size": 1,
-        "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "orange_dye.png"),
-        "group": "material_processing",
-        "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {ORANGE_DYE_WIKI_SOURCE}",
-    },
-    "aggie_make_blue_dye": {
-        "display_name": "Ask Aggie to make blue dye",
-        "requirements": {"Woad leaf": 2, "Coins": 5},
-        "output_item": "Blue dye",
-        "output_qty": 1,
-        "batch_size": 1,
-        "icon_path": os.path.join(SHOP_ITEMS_FOLDER, "blue_dye.png"),
-        "group": "material_processing",
-        "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {BLUE_DYE_WIKI_SOURCE}",
-    },
-    "dye_goblin_mail_orange": {
-        "display_name": "Dye goblin mail orange",
-        "requirements": {"Goblin mail": 1, "Orange dye": 1},
-        "output_item": "Orange goblin mail",
-        "output_qty": 1,
-        "batch_size": 1,
-        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "orange_goblin_mail.png"),
-        "group": "material_processing",
-        "source": (
-            f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {ORANGE_GOBLIN_MAIL_WIKI_SOURCE}"
-        ),
-    },
-    "dye_goblin_mail_blue": {
-        "display_name": "Dye goblin mail blue",
-        "requirements": {"Goblin mail": 1, "Blue dye": 1},
-        "output_item": "Blue goblin mail",
-        "output_qty": 1,
-        "batch_size": 1,
-        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "blue_goblin_mail.png"),
-        "group": "material_processing",
-        "source": f"{GOBLIN_DIPLOMACY_WIKI_SOURCE}; {BLUE_GOBLIN_MAIL_WIKI_SOURCE}",
-    },
-    "grab_desert_phoenix_feather": {
-        "display_name": "Grab Desert Phoenix feather",
-        "requirements": {},
-        "output_item": "Phoenix feather",
-        "output_qty": 1,
-        "batch_size": 1,
-        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "desert_phoenix.png"),
-        "group": "gathering",
-        "source": "https://runescape.wiki/w/Desert_Phoenix?oldid=6295341",
-    },
-    "open_bird_nest": {
-        "display_name": "Open bird nests",
-        "requirements": {},
-        "openable_items": tuple(BIRD_NEST_OPEN_TABLES_BY_INPUT.keys()),
-        "batch_size": 28,
-        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "open_bird_nest.png"),
-        "group": "containers_opening",
-        "source": "2011Scape bird_nest.plugin.kts",
-    },
-    # Pestle-and-mortar grinding. Zero XP and toolless, following the make_soft_clay
-    # convention; these produce the crushed/dust secondaries the Herblore finished
-    # recipes consume. Parity: PestleAndMortarData.kt (1:1 source -> product).
-    "grind_unicorn_horn": {
-        "display_name": "Grind unicorn horn",
-        "requirements": {"Unicorn horn": 1},
-        "output_item": "Unicorn horn dust",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "grinding",
-        "source": "2011Scape PestleAndMortarData.UNICORN_HORN",
-    },
-    "grind_chocolate_bar": {
-        "display_name": "Grind chocolate bar",
-        "requirements": {"Chocolate bar": 1},
-        "output_item": "Chocolate dust",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "grinding",
-        "source": "2011Scape PestleAndMortarData.CHOCOLATE_BAR",
-    },
-    "grind_kebbit_teeth": {
-        "display_name": "Grind kebbit teeth",
-        "requirements": {"Kebbit teeth": 1},
-        "output_item": "Kebbit teeth dust",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "grinding",
-        "source": "2011Scape PestleAndMortarData.KEBBIT_TEETH",
-    },
-    "grind_birds_nest": {
-        "display_name": "Grind bird's nest",
-        "requirements": {"Bird's nest (empty)": 1},
-        "output_item": "Crushed nest",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "grinding",
-        "source": "2011Scape PestleAndMortarData.BirdNest: item 5075 -> Crushed nest",
-    },
-    "grind_desert_goat_horn": {
-        "display_name": "Grind desert goat horn",
-        "requirements": {"Desert goat horn": 1},
-        "output_item": "Goat horn dust",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "grinding",
-        "source": "2011Scape PestleAndMortarData.DESERT_GOAT_HORN",
-    },
-    "grind_blue_dragon_scale": {
-        "display_name": "Grind blue dragon scale",
-        "requirements": {"Blue dragon scale": 1},
-        "output_item": "Dragon scale dust",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "grinding",
-        "source": "2011Scape PestleAndMortarData.BLUE_DRAGON_SCALE",
-    },
-    "grind_mud_rune": {
-        "display_name": "Grind mud rune",
-        "requirements": {"Mud rune": 1},
-        "output_item": "Ground mud runes",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "grinding",
-        "source": "2011Scape PestleAndMortarData.MUD_RUNE",
-    },
-})
 
 from .constants_parts.activity_updates import *
 
@@ -213,65 +46,17 @@ QUEST_REWARD_ITEM_DATA = {**quest_reward_items_as_dict(), **quest_item_acquisiti
 CLAIM_DATA = claims_as_dict()
 
 from .constants_parts.skill_assets import *
-from .constants_parts.skill_assets import _asset_slug
-
-for _item_name in QUEST_REWARD_ITEM_DATA:
-    _path = os.path.join(
-        QUEST_ITEMS_FOLDER,
-        QUEST_ITEM_IMAGE_FILE_OVERRIDES.get(_item_name, f"{_asset_slug(_item_name)}.png"),
-    )
-    if os.path.exists(_path):
-        QUEST_ITEM_IMAGES[_item_name] = _path
-for _item_name in COMBAT_EXTRA_ITEM_DATA:
-    _path = (
-        QUEST_ITEM_IMAGES.get(_item_name)
-        or SMITHING_EXTRA_ITEM_IMAGES.get(_item_name)
-        or FLETCHED_ITEM_IMAGES.get(_item_name)
-        or RUNECRAFTING_ITEM_IMAGES.get(_item_name)
-        or MINING_EXTRA_ITEM_IMAGES.get(_item_name)
-        or WOODCUTTING_EXTRA_ITEM_IMAGES.get(_item_name)
-        or HUNTER_ITEM_IMAGES.get(_item_name)
-        or os.path.join(COMBAT_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
-    )
-    if _path and os.path.exists(_path):
-        COMBAT_ITEM_IMAGES[_item_name] = _path
-for _item_name, _path in {
-    "Kebab": os.path.join(SHOP_ITEMS_FOLDER, "kebab.png"),
-    "Half a summer pie": os.path.join(COOKING_ITEMS_FOLDER, "summer_pie.png"),
-}.items():
-    if os.path.exists(_path):
-        COMBAT_ITEM_IMAGES[_item_name] = _path
-for _activity_spec in UTILITY_ACTIVITY_DATA.values():
-    _icon_item = _activity_spec.get("icon_item")
-    if not isinstance(_icon_item, str) or _icon_item in UTILITY_ITEM_IMAGES:
-        continue
-    _icon_path = COMBAT_ITEM_IMAGES.get(_icon_item) or PRAYER_ITEM_IMAGES.get(_icon_item)
-    if _icon_path:
-        UTILITY_ITEM_IMAGES[_icon_item] = _icon_path
-_fungicide_spray_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide_spray_10.png")
-if os.path.exists(_fungicide_spray_path):
-    for _charges in range(11):
-        COMBAT_ITEM_IMAGES[f"Fungicide spray {_charges}"] = _fungicide_spray_path
-_fungicide_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide.png")
-if os.path.exists(_fungicide_path):
-    COMBAT_ITEM_IMAGES["Fungicide"] = _fungicide_path
-_period_clue_scroll_path = os.path.join(
-    current_dir, "activityitems", "clue_scroll_hard.png"
+from .constants_parts.skill_assets import (
+    _add_post_diary_equipment_data,
+    _asset_slug,
+    _equipment_data_before_diaries,
 )
-if os.path.exists(_period_clue_scroll_path):
-    # Rev-742 easy, medium, and hard clues all use client model 3374.
-    COMBAT_ITEM_IMAGES["Clue scroll (medium)"] = _period_clue_scroll_path
-for _target_id in COMBAT_ENEMY_DATA:
-    _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")
-    if os.path.exists(_path):
-        COMBAT_ENEMY_IMAGES[_target_id] = _path
-# Goblin Raids' unnamed village goblin has no wiki image of its own, so it shows
-# the art of the registered goblin row it inherits its stats from.
-for _row in GOBLIN_RAID_ENEMIES:
-    if _row.id not in COMBAT_ENEMY_IMAGES and _row.base in COMBAT_ENEMY_IMAGES:
-        COMBAT_ENEMY_IMAGES[_row.id] = COMBAT_ENEMY_IMAGES[_row.base]
 
+
+EQUIPMENT_DATA = _equipment_data_before_diaries()
 EQUIPMENT_DATA.update(diary_equipment_data_as_dict())
+_add_post_diary_equipment_data(EQUIPMENT_DATA)
+EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 
 from .constants_parts.activity_assets import *
 
@@ -785,6 +570,7 @@ def exp_table_for_skill(skill_id):
         else EXP_TABLE
     )
 
+
 # Achievement metadata
 ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
     MINING_OUTPUT_ITEMS,
@@ -802,4 +588,7 @@ ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
 )
 ACHIEVEMENTS = achievements_as_dict(ACHIEVEMENT_DEFINITIONS)
 
-__all__ = [name for name in globals() if not name.startswith("_")]
+from .constants_parts.public_exports import _PUBLIC_EXPORT_ORDER
+
+__all__ = list(_PUBLIC_EXPORT_ORDER)
+del _PUBLIC_EXPORT_ORDER

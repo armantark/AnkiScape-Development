@@ -1,21 +1,84 @@
 import os
 import re
 
-from .skill_foundations import *
-from .competitive_activities import *
-from .world_activities import *
-from .catalog_sources import *
-from .gathering_sources import *
-from .production_sources import *
+from ...data.quest_data import quest_reward_items_as_dict
+
+from .skill_sources import *
+from .competitive_minigame_sources import *
+from .combat_minigame_sources import *
+from .skill_minigame_sources import *
+from .distraction_sources import *
+from .landmark_and_boss_sources import *
+from .utility_sources import *
+from .equipment_sources import *
+from .registry_sources import *
 from .paths import *
+from .activity_updates import *
 from .skill_catalog import *
 from .skill_assets import *
 from .skill_assets import _asset_slug
 
-EQUIPMENT_DATA.update(milestone_cape_equipment_data_as_dict())
-EQUIPMENT_DATA.update(cape_equipment_data_as_dict())
-EQUIPMENT_DATA.update(crystal_chest_equipment_data_as_dict())
-EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
+_QUEST_REWARD_ITEM_DATA = {
+    **quest_reward_items_as_dict(),
+    **quest_item_acquisition_extra_items_as_dict(),
+}
+
+for _item_name in _QUEST_REWARD_ITEM_DATA:
+    _path = os.path.join(
+        QUEST_ITEMS_FOLDER,
+        QUEST_ITEM_IMAGE_FILE_OVERRIDES.get(_item_name, f"{_asset_slug(_item_name)}.png"),
+    )
+    if os.path.exists(_path):
+        QUEST_ITEM_IMAGES[_item_name] = _path
+for _item_name in COMBAT_EXTRA_ITEM_DATA:
+    _path = (
+        QUEST_ITEM_IMAGES.get(_item_name)
+        or SMITHING_EXTRA_ITEM_IMAGES.get(_item_name)
+        or FLETCHED_ITEM_IMAGES.get(_item_name)
+        or RUNECRAFTING_ITEM_IMAGES.get(_item_name)
+        or MINING_EXTRA_ITEM_IMAGES.get(_item_name)
+        or WOODCUTTING_EXTRA_ITEM_IMAGES.get(_item_name)
+        or HUNTER_ITEM_IMAGES.get(_item_name)
+        or os.path.join(COMBAT_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    )
+    if _path and os.path.exists(_path):
+        COMBAT_ITEM_IMAGES[_item_name] = _path
+for _item_name, _path in {
+    "Kebab": os.path.join(SHOP_ITEMS_FOLDER, "kebab.png"),
+    "Half a summer pie": os.path.join(COOKING_ITEMS_FOLDER, "summer_pie.png"),
+}.items():
+    if os.path.exists(_path):
+        COMBAT_ITEM_IMAGES[_item_name] = _path
+for _activity_spec in UTILITY_ACTIVITY_DATA.values():
+    _icon_item = _activity_spec.get("icon_item")
+    if not isinstance(_icon_item, str) or _icon_item in UTILITY_ITEM_IMAGES:
+        continue
+    _icon_path = COMBAT_ITEM_IMAGES.get(_icon_item) or PRAYER_ITEM_IMAGES.get(_icon_item)
+    if _icon_path:
+        UTILITY_ITEM_IMAGES[_icon_item] = _icon_path
+_fungicide_spray_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide_spray_10.png")
+if os.path.exists(_fungicide_spray_path):
+    for _charges in range(11):
+        COMBAT_ITEM_IMAGES[f"Fungicide spray {_charges}"] = _fungicide_spray_path
+_fungicide_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide.png")
+if os.path.exists(_fungicide_path):
+    COMBAT_ITEM_IMAGES["Fungicide"] = _fungicide_path
+_period_clue_scroll_path = os.path.join(
+    current_dir, "activityitems", "clue_scroll_hard.png"
+)
+if os.path.exists(_period_clue_scroll_path):
+    # Rev-742 easy, medium, and hard clues all use client model 3374.
+    COMBAT_ITEM_IMAGES["Clue scroll (medium)"] = _period_clue_scroll_path
+for _target_id in COMBAT_ENEMY_DATA:
+    _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")
+    if os.path.exists(_path):
+        COMBAT_ENEMY_IMAGES[_target_id] = _path
+# Goblin Raids' unnamed village goblin has no wiki image of its own, so it shows
+# the art of the registered goblin row it inherits its stats from.
+for _row in GOBLIN_RAID_ENEMIES:
+    if _row.id not in COMBAT_ENEMY_IMAGES and _row.base in COMBAT_ENEMY_IMAGES:
+        COMBAT_ENEMY_IMAGES[_row.id] = COMBAT_ENEMY_IMAGES[_row.base]
+
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 BRAWLING_GLOVES_EXTRA_ITEM_DATA = brawling_gloves_extra_items_as_dict()
 BRAWLING_GLOVE_ITEM_IMAGES = {}
@@ -501,7 +564,6 @@ for _item_name, _file_name in {
         COMBAT_ITEM_IMAGES[_item_name] = _path
 
 __all__ = [
-    "EQUIPMENT_ITEM_DATA",
     "FIST_OF_GUTHIX_EXTRA_ITEM_DATA",
     "BRAWLING_GLOVES_EXTRA_ITEM_DATA",
     "BRAWLING_GLOVE_ITEM_IMAGES",

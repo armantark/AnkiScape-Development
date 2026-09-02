@@ -26,6 +26,7 @@ QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db",
 }
 ROOT_QT_DIGEST = "60268f8c330697f9303b0a4e5e59dd1b140b61b271228cd06628d95e5c020f17"
+CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"
 
 
 def run_tool(interpreter: Path, *args: str, qt: bool = False) -> subprocess.CompletedProcess[str]:
@@ -65,6 +66,91 @@ class ModuleSurfaceTest(unittest.TestCase):
             self.assertEqual(len(lines), len(expected))
             for line, (module_path, digest) in zip(lines, expected.items()):
                 self.assertEqual(line, f"MODULE_SURFACE_SHA256: {module_path} {digest}")
+
+    def test_constants_parts_import_standalone(self):
+        script = "\n".join(
+            (
+                "import importlib, sys",
+                "import pkg_alias",
+                "module = importlib.import_module(sys.argv[1])",
+                "leaf = sys.argv[1].rsplit('.', 1)[-1]",
+                "if leaf == 'activity_base':",
+                "    assert not hasattr(module, 'UTILITY_ACTIVITY_DATA')",
+                "if leaf == 'activity_updates':",
+                "    assert len(module.UTILITY_ACTIVITY_DATA) == 218",
+                "if leaf == 'activity_assets':",
+                "    assert len(module.UTILITY_ACTIVITY_DATA) == 218",
+                "    assert 'Clue scroll (medium)' in module.TROUBLE_BREWING_ITEM_IMAGES",
+                "    assert not hasattr(module, 'EQUIPMENT_ITEM_DATA')",
+                "if leaf == 'equipment_sources':",
+                "    assert not hasattr(module, 'EQUIPMENT_DATA')",
+                "if leaf == 'skill_assets':",
+                "    assert not hasattr(module, 'EQUIPMENT_DATA')",
+                "    data = module._equipment_data_before_diaries()",
+                "    diary = importlib.import_module('ankiscape.data.achievement_diary_data')",
+                "    data.update(diary.diary_equipment_data_as_dict())",
+                "    module._add_post_diary_equipment_data(data)",
+                "    assert len(data) == 994",
+                "print('OK')",
+            )
+        )
+        part_names = sorted(
+            path.stem
+            for path in (ROOT / "core" / "constants_parts").glob("*.py")
+        )
+        for environment, interpreter, qt in interpreter_cases():
+            process_environment = (
+                {**os.environ, "QT_QPA_PLATFORM": "offscreen"}
+                if qt
+                else None
+            )
+            for part_name in part_names:
+                module_name = f"ankiscape.core.constants_parts.{part_name}"
+                result = subprocess.run(
+                    [str(interpreter), "-c", script, module_name],
+                    cwd=ROOT,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                    env=process_environment,
+                )
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    f"{environment} {module_name}: {result.stderr}",
+                )
+                self.assertEqual(result.stdout.strip(), "OK")
+
+    def test_constants_export_order(self):
+        script = "\n".join(
+            (
+                "import hashlib, json",
+                "import pkg_alias",
+                "from ankiscape.core import constants",
+                "payload = json.dumps(",
+                "    constants.__all__,",
+                "    ensure_ascii=False,",
+                "    separators=(',', ':'),",
+                ").encode()",
+                "print(hashlib.sha256(payload).hexdigest())",
+            )
+        )
+        for environment, interpreter, qt in interpreter_cases():
+            process_environment = (
+                {**os.environ, "QT_QPA_PLATFORM": "offscreen"}
+                if qt
+                else None
+            )
+            result = subprocess.run(
+                [str(interpreter), "-c", script],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+                env=process_environment,
+            )
+            self.assertEqual(result.returncode, 0, f"{environment}: {result.stderr}")
+            self.assertEqual(result.stdout.strip(), CONSTANTS_EXPORT_ORDER_DIGEST)
 
     def test_public_normalization_preserves_sequence_order_and_sorts_unordered_values(self):
         value = {"z": frozenset({3, 1, 2}), "a": ("second", "first")}

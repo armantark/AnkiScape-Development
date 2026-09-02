@@ -3,7 +3,7 @@ import os
 from .paths import *
 
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
-UTILITY_ACTIVITY_DATA = {
+_BASE_UTILITY_ACTIVITY_DATA = {
     "bankstanding": {
         "display_name": "Bankstanding",
         "requirements": {},
@@ -133,5 +133,4 @@ UTILITY_ACTIVITY_DATA = {
 
 __all__ = [
     "DEFAULT_UTILITY_ACTIVITY",
-    "UTILITY_ACTIVITY_DATA",
 ]

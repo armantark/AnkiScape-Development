@@ -2799,3 +2799,212 @@ blocked by nothing and depends on nothing:
 Option 3 is declined on the record because a pinned "known issue" in the test
 audit would be a place for the next real finding to hide, and the reachability
 validator that inspired it tolerates a measured count, not a named defect.
+
+### 44.1 Landed; programme state at 05:10 PDT
+
+`6ab9c330`: the vacuous-scan check and its layout-independent repair landed
+together (plain 4,628 tests 826.1 s, Qt 1,098.5 s; `audit_test_quality`: 4,593 tests
+across 236 files, hard issues 0). Landed so far: Slayer data, combat data, the gate
+hardening with the freeze hook, the module-surface harness, this slice. Complete
+and blocked on the owner's move-aware ruling: `data/quest_data.py`, the root
+`__init__.py`, `tests/test_combat_enemy_roster.py`. Unblocked and dispatched:
+`core/constants.py` (2,991 lines, nothing over threshold) and
+`data/achievement_diary_catalog.py` (6,151, first exercise of generator sharding).
+Item 2c is committed and verified at 131 changed rows, reviews dispatched.
+`logic_pure/logic_pure_combat_engine.py` holds a cyclomatic-348 function and is the
+file that stays stuck under simplify-first. Contract gains
+`unittest.TestLoader().discover("tests").countTestCases()` as the collection-count
+instrument; the unreleased land lock and the linked-worktree hook warning are paired
+in the promotion-gate follow-up.
+
+## 45. Preserve the four blocked splits as refs, without touching their worktrees — 2026-09-02 05:45 PDT
+
+Four complete, proof-carrying splits (quest data 88 files / 15,148 insertions,
+diary catalog 20 / 6,521, root dispatchers 12 / 6,002, roster test 9 / 1,762) sit
+uncommitted in leased worktrees because each is refused by a ratchet that awaits
+the owner, whose ruling may be hours away. Ruling: preserve all four now, in
+minutes, with no reapply step:
+
+```
+git -C <worktree> add -A
+sha=$(git -C <worktree> stash create "preserved: <slice> awaiting ruling 42.3")
+git -C <worktree> update-ref refs/preserved/<slice>-2026-09-02 "$sha"
+git -C <worktree> reset -q            # index back; working tree untouched
+```
+
+`stash create` writes a commit object of the full working tree without moving any
+branch and without a pre-commit hook, and the ref makes it durable and visible in
+`git for-each-ref refs/preserved`. No gate is circumvented: nothing lands from
+these refs; when the ratchets are made move-aware, each worktree commits its
+unchanged staged work through the normal gate, and the refs are deleted after
+landing. If a worktree is ever lost, `git checkout <ref> -- .` restores the tree.
+Patch files are declined: four agent rounds plus a reapply step for work that
+otherwise lands with no rework.
+
+## 46. Reseat after a harness restart — 2026-09-02 08:46 PDT
+
+The harness restarted around 08:30 and killed the orchestrator seat `c79eb6` and
+its in-flight agents. The design seat reseated a fresh orchestrator (thread
+`de2ebed9-4b2c-4307-b634-c4fef0c2934f`, pid 8517) from tracked state. The design
+seat's own doorbell name is now **`ankiscape-fork-fb`** (was `ankiscape-fork-41`).
+Nothing durable was lost: main is at `c3a78fea`, the four blocked splits are
+preserved under `refs/preserved/` (ruling 45), and the record is complete through
+ruling 45.
+
+Standing work order for the new seat: read sections 25 through 45; audit branch
+state before dispatching anything (which of `goal/split-constants-2026-09-02` and
+the 2c review round left commits, which in-flight agents died); resume the ruling-29
+lanes on what needs no owner ruling (the constants split, 2c's conformance check and
+cross-lineage review, the harvest lanes, the promotion-gate follow-up for the
+unreleased land lock and the linked-worktree hook warning); hold the four preserved
+splits until the owner's ruling on 42.3 is relayed; announce every landing window
+before its gate starts with the log monitor armed in the same turn; and end every
+turn on an action or an armed wake (ruling 39). Path-scoped staging only.
+
+## 47. Owner ruling on 42.3: move-aware now, then simplify what the moves expose — 2026-09-02 09:05 PDT
+
+Owner: "You can have it move and then simplify the measured complexity." The fleet
+slop gate is patched and committed (fleet repo, "slop-gate: a moved definition
+introduces nothing"): a def, class, or top-level assignment re-added with an
+identical normalized AST after leaving another file in the same commit ratchets no
+complexity, cognitive, or Halstead check; dead-code findings inside such a
+definition are pre-existing; and a cycle whose new files trace back to files that
+already cycled, by moved definitions or by adding no import edge of their own, is
+not new. A changed body or a copy still counts. The hook file runs in place, so it
+is live for every commit now.
+
+Verified against the four preserved splits, staged in place and reset:
+
+| Split | Remaining refusals | Reading |
+| --- | --- | --- |
+| diary catalog | none | lands as staged |
+| root `__init__.py` dispatchers | none | lands as staged |
+| roster test | `test_new_slayer_family_assets_are_present_and_provenanced` 22 / 41 (new) | body changed in the move (the `parents[2]` fix); honest |
+| quest data | `data/quest/reward_items.py::quest_reward_items_as_dict` 20 (new); `test_literal_quest_id_mappings...` 23 (was 15) | function adapted to the layout; the test is superseded by ruling 44's layout-independent version on main and disappears on rebase |
+
+Rulings: the two clean splits commit and gate now (batched per ruling 41 after
+their digests are re-verified on the merged tree). For the two honest rows: a
+function that had to change in the move is a real change, so it is simplified
+under the threshold in the same slice, with a behavior test, and stops being a
+pure move only for that function, which the report names. The **simplification
+program** is queue item 0b, after the first wave: every function the moves expose
+above threshold, measured from the gate's own reports as the splits land,
+simplified with behavior tests, largest first (`on_answer_card` 93,
+`logic_pure_combat_engine` 348), never inside a move.
+
+### 47.1 Fleet commit — 09:05 PDT
+
+The gate's first fleet commit was refused by the gate itself (`moved_definitions`
+cognitive 19); the loop body was lifted into `departed_definitions` and the change
+landed as fleet `deeea97`, "slop-gate: a moved definition introduces nothing", 15
+tests green. Section 47's "committed" was written one minute early.
+
+## 48. No statement joins to fit a gate; no split by line range — 2026-09-02 09:10 PDT
+
+1. **Item 2 does not land with joined lines.** Commit `026f9452` kept
+   `runtime/runtime_actions_carried.py` at exactly 1,484 lines by joining two
+   unrelated statements onto one line in two places. No variable was set, so the
+   letter of ruling 34 held, but the growth check was gamed, not obeyed. Ruling:
+   the carried-file split (first-wave file eleven, now unblocked by the move-aware
+   gate; five functions over the cognitive threshold at 16, 20, 33, 42 and 270)
+   lands first; item 2's fix is then re-expanded to normal formatting on top of
+   it and gated. Statement joins made to fit a line budget are a defect in any
+   slice from now on, and the review checks for them.
+2. **A split is by seam or it is not a split.** The constants split produced
+   twelve modules that are contiguous line ranges of the original, six of them
+   holding nothing but imports, with names that do not describe their contents
+   (`skill_foundations.py` holds Agility and Dungeoneering because they came
+   first). The surface digest was byte-identical, which proves it moved code; it
+   does not prove it split anything. Ruling: the fix round regroups by domain
+   with names that describe contents, every part module imports standalone (one
+   currently raises `KeyError` on import), and `memory-bank/systemPatterns.md`
+   stops claiming an import cycle that does not exist statically. The seat's
+   choice to hold the fix round until the verification lane and the GLM vote
+   return, so the branch gets one consolidated round, is correct.
+
+### 48.1 Blank-line stripping is the same defect — 09:12 PDT
+
+Item 2's branch also deleted 46 blank lines across three oversized files to pay
+for its additions (`__init__.py` 16 blank lines removed to fit one import;
+`runtime/runtime_actions_activities.py` 24; `tools/generate_achievement_diary_data.py`
+6), on top of the two statement joins. Ruling 48 now covers any reformatting made
+to fit a line budget: statement joins, blank-line deletion between definitions,
+and comment or docstring removal. The review checks for a drop in blank lines in
+an oversized file the same way it checks for joins. Item 2 therefore waits on
+three splits (carried, activities, and the diary generator) before it is
+re-expanded and gated; the carried and activities splits are dispatched. The root
+dispatchers split is committed at `a8bb0fa7` (`__init__.py` 765 lines, eleven
+runtime modules of 315 to 706) with the patched gate accepting it.
+
+Machinery proposal for the owner, since it edits the fleet gate: measure the
+file-size ratchet in non-blank, non-comment lines (or AST statements for Python)
+instead of physical lines, so neither stripping blank lines nor joining statements
+buys any budget and the gate cannot be gamed by formatting. Until then the review
+check stands.
+
+## 49. What a translated or invented diary deed must satisfy — 2026-09-02 09:15 PDT
+
+Item 2c's review found three defect classes, one verified by the seat: the new row
+`lumbridge_easy_money_down_the_drayn` completes on the same `bank_run`
+`deposited_non_coin` event as the already-wired `burthorpe_period_bank_on_it`;
+about a dozen of the 116 translations resolve to one cheap shop purchase or junk
+sale (three rows resolve to selling one Empty pot, item 1931, at a general store);
+and the disposition test is uneven, with rows where only the locality survives
+marked `translated` rather than `invented`. The constants move passed its second
+review (562 names set-identical, values equal, digest `7d6ca7ea...` matching the
+pin on main, dict-order noise proven by a two-dump control); its seam and naming
+rework stands.
+
+Rulings for the consolidated 2c fix round, and for every future curation row:
+
+1. **One deed, one seam.** No two live rows may complete on the same event
+   predicate. The generator or its audit rejects a duplicate completion seam
+   across the catalog, so this class fails loudly from now on (a small tooling
+   addition inside the 2c slice).
+2. **No accidental deeds.** A translated or invented deed must require a
+   deliberate act in the spirit of the source deed and proportionate to its tier:
+   an easy deed may be simple, but "sell one Empty pot" is something a player does
+   by accident, which is the inverted inert row section 33 forbade. Buying or
+   selling one common item at a general store is never a deed on its own.
+3. **The disposition test, stated once.** `translated` means the source deed's
+   substance survives in AnkiScape's model with only its locale or surface
+   changed (the Draynor row's substance is "bank at a specific place", which the
+   locationless Bank cannot express, so it is not translatable). `invented` means
+   the substance could not survive and a new deed was written in the family's and
+   tier's spirit, citing the family and tier it serves. A row where only the
+   locality survives is `invented`, and its new deed must meet rule 2.
+4. The three Empty-pot rows and the Draynor row are the named test cases; the
+   fix round reports each of the dozen accidental deeds with its replacement.
+
+### 48.2 Owner ruling: the line count stays literal; PEP 8 is the gate — 09:15 PDT
+
+Owner: "line count does include those too. But that's a lazy fix from the model,
+need to make sure it doesn't do stuff like that. It still needs to pass
+Pylint/PEP8." The count-statements proposal in 48.1 is withdrawn. The fleet slop
+gate (fleet `eee1701`) now ratchets PEP 8 layout per file and code — pycodestyle
+E301-E306 (blank lines around definitions) and E701-E703 (several statements per
+line): a commit that adds such a violation is blocked, existing debt is tolerated
+(baseline on main: 151 findings across 48 files), and violations inside a
+definition that only moved file do not count. Verified on item 2's commit
+`026f9452` staged in a leased scratch worktree: `runtime/runtime_actions_carried.py:
+E702 x2 (was 0)`. Blank-line removals that stay within PEP 8 (trimming excess
+spacing) are not violations and are acceptable; the review check in 48.1 narrows
+to what the gate cannot see. `pycodestyle` is installed through `uv tool` for the
+hook; the Homebrew copies of pycodestyle and flake8 point at a removed Python
+3.12 and are dead.
+
+### 47.2 Fan-out is move-aware too — 09:30 PDT
+
+The carried-file split (1,484 lines into three modules of 465, 399 and 754; all 16
+moved ASTs identical; digest `d3c2178b...` under both interpreters; preserved as
+`refs/preserved/split-runtime-carried-2026-09-02`) was refused for fan-out 89
+(was 87): the aggregator gained exactly the two edges to modules its own
+definitions moved into. Same shape as the three ratchets ruled move-aware, so the
+gate now treats edges from a file to new modules whose origin is that file as not
+new fan-out, using the cycle check's origin map (fleet `0a14dcd`, 19 tests green).
+Item 2's rework must also re-pin the two surface digests it legitimately changes
+(`core/constants.py`, `__init__.py` under Qt), naming each added name. Item 2c is
+rejected by its conformance check (131 rows changed where ruling 31 requires 136,
+every resolved row with `wiring: null`, an unsupported `invented` disposition
+crashing the compiler, 28 triggers naming seams that do not exist) and its
+consolidated fix round runs under ruling 49.

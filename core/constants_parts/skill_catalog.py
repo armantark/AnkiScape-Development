@@ -1,11 +1,14 @@
 import os
 
-from .skill_foundations import *
-from .competitive_activities import *
-from .world_activities import *
-from .catalog_sources import *
-from .gathering_sources import *
-from .production_sources import *
+from .skill_sources import *
+from .competitive_minigame_sources import *
+from .combat_minigame_sources import *
+from .skill_minigame_sources import *
+from .distraction_sources import *
+from .landmark_and_boss_sources import *
+from .utility_sources import *
+from .equipment_sources import *
+from .registry_sources import *
 from .paths import *
 
 CRAFTING_DATA = crafting_recipes_as_dict()

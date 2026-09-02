@@ -1,12 +1,16 @@
 import os
 import re
 
-from .skill_foundations import *
-from .competitive_activities import *
-from .world_activities import *
-from .catalog_sources import *
-from .gathering_sources import *
-from .production_sources import *
+from .skill_sources import *
+from .competitive_minigame_sources import *
+from .combat_minigame_sources import *
+from .skill_minigame_sources import *
+from .distraction_sources import *
+from .landmark_and_boss_sources import *
+from .utility_sources import *
+from .equipment_sources import *
+from .equipment_sources import _BASE_EQUIPMENT_DATA
+from .registry_sources import *
 from .paths import *
 from .skill_catalog import *
 
@@ -404,26 +408,37 @@ QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
 }
 COMBAT_ITEM_IMAGES = {}
 COMBAT_ENEMY_IMAGES = {}
-EQUIPMENT_DATA = dict(EQUIPMENT_DATA)
-EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
-EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
-EQUIPMENT_DATA.update(great_orb_project_equipment_data_as_dict())
-EQUIPMENT_DATA.update(runecrafting_equipment_data_as_dict())
-EQUIPMENT_DATA.update(cooking_gauntlets_equipment_data_as_dict())
-EQUIPMENT_DATA.update(brawling_gloves_equipment_data_as_dict())
-EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
-EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
-EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())
-EQUIPMENT_DATA.update(conquest_equipment_data_as_dict())
-EQUIPMENT_DATA.update(barbarian_assault_equipment_data_as_dict())
-EQUIPMENT_DATA.update(stronghold_player_safety_equipment_data_as_dict())
-EQUIPMENT_DATA.update(penguin_hide_and_seek_equipment_data_as_dict())
-EQUIPMENT_DATA.update(duel_arena_equipment_data_as_dict())
-EQUIPMENT_DATA.update(mage_training_arena_equipment_data_as_dict())
-EQUIPMENT_DATA.update(mobilising_armies_equipment_data_as_dict())
-EQUIPMENT_DATA.update(dominion_tower_equipment_data_as_dict())
-EQUIPMENT_DATA.update(crucible_equipment_data_as_dict())
-EQUIPMENT_DATA.update(goblin_raids_equipment_data_as_dict())
+
+
+def _equipment_data_before_diaries():
+    equipment_data = dict(_BASE_EQUIPMENT_DATA)
+    equipment_data.update(barrows_equipment_data_as_dict())
+    equipment_data.update(fish_flingers_equipment_data_as_dict())
+    equipment_data.update(great_orb_project_equipment_data_as_dict())
+    equipment_data.update(runecrafting_equipment_data_as_dict())
+    equipment_data.update(cooking_gauntlets_equipment_data_as_dict())
+    equipment_data.update(brawling_gloves_equipment_data_as_dict())
+    equipment_data.update(trouble_brewing_equipment_data_as_dict())
+    equipment_data.update(castle_wars_equipment_data_as_dict())
+    equipment_data.update(pest_control_equipment_data_as_dict())
+    equipment_data.update(conquest_equipment_data_as_dict())
+    equipment_data.update(barbarian_assault_equipment_data_as_dict())
+    equipment_data.update(stronghold_player_safety_equipment_data_as_dict())
+    equipment_data.update(penguin_hide_and_seek_equipment_data_as_dict())
+    equipment_data.update(duel_arena_equipment_data_as_dict())
+    equipment_data.update(mage_training_arena_equipment_data_as_dict())
+    equipment_data.update(mobilising_armies_equipment_data_as_dict())
+    equipment_data.update(dominion_tower_equipment_data_as_dict())
+    equipment_data.update(crucible_equipment_data_as_dict())
+    equipment_data.update(goblin_raids_equipment_data_as_dict())
+    return equipment_data
+
+
+def _add_post_diary_equipment_data(equipment_data):
+    equipment_data.update(milestone_cape_equipment_data_as_dict())
+    equipment_data.update(cape_equipment_data_as_dict())
+    equipment_data.update(crystal_chest_equipment_data_as_dict())
+
 
 __all__ = [
     "FLETCHED_ITEM_IMAGES",
@@ -465,5 +480,4 @@ __all__ = [
     "QUEST_ITEM_IMAGE_FILE_OVERRIDES",
     "COMBAT_ITEM_IMAGES",
     "COMBAT_ENEMY_IMAGES",
-    "EQUIPMENT_DATA",
 ]
