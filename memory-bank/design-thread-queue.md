@@ -2338,3 +2338,33 @@ The owner ruled on all four decision items in `memory-bank/GOAL-BLOCKED.md`
    no retroactive credit from telemetry, consistent with §4.21 ruling 1's
    honest-trigger standard. Measured leverage at ruling time: +33 completable
    quests, +58 items.
+
+### 4.23 Diary dormant rows — the settled design restated by the owner, 2026-09-01 17:56
+
+Owner, verbatim: "I'm pretty sure in the settled design for the achievement
+diary it's supposed to only bring over stuff from the main game that would make
+sense in AnkiScape. For anything else it would either translate it as much as
+possible or it would just invent something from scratch that's in the spirit of
+everything."
+
+Consequences, ruled by the design seat under that statement:
+
+1. A row stays **dormant** only if its named future system is recorded as planned
+   work on this queue or in a contract. Any other dormant row is resolved now:
+   **translated** as far as the deed allows, **swapped** for a real same-family
+   RuneScape task, or **invented** in the spirit of the diary and of AnkiScape. The
+   ledger gains the disposition `invented`, with the same citation and trigger
+   columns; an invented deed cites the family and tier it serves instead of a
+   source oldid.
+2. `world_transport_actions` (25 tiers, 48 rows) and `location_visit_actions`
+   (13 tiers, 16 rows) are not planned work: the model is locationless by settled
+   design. Every such row is resolved now. `npc_dialogue_actions` (20 tiers, 38
+   rows) translates to the existing shop-and-service surface where the NPC has a
+   service, and is resolved otherwise. Rows on systems that already exist in part
+   (combat encounters, skill telemetry, item processing, bank inventory) are
+   judged row by row against the same test.
+3. Mechanism: one records-only curation pass over the affected rows (about 102 on
+   the three systems plus whatever the row-by-row test adds), under the same gates
+   as the first ledger — cross-lineage review, then the owner's spec-conformance
+   gate as ruled in §4.22 ruling 3, patch afterwards. Wiring follows by
+   regeneration. This is §5.21's second stage and goes to the orchestrator queue.

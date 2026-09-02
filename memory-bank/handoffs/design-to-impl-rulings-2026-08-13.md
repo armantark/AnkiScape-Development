@@ -2208,3 +2208,22 @@ implementation of slice N+1 and harvest of slice N+2.
 
 Each landed slice's handoff names the three lane agents and models, the harvest
 record path, the verification log paths, and the review verdict chain.
+
+## 30. The dormant-systems gate is closed: resolve the rows now — 2026-09-01 17:58 PDT
+
+The owner ruled (design queue §4.23, verbatim there): the diary brings over only
+deeds that make sense in AnkiScape; everything else is translated as far as
+possible or invented from scratch in the spirit of the game. Dormant is allowed
+only for a future system recorded as planned work.
+
+New queue item **2c — diary curation pass two**, records-only, after item 2 lands
+and in parallel with 2b (disjoint files): resolve every dormant row whose future
+system is not planned work — all of `world_transport_actions` and
+`location_visit_actions`, `npc_dialogue_actions` by translation to the existing
+service surface where possible, and the rest row by row — into `translated`,
+`swapped`, or the new `invented` disposition, with designed triggers on existing
+seams. Lanes per section 29: author with a taste-capable model (`opus` at
+medium), verify contract conformance with `gpt-5.6-sol`, review cross-lineage
+(`glm-5.3-flash` as the extra vote, never alone). The owner's spec-conformance
+gate then applies exactly as for pass one; corrections are patches. Order is now
+1 → 2 → {2b, 2c} → 3 → 4 → 5.
