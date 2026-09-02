@@ -654,7 +654,7 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
             sys.modules.clear()
             sys.modules.update(original_modules)
 
-    def test_real_livid_farm_review_emits_its_direct_runtime_event(self):
+    def test_real_livid_farm_review_does_not_emit_shades_event(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player["quests"]["lunar_diplomacy"].update(
             {"started": True, "progress": 99, "completed": True}
@@ -688,11 +688,9 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
                 )
             )
 
-        record_event.assert_called_once_with(
-            player,
-            True,
+        self.assertNotIn(
             "shades_of_mortton_review",
-            hammer="",
+            [call.args[2] for call in record_event.call_args_list],
         )
 
     def test_real_castle_wars_catapult_review_completes_artillery_deed(self):

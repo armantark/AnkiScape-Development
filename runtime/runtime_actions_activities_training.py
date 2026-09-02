@@ -195,12 +195,6 @@ def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
 
     ctx.player_data.clear()
     ctx.player_data.update(updated)
-    record_direct_diary_event_pure(
-        ctx.player_data,
-        True,
-        "shades_of_mortton_review",
-        hammer=str(result.get("hammer", "")),
-    )
     xp_rewards = dict(result.get("xp_rewards", {}) or {})
     xp_reward_rows = tuple(
         {"skill_id": skill_id, "amount": amount}
