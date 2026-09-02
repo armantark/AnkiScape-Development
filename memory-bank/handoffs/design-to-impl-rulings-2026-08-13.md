@@ -2941,3 +2941,37 @@ file-size ratchet in non-blank, non-comment lines (or AST statements for Python)
 instead of physical lines, so neither stripping blank lines nor joining statements
 buys any budget and the gate cannot be gamed by formatting. Until then the review
 check stands.
+
+## 49. What a translated or invented diary deed must satisfy — 2026-09-02 09:15 PDT
+
+Item 2c's review found three defect classes, one verified by the seat: the new row
+`lumbridge_easy_money_down_the_drayn` completes on the same `bank_run`
+`deposited_non_coin` event as the already-wired `burthorpe_period_bank_on_it`;
+about a dozen of the 116 translations resolve to one cheap shop purchase or junk
+sale (three rows resolve to selling one Empty pot, item 1931, at a general store);
+and the disposition test is uneven, with rows where only the locality survives
+marked `translated` rather than `invented`. The constants move passed its second
+review (562 names set-identical, values equal, digest `7d6ca7ea...` matching the
+pin on main, dict-order noise proven by a two-dump control); its seam and naming
+rework stands.
+
+Rulings for the consolidated 2c fix round, and for every future curation row:
+
+1. **One deed, one seam.** No two live rows may complete on the same event
+   predicate. The generator or its audit rejects a duplicate completion seam
+   across the catalog, so this class fails loudly from now on (a small tooling
+   addition inside the 2c slice).
+2. **No accidental deeds.** A translated or invented deed must require a
+   deliberate act in the spirit of the source deed and proportionate to its tier:
+   an easy deed may be simple, but "sell one Empty pot" is something a player does
+   by accident, which is the inverted inert row section 33 forbade. Buying or
+   selling one common item at a general store is never a deed on its own.
+3. **The disposition test, stated once.** `translated` means the source deed's
+   substance survives in AnkiScape's model with only its locale or surface
+   changed (the Draynor row's substance is "bank at a specific place", which the
+   locationless Bank cannot express, so it is not translatable). `invented` means
+   the substance could not survive and a new deed was written in the family's and
+   tier's spirit, citing the family and tier it serves. A row where only the
+   locality survives is `invented`, and its new deed must meet rule 2.
+4. The three Empty-pot rows and the Draynor row are the named test cases; the
+   fix round reports each of the dozen accidental deeds with its replacement.
