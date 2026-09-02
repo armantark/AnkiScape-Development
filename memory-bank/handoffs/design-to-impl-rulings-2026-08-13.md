@@ -3241,3 +3241,38 @@ Rulings, inside the 2c slice:
    lines into a 210-line entry point and six modules, largest 505, 40 definitions
    AST-identical, every part importing standalone, no rebinding) gates when the
    remote host is free.
+
+### 54.1 2c verified except the hang; the file-count question closed — 13:15 PDT
+
+233 versus 236 is the audit tool, not missing tests: the branch carries the
+non-recursive `glob` audit and main the recursive `rglob` from `5ef46809`; the three
+nested files (`tests/promotion/test_landing_freeze_hook.py`,
+`tests/promotion/test_vacuous_source_scan_audit.py`,
+`tests/quest_catalog/test_literal_mappings.py`) landed after the branch point and
+account for the difference exactly. Branch verified on the remote host: plain
+4,642 tests in 506.4 s, OK with 516 skips; ledger 320 rows, 42 active / 125
+translated / 37 invented / 0 swapped / 116 dormant, zero live rows with null
+wiring, five re-points naming `quest_action_proofs` and config version 123; the
+duplicate-seam validator fails on a deliberate duplicate naming both tasks; the
+generated catalog blob byte-identical at all three commits; the fleet gate does
+not refuse. The hang is confirmed: 777 stack samples inside `QDialog::exec()`,
+139 tests completed, the 1,800 s runner timeout with no summary. The ruling-54
+fix slice is dispatched with the established facts (`runtime/` has no `.exec()`;
+the modal statics live in the `ui/` activity panels; `_prompt_near_death` defers
+correctly). The promotion-gate split is gating at `b478774d`.
+
+### 54.2 The gate split landed and the lock fix is proven; a preserved ref is deleted only after its commit is on main — 13:35 PDT
+
+`b478774d` on main: `tools/promotion_gate.py` 999 -> 210 lines with six modules
+behind it (largest 505), remote lanes plain 502.0 s and Qt 701.2 s inside the
+bounds, audits clean, and for the first time today no lock file after the land,
+since this land ran the fixed code. Oversized files stay at 65 (that file was
+already under the cap). The seat deleted `refs/preserved/init-dispatchers-2026-09-02`
+by mistake in a counting command, noticed at once, and restored it to `39d59468`;
+nothing was lost. Rule from it, mechanical: a preserved ref may be deleted only
+when `git merge-base --is-ancestor <ref> main` succeeds, and the deletion command
+checks that itself. Four refs stand: quest data, diary catalog, root dispatchers,
+roster test. Largest remaining: `generated/quest_catalog_generated.py` 34,616 and
+`generated/item_values_generated.py` 15,149 (generator sharding, never by hand),
+`ui/ui.py` 29,467, `tests/test_main_menu_widget.py` 20,007, `data/quest_data.py`
+12,667 (split complete and preserved, one honest row).
