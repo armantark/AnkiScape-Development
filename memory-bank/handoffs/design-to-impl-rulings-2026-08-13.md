@@ -2891,3 +2891,10 @@ program** is queue item 0b, after the first wave: every function the moves expos
 above threshold, measured from the gate's own reports as the splits land,
 simplified with behavior tests, largest first (`on_answer_card` 93,
 `logic_pure_combat_engine` 348), never inside a move.
+
+### 47.1 Fleet commit — 09:05 PDT
+
+The gate's first fleet commit was refused by the gate itself (`moved_definitions`
+cognitive 19); the loop body was lifted into `departed_definitions` and the change
+landed as fleet `deeea97`, "slop-gate: a moved definition introduces nothing", 15
+tests green. Section 47's "committed" was written one minute early.
