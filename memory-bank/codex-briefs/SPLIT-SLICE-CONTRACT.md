@@ -149,16 +149,21 @@ the wave, and skipping its proof would leave the riskiest split unverified.
 
 ## 6. Verification
 
-**Promotion-gate exception, and it applies to every split after the first.** Do
-NOT run the two full lanes. The orchestration seat runs both on the merged tree
-as the promotion gate. Ten slices each starting two lanes would put twenty
-concurrent lanes on one machine, and this project's record already contains an
-occasion where eight concurrent agents running the Qt lane stalled it. Say in
-your report that you ran focused tests under this exception.
+**Who runs the lanes, corrected by ruling 41.** As the split author you run
+focused tests only: the tests for every file you touch, the existing suite for
+any shared file, the module-surface proof in section 5, and the audits below.
+Say so in your report.
 
-Run instead: the focused tests for every file you touch, plus the existing suite
-for any shared file, plus the module-surface proof in section 5, plus the audits
-below.
+Both full lanes still run on your branch, but by the separate verification-lane
+agent that section 29 requires, not by you. Batching changes only the promotion
+gate, never that per-branch verification.
+
+The orchestration seat holds concurrency at four verification lanes at a time.
+This project's record contains an occasion where eight concurrent agents each
+starting the offscreen Qt lane stalled the machine, and each verification runs
+its two lanes in sequence, never together, because they share a checkout and a
+concurrent pair has produced a bogus `ImportError` naming a function that plainly
+exists.
 
 Report the exact output of each:
 
