@@ -2608,3 +2608,102 @@ now sits at exactly 1,000 lines: it commits today and can never gain a line.
 Ruling: it is the **twelfth first-wave file**, split at its seams (lock and
 heartbeat, lane execution and bounds, land, CLI) with the same pure-move proof, now
 while the reviewers are warm.
+
+## 41. Splits gate in batches where the digest proves them, singly where it cannot — 2026-09-02 02:10 PDT
+
+Twelve first-wave splits gated one at a time is about seven hours of serial gate
+time, with main frozen for most of it, while the splits themselves author in
+minutes. The fixed rail is unchanged: main receives only a merged tree that passed
+both lanes and the five audits. Within it:
+
+1. **Batch the digest-proven pure moves.** Finished split branches whose
+   module-surface digests are byte-identical merge into one integration branch,
+   at most four per batch, and gate once. The gate log names every constituent
+   commit. Each split still runs its own verification lane on its branch in
+   parallel before it joins a batch; batching changes only the promotion gate.
+2. **Attribution on a batch refusal.** The digest tests inside the lanes name the
+   module whose surface moved; that branch leaves the batch and the rest re-gate.
+   A refusal the digests do not explain is bisected by removing one branch at a
+   time, never by guessing, and the seat reports which branch it was.
+3. **Gate singly** the splits that cannot carry a meaningful digest: the test-file
+   splits (proved instead by the test-quality audit count before and after and
+   both lanes) and anything that changes a generated catalog or its generator.
+4. One freeze window per batch, announced before the gate starts, with the log
+   monitor armed in the same turn.
+
+## 42. Two gate rules read a pure move as new code — 2026-09-02 02:40 PDT
+
+The `__init__.py` split was refused for cyclomatic and cognitive complexity
+"introduced" by functions whose bodies did not change (`on_answer_card` at 93,
+pre-existing debt, marked `(new)` because it now lives in
+`runtime/runtime_actions_review.py`). The combat data split was refused for import
+fan-out (`data/combat_data.py`: 47, was 13) because an aggregator that re-exports
+39 part modules has a fan-out of 39. Both rules ratchet *introduced* complexity and
+are right for ordinary work; a byte-identical move introduces nothing. The contract
+forbids simplifying inside a move, so under the current gate any file containing an
+over-threshold function cannot be split.
+
+### 42.1 Ruled now: fan-out takes the gate's own advice
+
+Aggregators of large tables use nested subpackages with their own small aggregators
+(`data/combat/slayer/`, `data/combat/humanoids/`, ...), so the top aggregator
+imports a handful of subpackage aggregators, not dozens of modules. `data/quest_data.py`
+(32 quests) does the same by region or era. This is "depend on a narrower module
+boundary", costs one directory level, and needs no gate change. The combat split
+proceeds that way now.
+
+### 42.2 Ruled now: two amendments to the split contract
+
+1. The module-surface dump includes every module-level name except dunders, private
+   names included, so "byte-identical digest" also means "nothing was added". The
+   `__init__.py` split gained about 110 underscore-prefixed attributes on the
+   aggregator that the public-only dump never saw; a split that must add private
+   re-exports lists each one in its report with the consumer that needs it.
+2. A moved definition leaves no callable corpse behind: an un-rebound original that
+   remains importable from a new submodule and would raise `NameError` if called is
+   a defect, fail-close, even when nothing calls it today.
+3. Recorded technique from the Slayer canary (landed, digest identical under both
+   interpreters, moved section byte-identical at 12,788 bytes): moved dataclasses
+   keep publishing from the aggregator's module path so qualified names never
+   change; without that a correct split still moves the digest.
+
+### 42.3 Named gate for the owner: the complexity ratchet on moved functions
+
+Option A: make `slop_gate.py` move-aware — a definition deleted and re-added
+byte-identical in the same commit (by AST or normalized source) is a move, and
+moves do not ratchet the complexity, cognitive, or Halstead checks; everything
+else about the gate is unchanged, and a changed body still ratchets. This is a
+false-positive correction, not an exception. Option B: a simplification slice per
+over-threshold function before its file may be split, verified by behavior tests
+rather than digests, which is a program in front of the program and tangles two
+kinds of proof. The design seat recommends A now and keeps B as a queued item
+after the splits, since the debt is real and tracked either way. Until the owner
+rules, the `__init__.py` split holds staged with its proofs; every other split
+proceeds.
+
+### 42.4 Sequencing the wider dump — 02:40 PDT
+
+Widening the dump changes every recorded baseline. Order: the harness change lands
+first as its own gated slice; all baselines are re-recorded from the tree as it then
+stands (unsplit or already split); only then do in-flight splits re-prove against
+the wide baselines. A split compared narrow-before against wide-after is a false
+failure, not evidence.
+
+### 42.5 The new-cycle check is the third rule with the same shape — 02:45 PDT
+
+The quest split was refused for a nine-file import cycle across `core/constants.py`,
+both diary modules, three `logic/` modules and the new quest modules. The cycle is
+pre-existing on main, documented by a previous author who deferred an import inside
+a function to hide it (`data/achievement_diary_data.py:232`, "avoids a cycle"). The
+split created no new edge; it created new module names that participate in the
+same loop, and the new-cycle ratchet fired on an address change. So the owner's
+gate question (42.3) covers three rules, not one: the complexity and cognitive
+ratchets on a byte-identical moved definition, and the new-cycle check on an edge
+that existed before the split under another module name. One move-aware fix
+answers all three; fixing complexity alone leaves `quest_data.py` blocked on the
+cycle. The pre-existing cycle itself is real debt and is queued for its own fix
+after the splits. Not a false positive in the same refusal:
+`tests/test_quest_catalog.py::test_literal_quest_id_mappings_have_no_resolved_duplicate_keys`
+grew from 15 to 23; a move does not change a test's complexity, and the seat is
+asking that agent what it changed before the slice proceeds. Gate hardening
+landed at `a6a8e42d` (plain `OK (skipped=516)`, Qt `OK (skipped=4)`).
