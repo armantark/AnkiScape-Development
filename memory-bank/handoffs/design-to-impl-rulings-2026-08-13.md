@@ -3353,3 +3353,25 @@ marker, and the design seat's commit at 13:40:02 fell into that second after a
 log; proof is the hook refusing a commit attempted immediately after launch as
 well as during the lanes. Neither seat was careless; for one second nothing on
 disk said a gate was running.
+
+## 55. Item 2 re-expands onto the split layout; one manual pass covers the answer path — 2026-09-02 15:12 PDT
+
+The tooling pair landed at `a089b993` (plain 514.4 s, Qt 719.7 s, 4,640 tests,
+test-quality 4,605 across 237 files, lock released on land): a dirty canonical
+checkout refuses a gate, and `run` claims the lock first. Merging main into the
+2c stack conflicts in exactly the two files main has since split
+(`runtime_actions_activities.py`, `runtime_actions_carried.py`), because item 2's
+held diary edits target the old monolithic shape; the seat aborted the merge and
+left the branch clean at `aadd4410`. The seat also launched a gate before checking
+the merge result and killed it within seconds; ruled: `run` refuses a worktree
+with unresolved merge conflicts, folded into the next tooling slice.
+
+Rulings: (1) brief item 2's re-expansion now as authoring on its branch: the held
+edits move into the new part modules, written in normal formatting under the PEP
+8 ratchet, with behavior tests for each relocated emit and the two surface
+digests re-pinned naming each added name; (2) it, the seam slice (53.1) and 2c's
+deferred popup all touch the review answer path, so one end-to-end manual pass on
+the real reviewer on the MacBook covers all three, run after item 2 and the seam
+slice land and before Bill (2b) ships, rather than once per slice; both lanes and
+the offscreen smoke still run per slice; (3) order: item 2 re-expansion, 2c's
+re-gate, the seam slice, the three proven splits, then 2b.
