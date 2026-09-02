@@ -67,10 +67,22 @@ slop-gate: code files were added to directories already at 40 files:
   -> Create a cohesive subdirectory instead of widening this directory.
 ```
 
-`DIR_FILES_MAX` is 40 and `data/` holds 104. So a new sibling module beside the
-file you are splitting is refused outright. **Put the new modules in a new
-cohesive subdirectory**, `data/slayer/`, `data/combat/`, and so on. A fresh
-directory starts empty and the rule does not bite.
+`DIR_FILES_MAX` is 40. Measured on 2026-09-02, four directories are already past
+it, and **a new file in any of them is refused whatever it contains**:
+
+```
+tests   236      data    104
+tools   138      logic    87
+```
+
+`logic_pure/`, `runtime/`, `ui/` and `core/` are still under the cap and accept
+new files normally.
+
+So a new sibling module beside the file you are splitting is refused outright,
+and **this applies to your new tests and any new tool as much as to the modules
+you extract**. Put them in a new cohesive subdirectory: `data/slayer/`,
+`tests/promotion/`, `tools/promotion/`. A fresh directory starts empty and the
+rule does not bite.
 
 **Wall two: the obvious aggregator makes an import cycle.**
 
