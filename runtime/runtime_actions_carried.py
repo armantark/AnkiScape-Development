@@ -55,7 +55,7 @@ from ..core.constants import (
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
 )
-from ..logic_pure.achievement_diary_events import record_bank_run_diary_event_pure, run_bank_run_diary_callbacks_pure
+from ..logic_pure.achievement_diary_events import record_bank_run_diary_event_pure
 from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
@@ -489,7 +489,6 @@ def _processing_requirements_for(
     carried_inventory: dict[str, Any] | None = None,
 ) -> dict[str, int]:
     """The recipe inputs a processing target needs per action, ``{item: count}``.
-
     Read from each skill's own data table so this stays a thin lookup, not a
     handler rewrite. Runecrafting has no fixed ``requirements`` dict (any of its
     ``essence_items`` works); resolve it to the first stocked essence in the
@@ -616,7 +615,6 @@ def _agility_equipment_satisfies(equipped_items: set[str], item_name: str) -> bo
 
 def _agility_casual_layout_for(player_data: dict[str, Any], target_id: str) -> dict[str, int]:
     """Build Auto mode's ordered requirement-and-food pack for one target."""
-
     target = AGILITY_TARGETS_BY_ID.get(target_id)
     if target is None:
         return {}
@@ -726,7 +724,6 @@ def _repack_view_for_target(
     casual_requirements: dict[str, int] | None = None,
 ) -> dict[str, int]:
     """The freshly-packed carried view after a completed bank run.
-
     Advanced targets replay their saved layout (capped by the bank). Casual
     processing targets get their recipe inputs split by
     ``pack_processing_inputs_pure``. Casual gathering targets start empty — the
@@ -833,7 +830,6 @@ def _try_pack_yak_winter_storage_overlay(
     )
     if selected is None:
         return view, churn, False
-
     updated_view = dict(view)
     updated_view[selected] = int(updated_view.get(selected, 0) or 0) - 1
     updated_view[scroll_name] = int(updated_view.get(scroll_name, 0) or 0) - 1
@@ -871,7 +867,6 @@ def _try_pack_yak_winter_storage_overlay(
 
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
-
     Gathering skills fill the pack with their product (Keep) or bypass it
     entirely (Drop); the pack banks when full. Processing skills instead *draw*
     their recipe inputs from the pack: the handler only sees as much of each
@@ -880,7 +875,6 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     advanced 4x7 layout real consequence: a well-arranged pack (matching a
     recipe's true ratio) yields more actions before a bank-run than an even
     casual split.
-
     Before the tick, the gate decides whether this answer is spent banking
     instead of acting: churn reaching capacity (either skill), or — processing
     only — the pack running out of a required input the bank could still
@@ -913,7 +907,6 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             ctx.show_activity_gain("Bank run — arrived and ready")
             ctx.save_player_data()
         return handler(ctx)
-
     target_id = str(player_data.get(target_key, ""))
     evil_tree_state = player_data.get("evil_tree")
     if not isinstance(evil_tree_state, dict):
@@ -955,7 +948,6 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         if int(bank.get(bag, 0) or 0) > 0
     }
     capacity = inventory_pure.effective_carried_capacity(view, owned_bags)
-
     carried_materials = view if view else layout if advanced else {}
     requirements = (
         _processing_requirements_for(handler_key, player_data, carried_materials)
@@ -976,7 +968,6 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         if is_processing
         else {}
     )
-
     # First-ever engagement with a processing target seeds the pack for free —
     # you already "have inventory" the moment you arrive, same as gathering
     # starting empty; the review cost is only for *refilling after depletion*,
@@ -1000,7 +991,6 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         # Custom pack on the first trip rather than waiting for a bank-run cycle.
         view = _repack_view_for_target(False, True, layout, bank, {}, capacity)
         _set_carried_target_map(player_data, "carried_inventory", target_id, view)
-
     if is_agility and advanced:
         missing = _agility_carried_requirement_gaps(player_data, target_id, view)
         if missing:
@@ -1011,7 +1001,6 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
                 f"{AGILITY_TARGETS_BY_ID[target_id].display_name}.",
             )
             return False
-
     # Presence-only gates stay out of per-action packing: in default mode they
     # remain available from the bank. An advanced layout explicitly carries
     # them, however, so an emptied presence slot must trigger the normal refill
@@ -1254,7 +1243,8 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         player_data.pop("skilling_bank_run_requested", None)
 
     if event.get("completed"):
-        player_data.update(restore_summoning_points_pure(player_data)); record_bank_run_diary_event_pure(player_data, True, view)
+        player_data.update(restore_summoning_points_pure(player_data))
+        record_bank_run_diary_event_pure(player_data, view)
 
     if not act:
         restore_cadence_profiles_after_rejection()
@@ -1272,15 +1262,25 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         player_data["skilling_bank_run"] = new_state
         _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
         _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
-        total = int((new_state or bank_run or {}).get("reviews_total", reviews_cost) or reviews_cost); remaining = int(event.get("reviews_remaining", 0) or 0)
+        total = int((new_state or bank_run or {}).get("reviews_total", reviews_cost) or reviews_cost)
+        remaining = int(event.get("reviews_remaining", 0) or 0)
         route_label, progress = bank_run_phase_label_pure(new_state or bank_run), max(1, total - remaining)
         ctx.show_activity_gain(
             f"Bank run — {route_label} · {min(progress, total)}/{total} travel reviews"
             if not event.get("completed")
             else f"Bank run — {route_label} · arrived and restocked"
         )
-        run_bank_run_diary_callbacks_pure(
-            bool(event.get("completed")), player_data, ctx.refresh_carried_inventory, ctx.check_achievements
+        tuple(
+            map(
+                lambda callback: callback(),
+                {
+                    True: (
+                        ctx.refresh_carried_inventory,
+                        lambda: ctx.check_achievements(player_data),
+                    ),
+                    False: (),
+                }[bool(event.get("completed"))],
+            )
         )
         ctx.save_player_data()
         return True

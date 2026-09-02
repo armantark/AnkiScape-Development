@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diary ledger wiring review fix</title>
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--radius:12px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Outfit,system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:40px 24px}header{margin-bottom:28px}.badge{display:inline-block;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:4px 10px;font:12px/1.2 ui-monospace,monospace;letter-spacing:.08em}h1{font-size:2rem;margin:14px 0 6px}p{color:var(--text-dim)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}.card h2{font-size:1rem;margin:0 0 8px;color:var(--amber)}.card ul{margin:8px 0 0;padding-left:20px}.card li{margin:6px 0}@media(max-width:900px){.grid{grid-template-columns:1fr}}code{color:var(--green);font-family:ui-monospace,monospace;font-size:.9em}
+</style>
+</head>
+<body><main>
+<header><span class="badge">PRE-IMPLEMENTATION PLAN</span><h1>Make diary wiring executable and self-policing</h1><p>Repair five direct-event seams, derive the validation rail from actual emitters, and remove review-round complexity churn without changing the user interface.</p></header>
+<section class="grid">
+<article class="card"><h2>Emitter corrections</h2><ul><li>Move Temple Trekking emission to the successful pouch-preparation deed.</li><li>Move Shades of Mort'ton emission to its answer handler.</li><li>Emit Managing Miscellania commands from the command reducer.</li><li>Carry derived prayer selection and agility target identity in events.</li></ul></article>
+<article class="card"><h2>Structural rail</h2><ul><li>Replace the literal direct-event value table with code-derived emitter support.</li><li>Add five real-kernel execution tests, one for each corrected row.</li><li>Keep action and farming rails unchanged.</li></ul></article>
+<article class="card"><h2>Ledger truth</h2><ul><li>Correct the Barbarian Agility clause to use <code>target_id</code>.</li><li>Correct the Vine Detta trigger prose and rationale.</li><li>Correct row 35's source citation only.</li><li>Preserve every other trigger byte-for-byte.</li></ul></article>
+<article class="card"><h2>Complexity cleanup</h2><ul><li>Restore normal statement layout and collapse unrelated calls.</li><li>Remove the impure wrapper, dead parameter, and local import.</li><li>Run focused tests, deterministic regeneration, audits, and diff checks.</li></ul></article>
+</section></main></body></html>

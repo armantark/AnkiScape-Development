@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import sys
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -12,20 +13,36 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
-from ankiscape.logic.achievement_diary_logic import task_progress_pure
+from ankiscape.data.agility_data import AGILITY_TARGETS_BY_ID
+from ankiscape.logic.achievement_diary_logic import (
+    refresh_achievement_diaries_pure,
+    task_progress_pure,
+)
+from ankiscape.logic.managing_miscellania_logic import (
+    default_managing_miscellania_state_pure,
+)
+from ankiscape.logic.shades_of_mortton_logic import enter_shades_of_mortton_pure
+from ankiscape.logic.temple_trekking_logic import apply_temple_trekking_command_pure
 from ankiscape.logic_pure.achievement_diary_events import (
     encode_diary_event_rule_pure,
     record_achievement_diary_event_pure,
 )
 from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
+    handle_agility_answer,
+    handle_combat_answer,
     handle_firemaking_answer,
     handle_mining_answer,
     handle_runecrafting_answer,
+    handle_shades_of_mortton_answer,
     handle_thieving_answer,
 )
 from ankiscape.runtime.runtime_actions_shared import _apply_farming_queue_result
-from tools.achievement_diary_ledger import _condition_from_spec, _conditions_from_row
+from tools.achievement_diary_ledger import (
+    _DIRECT_EVENT_EMITTERS,
+    _condition_from_spec,
+    _conditions_from_row,
+)
 from tools.generate_achievement_diary_data import resolve_condition_key
 
 
@@ -179,6 +196,39 @@ class CurationLedgerWiringTest(unittest.TestCase):
         )
         self.assertIn("never recorded", resolve_condition_key("counter", key))
 
+    def test_event_key_resolver_rejects_an_unsupported_direct_event_value(self):
+        key = encode_diary_event_rule_pure(
+            {
+                "match": {
+                    "eq": {
+                        "type": "temple_trekking_command",
+                        "action_id": "no_such_command",
+                    }
+                }
+            }
+        )
+        self.assertIn(
+            "unsupported temple_trekking_command action_id",
+            resolve_condition_key("counter", key),
+        )
+
+    def test_event_key_resolver_rejects_a_direct_type_without_an_emitter(self):
+        key = encode_diary_event_rule_pure(
+            {
+                "match": {
+                    "eq": {
+                        "type": "temple_trekking_command",
+                        "action_id": "prepare_pouch",
+                    }
+                }
+            }
+        )
+        with patch.dict(_DIRECT_EVENT_EMITTERS, {}, clear=True):
+            self.assertIn(
+                "unsupported direct-event type 'temple_trekking_command'",
+                resolve_condition_key("counter", key),
+            )
+
 
     def test_generator_rejects_an_unknown_ledger_condition_kind(self):
         with self.assertRaisesRegex(SystemExit, "unsupported condition kind"):
@@ -313,6 +363,160 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
         return task_id in player.get("achievement_diaries", {}).get(
             "completed_tasks", ()
         )
+
+    @staticmethod
+    def _complete_pure_result(player):
+        updated, _newly = refresh_achievement_diaries_pure(player)
+        return updated
+
+    def test_real_pouch_preparation_completes_bloom_deed(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["nature_spirit"].update(
+            {"started": True, "progress": 99, "completed": True}
+        )
+        player["inventory"].update({"Silver sickle (b)": 1, "Druid pouch": 1})
+        task_id = "morytania_easy_blooming_marvellous"
+        self.assertFalse(self._is_complete(player, task_id))
+
+        player, ok, info = apply_temple_trekking_command_pure(
+            player, "prepare_pouch"
+        )
+        self.assertTrue(ok, info)
+        player = self._complete_pure_result(player)
+
+        self.assertTrue(self._is_complete(player, task_id))
+
+    def test_real_shades_review_with_flamtaer_hammer_completes_repair_deed(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["shades_of_mortton"].update(
+            {"started": True, "progress": 99, "completed": True}
+        )
+        player["inventory"].update(
+            {
+                "Flamtaer hammer": 1,
+                "Timber beam": 1,
+                "Limestone brick": 1,
+                "Swamp paste": 5,
+            }
+        )
+        player, ok, info = enter_shades_of_mortton_pure(player)
+        self.assertTrue(ok, info)
+        task_id = "morytania_medium_flamtaer_will_get_you_everywhere"
+        self.assertFalse(self._is_complete(player, task_id))
+
+        self.assertTrue(
+            handle_shades_of_mortton_answer(
+                self._context(player, random_values=(0.0,) * 8)
+            )
+        )
+
+        self.assertTrue(self._is_complete(player, task_id))
+
+    def test_real_miscellania_collection_completes_mahogany_deed(self):
+        original_modules = dict(sys.modules)
+        try:
+            from tests.test_undo_seam_miscellania import (
+                _DummyMW,
+                _FakeCollection,
+                _load_addon,
+            )
+
+            addon = _load_addon()
+            addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+            addon.player_data["quests"]["throne_of_miscellania"].update(
+                {"started": True, "progress": 99, "completed": True}
+            )
+            addon.player_data.update(default_managing_miscellania_state_pure())
+            state = addon.player_data["managing_miscellania"]
+            state["production_credit"] = 2_000_000
+            state["allocations"]["hardwood"] = 10
+            state["variants"]["hardwood"] = "mahogany"
+            addon.save_player_data = lambda: None
+            addon.mw = _DummyMW(_FakeCollection())
+            addon.update_review_hud = lambda *_args: None
+            addon._refresh_skill_availability = lambda: None
+            captured = {}
+            addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+            addon._on_main_menu(initial_skill="Activities")
+            task_id = "fremennik_hard_a_periodic_table"
+            self.assertFalse(self._is_complete(addon.player_data, task_id))
+
+            result = captured["on_managing_miscellania_command"]("collect", {})
+
+            self.assertTrue(result["ok"], result)
+            self.assertGreater(
+                addon.player_data["inventory"].get("Mahogany logs", 0), 0
+            )
+            self.assertTrue(self._is_complete(addon.player_data, task_id))
+        finally:
+            sys.modules.clear()
+            sys.modules.update(original_modules)
+
+    def test_real_skeleton_kill_with_active_soul_split_completes_deed(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["the_temple_at_senntisten"].update(
+            {"started": True, "progress": 99, "completed": True}
+        )
+        player.update(
+            {
+                "current_combat_target": "skeleton_level_21",
+                "strength_level": 99,
+                "defense_level": 99,
+                "prayer_level": 99,
+                "constitution_level": 99,
+                "combat_lifepoints": 990,
+                "combat_prayer_book": "curses",
+                "combat_prayers_enabled": True,
+                "combat_prayer_uptime": "100",
+                "combat_prayer_points": 9900,
+                "combat_selected_prayers": ["soul_split"],
+                "combat_encounter": {
+                    "target_id": "skeleton_level_21",
+                    "enemy_lifepoints": 1,
+                },
+            }
+        )
+        task_id = "varrock_elite_splitting_headache"
+        self.assertFalse(self._is_complete(player, task_id))
+
+        self.assertTrue(
+            handle_combat_answer(
+                self._context(player, random_values=(0.0,) * 128)
+            )
+        )
+
+        self.assertTrue(self._is_complete(player, task_id))
+
+    def test_real_advanced_barbarian_lap_completes_agile_top_deed(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        target = AGILITY_TARGETS_BY_ID["barbarian_advanced"]
+        player.update(
+            {
+                "current_agility": target.id,
+                "agility_level": 99,
+                "bar_crawl_completed": True,
+                "equipment": {"body": "Agile top"},
+                "agility_course_state": {
+                    "target": target.id,
+                    "stage": len(target.stages) - 1,
+                    "checkpoint": "start",
+                    "flawless": True,
+                    "lap_xp_valid": True,
+                    "requested_item_valid": True,
+                    "status": "",
+                },
+            }
+        )
+        task_id = "fremennik_elite_limber_lumber_jumper"
+        self.assertFalse(self._is_complete(player, task_id))
+
+        self.assertTrue(
+            handle_agility_answer(
+                self._context(player, random_values=(0.99, 0.0, 0.99, 0.99))
+            )
+        )
+
+        self.assertTrue(self._is_complete(player, task_id))
 
     def test_real_mining_review_completes_translated_iron_deed(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

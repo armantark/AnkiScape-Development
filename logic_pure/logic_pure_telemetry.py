@@ -88,6 +88,7 @@ def record_achievement_progress_pure(
     output_qty=1,
     output_items=None,
     kills=0,
+    event_fields=None,
 ):
     """Record cumulative credit under the explicit action-owning skill."""
     progress = sanitize_achievement_progress_pure(player_data.get("achievement_progress"))
@@ -120,7 +121,8 @@ def record_achievement_progress_pure(
             outputs[key] = _non_negative_int(outputs.get(key, 0), 0) + qty
     record["outputs"] = outputs
     record_action_diary_event_pure(
-        player_data, skill_id, action_id, output_item, output_qty, output_items, kills
+        player_data, skill_id, action_id, output_item, output_qty, output_items, kills,
+        event_fields,
     )
     return record
 

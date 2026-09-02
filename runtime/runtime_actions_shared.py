@@ -550,6 +550,7 @@ def _record_action(
     enemy_combat_level: int = 0,
     shattered_heart_skill_id: Optional[str] = None,
     shattered_heart_output_items: Optional[dict[str, int]] = None,
+    achievement_event_fields: Optional[dict[str, Any]] = None,
 ) -> None:
     effective_output_item = output_item
     effective_output_qty = output_qty
@@ -640,6 +641,7 @@ def _record_action(
         ctx.player_data, skill_id, action_id, success,
         output_item=effective_output_item if progress_outputs is None else None,
         output_qty=effective_output_qty, output_items=progress_outputs, kills=kills,
+        event_fields=achievement_event_fields,
     )
     if success:
         record_runtime_quest_action_proofs_pure(ctx.player_data, skill_id, action_id)

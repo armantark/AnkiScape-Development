@@ -29,6 +29,7 @@ _ALLOWED_MATCH_KEYS = frozenset({
 })
 _ALLOWED_EVENT_FIELDS = frozenset({
     "action_id",
+    "active_prayer_selection",
     "combat_result.killed",
     "completed_lap",
     "deposited_non_coin",
@@ -42,6 +43,7 @@ _ALLOWED_EVENT_FIELDS = frozenset({
     "reason",
     "skill_id",
     "success",
+    "target_id",
     "type",
 })
 _MISSING = object()
@@ -193,6 +195,16 @@ def _contains(actual: Any, expected: Any) -> bool:
     ) else False
 
 
+def _equals(actual: Any, expected: Any) -> bool:
+    if actual == expected:
+        return True
+    return (
+        isinstance(actual, Sequence)
+        and not isinstance(actual, (str, bytes))
+        and expected in actual
+    )
+
+
 def _at_least(actual: Any, expected: Any) -> bool:
     try:
         return int(actual) >= int(expected)
@@ -202,7 +214,7 @@ def _at_least(actual: Any, expected: Any) -> bool:
 
 def _matches(matcher: Mapping[str, Any], event: Mapping[str, Any], player: Mapping[str, Any]) -> bool:
     checks = (
-        _mapping_clause_matches(event, matcher.get("eq") or {}, lambda a, b: a == b),
+        _mapping_clause_matches(event, matcher.get("eq") or {}, _equals),
         _mapping_clause_matches(event, matcher.get("in") or {}, lambda a, b: a in b),
         _mapping_clause_matches(event, matcher.get("gte") or {}, _at_least),
         _mapping_clause_matches(player, matcher.get("state_eq") or {}, lambda a, b: a == b),
@@ -286,15 +298,18 @@ def record_achievement_diary_event_pure(
 def record_action_diary_event_pure(
     player_data: dict[str, Any], skill_id: str, action_id: str,
     output_item: str | None, output_qty: int, output_items: Mapping | None,
-    kills: int,
+    kills: int, event_fields: Mapping[str, Any] | None = None,
 ) -> None:
     outputs = dict(output_items) if output_items is not None else (
         {output_item: output_qty} if output_item and output_qty > 0 else {}
     )
-    record_achievement_diary_event_pure(player_data, {
+    event = {
         "type": "action", "skill_id": str(skill_id), "action_id": str(action_id),
         "success": True, "outputs": outputs, "kills": max(0, int(kills or 0)),
-    })
+    }
+    if isinstance(event_fields, Mapping):
+        event.update(event_fields)
+    record_achievement_diary_event_pure(player_data, event)
 
 
 def record_farming_diary_event_pure(
@@ -318,22 +333,11 @@ def record_direct_diary_event_pure(
 
 
 def record_bank_run_diary_event_pure(
-    player_data: dict[str, Any], completed: bool, carried: Mapping[str, Any]
+    player_data: dict[str, Any], carried: Mapping[str, Any]
 ) -> None:
-    if completed:
-        record_achievement_diary_event_pure(player_data, {
-            "type": "bank_run",
-            "deposited_non_coin": any(
-                item != "Coins" and int(amount or 0) > 0 for item, amount in carried.items()
-            ),
-        })
-
-
-def run_bank_run_diary_callbacks_pure(
-    completed: bool, player_data: dict[str, Any], refresh, check
-) -> None:
-    if not completed:
-        return
-    if refresh is not None:
-        refresh()
-    check(player_data)
+    record_achievement_diary_event_pure(player_data, {
+        "type": "bank_run",
+        "deposited_non_coin": any(
+            item != "Coins" and int(amount or 0) > 0 for item, amount in carried.items()
+        ),
+    })

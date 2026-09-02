@@ -55,6 +55,7 @@ from ..core.constants import (
     WOODCUTTING_AXE_DATA,
 )
 from ..logic_pure.logic_pure import (
+    active_prayer_selection_pure,
     combat_near_death_without_food_pure,
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
@@ -477,6 +478,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         combat_observed_drop_item_names_pure(player_data, target_id)
     )
 
+    active_prayer_selection = tuple(active_prayer_selection_pure(player_data))
     using_finisher = player_data.get("combat_action") == "finisher"
     if using_finisher:
         new_data, ok, result = apply_combat_finisher_pure(
@@ -655,6 +657,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             (COMBAT_ENEMY_DATA.get(str(result.get("target_id", target_id))) or {}).get("level", 0)
             or 0
         ),
+        achievement_event_fields={
+            "active_prayer_selection": active_prayer_selection,
+        },
     )
     _refresh_combat_levels(ctx, result.get("xp_rewards", {}))
     ctx.check_achievements(player_data)

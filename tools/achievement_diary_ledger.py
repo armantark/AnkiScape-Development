@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 from collections.abc import Mapping
 from pathlib import Path
@@ -26,27 +27,210 @@ _SPEC_KINDS = frozenset({
     "ledger_action", "ledger_action_family", "ledger_output", "shop_transaction",
     "state_equals",
 })
-_DIRECT_EVENT_VALUES = {
-    "agility_result": {"action_id": {"barbarian_advanced"}},
-    "bank_run": {"deposited_non_coin": {True}},
-    "castle_wars_review": {"duty": {"catapult"}},
-    "construction_command": {"action_id": {"purchase_house", "purchase_room"}},
-    "court_cases_command": {"action_id": {"enter"}},
-    "managing_miscellania_command": {"action_id": {"collect"}},
-    "shades_of_mortton_review": {"hammer": {"Flamtaer hammer"}},
-    "slayer_command": {
-        "action_id": {"get_assignment"}, "reason": {"assignment_started"},
-    },
-    "summoning_command": {
-        "action_id": {"restore_points", "summon"}, "familiar_id": {"ibis"},
-    },
-    "temple_trekking_command": {"action_id": {"prepare_pouch"}},
-}
-_REQUIRED_DIRECT_FIELDS = {
-    event_type: frozenset(values) for event_type, values in _DIRECT_EVENT_VALUES.items()
-}
-_REQUIRED_DIRECT_FIELDS["summoning_command"] = frozenset({"action_id"})
 _ITEM_NAMES = frozenset(row.storage_key for row in ITEM_DEFINITIONS)
+
+
+def _dynamic_direct_event_domain(event_type: str, field: str) -> frozenset | None:
+    """Resolve dynamic emitter fields against their production registries."""
+    if event_type == "agility_result" and field == "target_id":
+        from ankiscape.data.agility_data import AGILITY_TARGETS_BY_ID
+
+        return frozenset(AGILITY_TARGETS_BY_ID)
+    if event_type == "shades_of_mortton_review" and field == "hammer":
+        return frozenset({"Flamtaer hammer", "Hammer"})
+    return None
+
+
+def _literal_domain(node: ast.AST, scope: ast.AST | None = None) -> frozenset | None:
+    if isinstance(node, ast.Constant):
+        return frozenset({node.value}) if isinstance(node.value, (str, bool, int)) else None
+    if isinstance(node, ast.Call):
+        return _call_literal_domain(node, scope)
+    if isinstance(node, ast.IfExp):
+        return _union_literal_domains(node.body, node.orelse, scope)
+    if isinstance(node, ast.Name):
+        return _name_literal_domain(node, scope)
+    if isinstance(node, (ast.Set, ast.Tuple, ast.List)):
+        return _collection_literal_domain(node)
+    return None
+
+
+def _call_literal_domain(node: ast.Call, scope: ast.AST | None) -> frozenset | None:
+    if not isinstance(node.func, ast.Name):
+        return None
+    if node.func.id in {"all", "any", "bool"}:
+        return frozenset({False, True})
+    if node.func.id == "str" and len(node.args) == 1:
+        return _literal_domain(node.args[0], scope)
+    return None
+
+
+def _union_literal_domains(
+    left_node: ast.AST, right_node: ast.AST, scope: ast.AST | None
+) -> frozenset | None:
+    left, right = _literal_domain(left_node, scope), _literal_domain(right_node, scope)
+    return left | right if left is not None and right is not None else None
+
+
+def _name_literal_domain(node: ast.Name, scope: ast.AST | None) -> frozenset | None:
+    if scope is None:
+        return None
+    values = set()
+    for comparison in ast.walk(scope):
+        domain = _comparison_literal_domain(comparison, node.id)
+        if domain is not None:
+            values.update(domain)
+    return frozenset(values) if values else None
+
+
+def _comparison_literal_domain(node: ast.AST, name: str) -> frozenset | None:
+    if not isinstance(node, ast.Compare) or len(node.ops) != 1:
+        return None
+    if not isinstance(node.ops[0], (ast.Eq, ast.In, ast.NotIn)):
+        return None
+    left, right = node.left, node.comparators[0]
+    if isinstance(left, ast.Name) and left.id == name:
+        return _literal_domain(right)
+    if isinstance(right, ast.Name) and right.id == name:
+        return _literal_domain(left)
+    return None
+
+
+def _collection_literal_domain(node: ast.Set | ast.Tuple | ast.List) -> frozenset | None:
+    domains = [_literal_domain(value) for value in node.elts]
+    if not all(domain is not None and len(domain) == 1 for domain in domains):
+        return None
+    return frozenset(next(iter(domain)) for domain in domains)
+
+
+def _production_emitter_paths() -> tuple[Path, ...]:
+    return (ROOT / "__init__.py",) + tuple(
+        path
+        for directory in (ROOT / "logic", ROOT / "logic_pure", ROOT / "runtime")
+        for path in directory.rglob("*.py")
+    )
+
+
+def _call_scopes(call: ast.Call, parents: Mapping[ast.AST, ast.AST]) -> tuple[ast.AST, ...]:
+    scopes = []
+    cursor = call
+    while cursor in parents:
+        cursor = parents[cursor]
+        if isinstance(cursor, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            scopes.append(cursor)
+    return tuple(scopes)
+
+
+def _direct_event_call_shape(
+    call: ast.Call, scope: ast.AST
+) -> tuple[frozenset, dict[str, ast.AST]] | None:
+    name = call.func.id if isinstance(call.func, ast.Name) else ""
+    if name == "record_direct_diary_event_pure" and len(call.args) >= 3:
+        fields = {keyword.arg: keyword.value for keyword in call.keywords if keyword.arg}
+        return _literal_domain(call.args[2], scope), fields
+    if name != "record_achievement_diary_event_pure" or len(call.args) < 2:
+        return None
+    payload = call.args[1]
+    if not isinstance(payload, ast.Dict):
+        return None
+    fields = {
+        key.value: value for key, value in zip(payload.keys, payload.values)
+        if isinstance(key, ast.Constant) and isinstance(key.value, str)
+    }
+    event_types = _literal_domain(fields.pop("type", ast.Constant(None)))
+    return (event_types, fields) if event_types is not None else None
+
+
+def _expression_domain(
+    expression: ast.AST, scope: ast.AST, scopes: tuple[ast.AST, ...]
+) -> frozenset | None:
+    inner = expression.args[0] if (
+        isinstance(expression, ast.Call)
+        and isinstance(expression.func, ast.Name)
+        and expression.func.id == "str"
+        and len(expression.args) == 1
+    ) else expression
+    if not isinstance(inner, ast.Name):
+        return _literal_domain(expression, scope)
+    parameter_scope = next(
+        (
+            candidate for candidate in scopes
+            if inner.id in {
+                argument.arg
+                for argument in (
+                    candidate.args.posonlyargs
+                    + candidate.args.args
+                    + candidate.args.kwonlyargs
+                )
+            }
+        ),
+        scope,
+    )
+    return _literal_domain(expression, parameter_scope)
+
+
+def _merge_direct_event_fields(
+    emitted: dict[str, frozenset | None],
+    event_type: str,
+    fields: Mapping[str, ast.AST],
+    scope: ast.AST,
+    scopes: tuple[ast.AST, ...],
+) -> None:
+    for field, expression in fields.items():
+        domain = _expression_domain(expression, scope, scopes)
+        domain = domain if domain is not None else _dynamic_direct_event_domain(event_type, field)
+        if field not in emitted or emitted[field] is None or domain is None:
+            emitted[field] = domain
+        else:
+            emitted[field] |= domain
+
+
+def _support_from_tree(tree: ast.AST) -> dict[str, dict[str, frozenset | None]]:
+    support: dict[str, dict[str, frozenset | None]] = {}
+    parents = {
+        child: parent
+        for parent in ast.walk(tree)
+        for child in ast.iter_child_nodes(parent)
+    }
+    for call in (node for node in ast.walk(tree) if isinstance(node, ast.Call)):
+        scopes = _call_scopes(call, parents)
+        scope = scopes[0] if scopes else call
+        shape = _direct_event_call_shape(call, scope)
+        if shape is None:
+            continue
+        event_types, fields = shape
+        for event_type in (str(value) for value in event_types if value not in {"action", "farming_result"}):
+            _merge_direct_event_fields(
+                support.setdefault(event_type, {}), event_type, fields, scope, scopes
+            )
+    return support
+
+
+def _merge_event_support(
+    target: dict[str, dict[str, frozenset | None]],
+    source: Mapping[str, Mapping[str, frozenset | None]],
+) -> None:
+    for event_type, fields in source.items():
+        emitted = target.setdefault(event_type, {})
+        for field, domain in fields.items():
+            if field not in emitted or emitted[field] is None or domain is None:
+                emitted[field] = domain
+            else:
+                emitted[field] |= domain
+
+
+def _direct_event_emitters() -> dict[str, dict[str, frozenset | None]]:
+    """Read direct-event shapes from the production calls that emit them."""
+    support: dict[str, dict[str, frozenset | None]] = {}
+    for path in _production_emitter_paths():
+        _merge_event_support(
+            support,
+            _support_from_tree(ast.parse(path.read_text(encoding="utf-8"), filename=str(path))),
+        )
+    return support
+
+
+_DIRECT_EVENT_EMITTERS = _direct_event_emitters()
 
 
 def _load_rows(path: Path) -> dict[str, dict]:
@@ -217,12 +401,22 @@ def _unknown_output_item_error(matcher, key) -> str:
 
 
 def _resolve_direct_match(matcher, key, event_type) -> str:
-    allowed = _DIRECT_EVENT_VALUES.get(str(event_type), {})
+    allowed = _DIRECT_EVENT_EMITTERS.get(str(event_type))
+    if allowed is None:
+        return f"counter key {key!r} names unsupported direct-event type {event_type!r}"
+    constrained_fields = {
+        field for clause in ("eq", "in", "gte")
+        for field in matcher.get(clause, {})
+        if field != "type" and not field.startswith("outputs.")
+    }
+    unsupported_fields = sorted(constrained_fields - set(allowed))
+    if unsupported_fields:
+        return f"counter key {key!r} names unsupported {event_type} field: {unsupported_fields}"
     for field, values in allowed.items():
         candidates = _values(matcher, field)
-        if field in _REQUIRED_DIRECT_FIELDS.get(str(event_type), ()) and not candidates:
+        if values is not None and not candidates:
             return f"counter key {key!r} has no exact {event_type} {field}"
-        invalid = sorted(set(candidates) - values)
+        invalid = sorted(set(candidates) - values) if values is not None else []
         if invalid:
             return f"counter key {key!r} names unsupported {event_type} {field}: {invalid}"
     return _unknown_output_item_error(matcher, key)

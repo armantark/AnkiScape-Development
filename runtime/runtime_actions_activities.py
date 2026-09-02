@@ -484,12 +484,10 @@ def _handle_stronghold_answer(ctx: RuntimeActionContext) -> bool:
         # Already cleared — nothing left to do, so switch off the activity.
         ctx.deactivate_current_skill()
         return False
-
     _record_action(ctx, "utility", STRONGHOLD_UTILITY_KEY, True, expected_success_chance=1.0)
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
-
     step = info["step"]
     if info["just_completed"]:
         ctx.deactivate_current_skill()
@@ -601,9 +599,14 @@ def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
                 "Nothing was consumed, and AnkiScape switched to Bankstanding.",
             )
         return False
-
     ctx.player_data.clear()
     ctx.player_data.update(updated)
+    record_direct_diary_event_pure(
+        ctx.player_data,
+        True,
+        "shades_of_mortton_review",
+        hammer=str(result.get("hammer", "")),
+    )
     xp_rewards = dict(result.get("xp_rewards", {}) or {})
     xp_reward_rows = tuple(
         {"skill_id": skill_id, "amount": amount}
@@ -682,7 +685,6 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
         )
         ctx.deactivate_current_skill()
         return False
-
     player_data.clear()
     player_data.update(updated)
     phase = str(result.get("phase", ""))
@@ -725,12 +727,10 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
             expected_success_chance=1.0,
             primary_xp=float(xp.get("Firemaking", 0.0) or 0.0),
         )
-
     for skill_name in xp:
         ctx.level_up_check(str(skill_name), player_data)
     ctx.check_achievements(player_data)
     ctx.save_player_data()
-
     xp_text = " · ".join(
         f"+{float(amount):,.6g} {skill_name} XP"
         for skill_name, amount in xp.items()
@@ -751,7 +751,6 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
     else:
         message = f"Prepared {result['tier_name']} · {xp_text} · next: fell and burn"
     ctx.show_activity_gain(message)
-
     if result.get("completed"):
         _switch_material_failure_to_bankstanding(ctx)
     return True
@@ -769,7 +768,6 @@ def _handle_big_chinchompa_answer(ctx: RuntimeActionContext) -> bool:
             str(result.get("reason", "No Big Chinchompa event is active.")),
         )
         return False
-
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     hunter_xp = float(result.get("hunter_xp", 0.0) or 0.0)
@@ -836,7 +834,6 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
             str(result.get("reason", "No mineable Shooting Star is active.")),
         )
         return False
-
     if result.get("unminable"):
         ctx.player_data.clear()
         ctx.player_data.update(updated)
@@ -861,7 +858,6 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
         ctx.save_player_data()
         ctx.refresh_skill_availability()
         return True
-
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     mining_xp = float(result.get("mining_xp", 0.0) or 0.0)
@@ -888,7 +884,6 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
     ctx.refresh_skill_availability()
     if gained > 0:
         ctx.show_exp(gained)
-
     if result.get("tag_only"):
         ctx.show_activity_gain(
             f"First-finder tag · +{mining_xp:,.6g} Mining XP · "
@@ -929,7 +924,6 @@ def _handle_fist_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
             str(result.get("reason", "Talk to Fiara before entering the arena.")),
         )
         return False
-
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     xp_rewards = dict(result.get("xp_rewards", {}) or {})
@@ -958,7 +952,6 @@ def _handle_fist_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
     ctx.refresh_skill_availability()
     if total_xp > 0:
         ctx.show_exp(total_xp)
-
     if result.get("match_complete"):
         match = result.get("match_result", {}) or {}
         ctx.show_activity_gain(
@@ -1952,7 +1945,6 @@ def handle_trouble_brewing_answer(
         return False
     ctx.player_data.clear()
     ctx.player_data.update(updated)
-    record_direct_diary_event_pure(ctx.player_data, True, "shades_of_mortton_review", hammer=str(result.get("hammer", "")))
     skill_rows = {
         "agility": ("agility_exp", "Agility"),
         "cooking": ("cooking_exp", "Cooking"),
@@ -2019,7 +2011,10 @@ def handle_castle_wars_answer(
     ctx.player_data.update(updated)
     record_direct_diary_event_pure(ctx.player_data, True, "castle_wars_review", duty=str(result.get("duty", "")))
     _record_action(
-        ctx, "utility", CASTLE_WARS_ACTIVITY_ID, productive,
+        ctx,
+        "utility",
+        CASTLE_WARS_ACTIVITY_ID,
+        productive,
         expected_success_chance=1.0,
         failure_kind="safe_death" if result.get("died") else None,
         primary_xp=sum(float(amount or 0.0) for amount in xp_rewards.values()),
@@ -2306,6 +2301,12 @@ def handle_shades_of_mortton_answer(
         return False
     ctx.player_data.clear()
     ctx.player_data.update(updated)
+    record_direct_diary_event_pure(
+        ctx.player_data,
+        True,
+        "shades_of_mortton_review",
+        hammer=str(result.get("hammer", "")),
+    )
     skill_rows = {
         "crafting": ("crafting_exp", "Crafting"),
         "firemaking": ("firemaking_exp", "Firemaking"),
@@ -2321,7 +2322,10 @@ def handle_shades_of_mortton_answer(
         total_gained += ctx.award_skill_exp(exp_key, float(amount))
         ctx.level_up_check(display_name, ctx.player_data)
     _record_action(
-        ctx, "utility", SHADES_OF_MORTTON_ACTIVITY_ID, productive,
+        ctx,
+        "utility",
+        SHADES_OF_MORTTON_ACTIVITY_ID,
+        productive,
         expected_success_chance=1.0,
         failure_kind="dangerous_combat_death" if result.get("died") else None,
         primary_xp=(
@@ -2844,8 +2848,6 @@ def handle_goblin_raids_answer(
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
-
-
 def handle_crucible_answer(
     ctx: RuntimeActionContext,
     *,
@@ -2896,8 +2898,6 @@ def handle_crucible_answer(
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
-
-
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -2929,8 +2929,6 @@ def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     if not managing_miscellania_view_pure(ctx.player_data).get("can_train", False):
         ctx.deactivate_current_skill()
     return True
-
-
 def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
@@ -2947,7 +2945,6 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
             f"{AGILITY_TARGETS_BY_ID[target_id].display_name} requires {', '.join(locked)}, so Agility has been switched off.",
         )
         return False
-
     lap_counts_before = dict(sanitize_agility_state_pure(player_data)["agility_lap_counts"])
     pit_offer_before = bool(player_data.get("agility_pit_offer", False))
     pit_origin_before = str(player_data.get("agility_pit_origin_course", "") or "")
@@ -2963,7 +2960,6 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         return False
     player_data.clear()
     player_data.update(updated)
-
     damage = int(result.get("damage", 0) or 0)
     safety_stop_message = ""
     if damage > 0:
@@ -3061,7 +3057,6 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
                     f"{AGILITY_TARGETS_BY_ID[target_id].display_name} can hit "
                     f"up to {maximum_failure_damage} LP on a failure"
                 )
-
     outputs = {
         str(item): int(quantity)
         for item, quantity in (result.get("outputs") or {}).items()
@@ -3072,7 +3067,6 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         for item, quantity in outputs.items():
             inventory[item] = int(inventory.get(item, 0) or 0) + quantity
         player_data["inventory"] = inventory
-
     base_xp = float(result.get("xp", 0.0) or 0.0)
     gained = ctx.award_skill_exp("agility_exp", base_xp) if base_xp > 0 else 0.0
     if base_xp > 0:
@@ -3088,7 +3082,14 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     tickets = int(result.get("tickets", 0) or 0)
     if tickets > 0:
         achievement_outputs["Agility arena ticket"] = tickets
-    record_direct_diary_event_pure(player_data, True, "agility_result", action_id=str(result.get("action_id", target_id)), completed_lap=bool(result.get("completed_lap")))
+    record_direct_diary_event_pure(
+        player_data,
+        True,
+        "agility_result",
+        action_id=str(result.get("action_id", target_id)),
+        target_id=str(result.get("target_id", target_id)),
+        completed_lap=bool(result.get("completed_lap")),
+    )
     _record_action(
         ctx,
         "agility",
@@ -3119,7 +3120,6 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     if safety_stop_message:
         ctx.show_activity_gain(safety_stop_message)
     return True
-
 def handle_treasure_trail_answer(ctx: RuntimeActionContext) -> bool:
     updated, ok, result = apply_treasure_trail_review_pure(
         ctx.player_data, ctx.random_random

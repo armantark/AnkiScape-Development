@@ -399,7 +399,6 @@ def set_temple_trekking_policy_pure(
     state["policy"] = normalized
     state["last_result"] = "Temple Trekking plan saved."
     data["temple_trekking"] = state
-    record_direct_diary_event_pure(data, True, "temple_trekking_command", action_id="prepare_pouch")
     return data, True, {"message": state["last_result"]}
 
 
@@ -423,6 +422,12 @@ def prepare_druid_pouch_pure(
         f"{TEMPLE_TREKKING_DRUID_POUCH_PREP_CHARGES} Druid pouch charges."
     )
     data["temple_trekking"] = state
+    record_direct_diary_event_pure(
+        data,
+        True,
+        "temple_trekking_command",
+        action_id="prepare_pouch",
+    )
     return data, True, {"message": state["last_result"]}
 
 
