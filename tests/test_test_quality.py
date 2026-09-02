@@ -61,6 +61,7 @@ class DerivedTests(BrokenTests):
                 "undiscovered_test_method",
                 "assertion_free_test",
                 "source_text_membership_check",
+                "vacuous_source_scan",
             },
         )
 
