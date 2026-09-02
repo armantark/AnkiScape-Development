@@ -2799,3 +2799,20 @@ blocked by nothing and depends on nothing:
 Option 3 is declined on the record because a pinned "known issue" in the test
 audit would be a place for the next real finding to hide, and the reachability
 validator that inspired it tolerates a measured count, not a named defect.
+
+### 44.1 Landed; programme state at 05:10 PDT
+
+`6ab9c330`: the vacuous-scan check and its layout-independent repair landed
+together (plain 4,628 tests 826.1 s, Qt 1,098.5 s; `audit_test_quality`: 4,593 tests
+across 236 files, hard issues 0). Landed so far: Slayer data, combat data, the gate
+hardening with the freeze hook, the module-surface harness, this slice. Complete
+and blocked on the owner's move-aware ruling: `data/quest_data.py`, the root
+`__init__.py`, `tests/test_combat_enemy_roster.py`. Unblocked and dispatched:
+`core/constants.py` (2,991 lines, nothing over threshold) and
+`data/achievement_diary_catalog.py` (6,151, first exercise of generator sharding).
+Item 2c is committed and verified at 131 changed rows, reviews dispatched.
+`logic_pure/logic_pure_combat_engine.py` holds a cyclomatic-348 function and is the
+file that stays stuck under simplify-first. Contract gains
+`unittest.TestLoader().discover("tests").countTestCases()` as the collection-count
+instrument; the unreleased land lock and the linked-worktree hook warning are paired
+in the promotion-gate follow-up.
