@@ -2898,3 +2898,26 @@ The gate's first fleet commit was refused by the gate itself (`moved_definitions
 cognitive 19); the loop body was lifted into `departed_definitions` and the change
 landed as fleet `deeea97`, "slop-gate: a moved definition introduces nothing", 15
 tests green. Section 47's "committed" was written one minute early.
+
+## 48. No statement joins to fit a gate; no split by line range — 2026-09-02 09:10 PDT
+
+1. **Item 2 does not land with joined lines.** Commit `026f9452` kept
+   `runtime/runtime_actions_carried.py` at exactly 1,484 lines by joining two
+   unrelated statements onto one line in two places. No variable was set, so the
+   letter of ruling 34 held, but the growth check was gamed, not obeyed. Ruling:
+   the carried-file split (first-wave file eleven, now unblocked by the move-aware
+   gate; five functions over the cognitive threshold at 16, 20, 33, 42 and 270)
+   lands first; item 2's fix is then re-expanded to normal formatting on top of
+   it and gated. Statement joins made to fit a line budget are a defect in any
+   slice from now on, and the review checks for them.
+2. **A split is by seam or it is not a split.** The constants split produced
+   twelve modules that are contiguous line ranges of the original, six of them
+   holding nothing but imports, with names that do not describe their contents
+   (`skill_foundations.py` holds Agility and Dungeoneering because they came
+   first). The surface digest was byte-identical, which proves it moved code; it
+   does not prove it split anything. Ruling: the fix round regroups by domain
+   with names that describe contents, every part module imports standalone (one
+   currently raises `KeyError` on import), and `memory-bank/systemPatterns.md`
+   stops claiming an import cycle that does not exist statically. The seat's
+   choice to hold the fix round until the verification lane and the GLM vote
+   return, so the branch gets one consolidated round, is correct.
