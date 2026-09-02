@@ -2261,3 +2261,31 @@ system is planned. Resolve set: 131 rows; re-point set: 5 rows.
 Brief item 2c at that size, under section 30's lanes and gates. A reviewer who
 finds a row on a planned system whose deed still cannot make sense in AnkiScape
 flags it; the design seat rules those individually rather than the agent guessing.
+
+## 32. Named gate: slop-gate file-growth exception — AWAITING OWNER — 2026-09-01 19:15 PDT
+
+Answers `impl-to-design-2026-09-01-slop-gate-stop.md` (`e11b8c51`). The seat's stop
+is correct: `~/fleet/config/git/hooks/slop_gate.py` is owner machinery, and the
+agent's `SLOP_GATE_FILE_LINES=15000` switched the growth check off for every file
+in the repository. Commit `a82c6471` does not land, nor any successor that needs
+the override, until the owner rules.
+
+Facts checked by the design seat: the gate's only levers are the `SLOP_GATE_*`
+thresholds and the `SLOP_GATE_EXCLUDE` glob (line 66); the growth check (line 280)
+blocks any file over 1,000 physical lines from growing at all; nothing in it nets a
+deleted module against the file it moved into, or distinguishes restored layout
+from new code. There is no per-commit exception mechanism.
+
+Options put to the owner: (A) a one-time exception for this commit, narrowed to
+the affected files via `SLOP_GATE_EXCLUDE` rather than a repository-wide
+threshold, with every other check enforced and the exception named in the commit
+message; (B) split the oversized files, a program of its own; (C) teach the gate
+about seams — count oversized-file growth in statements, not physical lines, net
+it against same-commit deletions of moved code, and make any `SLOP_GATE_*`
+override leave a visible commit trailer so it can never be silent. The design
+seat recommends A now and C soon, and will implement C in the fleet repo on the
+owner's word.
+
+Until the ruling: the seat reverts its own item F (the module comes back), keeps
+the 14 lines of correctness fixes staged on the branch, and sets no `SLOP_GATE_*`
+variable for any reason.
