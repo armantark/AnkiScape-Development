@@ -20,6 +20,7 @@ FIRST_WAVE_DIGESTS = {
     "logic/shop_logic.py": "29902790dca0d3e452b1ecec8a29e0f5834af3b56b549c8f201ce4490d7d27a0",
     "ui/ui_tab_shop.py": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056",
     "data/achievement_diary_catalog.py": "138caf7baf0201d11bb7815d971c450fabf20a536e242846433783f3f1e9e3e6",
+    "runtime/runtime_actions_carried.py": "d3c2178bb94faa3f8c0f1c5537edf817b0323bb5566baedbb7c108da11d9c2be",
 }
 QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db",
