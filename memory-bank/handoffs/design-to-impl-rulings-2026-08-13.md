@@ -2313,3 +2313,15 @@ commit `a82c6471` is a decision, not a technical block. Second question for the
 owner: if the exception is granted, recommit the branch so no overriding commit
 exists in history (design seat's recommendation), or accept it with the exception
 named in the record.
+
+### 32.2 The gate now holds both slices — 19:58 PDT
+
+The diary fix round's second pass hit the same gate on three lines in
+`__init__.py` (6,254 -> 6,257): `after_apply=lambda: check_achievements(player_data)`
+on the Great Orb Project teleport dispatcher, the one dispatcher of its kind that
+omits it; without it a player who breaks two teleports before answering a card loses
+that diary deed permanently. The agent stopped, reported the message verbatim, used
+no override, and made no commit. The owner's ruling therefore covers 29 lines across
+seven files in two slices, every one a correctness fix or restored layout. Until it
+lands, the seat commits the diary work minus the blocked hunk (kept as a named patch)
+and runs the read-only harvest lanes for items 3 and 5.
