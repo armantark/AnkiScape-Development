@@ -53,6 +53,66 @@ design change that is not yours to make.
 modules plus an aggregator, then regenerate. A hand-edited generated file is
 overwritten by the next generation and the split silently disappears.
 
+## 4a. Three walls the gate puts in front of the obvious layout
+
+The first split of this programme, `data/slayer_data.py`, was refused three times
+in one commit. Every wall it hit applies to all eleven files, so the layout below
+is not a suggestion.
+
+**Wall one: you may not add a file to a crowded directory.**
+
+```
+slop-gate: code files were added to directories already at 40 files:
+  data: 104 code files (was 103)
+  -> Create a cohesive subdirectory instead of widening this directory.
+```
+
+`DIR_FILES_MAX` is 40 and `data/` holds 104. So a new sibling module beside the
+file you are splitting is refused outright. **Put the new modules in a new
+cohesive subdirectory**, `data/slayer/`, `data/combat/`, and so on. A fresh
+directory starts empty and the rule does not bite.
+
+**Wall two: the obvious aggregator makes an import cycle.**
+
+```
+slop-gate: new import cycles were introduced:
+  data/slayer_data.py, data/slayer_master_data.py
+  -> Break the cycle by moving the shared contract or dependency to a lower-level module.
+```
+
+If the aggregator imports the new module, and the new module imports shared
+definitions back from the aggregator, that is a cycle. **Move the shared contract
+down**: the dataclasses, base registries and identities that both halves need go
+into their own low-level module, which neither imports back. The dependency then
+runs one way, from aggregator to parts to contract.
+
+**Wall three: re-exports read as dead code.**
+
+```
+slop-gate: new dead code was introduced:
+  data/slayer_data.py: unused import 'MAZCHNA_FAMILIES_BY_ID' (90% confidence)
+```
+
+An aggregator's whole job is importing names it does not itself use, which is
+exactly vulture's definition of a dead import. Declare the re-exported names in
+an `__all__` in the aggregator, which states the intent and is the honest fix. If
+that does not satisfy the gate, use the repo's vulture whitelist and say in your
+report that you did, but try `__all__` first: a whitelist entry per split is
+noise that hides real dead code later.
+
+**So the shape of every split is:**
+
+```
+data/<domain>/__init__.py        (may be empty)
+data/<domain>/contract.py        shared dataclasses and identities, imports nothing upward
+data/<domain>/<part_a>.py        real seam
+data/<domain>/<part_b>.py        real seam
+data/<domain>_data.py            aggregator: imports the parts, declares __all__
+```
+
+Names are illustrative; use the domain's real vocabulary rather than `part_a`.
+The aggregator keeps its original path so no consumer changes.
+
 ## 5. Your proof, which is the point of the slice
 
 `tools/module_surface.py` prints a deterministic dump of a module's complete
