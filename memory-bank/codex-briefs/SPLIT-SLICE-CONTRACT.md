@@ -209,6 +209,43 @@ making the suite greener.
 test-quality audit's file and test counts before and after, where a drop is a
 defect; and both lanes, gated singly rather than batched.
 
+## 5d. Before you split, find the tests that read your file
+
+A test that scans one file by path does not fail when that file is split. It
+finds nothing and **passes vacuously**, reporting an invariant it no longer
+enforces. Nothing catches this: not the gate, not the digest, not either lane.
+
+It happened on the quest split. `tests/test_quest_catalog.py` parsed
+`Path(quest_data.__file__).read_text()`, and after the split that path is an
+import-only aggregator, so the mapping generator became empty and the test
+stayed green.
+
+**Run this sweep before you write any code.** For your split target, search
+`tests/` and `tools/` for:
+
+- the literal filename;
+- the imported module followed by `__file__`, as in `quest_data.__file__`;
+- source readers near either: `read_text`, `open(`, `ast.parse`, `glob`, `rglob`.
+
+Distinguish the two uses of `__file__`, because only one is dangerous.
+`Path(__file__).resolve().parents[1]`, a test locating the repository root from
+its own position, is safe: a split elsewhere cannot move it. Reading another
+module's source through `Path(<module>.__file__).read_text()` is the hazard.
+
+Inspect every hit for an empty-result pass. Repoint the scan to follow the
+extracted modules, **and make it assert a non-empty, exact key set**, because a
+scan that asserts its own result is non-empty cannot pass vacuously wherever the
+code moves later.
+
+Repointing such a test is part of the move, not a change of behaviour: the
+behaviour is "this invariant is enforced". Say so in one sentence in your
+report, and prove the repointed test load-bearing by breaking the split in two
+ways, a missing fragment and a duplicate key, watching it fail each time, and
+restoring.
+
+Measured on 2026-09-02, the repository holds exactly one instance of the
+dangerous pattern, the quest one above. Sweep anyway; the cost is a grep.
+
 ## 6. Verification
 
 **Who runs the lanes, corrected by ruling 41.** As the split author you run
