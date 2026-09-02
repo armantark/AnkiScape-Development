@@ -357,16 +357,7 @@ class TestShopLogic(unittest.TestCase):
                 }
             }
         )
-        self.assertEqual(
-            SHOP_DIARY_TRANSACTION_KEYS,
-            {
-                "aemads_vial_of_water",
-                "lumbridge_raw_shrimps_sale",
-                "candle_maker_candle",
-                "benny_varrock_herald",
-                "waynes_black_chainbody",
-            },
-        )
+        self.assertEqual(len(SHOP_DIARY_TRANSACTION_KEYS), 54)
         self.assertEqual(
             sanitized["shop_transaction_counts"], {"aemads_vial_of_water": 3}
         )

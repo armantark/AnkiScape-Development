@@ -18,6 +18,7 @@ _ALLOWED_EVENT_TYPES = frozenset({
     "construction_command",
     "court_cases_command",
     "farming_result",
+    "great_orb_project_teleport",
     "managing_miscellania_command",
     "shades_of_mortton_review",
     "slayer_command",
@@ -30,6 +31,7 @@ _ALLOWED_MATCH_KEYS = frozenset({
 _ALLOWED_EVENT_FIELDS = frozenset({
     "action_id",
     "active_prayer_selection",
+    "altar_id",
     "combat_result.killed",
     "completed_lap",
     "deposited_non_coin",

@@ -28,6 +28,8 @@ _SPEC_KINDS = frozenset({
     "state_equals",
 })
 _ITEM_NAMES = frozenset(row.storage_key for row in ITEM_DEFINITIONS)
+_LIVE_DISPOSITIONS = frozenset({"active", "translated", "swapped", "invented"})
+_ALLOWED_DISPOSITIONS = _LIVE_DISPOSITIONS | {"dormant"}
 
 
 def _dynamic_direct_event_domain(event_type: str, field: str) -> frozenset | None:
@@ -38,6 +40,12 @@ def _dynamic_direct_event_domain(event_type: str, field: str) -> frozenset | Non
         return frozenset(AGILITY_TARGETS_BY_ID)
     if event_type == "shades_of_mortton_review" and field == "hammer":
         return frozenset({"Flamtaer hammer", "Hammer"})
+    if event_type == "great_orb_project_teleport" and field == "altar_id":
+        from ankiscape.data.great_orb_project_data import (
+            GREAT_ORB_PROJECT_TELEPORT_TABLETS,
+        )
+
+        return frozenset(row[4] for row in GREAT_ORB_PROJECT_TELEPORT_TABLETS)
     return None
 
 
@@ -178,7 +186,9 @@ def _merge_direct_event_fields(
 ) -> None:
     for field, expression in fields.items():
         domain = _expression_domain(expression, scope, scopes)
-        domain = domain if domain is not None else _dynamic_direct_event_domain(event_type, field)
+        dynamic_domain = _dynamic_direct_event_domain(event_type, field)
+        if dynamic_domain is not None:
+            domain = dynamic_domain if domain is None else domain | dynamic_domain
         if field not in emitted or emitted[field] is None or domain is None:
             emitted[field] = domain
         else:
@@ -233,6 +243,29 @@ def _direct_event_emitters() -> dict[str, dict[str, frozenset | None]]:
 _DIRECT_EVENT_EMITTERS = _direct_event_emitters()
 
 
+def _validate_row_metadata(task_id: str, row: Mapping) -> None:
+    disposition = row.get("disposition")
+    if disposition not in _ALLOWED_DISPOSITIONS:
+        raise SystemExit(
+            f"diary ledger task {task_id} has unsupported disposition {disposition!r}"
+        )
+    if row.get("catalog_regeneration_pending") not in {None, True}:
+        raise SystemExit(
+            f"diary ledger task {task_id} has invalid regeneration marker"
+        )
+    designed_text = (row.get("designed_name"), row.get("designed_description"))
+    if disposition == "invented" and not all(
+        isinstance(value, str) and value for value in designed_text
+    ):
+        raise SystemExit(
+            f"invented diary ledger task {task_id} has no designed task text"
+        )
+    if disposition != "invented" and any(value is not None for value in designed_text):
+        raise SystemExit(
+            f"non-invented diary ledger task {task_id} carries designed task text"
+        )
+
+
 def _load_rows(path: Path) -> dict[str, dict]:
     rows = {}
     for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
@@ -241,13 +274,9 @@ def _load_rows(path: Path) -> dict[str, dict]:
         except json.JSONDecodeError as error:
             raise SystemExit(f"invalid diary ledger JSON on line {line_number}: {error}")
         task_id = str(row.get("task_id", ""))
-        disposition = row.get("disposition")
         if not task_id or task_id in rows:
             raise SystemExit(f"invalid or duplicate diary ledger task_id {task_id!r}")
-        if disposition not in {"active", "translated", "dormant"}:
-            raise SystemExit(
-                f"diary ledger task {task_id} has unsupported disposition {disposition!r}"
-            )
+        _validate_row_metadata(task_id, row)
         rows[task_id] = row
     if len(rows) != 320:
         raise SystemExit(f"diary ledger has {len(rows)} rows, expected 320")
@@ -299,30 +328,129 @@ def _conditions_from_row(row: dict) -> list[tuple]:
     return [_condition_from_spec(spec, task_id) for spec in specs]
 
 
+def _normalize_event_rule(value, ordered: bool = False):
+    if isinstance(value, Mapping):
+        return tuple(
+            (key, _normalize_event_rule(item, ordered=key == "sequence"))
+            for key, item in sorted(value.items())
+        )
+    if isinstance(value, list):
+        items = tuple(_normalize_event_rule(item) for item in value)
+        return items if ordered else tuple(sorted(items, key=repr))
+    return value
+
+
+def _condition_seam(condition: tuple) -> tuple:
+    kind, key, amount = condition[:3]
+    if kind == "any_of":
+        alternatives = tuple(
+            sorted((_condition_seam(item) for item in condition[4]), key=repr)
+        )
+        return kind, key, amount, alternatives
+    if kind == "state_equals":
+        expected = json.dumps(condition[4], sort_keys=True, separators=(",", ":"))
+        return kind, key, amount, expected
+    event_rule = decode_diary_event_rule_pure(key) if kind == "counter" else None
+    if event_rule is not None:
+        matcher = event_rule.get("match")
+        if matcher == {
+            "eq": {
+                "type": "action",
+                "skill_id": matcher.get("eq", {}).get("skill_id") if matcher else None,
+                "action_id": matcher.get("eq", {}).get("action_id") if matcher else None,
+                "success": True,
+            }
+        }:
+            eq = matcher["eq"]
+            return "ledger_action", f"{eq['skill_id']}:{eq['action_id']}", amount
+        return "event", amount, _normalize_event_rule(event_rule)
+    return kind, key, amount
+
+
+def _completion_seam(conditions: list[tuple]) -> tuple:
+    return tuple(sorted((_condition_seam(item) for item in conditions), key=repr))
+
+
+def _validate_completion_seams(rows: Mapping[str, dict]) -> None:
+    owners = {}
+    duplicates = []
+    for task_id, row in rows.items():
+        conditions = _conditions_from_row(row)
+        if not conditions:
+            continue
+        seam = _completion_seam(conditions)
+        previous = owners.get(seam)
+        if previous is not None:
+            duplicates.append((previous, task_id))
+        else:
+            owners[seam] = task_id
+    if duplicates:
+        pairs = "; ".join(f"{first!r} and {second!r}" for first, second in duplicates)
+        raise SystemExit(f"diary ledger tasks {pairs} share completion seams")
+
+
 class CurationLedger:
     def __init__(self, path: Path = CURATION_LEDGER_PATH):
         self.rows = _load_rows(path)
+        _validate_completion_seams(self.rows)
         self.seen: set[str] = set()
+        self.seam_owners = {}
+        self.duplicate_seams = []
 
     def begin(self) -> None:
         self.seen.clear()
+        self.seam_owners.clear()
+        self.duplicate_seams.clear()
 
     def conditions_for(self, task_id: str, base_conditions: list[tuple]) -> list[tuple]:
         row = self.rows.get(task_id)
         if row is None:
-            return base_conditions
-        if base_conditions:
-            raise SystemExit(f"diary ledger task {task_id} already has a non-ledger condition")
-        self.seen.add(task_id)
-        return _conditions_from_row(row)
+            conditions = base_conditions
+        else:
+            if base_conditions:
+                raise SystemExit(
+                    f"diary ledger task {task_id} already has a non-ledger condition"
+                )
+            self.seen.add(task_id)
+            conditions = _conditions_from_row(row)
+        if conditions:
+            seam = _completion_seam(conditions)
+            previous = self.seam_owners.get(seam)
+            if previous is not None:
+                self.duplicate_seams.append((previous, task_id))
+            else:
+                self.seam_owners[seam] = task_id
+        return conditions
+
+    def text_for(
+        self, task_id: str, base_name: str, base_description: str
+    ) -> tuple[str, str]:
+        row = self.rows.get(task_id)
+        if row is None or row["disposition"] != "invented":
+            return base_name, base_description
+        return row["designed_name"], row["designed_description"]
 
     def assert_complete(self) -> None:
         missing = sorted(set(self.rows) - self.seen)
         if missing:
             raise SystemExit(f"diary ledger rows do not resolve to generated tasks: {missing}")
+        if self.duplicate_seams:
+            pairs = "; ".join(
+                f"{first!r} and {second!r}"
+                for first, second in self.duplicate_seams
+            )
+            raise SystemExit(f"diary tasks {pairs} share completion seams")
 
 
 CURATION_LEDGER = CurationLedger()
+
+
+def pending_catalog_source_ids() -> set[int]:
+    return {
+        int(row["source_id"])
+        for row in CURATION_LEDGER.rows.values()
+        if row.get("catalog_regeneration_pending")
+    }
 
 
 def _walk_matchers(matcher):
@@ -495,7 +623,9 @@ def resolve_named_counter(key: str) -> str | None:
         )
     if parts[0] != "shop_transaction_counts":
         return None
-    from ankiscape.logic.shop_logic import SHOP_DIARY_TRANSACTION_KEYS
+    from ankiscape.logic_pure.shop_diary_transactions import (
+        SHOP_DIARY_TRANSACTION_KEYS,
+    )
     return "" if len(parts) == 2 and parts[1] in SHOP_DIARY_TRANSACTION_KEYS else (
         f"counter key {key!r} names no diary shop transaction"
     )

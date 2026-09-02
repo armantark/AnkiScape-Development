@@ -33,6 +33,7 @@ if str(ROOT) not in sys.path:
 import pkg_alias  # noqa: F401,E402  (installs the ankiscape package alias)
 from ankiscape.data.quest_data import quests_as_dict  # noqa: E402
 from tools.achievement_diary_ledger import CURATION_LEDGER, resolve_named_counter, resolve_special_counter  # noqa: E402
+from ankiscape.logic_pure.shop_diary_transactions import shop_diary_transaction_counter_key_pure  # noqa: E402
 
 QUEST_DATA = quests_as_dict()
 
@@ -212,10 +213,7 @@ def _resolve_shop_transaction(key: str) -> str:
     shop_id, row_separator, row_id = remainder.partition("|")
     if not separator or not row_separator:
         return f"shop_transaction key {key!r} is not '<type>|<shop id>|<row id>'"
-    resolver = _import_attr(
-        "ankiscape.logic.shop_logic", "shop_diary_transaction_counter_key_pure"
-    )
-    if not resolver(transaction_type, shop_id, row_id):
+    if not shop_diary_transaction_counter_key_pure(transaction_type, shop_id, row_id):
         return f"shop_transaction key {key!r} is not recorded by the narrow diary seam"
     return ""
 
@@ -1179,8 +1177,8 @@ def _task_block(
     return (
         "            DiaryTask(\n"
         f"                {task_id!r},\n"
-        f"                {task['name']!r},\n"
-        f"                {task['description']!r},\n"
+        f"                {CURATION_LEDGER.text_for(task_id, task['name'], task['description'])[0]!r},\n"
+        f"                {CURATION_LEDGER.text_for(task_id, task['name'], task['description'])[1]!r},\n"
         f"                {conditions_line},\n"
         f"                {source!r},\n"
         f"                {int(task['id'])},\n"

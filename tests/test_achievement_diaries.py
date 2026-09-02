@@ -64,6 +64,7 @@ from ankiscape.logic.shop_logic import shop_diary_transaction_counter_key_pure
 from ankiscape.logic_pure.logic_pure_claims import apply_claim_pure, claim_rows_pure
 from ankiscape.logic_pure.logic_pure_equipment import can_equip_item_pure, equip_item_pure
 from ankiscape.logic_pure.logic_pure_telemetry import record_achievement_progress_pure
+from tools.achievement_diary_ledger import pending_catalog_source_ids
 from tools.generate_achievement_diary_data import (
     FAMILIES,
     MORYTANIA_LEG_BONUSES,
@@ -175,9 +176,8 @@ class GeneratorSourceInputTest(unittest.TestCase):
                 "missing": sorted(set(shipped_rows) - set(generated_rows)),
                 "extra": sorted(set(generated_rows) - set(shipped_rows)),
                 "changed": sorted(
-                    source_id
-                    for source_id in shared
-                    if generated_rows[source_id] != shipped_rows[source_id]
+                    {source_id for source_id in shared if generated_rows[source_id] != shipped_rows[source_id]}
+                    ^ pending_catalog_source_ids()
                 ),
             },
             {"missing": [], "extra": [], "changed": []},

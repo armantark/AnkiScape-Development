@@ -10,13 +10,24 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.constants import (
+    EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA, QUEST_UNLOCK_RULES,
+)
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
 from ankiscape.data.agility_data import AGILITY_TARGETS_BY_ID
 from ankiscape.logic.achievement_diary_logic import (
     refresh_achievement_diaries_pure,
     task_progress_pure,
+)
+from ankiscape.logic.shop_logic import (
+    SHOP_DIARY_TRANSACTION_KEYS,
+    apply_shop_service_pure,
+    rollback_shop_event_pure,
+    shop_diary_transaction_counter_key_pure,
+)
+from ankiscape.logic.great_orb_project_logic import (
+    use_great_orb_project_teleport_tablet_pure,
 )
 from ankiscape.logic.managing_miscellania_logic import (
     default_managing_miscellania_state_pure,
@@ -41,10 +52,12 @@ from ankiscape.runtime.runtime_actions import (
 from ankiscape.runtime.runtime_actions_shared import _apply_farming_queue_result
 from tools.achievement_diary_ledger import (
     _DIRECT_EVENT_EMITTERS,
+    _LIVE_DISPOSITIONS,
     _condition_from_spec,
     _conditions_from_row,
+    _validate_completion_seams,
 )
-from tools.generate_achievement_diary_data import resolve_condition_key
+from tools.generate_achievement_diary_data import _task_block, resolve_condition_key
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -72,53 +85,71 @@ def _runtime_context(player, errors, random_values=()):
 
 
 class CurationLedgerWiringTest(unittest.TestCase):
-    def test_live_and_dormant_ledger_rows_match_the_generated_catalog(self):
-        rows = [
+    @staticmethod
+    def _ledger_rows():
+        return [
             json.loads(line)
             for line in (
                 ROOT
                 / "memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl"
             ).read_text(encoding="utf-8").splitlines()
         ]
-        tasks = {
-            task.id: task
+
+    def test_ledger_census_and_catalog_ids_are_exact(self):
+        rows = self._ledger_rows()
+        task_ids = {
+            task.id
             for family in ACHIEVEMENT_DIARY_CATALOG
             for tier in family.tiers
             for task in tier.tasks
         }
-
         self.assertEqual(len(rows), 320)
         self.assertEqual(
             {
                 disposition: sum(row["disposition"] == disposition for row in rows)
-                for disposition in ("active", "translated", "dormant")
+                for disposition in (
+                    "active", "translated", "swapped", "invented", "dormant"
+                )
             },
-            {"active": 43, "translated": 30, "dormant": 247},
+            {
+                "active": 42, "translated": 125, "swapped": 0,
+                "invented": 37, "dormant": 116,
+            },
         )
+        self.assertEqual([row["task_id"] for row in rows if row["task_id"] not in task_ids], [])
         self.assertEqual(
-            [row["task_id"] for row in rows if row["task_id"] not in tasks],
-            [],
+            sum(bool(row.get("catalog_regeneration_pending")) for row in rows),
+            135,
         )
-        for row in rows:
+
+    def test_ledger_row_schema_and_wiring_match_disposition(self):
+        for row in self._ledger_rows():
             with self.subTest(task_id=row["task_id"]):
-                task = tasks[row["task_id"]]
-                self.assertEqual(
-                    bool(task.conditions),
-                    row["disposition"] in {"active", "translated"},
-                )
-                self.assertEqual(
-                    list(row),
-                    [
-                        "task_id", "source_id", "family", "current_tier",
-                        "original_tier", "designed_trigger", "wiring",
-                        "source_citation", "disposition", "future_system", "notes",
-                    ],
-                )
+                expected_fields = [
+                    "task_id", "source_id", "family", "current_tier",
+                    "original_tier", "designed_trigger", "wiring",
+                    "source_citation", "disposition", "future_system", "notes",
+                ]
+                if row["disposition"] == "invented":
+                    expected_fields += ["designed_name", "designed_description"]
+                    self.assertTrue(row["designed_name"])
+                    self.assertTrue(row["designed_description"])
+                if row.get("catalog_regeneration_pending"):
+                    expected_fields.append("catalog_regeneration_pending")
+                self.assertEqual(list(row), expected_fields)
                 self.assertNotIn("\nWiring: ", row["designed_trigger"])
                 self.assertEqual(
                     isinstance(row["wiring"], list) and bool(row["wiring"]),
-                    row["disposition"] in {"active", "translated"},
+                    row["disposition"] in _LIVE_DISPOSITIONS,
                 )
+
+    def test_checked_catalog_never_activates_a_dormant_ledger_row(self):
+        rows = {row["task_id"]: row for row in self._ledger_rows()}
+        for family in ACHIEVEMENT_DIARY_CATALOG:
+            for tier in family.tiers:
+                for task in tier.tasks:
+                    if task.id in rows and task.conditions:
+                        self.assertIn(rows[task.id]["disposition"], _LIVE_DISPOSITIONS)
 
     def test_single_action_threshold_does_not_read_cumulative_output(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -230,7 +261,6 @@ class CurationLedgerWiringTest(unittest.TestCase):
                 resolve_condition_key("counter", key),
             )
 
-
     def test_generator_rejects_an_unknown_ledger_condition_kind(self):
         with self.assertRaisesRegex(SystemExit, "unsupported condition kind"):
             _condition_from_spec(
@@ -259,6 +289,159 @@ class CurationLedgerWiringTest(unittest.TestCase):
                     "wiring": [{"kind": "counter"}],
                 }
             )
+
+    def test_generator_emits_the_designed_invented_task_text(self):
+        block = _task_block(
+            "ardougne",
+            "easy",
+            {"id": 0, "name": "Boot Camp", "description": "Source deed"},
+            "synthetic source",
+            conditions_override=(),
+        )
+        self.assertIn("'Ball Control'", block)
+        self.assertIn("'Complete a Gnome Ball action.'", block)
+        self.assertNotIn("'Boot Camp'", block)
+        self.assertNotIn("'Source deed'", block)
+
+    def test_invented_row_with_wiring_compiles_as_live(self):
+        self.assertEqual(
+            _conditions_from_row(
+                {
+                    "task_id": "synthetic_invented",
+                    "disposition": "invented",
+                    "wiring": [
+                        {
+                            "kind": "counter",
+                            "key": "deliberate_action",
+                            "amount": 2,
+                            "label": "Do the deliberate thing twice",
+                        }
+                    ],
+                }
+            ),
+            [("counter", "deliberate_action", 2, "Do the deliberate thing twice")],
+        )
+
+    def test_duplicate_completion_seam_names_both_tasks(self):
+        first = {
+            "task_id": "first_task",
+            "disposition": "translated",
+            "wiring": [{
+                "kind": "event",
+                "label": "First label",
+                "rule": {"match": {"eq": {
+                    "type": "action", "action_id": "same_action",
+                    "success": True,
+                }}},
+            }],
+        }
+        duplicate = {
+            "task_id": "second_task",
+            "disposition": "invented",
+            "wiring": [{
+                "kind": "event",
+                "label": "Different label",
+                "rule": {"match": {"eq": {
+                    "success": True, "action_id": "same_action",
+                    "type": "action",
+                }}},
+            }],
+        }
+        with self.assertRaisesRegex(
+            SystemExit, "first_task.*second_task.*share completion seams"
+        ):
+            _validate_completion_seams({
+                "first_task": first,
+                "second_task": duplicate,
+            })
+
+        duplicate["wiring"][0]["rule"]["match"]["eq"]["action_id"] = "other_action"
+        _validate_completion_seams({
+            "first_task": first,
+            "second_task": duplicate,
+        })
+
+    def test_gop_tablet_records_the_durable_altar_event(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["inventory"]["Air altar teleport"] = 1
+        rule = {
+            "match": {
+                "eq": {
+                    "type": "great_orb_project_teleport",
+                    "altar_id": "air",
+                }
+            }
+        }
+        key = encode_diary_event_rule_pure(rule)
+        with patch(
+            "ankiscape.logic_pure.achievement_diary_events._event_conditions_by_type",
+            return_value={
+                "great_orb_project_teleport": (("synthetic", key, 1, rule),)
+            },
+        ):
+            updated, ok, info = use_great_orb_project_teleport_tablet_pure(
+                player, "Air altar teleport", EQUIPMENT_DATA, QUEST_UNLOCK_RULES
+            )
+        self.assertTrue(ok, info)
+        token = key.split(".")[-1]
+        self.assertEqual(
+            updated["achievement_diaries"]["event_counts"][token],
+            1,
+        )
+
+    def test_shop_diary_mapping_matches_the_live_ledger_exactly(self):
+        rows = [
+            json.loads(line)
+            for line in (
+                ROOT
+                / "memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl"
+            ).read_text(encoding="utf-8").splitlines()
+        ]
+        used = set()
+        for row in rows:
+            for spec in row.get("wiring") or ():
+                if spec.get("kind") != "shop_transaction":
+                    continue
+                transaction_type, shop_id, detail_id = spec["key"].split("|", 2)
+                counter_key = shop_diary_transaction_counter_key_pure(
+                    transaction_type, shop_id, detail_id
+                )
+                self.assertTrue(counter_key, row["task_id"])
+                used.add(counter_key)
+        pre_ledger = {
+            "aemads_vial_of_water",
+            "lumbridge_raw_shrimps_sale",
+            "candle_maker_candle",
+            "benny_varrock_herald",
+            "waynes_black_chainbody",
+        }
+        self.assertEqual(SHOP_DIARY_TRANSACTION_KEYS, pre_ledger | used)
+        self.assertEqual(len(SHOP_DIARY_TRANSACTION_KEYS), 54)
+
+    def test_shop_service_uses_its_service_id_for_durable_diary_credit(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["inventory"].update({"Coins": 5, "Yak-hide": 1})
+        player["quests"] = {
+            "the_fremennik_isles": {"started": True, "progress": 5}
+        }
+
+        updated, result = apply_shop_service_pure(
+            player, "thakkrad_cure_yak_hide", 1
+        )
+
+        self.assertTrue(result["allowed"], result)
+        event = updated["shop_events"][-1]
+        self.assertEqual(
+            (event["type"], event["shop_id"], event["row_id"], event["service_id"]),
+            ("service", "", None, "thakkrad_cure_yak_hide"),
+        )
+        self.assertEqual(
+            updated["shop_transaction_counts"],
+            {"fremennik_medium_cool_story_bro": 1},
+        )
+        restored, undo = rollback_shop_event_pure(updated, result["event_id"])
+        self.assertTrue(undo["allowed"], undo)
+        self.assertEqual(restored["shop_transaction_counts"], {})
 
     def test_skipped_farming_result_cannot_complete_a_chop_deed(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
