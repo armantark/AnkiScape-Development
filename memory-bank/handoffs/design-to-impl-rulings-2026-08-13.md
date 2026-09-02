@@ -2487,3 +2487,71 @@ closed as "shape is load-bearing", with the reason, and the reviewer is told. Th
 design seat holds itself to the same rule. With Kimi's quota reset, `kimi-k3` is the
 architecture reviewer for the split slices, where "is this only a move" is the whole
 question.
+
+## 38. The landing freeze becomes machinery — 2026-09-01 22:40 PDT
+
+Main moved under an open gate four times today: three design-seat ledger commits
+before the hold protocol existed, and the seat's own papercut commit `728cdd09` at
+22:34, twenty minutes after it asked for the freeze. Each costs a 35-minute gate
+rerun. A prose rule has failed both seats, so the freeze becomes machinery.
+
+1. **Repo-local pre-commit.** `tools/promotion_gate.py` already writes a lock record
+   in the git common dir during `run` and `land` (`claim_landing_lock`, pid,
+   operation, commit). A repo-local `.git/hooks/pre-commit`, which the fleet's
+   global hook chains first, refuses any commit on `main` in the canonical checkout
+   while that lock exists and its pid is alive, printing the gate's commit and pid
+   and the instruction below. No override. The hook source is tracked at
+   `tools/landing_freeze_hook.py`, installed by `python3 tools/promotion_gate.py
+   install-hook`, and the guard's audit reports when it is missing. This is a small
+   tooling slice, gated like any other, and it goes out right after the harness
+   lands, in parallel with the first-wave splits (disjoint files).
+2. **Writes during a window.** A landing is a fast-forward of the canonical
+   checkout; an uncommitted edit to a tracked file the gated tree also touches
+   (papercuts.md is touched by most slices) would make it refuse. So during an
+   open window every seat writes ledger sections, papercuts, briefs and harvests
+   as new files under `memory-bank/pending/`, untracked, and folds them into their
+   tracked homes in one path-scoped commit after "landed". The hook message says
+   so.
+3. The seat's proposed practice (papercuts stay uncommitted during a window) is
+   superseded by 2, which also removes the fast-forward hazard it would have left.
+
+### 38.1 The harness was refused by its own test, correctly — 22:55 PDT
+
+Gate `41616ee7`: plain lane green; Qt lane failed only `test_first_wave_digests`,
+because `data/quest_data.py` dumps to digest `06f9a6b4...` under
+`/opt/homebrew/bin/python3` and `57fc7352...` under the offscreen `.venv-qt`
+interpreter on a byte-identical file. An interpreter-dependent digest cannot prove
+a pure move, so the eleven splits hold until the instrument is trustworthy. The
+seat sent it back to diagnose before fixing, with a paper-over forbidden; the
+three candidate causes (a genuinely conditional surface, repr noise, import-order
+state) need different remedies, and if the surface is truly environment-dependent
+the tool needs one baseline per interpreter that names its environment. Design
+seat's steer: the two interpreters are different Python versions, so the
+least-specific hypothesis is `repr` drift across versions (dataclass, enum, dict
+ordering); the dump must be a canonical serialization with explicit type tags and
+sorted keys, never `repr`, and the diagnosis starts from a diff of the two dumps,
+not the digests. Landing the instrument first has now paid for itself twice.
+
+## 39. A turn that names a next action and does not take it is a failed turn — 2026-09-02 00:55 PDT
+
+Three orchestrator turns tonight ended on a stated intention with no action behind
+it: the unread gate refusal at 20:22 (held 1h40m), the unsent harness re-gate after
+23:07 (1h41m), and one earlier. The seat's own diagnosis: writing the plan was
+treated as completing the step. Ruling: every orchestrator turn ends on one of
+exactly two things — an action taken (a dispatch, a gate launch, a commit, a
+doorbell) or an explicit hold that names the wake signal already armed (a Monitor
+on a log, a task notification, a doorbell expected from a named seat). A closing
+paragraph that says "then I will", "next", or "dispatching now" without the
+matching tool call in the same turn is a failed turn, and the seat treats it as
+one on the next wake. The design seat is proposing to the owner the machinery for
+this class: a Stop hook in the orchestrator profile that blocks turn end when the
+final text states a next action and no tool call followed it, bounded like the
+anti-swallow hook. Until the owner rules on that, this section is the rule.
+
+Harness state for the record: canonical dump verified identical across Python
+3.14.7 and 3.13.5; a second defect found unasked — `ITEM_DEFINITIONS` varied
+between fresh processes of one interpreter from randomised hash seeds, now pinned;
+`ui/ui_tab_shop.py` genuinely exposes a different surface when Qt is importable and
+carries a baseline per environment, recorded as a codebase fact before its split.
+The eleventh baseline (`runtime/runtime_actions_carried.py`) is dispatched, with a
+stop-and-report if adding it moves any existing baseline.
