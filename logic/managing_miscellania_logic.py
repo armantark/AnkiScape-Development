@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
+
 from ..data.managing_miscellania_data import (
     MANAGING_MISCELLANIA_ACTIVITY_ID,
     MANAGING_MISCELLANIA_QUEST_ID,

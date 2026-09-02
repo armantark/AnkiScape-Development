@@ -7,6 +7,7 @@ import dataclasses
 from typing import Any, Callable, Optional
 
 from ..logic_pure.quest_action_proofs import record_runtime_quest_action_proofs_pure
+from ..logic_pure.achievement_diary_events import record_farming_diary_event_pure
 
 from ..core.constants import (
     BIRD_NEST_DROP_CHANCE,
@@ -636,13 +637,9 @@ def _record_action(
     if progress_outputs is None:
         progress_outputs = effective_output_items
     record_achievement_progress_pure(
-        ctx.player_data,
-        skill_id,
-        action_id,
-        success,
+        ctx.player_data, skill_id, action_id, success,
         output_item=effective_output_item if progress_outputs is None else None,
-        output_qty=effective_output_qty,
-        output_items=progress_outputs,
+        output_qty=effective_output_qty, output_items=progress_outputs, kills=kills,
     )
     if success:
         record_runtime_quest_action_proofs_pure(ctx.player_data, skill_id, action_id)
@@ -764,6 +761,7 @@ def _apply_farming_queue_result(
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     if info.get("status") in {"executed", "continuing"}:
+        rock_info = {}
         rock_skill_id = next(
             (
                 skill_id
@@ -816,6 +814,9 @@ def _apply_farming_queue_result(
             gained += sum(float(value or 0.0) for value in combat_rewards.values())
         if gained > 0:
             ctx.show_exp(gained)
+        record_farming_diary_event_pure(
+            ctx.player_data, info, rock_info.get("replaced_outputs")
+        )
     else:
         ctx.show_activity_gain(f"Farm detour skipped: {info.get('message', 'step is no longer valid')}")
     ctx.check_achievements(ctx.player_data)

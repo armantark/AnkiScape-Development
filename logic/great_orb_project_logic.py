@@ -253,6 +253,7 @@ def default_great_orb_project_state_pure() -> dict[str, Any]:
             "active": {},
         },
         "great_orb_project_last_result": "",
+        "runecrafting_last_teleport": {},
     }
 
 

@@ -2,7 +2,7 @@
 
 Base SHA: `ef860086c56a30bef05fd4f46692cb3921e38ac2`
 
-This directory contains the canonical deed-level curation record for the Achievement Diary rows that the honest-stop catalog leaves without completion conditions. The ledger is records-only. It does not wire, generate, or activate any diary task.
+This directory contains the canonical deed-level curation record for the 320 Achievement Diary rows that the honest-stop catalog originally left without completion conditions. The generator consumes its reviewed wiring clauses; the ledger remains the only canonical trigger record.
 
 ## Measured catalog census
 
@@ -16,9 +16,9 @@ At the base SHA, the generated catalog contains:
 - **3** quest-deed condition rows; and
 - **22** labelled AnkiScape progression anchors.
 
-The 154 condition-bearing rows are the 129 ordinary deed rows, 3 quest deeds, and 22 anchors. The canonical JSONL contains only the 320 empty-condition rows. It excludes all 22 anchors.
+The 154 condition-bearing rows are the 129 ordinary deed rows, 3 quest deeds, and 22 anchors. The canonical JSONL contains the 320 rows that were empty at the base SHA. It excludes all 22 anchors.
 
-The 320 curation proposals currently classify as 43 `active`, 247 `dormant`, 30 `translated`, and 0 `swapped`. These are ledger dispositions, not claims about current catalog wiring. Every one of the 320 source rows remains incomplete in the generated catalog until a later reviewed wiring slice changes that catalog.
+The 320 curation rows classify as 43 `active`, 247 `dormant`, 30 `translated`, and 0 `swapped`. The generator now emits live conditions for the 43 active and 30 translated rows. The 247 dormant rows keep `conditions == ()`, and every one of the 34 tiers retains at least one dormant row, so no tier is structurally claimable.
 
 ## Canonical file
 
@@ -31,7 +31,7 @@ Every row uses this exact key order:
 3. `family` — canonical catalog family ID.
 4. `current_tier` — current full catalog tier ID.
 5. `original_tier` — source-family tier from the harvest, or `null` when absent.
-6. `designed_trigger` — concrete runtime-checkable completion event for the deed.
+6. `designed_trigger` — concrete runtime-checkable completion event for the deed. Active and translated rows append one `Wiring:` JSON clause that the generator compiles into existing condition kinds; dormant rows carry no clause.
 7. `source_citation` — pinned source identity and permanent citation.
 8. `disposition` — one allowed curation disposition.
 9. `future_system` — one canonical future-system ID for dormant rows, otherwise `null`.
@@ -41,7 +41,7 @@ Every row uses this exact key order:
 
 Allowed values are exactly:
 
-- `active`: an exact existing AnkiScape writer, action, result, or telemetry seam already fires on the deed. A same-frame result qualifies when the existing runtime reaches achievement checking immediately after that action; the row must say when no durable retroactive evidence exists. This means the row can be wired later without inventing a gameplay system; it does not mean the catalog row is wired now.
+- `active`: an exact existing AnkiScape writer, action, result, or telemetry seam already fires on the deed. A same-frame result qualifies when the existing runtime reaches achievement checking immediately after that action; the row must say when no durable retroactive evidence exists. The reviewed wiring clause compiles that seam into the generated catalog.
 - `dormant`: the deed has a concrete designed trigger but still needs one named future system before it can fire honestly.
 - `swapped`: the source deed cannot translate, and an authentic same-family replacement is recorded. No row in this ledger currently uses this disposition.
 - `translated`: the source deed is honestly re-expressed through an existing AnkiScape action, with the source deed and the removed or changed context recorded in `notes`.
@@ -87,9 +87,9 @@ The ledger is derived from these fixed repository records:
 - `memory-bank/design-thread-queue.md` §4.21 and §5.21 — the owner-ruling queue for the curation ledger and later wiring.
 - `memory-bank/achievement-diaries-2026-07-26.md` — historical breadth-one context, retained with its supersession note.
 
-## No-generator boundary
+## Records-only boundary — passed
 
-Do not run `tools/generate_achievement_diary_data.py` while assembling, reviewing, or owner-spot-checking this ledger. Do not edit `data/achievement_diary_catalog.py`, runtime logic, UI, tools, source audits, generated files, or tests in the records-only slice. Generator and runtime wiring are a separate later change after the gates below.
+The assembly and review slice did not run `tools/generate_achievement_diary_data.py` or edit generated data, runtime logic, UI, tools, source audits, or tests. Gate 2 lifted that boundary. Current catalog corrections are ledger-row edits followed by regeneration; `data/achievement_diary_catalog.py` is never hand-edited.
 
 ## Gates before wiring
 
@@ -98,4 +98,4 @@ Do not run `tools/generate_achievement_diary_data.py` while assembling, reviewin
 
 The cross-lineage review and its resolutions are recorded in `cross-lineage-review.md`.
 
-**Gate 2 passed by owner ruling of 2026-08-31** (`memory-bank/design-thread-queue.md` §4.22 ruling 3): conformance to the settled contracts, verified row-by-row by the gate-1 review, substitutes for an owner read of all 320 rows. Interpretation corrections land as post-wiring patches: a ledger-row edit plus a regeneration through `tools/generate_achievement_diary_data.py`, never a hand edit of the generated catalog. Row 135 (Fire cape) defaults to the closer equipped-item candidate; the owner can veto it as a patch. Generator and runtime wiring may begin.
+**Gate 2 passed by owner ruling of 2026-08-31** (`memory-bank/design-thread-queue.md` §4.22 ruling 3): conformance to the settled contracts, verified row-by-row by the gate-1 review, substitutes for an owner read of all 320 rows. Interpretation corrections land as ledger-row edits plus regeneration through `tools/generate_achievement_diary_data.py`, never hand edits of the generated catalog. Row 135 (Fire cape) uses the closer equipped-item candidate; the owner can veto it as a patch. Generator and runtime wiring is complete for active and translated rows.

@@ -51,6 +51,7 @@ from ..core.constants import (
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
 )
+from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
 from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
@@ -1951,6 +1952,7 @@ def handle_trouble_brewing_answer(
         return False
     ctx.player_data.clear()
     ctx.player_data.update(updated)
+    record_direct_diary_event_pure(ctx.player_data, True, "shades_of_mortton_review", hammer=str(result.get("hammer", "")))
     skill_rows = {
         "agility": ("agility_exp", "Agility"),
         "cooking": ("cooking_exp", "Cooking"),
@@ -2015,11 +2017,9 @@ def handle_castle_wars_answer(
         updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
     ctx.player_data.clear()
     ctx.player_data.update(updated)
+    record_direct_diary_event_pure(ctx.player_data, True, "castle_wars_review", duty=str(result.get("duty", "")))
     _record_action(
-        ctx,
-        "utility",
-        CASTLE_WARS_ACTIVITY_ID,
-        productive,
+        ctx, "utility", CASTLE_WARS_ACTIVITY_ID, productive,
         expected_success_chance=1.0,
         failure_kind="safe_death" if result.get("died") else None,
         primary_xp=sum(float(amount or 0.0) for amount in xp_rewards.values()),
@@ -2321,10 +2321,7 @@ def handle_shades_of_mortton_answer(
         total_gained += ctx.award_skill_exp(exp_key, float(amount))
         ctx.level_up_check(display_name, ctx.player_data)
     _record_action(
-        ctx,
-        "utility",
-        SHADES_OF_MORTTON_ACTIVITY_ID,
-        productive,
+        ctx, "utility", SHADES_OF_MORTTON_ACTIVITY_ID, productive,
         expected_success_chance=1.0,
         failure_kind="dangerous_combat_death" if result.get("died") else None,
         primary_xp=(
@@ -3091,6 +3088,7 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     tickets = int(result.get("tickets", 0) or 0)
     if tickets > 0:
         achievement_outputs["Agility arena ticket"] = tickets
+    record_direct_diary_event_pure(player_data, True, "agility_result", action_id=str(result.get("action_id", target_id)), completed_lap=bool(result.get("completed_lap")))
     _record_action(
         ctx,
         "agility",

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Mapping, Tuple
 
+from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
 from ..data.slayer_data import (
     DEFAULT_SLAYER_MASTER_ID,
     SLAYER_FAMILIES_BY_ID,
@@ -199,6 +200,9 @@ def get_slayer_assignment_pure(
         "completed": False,
     }
     data["slayer_assignment"] = assignment
+    record_direct_diary_event_pure(
+        data, True, "slayer_command", action_id="get_assignment", reason="assignment_started"
+    )
     return data, True, {
         "reason": "assignment_started",
         "assignment": dict(assignment),

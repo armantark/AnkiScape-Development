@@ -2276,7 +2276,7 @@ def _on_main_menu(
         updated, ok = result
         if ok:
             player_data.update(updated)
-            save_player_data()
+            check_achievements(player_data); save_player_data()
         return ok
 
     def _purchase_house():
@@ -4277,7 +4277,7 @@ def _on_main_menu(
             )
             return updated, ok
 
-        if not commit_direct_action(_change):
+        if not commit_direct_action(_change, after_apply=lambda: check_achievements(player_data)):
             if info.get("reason"):
                 return {"ok": False, "message": str(info["reason"]), **info}
             return {"ok": False, "message": "Anki could not create an undo entry."}
@@ -4421,8 +4421,7 @@ def _on_main_menu(
         )
 
     def _apply_summoning_command(action_id, payload):
-        payload = payload if isinstance(payload, dict) else {}
-        info = {}
+        payload = payload if isinstance(payload, dict) else {}; info = {}
         ok = False
 
         def _change(current):
@@ -4475,8 +4474,9 @@ def _on_main_menu(
                     current, str(payload.get("item_name", ""))
                 )
                 info = {"reason": reason, "instance_id": reason if ok else ""}
-            else:
-                return current, False
+            else: return current, False
+            from .logic_pure.achievement_diary_events import record_direct_diary_event_pure
+            record_direct_diary_event_pure(updated, ok, "summoning_command", action_id=str(action_id), familiar_id=str(payload.get("familiar_id", "")))
             return updated, ok
 
         if action_id not in {

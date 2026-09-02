@@ -475,6 +475,7 @@ def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, An
         ctx.show_activity_gain(
             f"Auto-ate {food_used['item']} (+{food_used['healed_by']} LP)"
         )
+    ctx.check_achievements(player_data)
     ctx.save_player_data()
     return False
 

@@ -55,6 +55,7 @@ from ..core.constants import (
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
 )
+from ..logic_pure.achievement_diary_events import record_bank_run_diary_event_pure, run_bank_run_diary_callbacks_pure
 from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
@@ -1253,7 +1254,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         player_data.pop("skilling_bank_run_requested", None)
 
     if event.get("completed"):
-        player_data.update(restore_summoning_points_pure(player_data))
+        player_data.update(restore_summoning_points_pure(player_data)); record_bank_run_diary_event_pure(player_data, True, view)
 
     if not act:
         restore_cadence_profiles_after_rejection()
@@ -1271,17 +1272,16 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         player_data["skilling_bank_run"] = new_state
         _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
         _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
-        total = int((new_state or bank_run or {}).get("reviews_total", reviews_cost) or reviews_cost)
-        remaining = int(event.get("reviews_remaining", 0) or 0)
-        route_label = bank_run_phase_label_pure(new_state or bank_run)
-        progress = max(1, total - remaining)
+        total = int((new_state or bank_run or {}).get("reviews_total", reviews_cost) or reviews_cost); remaining = int(event.get("reviews_remaining", 0) or 0)
+        route_label, progress = bank_run_phase_label_pure(new_state or bank_run), max(1, total - remaining)
         ctx.show_activity_gain(
             f"Bank run — {route_label} · {min(progress, total)}/{total} travel reviews"
             if not event.get("completed")
             else f"Bank run — {route_label} · arrived and restocked"
         )
-        if event.get("completed") and ctx.refresh_carried_inventory is not None:
-            ctx.refresh_carried_inventory()
+        run_bank_run_diary_callbacks_pure(
+            bool(event.get("completed")), player_data, ctx.refresh_carried_inventory, ctx.check_achievements
+        )
         ctx.save_player_data()
         return True
 

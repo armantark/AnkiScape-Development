@@ -42,6 +42,7 @@ from ..data.temple_trekking_data import (
     TEMPLE_TREKKING_TOKEN_SCORE_THRESHOLDS,
     temple_trekking_enemy_pure,
 )
+from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
 from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     combat_max_lifepoints_pure,
@@ -398,6 +399,7 @@ def set_temple_trekking_policy_pure(
     state["policy"] = normalized
     state["last_result"] = "Temple Trekking plan saved."
     data["temple_trekking"] = state
+    record_direct_diary_event_pure(data, True, "temple_trekking_command", action_id="prepare_pouch")
     return data, True, {"message": state["last_result"]}
 
 
