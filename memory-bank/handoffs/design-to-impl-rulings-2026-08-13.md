@@ -2359,3 +2359,104 @@ harvest lane's pre-dispatch measurement is the evidence; the seat records the
 measured size in the ledger before briefing, and a premise that inverts is reported
 as these three were, not absorbed silently. The design seat carries the same rule
 for its own claims.
+
+## 34. Owner ruling: the slop gate is taken literally — split the files — 2026-09-01 20:15 PDT
+
+Owner, verbatim: "No, I want the slop gate to be taken literally. It's only going to
+create technical debt to kick the can down the road. Rip off the bandaid."
+
+Section 32 is closed with option B. No exception, no override, no edit to the gate.
+Literally means: a file above 1,000 lines may not grow, and a new module counts as
+grown from zero, so every module produced by a split must itself stay at or under
+1,000 lines. Split along module seams, never at an arbitrary line count.
+
+### 34.1 The program, measured on `554dd16b`
+
+69 tracked Python files are over 1,000 lines, 294,020 lines in all: generated 4
+files (57,984), tests 23 (88,820), data 8 (52,089), ui 2 (31,298), logic 13
+(21,259), logic_pure 5 (11,067), tools 6 (10,412), core 3 (7,640), runtime 4
+(7,197), and `__init__.py` (6,254). The split program is queue item 0, ahead of
+every landing that needs one of these files to grow.
+
+### 34.2 Order
+
+1. **First wave, ten files, so the whole queue unblocks at once** (amended
+   20:20 PDT on the seat's measurement that the seven alone unblock only the two
+   held changes). The seven the held changes need: `__init__.py` (dispatchers
+   move into `runtime/`, where the seam already exists), `core/constants.py` (by
+   domain), `data/quest_data.py` (one module per quest on the
+   `data/mogre_quest_data.py` precedent, with `quest_data.py` left as the
+   aggregator; it holds 32 literal quests, the other 165 live in the generated
+   catalog), `data/combat_data.py` (per family), `data/slayer_data.py`,
+   `logic_pure/logic_pure_combat_engine.py`, and
+   `tests/test_combat_enemy_roster.py` (per family). Plus the three the rest of
+   the queue needs: `logic/shop_logic.py` (1,786) and `ui/ui_tab_shop.py`
+   (1,831) for item 2b, and the diary catalog generator sharding
+   `data/achievement_diary_catalog.py` (6,151) for item 2c. Disjoint files run
+   in parallel.
+2. Then the rest, most-often-grown first: `ui/ui.py` (per tab, the
+   `ui/ui_tab_shop.py` seam), the remaining data tables, the generated outputs
+   (the generators emit sharded modules plus an aggregator; never hand-split a
+   generated file), logic and logic_pure, tests, tools, runtime.
+
+### 34.3 Rules for every split slice
+
+- A pure move. No behavior change, no renamed public name, no reordering that a
+  consumer could observe. Aggregator modules keep the existing import surface,
+  so no consumer changes.
+- The discriminating check: a dump of every module-level public object of the
+  aggregator (JSON or repr, deterministic order) is byte-identical before and
+  after the move. The slice ships that check as a test where a stable dump is
+  possible, and records the before/after hashes in its report otherwise.
+- Both full lanes, the five audits and the gate green on the branch; the gate
+  itself proves the seam (the big file shrinks, no new module exceeds 1,000).
+- Lanes per section 29: Sol authors the move, a separate verifier runs the lanes
+  and the dump check, and a cross-lineage reviewer (GLM as the extra vote)
+  confirms it is a move and nothing else. Disjoint files may split in parallel,
+  eight agents or fewer.
+- `ui/ui.py` splits are refactors with no interface change and need no owner
+  approval, but the offscreen visual smoke check runs to prove identical
+  rendering, with the stale-geometry rules in
+  `.claude/rules/qt-offscreen-screenshots.md`.
+- No `SLOP_GATE_*` variable is ever set. A split that cannot reach 1,000 lines
+  at a real seam stops and reports the seam it found, rather than cutting at a
+  count.
+
+### 34.4 The held changes
+
+The Mogre branch is recommitted cleanly on top of the split tree; the override
+commit `a82c6471` never enters main's history. Its 26 lines then land in the new
+small modules. The GOP three-line patch applies into the module that receives the
+teleport dispatcher, and its skipped test is re-enabled in the same commit.
+
+## 35. Ghosts Ahoy: the missing Priest in Peril prerequisite folds into the slice — 2026-09-01 20:20 PDT
+
+The seat's harvest found a live defect in a shipped quest: our catalog gives Ghosts
+Ahoy one prerequisite (The Restless Ghost) where Questreq oldid `5981134` and the
+Darkan thread's runtime proof both name Priest in Peril as well
+(`generated/quest_catalog_generated.py:9125`). Ruling: fix it inside the Ghosts Ahoy
+slice as directly adjacent work, at the generator or its source, never by hand edit
+of the generated file, with a regression that proves the second prerequisite gates
+the start. The harvest's exclusion of `ghosts-ahoy-transcript-history.json` as
+post-cutoff evidence stands under our standard; the seat doorbells the Darkan thread
+so their pinned set carries that note.
+
+## 36. The diary landing window closed on a refused gate nobody read — 2026-09-01 22:07 PDT
+
+The gate for the diary merge (`gate-0295ab70.log`) refused at 20:22: plain lane
+`Ran 4634 tests in 848.476s`, `FAILED (failures=9, errors=6, skipped=516)`, exit 1;
+the Qt lane never ran. The seat read the background task's empty stdout file as
+"still running" and held the landing window open for an hour and forty minutes
+until the design seat found the log at the keep-warm tick. Nothing reached main.
+One named cause: `ankiscape.logic.trouble_brewing_logic must not write through the
+save it is given` — the immutability gate, consistent with a relocated diary emit
+mutating a caller's save inside pure logic. The gate log truncates the failure
+list, so the other fourteen names need a targeted rerun; the seat is diagnosing
+against the branch with only the failing suites.
+
+Class fix, ruled: after every gate launch the seat arms a Monitor on the gate's
+own log for its terminal lines (`GATE DONE`, `FAILED`, `exit`), so a refusal wakes
+the seat instead of waiting to be read; a background task's stdout is never the
+signal. `promotion_gate.py` truncating its failure list is filed as a papercut for
+a later tooling slice. The split-program harness landed on its own branch at
+`79b01ee3` with determinism verified by the seat; item 0 is unblocked.
