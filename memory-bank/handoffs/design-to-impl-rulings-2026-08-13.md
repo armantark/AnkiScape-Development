@@ -3102,3 +3102,113 @@ counts as verified. Rulings:
    slice.
 4. A report with a fabricated citation is set aside whole; its true findings are
    re-measured from the tree before they enter the queue, as here.
+
+### 52.1 Retraction and the measured slice — 10:42 PDT
+
+Ruling 52 item 4 is withdrawn. The citation `tools/worktree_guard.py:267513` was a
+line number in the unified diff, not the file, and resolves to file line 207; it is
+unusable for a reader, not fabricated. Both stray reviews mis-framed old code as
+new because their base was `@{upstream}`, which is `origin/main` at `1e99e017`, and
+this project never pushes, so "the diff" was 679 files and 214,796 insertions: the
+repository, not a change. Replacement rule: every review brief in this repository
+names an explicit base commit and never uses `@{upstream}`; reports are judged on
+their measurements. Measured, read-only: of 281 `palette(mid)` sites, **16 are
+text roles** (`ui/ui.py`, the four minigame panels, `ui/ui_tab_achievements.py`,
+two test files), so the slice is sixteen same-line edits under the dark-mode check,
+before the `ui/ui.py` split. Standing duplication debt, measured: `def _quest_complete(`
+in 15 files (not the reviews' 21) and `def _int(` in 57 `logic/` files; queued as a
+consolidation item, not a regression. Re-gate running on the remote lanes:
+`971c2cd6` with digests re-proved on the merged tree, log `gate-971c2cd6.log`; the
+gate cleaned the previous stale marker on startup.
+
+## 53. Rebinding moved functions into the root's globals is not a split — 10:50 PDT
+
+The root-dispatchers split moved 11 modules of functions with almost no imports;
+`runtime/runtime_actions_review.py` (533 lines) has none, and `__init__.py`
+rebuilds every moved function against its own `globals()`
+(`_bind_runtime_dispatcher`). The parts are code containers, not modules: they
+import but their functions raise `NameError` if called, and the live copies exist
+only in the root namespace. That defeats the purpose of the split program (real
+seams, standalone modules, less coupling), makes every moved definition the
+callable corpse 42.2 item 2 forbids, and hides the root's mutable-global coupling
+instead of removing it. Ruling: the pattern is rejected.
+
+1. **A part is a module.** Its functions resolve their names through the part's
+   own imports at module top: glue, not a body change, so moved ASTs stay
+   identical and the move proof holds. No function object is rebuilt against
+   another module's globals.
+2. **Shared mutable state is the real seam.** Where moved functions reach root
+   globals (`player_data` and kin), a small pre-split slice extracts that state
+   into a module the root and the parts both import, with behavior tests; any
+   function whose body must change to reach it is a real change, simplified and
+   tested under the same rule as the two honest rows in 47. Then the move.
+3. **This batch lands only the carried split.** The root-dispatchers split leaves
+   the batch and goes back through 1 and 2; its preserved ref stays. A new batch
+   is merged and re-gated on the remote lanes.
+4. The contract names this pattern as forbidden so no later split reinvents it.
+5. Queued for read-only measurement before belief, since two are save-data
+   correctness claims: the v121 migration deleting stage actions without
+   conversion into the proof store (`core/storage_pure.py:988`); proof retraction
+   removing a proof another retained event supplies
+   (`logic_pure/quest_action_proofs.py:83`); the Evil Tree handler lacking the
+   `refresh_skill_availability` call its 29 siblings make; the hot-path cost
+   claims last. The false import-count claim is discarded as measured.
+
+### 53.1 Batch 3 carries carried and activities; the seam slice is narrow and manually proven — 10:50 PDT
+
+Measured: the carried and activities parts resolve their names through real
+imports (13 and 16; 28, 33 and 3 lines) with no `_bind_runtime_dispatcher`, so the
+rejected pattern is confined to the eleven root dispatcher modules. Batch 3
+(`goal/split-batch-3-2026-09-02`, `bc5d2f64`) therefore carries both the carried
+and the activities splits, after the activities merge and a digest re-proof on the
+merged tree; one gate on the remote lanes. The seam slice for the root: scoped to
+the state accessor only (a module holding the root's shared mutable state,
+`player_data` and kin, imported by the root and the parts); every dispatcher whose
+body changes to reach it is a real change with a behavior test; and before it is
+called done it gets an end-to-end manual pass on the real reviewer, on the
+MacBook through computer use per the goal text, in addition to both lanes and the
+offscreen smoke check. Then the root split re-proves and lands.
+
+### 53.2 Batch 2 green on every instrument, still rejected on the pattern; remote baselines — 11:02 PDT
+
+Gate `971c2cd6` on the remote lanes: plain `Ran 4628 tests in 511.813s, OK
+(skipped=517)`, Qt `Ran 4628 tests in 705.850s, OK (skipped=5)`, docs audit 640
+Markdown and 441 HTML, test-quality 4,593 tests across 236 files with 0 hard
+issues, reachability 1,663 actions / 2,343 reachable items / 163 orphan inputs /
+249 blocked actions. The Qt lane's five skips against the plain lane's 517 is a
+real offscreen run, not the false pass the contract warns of. Under 53 this
+stands as evidence, not a landing: the root-dispatchers split is green on every
+instrument the programme owns and is rejected on the pattern, which no lane,
+digest or audit can see. Remote baselines for ruling 51: plain 512 s, Qt 706 s
+(bounds 665 s and 918 s at 1.3). Batch 3 (`4125682b`, carried and activities,
+digests re-proved on the merged tree) is gating; the gate follow-up
+(`goal/gate-followup-2026-09-02`) lands next, ending the surviving lock and the
+linked-worktree warning on every gate.
+
+### 53.3 Batch 3 landed; 67 -> 65 — 11:25 PDT
+
+`4125682b` on main: the carried and activities splits, remote lanes plain 507.6 s
+and Qt 703.9 s inside the new bounds, audits clean. An uncommitted papercut line
+from another agent blocked the fast-forward; the seat adopted it, set it aside,
+landed the exact gated tree, and restored it on top at `e06991b1`. Preserved refs
+for the two landed splits are deleted; four remain (quest data, diary catalog, root
+dispatchers, roster test). The gate follow-up is gating at `c5adc648`. Item 2c is
+committed at `028df5f9`: 320 rows, 204 live with zero null wiring, dispositions 42
+active / 125 translated / 37 invented / 116 dormant, all five re-points naming
+`quest_action_proofs`; the duplicate-seam audit found four pre-existing live
+collisions beyond the one that prompted it, so 140 rows changed rather than 136;
+full verification runs remotely after this gate, including its 233-versus-236
+test-file count.
+
+### 53.4 The gate follow-up landed; both standing gate defects are machinery now — 12:25 PDT
+
+`c5adc648` on main (remote lanes plain 509.5 s, Qt 704.0 s; tests 4,593 -> 4,597
+with files steady at 236, the four regressions and no vacuous drop; the worktree
+guard printed no warning for the first time). The land itself still left a lock,
+expected: `land` loaded the pre-fix `promotion_gate.py` from the canonical
+checkout before the fast-forward; `unlink_on_release` no longer exists under
+`tools/` and `release()` unlinks unconditionally, so the next land is the proof.
+State: 65 oversized files, no gate running, no lock. Order: `tools/promotion_gate.py`
+split (first-wave file twelve, at 999 lines), 2c's remote verification starting
+with its 233-versus-236 file count, the seam slice under 53.1, then item 2's
+re-expansion.
