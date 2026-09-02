@@ -1,0 +1,17 @@
+# Held out because the size gate forbids growing __init__.py; the owner ruling is pending. Apply and commit this patch the moment the ruling lands.
+diff --git a/__init__.py b/__init__.py
+index 136fdf16..1072be3c 100644
+--- a/__init__.py
++++ b/__init__.py
+@@ -5460,7 +5460,10 @@ def on_use_great_orb_project_teleport_tablet(item_name):
+         info.update(result)
+         return updated, ok
+ 
+-    if not commit_direct_action(_change):
++    if not commit_direct_action(
++        _change,
++        after_apply=lambda: check_achievements(player_data),
++    ):
+         show_error_message(
+             "Cannot use teleport tablet",
+             str(info.get("reason", "That teleport tablet is unavailable.")),

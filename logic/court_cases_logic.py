@@ -6,6 +6,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
+from ..logic_pure.logic_pure_prayer import active_prayer_selection_pure
 
 from ..data.court_cases_data import (
     COURT_CASES_BATCH2_COOLDOWN_REVIEWS,
@@ -378,7 +379,13 @@ def apply_court_cases_command_pure(
         return set_court_cases_policy_pure(player_data, payload)
     if action_id == "enter":
         data, ok, info = enter_court_case_pure(player_data, payload)
-        record_direct_diary_event_pure(data, ok, "court_cases_command", action_id="enter")
+        record_direct_diary_event_pure(
+            data,
+            ok,
+            "court_cases_command",
+            action_id="enter",
+            active_prayer_selection=tuple(active_prayer_selection_pure(data)),
+        )
         return data, ok, info
     if action_id == "select_choice":
         return select_court_trial_choice_pure(

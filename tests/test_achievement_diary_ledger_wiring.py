@@ -21,6 +21,7 @@ from ankiscape.logic.achievement_diary_logic import (
 from ankiscape.logic.managing_miscellania_logic import (
     default_managing_miscellania_state_pure,
 )
+from ankiscape.logic.court_cases_logic import apply_court_cases_command_pure
 from ankiscape.logic.shades_of_mortton_logic import enter_shades_of_mortton_pure
 from ankiscape.logic.temple_trekking_logic import apply_temple_trekking_command_pure
 from ankiscape.logic_pure.achievement_diary_events import (
@@ -385,6 +386,82 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
         player = self._complete_pure_result(player)
 
         self.assertTrue(self._is_complete(player, task_id))
+
+    def test_real_court_cases_entry_with_derived_piety_completes_deed(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["kings_ransom"].update(
+            {"started": True, "progress": 99, "completed": True}
+        )
+        player["knight_waves"] = {"completed": True}
+        player.update(
+            {
+                "attack_level": 70,
+                "defense_level": 70,
+                "prayer_level": 70,
+                "combat_prayer_book": "standard",
+                "combat_prayers_enabled": True,
+                "combat_selected_prayers": ["piety"],
+            }
+        )
+        task_id = "seers_hard_prayer_of_attorney"
+        self.assertFalse(self._is_complete(player, task_id))
+
+        player, ok, info = apply_court_cases_command_pure(
+            player, "enter", {"role": "prosecution", "automation_mode": "casual"}
+        )
+        self.assertTrue(ok, info)
+        player = self._complete_pure_result(player)
+
+        self.assertTrue(self._is_complete(player, task_id))
+
+    @unittest.skip(
+        "Great Orb item 13 is held in memory-bank/pending/gop-achievement-check-2026-09-01.patch pending the owner's ruling."
+    )
+    def test_real_blood_altar_tablet_checks_diary_before_next_teleport(self):
+        original_modules = dict(sys.modules)
+        try:
+            from tests.test_great_orb_project import (
+                _DummyCol,
+                _DummyMW,
+                _install_runtime_fakes,
+                _load_addon_as_package,
+            )
+
+            _install_runtime_fakes()
+            addon = _load_addon_as_package("ankiscape_great_orb_diary_direct")
+            storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+            package_constants = sys.modules[f"{addon.__name__}.core.constants"]
+            captured = {}
+            addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+            addon.mw = _DummyMW(_DummyCol())
+            addon.save_player_data = lambda: None
+            addon.update_review_hud = lambda *_args: None
+            addon._refresh_skill_availability = lambda: None
+            addon._show_activity_gain = lambda *_args: None
+            addon.current_skill = "Bankstanding"
+            player = storage.default_player_data(
+                package_constants.ORE_DATA, package_constants.ITEM_DEFINITIONS
+            )
+            player["runecrafting_level"] = 50
+            player["quests"]["legacy_of_seergaze"].update(
+                {"started": True, "progress": 99, "completed": True}
+            )
+            player["inventory"]["Blood altar teleport"] = 1
+            addon.player_data = player
+
+            addon._on_main_menu()
+            result = captured["on_use_great_orb_project_teleport_tablet"](
+                "Blood altar teleport"
+            )
+
+            self.assertTrue(result["ok"], result)
+            self.assertIn(
+                "morytania_hard_runecraft_carrier",
+                addon.player_data["achievement_diaries"]["completed_tasks"],
+            )
+        finally:
+            sys.modules.clear()
+            sys.modules.update(original_modules)
 
     def test_real_shades_review_with_flamtaer_hammer_completes_repair_deed(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

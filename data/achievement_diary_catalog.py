@@ -3850,7 +3850,7 @@ DIARY_FAMILIES = (
                 'seers_hard_prayer_of_attorney',
                 'Prayer of Attorney',
                 "Enter the Seers' Village courthouse with your Piety prayer turned on.",
-                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJlbnRlciIsInR5cGUiOiJjb3VydF9jYXNlc19jb21tYW5kIn0sInN0YXRlX2NvbnRhaW5zIjp7ImNvbWJhdF9zZWxlY3RlZF9wcmF5ZXJzIjoicGlldHkifX19', 1, 'Enter Court Cases with Piety selected'),),
+                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJlbnRlciIsImFjdGl2ZV9wcmF5ZXJfc2VsZWN0aW9uIjoicGlldHkiLCJ0eXBlIjoiY291cnRfY2FzZXNfY29tbWFuZCJ9fX0', 1, 'Enter Court Cases with Piety selected'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 248,
                 0,
