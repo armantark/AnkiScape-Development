@@ -1,14 +1,18 @@
+import io
 import json
 import subprocess
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import Mock, patch
 
 from tools.worktree_guard import (
     add_worktree,
+    delete_preserved,
     duplicate_enabled_addons,
     lease_worktree,
+    list_preserved,
     pool_root,
     release_worktree,
     safe_worktree_root,
@@ -257,6 +261,87 @@ class WorktreeGuardTest(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 validate_worktree_name(name)
         self.assertEqual(validate_worktree_name("feature-name"), "feature-name")
+
+
+class PreservedRefTest(unittest.TestCase):
+    """Real git repo so the merge-base ancestry check is exercised for real."""
+
+    def setUp(self):
+        self._temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self._temporary.cleanup)
+        self.canonical = Path(self._temporary.name) / "ankiscape_fork"
+        self.canonical.mkdir()
+        self.git = lambda *args, **kwargs: subprocess.run(
+            ("git", "-C", str(self.canonical), *args),
+            check=kwargs.get("check", True),
+            capture_output=True,
+            text=True,
+        )
+        self.git("init", "-q", "-b", "main")
+        self.git("config", "user.email", "test@example.com")
+        self.git("config", "user.name", "Worktree Guard Tests")
+
+    def _commit(self, message: str) -> str:
+        self.git("commit", "--allow-empty", "-m", message)
+        return self.git("rev-parse", "HEAD").stdout.strip()
+
+    def test_delete_refuses_work_that_has_not_landed(self):
+        self._commit("landed work on main")
+        self.git("checkout", "-q", "--detach", "main")
+        unlanded = self._commit("rework in progress, waiting on a ruling")
+        ref = "refs/preserved/preserved-test/rework-2026-09-02"
+        self.git("update-ref", ref, unlanded)
+        self.git("checkout", "-q", "main")
+
+        name = "preserved-test/rework-2026-09-02"
+        with self.assertRaises(RuntimeError) as context:
+            delete_preserved(self.canonical, name)
+
+        self.assertIn(ref, str(context.exception))
+        self.assertIn("not an ancestor of main", str(context.exception))
+        live_ref = self.git("show-ref", "--verify", ref).stdout.split()
+        self.assertEqual(live_ref[0], unlanded)
+
+    def test_delete_removes_ref_once_its_commit_is_on_main(self):
+        landed = self._commit("preserved work later merged to main")
+        ref = "refs/preserved/preserved-test/landed-2026-09-02"
+        self.git("update-ref", ref, landed)
+
+        delete_preserved(self.canonical, "preserved-test/landed-2026-09-02")
+
+        probe = self.git("show-ref", "--verify", "--quiet", ref, check=False)
+        self.assertNotEqual(probe.returncode, 0)
+
+    def test_list_reports_each_refs_landing_state(self):
+        landed = self._commit("landed work on main")
+        self.git("checkout", "-q", "--detach", "main")
+        unlanded = self._commit("rework in progress, waiting on a ruling")
+        self.git("update-ref", "refs/preserved/preserved-test/landed", landed)
+        self.git(
+            "update-ref", "refs/preserved/preserved-test/rework", unlanded
+        )
+        self.git("checkout", "-q", "main")
+
+        with redirect_stdout(io.StringIO()) as output:
+            list_preserved(self.canonical)
+
+        rows = [
+            (ref, state)
+            for ref, _, state in (
+                line.split(maxsplit=2)
+                for line in output.getvalue().splitlines()
+            )
+        ]
+        self.assertEqual(
+            rows,
+            [
+                ("refs/preserved/preserved-test/landed", "landed"),
+                ("refs/preserved/preserved-test/rework", "NOT LANDED"),
+            ],
+        )
+        # The listing also carries each ref's short object id.
+        self.assertIn(landed[:7], output.getvalue())
+        self.assertIn(unlanded[:7], output.getvalue())
 
 
 if __name__ == "__main__":
