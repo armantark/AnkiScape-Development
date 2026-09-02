@@ -2921,3 +2921,23 @@ tests green. Section 47's "committed" was written one minute early.
    stops claiming an import cycle that does not exist statically. The seat's
    choice to hold the fix round until the verification lane and the GLM vote
    return, so the branch gets one consolidated round, is correct.
+
+### 48.1 Blank-line stripping is the same defect — 09:12 PDT
+
+Item 2's branch also deleted 46 blank lines across three oversized files to pay
+for its additions (`__init__.py` 16 blank lines removed to fit one import;
+`runtime/runtime_actions_activities.py` 24; `tools/generate_achievement_diary_data.py`
+6), on top of the two statement joins. Ruling 48 now covers any reformatting made
+to fit a line budget: statement joins, blank-line deletion between definitions,
+and comment or docstring removal. The review checks for a drop in blank lines in
+an oversized file the same way it checks for joins. Item 2 therefore waits on
+three splits (carried, activities, and the diary generator) before it is
+re-expanded and gated; the carried and activities splits are dispatched. The root
+dispatchers split is committed at `a8bb0fa7` (`__init__.py` 765 lines, eleven
+runtime modules of 315 to 706) with the patched gate accepting it.
+
+Machinery proposal for the owner, since it edits the fleet gate: measure the
+file-size ratchet in non-blank, non-comment lines (or AST statements for Python)
+instead of physical lines, so neither stripping blank lines nor joining statements
+buys any budget and the gate cannot be gamed by formatting. Until then the review
+check stands.
