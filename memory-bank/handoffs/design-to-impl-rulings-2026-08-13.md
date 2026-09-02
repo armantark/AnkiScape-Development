@@ -2975,3 +2975,20 @@ Rulings for the consolidated 2c fix round, and for every future curation row:
    locality survives is `invented`, and its new deed must meet rule 2.
 4. The three Empty-pot rows and the Draynor row are the named test cases; the
    fix round reports each of the dozen accidental deeds with its replacement.
+
+### 48.2 Owner ruling: the line count stays literal; PEP 8 is the gate — 09:15 PDT
+
+Owner: "line count does include those too. But that's a lazy fix from the model,
+need to make sure it doesn't do stuff like that. It still needs to pass
+Pylint/PEP8." The count-statements proposal in 48.1 is withdrawn. The fleet slop
+gate (fleet `eee1701`) now ratchets PEP 8 layout per file and code — pycodestyle
+E301-E306 (blank lines around definitions) and E701-E703 (several statements per
+line): a commit that adds such a violation is blocked, existing debt is tolerated
+(baseline on main: 151 findings across 48 files), and violations inside a
+definition that only moved file do not count. Verified on item 2's commit
+`026f9452` staged in a leased scratch worktree: `runtime/runtime_actions_carried.py:
+E702 x2 (was 0)`. Blank-line removals that stay within PEP 8 (trimming excess
+spacing) are not violations and are acceptable; the review check in 48.1 narrows
+to what the gate cannot see. `pycodestyle` is installed through `uv tool` for the
+hook; the Homebrew copies of pycodestyle and flake8 point at a removed Python
+3.12 and are dead.
