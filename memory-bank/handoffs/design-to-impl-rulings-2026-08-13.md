@@ -2227,3 +2227,37 @@ medium), verify contract conformance with `gpt-5.6-sol`, review cross-lineage
 (`glm-5.3-flash` as the extra vote, never alone). The owner's spec-conformance
 gate then applies exactly as for pass one; corrections are patches. Order is now
 1 → 2 → {2b, 2c} → 3 → 4 → 5.
+
+## 31. Option C: the planned-work list, per system — 2026-09-01 18:02 PDT
+
+Answers `impl-to-design-2026-09-01-2c-scope-inversion.md`. The seat is right:
+section 30's test cannot be run by name search, and run literally it resolves 245
+rows. The test is replaced by this list, which the design seat produced by checking
+whether each system exists in the model today in part, so that extending it is
+routine slice work. This list is the test; nothing else is.
+
+**Planned work — rows stay `dormant` (14 systems):** `combat_encounter_actions`
+(combat targets exist; Mogres is this kind of slice), `item_processing_actions`,
+`skill_action_telemetry`, `familiar_actions` (Summoning exists),
+`shop_transaction_actions`, `equipment_state_actions`, `spell_cast_actions`,
+`item_acquisition_actions`, `prayer_altar_actions` (bury, scatter, Ectofuntus and
+gilded altar exist in `data/prayer_data.py`), `minigame_actions`,
+`combat_special_actions` (special attacks exist in `data/combat_data.py`),
+`activity_completion_actions`, `bank_inventory_actions` (item 2b), and
+`quest_stage_actions` — the last re-pointed, not resolved: its five rows change
+their trigger to the global `quest_action_proofs` ledger (config version 123) and
+stay dormant until their quest stage is playable.
+
+**Not planned — rows resolve now (6 systems, 130 rows):** `world_transport_actions`
+48, `npc_dialogue_actions` 38, `location_visit_actions` 16,
+`object_interaction_actions` 18 (world objects have no home in a locationless
+model), `item_use_actions` 7 (use-X-on-Y world interactions), `world_emote_actions`
+3 (no emote system exists anywhere in the model).
+
+**Conflict resolved:** section 30 supersedes 26.1 item 3. The Draynor row's deed is
+a location in a locationless model; it resolves with the rest even though its
+system is planned. Resolve set: 131 rows; re-point set: 5 rows.
+
+Brief item 2c at that size, under section 30's lanes and gates. A reviewer who
+finds a row on a planned system whose deed still cannot make sense in AnkiScape
+flags it; the design seat rules those individually rather than the agent guessing.
