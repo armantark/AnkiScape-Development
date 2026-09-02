@@ -2840,3 +2840,23 @@ unchanged staged work through the normal gate, and the refs are deleted after
 landing. If a worktree is ever lost, `git checkout <ref> -- .` restores the tree.
 Patch files are declined: four agent rounds plus a reapply step for work that
 otherwise lands with no rework.
+
+## 46. Reseat after a harness restart — 2026-09-02 08:46 PDT
+
+The harness restarted around 08:30 and killed the orchestrator seat `c79eb6` and
+its in-flight agents. The design seat reseated a fresh orchestrator (thread
+`de2ebed9-4b2c-4307-b634-c4fef0c2934f`, pid 8517) from tracked state. The design
+seat's own doorbell name is now **`ankiscape-fork-fb`** (was `ankiscape-fork-41`).
+Nothing durable was lost: main is at `c3a78fea`, the four blocked splits are
+preserved under `refs/preserved/` (ruling 45), and the record is complete through
+ruling 45.
+
+Standing work order for the new seat: read sections 25 through 45; audit branch
+state before dispatching anything (which of `goal/split-constants-2026-09-02` and
+the 2c review round left commits, which in-flight agents died); resume the ruling-29
+lanes on what needs no owner ruling (the constants split, 2c's conformance check and
+cross-lineage review, the harvest lanes, the promotion-gate follow-up for the
+unreleased land lock and the linked-worktree hook warning); hold the four preserved
+splits until the owner's ruling on 42.3 is relayed; announce every landing window
+before its gate starts with the log monitor armed in the same turn; and end every
+turn on an action or an armed wake (ruling 39). Path-scoped staging only.
