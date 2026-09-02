@@ -2460,3 +2460,30 @@ the seat instead of waiting to be read; a background task's stdout is never the
 signal. `promotion_gate.py` truncating its failure list is filed as a papercut for
 a later tooling slice. The split-program harness landed on its own branch at
 `79b01ee3` with determinism verified by the seat; item 0 is unblocked.
+
+### 36.1 Correction: one cause, not two, and the write-through reading was wrong — 22:20 PDT
+
+All fourteen diary-gate failures had one cause: the seat's fix-round item 9 deleted a
+runtime bank-run helper on a reviewer's convention complaint, breaking the bank-run
+expression. `tests/test_logic_no_input_mutation` replays other suites under a gate
+and reported the five errored bank-run tests through its own label, "must not write
+through the save it is given"; the seat and then section 36 read the label as the
+finding. No emit mutates a caller's save. Restoring the properly named helper cleared
+all fourteen (`Ran 213 tests in 11.421s`, `OK`). That seven-line fix trips the gate on
+`runtime/runtime_actions_carried.py` (1,484 -> 1,491), so it is held as a tracked patch
+beside the GOP one, and that file is the **eleventh file of the first wave**.
+
+## 37. Ruling: a convention complaint is a hypothesis, checked against the gates — 22:20 PDT
+
+Three instructions tonight caused defects the same way: a reviewer said a shape was
+unnecessary or should be inline, the seat forwarded it into a brief, and the shape
+turned out to exist because of a gate — the file-size ratchet (the Mogre module), the
+import direction (the argument injection), or a named runtime seam (the bank-run
+helper). Ruling: before any "inline this", "delete this", or "this shape is
+unnecessary" finding enters a brief, the seat checks what the shape protects — run
+the size gate on the hypothetical, trace the import direction, grep the seam's
+consumers — and records the answer in the brief. A finding that fails that check is
+closed as "shape is load-bearing", with the reason, and the reviewer is told. The
+design seat holds itself to the same rule. With Kimi's quota reset, `kimi-k3` is the
+architecture reviewer for the split slices, where "is this only a move" is the whole
+question.
