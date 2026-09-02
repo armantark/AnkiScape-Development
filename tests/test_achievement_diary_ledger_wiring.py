@@ -41,13 +41,16 @@ from ankiscape.logic_pure.achievement_diary_events import (
 )
 from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
+    _handle_livid_farm_answer,
     handle_agility_answer,
+    handle_castle_wars_answer,
     handle_combat_answer,
     handle_firemaking_answer,
     handle_mining_answer,
     handle_runecrafting_answer,
     handle_shades_of_mortton_answer,
     handle_thieving_answer,
+    run_answer_with_carried_overlay,
 )
 from ankiscape.runtime.runtime_actions_shared import _apply_farming_queue_result
 from tools.achievement_diary_ledger import (
@@ -650,6 +653,108 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
         finally:
             sys.modules.clear()
             sys.modules.update(original_modules)
+
+    def test_real_livid_farm_review_emits_its_direct_runtime_event(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["lunar_diplomacy"].update(
+            {"started": True, "progress": 99, "completed": True}
+        )
+        player.update(
+            {
+                "magic_level": 99,
+                "agility_level": 99,
+                "crafting_level": 99,
+                "farming_level": 99,
+                "construction_level": 99,
+            }
+        )
+        player["inventory"].update(
+            {
+                "Astral rune": 1_000,
+                "Nature rune": 1_000,
+                "Law rune": 1_000,
+                "Earth rune": 1_000,
+                "Water rune": 1_000,
+            }
+        )
+
+        with patch(
+            "ankiscape.runtime.runtime_actions_activities_training."
+            "record_direct_diary_event_pure"
+        ) as record_event:
+            self.assertTrue(
+                _handle_livid_farm_answer(
+                    self._context(player, random_values=(0.5,) * 64)
+                )
+            )
+
+        record_event.assert_called_once_with(
+            player,
+            True,
+            "shades_of_mortton_review",
+            hammer="",
+        )
+
+    def test_real_castle_wars_catapult_review_completes_artillery_deed(self):
+        from ankiscape.logic.castle_wars_logic import enter_castle_wars_pure
+
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["catapult_construction"].update(
+            {"started": True, "progress": 99, "completed": True}
+        )
+        player.update(
+            {
+                "current_utility": "castle_wars",
+                "construction_level": 99,
+                "attack_level": 99,
+                "strength_level": 99,
+                "defense_level": 99,
+                "constitution_level": 99,
+                "ranged_level": 99,
+                "magic_level": 99,
+                "prayer_level": 99,
+            }
+        )
+        player, ok, info = enter_castle_wars_pure(
+            player,
+            {"automation_mode": "advanced", "duty": "catapult"},
+        )
+        self.assertTrue(ok, info)
+        task_id = "ardougne_hard_artillery_strike"
+        self.assertFalse(self._is_complete(player, task_id))
+
+        self.assertTrue(
+            handle_castle_wars_answer(
+                self._context(player, random_values=(0.9,) * 32)
+            )
+        )
+
+        self.assertTrue(self._is_complete(player, task_id))
+
+    def test_real_bank_run_with_non_coin_item_completes_bank_deed(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player.update(
+            {
+                "current_ore": "copper_ore",
+                "carried_inventory": {"copper_ore": {"Coal": 28}},
+                "carried_churn": {"copper_ore": 28},
+            }
+        )
+        player["inventory"]["Coal"] = 28
+        task_id = "burthorpe_period_bank_on_it"
+        self.assertFalse(self._is_complete(player, task_id))
+        acted = []
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                self._context(player, random_values=(0.0,) * 64),
+                "mining",
+                lambda _ctx: acted.append(True) or True,
+            )
+        )
+
+        self.assertEqual(acted, [])
+        self.assertTrue(self._is_complete(player, task_id))
 
     def test_real_shades_review_with_flamtaer_hammer_completes_repair_deed(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

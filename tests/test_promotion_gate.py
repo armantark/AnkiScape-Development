@@ -7,11 +7,13 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from dataclasses import asdict
 from pathlib import Path
 from unittest.mock import patch
 
+from tools.promotion.promotion_process import open_locked_file
 from tools.promotion_gate import (
     FULL_GATE_CHECKS,
     PLAIN_GATE_CHECKS,
@@ -26,6 +28,7 @@ from tools.promotion_gate import (
     active_gate_dir_for,
     active_gate_records,
     evidence_path_for,
+    landing_lock_path_for,
     claim_landing_lock,
     land,
     main as promotion_main,
@@ -181,7 +184,7 @@ def pass_gate(
     remote_lanes: bool = False,
 ) -> Path:
     checks = PLAIN_GATE_CHECKS if plain_only else FULL_GATE_CHECKS
-    with patch("tools.promotion_gate._run_gate_checks", return_value=(checks, ())):
+    with patch("tools.promotion.lane_execution._run_gate_checks", return_value=(checks, ())):
         run_gate(
             repo.target,
             plain_only=plain_only,
@@ -192,6 +195,148 @@ def pass_gate(
 
 
 class PromotionGateTest(unittest.TestCase):
+    def test_hung_lane_times_out_kills_children_and_records_refusal(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            child_pid_path = Path(temp_dir) / "child.pid"
+            command = (
+                sys.executable,
+                "-c",
+                (
+                    "import pathlib, subprocess, sys, time; "
+                    "child=subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)']); "
+                    f"pathlib.Path({str(child_pid_path)!r}).write_text(str(child.pid)); "
+                    "child.wait()"
+                ),
+            )
+            log = io.StringIO()
+
+            returncode = _run_check(
+                log,
+                heading="=== hanging lane ===",
+                command=command,
+                worktree=PROJECT_ROOT,
+                selector=lambda lines: lines,
+                timeout=0.2,
+            )
+
+            self.assertEqual(returncode, 124)
+            self.assertIn("TIMEOUT: exceeded 0.2 seconds", log.getvalue())
+            child_pid = int(child_pid_path.read_text(encoding="utf-8"))
+            self.assertNotEqual(
+                subprocess.run(("ps", "-p", str(child_pid)), check=False).returncode,
+                0,
+            )
+
+    def test_locked_file_closes_stream_when_path_stat_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "landing.lock"
+            stream = path.open("a+", encoding="utf-8")
+            with (
+                patch.object(Path, "open", return_value=stream),
+                patch.object(Path, "stat", side_effect=PermissionError("denied")),
+            ):
+                with self.assertRaisesRegex(PermissionError, "denied"):
+                    open_locked_file(path, wait=False)
+            self.assertTrue(stream.closed)
+
+    def test_landing_lock_retries_when_contended_record_disappears(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            held = claim_landing_lock(
+                repo.target,
+                operation="landing",
+                worktree=repo.target,
+                commit=repo.target_commit,
+            )
+
+            def remove_record(_path: Path) -> LockRecord:
+                held.release()
+                raise FileNotFoundError
+
+            with patch("tools.promotion.locking._read_record_path", side_effect=remove_record):
+                acquired = claim_landing_lock(
+                    repo.target,
+                    operation="landing",
+                    worktree=repo.target,
+                    commit=repo.target_commit,
+                )
+            acquired.release()
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
+
+    def test_landing_lock_refusal_includes_its_age(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            lock = claim_landing_lock(
+                repo.target,
+                operation="landing",
+                worktree=repo.target,
+                commit=repo.target_commit,
+            )
+            try:
+                with self.assertRaisesRegex(GateError, r"held for \d+s"):
+                    claim_landing_lock(
+                        repo.target,
+                        operation="landing",
+                        worktree=repo.target,
+                        commit=repo.target_commit,
+                    )
+            finally:
+                lock.release()
+
+    def test_stale_live_landing_lock_is_reclaimed_after_tree_kill(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            path = landing_lock_path_for(repo.target)
+            script = (
+                "import fcntl, json, os, sys, time; "
+                "path=sys.argv[1]; stream=open(path, 'a+', encoding='utf-8'); "
+                "fcntl.flock(stream.fileno(), fcntl.LOCK_EX); stream.seek(0); "
+                "payload=json.load(stream); payload['pid']=os.getpid(); "
+                "stream.seek(0); stream.truncate(); json.dump(payload, stream); stream.flush(); "
+                "time.sleep(30)"
+            )
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                json.dumps(
+                    {
+                        "pid": 0,
+                        "operation": "running a gate",
+                        "worktree": str(repo.target),
+                        "commit": repo.target_commit,
+                        "started_at": "2020-01-01T00:00:00+00:00",
+                        "heartbeat_at": "2020-01-01T00:00:00+00:00",
+                        "token": "stale",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            holder = subprocess.Popen((sys.executable, "-c", script, str(path)))
+            try:
+                deadline = time.monotonic() + 5
+                published = False
+                while holder.poll() is None and not published:
+                    if time.monotonic() >= deadline:
+                        self.fail("lock holder did not publish its pid")
+                    try:
+                        published = json.loads(path.read_text(encoding="utf-8"))["pid"] != 0
+                    except (OSError, json.JSONDecodeError):
+                        pass
+                    time.sleep(0.01)
+                self.assertTrue(published)
+                acquired = claim_landing_lock(
+                    repo.target,
+                    operation="landing",
+                    worktree=repo.target,
+                    commit=repo.target_commit,
+                )
+                acquired.release()
+                holder.wait(timeout=5)
+                self.assertIsNotNone(holder.returncode)
+            finally:
+                if holder.poll() is None:
+                    holder.kill()
+                    holder.wait(timeout=5)
+
     def test_landing_without_a_passed_gate_is_refused(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = PromotionRepo(Path(temp_dir))
@@ -205,6 +350,15 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
             self.assertEqual(repo.head(repo.main), repo.main_commit)
+
+    def test_failed_landing_releases_its_lock(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+
+            with self.assertRaises(GateError):
+                land(repo.target)
+
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
 
     def test_plain_only_gate_records_checks_but_does_not_authorize_landing(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -426,6 +580,7 @@ class PromotionGateTest(unittest.TestCase):
             self.assertIs(payload["remote_lanes"], False)
             self.assertEqual(landed, repo.target_commit)
             self.assertEqual(repo.head(repo.main), repo.target_commit)
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
             self.assertIn(f"Landed {repo.target_commit}", stdout.getvalue())
 
     def test_failed_rerun_removes_prior_landable_evidence(self):
@@ -435,7 +590,7 @@ class PromotionGateTest(unittest.TestCase):
             self.assertTrue(evidence_path.exists())
 
             with patch(
-                "tools.promotion_gate._run_gate_checks",
+                "tools.promotion.lane_execution._run_gate_checks",
                 return_value=(("plain lane",), ("audit_docs (exit 1)",)),
             ):
                 with self.assertRaisesRegex(
@@ -450,7 +605,7 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
     def test_remote_lanes_flag_reaches_run_gate(self):
-        with patch("tools.promotion_gate.run_gate") as gate:
+        with patch("tools.promotion.cli.run_gate") as gate:
             result = promotion_main(
                 ["run", "/scratch/promotion", "--remote-lanes"]
             )
@@ -462,12 +617,59 @@ class PromotionGateTest(unittest.TestCase):
             remote_lanes=True,
         )
 
+    def test_dirty_canonical_checkout_refuses_gate_before_any_lane(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            (repo.main / "state.txt").write_text("dirty\n", encoding="utf-8")
+            stderr = io.StringIO()
+
+            with (
+                patch(
+                    "tools.promotion.lane_execution._run_check"
+                ) as run_check,
+                patch("sys.stderr", stderr),
+            ):
+                with self.assertRaisesRegex(SystemExit, r"^2$"):
+                    promotion_main(["run", str(repo.target)])
+
+            self.assertEqual(
+                stderr.getvalue(),
+                "error: Gate refused: canonical checkout has uncommitted "
+                "tracked changes:\n M state.txt\n",
+            )
+            run_check.assert_not_called()
+
+    def test_untracked_canonical_file_does_not_refuse_gate(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            pending = repo.main / "memory-bank" / "pending"
+            pending.mkdir(parents=True)
+            (pending / "note.md").write_text("untracked\n", encoding="utf-8")
+
+            with (
+                patch(
+                    "tools.promotion.lane_execution._run_check",
+                    return_value=0,
+                ),
+                patch(
+                    "tools.promotion.lane_execution._run_reachability_check",
+                    return_value=0,
+                ),
+            ):
+                log_path = run_gate(
+                    repo.target,
+                    plain_only=False,
+                    stdout=io.StringIO(),
+                )
+
+            self.assertTrue(log_path.exists())
+
     def test_default_gate_uses_local_lane_commands(self):
         canonical = Path("/canonical/ankiscape_fork")
         with (
-            patch("tools.promotion_gate.main_worktree", return_value=canonical),
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree", return_value=canonical),
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 Path("/scratch/promotion"),
@@ -500,9 +702,9 @@ class PromotionGateTest(unittest.TestCase):
     def test_remote_gate_uses_exact_serial_runner_commands(self):
         worktree = Path("/scratch/promotion")
         with (
-            patch("tools.promotion_gate.main_worktree") as main_worktree,
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 worktree,
@@ -545,9 +747,9 @@ class PromotionGateTest(unittest.TestCase):
     def test_remote_plain_only_gate_omits_qt_runner(self):
         worktree = Path("/scratch/promotion")
         with (
-            patch("tools.promotion_gate.main_worktree") as main_worktree,
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 worktree,

@@ -423,6 +423,7 @@ _PENDING_REVIEW_DIALOGS = DeferredAchievementDialogs()
 
 class _NamedExperience(float):
     """A numeric XP result that carries the skills which earned it."""
+
     def __new__(cls, amount, skill_names=(), breakdown=()):
         value = super().__new__(cls, float(amount))
         value.skill_names = tuple(
@@ -438,11 +439,13 @@ class _NamedExperience(float):
             totals[value.skill_names[0]] = float(value)
         value.breakdown = tuple(totals.items())
         return value
+
     @property
     def display_text(self) -> str:
         def amount_text(amount) -> str:
             value = float(amount)
             return f"{value:.1f}" if 0 < value < 1 else str(int(value))
+
         if len(self.breakdown) > 1:
             return " · ".join(
                 f"{name} +{amount_text(amount)} XP"
@@ -452,12 +455,14 @@ class _NamedExperience(float):
         if self.skill_names:
             message += f" · {', '.join(self.skill_names)}"
         return message
+
     def __add__(self, other):
         return _NamedExperience(
             float(self) + float(other),
             (*self.skill_names, *getattr(other, "skill_names", ())),
             (*self.breakdown, *getattr(other, "breakdown", ())),
         )
+
     def __radd__(self, other):
         return _NamedExperience(
             float(other) + float(self),
@@ -516,6 +521,7 @@ def _initialize_debug_from_config():
 # --- Small helpers to reduce duplication ---
 def _record_review_event(kind: str, text: str, *, persist: bool) -> None:
     """The single runtime seam behind every floating review notification."""
+
     updated = record_review_event_pure(player_data, kind, text)
     player_data["review_event_log"] = updated["review_event_log"]
     if persist:
@@ -622,6 +628,7 @@ def _combine_activity_feedback(messages) -> str:
                     continue
                 except ValueError:
                     pass
+
     if plus_totals and len(plus_totals) == 1 and opened_nests == 0:
         item, amount = next(iter(plus_totals.items()))
         return f"+{amount} {item}"
@@ -1020,17 +1027,21 @@ def commit_direct_action(
     bankstanding_automatic=True,
 ):
     """Run one mutating menu action as a single undoable Anki operation.
+
     `apply_change` receives the live save and returns `(updated, ok)`. Returning
     `ok=False` refuses the action: nothing is written and the random state is put
     back, so a refusal the player never saw cannot advance the sequence. Optional
     `after_apply` work runs after the undo entry exists but before the save commit.
+
     This is the seam. Before it existed the snapshot, custom-undo-entry, bounded
     stack and commit lived inline in `resolve_review_context_action`, which meant
     the reviewer context strip was the only surface in the add-on whose actions
     could be undone. Thirty-one command handlers mutated and saved without one.
+
     The snapshot deep-copies the save deliberately. Undo must restore nested
     state that the shallow-copy convention elsewhere leaves shared, so this is one
     of the few places a whole-save copy is load-bearing rather than waste.
+
     Returns True when the change was committed.
     """
     global current_skill
@@ -1096,6 +1107,7 @@ def commit_direct_action(
 
 def resolve_review_context_action(family_id: str, option_id: str) -> bool:
     """Resolve one explicit reviewer-context choice as a direct undoable action."""
+
     if family_id == SHOOTING_STAR_NOTICE_CONTEXT_ID:
         def _apply_star_notice(current):
             updated, ok, _result = apply_shooting_star_notice_action_pure(
@@ -1103,6 +1115,7 @@ def resolve_review_context_action(family_id: str, option_id: str) -> bool:
                 option_id,
             )
             return updated, ok
+
         committed = commit_direct_action(
             _apply_star_notice,
             selected_skill=(
@@ -1123,6 +1136,7 @@ def resolve_review_context_action(family_id: str, option_id: str) -> bool:
             pass
         _update_review_context_surface()
         return True
+
     valid = (
         family_id == PIT_REWARD_CONTEXT_ID
         and option_id in {"take_xp", "gamble"}
@@ -1250,11 +1264,13 @@ def teleport_training_urn(urn_id: str) -> bool:
     base_xp = 0.0
     skill = None
     gained = 0.0
+
     def _change(current):
         nonlocal base_xp, skill
         updated, base_xp, ok, skill_id = teleport_full_urn_pure(current, urn_id)
         skill = get_skill(skill_id)
         return updated, ok and skill is not None
+
     def _after_apply():
         nonlocal gained
         gained = _award_skill_exp(skill.exp_key, base_xp)

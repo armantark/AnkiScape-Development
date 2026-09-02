@@ -9,6 +9,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class TestTestQuality(unittest.TestCase):
+    def test_audit_includes_nested_promotion_tests(self):
+        source = "import unittest\n\nclass NestedTests(unittest.TestCase):\n    def test_nested(self):\n        self.assertTrue(True)\n"
+        with tempfile.TemporaryDirectory() as temp_dir:
+            nested = Path(temp_dir) / "promotion"
+            nested.mkdir()
+            (nested / "test_nested.py").write_text(source, encoding="utf-8")
+            report = audit_test_suite(Path(temp_dir))
+
+        self.assertEqual(report.test_files, 1)
+        self.assertEqual(report.test_methods, 1)
+
     def test_suite_has_no_mechanically_detectable_slop(self):
         report = audit_test_suite(ROOT / "tests")
 
@@ -50,6 +61,7 @@ class DerivedTests(BrokenTests):
                 "undiscovered_test_method",
                 "assertion_free_test",
                 "source_text_membership_check",
+                "vacuous_source_scan",
             },
         )
 

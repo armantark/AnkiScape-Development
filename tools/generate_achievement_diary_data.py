@@ -80,15 +80,18 @@ _LEDGER_WRITE_CALLS = ("_record_action", "record_achievement_progress_pure")
 
 def _import_attr(module_name: str, attribute: str):
     import importlib
+
     return getattr(importlib.import_module(module_name), attribute)
 
 
 @functools.lru_cache(maxsize=1)
 def _module_level_strings() -> dict:
     """Every ``NAME = "literal"`` in the add-on, for resolving action-id names.
+
     Activity runtimes pass constants such as ``SHOOTING_STAR_ACTIVITY_ID``
     rather than a bare string, and those constants are the action id.
     """
+
     found: dict[str, set] = {}
     for path in ROOT.rglob("*.py"):
         if any(part in {".git", "__pycache__", "tests"} for part in path.parts):
@@ -119,6 +122,7 @@ def _literal_strings(node: ast.AST) -> set:
 @functools.lru_cache(maxsize=1)
 def _emitted_ledger_actions() -> dict:
     """``skill id -> action ids`` the runtime can actually record."""
+
     emitted: dict[str, set] = {}
     for skill_id, (module_name, attribute) in _SKILL_ACTION_REGISTRIES.items():
         emitted[skill_id] = set(_import_attr(module_name, attribute))
@@ -290,8 +294,10 @@ def resolve_condition_key(kind: str, key: str, expected=None) -> str:
     parts = key.split(".")
     if (error := resolve_named_counter(key)) is not None:
         return error
+
     if (error := resolve_special_counter(key, _resolve_ledger_key, _resolve_state_path, QUEST_DATA)) is not None:
         return error
+
     if parts[:2] == ["fight_caves", "kill_counts"]:
         if len(parts) != 3 or parts[2] != "ket_zek":
             return f"counter key {key!r} names no recorded Fight Caves variant"

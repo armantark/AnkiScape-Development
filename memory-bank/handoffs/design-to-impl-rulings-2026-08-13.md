@@ -2359,3 +2359,1031 @@ harvest lane's pre-dispatch measurement is the evidence; the seat records the
 measured size in the ledger before briefing, and a premise that inverts is reported
 as these three were, not absorbed silently. The design seat carries the same rule
 for its own claims.
+
+## 34. Owner ruling: the slop gate is taken literally — split the files — 2026-09-01 20:15 PDT
+
+Owner, verbatim: "No, I want the slop gate to be taken literally. It's only going to
+create technical debt to kick the can down the road. Rip off the bandaid."
+
+Section 32 is closed with option B. No exception, no override, no edit to the gate.
+Literally means: a file above 1,000 lines may not grow, and a new module counts as
+grown from zero, so every module produced by a split must itself stay at or under
+1,000 lines. Split along module seams, never at an arbitrary line count.
+
+### 34.1 The program, measured on `554dd16b`
+
+69 tracked Python files are over 1,000 lines, 294,020 lines in all: generated 4
+files (57,984), tests 23 (88,820), data 8 (52,089), ui 2 (31,298), logic 13
+(21,259), logic_pure 5 (11,067), tools 6 (10,412), core 3 (7,640), runtime 4
+(7,197), and `__init__.py` (6,254). The split program is queue item 0, ahead of
+every landing that needs one of these files to grow.
+
+### 34.2 Order
+
+1. **First wave, ten files, so the whole queue unblocks at once** (amended
+   20:20 PDT on the seat's measurement that the seven alone unblock only the two
+   held changes). The seven the held changes need: `__init__.py` (dispatchers
+   move into `runtime/`, where the seam already exists), `core/constants.py` (by
+   domain), `data/quest_data.py` (one module per quest on the
+   `data/mogre_quest_data.py` precedent, with `quest_data.py` left as the
+   aggregator; it holds 32 literal quests, the other 165 live in the generated
+   catalog), `data/combat_data.py` (per family), `data/slayer_data.py`,
+   `logic_pure/logic_pure_combat_engine.py`, and
+   `tests/test_combat_enemy_roster.py` (per family). Plus the three the rest of
+   the queue needs: `logic/shop_logic.py` (1,786) and `ui/ui_tab_shop.py`
+   (1,831) for item 2b, and the diary catalog generator sharding
+   `data/achievement_diary_catalog.py` (6,151) for item 2c. Disjoint files run
+   in parallel.
+2. Then the rest, most-often-grown first: `ui/ui.py` (per tab, the
+   `ui/ui_tab_shop.py` seam), the remaining data tables, the generated outputs
+   (the generators emit sharded modules plus an aggregator; never hand-split a
+   generated file), logic and logic_pure, tests, tools, runtime.
+
+### 34.3 Rules for every split slice
+
+- A pure move. No behavior change, no renamed public name, no reordering that a
+  consumer could observe. Aggregator modules keep the existing import surface,
+  so no consumer changes.
+- The discriminating check: a dump of every module-level public object of the
+  aggregator (JSON or repr, deterministic order) is byte-identical before and
+  after the move. The slice ships that check as a test where a stable dump is
+  possible, and records the before/after hashes in its report otherwise.
+- Both full lanes, the five audits and the gate green on the branch; the gate
+  itself proves the seam (the big file shrinks, no new module exceeds 1,000).
+- Lanes per section 29: Sol authors the move, a separate verifier runs the lanes
+  and the dump check, and a cross-lineage reviewer (GLM as the extra vote)
+  confirms it is a move and nothing else. Disjoint files may split in parallel,
+  eight agents or fewer.
+- `ui/ui.py` splits are refactors with no interface change and need no owner
+  approval, but the offscreen visual smoke check runs to prove identical
+  rendering, with the stale-geometry rules in
+  `.claude/rules/qt-offscreen-screenshots.md`.
+- No `SLOP_GATE_*` variable is ever set. A split that cannot reach 1,000 lines
+  at a real seam stops and reports the seam it found, rather than cutting at a
+  count.
+
+### 34.4 The held changes
+
+The Mogre branch is recommitted cleanly on top of the split tree; the override
+commit `a82c6471` never enters main's history. Its 26 lines then land in the new
+small modules. The GOP three-line patch applies into the module that receives the
+teleport dispatcher, and its skipped test is re-enabled in the same commit.
+
+## 35. Ghosts Ahoy: the missing Priest in Peril prerequisite folds into the slice — 2026-09-01 20:20 PDT
+
+The seat's harvest found a live defect in a shipped quest: our catalog gives Ghosts
+Ahoy one prerequisite (The Restless Ghost) where Questreq oldid `5981134` and the
+Darkan thread's runtime proof both name Priest in Peril as well
+(`generated/quest_catalog_generated.py:9125`). Ruling: fix it inside the Ghosts Ahoy
+slice as directly adjacent work, at the generator or its source, never by hand edit
+of the generated file, with a regression that proves the second prerequisite gates
+the start. The harvest's exclusion of `ghosts-ahoy-transcript-history.json` as
+post-cutoff evidence stands under our standard; the seat doorbells the Darkan thread
+so their pinned set carries that note.
+
+## 36. The diary landing window closed on a refused gate nobody read — 2026-09-01 22:07 PDT
+
+The gate for the diary merge (`gate-0295ab70.log`) refused at 20:22: plain lane
+`Ran 4634 tests in 848.476s`, `FAILED (failures=9, errors=6, skipped=516)`, exit 1;
+the Qt lane never ran. The seat read the background task's empty stdout file as
+"still running" and held the landing window open for an hour and forty minutes
+until the design seat found the log at the keep-warm tick. Nothing reached main.
+One named cause: `ankiscape.logic.trouble_brewing_logic must not write through the
+save it is given` — the immutability gate, consistent with a relocated diary emit
+mutating a caller's save inside pure logic. The gate log truncates the failure
+list, so the other fourteen names need a targeted rerun; the seat is diagnosing
+against the branch with only the failing suites.
+
+Class fix, ruled: after every gate launch the seat arms a Monitor on the gate's
+own log for its terminal lines (`GATE DONE`, `FAILED`, `exit`), so a refusal wakes
+the seat instead of waiting to be read; a background task's stdout is never the
+signal. `promotion_gate.py` truncating its failure list is filed as a papercut for
+a later tooling slice. The split-program harness landed on its own branch at
+`79b01ee3` with determinism verified by the seat; item 0 is unblocked.
+
+### 36.1 Correction: one cause, not two, and the write-through reading was wrong — 22:20 PDT
+
+All fourteen diary-gate failures had one cause: the seat's fix-round item 9 deleted a
+runtime bank-run helper on a reviewer's convention complaint, breaking the bank-run
+expression. `tests/test_logic_no_input_mutation` replays other suites under a gate
+and reported the five errored bank-run tests through its own label, "must not write
+through the save it is given"; the seat and then section 36 read the label as the
+finding. No emit mutates a caller's save. Restoring the properly named helper cleared
+all fourteen (`Ran 213 tests in 11.421s`, `OK`). That seven-line fix trips the gate on
+`runtime/runtime_actions_carried.py` (1,484 -> 1,491), so it is held as a tracked patch
+beside the GOP one, and that file is the **eleventh file of the first wave**.
+
+## 37. Ruling: a convention complaint is a hypothesis, checked against the gates — 22:20 PDT
+
+Three instructions tonight caused defects the same way: a reviewer said a shape was
+unnecessary or should be inline, the seat forwarded it into a brief, and the shape
+turned out to exist because of a gate — the file-size ratchet (the Mogre module), the
+import direction (the argument injection), or a named runtime seam (the bank-run
+helper). Ruling: before any "inline this", "delete this", or "this shape is
+unnecessary" finding enters a brief, the seat checks what the shape protects — run
+the size gate on the hypothetical, trace the import direction, grep the seam's
+consumers — and records the answer in the brief. A finding that fails that check is
+closed as "shape is load-bearing", with the reason, and the reviewer is told. The
+design seat holds itself to the same rule. With Kimi's quota reset, `kimi-k3` is the
+architecture reviewer for the split slices, where "is this only a move" is the whole
+question.
+
+## 38. The landing freeze becomes machinery — 2026-09-01 22:40 PDT
+
+Main moved under an open gate four times today: three design-seat ledger commits
+before the hold protocol existed, and the seat's own papercut commit `728cdd09` at
+22:34, twenty minutes after it asked for the freeze. Each costs a 35-minute gate
+rerun. A prose rule has failed both seats, so the freeze becomes machinery.
+
+1. **Repo-local pre-commit.** `tools/promotion_gate.py` already writes a lock record
+   in the git common dir during `run` and `land` (`claim_landing_lock`, pid,
+   operation, commit). A repo-local `.git/hooks/pre-commit`, which the fleet's
+   global hook chains first, refuses any commit on `main` in the canonical checkout
+   while that lock exists and its pid is alive, printing the gate's commit and pid
+   and the instruction below. No override. The hook source is tracked at
+   `tools/landing_freeze_hook.py`, installed by `python3 tools/promotion_gate.py
+   install-hook`, and the guard's audit reports when it is missing. This is a small
+   tooling slice, gated like any other, and it goes out right after the harness
+   lands, in parallel with the first-wave splits (disjoint files).
+2. **Writes during a window.** A landing is a fast-forward of the canonical
+   checkout; an uncommitted edit to a tracked file the gated tree also touches
+   (papercuts.md is touched by most slices) would make it refuse. So during an
+   open window every seat writes ledger sections, papercuts, briefs and harvests
+   as new files under `memory-bank/pending/`, untracked, and folds them into their
+   tracked homes in one path-scoped commit after "landed". The hook message says
+   so.
+3. The seat's proposed practice (papercuts stay uncommitted during a window) is
+   superseded by 2, which also removes the fast-forward hazard it would have left.
+
+### 38.1 The harness was refused by its own test, correctly — 22:55 PDT
+
+Gate `41616ee7`: plain lane green; Qt lane failed only `test_first_wave_digests`,
+because `data/quest_data.py` dumps to digest `06f9a6b4...` under
+`/opt/homebrew/bin/python3` and `57fc7352...` under the offscreen `.venv-qt`
+interpreter on a byte-identical file. An interpreter-dependent digest cannot prove
+a pure move, so the eleven splits hold until the instrument is trustworthy. The
+seat sent it back to diagnose before fixing, with a paper-over forbidden; the
+three candidate causes (a genuinely conditional surface, repr noise, import-order
+state) need different remedies, and if the surface is truly environment-dependent
+the tool needs one baseline per interpreter that names its environment. Design
+seat's steer: the two interpreters are different Python versions, so the
+least-specific hypothesis is `repr` drift across versions (dataclass, enum, dict
+ordering); the dump must be a canonical serialization with explicit type tags and
+sorted keys, never `repr`, and the diagnosis starts from a diff of the two dumps,
+not the digests. Landing the instrument first has now paid for itself twice.
+
+## 39. A turn that names a next action and does not take it is a failed turn — 2026-09-02 00:55 PDT
+
+Three orchestrator turns tonight ended on a stated intention with no action behind
+it: the unread gate refusal at 20:22 (held 1h40m), the unsent harness re-gate after
+23:07 (1h41m), and one earlier. The seat's own diagnosis: writing the plan was
+treated as completing the step. Ruling: every orchestrator turn ends on one of
+exactly two things — an action taken (a dispatch, a gate launch, a commit, a
+doorbell) or an explicit hold that names the wake signal already armed (a Monitor
+on a log, a task notification, a doorbell expected from a named seat). A closing
+paragraph that says "then I will", "next", or "dispatching now" without the
+matching tool call in the same turn is a failed turn, and the seat treats it as
+one on the next wake. The design seat is proposing to the owner the machinery for
+this class: a Stop hook in the orchestrator profile that blocks turn end when the
+final text states a next action and no tool call followed it, bounded like the
+anti-swallow hook. Until the owner rules on that, this section is the rule.
+
+Harness state for the record: canonical dump verified identical across Python
+3.14.7 and 3.13.5; a second defect found unasked — `ITEM_DEFINITIONS` varied
+between fresh processes of one interpreter from randomised hash seeds, now pinned;
+`ui/ui_tab_shop.py` genuinely exposes a different surface when Qt is importable and
+carries a baseline per environment, recorded as a codebase fact before its split.
+The eleventh baseline (`runtime/runtime_actions_carried.py`) is dispatched, with a
+stop-and-report if adding it moves any existing baseline.
+
+## 40. The promotion gate must bound its lanes and expose its lock age — 2026-09-02 01:30 PDT
+
+The module-surface harness landed at `750c9ecc` (plain `OK (skipped=516)`, Qt `OK
+(skipped=4)`, the fourth skip being the root-initializer test that skips only where
+`aqt` is present). The land was first refused because the diary gate from 20:08 still
+held the landing lock: its log had written `FAILED: exit 1` and `GATE DONE` at 20:51,
+but its child `.venv-qt/bin/python run_tests.py` never exited and sat for 5 hours 4
+minutes. A live-but-hung gate wedged every landing in the repository all night, the
+tool's liveness check was satisfied because the pid was alive, and the empty task
+output that the seat misread as "still running" was, by accident, true.
+
+Rulings, as a tooling slice that lands before any split lands (the splits may
+author in parallel):
+
+1. **Every lane is bounded.** `promotion_gate.py` runs each lane under a timeout
+   matched to the known duration (plain 850 s, Qt 1,150 s, with headroom), kills
+   the lane's process tree on expiry, records `TIMEOUT` in the gate log as a
+   refusal, and exits. A lane that hangs is a failed gate, never a silent one.
+2. **The lock carries its age and is not trusted on liveness alone.** The lock
+   record gains a heartbeat the running gate refreshes per lane step; a refusal
+   prints how long the lock has been held and by which commit and pid; and a lock
+   whose heartbeat is older than the longest bounded lane is stale even if the pid
+   is alive, so `land` reclaims it after killing that pid's tree.
+3. The landing-freeze hook of ruling 38 inherits the same stale-lock rule, so it
+   can never freeze main behind a dead gate.
+4. Regression: a test that starts a gate with a child that never returns and
+   proves both the timeout refusal and the stale-lock reclaim, with a mutation
+   proof that removing the bound reproduces the hang.
+
+The seat dispatches the freeze-hook slice and the first splits now, as approved;
+this slice joins them as a third parallel author on `tools/promotion_gate.py`.
+
+### 40.1 Gate hardening done; the promotion gate itself is the twelfth first-wave file — 02:05 PDT
+
+`goal/gate-hardening-2026-09-02` (`b23e2f52`, `5ef46809`): lanes bounded at 1,000 s
+and 1,300 s over the known 850 s and 1,150 s, process tree killed on timeout,
+timeout recorded as a refusal, heartbeat on the lock, refusals print the lock's age,
+stale reclaim kills the tree first; the ruling-38 freeze hook and its `install-hook`
+installer are in, with `worktree_guard.py audit` reporting when the hook is absent.
+Both mutation proofs fail without the fix (`AssertionError: 0 != 124`; the live-lock
+`GateError`).
+
+Two findings from the slice. First, `tools/audit_test_quality.py` did not recurse
+into subdirectories under `tests/`, so every test split (which the contract sends
+into subdirectories, `tests/` holding 236 files) would have removed its own tests
+from the audit's view while reporting a clean, smaller count; fixed with a test,
+count now 234 not 233. Every test-split report states the audit's file count before
+and after, and a drop is a defect, never success. Second, `tools/promotion_gate.py`
+now sits at exactly 1,000 lines: it commits today and can never gain a line.
+Ruling: it is the **twelfth first-wave file**, split at its seams (lock and
+heartbeat, lane execution and bounds, land, CLI) with the same pure-move proof, now
+while the reviewers are warm.
+
+## 41. Splits gate in batches where the digest proves them, singly where it cannot — 2026-09-02 02:10 PDT
+
+Twelve first-wave splits gated one at a time is about seven hours of serial gate
+time, with main frozen for most of it, while the splits themselves author in
+minutes. The fixed rail is unchanged: main receives only a merged tree that passed
+both lanes and the five audits. Within it:
+
+1. **Batch the digest-proven pure moves.** Finished split branches whose
+   module-surface digests are byte-identical merge into one integration branch,
+   at most four per batch, and gate once. The gate log names every constituent
+   commit. Each split still runs its own verification lane on its branch in
+   parallel before it joins a batch; batching changes only the promotion gate.
+2. **Attribution on a batch refusal.** The digest tests inside the lanes name the
+   module whose surface moved; that branch leaves the batch and the rest re-gate.
+   A refusal the digests do not explain is bisected by removing one branch at a
+   time, never by guessing, and the seat reports which branch it was.
+3. **Gate singly** the splits that cannot carry a meaningful digest: the test-file
+   splits (proved instead by the test-quality audit count before and after and
+   both lanes) and anything that changes a generated catalog or its generator.
+4. One freeze window per batch, announced before the gate starts, with the log
+   monitor armed in the same turn.
+
+## 42. Two gate rules read a pure move as new code — 2026-09-02 02:40 PDT
+
+The `__init__.py` split was refused for cyclomatic and cognitive complexity
+"introduced" by functions whose bodies did not change (`on_answer_card` at 93,
+pre-existing debt, marked `(new)` because it now lives in
+`runtime/runtime_actions_review.py`). The combat data split was refused for import
+fan-out (`data/combat_data.py`: 47, was 13) because an aggregator that re-exports
+39 part modules has a fan-out of 39. Both rules ratchet *introduced* complexity and
+are right for ordinary work; a byte-identical move introduces nothing. The contract
+forbids simplifying inside a move, so under the current gate any file containing an
+over-threshold function cannot be split.
+
+### 42.1 Ruled now: fan-out takes the gate's own advice
+
+Aggregators of large tables use nested subpackages with their own small aggregators
+(`data/combat/slayer/`, `data/combat/humanoids/`, ...), so the top aggregator
+imports a handful of subpackage aggregators, not dozens of modules. `data/quest_data.py`
+(32 quests) does the same by region or era. This is "depend on a narrower module
+boundary", costs one directory level, and needs no gate change. The combat split
+proceeds that way now.
+
+### 42.2 Ruled now: two amendments to the split contract
+
+1. The module-surface dump includes every module-level name except dunders, private
+   names included, so "byte-identical digest" also means "nothing was added". The
+   `__init__.py` split gained about 110 underscore-prefixed attributes on the
+   aggregator that the public-only dump never saw; a split that must add private
+   re-exports lists each one in its report with the consumer that needs it.
+2. A moved definition leaves no callable corpse behind: an un-rebound original that
+   remains importable from a new submodule and would raise `NameError` if called is
+   a defect, fail-close, even when nothing calls it today.
+3. Recorded technique from the Slayer canary (landed, digest identical under both
+   interpreters, moved section byte-identical at 12,788 bytes): moved dataclasses
+   keep publishing from the aggregator's module path so qualified names never
+   change; without that a correct split still moves the digest.
+
+### 42.3 Named gate for the owner: the complexity ratchet on moved functions
+
+Option A: make `slop_gate.py` move-aware — a definition deleted and re-added
+byte-identical in the same commit (by AST or normalized source) is a move, and
+moves do not ratchet the complexity, cognitive, or Halstead checks; everything
+else about the gate is unchanged, and a changed body still ratchets. This is a
+false-positive correction, not an exception. Option B: a simplification slice per
+over-threshold function before its file may be split, verified by behavior tests
+rather than digests, which is a program in front of the program and tangles two
+kinds of proof. The design seat recommends A now and keeps B as a queued item
+after the splits, since the debt is real and tracked either way. Until the owner
+rules, the `__init__.py` split holds staged with its proofs; every other split
+proceeds.
+
+### 42.4 Sequencing the wider dump — 02:40 PDT
+
+Widening the dump changes every recorded baseline. Order: the harness change lands
+first as its own gated slice; all baselines are re-recorded from the tree as it then
+stands (unsplit or already split); only then do in-flight splits re-prove against
+the wide baselines. A split compared narrow-before against wide-after is a false
+failure, not evidence.
+
+### 42.5 The new-cycle check is the third rule with the same shape — 02:45 PDT
+
+The quest split was refused for a nine-file import cycle across `core/constants.py`,
+both diary modules, three `logic/` modules and the new quest modules. The cycle is
+pre-existing on main, documented by a previous author who deferred an import inside
+a function to hide it (`data/achievement_diary_data.py:232`, "avoids a cycle"). The
+split created no new edge; it created new module names that participate in the
+same loop, and the new-cycle ratchet fired on an address change. So the owner's
+gate question (42.3) covers three rules, not one: the complexity and cognitive
+ratchets on a byte-identical moved definition, and the new-cycle check on an edge
+that existed before the split under another module name. One move-aware fix
+answers all three; fixing complexity alone leaves `quest_data.py` blocked on the
+cycle. The pre-existing cycle itself is real debt and is queued for its own fix
+after the splits. Not a false positive in the same refusal:
+`tests/test_quest_catalog.py::test_literal_quest_id_mappings_have_no_resolved_duplicate_keys`
+grew from 15 to 23; a move does not change a test's complexity, and the seat is
+asking that agent what it changed before the slice proceeds. Gate hardening
+landed at `a6a8e42d` (plain `OK (skipped=516)`, Qt `OK (skipped=4)`).
+
+## 43. A test that scans a file by path passes vacuously after a split — 2026-09-02 02:50 PDT
+
+`tests/test_quest_catalog.py` parsed `Path(quest_data.__file__).read_text()` to
+check literal quest-id mappings; after the split that path is an import-only
+aggregator, the scan returned an empty set, and the assertions passed over nothing.
+No gate, digest, or lane can see that. Repointing the scan is part of the move,
+because the behavior preserved is "this invariant is enforced"; that is why the
+test's complexity grew 15 -> 23, and the challenge to it is withdrawn. The agent
+proved the repointed test load-bearing both ways (a removed quest fails with
+`Items in the first set but not the second: 'cooks_assistant'`; a duplicate key
+fails with `46 != 45`). The seat's corrected sweep (by `<module>.__file__`, not by
+filename — the first sweep gave a false all-clear) finds exactly one instance,
+fixed; `tests/test_achievement_diaries.py` names the diary catalog by path and
+its split inherits the rule. Contract section 5d (`0128255a`) stands.
+
+Rulings:
+1. A repointed scan asserts a **non-empty, exact key set**; a scan that can pass on
+   nothing is a defect wherever the code later moves.
+2. Machinery, as a small tooling slice: `tools/audit_test_quality.py` flags any test
+   that reads a module by `<module>.__file__` or by a literal source path unless the
+   same test asserts a non-empty result on what it read. The audit runs in every
+   gate, so this class fails loudly from now on.
+3. For the record: this is the fourth check tonight that is right for ordinary work
+   and wrong for a move; the three ratchets fail loudly and are with the owner,
+   this one failed silently and is fixed here.
+
+### 42.6 The ratchet question now blocks three of five splits — 03:25 PDT
+
+The roster test split was refused for the same shape: test methods that have sat in
+`tests/test_combat_enemy_roster.py` at cyclomatic 20-22 and cognitive 23-42 all
+along read as "(new)" once moved into a package. First-wave scoreboard: Slayer data
+and combat data complete and in the gating batch; quest data (serialized data
+byte-identical at 2,037,883 bytes), root `__init__.py` (surface digest identical
+under Qt) and the roster tests (collection count preserved) complete, proven, and
+blocked only on the ratchets; seven not started. Big old files are exactly where
+over-threshold functions accumulated, so the rule bites hardest on the files the
+owner most wants split: taken literally, the gate permits splitting only files that
+contain no complex function, which excludes most of the 69 and all of the worst.
+None of the three was asked to reshape code to escape it; all are staged with
+proofs intact and land without rework if the owner chooses the move-aware fix.
+While the owner decides, the seat runs what needs no split: the records-only
+curation pass 2c, the harvest lanes for items 3 and 5, and the vacuous-scanner
+audit slice.
+
+### 42.7 First batch landed; 69 -> 67 — 03:30 PDT
+
+Batch `ef50d3fd` landed with both lanes green (plain 869.7 s, Qt 1,122.5 s; 4,625
+tests each): `data/combat_data.py` 14,215 lines into 47 modules under nested
+subpackages (largest 801, aggregator 753) and `data/slayer_data.py` into three
+(aggregator 93); 51 files, 17,191 insertions against 15,345 deletions. Oversized
+files: 69 -> 67. The roster test split is complete with the programme's strongest
+proof (4,625 tests before and after, 516 skipped both; audit tests 4,590 -> 4,590;
+audit files 234 -> 237, three new files, not a drop; all 36 roster tests preserved;
+digests reproduced under both interpreters), and it did two unasked things right:
+`parents[1]` -> `parents[2]` when the file moved a directory deeper, and the
+source-audit document naming the moved selectors was updated so the documentation
+audit stayed live. Queue defect, not urgent: `worktree_guard.py audit` warns that
+the freeze hook is missing inside linked worktrees, where it can never matter
+(`main` cannot be checked out there); the check must require the hook only in the
+canonical checkout, or every worktree agent will try to fix a non-defect.
+
+## 44. The vacuous-scanner check lands with its one repair, layout-independent — 2026-09-02 04:00 PDT
+
+The ruling-43 check (`goal/vacuous-scanner-audit-2026-09-02`, `5e42b040`) is right:
+one real finding on main, zero false positives across 49 `parents[1]` expressions,
+a fixture that proves an assertion inside an empty loop does not count, and
+`audit_test_suite` back at its exact prior complexity. Landing it as-is would make
+`audit_test_quality` exit 1 on main and freeze every gate until the quest split
+lands, and that split waits on the owner.
+
+Ruling: the seat's option 2, not 3. No tolerated-baseline validator for
+`audit_test_quality`: an audit that finds a real defect on main must block, that
+is the fixed rail, and the cure is the repair, which here is one test. The repair
+ships in the same small slice as the check, and it must be written so it is
+blocked by nothing and depends on nothing:
+
+1. **Layout-independent.** `tests/test_quest_catalog.py` scans by AST, not by one
+   file's text: every module under the data package that defines the literal
+   `*_BY_ID` mappings, whatever the layout, collecting their literal keys; it
+   asserts the collected set is non-empty and exactly equal to the expected keys.
+   It passes on today's single file and on the split layout unchanged, so the
+   quest split inherits it with no edit of its own.
+2. **Under the ratchet.** The earlier repoint grew to cyclomatic 23 from 15 and was
+   refused for it; this one is a table-driven walk that stays at or under 15. That
+   is a real change, not a move, so simplification is allowed and required.
+3. Mutation proof both ways, as the roster split showed: a removed quest fails
+   naming it; a duplicated literal key fails on the count.
+
+Option 3 is declined on the record because a pinned "known issue" in the test
+audit would be a place for the next real finding to hide, and the reachability
+validator that inspired it tolerates a measured count, not a named defect.
+
+### 44.1 Landed; programme state at 05:10 PDT
+
+`6ab9c330`: the vacuous-scan check and its layout-independent repair landed
+together (plain 4,628 tests 826.1 s, Qt 1,098.5 s; `audit_test_quality`: 4,593 tests
+across 236 files, hard issues 0). Landed so far: Slayer data, combat data, the gate
+hardening with the freeze hook, the module-surface harness, this slice. Complete
+and blocked on the owner's move-aware ruling: `data/quest_data.py`, the root
+`__init__.py`, `tests/test_combat_enemy_roster.py`. Unblocked and dispatched:
+`core/constants.py` (2,991 lines, nothing over threshold) and
+`data/achievement_diary_catalog.py` (6,151, first exercise of generator sharding).
+Item 2c is committed and verified at 131 changed rows, reviews dispatched.
+`logic_pure/logic_pure_combat_engine.py` holds a cyclomatic-348 function and is the
+file that stays stuck under simplify-first. Contract gains
+`unittest.TestLoader().discover("tests").countTestCases()` as the collection-count
+instrument; the unreleased land lock and the linked-worktree hook warning are paired
+in the promotion-gate follow-up.
+
+## 45. Preserve the four blocked splits as refs, without touching their worktrees — 2026-09-02 05:45 PDT
+
+Four complete, proof-carrying splits (quest data 88 files / 15,148 insertions,
+diary catalog 20 / 6,521, root dispatchers 12 / 6,002, roster test 9 / 1,762) sit
+uncommitted in leased worktrees because each is refused by a ratchet that awaits
+the owner, whose ruling may be hours away. Ruling: preserve all four now, in
+minutes, with no reapply step:
+
+```
+git -C <worktree> add -A
+sha=$(git -C <worktree> stash create "preserved: <slice> awaiting ruling 42.3")
+git -C <worktree> update-ref refs/preserved/<slice>-2026-09-02 "$sha"
+git -C <worktree> reset -q            # index back; working tree untouched
+```
+
+`stash create` writes a commit object of the full working tree without moving any
+branch and without a pre-commit hook, and the ref makes it durable and visible in
+`git for-each-ref refs/preserved`. No gate is circumvented: nothing lands from
+these refs; when the ratchets are made move-aware, each worktree commits its
+unchanged staged work through the normal gate, and the refs are deleted after
+landing. If a worktree is ever lost, `git checkout <ref> -- .` restores the tree.
+Patch files are declined: four agent rounds plus a reapply step for work that
+otherwise lands with no rework.
+
+## 46. Reseat after a harness restart — 2026-09-02 08:46 PDT
+
+The harness restarted around 08:30 and killed the orchestrator seat `c79eb6` and
+its in-flight agents. The design seat reseated a fresh orchestrator (thread
+`de2ebed9-4b2c-4307-b634-c4fef0c2934f`, pid 8517) from tracked state. The design
+seat's own doorbell name is now **`ankiscape-fork-fb`** (was `ankiscape-fork-41`).
+Nothing durable was lost: main is at `c3a78fea`, the four blocked splits are
+preserved under `refs/preserved/` (ruling 45), and the record is complete through
+ruling 45.
+
+Standing work order for the new seat: read sections 25 through 45; audit branch
+state before dispatching anything (which of `goal/split-constants-2026-09-02` and
+the 2c review round left commits, which in-flight agents died); resume the ruling-29
+lanes on what needs no owner ruling (the constants split, 2c's conformance check and
+cross-lineage review, the harvest lanes, the promotion-gate follow-up for the
+unreleased land lock and the linked-worktree hook warning); hold the four preserved
+splits until the owner's ruling on 42.3 is relayed; announce every landing window
+before its gate starts with the log monitor armed in the same turn; and end every
+turn on an action or an armed wake (ruling 39). Path-scoped staging only.
+
+## 47. Owner ruling on 42.3: move-aware now, then simplify what the moves expose — 2026-09-02 09:05 PDT
+
+Owner: "You can have it move and then simplify the measured complexity." The fleet
+slop gate is patched and committed (fleet repo, "slop-gate: a moved definition
+introduces nothing"): a def, class, or top-level assignment re-added with an
+identical normalized AST after leaving another file in the same commit ratchets no
+complexity, cognitive, or Halstead check; dead-code findings inside such a
+definition are pre-existing; and a cycle whose new files trace back to files that
+already cycled, by moved definitions or by adding no import edge of their own, is
+not new. A changed body or a copy still counts. The hook file runs in place, so it
+is live for every commit now.
+
+Verified against the four preserved splits, staged in place and reset:
+
+| Split | Remaining refusals | Reading |
+| --- | --- | --- |
+| diary catalog | none | lands as staged |
+| root `__init__.py` dispatchers | none | lands as staged |
+| roster test | `test_new_slayer_family_assets_are_present_and_provenanced` 22 / 41 (new) | body changed in the move (the `parents[2]` fix); honest |
+| quest data | `data/quest/reward_items.py::quest_reward_items_as_dict` 20 (new); `test_literal_quest_id_mappings...` 23 (was 15) | function adapted to the layout; the test is superseded by ruling 44's layout-independent version on main and disappears on rebase |
+
+Rulings: the two clean splits commit and gate now (batched per ruling 41 after
+their digests are re-verified on the merged tree). For the two honest rows: a
+function that had to change in the move is a real change, so it is simplified
+under the threshold in the same slice, with a behavior test, and stops being a
+pure move only for that function, which the report names. The **simplification
+program** is queue item 0b, after the first wave: every function the moves expose
+above threshold, measured from the gate's own reports as the splits land,
+simplified with behavior tests, largest first (`on_answer_card` 93,
+`logic_pure_combat_engine` 348), never inside a move.
+
+### 47.1 Fleet commit — 09:05 PDT
+
+The gate's first fleet commit was refused by the gate itself (`moved_definitions`
+cognitive 19); the loop body was lifted into `departed_definitions` and the change
+landed as fleet `deeea97`, "slop-gate: a moved definition introduces nothing", 15
+tests green. Section 47's "committed" was written one minute early.
+
+## 48. No statement joins to fit a gate; no split by line range — 2026-09-02 09:10 PDT
+
+1. **Item 2 does not land with joined lines.** Commit `026f9452` kept
+   `runtime/runtime_actions_carried.py` at exactly 1,484 lines by joining two
+   unrelated statements onto one line in two places. No variable was set, so the
+   letter of ruling 34 held, but the growth check was gamed, not obeyed. Ruling:
+   the carried-file split (first-wave file eleven, now unblocked by the move-aware
+   gate; five functions over the cognitive threshold at 16, 20, 33, 42 and 270)
+   lands first; item 2's fix is then re-expanded to normal formatting on top of
+   it and gated. Statement joins made to fit a line budget are a defect in any
+   slice from now on, and the review checks for them.
+2. **A split is by seam or it is not a split.** The constants split produced
+   twelve modules that are contiguous line ranges of the original, six of them
+   holding nothing but imports, with names that do not describe their contents
+   (`skill_foundations.py` holds Agility and Dungeoneering because they came
+   first). The surface digest was byte-identical, which proves it moved code; it
+   does not prove it split anything. Ruling: the fix round regroups by domain
+   with names that describe contents, every part module imports standalone (one
+   currently raises `KeyError` on import), and `memory-bank/systemPatterns.md`
+   stops claiming an import cycle that does not exist statically. The seat's
+   choice to hold the fix round until the verification lane and the GLM vote
+   return, so the branch gets one consolidated round, is correct.
+
+### 48.1 Blank-line stripping is the same defect — 09:12 PDT
+
+Item 2's branch also deleted 46 blank lines across three oversized files to pay
+for its additions (`__init__.py` 16 blank lines removed to fit one import;
+`runtime/runtime_actions_activities.py` 24; `tools/generate_achievement_diary_data.py`
+6), on top of the two statement joins. Ruling 48 now covers any reformatting made
+to fit a line budget: statement joins, blank-line deletion between definitions,
+and comment or docstring removal. The review checks for a drop in blank lines in
+an oversized file the same way it checks for joins. Item 2 therefore waits on
+three splits (carried, activities, and the diary generator) before it is
+re-expanded and gated; the carried and activities splits are dispatched. The root
+dispatchers split is committed at `a8bb0fa7` (`__init__.py` 765 lines, eleven
+runtime modules of 315 to 706) with the patched gate accepting it.
+
+Machinery proposal for the owner, since it edits the fleet gate: measure the
+file-size ratchet in non-blank, non-comment lines (or AST statements for Python)
+instead of physical lines, so neither stripping blank lines nor joining statements
+buys any budget and the gate cannot be gamed by formatting. Until then the review
+check stands.
+
+## 49. What a translated or invented diary deed must satisfy — 2026-09-02 09:15 PDT
+
+Item 2c's review found three defect classes, one verified by the seat: the new row
+`lumbridge_easy_money_down_the_drayn` completes on the same `bank_run`
+`deposited_non_coin` event as the already-wired `burthorpe_period_bank_on_it`;
+about a dozen of the 116 translations resolve to one cheap shop purchase or junk
+sale (three rows resolve to selling one Empty pot, item 1931, at a general store);
+and the disposition test is uneven, with rows where only the locality survives
+marked `translated` rather than `invented`. The constants move passed its second
+review (562 names set-identical, values equal, digest `7d6ca7ea...` matching the
+pin on main, dict-order noise proven by a two-dump control); its seam and naming
+rework stands.
+
+Rulings for the consolidated 2c fix round, and for every future curation row:
+
+1. **One deed, one seam.** No two live rows may complete on the same event
+   predicate. The generator or its audit rejects a duplicate completion seam
+   across the catalog, so this class fails loudly from now on (a small tooling
+   addition inside the 2c slice).
+2. **No accidental deeds.** A translated or invented deed must require a
+   deliberate act in the spirit of the source deed and proportionate to its tier:
+   an easy deed may be simple, but "sell one Empty pot" is something a player does
+   by accident, which is the inverted inert row section 33 forbade. Buying or
+   selling one common item at a general store is never a deed on its own.
+3. **The disposition test, stated once.** `translated` means the source deed's
+   substance survives in AnkiScape's model with only its locale or surface
+   changed (the Draynor row's substance is "bank at a specific place", which the
+   locationless Bank cannot express, so it is not translatable). `invented` means
+   the substance could not survive and a new deed was written in the family's and
+   tier's spirit, citing the family and tier it serves. A row where only the
+   locality survives is `invented`, and its new deed must meet rule 2.
+4. The three Empty-pot rows and the Draynor row are the named test cases; the
+   fix round reports each of the dozen accidental deeds with its replacement.
+
+### 48.2 Owner ruling: the line count stays literal; PEP 8 is the gate — 09:15 PDT
+
+Owner: "line count does include those too. But that's a lazy fix from the model,
+need to make sure it doesn't do stuff like that. It still needs to pass
+Pylint/PEP8." The count-statements proposal in 48.1 is withdrawn. The fleet slop
+gate (fleet `eee1701`) now ratchets PEP 8 layout per file and code — pycodestyle
+E301-E306 (blank lines around definitions) and E701-E703 (several statements per
+line): a commit that adds such a violation is blocked, existing debt is tolerated
+(baseline on main: 151 findings across 48 files), and violations inside a
+definition that only moved file do not count. Verified on item 2's commit
+`026f9452` staged in a leased scratch worktree: `runtime/runtime_actions_carried.py:
+E702 x2 (was 0)`. Blank-line removals that stay within PEP 8 (trimming excess
+spacing) are not violations and are acceptable; the review check in 48.1 narrows
+to what the gate cannot see. `pycodestyle` is installed through `uv tool` for the
+hook; the Homebrew copies of pycodestyle and flake8 point at a removed Python
+3.12 and are dead.
+
+### 47.2 Fan-out is move-aware too — 09:30 PDT
+
+The carried-file split (1,484 lines into three modules of 465, 399 and 754; all 16
+moved ASTs identical; digest `d3c2178b...` under both interpreters; preserved as
+`refs/preserved/split-runtime-carried-2026-09-02`) was refused for fan-out 89
+(was 87): the aggregator gained exactly the two edges to modules its own
+definitions moved into. Same shape as the three ratchets ruled move-aware, so the
+gate now treats edges from a file to new modules whose origin is that file as not
+new fan-out, using the cycle check's origin map (fleet `0a14dcd`, 19 tests green).
+Item 2's rework must also re-pin the two surface digests it legitimately changes
+(`core/constants.py`, `__init__.py` under Qt), naming each added name. Item 2c is
+rejected by its conformance check (131 rows changed where ruling 31 requires 136,
+every resolved row with `wiring: null`, an unsupported `invented` disposition
+crashing the compiler, 28 triggers naming seams that do not exist) and its
+consolidated fix round runs under ruling 49.
+
+### 47.3 A split part inherits its origin's fan-out baseline — 09:40 PDT
+
+The activities split (3,152 lines into an aggregator of 938 plus five modules of 28
+to 840; digest `0f9d099a...` under both interpreters; 56 function and 4 constant
+ASTs identical; preserved as `refs/preserved/split-runtime-activities-2026-09-02`
+at `1d88fe86`) was refused for fan-out 32 and 27 "(new)" on two parts whose edges
+all existed in the origin file. Ruled as the seat's option A, the rule seen from
+the part's side: a part counts only edges outside its own family (origin and
+sibling parts) and ratchets against the origin file's head fan-out, so
+redistributing existing edges introduces nothing while a genuinely new edge still
+does (fleet commit, 20 tests green). Option B, cutting the parts again to reach a
+number, is what 34.3 forbids. Batch 2 (root dispatchers `a8bb0fa7`, carried
+`89f2666e`) is gating at `8300e8ad` with the merged-tree surface test passed first.
+
+## 50. Horror from the Deep folds in Bar Crawl — 09:42 PDT
+
+Fourth queue premise inverted on measurement (ruling 33.2): Horror from the Deep
+was selected for having no prerequisites, and it has one, the Bar Crawl miniquest,
+whose flag `bar_crawl_completed` the code reads once
+(`logic/agility_logic.py:282`) and never writes. Ruling: the slice grows to include
+a player-reachable Bar Crawl completion route, since a gate nobody can pass is the
+section-13 unstartable-quest defect either way; Bar Crawl is a dual-eligible
+miniquest, so the claim-first doorbell to the Darkan thread precedes its harvest.
+The harvest's corrections (one-plank and stage-six combat readings; Prayer 43
+recommended, not required) stand. The activities split is committed at `3d3ed9d9`
+as preserved and waits for the next batch, keeping the running window honest.
+
+## 51. Gate lanes move to the MacBook; a bound is a quiet-baseline times 1.3 — 09:55 PDT
+
+Gate `8300e8ad` refused with `TIMEOUT: exceeded 1000 seconds`: the plain lane took
+826 s quiet and 1,071 to 1,171 s today with six agent lanes competing for the
+machine. The timeout worked as ruling 40 designed it. Rulings: (A) now, re-gate
+when the machine is quiet, and from now on no agent lane or audit runs on this
+host while a gate runs; (C) as the fix, and it is what the goal text already
+orders — "use the same MBP over Tailscale/SSH for headless testing instead of this
+Mac Studio" — the gate's `--remote-lanes` path to the MacBook becomes the default
+for every gate, so lane time never competes with agent work. Bounds are not raised
+for load: each lane's bound is its measured quiet baseline on the host that runs
+it, times 1.3, re-measured when the tree changes materially, and recorded in the
+gate log with the baseline it came from. The promotion-gate follow-up's
+simplification review stands as the seat relayed it: the impossible-state recheck
+and its test go, the ghost-inode guard stays, and the missing failed-land test is
+added.
+
+### 39.1 The turn-end machinery is installed — 10:00 PDT
+
+Ruling 39's proposed Stop hook is installed for every seat as fleet `e8d90ed`
+(`no-unacted-intent.py`, beside the anti-swallow hook). Per the owner's rule
+against string heuristics on model output, the judgment is made by Gemini 3.8
+Flash at low effort through `agy` with a strict JSON schema, fail-open on any
+judge error. Calibrated on 60 real turn-final messages: 3 of 30 orchestrator
+finals flagged, each the failure shape, 0 of 30 design-seat finals, about 6 s per
+call. A running seat picks it up at its next reseat.
+
+### 51.1 Clarification and the baseline record — 10:05 PDT
+
+The quiet-host rule in 51 covers test lanes and the five repository audits, which
+load the CPU; `worktree_guard.py audit`, a millisecond git query, is not in it, so
+guarded lease release may run during a gate. Baseline record: a plain lane on this
+host under load ran 4,632 tests in 1,326.318 s against the quiet 826.119 s; the
+1.3 bound (1,074 s) would still refuse it, which is the argument for the remote
+default, not against the formula. The remote host answers (`armans-macbook-pro`,
+`/Users/armantarkhanian/ankiscape-remote-test-host`, 14 cores). The promotion-gate
+follow-up is complete at `7cfe9f2f`: the lock survived successful lands because it
+was built with `unlink_on_release=False`, now removed; the linked-worktree warning
+came from checking the hook against the invoking worktree's own git dir; four
+regressions fail without their fix; `tools/promotion_gate.py` sits at 999 lines,
+so its split (first-wave file twelve) precedes any further change to it.
+
+## 52. Invisible dark-mode text is a measured player-visible slice; fabricated citations void a report — 10:40 PDT
+
+An undispatched review surfaced `palette(mid)` used as a text color
+(`ui/ui.py:28421`, `:28431`; `ui/clan_wars_panel.py:92`), which
+`.claude/rules/qt-dark-mode-text.md` already names as invisible text on a dark
+base. The lines exist; the review's framing (a regression in the diff) is false —
+they date from `8dea34b2` and `711a87c8` — and it cites
+`tools/worktree_guard.py:267513` in a 263-line file, so none of its other claims
+counts as verified. Rulings:
+
+1. The seat measures first, read-only: of the 281 `palette(mid)` sites outside the
+   pool, how many style a text role on something a player reads. That number, not
+   281, sizes the slice.
+2. Fixing a text role to `palette(text)` is a defect fix, not an interface change,
+   so it needs no owner approval; it is one gated slice with the offscreen
+   dark-mode check (Fusion dark `QPalette`, per
+   `.claude/rules/qt-offscreen-screenshots.md`) as its proof, and because every
+   fix is a same-line edit it grows no file and may run before `ui/ui.py` is
+   split, which keeps the two from colliding.
+3. The 28 `except Exception: pass` blocks are a separate item: measure them, then
+   queue them under the fail-explicitly principle; none is touched inside this
+   slice.
+4. A report with a fabricated citation is set aside whole; its true findings are
+   re-measured from the tree before they enter the queue, as here.
+
+### 52.1 Retraction and the measured slice — 10:42 PDT
+
+Ruling 52 item 4 is withdrawn. The citation `tools/worktree_guard.py:267513` was a
+line number in the unified diff, not the file, and resolves to file line 207; it is
+unusable for a reader, not fabricated. Both stray reviews mis-framed old code as
+new because their base was `@{upstream}`, which is `origin/main` at `1e99e017`, and
+this project never pushes, so "the diff" was 679 files and 214,796 insertions: the
+repository, not a change. Replacement rule: every review brief in this repository
+names an explicit base commit and never uses `@{upstream}`; reports are judged on
+their measurements. Measured, read-only: of 281 `palette(mid)` sites, **16 are
+text roles** (`ui/ui.py`, the four minigame panels, `ui/ui_tab_achievements.py`,
+two test files), so the slice is sixteen same-line edits under the dark-mode check,
+before the `ui/ui.py` split. Standing duplication debt, measured: `def _quest_complete(`
+in 15 files (not the reviews' 21) and `def _int(` in 57 `logic/` files; queued as a
+consolidation item, not a regression. Re-gate running on the remote lanes:
+`971c2cd6` with digests re-proved on the merged tree, log `gate-971c2cd6.log`; the
+gate cleaned the previous stale marker on startup.
+
+## 53. Rebinding moved functions into the root's globals is not a split — 10:50 PDT
+
+The root-dispatchers split moved 11 modules of functions with almost no imports;
+`runtime/runtime_actions_review.py` (533 lines) has none, and `__init__.py`
+rebuilds every moved function against its own `globals()`
+(`_bind_runtime_dispatcher`). The parts are code containers, not modules: they
+import but their functions raise `NameError` if called, and the live copies exist
+only in the root namespace. That defeats the purpose of the split program (real
+seams, standalone modules, less coupling), makes every moved definition the
+callable corpse 42.2 item 2 forbids, and hides the root's mutable-global coupling
+instead of removing it. Ruling: the pattern is rejected.
+
+1. **A part is a module.** Its functions resolve their names through the part's
+   own imports at module top: glue, not a body change, so moved ASTs stay
+   identical and the move proof holds. No function object is rebuilt against
+   another module's globals.
+2. **Shared mutable state is the real seam.** Where moved functions reach root
+   globals (`player_data` and kin), a small pre-split slice extracts that state
+   into a module the root and the parts both import, with behavior tests; any
+   function whose body must change to reach it is a real change, simplified and
+   tested under the same rule as the two honest rows in 47. Then the move.
+3. **This batch lands only the carried split.** The root-dispatchers split leaves
+   the batch and goes back through 1 and 2; its preserved ref stays. A new batch
+   is merged and re-gated on the remote lanes.
+4. The contract names this pattern as forbidden so no later split reinvents it.
+5. Queued for read-only measurement before belief, since two are save-data
+   correctness claims: the v121 migration deleting stage actions without
+   conversion into the proof store (`core/storage_pure.py:988`); proof retraction
+   removing a proof another retained event supplies
+   (`logic_pure/quest_action_proofs.py:83`); the Evil Tree handler lacking the
+   `refresh_skill_availability` call its 29 siblings make; the hot-path cost
+   claims last. The false import-count claim is discarded as measured.
+
+### 53.1 Batch 3 carries carried and activities; the seam slice is narrow and manually proven — 10:50 PDT
+
+Measured: the carried and activities parts resolve their names through real
+imports (13 and 16; 28, 33 and 3 lines) with no `_bind_runtime_dispatcher`, so the
+rejected pattern is confined to the eleven root dispatcher modules. Batch 3
+(`goal/split-batch-3-2026-09-02`, `bc5d2f64`) therefore carries both the carried
+and the activities splits, after the activities merge and a digest re-proof on the
+merged tree; one gate on the remote lanes. The seam slice for the root: scoped to
+the state accessor only (a module holding the root's shared mutable state,
+`player_data` and kin, imported by the root and the parts); every dispatcher whose
+body changes to reach it is a real change with a behavior test; and before it is
+called done it gets an end-to-end manual pass on the real reviewer, on the
+MacBook through computer use per the goal text, in addition to both lanes and the
+offscreen smoke check. Then the root split re-proves and lands.
+
+### 53.2 Batch 2 green on every instrument, still rejected on the pattern; remote baselines — 11:02 PDT
+
+Gate `971c2cd6` on the remote lanes: plain `Ran 4628 tests in 511.813s, OK
+(skipped=517)`, Qt `Ran 4628 tests in 705.850s, OK (skipped=5)`, docs audit 640
+Markdown and 441 HTML, test-quality 4,593 tests across 236 files with 0 hard
+issues, reachability 1,663 actions / 2,343 reachable items / 163 orphan inputs /
+249 blocked actions. The Qt lane's five skips against the plain lane's 517 is a
+real offscreen run, not the false pass the contract warns of. Under 53 this
+stands as evidence, not a landing: the root-dispatchers split is green on every
+instrument the programme owns and is rejected on the pattern, which no lane,
+digest or audit can see. Remote baselines for ruling 51: plain 512 s, Qt 706 s
+(bounds 665 s and 918 s at 1.3). Batch 3 (`4125682b`, carried and activities,
+digests re-proved on the merged tree) is gating; the gate follow-up
+(`goal/gate-followup-2026-09-02`) lands next, ending the surviving lock and the
+linked-worktree warning on every gate.
+
+### 53.3 Batch 3 landed; 67 -> 65 — 11:25 PDT
+
+`4125682b` on main: the carried and activities splits, remote lanes plain 507.6 s
+and Qt 703.9 s inside the new bounds, audits clean. An uncommitted papercut line
+from another agent blocked the fast-forward; the seat adopted it, set it aside,
+landed the exact gated tree, and restored it on top at `e06991b1`. Preserved refs
+for the two landed splits are deleted; four remain (quest data, diary catalog, root
+dispatchers, roster test). The gate follow-up is gating at `c5adc648`. Item 2c is
+committed at `028df5f9`: 320 rows, 204 live with zero null wiring, dispositions 42
+active / 125 translated / 37 invented / 116 dormant, all five re-points naming
+`quest_action_proofs`; the duplicate-seam audit found four pre-existing live
+collisions beyond the one that prompted it, so 140 rows changed rather than 136;
+full verification runs remotely after this gate, including its 233-versus-236
+test-file count.
+
+### 53.4 The gate follow-up landed; both standing gate defects are machinery now — 12:25 PDT
+
+`c5adc648` on main (remote lanes plain 509.5 s, Qt 704.0 s; tests 4,593 -> 4,597
+with files steady at 236, the four regressions and no vacuous drop; the worktree
+guard printed no warning for the first time). The land itself still left a lock,
+expected: `land` loaded the pre-fix `promotion_gate.py` from the canonical
+checkout before the fast-forward; `unlink_on_release` no longer exists under
+`tools/` and `release()` unlinks unconditionally, so the next land is the proof.
+State: 65 oversized files, no gate running, no lock. Order: `tools/promotion_gate.py`
+split (first-wave file twelve, at 999 lines), 2c's remote verification starting
+with its 233-versus-236 file count, the seam slice under 53.1, then item 2's
+re-expansion.
+
+## 54. A modal in the answer path hangs the Qt lane; the lane must refuse modals — 2026-09-02 12:55 PDT
+
+2c's remote Qt lane blocked in `QDialog::exec()` at
+`tests/test_achievement_diary_ledger_wiring.py:750`
+(`test_real_advanced_barbarian_lap_completes_agile_top_deed`): the real kernel
+path for an advanced barbarian lap opens a modal dialog under the offscreen
+interpreter with no loop to close it. The plain lane skips the widget path, so it
+never showed. Hypothesis held until the runner's 1,800 s timeout prints it: this
+is what hung the diary gate on 2026-09-01 for five hours. The bounded lanes and
+the remote host turned that wedge into a fifteen-minute diagnosis, as ruling 40
+and 51 intended. The test also sets `bar_crawl_completed: True` by hand, a second
+confirmation that the Bar Crawl flag has no writer (ruling 50).
+
+Rulings, inside the 2c slice:
+1. **Find which dialog and why it is synchronous.** If the modal is a deed or
+   notice opened inside the answer path, that is the product defect Pass 12
+   ruling 2 already settled for Bankstanding: notices are deferred out of the
+   answer flow and owned by the caller. Fix the product, not the test, with a
+   regression proving no `exec()` runs inside the kernel path.
+2. **The Qt lane refuses modals.** The offscreen test harness patches
+   `QDialog.exec` (and `QMessageBox` static helpers) to raise immediately, so a
+   modal in a test path fails in seconds with a stack trace instead of hanging
+   for 1,800 s. That is the class fix for the hanging-child incident and lands
+   with this slice.
+3. 2c does not land until both are in. The promotion-gate split (`6bfeafe4`: 999
+   lines into a 210-line entry point and six modules, largest 505, 40 definitions
+   AST-identical, every part importing standalone, no rebinding) gates when the
+   remote host is free.
+
+### 54.1 2c verified except the hang; the file-count question closed — 13:15 PDT
+
+233 versus 236 is the audit tool, not missing tests: the branch carries the
+non-recursive `glob` audit and main the recursive `rglob` from `5ef46809`; the three
+nested files (`tests/promotion/test_landing_freeze_hook.py`,
+`tests/promotion/test_vacuous_source_scan_audit.py`,
+`tests/quest_catalog/test_literal_mappings.py`) landed after the branch point and
+account for the difference exactly. Branch verified on the remote host: plain
+4,642 tests in 506.4 s, OK with 516 skips; ledger 320 rows, 42 active / 125
+translated / 37 invented / 0 swapped / 116 dormant, zero live rows with null
+wiring, five re-points naming `quest_action_proofs` and config version 123; the
+duplicate-seam validator fails on a deliberate duplicate naming both tasks; the
+generated catalog blob byte-identical at all three commits; the fleet gate does
+not refuse. The hang is confirmed: 777 stack samples inside `QDialog::exec()`,
+139 tests completed, the 1,800 s runner timeout with no summary. The ruling-54
+fix slice is dispatched with the established facts (`runtime/` has no `.exec()`;
+the modal statics live in the `ui/` activity panels; `_prompt_near_death` defers
+correctly). The promotion-gate split is gating at `b478774d`.
+
+### 54.2 The gate split landed and the lock fix is proven; a preserved ref is deleted only after its commit is on main — 13:35 PDT
+
+`b478774d` on main: `tools/promotion_gate.py` 999 -> 210 lines with six modules
+behind it (largest 505), remote lanes plain 502.0 s and Qt 701.2 s inside the
+bounds, audits clean, and for the first time today no lock file after the land,
+since this land ran the fixed code. Oversized files stay at 65 (that file was
+already under the cap). The seat deleted `refs/preserved/init-dispatchers-2026-09-02`
+by mistake in a counting command, noticed at once, and restored it to `39d59468`;
+nothing was lost. Rule from it, mechanical: a preserved ref may be deleted only
+when `git merge-base --is-ancestor <ref> main` succeeds, and the deletion command
+checks that itself. Four refs stand: quest data, diary catalog, root dispatchers,
+roster test. Largest remaining: `generated/quest_catalog_generated.py` 34,616 and
+`generated/item_values_generated.py` 15,149 (generator sharding, never by hand),
+`ui/ui.py` 29,467, `tests/test_main_menu_widget.py` 20,007, `data/quest_data.py`
+12,667 (split complete and preserved, one honest row).
+
+### 54.3 The preserved-ref guard exists; a message-only amend of an unlanded slice commit is allowed on the seat's request — 13:42 PDT
+
+`goal/preserved-ref-guard-2026-09-02` (`d45a20ce`): `worktree_guard.py preserved
+list` reports each ref's landing state and `preserved delete <name>` refuses, exit
+2, no override, unless `git merge-base --is-ancestor <ref> main` succeeds. Proof:
+with the ancestry check broken, two of three tests fail and the unlanded ref is
+deleted (the incident reproduced); restored, 14 guard tests pass, in a real
+temporary repository. Against the four real refs it reports all NOT LANDED. The
+seat sent back a 400-character single-line commit message. Ruling on the amend
+rule: an agent may amend its own unlanded, unpushed slice commit for the message
+only, when the orchestrator requests it and the report records it, because the
+contract requires one attributable commit per branch and a follow-up commit
+cannot repair a message; content changes still take a new commit.
+
+### 54.4 The live checkout ran unreviewed guard code; the gate will refuse a dirty canonical tree — 13:45 PDT
+
+The canonical checkout carried the unlanded preserved-ref guard edits
+(byte-identical to `d45a20ce`, 147 insertions against main) because one brief
+omitted the canonical-checkout prohibition every other brief carried, and the
+agent, disclosing it, ran one `unittest` iteration there to exercise the check
+against the real refs. Restored with `git checkout --` on the two files; the guard
+reports the layout safe. Rulings: (1) the prohibition moves into
+`STANDING-SLICE-CONTRACT.md` section 1, beside the placement rules, so every
+brief inherits it and none can omit it; (2) machinery: `promotion_gate.py run`
+refuses to start when the canonical checkout has uncommitted modifications to
+tracked files, naming them, since that state both caused this and would have
+refused the land; a small gated slice on the freshly split tool, with a
+regression. The contract edit waits in `memory-bank/pending/` until the running
+window closes.
+
+### 54.5 The hang was the achievement popup inside the answer flow — 13:50 PDT
+
+Fixed at `81fbb2ad`, traced: `Reviewer._answerCard` -> `on_good_answer` ->
+`handle_agility_answer` -> `check_achievements` -> `show_achievement_dialog` ->
+`dialog.exec()` on "Achievement Unlocked!" for `fremennik_elite_limber_lumber_jumper`.
+It hid because `_popups_enabled()` needs a process-global `QApplication`, which
+only an earlier Qt-lane test creates, so the hang was test-order dependent and the
+file alone never showed it. Product fix: achievement notices join
+`_PENDING_REVIEW_DIALOGS`, drained from `on_answer_card` after Anki's wrapped
+answer returns, the deferred caller-owned pattern of `_prompt_near_death`.
+Harness fix: `tests/__init__.py` rejects `QDialog.exec` and the four `QMessageBox`
+statics, installed by `run_tests.py` before discovery; an unhandled modal now
+fails in 0.002 s with a named error. Both regressions fail without their fix.
+The canonical checkout was checked clean first. Requirement added: because the
+popup's timing is player-visible, the slice proves the notice still appears
+after the answer (a regression that the pending dialog is drained and shown once,
+and an offscreen visual smoke of the dialog under the stale-geometry rules), so
+deferral never becomes loss. 2c then re-gates behind the guard gate.
+
+### 54.6 The freeze hook did not freeze: the gate must hold the lock from launch — 14:05 PDT
+
+Ledger commit `5cdf4c54` (design seat, 13:40:02) landed while `gate-a92de9ef` was
+running (launched about a minute earlier, announced after), so the land refused,
+correctly, and the guard branch re-gates at `b0b723ab`; the refused run was fully
+green (plain 511.3 s, Qt 708.0 s, 4,635 tests, audits clean) and the lock released
+cleanly on the refusal path, the follow-up working. Fifth move of main under an
+open gate today, and the announcement race is not the root cause: ruling 38's
+freeze hook allowed the commit, so the gate was not holding the landing lock while
+its lanes ran. Ruling: `promotion_gate.py run` claims the landing lock at launch,
+before any lane, local or remote, and holds it through `land` or refusal, so the
+freeze hook refuses every commit on `main` for the whole window whether or not an
+announcement arrived; proof is the hook refusing a commit during a running gate.
+This joins the dirty-canonical slice (`00e68104`, 61 insertions, mutation-proven)
+as one gated tooling slice on the split tool. Announcements stay as they are;
+they are courtesy, the lock is the rule.
+
+Correction, 14:05, from the seat's measurement during the re-gate: the lock IS
+claimed before the lanes (present, written 14:01; hook: "Commit refused:
+promotion gate holds b0b723ab... (PID 58351) for 60s"). The claim comes about one
+second after process start, while `run` resolves the worktree and writes its
+marker, and the design seat's commit at 13:40:02 fell into that second after a
+13:40:01 launch. 54.6 narrows to: claim the lock as the very first action of
+`run`, before resolving the worktree, checking the canonical tree, or opening the
+log; proof is the hook refusing a commit attempted immediately after launch as
+well as during the lanes. Neither seat was careless; for one second nothing on
+disk said a gate was running.
+
+## 55. Item 2 re-expands onto the split layout; one manual pass covers the answer path — 2026-09-02 15:12 PDT
+
+The tooling pair landed at `a089b993` (plain 514.4 s, Qt 719.7 s, 4,640 tests,
+test-quality 4,605 across 237 files, lock released on land): a dirty canonical
+checkout refuses a gate, and `run` claims the lock first. Merging main into the
+2c stack conflicts in exactly the two files main has since split
+(`runtime_actions_activities.py`, `runtime_actions_carried.py`), because item 2's
+held diary edits target the old monolithic shape; the seat aborted the merge and
+left the branch clean at `aadd4410`. The seat also launched a gate before checking
+the merge result and killed it within seconds; ruled: `run` refuses a worktree
+with unresolved merge conflicts, folded into the next tooling slice.
+
+Rulings: (1) brief item 2's re-expansion now as authoring on its branch: the held
+edits move into the new part modules, written in normal formatting under the PEP
+8 ratchet, with behavior tests for each relocated emit and the two surface
+digests re-pinned naming each added name; (2) it, the seam slice (53.1) and 2c's
+deferred popup all touch the review answer path, so one end-to-end manual pass on
+the real reviewer on the MacBook covers all three, run after item 2 and the seam
+slice land and before Bill (2b) ships, rather than once per slice; both lanes and
+the offscreen smoke still run per slice; (3) order: item 2 re-expansion, 2c's
+re-gate, the seam slice, the three proven splits, then 2b.
+
+## 56. The design seat steps back; the orchestrator runs the standing order alone — 2026-09-02 15:15 PDT
+
+Owner: stop monitoring the orchestrator to conserve Fable quota; let it continue
+the goal on its own; it may ping the owner only if absolutely needed. The design
+seat's handoffs monitor and keep-warm loop are stopped. Standing order for the
+seat: execute ruling 55's order and the queue behind it under every ruling
+through 55, with no design-seat doorbells expected. A decision only the owner can
+make becomes a named gate in this ledger; the seat stops at it, states it plainly
+as the last line of its turn so the owner's notification hook fires, and takes the
+next eligible unit. It never messages the owner otherwise. Routine reports go to
+this ledger and the handoffs directory as before.
