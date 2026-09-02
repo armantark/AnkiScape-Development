@@ -3276,3 +3276,17 @@ roster test. Largest remaining: `generated/quest_catalog_generated.py` 34,616 an
 `generated/item_values_generated.py` 15,149 (generator sharding, never by hand),
 `ui/ui.py` 29,467, `tests/test_main_menu_widget.py` 20,007, `data/quest_data.py`
 12,667 (split complete and preserved, one honest row).
+
+### 54.3 The preserved-ref guard exists; a message-only amend of an unlanded slice commit is allowed on the seat's request — 13:42 PDT
+
+`goal/preserved-ref-guard-2026-09-02` (`d45a20ce`): `worktree_guard.py preserved
+list` reports each ref's landing state and `preserved delete <name>` refuses, exit
+2, no override, unless `git merge-base --is-ancestor <ref> main` succeeds. Proof:
+with the ancestry check broken, two of three tests fail and the unlanded ref is
+deleted (the incident reproduced); restored, 14 guard tests pass, in a real
+temporary repository. Against the four real refs it reports all NOT LANDED. The
+seat sent back a 400-character single-line commit message. Ruling on the amend
+rule: an agent may amend its own unlanded, unpushed slice commit for the message
+only, when the orchestrator requests it and the report records it, because the
+contract requires one attributable commit per branch and a follow-up commit
+cannot repair a message; content changes still take a new commit.
