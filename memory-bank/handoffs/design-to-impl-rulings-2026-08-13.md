@@ -2860,3 +2860,245 @@ unreleased land lock and the linked-worktree hook warning); hold the four preser
 splits until the owner's ruling on 42.3 is relayed; announce every landing window
 before its gate starts with the log monitor armed in the same turn; and end every
 turn on an action or an armed wake (ruling 39). Path-scoped staging only.
+
+## 47. Owner ruling on 42.3: move-aware now, then simplify what the moves expose — 2026-09-02 09:05 PDT
+
+Owner: "You can have it move and then simplify the measured complexity." The fleet
+slop gate is patched and committed (fleet repo, "slop-gate: a moved definition
+introduces nothing"): a def, class, or top-level assignment re-added with an
+identical normalized AST after leaving another file in the same commit ratchets no
+complexity, cognitive, or Halstead check; dead-code findings inside such a
+definition are pre-existing; and a cycle whose new files trace back to files that
+already cycled, by moved definitions or by adding no import edge of their own, is
+not new. A changed body or a copy still counts. The hook file runs in place, so it
+is live for every commit now.
+
+Verified against the four preserved splits, staged in place and reset:
+
+| Split | Remaining refusals | Reading |
+| --- | --- | --- |
+| diary catalog | none | lands as staged |
+| root `__init__.py` dispatchers | none | lands as staged |
+| roster test | `test_new_slayer_family_assets_are_present_and_provenanced` 22 / 41 (new) | body changed in the move (the `parents[2]` fix); honest |
+| quest data | `data/quest/reward_items.py::quest_reward_items_as_dict` 20 (new); `test_literal_quest_id_mappings...` 23 (was 15) | function adapted to the layout; the test is superseded by ruling 44's layout-independent version on main and disappears on rebase |
+
+Rulings: the two clean splits commit and gate now (batched per ruling 41 after
+their digests are re-verified on the merged tree). For the two honest rows: a
+function that had to change in the move is a real change, so it is simplified
+under the threshold in the same slice, with a behavior test, and stops being a
+pure move only for that function, which the report names. The **simplification
+program** is queue item 0b, after the first wave: every function the moves expose
+above threshold, measured from the gate's own reports as the splits land,
+simplified with behavior tests, largest first (`on_answer_card` 93,
+`logic_pure_combat_engine` 348), never inside a move.
+
+### 47.1 Fleet commit — 09:05 PDT
+
+The gate's first fleet commit was refused by the gate itself (`moved_definitions`
+cognitive 19); the loop body was lifted into `departed_definitions` and the change
+landed as fleet `deeea97`, "slop-gate: a moved definition introduces nothing", 15
+tests green. Section 47's "committed" was written one minute early.
+
+## 48. No statement joins to fit a gate; no split by line range — 2026-09-02 09:10 PDT
+
+1. **Item 2 does not land with joined lines.** Commit `026f9452` kept
+   `runtime/runtime_actions_carried.py` at exactly 1,484 lines by joining two
+   unrelated statements onto one line in two places. No variable was set, so the
+   letter of ruling 34 held, but the growth check was gamed, not obeyed. Ruling:
+   the carried-file split (first-wave file eleven, now unblocked by the move-aware
+   gate; five functions over the cognitive threshold at 16, 20, 33, 42 and 270)
+   lands first; item 2's fix is then re-expanded to normal formatting on top of
+   it and gated. Statement joins made to fit a line budget are a defect in any
+   slice from now on, and the review checks for them.
+2. **A split is by seam or it is not a split.** The constants split produced
+   twelve modules that are contiguous line ranges of the original, six of them
+   holding nothing but imports, with names that do not describe their contents
+   (`skill_foundations.py` holds Agility and Dungeoneering because they came
+   first). The surface digest was byte-identical, which proves it moved code; it
+   does not prove it split anything. Ruling: the fix round regroups by domain
+   with names that describe contents, every part module imports standalone (one
+   currently raises `KeyError` on import), and `memory-bank/systemPatterns.md`
+   stops claiming an import cycle that does not exist statically. The seat's
+   choice to hold the fix round until the verification lane and the GLM vote
+   return, so the branch gets one consolidated round, is correct.
+
+### 48.1 Blank-line stripping is the same defect — 09:12 PDT
+
+Item 2's branch also deleted 46 blank lines across three oversized files to pay
+for its additions (`__init__.py` 16 blank lines removed to fit one import;
+`runtime/runtime_actions_activities.py` 24; `tools/generate_achievement_diary_data.py`
+6), on top of the two statement joins. Ruling 48 now covers any reformatting made
+to fit a line budget: statement joins, blank-line deletion between definitions,
+and comment or docstring removal. The review checks for a drop in blank lines in
+an oversized file the same way it checks for joins. Item 2 therefore waits on
+three splits (carried, activities, and the diary generator) before it is
+re-expanded and gated; the carried and activities splits are dispatched. The root
+dispatchers split is committed at `a8bb0fa7` (`__init__.py` 765 lines, eleven
+runtime modules of 315 to 706) with the patched gate accepting it.
+
+Machinery proposal for the owner, since it edits the fleet gate: measure the
+file-size ratchet in non-blank, non-comment lines (or AST statements for Python)
+instead of physical lines, so neither stripping blank lines nor joining statements
+buys any budget and the gate cannot be gamed by formatting. Until then the review
+check stands.
+
+## 49. What a translated or invented diary deed must satisfy — 2026-09-02 09:15 PDT
+
+Item 2c's review found three defect classes, one verified by the seat: the new row
+`lumbridge_easy_money_down_the_drayn` completes on the same `bank_run`
+`deposited_non_coin` event as the already-wired `burthorpe_period_bank_on_it`;
+about a dozen of the 116 translations resolve to one cheap shop purchase or junk
+sale (three rows resolve to selling one Empty pot, item 1931, at a general store);
+and the disposition test is uneven, with rows where only the locality survives
+marked `translated` rather than `invented`. The constants move passed its second
+review (562 names set-identical, values equal, digest `7d6ca7ea...` matching the
+pin on main, dict-order noise proven by a two-dump control); its seam and naming
+rework stands.
+
+Rulings for the consolidated 2c fix round, and for every future curation row:
+
+1. **One deed, one seam.** No two live rows may complete on the same event
+   predicate. The generator or its audit rejects a duplicate completion seam
+   across the catalog, so this class fails loudly from now on (a small tooling
+   addition inside the 2c slice).
+2. **No accidental deeds.** A translated or invented deed must require a
+   deliberate act in the spirit of the source deed and proportionate to its tier:
+   an easy deed may be simple, but "sell one Empty pot" is something a player does
+   by accident, which is the inverted inert row section 33 forbade. Buying or
+   selling one common item at a general store is never a deed on its own.
+3. **The disposition test, stated once.** `translated` means the source deed's
+   substance survives in AnkiScape's model with only its locale or surface
+   changed (the Draynor row's substance is "bank at a specific place", which the
+   locationless Bank cannot express, so it is not translatable). `invented` means
+   the substance could not survive and a new deed was written in the family's and
+   tier's spirit, citing the family and tier it serves. A row where only the
+   locality survives is `invented`, and its new deed must meet rule 2.
+4. The three Empty-pot rows and the Draynor row are the named test cases; the
+   fix round reports each of the dozen accidental deeds with its replacement.
+
+### 48.2 Owner ruling: the line count stays literal; PEP 8 is the gate — 09:15 PDT
+
+Owner: "line count does include those too. But that's a lazy fix from the model,
+need to make sure it doesn't do stuff like that. It still needs to pass
+Pylint/PEP8." The count-statements proposal in 48.1 is withdrawn. The fleet slop
+gate (fleet `eee1701`) now ratchets PEP 8 layout per file and code — pycodestyle
+E301-E306 (blank lines around definitions) and E701-E703 (several statements per
+line): a commit that adds such a violation is blocked, existing debt is tolerated
+(baseline on main: 151 findings across 48 files), and violations inside a
+definition that only moved file do not count. Verified on item 2's commit
+`026f9452` staged in a leased scratch worktree: `runtime/runtime_actions_carried.py:
+E702 x2 (was 0)`. Blank-line removals that stay within PEP 8 (trimming excess
+spacing) are not violations and are acceptable; the review check in 48.1 narrows
+to what the gate cannot see. `pycodestyle` is installed through `uv tool` for the
+hook; the Homebrew copies of pycodestyle and flake8 point at a removed Python
+3.12 and are dead.
+
+### 47.2 Fan-out is move-aware too — 09:30 PDT
+
+The carried-file split (1,484 lines into three modules of 465, 399 and 754; all 16
+moved ASTs identical; digest `d3c2178b...` under both interpreters; preserved as
+`refs/preserved/split-runtime-carried-2026-09-02`) was refused for fan-out 89
+(was 87): the aggregator gained exactly the two edges to modules its own
+definitions moved into. Same shape as the three ratchets ruled move-aware, so the
+gate now treats edges from a file to new modules whose origin is that file as not
+new fan-out, using the cycle check's origin map (fleet `0a14dcd`, 19 tests green).
+Item 2's rework must also re-pin the two surface digests it legitimately changes
+(`core/constants.py`, `__init__.py` under Qt), naming each added name. Item 2c is
+rejected by its conformance check (131 rows changed where ruling 31 requires 136,
+every resolved row with `wiring: null`, an unsupported `invented` disposition
+crashing the compiler, 28 triggers naming seams that do not exist) and its
+consolidated fix round runs under ruling 49.
+
+### 47.3 A split part inherits its origin's fan-out baseline — 09:40 PDT
+
+The activities split (3,152 lines into an aggregator of 938 plus five modules of 28
+to 840; digest `0f9d099a...` under both interpreters; 56 function and 4 constant
+ASTs identical; preserved as `refs/preserved/split-runtime-activities-2026-09-02`
+at `1d88fe86`) was refused for fan-out 32 and 27 "(new)" on two parts whose edges
+all existed in the origin file. Ruled as the seat's option A, the rule seen from
+the part's side: a part counts only edges outside its own family (origin and
+sibling parts) and ratchets against the origin file's head fan-out, so
+redistributing existing edges introduces nothing while a genuinely new edge still
+does (fleet commit, 20 tests green). Option B, cutting the parts again to reach a
+number, is what 34.3 forbids. Batch 2 (root dispatchers `a8bb0fa7`, carried
+`89f2666e`) is gating at `8300e8ad` with the merged-tree surface test passed first.
+
+## 50. Horror from the Deep folds in Bar Crawl — 09:42 PDT
+
+Fourth queue premise inverted on measurement (ruling 33.2): Horror from the Deep
+was selected for having no prerequisites, and it has one, the Bar Crawl miniquest,
+whose flag `bar_crawl_completed` the code reads once
+(`logic/agility_logic.py:282`) and never writes. Ruling: the slice grows to include
+a player-reachable Bar Crawl completion route, since a gate nobody can pass is the
+section-13 unstartable-quest defect either way; Bar Crawl is a dual-eligible
+miniquest, so the claim-first doorbell to the Darkan thread precedes its harvest.
+The harvest's corrections (one-plank and stage-six combat readings; Prayer 43
+recommended, not required) stand. The activities split is committed at `3d3ed9d9`
+as preserved and waits for the next batch, keeping the running window honest.
+
+## 51. Gate lanes move to the MacBook; a bound is a quiet-baseline times 1.3 — 09:55 PDT
+
+Gate `8300e8ad` refused with `TIMEOUT: exceeded 1000 seconds`: the plain lane took
+826 s quiet and 1,071 to 1,171 s today with six agent lanes competing for the
+machine. The timeout worked as ruling 40 designed it. Rulings: (A) now, re-gate
+when the machine is quiet, and from now on no agent lane or audit runs on this
+host while a gate runs; (C) as the fix, and it is what the goal text already
+orders — "use the same MBP over Tailscale/SSH for headless testing instead of this
+Mac Studio" — the gate's `--remote-lanes` path to the MacBook becomes the default
+for every gate, so lane time never competes with agent work. Bounds are not raised
+for load: each lane's bound is its measured quiet baseline on the host that runs
+it, times 1.3, re-measured when the tree changes materially, and recorded in the
+gate log with the baseline it came from. The promotion-gate follow-up's
+simplification review stands as the seat relayed it: the impossible-state recheck
+and its test go, the ghost-inode guard stays, and the missing failed-land test is
+added.
+
+### 39.1 The turn-end machinery is installed — 10:00 PDT
+
+Ruling 39's proposed Stop hook is installed for every seat as fleet `e8d90ed`
+(`no-unacted-intent.py`, beside the anti-swallow hook). Per the owner's rule
+against string heuristics on model output, the judgment is made by Gemini 3.8
+Flash at low effort through `agy` with a strict JSON schema, fail-open on any
+judge error. Calibrated on 60 real turn-final messages: 3 of 30 orchestrator
+finals flagged, each the failure shape, 0 of 30 design-seat finals, about 6 s per
+call. A running seat picks it up at its next reseat.
+
+### 51.1 Clarification and the baseline record — 10:05 PDT
+
+The quiet-host rule in 51 covers test lanes and the five repository audits, which
+load the CPU; `worktree_guard.py audit`, a millisecond git query, is not in it, so
+guarded lease release may run during a gate. Baseline record: a plain lane on this
+host under load ran 4,632 tests in 1,326.318 s against the quiet 826.119 s; the
+1.3 bound (1,074 s) would still refuse it, which is the argument for the remote
+default, not against the formula. The remote host answers (`armans-macbook-pro`,
+`/Users/armantarkhanian/ankiscape-remote-test-host`, 14 cores). The promotion-gate
+follow-up is complete at `7cfe9f2f`: the lock survived successful lands because it
+was built with `unlink_on_release=False`, now removed; the linked-worktree warning
+came from checking the hook against the invoking worktree's own git dir; four
+regressions fail without their fix; `tools/promotion_gate.py` sits at 999 lines,
+so its split (first-wave file twelve) precedes any further change to it.
+
+## 52. Invisible dark-mode text is a measured player-visible slice; fabricated citations void a report — 10:40 PDT
+
+An undispatched review surfaced `palette(mid)` used as a text color
+(`ui/ui.py:28421`, `:28431`; `ui/clan_wars_panel.py:92`), which
+`.claude/rules/qt-dark-mode-text.md` already names as invisible text on a dark
+base. The lines exist; the review's framing (a regression in the diff) is false —
+they date from `8dea34b2` and `711a87c8` — and it cites
+`tools/worktree_guard.py:267513` in a 263-line file, so none of its other claims
+counts as verified. Rulings:
+
+1. The seat measures first, read-only: of the 281 `palette(mid)` sites outside the
+   pool, how many style a text role on something a player reads. That number, not
+   281, sizes the slice.
+2. Fixing a text role to `palette(text)` is a defect fix, not an interface change,
+   so it needs no owner approval; it is one gated slice with the offscreen
+   dark-mode check (Fusion dark `QPalette`, per
+   `.claude/rules/qt-offscreen-screenshots.md`) as its proof, and because every
+   fix is a same-line edit it grows no file and may run before `ui/ui.py` is
+   split, which keeps the two from colliding.
+3. The 28 `except Exception: pass` blocks are a separate item: measure them, then
+   queue them under the fail-explicitly principle; none is touched inside this
+   slice.
+4. A report with a fabricated citation is set aside whole; its true findings are
+   re-measured from the tree before they enter the queue, as here.
