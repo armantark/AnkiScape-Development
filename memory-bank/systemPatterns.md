@@ -120,7 +120,7 @@ expected file and provenance key in the asset test.
 ## Important Modules
 - `__init__.py`: runtime orchestration, global player state, review hooks, answer handling, menu callbacks, save/HUD/UI bridge callbacks, and compatibility review-action wrappers.
 - `runtime/runtime_actions.py`: Anki-free runtime review-action handlers and handler-keyed can-start checks for the complete skill surfaces, unified Combat, Quests, Utilities, and Activities. It mutates `player_data` through a callback/context contract supplied by `__init__.py`.
-- `core/constants.py`: item data, skill source data, image paths, XP table, and compatibility exports.
+- `core/constants.py`: compatibility exports and the cycle-sensitive quest/diary assembly; cohesive source, activity, skill, asset, and registry phases live under `core/constants_parts/`.
 - `logic_pure/logic_pure.py`: pure helpers for XP/level math, probabilities, crafting, Utilities/Activities, mining, woodcutting, fishing, hunter, smithing, quests, claims, and runecrafting operations.
 - `logic/cadence_kernel.py`: pure foreground-action cadence contracts. It declares
   `R = 1000`, exact integer residual scheduling, four admission modes, overflow
