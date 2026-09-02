@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import fcntl
+import os
 import sys
 from pathlib import Path
 
@@ -37,6 +38,29 @@ def _git_branch(repo: Path) -> str:
     return result.stdout.strip() if result.returncode == 0 else ""
 
 
+def _contended_lock_refuses(path: Path, *, stderr) -> bool:
+    try:
+        record = _read_record_path(path)
+    except FileNotFoundError:
+        return False
+    age = _record_age(record)
+    if not pid_is_alive(record.pid) or age > LONGEST_LANE_TIMEOUT:
+        print(
+            f"Landing freeze stale after {format_age(age)} for {record.commit} "
+            f"(PID {record.pid}); allowing commit.",
+            file=stderr,
+        )
+        if pid_is_alive(record.pid):
+            kill_process_tree(record.pid)
+        return False
+    print(
+        f"Commit refused: promotion gate holds {record.commit} (PID {record.pid}) "
+        f"for {format_age(age)}. {RULING_38}",
+        file=stderr,
+    )
+    return True
+
+
 def check(repo: Path, *, stderr=sys.stderr) -> int:
     repo = repo.resolve()
     if _git_branch(repo) != "main" or repo != main_worktree(repo):
@@ -50,26 +74,12 @@ def check(repo: Path, *, stderr=sys.stderr) -> int:
         try:
             fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            try:
-                record = _read_record_path(path)
-            except FileNotFoundError:
-                return 0
-            age = _record_age(record)
-            if not pid_is_alive(record.pid) or age > LONGEST_LANE_TIMEOUT:
-                print(
-                    f"Landing freeze stale after {format_age(age)} for {record.commit} "
-                    f"(PID {record.pid}); allowing commit.",
-                    file=stderr,
-                )
-                if pid_is_alive(record.pid):
-                    kill_process_tree(record.pid)
-                return 0
-            print(
-                f"Commit refused: promotion gate holds {record.commit} (PID {record.pid}) "
-                f"for {format_age(age)}. {RULING_38}",
-                file=stderr,
-            )
-            return 1
+            return int(_contended_lock_refuses(path, stderr=stderr))
+        try:
+            if not os.path.samestat(os.fstat(stream.fileno()), path.stat()):
+                return check(repo, stderr=stderr)
+        except FileNotFoundError:
+            return 0
         try:
             record = _read_record_path(path)
         except FileNotFoundError:
