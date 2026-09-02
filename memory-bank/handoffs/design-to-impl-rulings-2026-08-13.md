@@ -2289,3 +2289,27 @@ owner's word.
 Until the ruling: the seat reverts its own item F (the module comes back), keeps
 the 14 lines of correctness fixes staged on the branch, and sets no `SLOP_GATE_*`
 variable for any reason.
+
+### 32.1 Re-measured after the item F revert — 19:21 PDT
+
+`data/mogre_quest_data.py` is restored (129 lines) with a comment that names why
+the row lives outside `quest_data.py` and forbids inlining it. `data/quest_data.py`
+is back to 12,671 lines. The gate passes on the branch with no output and no
+override. What still needs the owner's word is 26 lines across six files:
+
+```
+core/constants.py                        2991 -> 3005   (+14, new Nettles Utility row)
+data/quest_data.py                      12667 -> 12671   (+4,  restored layout)
+data/combat_data.py                     14215 -> 14217   (+2,  restored layout)
+data/slayer_data.py                      1209 -> 1211    (+2,  restored layout)
+logic_pure/logic_pure_combat_engine.py   3045 -> 3047    (+2,  restored layout)
+tests/test_combat_enemy_roster.py        1733 -> 1735    (+2,  restored layout)
+```
+
+Only the 14 lines in `core/constants.py` are new functionality; the other 12 restore
+readable layout that the gate itself had forced onto single lines. `promotion_gate.py
+land` is a fast-forward that runs no pre-commit hook, so the hold on the override
+commit `a82c6471` is a decision, not a technical block. Second question for the
+owner: if the exception is granted, recommit the branch so no overriding commit
+exists in history (design seat's recommendation), or accept it with the exception
+named in the record.
