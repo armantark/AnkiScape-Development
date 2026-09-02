@@ -2158,3 +2158,53 @@ interface on the existing surface. It is allowed and expected, and it takes the
 frontend-taste model review before promotion (goal rails: a model with good
 frontend taste, kept contained). The stop-and-report condition in 28.3 narrows
 to this: a change to how the existing three service kinds or the shop stock render.
+
+## 29. Ruling: three lanes, pipelined through dynamic workflows — 2026-09-01 17:55 PDT
+
+Owner direction, relayed verbatim: "Verification and testing can run in a separate
+dynamic workflow lane, from source harvesting, and from implementation."
+
+Measured from the seat's own transcript (session `8be237bb`) at 17:49 PDT: two
+`Agent` dispatches in four hours, both single `gpt-5.6-sol` implementation agents
+whose briefs assign harvesting, implementation and the plain test lane to the one
+agent; zero `Workflow` runs; no reviewer or verifier dispatched yet. The goal text
+requires dynamic workflows and dispatched agents. This ruling restructures dispatch.
+
+### 29.1 The lanes
+
+1. **Harvest lane (read-only, runs ahead).** For the next queue items, a sourcing
+   agent (`gpt-5.6-terra` at high, or `gpt-5.6-luna` for bounded lookups) pins
+   the period values in evidence order and writes the source-audit record. It never
+   edits code or data. Harvest for item N+1 runs while item N implements. Bill's
+   harvest (accepted items, the cut) starts now, in parallel with the diary wiring.
+2. **Implementation lane.** `gpt-5.6-sol` at high consumes the pinned harvest and
+   writes code, data and focused tests in its leased worktree. It runs only the
+   focused tests it wrote, not the full lanes.
+3. **Verification lane (different agent, different lineage where it judges).**
+   Runs both full lanes (plain and offscreen Qt) plus the five audits on the slice
+   branch, then the cross-lineage review of the diff (`opus` at medium, or
+   `glm-5.3-flash` for a cheap extra vote, never as sole reviewer). Findings go
+   back to the implementation lane as a fix round; closure check by the original
+   reviewer. Lane runs exceed the background-task cap, so they run under
+   shell-level logging as the briefs already say.
+
+The seat keeps exactly one serial step: the promotion gate on the merged tree,
+then landing on main. Everything else pipelines: verification of slice N overlaps
+implementation of slice N+1 and harvest of slice N+2.
+
+### 29.2 Mechanics
+
+- Use the `Workflow` tool's `pipeline()` so each stage starts the moment its
+  input lands; one workflow per queue window of two or three items.
+- Fan-out stays at eight concurrent agents or fewer across all nesting.
+- Apply the 2026-08-30 lessons: one shared discovery pass feeds many bounded
+  checks; deduplicate findings before expensive verification; no open-ended
+  discovery in intern leaves.
+- In-flight slices (Mogres in gate, diary wiring authoring) finish as dispatched;
+  their verification and review still go to a separate agent, not the author.
+- Every lane's brief carries the workspace prohibitions verbatim, as today.
+
+### 29.3 Report shape
+
+Each landed slice's handoff names the three lane agents and models, the harvest
+record path, the verification log paths, and the review verdict chain.
