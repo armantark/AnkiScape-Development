@@ -2992,3 +2992,19 @@ spacing) are not violations and are acceptable; the review check in 48.1 narrows
 to what the gate cannot see. `pycodestyle` is installed through `uv tool` for the
 hook; the Homebrew copies of pycodestyle and flake8 point at a removed Python
 3.12 and are dead.
+
+### 47.2 Fan-out is move-aware too — 09:30 PDT
+
+The carried-file split (1,484 lines into three modules of 465, 399 and 754; all 16
+moved ASTs identical; digest `d3c2178b...` under both interpreters; preserved as
+`refs/preserved/split-runtime-carried-2026-09-02`) was refused for fan-out 89
+(was 87): the aggregator gained exactly the two edges to modules its own
+definitions moved into. Same shape as the three ratchets ruled move-aware, so the
+gate now treats edges from a file to new modules whose origin is that file as not
+new fan-out, using the cycle check's origin map (fleet `0a14dcd`, 19 tests green).
+Item 2's rework must also re-pin the two surface digests it legitimately changes
+(`core/constants.py`, `__init__.py` under Qt), naming each added name. Item 2c is
+rejected by its conformance check (131 rows changed where ruling 31 requires 136,
+every resolved row with `wiring: null`, an unsupported `invented` disposition
+crashing the compiler, 28 triggers naming seams that do not exist) and its
+consolidated fix round runs under ruling 49.
