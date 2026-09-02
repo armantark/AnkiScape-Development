@@ -7,7 +7,7 @@ import json
 import os
 import sys
 import uuid
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime
 from pathlib import Path
 from typing import IO, TextIO
@@ -37,6 +37,14 @@ class HeldLock:
                 **asdict(self.record),
                 "heartbeat_at": datetime.now().astimezone().isoformat(timespec="seconds"),
             }
+        )
+        _write_record(self.stream, self.record)
+
+    def update_target(self, worktree: Path, commit: str) -> None:
+        self.record = replace(
+            self.record,
+            worktree=str(worktree.resolve()),
+            commit=commit,
         )
         _write_record(self.stream, self.record)
 
@@ -160,14 +168,17 @@ def register_gate(
     commit: str,
     *,
     stderr: TextIO = sys.stderr,
+    coordination: HeldLock | None = None,
 ) -> HeldLock:
-    coordination = claim_landing_lock(
-        worktree,
-        operation="registering a gate",
-        worktree=worktree,
-        commit=commit,
-        wait=True,
-    )
+    owns_coordination = coordination is None
+    if coordination is None:
+        coordination = claim_landing_lock(
+            worktree,
+            operation="registering a gate",
+            worktree=worktree,
+            commit=commit,
+            wait=True,
+        )
     try:
         for active in active_gate_records(worktree, stderr=stderr):
             if active.commit == commit:
@@ -178,7 +189,8 @@ def register_gate(
         _invalidate_evidence(worktree, commit)
         return claim_gate_marker(worktree, commit)
     finally:
-        coordination.release()
+        if owns_coordination:
+            coordination.release()
 
 
 def active_gate_records(

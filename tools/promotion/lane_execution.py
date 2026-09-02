@@ -432,28 +432,34 @@ def run_gate(
     stdout: TextIO = sys.stdout,
     stderr: TextIO = sys.stderr,
 ) -> Path:
-    worktree = worktree.resolve()
-    canonical = main_worktree(worktree)
-    canonical_changes = _git(
-        canonical, "status", "--porcelain", "--untracked-files=no"
-    ).stdout.splitlines()
-    if canonical_changes:
-        raise GateError(
-            "Gate refused: canonical checkout has uncommitted "
-            "tracked changes:\n"
-            + "\n".join(canonical_changes)
-        )
-    commit = commit_at(worktree)
-    gate_marker = register_gate(worktree, commit, stderr=stderr)
-    landing_lock: HeldLock | None = None
+    landing_lock = claim_landing_lock(
+        worktree,
+        operation="running a gate",
+        worktree=worktree,
+        commit="HEAD (resolving)",
+    )
+    gate_marker: HeldLock | None = None
     passed_checks: tuple[str, ...] = ()
     failures: tuple[str, ...] = ()
     try:
-        landing_lock = claim_landing_lock(
+        worktree = worktree.resolve()
+        commit = commit_at(worktree)
+        landing_lock.update_target(worktree, commit)
+        canonical = main_worktree(worktree)
+        canonical_changes = _git(
+            canonical, "status", "--porcelain", "--untracked-files=no"
+        ).stdout.splitlines()
+        if canonical_changes:
+            raise GateError(
+                "Gate refused: canonical checkout has uncommitted "
+                "tracked changes:\n"
+                + "\n".join(canonical_changes)
+            )
+        gate_marker = register_gate(
             worktree,
-            operation="running a gate",
-            worktree=worktree,
-            commit=commit,
+            commit,
+            stderr=stderr,
+            coordination=landing_lock,
         )
         prefix = "gateplain" if plain_only else "gate"
         short_commit = _git(worktree, "rev-parse", "--short", "HEAD").stdout.strip()
@@ -490,9 +496,9 @@ def run_gate(
                 passed_checks=passed_checks,
             )
     finally:
-        gate_marker.release()
-        if landing_lock is not None:
-            landing_lock.release()
+        if gate_marker is not None:
+            gate_marker.release()
+        landing_lock.release()
 
     print(log_path, file=stdout)
     if failures:
