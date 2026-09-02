@@ -2816,3 +2816,27 @@ file that stays stuck under simplify-first. Contract gains
 `unittest.TestLoader().discover("tests").countTestCases()` as the collection-count
 instrument; the unreleased land lock and the linked-worktree hook warning are paired
 in the promotion-gate follow-up.
+
+## 45. Preserve the four blocked splits as refs, without touching their worktrees — 2026-09-02 05:45 PDT
+
+Four complete, proof-carrying splits (quest data 88 files / 15,148 insertions,
+diary catalog 20 / 6,521, root dispatchers 12 / 6,002, roster test 9 / 1,762) sit
+uncommitted in leased worktrees because each is refused by a ratchet that awaits
+the owner, whose ruling may be hours away. Ruling: preserve all four now, in
+minutes, with no reapply step:
+
+```
+git -C <worktree> add -A
+sha=$(git -C <worktree> stash create "preserved: <slice> awaiting ruling 42.3")
+git -C <worktree> update-ref refs/preserved/<slice>-2026-09-02 "$sha"
+git -C <worktree> reset -q            # index back; working tree untouched
+```
+
+`stash create` writes a commit object of the full working tree without moving any
+branch and without a pre-commit hook, and the ref makes it durable and visible in
+`git for-each-ref refs/preserved`. No gate is circumvented: nothing lands from
+these refs; when the ratchets are made move-aware, each worktree commits its
+unchanged staged work through the normal gate, and the refs are deleted after
+landing. If a worktree is ever lost, `git checkout <ref> -- .` restores the tree.
+Patch files are declined: four agent rounds plus a reapply step for work that
+otherwise lands with no rework.
