@@ -1,0 +1,44 @@
+# Restores the named runtime helper for bank-run diary callbacks. Held out because the size gate forbids growing runtime_actions_carried.py; that file is in the first split wave. Apply and commit this patch once the split lands.
+diff --git a/runtime/runtime_actions_carried.py b/runtime/runtime_actions_carried.py
+index aa2e0cdf..302ceae0 100644
+--- a/runtime/runtime_actions_carried.py
++++ b/runtime/runtime_actions_carried.py
+@@ -865,6 +865,19 @@ def _try_pack_yak_winter_storage_overlay(
+     return updated_view, max(0, churn - 1), True
+ 
+ 
++def run_bank_run_diary_callbacks(
++    completed: bool,
++    player_data: dict[str, Any],
++    refresh: Callable[[], Any] | None,
++    check: Callable[[dict[str, Any]], Any],
++) -> None:
++    if not completed:
++        return
++    if refresh is not None:
++        refresh()
++    check(player_data)
++
++
+ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
+@@ -1270,17 +1283,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
+             if not event.get("completed")
+             else f"Bank run — {route_label} · arrived and restocked"
+         )
+-        tuple(
+-            map(
+-                lambda callback: callback(),
+-                {
+-                    True: (
+-                        ctx.refresh_carried_inventory,
+-                        lambda: ctx.check_achievements(player_data),
+-                    ),
+-                    False: (),
+-                }[bool(event.get("completed"))],
+-            )
++        run_bank_run_diary_callbacks(
++            bool(event.get("completed")),
++            player_data,
++            ctx.refresh_carried_inventory,
++            ctx.check_achievements,
+         )
