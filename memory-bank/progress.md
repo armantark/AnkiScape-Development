@@ -1,5 +1,19 @@
 # Progress
 
+## Module surface verification harness — 2026-09-01
+
+The repository now has one deterministic surface instrument for pure moves.
+`tools/module_surface.py` accepts dotted imports or repository `.py` paths,
+normalizes nested mappings, sets, sequences, dataclasses, classes, functions,
+and constants, and emits a final `MODULE_SURFACE_SHA256:` line. Batch mode
+prints one digest per module from isolated child interpreters. Nine first-wave
+aggregators have pinned digests in `tests/test_module_surface.py`; the root
+initializer is pinned under offscreen Qt as
+`357e7725ed616467dde1113fb8eb4e99c748808f785bbc5a39ad5692059dc4a3` and skips
+cleanly without `aqt`, while the Shop tab imports in the plain lane. Focused
+tests pass, documentation and test-quality audits pass, and the worktree guard
+reports a safe layout.
+
 ## Goblin Diplomacy acquisition chain closed — 2026-08-30
 
 Goblin Diplomacy consumed Orange goblin mail, Blue goblin mail, and plain Goblin

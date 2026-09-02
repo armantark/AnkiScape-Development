@@ -1,5 +1,15 @@
 # Active Context
 
+## Module surface harness is ready — 2026-09-01
+
+- `tools/module_surface.py` now imports through `pkg_alias`, emits a sorted
+  deep public-surface dump, and appends a SHA-256 digest. Multiple module paths
+  use clean child interpreters so import side effects cannot couple baselines.
+- `tests/test_module_surface.py` pins nine plain-lane first-wave surfaces and
+  the root `__init__.py` digest under offscreen Qt (`357e7725ed616467dde1113fb8eb4e99c748808f785bbc5a39ad5692059dc4a3`).
+  Without `aqt`, the root test skips with a stated reason; `ui/ui_tab_shop.py`
+  and the test module both import in the plain lane and have pinned digests.
+
 ## Zogre Flesh Eaters is completable — 2026-09-01
 
 - The frozen Darkan contract at `/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/zogre-flesh-eaters-target-contract.json` and its existing final pre-EOC and build-727 dossiers control the stage reconstruction. The evidence remains capped at `PARTIAL[source_blocked,conflicting_sources,missing_data]`; no independent wiki harvest or placeholder was added.
