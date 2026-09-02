@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Dump and hash a module's complete public module-level surface.
 
-The output is intentionally a text format rather than a Python repr.  Mapping
+The output is intentionally a text format rather than a Python object display.  Mapping
 and set members are sorted by their normalized representation, and functions
 and classes omit implementation details that are not part of an import
 surface.  This makes the final digest useful as a pure-move regression guard.
@@ -18,17 +18,17 @@ import importlib.util
 import inspect
 import json
 import os
-import re
+import platform
 import subprocess
 import sys
 import types
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Callable
+import typing
 
 
 ROOT = Path(__file__).resolve().parents[1]
-_ADDRESS_RE = re.compile(r"0x[0-9a-fA-F]+")
 
 
 def _qualified_type(value: Any) -> str:
@@ -39,6 +39,8 @@ def _qualified_type(value: Any) -> str:
 def _qualified_object(value: Any) -> str:
     module = getattr(value, "__module__", None)
     name = getattr(value, "__qualname__", None) or getattr(value, "__name__", None)
+    if value is Path:
+        return "pathlib.Path"
     if module and name:
         return f"{module}.{name}"
     return _qualified_type(value)
@@ -49,7 +51,18 @@ def _safe_signature(value: Any) -> str | None:
         signature = inspect.signature(value)
     except (TypeError, ValueError):
         return None
-    return _ADDRESS_RE.sub("0xADDR", str(signature))
+    parameters = []
+    for parameter in signature.parameters.values():
+        item: dict[str, Any] = {"name": parameter.name, "kind": parameter.kind.name}
+        if parameter.annotation is not inspect.Parameter.empty:
+            item["annotation"] = _normalize(parameter.annotation, set())
+        if parameter.default is not inspect.Parameter.empty:
+            item["default"] = _normalize(parameter.default, set())
+        parameters.append(item)
+    result: dict[str, Any] = {"parameters": parameters}
+    if signature.return_annotation is not inspect.Signature.empty:
+        result["return"] = _normalize(signature.return_annotation, set())
+    return _json(result)
 
 
 def _json(value: Any) -> str:
@@ -118,7 +131,7 @@ def _normalize_dataclass(value: Any, active: set[int]) -> Any:
 def _normalize_mapping(value: Mapping[Any, Any], active: set[int]) -> Any:
     def build() -> dict[str, Any]:
         pairs = [(_normalize(key, active), _normalize(item, active)) for key, item in value.items()]
-        pairs.sort(key=lambda pair: (_json(pair[0]), _json(pair[1])))
+        pairs.sort(key=lambda pair: _json(pair[0]))
         return {"type": "mapping", "class": _qualified_type(value), "items": pairs}
 
     return _normalize_active(value, active, build)
@@ -134,7 +147,7 @@ def _normalize_set(value: set[Any] | frozenset[Any], active: set[int]) -> Any:
 
 def _normalize_sequence(value: tuple[Any, ...] | list[Any], active: set[int]) -> Any:
     def build() -> dict[str, Any]:
-        items = sorted((_normalize(item, active) for item in value), key=_json)
+        items = [_normalize(item, active) for item in value]
         return {"type": "sequence", "class": _qualified_type(value), "items": items}
 
     return _normalize_active(value, active, build)
@@ -157,9 +170,28 @@ def _normalize_object(value: Any, active: set[int]) -> Any:
     return _normalize_active(value, active, build)
 
 
+def _normalize_typing(value: Any, active: set[int]) -> dict[str, Any] | None:
+    module = getattr(value, "__module__", None)
+    name = getattr(value, "__qualname__", None) or getattr(value, "__name__", None)
+    origin = typing.get_origin(value)
+    args = typing.get_args(value)
+    if module == "typing" and name and origin is None and not args:
+        return {"type": "typing_symbol", "qualified_name": f"typing.{name}"}
+    if origin is None:
+        return None
+    if origin is typing.Union or origin is types.UnionType:
+        origin_name = "typing.Union"
+    else:
+        origin_name = _qualified_object(origin)
+    return {
+        "type": "typing_alias",
+        "origin": origin_name,
+        "args": [_normalize(argument, active) for argument in args],
+    }
+
+
 def _normalize_fallback(value: Any, _active: set[int]) -> dict[str, Any]:
-    text = _ADDRESS_RE.sub("0xADDR", repr(value))
-    return {"type": "value", "class": _qualified_type(value), "repr": text}
+    return {"type": "unrepresentable", "class": _qualified_type(value)}
 
 
 _EXACT_HANDLERS: dict[type[Any], Callable[[Any, set[int]], Any]] = {
@@ -188,10 +220,14 @@ _BASE_HANDLERS: tuple[tuple[type[Any], Callable[[Any, set[int]], Any]], ...] = (
 def _normalize(value: Any, active: set[int]) -> Any:
     """Return JSON-shaped, deterministic data for one module-level value."""
 
+    if value is Ellipsis:
+        return {"type": "ellipsis"}
     if value is None or isinstance(value, (bool, int, float)):
         return value
     if isinstance(value, str):
         return _stable_string(value)
+    if normalized_typing := _normalize_typing(value, active):
+        return normalized_typing
     if handler := _EXACT_HANDLERS.get(type(value)):
         return handler(value, active)
     for value_type, handler in _BASE_HANDLERS:
@@ -275,6 +311,7 @@ def dump_module(module_path: str) -> tuple[str, str]:
 def _emit_batch(module_paths: list[str]) -> int:
     """Emit isolated digest lines for a batch of side-effectful imports."""
 
+    _print_environment()
     for module_path in module_paths:
         child = subprocess.run(
             [sys.executable, str(Path(__file__).resolve()), "--digest-only", module_path],
@@ -291,6 +328,22 @@ def _emit_batch(module_paths: list[str]) -> int:
     return 0
 
 
+def _reexec_with_stable_hash_seed() -> None:
+    if os.environ.get("MODULE_SURFACE_STABLE_HASH") == "1":
+        return
+    environment = os.environ.copy()
+    environment["PYTHONHASHSEED"] = "0"
+    environment["MODULE_SURFACE_STABLE_HASH"] = "1"
+    os.execve(sys.executable, [sys.executable, *sys.argv], environment)
+
+
+def _print_environment() -> None:
+    print(
+        f"MODULE_SURFACE_ENV: python={platform.python_version()} hash_seed=0",
+        file=sys.stderr,
+    )
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("modules", nargs="+", help="module import paths or repository .py paths")
@@ -302,9 +355,11 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _reexec_with_stable_hash_seed()
     args = _parser().parse_args(argv)
     if len(args.modules) > 1:
         return _emit_batch(args.modules)
+    _print_environment()
     module_path = args.modules[0]
     try:
         dump, digest = dump_module(module_path)
