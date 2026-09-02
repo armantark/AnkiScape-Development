@@ -333,11 +333,22 @@ def record_direct_diary_event_pure(
 
 
 def record_bank_run_diary_event_pure(
-    player_data: dict[str, Any], carried: Mapping[str, Any]
+    player_data: dict[str, Any], completed: bool, carried: Mapping[str, Any]
 ) -> None:
-    record_achievement_diary_event_pure(player_data, {
-        "type": "bank_run",
-        "deposited_non_coin": any(
-            item != "Coins" and int(amount or 0) > 0 for item, amount in carried.items()
-        ),
-    })
+    if completed:
+        record_achievement_diary_event_pure(player_data, {
+            "type": "bank_run",
+            "deposited_non_coin": any(
+                item != "Coins" and int(amount or 0) > 0 for item, amount in carried.items()
+            ),
+        })
+
+
+def run_bank_run_diary_callbacks_pure(
+    completed: bool, player_data: dict[str, Any], refresh, check
+) -> None:
+    if not completed:
+        return
+    if refresh is not None:
+        refresh()
+    check(player_data)
