@@ -3375,3 +3375,15 @@ the real reviewer on the MacBook covers all three, run after item 2 and the seam
 slice land and before Bill (2b) ships, rather than once per slice; both lanes and
 the offscreen smoke still run per slice; (3) order: item 2 re-expansion, 2c's
 re-gate, the seam slice, the three proven splits, then 2b.
+
+## 56. The design seat steps back; the orchestrator runs the standing order alone — 2026-09-02 15:15 PDT
+
+Owner: stop monitoring the orchestrator to conserve Fable quota; let it continue
+the goal on its own; it may ping the owner only if absolutely needed. The design
+seat's handoffs monitor and keep-warm loop are stopped. Standing order for the
+seat: execute ruling 55's order and the queue behind it under every ruling
+through 55, with no design-seat doorbells expected. A decision only the owner can
+make becomes a named gate in this ledger; the seat stops at it, states it plainly
+as the last line of its turn so the owner's notification hook fires, and takes the
+next eligible unit. It never messages the owner otherwise. Routine reports go to
+this ledger and the handoffs directory as before.
