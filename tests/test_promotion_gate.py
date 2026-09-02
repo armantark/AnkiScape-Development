@@ -617,6 +617,53 @@ class PromotionGateTest(unittest.TestCase):
             remote_lanes=True,
         )
 
+    def test_dirty_canonical_checkout_refuses_gate_before_any_lane(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            (repo.main / "state.txt").write_text("dirty\n", encoding="utf-8")
+            stderr = io.StringIO()
+
+            with (
+                patch(
+                    "tools.promotion.lane_execution._run_check"
+                ) as run_check,
+                patch("sys.stderr", stderr),
+            ):
+                with self.assertRaisesRegex(SystemExit, r"^2$"):
+                    promotion_main(["run", str(repo.target)])
+
+            self.assertEqual(
+                stderr.getvalue(),
+                "error: Gate refused: canonical checkout has uncommitted "
+                "tracked changes:\n M state.txt\n",
+            )
+            run_check.assert_not_called()
+
+    def test_untracked_canonical_file_does_not_refuse_gate(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            pending = repo.main / "memory-bank" / "pending"
+            pending.mkdir(parents=True)
+            (pending / "note.md").write_text("untracked\n", encoding="utf-8")
+
+            with (
+                patch(
+                    "tools.promotion.lane_execution._run_check",
+                    return_value=0,
+                ),
+                patch(
+                    "tools.promotion.lane_execution._run_reachability_check",
+                    return_value=0,
+                ),
+            ):
+                log_path = run_gate(
+                    repo.target,
+                    plain_only=False,
+                    stdout=io.StringIO(),
+                )
+
+            self.assertTrue(log_path.exists())
+
     def test_default_gate_uses_local_lane_commands(self):
         canonical = Path("/canonical/ankiscape_fork")
         with (

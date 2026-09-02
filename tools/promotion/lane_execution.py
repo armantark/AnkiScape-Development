@@ -433,6 +433,16 @@ def run_gate(
     stderr: TextIO = sys.stderr,
 ) -> Path:
     worktree = worktree.resolve()
+    canonical = main_worktree(worktree)
+    canonical_changes = _git(
+        canonical, "status", "--porcelain", "--untracked-files=no"
+    ).stdout.splitlines()
+    if canonical_changes:
+        raise GateError(
+            "Gate refused: canonical checkout has uncommitted "
+            "tracked changes:\n"
+            + "\n".join(canonical_changes)
+        )
     commit = commit_at(worktree)
     gate_marker = register_gate(worktree, commit, stderr=stderr)
     landing_lock: HeldLock | None = None
