@@ -131,7 +131,7 @@ def _body_dump(node: ast.FunctionDef | ast.AsyncFunctionDef, *, blank_constants:
 
 
 def _test_files(tests_root: Path) -> Iterable[Path]:
-    return sorted(tests_root.glob("test_*.py"))
+    return sorted(tests_root.rglob("test_*.py"))
 
 
 def audit_test_suite(tests_root: Path) -> TestQualityReport:
