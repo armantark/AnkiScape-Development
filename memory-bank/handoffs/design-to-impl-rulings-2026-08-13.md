@@ -2733,3 +2733,38 @@ Rulings:
 3. For the record: this is the fourth check tonight that is right for ordinary work
    and wrong for a move; the three ratchets fail loudly and are with the owner,
    this one failed silently and is fixed here.
+
+### 42.6 The ratchet question now blocks three of five splits — 03:25 PDT
+
+The roster test split was refused for the same shape: test methods that have sat in
+`tests/test_combat_enemy_roster.py` at cyclomatic 20-22 and cognitive 23-42 all
+along read as "(new)" once moved into a package. First-wave scoreboard: Slayer data
+and combat data complete and in the gating batch; quest data (serialized data
+byte-identical at 2,037,883 bytes), root `__init__.py` (surface digest identical
+under Qt) and the roster tests (collection count preserved) complete, proven, and
+blocked only on the ratchets; seven not started. Big old files are exactly where
+over-threshold functions accumulated, so the rule bites hardest on the files the
+owner most wants split: taken literally, the gate permits splitting only files that
+contain no complex function, which excludes most of the 69 and all of the worst.
+None of the three was asked to reshape code to escape it; all are staged with
+proofs intact and land without rework if the owner chooses the move-aware fix.
+While the owner decides, the seat runs what needs no split: the records-only
+curation pass 2c, the harvest lanes for items 3 and 5, and the vacuous-scanner
+audit slice.
+
+### 42.7 First batch landed; 69 -> 67 — 03:30 PDT
+
+Batch `ef50d3fd` landed with both lanes green (plain 869.7 s, Qt 1,122.5 s; 4,625
+tests each): `data/combat_data.py` 14,215 lines into 47 modules under nested
+subpackages (largest 801, aggregator 753) and `data/slayer_data.py` into three
+(aggregator 93); 51 files, 17,191 insertions against 15,345 deletions. Oversized
+files: 69 -> 67. The roster test split is complete with the programme's strongest
+proof (4,625 tests before and after, 516 skipped both; audit tests 4,590 -> 4,590;
+audit files 234 -> 237, three new files, not a drop; all 36 roster tests preserved;
+digests reproduced under both interpreters), and it did two unasked things right:
+`parents[1]` -> `parents[2]` when the file moved a directory deeper, and the
+source-audit document naming the moved selectors was updated so the documentation
+audit stayed live. Queue defect, not urgent: `worktree_guard.py audit` warns that
+the freeze hook is missing inside linked worktrees, where it can never matter
+(`main` cannot be checked out there); the check must require the hook only in the
+canonical checkout, or every worktree agent will try to fix a non-defect.
