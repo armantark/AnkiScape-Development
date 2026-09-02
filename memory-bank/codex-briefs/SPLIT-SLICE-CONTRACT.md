@@ -204,10 +204,25 @@ No error, no warning, and the run still reports `OK`. Since the directory cap
 forces every test split into a subdirectory, one omission deletes coverage while
 making the suite greener.
 
-**What proves a test split instead:** the collection count from
-`python3 -m unittest discover tests` before and after, which must match; the
-test-quality audit's file and test counts before and after, where a drop is a
-defect; and both lanes, gated singly rather than batched.
+**What proves a test split instead:** the collection count before and after,
+which must match; the test-quality audit's file and test counts before and
+after, where a drop is a defect; and both lanes, gated singly rather than
+batched.
+
+Count without running. `python3 -m unittest discover tests` executes all 4,625
+tests and takes about fourteen minutes; the loader answers the same question in
+seconds:
+
+```python
+import unittest
+print(unittest.TestLoader().discover("tests").countTestCases())
+```
+
+It applies the same discovery rules, including the package-marker requirement,
+so a subdirectory missing its `__init__.py` appears as a smaller count. It is
+also the better measurement, because it separates collection from execution: a
+vanished test shows up as a smaller number rather than hiding behind a suite
+that still passes.
 
 ## 5d. Before you split, find the tests that read your file
 
