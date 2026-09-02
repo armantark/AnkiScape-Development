@@ -2531,3 +2531,27 @@ least-specific hypothesis is `repr` drift across versions (dataclass, enum, dict
 ordering); the dump must be a canonical serialization with explicit type tags and
 sorted keys, never `repr`, and the diagnosis starts from a diff of the two dumps,
 not the digests. Landing the instrument first has now paid for itself twice.
+
+## 39. A turn that names a next action and does not take it is a failed turn — 2026-09-02 00:55 PDT
+
+Three orchestrator turns tonight ended on a stated intention with no action behind
+it: the unread gate refusal at 20:22 (held 1h40m), the unsent harness re-gate after
+23:07 (1h41m), and one earlier. The seat's own diagnosis: writing the plan was
+treated as completing the step. Ruling: every orchestrator turn ends on one of
+exactly two things — an action taken (a dispatch, a gate launch, a commit, a
+doorbell) or an explicit hold that names the wake signal already armed (a Monitor
+on a log, a task notification, a doorbell expected from a named seat). A closing
+paragraph that says "then I will", "next", or "dispatching now" without the
+matching tool call in the same turn is a failed turn, and the seat treats it as
+one on the next wake. The design seat is proposing to the owner the machinery for
+this class: a Stop hook in the orchestrator profile that blocks turn end when the
+final text states a next action and no tool call followed it, bounded like the
+anti-swallow hook. Until the owner rules on that, this section is the rule.
+
+Harness state for the record: canonical dump verified identical across Python
+3.14.7 and 3.13.5; a second defect found unasked — `ITEM_DEFINITIONS` varied
+between fresh processes of one interpreter from randomised hash seeds, now pinned;
+`ui/ui_tab_shop.py` genuinely exposes a different surface when Qt is importable and
+carries a baseline per environment, recorded as a codebase fact before its split.
+The eleventh baseline (`runtime/runtime_actions_carried.py`) is dispatched, with a
+stop-and-report if adding it moves any existing baseline.
