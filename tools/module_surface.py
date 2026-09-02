@@ -131,7 +131,7 @@ def _normalize_dataclass(value: Any, active: set[int]) -> Any:
 def _normalize_mapping(value: Mapping[Any, Any], active: set[int]) -> Any:
     def build() -> dict[str, Any]:
         pairs = [(_normalize(key, active), _normalize(item, active)) for key, item in value.items()]
-        pairs.sort(key=lambda pair: _json(pair[0]))
+        pairs.sort(key=lambda pair: (_json(pair[0]), _json(pair[1])))
         return {"type": "mapping", "class": _qualified_type(value), "items": pairs}
 
     return _normalize_active(value, active, build)
