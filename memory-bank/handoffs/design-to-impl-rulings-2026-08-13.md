@@ -2555,3 +2555,35 @@ between fresh processes of one interpreter from randomised hash seeds, now pinne
 carries a baseline per environment, recorded as a codebase fact before its split.
 The eleventh baseline (`runtime/runtime_actions_carried.py`) is dispatched, with a
 stop-and-report if adding it moves any existing baseline.
+
+## 40. The promotion gate must bound its lanes and expose its lock age — 2026-09-02 01:30 PDT
+
+The module-surface harness landed at `750c9ecc` (plain `OK (skipped=516)`, Qt `OK
+(skipped=4)`, the fourth skip being the root-initializer test that skips only where
+`aqt` is present). The land was first refused because the diary gate from 20:08 still
+held the landing lock: its log had written `FAILED: exit 1` and `GATE DONE` at 20:51,
+but its child `.venv-qt/bin/python run_tests.py` never exited and sat for 5 hours 4
+minutes. A live-but-hung gate wedged every landing in the repository all night, the
+tool's liveness check was satisfied because the pid was alive, and the empty task
+output that the seat misread as "still running" was, by accident, true.
+
+Rulings, as a tooling slice that lands before any split lands (the splits may
+author in parallel):
+
+1. **Every lane is bounded.** `promotion_gate.py` runs each lane under a timeout
+   matched to the known duration (plain 850 s, Qt 1,150 s, with headroom), kills
+   the lane's process tree on expiry, records `TIMEOUT` in the gate log as a
+   refusal, and exits. A lane that hangs is a failed gate, never a silent one.
+2. **The lock carries its age and is not trusted on liveness alone.** The lock
+   record gains a heartbeat the running gate refreshes per lane step; a refusal
+   prints how long the lock has been held and by which commit and pid; and a lock
+   whose heartbeat is older than the longest bounded lane is stale even if the pid
+   is alive, so `land` reclaims it after killing that pid's tree.
+3. The landing-freeze hook of ruling 38 inherits the same stale-lock rule, so it
+   can never freeze main behind a dead gate.
+4. Regression: a test that starts a gate with a child that never returns and
+   proves both the timeout refusal and the stale-lock reclaim, with a mutation
+   proof that removing the bound reproduces the hang.
+
+The seat dispatches the freeze-hook slice and the first splits now, as approved;
+this slice joins them as a third parallel author on `tools/promotion_gate.py`.
