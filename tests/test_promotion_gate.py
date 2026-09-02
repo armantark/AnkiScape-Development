@@ -184,7 +184,7 @@ def pass_gate(
     remote_lanes: bool = False,
 ) -> Path:
     checks = PLAIN_GATE_CHECKS if plain_only else FULL_GATE_CHECKS
-    with patch("tools.promotion_gate._run_gate_checks", return_value=(checks, ())):
+    with patch("tools.promotion.lane_execution._run_gate_checks", return_value=(checks, ())):
         run_gate(
             repo.target,
             plain_only=plain_only,
@@ -253,7 +253,7 @@ class PromotionGateTest(unittest.TestCase):
                 held.release()
                 raise FileNotFoundError
 
-            with patch("tools.promotion_gate._read_record_path", side_effect=remove_record):
+            with patch("tools.promotion.locking._read_record_path", side_effect=remove_record):
                 acquired = claim_landing_lock(
                     repo.target,
                     operation="landing",
@@ -590,7 +590,7 @@ class PromotionGateTest(unittest.TestCase):
             self.assertTrue(evidence_path.exists())
 
             with patch(
-                "tools.promotion_gate._run_gate_checks",
+                "tools.promotion.lane_execution._run_gate_checks",
                 return_value=(("plain lane",), ("audit_docs (exit 1)",)),
             ):
                 with self.assertRaisesRegex(
@@ -605,7 +605,7 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
     def test_remote_lanes_flag_reaches_run_gate(self):
-        with patch("tools.promotion_gate.run_gate") as gate:
+        with patch("tools.promotion.cli.run_gate") as gate:
             result = promotion_main(
                 ["run", "/scratch/promotion", "--remote-lanes"]
             )
@@ -620,9 +620,9 @@ class PromotionGateTest(unittest.TestCase):
     def test_default_gate_uses_local_lane_commands(self):
         canonical = Path("/canonical/ankiscape_fork")
         with (
-            patch("tools.promotion_gate.main_worktree", return_value=canonical),
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree", return_value=canonical),
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 Path("/scratch/promotion"),
@@ -655,9 +655,9 @@ class PromotionGateTest(unittest.TestCase):
     def test_remote_gate_uses_exact_serial_runner_commands(self):
         worktree = Path("/scratch/promotion")
         with (
-            patch("tools.promotion_gate.main_worktree") as main_worktree,
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 worktree,
@@ -700,9 +700,9 @@ class PromotionGateTest(unittest.TestCase):
     def test_remote_plain_only_gate_omits_qt_runner(self):
         worktree = Path("/scratch/promotion")
         with (
-            patch("tools.promotion_gate.main_worktree") as main_worktree,
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 worktree,
