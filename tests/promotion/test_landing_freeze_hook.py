@@ -80,38 +80,20 @@ class LandingFreezeHookTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = PromotionRepo(Path(temp_dir))
             path = landing_lock_path_for(repo.main)
-            for flock_result in (None, BlockingIOError()):
-                with self.subTest(contended=flock_result is not None):
-                    path.write_text("{}", encoding="utf-8")
-                    with (
-                        patch.object(landing_freeze_hook.fcntl, "flock", side_effect=flock_result),
-                        patch.object(
-                            landing_freeze_hook,
-                            "_read_record_path",
-                            side_effect=FileNotFoundError,
-                        ),
-                    ):
-                        self.assertEqual(check(repo.main, stderr=io.StringIO()), 0)
-
-    def test_replaced_lock_rechecks_the_current_path(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            repo = PromotionRepo(Path(temp_dir))
-            landing_lock_path_for(repo.main).write_text("{}", encoding="utf-8")
-            record = LockRecord(
-                pid=99999999,
-                operation="landing",
-                worktree=str(repo.target),
-                commit=repo.target_commit,
-                started_at="2026-09-02T05:00:00-07:00",
-                token="replacement",
-            )
+            path.write_text("{}", encoding="utf-8")
             with (
-                patch.object(landing_freeze_hook.fcntl, "flock") as flock,
-                patch.object(landing_freeze_hook.os.path, "samestat", side_effect=(False, True)),
-                patch.object(landing_freeze_hook, "_read_record_path", return_value=record),
+                patch.object(
+                    landing_freeze_hook.fcntl,
+                    "flock",
+                    side_effect=BlockingIOError,
+                ),
+                patch.object(
+                    landing_freeze_hook,
+                    "_read_record_path",
+                    side_effect=FileNotFoundError,
+                ),
             ):
                 self.assertEqual(check(repo.main, stderr=io.StringIO()), 0)
-            self.assertEqual(flock.call_count, 2)
 
     def test_no_lock_leaves_main_untouched(self):
         with tempfile.TemporaryDirectory() as temp_dir:

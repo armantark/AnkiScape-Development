@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import fcntl
-import os
 import sys
 from pathlib import Path
 
@@ -75,15 +74,7 @@ def check(repo: Path, *, stderr=sys.stderr) -> int:
             fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             return int(_contended_lock_refuses(path, stderr=stderr))
-        try:
-            if not os.path.samestat(os.fstat(stream.fileno()), path.stat()):
-                return check(repo, stderr=stderr)
-        except FileNotFoundError:
-            return 0
-        try:
-            record = _read_record_path(path)
-        except FileNotFoundError:
-            return 0
+        record = _read_record_path(path)
         age = _record_age(record)
         if not pid_is_alive(record.pid) or age > LONGEST_LANE_TIMEOUT:
             print(

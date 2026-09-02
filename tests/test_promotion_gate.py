@@ -350,6 +350,14 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
             self.assertEqual(repo.head(repo.main), repo.main_commit)
+
+    def test_failed_landing_releases_its_lock(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+
+            with self.assertRaises(GateError):
+                land(repo.target)
+
             self.assertFalse(landing_lock_path_for(repo.target).exists())
 
     def test_plain_only_gate_records_checks_but_does_not_authorize_landing(self):
