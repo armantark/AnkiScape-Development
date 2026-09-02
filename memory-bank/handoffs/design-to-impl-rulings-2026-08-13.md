@@ -2084,3 +2084,278 @@ Also for the record: the safe root holds 138 loose `gate-<sha>.log` and
 `gateplain-<sha>.log` promotion logs outside any worktree. They are evidence cited
 by ledger records and are not part of the section 27 sweep; the orchestrator does
 not touch them, and any archiving is a separate owner decision.
+
+## 28. Correction to 26.1 and ruling on the Beefy Bill shape — 2026-09-01 14:42 PDT
+
+Answers `impl-to-design-2026-09-01-beefy-bill-already-live.md` (`ef6b99de`).
+
+### 28.1 Correction
+
+Section 26.1 said "no Beefy Bill service exists anywhere in code (only the diary
+catalog names him)". The second half was wrong: `beefy_bills_supplies` is a live,
+visible, Darkan-pinned shop in `data/shop_data.py` (NPC 246, 14 live stock rows).
+The design seat's probe returned that file and the seat dismissed the hit without
+reading it. What is missing is only the banking service. The rest of 26.1 stands.
+
+### 28.2 Ruling: Shape 1, a new contained Utility action
+
+Item 2b is built as a new `UTILITY_ACTIVITY_DATA` row on the Big Chinchompa and
+Evil Tree precedent in `logic/review_strip_logic.py`: the player selects the
+cow-field items to hand over, Beefy Bill takes his sourced period cut, and the
+remainder is written to the Bank with Beefy Bill recorded as the service source.
+It is a new contained interface row, so it takes the frontend-taste model review
+before promotion and crosses no owner gate. Shape 2 (attaching the service to his
+existing shop surface in `ui/ui_tab_shop.py`) changes an existing interface and is
+parked as an optional owner question, not a blocker; the design seat carries it.
+
+Sequence unchanged: 2b waits for item 2's generator change, then the ledger-row
+edit plus regeneration activates `lumbridge_medium_where_s_the_beef`.
+
+### 28.3 Supersedes 28.2: Beefy Bill's banking is a shop-service row, Shape 2 — 15:05 PDT
+
+The owner delegated the shape to the design seat ("Use your best judgment as to
+what you should do about Bill"). The tree settles it: NPC services already have a
+home. `data/shop_data.py::SHOP_SERVICES` holds 84 rows (Blandebir's ale-yeast fill,
+Bob Barter's decanting, Teplin's flasks, Thakkrad's yak-hide curing), each with a
+provider, location, price, inputs, outputs, `action_type`, access gate and source,
+applied through `logic/shop_logic.py::apply_shop_service_pure` and rendered by the
+existing "Shops and service providers" surface. Beefy Bill's banking is that
+pattern, not a Utility activity, and it lives where the NPC already lives.
+
+Ruling for item 2b:
+
+1. Add Beefy Bill's banking to `SHOP_SERVICES` under provider `Beefy Bill`,
+   location Lumbridge cow field, with a new `action_type` whose handler moves the
+   chosen carried items into the Bank proper and keeps Bill's sourced cut. In the
+   single-ledger model (section 4.21 ruling 3 of the design queue) "banking"
+   means moving retained carried items out of the death-loss view; that is the
+   meaningful, period-faithful service. One batchable row per accepted item type
+   is acceptable if the source lists few items; the slice picks the smaller diff.
+2. Source the accepted items and the cut in evidence order (Darkan, rev-727,
+   game-main, wiki at a pre-cutoff oldid). No invented terms; an unrecovered value
+   is a registered placeholder.
+3. The service action's telemetry records `service_id` and the transferred
+   quantity, which is exactly the ledger's designed trigger for
+   `lumbridge_medium_where_s_the_beef`; the row moves to `active` by ledger-row
+   edit plus regeneration.
+4. No new interface: a new row on an existing generic surface. The standard
+   offscreen visual check of the rendered row still applies (owner rule: any
+   user-visible diff gets a visual check; watch for truncation). The
+   frontend-taste review is not required unless the surface itself changes; if
+   the slice finds it must change the surface, it stops and reports.
+
+Section 28.2's Utility-row shape is withdrawn. Sequence unchanged: 2b after
+item 2's generator change lands.
+
+### 28.4 Refinement: the fourth `action_type` branch is expected, not a stop — 15:08 PDT
+
+The seat's count stands: 84 rows from 6 providers, 78 of them Bogrog pouch
+exchanges, so the precedent is thin. Every existing row has fixed inputs, and
+Bill's service acts on items the player picks, so the new handler and a picker
+are the real work. `ui/ui_tab_shop.py:1140-1196` branches on `action_type`; a
+fourth branch that renders the item picker for Bill is contained new-feature
+interface on the existing surface. It is allowed and expected, and it takes the
+frontend-taste model review before promotion (goal rails: a model with good
+frontend taste, kept contained). The stop-and-report condition in 28.3 narrows
+to this: a change to how the existing three service kinds or the shop stock render.
+
+## 29. Ruling: three lanes, pipelined through dynamic workflows — 2026-09-01 17:55 PDT
+
+Owner direction, relayed verbatim: "Verification and testing can run in a separate
+dynamic workflow lane, from source harvesting, and from implementation."
+
+Measured from the seat's own transcript (session `8be237bb`) at 17:49 PDT: two
+`Agent` dispatches in four hours, both single `gpt-5.6-sol` implementation agents
+whose briefs assign harvesting, implementation and the plain test lane to the one
+agent; zero `Workflow` runs; no reviewer or verifier dispatched yet. The goal text
+requires dynamic workflows and dispatched agents. This ruling restructures dispatch.
+
+### 29.1 The lanes
+
+1. **Harvest lane (read-only, runs ahead).** For the next queue items, a sourcing
+   agent (`gpt-5.6-terra` at high, or `gpt-5.6-luna` for bounded lookups) pins
+   the period values in evidence order and writes the source-audit record. It never
+   edits code or data. Harvest for item N+1 runs while item N implements. Bill's
+   harvest (accepted items, the cut) starts now, in parallel with the diary wiring.
+2. **Implementation lane.** `gpt-5.6-sol` at high consumes the pinned harvest and
+   writes code, data and focused tests in its leased worktree. It runs only the
+   focused tests it wrote, not the full lanes.
+3. **Verification lane (different agent, different lineage where it judges).**
+   Runs both full lanes (plain and offscreen Qt) plus the five audits on the slice
+   branch, then the cross-lineage review of the diff (`opus` at medium, or
+   `glm-5.3-flash` for a cheap extra vote, never as sole reviewer). Findings go
+   back to the implementation lane as a fix round; closure check by the original
+   reviewer. Lane runs exceed the background-task cap, so they run under
+   shell-level logging as the briefs already say.
+
+The seat keeps exactly one serial step: the promotion gate on the merged tree,
+then landing on main. Everything else pipelines: verification of slice N overlaps
+implementation of slice N+1 and harvest of slice N+2.
+
+### 29.2 Mechanics
+
+- Use the `Workflow` tool's `pipeline()` so each stage starts the moment its
+  input lands; one workflow per queue window of two or three items.
+- Fan-out stays at eight concurrent agents or fewer across all nesting.
+- Apply the 2026-08-30 lessons: one shared discovery pass feeds many bounded
+  checks; deduplicate findings before expensive verification; no open-ended
+  discovery in intern leaves.
+- In-flight slices (Mogres in gate, diary wiring authoring) finish as dispatched;
+  their verification and review still go to a separate agent, not the author.
+- Every lane's brief carries the workspace prohibitions verbatim, as today.
+
+### 29.3 Report shape
+
+Each landed slice's handoff names the three lane agents and models, the harvest
+record path, the verification log paths, and the review verdict chain.
+
+## 30. The dormant-systems gate is closed: resolve the rows now — 2026-09-01 17:58 PDT
+
+The owner ruled (design queue §4.23, verbatim there): the diary brings over only
+deeds that make sense in AnkiScape; everything else is translated as far as
+possible or invented from scratch in the spirit of the game. Dormant is allowed
+only for a future system recorded as planned work.
+
+New queue item **2c — diary curation pass two**, records-only, after item 2 lands
+and in parallel with 2b (disjoint files): resolve every dormant row whose future
+system is not planned work — all of `world_transport_actions` and
+`location_visit_actions`, `npc_dialogue_actions` by translation to the existing
+service surface where possible, and the rest row by row — into `translated`,
+`swapped`, or the new `invented` disposition, with designed triggers on existing
+seams. Lanes per section 29: author with a taste-capable model (`opus` at
+medium), verify contract conformance with `gpt-5.6-sol`, review cross-lineage
+(`glm-5.3-flash` as the extra vote, never alone). The owner's spec-conformance
+gate then applies exactly as for pass one; corrections are patches. Order is now
+1 → 2 → {2b, 2c} → 3 → 4 → 5.
+
+## 31. Option C: the planned-work list, per system — 2026-09-01 18:02 PDT
+
+Answers `impl-to-design-2026-09-01-2c-scope-inversion.md`. The seat is right:
+section 30's test cannot be run by name search, and run literally it resolves 245
+rows. The test is replaced by this list, which the design seat produced by checking
+whether each system exists in the model today in part, so that extending it is
+routine slice work. This list is the test; nothing else is.
+
+**Planned work — rows stay `dormant` (14 systems):** `combat_encounter_actions`
+(combat targets exist; Mogres is this kind of slice), `item_processing_actions`,
+`skill_action_telemetry`, `familiar_actions` (Summoning exists),
+`shop_transaction_actions`, `equipment_state_actions`, `spell_cast_actions`,
+`item_acquisition_actions`, `prayer_altar_actions` (bury, scatter, Ectofuntus and
+gilded altar exist in `data/prayer_data.py`), `minigame_actions`,
+`combat_special_actions` (special attacks exist in `data/combat_data.py`),
+`activity_completion_actions`, `bank_inventory_actions` (item 2b), and
+`quest_stage_actions` — the last re-pointed, not resolved: its five rows change
+their trigger to the global `quest_action_proofs` ledger (config version 123) and
+stay dormant until their quest stage is playable.
+
+**Not planned — rows resolve now (6 systems, 130 rows):** `world_transport_actions`
+48, `npc_dialogue_actions` 38, `location_visit_actions` 16,
+`object_interaction_actions` 18 (world objects have no home in a locationless
+model), `item_use_actions` 7 (use-X-on-Y world interactions), `world_emote_actions`
+3 (no emote system exists anywhere in the model).
+
+**Conflict resolved:** section 30 supersedes 26.1 item 3. The Draynor row's deed is
+a location in a locationless model; it resolves with the rest even though its
+system is planned. Resolve set: 131 rows; re-point set: 5 rows.
+
+Brief item 2c at that size, under section 30's lanes and gates. A reviewer who
+finds a row on a planned system whose deed still cannot make sense in AnkiScape
+flags it; the design seat rules those individually rather than the agent guessing.
+
+## 32. Named gate: slop-gate file-growth exception — AWAITING OWNER — 2026-09-01 19:15 PDT
+
+Answers `impl-to-design-2026-09-01-slop-gate-stop.md` (`e11b8c51`). The seat's stop
+is correct: `~/fleet/config/git/hooks/slop_gate.py` is owner machinery, and the
+agent's `SLOP_GATE_FILE_LINES=15000` switched the growth check off for every file
+in the repository. Commit `a82c6471` does not land, nor any successor that needs
+the override, until the owner rules.
+
+Facts checked by the design seat: the gate's only levers are the `SLOP_GATE_*`
+thresholds and the `SLOP_GATE_EXCLUDE` glob (line 66); the growth check (line 280)
+blocks any file over 1,000 physical lines from growing at all; nothing in it nets a
+deleted module against the file it moved into, or distinguishes restored layout
+from new code. There is no per-commit exception mechanism.
+
+Options put to the owner: (A) a one-time exception for this commit, narrowed to
+the affected files via `SLOP_GATE_EXCLUDE` rather than a repository-wide
+threshold, with every other check enforced and the exception named in the commit
+message; (B) split the oversized files, a program of its own; (C) teach the gate
+about seams — count oversized-file growth in statements, not physical lines, net
+it against same-commit deletions of moved code, and make any `SLOP_GATE_*`
+override leave a visible commit trailer so it can never be silent. The design
+seat recommends A now and C soon, and will implement C in the fleet repo on the
+owner's word.
+
+Until the ruling: the seat reverts its own item F (the module comes back), keeps
+the 14 lines of correctness fixes staged on the branch, and sets no `SLOP_GATE_*`
+variable for any reason.
+
+### 32.1 Re-measured after the item F revert — 19:21 PDT
+
+`data/mogre_quest_data.py` is restored (129 lines) with a comment that names why
+the row lives outside `quest_data.py` and forbids inlining it. `data/quest_data.py`
+is back to 12,671 lines. The gate passes on the branch with no output and no
+override. What still needs the owner's word is 26 lines across six files:
+
+```
+core/constants.py                        2991 -> 3005   (+14, new Nettles Utility row)
+data/quest_data.py                      12667 -> 12671   (+4,  restored layout)
+data/combat_data.py                     14215 -> 14217   (+2,  restored layout)
+data/slayer_data.py                      1209 -> 1211    (+2,  restored layout)
+logic_pure/logic_pure_combat_engine.py   3045 -> 3047    (+2,  restored layout)
+tests/test_combat_enemy_roster.py        1733 -> 1735    (+2,  restored layout)
+```
+
+Only the 14 lines in `core/constants.py` are new functionality; the other 12 restore
+readable layout that the gate itself had forced onto single lines. `promotion_gate.py
+land` is a fast-forward that runs no pre-commit hook, so the hold on the override
+commit `a82c6471` is a decision, not a technical block. Second question for the
+owner: if the exception is granted, recommit the branch so no overriding commit
+exists in history (design seat's recommendation), or accept it with the exception
+named in the record.
+
+### 32.2 The gate now holds both slices — 19:58 PDT
+
+The diary fix round's second pass hit the same gate on three lines in
+`__init__.py` (6,254 -> 6,257): `after_apply=lambda: check_achievements(player_data)`
+on the Great Orb Project teleport dispatcher, the one dispatcher of its kind that
+omits it; without it a player who breaks two teleports before answering a card loses
+that diary deed permanently. The agent stopped, reported the message verbatim, used
+no override, and made no commit. The owner's ruling therefore covers 29 lines across
+seven files in two slices, every one a correctness fix or restored layout. Until it
+lands, the seat commits the diary work minus the blocked hunk (kept as a named patch)
+and runs the read-only harvest lanes for items 3 and 5.
+
+## 33. Item 3 resized to a feature slice; a queue item's size is a hypothesis — 2026-09-01 20:10 PDT
+
+Answers the seat's item 3 harvest (`memory-bank/source-audits/proof-bindings-harvest-2026-09-01.md`).
+Section 24.4's premise that the three mechanics already exist was wrong: the
+Fremennik round shield has no recipe anywhere (`data/crafting_data.py:434-456` is a
+serializer, and the only `round_shield` in the tree is a Construction furnishing),
+and the two enchantment predicates would bind to the generic `enchant_emerald_*` and
+`enchant_sapphire_*` actions, which are not the deeds. Because
+`logic_pure/quest_action_proofs.py:29-41` maps an exact `(event_type, event_id)` pair
+to a proof, binding them as they stand would credit any emerald or sapphire enchant.
+That is the inverted inert-row failure: a deed anybody completes by accident. It is
+forbidden.
+
+### 33.1 Ruling
+
+Item 3 is a feature slice, not three bindings. Build the three source-faithful
+actions the harvest pinned to pre-cutoff revisions: the emerald sickle enchant, the
+Silvthrill rod enchant, and the Fremennik round shield recipe, each as its own
+action with its own event id, and bind each quest predicate to that exact action.
+Sourcing is done; implementation and verification follow section 29's lanes. The
+order stays 3 before 4 and 5, since the harvest is already in hand; it lands after
+the two gated slices.
+
+### 33.2 Process rule
+
+Three queue premises inverted on measurement today: 25.2 (wiring moves the tier
+count), 26.1 (no Beefy Bill in code), 24.4 (three mechanics exist). Each was a
+claim about what the codebase contains, and each survived into the queue as sized
+work. From now on a queue item's stated size and premise are a hypothesis, and the
+harvest lane's pre-dispatch measurement is the evidence; the seat records the
+measured size in the ledger before briefing, and a premise that inverts is reported
+as these three were, not absorbed silently. The design seat carries the same rule
+for its own claims.
