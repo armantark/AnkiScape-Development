@@ -120,10 +120,6 @@ class CurationLedgerWiringTest(unittest.TestCase):
             },
         )
         self.assertEqual([row["task_id"] for row in rows if row["task_id"] not in task_ids], [])
-        self.assertEqual(
-            sum(bool(row.get("catalog_regeneration_pending")) for row in rows),
-            135,
-        )
 
     def test_ledger_row_schema_and_wiring_match_disposition(self):
         for row in self._ledger_rows():
@@ -137,8 +133,6 @@ class CurationLedgerWiringTest(unittest.TestCase):
                     expected_fields += ["designed_name", "designed_description"]
                     self.assertTrue(row["designed_name"])
                     self.assertTrue(row["designed_description"])
-                if row.get("catalog_regeneration_pending"):
-                    expected_fields.append("catalog_regeneration_pending")
                 self.assertEqual(list(row), expected_fields)
                 self.assertNotIn("\nWiring: ", row["designed_trigger"])
                 self.assertEqual(

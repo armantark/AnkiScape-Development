@@ -249,10 +249,6 @@ def _validate_row_metadata(task_id: str, row: Mapping) -> None:
         raise SystemExit(
             f"diary ledger task {task_id} has unsupported disposition {disposition!r}"
         )
-    if row.get("catalog_regeneration_pending") not in {None, True}:
-        raise SystemExit(
-            f"diary ledger task {task_id} has invalid regeneration marker"
-        )
     designed_text = (row.get("designed_name"), row.get("designed_description"))
     if disposition == "invented" and not all(
         isinstance(value, str) and value for value in designed_text
@@ -443,14 +439,6 @@ class CurationLedger:
 
 
 CURATION_LEDGER = CurationLedger()
-
-
-def pending_catalog_source_ids() -> set[int]:
-    return {
-        int(row["source_id"])
-        for row in CURATION_LEDGER.rows.values()
-        if row.get("catalog_regeneration_pending")
-    }
 
 
 def _walk_matchers(matcher):
