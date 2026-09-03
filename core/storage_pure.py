@@ -628,27 +628,23 @@ def _revalidate_v108_diary_deeds(data: Dict[str, Any]) -> None:
 def _revalidate_v121_dormant_diary_deeds(
     data: Dict[str, Any], loaded_config_version: int
 ) -> None:
-    """Drop proxy completions that no current catalog predicate can prove."""
+    """Drop v121 proxy completions, then re-prove today's active deeds."""
 
     if loaded_config_version >= 121:
         return
 
-    from ..data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+    from ..data.achievement_diary_data import (
+        V121_DORMANT_REVALIDATION_TASK_IDS,
+    )
 
-    dormant_task_ids = {
-        task.id
-        for family in ACHIEVEMENT_DIARY_CATALOG
-        for tier in family.tiers
-        for task in tier.tasks
-        if not task.conditions
-    }
     state = sanitize_achievement_diary_state_pure(data)["achievement_diaries"]
     state["completed_tasks"] = [
         task_id
         for task_id in state["completed_tasks"]
-        if task_id not in dormant_task_ids
+        if task_id not in V121_DORMANT_REVALIDATION_TASK_IDS
     ]
     data["achievement_diaries"] = state
+    data.update(refresh_achievement_diaries_pure(data)[0])
 
 
 def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, Any]:
