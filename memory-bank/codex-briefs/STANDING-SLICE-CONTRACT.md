@@ -35,6 +35,15 @@ this Anki install for real study.
   repo only through the guard, which pins the pool inside the safe root and
   audits every acquire and release.
 - Do not delete a dirty or unmerged worktree. Move it to the safe root instead.
+- Never modify the canonical checkout's working tree. It is the owner's live
+  Anki install, so an edit there runs unreviewed code in the product, and it
+  makes the next landing refuse, because a fast-forward will not overwrite a
+  dirty tracked file. The promotion gate now refuses to start at all when that
+  checkout has uncommitted tracked changes. Do all work in your leased
+  worktree, including any test run you want to make against real repository
+  state. If a check seems to need the canonical checkout, copy the state you
+  need into your worktree instead; if that is genuinely impossible, stop and
+  report it.
 
 ## 2. Git
 
