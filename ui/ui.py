@@ -28418,7 +28418,7 @@ def show_main_menu(
         "items, rolls, and material use scale with it."
     )
     xp_mult_help.setWordWrap(True)
-    xp_mult_help.setStyleSheet("color: palette(mid); font-size: 11px;")
+    xp_mult_help.setStyleSheet("color: palette(text); font-size: 11px;")
 
     review_hud_cb = QCheckBox("Enable experience HUD")
     review_hud_cb.setChecked(review_hud_enabled)
@@ -28428,7 +28428,7 @@ def show_main_menu(
     ironman_help = QLabel()
     ironman_help.setObjectName("settingsIronmanHelp")
     ironman_help.setWordWrap(True)
-    ironman_help.setStyleSheet("color: palette(mid); font-size: 11px;")
+    ironman_help.setStyleSheet("color: palette(text); font-size: 11px;")
 
     def _refresh_ironman_setting() -> None:
         current = ge_state["projection"]

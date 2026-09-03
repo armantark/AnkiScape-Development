@@ -89,7 +89,7 @@ if HAS_QT:
             self.status = QLabel(header)
             self.status.setObjectName("crucibleStatusChip")
             self.status.setStyleSheet(
-                "color: palette(mid); font-size: 11px; font-weight: 700;"
+                "color: palette(text); font-size: 11px; font-weight: 700;"
             )
             header_layout.addWidget(icon)
             header_layout.addWidget(title)
@@ -106,7 +106,7 @@ if HAS_QT:
             self.fee = QLabel(self)
             self.fee.setObjectName("crucibleFeeLabel")
             self.fee.setWordWrap(True)
-            self.fee.setStyleSheet("color: palette(mid); font-size: 11px;")
+            self.fee.setStyleSheet("color: palette(text); font-size: 11px;")
             layout.addWidget(self.fee)
 
             self.warning = QLabel(self)
