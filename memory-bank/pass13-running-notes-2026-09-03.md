@@ -81,3 +81,14 @@ the burst-path reorder fails the learning test. Pre-existing: the loot filter
 leaves a zeroed `"Bones": 0` key on a "leave" override; item-reachability audit
 exits 1 on the untouched baseline (White lily seed, White tree sapling, Wimpy
 feather). Review: Opus, pending.
+
+## 00:02 — Varrock draft reviewed and fixed
+
+GLM drafted 22 rows in 13 minutes on the context pack (text only). Review:
+19 pass; three fixed by the design seat after the GLM resume failed with a
+provider refusal: Engage now burns ten willow logs as balloon fuel (the
+teleport clause duplicated Quick Turnaround); Point of En-tree cuts a yew
+behind Varrock Palace (a grown spirit tree needs Farming 83); Tunnel Vision
+keeps Dorgesh-Kaan with a recorded region compromise, because shortcuts have no
+runtime and no Varrock-region agility course exists in the 2012 model. Flag for
+the owner's spot-check: `varrock_hard_but_it_won_t_warp_you_anywhere`.
