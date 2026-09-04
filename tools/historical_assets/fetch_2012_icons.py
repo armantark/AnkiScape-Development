@@ -157,7 +157,7 @@ def _load_checkpoint(
     return checkpoint
 
 
-def _request_json_with_retry(
+def _request_json(
     client: HttpWikiClient, url: str
 ) -> Mapping[str, object]:
     try:
@@ -188,7 +188,7 @@ def _query_history_batch(
     }
     params.update(continuation)
     url = f"{RS_WIKI_API}?{urllib.parse.urlencode(params)}"
-    payload = _request_json_with_retry(client, url)
+    payload = _request_json(client, url)
     query = payload.get("query")
     if not isinstance(query, dict):
         raise AssetFetchError(f"Wiki response omitted query data for File:{wiki_title}.")
