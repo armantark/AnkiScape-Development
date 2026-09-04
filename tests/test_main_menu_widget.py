@@ -12331,7 +12331,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("idle at the Bank", hud.sub_lbl.text())
         self.assertNotIn("material prep", hud.sub_lbl.text())
 
-    def test_evil_tree_panel_reports_countdown_and_selects_active_event(self) -> None:
+    def test_evil_tree_panel_reports_countdown_and_starts_active_event(self) -> None:
         from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
@@ -12367,7 +12367,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         active_dialog = self._open(pd)
         utility_tree = self._open_activities(active_dialog)
         button = _find_named_button(active_dialog, "evilTreeSelectButton")
-        self.assertEqual(button.text(), "Select full event")
+        self.assertEqual(button.text(), "Start full event")
         self.assertTrue(button.isEnabled())
         self.assertIn(
             "Nurture → Prepare → Fell",
@@ -12376,7 +12376,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         button.click()
         QApplication.processEvents()
-        self.assertEqual(self._utility_calls[-1], "evil_tree")
+        self.assertEqual(self._activity_start_calls[-1], "evil_tree")
         self.assertEqual(pd["current_utility"], "evil_tree")
         self.assertEqual(button.text(), "Selected for reviews")
         self.assertFalse(button.isEnabled())
@@ -12387,7 +12387,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_utility"], "bankstanding")
         self._open_activities(active_dialog)
         button = _find_named_button(active_dialog, "evilTreeSelectButton")
-        self.assertEqual(button.text(), "Select full event")
+        self.assertEqual(button.text(), "Start full event")
         self.assertTrue(button.isEnabled())
 
     def test_evil_tree_panel_makes_nurture_only_gate_explicit(self) -> None:
@@ -12416,7 +12416,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         button = _find_named_button(dialog, "evilTreeSelectButton")
         detail = _find_named_label(dialog, "evilTreeDetail").text()
-        self.assertEqual(button.text(), "Select nurture only")
+        self.assertEqual(button.text(), "Start nurture only")
         self.assertTrue(button.isEnabled())
         self.assertIn("cannot fell", detail)
         self.assertIn("75 Woodcutting", detail)
@@ -12532,7 +12532,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         hud.set_data(active, "Utility / Activities")
         self.assertIn("awaiting an active tree", hud.sub_lbl.text())
 
-    def test_big_chinchompa_panel_selects_event_and_runs_reward_shop(self) -> None:
+    def test_big_chinchompa_panel_starts_event_and_runs_reward_shop(self) -> None:
         from ankiscape.logic.big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
@@ -12568,7 +12568,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         button.click()
         QApplication.processEvents()
-        self.assertEqual(self._utility_calls[-1], "big_chinchompa")
+        self.assertEqual(self._activity_start_calls[-1], "big_chinchompa")
         self.assertEqual(pd["current_utility"], "big_chinchompa")
         self.assertEqual(button.text(), "Selected for reviews")
 
@@ -13136,9 +13136,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary.click()
         QApplication.processEvents()
         self.assertTrue(pd["fist_of_guthix"]["tutorial_complete"])
-        self.assertEqual(primary.text(), "Selected for reviews")
-        self.assertEqual(pd["current_utility"], "fist_of_guthix")
-        self.assertEqual(self._utility_calls[-1], "fist_of_guthix")
+        self.assertEqual(primary.text(), "Select activity")
+        self.assertNotIn("current_utility", pd)
+        self.assertEqual(self._activity_start_calls, [])
 
         mode = dialog.findChild(QComboBox, "fistOfGuthixAutomationMode")
         stance = dialog.findChild(QComboBox, "fistOfGuthixStance")
@@ -13230,7 +13230,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary.click()
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "sorceress_garden")
-        self.assertEqual(self._utility_calls[-1], "sorceress_garden")
+        self.assertEqual(self._activity_start_calls[-1], "sorceress_garden")
         self.assertEqual(primary.text(), "Selected for reviews")
 
     def test_penguin_card_keeps_bank_only_visibility_ring_locked(self) -> None:
@@ -13367,7 +13367,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ("select_spy", {"spawn_id": selected_id}),
         )
         self.assertEqual(pd["current_utility"], "penguin_hide_and_seek")
-        self.assertEqual(self._utility_calls[-1], "penguin_hide_and_seek")
+        self.assertEqual(self._activity_start_calls[-1], "penguin_hide_and_seek")
         self.assertEqual(primary.text(), "Selected for next review")
         self.assertEqual(status.text(), "ACTIVE")
 
@@ -13430,7 +13430,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._vinesweeper_calls[-1], ("enter", {}))
         self.assertEqual(pd["current_utility"], "vinesweeper")
-        self.assertEqual(self._utility_calls[-1], "vinesweeper")
+        self.assertEqual(self._activity_start_calls[-1], "vinesweeper")
         self.assertEqual(pd["vinesweeper"]["flags"], 10)
         self.assertEqual(status.text(), "ACTIVE")
         self.assertEqual(primary.accessibleName(), "Leave Winkin's Farm")
@@ -13877,7 +13877,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(self._fight_caves_calls[-1], ("enter", {}))
         self.assertTrue(pd["fight_caves"]["active"])
         self.assertEqual(pd["current_utility"], "fight_caves")
-        self.assertEqual(self._utility_calls[-1], "fight_caves")
+        self.assertEqual(self._activity_start_calls[-1], "fight_caves")
         self.assertEqual(status.text(), "ACTIVE")
         self.assertIn("Wave 1/63", summary.text())
         self.assertEqual(roster.count(), 1)
@@ -15089,7 +15089,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertIn("READY · 2 tickets", currency.text())
         self.assertIn("8 successful reviews", summary.text())
-        self.assertNotIn("claim", summary.text())
+        self.assertEqual(primary.text(), "Start activity")
         self.assertTrue(progress.isHidden())
         self.assertEqual(reward.currentData(), "fishing_hat")
         self.assertEqual(
@@ -15919,7 +15919,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._stealing_creation_calls[-1], ("enter", {}))
         self.assertEqual(pd["current_utility"], "stealing_creation")
-        self.assertEqual(self._utility_calls[-1], "stealing_creation")
+        self.assertEqual(self._activity_start_calls[-1], "stealing_creation")
         self.assertEqual(status.text(), "ACTIVE")
         self.assertIn("Review 0/20", summary.text())
         self.assertFalse(leave.isHidden())
@@ -17806,7 +17806,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             advanced_choice.accessibleName(), "Next courtroom action"
         )
 
-    def test_circus_detail_arms_a_performance_and_exposes_advanced_routine(self) -> None:
+    def test_circus_detail_starts_a_performance_and_exposes_advanced_routine(self) -> None:
         from ankiscape.logic.circus_logic import apply_circus_command_pure
 
         pd = _make_player_data()
@@ -17830,11 +17830,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         panel = self._open_circus_panel(dialog)
         self.assertEqual(pd["current_utility"], "bankstanding")
-        icon = panel.findChild(QLabel, "circusIcon")
         performance = panel.findChild(QComboBox, "circusPerformanceCombo")
         strategy = panel.findChild(QComboBox, "circusStrategyCombo")
         mode = panel.findChild(QComboBox, "circusAutomationMode")
         primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        self.assertEqual(primary.text(), "Start activity")
         executing_queue = panel.findChild(QListWidget, "circusExecutingQueue")
         non_executing_queue = panel.findChild(QListWidget, "circusNonExecutingQueue")
         move_to_non_executing = panel.findChild(
@@ -17851,8 +17851,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             if widget.objectName().startswith("circusRewardIcon::")
         ]
 
-        self.assertEqual(icon.size().width(), 28)
-        self.assertFalse(icon.pixmap().isNull())
         self.assertEqual(performance.count(), 3)
         self.assertEqual(performance.findData("fire_breathing"), -1)
         self.assertEqual(performance.findData("flaming_poi"), -1)
@@ -17925,6 +17923,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary.click()
         QApplication.processEvents()
         self.assertEqual(command_calls[-1][0], "start_activity")
+        self.assertEqual(self._activity_start_calls[-1], "big_top_bonanza")
+        self.assertEqual(pd["current_utility"], "big_top_bonanza")
         self.assertEqual(pd["circus"]["selected_performance"], "magic")
         self.assertEqual(pd["circus"]["strategies"]["magic"], "max_xp")
 
@@ -19980,7 +19980,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         panel.findChild(QPushButton, "varrockMuseumPrimaryButton").click()
         QApplication.processEvents()
-        self.assertEqual(self._utility_calls[-1], "varrock_museum")
+        self.assertEqual(self._activity_start_calls[-1], "varrock_museum")
         dialog.close()
 
 

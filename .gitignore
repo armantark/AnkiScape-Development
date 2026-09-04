@@ -38,3 +38,5 @@ rulesync.local.jsonc
 **/.codex/config.toml
 **/.codex/hooks.json
 !.rulesync/.aiignore
+
+/tmp/
