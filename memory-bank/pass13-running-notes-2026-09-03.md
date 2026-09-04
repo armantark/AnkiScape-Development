@@ -173,3 +173,12 @@ torstol; an invented fletching or magic-tree deed); the air battlestaff
 Guild round gets a count; Dairy Air names its place. Pattern across GLM
 drafts: count raises stand in for difficulty; the reviewer must reject that.
 Fremennik drafting; Burthorpe and Lumbridge still drafting.
+
+## 00:33 — Burthorpe draft accepted (14 rows)
+
+Single beginner tier; the earlier curation had already replaced every dead
+seam, so this was a text pass: seven renames (Troll Patrol, Cannonball Run,
+Cut to the Chase, Feeding Frenzy, Lap of Luxury, Batch Expectations, Trout and
+About) and seven kept names. Accepted without changes. Region status: Ardougne
+28, Varrock 22, Karamja 20, Burthorpe 14 complete; Falador and Seers on fixes;
+Lumbridge, Fremennik, Morytania+misc drafting.
