@@ -217,3 +217,11 @@ with the oldid 6457777 citation; the test pins oldids 6570084 and 6570085;
 `tests/test_mining_data.py` corrected to the 2012 shape; plain lane 4,678 OK.
 Closed slices: S4, S7. Branches pending: S2, S3, S5, S6, S8. S9 records slice
 dispatched to GLM.
+
+## 00:45 — Fremennik draft complete (12 rows)
+
+"The Lighthouse Keeper": three level-92 dagannoths beneath the Lighthouse
+(kurask and the Dagannoth Kings are not modelled). Design seat restored the
+frozen `original_tier` on fairy_mountaineering (the drafter had set it to
+hard). Regions complete: seven, 129 rows. Lumbridge (21) and Morytania+misc
+(12) remain.
