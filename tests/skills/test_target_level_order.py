@@ -25,12 +25,27 @@ from ankiscape.core.target_metadata import (
     fletching_target_rows,
     herblore_target_rows,
     mining_target_rows,
+    thieving_target_rows,
+)
+from ankiscape.data.thieving_data import (
+    DEFAULT_THIEVING_TARGET,
+    THIEVING_ITEM_IMAGES,
+    THIEVING_TARGETS,
 )
 
 
+_LEVEL_PATTERN = re.compile(r"\(Lvl (\d+)\)")
+
+
 def _levels(rows, group=None):
+    """Read each row's level the way a player sees it: the rendered label.
+
+    Sorting by sort_key first would make `levels == sorted(levels)` true by
+    construction, so the level must come from the label's "(Lvl N)" tag.
+    """
     members = [row for row in rows if group is None or row.group == group]
-    return [int(row.sort_key[0]) for row in sorted(members, key=lambda row: row.sort_key)]
+    ordered = sorted(members, key=lambda row: row.sort_key)
+    return [int(_LEVEL_PATTERN.search(row.label).group(1)) for row in ordered]
 
 
 class TargetLevelOrderTest(unittest.TestCase):
@@ -87,6 +102,19 @@ class TargetLevelOrderTest(unittest.TestCase):
             levels = _levels(rows, group)
             self.assertEqual(levels, sorted(levels))
 
+    def test_thieving_flat_render_is_level_ordered_across_groups(self):
+        # Thieving has enough rows for the flat renderer but its old key led
+        # with a group index, so level order had to survive grouping.
+        rows = thieving_target_rows(
+            {"thieving_level": 99, "inventory": {}},
+            THIEVING_TARGETS,
+            THIEVING_ITEM_IMAGES,
+            DEFAULT_THIEVING_TARGET,
+        )
+        self.assertGreater(len({row.group for row in rows}), 1)
+        levels = _levels(rows)
+        self.assertEqual(levels, sorted(levels))
+
 
 try:
     from tests.test_main_menu_widget import (  # noqa: E402  (sets up Qt)
@@ -100,9 +128,6 @@ try:
     _QT_READY = True
 except Exception:  # pragma: no cover - environment without aqt installed
     _QT_READY = False
-
-
-_LEVEL_PATTERN = re.compile(r"\(Lvl (\d+)\)")
 
 
 def _level_of(text: str) -> int:

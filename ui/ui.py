@@ -5411,7 +5411,7 @@ def show_main_menu(
 
         ordered_groups = list(group_order or [])
         groups: dict = {group: [] for group in ordered_groups}
-        for row in sorted(rows, key=lambda r: r.sort_key or (r.label,)):
+        for row in rows:
             group = row.group or "other"
             if group not in groups:
                 groups[group] = []
@@ -5441,7 +5441,7 @@ def show_main_menu(
             tree.addTopLevelItem(parent)
 
             group_has_current = False
-            for row in group_rows:
+            for row in sorted(group_rows, key=lambda r: r.sort_key or (r.label,)):
                 child = QTreeWidgetItem([row.label])
                 child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
                 if row.icon_path and os.path.exists(row.icon_path):

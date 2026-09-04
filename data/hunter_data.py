@@ -168,7 +168,6 @@ class HunterTarget:
     deterministic: bool = False
     tradeable: bool = True
     notes: str = ""
-    sort_order: int = 0
 
 
 def _req(*pairs: Tuple[str, int]) -> Tuple[Tuple[str, int], ...]:
@@ -198,7 +197,6 @@ def _target(
     deterministic: bool = False,
     tradeable: bool = True,
     notes: str = "",
-    sort_order: int = 0,
     skill_requirements: Tuple[Tuple[str, int], ...] = (),
     xp_rewards: Tuple[Tuple[str, float], ...] = (),
     secondary_drop_tables: Tuple[
@@ -229,7 +227,6 @@ def _target(
         deterministic=deterministic,
         tradeable=tradeable,
         notes=notes,
-        sort_order=sort_order,
     )
 
 
@@ -266,7 +263,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_npc_id=5073,
         rate1=73,
         rate99=230,
-        sort_order=10,
     ),
     _target(
         "catch_golden_warbler",
@@ -281,7 +277,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_npc_id=5075,
         rate1=60,
         rate99=190,
-        sort_order=20,
     ),
     _target(
         "catch_copper_longtail",
@@ -297,7 +292,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=60,
         rate99=170,
         notes="2011.rs lists 62 XP; the Darkan implementation uses 61 XP.",
-        sort_order=30,
     ),
     _target(
         "catch_cerulean_twitch",
@@ -313,7 +307,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=50,
         rate99=160,
         notes="2011.rs rounds this row to 64 XP; the Darkan implementation uses 64.67 XP.",
-        sort_order=40,
     ),
     _target(
         "catch_tropical_wagtail",
@@ -329,7 +322,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=45,
         rate99=150,
         notes="2011.rs rounds this row to 95 XP; the Darkan implementation uses 95.2 XP.",
-        sort_order=50,
     ),
     _target(
         "catch_wimpy_bird",
@@ -349,7 +341,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "lists 5-10 Wimpy feathers, and this deterministic row keeps the "
             "sourced minimum."
         ),
-        sort_order=60,
     ),
     _target(
         "catch_polar_kebbit",
@@ -373,7 +364,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "One review represents the complete four- or five-search trail and "
             "final attack; the hidden catch curve uses the registered Hunter fallback."
         ),
-        sort_order=5,
     ),
     _target(
         "track_razor_backed_kebbit",
@@ -397,7 +387,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "One review represents the complete four- or five-search trail and "
             "final attack; the hidden catch curve uses the registered Hunter fallback."
         ),
-        sort_order=10,
     ),
     _target(
         "track_shadow_jadinko",
@@ -430,7 +419,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "Darkan independently rolls bush seeds at 8/256, one of the four "
             "higher-level vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),
-        sort_order=20,
     ),
     _target(
         "track_diseased_jadinko",
@@ -463,7 +451,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "independently rolls bush seeds at 8/256, one of the four higher-level "
             "vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),
-        sort_order=30,
     ),
     _target(
         "track_camouflaged_jadinko",
@@ -497,7 +484,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "16/256, one of the four higher-level vine-herb seeds at 4/256, and "
             "blossom seeds at 4/256."
         ),
-        sort_order=40,
     ),
     _target(
         "catch_ruby_harvest",
@@ -512,7 +498,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         HUNTER_BUTTERFLY_SOURCE,
         source_item_id=10020,
         deterministic=True,
-        sort_order=10,
     ),
     _target(
         "catch_sapphire_glacialis",
@@ -527,7 +512,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         HUNTER_BUTTERFLY_SOURCE,
         source_item_id=10018,
         deterministic=True,
-        sort_order=20,
     ),
     _target(
         "catch_snowy_knight",
@@ -542,7 +526,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         HUNTER_BUTTERFLY_SOURCE,
         source_item_id=10016,
         deterministic=True,
-        sort_order=30,
     ),
     _target(
         "catch_black_warlock",
@@ -557,7 +540,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         HUNTER_BUTTERFLY_SOURCE,
         source_item_id=10014,
         deterministic=True,
-        sort_order=40,
     ),
     _target(
         "barehand_ruby_harvest",
@@ -576,7 +558,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate99=230,
         tradeable=False,
         notes="No net, jar, or retained butterfly. Requires 75 Agility.",
-        sort_order=10,
     ),
     _target(
         "barehand_sapphire_glacialis",
@@ -595,7 +576,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate99=230,
         tradeable=False,
         notes="No net, jar, or retained butterfly. Requires 80 Agility.",
-        sort_order=20,
     ),
     _target(
         "barehand_snowy_knight",
@@ -614,7 +594,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate99=230,
         tradeable=False,
         notes="No net, jar, or retained butterfly. Requires 85 Agility.",
-        sort_order=30,
     ),
     _target(
         "barehand_black_warlock",
@@ -633,7 +612,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate99=230,
         tradeable=False,
         notes="No net, jar, or retained butterfly. Requires 90 Agility.",
-        sort_order=40,
     ),
     _target(
         "catch_wild_kebbit",
@@ -650,7 +628,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         5089,
         rate1=128,
         rate99=256,
-        sort_order=10,
     ),
     _target(
         "catch_barb_tailed_kebbit",
@@ -667,7 +644,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         5088,
         rate1=110,
         rate99=256,
-        sort_order=20,
     ),
     _target(
         "catch_prickly_kebbit",
@@ -684,7 +660,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         5086,
         rate1=100,
         rate99=240,
-        sort_order=30,
     ),
     _target(
         "catch_sabre_toothed_kebbit",
@@ -701,7 +676,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         5087,
         rate1=80,
         rate99=220,
-        sort_order=40,
     ),
     _target(
         "catch_ferret",
@@ -717,7 +691,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=10092,
         rate1=128,
         rate99=256,
-        sort_order=10,
     ),
     _target(
         "catch_chinchompa",
@@ -733,7 +706,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=10033,
         rate1=95,
         rate99=220,
-        sort_order=20,
     ),
     _target(
         "catch_red_chinchompa",
@@ -749,7 +721,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=10034,
         rate1=75,
         rate99=200,
-        sort_order=30,
     ),
     _target(
         "catch_pawya",
@@ -766,7 +737,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=70,
         rate99=190,
         notes="Regicide-start route access is documented but not represented by the current quest-completion gate model.",
-        sort_order=40,
     ),
     _target(
         "catch_cannibal_jadinko",
@@ -798,7 +768,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "overall chance is derived from those table constants. Persistent setup "
             "and optional bait are route context, not per-catch consumables."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_guthix_jadinko",
@@ -834,7 +803,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "seeds at 4/256. Persistent setup and optional bait are route context, "
             "not per-catch consumables."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_grenwall",
@@ -851,7 +819,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=60,
         rate99=180,
         notes="Source drop range is 18-21 spikes plus optional herbs; AnkiScape awards the guaranteed minimum.",
-        sort_order=50,
     ),
     _target(
         "catch_common_jadinko",
@@ -894,7 +861,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "Darkan independently rolls bush seeds at 14/256, one uniformly weighted "
             "vine-herb seed at 16/256, and blossom seeds at 17/256."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_igneous_jadinko",
@@ -919,7 +885,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "Darkan rolls one Lergberry or Kalferberry seed at 13/256."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_aquatic_jadinko",
@@ -944,7 +909,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "Darkan rolls one red, blue, or green blossom seed at 12/256."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_amphibious_jadinko",
@@ -966,7 +930,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "Darkan rolls one apple, banana, or orange tree seed at 20/256."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_carrion_jadinko",
@@ -988,7 +951,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "The Darkan drop table rolls one uniformly weighted vine-herb seed at 30/256."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_draconic_jadinko",
@@ -1010,7 +972,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "One review collapses habitat attraction, trap placement, and retrieval. "
             "The Darkan drop table rolls one of the four higher-level vine-herb seeds at 14/256."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_saradomin_jadinko",
@@ -1041,7 +1002,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "Darkan independently rolls bush seeds at 6/256, one of the four "
             "higher-level vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_zamorak_jadinko",
@@ -1072,7 +1032,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
             "Darkan independently rolls bush seeds at 6/256, one of the four "
             "higher-level vine-herb seeds at 5/256, and blossom seeds at 4/256."
         ),
-        sort_order=10,
     ),
     _target(
         "catch_swamp_lizard",
@@ -1088,7 +1047,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=10149,
         rate1=128,
         rate99=256,
-        sort_order=10,
     ),
     _target(
         "catch_orange_salamander",
@@ -1104,7 +1062,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=10146,
         rate1=100,
         rate99=240,
-        sort_order=20,
     ),
     _target(
         "catch_red_salamander",
@@ -1120,7 +1077,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_item_id=10147,
         rate1=80,
         rate99=220,
-        sort_order=30,
     ),
     _target(
         "catch_black_salamander",
@@ -1137,7 +1093,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         rate1=70,
         rate99=200,
         notes="2011.rs lists 304 XP; the Darkan implementation uses 319.2 XP.",
-        sort_order=40,
     ),
     _target(
         "catch_spotted_kebbit",
@@ -1153,7 +1108,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_npc_id=5098,
         source_item_id=10125,
         deterministic=True,
-        sort_order=10,
     ),
     _target(
         "catch_dark_kebbit",
@@ -1169,7 +1123,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_npc_id=5099,
         source_item_id=10115,
         deterministic=True,
-        sort_order=20,
     ),
     _target(
         "catch_dashing_kebbit",
@@ -1185,7 +1138,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         source_npc_id=5100,
         source_item_id=10127,
         deterministic=True,
-        sort_order=30,
     ),
     _target(
         "catch_imp_magic_box",
@@ -1203,7 +1155,6 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         10027,
         rate1=70,
         rate99=220,
-        sort_order=10,
     ),
 )
 
@@ -1249,7 +1200,6 @@ HUNTER_TARGETS += tuple(
         item_id,
         rate1=110,
         rate99=256,
-        sort_order=index * 10,
     )
     for index, (slug, label, level, maze_xp, _world_xp, item_id, npc_id) in enumerate(_IMPLINGS, start=1)
 )
@@ -1271,7 +1221,6 @@ HUNTER_TARGETS += tuple(
         item_id,
         rate1=95,
         rate99=230,
-        sort_order=index * 10,
     )
     for index, (slug, label, level, _maze_xp, world_xp, item_id, npc_id) in enumerate(_IMPLINGS, start=1)
 )

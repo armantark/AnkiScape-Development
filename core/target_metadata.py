@@ -127,7 +127,6 @@ def summoning_target_rows(
     inventory = player_data.get("inventory", {})
     owned = inventory if isinstance(inventory, Mapping) else {}
     rows = []
-    group_order = {"Infuse pouches": 0, "Create scrolls": 1}
     for action in actions:
         target_id = str(getattr(action, "id"))
         familiar_id = str(getattr(action, "familiar_id"))
@@ -179,11 +178,7 @@ def summoning_target_rows(
                 icon_path=item_images.get(output_item),
                 group=group,
                 locked_reasons=reasons,
-                sort_key=(
-                    group_order.get(group, 99),
-                    level,
-                    str(getattr(action, "display_name")),
-                ),
+                sort_key=(level, str(getattr(action, "display_name"))),
             )
         )
     return tuple(rows)
@@ -234,11 +229,6 @@ def thieving_target_rows(
     rows = []
     current_target = str(player_data.get("current_thieving", default_target) or default_target)
     level_have = int(player_data.get("thieving_level", 1) or 1)
-    group_order = {
-        group: index
-        for index, group in enumerate(("pickpocketing", "stalls", "safes", "blackjacking"))
-    }
-
     for target_id, spec in thieving_data.items():
         display_name = str(spec.get("display_name", spec.get("name", target_id)))
         level = int(spec.get("level", spec.get("required_level", 1)) or 1)
@@ -295,7 +285,7 @@ def thieving_target_rows(
             ),
             group=group,
             locked_reasons=locked_reasons,
-            sort_key=(group_order.get(group, 99), level, display_name),
+            sort_key=(level, display_name),
         ))
     return tuple(rows)
 
@@ -311,7 +301,6 @@ def agility_target_rows(
     rows = []
     current_target = str(player_data.get("current_agility", default_target) or default_target)
     level_have = int(player_data.get("agility_level", 1) or 1)
-    group_order = {"courses": 0, "activities": 1}
     for target in agility_targets:
         target_id = str(getattr(target, "id"))
         display_name = str(getattr(target, "display_name"))
@@ -354,7 +343,7 @@ def agility_target_rows(
             icon_path=agility_target_images.get(target_id),
             group=group,
             locked_reasons=locked_reasons,
-            sort_key=(group_order.get(group, 99), level, display_name),
+            sort_key=(level, display_name),
         ))
     return tuple(rows)
 
@@ -414,7 +403,7 @@ def smithing_target_rows(
                 icon_path=smithing_item_images.get(output_item),
                 group=group,
                 locked_reasons=locked_reasons,
-                sort_key=(lvl_req, 0 if spec.get("station") == "furnace" else 1, display_name),
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -429,7 +418,6 @@ def prayer_target_rows(
     rows = []
     inventory = player_data.get("inventory", {}) or {}
     current = player_data.get("current_prayer", default_target)
-    group_order = {name: index for index, name in enumerate(("Bury", "Scatter", "Ectofuntus", "Gilded altar"))}
     for target_id, spec in prayer_data.items():
         material = str(spec.get("display_name", target_id))
         group = str(spec.get("group", "Prayer"))
@@ -472,7 +460,7 @@ def prayer_target_rows(
             icon_path=prayer_item_images.get(material),
             group=group,
             locked_reasons=locked_reasons,
-            sort_key=(group_order.get(group, 99), xp, material),
+            sort_key=(int(spec.get("level", 1) or 1), material),
         ))
     return tuple(rows)
 
@@ -484,10 +472,8 @@ def construction_target_rows(
     rows = []
     inventory = player_data.get("inventory", {}) or {}
     current = player_data.get("current_construction", default_target)
-    group_order = {"Build": 0, "Flatpacks": 1, "Lectern tablets": 2}
     for target_id, spec in construction_data.items():
         group = "Lectern tablets" if target_id.startswith("tablet_") else "Flatpacks" if target_id.startswith("flatpack_") else str(spec.get("room", "Build")).replace("_", " ").title()
-        order_group = "Build" if not target_id.startswith(("flatpack_", "tablet_")) else group
         reasons = construction_target_locked_reasons_pure(
             player_data, target_id, construction_data, room_data, servant_data,
             nail_data, workbench_tiers,
@@ -509,7 +495,7 @@ def construction_target_rows(
             tooltip=tooltip, enabled=not reasons, current=target_id == current,
             icon_path=construction_item_images.get(icon_name), group=group,
             locked_reasons=reasons,
-            sort_key=(group_order.get(order_group, 0), group, int(level or 1), str(spec.get("display_name", target_id))),
+            sort_key=(int(level or 1), str(spec.get("display_name", target_id))),
         ))
     return tuple(rows)
 
@@ -524,11 +510,6 @@ def magic_target_rows(
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     current = player_data.get("current_magic", default_target)
-    group_order = {name: index for index, name in enumerate((
-        "Alchemy", "Teleports — Standard", "Teleports — Ancient", "Teleports — Lunar",
-        "Enchant jewellery", "Enchant bolts", "Charge orbs", "Conversions",
-        "Lunar skilling", "Pure casts",
-    ))}
     for target_id, spec in magic_data.items():
         name = str(spec.get("display_name", target_id))
         group = str(spec.get("group", "Magic"))
@@ -556,7 +537,7 @@ def magic_target_rows(
             icon_path=spell_icon_path or magic_item_images.get(str(icon_name)),
             group=group,
             locked_reasons=reasons,
-            sort_key=(group_order.get(group, 99), int(spec.get("level", 1) or 1), name),
+            sort_key=(int(spec.get("level", 1) or 1), name),
         ))
     return tuple(rows)
 
