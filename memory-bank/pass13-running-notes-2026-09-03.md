@@ -305,3 +305,11 @@ for the owner: `morytania_medium_izzy_wizzy_let_s_get_lizzy` displays hard on
 a swamp-lizard seam (Hunter 29), the only Hunter target in Morytania;
 `varrock_hard_but_it_won_t_warp_you_anywhere` on Dorgesh-Kaan. Merge dry run:
 162 of 162, 0 problems. Stage 2 of S1 merges when stage 1 reports.
+
+## 01:16 — S3 bankstand-single-notice on its branch
+
+`goal/pass13-bankstand-notice-2026-09-03` at `49d23a5c` (Sol). Material
+exhaustion routes its reason into the deferred modal; a branch that keeps a
+local refusal popup suppresses the modal. Both full lanes green (plain
+4,682 in 981 s; offscreen 4,682 in 1,319 s). New tests in
+`tests/runtime_actions/test_bankstanding_notice.py`. Review: Opus, pending.
