@@ -131,3 +131,13 @@ False (`data/mining_data.py:98`) and the shop generators defaulting the same
 way. `ROOT_QT_DIGEST` in `tests/test_module_surface.py:29` is
 checkout-path-dependent. The fleet gate drops an exempt generated file from
 every check, not only the line cap (`slop_gate.py:124-132`).
+
+## 00:19 — S4 CLOSED on its branch
+
+`goal/pass13-bones-learned-2026-09-03` at `1a89c254`. Review findings fixed:
+keep-default seeding reads the observed drop names outside the drops guard;
+one shared "leave" override filter drives Bonecrusher, urn ash charging, and
+auto-burial; finisher-path learning test on the desert lizard fixture. Each of
+the three fixes fails exactly its own test when reverted. Full widget suite
+last ran whole on the pre-review tree; the promotion gate re-runs it on the
+merged tree.
