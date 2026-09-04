@@ -59,7 +59,6 @@ def _ready_big_chompy_player(*, include_stage_items=True, include_hunting_ammo=F
         defense_level=30,
         constitution_level=30,
     )
-    player["quest_combat_config"] = {"resolver_enabled": True}
     if include_stage_items:
         player["inventory"].update({"Feather": 1, "Wolf bones": 6})
     if include_hunting_ammo:

@@ -112,7 +112,6 @@ from ..logic_pure.logic_pure import (
     default_mage_arena_state_pure,
     MAGE_ARENA_GOD_DATA,
     default_quest_combat_active_encounters_pure,
-    default_quest_combat_config_pure,
     default_red_sandstone_daily_state_pure,
     default_stronghold_state_pure,
     calculate_new_level,
@@ -124,7 +123,6 @@ from ..logic_pure.logic_pure import (
     sanitize_combat_state_pure,
     sanitize_mage_arena_state_pure,
     sanitize_quest_combat_active_encounters_pure,
-    sanitize_quest_combat_config_pure,
     red_sandstone_daily_state_pure,
     sanitize_stronghold_state_pure,
 )
@@ -361,7 +359,7 @@ from ..data.woodcutting_data import (
 )
 
 # Version 119 was reserved for the S4 Druidic Ritual branch before promotion serialized the numbering.
-CURRENT_CONFIG_VERSION = 123
+CURRENT_CONFIG_VERSION = 124
 RETIRED_QUEST_ACTION_PROOFS: set[str] = set()
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
@@ -700,7 +698,6 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_equipment_instance_state_pure())
     data["quests"] = default_quest_states()
     data["quest_points"] = 0
-    data["quest_combat_config"] = default_quest_combat_config_pure()
     data["quest_combat_encounters"] = {}
     data["quest_combat_encounter_counts"] = {}
     data["quest_combat_active_encounters"] = default_quest_combat_active_encounters_pure()
@@ -974,8 +971,11 @@ def _migrate_quest_combat_encounter_counts(data: Dict[str, Any]) -> None:
     data["quest_combat_encounter_counts"] = clean
 
 
-def _migrate_quest_stage_side_state(data: Dict[str, Any]) -> None:
-    data["quest_combat_config"] = sanitize_quest_combat_config_pure(data.get("quest_combat_config"))
+def _migrate_quest_stage_side_state(data: Dict[str, Any], version: int) -> None:
+    quest_combat_config = data.get("quest_combat_config")
+    if version < 124 and isinstance(quest_combat_config, dict):
+        data["quest_combat_config"] = dict(quest_combat_config)
+        data["quest_combat_config"].pop("resolver_enabled", None)
     _migrate_quest_flag_collection(data, "quest_combat_encounters")
     _migrate_quest_combat_encounter_counts(data)
     data["quest_combat_active_encounters"] = sanitize_quest_combat_active_encounters_pure(
@@ -1536,7 +1536,7 @@ def migrate_loaded_data(
     _migrate_runecrafting_target(data)
     _migrate_herblore_target(data)
     _migrate_quest_state(data)
-    _migrate_quest_stage_side_state(data)
+    _migrate_quest_stage_side_state(data, loaded_config_version)
     _migrate_quest_action_proofs(data, loaded_config_version)
     _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)

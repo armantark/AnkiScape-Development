@@ -645,21 +645,22 @@ expected file and provenance key in the asset test.
   are parsed in `tools/build_pre_eoc_quest_catalog.py`; do not collapse rows
   such as "Two Lava monsters" or "Five Ice Trolls" to a single combat
   completion.
-- Quest combat encounters fail closed through one global flat save config:
-  `player_data["quest_combat_config"]["resolver_enabled"]`. It defaults to
-  `False`, so incomplete encounters produce `combat_locked` blockers instead of
-  silently progressing. When the resolver is enabled, current-stage encounters
-  still require source-backed NPC stats for the encounter's attack style and a
-  player combat level at least as high as the encounter level before
-  `apply_quest_combat_encounter_pure()` can resolve combat. Combat quantities
-  are per-enemy progress, not group-complete flags: one Quest review increments
+- Quest combat encounters use the persistent shared combat engine without an
+  enable switch. Each Quest review applies one combat burst through
+  `apply_quest_combat_encounter_pure()` using the player's equipment, food, and
+  prayers; surviving enemy lifepoints persist in
+  `player_data["quest_combat_active_encounters"]`, and player death follows the
+  ordinary combat death path. Resolver readiness still requires source-backed
+  NPC stats for the encounter's attack style. A player combat-level gate applies
+  only when the encounter explicitly provides `minimum_player_combat`; a missing
+  value means no level gate. Combat quantities are per-enemy progress, not
+  group-complete flags: one Quest review increments
   `player_data["quest_combat_encounter_counts"][quest_id][encounter_id]`, and
   only when the count reaches the sourced `QuestCombatEncounter.quantity` does
   the runtime write the completed encounter id into
   `player_data["quest_combat_encounters"]` for compatibility with older saves.
   Existing saves that already have the completed id still satisfy the blocker.
-  Encounters missing stats remain blocked as `combat_missing_stats`; this keeps
-  the global switch from turning no-stats prose rows into completable fights.
+  Encounters missing stats remain blocked as `combat_missing_stats`.
   Focused `data/quest_data.py`
   stage-addition combat rows may carry local 2011Scape NPC stats directly when
   the source path is recorded, and the catalog generator may enrich generated

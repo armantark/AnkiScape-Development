@@ -126,7 +126,6 @@ def _player_ready_through_stage(quest_id, target_stage):
                     for item_name, amount in option.items():
                         inventory[item_name] = max(inventory.get(item_name, 0), amount * 20)
     inventory["Coins"] = max(inventory.get("Coins", 0), 1_000_000)
-    player_data["quest_combat_config"] = {"resolver_enabled": True}
     return player_data
 
 
@@ -138,7 +137,6 @@ def _player_with_prerequisites(prerequisite_ids):
     for quest_id in prerequisite_ids:
         player_data["quests"][quest_id] = {"started": True, "progress": 99, "completed": True}
     player_data["inventory"].update(_TRAVEL_KIT)
-    player_data["quest_combat_config"] = {"resolver_enabled": True}
     return player_data
 
 

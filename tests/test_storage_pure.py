@@ -433,7 +433,6 @@ class TestStoragePure(unittest.TestCase):
             "achievement_progress",
             "quests",
             "quest_points",
-            "quest_combat_config",
             "quest_combat_encounters",
             "quest_combat_encounter_counts",
             "quest_action_proofs",
@@ -528,7 +527,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
         self.assertIn("lost_city", data["quests"])
         self.assertIn("lunar_diplomacy", data["quests"])
-        self.assertEqual(data["quest_combat_config"], {"version": 1, "resolver_enabled": False})
+        self.assertNotIn("quest_combat_config", data)
         self.assertEqual(data["quest_combat_encounters"], {})
         self.assertEqual(data["quest_combat_encounter_counts"], {})
         self.assertNotIn("quest_stage_actions", data)
@@ -1118,10 +1117,11 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(mining["outputs"]["Iron ore"], 7)
         self.assertEqual(firemaking["outputs"]["Ashes"], 10)
 
-    def test_migrate_drops_legacy_stage_actions_and_sanitizes_quest_side_state(self):
+    def test_v124_migration_drops_combat_flag_and_migrates_quest_side_state(self):
         migrated = migrate_loaded_data(
             {
-                "quest_combat_config": {"resolver_enabled": True},
+                "config_version": 123,
+                "quest_combat_config": {"version": 1, "resolver_enabled": True},
                 "quest_combat_encounters": {"dragon_slayer": {"elvarg": True, "unused": False}},
                 "quest_combat_encounter_counts": {"toktz_ket_dill": {"lava_monster": "1", "bad": 0, 123: 1}},
                 "quest_stage_actions": {"the_knights_sword": "Mine blurite ore"},
@@ -1131,7 +1131,7 @@ class TestStoragePure(unittest.TestCase):
             ITEM_DEFINITIONS,
         )
 
-        self.assertEqual(migrated["quest_combat_config"], {"version": 1, "resolver_enabled": True})
+        self.assertEqual(migrated["quest_combat_config"], {"version": 1})
         self.assertEqual(migrated["quest_combat_encounters"], {"dragon_slayer": ["elvarg"]})
         self.assertEqual(migrated["quest_combat_encounter_counts"], {"toktz_ket_dill": {"lava_monster": 1}})
         self.assertNotIn("quest_stage_actions", migrated)

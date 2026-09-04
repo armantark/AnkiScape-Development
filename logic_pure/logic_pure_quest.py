@@ -103,27 +103,6 @@ from .logic_pure_state import (
 from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
 
 
-QUEST_COMBAT_CONFIG_VERSION = 1
-
-
-QUEST_COMBAT_RESOLVER_ENABLED_KEY = "resolver_enabled"
-
-
-def default_quest_combat_config_pure():
-    return {"version": QUEST_COMBAT_CONFIG_VERSION, QUEST_COMBAT_RESOLVER_ENABLED_KEY: False}
-
-
-def sanitize_quest_combat_config_pure(raw_config):
-    config = default_quest_combat_config_pure()
-    if isinstance(raw_config, Mapping):
-        config[QUEST_COMBAT_RESOLVER_ENABLED_KEY] = bool(raw_config.get(QUEST_COMBAT_RESOLVER_ENABLED_KEY, False))
-    return config
-
-
-def quest_combat_resolver_enabled_pure(player_data):
-    return bool(sanitize_quest_combat_config_pure(player_data.get("quest_combat_config")).get(QUEST_COMBAT_RESOLVER_ENABLED_KEY))
-
-
 def _trainable_exp_keys():
     return {skill.exp_key for skill in trainable_skill_definitions()}
 
@@ -654,8 +633,6 @@ def _quest_combat_default_rng():
 
 
 def quest_combat_encounter_ready_pure(player_data, encounter):
-    if not quest_combat_resolver_enabled_pure(player_data):
-        return False, "combat_locked"
     if not quest_combat_encounter_has_stats_pure(encounter):
         return False, "combat_missing_stats"
     minimum_player_combat = _positive_int(
@@ -843,23 +820,6 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
         if remaining_quantity <= 0:
             continue
         remaining_quantity_text = f" x{remaining_quantity}" if remaining_quantity > 1 else ""
-        if not quest_combat_resolver_enabled_pure(player_data):
-            blockers.append(
-                _quest_blocker(
-                    stage,
-                    "combat_locked",
-                    f"Combat locked until battle support is enabled: {display_name}{level_text}{remaining_quantity_text}",
-                    encounter_source,
-                    encounter_id=encounter_id,
-                    display_name=display_name,
-                    level=level,
-                    quantity=remaining_quantity,
-                    total_quantity=quantity,
-                    completed_quantity=completed_quantity,
-                    remaining_quantity=remaining_quantity,
-                )
-            )
-            continue
         if not quest_combat_encounter_has_stats_pure(encounter):
             blockers.append(
                 _quest_blocker(

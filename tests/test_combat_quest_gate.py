@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import random
 import sys
 import unittest
 
@@ -9,6 +10,7 @@ from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.skill_registry import get_skill, trainable_skill_definitions
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.logic_pure.logic_pure_combat_engine import player_combat_level_pure
+from ankiscape.runtime.runtime_actions import handle_quest_answer
 from ankiscape.logic_pure.logic_pure_quest import (
     quest_locked_reasons_pure,
     start_quest_pure,
@@ -18,6 +20,7 @@ from tests.test_integration_smoke import (
     _install_runtime_fakes,
     _load_addon_as_package,
 )
+from tests.test_runtime_actions import _context, _quest_combat_mid_rolls
 
 
 QUEST_ID = "zogre_flesh_eaters"
@@ -271,3 +274,114 @@ class TestCombatQuestProductFlow(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestCombatQuestRuntime(unittest.TestCase):
+    def test_quest_answer_runs_delrith_as_persistent_shared_combat(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Silverlight": 1},
+            "equipment": {"weapon": "Bronze sword"},
+            "current_combat_target": "chicken",
+            "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 10},
+            "current_quest": "demon_slayer",
+            "quests": {"demon_slayer": {"started": True, "progress": 7, "completed": False}},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "prayer_level": 20,
+            "combat_lifepoints": 100,
+            "combat_prayer_points": 200,
+            "combat_prayer_uptime": "100",
+            "combat_selected_prayers": ["burst_of_strength"],
+            "combat_supply_loadout": {"food": {"Shrimps": 10}},
+            "combat_auto_eat_threshold_percent": 80,
+        }
+        first_rng = random.Random(0)
+
+        self.assertTrue(
+            handle_quest_answer(
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(first_rng.random() for _ in range(1000)),
+                )
+            )
+        )
+
+        first_result = player_data["combat_last_result"]
+        first_remaining = player_data["quest_combat_active_encounters"]["demon_slayer"][
+            "demon_slayer_delrith_27"
+        ]
+        self.assertGreater(first_remaining, 0)
+        self.assertLess(first_remaining, 70)
+        self.assertEqual(first_result["weapon"], "Bronze sword")
+        self.assertTrue(first_result["food_used"])
+        self.assertEqual(first_result["prayers"], ("burst_of_strength",))
+        self.assertEqual(first_result["prayer_uptime"], 1.0)
+        self.assertLess(first_result["prayer_points_after"], first_result["prayer_points_before"])
+
+        self.assertTrue(
+            handle_quest_answer(
+                _context(player_data, calls, random_values=(0.1,) * 1000)
+            )
+        )
+        second_result = player_data["combat_last_result"]
+        second_remaining = player_data["quest_combat_active_encounters"]["demon_slayer"][
+            "demon_slayer_delrith_27"
+        ]
+        self.assertEqual(second_remaining, first_remaining - second_result["player_damage"])
+
+        self.assertTrue(
+            handle_quest_answer(
+                _context(player_data, calls, random_values=(0.2,) * 1000)
+            )
+        )
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {"demon_slayer": ["demon_slayer_delrith_27"]},
+        )
+        self.assertEqual(player_data["quest_combat_active_encounters"], {})
+        self.assertEqual(player_data["current_combat_target"], "chicken")
+        self.assertEqual(
+            player_data["combat_encounter"],
+            {"target_id": "chicken", "enemy_lifepoints": 10},
+        )
+        self.assertEqual(calls["saves"], 3)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"][-1], "Defeated Delrith")
+
+    def test_quest_answer_reports_the_resolver_outcome_when_delrith_wins(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Silverlight": 1},
+            "equipment": {"weapon": "Bronze sword"},
+            "current_quest": "demon_slayer",
+            "quests": {"demon_slayer": {"started": True, "progress": 7, "completed": False}},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "prayer_level": 1,
+            "combat_lifepoints": 100,
+        }
+
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(player_data["quests"]["demon_slayer"]["completed"])
+        self.assertEqual(player_data["quest_combat_encounters"], {})
+        self.assertEqual(player_data["combat_grave"]["items"], ["Bronze sword"])
+        self.assertEqual(player_data["combat_grave"]["source"], "combat_death")
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["☠ YOU DIED — killed by Delrith; gear moved to grave"])

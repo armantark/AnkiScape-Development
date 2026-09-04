@@ -44,8 +44,8 @@ def _iter_encounters():
                 yield quest_id, stage, encounter
 
 
-def _resolver_player() -> dict:
-    return {"quest_combat_config": {"resolver_enabled": True}}
+def _player_data() -> dict:
+    return {}
 
 
 class TestQuestCombatGateFallback(unittest.TestCase):
@@ -68,7 +68,7 @@ class TestQuestCombatGateFallback(unittest.TestCase):
             return_value=80,
         ):
             self.assertEqual(
-                quest_combat_encounter_ready_pure(_resolver_player(), encounter),
+                quest_combat_encounter_ready_pure(_player_data(), encounter),
                 (True, "combat_ready"),
             )
 
@@ -95,7 +95,7 @@ class TestQuestCombatGateFallback(unittest.TestCase):
                 ):
                     self.assertEqual(
                         quest_combat_encounter_ready_pure(
-                            _resolver_player(), encounter
+                            _player_data(), encounter
                         ),
                         (False, "combat_underpowered"),
                     )
@@ -105,7 +105,7 @@ class TestQuestCombatGateFallback(unittest.TestCase):
                 ):
                     self.assertEqual(
                         quest_combat_encounter_ready_pure(
-                            _resolver_player(), encounter
+                            _player_data(), encounter
                         ),
                         (True, "combat_ready"),
                     )
@@ -137,7 +137,7 @@ class TestQuestCombatGateFallback(unittest.TestCase):
             ):
                 self.assertEqual(
                     quest_combat_encounter_ready_pure(
-                        _resolver_player(), ready_encounter
+                        _player_data(), ready_encounter
                     ),
                     (True, "combat_ready"),
                 )
@@ -201,7 +201,6 @@ class TestQuestCombatGateReviewFlow(unittest.TestCase):
             player[f"{skill_id}_level"] = 80
         player.update(
             current_quest=SWAN_SONG_ID,
-            quest_combat_config={"resolver_enabled": True},
             quest_combat_active_encounters={
                 SWAN_SONG_ID: {SEA_TROLL_QUEEN_ID: 1}
             },

@@ -4578,7 +4578,7 @@ class TestLogic(unittest.TestCase):
             if stage == 6:
                 self.assertEqual(
                     quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-                    ("Combat locked until battle support is enabled: Skeletons",),
+                    ("Combat stats required before battle support can resolve: Skeletons",),
                 )
                 player_data["quest_combat_encounters"] = {
                     quest_id: ["dealing_with_scabaras_skeletons_1"]
@@ -4978,7 +4978,7 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(player_data["inventory"]["Scorpion cage"], 1)
 
         blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
         self.assertEqual(
             {
                 key: blockers[0][key]
@@ -5002,7 +5002,7 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-            ("Combat locked until battle support is enabled: Jailer level 39",),
+            ("Battle required: Jailer level 39",),
         )
         blocked, ok, completed_now = apply_quest_progress_pure(
             player_data,
@@ -5504,9 +5504,8 @@ class TestLogic(unittest.TestCase):
 
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "biohazard", QUEST_DATA),
-            ("Combat locked until battle support is enabled: Mourner level 13",),
+            ("Battle required: Mourner level 13",),
         )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 30
         player_data["strength_level"] = 30
         player_data["defense_level"] = 30
@@ -5785,9 +5784,8 @@ class TestLogic(unittest.TestCase):
                 player_data["inventory"]["Bronze pickaxe"] = 1
                 self.assertEqual(
                     quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-                    ("Combat locked until battle support is enabled: Ice Queen level 111",),
+                    ("Battle required: Ice Queen level 111",),
                 )
-                player_data["quest_combat_config"] = {"resolver_enabled": True}
                 player_data, ok, result = apply_quest_combat_encounter_pure(
                     player_data,
                     quest_id,
@@ -5961,7 +5959,6 @@ class TestLogic(unittest.TestCase):
                             "strength_level": 99,
                         }
                     )
-                    player_data["quest_combat_config"] = {"resolver_enabled": True}
                     for expected_remaining in (1, 0):
                         player_data, ok, result = apply_quest_combat_encounter_pure(
                             player_data,
@@ -6200,9 +6197,8 @@ class TestLogic(unittest.TestCase):
 
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-            ("Combat locked until battle support is enabled: Chronozon level 170",),
+            ("Battle required: Chronozon level 170",),
         )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         for _ in range(10):
             player_data, ok, result = apply_quest_combat_encounter_pure(
                 player_data,
@@ -6286,7 +6282,6 @@ class TestLogic(unittest.TestCase):
                 "strength_level": 120,
             }
         )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
@@ -6473,14 +6468,14 @@ class TestLogic(unittest.TestCase):
             quest_current_stage_blocker_reasons_pure(player_data, "holy_grail", QUEST_DATA),
             (
                 "Needs Excalibur",
-                "Combat locked until battle support is enabled: Black Knight Titan level 120",
+                "Battle required: Black Knight Titan level 120",
             ),
         )
 
         player_data["inventory"]["Excalibur"] = 1
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "holy_grail", QUEST_DATA),
-            ("Combat locked until battle support is enabled: Black Knight Titan level 120",),
+            ("Battle required: Black Knight Titan level 120",),
         )
         player_data["quest_combat_encounters"] = {"holy_grail": ["holy_grail_black_knight_titan_120"]}
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "holy_grail", QUEST_DATA)
@@ -6599,10 +6594,9 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-            ("Combat locked until battle support is enabled: Khazard commander level 48 x2",),
+            ("Battle required: Khazard commander level 48 x2",),
         )
 
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data.update(
             {
                 "attack_level": 120,
@@ -6836,7 +6830,6 @@ class TestLogic(unittest.TestCase):
                     common_actions + route_actions[:1],
                 )
 
-                player_data["quest_combat_config"] = {"resolver_enabled": True}
                 player_data, ok, result = apply_quest_combat_encounter_pure(
                     player_data,
                     quest_id,
@@ -6933,13 +6926,12 @@ class TestLogic(unittest.TestCase):
         player_data["quests"]["shield_of_arrav"]["progress"] = 5
         player_data["quest_route_states"] = {"shield_of_arrav": ["Join the Phoenix Gang"]}
         blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
         self.assertEqual(
             blockers[0]["reason"],
-            "Combat locked until battle support is enabled: Jonny the beard level 2",
+            "Battle required: Jonny the beard level 2",
         )
 
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 20
         player_data["strength_level"] = 20
         player_data["defense_level"] = 20
@@ -7011,14 +7003,13 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
         self.assertEqual(
             tuple(blocker["kind"] for blocker in blockers),
-            ("combat_locked",),
+            ("combat_encounter",),
         )
         self.assertEqual(
             blockers[0]["reason"],
-            "Combat locked until battle support is enabled: Weaponsmaster level 23",
+            "Battle required: Weaponsmaster level 23",
         )
 
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 40
         player_data["strength_level"] = 40
         player_data["defense_level"] = 40
@@ -7115,10 +7106,9 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
-            ("Combat locked until battle support is enabled: Khazard ogre level 63",),
+            ("Combat stats required before battle support can resolve: Khazard ogre level 63",),
         )
 
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 150
         player_data["strength_level"] = 150
         player_data["defense_level"] = 150
@@ -7278,14 +7268,13 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
             (
-                "Combat locked until battle support is enabled: Witch's experiment (Skavid form) level 19",
-                "Combat locked until battle support is enabled: Witch's experiment (Spider form) level 30",
-                "Combat locked until battle support is enabled: Witch's experiment (Bear form) level 42",
-                "Combat locked until battle support is enabled: Witch's experiment (Wolf form) level 53",
+                "Battle required: Witch's experiment (Skavid form) level 19",
+                "Battle required: Witch's experiment (Spider form) level 30",
+                "Battle required: Witch's experiment (Bear form) level 42",
+                "Battle required: Witch's experiment (Wolf form) level 53",
             ),
         )
 
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 60
         player_data["strength_level"] = 60
         player_data["defense_level"] = 60
@@ -7373,10 +7362,9 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
-            ("Combat locked until battle support is enabled: Sir Mordred level 39",),
+            ("Battle required: Sir Mordred level 39",),
         )
 
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 50
         player_data["strength_level"] = 50
         player_data["defense_level"] = 50
@@ -7508,18 +7496,17 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
         self.assertEqual(
             tuple(blocker["kind"] for blocker in blockers),
-            ("missing_item_option", "missing_tool", "required_action", "unmet_route", "combat_locked"),
+            ("missing_item_option", "missing_tool", "required_action", "unmet_route", "combat_missing_stats"),
         )
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "proof_quest", quest_data), ())
         self.assertFalse(can_attempt_quest_review_pure(player_data, "proof_quest", quest_data))
         self.assertEqual(blockers[0]["reason"], "Needs Redberry pie x1 or Cake x1")
-        self.assertEqual(blockers[-1]["reason"], "Combat locked until battle support is enabled: Ice giant level 53")
+        self.assertEqual(blockers[-1]["reason"], "Combat stats required before battle support can resolve: Ice giant level 53")
 
         player_data["inventory"]["Cake"] = 1
         player_data["inventory"]["Rope"] = 1
         player_data["quest_action_proofs"] = ["Mine blurite ore"]
         player_data["quest_route_states"] = {"proof_quest": ["Reach Thurgo's cave"]}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_missing_stats",))
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "proof_quest", quest_data), ())
@@ -7721,7 +7708,6 @@ class TestLogic(unittest.TestCase):
     def test_priest_in_peril_real_stage_emitters_complete_and_reward_once(self):
         quest_id = "priest_in_peril"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         for skill_id in ("attack", "strength", "defense", "constitution", "ranged", "magic", "prayer"):
             player_data[f"{skill_id}_level"] = 99
         player_data["combat_lifepoints"] = 990
@@ -7859,7 +7845,6 @@ class TestLogic(unittest.TestCase):
 
     def test_nature_spirit_completes_after_normal_prerequisites_and_real_combat(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         for skill_id in (
             "attack",
             "strength",
@@ -8032,7 +8017,6 @@ class TestLogic(unittest.TestCase):
 
     def test_fairy_tale_i_completes_from_normal_prerequisite_progression(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         for skill_id in (
             "attack",
             "strength",
@@ -8331,10 +8315,9 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(vampyre["inventory"]["Stake"], 1)
         self.assertEqual(vampyre["inventory"]["Stake hammer"], 1)
         blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
         vampyre.update(
             {
-                "quest_combat_config": {"resolver_enabled": True},
                 "attack_level": 40,
                 "strength_level": 40,
                 "defense_level": 35,
@@ -8651,7 +8634,6 @@ class TestLogic(unittest.TestCase):
         }
         low_level = {
             "inventory": {},
-            "quest_combat_config": {"resolver_enabled": True},
             "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
         }
         blockers = quest_current_stage_blockers_pure(low_level, "proof_quest", quest_data)
@@ -8709,7 +8691,6 @@ class TestLogic(unittest.TestCase):
         }
         player_data = {
             "inventory": {},
-            "quest_combat_config": {"resolver_enabled": True},
             "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
             "attack_level": 74,
             "strength_level": 74,
@@ -8760,7 +8741,6 @@ class TestLogic(unittest.TestCase):
         }
         player_data = {
             "inventory": {},
-            "quest_combat_config": {"resolver_enabled": True},
             "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
             "attack_level": 10,
             "strength_level": 10,
@@ -8834,7 +8814,6 @@ class TestLogic(unittest.TestCase):
             "inventory": {},
             "current_combat_target": "chicken",
             "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 10},
-            "quest_combat_config": {"resolver_enabled": True},
             "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
             "attack_level": 80,
             "strength_level": 80,
@@ -8906,7 +8885,6 @@ class TestLogic(unittest.TestCase):
         }
         player_data = {
             "inventory": {},
-            "quest_combat_config": {"resolver_enabled": True},
             "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
             "attack_level": 80,
             "strength_level": 80,
@@ -8959,7 +8937,6 @@ class TestLogic(unittest.TestCase):
         player_data = {
             "inventory": {},
             "combat_kill_counts": {"chicken": 3},
-            "quest_combat_config": {"resolver_enabled": True},
             "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
             "attack_level": 80,
             "strength_level": 80,
@@ -9016,7 +8993,6 @@ class TestLogic(unittest.TestCase):
             "equipment": {"weapon": "Iron sword"},
             "current_combat_target": "chicken",
             "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 10},
-            "quest_combat_config": {"resolver_enabled": True},
             "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
             "attack_level": 1,
             "strength_level": 1,
@@ -9097,7 +9073,6 @@ class TestLogic(unittest.TestCase):
     def test_beast_stat_fallback_ranged_rows_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["toktz_ket_dill"] = {"started": True, "progress": 6, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 50
         player_data["strength_level"] = 50
         player_data["defense_level"] = 50
@@ -9145,7 +9120,6 @@ class TestLogic(unittest.TestCase):
     def test_another_slice_ham_magic_fight_is_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["another_slice_of_h_a_m"] = {"started": True, "progress": 4, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["quest_combat_encounters"] = {"another_slice_of_h_a_m": ["another_slice_of_h_a_m_sigmund_64"]}
         player_data["attack_level"] = 40
         player_data["strength_level"] = 40
@@ -9180,7 +9154,6 @@ class TestLogic(unittest.TestCase):
     def test_spirits_of_the_elid_golems_are_split_into_named_combat_gates(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["spirits_of_the_elid"] = {"started": True, "progress": 4, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 90
         player_data["strength_level"] = 90
         player_data["defense_level"] = 90
@@ -9231,7 +9204,6 @@ class TestLogic(unittest.TestCase):
 
     def test_a_souls_bane_real_stage_emitter_completes_and_rewards_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         for level_key in (
             "attack_level",
             "strength_level",
@@ -9385,7 +9357,6 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"].update({"Pickaxe": 1})
         player_data["quests"]["death_to_the_dorgeshuun"] = {"started": True, "progress": 5, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["quest_combat_encounters"] = {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]}
         player_data["attack_level"] = 100
         player_data["strength_level"] = 100
@@ -9414,7 +9385,6 @@ class TestLogic(unittest.TestCase):
     def test_no_combat_levels_beast_stat_fight_is_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["forgiveness_of_a_chaos_dwarf"] = {"started": True, "progress": 4, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 80
         player_data["strength_level"] = 80
         player_data["defense_level"] = 80
@@ -9440,7 +9410,6 @@ class TestLogic(unittest.TestCase):
         player_data["inventory"]["Muddy skull"] = 1
         player_data["quests"]["the_restless_ghost"] = {"started": True, "progress": 4, "completed": False}
         player_data["quest_action_proofs"] = ["Return the muddy skull to the ghost's coffin"]
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 20
         player_data["strength_level"] = 20
         player_data["defense_level"] = 20
@@ -9463,7 +9432,6 @@ class TestLogic(unittest.TestCase):
     def test_restless_ghost_real_stage_emitters_complete_and_reward_once(self):
         quest_id = "the_restless_ghost"
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 20
         player_data["strength_level"] = 20
         player_data["defense_level"] = 20
@@ -9576,7 +9544,6 @@ class TestLogic(unittest.TestCase):
             "progress": 1,
             "completed": False,
         }
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 99
         player_data["strength_level"] = 99
         player_data["defense_level"] = 99
@@ -9671,7 +9638,6 @@ class TestLogic(unittest.TestCase):
             "progress": 1,
             "completed": False,
         }
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 99
         player_data["strength_level"] = 99
         player_data["defense_level"] = 99
@@ -9817,7 +9783,6 @@ class TestLogic(unittest.TestCase):
             "progress": 1,
             "completed": False,
         }
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 99
         player_data["strength_level"] = 99
         player_data["defense_level"] = 99
@@ -9955,7 +9920,6 @@ class TestLogic(unittest.TestCase):
             "progress": 1,
             "completed": False,
         }
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         for level_key in (
             "attack_level",
             "strength_level",
@@ -10153,7 +10117,6 @@ class TestLogic(unittest.TestCase):
         ):
             player_data[level_key] = 200
         player_data["combat_lifepoints"] = 2000
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
 
         player_data, ok = start_quest_pure(player_data, "shilo_village", QUEST_DATA)
         self.assertTrue(ok)
@@ -10304,13 +10267,12 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Silverlight"], 1)
 
         blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
         self.assertEqual(
             blockers[0]["reason"],
-            "Combat locked until battle support is enabled: Delrith level 27",
+            "Battle required: Delrith level 27",
         )
 
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 30
         player_data["strength_level"] = 30
         player_data["defense_level"] = 30
@@ -10448,7 +10410,6 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"]["Silverlight"] = 1
         player_data["quests"]["demon_slayer"] = {"started": True, "progress": 7, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 30
         player_data["strength_level"] = 30
         player_data["defense_level"] = 30
@@ -10532,7 +10493,6 @@ class TestLogic(unittest.TestCase):
                 "Pickaxe": 1,
             }
         )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         for skill_id in ("attack", "strength", "defense", "constitution", "ranged", "magic", "prayer"):
             player_data[f"{skill_id}_level"] = 99
         player_data["combat_lifepoints"] = 990
@@ -10634,7 +10594,6 @@ class TestLogic(unittest.TestCase):
                 "Knife": 1,
             }
         )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         for skill_id in ("attack", "strength", "defense", "constitution", "ranged", "magic", "prayer"):
             player_data[f"{skill_id}_level"] = 99
         player_data["combat_lifepoints"] = 990
@@ -10804,7 +10763,6 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"].update({"Thread": 1, "Leather": 1})
         player_data["quests"]["elemental_workshop_i"] = {"started": True, "progress": 2, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 40
         player_data["strength_level"] = 40
         player_data["defense_level"] = 40
@@ -10830,7 +10788,6 @@ class TestLogic(unittest.TestCase):
     def test_witchs_house_experiment_forms_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["witchs_house"] = {"started": True, "progress": 9, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 60
         player_data["strength_level"] = 60
         player_data["defense_level"] = 60
@@ -10866,7 +10823,6 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"] = {"Coins": 12}
         player_data["quests"]["troll_stronghold"] = {"started": True, "progress": 2, "completed": False}
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["quest_combat_encounters"] = {
             "troll_stronghold": ["troll_stronghold_twig_troll_71", "troll_stronghold_troll_general_171"]
         }
@@ -10949,10 +10905,9 @@ class TestLogic(unittest.TestCase):
         )
 
         self.assertIn(
-            "Combat locked until battle support is enabled: Tree spirit level 63",
+            "Battle required: Tree spirit level 63",
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
         )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
         self.assertEqual(blockers[0]["encounter_id"], "lost_city_tree_spirit")
@@ -11185,9 +11140,8 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
         self.assertEqual(
             tuple(blocker["kind"] for blocker in blockers),
-            ("combat_locked",) * len(maze_encounters),
+            ("combat_encounter",) * len(maze_encounters),
         )
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
         self.assertEqual(
             tuple(blocker["encounter_id"] for blocker in blockers),
@@ -11381,7 +11335,6 @@ class TestLogic(unittest.TestCase):
         player_data["quest_combat_encounters"] = {
             "tai_bwo_wannai_trio": ["tai_bwo_wannai_trio_monkey"]
         }
-        player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,
             "tai_bwo_wannai_trio",
