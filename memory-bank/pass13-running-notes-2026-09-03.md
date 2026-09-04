@@ -412,3 +412,11 @@ matched the wiki's hash even through the literal-`!` path; 179 misses audited
 (83 absent titles, 61 post-cutoff only, 35 hash). Redirects resolved none of
 the 83. Plain lane 4,682 OK. Contact sheets under the pool slot's tmp dir.
 Re-review of the corrective commit: Opus, pending.
+
+## 02:17 — S8 re-review (Opus): ACCEPT-WITH-FINDINGS on documentation only
+
+All seven prior findings fixed or applied; all 100 replaced icons hash to
+their provenance; the 35 mismatched assets are byte-identical to main. Two
+doc fixes sent: the audit's result line must describe the change against
+main, and the 19 contact sheets go into `memory-bank/evidence/` for the
+owner's eyes.
