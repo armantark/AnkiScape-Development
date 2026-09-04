@@ -9118,21 +9118,19 @@ def show_main_menu(
                 evil_action.setText("Selected for reviews")
                 evil_action.setEnabled(False)
             elif mode == "full":
-                evil_action.setText("Select full event")
-                evil_action.setEnabled(on_set_utility is not None)
+                evil_action.setText("Start full event")
+                evil_action.setEnabled(on_start_activity is not None)
             elif mode == "nurture_only":
-                evil_action.setText("Select nurture only")
-                evil_action.setEnabled(on_set_utility is not None)
+                evil_action.setText("Start nurture only")
+                evil_action.setEnabled(on_start_activity is not None)
             else:
                 evil_action.setText("Unavailable")
                 evil_action.setEnabled(False)
             _fit_current_activity_detail()
             world_events_refresher["call"]()
 
-        def _select_evil_tree() -> None:
-            if on_set_utility is None:
-                return
-            if not _request_utility_selection(EVIL_TREE_UTILITY_ID):
+        def _start_evil_tree() -> None:
+            if not _start_surface_activity(EVIL_TREE_UTILITY_ID):
                 return
             tree.clearSelection()
             _refresh_evil_tree_panel()
@@ -9140,7 +9138,7 @@ def show_main_menu(
             star_panel_refresher["call"]()
 
         evil_action.clicked.connect(
-            lambda _checked=False: _select_evil_tree()
+            lambda _checked=False: _start_evil_tree()
         )
         _refresh_evil_tree_panel()
 
@@ -9529,7 +9527,7 @@ def show_main_menu(
                         else "Select active star"
                     )
                     star_select.setEnabled(
-                        on_set_utility is not None and view["can_select"]
+                        on_start_activity is not None and view["can_select"]
                     )
             elif view["sprite_available"]:
                 star_status.setText(
@@ -9575,10 +9573,8 @@ def show_main_menu(
 
         star_panel_refresher["call"] = _refresh_shooting_star_panel
 
-        def _select_shooting_star() -> None:
-            if not _set_utility_selection(
-                SHOOTING_STAR_ACTIVITY_ID, activate=True
-            ):
+        def _start_shooting_star() -> None:
+            if not _start_surface_activity(SHOOTING_STAR_ACTIVITY_ID):
                 return
             tree.clearSelection()
             _refresh_evil_tree_panel()
@@ -9602,7 +9598,7 @@ def show_main_menu(
             _refresh_shooting_star_panel()
 
         star_select.clicked.connect(
-            lambda _checked=False: _select_shooting_star()
+            lambda _checked=False: _start_shooting_star()
         )
         star_exchange.clicked.connect(
             lambda _checked=False: _exchange_shooting_star_dust()
@@ -11254,7 +11250,7 @@ def show_main_menu(
             if not dagannoth_kings_view_pure(player_data)["active"]:
                 if not _run_dagannoth_kings_command("enter").get("ok", False):
                     return
-            _set_utility_selection(DAGANNOTH_KINGS_ACTIVITY_ID)
+            _start_surface_activity(DAGANNOTH_KINGS_ACTIVITY_ID)
             _refresh_dagannoth_kings_panel()
 
         def _confirm_dagannoth_kings_leave(_checked=False) -> None:
@@ -11483,7 +11479,7 @@ def show_main_menu(
             if not view["active"]:
                 if not _run_phoenix_lair_command("enter").get("ok", False):
                     return
-            _set_utility_selection(PHOENIX_LAIR_ACTIVITY_ID)
+            _start_surface_activity(PHOENIX_LAIR_ACTIVITY_ID)
             _refresh_phoenix_lair_panel()
 
         def _confirm_phoenix_lair_leave(_checked=False) -> None:
@@ -11719,7 +11715,7 @@ def show_main_menu(
             if not skeletal_horror_view_pure(player_data)["active"]:
                 if not _run_skeletal_horror_command("enter").get("ok", False):
                     return
-            _set_utility_selection(SKELETAL_HORROR_ACTIVITY_ID)
+            _start_surface_activity(SKELETAL_HORROR_ACTIVITY_ID)
             _refresh_skeletal_horror_panel()
 
         def _confirm_skeletal_horror_leave(_checked=False) -> None:
@@ -11922,7 +11918,7 @@ def show_main_menu(
             if not bork_view_pure(player_data)["active"]:
                 if not _run_bork_command("enter").get("ok", False):
                     return
-            _set_utility_selection(BORK_ACTIVITY_ID)
+            _start_surface_activity(BORK_ACTIVITY_ID)
             _refresh_bork_panel()
 
         def _confirm_bork_leave(_checked=False) -> None:
@@ -12154,7 +12150,7 @@ def show_main_menu(
             if not tears_of_guthix_view_pure(player_data)["active"]:
                 if not _run_tears_of_guthix_command("enter").get("ok", False):
                     return
-            _set_utility_selection(TEARS_OF_GUTHIX_ACTIVITY_ID)
+            _start_surface_activity(TEARS_OF_GUTHIX_ACTIVITY_ID)
             _refresh_tears_of_guthix_panel()
 
         tears_ornate.clicked.connect(
@@ -13187,8 +13183,7 @@ def show_main_menu(
                 result = _run_pyramid_plunder_command("enter_pyramid_plunder", {})
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(PYRAMID_PLUNDER_ACTIVITY_ID):
-                return
+            _request_utility_selection(PYRAMID_PLUNDER_ACTIVITY_ID)
             _refresh_pyramid_plunder_panel()
 
         def _set_pyramid_plunder_priority() -> None:
@@ -13422,8 +13417,7 @@ def show_main_menu(
                 if not result.get("ok", False):
                     _refresh_skullball_panel()
                     return
-            elif not _request_utility_selection(WEREWOLF_SKULLBALL_ACTIVITY_ID):
-                return
+            _request_utility_selection(WEREWOLF_SKULLBALL_ACTIVITY_ID)
             _refresh_skullball_panel()
 
         def _confirm_skullball_leave() -> None:
@@ -13621,8 +13615,7 @@ def show_main_menu(
                 result = _run_gnome_ball_command("enter_gnome_ball")
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(GNOME_BALL_ACTIVITY_ID):
-                return
+            _request_utility_selection(GNOME_BALL_ACTIVITY_ID)
             _refresh_gnome_ball_panel()
 
         def _confirm_gnome_ball_leave() -> None:
@@ -13885,7 +13878,7 @@ def show_main_menu(
                     return
             # Entering the event must also activate it for reviews; the
             # non-activating route left the training surface on the old skill.
-            if not _set_utility_selection(FISH_FLINGERS_ACTIVITY_ID, activate=True):
+            if not _start_surface_activity(FISH_FLINGERS_ACTIVITY_ID):
                 return
             _refresh_fish_flingers_panel()
 
@@ -14178,8 +14171,7 @@ def show_main_menu(
                 )
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(FISHING_TRAWLER_ACTIVITY_ID):
-                return
+            _request_utility_selection(FISHING_TRAWLER_ACTIVITY_ID)
             _refresh_fishing_trawler_panel()
 
         def _confirm_fishing_trawler_leave() -> None:
@@ -14522,8 +14514,7 @@ def show_main_menu(
                 )
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(GREAT_ORB_PROJECT_ACTIVITY_ID):
-                return
+            _request_utility_selection(GREAT_ORB_PROJECT_ACTIVITY_ID)
             _refresh_great_orb_project_panel()
 
         def _confirm_great_orb_project_leave() -> None:
@@ -15312,9 +15303,7 @@ def show_main_menu(
                     "strategy": str(circus_strategy.currentData() or "balanced"),
                 },
             )
-            if result.get("ok") and _set_utility_selection(
-                CIRCUS_ACTIVITY_ID, activate=True
-            ):
+            if result.get("ok") and _start_surface_activity(CIRCUS_ACTIVITY_ID):
                 tree.clearSelection()
                 _refresh_circus_panel()
 
@@ -15714,8 +15703,7 @@ def show_main_menu(
                 result = _run_trouble_command("enter", _trouble_policy_payload())
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(TROUBLE_BREWING_ACTIVITY_ID):
-                return
+            _request_utility_selection(TROUBLE_BREWING_ACTIVITY_ID)
             _refresh_trouble_panel()
 
         def _confirm_trouble_leave() -> None:
@@ -16012,8 +16000,7 @@ def show_main_menu(
                 result = _run_castle_command("enter", _castle_policy_payload())
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(CASTLE_WARS_ACTIVITY_ID):
-                return
+            _request_utility_selection(CASTLE_WARS_ACTIVITY_ID)
             _refresh_castle_panel()
 
         def _confirm_castle_leave() -> None:
@@ -16383,8 +16370,7 @@ def show_main_menu(
                     result = _run_pest_command("enter", payload)
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(PEST_CONTROL_ACTIVITY_ID):
-                return
+            _request_utility_selection(PEST_CONTROL_ACTIVITY_ID)
             _refresh_pest_panel()
 
         def _confirm_pest_leave() -> None:
@@ -16685,8 +16671,7 @@ def show_main_menu(
             if not view["active"]:
                 if not _run_soul_command("enter", _soul_policy_payload()).get("ok"):
                     return
-            elif not _request_utility_selection(SOUL_WARS_ACTIVITY_ID):
-                return
+            _request_utility_selection(SOUL_WARS_ACTIVITY_ID)
             _refresh_soul_panel()
 
         def _confirm_soul_leave() -> None:
@@ -17016,8 +17001,7 @@ def show_main_menu(
             if not view["active"]:
                 if not _run_mortton_command("enter", _mortton_policy_payload()).get("ok"):
                     return
-            elif not _request_utility_selection(SHADES_OF_MORTTON_ACTIVITY_ID):
-                return
+            _request_utility_selection(SHADES_OF_MORTTON_ACTIVITY_ID)
             _refresh_mortton_panel()
 
         def _confirm_mortton_leave() -> None:
@@ -17218,8 +17202,7 @@ def show_main_menu(
                 payload = {"policy": str(fight_pit_policy.currentData() or "casual")}
                 if not _run_fight_pit_command("enter", payload).get("ok"):
                     return
-            elif not _request_utility_selection(TZHAAR_FIGHT_PIT_ACTIVITY_ID):
-                return
+            _request_utility_selection(TZHAAR_FIGHT_PIT_ACTIVITY_ID)
             _refresh_fight_pit_panel()
 
         def _confirm_fight_pit_leave() -> None:
@@ -17468,8 +17451,7 @@ def show_main_menu(
                 )
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(DUEL_ARENA_ACTIVITY_ID):
-                return
+            _request_utility_selection(DUEL_ARENA_ACTIVITY_ID)
             _refresh_duel_arena_panel()
 
         def _confirm_duel_arena_abandon() -> None:
@@ -17946,8 +17928,7 @@ def show_main_menu(
                 )
                 if not result.get("ok", False):
                     return
-            elif not _request_utility_selection(BARBARIAN_ASSAULT_ACTIVITY_ID):
-                return
+            _request_utility_selection(BARBARIAN_ASSAULT_ACTIVITY_ID)
             _refresh_barbarian_panel()
 
         def _confirm_barbarian_leave() -> None:
@@ -21300,11 +21281,11 @@ def show_main_menu(
                 activity_id
                 or player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
             )
-            if _utility_surface_name_for_target(target_id) != surface_name:
+            if not activity_id and _utility_surface_name_for_target(target_id) != surface_name:
                 return False
             return _set_utility_selection(target_id, activate=True)
 
-        utility_selection_handler["call"] = _set_utility_selection
+        utility_selection_handler["call"] = _start_surface_activity
         activity_start_transition[surface_name] = _start_surface_activity
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
@@ -21343,9 +21324,6 @@ def show_main_menu(
                 return
             if str(activity_id).startswith("mage_arena_attune:"):
                 _set_utility_selection(str(activity_id))
-                return
-            if activity_id == FAMILIARISATION_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
                 return
             if activity_id == SORCERESS_GARDEN_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
@@ -21493,6 +21471,10 @@ def show_main_menu(
                 _show_activity_detail(activity_id)
                 return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
+            if activity_id in detail_cards:
+                _refresh_all_activity_panels()
                 _show_activity_detail(activity_id)
                 return
             _set_utility_selection(activity_id)
