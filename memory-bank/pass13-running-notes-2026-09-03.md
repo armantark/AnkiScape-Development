@@ -370,3 +370,12 @@ the tree and flat renderers sort by it; dead hand-curated orders in
 Fletching and Hunter removed (they put 10 before 9). Tests in
 `tests/skills/test_target_level_order.py` (851 assertions across skills).
 Review: Opus, pending. Visual check: once on the merged tree with S2.
+
+## 01:59 — S1 diary-deed-text on its branch
+
+`goal/pass13-diary-deed-text-2026-09-03` at `e4223bec` (stage 1 `01603bde`).
+162 rows merged (123 translated, 39 invented); 10 family modules regenerated;
+162 of 474 task rows changed; longest sentence 86 characters; 0 pending
+markers. Diary, integration, ledger, shop suites 204 passed; reproduction
+test passed; offscreen UI suite 16 passed. Review: Opus, pending. Owner
+spot-check of the rewritten rows is the morning gate (queue §4.22 ruling 3).
