@@ -2434,3 +2434,12 @@ order everywhere; Activities alphabetical. Amulet of glory and (4) on the GE.
 100 icons replaced with verified 2012 revisions; 35 hash-mismatched left; 144
 without a usable revision. Fish Flingers: formula source-true, records added,
 no rollback. Second-level findings in the results artifact.
+
+### 4.26 Diary sentences must not instruct a place — ruled 2026-09-04 08:00
+
+Owner: "there is no mudskipper point location to set fishing to", and then
+"I thought we were trying to capture the spirit and difficulty". Ruling: the
+instruction clause names only selectable things; the flavour clause carries
+the region and the story and cannot be read as an instruction; difficulty
+stays in the seam and count, unchanged. The design seat rewrites all 162
+sentences itself. Rubric rule 2 amended.
