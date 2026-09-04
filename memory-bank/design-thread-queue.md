@@ -2403,6 +2403,10 @@ and confirmed "I meant 13"). Diagnosis and slice geography live in
    once for retroactive completions." No change.
 8. **The quest-combat resolver flag is deleted.** Owner recalls it as "a false
    flag in the system". Quest fights resolve through the existing resolver.
+   Steer at 22:53: "it should still start a combat instance like any enemy.
+   It's a quest boss." The fight is a persistent combat encounter through the
+   shared engine (player loadout, food, prayers, death), never a one-shot
+   roll; the slice proves this with tests.
 9. **Amulet of glory (uncharged and (4)) enters the GE**, with a pre-cutoff
    citation. **Mithril platebody gets the 2012 icon**; the design seat sweeps
    every icon whose provenance is the Old School wiki (558 assets).

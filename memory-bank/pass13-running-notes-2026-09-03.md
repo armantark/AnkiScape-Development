@@ -38,3 +38,13 @@ the skilling clock, not the Fish Flingers formula.
 Running: S2 (Sol), S3 (Sol), S5 (Sol), S4 (GLM), S6 (GLM), S7 (GLM), Ardougne
 creative draft (Kimi). Queued: S8 tool (Sol), S9 records (GLM), creative
 drafts for the other eight regions, Fable review of every drafted row.
+
+## 22:53 — Owner steer on S5: a quest boss is a combat instance
+
+Owner: "it should still start a combat instance like any enemy. It's a quest
+boss." Code check: `apply_quest_combat_encounter_pure`
+(`logic_pure/logic_pure_quest.py:1328+`) builds a quest enemy spec, runs the
+shared combat engine with review ticks, persists progress in
+`quest_combat_active_encounters`, and handles death. S5 is steered to prove
+that path with tests (loadout, food, prayers, death, current target shown)
+and to report any gap rather than expand scope.
