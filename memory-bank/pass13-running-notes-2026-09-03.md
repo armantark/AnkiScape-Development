@@ -70,3 +70,14 @@ GLM 5.3 Flash drafts each region from the context pack on a plain brief, and
 the design seat (Fable) reviews every row and rewrites names and sentences
 that miss the bar. Kimi finishes only the context pack and the two Ardougne
 fixes already in flight. S3 and S5 paused with their test lanes running.
+
+## 23:56 — S4 bones-learned on its branch
+
+`goal/pass13-bones-learned-2026-09-03` at `ea18b54e` (GLM). Drops are
+recorded before the bury step at three kill sites; a "leave" override on a
+prayer material skips its burial; tests in `tests/combat/test_auto_bury_bones.py`
+(new subdirectory because `tests/` sits at the gate's 40-file cap). Reverting
+the burst-path reorder fails the learning test. Pre-existing: the loot filter
+leaves a zeroed `"Bones": 0` key on a "leave" override; item-reachability audit
+exits 1 on the untouched baseline (White lily seed, White tree sapling, Wimpy
+feather). Review: Opus, pending.
