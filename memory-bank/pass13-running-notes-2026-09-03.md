@@ -209,3 +209,11 @@ disposition `invented`); water battlestaff (Crafting 54) for the medium row;
 five Ranging Guild rounds; Dairy Air at the Sinclair Mansion. Regions complete:
 Ardougne, Varrock, Karamja, Burthorpe, Falador, Seers (117 rows). Fremennik on
 one fix; Lumbridge and Morytania+misc drafting. S8 icon sweep at its commit.
+
+## 00:41 — S7 CLOSED on its branch
+
+`goal/pass13-glory-ge-2026-09-03` at `05c413f7`. (t1) to (t3) untradeable
+with the oldid 6457777 citation; the test pins oldids 6570084 and 6570085;
+`tests/test_mining_data.py` corrected to the 2012 shape; plain lane 4,678 OK.
+Closed slices: S4, S7. Branches pending: S2, S3, S5, S6, S8. S9 records slice
+dispatched to GLM.
