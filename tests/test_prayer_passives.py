@@ -154,6 +154,45 @@ class PrayerPassiveMechanicsTest(unittest.TestCase):
         self.assertEqual(updated["prayer_ectoplasmator_triggers"], 0)
         self.assertEqual(updated["inventory"]["Impious urn (r)"], 1)
 
+    def test_leave_override_spares_a_bone_from_the_bonecrusher(self):
+        player = {
+            "inventory": {BONECRUSHER_ITEM_NAME: 1},
+            "carried_inventory": {"cow": {BONECRUSHER_ITEM_NAME: 1}},
+            "loot_overrides": {"Bones": "leave"},
+        }
+        updated, drops, prayer_xp, ticks, info = resolve_prayer_kill_effects_pure(
+            player,
+            "cow",
+            {"Bones": 1},
+            True,
+        )
+        # The override wins over the crusher: the bone stays in the drops for
+        # the loot filter to leave, with no Prayer XP and no trigger.
+        self.assertEqual((prayer_xp, ticks, drops), (0.0, 0, {"Bones": 1}))
+        self.assertEqual(info, {"bonecrusher": 0, "ectoplasmator": 0, "urn_ashes": 0, "auto_prayer": 0})
+        self.assertNotIn("prayer_bonecrusher_triggers", updated)
+        self.assertNotIn("prayer_actions_completed", updated)
+
+    def test_leave_override_spares_an_ash_from_the_urn(self):
+        player = {
+            "inventory": {"Impious urn (r)": 1},
+            "carried_inventory": {"imp": {"Impious urn (r)": 1}},
+            "loot_overrides": {"Impious ashes": "leave"},
+        }
+        updated, drops, prayer_xp, ticks, info = resolve_prayer_kill_effects_pure(
+            player,
+            "imp",
+            {"Impious ashes": 1},
+            True,
+        )
+        # The override wins over the urn: the ash is never charged into it and
+        # stays in the drops for the loot filter to leave.
+        self.assertEqual((prayer_xp, ticks, drops), (0.0, 0, {"Impious ashes": 1}))
+        self.assertEqual(info, {"bonecrusher": 0, "ectoplasmator": 0, "urn_ashes": 0, "auto_prayer": 0})
+        self.assertNotIn("active_urn_prayer", updated)
+        self.assertNotIn("prayer_urn_ashes_collected", updated)
+        self.assertEqual(updated["inventory"]["Impious urn (r)"], 1)
+
     def test_source_blocked_spectral_target_does_not_trigger_ectoplasmator(self):
         updated, drops, prayer_xp, ticks, info = resolve_prayer_kill_effects_pure(
             {
