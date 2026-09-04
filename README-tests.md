@@ -2,6 +2,8 @@
 
 - All tests live under `tests/`.
 - They use Python's built-in `unittest` framework (no pytest dependency).
+- Discovery recurses into subdirectories that carry an `__init__.py`
+  (for example `tests/combat/`).
 
 ## How to run
 

@@ -320,6 +320,16 @@ def carried_target_item_count_pure(player_data, target_id, item_name):
     )
 
 
+def _leave_overridden_item_names(player_data):
+    """Item names the keep/drop control spares from every prayer passive."""
+    loot_overrides = player_data.get("loot_overrides") or {}
+    return {
+        item_name
+        for item_name, mode in loot_overrides.items()
+        if mode == "leave"
+    }
+
+
 def intercept_bonecrusher_outputs_pure(player_data, carried_target_id, outputs):
     """Consume eligible bone outputs when Bonecrusher is in this target's pack."""
     data = _copy_player_data_with_nested(player_data)
@@ -331,8 +341,11 @@ def intercept_bonecrusher_outputs_pure(player_data, carried_target_id, outputs):
     info = {"count": 0, "prayer_xp": 0.0, "consumed": {}}
     if carried_target_item_count_pure(data, carried_target_id, BONECRUSHER_ITEM_NAME) <= 0:
         return data, remaining, info
+    overridden = _leave_overridden_item_names(player_data)
     for material in PRAYER_MATERIALS:
         if material.kind != "bone" or material.id == "ancient_bones":
+            continue
+        if material.item_name in overridden:
             continue
         amount = remaining.pop(material.item_name, 0)
         if amount <= 0:
@@ -347,17 +360,22 @@ def intercept_bonecrusher_outputs_pure(player_data, carried_target_id, outputs):
 
 
 def _auto_burial_materials(player_data):
-    """Prayer materials the burial action consumes, minus keep/drop overrides.
-
-    A "leave" override spares the material from auto-burial; it stays in the
-    drops and is left on the ground by the loot filter like any other
-    overridden drop.
-    """
-    loot_overrides = player_data.get("loot_overrides") or {}
+    """Prayer materials the burial action consumes, minus keep/drop overrides."""
+    overridden = _leave_overridden_item_names(player_data)
     return [
         material
         for material in PRAYER_MATERIALS
-        if loot_overrides.get(material.item_name) != "leave"
+        if material.item_name not in overridden
+    ]
+
+
+def _urn_ash_materials(player_data):
+    """Ash materials an urn may charge, minus keep/drop overrides."""
+    overridden = _leave_overridden_item_names(player_data)
+    return [
+        material
+        for material in PRAYER_MATERIALS
+        if material.kind == "ash" and material.item_name not in overridden
     ]
 
 
@@ -389,9 +407,7 @@ def resolve_prayer_kill_effects_pure(player_data, enemy_id, kill_drops, combat_a
     prayer_xp += float(bonecrusher_info["prayer_xp"])
     info["bonecrusher"] = int(bonecrusher_info["count"])
 
-    for material in PRAYER_MATERIALS:
-        if material.kind != "ash":
-            continue
+    for material in _urn_ash_materials(player_data):
         amount = remaining_drops.get(material.item_name, 0)
         if amount <= 0:
             continue

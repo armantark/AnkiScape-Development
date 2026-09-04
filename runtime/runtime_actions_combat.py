@@ -589,13 +589,16 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     # Loot filter (owner: no auto-hoarding every tiny drop). The burst already
     # added the drops to the flat inventory, so leave below-value junk by removing
     # it again; stackables, coins, and unknown-value items are kept.
+    # First-seen seeding reads the learning record, not the post-bury drop list:
+    # auto-bury consumes bones before this point, but the kill above still
+    # learned them, and the default must exist before auto-bury is ever turned
+    # off and the filter has to decide the bone's fate.
+    overrides = dict(player_data.get("loot_overrides") or {})
+    for item_name in set(combat_observed_drop_item_names_pure(player_data, target_id)) - observed_item_names:
+        overrides.setdefault(item_name, "keep")
+    player_data["loot_overrides"] = overrides
     if drops:
         threshold = player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD)
-        overrides = dict(player_data.get("loot_overrides") or {})
-        for item_name in drops:
-            if isinstance(item_name, str) and item_name not in observed_item_names:
-                overrides.setdefault(item_name, "keep")
-        player_data["loot_overrides"] = overrides
         if target_id in {"cyclops", "cyclossus"}:
             for item_name in (
                 guild_result.get("defenders", {}).get("drops", {})
