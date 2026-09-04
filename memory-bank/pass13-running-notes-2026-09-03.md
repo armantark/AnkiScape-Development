@@ -521,3 +521,14 @@ running state; the header "Start activity" reads as a second step; Evil Tree
 requirements wrap mid-pair at 900 px; disabled "Exchange stardust" reads as
 an action. Copy rulings recorded in the message to S2. The batch gate waits
 for this commit.
+
+## 03:46 — Batch gate pre-run on `d2992b23`: failed at the seams, as intended
+
+Remote lanes: plain 5,563 tests in 515 s, 1 failure and 1 error; Qt 5,563
+in 1,015 s, 10 failures and 1 error. Audits clean. Known: the module-surface
+digest for `core/constants.py` was re-pinned by two slices independently; S3's
+reason forwarding calls `deactivate_current_skill(reason)` against a test stub
+that takes no argument; a modal opened in the offscreen lane from
+`show_error_message` (ui/ui.py:4510). An integration-fix pass (Sol) runs on
+the batch worktree now; S2's hardening commit merges after it. Log:
+`ankiscape_worktrees/gate-d2992b23.log`.
