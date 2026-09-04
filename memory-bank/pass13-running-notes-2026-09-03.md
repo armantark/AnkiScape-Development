@@ -349,3 +349,15 @@ succeeds, per the precedent in `028df5f9` and `a0e22ade`.
 applied; 489 focused tests pass; full lanes deferred to the merged-tree gate.
 Closed: S3, S4, S7, S9. Pending: S1 stage 2, S2 (status requested), S5 (Qt
 lane), S6 (tests), S8 (fixes on plain lane).
+
+## 01:47 — S1 stage 2: catalog regenerated; one more seam fixed; test relaxed to sentences
+
+The generator rejected four drafted seams that collided with active catalog
+rows (the context pack's digest covered only the ledger), then one more
+(mining:gold, owned by karamja_easy_golden_shores). Design seat replaced them:
+mithril ore in the Dwarven Mine, a gold ring at the Falador furnace, five
+maple fires in the Haunted Woods, a lobster over the Lumbridge Swamp campfire.
+Regeneration then succeeded: 162 rows, all 162 markers cleared per precedent,
+no source sentence remains. The stage 2 test as briefed also forbade kept
+names; 78 rows keep their source name by rubric rule 5, so the test now covers
+sentences only.
