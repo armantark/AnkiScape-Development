@@ -346,6 +346,21 @@ def intercept_bonecrusher_outputs_pure(player_data, carried_target_id, outputs):
     return data, remaining, info
 
 
+def _auto_burial_materials(player_data):
+    """Prayer materials the burial action consumes, minus keep/drop overrides.
+
+    A "leave" override spares the material from auto-burial; it stays in the
+    drops and is left on the ground by the loot filter like any other
+    overridden drop.
+    """
+    loot_overrides = player_data.get("loot_overrides") or {}
+    return [
+        material
+        for material in PRAYER_MATERIALS
+        if loot_overrides.get(material.item_name) != "leave"
+    ]
+
+
 def resolve_prayer_kill_effects_pure(player_data, enemy_id, kill_drops, combat_auto_prayer_training):
     """Resolve target-carried passives before retained drops and auto-training."""
     data = _copy_player_data_with_nested(player_data)
@@ -403,7 +418,7 @@ def resolve_prayer_kill_effects_pure(player_data, enemy_id, kill_drops, combat_a
         data["prayer_urn_ashes_collected"] = _non_negative_int(data.get("prayer_urn_ashes_collected", 0), 0) + info["urn_ashes"]
 
     if combat_auto_prayer_training:
-        for material in PRAYER_MATERIALS:
+        for material in _auto_burial_materials(player_data):
             amount = remaining_drops.pop(material.item_name, 0)
             if amount <= 0:
                 continue

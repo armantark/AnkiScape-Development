@@ -2807,6 +2807,7 @@ def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
         enemy, rng, data, include_clue_refusal=True
     )
     kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
+    _record_combat_observed_drops_pure(data, target_id, kill_drops)
     (
         data,
         kill_drops,
@@ -2832,7 +2833,6 @@ def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
             + _non_negative_int(amount, 0)
         )
     data["inventory"] = inventory
-    _record_combat_observed_drops_pure(data, target_id, kill_drops)
     kill_counts = dict(data.get("combat_kill_counts", {}) or {})
     kill_counts[target_id] = _non_negative_int(kill_counts.get(target_id, 0), 0) + 1
     data["combat_kill_counts"] = kill_counts
