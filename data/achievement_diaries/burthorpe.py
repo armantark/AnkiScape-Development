@@ -46,8 +46,8 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'burthorpe_period_we_re_done_here',
-                "We're Done Here",
-                'Ozan wants to talk to you.',
+                'Troll Patrol',
+                'Drive back a Troll Invasion at the Burthorpe gate.',
                 (DiaryCondition('ledger_action', 'utility:troll_invasion', 1, 'Troll invasion'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 533,
@@ -56,8 +56,8 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'burthorpe_period_fire_in_the_troll',
-                'Fire In The Troll!',
-                'Fire the cannon on the roof of Burthorpe Castle to block off the troll attack.',
+                'Cannonball Run',
+                'Forge four batches of cannonballs for the Burthorpe cannon.',
                 (DiaryCondition('ledger_action', 'smithing:forge_cannonballs', 4, 'Forge cannonballs'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 535,
@@ -106,8 +106,8 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'burthorpe_period_arm_the_militia',
-                'Militia Requisition',
-                'Buy a Bronze sword from the Burthorpe guard quartermaster.',
+                'Cut to the Chase',
+                'Buy a bronze sword from the guard quartermaster in Burthorpe.',
                 (DiaryCondition('shop_transaction', 'buy|burthorpe_guard_quartermaster|burthorpe_guard_quartermaster:0:1277', 1, 'burthorpe guard quartermaster:0:1277'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 542,
@@ -137,7 +137,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_the_circle_of_life',
                 'The Circle Of Life',
-                'Put weeds in the compost bin.',
+                'Plant potatoes in the Taverley farming patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJraW5kIjoicGxhbnQiLCJwYXRjaF9pZCI6InRhdmVybGV5X3BvdGF0byIsInR5cGUiOiJmYXJtaW5nX3Jlc3VsdCJ9fX0', 1, 'Complete plant at taverley_potato'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 545,
@@ -166,8 +166,8 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'burthorpe_period_feed_the_refugees',
-                'Feed The Refugees',
-                'Bring four pieces of cooked food to Sister Judith.',
+                'Feeding Frenzy',
+                'Cook four stews for the hungry defenders of Burthorpe.',
                 (DiaryCondition('ledger_action', 'cooking:cook_stew', 4, 'Cook stew'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 548,
@@ -187,7 +187,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_bank_on_it',
                 'Bank On It',
-                "Talk to a banker in Taverley's bank and deposit some stuff to save space.",
+                "Complete a Bank run and deposit your gear at Taverley's bank.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJkZXBvc2l0ZWRfbm9uX2NvaW4iOnRydWUsInR5cGUiOiJiYW5rX3J1biJ9fX0', 1, 'Complete a Bank run with carried items'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 583,
@@ -227,7 +227,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_no_stone_unturned',
                 'No Stone Unturned',
-                'Search for the source of the gelatinous abominations.',
+                'Slay a gelatinous abomination in the enchanted cave near Burthorpe.',
                 (DiaryCondition('combat_kill', 'gelatinous_abomination', 1, 'Kill gelatinous abomination'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 553,
@@ -236,8 +236,8 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'burthorpe_period_mission_complete',
-                'Mission Complete!',
-                'Speak to Ariane now that the shaman is defeated.',
+                'Lap of Luxury',
+                'Complete three laps of the Burthorpe Agility Course.',
                 (DiaryCondition('ledger_action', 'agility:burthorpe_course', 3, 'Complete Burthorpe course laps'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 554,
@@ -296,8 +296,8 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'burthorpe_period_one_thing_after_another',
-                'Taverley Angler',
-                'Catch trout or salmon.',
+                'Trout and About',
+                'Catch a trout or salmon from the Burthorpe lakeside.',
                 (DiaryCondition('ledger_action', 'fishing:catch_trout_salmon', 1, 'Catch trout salmon'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 560,
@@ -337,7 +337,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_problem_officer',
                 'Animated Authority',
-                'Use animated armour in the Warriors’ Guild.',
+                "Defeat the animated armour in the Warriors' Guild at Burthorpe.",
                 (DiaryCondition('ledger_action', 'utility:warriors_guild_animated_armour', 1, 'Warriors guild animated armour'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 537,
@@ -396,8 +396,8 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'burthorpe_period_bottoms_up',
-                'Bottoms Up',
-                'Drink a dose of attack potion.',
+                'Batch Expectations',
+                'Mix four batches of attack potion for the troops of Burthorpe.',
                 (DiaryCondition('ledger_action', 'herblore:finished_attack_potion', 4, 'Mix attack potions'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 568,
@@ -457,7 +457,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_heimward_bound',
                 'Heimward Bound',
-                'Teleport to Daemonheim with a Ring of Kinship.',
+                'Complete a starter floor in the dungeons of Daemonheim.',
                 (DiaryCondition('ledger_action', 'dungeoneering:starter_floor', 1, 'Starter floor'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 577,
@@ -467,7 +467,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_party_on_dudes',
                 'Party On, Dudes',
-                'Form a Dungeoneering party.',
+                'Enter a Daemonheim floor and start your dungeoneering party.',
                 (DiaryCondition('state_equals', 'dungeoneering.active', 1, 'Enter a Daemonheim floor', expected=True),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 578,
@@ -527,7 +527,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_walking_in_the_air_altar',
                 'Walking In The Air Altar',
-                'Locate and enter the Air Altar.',
+                'Use an Air altar teleport tablet to reach the Air Altar south of Taverley.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhbHRhcl9pZCI6ImFpciIsInR5cGUiOiJncmVhdF9vcmJfcHJvamVjdF90ZWxlcG9ydCJ9fX0', 1, 'Use an Air altar teleport'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 572,

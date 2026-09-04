@@ -18,7 +18,7 @@ At the base SHA, the generated catalog contains:
 
 The 154 condition-bearing rows are the 129 ordinary deed rows, 3 quest deeds, and 22 anchors. The canonical JSONL contains the 320 rows that were empty at the base SHA. It excludes all 22 anchors.
 
-The 320 curation rows classify as 42 `active`, 125 `translated`, 37 `invented`, 0 `swapped`, and 116 `dormant`. All 204 live rows carry compiled wiring. The checked-in catalog still awaits 135 row regenerations after its planned split; the exact pending set is marked in the ledger. The 116 dormant rows keep `conditions == ()`.
+The 320 curation rows classify as 42 `active`, 123 `translated`, 39 `invented`, 0 `swapped`, and 116 `dormant`. All 204 live rows carry compiled wiring. The checked-in catalog reflects all 162 translated and invented designs, so no ledger row carries a regeneration marker. The 116 dormant rows keep `conditions == ()`.
 
 ## Canonical file
 
@@ -37,9 +37,9 @@ Every row uses this exact key order:
 9. `disposition` — one allowed curation disposition.
 10. `future_system` — one canonical future-system ID for dormant rows, otherwise `null`.
 11. `notes` — source conflicts, translation boundaries, exact current seams, and unresolved evidence.
-12. `designed_name` — required only for `invented`; the name emitted at regeneration.
-13. `designed_description` — required only for `invented`; the description emitted at regeneration.
-14. `catalog_regeneration_pending` — optional `true` marker for a row whose checked-in generated task must change; the reproduction test requires the pending set to equal the generated diff exactly.
+12. `designed_name` — required for `translated` and `invented`; the name emitted at regeneration.
+13. `designed_description` — required for `translated` and `invented`; the description emitted at regeneration.
+14. `catalog_regeneration_pending` — optional temporary `true` marker while regeneration is in progress; remove it after the generator succeeds.
 
 ## Dispositions
 
@@ -48,7 +48,7 @@ Allowed values are exactly:
 - `active`: an exact existing AnkiScape writer, action, result, or telemetry seam already fires on the deed. A same-frame result qualifies when the existing runtime reaches achievement checking immediately after that action; the row must say when no durable retroactive evidence exists. The reviewed wiring clause compiles that seam into the generated catalog.
 - `dormant`: the deed has a concrete designed trigger but still needs one named future system before it can fire honestly.
 - `swapped`: the source deed cannot translate, and an authentic same-family replacement is recorded. No row in this ledger currently uses this disposition.
-- `translated`: the source deed’s substance survives through an existing AnkiScape action with only locale or surface changed.
+- `translated`: the source deed's substance survives through an existing AnkiScape action; locale, surface, or seam may change while region, family, and difficulty are kept.
 - `invented`: the source substance could not survive, so a deliberate, tier-proportionate replacement deed is recorded for the family and tier, with generated replacement text.
 
 `future_system` must be non-null only for `dormant` rows. Every dormant value must come from this canonical vocabulary:
