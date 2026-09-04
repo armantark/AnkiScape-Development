@@ -361,7 +361,7 @@ def gnome_restaurant_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]
         "points_to_next_token": to_next_token,
         "policy_controls_enabled": not order,
         "primary_label": (
-            "Selected for reviews"
+            "Active for reviews"
             if state["service_open"] and selected_for_reviews
             else "Take a job"
             if state["service_open"]

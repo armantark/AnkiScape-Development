@@ -934,7 +934,7 @@ def conquest_view_pure(
         "combat_level": combat_level,
         "entry_reasons": tuple(entry_reasons),
         "primary_text": (
-            "Selected for reviews"
+            "Active for reviews"
             if session and str(player_data.get("current_utility", "")) == CONQUEST_ACTIVITY_ID
             else "Select for reviews"
             if session

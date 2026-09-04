@@ -290,7 +290,7 @@ def troll_invasion_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "progress_maximum": progress_maximum,
         "progress_format": progress_format,
         "policy_controls_enabled": can_enter,
-        "primary_label": "Selected for reviews" if session and selected_for_reviews else "Select for reviews" if session else "Enter invasion",
+        "primary_label": "Active for reviews" if session and selected_for_reviews else "Select for reviews" if session else "Enter invasion",
         "primary_enabled": (bool(session) and not selected_for_reviews) or can_enter,
         "leave_visible": bool(session),
         "leave_enabled": bool(session),
