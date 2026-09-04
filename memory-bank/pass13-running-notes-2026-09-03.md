@@ -420,3 +420,21 @@ their provenance; the 35 mismatched assets are byte-identical to main. Two
 doc fixes sent: the audit's result line must describe the change against
 main, and the 19 contact sheets go into `memory-bank/evidence/` for the
 owner's eyes.
+
+## 02:18 — S5 quest-combat-flag-removal on its branch
+
+`goal/pass13-quest-combat-flag-2026-09-03` at `44c4e7dc` (Sol). The flag
+and both messages are gone; a migration drops the key. Proofs: Delrith
+spans three reviews, resumes persisted life points, uses the player's Bronze
+sword, Shrimps, and Burst of Strength; a Delrith win routes through ordinary
+gravestone death. Gap left open on purpose: the HUD shows the quest name
+while Quests is active, not Delrith as current target (`ui/ui.py:1557-1574,
+2965`). Promotion-gate test timeout 0.2 to 2.0 s (two loaded offscreen runs
+raced `child.pid`). Plain lane 4,678 OK.
+
+Owner data gap (named gate for the morning): 91 of 293 quest combat
+encounters across 47 quests carry no combat stats and still refuse to
+resolve. Largest: rag_and_bone_man 8, the_chosen_commander 6,
+land_of_the_goblins 5, love_story 5, while_guthix_sleeps 5, the_elder_kiln
+4. Full list in the S5 report (transcript) and to be copied into the results
+artifact. Review: Opus, pending.
