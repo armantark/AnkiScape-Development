@@ -141,3 +141,13 @@ auto-burial; finisher-path learning test on the desert lizard fixture. Each of
 the three fixes fails exactly its own test when reverted. Full widget suite
 last ran whole on the pre-review tree; the promotion gate re-runs it on the
 merged tree.
+
+## 00:20 — Karamja draft complete (20 rows)
+
+Five review fixes applied by the drafter: lesser demons beneath the volcano
+(amount 2; amount 1 is owned by a Lumbridge row), the Jungle Potion search
+sentence set at its real place south of Tai Bwo Wannai, "Avast, Anchovies!"
+on the Brimhaven net spot (easy), "Set in Stone" on Shilo gem rocks (Mining
+40 behind the Shilo gate, medium), and "Brim Full of Tickets" earning 25
+Agility Arena tickets (elite). Design seat renamed Here Be Dragons to Here Be
+Demons. No Brimhaven or Shilo shop exists in the closed transaction registry.
