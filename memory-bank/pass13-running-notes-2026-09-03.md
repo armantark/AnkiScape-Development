@@ -324,3 +324,11 @@ three sibling activities keep a popup; the suppression flag is sticky across
 ticks on the reused context; a dropped reason; dead
 `_deactivate_current_skill`; a KeyError-prone test. `tests/runtime_actions/`
 is collected by `run_tests.py` and the gate lanes.
+
+## 01:33 — S1 stage 1 committed; stage 2 dispatched
+
+`goal/pass13-diary-deed-text-2026-09-03` at `01603bde` (Sol): `text_for`
+and the validator require designed text on translated and invented rows;
+160 tests pass with a temporary overlay. Stage 2 merges the 162 drafted rows
+(123 translated, 39 invented), regenerates the catalog, and adds the test
+that no translated or invented task carries its source name or sentence.
