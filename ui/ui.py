@@ -5537,7 +5537,7 @@ def show_main_menu(
     ) -> QWidget:
         if len(rows) < 25 or not any(row.group for row in rows):
             return _build_flat_target_list(
-                rows,
+                sorted(rows, key=lambda r: r.sort_key or (r.label,)),
                 on_select,
                 confirm_select=confirm_select,
             )
