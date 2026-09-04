@@ -3403,3 +3403,28 @@ Consequences: the design seat runs the Pass 13 patch programme
 through the promotion gate. When the owner re-seats the orchestrator, its first
 unit is the restructure programme under ruling 53's principle, and ruling 55's
 order continues behind it. Any preserved ref stands untouched.
+
+## 58. Pass 13 landed; two owner gates stand; the orchestrator's next unit is unchanged — 2026-09-04 06:46 PDT
+
+The Pass 13 patch programme landed on main at `f018c832` through the promotion
+gate on the remote lanes (plain 5,561 tests in 508 s, Qt 5,561 in 1,011 s,
+audits clean). Nine slices, each reviewed by Opus with every finding fixed
+before the batch; one integration commit repaired three seams the slices could
+not see alone. Results artifact:
+`memory-bank/status-updates/pass13-results-2026-09-04.html`.
+
+Owner gates, stated for the morning: (1) spot-check of the 162 rewritten diary
+deeds (queue §4.22 ruling 3), two region compromises recorded on
+`varrock_hard_but_it_won_t_warp_you_anywhere` and
+`morytania_medium_izzy_wizzy_let_s_get_lizzy`; (2) 91 of 293 quest combat
+encounters across 47 quests carry no combat stats and report "This fight is
+not modelled yet (combat stats missing)"; harvesting them is a source-audit
+programme.
+
+Process record: the design seat committed one merge-conflict resolution with
+hooks disabled (papercuts, 05:30) and committed running notes to main during
+the batch, which cost one extra gate run before the fast-forward. Ruling 38's
+landing-window discipline applies to the design seat too. When the orchestrator
+re-seats, its first unit remains the dispatcher restructure (ruling 57); the
+worktree pool now has a `status`-less guard and eight leases were released by
+hand, so the orchestrator must release every lease it takes.

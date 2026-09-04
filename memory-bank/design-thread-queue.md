@@ -2419,3 +2419,18 @@ and confirmed "I meant 13"). Diagnosis and slice geography live in
 11. Accepted by silence: level order in every target list; one Bankstanding
     notice per switch; per-slice verification with both lanes, offscreen
     screenshots, and the promotion gate.
+
+### 4.25 Pass 13 results — landed 2026-09-04 06:46
+
+Main `f018c832`. Diary: 162 translated and invented deeds show their own name
+and sentence; generator refuses a translated or invented row without designed
+text; catalog regenerated; 31 seams changed in review. Activities: one click
+starts every activity through the undoable seam; verb-first labels; header
+Start hidden on Activities. Bankstanding: one notice per switch at about 150
+sites. Quest fights: the dead resolver flag is gone (v124 migration); Delrith
+proven persistent; 91 encounters lack stats (owner gate). Bones learned before
+burial; one "leave" filter for burial, Bonecrusher, and urns. Targets in level
+order everywhere; Activities alphabetical. Amulet of glory and (4) on the GE.
+100 icons replaced with verified 2012 revisions; 35 hash-mismatched left; 144
+without a usable revision. Fish Flingers: formula source-true, records added,
+no rollback. Second-level findings in the results artifact.

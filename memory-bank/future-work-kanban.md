@@ -14,9 +14,27 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Pass 13 follow-ups — 2026-09-04
+
+Labels: `SOURCE AUDIT` for the first two, `IMPLEMENT` for the rest.
+
+- Quest combat stats: 91 of 293 encounters across 47 quests carry none and
+  report "This fight is not modelled yet (combat stats missing)"; list in
+  `memory-bank/pass13-running-notes-2026-09-03.md` (02:18).
+- Tradeable defaults: 106 items are `tradeable=False` while the 2011 cache
+  flags them exchangeable (69 summoning pouches, 37 shop clothing and misc);
+  root cause `MiningBonusItem.tradeable` default at `data/mining_data.py:98`.
+- Icon second sweep: RS-wiki entries whose title is a dated historical image
+  (Iron scimitar "(September 2009)") or whose revision is not the newest before
+  2012-11-20; `tools/fetch_2012_icons.py` is the tool.
+- Quest boss as the HUD current target during a quest fight
+  (`ui/ui.py:1557-1574`).
+- Owner spot-check of the 162 rewritten diary deeds; then patch per §4.22.
+
 ### Diary curation ledger — 320 dormant rows of 474 named tasks
 
-Labels: `IMPLEMENT`.
+Labels: `IMPLEMENT`. Pass 13 (2026-09-04) rewrote the 162 translated and
+invented rows with their own text; the 116 dormant rows are unchanged.
 
 - Owner-ruled 2026-08-26 (design-thread-queue §4.21 ruling 1, §5.21): every
   diary row becomes a designed achievement; no dead-end triggers; dormant

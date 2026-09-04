@@ -579,3 +579,10 @@ modal guard wrapped itself; the allow depth now lives on `QDialog` and
 installation skips an already-guarded entry point. Both runners pass (pytest
 75; unittest 14). A tool-driving agent now commits through the gate, runs the
 final promotion gate on the remote lanes, lands, and releases the batch lease.
+
+## 06:46 — LANDED on main at `f018c832`
+
+Final gate on the remote lanes: plain 5,561 in 508 s, Qt 5,561 in 1,011 s,
+audits clean; fast-forward from `5e718aa9`; 256 files, +4,379/−2,309. Batch
+lease released. Results artifact written, opened, and hosted. Records: ledger
+§58, queue §4.25, kanban "Pass 13 follow-ups".
