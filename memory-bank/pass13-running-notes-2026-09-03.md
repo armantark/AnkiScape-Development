@@ -246,3 +246,21 @@ sanitizer unconditionally, so no version bump is needed).
 the branch). Clamped level recorded; abandon path pinned; round-trip tests
 through `migrate_loaded_data`. Closed: S4, S7, S9. Pending branches: S2, S3,
 S5, S6, S8. Drafts pending: Lumbridge, Morytania+misc.
+
+## 01:01 — S8 icon sweep on its branch; the Iron scimitar explains the wider class
+
+`goal/pass13-icon-2012-sweep-2026-09-03` at `78fa0f83` (Sol). 135 icons
+replaced with the newest RuneScape wiki revision strictly before
+2012-11-20; 144 had no exact-title pre-cutoff revision (audit file lists
+each; most enemy images use titles that do not exist on the RS wiki, and
+"Guard.png" has only post-cutoff revisions). Design seat viewed
+`smithingitems/mithril_platebody.png` before and after: the new one is the
+2012 detailed design. Review: Opus, pending.
+
+Iron scimitar (owner's Pass 8 note) was outside the sweep: its provenance is
+the RS wiki title "Iron scimitar (September 2009).png", a dated historical
+look, fetched 2022. So the class is wider than Old School sources: any entry
+whose title is a dated historical image, or whose recorded revision is not
+the newest strictly before the cutoff, shows the wrong period. A second sweep
+over every RS-wiki entry with the same tool is the class fix; decide after the
+S8 review.
