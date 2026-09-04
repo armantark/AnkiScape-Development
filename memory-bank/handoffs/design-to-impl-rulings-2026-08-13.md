@@ -3387,3 +3387,19 @@ make becomes a named gate in this ledger; the seat stops at it, states it plainl
 as the last line of its turn so the owner's notification hook fires, and takes the
 next eligible unit. It never messages the owner otherwise. Routine reports go to
 this ledger and the handoffs directory as before.
+
+## 57. Dispatcher gate answered; Pass 13 patch programme takes the checkout first — 2026-09-03 22:45 PDT
+
+The owner ruled on the dispatcher gate of 2026-09-02 21:12: **option 1, do the
+restructure** as its own programme (a state object, 109 dispatcher bodies
+changed with behaviour tests, 56 test files migrated). The owner also ruled that
+the goal stays parked for now: "Ignore the orchestrator rn, that's for the long
+running overarching task, not the current patch requests based on manual
+testing." The orchestrator process has already exited.
+
+Consequences: the design seat runs the Pass 13 patch programme
+(`memory-bank/codex-briefs/pass13-owner-notes-handoff-2026-09-03.md`, queue
+§4.24) tonight in pooled worktrees under the standing slice contract, and lands
+through the promotion gate. When the owner re-seats the orchestrator, its first
+unit is the restructure programme under ruling 53's principle, and ruling 55's
+order continues behind it. Any preserved ref stands untouched.

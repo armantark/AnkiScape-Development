@@ -2368,3 +2368,47 @@ Consequences, ruled by the design seat under that statement:
    as the first ledger — cross-lineage review, then the owner's spec-conformance
    gate as ruled in §4.22 ruling 3, patch afterwards. Wiring follows by
    regeneration. This is §5.21's second stage and goes to the orchestrator queue.
+
+### 4.24 Pass 13 grill — rulings of 2026-09-03
+
+The owner answered one grill round in the design thread on 2026-09-03 (22:18
+to 22:40 PDT). The notes are the "Pass 13" section of
+`/Users/ArmanTarkhanian1/Downloads/ankiscape notes.rtfd` (owner wrote "pass 12"
+and confirmed "I meant 13"). Diagnosis and slice geography live in
+`memory-bank/codex-briefs/pass13-owner-notes-handoff-2026-09-03.md`.
+
+1. **Scope is Pass 13 only.** Older open items stay on the kanban.
+2. **A translated or invented deed shows no reference to its source.** Owner:
+   "There should be no reference to the original RuneScape achievement if it
+   has been translated/invented. That's the point of the translation/invention."
+   The name and the description in the game are the AnkiScape deed's own. The
+   source deed stays in the curation ledger as the citation.
+3. **Translations must be fun and creative, with similar difficulty, not a
+   lazy flattening.** Owner: "You, as Fable, are the creativity engine." The
+   design seat authors the text and re-reviews every translated and invented
+   row (125 translated, 37 invented) against region, family, and difficulty.
+4. **One click starts an activity.** Owner: "Only big top has a sub activity
+   queue... queuing and setting options for an activity is different from
+   having to press 2-3 different buttons to simply start it." Big Top keeps its
+   queue as configuration; every activity starts from one button.
+5. **Bones: design seat's judgment.** Bones are learned as a drop before the
+   bury step. Auto-bury and the existing bank Bury targets stay as they are.
+6. **Fish Flingers pays what a real November 2012 game paid.** Owner: "I do
+   not want to invent xp rates based off heuristics... I want it to be the
+   same amount of xp you'd get from a normal fish flingers game in the real
+   2012 game." Plus: "I also probably need an xp rollback for all the times
+   I've done fish flingers." Big Top's weekly lump stands. Investigation of
+   the 2012 figure runs first; the owner said "we're missing something".
+7. **Retroactive diary popups stay.** Owner: "It's fine if they all pop up at
+   once for retroactive completions." No change.
+8. **The quest-combat resolver flag is deleted.** Owner recalls it as "a false
+   flag in the system". Quest fights resolve through the existing resolver.
+9. **Amulet of glory (uncharged and (4)) enters the GE**, with a pre-cutoff
+   citation. **Mithril platebody gets the 2012 icon**; the design seat sweeps
+   every icon whose provenance is the Old School wiki (558 assets).
+10. **Dispatcher gate (ledger §57): option 1, the restructure programme**, but
+    not now. Owner: "Ignore the orchestrator rn, that's for the long running
+    overarching task, not the current patch requests based on manual testing."
+11. Accepted by silence: level order in every target list; one Bankstanding
+    notice per switch; per-slice verification with both lanes, offscreen
+    screenshots, and the promotion gate.
