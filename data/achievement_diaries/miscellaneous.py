@@ -108,7 +108,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'miscellaneous_miscellaneous_defeat_bork',
                 'Elemental Disorder',
-                'Defeat the Chaos Elemental.',
+                'Defeat the Chaos Elemental in the deep Wilderness.',
                 (DiaryCondition('combat_kill', 'chaos_elemental', 1, 'Defeat the Chaos Elemental'),),
                 'Darkan Achievement.java IDs 3000-3034; rev-727 cache enum 3483',
                 3008,

@@ -26,11 +26,6 @@ _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY = {
     ): 'ardougne_easy_a_cat_is_for_life',
     (
         'buy',
-        'sarahs_farming_shop',
-        'sarahs_farming_shop:0:12622',
-    ): 'ardougne_medium_meeting_history_again',
-    (
-        'buy',
         'legends_guild_shop_of_useful_items',
         'legends_guild_shop_of_useful_items:4:1052',
     ): 'ardougne_hard_brace_yourself',
@@ -215,11 +210,6 @@ _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY = {
         'harrys_fishing_shop_qol_feathers_added',
         'harrys_fishing_shop_qol_feathers_added:5:305',
     ): 'seers_medium_at_least_it_doesn_t_need_walking__5',
-    (
-        'vendor_action',
-        '',
-        'bartender_buy_beer have been recorded',
-    ): 'seers_easy_happy_hour',
     (
         'buy',
         'auburys_rune_shop',

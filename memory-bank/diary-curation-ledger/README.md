@@ -18,7 +18,7 @@ At the base SHA, the generated catalog contains:
 
 The 154 condition-bearing rows are the 129 ordinary deed rows, 3 quest deeds, and 22 anchors. The canonical JSONL contains the 320 rows that were empty at the base SHA. It excludes all 22 anchors.
 
-The 320 curation rows classify as 42 `active`, 125 `translated`, 37 `invented`, 0 `swapped`, and 116 `dormant`. All 204 live rows carry compiled wiring. The checked-in catalog still awaits 135 row regenerations after its planned split; the exact pending set is marked in the ledger. The 116 dormant rows keep `conditions == ()`.
+The 320 curation rows classify as 42 `active`, 123 `translated`, 39 `invented`, 0 `swapped`, and 116 `dormant`. All 204 live rows carry compiled wiring. The checked-in catalog reflects all 162 translated and invented designs, so no ledger row carries a regeneration marker. The 116 dormant rows keep `conditions == ()`.
 
 ## Canonical file
 
@@ -39,7 +39,7 @@ Every row uses this exact key order:
 11. `notes` — source conflicts, translation boundaries, exact current seams, and unresolved evidence.
 12. `designed_name` — required for `translated` and `invented`; the name emitted at regeneration.
 13. `designed_description` — required for `translated` and `invented`; the description emitted at regeneration.
-14. `catalog_regeneration_pending` — optional `true` marker for a row whose checked-in generated task must change; the reproduction test requires the pending set to equal the generated diff exactly.
+14. `catalog_regeneration_pending` — optional temporary `true` marker while a checked-in generated task differs from its ledger row; remove it in the same change that regenerates the catalog. The reproduction test requires the pending set to equal the generated diff exactly.
 
 ## Dispositions
 

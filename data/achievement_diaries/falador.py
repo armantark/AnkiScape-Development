@@ -46,9 +46,9 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'falador_easy_family_values',
-                'Family Values',
-                'Discover your family crest from Sir Renitee.',
-                (DiaryCondition('ledger_action', 'construction:banner_easel', 1, 'Banner easel'),),
+                'Family Jewels',
+                'Cast a gold ring at the Falador furnace for the family.',
+                (DiaryCondition('ledger_action', 'crafting:jewellery_gold_ring', 1, 'Craft a gold ring'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 118,
                 0,
@@ -108,8 +108,8 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'falador_easy_sir_mitt',
-                'White Knight Requisition',
-                'Buy a White platebody from the White Knight Armory.',
+                'Plate Expectations',
+                'Buy a White platebody from the White Knight Armory in Falador.',
                 (DiaryCondition('shop_transaction', 'buy|white_knight_armory|white_knight_armory:12:6617', 1, 'white knight armory:12:6617'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 117,
@@ -119,7 +119,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_easy_sniffing_out_the_mole',
                 'Sniffing Out the Mole',
-                'Enter the mole lair under Falador Park.',
+                'Harvest a crop from the flower patch in Falador Park.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJraW5kIjoiaGFydmVzdCIsInBhdGNoX2lkIjoiZmFsYWRvcl9mbG93ZXIiLCJ0eXBlIjoiZmFybWluZ19yZXN1bHQifX19', 1, 'Complete harvest at falador_flower'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 119,
@@ -129,7 +129,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_easy_chinchompa_powered',
                 'Chinchompa Powered!',
-                "Feed Ridgeley, the hairdresser's pet.",
+                'Buy Flies, Beetle bits, and Nuts from the Taverley Pet Shop.',
                 (DiaryCondition('shop_transaction', 'buy|taverly_pet_shop|taverly_pet_shop:2:12125', 1, 'Buy Flies'), DiaryCondition('shop_transaction', 'buy|taverly_pet_shop|taverly_pet_shop:3:12127', 1, 'Buy Beetle bits'), DiaryCondition('shop_transaction', 'buy|taverly_pet_shop|taverly_pet_shop:4:12130', 1, 'Buy Nuts'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 120,
@@ -164,7 +164,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_medium_fruit_of_the_loom',
                 'Fruit of the Loom',
-                'Craft a fruit basket using the loom at the farm north of Port Sarim.',
+                'Weave a fruit basket at the loom on the farm north of Port Sarim.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJ3ZWF2ZV9lbXB0eV9iYXNrZXQiLCJza2lsbF9pZCI6ImNyYWZ0aW5nIiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9LCJndGUiOnsib3V0cHV0cy5CYXNrZXQiOjF9fX0', 1, 'Weave a basket'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 130,
@@ -174,9 +174,9 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'falador_medium_is_it_so_hard_to_walk_round',
-                'Is It So Hard to Walk Round?',
-                "Crawl under Falador's south wall.",
-                (DiaryCondition('ledger_action', 'agility:gnome_normal', 1, 'Gnome normal'),),
+                'The Long Way Round',
+                'Mine mithril ore in the Dwarven Mine beneath Falador.',
+                (DiaryCondition('ledger_action', 'mining:mithril', 1, 'Mine mithril ore'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 131,
                 0,
@@ -186,7 +186,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_medium_climbing_the_walls',
                 'Climbing the Walls',
-                "Grapple up and then jump off Falador's north wall.",
+                'Scale the walls of the Agility Pyramid and leap the gaps back down.',
                 (DiaryCondition('ledger_action', 'agility:agility_pyramid', 1, 'Agility pyramid'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 133,
@@ -218,7 +218,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_medium_blinded_with_science',
                 'Blinded With Science',
-                "Light a bullseye lantern in the chemist's.",
+                'Light a bullseye lantern in the chemist’s south of Falador.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJsaWdodF9idWxsc2V5ZV9sYW50ZXJuIiwic2tpbGxfaWQiOiJ1dGlsaXR5Iiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9LCJndGUiOnsib3V0cHV0cy5CdWxsc2V5ZSBsYW50ZXJuIChsaXQpIjoxfX19', 1, 'Light a bullseye lantern'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 136,
@@ -229,7 +229,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_medium_they_have_families_to_feed',
                 'They Have Families to Feed',
-                'Pickpocket a Falador guard.',
+                'Pickpocket a guard on patrol in Falador.',
                 (DiaryCondition('ledger_action', 'thieving:pickpocket_guard', 1, 'Pickpocket a guard'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 137,
@@ -262,8 +262,8 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_medium_fun_for_the_whole_family',
                 'Fun For the Whole Family',
-                'Visit the Port Sarim rat pits.',
-                (DiaryCondition('combat_kill', 'giant_rat', 1, 'Kill giant rat'),),
+                'Defeat the rat pit champion in the Port Sarim rat pits.',
+                (DiaryCondition('combat_kill', 'giant_rat_level_26', 1, 'Kill the rat pit champion'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 140,
                 0,
@@ -273,7 +273,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_medium_look_spiffy_for_tiffy',
                 'Initiate’s Issue',
-                'Buy an Initiate hauberk from the initiate-rank armory.',
+                'Buy an Initiate hauberk from the initiate armory in Falador.',
                 (DiaryCondition('shop_transaction', 'buy|initiate_rank_armory|initiate_rank_armory:1:5575', 1, 'initiate rank armory:1:5575'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 141,
@@ -309,8 +309,8 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_hard_child_of_saradomin',
                 'Child of Saradomin',
-                'Change your family crest to the Saradomin symbol.',
-                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJzZXF1ZW5jZSI6W3siZXEiOnsiYWN0aW9uX2lkIjoic2lsdmVyX3Vuc3RydW5nX3N5bWJvbCIsInNraWxsX2lkIjoiY3JhZnRpbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn19LHsiZXEiOnsiYWN0aW9uX2lkIjoic3RyaW5nX3VuYmxlc3NlZF9zeW1ib2wiLCJza2lsbF9pZCI6ImNyYWZ0aW5nIiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9fV19', 1, 'Make a complete holy symbol'),),
+                'Bury five dagannoth bones at the altar square in Falador.',
+                (DiaryCondition('ledger_action', 'prayer:bury_dagannoth_bones', 5, 'Bury dagannoth bones'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 143,
                 0,
@@ -342,7 +342,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_hard_the_stonemasons',
                 'Master Mason’s Order',
-                'Buy Gold leaf, a Marble block, and a Magic stone from the Keldagrim stonemason.',
+                'Order gold leaf, a marble block, and a magic stone from the Keldagrim stonemason.',
                 (DiaryCondition('shop_transaction', 'buy|keldagrim_stonemason|keldagrim_stonemason:0:8784', 1, 'Buy Gold leaf'), DiaryCondition('shop_transaction', 'buy|keldagrim_stonemason|keldagrim_stonemason:3:8786', 1, 'Buy a Marble block'), DiaryCondition('shop_transaction', 'buy|keldagrim_stonemason|keldagrim_stonemason:2:8788', 1, 'Buy a Magic stone'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 146,
@@ -375,7 +375,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_hard_banned_for_life',
                 'Banned For Life',
-                "Summon an ibis in Port Sarim's fishing store.",
+                'Summon an ibis, the fisherman’s friend, in Port Sarim’s fishing store.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJzdW1tb24iLCJmYW1pbGlhcl9pZCI6ImliaXMiLCJ0eXBlIjoic3VtbW9uaW5nX2NvbW1hbmQifX19', 1, 'Summon an ibis'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 150,
@@ -386,8 +386,8 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_hard_a_knight_in_the_darkness',
                 'A Knight in the Darkness',
-                "Ascend the Dark Wizards' Tower while wearing full proselyte armour.",
-                (DiaryCondition('combat_kill', 'monk_of_zamorak_level_45', 1, 'Kill monk of zamorak level 45'),),
+                'Defeat five Monks of Zamorak in the Dark Wizards’ Tower.',
+                (DiaryCondition('combat_kill', 'monk_of_zamorak_level_45', 5, 'Kill monk of zamorak level 45'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 151,
                 0,
@@ -407,8 +407,8 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_hard_i_heard_you_like_mudskips',
                 'I Heard You Like Mudskips',
-                'Dial to the fairy ring on Mudskipper Point.',
-                (DiaryCondition('ledger_action', 'fishing:catch_mackerel_cod_bass', 1, 'Catch mackerel cod bass'),),
+                'Catch five bass off Mudskipper Point.',
+                (DiaryCondition('ledger_output', 'fishing:Raw bass', 5, 'Catch five Raw bass'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 147,
                 0,
@@ -417,7 +417,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_medium_these_aren_t_the_coins_you_re_looking_for',
                 'Far Shore Fight',
-                'Defeat the Shaikahan on Karamja.',
+                'Defeat the Shaikahan on the Karamja shore.',
                 (DiaryCondition('combat_kill', 'shaikahan', 1, 'Defeat the Shaikahan'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier medium; curated into hard',
                 132,
@@ -539,7 +539,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_easy_going_along_with_the_fro',
                 'Party Supply Run',
-                'Buy five different party supplies from Diango, then burn cursed magic logs.',
+                'Buy five party supplies from Diango, then burn cursed magic logs for the Party Room.',
                 (DiaryCondition('shop_transaction', 'buy|diangos_toy_store|diangos_toy_store:4:4613', 1, 'Buy a Spinning plate'), DiaryCondition('shop_transaction', 'buy|diangos_toy_store|diangos_toy_store:6:20179', 1, 'Buy a Celebration cake'), DiaryCondition('shop_transaction', 'buy|diangos_toy_store|diangos_toy_store:7:20180', 1, 'Buy Celebration candles'), DiaryCondition('shop_transaction', 'buy|diangos_toy_store|diangos_toy_store:8:20720', 1, 'Buy a Firework'), DiaryCondition('shop_transaction', 'buy|diangos_toy_store|diangos_toy_store:11:20718', 1, 'Buy Confetti'), DiaryCondition('ledger_action', 'firemaking:cursed_magic_logs', 1, 'Burn cursed magic logs'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier easy; curated into elite',
                 126,
@@ -558,9 +558,9 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'falador_easy_disarm_and_embark',
-                'Disarm and Embark',
-                'Take the boat to Entrana.',
-                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJraW5kIjoiaGFydmVzdCIsInBhdGNoX2lkIjoiZW50cmFuYV9ob3BzIiwidHlwZSI6ImZhcm1pbmdfcmVzdWx0In19fQ', 1, 'Complete harvest at entrana_hops'),),
+                'Arming the White Knights',
+                'Forge an Adamant platebody at the furnace in Falador.',
+                (DiaryCondition('ledger_action', 'smithing:forge_adamant_platebody', 1, 'Forge an adamant platebody'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier easy; curated into elite',
                 128,
                 0,

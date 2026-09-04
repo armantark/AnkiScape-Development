@@ -45,7 +45,7 @@ from ankiscape.runtime.runtime_actions import (
     handle_agility_answer,
     handle_castle_wars_answer,
     handle_combat_answer,
-    handle_firemaking_answer,
+    handle_cooking_answer,
     handle_mining_answer,
     handle_runecrafting_answer,
     handle_shades_of_mortton_answer,
@@ -115,8 +115,8 @@ class CurationLedgerWiringTest(unittest.TestCase):
                 )
             },
             {
-                "active": 42, "translated": 125, "swapped": 0,
-                "invented": 37, "dormant": 116,
+                "active": 42, "translated": 123, "swapped": 0,
+                "invented": 39, "dormant": 116,
             },
         )
         self.assertEqual([row["task_id"] for row in rows if row["task_id"] not in task_ids], [])
@@ -296,7 +296,7 @@ class CurationLedgerWiringTest(unittest.TestCase):
             conditions_override=(),
         )
         self.assertIn("'Ball Control'", block)
-        self.assertIn("'Complete a Gnome Ball action.'", block)
+        self.assertIn("'Play Gnome Ball at the stadium north-west of Ardougne.'", block)
         self.assertNotIn("'Boot Camp'", block)
         self.assertNotIn("'Source deed'", block)
 
@@ -413,7 +413,7 @@ class CurationLedgerWiringTest(unittest.TestCase):
             "waynes_black_chainbody",
         }
         self.assertEqual(SHOP_DIARY_TRANSACTION_KEYS, pre_ledger | used)
-        self.assertEqual(len(SHOP_DIARY_TRANSACTION_KEYS), 54)
+        self.assertEqual(len(SHOP_DIARY_TRANSACTION_KEYS), 52)
 
     def test_shop_service_uses_its_service_id_for_durable_diary_credit(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -989,18 +989,14 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
         self.assertEqual(player["inventory"]["Iron ore"], 1)
         self.assertTrue(self._is_complete(player, task_id))
 
-    def test_real_firemaking_review_completes_translated_campfire_deed(self):
+    def test_real_cooking_review_completes_translated_lobster_deed(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player.update({"current_firemaking": "logs", "firemaking_level": 99})
-        player["inventory"]["Logs"] = 1
+        player.update({"current_cooking": "cook_lobster", "cooking_level": 99})
+        player["inventory"]["Raw lobster"] = 1
         task_id = "lumbridge_easy_camping_trip"
         self.assertFalse(self._is_complete(player, task_id))
 
-        self.assertTrue(
-            handle_firemaking_answer(
-                self._context(player, random_values=(0.0,) * 8)
-            )
-        )
+        self.assertTrue(handle_cooking_answer(self._context(player)))
 
         self.assertTrue(self._is_complete(player, task_id))
 
