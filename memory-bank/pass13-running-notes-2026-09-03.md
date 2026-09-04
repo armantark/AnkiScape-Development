@@ -379,3 +379,14 @@ Review: Opus, pending. Visual check: once on the merged tree with S2.
 markers. Diary, integration, ledger, shop suites 204 passed; reproduction
 test passed; offscreen UI suite 16 passed. Review: Opus, pending. Owner
 spot-check of the rewritten rows is the morning gate (queue §4.22 ruling 3).
+
+## 02:01 — S6 review (Opus): ACCEPT-WITH-FINDINGS, five fixes sent back
+
+High: the two tree hunks regress group order for Smithing, Crafting,
+Construction, and Cooking (main already sorted children by key; only the
+flat hunk was needed). Medium: eight builders still lack a level-first key
+(Prayer sorts by xp; five lead with a group index; Smithing inserts a flag).
+Ruling recorded: every skill key is (level, label); trees keep group order
+with level inside; flat lists sort by level regardless of group; the
+Activities list stays alphabetical (Pass 7). Medium: the data tests were
+tautological. Low: `sort_order` is now dead data in two files.
