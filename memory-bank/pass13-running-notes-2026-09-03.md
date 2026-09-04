@@ -48,3 +48,16 @@ shared combat engine with review ticks, persists progress in
 `quest_combat_active_encounters`, and handles death. S5 is steered to prove
 that path with tests (loadout, food, prayers, death, current target shown)
 and to report any gap rather than expand scope.
+
+## 23:27 — Ardougne creative draft reviewed
+
+Kimi drafted 28 rows in 36 minutes (7 points of the Kimi block, mostly
+registry exploration). Design-seat review: 26 pass; two sent back on
+difficulty (`i_wonder_what_this_does` used Dareeyak Teleport, Magic 78, in a
+medium tier; `get_your_stinking_hands_off_me` used a level-3 monkey in a hard
+tier). Kimi also writes `/tmp/pass13-diary/context-pack.md` so the other eight
+regions read ids and taken seams instead of exploring. Two findings for S1:
+`_validate_row_metadata` rejects designed text on translated rows (must be
+relaxed), and the shop-diary-transaction allowlist in
+`logic_pure/shop_diary_transactions.py` is closed (no new shop seams without a
+code change).
