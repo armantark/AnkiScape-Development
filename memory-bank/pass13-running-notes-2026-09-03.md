@@ -448,3 +448,15 @@ post-cutoff only, 35 hash mismatches); 19 contact sheets committed under
 S9. Pending: S1 (row fixes), S2 (commit at gate), S5 (review), S6 (fix at
 gate). Second-level for the owner: the Iron scimitar class (dated historical
 titles on RS-wiki entries) needs a second sweep over every RS-wiki entry.
+
+## 02:23 — S5 review (Opus): ACCEPT-WITH-FINDINGS, five fixes sent back
+
+Verified: no trace of the flag in executable code; migration at
+CURRENT_CONFIG_VERSION 124 chained and tested; the persistence tests drive
+the real dispatcher (three reviews, enemy LP carried, Bronze sword, food,
+prayers, gravestone death); the 2.0 s timeout is a deflake. Findings: the
+stat-less message still says "before battle support can resolve"; a
+systemPatterns line and fifteen audits still describe the flag; questing
+deactivates silently on two paths; the `__main__` guard sits above the new
+test class; migrated saves keep an orphan `{"version": 1}` dict. Visual
+check of S8: the smithing contact sheet shows the 2012 detailed designs.
