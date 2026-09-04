@@ -284,3 +284,13 @@ casts Enchant Opal bolts from the tower top (Magic 4; Wind Strike is a
 combat cast and not a recorded Magic target); "Bark Up the Churchyard" cuts
 five yews behind Lumbridge church (Woodcutting 60, hard, invented). Eight
 regions complete, 150 rows; Morytania plus the Miscellaneous row remain.
+
+## 01:13 — Morytania reviewed from the file; S1 stage 1 dispatched
+
+All 162 draft rows exist (merge dry run: 0 missing, 0 problems). Morytania:
+8 of 12 pass; sent back a level-1 torch in a hard row (yew logs instead), a
+vampyre in an elite row (Vyrewatch, abyssal demon, or gargoyle), an "any
+crop" allotment (pin strawberry or watermelon), and the temple-trekking route
+choice. S1 stage 1 (Sol): `text_for` and the validator require designed text
+on translated and invented rows; stage 2 merges the drafts and regenerates
+after Morytania's fixes land.
