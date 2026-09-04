@@ -249,18 +249,24 @@ class GrandExchangeDataTest(unittest.TestCase):
         # The 2012 GE traded the uncharged and fully charged amulets under their
         # own names; partly charged ones did not.
         # https://runescape.wiki/w/Amulet_of_glory?oldid=6469621
-        for item_name, price in (
-            ("Amulet of glory", 10_157),
-            ("Amulet of glory (4)", 10_965),
+        for item_name, price, oldid in (
+            ("Amulet of glory", 10_157, 6_570_084),
+            ("Amulet of glory (4)", 10_965, 6_570_085),
         ):
             row = GE_ITEM_CATALOG[item_name]
             self.assertEqual(row["guide_price"], price)
             self.assertEqual(row["buy_limit"], 100)
             self.assertEqual(row["category"], "equipment")
+            self.assertEqual(
+                PERIOD_GE_PRICE_PROVENANCE[item_name]["oldid"], oldid
+            )
         for item_name in (
             "Amulet of glory (1)",
             "Amulet of glory (2)",
             "Amulet of glory (3)",
+            "Amulet of glory (t1)",
+            "Amulet of glory (t2)",
+            "Amulet of glory (t3)",
         ):
             self.assertNotIn(item_name, GE_ITEM_CATALOG)
             self.assertNotIn(item_name, PERIOD_GE_GUIDE_PRICES)

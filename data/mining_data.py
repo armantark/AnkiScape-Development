@@ -394,9 +394,12 @@ MINING_BONUS_ITEMS: Tuple[MiningBonusItem, ...] = (
         notes="Canonical trimmed display-name row; item 10719 is the duplicate-name runtime alias.",
         tradeable=True,
     ),
-    MiningBonusItem("amulet_of_glory_t1", "Amulet of glory (t1)", 10360, "amulet", "gem_chance", tradeable=True),
-    MiningBonusItem("amulet_of_glory_t2", "Amulet of glory (t2)", 10358, "amulet", "gem_chance", tradeable=True),
-    MiningBonusItem("amulet_of_glory_t3", "Amulet of glory (t3)", 10356, "amulet", "gem_chance", tradeable=True),
+    # The 2012 buy-limit table lists no partly charged trimmed variant
+    # (oldid 6457777 has rows only for (t) and (t4)), so these stay off the
+    # GE like the partly charged plain amulets.
+    MiningBonusItem("amulet_of_glory_t1", "Amulet of glory (t1)", 10360, "amulet", "gem_chance"),
+    MiningBonusItem("amulet_of_glory_t2", "Amulet of glory (t2)", 10358, "amulet", "gem_chance"),
+    MiningBonusItem("amulet_of_glory_t3", "Amulet of glory (t3)", 10356, "amulet", "gem_chance"),
     MiningBonusItem("amulet_of_glory_t4", "Amulet of glory (t4)", 10354, "amulet", "gem_chance", tradeable=True),
     MiningBonusItem(
         "amulet_of_glory_t_10719",
