@@ -469,3 +469,14 @@ Knights, since ice_giant is owned by falador_medium_ice_the_icy; magic
 shortbow for Lowe's); ASCII apostrophes throughout; README corrected; 33
 generated tasks changed in the fix; census unchanged. Closed: S1, S3, S4,
 S7, S8, S9. Pending: S2 (commit at gate), S5 (fixes), S6 (fix at gate).
+
+## 02:34 — S6 CLOSED; batch worktree opened
+
+`goal/pass13-target-level-order-2026-09-03` at `8fffa205`. Tree hunks
+reverted (main's group behaviour exact); seven builders now lead with level;
+`sort_order` dead data removed; tests read levels from rendered labels. The
+builder-local `group_order` dicts that were deleted fed only the sort key;
+the tree renderer takes its group lists from the UI call sites, unchanged.
+Closed: S1, S3, S4, S6, S7, S8, S9. The design seat leases a batch
+worktree and merges the seven closed branches; S2 and S5 join when their
+gated commits land.
