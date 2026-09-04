@@ -460,3 +460,12 @@ systemPatterns line and fifteen audits still describe the flag; questing
 deactivates silently on two paths; the `__main__` guard sits above the new
 test class; migrated saves keep an orphan `{"version": 1}` dict. Visual
 check of S8: the smithing contact sheet shows the 2012 detailed designs.
+
+## 02:25 — S1 CLOSED on its branch
+
+`goal/pass13-diary-deed-text-2026-09-03` at `301bb9e7`. Four deeds
+replaced (torstol at Ardougne, Farming 85; Hero pickpocket; five Black
+Knights, since ice_giant is owned by falador_medium_ice_the_icy; magic
+shortbow for Lowe's); ASCII apostrophes throughout; README corrected; 33
+generated tasks changed in the fix; census unchanged. Closed: S1, S3, S4,
+S7, S8, S9. Pending: S2 (commit at gate), S5 (fixes), S6 (fix at gate).
