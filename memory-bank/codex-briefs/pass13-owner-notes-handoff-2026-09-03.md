@@ -215,9 +215,11 @@ Fix sites: `data/mining_data.py:87-98,370-395`, the generated exchangeable set.
 ### S8 `icon-2012-sweep`
 
 1. Write `tools/fetch_2012_icons.py`: for every asset with an Old School
-   source in `assets_provenance.json`, query the RuneScape wiki file history,
-   take the last revision at or before 2012-11-30, download it, and rewrite
-   the provenance entry. Retries and a checkpoint file are required (558 items).
+   source in `assets_provenance.json` (279 entries; each carries two Old
+   School URLs), query the RuneScape wiki file history, take the last revision
+   strictly before 2012-11-20T00:00:00Z (the pre-EOC cutoff in
+   `memory-bank/pre-eoc-source-verification-standard.md`), download it, and
+   rewrite the provenance entry. Retries and a checkpoint file are required.
 2. Report every asset with no pre-cutoff revision in the wiki. Do not guess an
    icon for it; the report goes to the owner.
 3. Visual check: a contact sheet of before and after icons per directory.
