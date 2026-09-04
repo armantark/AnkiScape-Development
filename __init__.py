@@ -1323,21 +1323,21 @@ def _runtime_action_context() -> RuntimeActionContext:
     last_reason = {"text": ""}
 
     def _show_runtime_error(title, message) -> None:
-        last_reason["text"] = str(message or "").strip()
+        last_reason.update(text=str(message or "").strip(), caller_owns_notice=True)
         _update_pending_bankstanding_reason(last_reason["text"])
+        if _PENDING_BANKSTANDING_NOTICE is not None:
+            _PENDING_BANKSTANDING_NOTICE["show_dialog"] = False
         show_error_message(title, message)
 
     def _deactivate_runtime_action(reason=None) -> None:
-        _deactivate_current_skill(reason or last_reason["text"])
+        _switch_runtime_action(reason)
 
     def _switch_runtime_action(reason=None, *, caller_owns_notice=False) -> None:
-        _switch_to_bankstanding(
-            reason or last_reason["text"],
-            caller_owns_notice=bool(caller_owns_notice),
-        )
+        notice_owned = bool(caller_owns_notice or last_reason.get("caller_owns_notice"))
+        _switch_to_bankstanding(reason or last_reason["text"], caller_owns_notice=notice_owned)
 
     def _show_runtime_gain(text) -> None:
-        last_reason["text"] = str(text or "").strip()
+        last_reason.update(text=str(text or "").strip(), caller_owns_notice=False)
         _update_pending_bankstanding_reason(last_reason["text"])
         _show_activity_gain(text)
 
@@ -1589,8 +1589,13 @@ def _update_pending_bankstanding_reason(reason) -> None:
         event_log[-1]["text"] = _bankstanding_event_text(reason_text)[:500]
 
 
-def _deactivate_current_skill(reason=None) -> None:
-    """End the active skill by landing on Bankstanding.
+def _switch_to_bankstanding(
+    reason=None,
+    *,
+    automatic: bool = True,
+    caller_owns_notice: bool = False,
+) -> bool:
+    """Land on the no-XP fallback once, then report the accepted transition.
 
     Owner ruling (Pass 11, clause 2): no path that ends, refuses, invalidates,
     or stops an activity may leave `current_skill == "None"`. Deactivation and
@@ -1598,16 +1603,6 @@ def _deactivate_current_skill(reason=None) -> None:
     failure, death, and material exhaustion lands on the settled no-XP
     fallback so the ordinary review-paced market clock keeps moving.
     """
-    _switch_to_bankstanding(reason)
-
-
-def _switch_to_bankstanding(
-    reason=None,
-    *,
-    automatic: bool = True,
-    caller_owns_notice: bool = False,
-) -> bool:
-    """Land on the no-XP fallback once, then report the accepted transition."""
     global current_skill, _PENDING_BANKSTANDING_NOTICE
     if (
         player_data.get("current_utility") == "bankstanding"

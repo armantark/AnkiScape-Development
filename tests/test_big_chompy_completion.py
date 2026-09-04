@@ -266,7 +266,7 @@ class TestBigChompyProductFlow(unittest.TestCase):
 
     def test_reviews_complete_the_quest_then_hunt_one_raw_chompy(self):
         addon = _load_addon_as_package("ankiscape_big_chompy_e2e")
-        calls = {"gains": [], "dialogs": [], "saves": 0}
+        calls = {"gains": [], "dialogs": [], "bankstanding": [], "saves": 0}
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: calls.__setitem__(
             "saves",
@@ -280,6 +280,7 @@ class TestBigChompyProductFlow(unittest.TestCase):
         addon.show_error_message = lambda title, message: calls["dialogs"].append(
             (title, message)
         )
+        addon.ui.show_bankstanding_dialog = calls["bankstanding"].append
         addon.player_data = _ready_big_chompy_player(include_hunting_ammo=True)
         addon.current_skill = "Quests"
         addon._REVIEW_UNDO_STACK.clear()
@@ -317,9 +318,16 @@ class TestBigChompyProductFlow(unittest.TestCase):
         self.assertEqual(calls["gains"][-1], "+1 Raw chompy")
         self.assertGreaterEqual(calls["saves"], review_count + 1)
 
+        event_count = len(addon.player_data.get("review_event_log", ()))
         _answer_review(addon)
-        self.assertEqual(calls["dialogs"][-1][0], "Out of materials")
-        self.assertIn("Ogre arrow", calls["dialogs"][-1][1])
+
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(len(calls["bankstanding"]), 1)
+        self.assertIn("Ogre arrow", calls["bankstanding"][0])
+        self.assertEqual(
+            len(addon.player_data["review_event_log"]),
+            event_count + 1,
+        )
 
 
 if __name__ == "__main__":

@@ -405,16 +405,20 @@ def missing_materials_text(requirements: dict[str, int], inventory: dict[str, An
 
 def _switch_material_failure_to_bankstanding(
     ctx: RuntimeActionContext,
+    reason=None,
     *,
-    caller_owns_notice: bool = False,
+    material_failure: bool = True,
+    fallback_error=None,
 ) -> None:
-    if callable(ctx.switch_to_bankstanding):
-        if caller_owns_notice:
-            ctx.switch_to_bankstanding(caller_owns_notice=True)
-        else:
-            ctx.switch_to_bankstanding()
-    else:
+    if not material_failure:
         ctx.deactivate_current_skill()
+        if fallback_error:
+            ctx.show_error_message(*fallback_error)
+        return
+    if callable(ctx.switch_to_bankstanding):
+        ctx.switch_to_bankstanding(reason)
+    else:
+        ctx.deactivate_current_skill(reason)
 
 
 def fishing_materials_text(method_spec: dict[str, Any], inventory: dict[str, Any]) -> str:

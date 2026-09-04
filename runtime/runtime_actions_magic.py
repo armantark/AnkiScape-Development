@@ -455,18 +455,15 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
         if locked:
             materials_only = _magic_materials_only(locked)
             if materials_only:
-                _switch_material_failure_to_bankstanding(ctx)
+                _switch_material_failure_to_bankstanding(
+                    ctx, f"{display_name} is unavailable: {', '.join(locked)}."
+                )
             else:
                 ctx.deactivate_current_skill()
-            ctx.show_error_message(
-                "Magic target unavailable",
-                f"{display_name} is unavailable: {', '.join(locked)}. "
-                + (
-                    "AnkiScape switched to Bankstanding."
-                    if materials_only
-                    else "Magic has been switched off."
-                ),
-            )
+                ctx.show_error_message(
+                    "Magic target unavailable",
+                    f"{display_name} is unavailable: {', '.join(locked)}. Magic has been switched off.",
+                )
             return False
         ctx, admitted = _admit_live_cadence(ctx, "magic", target)
         if not admitted:
@@ -478,18 +475,15 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
         reasons = magic_target_locked_reasons_pure(player_data, target, MAGIC_DATA, _magic_alch_values())
         materials_only = _magic_materials_only(reasons)
         if materials_only:
-            _switch_material_failure_to_bankstanding(ctx)
+            _switch_material_failure_to_bankstanding(
+                ctx, f"{display_name} requires {', '.join(reasons) or message}."
+            )
         else:
             ctx.deactivate_current_skill()
-        ctx.show_error_message(
-            "Magic target unavailable",
-            f"{display_name} requires {', '.join(reasons) or message}, so "
-            + (
-                "AnkiScape switched to Bankstanding."
-                if materials_only
-                else "Magic has been switched off."
-            ),
-        )
+            ctx.show_error_message(
+                "Magic target unavailable",
+                f"{display_name} requires {', '.join(reasons) or message}, so Magic has been switched off.",
+            )
         return False
 
     player_data.clear()

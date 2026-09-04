@@ -7047,3 +7047,16 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Five real-handler tests cover those relocated emits, and each test was mutation-proven by removing only its emit, observing failure, and restoring the call.
 - No user interface code changed. The Beefy Bill banking service remains the next separate slice.
 - Evidence: `source-audits/diary-ledger-wiring-2026-09-01.md`.
+
+## Single Bankstanding transition notice — 2026-09-04
+
+- Automatic runtime transitions now produce one notice: exhausted-material paths pass their exact missing-input reason to the deferred Bankstanding modal, while paths that retain a local refusal popup mark that popup as the notice owner.
+- Fishing, Hunter, production skills, Utility processing, Dungeoneering, Livid Farm, Magic, and combat material locks use the existing switch seam without a second popup. Non-material refusal popups, invalid-target and ended-session modals, the shooting-star modal, silent manual Stop, the redundant-transition guard, and one event per accepted switch remain intact.
+- Required and adjacent pytest coverage passes 485 tests. Full discovery passes 4,682 tests in each lane: plain takes 981.080 seconds with 519 skips, and offscreen Qt takes 1,318.679 seconds with 5 skips.
+- Documentation, test-quality, worktree-layout, whitespace, and fleet slop-gate checks pass. Reachability retains the pre-existing failing baseline: 1,663 actions, 2,343 reachable items, 163 orphan inputs, and 249 blocked actions.
+
+### Single Bankstanding notice review closure — 2026-09-04
+
+- Empty late combat failures now use the non-material refusal popup, Dungeoneering matches the other named-session refusal shape, and runtime gain feedback clears popup ownership before a later tick can switch.
+- Material fallback deactivation receives the material reason when no Bankstanding switch callback exists. The obsolete `_deactivate_current_skill` wrapper is gone, with its Pass 11 contract retained on `_switch_to_bankstanding`.
+- Focused notice, runtime-action, direct-action, integration, review-strip, and Big Chompy coverage passes 489 tests in 128.94 seconds. Full lanes remain delegated to the merged-tree promotion gate per the coordinator ruling.
