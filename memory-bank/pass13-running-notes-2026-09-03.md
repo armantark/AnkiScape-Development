@@ -61,3 +61,12 @@ regions read ids and taken seams instead of exploring. Two findings for S1:
 relaxed), and the shop-diary-transaction allowlist in
 `logic_pure/shop_diary_transactions.py` is closed (no new shop seams without a
 code change).
+
+## 23:39 — Reroute the remaining creative drafts off Kimi
+
+The Kimi block is over pace (45 of a 43 pace at 23:39, reset in 22h32m); the
+eight remaining regions would finish before the reset, so the drafts reroute:
+GLM 5.3 Flash drafts each region from the context pack on a plain brief, and
+the design seat (Fable) reviews every row and rewrites names and sentences
+that miss the bar. Kimi finishes only the context pack and the two Ardougne
+fixes already in flight. S3 and S5 paused with their test lanes running.
