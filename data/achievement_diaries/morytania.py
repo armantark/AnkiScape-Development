@@ -350,7 +350,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'morytania_hard_they_ll_just_throw_it_away_again',
-                'They’ll Just Throw It Away Again',
+                "They'll Just Throw It Away Again",
                 'Run a full lap of the Werewolf Agility Course and hand in the stick.',
                 (DiaryCondition('ledger_action', 'agility:werewolf_course', 1, 'Complete the Werewolf Agility Course'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
@@ -384,7 +384,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_hard_just_one_more_key',
                 'Chain Reaction',
-                'Forge a Silvthril chain at Burgh de Rott’s furnace.',
+                "Forge a Silvthril chain at Burgh de Rott's furnace.",
                 (DiaryCondition('ledger_action', 'crafting:silver_silvthrill_chain', 1, 'Forge a Silvthril chain'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 981,
@@ -436,7 +436,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'morytania_medium_izzy_wizzy_let_s_get_lizzy',
-                'Izzy Wizzy Let’s Get Lizzy',
+                "Izzy Wizzy Let's Get Lizzy",
                 'Snare a swamp lizard in the Haunted Woods.',
                 (DiaryCondition('ledger_action', 'hunter:catch_swamp_lizard', 1, 'Catch a swamp lizard'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z); original period tier medium; curated into hard',

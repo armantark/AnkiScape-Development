@@ -218,7 +218,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_medium_blinded_with_science',
                 'Blinded With Science',
-                'Light a bullseye lantern in the chemist’s south of Falador.',
+                "Light a bullseye lantern in the chemist's south of Falador.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJsaWdodF9idWxsc2V5ZV9sYW50ZXJuIiwic2tpbGxfaWQiOiJ1dGlsaXR5Iiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9LCJndGUiOnsib3V0cHV0cy5CdWxsc2V5ZSBsYW50ZXJuIChsaXQpIjoxfX19', 1, 'Light a bullseye lantern'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 136,
@@ -272,7 +272,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'falador_medium_look_spiffy_for_tiffy',
-                'Initiate’s Issue',
+                "Initiate's Issue",
                 'Buy an Initiate hauberk from the initiate armory in Falador.',
                 (DiaryCondition('shop_transaction', 'buy|initiate_rank_armory|initiate_rank_armory:1:5575', 1, 'initiate rank armory:1:5575'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
@@ -341,7 +341,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'falador_hard_the_stonemasons',
-                'Master Mason’s Order',
+                "Master Mason's Order",
                 'Order gold leaf, a marble block, and a magic stone from the Keldagrim stonemason.',
                 (DiaryCondition('shop_transaction', 'buy|keldagrim_stonemason|keldagrim_stonemason:0:8784', 1, 'Buy Gold leaf'), DiaryCondition('shop_transaction', 'buy|keldagrim_stonemason|keldagrim_stonemason:3:8786', 1, 'Buy a Marble block'), DiaryCondition('shop_transaction', 'buy|keldagrim_stonemason|keldagrim_stonemason:2:8788', 1, 'Buy a Magic stone'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
@@ -375,7 +375,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_hard_banned_for_life',
                 'Banned For Life',
-                'Summon an ibis, the fisherman’s friend, in Port Sarim’s fishing store.',
+                "Summon an ibis, the fisherman's friend, in Port Sarim's fishing store.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJzdW1tb24iLCJmYW1pbGlhcl9pZCI6ImliaXMiLCJ0eXBlIjoic3VtbW9uaW5nX2NvbW1hbmQifX19', 1, 'Summon an ibis'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 150,
@@ -386,7 +386,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'falador_hard_a_knight_in_the_darkness',
                 'A Knight in the Darkness',
-                'Defeat five Monks of Zamorak in the Dark Wizards’ Tower.',
+                "Defeat five Monks of Zamorak in the Dark Wizards' Tower.",
                 (DiaryCondition('combat_kill', 'monk_of_zamorak_level_45', 5, 'Kill monk of zamorak level 45'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z)',
                 151,
@@ -416,9 +416,9 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'falador_medium_these_aren_t_the_coins_you_re_looking_for',
-                'Far Shore Fight',
-                'Defeat the Shaikahan on the Karamja shore.',
-                (DiaryCondition('combat_kill', 'shaikahan', 1, 'Defeat the Shaikahan'),),
+                'Knight Moves',
+                'Defeat five Black Knights at the fortress north of Falador.',
+                (DiaryCondition('combat_kill', 'black_knight', 5, 'Defeat five Black Knights'),),
                 'Darkan FaladorTasks; rev-727 cache enum 3483; corroborated by Falador achievements oldid=6571459 (2012-11-18T05:31:03Z); original period tier medium; curated into hard',
                 132,
                 0,

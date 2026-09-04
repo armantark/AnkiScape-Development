@@ -187,7 +187,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_bank_on_it',
                 'Bank On It',
-                'Complete a Bank run and deposit your gear at Taverley’s bank.',
+                "Complete a Bank run and deposit your gear at Taverley's bank.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJkZXBvc2l0ZWRfbm9uX2NvaW4iOnRydWUsInR5cGUiOiJiYW5rX3J1biJ9fX0', 1, 'Complete a Bank run with carried items'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 583,
@@ -337,7 +337,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_problem_officer',
                 'Animated Authority',
-                'Defeat the animated armour in the Warriors’ Guild at Burthorpe.',
+                "Defeat the animated armour in the Warriors' Guild at Burthorpe.",
                 (DiaryCondition('ledger_action', 'utility:warriors_guild_animated_armour', 1, 'Warriors guild animated armour'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 537,

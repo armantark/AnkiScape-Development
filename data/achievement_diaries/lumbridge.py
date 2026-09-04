@@ -57,7 +57,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'lumbridge_beginner_shrimpin_ain_t_easy',
-                'Shrimpin’ Ain’t Easy',
+                "Shrimpin' Ain't Easy",
                 'Catch a shrimp from the fishing spot east of Lumbridge Swamp.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJjYXRjaF9zaHJpbXBfYW5jaG92aWVzIiwic2tpbGxfaWQiOiJmaXNoaW5nIiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9LCJndGUiOnsib3V0cHV0cy5SYXcgc2hyaW1wcyI6MX19fQ', 1, 'Catch raw shrimps'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
@@ -118,7 +118,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_sage_advice',
                 'Spin Doctor',
-                'Spin a ball of wool at Lumbridge Castle’s spinning wheel.',
+                "Spin a ball of wool at Lumbridge Castle's spinning wheel.",
                 (DiaryCondition('ledger_action', 'crafting:spin_wool_to_ball_of_wool', 1, 'Spin a ball of wool'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 69,
@@ -138,7 +138,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_passing_out',
                 'Past the Toll',
-                'Buy two kebabs from Karim by Al Kharid’s gate.',
+                "Buy two kebabs from Karim by Al Kharid's gate.",
                 (DiaryCondition('shop_transaction', 'vendor_action||karim_buy_kebab', 2, 'Buy a kebab from Karim'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 71,
@@ -227,7 +227,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_what_is_this_place',
                 'Rune With It',
-                'Craft air runes from essence out of the Wizards’ Tower mine.',
+                "Craft air runes from essence out of the Wizards' Tower mine.",
                 (DiaryCondition('ledger_action', 'runecrafting:craft_air_runes', 1, 'Craft air runes'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 97,
@@ -249,7 +249,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_iron_on',
                 'Iron On',
-                'Mine iron ore at the mining spot north of Al Kharid’s gate.',
+                "Mine iron ore at the mining spot north of Al Kharid's gate.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJpcm9uIiwic2tpbGxfaWQiOiJtaW5pbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn0sImd0ZSI6eyJvdXRwdXRzLklyb24gb3JlIjoxfX19', 1, 'Mine iron ore'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 102,
@@ -260,7 +260,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_come_in_here_and_say_that',
                 'Come In Here and Say That',
-                'Cast Enchant Opal bolts from the top of the Wizards’ Tower.',
+                "Cast Enchant Opal bolts from the top of the Wizards' Tower.",
                 (DiaryCondition('ledger_action', 'magic:enchant_opal_bolts', 1, 'Cast Enchant Opal bolts'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 87,

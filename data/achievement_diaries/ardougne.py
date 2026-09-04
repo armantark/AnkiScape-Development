@@ -329,7 +329,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'ardougne_hard_brace_yourself',
-                'A Legend’s Purchase',
+                "A Legend's Purchase",
                 "Buy a Cape of legends at the Legends' Guild.",
                 (DiaryCondition('shop_transaction', 'buy|legends_guild_shop_of_useful_items|legends_guild_shop_of_useful_items:4:1052', 1, 'legends guild shop of useful items:4:1052'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
@@ -531,9 +531,9 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'ardougne_hard_blood_bank_withdrawal',
-                'Knight Robbery',
-                'Attempt to pickpocket a Knight of Ardougne.',
-                (DiaryCondition('counter', 'action_telemetry.actions.thieving:pickpocket_ardougne_knight.attempts', 1, 'Attempt to pickpocket a Knight of Ardougne'),),
+                'Hero Worship',
+                'Successfully pickpocket a Hero in Ardougne.',
+                (DiaryCondition('ledger_action', 'thieving:pickpocket_hero', 1, 'Pickpocket a Hero'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 54,
                 0,
@@ -563,7 +563,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'ardougne_hard_living_on_a_prayer',
-                'Dragon’s Last Rites',
+                "Dragon's Last Rites",
                 'Bury dragon bones at the monastery south of Ardougne.',
                 (DiaryCondition('ledger_action', 'prayer:bury_dragon_bones', 1, 'Bury dragon bones'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
@@ -573,9 +573,9 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'ardougne_medium_a_visit_to_charlie',
-                'Stable Condition',
-                'Defeat a unicorn at the Ardougne Zoo.',
-                (DiaryCondition('combat_kill', 'unicorn', 1, 'Kill unicorn'),),
+                'The Grass Is Greener',
+                'Harvest grimy torstol from the herb patch north of Ardougne.',
+                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoidG9yc3RvbCIsImtpbmQiOiJoYXJ2ZXN0IiwicGF0Y2hfaWQiOiJhcmRvdWduZV9oZXJiIiwidHlwZSI6ImZhcm1pbmdfcmVzdWx0In0sImd0ZSI6eyJvdXRwdXRzLkdyaW15IHRvcnN0b2wiOjF9fX0', 1, 'Harvest torstol at the Ardougne herb patch'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier medium; curated into elite',
                 23,
                 0,

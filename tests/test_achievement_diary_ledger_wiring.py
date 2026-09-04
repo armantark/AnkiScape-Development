@@ -413,7 +413,7 @@ class CurationLedgerWiringTest(unittest.TestCase):
             "waynes_black_chainbody",
         }
         self.assertEqual(SHOP_DIARY_TRANSACTION_KEYS, pre_ledger | used)
-        self.assertEqual(len(SHOP_DIARY_TRANSACTION_KEYS), 52)
+        self.assertEqual(len(SHOP_DIARY_TRANSACTION_KEYS), 51)
 
     def test_shop_service_uses_its_service_id_for_durable_diary_credit(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

@@ -357,7 +357,7 @@ class TestShopLogic(unittest.TestCase):
                 }
             }
         )
-        self.assertEqual(len(SHOP_DIARY_TRANSACTION_KEYS), 52)
+        self.assertEqual(len(SHOP_DIARY_TRANSACTION_KEYS), 51)
         self.assertEqual(
             sanitized["shop_transaction_counts"], {"aemads_vial_of_water": 3}
         )

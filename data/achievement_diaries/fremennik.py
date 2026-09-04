@@ -78,7 +78,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_easy_oxymoron_incarnate',
                 'A Fish Out of Water',
-                'Catch a leaping trout from the stream at Otto’s grotto.',
+                "Catch a leaping trout from the stream at Otto's grotto.",
                 (DiaryCondition('ledger_action', 'fishing:catch_leaping_fish', 1, 'Catch leaping fish'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 156,
@@ -118,7 +118,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_easy_a_familiar_feeling',
                 'A Familiar Feeling',
-                'Recharge your Summoning points near Rellekka’s gate.',
+                "Restore your Summoning points near Rellekka's gate.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJyZXN0b3JlX3BvaW50cyIsInR5cGUiOiJzdW1tb25pbmdfY29tbWFuZCJ9fX0', 1, 'Restore Summoning points'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 160,
@@ -184,7 +184,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'fremennik_medium_who_s_a_good_boy',
-                'Who’s a Good Boy?',
+                "Who's a Good Boy?",
                 'Let a pet out of its pouch and stretch its legs in Rellekka.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJsZXRfb3V0X3BldCIsInR5cGUiOiJzdW1tb25pbmdfY29tbWFuZCJ9fX0', 1, 'Complete summoning command'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
@@ -217,7 +217,7 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'fremennik_medium_you_really_don_t_need_any_more_shoes',
-                'You Really Don’t Need Any More Shoes',
+                "You Really Don't Need Any More Shoes",
                 'Buy a pair of Fremennik boots from Yrsa in Rellekka.',
                 (DiaryCondition('shop_transaction', 'buy|yrsas_accoutrements|yrsas_accoutrements:9:3791', 1, 'yrsas accoutrements:9:3791'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',

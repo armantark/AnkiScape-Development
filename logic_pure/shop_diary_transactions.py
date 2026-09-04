@@ -240,7 +240,6 @@ _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY = {
         'varrock_general_store',
         'varrock_general_store:5:2347',
     ): 'varrock_medium_for_fast_transactions',
-    ('buy', 'oziach', 'oziach:0:1127'): 'varrock_medium_the_body_shop',
     (
         'buy',
         'burthorpe_guard_quartermaster',

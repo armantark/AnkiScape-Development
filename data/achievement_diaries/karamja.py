@@ -91,7 +91,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_easy_put_to_port_in_port_sarim',
                 'Karamjan Cargo',
-                'Buy a Banana, Cabbage, and Cheese at Wydin’s in Port Sarim.',
+                "Buy a Banana, Cabbage, and Cheese at Wydin's in Port Sarim.",
                 (DiaryCondition('shop_transaction', 'buy|wydins_food_store|wydins_food_store:5:1963', 1, 'Buy a Banana'), DiaryCondition('shop_transaction', 'buy|wydins_food_store|wydins_food_store:6:1965', 1, 'Buy a Cabbage'), DiaryCondition('shop_transaction', 'buy|wydins_food_store|wydins_food_store:3:1985', 1, 'Buy Cheese'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 185,
@@ -201,7 +201,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_horseless_carriage',
                 'A Gem of a Task',
-                'Buy an Enchanted gem from Duradel’s shop in Shilo Village.',
+                "Buy an Enchanted gem from Duradel's shop in Shilo Village.",
                 (DiaryCondition('shop_transaction', 'buy|duradels_slayer_equipment|duradels_slayer_equipment:0:4155', 1, 'duradels slayer equipment:0:4155'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 195,
@@ -557,7 +557,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_shipping_out_from_the_shipyard',
                 'Ship Happens',
-                'Stock up at Trader Stan’s, then catch three sharks for the voyage.',
+                "Stock up at Trader Stan's, then catch three sharks for the voyage.",
                 (DiaryCondition('shop_transaction', 'buy|trader_stans_trading_post|trader_stans_trading_post:4:954', 1, 'Buy a Rope'), DiaryCondition('shop_transaction', 'buy|trader_stans_trading_post|trader_stans_trading_post:5:946', 1, 'Buy a Knife'), DiaryCondition('shop_transaction', 'buy|trader_stans_trading_post|trader_stans_trading_post:14:301', 1, 'Buy a Lobster pot'), DiaryCondition('shop_transaction', 'buy|trader_stans_trading_post|trader_stans_trading_post:9:1785', 1, 'Buy a Glassblowing pipe'), DiaryCondition('ledger_action', 'fishing:catch_sharks', 3, 'Catch sharks'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into elite',
                 210,

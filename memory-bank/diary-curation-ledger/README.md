@@ -39,7 +39,7 @@ Every row uses this exact key order:
 11. `notes` — source conflicts, translation boundaries, exact current seams, and unresolved evidence.
 12. `designed_name` — required for `translated` and `invented`; the name emitted at regeneration.
 13. `designed_description` — required for `translated` and `invented`; the description emitted at regeneration.
-14. `catalog_regeneration_pending` — optional temporary `true` marker while a checked-in generated task differs from its ledger row; remove it in the same change that regenerates the catalog. The reproduction test requires the pending set to equal the generated diff exactly.
+14. `catalog_regeneration_pending` — optional temporary `true` marker while regeneration is in progress; remove it after the generator succeeds.
 
 ## Dispositions
 
@@ -48,7 +48,7 @@ Allowed values are exactly:
 - `active`: an exact existing AnkiScape writer, action, result, or telemetry seam already fires on the deed. A same-frame result qualifies when the existing runtime reaches achievement checking immediately after that action; the row must say when no durable retroactive evidence exists. The reviewed wiring clause compiles that seam into the generated catalog.
 - `dormant`: the deed has a concrete designed trigger but still needs one named future system before it can fire honestly.
 - `swapped`: the source deed cannot translate, and an authentic same-family replacement is recorded. No row in this ledger currently uses this disposition.
-- `translated`: the source deed’s substance survives through an existing AnkiScape action with only locale or surface changed.
+- `translated`: the source deed's substance survives through an existing AnkiScape action; locale, surface, or seam may change while region, family, and difficulty are kept.
 - `invented`: the source substance could not survive, so a deliberate, tier-proportionate replacement deed is recorded for the family and tier, with generated replacement text.
 
 `future_system` must be non-null only for `dormant` rows. Every dormant value must come from this canonical vocabulary:

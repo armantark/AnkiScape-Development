@@ -26,8 +26,8 @@ FAMILY = DiaryFamily(
             (
             DiaryTask(
                 'varrock_easy_essential_facilitator',
-                'Aubury’s Elemental Set',
-                'Buy Air, Water, Earth, and Fire runes from Aubury’s Rune Shop.',
+                "Aubury's Elemental Set",
+                "Buy Air, Water, Earth, and Fire runes from Aubury's Rune Shop.",
                 (DiaryCondition('shop_transaction', 'buy|auburys_rune_shop|auburys_rune_shop:0:556', 1, 'Buy an Air rune'), DiaryCondition('shop_transaction', 'buy|auburys_rune_shop|auburys_rune_shop:1:555', 1, 'Buy a Water rune'), DiaryCondition('shop_transaction', 'buy|auburys_rune_shop|auburys_rune_shop:2:557', 1, 'Buy an Earth rune'), DiaryCondition('shop_transaction', 'buy|auburys_rune_shop|auburys_rune_shop:3:554', 1, 'Buy a Fire rune'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 257,
@@ -49,7 +49,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_easy_jumping_off_point',
                 'A Berry Good Start',
-                'Harvest a redberry from the bush patch by the Champions’ Guild.',
+                "Harvest a redberry from the bush patch by the Champions' Guild.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoicmVkYmVycnkiLCJraW5kIjoiaGFydmVzdCIsInBhdGNoX2lkIjoiY2hhbXBpb25zX2J1c2giLCJ0eXBlIjoiZmFybWluZ19yZXN1bHQifSwiZ3RlIjp7Im91dHB1dHMuUmVkYmVycmllcyI6MX19fQ', 1, 'Complete harvest at champions_bush'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 261,
@@ -70,7 +70,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_easy_pot_stop',
                 'Pot Stop',
-                'Make a bowl on a potter’s wheel then fire it in the pottery oven in Barbarian Village.',
+                "Make a bowl on a potter's wheel then fire it in the pottery oven in Barbarian Village.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJzZXF1ZW5jZSI6W3siZXEiOnsiYWN0aW9uX2lkIjoiZm9ybV9ib3dsX3VuZmlyZWQiLCJza2lsbF9pZCI6ImNyYWZ0aW5nIiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9fSx7ImVxIjp7ImFjdGlvbl9pZCI6ImZpcmVfYm93bCIsInNraWxsX2lkIjoiY3JhZnRpbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn19XX0', 1, 'Form and fire a bowl'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 265,
@@ -125,7 +125,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_easy_strike_a_pose',
                 'Strike a Pose',
-                'Buy a Pink skirt from Thessalia’s Clothing in Varrock.',
+                "Buy a Pink skirt from Thessalia's Clothing in Varrock.",
                 (DiaryCondition('shop_transaction', 'buy|thessalias_clothing|thessalias_clothing:5:1013', 1, 'thessalias clothing:5:1013'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 256,
@@ -571,9 +571,9 @@ FAMILY = DiaryFamily(
             ),
             DiaryTask(
                 'varrock_medium_the_body_shop',
-                'The Body Shop',
-                'Buy a Rune platebody from Oziach’s Armour Shop in Edgeville.',
-                (DiaryCondition('shop_transaction', 'buy|oziach|oziach:0:1127', 1, 'oziach:0:1127'),),
+                'Lowe and Behold',
+                "Fletch a magic shortbow for Lowe's Archery Emporium in Varrock.",
+                (DiaryCondition('ledger_action', 'fletching:magic_shortbow_u', 1, 'Fletch a magic shortbow'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z); original period tier medium; curated into elite',
                 295,
                 0,
