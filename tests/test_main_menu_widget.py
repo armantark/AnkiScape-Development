@@ -13030,7 +13030,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         status = _find_named_label(dialog, "shootingStarStatusChip")
         select = _find_named_button(dialog, "shootingStarSelectButton")
         self.assertTrue(status.text().startswith("Size "))
-        self.assertEqual(select.text(), "Select active star")
+        self.assertEqual(select.text(), "Mine this star")
         self.assertTrue(select.isEnabled())
 
         select.click()

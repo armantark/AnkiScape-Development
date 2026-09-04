@@ -67,6 +67,7 @@ class ActivityOneClickTest(unittest.TestCase):
         QApplication.processEvents()
 
         button = _find_named_button(dialog, "shootingStarSelectButton")
+        self.assertEqual(button.text(), "Mine this star")
         self.assertEqual(direct["current_utility"], "bankstanding")
         self.assertEqual(self.menu._activity_start_calls, [])
         self.assertEqual(_training_text(dialog), "Training: Mining")
@@ -89,6 +90,7 @@ class ActivityOneClickTest(unittest.TestCase):
         )
         self.assertIsInstance(details, QStackedWidget)
         self.assertEqual(details.currentWidget(), panel)
+        self.assertEqual(master_button.text(), "Mine this star")
         self.assertEqual(master["current_utility"], "bankstanding")
         self.assertEqual(len(self.menu._activity_start_calls), before_calls)
 

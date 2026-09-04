@@ -9521,10 +9521,10 @@ def show_main_menu(
                     star_select.setEnabled(False)
                 else:
                     star_select.setText(
-                        "Select tag only"
+                        "Tag this star"
                         if not view["has_usable_pickaxe"]
                         and view["tag_available"]
-                        else "Select active star"
+                        else "Mine this star"
                     )
                     star_select.setEnabled(
                         on_start_activity is not None and view["can_select"]
