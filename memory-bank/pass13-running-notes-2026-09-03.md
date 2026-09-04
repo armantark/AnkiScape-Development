@@ -480,3 +480,18 @@ the tree renderer takes its group lists from the UI call sites, unchanged.
 Closed: S1, S3, S4, S6, S7, S8, S9. The design seat leases a batch
 worktree and merges the seven closed branches; S2 and S5 join when their
 gated commits land.
+
+## 02:41 — S5 CLOSED; eight branches in the batch; S6 visual check passed
+
+S5 at `318ad7ae` (stat-less message now "This fight is not modelled yet
+(combat stats missing): …"; `quest_combat_config` dropped entirely at v124;
+player LP carryover proven; source-audit supersession index added). Batch
+worktree `goal/pass13-batch-2026-09-04` (pool slot 2) holds S1, S3, S4, S5,
+S6, S7, S8, S9 merged with zero conflicts, head `74c15e5d`. Offscreen
+screenshots on the merged tree (`/tmp/pass13-shots/`): Herblore "Clean
+herbs" reads guam 1, ardrigal 3, rogue's purse 3, sito foil 3, snake weed 3,
+volencia moss 3, marrentill 5, tarromin 11; Mining reads clay 1 through
+sandstone 35. No truncation inside the lists. Second-level, pre-existing: at
+an 1100 px window the tab strip clips "Collections" behind a scroll arrow.
+Only S2 remains, at its gated commit. S5's author flags papercuts.md past
+the cleanup threshold; a papercut-fix pass is proposed in the results.
