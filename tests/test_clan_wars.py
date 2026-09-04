@@ -581,7 +581,7 @@ class ClanWarsViewTest(unittest.TestCase):
             [row["id"] for row in active["mode_options"] if row["selectable"]],
             [CLAN_WARS_RED_MODE],
         )
-        self.assertEqual(active["primary_label"], "Selected for reviews")
+        self.assertEqual(active["primary_label"], "Active for reviews")
         self.assertFalse(active["primary_enabled"])
         self.assertEqual(active["progress_maximum"], CLAN_WARS_MAX_REVIEWS)
 

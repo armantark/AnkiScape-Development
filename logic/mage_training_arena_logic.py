@@ -381,7 +381,7 @@ def mage_training_arena_view_pure(player_data: Mapping[str, Any]) -> dict[str, A
         "review_reasons": room_reasons,
         "policy_controls_enabled": not active,
         "primary_label": (
-            "Selected for reviews" if active and selected_for_reviews else "Select for reviews" if active else "Enter Arena"
+            "Active for reviews" if active and selected_for_reviews else "Select for reviews" if active else "Enter Arena"
         ),
         "primary_enabled": (active and not selected_for_reviews) or (not active and not entry_reasons),
         "leave_visible": active,

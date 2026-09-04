@@ -7463,6 +7463,7 @@ def show_main_menu(
             )
             decline_invitation = QPushButton("Decline")
             decline_invitation.setObjectName("agilityPitDeclineButton")
+
             def _accept_pending_pit_offer(_checked=False) -> None:
                 _accept_pit_offer()
                 _render_panel()
@@ -9098,7 +9099,7 @@ def show_main_menu(
                 detail = "Full event · Nurture → Prepare → Fell"
             elif mode == "nurture_only":
                 detail = (
-                    "Nurture only · cannot fell · full route needs "
+                    "Nurture only · cannot fell\nRequires: "
                     + ", ".join(view["entry_reasons"])
                 )
             else:
@@ -9106,7 +9107,8 @@ def show_main_menu(
                     view["entry_reasons"]
                 )
             detail += (
-                f" · {int(view['participations_today'])}/"
+                ("\n" if mode == "nurture_only" else " · ")
+                + f"{int(view['participations_today'])}/"
                 f"{int(view['interaction_limit'])} interactions used "
                 "this review day"
             )
@@ -9115,7 +9117,7 @@ def show_main_menu(
             evil_detail.setText(detail)
 
             if selected:
-                evil_action.setText("Selected for reviews")
+                evil_action.setText("Active for reviews")
                 evil_action.setEnabled(False)
             elif mode == "full":
                 evil_action.setText("Start full event")
@@ -9311,10 +9313,10 @@ def show_main_menu(
                     f"{int(view['competence_cap']):,} Competence"
                 )
                 if selected:
-                    big_action.setText("Selected for reviews")
+                    big_action.setText("Active for reviews")
                     big_action.setEnabled(False)
                 else:
-                    big_action.setText("Select active event")
+                    big_action.setText("Start active event")
                     big_action.setEnabled(on_set_utility is not None)
             else:
                 big_box.setStyleSheet(
@@ -9517,7 +9519,7 @@ def show_main_menu(
                         f"{int(view['player_dust_mined']):,} personally mined"
                     )
                 if selected:
-                    star_select.setText("Selected for reviews")
+                    star_select.setText("Active for reviews")
                     star_select.setEnabled(False)
                 else:
                     star_select.setText(
@@ -9559,6 +9561,7 @@ def show_main_menu(
                 )
                 star_select.setText("No active star")
                 star_select.setEnabled(False)
+            star_exchange.setVisible(int(view["dust"]) > 0)
             star_exchange.setEnabled(
                 on_shooting_star_command is not None
                 and bool(view["can_exchange"])
@@ -9804,7 +9807,7 @@ def show_main_menu(
                     and on_fist_of_guthix_command is not None
                 )
                 fog_forfeit.setVisible(True)
-                fog_primary.setText("Selected for reviews" if selected else "Select match")
+                fog_primary.setText("Active for reviews" if selected else "Start match")
                 fog_primary.setEnabled(not selected and on_set_utility is not None)
             elif not tutorial:
                 fog_status.setText("TUTORIAL")
@@ -9840,7 +9843,7 @@ def show_main_menu(
                 fog_charge.setVisible(False)
                 fog_tele_orb.setVisible(False)
                 fog_forfeit.setVisible(False)
-                fog_primary.setText("Selected for reviews" if selected else "Select activity")
+                fog_primary.setText("Active for reviews" if selected else "Start activity")
                 fog_primary.setEnabled(not selected and on_set_utility is not None)
 
             fog_policy.setVisible(tutorial)
@@ -10123,7 +10126,7 @@ def show_main_menu(
                     or "Choose a seasonal garden and harvest plan."
                 )
                 garden_primary.setText(
-                    "Selected for reviews" if selected else "Select activity"
+                    "Active for reviews" if selected else "Start activity"
                 )
                 garden_primary.setEnabled(
                     not selected and on_set_utility is not None
@@ -10912,7 +10915,7 @@ def show_main_menu(
             current_utility = str(player_data.get("current_utility", ""))
             selected_for_reviews = active and current_utility == FIGHT_CAVES_ACTIVITY_ID
             fight_caves_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected_for_reviews
                 else "Select for reviews"
                 if active
@@ -11202,7 +11205,7 @@ def show_main_menu(
             )
             dagannoth_kings_summary.setToolTip(str(view["last_result"]))
             dagannoth_kings_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if active and selected
                 else "Use for reviews"
                 if active
@@ -11250,7 +11253,8 @@ def show_main_menu(
             if not dagannoth_kings_view_pure(player_data)["active"]:
                 if not _run_dagannoth_kings_command("enter").get("ok", False):
                     return
-            _start_surface_activity(DAGANNOTH_KINGS_ACTIVITY_ID)
+            if not _start_surface_activity(DAGANNOTH_KINGS_ACTIVITY_ID):
+                return
             _refresh_dagannoth_kings_panel()
 
         def _confirm_dagannoth_kings_leave(_checked=False) -> None:
@@ -11447,7 +11451,7 @@ def show_main_menu(
                 + (f"\n{view['last_result']}" if view["last_result"] else "")
             )
             phoenix_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -11479,7 +11483,8 @@ def show_main_menu(
             if not view["active"]:
                 if not _run_phoenix_lair_command("enter").get("ok", False):
                     return
-            _start_surface_activity(PHOENIX_LAIR_ACTIVITY_ID)
+            if not _start_surface_activity(PHOENIX_LAIR_ACTIVITY_ID):
+                return
             _refresh_phoenix_lair_panel()
 
         def _confirm_phoenix_lair_leave(_checked=False) -> None:
@@ -11681,7 +11686,7 @@ def show_main_menu(
                 and bool(view["fur_wish_list_ready"])
             )
             skeletal_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -11715,7 +11720,8 @@ def show_main_menu(
             if not skeletal_horror_view_pure(player_data)["active"]:
                 if not _run_skeletal_horror_command("enter").get("ok", False):
                     return
-            _start_surface_activity(SKELETAL_HORROR_ACTIVITY_ID)
+            if not _start_surface_activity(SKELETAL_HORROR_ACTIVITY_ID):
+                return
             _refresh_skeletal_horror_panel()
 
         def _confirm_skeletal_horror_leave(_checked=False) -> None:
@@ -11887,7 +11893,7 @@ def show_main_menu(
                 bork_progress.setVisible(False)
             bork_summary.setToolTip(str(view["last_result"]))
             bork_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -11918,7 +11924,8 @@ def show_main_menu(
             if not bork_view_pure(player_data)["active"]:
                 if not _run_bork_command("enter").get("ok", False):
                     return
-            _start_surface_activity(BORK_ACTIVITY_ID)
+            if not _start_surface_activity(BORK_ACTIVITY_ID):
+                return
             _refresh_bork_panel()
 
         def _confirm_bork_leave(_checked=False) -> None:
@@ -12115,7 +12122,7 @@ def show_main_menu(
                 else ""
             )
             tears_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -12150,7 +12157,8 @@ def show_main_menu(
             if not tears_of_guthix_view_pure(player_data)["active"]:
                 if not _run_tears_of_guthix_command("enter").get("ok", False):
                     return
-            _start_surface_activity(TEARS_OF_GUTHIX_ACTIVITY_ID)
+            if not _start_surface_activity(TEARS_OF_GUTHIX_ACTIVITY_ID):
+                return
             _refresh_tears_of_guthix_panel()
 
         tears_ornate.clicked.connect(
@@ -12565,7 +12573,7 @@ def show_main_menu(
             current_utility = str(player_data.get("current_utility", ""))
             selected_for_reviews = active and current_utility == BARROWS_ACTIVITY_ID
             barrows_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected_for_reviews
                 else "Select for reviews"
                 if active
@@ -12841,7 +12849,7 @@ def show_main_menu(
                 == FLASH_POWDER_FACTORY_ACTIVITY_ID
             )
             flash_factory_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -13158,7 +13166,7 @@ def show_main_menu(
                 == PYRAMID_PLUNDER_ACTIVITY_ID
             )
             pyramid_plunder_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -13183,7 +13191,8 @@ def show_main_menu(
                 result = _run_pyramid_plunder_command("enter_pyramid_plunder", {})
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(PYRAMID_PLUNDER_ACTIVITY_ID)
+            if not _request_utility_selection(PYRAMID_PLUNDER_ACTIVITY_ID):
+                return
             _refresh_pyramid_plunder_panel()
 
         def _set_pyramid_plunder_priority() -> None:
@@ -13375,7 +13384,7 @@ def show_main_menu(
             skullball_plan.setEnabled(not active and on_agility_command is not None)
             selected = active and player_data.get("current_utility") == WEREWOLF_SKULLBALL_ACTIVITY_ID
             skullball_primary.setText(
-                "Selected for reviews" if selected else "Select for reviews" if active else "Enter course"
+                "Active for reviews" if selected else "Select for reviews" if active else "Enter course"
             )
             skullball_primary.setEnabled(
                 on_agility_command is not None and not selected and (active or not locked)
@@ -13417,7 +13426,8 @@ def show_main_menu(
                 if not result.get("ok", False):
                     _refresh_skullball_panel()
                     return
-            _request_utility_selection(WEREWOLF_SKULLBALL_ACTIVITY_ID)
+            if not _request_utility_selection(WEREWOLF_SKULLBALL_ACTIVITY_ID):
+                return
             _refresh_skullball_panel()
 
         def _confirm_skullball_leave() -> None:
@@ -13592,7 +13602,7 @@ def show_main_menu(
                 and player_data.get("current_utility") == GNOME_BALL_ACTIVITY_ID
             )
             gnome_ball_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -13615,7 +13625,8 @@ def show_main_menu(
                 result = _run_gnome_ball_command("enter_gnome_ball")
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(GNOME_BALL_ACTIVITY_ID)
+            if not _request_utility_selection(GNOME_BALL_ACTIVITY_ID):
+                return
             _refresh_gnome_ball_panel()
 
         def _confirm_gnome_ball_leave() -> None:
@@ -13815,7 +13826,7 @@ def show_main_menu(
                 and player_data.get("current_utility") == FISH_FLINGERS_ACTIVITY_ID
             )
             fish_flingers_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Start activity"
             )
@@ -14123,7 +14134,7 @@ def show_main_menu(
             fishing_trawler_plan.setVisible(not active)
             selected = active and player_data.get("current_utility") == FISHING_TRAWLER_ACTIVITY_ID
             fishing_trawler_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -14171,7 +14182,8 @@ def show_main_menu(
                 )
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(FISHING_TRAWLER_ACTIVITY_ID)
+            if not _request_utility_selection(FISHING_TRAWLER_ACTIVITY_ID):
+                return
             _refresh_fishing_trawler_panel()
 
         def _confirm_fishing_trawler_leave() -> None:
@@ -14480,7 +14492,7 @@ def show_main_menu(
             )
             selected = active and player_data.get("current_utility") == GREAT_ORB_PROJECT_ACTIVITY_ID
             great_orb_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -14514,7 +14526,8 @@ def show_main_menu(
                 )
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(GREAT_ORB_PROJECT_ACTIVITY_ID)
+            if not _request_utility_selection(GREAT_ORB_PROJECT_ACTIVITY_ID):
+                return
             _refresh_great_orb_project_panel()
 
         def _confirm_great_orb_project_leave() -> None:
@@ -14722,7 +14735,7 @@ def show_main_menu(
 
             if active:
                 court_primary.setText(
-                    "Selected for reviews"
+                    "Active for reviews"
                     if selected
                     else "Select case for reviews"
                 )
@@ -15246,7 +15259,7 @@ def show_main_menu(
             circus_reward_widgets["acrobat"].setVisible(not firemaking_act)
             circus_reward_widgets["firemaker"].setVisible(firemaking_act)
             circus_primary.setText(
-                "Selected for reviews" if selected_here else "Start activity"
+                "Active for reviews" if selected_here else "Start activity"
             )
             circus_primary.setAccessibleName(circus_primary.text())
             circus_primary.setEnabled(
@@ -15598,7 +15611,7 @@ def show_main_menu(
             trouble_progress.setVisible(active)
             selected = active and player_data.get("current_utility") == TROUBLE_BREWING_ACTIVITY_ID
             trouble_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -15703,7 +15716,8 @@ def show_main_menu(
                 result = _run_trouble_command("enter", _trouble_policy_payload())
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(TROUBLE_BREWING_ACTIVITY_ID)
+            if not _request_utility_selection(TROUBLE_BREWING_ACTIVITY_ID):
+                return
             _refresh_trouble_panel()
 
         def _confirm_trouble_leave() -> None:
@@ -15954,7 +15968,7 @@ def show_main_menu(
             castle_progress.setVisible(active)
             selected = active and player_data.get("current_utility") == CASTLE_WARS_ACTIVITY_ID
             castle_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -16000,7 +16014,8 @@ def show_main_menu(
                 result = _run_castle_command("enter", _castle_policy_payload())
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(CASTLE_WARS_ACTIVITY_ID)
+            if not _request_utility_selection(CASTLE_WARS_ACTIVITY_ID):
+                return
             _refresh_castle_panel()
 
         def _confirm_castle_leave() -> None:
@@ -16307,7 +16322,7 @@ def show_main_menu(
             pest_progress.setVisible(active)
             selected = active and player_data.get("current_utility") == PEST_CONTROL_ACTIVITY_ID
             pest_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -16370,7 +16385,8 @@ def show_main_menu(
                     result = _run_pest_command("enter", payload)
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(PEST_CONTROL_ACTIVITY_ID)
+            if not _request_utility_selection(PEST_CONTROL_ACTIVITY_ID):
+                return
             _refresh_pest_panel()
 
         def _confirm_pest_leave() -> None:
@@ -16606,7 +16622,7 @@ def show_main_menu(
             soul_progress.setVisible(active)
             selected = active and player_data.get("current_utility") == SOUL_WARS_ACTIVITY_ID
             soul_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -16671,7 +16687,8 @@ def show_main_menu(
             if not view["active"]:
                 if not _run_soul_command("enter", _soul_policy_payload()).get("ok"):
                     return
-            _request_utility_selection(SOUL_WARS_ACTIVITY_ID)
+            if not _request_utility_selection(SOUL_WARS_ACTIVITY_ID):
+                return
             _refresh_soul_panel()
 
         def _confirm_soul_leave() -> None:
@@ -16936,7 +16953,7 @@ def show_main_menu(
             mortton_sanctity.setValue(int(round(float(view["sanctity"]))))
             selected = active and player_data.get("current_utility") == SHADES_OF_MORTTON_ACTIVITY_ID
             mortton_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -17001,7 +17018,8 @@ def show_main_menu(
             if not view["active"]:
                 if not _run_mortton_command("enter", _mortton_policy_payload()).get("ok"):
                     return
-            _request_utility_selection(SHADES_OF_MORTTON_ACTIVITY_ID)
+            if not _request_utility_selection(SHADES_OF_MORTTON_ACTIVITY_ID):
+                return
             _refresh_mortton_panel()
 
         def _confirm_mortton_leave() -> None:
@@ -17182,7 +17200,7 @@ def show_main_menu(
                 )
             selected = active and player_data.get("current_utility") == TZHAAR_FIGHT_PIT_ACTIVITY_ID
             fight_pit_primary.setText(
-                "Selected for reviews" if selected else "Select for reviews" if active else "Enter Fight Pit"
+                "Active for reviews" if selected else "Select for reviews" if active else "Enter Fight Pit"
             )
             fight_pit_primary.setEnabled(
                 on_tzhaar_fight_pit_command is not None
@@ -17202,7 +17220,8 @@ def show_main_menu(
                 payload = {"policy": str(fight_pit_policy.currentData() or "casual")}
                 if not _run_fight_pit_command("enter", payload).get("ok"):
                     return
-            _request_utility_selection(TZHAAR_FIGHT_PIT_ACTIVITY_ID)
+            if not _request_utility_selection(TZHAAR_FIGHT_PIT_ACTIVITY_ID):
+                return
             _refresh_fight_pit_panel()
 
         def _confirm_fight_pit_leave() -> None:
@@ -17421,7 +17440,7 @@ def show_main_menu(
                 == DUEL_ARENA_ACTIVITY_ID
             )
             duel_arena_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if is_selected
                 else "Select for reviews"
                 if active
@@ -17451,7 +17470,8 @@ def show_main_menu(
                 )
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(DUEL_ARENA_ACTIVITY_ID)
+            if not _request_utility_selection(DUEL_ARENA_ACTIVITY_ID):
+                return
             _refresh_duel_arena_panel()
 
         def _confirm_duel_arena_abandon() -> None:
@@ -17676,9 +17696,11 @@ def show_main_menu(
             return result
 
         def _read_trail_clue() -> None:
-            if _run_trail_command("read", {"tier": "easy"}).get("ok"):
-                _request_utility_selection(TREASURE_TRAILS_ACTIVITY_ID)
-                _refresh_trail_panel()
+            if not _run_trail_command("read", {"tier": "easy"}).get("ok"):
+                return
+            if not _request_utility_selection(TREASURE_TRAILS_ACTIVITY_ID):
+                return
+            _refresh_trail_panel()
 
         # Ordinary reviews resolve steps while this card is off screen.
         detail_card_refreshers[TREASURE_TRAILS_ACTIVITY_ID] = _refresh_trail_panel
@@ -17883,7 +17905,7 @@ def show_main_menu(
                 == BARBARIAN_ASSAULT_ACTIVITY_ID
             )
             barbarian_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected
                 else "Select for reviews"
                 if active
@@ -17928,7 +17950,8 @@ def show_main_menu(
                 )
                 if not result.get("ok", False):
                     return
-            _request_utility_selection(BARBARIAN_ASSAULT_ACTIVITY_ID)
+            if not _request_utility_selection(BARBARIAN_ASSAULT_ACTIVITY_ID):
+                return
             _refresh_barbarian_panel()
 
         def _confirm_barbarian_leave() -> None:
@@ -18129,7 +18152,7 @@ def show_main_menu(
                 == STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID
             )
             stronghold_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected and view["can_review"]
                 else "Select next landmark for reviews"
                 if view["can_review"]
@@ -18379,7 +18402,7 @@ def show_main_menu(
                 player_data.get("current_utility") == VARROCK_MUSEUM_ACTIVITY_ID
             )
             museum_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected and view["can_review"]
                 else "Select for reviews"
                 if view["can_review"]
@@ -18728,7 +18751,7 @@ def show_main_menu(
         miscellania_actions_layout = QHBoxLayout(miscellania_actions)
         miscellania_actions_layout.setContentsMargins(0, 0, 0, 0)
         miscellania_actions_layout.setSpacing(4)
-        miscellania_select = QPushButton("Select approval work")
+        miscellania_select = QPushButton("Start approval work")
         miscellania_select.setObjectName("managingMiscellaniaSelectButton")
         miscellania_collect = QPushButton("Collect resources")
         miscellania_collect.setObjectName("managingMiscellaniaCollectButton")
@@ -18923,7 +18946,7 @@ def show_main_menu(
             miscellania_collect.setEnabled(enabled and bool(view["can_collect"]))
             selected = player_data.get("current_utility") == MANAGING_MISCELLANIA_ACTIVITY_ID
             miscellania_select.setText(
-                "Selected for reviews" if selected else "Select approval work"
+                "Active for reviews" if selected else "Start approval work"
             )
             miscellania_select.setEnabled(bool(view["can_train"] and not selected))
             miscellania_select.setToolTip(
@@ -19005,11 +19028,14 @@ def show_main_menu(
         miscellania_pages.currentChanged.connect(
             lambda _index: _fit_current_activity_detail()
         )
+
+        def _select_miscellania_for_reviews() -> None:
+            if not _request_utility_selection(MANAGING_MISCELLANIA_ACTIVITY_ID):
+                return
+            _refresh_miscellania_panel()
+
         miscellania_select.clicked.connect(
-            lambda _checked=False: (
-                _request_utility_selection(MANAGING_MISCELLANIA_ACTIVITY_ID),
-                _refresh_miscellania_panel(),
-            )
+            lambda _checked=False: _select_miscellania_for_reviews()
         )
         _refresh_miscellania_panel()
         cards_stack.addWidget(miscellania_box)
@@ -19310,7 +19336,7 @@ def show_main_menu(
             current_utility = str(player_data.get("current_utility", ""))
             selected_for_reviews = active and current_utility == STEALING_CREATION_ACTIVITY_ID
             stealing_creation_primary.setText(
-                "Selected for reviews"
+                "Active for reviews"
                 if selected_for_reviews
                 else "Select for reviews"
                 if active
@@ -21300,22 +21326,21 @@ def show_main_menu(
                     if state.get("boots_choice") is None and on_claim_stronghold_reward is not None:
                         on_claim_stronghold_reward()
                     return
-                _set_utility_selection(activity_id)
+                _start_surface_activity(activity_id)
                 return
             if activity_id == _KNIGHT_WAVES_UTILITY_KEY:
-                _set_utility_selection(activity_id)
+                _start_surface_activity(activity_id)
                 return
             if activity_id == _MAGE_ARENA_UTILITY_KEY:
-                _set_utility_selection(activity_id)
+                _start_surface_activity(activity_id)
                 return
             if str(activity_id).startswith("__mage_alignment__:"):
                 god_id = str(activity_id).removeprefix("__mage_alignment__:")
                 if (
                     on_mage_arena_action is not None
                     and on_mage_arena_action("select_alignment", god_id)
-                    and on_set_utility is not None
                 ):
-                    _set_utility_selection(_MAGE_ARENA_UTILITY_KEY)
+                    _start_surface_activity(_MAGE_ARENA_UTILITY_KEY)
                 return
             if str(activity_id).startswith("__mage_cape__:"):
                 god_id = str(activity_id).removeprefix("__mage_cape__:")
@@ -21323,155 +21348,7 @@ def show_main_menu(
                     on_mage_arena_action("cape", god_id)
                 return
             if str(activity_id).startswith("mage_arena_attune:"):
-                _set_utility_selection(str(activity_id))
-                return
-            if activity_id == SORCERESS_GARDEN_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == VINESWEEPER_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == FIGHT_CAVES_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == DAGANNOTH_KINGS_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == PHOENIX_LAIR_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == SKELETAL_HORROR_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == BORK_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == BARROWS_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == FLASH_POWDER_FACTORY_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == PYRAMID_PLUNDER_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == WEREWOLF_SKULLBALL_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == GNOME_BALL_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == FISH_FLINGERS_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == FISHING_TRAWLER_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == GREAT_ORB_PROJECT_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == COURT_CASES_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == CIRCUS_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == TROUBLE_BREWING_ACTIVITY_ID:
-                _refresh_trouble_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == CASTLE_WARS_ACTIVITY_ID:
-                _refresh_castle_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == PEST_CONTROL_ACTIVITY_ID:
-                _refresh_pest_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == SOUL_WARS_ACTIVITY_ID:
-                _refresh_soul_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == SHADES_OF_MORTTON_ACTIVITY_ID:
-                _refresh_mortton_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == TZHAAR_FIGHT_PIT_ACTIVITY_ID:
-                _refresh_fight_pit_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == DUEL_ARENA_ACTIVITY_ID:
-                _refresh_duel_arena_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == CLAN_WARS_ACTIVITY_ID:
-                clan_wars_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == CONQUEST_ACTIVITY_ID:
-                conquest_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == TROLL_INVASION_ACTIVITY_ID:
-                troll_invasion_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == SHATTERED_HEART_ACTIVITY_ID:
-                shattered_heart_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == MAGE_TRAINING_ARENA_ACTIVITY_ID:
-                mage_training_arena_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == RANGING_GUILD_ACTIVITY_ID:
-                ranging_guild_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == MOBILISING_ARMIES_ACTIVITY_ID:
-                mobilising_armies_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == TEMPLE_TREKKING_ACTIVITY_ID:
-                temple_trekking_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == GNOME_RESTAURANT_ACTIVITY_ID:
-                gnome_restaurant_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == DOMINION_TOWER_ACTIVITY_ID:
-                dominion_tower_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == CRUCIBLE_ACTIVITY_ID:
-                crucible_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == GOBLIN_RAIDS_ACTIVITY_ID:
-                goblin_raids_box.refresh()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == BARBARIAN_ASSAULT_ACTIVITY_ID:
-                _refresh_barbarian_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID:
-                _refresh_stronghold_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == VARROCK_MUSEUM_ACTIVITY_ID:
-                _refresh_museum_panel()
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == MANAGING_MISCELLANIA_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
-                return
-            if activity_id == STEALING_CREATION_ACTIVITY_ID:
-                _show_activity_detail(activity_id)
+                _start_surface_activity(str(activity_id))
                 return
             if activity_id in detail_cards:
                 _refresh_all_activity_panels()
@@ -21842,11 +21719,18 @@ def show_main_menu(
             ):
                 refresher()
             for panel in (
+                clan_wars_box,
+                conquest_box,
                 troll_invasion_box,
+                shattered_heart_box,
                 mage_training_arena_box,
                 ranging_guild_box,
                 mobilising_armies_box,
+                gnome_restaurant_box,
+                dominion_tower_box,
+                temple_trekking_box,
                 crucible_box,
+                goblin_raids_box,
             ):
                 panel.refresh()
             world_events_refresher["call"]()
@@ -23006,7 +22890,11 @@ def show_main_menu(
         details_toggle.setVisible(False)
         hl.addWidget(details_toggle)
 
-        if card.implemented and card.selectable_for_review:
+        if (
+            card.implemented
+            and card.selectable_for_review
+            and name != _ACTIVITIES_HUB_NAME
+        ):
             train_btn = QPushButton()
             if name == "Prayer":
                 train_btn.setObjectName("prayerTrainButton")
@@ -23024,8 +22912,6 @@ def show_main_menu(
                 available = _skill_available(name)
                 if name == _UTILITIES_HUB_NAME:
                     train_btn.setText("Start utility")
-                elif name == _ACTIVITIES_HUB_NAME:
-                    train_btn.setText("Start activity")
                 else:
                     train_btn.setText("Train this skill")
                 train_btn.setEnabled(available)
@@ -23361,6 +23247,7 @@ def show_main_menu(
             details_toggle.setEnabled(True)
 
         target_details_context["display_row"] = _display_target_details
+
         def _set_target_details_open(checked: bool) -> None:
             state["details_open"] = bool(checked)
             details_panel.setVisible(checked)

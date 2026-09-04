@@ -233,6 +233,7 @@ from .core.action_registry import (
     UTILITY_REVIEW_ACTION_DISPLAY_NAME,
     is_review_action,
     review_action_handler_key,
+    utility_review_surface_for_target as _utility_surface_for_target,
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
 from .logic.shop_logic import advance_shop_market_clock_pure
@@ -286,13 +287,11 @@ from .logic.summoning_logic import (
     summon_familiar_pure,
 )
 from .logic.slayer_logic import get_slayer_assignment_pure
-from .data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
 from .logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     apply_big_chinchompa_reward_purchase_pure,
     set_hunter_private_ground_pure,
 )
-from .data.evil_tree_data import EVIL_TREE_UTILITY_ID
 from .logic.evil_tree_logic import (
     advance_evil_tree_world_clock_pure,
     evil_tree_spawn_due_pure,
@@ -337,26 +336,6 @@ exp_awarded = False
 
 current_skill = "None"
 
-_SPECIAL_ACTIVITY_TARGETS = {
-    "stronghold_of_security",
-    "knight_waves",
-    "mage_arena",
-    EVIL_TREE_UTILITY_ID,
-    BIG_CHINCHOMPA_UTILITY_ID,
-}
-
-
-def _utility_surface_for_target(activity_id) -> str:
-    target = str(activity_id or "")
-    if (
-        target in _SPECIAL_ACTIVITY_TARGETS
-        or target.startswith("mage_arena_attune:")
-        or UTILITY_ACTIVITY_DATA.get(target, {}).get("surface")
-        == ACTIVITY_SURFACE_ID
-    ):
-        return ACTIVITY_REVIEW_ACTION_DISPLAY_NAME
-    return UTILITY_REVIEW_ACTION_DISPLAY_NAME
-
 
 def _normalize_legacy_utility_skill(skill) -> str:
     name = str(skill or "None")
@@ -372,6 +351,7 @@ def start_activity_for_reviews(activity_id) -> bool:
     target = str(activity_id or "")
     if not target:
         return False
+    updated = dict(player_data)
     if target == SHOOTING_STAR_ACTIVITY_ID:
         updated, joined, info = apply_shooting_star_join_pure(player_data)
         if not joined and info.get("unminable"):
@@ -389,12 +369,18 @@ def start_activity_for_reviews(activity_id) -> bool:
             return False
         if not joined:
             return False
-        player_data.clear()
-        player_data.update(updated)
-    player_data["current_utility"] = target
-    save_skill(_utility_surface_for_target(target), None)
-    save_player_data()
-    return True
+    updated["current_utility"] = target
+    surface = _utility_surface_for_target(target)
+    committed = commit_direct_action(
+        lambda _current: (updated, True),
+        selected_skill=surface,
+    )
+    if committed:
+        try:
+            update_review_hud(player_data, surface)
+        except Exception:
+            pass
+    return committed
 
 # --- Debug logging (centralized) ---
 from .core.debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1

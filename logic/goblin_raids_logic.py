@@ -978,7 +978,7 @@ def goblin_raids_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             else f"Notices arrive every {GOBLIN_RAIDS_SPAWN_REVIEWS} reviews"
         ),
         "primary_label": (
-            "Selected for reviews"
+            "Active for reviews"
             if session
             and str(player_data.get("current_utility", ""))
             == GOBLIN_RAIDS_ACTIVITY_ID

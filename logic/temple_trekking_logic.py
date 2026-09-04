@@ -964,7 +964,7 @@ def temple_trekking_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "save_plan_label": "Save next route/reward" if session else "Save plan",
         "save_plan_enabled": True,
         "primary_label": (
-            "Selected for reviews"
+            "Active for reviews"
             if session and selected_for_reviews
             else "Select for reviews"
             if session
