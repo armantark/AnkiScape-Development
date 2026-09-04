@@ -332,3 +332,13 @@ and the validator require designed text on translated and invented rows;
 160 tests pass with a temporary overlay. Stage 2 merges the 162 drafted rows
 (123 translated, 39 invented), regenerates the catalog, and adds the test
 that no translated or invented task carries its source name or sentence.
+
+## 01:38 — S1 stage 2 blocked once, unblocked
+
+The generator rejected `lumbridge_hard_a_body_in_the_sewers`: its drafted
+sentence equalled the source sentence, which the new validator forbids. The
+design seat found seven such rows across the drafts and reworded them
+(for_fast_transactions, the_stonemasons, a_cat_is_for_life, brace_yourself,
+arm_the_militia, master_of_all_i_survey, a_body_in_the_sewers). Stage 2
+resumes: merge, regenerate, tests. Pending markers stay until regeneration
+succeeds, per the precedent in `028df5f9` and `a0e22ade`.
