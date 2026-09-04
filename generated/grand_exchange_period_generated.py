@@ -1,4 +1,4 @@
-"""Generated pre-EOC Grand Exchange data. Do not hand-edit.
+"""Auto-generated pre-EOC Grand Exchange data. Do not edit.
 
 Sources are cutoff RuneScape Wiki Exchange revisions and the complete
 period buy-limit table. Regenerate with tools/generate_ge_period_data.py.
@@ -58,6 +58,8 @@ PERIOD_GE_GUIDE_PRICES = {
     'Amulet of defence': 714,
     'Amulet of farming (8)': 246,
     'Amulet of fury': 4389739,
+    'Amulet of glory': 10157,
+    'Amulet of glory (4)': 10965,
     'Amulet of glory (t)': 290115,
     'Amulet of glory (t4)': 293396,
     'Amulet of magic': 505,
@@ -1511,6 +1513,8 @@ PERIOD_GE_BUY_LIMITS = {
     'Amulet of defence': 5000,
     'Amulet of farming (8)': 100,
     'Amulet of fury': 100,
+    'Amulet of glory': 100,
+    'Amulet of glory (4)': 100,
     'Amulet of glory (t)': 2,
     'Amulet of glory (t4)': 2,
     'Amulet of magic': 5000,
@@ -3250,6 +3254,8 @@ PERIOD_GE_PRICE_PROVENANCE = {
     'Amulet of defence': {'price': 714, 'page_title': 'Exchange:Amulet of defence', 'oldid': 6561115, 'timestamp': '2012-11-16T02:03:23Z', 'price_date': '02:03, November 16, 2012 (UTC)', 'page_item': 'Amulet of defence', 'item_id': 1729, 'cache_value': 1275, 'page_limit': 5000},
     'Amulet of farming (8)': {'price': 246, 'page_title': 'Exchange:Amulet of farming (8)', 'oldid': 6570082, 'timestamp': '2012-11-18T02:22:25Z', 'price_date': '02:22, November 18, 2012 (UTC)', 'page_item': 'Amulet of farming (8)', 'item_id': 12622, 'cache_value': 200, 'page_limit': 100},
     'Amulet of fury': {'price': 4389739, 'page_title': 'Exchange:Amulet of fury', 'oldid': 6570083, 'timestamp': '2012-11-18T02:22:32Z', 'price_date': '02:22, November 18, 2012 (UTC)', 'page_item': 'Amulet of fury', 'item_id': 6585, 'cache_value': 202000, 'page_limit': 100},
+    'Amulet of glory': {'price': 10157, 'page_title': 'Exchange:Amulet of glory', 'oldid': 6570084, 'timestamp': '2012-11-18T02:22:39Z', 'price_date': '02:22, November 18, 2012 (UTC)', 'page_item': 'Amulet of glory', 'item_id': 1704, 'cache_value': 17625, 'page_limit': 100},
+    'Amulet of glory (4)': {'price': 10965, 'page_title': 'Exchange:Amulet of glory (4)', 'oldid': 6570085, 'timestamp': '2012-11-18T02:22:47Z', 'price_date': '02:22, November 18, 2012 (UTC)', 'page_item': 'Amulet of glory (4)', 'item_id': 1712, 'cache_value': 17625, 'page_limit': 100},
     'Amulet of glory (t)': {'price': 290115, 'page_title': 'Exchange:Amulet of glory (t)', 'oldid': 6561120, 'timestamp': '2012-11-16T02:04:00Z', 'price_date': '02:03, November 16, 2012 (UTC)', 'page_item': 'Amulet of glory (t)', 'item_id': 10362, 'cache_value': 17625, 'page_limit': 2},
     'Amulet of glory (t4)': {'price': 293396, 'page_title': 'Exchange:Amulet of glory (t4)', 'oldid': 6584776, 'timestamp': '2012-11-19T11:31:24Z', 'price_date': '11:31, November 19, 2012 (UTC)', 'page_item': 'Amulet of glory (t4)', 'item_id': 10354, 'cache_value': 17625, 'page_limit': 2},
     'Amulet of magic': {'price': 505, 'page_title': 'Exchange:Amulet of magic', 'oldid': 6570086, 'timestamp': '2012-11-18T02:22:59Z', 'price_date': '02:22, November 18, 2012 (UTC)', 'page_item': 'Amulet of magic', 'item_id': 1727, 'cache_value': 900, 'page_limit': 5000},
