@@ -163,7 +163,7 @@ class TestRuntimeActions(unittest.TestCase):
 
                 self.assertEqual(player_data["current_utility"], "bankstanding")
                 self.assertEqual(calls["bankstanding"], 1)
-                self.assertEqual(len(calls["errors"]), 1)
+                self.assertEqual(len(calls["errors"]), int(handler is not runtime_actions_activities.handle_dungeoneering_answer))
 
     def test_dungeoneering_bind_prompt_keeps_the_current_surface(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -1495,11 +1495,11 @@ class TestRuntimeActions(unittest.TestCase):
             "construction_level": 50,
         }
 
-        self.assertFalse(handle_utility_answer(_context(player_data, calls)))
-
+        self.assertFalse(handle_utility_answer(_bankstanding_context(player_data, calls)))
         self.assertEqual(player_data["inventory"], {"Astral rune": 1})
-        self.assertTrue(calls["deactivated"])
-        self.assertEqual(calls["errors"][0][0], "Out of Livid Farm runes")
+        self.assertEqual(calls["bankstanding"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertIn("Astral rune", calls["bankstanding_reasons"][0])
         self.assertEqual(calls["saves"], 0)
 
     def test_wilderness_combat_requires_current_session_risk_confirmation(self):
@@ -3354,7 +3354,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertAlmostEqual(player_data["magic_exp"], 5.5)
         self.assertEqual(calls["errors"], [])
 
-    def test_combat_handler_deactivates_magic_without_runes(self):
+    def test_combat_handler_bankstands_magic_without_runes(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
             "inventory": {},
@@ -3368,14 +3368,14 @@ class TestRuntimeActions(unittest.TestCase):
             "completed_achievements": [],
         }
 
-        ok = handle_combat_answer(_context(player_data, calls))
+        ok = handle_combat_answer(_bankstanding_context(player_data, calls))
 
         self.assertFalse(ok)
-        self.assertTrue(calls["deactivated"])
-        self.assertEqual(calls["saves"], 0)
-        self.assertEqual(calls["errors"][0][0], "Combat unavailable")
-        self.assertIn("Air rune x1", calls["errors"][0][1])
-        self.assertIn("Mind rune x1", calls["errors"][0][1])
+        self.assertEqual(player_data["current_utility"], "bankstanding")
+        self.assertEqual(calls["bankstanding"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertIn("Air rune x1", calls["bankstanding_reasons"][0])
+        self.assertIn("Mind rune x1", calls["bankstanding_reasons"][0])
 
     def test_handler_key_registry_and_readiness_share_runtime_module(self):
         self.assertIs(answer_handler_for_key("fletching"), handle_fletching_answer)

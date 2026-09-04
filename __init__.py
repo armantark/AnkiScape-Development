@@ -1323,18 +1323,18 @@ def _runtime_action_context() -> RuntimeActionContext:
     last_reason = {"text": ""}
 
     def _show_runtime_error(title, message) -> None:
-        last_reason["text"] = str(message or "").strip()
+        last_reason.update(text=str(message or "").strip(), caller_owns_notice=True)
         _update_pending_bankstanding_reason(last_reason["text"])
+        if _PENDING_BANKSTANDING_NOTICE is not None:
+            _PENDING_BANKSTANDING_NOTICE["show_dialog"] = False
         show_error_message(title, message)
 
     def _deactivate_runtime_action(reason=None) -> None:
-        _deactivate_current_skill(reason or last_reason["text"])
+        _switch_runtime_action(reason)
 
     def _switch_runtime_action(reason=None, *, caller_owns_notice=False) -> None:
-        _switch_to_bankstanding(
-            reason or last_reason["text"],
-            caller_owns_notice=bool(caller_owns_notice),
-        )
+        notice_owned = bool(caller_owns_notice or last_reason.get("caller_owns_notice"))
+        _switch_to_bankstanding(reason or last_reason["text"], caller_owns_notice=notice_owned)
 
     def _show_runtime_gain(text) -> None:
         last_reason["text"] = str(text or "").strip()

@@ -88,11 +88,15 @@ def handle_dungeoneering_answer(ctx: RuntimeActionContext) -> bool:
             and state.get("active")
             and state.get("session")
         ):
-            _switch_material_failure_to_bankstanding(ctx)
-        ctx.show_error_message(
-            "Dungeoneering unavailable",
-            str(result.get("reason", "Enter or resume a floor before training.")),
-        )
+            _switch_material_failure_to_bankstanding(
+                ctx,
+                str(result.get("reason", "Enter or resume a floor before training.")),
+            )
+        else:
+            ctx.show_error_message(
+                "Dungeoneering unavailable",
+                str(result.get("reason", "Enter or resume a floor before training.")),
+            )
         return False
     ctx.player_data.clear()
     ctx.player_data.update(updated)

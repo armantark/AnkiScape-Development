@@ -791,11 +791,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         requirements = spec.get("requirements", {})
         if requirements:
             missing = missing_materials_text(requirements, player_data.get("inventory", {}))
-            _switch_material_failure_to_bankstanding(ctx)
-            ctx.show_error_message(
-                "Out of materials",
-                f"You're out of {missing} for {display_name}, so AnkiScape switched "
-                "to Bankstanding. Choose another activity when you are ready.",
+            _switch_material_failure_to_bankstanding(
+                ctx, f"You're out of {missing} for {display_name}."
             )
         else:
             ctx.deactivate_current_skill()
@@ -811,9 +808,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
             player_data.get("inventory", {})
         )
         if not ok:
-            _switch_material_failure_to_bankstanding(ctx)
-            ctx.show_error_message(
-                "Unavailable activity",
+            _switch_material_failure_to_bankstanding(
+                ctx,
                 str(compost_result.get("reason", "Compost potion inputs are missing.")),
             )
             return False
@@ -848,10 +844,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
             batch_size=batch_size,
         )
         if not ok:
-            _switch_material_failure_to_bankstanding(ctx)
-            ctx.show_error_message(
-                "Unavailable activity",
-                f"{display_name} is out of inputs, so AnkiScape switched to Bankstanding.",
+            _switch_material_failure_to_bankstanding(
+                ctx, "You need a bird nest with contents to open bird nests."
             )
             return False
         player_data["inventory"] = new_inv
@@ -886,10 +880,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
             wealth_improvement_chance=CRYSTAL_CHEST_RING_IMPROVEMENT_CHANCE,
         )
         if not ok:
-            _switch_material_failure_to_bankstanding(ctx)
-            ctx.show_error_message(
-                "Unavailable activity",
-                "Open Crystal chest is out of keys, so AnkiScape switched to Bankstanding.",
+            _switch_material_failure_to_bankstanding(
+                ctx, "You need 1 Crystal key to open the Crystal chest."
             )
             return False
         player_data["inventory"] = new_inv
@@ -920,10 +912,9 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         r_output=ctx.random_random() if weighted_outputs else None,
     )
     if not ok:
-        _switch_material_failure_to_bankstanding(ctx)
-        ctx.show_error_message(
-            "Unavailable activity",
-            f"{display_name} is out of inputs, so AnkiScape switched to Bankstanding.",
+        missing = missing_materials_text(spec.get("requirements", {}), inventory)
+        _switch_material_failure_to_bankstanding(
+            ctx, f"You need {missing} for {display_name}."
         )
         return False
 

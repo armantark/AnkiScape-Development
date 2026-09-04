@@ -55,6 +55,7 @@ from ..core.constants import (
     WOODCUTTING_AXE_DATA,
 )
 from ..logic_pure.logic_pure import (
+    _combat_locks_can_bank_run,
     active_prayer_selection_pure,
     combat_near_death_without_food_pure,
     COMBAT_BANK_RUN_REVIEWS,
@@ -467,10 +468,15 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         equipment_data=EQUIPMENT_DATA,
     )
     if locked_reasons:
-        ctx.deactivate_current_skill()
-        ctx.show_error_message(
-            "Combat unavailable",
-            f"{enemy.get('display_name', target_id)} cannot be fought yet: {', '.join(locked_reasons)}.",
+        reason_text = (
+            f"{enemy.get('display_name', target_id)} cannot be fought yet: "
+            f"{', '.join(locked_reasons)}."
+        )
+        _switch_material_failure_to_bankstanding(
+            ctx,
+            reason_text,
+            material_failure=_combat_locks_can_bank_run(locked_reasons),
+            fallback_error=("Combat unavailable", reason_text),
         )
         return False
 
@@ -505,10 +511,17 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             )
             ctx.save_player_data()
             return False
-        ctx.deactivate_current_skill()
         reasons = result.get("locked_reasons") if isinstance(result, dict) else None
         reason_text = ", ".join(reasons) if reasons else "the selected target is unavailable"
-        ctx.show_error_message("Combat unavailable", f"Combat has been switched off because {reason_text}.")
+        _switch_material_failure_to_bankstanding(
+            ctx,
+            f"Combat cannot continue because {reason_text}.",
+            material_failure=_combat_locks_can_bank_run(reasons),
+            fallback_error=(
+                "Combat unavailable",
+                f"Combat has been switched off because {reason_text}.",
+            ),
+        )
         return False
 
     guild_result = {}

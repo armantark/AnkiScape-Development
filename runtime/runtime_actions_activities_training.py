@@ -181,15 +181,13 @@ def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
                 "Livid Farm requires " + ", ".join(map(str, locked)) + ".",
             )
         elif missing:
-            _switch_material_failure_to_bankstanding(ctx)
             missing_text = ", ".join(
                 f"{amount} {rune_name}"
                 for rune_name, amount in missing.items()
             )
-            ctx.show_error_message(
-                "Out of Livid Farm runes",
-                f"The next atomic review needs {missing_text}. "
-                "Nothing was consumed, and AnkiScape switched to Bankstanding.",
+            _switch_material_failure_to_bankstanding(
+                ctx,
+                f"The next atomic review needs {missing_text}. Nothing was consumed.",
             )
         return False
 

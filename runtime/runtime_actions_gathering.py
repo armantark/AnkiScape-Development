@@ -450,11 +450,8 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
 
     if not has_fishing_bait_pure(inventory, spec):
         missing = fishing_materials_text(spec, inventory)
-        _switch_material_failure_to_bankstanding(ctx)
-        ctx.show_error_message(
-            "Out of materials",
-            f"You need {missing} to {str(display_name).lower()}, so AnkiScape "
-            "switched to Bankstanding. Choose another target when you are ready.",
+        _switch_material_failure_to_bankstanding(
+            ctx, f"You need {missing} to {str(display_name).lower()}."
         )
         return False
 
@@ -591,11 +588,8 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
 
     if not has_hunter_materials_pure(target, inventory, HUNTER_DATA):
         missing = missing_materials_text(spec.get("requirements", {}), inventory)
-        _switch_material_failure_to_bankstanding(ctx)
-        ctx.show_error_message(
-            "Out of materials",
-            f"You need {missing} to {str(display_name).lower()}, so AnkiScape "
-            "switched to Bankstanding. Choose another target when you are ready.",
+        _switch_material_failure_to_bankstanding(
+            ctx, f"You need {missing} to {str(display_name).lower()}."
         )
         return False
 

@@ -2261,9 +2261,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
-        self.assertEqual(len(errors), 1)
-        self.assertIn("Bankstanding", errors[0][1])
-        self.assertIn("Clay", errors[0][1])
+        self.assertEqual(errors, [])
+        self.assertIn("Clay", addon._PENDING_BANKSTANDING_NOTICE["reason"])
 
     def test_crafting_missing_intermediate_names_material_and_uses_bankstanding(self):
         # "Pot" needs an "Unfired pot", not Soft clay directly. The error must name
@@ -2287,9 +2286,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
-        self.assertEqual(len(errors), 1)
-        self.assertIn("Pot (unfired)", errors[0][1])
-        self.assertIn("Bankstanding", errors[0][1])
+        self.assertEqual(errors, [])
+        self.assertIn("Pot (unfired)", addon._PENDING_BANKSTANDING_NOTICE["reason"])
 
     def test_changing_target_refreshes_review_hud(self):
         # Switching the active Utility activity (or any target) must push the new
@@ -2971,21 +2969,15 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
-        self.assertEqual(len(calls["errors"]), 1)
-        self.assertIn("Bankstanding", calls["errors"][0][1])
-        # The blocking error above owns the one user-facing notice for this
-        # switch; the generic Bankstanding modal must stay silent.
+        self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["gains"], [])
         self.assertEqual(
-            modal_order,
-            [
-                ("feedback", "flushed"),
-                ("answer", 0),
-                ("queued", "prompt"),
-                ("feedback", "flushed"),
-                ("answer", 1),
-            ],
+            [kind for kind, _value in modal_order],
+            ["feedback", "answer", "modal", "queued", "feedback", "answer"],
         )
+        modal_reasons = [value for kind, value in modal_order if kind == "modal"]
+        self.assertEqual(len(modal_reasons), 1)
+        self.assertIn("Pot (unfired)", modal_reasons[0])
         self.assertEqual(len(addon.player_data["review_event_log"]), 1)
         self.assertEqual(
             addon.player_data["shop_market_clock"]["market_tick"],
