@@ -313,3 +313,14 @@ exhaustion routes its reason into the deferred modal; a branch that keeps a
 local refusal popup suppresses the modal. Both full lanes green (plain
 4,682 in 981 s; offscreen 4,682 in 1,319 s). New tests in
 `tests/runtime_actions/test_bankstanding_notice.py`. Review: Opus, pending.
+
+## 01:23 — S3 review (Opus): ACCEPT-WITH-FINDINGS, six fixes sent back
+
+The mechanism is one seam change: a local popup clears `show_dialog` on the
+pending notice (`__init__.py:1327-1329`), so the rule holds at about 150
+sites, touched or not. Findings: combat classes empty `reasons` as material
+(fallback unreachable); Dungeoneering "not in a session" gets a modal while
+three sibling activities keep a popup; the suppression flag is sticky across
+ticks on the reused context; a dropped reason; dead
+`_deactivate_current_skill`; a KeyError-prone test. `tests/runtime_actions/`
+is collected by `run_tests.py` and the gate lanes.
