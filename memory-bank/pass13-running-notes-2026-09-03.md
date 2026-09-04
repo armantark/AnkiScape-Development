@@ -294,3 +294,14 @@ crop" allotment (pin strawberry or watermelon), and the temple-trekking route
 choice. S1 stage 1 (Sol): `text_for` and the validator require designed text
 on translated and invented rows; stage 2 merges the drafts and regenerates
 after Morytania's fixes land.
+
+## 01:15 — All nine regions drafted and reviewed (162 rows)
+
+Morytania complete: silvthril chain (Crafting 47) for the key row; yew-log
+burn in the Haunted Woods (Firemaking 60); a gargoyle (Slayer 75) for the
+elite row (no Vyrewatch enemy exists); watermelon pinned at Port Phasmatys;
+temple trekking keeps `ramble_any` x3 (no per-route counter exists). Flagged
+for the owner: `morytania_medium_izzy_wizzy_let_s_get_lizzy` displays hard on
+a swamp-lizard seam (Hunter 29), the only Hunter target in Morytania;
+`varrock_hard_but_it_won_t_warp_you_anywhere` on Dorgesh-Kaan. Merge dry run:
+162 of 162, 0 problems. Stage 2 of S1 merges when stage 1 reports.
