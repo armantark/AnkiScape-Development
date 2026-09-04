@@ -58,7 +58,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_easy_king_conifer',
                 'King Conifer',
-                'Fell an arctic pine on the shores of Waterbirth Island.',
+                "Fell an arctic pine, the king conifer of Waterbirth's shores.",
                 (DiaryCondition('ledger_action', 'woodcutting:arctic_pine', 1, 'Arctic pine'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 154,
@@ -78,7 +78,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_easy_oxymoron_incarnate',
                 'A Fish Out of Water',
-                "Catch a leaping trout from the stream at Otto's grotto.",
+                "Catch a leaping trout, the barbarian way at Otto's grotto.",
                 (DiaryCondition('ledger_action', 'fishing:catch_leaping_fish', 1, 'Catch leaping fish'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 156,
@@ -98,7 +98,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_easy_hunting_the_hunter',
                 'Hunting the Hunter',
-                'Hunt a polar kebbit on the ice plains north of Rellekka.',
+                "Hunt a polar kebbit, the ice plains' most patient prey.",
                 (DiaryCondition('ledger_action', 'hunter:catch_polar_kebbit', 1, 'Catch polar kebbit'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 158,
@@ -118,7 +118,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_easy_a_familiar_feeling',
                 'A Familiar Feeling',
-                "Restore your Summoning points near Rellekka's gate.",
+                "Restore your Summoning points, a familiar feeling at Rellekka's gate.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJyZXN0b3JlX3BvaW50cyIsInR5cGUiOiJzdW1tb25pbmdfY29tbWFuZCJ9fX0', 1, 'Restore Summoning points'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 160,
@@ -163,7 +163,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_medium_fremennik_history_101',
                 'Dress the Part',
-                'Buy a Woven top, Shirt, and Trousers from Agmundi in Rellekka.',
+                "Buy a Woven top, Shirt, and Trousers from Agmundi's Quality Clothes.",
                 (DiaryCondition('shop_transaction', 'buy|agmundi_quality_clothes|agmundi_quality_clothes:0:5024', 1, 'Buy a Woven top'), DiaryCondition('shop_transaction', 'buy|agmundi_quality_clothes|agmundi_quality_clothes:3:5030', 1, 'Buy a Shirt'), DiaryCondition('shop_transaction', 'buy|agmundi_quality_clothes|agmundi_quality_clothes:6:5036', 1, 'Buy Trousers'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 162,
@@ -174,7 +174,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_medium_cool_story_bro',
                 'The Curing Touch',
-                'Have Thakkrad cure a yak-hide at his workshop on Neitiznot.',
+                'Have Thakkrad cure a yak-hide, the Neitiznot way.',
                 (DiaryCondition('shop_transaction', 'service||thakkrad_cure_yak_hide', 1, 'Use thakkrad cure yak hide'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 163,
@@ -185,7 +185,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_medium_who_s_a_good_boy',
                 "Who's a Good Boy?",
-                'Let a pet out of its pouch and stretch its legs in Rellekka.',
+                'Let a pet out of its pouch to stretch its legs.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJsZXRfb3V0X3BldCIsInR5cGUiOiJzdW1tb25pbmdfY29tbWFuZCJ9fX0', 1, 'Complete summoning command'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 164,
@@ -207,7 +207,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_medium_you_know_you_want_it',
                 'Bass Instincts!',
-                'Cook a fresh bass at the longhall fire in Rellekka.',
+                'Cook a bass, longhall style.',
                 (DiaryCondition('ledger_action', 'cooking:cook_bass', 1, 'Cook bass'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 166,
@@ -218,7 +218,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_medium_you_really_don_t_need_any_more_shoes',
                 "You Really Don't Need Any More Shoes",
-                'Buy a pair of Fremennik boots from Yrsa in Rellekka.',
+                "Buy a pair of Fremennik boots from Yrsa's Accoutrements.",
                 (DiaryCondition('shop_transaction', 'buy|yrsas_accoutrements|yrsas_accoutrements:9:3791', 1, 'yrsas accoutrements:9:3791'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 168,
@@ -319,7 +319,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_hard_dress_to_impress',
                 'Dress to Impress',
-                'Craft yak-hide armour from hides cured on Neitiznot.',
+                'Craft yak-hide armour, dressed to impress the Fremennik chieftain.',
                 (DiaryCondition('ledger_action', 'crafting:leather_yakhide_armour', 1, 'Leather yakhide armour'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 174,
@@ -406,7 +406,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_medium_fairy_mountaineering',
                 'Over the Moon!',
-                'Cast Moonclan Teleport to arrive on the shore of Lunar Isle.',
+                'Cast Moonclan Teleport, bound for the shores of Lunar Isle.',
                 (DiaryCondition('ledger_action', 'magic:moonclan_teleport', 1, 'Moonclan teleport'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z); original period tier medium; curated into hard',
                 167,
@@ -495,7 +495,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'fremennik_elite_leap_of_faith',
                 'The Lighthouse Keeper',
-                'Defeat three dagannoths in the cavern beneath the Lighthouse.',
+                "Defeat three level-92 dagannoths, the Lighthouse keeper's nightmare.",
                 (DiaryCondition('combat_kill', 'dagannoth_level_92', 3, 'Kill dagannoth'),),
                 'Darkan FremennikTasks; rev-727 cache enum 3483; corroborated by Fremennik achievements oldid=6555812 (2012-11-14T23:17:11Z)',
                 320,

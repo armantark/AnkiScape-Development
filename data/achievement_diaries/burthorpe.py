@@ -47,7 +47,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_we_re_done_here',
                 'Troll Patrol',
-                'Drive back a Troll Invasion at the Burthorpe gate.',
+                "Complete a Troll Invasion, the Burthorpe gate's patrol.",
                 (DiaryCondition('ledger_action', 'utility:troll_invasion', 1, 'Troll invasion'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 533,
@@ -57,7 +57,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_fire_in_the_troll',
                 'Cannonball Run',
-                'Forge four batches of cannonballs for the Burthorpe cannon.',
+                'Forge four batches of cannonballs, for the Burthorpe cannon.',
                 (DiaryCondition('ledger_action', 'smithing:forge_cannonballs', 4, 'Forge cannonballs'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 535,
@@ -107,7 +107,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_arm_the_militia',
                 'Cut to the Chase',
-                'Buy a bronze sword from the guard quartermaster in Burthorpe.',
+                'Buy a bronze sword from the guard quartermaster, and arm the militia.',
                 (DiaryCondition('shop_transaction', 'buy|burthorpe_guard_quartermaster|burthorpe_guard_quartermaster:0:1277', 1, 'burthorpe guard quartermaster:0:1277'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 542,
@@ -137,7 +137,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_the_circle_of_life',
                 'The Circle Of Life',
-                'Plant potatoes in the Taverley farming patch.',
+                'Plant potatoes in the Taverley allotment patch, the circle of life.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJraW5kIjoicGxhbnQiLCJwYXRjaF9pZCI6InRhdmVybGV5X3BvdGF0byIsInR5cGUiOiJmYXJtaW5nX3Jlc3VsdCJ9fX0', 1, 'Complete plant at taverley_potato'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 545,
@@ -167,7 +167,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_feed_the_refugees',
                 'Feeding Frenzy',
-                'Cook four stews for the hungry defenders of Burthorpe.',
+                "Cook four stews, for Burthorpe's hungry defenders.",
                 (DiaryCondition('ledger_action', 'cooking:cook_stew', 4, 'Cook stew'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 548,
@@ -187,7 +187,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_bank_on_it',
                 'Bank On It',
-                "Complete a Bank run and deposit your gear at Taverley's bank.",
+                'Complete a Bank run with carried items, and bank on it.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJkZXBvc2l0ZWRfbm9uX2NvaW4iOnRydWUsInR5cGUiOiJiYW5rX3J1biJ9fX0', 1, 'Complete a Bank run with carried items'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 583,
@@ -227,7 +227,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_no_stone_unturned',
                 'No Stone Unturned',
-                'Slay a gelatinous abomination in the enchanted cave near Burthorpe.',
+                'Defeat a gelatinous abomination, no stone unturned near Burthorpe.',
                 (DiaryCondition('combat_kill', 'gelatinous_abomination', 1, 'Kill gelatinous abomination'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 553,
@@ -297,7 +297,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_one_thing_after_another',
                 'Trout and About',
-                'Catch a trout or salmon from the Burthorpe lakeside.',
+                "Catch a trout or salmon, out and about by Burthorpe's lake.",
                 (DiaryCondition('ledger_action', 'fishing:catch_trout_salmon', 1, 'Catch trout salmon'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 560,
@@ -337,7 +337,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_problem_officer',
                 'Animated Authority',
-                "Defeat the animated armour in the Warriors' Guild at Burthorpe.",
+                "Defeat the Warriors' Guild animated armour, Burthorpe's problem officer.",
                 (DiaryCondition('ledger_action', 'utility:warriors_guild_animated_armour', 1, 'Warriors guild animated armour'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 537,
@@ -397,7 +397,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_bottoms_up',
                 'Batch Expectations',
-                'Mix four batches of attack potion for the troops of Burthorpe.',
+                "Mix four batches of attack potion, for Burthorpe's troops.",
                 (DiaryCondition('ledger_action', 'herblore:finished_attack_potion', 4, 'Mix attack potions'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 568,
@@ -457,7 +457,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_heimward_bound',
                 'Heimward Bound',
-                'Complete a starter floor in the dungeons of Daemonheim.',
+                'Complete a Daemonheim starter floor, heimward bound.',
                 (DiaryCondition('ledger_action', 'dungeoneering:starter_floor', 1, 'Starter floor'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 577,
@@ -467,7 +467,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_party_on_dudes',
                 'Party On, Dudes',
-                'Enter a Daemonheim floor and start your dungeoneering party.',
+                'Enter a Daemonheim floor, and party on.',
                 (DiaryCondition('state_equals', 'dungeoneering.active', 1, 'Enter a Daemonheim floor', expected=True),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 578,
@@ -527,7 +527,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'burthorpe_period_walking_in_the_air_altar',
                 'Walking In The Air Altar',
-                'Use an Air altar teleport tablet to reach the Air Altar south of Taverley.',
+                'Use an Air altar teleport tablet, walking in the air.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhbHRhcl9pZCI6ImFpciIsInR5cGUiOiJncmVhdF9vcmJfcHJvamVjdF90ZWxlcG9ydCJ9fX0', 1, 'Use an Air altar teleport'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 572,

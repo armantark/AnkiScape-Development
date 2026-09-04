@@ -296,7 +296,7 @@ class CurationLedgerWiringTest(unittest.TestCase):
             conditions_override=(),
         )
         self.assertIn("'Ball Control'", block)
-        self.assertIn("'Play Gnome Ball at the stadium north-west of Ardougne.'", block)
+        self.assertIn("Play a game of Gnome Ball, Ardougne's rowdiest training camp.", block)
         self.assertNotIn("'Boot Camp'", block)
         self.assertNotIn("'Source deed'", block)
 

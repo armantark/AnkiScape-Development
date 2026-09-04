@@ -172,7 +172,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_medium_travelling_on_the_slime_trail',
                 'Travelling On The Slime Trail',
-                'Harvest any crop from the allotment north of Port Phasmatys.',
+                'Harvest a watermelon from the Port Phasmatys allotment patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoid2F0ZXJtZWxvbiIsImtpbmQiOiJoYXJ2ZXN0IiwicGF0Y2hfaWQiOiJwaGFzbWF0eXNfYWxsb3RtZW50X25vcnRoIiwidHlwZSI6ImZhcm1pbmdfcmVzdWx0In0sImd0ZSI6eyJvdXRwdXRzLldhdGVybWVsb24iOjF9fX0', 1, 'Harvest a watermelon at Port Phasmatys'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 957,
@@ -216,7 +216,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_medium_gate_spectre_ations',
                 'Gate Spectre-ations',
-                'Lay a level-77 ghost to rest in Morytania.',
+                "Defeat a level-77 ghost, the spectre at Port Phasmatys's gate.",
                 (DiaryCondition('combat_kill', 'ghost_level_77', 1, 'Kill ghost level 77'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 963,
@@ -281,7 +281,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_medium_i_wonder_how_far_it_ghost',
                 'I Wonder How Far It Ghost?',
-                'Harvest a crop from the mushroom patch in Canifis.',
+                'Harvest a crop from the Canifis mushroom patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJraW5kIjoiaGFydmVzdCIsInBhdGNoX2lkIjoiY2FuaWZpc19tdXNocm9vbSIsInR5cGUiOiJmYXJtaW5nX3Jlc3VsdCJ9fX0', 1, 'Complete harvest at canifis_mushroom'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 971,
@@ -351,7 +351,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_hard_they_ll_just_throw_it_away_again',
                 "They'll Just Throw It Away Again",
-                'Run a full lap of the Werewolf Agility Course and hand in the stick.',
+                'Complete the Werewolf Agility Course, stick and all.',
                 (DiaryCondition('ledger_action', 'agility:werewolf_course', 1, 'Complete the Werewolf Agility Course'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 977,
@@ -362,7 +362,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_hard_time_salver',
                 'Time Salver',
-                'Slay a werewolf prowling west of the River Salve.',
+                'Defeat a werewolf, the kind that prowls west of the Salve.',
                 (DiaryCondition('combat_kill', 'werewolf', 1, 'Kill werewolf'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 978,
@@ -373,7 +373,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_hard_huge_success',
                 'Huge Success',
-                'Cast Kharyrll Teleport to reach Canifis.',
+                'Cast Kharyrll Teleport, a huge success for reaching Canifis.',
                 (DiaryCondition('ledger_action', 'magic:kharyrll_teleport', 1, 'Kharyrll teleport'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 979,
@@ -384,7 +384,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_hard_just_one_more_key',
                 'Chain Reaction',
-                "Forge a Silvthril chain at Burgh de Rott's furnace.",
+                "Forge a Silvthril chain, the Burgh de Rott furnace's specialty.",
                 (DiaryCondition('ledger_action', 'crafting:silver_silvthrill_chain', 1, 'Forge a Silvthril chain'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 981,
@@ -416,7 +416,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_hard_better_than_cursing_the_darkness',
                 'Better Than Cursing The Darkness',
-                'Keep five maple fires burning against the dark of the Haunted Woods.',
+                "Burn five maple logs, better than cursing the Haunted Woods' darkness.",
                 (DiaryCondition('ledger_action', 'firemaking:maple_logs', 5, 'Burn maple logs'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 984,
@@ -437,7 +437,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_medium_izzy_wizzy_let_s_get_lizzy',
                 "Izzy Wizzy Let's Get Lizzy",
-                'Snare a swamp lizard in the Haunted Woods.',
+                "Snare a swamp lizard, the Haunted Woods' slipperiest catch.",
                 (DiaryCondition('ledger_action', 'hunter:catch_swamp_lizard', 1, 'Catch a swamp lizard'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z); original period tier medium; curated into hard',
                 967,
@@ -540,7 +540,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_elite_on_wings_of_bling',
                 'Stoned Cold',
-                'Smash a gargoyle apart in the Slayer Tower.',
+                "Defeat a gargoyle, the Slayer Tower's stone-cold sentry.",
                 (DiaryCondition('combat_kill', 'gargoyle', 1, 'Kill gargoyle'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 994,
@@ -551,7 +551,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'morytania_elite_not_such_a_rotten_idea',
                 'Not Such a Rotten Idea',
-                'Complete three Burgh de Rott Rambles through the rot of Morytania.',
+                'Complete three Burgh de Rott Rambles, through the rot of Morytania.',
                 (DiaryCondition('counter', 'temple_trekking.completions.ramble_any', 3, 'Complete Burgh de Rott Rambles'),),
                 'Darkan MorytaniaTasks; rev-727 cache enum 3483; corroborated by Morytania achievements oldid=6530421 (2012-11-04T03:16:45Z)',
                 991,

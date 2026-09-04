@@ -27,7 +27,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_easy_i_m_lichen_this',
                 "I'm Lichen This!",
-                'Defeat a moss giant on the island north-west of Karamja.',
+                'Defeat a moss giant, the mossiest islander north-west of Karamja.',
                 (DiaryCondition('combat_kill', 'moss_giant', 1, 'Kill moss giant'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 183,
@@ -49,7 +49,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_easy_show_that_you_cairn',
                 'Moss and Found',
-                'Search the mossy rocks in the jungle south of Tai Bwo Wannai.',
+                'Search the jungle mine rocks, deep in the Karamja jungle.',
                 (DiaryCondition('ledger_action', 'utility:search_jungle_mine_rocks', 1, 'Search jungle mine rocks'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 187,
@@ -91,7 +91,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_easy_put_to_port_in_port_sarim',
                 'Karamjan Cargo',
-                "Buy a Banana, Cabbage, and Cheese at Wydin's in Port Sarim.",
+                "Buy a Banana, Cabbage, and Cheese from Wydin's Food Store.",
                 (DiaryCondition('shop_transaction', 'buy|wydins_food_store|wydins_food_store:5:1963', 1, 'Buy a Banana'), DiaryCondition('shop_transaction', 'buy|wydins_food_store|wydins_food_store:6:1965', 1, 'Buy a Cabbage'), DiaryCondition('shop_transaction', 'buy|wydins_food_store|wydins_food_store:3:1985', 1, 'Buy Cheese'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 185,
@@ -101,7 +101,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_easy_avast_ardougne',
                 'Avast, Anchovies!',
-                'Catch a shrimp or anchovy from the net spot off the Brimhaven docks.',
+                'Catch a shrimp or anchovy with a small net, Brimhaven docks style.',
                 (DiaryCondition('ledger_action', 'fishing:catch_shrimp_anchovies', 1, 'Catch shrimp or anchovies'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 186,
@@ -179,7 +179,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_back_cran_door',
                 'The Writing on the Wall',
-                'Search the fungus-covered wall in the dungeon beneath the volcano.',
+                "Search the fungus-covered wall, the volcano dungeon's hidden door.",
                 (DiaryCondition('ledger_action', 'utility:search_fungus_covered_wall', 1, 'Search fungus covered wall'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 193,
@@ -190,7 +190,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_dungeons_and_dragons',
                 'Here Be Demons',
-                'Defeat two lesser demons in the dungeon beneath the volcano.',
+                'Defeat two lesser demons, guardians of the road to Crandor.',
                 (DiaryCondition('combat_kill', 'lesser_demon', 2, 'Kill lesser demon'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 194,
@@ -201,7 +201,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_horseless_carriage',
                 'A Gem of a Task',
-                "Buy an Enchanted gem from Duradel's shop in Shilo Village.",
+                "Buy an Enchanted gem from Duradel's Slayer equipment shop.",
                 (DiaryCondition('shop_transaction', 'buy|duradels_slayer_equipment|duradels_slayer_equipment:0:4155', 1, 'duradels slayer equipment:0:4155'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 195,
@@ -234,7 +234,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_thank_you_madam',
                 'Set in Stone',
-                'Mine a gem rock in the Shilo Village riverbed.',
+                "Mine a gem rock, Shilo Village's riverbed treasure.",
                 (DiaryCondition('ledger_action', 'mining:gem_rocks', 1, 'Mine a gem rock'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 209,
@@ -289,7 +289,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_falling_with_style',
                 'Top Banana',
-                'Harvest a banana from the fruit tree patch near Brimhaven.',
+                'Harvest a banana from the Brimhaven fruit tree patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoiYmFuYW5hIiwia2luZCI6ImhhcnZlc3QiLCJwYXRjaF9pZCI6ImJyaW1oYXZlbl9mcnVpdCIsInR5cGUiOiJmYXJtaW5nX3Jlc3VsdCJ9LCJndGUiOnsib3V0cHV0cy5CYW5hbmEiOjF9fX0', 1, 'Complete harvest at brimhaven_fruit'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 203,
@@ -358,7 +358,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_hard_quick_as_a_shot',
                 'Quick As a Shot',
-                'Grapple across the Bandos Throne Room agility course.',
+                'Complete the Bandos Throne Room course, grapple and all.',
                 (DiaryCondition('ledger_action', 'agility:bandos_throne_room', 1, 'Bandos throne room'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 217,
@@ -380,7 +380,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_hard_yes_my_master',
                 'Yes, My Master',
-                'Complete five Slayer assignments in Shilo Village.',
+                'Complete five Slayer assignments, as Duradel of Shilo Village demands.',
                 (DiaryCondition('counter', 'slayer_tasks_completed', 5, 'Complete Slayer assignments'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 219,
@@ -391,7 +391,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_hard_can_opener',
                 'Can Opener',
-                'Defeat a bronze, iron, or steel dragon in Brimhaven Dungeon.',
+                "Defeat a bronze, iron, or steel dragon, Brimhaven Dungeon's tin cans.",
                 (DiaryCondition('any_of', '', 1, 'Kill a metal dragon', (DiaryCondition('combat_kill', 'bronze_dragon', 1, 'Kill a bronze dragon'), DiaryCondition('combat_kill', 'iron_dragon', 1, 'Kill an iron dragon'), DiaryCondition('combat_kill', 'steel_dragon', 1, 'Kill a steel dragon'),)),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 220,
@@ -412,7 +412,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_hard_i_d_be_kharazi_to_eat_this',
                 'Karambwan Karma',
-                'Catch a raw karambwan off the eastern shore of Karamja.',
+                "Catch a raw karambwan, Karamja's eastern-shore delicacy.",
                 (DiaryCondition('ledger_action', 'fishing:catch_karambwan', 1, 'Catch karambwan'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 213,
@@ -433,7 +433,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_the_roots_of_all_evil',
                 'The Roots of All Evil',
-                'Chop ivy from the walls of Brimhaven.',
+                "Chop ivy, the roots of all evil on Brimhaven's walls.",
                 (DiaryCondition('ledger_action', 'woodcutting:ivy', 1, 'Ivy'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into hard',
                 206,
@@ -514,7 +514,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_elite_tread_carefully',
                 'Brim Full of Tickets',
-                "Earn 25 tickets on the Brimhaven Agility Arena's obstacle floors.",
+                "Earn 25 Agility arena tickets, treading Brimhaven's obstacle floors.",
                 (DiaryCondition('ledger_output', 'agility:Agility arena ticket', 25, 'Earn Agility arena tickets'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 330,
@@ -525,7 +525,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_elite_ten_in_a_row',
                 'TzHaar Takedown',
-                'Defeat a TzHaar-Ket beneath the Karamja volcano.',
+                'Defeat a TzHaar-Ket, born of the Karamja volcano.',
                 (DiaryCondition('combat_kill', 'tzhaar_ket', 1, 'Kill tzhaar ket'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z)',
                 331,
@@ -546,7 +546,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_hotfooting_it',
                 'Hotfooting It',
-                'Defeat three fire giants beyond the lava of Brimhaven Dungeon.',
+                "Defeat three fire giants, hotfooting it past Brimhaven Dungeon's lava.",
                 (DiaryCondition('combat_kill', 'fire_giant', 3, 'Kill fire giant'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into elite',
                 207,
@@ -557,7 +557,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_shipping_out_from_the_shipyard',
                 'Ship Happens',
-                "Stock up at Trader Stan's, then catch three sharks for the voyage.",
+                "Buy Trader Stan's supply kit, then catch three sharks for the voyage.",
                 (DiaryCondition('shop_transaction', 'buy|trader_stans_trading_post|trader_stans_trading_post:4:954', 1, 'Buy a Rope'), DiaryCondition('shop_transaction', 'buy|trader_stans_trading_post|trader_stans_trading_post:5:946', 1, 'Buy a Knife'), DiaryCondition('shop_transaction', 'buy|trader_stans_trading_post|trader_stans_trading_post:14:301', 1, 'Buy a Lobster pot'), DiaryCondition('shop_transaction', 'buy|trader_stans_trading_post|trader_stans_trading_post:9:1785', 1, 'Buy a Glassblowing pipe'), DiaryCondition('ledger_action', 'fishing:catch_sharks', 3, 'Catch sharks'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into elite',
                 210,
@@ -568,7 +568,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'karamja_medium_stairway_to_haven',
                 'Deep Trouble',
-                'Defeat three greater demons in the depths of Brimhaven Dungeon.',
+                'Defeat three greater demons, the depths of Brimhaven Dungeon.',
                 (DiaryCondition('combat_kill', 'greater_demon', 3, 'Kill greater demon'),),
                 'Darkan KaramjaTasks; rev-727 cache enum 3483; corroborated by Karamja achievements oldid=6372400 (2012-10-09T03:25:58Z); original period tier medium; curated into elite',
                 208,

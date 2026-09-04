@@ -49,7 +49,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_easy_bunch_of_flours',
                 'A Bunch of Flours',
-                'Grind grain into five pots of flour at the windmill.',
+                'Grind grain into five pots of flour, a bunch of flours for Sinclair.',
                 (DiaryCondition('ledger_action', 'utility:grind_grain_to_flour', 5, 'Grind grain to flour'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 227,
@@ -60,7 +60,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_easy_sinclair_swirling',
                 'Dairy Air',
-                'Churn milk into a cheese wheel at the Sinclair Mansion.',
+                'Churn milk into a cheese wheel, Sinclair Mansion dairy style.',
                 (DiaryCondition('ledger_action', 'cooking:churn_milk_cheese_wheel', 1, 'Churn milk cheese wheel'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 229,
@@ -102,7 +102,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_easy_why',
                 'String Theory',
-                "Spin flax into bow string in Seers' Village.",
+                "Spin flax into bow string, Seers' Village's string theory.",
                 (DiaryCondition('ledger_action', 'crafting:spin_flax_to_bow_string', 1, 'Spin flax to bow string'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 222,
@@ -122,7 +122,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_easy_la_morte_d_arthur',
                 'A Toxic Classic',
-                "Brew weapon poison in Seers' Village.",
+                "Brew weapon poison, a toxic classic of Seers' Village.",
                 (DiaryCondition('ledger_action', 'herblore:finished_weapon_poison', 1, 'Finished weapon poison'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 225,
@@ -167,7 +167,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_medium_fleeing_the_scene',
                 'Fleeing the Scene',
-                'Run three laps of the Barbarian Outpost agility course.',
+                'Run three laps of the Barbarian Outpost course, fleeing the scene.',
                 (DiaryCondition('ledger_action', 'agility:barbarian_normal', 3, 'Complete Barbarian course laps'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 233,
@@ -178,7 +178,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_medium_it_s_a_slightly_magical_stick',
                 "It's a Slightly Magical Stick",
-                'Attach an orb to make a water battlestaff.',
+                'Attach an orb to make a water battlestaff, a slightly magical stick.',
                 (DiaryCondition('ledger_action', 'crafting:battlestaff_water_battlestaff', 1, 'Battlestaff water battlestaff'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 234,
@@ -189,7 +189,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_medium_king_coal',
                 'King Coal',
-                "Spend the coal trucks' haul smithing a steel platebody.",
+                "Smith a steel platebody, from the coal trucks' haul.",
                 (DiaryCondition('ledger_action', 'smithing:forge_steel_platebody', 1, 'Forge steel platebody'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 235,
@@ -244,7 +244,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_medium_i_can_seer_my_house_from_here',
                 'I Can Seer My House From Here',
-                'Cast Teleport to House from Kandarin.',
+                "Cast Teleport to House, and see your house from Seers'.",
                 (DiaryCondition('ledger_action', 'magic:teleport_to_house', 1, 'Teleport to house'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 240,
@@ -367,7 +367,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_hard_island_hopper',
                 'Island Hopper',
-                'Cast Waterbirth Teleport to reach the island no path serves.',
+                'Cast Waterbirth Teleport, the island no path serves.',
                 (DiaryCondition('ledger_action', 'magic:waterbirth_teleport', 1, 'Waterbirth teleport'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 252,
@@ -411,7 +411,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_hard_at_home_on_the_range',
                 'At Home on the Range',
-                'Complete five rounds at the Ranging Guild in Hemenster.',
+                'Complete five Ranging Guild rounds, at home on the Hemenster range.',
                 (DiaryCondition('ledger_action', 'utility:ranging_guild', 5, 'Ranging guild rounds'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z)",
                 245,
@@ -532,7 +532,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_medium_at_least_it_doesn_t_need_walking',
                 "Harry's Fishing Kit",
-                'Buy all five fishing tools from Harry, then catch sharks.',
+                "Buy all five fishing tools from Harry's Fishing Shop, then catch sharks.",
                 (DiaryCondition('shop_transaction', 'buy|harrys_fishing_shop_qol_feathers_added|harrys_fishing_shop_qol_feathers_added:0:303', 1, 'Buy a Small fishing net'), DiaryCondition('shop_transaction', 'buy|harrys_fishing_shop_qol_feathers_added|harrys_fishing_shop_qol_feathers_added:1:307', 1, 'Buy a Fishing rod'), DiaryCondition('shop_transaction', 'buy|harrys_fishing_shop_qol_feathers_added|harrys_fishing_shop_qol_feathers_added:2:311', 1, 'Buy a Harpoon'), DiaryCondition('shop_transaction', 'buy|harrys_fishing_shop_qol_feathers_added|harrys_fishing_shop_qol_feathers_added:3:301', 1, 'Buy a Lobster pot'), DiaryCondition('shop_transaction', 'buy|harrys_fishing_shop_qol_feathers_added|harrys_fishing_shop_qol_feathers_added:5:305', 1, 'Buy a Big fishing net'), DiaryCondition('ledger_action', 'fishing:catch_sharks', 1, 'Catch sharks'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z); original period tier medium; curated into elite",
                 242,
@@ -542,7 +542,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'seers_easy_happy_hour',
                 'A Long Story',
-                "String a magic longbow in Seers' Village.",
+                "String a magic longbow, a long story for Seers' Village.",
                 (DiaryCondition('ledger_action', 'fletching:string_magic_longbow', 1, 'String a magic longbow'),),
                 "Darkan SeersVillageTasks; rev-727 cache enum 3483; corroborated by Seers' Village achievements oldid=6504286 (2012-10-30T17:38:08Z); original period tier easy; curated into elite",
                 228,

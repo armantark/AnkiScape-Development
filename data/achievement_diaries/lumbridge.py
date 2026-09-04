@@ -27,7 +27,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_a_grave_consideration',
                 'A Grave Consideration',
-                'Bury a set of bones in the Lumbridge churchyard.',
+                'Bury a set of bones, a grave consideration for the Lumbridge churchyard.',
                 (DiaryCondition('ledger_action', 'prayer:bury_bones', 1, 'Bury bones'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 61,
@@ -48,7 +48,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_doom',
                 'Duly Warned',
-                'Complete the Stronghold of Player Safety lesson.',
+                'Complete the Stronghold of Player Safety lesson, duly warned.',
                 (DiaryCondition('ledger_action', 'utility:stronghold_player_safety', 1, 'Stronghold player safety'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 62,
@@ -58,7 +58,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_shrimpin_ain_t_easy',
                 "Shrimpin' Ain't Easy",
-                'Catch a shrimp from the fishing spot east of Lumbridge Swamp.',
+                'Catch a shrimp, the first catch of every Lumbridge fisher.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJjYXRjaF9zaHJpbXBfYW5jaG92aWVzIiwic2tpbGxfaWQiOiJmaXNoaW5nIiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9LCJndGUiOnsib3V0cHV0cy5SYXcgc2hyaW1wcyI6MX19fQ', 1, 'Catch raw shrimps'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 63,
@@ -68,7 +68,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_master_of_all_i_survey',
                 'Hops to It',
-                'Harvest hops from the patch beside Lumbridge.',
+                'Harvest hops from the Lumbridge hops patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJraW5kIjoiaGFydmVzdCIsInBhdGNoX2lkIjoibHVtYnJpZGdlX2hvcHMiLCJ0eXBlIjoiZmFybWluZ19yZXN1bHQifX19', 1, 'Complete harvest at lumbridge_hops'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 64,
@@ -78,7 +78,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_raise_the_roof',
                 'Raise the Roof',
-                'Buy a new room for your player-owned house.',
+                'Buy a new room for your player-owned house, and raise the roof.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJwdXJjaGFzZV9yb29tIiwidHlwZSI6ImNvbnN0cnVjdGlvbl9jb21tYW5kIn19fQ', 1, 'Complete construction command'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 65,
@@ -88,7 +88,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_hail_to_the_duke_baby',
                 'Air Apparent',
-                'Bind an air tiara with an air talisman at the Air Altar.',
+                "Bind an air tiara with an air talisman, the Duke's air apparent.",
                 (DiaryCondition('ledger_action', 'runecrafting:bind_air_tiara', 1, 'Bind air tiara'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 66,
@@ -118,7 +118,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_sage_advice',
                 'Spin Doctor',
-                "Spin a ball of wool at Lumbridge Castle's spinning wheel.",
+                'Spin a ball of wool, as the Lumbridge sage would advise.',
                 (DiaryCondition('ledger_action', 'crafting:spin_wool_to_ball_of_wool', 1, 'Spin a ball of wool'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 69,
@@ -128,7 +128,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_tinkle_the_ivories',
                 'Ghost of a Chance',
-                'Defeat a ghost haunting Draynor Manor.',
+                'Defeat a ghost, the Draynor Manor kind.',
                 (DiaryCondition('combat_kill', 'ghost', 1, 'Kill ghost'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 70,
@@ -138,7 +138,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_beginner_passing_out',
                 'Past the Toll',
-                "Buy two kebabs from Karim by Al Kharid's gate.",
+                'Buy two kebabs from Karim, toll money well spent.',
                 (DiaryCondition('shop_transaction', 'vendor_action||karim_buy_kebab', 2, 'Buy a kebab from Karim'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 71,
@@ -227,7 +227,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_what_is_this_place',
                 'Rune With It',
-                "Craft air runes from essence out of the Wizards' Tower mine.",
+                "Craft air runes, the Wizards' Tower's first lesson.",
                 (DiaryCondition('ledger_action', 'runecrafting:craft_air_runes', 1, 'Craft air runes'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 97,
@@ -249,7 +249,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_iron_on',
                 'Iron On',
-                "Mine iron ore at the mining spot north of Al Kharid's gate.",
+                'Mine iron ore, as the miners east of Lumbridge do.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJpcm9uIiwic2tpbGxfaWQiOiJtaW5pbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn0sImd0ZSI6eyJvdXRwdXRzLklyb24gb3JlIjoxfX19', 1, 'Mine iron ore'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 102,
@@ -260,7 +260,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_come_in_here_and_say_that',
                 'Come In Here and Say That',
-                "Cast Enchant Opal bolts from the top of the Wizards' Tower.",
+                "Cast Enchant Opal bolts, and say that to the Wizards' Tower demon.",
                 (DiaryCondition('ledger_action', 'magic:enchant_opal_bolts', 1, 'Cast Enchant Opal bolts'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 87,
@@ -270,7 +270,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_klept_old_man_ia',
                 'Draynor Deposit Scheme',
-                'Complete two Bank runs that each deposit a non-coin item in Draynor Village.',
+                'Complete two Bank runs that each deposit a non-coin item.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJzZXF1ZW5jZSI6W3siZXEiOnsiZGVwb3NpdGVkX25vbl9jb2luIjp0cnVlLCJ0eXBlIjoiYmFua19ydW4ifX0seyJlcSI6eyJkZXBvc2l0ZWRfbm9uX2NvaW4iOnRydWUsInR5cGUiOiJiYW5rX3J1biJ9fV19', 1, 'Complete two non-coin Bank runs'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 89,
@@ -280,7 +280,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_eye_on_the_prize',
                 'Eye on the Prize',
-                'Watch the skies above Draynor Village for a falling star.',
+                "Mine a shooting star, the one the Wise Old Man's telescope found.",
                 (DiaryCondition('ledger_action', 'utility:shooting_stars', 1, 'Shooting stars'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 90,
@@ -305,7 +305,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_medium_everybody_loves_coal',
                 'Everybody Loves Coal!',
-                'Mine coal from the mining spot south-west of Lumbridge Swamp.',
+                "Mine coal, everybody's favourite of the Lumbridge Swamp miners.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJjb2FsIiwic2tpbGxfaWQiOiJtaW5pbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn0sImd0ZSI6eyJvdXRwdXRzLkNvYWwiOjF9fX0', 1, 'Mine coal'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 103,
@@ -338,7 +338,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_medium_weeping_willow',
                 'Weeping Willow',
-                'Cut willow logs from the trees east of Lumbridge Castle.',
+                'Cut willow logs, from trees that weep beside Lumbridge Castle.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJ3aWxsb3ciLCJza2lsbF9pZCI6Indvb2RjdXR0aW5nIiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9LCJndGUiOnsib3V0cHV0cy5XaWxsb3cgbG9ncyI6MX19fQ', 1, 'Cut willow logs'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 106,
@@ -451,7 +451,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_hard_a_body_in_the_sewers',
                 'A Body in the Sewers',
-                "Forge a mithril platebody on the anvil beneath Lumbridge's jail.",
+                "Forge a mithril platebody, the jailhouse sewers' finest work.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJmb3JnZV9taXRocmlsX3BsYXRlYm9keSIsInNraWxsX2lkIjoic21pdGhpbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn0sImd0ZSI6eyJvdXRwdXRzLk1pdGhyaWwgcGxhdGVib2R5IjoxfX19', 1, 'Smith a mithril platebody'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z)',
                 351,
@@ -528,7 +528,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_nowt_tool_look_at',
                 'Eel of Fortune',
-                'Catch a cave eel in the caves beneath the Lumbridge Swamp.',
+                'Catch a cave eel, the fortune of the Lumbridge Swamp caves.',
                 (DiaryCondition('ledger_action', 'fishing:catch_cave_eel', 1, 'Catch cave eel'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 92,
@@ -548,7 +548,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_camping_trip',
                 'Glamping Trip',
-                'Roast a lobster over your campfire in Lumbridge Swamp.',
+                'Roast a lobster over the campfire, glamping in Lumbridge Swamp.',
                 (DiaryCondition('ledger_action', 'cooking:cook_lobster', 1, 'Cook a lobster'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 95,
@@ -558,7 +558,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_ratatouille',
                 'Cave to Table',
-                'Cook a cave eel fresh from the Lumbridge Swamp caves.',
+                'Cook a cave eel, cave to table.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJjb29rX2NhdmVfZWVsIiwic2tpbGxfaWQiOiJjb29raW5nIiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9LCJndGUiOnsib3V0cHV0cy5DYXZlIGVlbCI6MX19fQ', 1, 'Cook a cave eel'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 96,
@@ -568,7 +568,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'lumbridge_easy_money_down_the_drayn',
                 'Bark Up the Churchyard',
-                'Cut five yew logs from behind the Lumbridge church.',
+                'Cut five yew logs, from the yews behind Lumbridge church.',
                 (DiaryCondition('ledger_action', 'woodcutting:yew', 5, 'Cut yew logs'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 98,

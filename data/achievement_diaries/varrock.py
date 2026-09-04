@@ -49,7 +49,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_easy_jumping_off_point',
                 'A Berry Good Start',
-                "Harvest a redberry from the bush patch by the Champions' Guild.",
+                "Harvest a redberry from the Champions' Guild bush patch.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoicmVkYmVycnkiLCJraW5kIjoiaGFydmVzdCIsInBhdGNoX2lkIjoiY2hhbXBpb25zX2J1c2giLCJ0eXBlIjoiZmFybWluZ19yZXN1bHQifSwiZ3RlIjp7Im91dHB1dHMuUmVkYmVycmllcyI6MX19fQ', 1, 'Complete harvest at champions_bush'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 261,
@@ -70,7 +70,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_easy_pot_stop',
                 'Pot Stop',
-                "Make a bowl on a potter's wheel then fire it in the pottery oven in Barbarian Village.",
+                "Form a bowl on a potter's wheel, then fire it, Barbarian Village style.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJzZXF1ZW5jZSI6W3siZXEiOnsiYWN0aW9uX2lkIjoiZm9ybV9ib3dsX3VuZmlyZWQiLCJza2lsbF9pZCI6ImNyYWZ0aW5nIiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9fSx7ImVxIjp7ImFjdGlvbl9pZCI6ImZpcmVfYm93bCIsInNraWxsX2lkIjoiY3JhZnRpbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn19XX0', 1, 'Form and fire a bowl'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 265,
@@ -81,7 +81,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_easy_relocation_relocation_relocation',
                 'Relocation, Relocation, Relocation',
-                'Buy a house from the Varrock estate agent.',
+                'Buy a house from the estate agent, relocation Varrock style.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJwdXJjaGFzZV9ob3VzZSIsInR5cGUiOiJjb25zdHJ1Y3Rpb25fY29tbWFuZCJ9fX0', 1, 'Complete construction command'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 267,
@@ -125,7 +125,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_easy_strike_a_pose',
                 'Strike a Pose',
-                "Buy a Pink skirt from Thessalia's Clothing in Varrock.",
+                "Buy a Pink skirt from Thessalia's Clothing.",
                 (DiaryCondition('shop_transaction', 'buy|thessalias_clothing|thessalias_clothing:5:1013', 1, 'thessalias clothing:5:1013'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 256,
@@ -170,7 +170,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_medium_what_lies_below',
                 'What Lies Below?',
-                'Use the Chaos altar teleport, the quick route north from Varrock.',
+                'Use a Chaos altar teleport, the quick route north of Varrock.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhbHRhcl9pZCI6ImNoYW9zIiwidHlwZSI6ImdyZWF0X29yYl9wcm9qZWN0X3RlbGVwb3J0In19fQ', 1, 'Use a Chaos altar teleport'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 277,
@@ -192,7 +192,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_medium_point_of_en_tree',
                 'Point of En-tree',
-                'Cut a yew from the trees behind Varrock Palace.',
+                'Cut a yew, from the trees behind Varrock Palace.',
                 (DiaryCondition('ledger_action', 'woodcutting:yew', 1, 'Cut a yew'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 280,
@@ -214,7 +214,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_medium_for_fast_transactions',
                 'Quick Turnaround',
-                'Teleport to Varrock three times, then sell a hammer in the city.',
+                'Cast Varrock Teleport three times, then sell a hammer to the general store.',
                 (DiaryCondition('ledger_action', 'magic:varrock_teleport', 3, 'Cast Varrock Teleport'), DiaryCondition('shop_transaction', 'sell|varrock_general_store|varrock_general_store:5:2347', 1, 'Sell a Hammer in Varrock'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 283,
@@ -225,7 +225,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_medium_you_wouldn_t_like_me_when_i_m_angry',
                 'Court Is in Session',
-                'Argue your case in the Varrock Courthouse.',
+                "Argue a case in Court Cases, Varrock Courthouse's finest hour.",
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJlbnRlciIsInR5cGUiOiJjb3VydF9jYXNlc19jb21tYW5kIn19fQ', 1, 'Complete court cases command'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 284,
@@ -236,7 +236,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_medium_return_to_senntisten',
                 'Return to Senntisten',
-                'Cast Senntisten Teleport to reach the Digsite.',
+                "Cast Senntisten Teleport, the Digsite's ancient road.",
                 (DiaryCondition('ledger_action', 'magic:senntisten_teleport', 1, 'Senntisten teleport'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 285,
@@ -258,7 +258,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_medium_royale_with_thieve',
                 'Royale With Thieve',
-                'Pickpocket guards in the Varrock Palace courtyard.',
+                "Pickpocket three guards, the Varrock Palace courtyard's finest.",
                 (DiaryCondition('ledger_action', 'thieving:pickpocket_guard', 3, 'Pickpocket guards'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 287,
@@ -291,7 +291,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_medium_engage',
                 'Engage',
-                'Burn ten willow logs to fuel the balloon east of Varrock.',
+                'Burn ten willow logs, fuel for the Varrock balloon.',
                 (DiaryCondition('ledger_action', 'firemaking:willow_logs', 10, 'Burn willow logs'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 292,
@@ -328,7 +328,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_hard_but_it_won_t_warp_you_anywhere',
                 'Tunnel Vision',
-                'Squeeze through the tunnels of the Dorgesh-Kaan Agility Course.',
+                'Complete the Dorgesh-Kaan Agility Course, tunnels and all.',
                 (DiaryCondition('ledger_action', 'agility:dorgesh_kaan', 1, 'Dorgesh kaan'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 297,
@@ -339,7 +339,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_hard_put_your_smithing_hat_on',
                 'Put Your Smithing Hat On',
-                'Smith an adamant med helm in Varrock.',
+                "Smith an adamant med helm, Varrock's smithing hat.",
                 (DiaryCondition('ledger_action', 'smithing:forge_adamant_med_helm', 1, 'Smith an adamant med helm'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 299,
@@ -360,7 +360,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_hard_who_ate_all_the_pie',
                 'Who Ate All the Pie?',
-                'Bake a wild pie fit for the Cooking Guild west of Varrock.',
+                'Cook a wild pie, fit for the Cooking Guild.',
                 (DiaryCondition('ledger_action', 'cooking:cook_wild_pie', 1, 'Cook wild pie'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 301,
@@ -382,7 +382,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_hard_changing_rooms',
                 'Changing Rooms',
-                'Have the Varrock estate agent give your house a fancy stone or tropical wood finish.',
+                'Buy a premium house style, a fancy stone or tropical wood finish.',
                 (DiaryCondition('any_of', '', 1, 'Buy a premium house style', (DiaryCondition('state_equals', 'house_style', 1, 'Buy the fancy stone house style', expected='fancy_stone'), DiaryCondition('state_equals', 'house_style', 1, 'Buy the tropical wood house style', expected='tropical_wood'),)),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 304,
@@ -473,7 +473,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_elite_nomadness',
                 'Nomadness',
-                'Fight a battle for souls on the Soul Wars island.',
+                'Fight a round of Soul Wars, nomadness on the island.',
                 (DiaryCondition('ledger_action', 'utility:soul_wars', 1, 'Soul wars'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 338,
@@ -517,7 +517,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_elite_red_red_pies_of_summer',
                 'Red, Red Pies of Summer',
-                'Bake a summer pie from scratch for the Cooking Guild.',
+                'Bake a summer pie from scratch, red, red pies for the Cooking Guild.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJzZXF1ZW5jZSI6W3siZXEiOnsiYWN0aW9uX2lkIjoid2V0X2Zsb3VyX3RvX3Bhc3RyeV9kb3VnaCIsInNraWxsX2lkIjoidXRpbGl0eSIsInN1Y2Nlc3MiOnRydWUsInR5cGUiOiJhY3Rpb24ifX0seyJlcSI6eyJhY3Rpb25faWQiOiJtYWtlX3BpZV9zaGVsbCIsInNraWxsX2lkIjoidXRpbGl0eSIsInN1Y2Nlc3MiOnRydWUsInR5cGUiOiJhY3Rpb24ifX0seyJlcSI6eyJhY3Rpb25faWQiOiJhc3NlbWJsZV9zdW1tZXJfcGllIiwic2tpbGxfaWQiOiJ1dGlsaXR5Iiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9fSx7ImVxIjp7ImFjdGlvbl9pZCI6ImNvb2tfc3VtbWVyX3BpZSIsInNraWxsX2lkIjoiY29va2luZyIsInN1Y2Nlc3MiOnRydWUsInR5cGUiOiJhY3Rpb24ifX1dfQ', 1, 'Bake a summer pie from scratch'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 342,
@@ -528,7 +528,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_elite_splitting_headache',
                 'Splitting Headache',
-                'Slay a skeleton in the Varrock Sewers with Soul Split enabled.',
+                'Defeat a skeleton with Soul Split selected, a splitting headache.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3RpdmVfcHJheWVyX3NlbGVjdGlvbiI6InNvdWxfc3BsaXQiLCJza2lsbF9pZCI6ImNvbWJhdCIsInN1Y2Nlc3MiOnRydWUsInR5cGUiOiJhY3Rpb24ifSwiZ3RlIjp7ImtpbGxzIjoxfSwiaW4iOnsiYWN0aW9uX2lkIjpbInNrZWxldG9uX2xldmVsXzIxIiwic2tlbGV0b25fbGV2ZWxfMjIiLCJza2VsZXRvbl9sZXZlbF8yNSIsInNrZWxldG9uX2xldmVsXzQ1Iiwic2tlbGV0b25fbGV2ZWxfNjAiLCJza2VsZXRvbl9sZXZlbF82OCIsInNrZWxldG9uX2xldmVsXzg1Il19fX0', 1, 'Kill a skeleton with Soul Split selected'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 343,
@@ -539,7 +539,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_elite_a_bolt_from_the_blue',
                 'A Bolt from the Blue',
-                'Smith and fletch ten rune bolts at once within Varrock.',
+                'Smith and feather ten rune bolts, a bolt from the blue.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJzZXF1ZW5jZSI6W3siZXEiOnsiYWN0aW9uX2lkIjoiZm9yZ2VfcnVuaXRlX2JvbHRzX3VuZiIsInNraWxsX2lkIjoic21pdGhpbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn0sImd0ZSI6eyJvdXRwdXRzLlJ1bml0ZSBib2x0cyAodW5mKSI6MTB9fSx7ImVxIjp7ImFjdGlvbl9pZCI6ImZlYXRoZXJfcnVuaXRlX2JvbHRzIiwic2tpbGxfaWQiOiJmbGV0Y2hpbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn0sImd0ZSI6eyJvdXRwdXRzLlJ1bml0ZSBib2x0cyI6MTB9fV19', 1, 'Smith and feather ten rune bolts'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 344,
@@ -572,7 +572,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_medium_the_body_shop',
                 'Lowe and Behold',
-                "Fletch a magic shortbow for Lowe's Archery Emporium in Varrock.",
+                "Fletch a magic shortbow, for Lowe's Archery Emporium.",
                 (DiaryCondition('ledger_action', 'fletching:magic_shortbow_u', 1, 'Fletch a magic shortbow'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z); original period tier medium; curated into elite',
                 295,
@@ -583,7 +583,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'varrock_hard_intersceptre',
                 'Intersceptre',
-                'Combine the skull sceptre from its Stronghold of Security pieces.',
+                'Combine the skull sceptre from its four Stronghold of Security pieces.',
                 (DiaryCondition('ledger_action', 'crafting:combine_skull_sceptre', 1, 'Combine skull sceptre'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z); original period tier hard; curated into elite',
                 303,

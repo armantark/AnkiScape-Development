@@ -27,7 +27,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_easy_the_essence_of_magic',
                 'The Essence of Magic',
-                'Mine rune essence at the Rune Essence mine.',
+                "Mine rune essence, the way every Ardougne wizard's apprentice starts.",
                 (DiaryCondition('ledger_action', 'mining:rune_essence', 1, 'Rune essence'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 0,
@@ -71,7 +71,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_easy_boot_camp',
                 'Ball Control',
-                'Play Gnome Ball at the stadium north-west of Ardougne.',
+                "Play a game of Gnome Ball, Ardougne's rowdiest training camp.",
                 (DiaryCondition('ledger_action', 'agility:gnome_ball', 1, 'Gnome ball'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 6,
@@ -104,7 +104,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_easy_red_revolution',
                 'Tomato Diplomacy',
-                'Harvest a tomato from the allotment north of Ardougne.',
+                'Harvest a tomato from the Ardougne allotment patch, ammunition for the recruiter.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoidG9tYXRvIiwia2luZCI6ImhhcnZlc3QiLCJwYXRjaF9pZCI6ImFyZG91Z25lX2FsbG90bWVudF9ub3J0aCIsInR5cGUiOiJmYXJtaW5nX3Jlc3VsdCJ9LCJndGUiOnsib3V0cHV0cy5Ub21hdG8iOjF9fX0', 1, 'Complete harvest at ardougne_allotment_north'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 9,
@@ -115,7 +115,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_easy_breaking_and_entering',
                 'Breaking and Entering',
-                'Attempt to steal from the silk stall in Ardougne Market.',
+                "Attempt a theft from the silk stall, Ardougne Market's easiest mark.",
                 (DiaryCondition('counter', 'action_telemetry.actions.thieving:stall_silk.attempts', 1, 'Attempt stall silk'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 11,
@@ -126,7 +126,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_easy_party_pooper',
                 'Monastic Misconduct',
-                'Defeat a monk at the monastery south of Ardougne.',
+                'Defeat a monk, and let the monastery south of Ardougne keep its balloons.',
                 (DiaryCondition('combat_kill', 'monk', 1, 'Kill monk'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 14,
@@ -172,7 +172,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_sandy_s_secret_getaway',
                 'Grapple Practice',
-                'Smith a mithril grapple tip for the shortcuts around Yanille.',
+                "Smith a mithril grapple tip, the key to Yanille's shortcuts.",
                 (DiaryCondition('ledger_action', 'smithing:forge_mith_grapple_tip', 1, 'Forge mith grapple tip'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 25,
@@ -194,7 +194,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_what_a_melon',
                 'What, a Melon?',
-                'Harvest a watermelon from the allotment north of Ardougne.',
+                'Harvest a watermelon from the Ardougne allotment patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoid2F0ZXJtZWxvbiIsImtpbmQiOiJoYXJ2ZXN0IiwicGF0Y2hfaWQiOiJhcmRvdWduZV9hbGxvdG1lbnRfbm9ydGgiLCJ0eXBlIjoiZmFybWluZ19yZXN1bHQifSwiZ3RlIjp7Im91dHB1dHMuV2F0ZXJtZWxvbiI6MX19fQ', 1, 'Harvest a watermelon at the Ardougne allotment'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 28,
@@ -205,7 +205,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_arriving_in_style',
                 'Arriving in Style',
-                'Report for barricade duty at Castle Wars.',
+                'Fight a round of Castle Wars, arriving in style at the front line.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJkdXR5IjoiYmFycmljYWRlIiwidHlwZSI6ImNhc3RsZV93YXJzX3JldmlldyJ9fX0', 1, 'Complete castle wars review'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 30,
@@ -216,7 +216,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_meeting_history_again',
                 'Herb Your Enthusiasm',
-                'Harvest ranarr from the herb patch north of Ardougne.',
+                'Harvest ranarr from the Ardougne herb patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoicmFuYXJyIiwia2luZCI6ImhhcnZlc3QiLCJwYXRjaF9pZCI6ImFyZG91Z25lX2hlcmIiLCJ0eXBlIjoiZmFybWluZ19yZXN1bHQifSwiZ3RlIjp7Im91dHB1dHMuR3JpbXkgcmFuYXJyIjoxfX19', 1, 'Harvest ranarr at the Ardougne herb patch'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 32,
@@ -227,7 +227,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_fearless_fishing',
                 'Fearless Fishing',
-                'Catch a fish with a small net or rod at the Fishing Platform.',
+                'Catch a fish with a small net or a rod, as the Fishing Platform crews do.',
                 (DiaryCondition('any_of', '', 1, 'Catch a fish with a small net or sea rod', (DiaryCondition('ledger_action', 'fishing:catch_shrimp_anchovies', 1, 'Catch with a small net'), DiaryCondition('ledger_action', 'fishing:catch_sardine_herring', 1, 'Catch with a sea rod'),)),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 33,
@@ -238,7 +238,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_water_logged',
                 'Pike Place',
-                'Catch a pike from the River Dougne.',
+                "Catch a pike, the River Dougne's finest.",
                 (DiaryCondition('ledger_action', 'fishing:catch_pike', 1, 'Catch pike'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 34,
@@ -249,7 +249,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_green_fingers',
                 'Green Fingers',
-                'Pickpocket the master farmer at the farm north of Ardougne.',
+                "Pickpocket a master farmer, Ardougne's richest pair of overalls.",
                 (DiaryCondition('ledger_action', 'thieving:pickpocket_master_farmer', 1, 'Pickpocket a Master farmer'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 35,
@@ -260,7 +260,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_a_natural_thief',
                 'Fur the Win',
-                'Attempt to steal from the fur stall in Ardougne Market.',
+                "Attempt a theft from the fur stall, Ardougne Market's warmest mark.",
                 (DiaryCondition('counter', 'action_telemetry.actions.thieving:stall_fur.attempts', 1, 'Attempt stall fur'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 36,
@@ -271,7 +271,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_the_coal_train',
                 'The Coal Train',
-                'Mine coal from the rocks east of Ardougne.',
+                "Mine coal, the fuel that keeps Ardougne's coal train running.",
                 (DiaryCondition('ledger_action', 'mining:coal', 1, 'Mine coal'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 37,
@@ -330,7 +330,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_hard_brace_yourself',
                 "A Legend's Purchase",
-                "Buy a Cape of legends at the Legends' Guild.",
+                "Buy a Cape of legends from the Legends' Guild shop.",
                 (DiaryCondition('shop_transaction', 'buy|legends_guild_shop_of_useful_items|legends_guild_shop_of_useful_items:4:1052', 1, 'legends guild shop of useful items:4:1052'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 39,
@@ -352,7 +352,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_hard_just_like_that',
                 'Just Like That',
-                'Buy all four elemental staves from the Magic Guild shop in Yanille.',
+                'Buy all four elemental staves from the Magic Guild shop, just like that.',
                 (DiaryCondition('shop_transaction', 'buy|magic_guild_store_runes|magic_guild_store_runes:12:1381', 1, 'Buy a Staff of air'), DiaryCondition('shop_transaction', 'buy|magic_guild_store_runes|magic_guild_store_runes:13:1383', 1, 'Buy a Staff of water'), DiaryCondition('shop_transaction', 'buy|magic_guild_store_runes|magic_guild_store_runes:14:1385', 1, 'Buy a Staff of earth'), DiaryCondition('shop_transaction', 'buy|magic_guild_store_runes|magic_guild_store_runes:15:1387', 1, 'Buy a Staff of fire'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 41,
@@ -363,7 +363,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_hard_nice_view',
                 'Nice View',
-                'Cast Watchtower Teleport three times, bound for the tower above Yanille.',
+                'Cast Watchtower Teleport three times, for the best view over Yanille.',
                 (DiaryCondition('ledger_action', 'magic:watchtower_teleport', 3, 'Cast Watchtower Teleport'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 42,
@@ -407,7 +407,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_hard_get_your_stinking_hands_off_me',
                 'Big Wolf on Campus',
-                'Defeat three big wolves at the Ardougne Zoo.',
+                'Defeat three big wolves, escapees from the Ardougne Zoo.',
                 (DiaryCondition('combat_kill', 'big_wolf', 3, 'Defeat big wolves'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 47,
@@ -429,7 +429,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_hard_monkey_business',
                 'Monkey Business',
-                'Cross the monkey bars on the Ape Atoll Agility Course.',
+                'Complete the Ape Atoll Agility Course, monkey bars and all.',
                 (DiaryCondition('ledger_action', 'agility:ape_atoll', 1, 'Ape atoll'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 51,
@@ -488,7 +488,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_elite_you_could_just_knock',
                 'A Gem in the Rough',
-                'Attempt to steal from the gem stall in Ardougne Market.',
+                "Attempt a theft from the gem stall, Ardougne Market's richest mark.",
                 (DiaryCondition('counter', 'action_telemetry.actions.thieving:stall_gem.attempts', 1, 'Attempt stall gem'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 58,
@@ -499,7 +499,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_elite_honestly_it_s_not_a_purse',
                 'Nature Calls',
-                'Cast Ourania Teleport, then craft nature runes at the Ourania altar.',
+                'Cast Ourania Teleport, then craft nature runes, as the Ourania altar demands.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJzZXF1ZW5jZSI6W3siZXEiOnsiYWN0aW9uX2lkIjoib3VyYW5pYV90ZWxlcG9ydCIsInNraWxsX2lkIjoibWFnaWMiLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn19LHsiZXEiOnsiYWN0aW9uX2lkIjoiY3JhZnRfbmF0dXJlX3J1bmVzIiwic2tpbGxfaWQiOiJydW5lY3JhZnRpbmciLCJzdWNjZXNzIjp0cnVlLCJ0eXBlIjoiYWN0aW9uIn19XX0', 1, 'Teleport to Ourania and craft nature runes'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 59,
@@ -510,7 +510,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_elite_almost_made_in_ardougne',
                 'Almost Made in Ardougne',
-                'Make a rune crossbow from scratch, every step in Witchaven or Yanille.',
+                'Make a rune crossbow from scratch, limbs, stock, and string, the Yanille way.',
                 (DiaryCondition('ledger_action', 'smithing:forge_runite_limbs', 1, 'Smith runite limbs'), DiaryCondition('ledger_action', 'fletching:yew_stock', 1, 'Make a yew stock'), DiaryCondition('ledger_action', 'crafting:spin_sinew_to_crossbow_string', 1, 'Spin a crossbow string'), DiaryCondition('ledger_action', 'fletching:combine_rune_cbow_u', 1, 'Assemble an unstrung rune crossbow'), DiaryCondition('ledger_action', 'fletching:combine_rune_crossbow', 1, 'String a rune crossbow'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z)',
                 60,
@@ -521,7 +521,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_hard_a_taste_of_the_exotic',
                 'A Taste of the Exotic',
-                'Harvest a papaya or coconut at the Tree Gnome Village fruit tree patch.',
+                'Harvest a papaya or coconut from the Tree Gnome Village fruit tree patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJhbnkiOlt7ImVxIjp7ImNyb3BfaWQiOiJwYXBheWEiLCJraW5kIjoiaGFydmVzdCIsInBhdGNoX2lkIjoiZ25vbWVfdmlsbGFnZV9mcnVpdCIsInR5cGUiOiJmYXJtaW5nX3Jlc3VsdCJ9LCJndGUiOnsib3V0cHV0cy5QYXBheWEgZnJ1aXQiOjF9fSx7ImVxIjp7ImNyb3BfaWQiOiJwYWxtIiwia2luZCI6ImhhcnZlc3QiLCJwYXRjaF9pZCI6Imdub21lX3ZpbGxhZ2VfZnJ1aXQiLCJ0eXBlIjoiZmFybWluZ19yZXN1bHQifSwiZ3RlIjp7Im91dHB1dHMuQ29jb251dCI6MX19XSwiZXEiOnsia2luZCI6ImhhcnZlc3QiLCJwYXRjaF9pZCI6Imdub21lX3ZpbGxhZ2VfZnJ1aXQiLCJ0eXBlIjoiZmFybWluZ19yZXN1bHQifX19', 1, 'Harvest a papaya or coconut at Tree Gnome Village'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 53,
@@ -532,7 +532,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_hard_blood_bank_withdrawal',
                 'Hero Worship',
-                'Successfully pickpocket a Hero in Ardougne.',
+                "Successfully pickpocket a Hero, Ardougne's proudest purse.",
                 (DiaryCondition('ledger_action', 'thieving:pickpocket_hero', 1, 'Pickpocket a Hero'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 54,
@@ -564,7 +564,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_hard_living_on_a_prayer',
                 "Dragon's Last Rites",
-                'Bury dragon bones at the monastery south of Ardougne.',
+                'Bury dragon bones, last rites the Ardougne monks would envy.',
                 (DiaryCondition('ledger_action', 'prayer:bury_dragon_bones', 1, 'Bury dragon bones'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier hard; curated into elite',
                 49,
@@ -574,7 +574,7 @@ FAMILY = DiaryFamily(
             DiaryTask(
                 'ardougne_medium_a_visit_to_charlie',
                 'The Grass Is Greener',
-                'Harvest grimy torstol from the herb patch north of Ardougne.',
+                'Harvest grimy torstol from the Ardougne herb patch.',
                 (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJjcm9wX2lkIjoidG9yc3RvbCIsImtpbmQiOiJoYXJ2ZXN0IiwicGF0Y2hfaWQiOiJhcmRvdWduZV9oZXJiIiwidHlwZSI6ImZhcm1pbmdfcmVzdWx0In0sImd0ZSI6eyJvdXRwdXRzLkdyaW15IHRvcnN0b2wiOjF9fX0', 1, 'Harvest torstol at the Ardougne herb patch'),),
                 'Darkan ArdougneTasks; rev-727 cache enum 3483; corroborated by Ardougne achievements oldid=6579397 (2012-11-18T22:07:06Z); original period tier medium; curated into elite',
                 23,
