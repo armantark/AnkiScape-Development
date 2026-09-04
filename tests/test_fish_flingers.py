@@ -507,11 +507,46 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertEqual(log[0]["score"], 1)
         self.assertEqual(log[-1]["review_index"], FISH_FLINGERS_EVENT_REVIEWS)
 
-    def test_save_without_the_game_log_loads_with_an_empty_list(self):
-        saved = sanitize_fish_flingers_state_pure({"fish_flingers": {}})
-        self.assertEqual(saved["fish_flingers_game_log"], [])
+    def test_a_populated_log_round_trips_through_the_save_migration(self):
+        record = {
+            "score": 38,
+            "xp": 4593,
+            "fishing_level": 25,
+            "review_index": FISH_FLINGERS_EVENT_REVIEWS,
+            "medals": 3,
+        }
+        migrated = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION,
+                "fish_flingers_game_log": [record],
+            },
+            constants.ORE_DATA,
+            constants.ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["fish_flingers_game_log"], [record])
+
+    def test_a_save_without_the_game_log_loads_with_an_empty_list(self):
+        migrated = migrate_loaded_data(
+            {"config_version": CURRENT_CONFIG_VERSION},
+            constants.ORE_DATA,
+            constants.ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["fish_flingers_game_log"], [])
         default = default_fish_flingers_state_pure()
         self.assertEqual(default["fish_flingers_game_log"], [])
+
+    def test_abandoning_an_event_records_nothing(self):
+        player, ok, info = enter_fish_flingers_pure(_player(fishing_level=25))
+        self.assertTrue(ok, info)
+        for catch_roll, big_fish_roll, assist_roll in [
+            (0.0, 0.0, 0.999)
+        ] * 3:
+            player, _result = apply_fish_flingers_review_pure(
+                player, catch_roll, big_fish_roll, assist_roll
+            )
+        left, ok, info = leave_fish_flingers_pure(player)
+        self.assertTrue(ok, info)
+        self.assertEqual(left["fish_flingers_game_log"], [])
 
     def test_malformed_game_log_entries_are_dropped(self):
         saved = sanitize_fish_flingers_state_pure(

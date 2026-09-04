@@ -429,7 +429,9 @@ def apply_fish_flingers_review_pure(
                 {
                     "score": score,
                     "xp": xp,
-                    "fishing_level": _int(data.get("fishing_level")),
+                    "fishing_level": max(
+                        1, min(_int(data.get("fishing_level"), 1), 99)
+                    ),
                     "review_index": next_review,
                     "medals": medals,
                 }
