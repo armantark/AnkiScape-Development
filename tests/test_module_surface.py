@@ -11,15 +11,15 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "module_surface.py"
 
 FIRST_WAVE_DIGESTS = {
-    "core/constants.py": "a4567e213ba4c522921a83a50d1f500fcf99fe97d2961992af16c2a61c0908a7",
+    "core/constants.py": "d5a79ddfd6c50efa7df57cfbd9b0e615a39cf51a0635d315b6ebe9b814777b47",
     "data/quest_data.py": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e",
     "data/combat_data.py": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77",
     "data/slayer_data.py": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94",
     "logic_pure/logic_pure_combat_engine.py": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850",
     "tests/test_combat_enemy_roster.py": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816",
     "logic/shop_logic.py": "a9455907c8b77f84fc2b3e8434ef3c91b903b9a63d3d2d4eb89eddba7c972887",
-    "ui/ui_tab_shop.py": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056",
-    "data/achievement_diary_catalog.py": "1dcd4b25333dc67247ada47d7f3699b648481ad8ecbcff91fdc112bb96f46585",
+    "ui/ui_tab_shop.py": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db",
+    "data/achievement_diary_catalog.py": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
     "runtime/runtime_actions_carried.py": "d80cf82f807cff357b4655119717c28c0bd69e46698734a3c6c12401eedfa5f6",
     "runtime/runtime_actions_activities.py": "f24614aeb194bb68c3c71694dc57962f00a5f95b8c24c6308e365889eb850c55",
 }
