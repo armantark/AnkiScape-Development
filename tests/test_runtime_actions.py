@@ -163,7 +163,7 @@ class TestRuntimeActions(unittest.TestCase):
 
                 self.assertEqual(player_data["current_utility"], "bankstanding")
                 self.assertEqual(calls["bankstanding"], 1)
-                self.assertEqual(len(calls["errors"]), int(handler is not runtime_actions_activities.handle_dungeoneering_answer))
+                self.assertEqual(len(calls["errors"]), 1)
 
     def test_dungeoneering_bind_prompt_keeps_the_current_surface(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

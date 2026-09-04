@@ -418,7 +418,7 @@ def _switch_material_failure_to_bankstanding(
     if callable(ctx.switch_to_bankstanding):
         ctx.switch_to_bankstanding(reason)
     else:
-        ctx.deactivate_current_skill()
+        ctx.deactivate_current_skill(reason)
 
 
 def fishing_materials_text(method_spec: dict[str, Any], inventory: dict[str, Any]) -> str:

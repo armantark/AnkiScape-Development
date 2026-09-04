@@ -516,7 +516,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         _switch_material_failure_to_bankstanding(
             ctx,
             f"Combat cannot continue because {reason_text}.",
-            material_failure=_combat_locks_can_bank_run(reasons),
+            material_failure=_combat_locks_can_bank_run(reasons, allow_empty=False),
             fallback_error=(
                 "Combat unavailable",
                 f"Combat has been switched off because {reason_text}.",
