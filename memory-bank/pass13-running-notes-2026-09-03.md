@@ -239,3 +239,10 @@ Recorded level must be clamped as the payout clamps it; the abandon path
 needs a pin; the missing-key test must be a real round trip through
 `migrate_loaded_data` (the storage layer has no key whitelist and calls the
 sanitizer unconditionally, so no version bump is needed).
+
+## 00:58 — S9 CLOSED on its branch
+
+`goal/pass13-fish-flingers-records-2026-09-03` at `acdc740b` (verified on
+the branch). Clamped level recorded; abandon path pinned; round-trip tests
+through `migrate_loaded_data`. Closed: S4, S7, S9. Pending branches: S2, S3,
+S5, S6, S8. Drafts pending: Lumbridge, Morytania+misc.
