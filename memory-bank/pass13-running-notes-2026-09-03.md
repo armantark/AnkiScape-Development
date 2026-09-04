@@ -390,3 +390,15 @@ Ruling recorded: every skill key is (level, label); trees keep group order
 with level inside; flat lists sort by level regardless of group; the
 Activities list stays alphabetical (Pass 7). Medium: the data tests were
 tautological. Low: `sort_order` is now dead data in two files.
+
+## 02:08 — S1 review (Opus): ACCEPT-WITH-FINDINGS, four rows and docs sent back
+
+Verified: validator rules, harvest-derived source-sentence test, reproduction
+of all 474 rows, exactly 162 rows changed (162 descriptions, 63 names, 39
+conditions), zero anchor/active/dormant changes, 211 tests pass. Four rows
+missed the rubric and are replaced by design-seat decision: Ardougne
+unicorn (elite) becomes torstol at the Ardougne herb patch; the Knight attempt
+(elite) becomes a Hero pickpocket; the Falador Shaikahan row re-sites to a
+Black Knight at the fortress; Varrock's Oziach purchase (elite) becomes a
+magic shortbow for Lowe's. README marker rule and the `translated`
+definition corrected; apostrophes normalized.
