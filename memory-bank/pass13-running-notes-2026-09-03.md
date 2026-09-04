@@ -232,3 +232,10 @@ hard). Regions complete: seven, 129 rows. Lumbridge (21) and Morytania+misc
 settled game appends score, XP, Fishing level, review index, and medals to
 `fish_flingers_game_log`, newest 50 kept, sanitized on load. Payout untouched.
 Four tests; 21 pass in the Fish Flingers file. Review: Opus, pending.
+
+## 00:55 — S9 review (Opus): ACCEPT-WITH-FINDINGS, three low fixes sent back
+
+Recorded level must be clamped as the payout clamps it; the abandon path
+needs a pin; the missing-key test must be a real round trip through
+`migrate_loaded_data` (the storage layer has no key whitelist and calls the
+sanitizer unconditionally, so no version bump is needed).
