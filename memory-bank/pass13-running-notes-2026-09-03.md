@@ -342,3 +342,10 @@ design seat found seven such rows across the drafts and reworded them
 arm_the_militia, master_of_all_i_survey, a_body_in_the_sewers). Stage 2
 resumes: merge, regenerate, tests. Pending markers stay until regeneration
 succeeds, per the precedent in `028df5f9` and `a0e22ade`.
+
+## 01:39 — S3 CLOSED on its branch
+
+`goal/pass13-bankstand-notice-2026-09-03` at `78b5767f`. All six findings
+applied; 489 focused tests pass; full lanes deferred to the merged-tree gate.
+Closed: S3, S4, S7, S9. Pending: S1 stage 2, S2 (status requested), S5 (Qt
+lane), S6 (tests), S8 (fixes on plain lane).
