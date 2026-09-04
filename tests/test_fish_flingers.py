@@ -25,6 +25,8 @@ from ankiscape.data.fish_flingers_data import (
 )
 from ankiscape.logic.fish_flingers_logic import (
     FISH_FLINGERS_STATE_VERSION,
+    default_fish_flingers_state_pure,
+    sanitize_fish_flingers_game_log_pure,
     apply_fish_flingers_review_pure,
     buy_fish_flingers_reward_pure,
     enter_fish_flingers_pure,
@@ -34,6 +36,7 @@ from ankiscape.logic.fish_flingers_logic import (
     fishing_outfit_multiplier_pure,
     leave_fish_flingers_pure,
     sanitize_fish_flingers_session_pure,
+    sanitize_fish_flingers_state_pure,
     sync_fish_flingers_tickets_pure,
 )
 from ankiscape.logic_pure.logic_pure import equip_item_pure
@@ -452,6 +455,125 @@ class FishFlingersLogicTests(unittest.TestCase):
             player, 0.5, 0.999, 0.999
         )
         weighted_view = fish_flingers_view_pure(player)
+
+    def test_settlement_appends_one_game_log_record(self):
+        player, ok, info = enter_fish_flingers_pure(_player(fishing_level=25))
+        self.assertTrue(ok, info)
+        # Same rolls as the source-shaped currencies test, so the payout the
+        # ledger records is the already-verified 4593.
+        rolls = [(0.0, 0.0, 0.0)] + [
+            (0.0, 0.0, 0.999)
+        ] * (FISH_FLINGERS_EVENT_REVIEWS - 1)
+        for catch_roll, big_fish_roll, assist_roll in rolls:
+            player, result = apply_fish_flingers_review_pure(
+                player, catch_roll, big_fish_roll, assist_roll
+            )
+        self.assertTrue(result["terminal"])
+        log = player["fish_flingers_game_log"]
+        self.assertEqual(len(log), 1)
+        self.assertEqual(
+            log[0],
+            {
+                "score": result["score"],
+                "xp": result["xp"],
+                "fishing_level": 25,
+                "review_index": FISH_FLINGERS_EVENT_REVIEWS,
+                "medals": result["medals"],
+            },
+        )
+        # The ledger records the settlement, it does not change it.
+        self.assertEqual(log[0]["xp"], 4593)
+        self.assertEqual(player["fish_flingers_events_completed"], 1)
+
+    def test_game_log_keeps_only_the_newest_fifty_records(self):
+        player = _player()
+        existing = [
+            {"score": index, "xp": index, "fishing_level": 1,
+             "review_index": FISH_FLINGERS_EVENT_REVIEWS, "medals": 0}
+            for index in range(50)
+        ]
+        player["fish_flingers_game_log"] = existing
+        player["fish_flingers_tickets"] = 1
+        entered, ok, info = enter_fish_flingers_pure(player)
+        self.assertTrue(ok, info)
+        for catch_roll, big_fish_roll, assist_roll in [
+            (0.0, 0.0, 0.999)
+        ] * FISH_FLINGERS_EVENT_REVIEWS:
+            entered, _result = apply_fish_flingers_review_pure(
+                entered, catch_roll, big_fish_roll, assist_roll
+            )
+        log = entered["fish_flingers_game_log"]
+        self.assertEqual(len(log), 50)
+        self.assertEqual(log[0]["score"], 1)
+        self.assertEqual(log[-1]["review_index"], FISH_FLINGERS_EVENT_REVIEWS)
+
+    def test_a_populated_log_round_trips_through_the_save_migration(self):
+        record = {
+            "score": 38,
+            "xp": 4593,
+            "fishing_level": 25,
+            "review_index": FISH_FLINGERS_EVENT_REVIEWS,
+            "medals": 3,
+        }
+        migrated = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION,
+                "fish_flingers_game_log": [record],
+            },
+            constants.ORE_DATA,
+            constants.ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["fish_flingers_game_log"], [record])
+
+    def test_a_save_without_the_game_log_loads_with_an_empty_list(self):
+        migrated = migrate_loaded_data(
+            {"config_version": CURRENT_CONFIG_VERSION},
+            constants.ORE_DATA,
+            constants.ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["fish_flingers_game_log"], [])
+        default = default_fish_flingers_state_pure()
+        self.assertEqual(default["fish_flingers_game_log"], [])
+
+    def test_abandoning_an_event_records_nothing(self):
+        player, ok, info = enter_fish_flingers_pure(_player(fishing_level=25))
+        self.assertTrue(ok, info)
+        for catch_roll, big_fish_roll, assist_roll in [
+            (0.0, 0.0, 0.999)
+        ] * 3:
+            player, _result = apply_fish_flingers_review_pure(
+                player, catch_roll, big_fish_roll, assist_roll
+            )
+        left, ok, info = leave_fish_flingers_pure(player)
+        self.assertTrue(ok, info)
+        self.assertEqual(left["fish_flingers_game_log"], [])
+
+    def test_malformed_game_log_entries_are_dropped(self):
+        saved = sanitize_fish_flingers_state_pure(
+            {
+                "fish_flingers_game_log": [
+                    "not a mapping",
+                    {"score": "bad", "xp": 4593, "fishing_level": 25,
+                     "review_index": 8, "medals": 2},
+                    42,
+                ]
+            }
+        )
+        self.assertEqual(
+            saved["fish_flingers_game_log"],
+            [
+                {
+                    "score": 0,
+                    "xp": 4593,
+                    "fishing_level": 25,
+                    "review_index": 8,
+                    "medals": 2,
+                }
+            ],
+        )
+        self.assertEqual(
+            sanitize_fish_flingers_game_log_pure("garbage"), []
+        )
 
 
 class FishFlingersStorageTests(unittest.TestCase):
