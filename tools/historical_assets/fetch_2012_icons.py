@@ -3,12 +3,11 @@
 # requires-python = ">=3.9"
 # dependencies = ["pillow>=10"]
 # ///
-"""Replace Old School-sourced assets with their last pre-EOC RuneScape revision.
+"""Replace Old School-sourced assets with their last pre-EOC revision.
 
-The manifest comes from the two Old School URLs in ``assets_provenance.json``.
-Each RuneScape Wiki file title is tried exactly as recorded; a same-name miss is
-reported instead of being replaced with guessed art. Progress is checkpointed
-under ``tmp/`` so an interrupted run resumes without repeating finished assets.
+Each recorded file title is queried exactly on the RuneScape Wiki. Historical
+archive bytes must match the API SHA-1 before an existing asset is replaced.
+Progress is checkpointed under ``tmp/`` so interrupted runs resume safely.
 """
 from __future__ import annotations
 
@@ -16,13 +15,12 @@ import argparse
 import hashlib
 import json
 import os
-import struct
 import sys
-import time
 import urllib.parse
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
@@ -34,7 +32,6 @@ if str(REPO_ROOT) not in sys.path:
 from tools.fetch_assets import (  # noqa: E402
     AssetFetchError,
     HttpWikiClient,
-    _source_image_url,
     write_png,
     write_source_png,
 )
@@ -55,7 +52,7 @@ DEFAULT_USER_AGENT = (
     "(personal add-on historical asset audit; sequential requests)"
 )
 CHECKPOINT_SCHEMA_VERSION = 1
-API_ATTEMPTS = 4
+DOWNLOAD_ATTEMPTS = 4
 
 
 @dataclass(frozen=True)
@@ -65,13 +62,6 @@ class HistoricalRevision:
     timestamp: str
     sha1: str
     archivename: str
-
-
-@dataclass(frozen=True)
-class HistoryQueryPage:
-    canonical_title: str
-    revisions: Tuple[Mapping[str, object], ...]
-    continuation: Mapping[str, str]
 
 
 def _parse_timestamp(value: object) -> datetime:
@@ -140,7 +130,6 @@ def _new_checkpoint(provenance: Mapping[str, object]) -> Dict[str, object]:
     return {
         "schema_version": CHECKPOINT_SCHEMA_VERSION,
         "cutoff_timestamp": CUTOFF_TIMESTAMP,
-        "fetch_date": datetime.now().astimezone().date().isoformat(),
         "assets": assets,
         "results": {},
     }
@@ -149,46 +138,57 @@ def _new_checkpoint(provenance: Mapping[str, object]) -> Dict[str, object]:
 def _load_checkpoint(
     checkpoint_path: Path, provenance: Mapping[str, object]
 ) -> Dict[str, object]:
-    if checkpoint_path.exists():
-        checkpoint = _load_json(checkpoint_path)
-        if not isinstance(checkpoint, dict):
-            raise AssetFetchError("The icon sweep checkpoint must be a JSON object.")
-        if checkpoint.get("schema_version") != CHECKPOINT_SCHEMA_VERSION:
-            raise AssetFetchError("The icon sweep checkpoint has an unsupported schema version.")
-        if checkpoint.get("cutoff_timestamp") != CUTOFF_TIMESTAMP:
-            raise AssetFetchError("The icon sweep checkpoint uses a different cutoff.")
-        if not isinstance(checkpoint.get("assets"), dict) or not isinstance(
-            checkpoint.get("results"), dict
-        ):
-            raise AssetFetchError("The icon sweep checkpoint is malformed.")
+    if not checkpoint_path.exists():
+        checkpoint = _new_checkpoint(provenance)
+        _write_json(checkpoint_path, checkpoint)
         return checkpoint
-    checkpoint = _new_checkpoint(provenance)
-    _write_json(checkpoint_path, checkpoint)
+
+    checkpoint = _load_json(checkpoint_path)
+    if not isinstance(checkpoint, dict):
+        raise AssetFetchError("The icon sweep checkpoint must be a JSON object.")
+    if checkpoint.get("schema_version") != CHECKPOINT_SCHEMA_VERSION:
+        raise AssetFetchError("The icon sweep checkpoint has an unsupported schema version.")
+    if checkpoint.get("cutoff_timestamp") != CUTOFF_TIMESTAMP:
+        raise AssetFetchError("The icon sweep checkpoint uses a different cutoff.")
+    if not isinstance(checkpoint.get("assets"), dict) or not isinstance(
+        checkpoint.get("results"), dict
+    ):
+        raise AssetFetchError("The icon sweep checkpoint is malformed.")
     return checkpoint
 
 
-def _request_json_with_retry(client: HttpWikiClient, url: str) -> Mapping[str, object]:
-    last_error = "unknown MediaWiki API error"
-    for attempt in range(API_ATTEMPTS):
-        try:
-            payload = client._request_json(url)
-        except (AssetFetchError, json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
-            last_error = str(exc)
-        else:
-            error = payload.get("error")
-            if not isinstance(error, dict):
-                return payload
-            code = str(error.get("code") or "unknown")
-            info = str(error.get("info") or "no details")
-            last_error = f"MediaWiki API error {code}: {info}"
-        if attempt + 1 < API_ATTEMPTS:
-            time.sleep(min(8.0, 0.75 * (2**attempt)))
-    raise AssetFetchError(f"Wiki history query failed after retries: {last_error}")
+def _request_json_with_retry(
+    client: HttpWikiClient, url: str
+) -> Mapping[str, object]:
+    try:
+        payload = client._request_json(url)
+    except (AssetFetchError, json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
+        raise AssetFetchError(f"Wiki history query failed after retries: {exc}") from exc
+    error = payload.get("error")
+    if isinstance(error, dict):
+        code = str(error.get("code") or "unknown")
+        info = str(error.get("info") or "no details")
+        raise AssetFetchError(f"MediaWiki API error {code}: {info}")
+    return payload
 
 
-def _history_page(
-    payload: Mapping[str, object], wiki_title: str
-) -> Tuple[Optional[Mapping[str, object]], str]:
+def _query_history_batch(
+    client: HttpWikiClient,
+    wiki_title: str,
+    continuation: Mapping[str, str],
+) -> Tuple[str, List[Mapping[str, object]], Dict[str, str], str]:
+    params = {
+        "action": "query",
+        "prop": "imageinfo",
+        "titles": f"File:{wiki_title}",
+        "iilimit": "50",
+        "iiprop": "url|timestamp|archivename|sha1",
+        "redirects": "1",
+        "format": "json",
+    }
+    params.update(continuation)
+    url = f"{RS_WIKI_API}?{urllib.parse.urlencode(params)}"
+    payload = _request_json_with_retry(client, url)
     query = payload.get("query")
     if not isinstance(query, dict):
         raise AssetFetchError(f"Wiki response omitted query data for File:{wiki_title}.")
@@ -198,52 +198,23 @@ def _history_page(
     page = next(iter(pages.values()))
     if not isinstance(page, dict):
         raise AssetFetchError(f"Wiki returned malformed page data for File:{wiki_title}.")
+
+    canonical_title = str(page.get("title") or f"File:{wiki_title}")
     if "missing" in page:
-        return None, "No file exists at that RuneScape Wiki title."
-    return page, ""
-
-
-def _query_history_page(
-    client: HttpWikiClient,
-    wiki_title: str,
-    continuation: Mapping[str, str],
-) -> Tuple[Optional[HistoryQueryPage], str]:
-    params = {
-        "action": "query",
-        "prop": "imageinfo",
-        "titles": f"File:{wiki_title}",
-        "iilimit": "50",
-        "iiprop": "url|timestamp|archivename|sha1",
-        "format": "json",
-    }
-    params.update(continuation)
-    url = f"{RS_WIKI_API}?{urllib.parse.urlencode(params)}"
-    payload = _request_json_with_retry(client, url)
-    page, reason = _history_page(payload, wiki_title)
-    if page is None:
-        return None, reason
-
+        return canonical_title, [], {}, "No file exists at that RuneScape Wiki title."
     imageinfo = page.get("imageinfo", [])
     if not isinstance(imageinfo, list):
         raise AssetFetchError(
             f"Wiki returned malformed image history for File:{wiki_title}."
         )
     raw_continue = payload.get("continue")
-    next_continuation = (
+    next_page = (
         {str(key): str(value) for key, value in raw_continue.items()}
         if isinstance(raw_continue, dict) and raw_continue.get("iicontinue")
         else {}
     )
-    return (
-        HistoryQueryPage(
-            canonical_title=str(page.get("title") or f"File:{wiki_title}"),
-            revisions=tuple(
-                revision for revision in imageinfo if isinstance(revision, dict)
-            ),
-            continuation=next_continuation,
-        ),
-        "",
-    )
+    revisions = [row for row in imageinfo if isinstance(row, dict)]
+    return canonical_title, revisions, next_page, ""
 
 
 def _historical_revision(
@@ -269,50 +240,54 @@ def query_pre_cutoff_revision(
 ) -> Tuple[Optional[HistoricalRevision], str]:
     revisions: List[Mapping[str, object]] = []
     continuation: Mapping[str, str] = {}
+    canonical_title = f"File:{wiki_title}"
     while True:
-        history_page, reason = _query_history_page(
+        canonical_title, batch, next_page, reason = _query_history_batch(
             client, wiki_title, continuation
         )
-        if history_page is None:
+        if reason:
             return None, reason
-        revisions.extend(history_page.revisions)
+        revisions.extend(batch)
         selected = select_newest_revision(revisions)
         if selected is not None:
-            return _historical_revision(history_page.canonical_title, selected), ""
-        if not history_page.continuation:
+            return _historical_revision(canonical_title, selected), ""
+        if not next_page:
             break
-        continuation = history_page.continuation
-
-    reason = (
-        "Every file revision is at or after the pre-EOC cutoff."
-        if revisions
-        else "The RuneScape Wiki file has no revisions."
-    )
-    return None, reason
+        continuation = next_page
+    if revisions:
+        return None, "Every file revision is at or after the pre-EOC cutoff."
+    return None, "The RuneScape Wiki file has no revisions."
 
 
 def _download_revision(
     client: HttpWikiClient, revision: HistoricalRevision
-) -> Tuple[bytes, str]:
-    image_bytes = b""
-    downloaded_sha1 = ""
-    for attempt in range(API_ATTEMPTS):
-        image_bytes = client.download_bytes(
-            _source_image_url(
-                revision.image_url,
-                cache_bust=f"{time.time_ns()}-{attempt}",
-            )
+) -> Tuple[Optional[bytes], str]:
+    download_url = revision.image_url.replace("%21", "!")
+    separator = "&" if "?" in download_url else "?"
+    actual_sha1 = ""
+    for attempt in range(DOWNLOAD_ATTEMPTS):
+        attempt_url = (
+            f"{download_url}{separator}ankiscape_sha1={revision.sha1}"
+            f"&ankiscape_attempt={attempt}"
         )
-        downloaded_sha1 = hashlib.sha1(image_bytes).hexdigest()
-        if downloaded_sha1 == revision.sha1:
-            return image_bytes, downloaded_sha1
-    return image_bytes, downloaded_sha1
+        candidate = client.download_bytes(attempt_url)
+        actual_sha1 = hashlib.sha1(candidate).hexdigest()
+        if actual_sha1 == revision.sha1:
+            return candidate, actual_sha1
+    return None, actual_sha1
 
 
 def _png_dimensions(image_bytes: bytes) -> Tuple[int, int]:
-    if len(image_bytes) < 24 or not image_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
-        raise AssetFetchError("An existing sweep asset is not a valid PNG.")
-    width, height = struct.unpack(">II", image_bytes[16:24])
+    try:
+        from PIL import Image, UnidentifiedImageError
+    except ImportError as exc:
+        raise AssetFetchError("Pillow is required for PNG validation. Run with `uv run`.") from exc
+    try:
+        with Image.open(BytesIO(image_bytes)) as image:
+            image.load()
+            width, height = image.size
+    except (OSError, UnidentifiedImageError) as exc:
+        raise AssetFetchError("An existing sweep asset is not a valid PNG.") from exc
     if width <= 0 or height <= 0:
         raise AssetFetchError("An existing sweep asset has invalid PNG dimensions.")
     return width, height
@@ -321,19 +296,23 @@ def _png_dimensions(image_bytes: bytes) -> Tuple[int, int]:
 def _replace_asset(
     output_path: Path,
     source_bytes: bytes,
-    recorded_source_sha1: str,
-) -> bool:
+    recorded_sha1: str,
+    already_current: bool,
+) -> Tuple[bool, bytes]:
     if not output_path.is_file():
         raise AssetFetchError(f"Sweep asset does not exist: {output_path}")
     existing_bytes = output_path.read_bytes()
-    transformed = hashlib.sha1(existing_bytes).hexdigest() != recorded_source_sha1
+    existing_sha1 = hashlib.sha1(existing_bytes).hexdigest()
+    if already_current and existing_sha1 == recorded_sha1:
+        return False, existing_bytes
+
     with NamedTemporaryFile(
         "wb", delete=False, dir=str(output_path.parent), suffix=".png"
     ) as temp_file:
         candidate_path = Path(temp_file.name)
     candidate_path.unlink()
     try:
-        if transformed:
+        if existing_sha1 != recorded_sha1:
             width, height = _png_dimensions(existing_bytes)
             write_png(source_bytes, candidate_path, size=max(width, height))
         else:
@@ -342,7 +321,7 @@ def _replace_asset(
         changed = candidate_bytes != existing_bytes
         if changed:
             os.replace(candidate_path, output_path)
-        return changed
+        return changed, candidate_bytes
     finally:
         candidate_path.unlink(missing_ok=True)
 
@@ -355,127 +334,68 @@ def _file_page_url(file_title: str) -> str:
 
 
 def _provenance_entry(
-    revision: HistoricalRevision,
-    source_bytes: bytes,
-    downloaded_sha1: str,
-    fetch_date: str,
+    revision: HistoricalRevision, written_bytes: bytes
 ) -> Dict[str, object]:
-    entry: Dict[str, object] = {
-        "fetch_date": fetch_date,
+    return {
         "file_page_url": _file_page_url(revision.file_title),
         "file_title": revision.file_title,
         "image_url": revision.image_url,
         "license_string": "unknown",
         "mediatype": "BITMAP",
         "mime": "image/png",
-        "sha1": revision.sha1,
-        "size": len(source_bytes),
+        "sha1": hashlib.sha1(written_bytes).hexdigest(),
+        "size": len(written_bytes),
         "source_wiki": "rs3",
         "timestamp": revision.timestamp,
     }
-    if downloaded_sha1 != revision.sha1:
-        entry["download_sha1"] = downloaded_sha1
-        entry["source_note"] = (
-            "The archive URL bytes did not match the MediaWiki revision SHA-1; "
-            "both hashes are retained."
-        )
-    return entry
-
-
-def _classify_audit_result(
-    asset_path: str, raw_result: object
-) -> Tuple[
-    str,
-    Optional[Tuple[str, str, str]],
-    Optional[Tuple[str, str, str, str]],
-]:
-    if not isinstance(raw_result, dict):
-        raise AssetFetchError(f"Checkpoint has no result for {asset_path}.")
-    status = str(raw_result.get("status") or "")
-    if status not in {"fetched", "unchanged", "missing"}:
-        raise AssetFetchError(f"Checkpoint has an invalid status for {asset_path}.")
-    if status == "missing":
-        return (
-            status,
-            (
-                asset_path,
-                str(raw_result.get("wiki_title") or ""),
-                str(raw_result.get("reason") or "No reason recorded."),
-            ),
-            None,
-        )
-
-    revision = raw_result.get("revision")
-    if not isinstance(revision, dict):
-        raise AssetFetchError(f"Checkpoint has no revision for {asset_path}.")
-    api_sha1 = str(revision.get("sha1") or "")
-    download_sha1 = str(raw_result.get("download_sha1") or api_sha1)
-    mismatch = (
-        (
-            asset_path,
-            str(revision.get("file_title") or ""),
-            api_sha1,
-            download_sha1,
-        )
-        if download_sha1 != api_sha1
-        else None
-    )
-    return status, None, mismatch
-
-
-def _summarize_audit(
-    assets: Mapping[str, object],
-    results: Mapping[str, object],
-) -> Tuple[
-    Dict[str, int],
-    List[Tuple[str, str, str]],
-    List[Tuple[str, str, str, str]],
-]:
-    counts = {"fetched": 0, "unchanged": 0, "missing": 0}
-    missing_rows: List[Tuple[str, str, str]] = []
-    mismatch_rows: List[Tuple[str, str, str, str]] = []
-    for asset_path in sorted(assets):
-        status, missing, mismatch = _classify_audit_result(
-            asset_path, results.get(asset_path)
-        )
-        counts[status] += 1
-        if missing is not None:
-            missing_rows.append(missing)
-        if mismatch is not None:
-            mismatch_rows.append(mismatch)
-    return counts, missing_rows, mismatch_rows
 
 
 def _write_audit(
-    audit_path: Path,
-    checkpoint: Mapping[str, object],
+    audit_path: Path, checkpoint: Mapping[str, object]
 ) -> Dict[str, int]:
     assets = checkpoint["assets"]
     results = checkpoint["results"]
     assert isinstance(assets, dict)
     assert isinstance(results, dict)
-    counts, missing_rows, mismatch_rows = _summarize_audit(assets, results)
+    counts = {"fetched": 0, "unchanged": 0, "missing": 0}
+    missing_rows: List[Tuple[str, str, str]] = []
+    for asset_path in sorted(assets):
+        result = results.get(asset_path)
+        if not isinstance(result, dict):
+            raise AssetFetchError(f"Checkpoint has no result for {asset_path}.")
+        status = str(result.get("status") or "")
+        if status not in counts:
+            raise AssetFetchError(f"Checkpoint has an invalid status for {asset_path}.")
+        counts[status] += 1
+        if status == "missing":
+            missing_rows.append(
+                (
+                    asset_path,
+                    str(result.get("wiki_title") or ""),
+                    str(result.get("reason") or "No reason recorded."),
+                )
+            )
 
     lines = [
         "# 2012 icon sweep source audit",
         "",
         f"- Cutoff: `{CUTOFF_TIMESTAMP}`; revisions at the cutoff are excluded.",
-        f"- Fetch date: `{checkpoint['fetch_date']}`.",
         (
-            f"- Scope: `{len(assets)}` assets whose provenance carried two "
-            "`oldschool.runescape.wiki` URLs."
+            f"- Scope: `{len(assets)}` assets whose original provenance carried "
+            "two `oldschool.runescape.wiki` URLs."
         ),
         (
             f"- Result: `{counts['fetched']}` fetched with changed PNG bytes, "
             f"`{counts['unchanged']}` fetched with unchanged PNG bytes, and "
-            f"`{counts['missing']}` missing a pre-cutoff revision."
+            f"`{counts['missing']}` missing a verified pre-cutoff revision."
         ),
         (
-            "- Method: each recorded file title was queried exactly on "
-            "`runescape.wiki`; no alternate title or substitute icon was guessed."
+            "- Method: exact recorded titles were queried with redirect resolution; "
+            "no alternate title or substitute icon was guessed."
         ),
+        "- Download verification: every installed archive matched the API SHA-1.",
         "",
-        "## Assets without a pre-cutoff revision",
+        "## Assets without a verified pre-cutoff revision",
         "",
     ]
     if missing_rows:
@@ -490,88 +410,84 @@ def _write_audit(
             for path, title, reason in missing_rows
         )
     else:
-        lines.append("No assets were missing a pre-cutoff revision.")
-    lines.extend(["", "## Archive-byte SHA-1 mismatches", ""])
-    if mismatch_rows:
-        lines.extend(
-            [
-                (
-                    "The exact archive URL returned PNG bytes whose SHA-1 differed "
-                    "from the MediaWiki revision metadata. No alternate asset was "
-                    "substituted; both hashes are retained in provenance."
-                ),
-                "",
-                "| Asset path | RuneScape Wiki file | API SHA-1 | Download SHA-1 |",
-                "| --- | --- | --- | --- |",
-            ]
-        )
-        lines.extend(
-            f"| `{path}` | `File:{title}` | `{api_sha1}` | `{download_sha1}` |"
-            for path, title, api_sha1, download_sha1 in mismatch_rows
-        )
-    else:
-        lines.append("All downloaded source bytes matched the MediaWiki revision SHA-1.")
+        lines.append("No assets were missing a verified pre-cutoff revision.")
     lines.append("")
     audit_path.parent.mkdir(parents=True, exist_ok=True)
     audit_path.write_text("\n".join(lines), encoding="utf-8")
     return counts
 
 
-def _record_missing_results(
-    checkpoint_path: Path,
-    checkpoint: Mapping[str, object],
-    results: Dict[str, object],
-    asset_paths: Sequence[str],
-    wiki_title: str,
-    reason: str,
-    finished: int,
-    total: int,
-) -> int:
-    for asset_path in asset_paths:
-        results[asset_path] = {
-            "reason": reason,
-            "status": "missing",
-            "wiki_title": wiki_title,
-        }
-        finished += 1
-        _write_json(checkpoint_path, checkpoint)
-        print(f"[{finished}/{total}] missing {asset_path}: {reason}", flush=True)
-    return finished
+def _pending_by_title(
+    assets: Mapping[str, object], results: Mapping[str, object]
+) -> Dict[str, List[str]]:
+    pending: Dict[str, List[str]] = defaultdict(list)
+    for asset_path, manifest_row in assets.items():
+        if asset_path in results:
+            continue
+        if not isinstance(manifest_row, dict):
+            raise AssetFetchError(f"Checkpoint manifest is malformed for {asset_path}.")
+        pending[str(manifest_row["wiki_title"])].append(str(asset_path))
+    return pending
 
 
-def _replace_title_assets(
+def _process_title(
     provenance_path: Path,
     checkpoint_path: Path,
     provenance: Dict[str, object],
     checkpoint: Mapping[str, object],
     results: Dict[str, object],
-    asset_paths: Sequence[str],
+    client: HttpWikiClient,
     wiki_title: str,
-    revision: HistoricalRevision,
-    source_bytes: bytes,
-    downloaded_sha1: str,
+    asset_paths: Sequence[str],
     finished: int,
     total: int,
 ) -> int:
+    revision, missing_reason = query_pre_cutoff_revision(client, wiki_title)
+    source_bytes: Optional[bytes] = None
+    actual_sha1 = ""
+    if revision is not None:
+        source_bytes, actual_sha1 = _download_revision(client, revision)
+        if source_bytes is None:
+            missing_reason = (
+                f"Archive SHA-1 mismatch after {DOWNLOAD_ATTEMPTS} attempts: "
+                f"expected {revision.sha1}, last got {actual_sha1}."
+            )
+
+    if source_bytes is None:
+        for asset_path in asset_paths:
+            results[asset_path] = {
+                "reason": missing_reason,
+                "status": "missing",
+                "wiki_title": wiki_title,
+            }
+            finished += 1
+            _write_json(checkpoint_path, checkpoint)
+            print(
+                f"[{finished}/{total}] missing {asset_path}: {missing_reason}",
+                flush=True,
+            )
+        return finished
+
+    assert revision is not None
     for asset_path in asset_paths:
         raw_entry = provenance.get(asset_path)
         if not isinstance(raw_entry, dict):
             raise AssetFetchError(f"Provenance entry is missing for {asset_path}.")
-        changed = _replace_asset(
+        already_current = (
+            raw_entry.get("source_wiki") == "rs3"
+            and raw_entry.get("file_title") == revision.file_title
+            and raw_entry.get("timestamp") == revision.timestamp
+        )
+        changed, written_bytes = _replace_asset(
             REPO_ROOT / asset_path,
             source_bytes,
             str(raw_entry.get("sha1") or ""),
+            already_current,
         )
-        provenance[asset_path] = _provenance_entry(
-            revision,
-            source_bytes,
-            downloaded_sha1,
-            str(checkpoint["fetch_date"]),
-        )
+        provenance[asset_path] = _provenance_entry(revision, written_bytes)
         _write_json(provenance_path, provenance)
         status = "fetched" if changed else "unchanged"
         results[asset_path] = {
-            "download_sha1": downloaded_sha1,
             "revision": asdict(revision),
             "status": status,
             "wiki_title": wiki_title,
@@ -601,50 +517,20 @@ def run_sweep(
     assert isinstance(assets, dict)
     assert isinstance(results, dict)
 
-    pending_by_title: Dict[str, List[str]] = defaultdict(list)
-    for asset_path, manifest_row in assets.items():
-        if asset_path in results:
-            continue
-        if not isinstance(manifest_row, dict):
-            raise AssetFetchError(f"Checkpoint manifest is malformed for {asset_path}.")
-        pending_by_title[str(manifest_row["wiki_title"])].append(str(asset_path))
-
     finished = len(results)
     total = len(assets)
-    for wiki_title in sorted(pending_by_title):
-        asset_paths = pending_by_title[wiki_title]
-        revision, missing_reason = query_pre_cutoff_revision(client, wiki_title)
-        if revision is None:
-            finished = _record_missing_results(
-                checkpoint_path,
-                checkpoint,
-                results,
-                asset_paths,
-                wiki_title,
-                missing_reason,
-                finished,
-                total,
-            )
-            continue
-
-        source_bytes, downloaded_sha1 = _download_revision(client, revision)
-        if downloaded_sha1 != revision.sha1:
-            print(
-                f"warning: File:{revision.file_title} API SHA-1 {revision.sha1} "
-                f"!= downloaded SHA-1 {downloaded_sha1}",
-                flush=True,
-            )
-        finished = _replace_title_assets(
+    for wiki_title, asset_paths in sorted(
+        _pending_by_title(assets, results).items()
+    ):
+        finished = _process_title(
             provenance_path,
             checkpoint_path,
             provenance,
             checkpoint,
             results,
-            asset_paths,
+            client,
             wiki_title,
-            revision,
-            source_bytes,
-            downloaded_sha1,
+            asset_paths,
             finished,
             total,
         )

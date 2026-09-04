@@ -5895,15 +5895,14 @@
     "timestamp": "2011-11-20T10:13:11Z"
   },
   "combatenemies/duck_water.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Duck.png",
     "file_title": "Duck.png",
     "image_url": "https://runescape.wiki/images/archive/20140804142503%21Duck.png?3af2e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "0ffa82bca32f95b4720b49a111e968270647ed08",
-    "size": 94885,
+    "sha1": "ff5f9b1df2bd750079a6a3ea030d576db82e6ead",
+    "size": 2345,
     "source_wiki": "rs3",
     "timestamp": "2011-11-20T10:13:11Z"
   },
@@ -5932,15 +5931,14 @@
     "timestamp": "2011-04-23T04:07:07Z"
   },
   "combatenemies/dwarf_level_11.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Dwarf.png",
     "file_title": "Dwarf.png",
     "image_url": "https://runescape.wiki/images/archive/20130902133456%21Dwarf.png?00eb3",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "a0729aa7d2d00abd5400d38e0e6d7fe100812a0a",
-    "size": 116009,
+    "sha1": "25b345361ca562090cb1ed341e479149b9c3b0f2",
+    "size": 2541,
     "source_wiki": "rs3",
     "timestamp": "2011-04-23T04:07:07Z"
   },
@@ -6053,28 +6051,26 @@
     "timestamp": "2011-02-23T23:38:51Z"
   },
   "combatenemies/giant_rat_level_26.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Giant_rat.png",
     "file_title": "Giant rat.png",
     "image_url": "https://runescape.wiki/images/archive/20230516235034%21Giant_rat.png?d7dd5",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "05ecf6f0ab7180a26f5c148495bc8c40ef800b57",
-    "size": 154070,
+    "sha1": "aa003a7bfd2cc9bac26acfa31f4d337d6705aa56",
+    "size": 2703,
     "source_wiki": "rs3",
     "timestamp": "2011-02-23T23:38:51Z"
   },
   "combatenemies/giant_rat_level_6.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Giant_rat.png",
     "file_title": "Giant rat.png",
     "image_url": "https://runescape.wiki/images/archive/20230516235034%21Giant_rat.png?d7dd5",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "05ecf6f0ab7180a26f5c148495bc8c40ef800b57",
-    "size": 154070,
+    "sha1": "aa003a7bfd2cc9bac26acfa31f4d337d6705aa56",
+    "size": 2703,
     "source_wiki": "rs3",
     "timestamp": "2011-02-23T23:38:51Z"
   },
@@ -6391,28 +6387,26 @@
     "timestamp": "2019-05-14T01:33:52Z"
   },
   "combatenemies/hobgoblin_armed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Hobgoblin.png",
     "file_title": "Hobgoblin.png",
     "image_url": "https://runescape.wiki/images/archive/20160111155913%21Hobgoblin.png?5ab2c",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "748e62cae195c1bf49ec824491667584141ca6a9",
-    "size": 627969,
+    "sha1": "588ad2a8e3f9b2e5f047abe9bcbab0d0395431d5",
+    "size": 2307,
     "source_wiki": "rs3",
     "timestamp": "2012-10-19T16:13:37Z"
   },
   "combatenemies/hobgoblin_unarmed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Hobgoblin.png",
     "file_title": "Hobgoblin.png",
     "image_url": "https://runescape.wiki/images/archive/20160111155913%21Hobgoblin.png?5ab2c",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "748e62cae195c1bf49ec824491667584141ca6a9",
-    "size": 627969,
+    "sha1": "588ad2a8e3f9b2e5f047abe9bcbab0d0395431d5",
+    "size": 2307,
     "source_wiki": "rs3",
     "timestamp": "2012-10-19T16:13:37Z"
   },
@@ -6621,15 +6615,14 @@
     "timestamp": "2011-11-23T07:53:24Z"
   },
   "combatenemies/moss_giant.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Moss_giant.png",
     "file_title": "Moss giant.png",
     "image_url": "https://runescape.wiki/images/Moss_giant.png?3fe7e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "eeb00d3c28e467d5ac1898952bb8ee8329f8eca9",
-    "size": 592481,
+    "sha1": "df89dd0f614815096f93384b66e7bcf6f7abe705",
+    "size": 2831,
     "source_wiki": "rs3",
     "timestamp": "2011-01-16T17:25:34Z"
   },
@@ -6670,15 +6663,14 @@
     "timestamp": "2011-11-26T10:07:23Z"
   },
   "combatenemies/narf_jeff_rusty.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Man.png",
     "file_title": "Man.png",
     "image_url": "https://runescape.wiki/images/archive/20141128214803%21Man.png?f4b8e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "0696274e549a55c933297ed11735178b3d321b70",
-    "size": 86914,
+    "sha1": "16d2c02ad887ba4bc77a38f4a668d7812ce160e0",
+    "size": 1948,
     "source_wiki": "rs3",
     "timestamp": "2012-10-06T23:52:19Z"
   },
@@ -7283,15 +7275,14 @@
     "timestamp": "2010-08-12T15:25:53Z"
   },
   "combatenemies/spider_level_24.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Spider.png",
     "file_title": "Spider.png",
     "image_url": "https://runescape.wiki/images/archive/20140512115727%21Spider.png?d1def",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "365e67f25a465d867456d502d9bd1af4f33386b6",
-    "size": 39583,
+    "sha1": "85357558da8e51d66bc00be1004f93924f43910a",
+    "size": 2840,
     "source_wiki": "rs3",
     "timestamp": "2010-08-12T15:25:53Z"
   },
@@ -8030,19 +8021,16 @@
     "timestamp": "2012-10-22T08:21:48Z"
   },
   "combatitems/dragon_spear.png": {
-    "download_sha1": "0a46d43cee84ef654fdaccaba93362c85ef2f002",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Dragon_spear.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_spear.png",
     "file_title": "Dragon spear.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502030801%21Dragon_spear.png?da7aa",
+    "image_url": "https://oldschool.runescape.wiki/images/Dragon_spear.png?cc5f3",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "67869916a1d50e7c2b3a3d2b153271fad092dade",
-    "size": 548,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-22T08:21:48Z"
+    "sha1": "984a3fce36171eaab2876600e2ba598af298bd6f",
+    "size": 389,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:46Z"
   },
   "combatitems/dragonfire_shield.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dragonfire_shield.png",
@@ -8081,19 +8069,16 @@
     "timestamp": "2011-08-10T02:19:49Z"
   },
   "combatitems/fire_battlestaff.png": {
-    "download_sha1": "18e72f1f5a998a7c565f64cf6fe56dc1d1811add",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Fire_battlestaff.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fire_battlestaff.png",
     "file_title": "Fire battlestaff.png",
-    "image_url": "https://runescape.wiki/images/archive/20150928151029%21Fire_battlestaff.png?d0aee",
+    "image_url": "https://oldschool.runescape.wiki/images/Fire_battlestaff.png?3859a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "bd29850066f3c36e0d0176a5e033e1d527f7beeb",
-    "size": 515,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:27Z"
+    "sha1": "04ce4ce83c17354d738ccf9054ec5b3e47a7034b",
+    "size": 394,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:59Z"
   },
   "combatitems/goblin_book.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Goblin_book.png",
@@ -8528,19 +8513,16 @@
     "timestamp": "2012-05-22T14:32:06Z"
   },
   "combatitems/rune_defender.png": {
-    "download_sha1": "212399814034d24fa0685fdade513e50a8614704",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Rune_defender.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_defender.png",
     "file_title": "Rune defender.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502071110%21Rune_defender.png?7fff5",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_defender.png?ce07d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "5510c126a0718e5f5324482fd2a62503478d62f9",
-    "size": 605,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-11-03T02:58:12Z"
+    "sha1": "91c71fcbe7107f9b1899f2bad448745a032e1ce2",
+    "size": 442,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:07Z"
   },
   "combatitems/rune_javelin.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Rune_javelin.png",
@@ -8639,19 +8621,16 @@
     "timestamp": "2010-11-03T05:23:44Z"
   },
   "combatitems/staff_of_fire.png": {
-    "download_sha1": "edf846bb22b34a8efd6cb5fc7ef761d2d7d5f674",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Staff_of_fire.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Staff_of_fire.png",
     "file_title": "Staff of fire.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502080257%21Staff_of_fire.png?dcbac",
+    "image_url": "https://oldschool.runescape.wiki/images/Staff_of_fire.png?e8969",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "19dc458e141ca4f6090594729686c2a338d546d7",
-    "size": 580,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:31Z"
+    "sha1": "04ce4ce83c17354d738ccf9054ec5b3e47a7034b",
+    "size": 394,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:55Z"
   },
   "combatitems/steel_boots.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Steel_armoured_boots.png",
@@ -16090,15 +16069,14 @@
     "timestamp": "2011-11-18T18:58:14Z"
   },
   "cookingitems/burnt_pitta_bread.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Burnt_pitta_bread.png",
     "file_title": "Burnt pitta bread.png",
     "image_url": "https://runescape.wiki/images/Burnt_pitta_bread.png?3d3fa",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "3c7ae96977b19faa56220cffae39e4ad6eda3ea1",
-    "size": 1360,
+    "sha1": "a29c84240e37366519fa08533b6a2f258350cca0",
+    "size": 441,
     "source_wiki": "rs3",
     "timestamp": "2011-06-20T21:21:23Z"
   },
@@ -18084,15 +18062,14 @@
     "timestamp": "2011-11-17T06:54:35Z"
   },
   "crafteditems/air_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Air_rune.png",
     "file_title": "Air rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152431%21Air_rune.png?52fb0",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "ea86af5ac02c3ec620a08522bfa17866636af37c",
-    "size": 775,
+    "sha1": "4ab683ce9fd02cf1c67b3347d2a0ba2ef16cc301",
+    "size": 1180,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:19Z"
   },
@@ -18241,15 +18218,14 @@
     "timestamp": "2011-11-30T05:32:55Z"
   },
   "crafteditems/bucket_of_sand.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bucket_of_sand.png",
     "file_title": "Bucket of sand.png",
     "image_url": "https://runescape.wiki/images/archive/20140502072800%21Bucket_of_sand.png?f2829",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b7802c3af42fb4ea4424cb13725cded8534d28df",
-    "size": 1586,
+    "sha1": "8a1f6e6ba42ecc8badee74e2e39131d23d5a3ab0",
+    "size": 1030,
     "source_wiki": "rs3",
     "timestamp": "2010-03-19T09:43:52Z"
   },
@@ -18806,15 +18782,14 @@
     "timestamp": "2011-11-20T13:24:40Z"
   },
   "crafteditems/earth_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Earth_rune.png",
     "file_title": "Earth rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152433%21Earth_rune.png?9e87a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4eeee0c278531c98722899796f9d820519505088",
-    "size": 723,
+    "sha1": "5fffb0f14b56e8fe6f710c10e177dd0a841b5baf",
+    "size": 1032,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:22Z"
   },
@@ -18903,19 +18878,16 @@
     "timestamp": "2011-11-20T18:31:15Z"
   },
   "crafteditems/fire_battlestaff.png": {
-    "download_sha1": "18e72f1f5a998a7c565f64cf6fe56dc1d1811add",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Fire_battlestaff.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fire_battlestaff.png",
     "file_title": "Fire battlestaff.png",
-    "image_url": "https://runescape.wiki/images/archive/20150928151029%21Fire_battlestaff.png?d0aee",
+    "image_url": "https://oldschool.runescape.wiki/images/Fire_battlestaff.png?3859a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "bd29850066f3c36e0d0176a5e033e1d527f7beeb",
-    "size": 515,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:27Z"
+    "sha1": "04ce4ce83c17354d738ccf9054ec5b3e47a7034b",
+    "size": 394,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:59Z"
   },
   "crafteditems/fire_orb.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fire_orb.png",
@@ -18930,15 +18902,14 @@
     "timestamp": "2011-11-21T02:28:01Z"
   },
   "crafteditems/fire_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Fire_rune.png",
     "file_title": "Fire rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152433%21Fire_rune.png?33419",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "cd7c48b9a4a92a7833e1bca7f46febe5764b106a",
-    "size": 743,
+    "sha1": "cca1fbb294310454edc444eedbd8f1bdd7cc7bb2",
+    "size": 1094,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:23Z"
   },
@@ -19363,15 +19334,14 @@
     "timestamp": "2011-02-24T07:15:35Z"
   },
   "crafteditems/jade.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Jade.png",
     "file_title": "Jade.png",
     "image_url": "https://runescape.wiki/images/archive/20140511080002%21Jade.png?6891e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "81828eab4ad3596a08f738892ada88389994057d",
-    "size": 312,
+    "sha1": "26d6a848e8a73001fe67a6b651ac69e2105457e0",
+    "size": 434,
     "source_wiki": "rs3",
     "timestamp": "2010-09-18T15:18:05Z"
   },
@@ -19688,28 +19658,26 @@
     "timestamp": "2011-11-26T16:36:55Z"
   },
   "crafteditems/oil_lamp.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Oil_lamp.png",
     "file_title": "Oil lamp.png",
     "image_url": "https://runescape.wiki/images/archive/20140708074151%21Oil_lamp.png?2200d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "22d3777dd549f84b40990705e0d727179c93769d",
-    "size": 721,
+    "sha1": "003da822d2c3807f3d1c157d4b7c3ceb81acc34b",
+    "size": 788,
     "source_wiki": "rs3",
     "timestamp": "2011-11-25T10:06:40Z"
   },
   "crafteditems/onyx.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Onyx.png",
     "file_title": "Onyx.png",
     "image_url": "https://runescape.wiki/images/archive/20140403040004%21Onyx.png?9ae29",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d56f2adc6c586f58d15104f73a1cdc38916e82ca",
-    "size": 301,
+    "sha1": "d071fd18f43b52a402d40ad4d7a82fc2536add7c",
+    "size": 441,
     "source_wiki": "rs3",
     "timestamp": "2010-10-04T20:56:14Z"
   },
@@ -19774,15 +19742,14 @@
     "timestamp": "2010-02-04T17:19:42Z"
   },
   "crafteditems/opal.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Opal.png",
     "file_title": "Opal.png",
     "image_url": "https://runescape.wiki/images/archive/20140511080004%21Opal.png?6891e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "feeac49bc11dc487f0f03cca61cde79c6eaeb2f9",
-    "size": 308,
+    "sha1": "f981c1e40da7ac8c7f1feef7a0148b98df435e8e",
+    "size": 436,
     "source_wiki": "rs3",
     "timestamp": "2010-09-18T15:18:05Z"
   },
@@ -19835,15 +19802,14 @@
     "timestamp": "2011-11-27T06:21:27Z"
   },
   "crafteditems/pot_lid_unfired.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Pot_lid.png",
     "file_title": "Pot lid.png",
     "image_url": "https://runescape.wiki/images/archive/20140502064006%21Pot_lid.png?204af",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "2bb208957615729e80176d6ed6912b5b6797c1b2",
-    "size": 380,
+    "sha1": "5673023ad0c463dbe8bab12aa0499053510bcf6d",
+    "size": 440,
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T06:21:27Z"
   },
@@ -20544,15 +20510,14 @@
     "timestamp": "2011-11-30T14:17:38Z"
   },
   "crafteditems/water_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Water_rune.png",
     "file_title": "Water rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152434%21Water_rune.png?0842d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "fd72319aaba1f2de90d48b2e51c6b569710d97f0",
-    "size": 727,
+    "sha1": "6e6c655ee8908e93525435c6839ef02531542e96",
+    "size": 1064,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:29:47Z"
   },
@@ -20617,15 +20582,14 @@
     "timestamp": "2023-06-16T15:41:07Z"
   },
   "crafteditems/wool.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Wool.png",
     "file_title": "Wool.png",
     "image_url": "https://runescape.wiki/images/archive/20140511082111%21Wool.png?3be4e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "ffaee7b64cfe50c9ac3c511b4e13fe6f0b6e6d07",
-    "size": 1663,
+    "sha1": "abf0a0946ef216037c78552be93a8a55df265ef0",
+    "size": 1314,
     "source_wiki": "rs3",
     "timestamp": "2010-10-08T19:20:29Z"
   },
@@ -23378,19 +23342,16 @@
     "timestamp": "2009-03-02T23:30:20Z"
   },
   "fletcheditems/dragon_dart_tip.png": {
-    "download_sha1": "757c94f048501e05574b521dd23be63486b42d77",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Dragon_dart_tip.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_dart_tip.png",
     "file_title": "Dragon dart tip.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502030617%21Dragon_dart_tip.png?03a46",
+    "image_url": "https://oldschool.runescape.wiki/images/Dragon_dart_tip.png?97441",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "6c9cdc23f23dd4fa973205c0b711ad70ca5cb981",
-    "size": 419,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-09-16T01:23:04Z"
+    "sha1": "831294c4edc73a7e727863acc5d29b5ab19b379a",
+    "size": 256,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:33Z"
   },
   "fletcheditems/dragon_darts.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dragon_dart.png",
@@ -23453,15 +23414,14 @@
     "timestamp": "2010-12-26T05:27:17Z"
   },
   "fletcheditems/feather.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Feather.png",
     "file_title": "Feather.png",
     "image_url": "https://runescape.wiki/images/archive/20160502215245%21Feather.png?f55aa",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4d50fcef6c38cc9a9082d39d368323795fe9f384",
-    "size": 347,
+    "sha1": "5c90594043d85d455b7a0f501bc98c4ce3f9cebd",
+    "size": 629,
     "source_wiki": "rs3",
     "timestamp": "2011-08-10T02:26:32Z"
   },
@@ -23598,15 +23558,14 @@
     "timestamp": "2010-12-27T19:37:46Z"
   },
   "fletcheditems/logs.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Logs.png",
     "file_title": "Logs.png",
     "image_url": "https://runescape.wiki/images/archive/20160502051329%21Logs.png?af000",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "9b10fa7e075c289cdf710463cd97d94cb884fedd",
-    "size": 522,
+    "sha1": "d3849d5574d830102993588d0a584a20d3374c5c",
+    "size": 1360,
     "source_wiki": "rs3",
     "timestamp": "2011-08-10T02:25:57Z"
   },
@@ -23635,19 +23594,16 @@
     "timestamp": "2008-04-12T19:12:23Z"
   },
   "fletcheditems/longbow.png": {
-    "download_sha1": "f79abb0853f00d557407914d91eb7f186270131c",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Longbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Longbow.png",
     "file_title": "Longbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20121216031034%21Longbow.png?11376",
+    "image_url": "https://oldschool.runescape.wiki/images/Longbow.png?8cc7e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "1ae8bcb1a26f1ce8f83b06586f77b7c9f16b86bc",
-    "size": 701,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:30Z"
+    "sha1": "3fbfb76fa149912cde87371daff331d3169a0772",
+    "size": 334,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:48Z"
   },
   "fletcheditems/longbow_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Longbow_%28unstrung%29.png",
@@ -23674,19 +23630,16 @@
     "timestamp": "2011-11-12T02:12:44Z"
   },
   "fletcheditems/magic_longbow.png": {
-    "download_sha1": "ac5c47495711fecdfbc4e1e954e77be10a990cba",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Magic_longbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Magic_longbow.png",
     "file_title": "Magic longbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502052112%21Magic_longbow.png?993ba",
+    "image_url": "https://oldschool.runescape.wiki/images/Magic_longbow.png?8bd5a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "43e06b0cf55cf74488e6ad2160d9f5c57b3a1c4a",
-    "size": 749,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:28Z"
+    "sha1": "980a47e656422abe1a02a8516012604a0556f97e",
+    "size": 331,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:51Z"
   },
   "fletcheditems/magic_longbow_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Magic_longbow_%28unstrung%29.png",
@@ -23761,19 +23714,16 @@
     "timestamp": "2011-08-10T02:25:35Z"
   },
   "fletcheditems/maple_longbow.png": {
-    "download_sha1": "b6f682d706cfdd5593041ffeabd7bacbba449bd8",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Maple_longbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Maple_longbow.png",
     "file_title": "Maple longbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502052520%21Maple_longbow.png?993ba",
+    "image_url": "https://oldschool.runescape.wiki/images/Maple_longbow.png?717ea",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "cd7715186ae6ab510fb8c3e3a40e63d5fd807512",
-    "size": 702,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:28Z"
+    "sha1": "2c274fc15f41cc45e150acd9f8761d43eb3e2a64",
+    "size": 370,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:57Z"
   },
   "fletcheditems/maple_longbow_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Maple_longbow_%28unstrung%29.png",
@@ -23932,19 +23882,16 @@
     "timestamp": "2011-02-16T06:52:51Z"
   },
   "fletcheditems/oak_longbow.png": {
-    "download_sha1": "1d450b277a69d29be9f66dbb69f10ffb0a00e42d",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Oak_longbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Oak_longbow.png",
     "file_title": "Oak longbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20121216030921%21Oak_longbow.png?e9e04",
+    "image_url": "https://oldschool.runescape.wiki/images/Oak_longbow.png?02e48",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4db11a7784569393e95511e68dce65dcc9568bfc",
-    "size": 673,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:29Z"
+    "sha1": "4635fa9347e8f81d51ca54b92827274ef082600d",
+    "size": 359,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:28Z"
   },
   "fletcheditems/oak_longbow_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Oak_longbow_%28unstrung%29.png",
@@ -24307,15 +24254,14 @@
     "timestamp": "2010-10-14T02:08:50Z"
   },
   "fletcheditems/silver_bolts_unf.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Silver_bolts_%28unf%29_5.png",
     "file_title": "Silver bolts (unf) 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160503055247%21Silver_bolts_%28unf%29_5.png?427e1",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "e6618286d78c2dcc8c955267dc4f2ba3412007fc",
-    "size": 1458,
+    "sha1": "60089128a47684aa0d2a8546057ed2d33b323a12",
+    "size": 810,
     "source_wiki": "rs3",
     "timestamp": "2010-07-21T01:48:20Z"
   },
@@ -24476,19 +24422,16 @@
     "timestamp": "2011-08-10T02:25:43Z"
   },
   "fletcheditems/willow_longbow.png": {
-    "download_sha1": "df99a0b6341713d0857bee07f219031f99b3c807",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Willow_longbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Willow_longbow.png",
     "file_title": "Willow longbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502091954%21Willow_longbow.png?20829",
+    "image_url": "https://oldschool.runescape.wiki/images/Willow_longbow.png?1257a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b3c976ceb0e3eb9d7ac72ee4cd9393096de38c86",
-    "size": 731,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:10:01Z"
+    "sha1": "8d4660817db9dbcb8238cb3df497d86671cacd6c",
+    "size": 370,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:13:57Z"
   },
   "fletcheditems/willow_longbow_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Willow_longbow_%28unstrung%29.png",
@@ -24563,19 +24506,16 @@
     "timestamp": "2012-10-18T21:50:37Z"
   },
   "fletcheditems/yew_longbow.png": {
-    "download_sha1": "26a5defe74cd650abef1ab3cc2206a77eec650bf",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Yew_longbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Yew_longbow.png",
     "file_title": "Yew longbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502092814%21Yew_longbow.png?3326a",
+    "image_url": "https://oldschool.runescape.wiki/images/Yew_longbow.png?faa5d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "1e83dc469df98418ca99a71c99afe541d768f528",
-    "size": 607,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:10:02Z"
+    "sha1": "f7fb73178fde06d81bdd9f25f6562759e06a2f45",
+    "size": 357,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:14:08Z"
   },
   "fletcheditems/yew_longbow_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Yew_longbow_%28unstrung%29_detail.png",
@@ -28922,15 +28862,14 @@
     "timestamp": "2010-11-27T00:31:13Z"
   },
   "hunteritems/stripy_feather.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Stripy_feather.png",
     "file_title": "Stripy feather.png",
     "image_url": "https://runescape.wiki/images/archive/20140502070628%21Stripy_feather.png?015d2",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "eb899dbcf1bb7848656d92756744336cb5be04c9",
-    "size": 350,
+    "sha1": "94efd6fd99f5a9592b01e48cbb88a6e5df4233f4",
+    "size": 590,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T07:43:02Z"
   },
@@ -32463,19 +32402,16 @@
     "timestamp": "2021-08-23T20:43:19Z"
   },
   "miningitems/bronze_pickaxe.png": {
-    "download_sha1": "d67ea495d1045a3a68dc58990868995ce181bf8f",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_pickaxe.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_pickaxe.png",
     "file_title": "Bronze pickaxe.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015845%21Bronze_pickaxe.png?0ffd7",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_pickaxe.png?fe489",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "316679f8345862b2d0ea9c41f9cd4dea50cb3219",
-    "size": 755,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:35:13Z"
+    "sha1": "71162ada92ec8c6060a9e6f0fc552b683ee77c40",
+    "size": 336,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:01Z"
   },
   "miningitems/dragon_pickaxe.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dragon_pickaxe.png",
@@ -33750,15 +33686,14 @@
     "timestamp": "2012-08-20T20:52:03Z"
   },
   "prayeritems/bucket.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bucket.png",
     "file_title": "Bucket.png",
     "image_url": "https://runescape.wiki/images/archive/20140502180240%21Bucket.png?b646d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "8b815193bf0f99db7c020e6ec3235134817525f6",
-    "size": 642,
+    "sha1": "b591de8566100e0129e2c83744ac5d8cfa45205d",
+    "size": 960,
     "source_wiki": "rs3",
     "timestamp": "2011-11-18T18:04:17Z"
   },
@@ -34195,15 +34130,14 @@
     "timestamp": "2011-11-17T08:53:35Z"
   },
   "questitems/anti_dragon_shield.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Anti-dragon_shield.png",
     "file_title": "Anti-dragon shield.png",
     "image_url": "https://runescape.wiki/images/archive/20160502004913%21Anti-dragon_shield.png?62b32",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "036356c88972d20a75fbfefb70062bb4c3926a44",
-    "size": 1140,
+    "sha1": "c1975b9d630a30d43fa6eaa02f6cf025c2ba12f3",
+    "size": 1871,
     "source_wiki": "rs3",
     "timestamp": "2012-03-07T22:11:22Z"
   },
@@ -34280,15 +34214,14 @@
     "timestamp": "2011-11-17T19:54:24Z"
   },
   "questitems/bat_bones.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bat_bones.png",
     "file_title": "Bat bones.png",
     "image_url": "https://runescape.wiki/images/archive/20140326223359%21Bat_bones.png?3505b",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "42db716b1d2b3b76fe600b735c12dd394200e1b0",
-    "size": 1349,
+    "sha1": "e5c2a4b2901612ed49999d6904505ab529499bc6",
+    "size": 584,
     "source_wiki": "rs3",
     "timestamp": "2009-03-03T01:53:09Z"
   },
@@ -34509,15 +34442,14 @@
     "timestamp": "2012-01-03T01:05:37Z"
   },
   "questitems/bucket.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bucket.png",
     "file_title": "Bucket.png",
     "image_url": "https://runescape.wiki/images/archive/20140502180240%21Bucket.png?b646d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "8b815193bf0f99db7c020e6ec3235134817525f6",
-    "size": 642,
+    "sha1": "b591de8566100e0129e2c83744ac5d8cfa45205d",
+    "size": 960,
     "source_wiki": "rs3",
     "timestamp": "2011-11-18T18:04:17Z"
   },
@@ -34774,15 +34706,14 @@
     "timestamp": "2011-11-20T12:01:48Z"
   },
   "questitems/dwellberries.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Dwellberries.png",
     "file_title": "Dwellberries.png",
     "image_url": "https://runescape.wiki/images/archive/20140502070530%21Dwellberries.png?cb125",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "c3af237a7b1ef48375612e7cc8cabcaa50c10197",
-    "size": 308,
+    "sha1": "b2fef9e1959604fa099e0955c931e7c470e1b340",
+    "size": 421,
     "source_wiki": "rs3",
     "timestamp": "2011-11-20T12:36:36Z"
   },
@@ -35279,15 +35210,14 @@
     "timestamp": "2021-12-26T08:40:33Z"
   },
   "questitems/lava_eel.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Lava_eel.png",
     "file_title": "Lava eel.png",
     "image_url": "https://runescape.wiki/images/archive/20140502071600%21Lava_eel.png?53b79",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "8792fb35ee271437b5f6177d6a43da4f98257311",
-    "size": 489,
+    "sha1": "481e33669c735e59ad3b78a9ae22177408fdea0e",
+    "size": 643,
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T11:59:03Z"
   },
@@ -35942,15 +35872,14 @@
     "timestamp": "2010-10-05T02:03:28Z"
   },
   "questitems/silverlight.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Silverlight.png",
     "file_title": "Silverlight.png",
     "image_url": "https://runescape.wiki/images/archive/20140502180127%21Silverlight.png?1a629",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "9be470f7acd309e907021da47fb4c17a8dfad49c",
-    "size": 568,
+    "sha1": "ca9b0e298c4905b92db71398cc0e7763da13dca2",
+    "size": 1168,
     "source_wiki": "rs3",
     "timestamp": "2011-11-28T15:57:51Z"
   },
@@ -36231,15 +36160,14 @@
     "timestamp": "2011-12-05T10:44:08Z"
   },
   "runecraftingitems/air_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Air_rune.png",
     "file_title": "Air rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152431%21Air_rune.png?52fb0",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "ea86af5ac02c3ec620a08522bfa17866636af37c",
-    "size": 775,
+    "sha1": "4ab683ce9fd02cf1c67b3347d2a0ba2ef16cc301",
+    "size": 1180,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:19Z"
   },
@@ -36280,41 +36208,38 @@
     "timestamp": "2010-03-21T20:39:21Z"
   },
   "runecraftingitems/astral_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Astral_rune.png",
     "file_title": "Astral rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202153630%21Astral_rune.png?d32a7",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "634d804b8f69401c3427f369eb77d83edbb34a1d",
-    "size": 726,
+    "sha1": "c8a7444344ba656e0597182fe28af785d3d6b44b",
+    "size": 1081,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:20Z"
   },
   "runecraftingitems/binding_necklace.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Binding_necklace.png",
     "file_title": "Binding necklace.png",
     "image_url": "https://runescape.wiki/images/archive/20131202182103%21Binding_necklace.png?c70c8",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "5091cd8accc88fc3900a1cb1f6874620f4b38117",
-    "size": 650,
+    "sha1": "b9ab5f95704e28d06655510b490e4778eb4177c4",
+    "size": 724,
     "source_wiki": "rs3",
     "timestamp": "2011-11-18T00:53:04Z"
   },
   "runecraftingitems/blood_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Blood_rune.png",
     "file_title": "Blood rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152436%21Blood_rune.png?d32a7",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b142cd89d8628f9110d30decdb6477b1f4679410",
-    "size": 724,
+    "sha1": "fa63f2f02df73d0066b31e9371c38fb785ccd41c",
+    "size": 1011,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:20Z"
   },
@@ -36451,15 +36376,14 @@
     "timestamp": "2011-11-19T01:03:00Z"
   },
   "runecraftingitems/cosmic_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Cosmic_rune.png",
     "file_title": "Cosmic rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202153632%21Cosmic_rune.png?04ddd",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "14f272b3bd3071eafc661ce7793d198ce4474583",
-    "size": 736,
+    "sha1": "3d4b539bad77ab0ec1a8a036e295854ab4b874d2",
+    "size": 1106,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:21Z"
   },
@@ -36560,15 +36484,14 @@
     "timestamp": "2011-08-06T02:47:35Z"
   },
   "runecraftingitems/earth_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Earth_rune.png",
     "file_title": "Earth rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152433%21Earth_rune.png?9e87a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4eeee0c278531c98722899796f9d820519505088",
-    "size": 723,
+    "sha1": "5fffb0f14b56e8fe6f710c10e177dd0a841b5baf",
+    "size": 1032,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:22Z"
   },
@@ -36621,15 +36544,14 @@
     "timestamp": "2011-07-22T22:49:18Z"
   },
   "runecraftingitems/fire_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Fire_rune.png",
     "file_title": "Fire rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152433%21Fire_rune.png?33419",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "cd7c48b9a4a92a7833e1bca7f46febe5764b106a",
-    "size": 743,
+    "sha1": "cca1fbb294310454edc444eedbd8f1bdd7cc7bb2",
+    "size": 1094,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:23Z"
   },
@@ -36730,15 +36652,14 @@
     "timestamp": "2010-12-31T04:23:17Z"
   },
   "runecraftingitems/law_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Law_rune.png",
     "file_title": "Law rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202153630%21Law_rune.png?33419",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4402b10040abcb38ed49fb1bcfdae3d6e30287c3",
-    "size": 746,
+    "sha1": "9d4cfec28640bab9897dbf70b8b236f8a2dd4a0a",
+    "size": 1155,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:28:23Z"
   },
@@ -36875,15 +36796,14 @@
     "timestamp": "2010-10-06T03:49:11Z"
   },
   "runecraftingitems/nature_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Nature_rune.png",
     "file_title": "Nature rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202153633%21Nature_rune.png?0842d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "3a8b15cf5e6d96bc699b98b74963394b6cc00445",
-    "size": 737,
+    "sha1": "22f8f6d7bd0a1d00cbda1f6bd2a9f4d2a5fc2bab",
+    "size": 1085,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:29:47Z"
   },
@@ -37008,15 +36928,14 @@
     "timestamp": "2010-10-06T03:50:52Z"
   },
   "runecraftingitems/water_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Water_rune.png",
     "file_title": "Water rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202152434%21Water_rune.png?0842d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "fd72319aaba1f2de90d48b2e51c6b569710d97f0",
-    "size": 727,
+    "sha1": "6e6c655ee8908e93525435c6839ef02531542e96",
+    "size": 1064,
     "source_wiki": "rs3",
     "timestamp": "2011-08-09T23:29:47Z"
   },
@@ -37069,15 +36988,14 @@
     "timestamp": "2011-10-17T18:06:33Z"
   },
   "shopitems/adamant_arrow.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_arrow_5.png",
     "file_title": "Adamant arrow 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160503045739%21Adamant_arrow_5.png?8047c",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "5ccff34eff2808cf2f64478ddcd07f077ace7298",
-    "size": 325,
+    "sha1": "4471170fdb1e97d971a487cf966954046a86f0f0",
+    "size": 638,
     "source_wiki": "rs3",
     "timestamp": "2011-11-17T04:22:13Z"
   },
@@ -37094,19 +37012,16 @@
     "timestamp": "2010-12-02T01:57:16Z"
   },
   "shopitems/adamant_crossbow.png": {
-    "download_sha1": "a796d58a528d7ec346fafcaaa2ad1e25b7a5e4b8",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Adamant_crossbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Adamant_crossbow.png",
     "file_title": "Adamant crossbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502003533%21Adamant_crossbow.png?5082a",
+    "image_url": "https://oldschool.runescape.wiki/images/Adamant_crossbow.png?b714a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "8a370b50e40b1004f753798733c92b8f7882da0a",
-    "size": 646,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:24Z"
+    "sha1": "6982acba2c13f5f9fa2f62077cbc96820fafc70d",
+    "size": 751,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:51:44Z"
   },
   "shopitems/adamant_halberd.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_halberd.png",
@@ -37265,15 +37180,14 @@
     "timestamp": "2009-03-03T00:08:13Z"
   },
   "shopitems/arrow_shaft.png": {
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Arrow_shaft_5.png",
-    "file_title": "Arrow shaft 5.png",
+    "file_page_url": "https://runescape.wiki/wiki/File:Shaft_5.png",
+    "file_title": "Shaft 5.png",
     "image_url": "https://runescape.wiki/images/archive/20140504040112%21Shaft_5.png?9c012",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4da1dc25bab3a7f86d1a21cf55b6d5321c365ed5",
-    "size": 1238,
+    "sha1": "a58d29c98c2ac0a24d54cefb97c323e6d966bea3",
+    "size": 344,
     "source_wiki": "rs3",
     "timestamp": "2011-11-17T14:21:49Z"
   },
@@ -37602,15 +37516,14 @@
     "timestamp": "2010-01-08T21:23:05Z"
   },
   "shopitems/basket.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Basket.png",
     "file_title": "Basket.png",
     "image_url": "https://runescape.wiki/images/archive/20140502064313%21Basket.png?54366",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "bdc1e234d9365f3177a0059899baa7fff2429e43",
-    "size": 660,
+    "sha1": "4d097ef55a0e6f5197a9203248f07d4066091000",
+    "size": 1038,
     "source_wiki": "rs3",
     "timestamp": "2011-11-17T22:06:51Z"
   },
@@ -37699,19 +37612,16 @@
     "timestamp": "2012-11-19T22:38:36Z"
   },
   "shopitems/black_brutal.png": {
-    "download_sha1": "373f1446aff85d33ab48b9d36c57e412d52ba90e",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Black_brutal_5.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_brutal_5.png",
     "file_title": "Black brutal 5.png",
-    "image_url": "https://runescape.wiki/images/archive/20160503050508%21Black_brutal_5.png?c8467",
+    "image_url": "https://oldschool.runescape.wiki/images/Black_brutal_5.png?60886",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "1f4181c15e21586f86328b0537ca5355fca4b09e",
-    "size": 608,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-09-11T20:39:55Z"
+    "sha1": "02ee4e985bdeb9e0ac5354afacb31f6858033c3e",
+    "size": 604,
+    "source_wiki": "osrs",
+    "timestamp": "2016-01-28T22:07:10Z"
   },
   "shopitems/black_chainbody.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Black_chainbody.png",
@@ -37930,15 +37840,14 @@
     "timestamp": "2011-11-18T06:49:01Z"
   },
   "shopitems/bolt_of_cloth.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bolt_of_cloth.png",
     "file_title": "Bolt of cloth.png",
     "image_url": "https://runescape.wiki/images/archive/20140502073234%21Bolt_of_cloth.png?4ff86",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d4ff7f0802c777d70fe4ee9b0b827cd933d4221f",
-    "size": 1441,
+    "sha1": "800504dd942a9c9c758e1698f1f170a3501ffeec",
+    "size": 941,
     "source_wiki": "rs3",
     "timestamp": "2010-04-03T16:09:05Z"
   },
@@ -38039,15 +37948,14 @@
     "timestamp": "2012-01-31T21:31:59Z"
   },
   "shopitems/brandy.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Brandy.png",
     "file_title": "Brandy.png",
     "image_url": "https://runescape.wiki/images/archive/20140502072053%21Brandy.png?74abc",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "31032242cd7cfb1423a5c0edffb45f2fe04896ef",
-    "size": 1415,
+    "sha1": "63e3c1198e3960fa9ee84132765d0c5cbaf45670",
+    "size": 645,
     "source_wiki": "rs3",
     "timestamp": "2010-01-08T12:33:18Z"
   },
@@ -38088,34 +37996,28 @@
     "timestamp": "2010-12-02T02:02:46Z"
   },
   "shopitems/bronze_crossbow.png": {
-    "download_sha1": "3a711c6ea837ccb37a3bb16232d63fbc246d4e8c",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_crossbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_crossbow.png",
     "file_title": "Bronze crossbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015725%21Bronze_crossbow.png?c07a0",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_crossbow.png?fe489",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "a549ddac98c6ebc88433f1b431564a752b6838b7",
-    "size": 622,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:26Z"
+    "sha1": "ebedd0cce17b702e72c8d4afe5ea82d005373ff4",
+    "size": 679,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:01Z"
   },
   "shopitems/bronze_halberd.png": {
-    "download_sha1": "05233854726667848ccf738a4559c86a4c081336",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_halberd.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_halberd.png",
     "file_title": "Bronze halberd.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015752%21Bronze_halberd.png?e0cea",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_halberd.png?fe489",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "39b1441af74ddf60e3eee53dae07c830ad8ab1ea",
-    "size": 439,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:35:11Z"
+    "sha1": "e4543b0d0802cbcae6073189d6984490b1988570",
+    "size": 358,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:01Z"
   },
   "shopitems/bronze_javelin.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_javelin.png",
@@ -38166,28 +38068,26 @@
     "timestamp": "2011-11-18T18:00:37Z"
   },
   "shopitems/bucket_of_sand.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bucket_of_sand.png",
     "file_title": "Bucket of sand.png",
     "image_url": "https://runescape.wiki/images/archive/20140502072800%21Bucket_of_sand.png?f2829",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b7802c3af42fb4ea4424cb13725cded8534d28df",
-    "size": 1586,
+    "sha1": "8a1f6e6ba42ecc8badee74e2e39131d23d5a3ab0",
+    "size": 1030,
     "source_wiki": "rs3",
     "timestamp": "2010-03-19T09:43:52Z"
   },
   "shopitems/bucket_of_slime.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bucket_of_slime.png",
     "file_title": "Bucket of slime.png",
     "image_url": "https://runescape.wiki/images/archive/20140502175322%21Bucket_of_slime.png?90840",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "3306c3f397dd15196e4de6c80ad2add19716ea9c",
-    "size": 1547,
+    "sha1": "ca052e9c385a9400a2b587d33ff35082da2dad49",
+    "size": 977,
     "source_wiki": "rs3",
     "timestamp": "2010-04-24T11:10:34Z"
   },
@@ -38372,15 +38272,14 @@
     "timestamp": "2010-01-08T12:12:12Z"
   },
   "shopitems/chocolate_bar.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Chocolate_bar.png",
     "file_title": "Chocolate bar.png",
     "image_url": "https://runescape.wiki/images/archive/20160502021801%21Chocolate_bar.png?abc25",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "7dfc0152614132b3b06b9b186a7c9ef08b5f749a",
-    "size": 899,
+    "sha1": "e1ca01225c767bc7cc4cc706c9221a5faa610ce6",
+    "size": 973,
     "source_wiki": "rs3",
     "timestamp": "2012-10-03T03:06:37Z"
   },
@@ -38625,15 +38524,14 @@
     "timestamp": "2011-11-19T15:57:45Z"
   },
   "shopitems/crunchy_tray.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Crunchy_tray.png",
     "file_title": "Crunchy tray.png",
     "image_url": "https://runescape.wiki/images/archive/20140502063806%21Crunchy_tray.png?b4e9d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "17f972bcc49661e325ee70f3f941dbdfd0627869",
-    "size": 689,
+    "sha1": "cc037ecb2e3c20a6d8c301ef5c597733e6a22723",
+    "size": 880,
     "source_wiki": "rs3",
     "timestamp": "2011-11-19T16:07:50Z"
   },
@@ -38770,19 +38668,16 @@
     "timestamp": "2011-11-20T04:36:59Z"
   },
   "shopitems/dragon_battleaxe.png": {
-    "download_sha1": "edf2c1c226d3d7073af7afb9afe988f20af8d0d7",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Dragon_battleaxe.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_battleaxe.png",
     "file_title": "Dragon battleaxe.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502030524%21Dragon_battleaxe.png?b9e7b",
+    "image_url": "https://oldschool.runescape.wiki/images/Dragon_battleaxe.png?97441",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "7e2872b754eb62e4835e018b1cdf15b3f2136495",
-    "size": 826,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-11-10T03:10:45Z"
+    "sha1": "9d720f505e5ac8c3f55442f478c3d5b01704f777",
+    "size": 511,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:33Z"
   },
   "shopitems/dragon_dagger.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dragon_dagger.png",
@@ -38917,15 +38812,14 @@
     "timestamp": "2011-08-10T02:19:15Z"
   },
   "shopitems/emerald_bracelet.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Emerald_bracelet.png",
     "file_title": "Emerald bracelet.png",
     "image_url": "https://runescape.wiki/images/archive/20140328084918%21Emerald_bracelet.png?eed52",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "319d4a272f9d1e19c82406230c76a7dfab15ab20",
-    "size": 705,
+    "sha1": "4a4e8f9f8634b984d9204a92ab6d21504efd8ca0",
+    "size": 638,
     "source_wiki": "rs3",
     "timestamp": "2011-11-20T17:44:03Z"
   },
@@ -38978,15 +38872,14 @@
     "timestamp": "2011-11-20T18:31:15Z"
   },
   "shopitems/equa_leaves.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Equa_leaves.png",
     "file_title": "Equa leaves.png",
     "image_url": "https://runescape.wiki/images/archive/20140511081025%21Equa_leaves.png?01275",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "ef56f04fd80e2327985e5ac702a540fdec1af8d7",
-    "size": 647,
+    "sha1": "e565d0b9185bb0cb20f1b28c792283a5aa32507c",
+    "size": 715,
     "source_wiki": "rs3",
     "timestamp": "2010-10-03T20:39:17Z"
   },
@@ -39015,15 +38908,14 @@
     "timestamp": "2021-08-20T14:55:42Z"
   },
   "shopitems/eye_of_newt.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Eye_of_newt.png",
     "file_title": "Eye of newt.png",
     "image_url": "https://runescape.wiki/images/archive/20140502071539%21Eye_of_newt.png?11325",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "bf8c85d774f03d80221e3d6473fa9d2d1f84a83b",
-    "size": 1342,
+    "sha1": "e342a7989416914f72255b5766baaa0af4f92431",
+    "size": 388,
     "source_wiki": "rs3",
     "timestamp": "2009-09-06T16:40:14Z"
   },
@@ -39340,15 +39232,14 @@
     "timestamp": "2011-11-21T21:55:51Z"
   },
   "shopitems/gianne_dough.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Gianne_dough.png",
     "file_title": "Gianne dough.png",
     "image_url": "https://runescape.wiki/images/archive/20160502035751%21Gianne_dough.png?78206",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "2832fe74a4a82b7a54ba721ee124c08600249018",
-    "size": 1020,
+    "sha1": "3e7a6f30b79176a2e955c40679a8ef8ec36756a5",
+    "size": 1158,
     "source_wiki": "rs3",
     "timestamp": "2011-09-05T00:23:27Z"
   },
@@ -39401,15 +39292,14 @@
     "timestamp": "2008-09-14T20:51:31Z"
   },
   "shopitems/gnomebowl_mould.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Gnomebowl_mould.png",
     "file_title": "Gnomebowl mould.png",
     "image_url": "https://runescape.wiki/images/archive/20140502063809%21Gnomebowl_mould.png?6af58",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "8d1a83329e054d5c796fa431398b2b3cc18df6e3",
-    "size": 757,
+    "sha1": "5981ee8151a7aa0909ad03450926eead536429ed",
+    "size": 917,
     "source_wiki": "rs3",
     "timestamp": "2011-11-22T02:53:19Z"
   },
@@ -39738,15 +39628,14 @@
     "timestamp": "2010-10-14T04:57:35Z"
   },
   "shopitems/iron_arrow.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_arrow_5.png",
     "file_title": "Iron arrow 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160503052710%21Iron_arrow_5.png?2c238",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "0991c3a5298680a295b81695ff0990f484b12c55",
-    "size": 325,
+    "sha1": "b5ac8a097c3c2b7cfbf09a829be236a142609f38",
+    "size": 643,
     "source_wiki": "rs3",
     "timestamp": "2011-11-23T01:13:08Z"
   },
@@ -39775,19 +39664,16 @@
     "timestamp": "2012-10-08T17:06:27Z"
   },
   "shopitems/iron_halberd.png": {
-    "download_sha1": "db2de5f2457ec81d851abf663b3df2d607d5ec1e",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Iron_halberd.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_halberd.png",
     "file_title": "Iron halberd.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502044919%21Iron_halberd.png?ae833",
+    "image_url": "https://oldschool.runescape.wiki/images/Iron_halberd.png?adc7e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "f87b54ed6304469baca66381594644bc7f9891f6",
-    "size": 3009,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-09-15T20:51:48Z"
+    "sha1": "92361a10e6c9f57f0fe68877fe99c9c4726eca53",
+    "size": 373,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:52Z"
   },
   "shopitems/iron_limbs.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_limbs.png",
@@ -40042,15 +39928,14 @@
     "timestamp": "2012-02-01T03:15:36Z"
   },
   "shopitems/leather_cowl.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Leather_cowl.png",
     "file_title": "Leather cowl.png",
     "image_url": "https://runescape.wiki/images/archive/20160502050905%21Leather_cowl.png?341b6",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "3b30cd4a6b1c3259c26a815bd65149577f4d8711",
-    "size": 571,
+    "sha1": "fbf344d37a4fd43e8c33975ca236d4d72e4f2814",
+    "size": 1036,
     "source_wiki": "rs3",
     "timestamp": "2012-01-31T21:06:59Z"
   },
@@ -40091,15 +39976,14 @@
     "timestamp": "2012-05-20T21:02:04Z"
   },
   "shopitems/lime.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Lime.png",
     "file_title": "Lime.png",
     "image_url": "https://runescape.wiki/images/archive/20140502073220%21Lime.png?905c7",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "7523ad1d56e68699895ec3a8fc0f44f6975f1ebf",
-    "size": 1344,
+    "sha1": "3eae56b2a308f4d204f2b497eb469c4a009c4f04",
+    "size": 434,
     "source_wiki": "rs3",
     "timestamp": "2010-04-03T15:50:18Z"
   },
@@ -40260,15 +40144,14 @@
     "timestamp": "2009-12-24T21:48:33Z"
   },
   "shopitems/mining_helmet.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Mining_helmet.png",
     "file_title": "Mining helmet.png",
     "image_url": "https://runescape.wiki/images/archive/20140502070419%21Mining_helmet.png?06d3d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "42e16f0e2947fb3ecb7e57fc210a373ca5b154fa",
-    "size": 598,
+    "sha1": "6179a91d16d61319a49d37623ed00c417d7e6539",
+    "size": 891,
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T02:09:12Z"
   },
@@ -40285,30 +40168,26 @@
     "timestamp": "2011-11-26T02:32:01Z"
   },
   "shopitems/mith_crossbow.png": {
-    "download_sha1": "a12b99972b270cfb6941258f53eb85fa163096d9",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Mithril_crossbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mithril_crossbow.png",
     "file_title": "Mithril crossbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502054039%21Mithril_crossbow.png?993ba",
+    "image_url": "https://oldschool.runescape.wiki/images/Mithril_crossbow.png?ccf02",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d0a74cceba8805fa954c8758aafd1d373c6b5b9a",
-    "size": 614,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:28Z"
+    "sha1": "46ff083b8ff5244a6a86c4abcdb3d35e3b24122b",
+    "size": 741,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:01Z"
   },
   "shopitems/mithril_arrow.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Mithril_arrow_5.png",
     "file_title": "Mithril arrow 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160503053853%21Mithril_arrow_5.png?02b55",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "f7a5ed077ff41940cbac8588f194d92c434353b2",
-    "size": 328,
+    "sha1": "4a5e1a4f784c4923f6e68716459aa64eb49effae",
+    "size": 622,
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T03:37:52Z"
   },
@@ -40541,15 +40420,14 @@
     "timestamp": "2012-03-06T23:27:36Z"
   },
   "shopitems/mystic_hat.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Mystic_hat.png",
     "file_title": "Mystic hat.png",
     "image_url": "https://runescape.wiki/images/archive/20160502055034%21Mystic_hat.png?14b65",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "6738b26eb1c330f8b1ab640f94c7d60c55786d1f",
-    "size": 783,
+    "sha1": "f69c824132d5ab5f04f7983a66dfd6f33a2126a2",
+    "size": 1298,
     "source_wiki": "rs3",
     "timestamp": "2012-03-06T23:28:40Z"
   },
@@ -40734,28 +40612,26 @@
     "timestamp": "2010-07-07T22:03:30Z"
   },
   "shopitems/oil_lamp.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Oil_lamp.png",
     "file_title": "Oil lamp.png",
     "image_url": "https://runescape.wiki/images/archive/20140708074151%21Oil_lamp.png?2200d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "22d3777dd549f84b40990705e0d727179c93769d",
-    "size": 721,
+    "sha1": "003da822d2c3807f3d1c157d4b7c3ceb81acc34b",
+    "size": 788,
     "source_wiki": "rs3",
     "timestamp": "2011-11-25T10:06:40Z"
   },
   "shopitems/oil_lantern.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Oil_lantern.png",
     "file_title": "Oil lantern.png",
     "image_url": "https://runescape.wiki/images/archive/20140708074152%21Oil_lantern.png?80dea",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "f7a29ceaa746573f4d4a9273737726a8a86c5e6a",
-    "size": 656,
+    "sha1": "70acd674de85b84d8ab5d06e90d332bcd8a80a00",
+    "size": 927,
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T18:07:55Z"
   },
@@ -40796,15 +40672,14 @@
     "timestamp": "2012-06-13T16:43:43Z"
   },
   "shopitems/orange.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Orange.png",
     "file_title": "Orange.png",
     "image_url": "https://runescape.wiki/images/archive/20140511081657%21Orange.png?0e087",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "f716f21944dcd4212e8c2bddf28680165ef33aae",
-    "size": 394,
+    "sha1": "fb0a9d1788e163abd573359b44605b113442a1bf",
+    "size": 480,
     "source_wiki": "rs3",
     "timestamp": "2010-10-05T00:59:46Z"
   },
@@ -41445,15 +41320,14 @@
     "timestamp": "2010-11-25T03:57:03Z"
   },
   "shopitems/red_dye.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Red_dye.png",
     "file_title": "Red dye.png",
     "image_url": "https://runescape.wiki/images/archive/20140502071531%21Red_dye.png?042bc",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d0dfdcc6cef46f838ad7888617e7f0dca31ff277",
-    "size": 1453,
+    "sha1": "11ec249a0794e536f35b08032ef200a03212534e",
+    "size": 582,
     "source_wiki": "rs3",
     "timestamp": "2009-09-06T16:24:59Z"
   },
@@ -41590,15 +41464,14 @@
     "timestamp": "2009-03-03T01:56:46Z"
   },
   "shopitems/rosemary.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Rosemary.png",
     "file_title": "Rosemary.png",
     "image_url": "https://runescape.wiki/images/archive/20140502063719%21Rosemary.png?dfcc2",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "44004c644fc6a7ed4610c8c5546df2008cecc755",
-    "size": 587,
+    "sha1": "bc182019e17b5c9e292d4b7f988d4586dc454922",
+    "size": 949,
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T20:34:50Z"
   },
@@ -41639,28 +41512,26 @@
     "timestamp": "2011-08-10T02:18:58Z"
   },
   "shopitems/ruby_bracelet.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Ruby_bracelet.png",
     "file_title": "Ruby bracelet.png",
     "image_url": "https://runescape.wiki/images/archive/20140502174046%21Ruby_bracelet.png?20aae",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "9d90d9b357a4a99d6d4d0492242413a3389bc88d",
-    "size": 504,
+    "sha1": "135c2c3dd6d42a7c51db1323bae52957a3c53dbb",
+    "size": 619,
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T21:36:03Z"
   },
   "shopitems/rune_arrow.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Rune_arrow_5.png",
     "file_title": "Rune arrow 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160503054857%21Rune_arrow_5.png?5ec67",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "32d7b2635432ca7f0e30f46fef6dcc4b62bee8bf",
-    "size": 328,
+    "sha1": "a7c9a21dc7e51aeb71c30079816a1cb2d801c437",
+    "size": 627,
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T23:28:53Z"
   },
@@ -41677,19 +41548,16 @@
     "timestamp": "2010-12-02T02:33:40Z"
   },
   "shopitems/rune_crossbow.png": {
-    "download_sha1": "a491386ee4c6841c6b5886bccf6df16975f9b481",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Rune_crossbow.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_crossbow.png",
     "file_title": "Rune crossbow.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502071104%21Rune_crossbow.png?e9e04",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_crossbow.png?eec05",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "02046f495c5abaf7d4a94349499828651fe95232",
-    "size": 724,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:29Z"
+    "sha1": "24a5a11f6e4957936e551966cff218b9db7087fe",
+    "size": 669,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:05Z"
   },
   "shopitems/rune_halberd.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Rune_halberd.png",
@@ -42004,15 +41872,14 @@
     "timestamp": "2021-08-23T20:43:57Z"
   },
   "shopitems/soul_rune.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Soul_rune.png",
     "file_title": "Soul rune.png",
     "image_url": "https://runescape.wiki/images/archive/20140202153631%21Soul_rune.png?39489",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "db5aa27f2a963ac3027bd93a1fd7301fe7960989",
-    "size": 686,
+    "sha1": "e161934aa8e2ccddc5d66533a0c31404ad3822db",
+    "size": 1114,
     "source_wiki": "rs3",
     "timestamp": "2011-11-28T22:25:56Z"
   },
@@ -42161,15 +42028,14 @@
     "timestamp": "2010-07-18T09:00:47Z"
   },
   "shopitems/steel_arrow.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Steel_arrow_5.png",
     "file_title": "Steel arrow 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160503055508%21Steel_arrow_5.png?daa91",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "38e5f54965f03569904c96964e3bf21f20693cac",
-    "size": 342,
+    "sha1": "e4582ffc2ea9a5283559eb4c5320e5438e019c79",
+    "size": 660,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T04:44:07Z"
   },
@@ -43218,15 +43084,14 @@
     "timestamp": "2008-04-30T23:13:56Z"
   },
   "shopitems/unlit_torch.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Unlit_torch.png",
     "file_title": "Unlit torch.png",
     "image_url": "https://runescape.wiki/images/archive/20140502071709%21Unlit_torch.png?43aec",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "8e30d6219ee205451a698df24dadb7732fef8d79",
-    "size": 454,
+    "sha1": "502aa615a2fa527395637c53ea21f561f16f00bd",
+    "size": 696,
     "source_wiki": "rs3",
     "timestamp": "2011-11-30T05:48:08Z"
   },
@@ -43795,15 +43660,14 @@
     "timestamp": "2011-12-05T07:51:27Z"
   },
   "shopitems/yak_hide.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Yak-hide.png",
     "file_title": "Yak-hide.png",
     "image_url": "https://runescape.wiki/images/archive/20140502070507%21Yak-hide.png?0f1e0",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d86d0d5502c276370327a89faf37c92e39189b95",
-    "size": 416,
+    "sha1": "f309c82da1140be26a60e651108e7a2ebdb41d92",
+    "size": 734,
     "source_wiki": "rs3",
     "timestamp": "2011-12-05T08:49:21Z"
   },
@@ -43952,15 +43816,14 @@
     "timestamp": "2011-11-17T04:31:54Z"
   },
   "smithingitems/adamant_dart_tip.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_dart_tip.png",
     "file_title": "Adamant dart tip.png",
     "image_url": "https://runescape.wiki/images/archive/20140502173704%21Adamant_dart_tip.png?a321c",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "8d5cc376cc1fd7e3065c167be733590894c54958",
-    "size": 1262,
+    "sha1": "7c032da06cbac07aa8f9b99b7256a8c0fb936fd1",
+    "size": 255,
     "source_wiki": "rs3",
     "timestamp": "2010-04-28T16:24:35Z"
   },
@@ -43989,19 +43852,16 @@
     "timestamp": "2012-03-06T21:58:35Z"
   },
   "smithingitems/adamant_knife.png": {
-    "download_sha1": "d5327f043b5b415051fee8d9ec67b2999685aa9f",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Adamant_knife.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Adamant_knife.png",
     "file_title": "Adamant knife.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502003659%21Adamant_knife.png?7c321",
+    "image_url": "https://oldschool.runescape.wiki/images/Adamant_knife.png?e716d",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4966a4a183e448a77ac62548f445830e1a0aed96",
-    "size": 523,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:25Z"
+    "sha1": "4c4df023f128ff904b93a2d36d0551ce7f3d38c5",
+    "size": 367,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:51:48Z"
   },
   "smithingitems/adamant_longsword.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_longsword.png",
@@ -44040,15 +43900,14 @@
     "timestamp": "2012-03-06T22:58:38Z"
   },
   "smithingitems/adamant_platebody.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_platebody.png",
     "file_title": "Adamant platebody.png",
     "image_url": "https://runescape.wiki/images/archive/20160502003708%21Adamant_platebody.png?272d4",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "da904b4a07e3ee4a101b2c05de56d302f03badd2",
-    "size": 1959,
+    "sha1": "60794f45c241d6bff68e3adb0258e625503659a3",
+    "size": 2078,
     "source_wiki": "rs3",
     "timestamp": "2012-03-06T21:58:36Z"
   },
@@ -44065,15 +43924,14 @@
     "timestamp": "2012-03-06T23:03:20Z"
   },
   "smithingitems/adamant_plateskirt.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_plateskirt.png",
     "file_title": "Adamant plateskirt.png",
     "image_url": "https://runescape.wiki/images/archive/20160502003738%21Adamant_plateskirt.png?272d4",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "605f865dc410172de0ce41716261eee97a6ebdfb",
-    "size": 1686,
+    "sha1": "6e97d24818ebe770ce8eac59f14de9708cf93350",
+    "size": 1573,
     "source_wiki": "rs3",
     "timestamp": "2012-03-06T21:58:36Z"
   },
@@ -44198,30 +44056,26 @@
     "timestamp": "2010-12-05T05:49:05Z"
   },
   "smithingitems/bronze_battleaxe.png": {
-    "download_sha1": "79c260b4d9911437cf13166601d1ae8e7bd5427c",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_battleaxe.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_battleaxe.png",
     "file_title": "Bronze battleaxe.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015713%21Bronze_battleaxe.png?a0f60",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_battleaxe.png?bd75b",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d3b7a02a362a1cca739be3598b2a7b75e45f4c9b",
-    "size": 700,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:35:10Z"
+    "sha1": "95b2ca3536f057786588a3c665e7fdcd61065dea",
+    "size": 400,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:00Z"
   },
   "smithingitems/bronze_bolts_unf.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_bolts_%28unf%29_5.png",
     "file_title": "Bronze bolts (unf) 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502123236%21Bronze_bolts_%28unf%29_5.png?11338",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "6ed1ebc207bead1a1222d411374beec183463904",
-    "size": 343,
+    "sha1": "631958b92757159affe7160651bdb81628d2790c",
+    "size": 562,
     "source_wiki": "rs3",
     "timestamp": "2010-12-05T06:12:50Z"
   },
@@ -44250,30 +44104,26 @@
     "timestamp": "2012-11-19T23:22:17Z"
   },
   "smithingitems/bronze_dagger.png": {
-    "download_sha1": "878b356737ccfa3c94ea87da144fe51d728d6331",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_dagger.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_dagger.png",
     "file_title": "Bronze dagger.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015727%21Bronze_dagger.png?a0f60",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_dagger.png?bd75b",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "25f3dd0244fbe815269fafc00b10cdec8d1d2693",
-    "size": 732,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:35:10Z"
+    "sha1": "426692aeaf78e74eeb2501db04cb6498a5c1abfc",
+    "size": 361,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:00Z"
   },
   "smithingitems/bronze_dart_tip.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_dart_tip.png",
     "file_title": "Bronze dart tip.png",
     "image_url": "https://runescape.wiki/images/archive/20140502173707%21Bronze_dart_tip.png?e48dc",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "5b0f7234efbf5addc81eb2303558affd47c26d7c",
-    "size": 1257,
+    "sha1": "3cdd138d8a4cee8cc73cb4c4fe207b2778ac63ea",
+    "size": 240,
     "source_wiki": "rs3",
     "timestamp": "2010-04-28T16:36:40Z"
   },
@@ -44302,19 +44152,16 @@
     "timestamp": "2012-02-01T01:03:46Z"
   },
   "smithingitems/bronze_knife.png": {
-    "download_sha1": "d5f1681a8224d41708f48cf107d49f56e84d5df8",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_knife.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_knife.png",
     "file_title": "Bronze knife.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015828%21Bronze_knife.png?c07a0",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_knife.png?fe489",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "ef921f7aca95f03c548b250ab388f59c56dc8365",
-    "size": 566,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:26Z"
+    "sha1": "220eff354cb9471d6831bb28340b58d34ed4b0ba",
+    "size": 350,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:01Z"
   },
   "smithingitems/bronze_limbs.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_limbs.png",
@@ -44329,34 +44176,28 @@
     "timestamp": "2011-11-18T16:39:46Z"
   },
   "smithingitems/bronze_longsword.png": {
-    "download_sha1": "bdddb8784365386722f4fd800dbb239d86ccd103",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_longsword.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_longsword.png",
     "file_title": "Bronze longsword.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015832%21Bronze_longsword.png?9fde3",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_longsword.png?cd939",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "c56b2ad4d8d9d02b9c77667b94f60c38f9beab25",
-    "size": 513,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:35:12Z"
+    "sha1": "74f4010bb6d351959f804f12ebe0ff519acc5d1d",
+    "size": 402,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:02Z"
   },
   "smithingitems/bronze_mace.png": {
-    "download_sha1": "5ce994053b5a94ee0fa8b65262e04de28e15d862",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_mace.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_mace.png",
     "file_title": "Bronze mace.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015834%21Bronze_mace.png?0ffd7",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_mace.png?fe489",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b70eae9bd30b861e1bf00afd6e7c20e4fa65c300",
-    "size": 706,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:35:13Z"
+    "sha1": "25449049485fd87406bda4dbb44db72690d6d49a",
+    "size": 321,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:01Z"
   },
   "smithingitems/bronze_med_helm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_med_helm.png",
@@ -44371,15 +44212,14 @@
     "timestamp": "2012-02-01T01:00:38Z"
   },
   "smithingitems/bronze_nails.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_nails.png",
     "file_title": "Bronze nails.png",
     "image_url": "https://runescape.wiki/images/archive/20140502072254%21Bronze_nails.png?d4db0",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "3f7266515c9d7592fb17d135ba0e64812735e878",
-    "size": 1298,
+    "sha1": "999ffddd9753925535dca221c6fe7df6ac0f5c34",
+    "size": 607,
     "source_wiki": "rs3",
     "timestamp": "2011-11-18T16:54:47Z"
   },
@@ -44444,19 +44284,16 @@
     "timestamp": "2012-02-01T01:03:01Z"
   },
   "smithingitems/bronze_sword.png": {
-    "download_sha1": "9a726d177e7d04edbb316a6b678a4e7459845671",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_sword.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_sword.png",
     "file_title": "Bronze sword.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502015903%21Bronze_sword.png?fab52",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_sword.png?cd939",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "e9759b86c3cfa35e90845617cd1373f170867356",
-    "size": 491,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:35:15Z"
+    "sha1": "fa19bd08c90025b253c7c1071bac67eef00f2adc",
+    "size": 348,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:02Z"
   },
   "smithingitems/bronze_warhammer.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bronze_warhammer.png",
@@ -44531,30 +44368,26 @@
     "timestamp": "2010-12-05T05:55:52Z"
   },
   "smithingitems/iron_battleaxe.png": {
-    "download_sha1": "a935ff25a45aaa70437cbcc95f55aef8f6402d27",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Iron_battleaxe.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_battleaxe.png",
     "file_title": "Iron battleaxe.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502044844%21Iron_battleaxe.png?a0074",
+    "image_url": "https://oldschool.runescape.wiki/images/Iron_battleaxe.png?13f14",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "29f8549692af5d21ce9388c5fa903b78f25e44d3",
-    "size": 638,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:35:17Z"
+    "sha1": "2c183c9738e43fa4f6302f5d2ba972ee94229614",
+    "size": 428,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:51Z"
   },
   "smithingitems/iron_bolts_unf.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_bolts_%28unf%29_5.png",
     "file_title": "Iron bolts (unf) 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502221257%21Iron_bolts_%28unf%29_5.png?8cdc1",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "df0a65be7d3e8045709f8835eb16ef44567bfd21",
-    "size": 377,
+    "sha1": "af23182bfc3e43e9b2d71823711c06198d4dbbfa",
+    "size": 665,
     "source_wiki": "rs3",
     "timestamp": "2011-11-23T01:15:12Z"
   },
@@ -44571,19 +44404,16 @@
     "timestamp": "2012-02-01T01:18:39Z"
   },
   "smithingitems/iron_claws.png": {
-    "download_sha1": "6fcfe4c976b090bc5d967af35634a51a8192f0ad",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Iron_claws.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_claws.png",
     "file_title": "Iron claws.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502044900%21Iron_claws.png?fdb47",
+    "image_url": "https://oldschool.runescape.wiki/images/Iron_claws.png?b51d2",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "721ae51115b99ef87c1942d28f466983d3bfb0c6",
-    "size": 3228,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-09-15T21:18:29Z"
+    "sha1": "e30ea04cc78f4bfaba9cf2f489502cf64a18e34b",
+    "size": 467,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:53Z"
   },
   "smithingitems/iron_dagger.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_dagger.png",
@@ -44598,15 +44428,14 @@
     "timestamp": "2008-04-12T19:09:30Z"
   },
   "smithingitems/iron_dart_tip.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_dart_tip.png",
     "file_title": "Iron dart tip.png",
     "image_url": "https://runescape.wiki/images/archive/20140502173705%21Iron_dart_tip.png?71ba2",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "7890544ec480d2a4bfd6d3b4a4e5a83f86635c65",
-    "size": 189,
+    "sha1": "c619ddc127b4eb64abbf127a94da8e7f25f68dbe",
+    "size": 242,
     "source_wiki": "rs3",
     "timestamp": "2011-11-23T01:20:51Z"
   },
@@ -44635,19 +44464,16 @@
     "timestamp": "2012-01-31T20:58:31Z"
   },
   "smithingitems/iron_knife.png": {
-    "download_sha1": "23101dc5b960f258fe011155ad69cc9291c85690",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Iron_knife.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_knife.png",
     "file_title": "Iron knife.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502044946%21Iron_knife.png?d0aee",
+    "image_url": "https://oldschool.runescape.wiki/images/Iron_knife.png?8b61b",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4dc1a0535e8fb8975fd4c1c3aa13fa5ab0beb88d",
-    "size": 394,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:27Z"
+    "sha1": "db8cb96f0bc765ec79e84cd9ec125218c064253a",
+    "size": 342,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:19Z"
   },
   "smithingitems/iron_longsword.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_longsword.png",
@@ -44686,15 +44512,14 @@
     "timestamp": "2012-02-01T01:16:02Z"
   },
   "smithingitems/iron_nails.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_nails.png",
     "file_title": "Iron nails.png",
     "image_url": "https://runescape.wiki/images/archive/20140502072256%21Iron_nails.png?44867",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "22faa85e1456468c934eb59ca8d3e955c3bb2e90",
-    "size": 1298,
+    "sha1": "65087d404124ba9b0b5bcf63f513685015d5669b",
+    "size": 580,
     "source_wiki": "rs3",
     "timestamp": "2011-11-23T01:34:20Z"
   },
@@ -44891,15 +44716,14 @@
     "timestamp": "2008-04-12T19:15:38Z"
   },
   "smithingitems/mithril_dart_tip.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Mithril_dart_tip.png",
     "file_title": "Mithril dart tip.png",
     "image_url": "https://runescape.wiki/images/archive/20140502173708%21Mithril_dart_tip.png?a3e6c",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "74686d72de2bbc4efa9866091b985e4e62002640",
-    "size": 1262,
+    "sha1": "3c4d2c7d2e00484b70c159bbfb2e4cebbcd2deaf",
+    "size": 252,
     "source_wiki": "rs3",
     "timestamp": "2010-07-07T21:55:54Z"
   },
@@ -44928,19 +44752,16 @@
     "timestamp": "2012-03-06T21:07:24Z"
   },
   "smithingitems/mithril_knife.png": {
-    "download_sha1": "36d1e9fd24becad3bd561c9817d606db99646967",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Mithril_knife.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mithril_knife.png",
     "file_title": "Mithril knife.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502054150%21Mithril_knife.png?e9e04",
+    "image_url": "https://oldschool.runescape.wiki/images/Mithril_knife.png?8b58a",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "2518fa29dfa582e893db4ca710020edcd06ac81c",
-    "size": 486,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:29Z"
+    "sha1": "79f31539613562a712c3095d2b3bef6f7112b367",
+    "size": 370,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:03Z"
   },
   "smithingitems/mithril_limbs.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Mithril_limbs.png",
@@ -44991,28 +44812,26 @@
     "timestamp": "2012-03-06T20:52:43Z"
   },
   "smithingitems/mithril_nails.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Mithril_nails.png",
     "file_title": "Mithril nails.png",
     "image_url": "https://runescape.wiki/images/archive/20140502072257%21Mithril_nails.png?ed9b7",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "755bafe1eb0f91e6b34eb0e3d3b39d6fffa06af6",
-    "size": 1323,
+    "sha1": "c4fc15f0cc0dcc08d4450cf9e778890aa195c236",
+    "size": 703,
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T03:55:21Z"
   },
   "smithingitems/mithril_platebody.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Mithril_platebody.png",
     "file_title": "Mithril platebody.png",
     "image_url": "https://runescape.wiki/images/archive/20160502054206%21Mithril_platebody.png?f3539",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d87a987b006e804d99ac995c7b35e2d2e53c4ff8",
-    "size": 1117,
+    "sha1": "1d8484620f88c2ec4ef9f496065aec0a79e2cdad",
+    "size": 1570,
     "source_wiki": "rs3",
     "timestamp": "2012-03-09T18:34:32Z"
   },
@@ -45101,19 +44920,16 @@
     "timestamp": "2010-04-28T04:10:26Z"
   },
   "smithingitems/rune_2h_sword.png": {
-    "download_sha1": "0bcfbe6f5dc86385b0025ba65317cf47c299af98",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Rune_2h_sword.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_2h_sword.png",
     "file_title": "Rune 2h sword.png",
-    "image_url": "https://runescape.wiki/images/archive/20130218211204%21Rune_2h_sword.png?44389",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_2h_sword.png?d9213",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "9e023fbfd21da2b3a2dc1d4864db292c68435034",
-    "size": 521,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-09T07:52:03Z"
+    "sha1": "bd3dca86923bce476bc4ffe1cb75ada71eaf86eb",
+    "size": 338,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:04:37Z"
   },
   "smithingitems/rune_arrowtips.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Rune_arrowheads_5.png",
@@ -45176,28 +44992,26 @@
     "timestamp": "2011-11-27T23:41:43Z"
   },
   "smithingitems/rune_dart_tip.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Rune_dart_tip.png",
     "file_title": "Rune dart tip.png",
     "image_url": "https://runescape.wiki/images/archive/20160502071109%21Rune_dart_tip.png?2dc47",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "8b5660bf11d5733bd2f0a6eed1a7732d235ba958",
-    "size": 475,
+    "sha1": "19ea777aa2c7c6612aaf0ea86fb62289e2ea75eb",
+    "size": 422,
     "source_wiki": "rs3",
     "timestamp": "2012-10-31T21:03:52Z"
   },
   "smithingitems/rune_full_helm.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Rune_full_helm.png",
     "file_title": "Rune full helm.png",
     "image_url": "https://runescape.wiki/images/archive/20121126142509%21Rune_full_helm.png?b915e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "4798f5bcbd559a60580a52f06e6abdcb18487b18",
-    "size": 1058,
+    "sha1": "a4f078283850ad0abb6fc9703b85d4c9d5651e06",
+    "size": 1100,
     "source_wiki": "rs3",
     "timestamp": "2012-03-06T22:19:41Z"
   },
@@ -45214,19 +45028,16 @@
     "timestamp": "2012-03-06T23:42:20Z"
   },
   "smithingitems/rune_knife.png": {
-    "download_sha1": "2ed47071f225ccddb8fcc50105d1d55047b5d434",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Rune_knife.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_knife.png",
     "file_title": "Rune knife.png",
-    "image_url": "https://runescape.wiki/images/archive/20160502071318%21Rune_knife.png?11376",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_knife.png?f70fc",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "80917d2bb3ea49f475c0996a34bd1430842544f0",
-    "size": 469,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:06:30Z"
+    "sha1": "27bc14f03eaf6b727328eb23562cbf9ee89dbb0e",
+    "size": 375,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:10Z"
   },
   "smithingitems/rune_longsword.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Rune_longsword.png",
@@ -45301,15 +45112,14 @@
     "timestamp": "2012-03-10T00:42:10Z"
   },
   "smithingitems/rune_plateskirt.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Rune_plateskirt.png",
     "file_title": "Rune plateskirt.png",
     "image_url": "https://runescape.wiki/images/archive/20160502071359%21Rune_plateskirt.png?7b004",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "5f9499fcd0a6f2bd2af200d3f702a5ac504240bc",
-    "size": 702,
+    "sha1": "05a1fd7c8f479c2d996d37c7dae5c7cd314b0c16",
+    "size": 965,
     "source_wiki": "rs3",
     "timestamp": "2012-03-06T23:41:28Z"
   },
@@ -45470,15 +45280,14 @@
     "timestamp": "2011-11-29T04:53:10Z"
   },
   "smithingitems/steel_dart_tip.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Steel_dart_tip.png",
     "file_title": "Steel dart tip.png",
     "image_url": "https://runescape.wiki/images/archive/20140502173709%21Steel_dart_tip.png?77899",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "d333c7757b68da8df25e53c09cff3f1e39dbd0ae",
-    "size": 212,
+    "sha1": "89fdfcf464d4b051303819e00785426389bd2a79",
+    "size": 248,
     "source_wiki": "rs3",
     "timestamp": "2010-06-14T16:45:37Z"
   },
@@ -45507,19 +45316,16 @@
     "timestamp": "2012-02-01T01:35:13Z"
   },
   "smithingitems/steel_knife.png": {
-    "download_sha1": "e14f1efcd01ac447d3ea02b6df930d1e7bf48933",
-    "fetch_date": "2026-09-03",
-    "file_page_url": "https://runescape.wiki/wiki/File:Steel_knife.png",
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Steel_knife.png",
     "file_title": "Steel knife.png",
-    "image_url": "https://runescape.wiki/images/archive/20121211161453%21Steel_knife.png?02873",
+    "image_url": "https://oldschool.runescape.wiki/images/Steel_knife.png?421a5",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "9f10ccbe991008a9257f050290f959ce3e98a43c",
-    "size": 577,
-    "source_note": "The archive URL bytes did not match the MediaWiki revision SHA-1; both hashes are retained.",
-    "source_wiki": "rs3",
-    "timestamp": "2012-10-08T17:10:00Z"
+    "sha1": "fe8bc2ac25481877c95029cd32db125f970e86ae",
+    "size": 384,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:06:20Z"
   },
   "smithingitems/steel_limbs.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Steel_limbs.png",
@@ -45570,15 +45376,14 @@
     "timestamp": "2012-02-01T01:33:20Z"
   },
   "smithingitems/steel_nails.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Steel_nails.png",
     "file_title": "Steel nails.png",
     "image_url": "https://runescape.wiki/images/archive/20140502072259%21Steel_nails.png?a1076",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b08338fcae267bb23c3d51b71adf63a25970a528",
-    "size": 1423,
+    "sha1": "1d2a4684cffeb1c0766fbce44c58695307ca59f1",
+    "size": 655,
     "source_wiki": "rs3",
     "timestamp": "2010-02-09T18:31:07Z"
   },
@@ -45643,15 +45448,14 @@
     "timestamp": "2012-02-01T01:34:21Z"
   },
   "smithingitems/steel_studs.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Steel_studs.png",
     "file_title": "Steel studs.png",
     "image_url": "https://runescape.wiki/images/archive/20140330120330%21Steel_studs.png?2a9bb",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "1896f45faa78d937b69949abaf67e6fa8561cfec",
-    "size": 476,
+    "sha1": "54518d7e59be3944e2c386af2be8393c84d97aa8",
+    "size": 814,
     "source_wiki": "rs3",
     "timestamp": "2010-07-18T09:46:10Z"
   },
@@ -48476,15 +48280,14 @@
     "timestamp": "2011-11-29T01:43:04Z"
   },
   "woodcuttingitems/acorn.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Acorn_5.png",
     "file_title": "Acorn 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502164631%21Acorn_5.png?436e4",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b459da77b6102db45c3e03c059009041305f8a52",
-    "size": 604,
+    "sha1": "74db1eddbf8e1153e730744c232a9f1e561e8484",
+    "size": 1074,
     "source_wiki": "rs3",
     "timestamp": "2011-11-17T04:06:02Z"
   },
@@ -48501,28 +48304,26 @@
     "timestamp": "2021-12-14T20:16:44Z"
   },
   "woodcuttingitems/apple_tree_seed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Apple_tree_seed_5.png",
     "file_title": "Apple tree seed 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502200534%21Apple_tree_seed_5.png?4c07e",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "bb8ba3735bc9ac283b40c81aa2357565d11b9afd",
-    "size": 235,
+    "sha1": "8bf4d592e6fe5b54f4b8c4117fb230103cbd3147",
+    "size": 322,
     "source_wiki": "rs3",
     "timestamp": "2010-12-25T19:51:01Z"
   },
   "woodcuttingitems/banana_tree_seed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Banana_tree_seed_5.png",
     "file_title": "Banana tree seed 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502202254%21Banana_tree_seed_5.png?ddee3",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "07a69e141f6ce69e8521848e7042c353720024d0",
-    "size": 476,
+    "sha1": "3c4ff56291b88a32cfac2955773445f641424c3a",
+    "size": 994,
     "source_wiki": "rs3",
     "timestamp": "2011-11-17T18:28:23Z"
   },
@@ -48659,28 +48460,26 @@
     "timestamp": "2023-06-16T14:57:41Z"
   },
   "woodcuttingitems/magic_seed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Magic_seed_5.png",
     "file_title": "Magic seed 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502191615%21Magic_seed_5.png?e16fa",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "3e43dc96238adda040730144bda0e42c8e17ad8a",
-    "size": 1468,
+    "sha1": "c08be5d70a5ff0f4ecb5d15ed43964a9e84a757a",
+    "size": 924,
     "source_wiki": "rs3",
     "timestamp": "2008-04-12T19:12:24Z"
   },
   "woodcuttingitems/maple_seed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Maple_seed_5.png",
     "file_title": "Maple seed 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502191618%21Maple_seed_5.png?3e18f",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "6984caac4a36a8ff12ff0b85260cab8174f368a1",
-    "size": 541,
+    "sha1": "33b37ac7c173ac507d8948dd780df0fc14c0da93",
+    "size": 1049,
     "source_wiki": "rs3",
     "timestamp": "2011-11-25T19:21:41Z"
   },
@@ -48697,28 +48496,26 @@
     "timestamp": "2023-06-16T14:58:02Z"
   },
   "woodcuttingitems/orange_tree_seed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Orange_tree_seed_5.png",
     "file_title": "Orange tree seed 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502212327%21Orange_tree_seed_5.png?da3ea",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "82c5532b579dc84d05b8202113631e8fab5c02d7",
-    "size": 510,
+    "sha1": "0ff191652b7122b6791fb028d6dbb81c39aa5b01",
+    "size": 835,
     "source_wiki": "rs3",
     "timestamp": "2011-11-26T19:23:42Z"
   },
   "woodcuttingitems/palm_tree_seed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Palm_tree_seed_5.png",
     "file_title": "Palm tree seed 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502212330%21Palm_tree_seed_5.png?650f3",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "70818d48510b37f92236543366e92ac260d5e640",
-    "size": 853,
+    "sha1": "1972971d81b076da1a128cace20ce9f5ce261bb1",
+    "size": 1176,
     "source_wiki": "rs3",
     "timestamp": "2010-07-03T16:34:36Z"
   },
@@ -48759,15 +48556,14 @@
     "timestamp": "2010-09-18T04:36:09Z"
   },
   "woodcuttingitems/spirit_seed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Spirit_seed_5.png",
     "file_title": "Spirit seed 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502214658%21Spirit_seed_5.png?4a561",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "b77649be86db69d6a9987af514183f12c3ae4900",
-    "size": 553,
+    "sha1": "e8ed44d959da224079dc536c98d5b186964418d7",
+    "size": 840,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T01:02:04Z"
   },
@@ -48796,15 +48592,14 @@
     "timestamp": "2011-12-05T04:46:28Z"
   },
   "woodcuttingitems/yew_seed.png": {
-    "fetch_date": "2026-09-03",
     "file_page_url": "https://runescape.wiki/wiki/File:Yew_seed_5.png",
     "file_title": "Yew seed 5.png",
     "image_url": "https://runescape.wiki/images/archive/20160502173158%21Yew_seed_5.png?29615",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "fb86e655803d4bb42444ee43be58d14d237f5ccd",
-    "size": 468,
+    "sha1": "1d26874a8f04c8abf2ce9a905520dd8c20ce1e08",
+    "size": 850,
     "source_wiki": "rs3",
     "timestamp": "2011-12-05T10:03:01Z"
   }
