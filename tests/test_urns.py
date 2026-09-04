@@ -61,7 +61,7 @@ def _context(player_data, random_values=()):
         player_data=player_data,
         random_random=random_random,
         show_error_message=lambda title, message: calls["errors"].append((title, message)),
-        deactivate_current_skill=lambda: calls.setdefault("deactivated", True),
+        deactivate_current_skill=lambda _reason=None: calls.setdefault("deactivated", True),
         award_skill_exp=award_skill_exp,
         award_hidden_skill_exp=lambda exp_key, _level_key, amount: player_data.__setitem__(
             exp_key, float(player_data.get(exp_key, 0.0) or 0.0) + float(amount)

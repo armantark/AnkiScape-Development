@@ -1137,3 +1137,10 @@ Direct `*_BY_ID` dict literals can mix string constants and literal quest IDs;
 Python resolves both to the same key and silently keeps the later payload. The
 quest-catalog guard parses the module source and resolves module-level string
 constants before checking key uniqueness.
+
+## Review-earned dialog tests
+
+A runtime test that attaches the real `check_achievements` callback must wrap
+it with `DeferredAchievementDialogs().defer(check_achievements)`. A direct
+callback can pass without a `QApplication`, then open a guarded modal in the
+monolithic Qt lane after another test creates the application.

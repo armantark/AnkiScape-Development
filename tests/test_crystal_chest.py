@@ -29,7 +29,7 @@ def _context(player_data, calls, random_values):
         player_data=player_data,
         random_random=lambda: next(rolls),
         show_error_message=lambda title, message: calls["errors"].append((title, message)),
-        deactivate_current_skill=lambda: calls.__setitem__("deactivated", True),
+        deactivate_current_skill=lambda _reason=None: calls.__setitem__("deactivated", True),
         award_skill_exp=lambda _key, amount: amount,
         award_hidden_skill_exp=lambda *_args: None,
         level_up_check=lambda *_args: None,

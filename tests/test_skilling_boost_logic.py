@@ -35,7 +35,7 @@ def _context(player_data):
         player_data=player_data,
         random_random=lambda: 0.0,
         show_error_message=lambda title, text: messages.append((title, text)),
-        deactivate_current_skill=lambda: None,
+        deactivate_current_skill=lambda _reason=None: None,
         award_skill_exp=award,
         award_hidden_skill_exp=lambda exp_key, _level_key, xp: award(exp_key, xp),
         level_up_check=lambda *_args: None,

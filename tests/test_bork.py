@@ -543,7 +543,7 @@ class BorkReviewSeamTests(unittest.TestCase):
             player_data=data,
             random_random=lambda: 0.5,
             show_error_message=lambda *_args: self.fail("unexpected runtime error"),
-            deactivate_current_skill=lambda: None,
+            deactivate_current_skill=lambda _reason=None: None,
             award_skill_exp=lambda *_args: self.fail("the pure encounter owns XP"),
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=lambda *_args: None,

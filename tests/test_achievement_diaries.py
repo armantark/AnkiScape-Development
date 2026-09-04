@@ -349,7 +349,7 @@ def _satisfy(player, task):
 
 def _crafting_context(player, errors):
     """A real RuntimeActionContext, with the real achievement hook attached."""
-    from ankiscape.core.logic import check_achievements
+    from ankiscape.core.logic import DeferredAchievementDialogs, check_achievements
     from ankiscape.runtime.runtime_actions_shared import RuntimeActionContext
 
     def _award(exp_key, amount):
@@ -360,11 +360,11 @@ def _crafting_context(player, errors):
         player_data=player,
         random_random=lambda: 0.5,
         show_error_message=lambda title, message: errors.append((title, message)),
-        deactivate_current_skill=lambda: None,
+        deactivate_current_skill=lambda _reason=None: None,
         award_skill_exp=_award,
         award_hidden_skill_exp=lambda *_args: None,
         level_up_check=lambda *_args: None,
-        check_achievements=check_achievements,
+        check_achievements=DeferredAchievementDialogs().defer(check_achievements),
         save_player_data=lambda: None,
         refresh_skill_availability=lambda: None,
         show_exp=lambda _amount: None,

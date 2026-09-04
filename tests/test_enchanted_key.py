@@ -429,7 +429,7 @@ class EnchantedKeyPersistenceAndRuntimeTests(unittest.TestCase):
             player_data=player,
             random_random=random.Random(4).random,
             show_error_message=lambda *_args: self.fail("unexpected runtime error"),
-            deactivate_current_skill=lambda: None,
+            deactivate_current_skill=lambda _reason=None: None,
             award_skill_exp=lambda *_args: self.fail("the hunt awards no XP"),
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=lambda *_args: None,

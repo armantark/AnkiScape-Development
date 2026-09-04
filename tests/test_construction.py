@@ -41,7 +41,7 @@ class ConstructionDataAndMechanicsTest(unittest.TestCase):
         return RuntimeActionContext(
             player_data=player, random_random=random_random or (lambda: .9),
             show_error_message=lambda title, text: calls.setdefault("errors", []).append((title, text)),
-            deactivate_current_skill=lambda: calls.__setitem__("deactivated", True),
+            deactivate_current_skill=lambda _reason=None: calls.__setitem__("deactivated", True),
             award_skill_exp=award, award_hidden_skill_exp=lambda key, _level, xp: award(key, xp),
             level_up_check=lambda *_: None, check_achievements=lambda *_: None,
             save_player_data=lambda: calls.__setitem__("saves", calls.get("saves", 0) + 1),

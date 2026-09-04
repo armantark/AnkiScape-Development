@@ -383,7 +383,6 @@ def start_activity_for_reviews(activity_id) -> bool:
                 str(info.get("event_log_text", "Star unminable at your level")),
             )
             save_player_data()
-            _show_pending_bankstanding_dialog()
             update_review_event_log_drawer(player_data)
             _update_review_context_surface()
             return False

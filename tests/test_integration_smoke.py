@@ -123,7 +123,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             player_data=addon.player_data,
             random_random=lambda: next(random_rolls, 0.0),
             show_error_message=lambda _title, message: self.fail(message),
-            deactivate_current_skill=lambda: None,
+            deactivate_current_skill=lambda _reason=None: None,
             award_skill_exp=lambda exp_key, amount: addon.player_data.__setitem__(
                 exp_key, float(addon.player_data.get(exp_key, 0.0) or 0.0) + amount
             ) or amount,
@@ -4048,7 +4048,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["hud"], [("shooting_stars", "Activities")])
 
-    def test_activity_start_refuses_unminable_star_and_raises_persistent_notice(self):
+    def test_activity_start_refuses_unminable_star_and_defers_one_notice(self):
         addon = _load_addon_as_package("ankiscape_activity_start_unminable")
         from ankiscape_activity_start_unminable.logic.shooting_star_logic import (
             default_shooting_star_state_pure,
@@ -4087,13 +4087,13 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(calls, {"save": 1, "event_drawer": 1})
+        self.assertEqual(popups, [])
+        addon._show_pending_bankstanding_dialog()
+        self.assertIsNone(addon._PENDING_BANKSTANDING_NOTICE)
         self.assertEqual(len(popups), 1)
         self.assertIn("Star unminable at your level", popups[0])
         self.assertEqual(len(addon.player_data["review_event_log"]), 1)
-        self.assertEqual(
-            addon.player_data["shooting_star"]["notice"]["kind"],
-            "unminable",
-        )
+        self.assertEqual(addon.player_data["shooting_star"]["notice"]["kind"], "unminable")
 
     def test_equipping_a_melee_weapon_returns_loaded_magic_runes_to_bank(self):
         addon = _load_addon_as_package("ankiscape_combat_weapon_loadout")

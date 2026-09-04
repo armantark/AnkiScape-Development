@@ -102,7 +102,7 @@ def _runtime_context(
         show_error_message=lambda title, message: (_ for _ in ()).throw(
             AssertionError(f"{title}: {message}")
         ),
-        deactivate_current_skill=lambda: None,
+        deactivate_current_skill=lambda _reason=None: None,
         award_skill_exp=lambda _exp_key, base_exp: base_exp,
         award_hidden_skill_exp=lambda *_args: None,
         level_up_check=lambda *_args: None,

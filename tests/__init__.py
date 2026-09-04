@@ -5,17 +5,20 @@ import os
 from unittest.mock import patch
 
 
+_MODAL_ALLOW_DEPTH = 0
 _MODAL_PATCHERS = []
 
 
-def _reject_modal(name):
-    def _raise(*_args, **_kwargs):
+def _guard_modal(name, original):
+    def _call(*args, **kwargs):
+        if _MODAL_ALLOW_DEPTH:
+            return original(*args, **kwargs)
         raise AssertionError(
             f"{name} opened a modal in the offscreen Qt test lane; "
             "defer it until after the tested action completes"
         )
 
-    return _raise
+    return _call
 
 
 def install_offscreen_modal_guard() -> None:
@@ -33,10 +36,11 @@ def install_offscreen_modal_guard() -> None:
         (QMessageBox, "critical"),
         (QMessageBox, "question"),
     ):
+        original = getattr(owner, name)
         patcher = patch.object(
             owner,
             name,
-            _reject_modal(f"{owner.__name__}.{name}"),
+            _guard_modal(f"{owner.__name__}.{name}", original),
         )
         patcher.start()
         _MODAL_PATCHERS.append(patcher)
@@ -44,14 +48,13 @@ def install_offscreen_modal_guard() -> None:
 
 @contextmanager
 def allow_modal_dialogs():
-    """Restore modal entry points for tests that explicitly close each dialog."""
-    for patcher in reversed(_MODAL_PATCHERS):
-        patcher.stop()
+    """Permit guarded modals while a test explicitly closes each dialog."""
+    global _MODAL_ALLOW_DEPTH
+    _MODAL_ALLOW_DEPTH += 1
     try:
         yield
     finally:
-        for patcher in _MODAL_PATCHERS:
-            patcher.start()
+        _MODAL_ALLOW_DEPTH -= 1
 
 
 install_offscreen_modal_guard()

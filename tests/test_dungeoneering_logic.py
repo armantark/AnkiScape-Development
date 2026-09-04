@@ -1380,7 +1380,7 @@ class DungeoneeringFloorRuntimeTests(unittest.TestCase):
             player_data=player,
             random_random=lambda: 0.5,
             show_error_message=lambda *_args: self.fail("unexpected runtime error"),
-            deactivate_current_skill=lambda: deactivated.append(True),
+            deactivate_current_skill=lambda _reason=None: deactivated.append(True),
             award_skill_exp=award_skill_exp,
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=lambda *_args: None,

@@ -7060,3 +7060,13 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Empty late combat failures now use the non-material refusal popup, Dungeoneering matches the other named-session refusal shape, and runtime gain feedback clears popup ownership before a later tick can switch.
 - Material fallback deactivation receives the material reason when no Bankstanding switch callback exists. The obsolete `_deactivate_current_skill` wrapper is gone, with its Pass 11 contract retained on `_switch_to_bankstanding`.
 - Focused notice, runtime-action, direct-action, integration, review-strip, and Big Chompy coverage passes 489 tests in 128.94 seconds. Full lanes remain delegated to the merged-tree promotion gate per the coordinator ruling.
+
+## Pass 13 merged-batch seam repair — 2026-09-04
+
+- The merged batch exposed three process-level seams that isolated slices did not: stale public-surface pins, reason-incompatible deactivation stubs, and review-earned dialogs escaping their deferred queue.
+- All 11 protected first-wave surfaces were measured under Python 3.14.7 and Python 3.13.5/PyQt6. Only six stale pins changed; the plain root import remains explicitly unavailable with `No module named 'aqt'`.
+- All 45 stale zero-argument `deactivate_current_skill` lambdas now accept an optional reason. The unminable-star transition leaves exactly one notice queued for the post-review drain.
+- Real diary callbacks in review-handler tests now use `DeferredAchievementDialogs`, and explicit dialog-lifecycle tests pass through a nesting-aware allowance while unexpected offscreen modals still raise the exact guard assertion.
+- The focused merged-seam set passes 138 tests with one skip. All 42 affected modules pass 1,164 tests with two skips.
+- Full sequential discovery passes 5,563 tests in each lane: plain takes 884.485 seconds with 1,367 skips, and offscreen Qt takes 1,615.313 seconds with 5 skips. No errors or failures remain.
+- The worktree audit passes, and the canonical live Anki checkout remains clean.

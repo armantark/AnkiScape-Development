@@ -537,7 +537,7 @@ class BarrowsRuntimeIntegrationTests(unittest.TestCase):
             random_random=lambda: 0.5,
             show_error_message=lambda *_args: self.fail("unexpected runtime error"),
             save_player_data=lambda: events.__setitem__("saved", events["saved"] + 1),
-            deactivate_current_skill=lambda: events.__setitem__("deactivated", events["deactivated"] + 1),
+            deactivate_current_skill=lambda _reason=None: events.__setitem__("deactivated", events["deactivated"] + 1),
             award_skill_exp=lambda *_args: self.fail("combat reducer owns its XP"),
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=lambda *_args: None,
