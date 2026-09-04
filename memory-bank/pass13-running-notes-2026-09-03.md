@@ -275,3 +275,12 @@ bytes, so reruns re-encode. Also: add `redirects=1` (17 of 75 missed titles
 are capitalisation renames), drop `fetch_date`, produce the contact sheet,
 simplify about 150 lines, add the missing tests. The wider sweep over every
 RS-wiki entry (Iron scimitar class) waits for this to land as S8b.
+
+## 01:11 — Lumbridge draft complete (21 rows)
+
+Fixes: "Spin Doctor" spins wool at Lumbridge Castle (beginner); "Rune With
+It" sentence set at the Wizards' Tower mine; "Come In Here and Say That"
+casts Enchant Opal bolts from the tower top (Magic 4; Wind Strike is a
+combat cast and not a recorded Magic target); "Bark Up the Churchyard" cuts
+five yews behind Lumbridge church (Woodcutting 60, hard, invented). Eight
+regions complete, 150 rows; Morytania plus the Miscellaneous row remain.
