@@ -200,3 +200,12 @@ GLM drafted 12; one seam change accepted (Moonclan Teleport for the
 hard-display row, in region). Sent back: the elite row on three pyrefiends
 (level 43); a Dagannoth King, a kurask (Slayer 70), or a counted Waterbirth
 dagannoth replaces it.
+
+## 00:39 — Seers draft complete (14 rows)
+
+Fixes applied: "Weed It and Reap" harvests grimy torstol at Catherby (Farming
+85, elite); "A Long Story" strings a magic longbow (Fletching 85, elite,
+disposition `invented`); water battlestaff (Crafting 54) for the medium row;
+five Ranging Guild rounds; Dairy Air at the Sinclair Mansion. Regions complete:
+Ardougne, Varrock, Karamja, Burthorpe, Falador, Seers (117 rows). Fremennik on
+one fix; Lumbridge and Morytania+misc drafting. S8 icon sweep at its commit.
