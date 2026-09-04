@@ -182,3 +182,14 @@ Cut to the Chase, Feeding Frenzy, Lap of Luxury, Batch Expectations, Trout and
 About) and seven kept names. Accepted without changes. Region status: Ardougne
 28, Varrock 22, Karamja 20, Burthorpe 14 complete; Falador and Seers on fixes;
 Lumbridge, Fremennik, Morytania+misc drafting.
+
+## 00:36 — Falador draft complete (19 rows)
+
+Six fixes applied: Family Values casts a silver holy symbol (Crafting 16,
+easy); Pipe Dreams uses the Barbarian Outpost pipe (Agility 35); Child of
+Saradomin buries five dagannoth bones (hard); A Knight in the Darkness defeats
+five level-45 Monks of Zamorak; Mudskips lands five bass (Fishing 46, output
+seam); Disarm and Embark becomes the invented elite "Arming the White Knights"
+(forge an Adamant platebody, Smithing 88), disposition now `invented`. Regions
+complete: Ardougne, Varrock, Karamja, Burthorpe, Falador (103 rows). Seers on
+fixes; Lumbridge, Fremennik, Morytania+misc drafting.
