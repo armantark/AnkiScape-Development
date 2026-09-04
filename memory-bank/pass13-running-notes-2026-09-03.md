@@ -567,3 +567,15 @@ Remaining seam: the integration pass deferred the unminable-star notice to
 the post-review drain; S2's ruling and test require it at click time. The
 design seat restored `_show_pending_bankstanding_dialog()` on that path and
 committed through the normal gate.
+
+## 05:37 — Batch ready for the final gate
+
+The gate refused the one-line restore because `__init__.py` sits at its
+cap (6,250); the design seat compressed the three-line
+`_switch_to_bankstanding(...)` call to one line (6,249) and restored the
+click-time notice. The dialog lifecycle tests passed under unittest and
+failed under pytest because pytest imports the test package twice and the
+modal guard wrapped itself; the allow depth now lives on `QDialog` and
+installation skips an already-guarded entry point. Both runners pass (pytest
+75; unittest 14). A tool-driving agent now commits through the gate, runs the
+final promotion gate on the remote lanes, lands, and releases the batch lease.
