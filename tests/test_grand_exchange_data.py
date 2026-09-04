@@ -189,8 +189,8 @@ class GrandExchangeDataTest(unittest.TestCase):
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_435)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_751)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_437)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_753)
         self.assertNotIn("Steel spear (kp)", PERIOD_GE_GUIDE_PRICES)
         self.assertNotIn("Steel spear (kp)", PERIOD_GE_BUY_LIMITS)
         self.assertNotIn("Steel spear (kp)", GE_ITEM_CATALOG)
@@ -244,6 +244,26 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertEqual(PERIOD_GE_BUY_LIMITS["Ale yeast"], 100)
         self.assertEqual(PERIOD_GE_GUIDE_PRICES["Dwarven stout (m)"], 25_372)
         self.assertEqual(PERIOD_GE_BUY_LIMITS["Dwarven stout (m)"], 100)
+
+    def test_uncharged_and_fully_charged_glory_reach_the_live_catalog(self):
+        # The 2012 GE traded the uncharged and fully charged amulets under their
+        # own names; partly charged ones did not.
+        # https://runescape.wiki/w/Amulet_of_glory?oldid=6469621
+        for item_name, price in (
+            ("Amulet of glory", 10_157),
+            ("Amulet of glory (4)", 10_965),
+        ):
+            row = GE_ITEM_CATALOG[item_name]
+            self.assertEqual(row["guide_price"], price)
+            self.assertEqual(row["buy_limit"], 100)
+            self.assertEqual(row["category"], "equipment")
+        for item_name in (
+            "Amulet of glory (1)",
+            "Amulet of glory (2)",
+            "Amulet of glory (3)",
+        ):
+            self.assertNotIn(item_name, GE_ITEM_CATALOG)
+            self.assertNotIn(item_name, PERIOD_GE_GUIDE_PRICES)
 
     def test_mage_training_arena_equipment_has_period_market_rows(self):
         expected = {
