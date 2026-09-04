@@ -402,3 +402,13 @@ unicorn (elite) becomes torstol at the Ardougne herb patch; the Knight attempt
 Black Knight at the fortress; Varrock's Oziach purchase (elite) becomes a
 magic shortbow for Lowe's. README marker rule and the `translated`
 definition corrected; apostrophes normalized.
+
+## 02:13 — S8 corrected on its branch
+
+`goal/pass13-icon-2012-sweep-2026-09-03` at `10d15b28` (over `78fa0f83`).
+100 icons replaced with hash-verified pre-cutoff bytes (Mithril platebody
+among them); 35 restored to their originals because the archive bytes never
+matched the wiki's hash even through the literal-`!` path; 179 misses audited
+(83 absent titles, 61 post-cutoff only, 35 hash). Redirects resolved none of
+the 83. Plain lane 4,682 OK. Contact sheets under the pool slot's tmp dir.
+Re-review of the corrective commit: Opus, pending.
