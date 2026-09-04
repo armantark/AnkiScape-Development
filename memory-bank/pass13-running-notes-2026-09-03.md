@@ -92,3 +92,14 @@ behind Varrock Palace (a grown spirit tree needs Farming 83); Tunnel Vision
 keeps Dorgesh-Kaan with a recorded region compromise, because shortcuts have no
 runtime and no Varrock-region agility course exists in the 2012 model. Flag for
 the owner's spot-check: `varrock_hard_but_it_won_t_warp_you_anywhere`.
+
+## 00:04 — S4 review (Opus): ACCEPT-WITH-FINDINGS, sent back
+
+High: the first-sighting keep default seeds from post-bury drops, so a bone
+learned under auto-bury has no default and is left once auto-bury turns off
+(`runtime/runtime_actions_combat.py:594-598`). Medium: the "leave" override is
+honoured only in the burial loop; urned ashes and Bonecrusher bones ignore it
+(`logic_pure/logic_pure_urns.py:389-410,336-343`). Test gap: finisher path
+unexercised. Verified: three kill sites are the only ones; `"Bones": 0` is
+pre-existing and not user-visible; `tests/combat/` is collected by both lanes
+and the test-quality audit. The S4 author re-leases the branch for the fixes.
