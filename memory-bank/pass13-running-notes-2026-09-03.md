@@ -438,3 +438,13 @@ resolve. Largest: rag_and_bone_man 8, the_chosen_commander 6,
 land_of_the_goblins 5, love_story 5, while_guthix_sleeps 5, the_elder_kiln
 4. Full list in the S5 report (transcript) and to be copied into the results
 artifact. Review: Opus, pending.
+
+## 02:22 — S8 CLOSED on its branch
+
+`goal/pass13-icon-2012-sweep-2026-09-03` at `c27ceb26`. Audit states the
+effect against main (100 replaced; 179 unusable: 83 absent titles, 61
+post-cutoff only, 35 hash mismatches); 19 contact sheets committed under
+`memory-bank/evidence/icon-2012-sweep-2026-09-04/`. Closed: S3, S4, S7, S8,
+S9. Pending: S1 (row fixes), S2 (commit at gate), S5 (review), S6 (fix at
+gate). Second-level for the owner: the Iron scimitar class (dated historical
+titles on RS-wiki entries) needs a second sweep over every RS-wiki entry.
