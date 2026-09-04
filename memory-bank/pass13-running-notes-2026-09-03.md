@@ -586,3 +586,14 @@ Final gate on the remote lanes: plain 5,561 in 508 s, Qt 5,561 in 1,011 s,
 audits clean; fast-forward from `5e718aa9`; 256 files, +4,379/−2,309. Batch
 lease released. Results artifact written, opened, and hosted. Records: ledger
 §58, queue §4.25, kanban "Pass 13 follow-ups".
+
+## 09:17 — Sentence rewrite landed at `d89b31ac`
+
+Owner found "off Mudskipper Point" read as a location to select, then asked
+for spirit and difficulty to stay. Ruling 4.26: the instruction clause names
+only selectable things; the flavour clause carries the region. The design
+seat rewrote 153 of 162 sentences; catalog regenerated from the harvest and
+`~/Downloads/game-main/data/cfg/items.yml`; the constants and diary catalog
+module-surface pins moved with the text and were re-pinned. Local
+`.venv-qt` measures `ui/ui_tab_shop.py` differently from the remote lane and
+the root digest is checkout-path-dependent; the remote gate is the authority.

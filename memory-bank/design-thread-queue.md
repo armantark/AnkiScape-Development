@@ -2443,3 +2443,7 @@ instruction clause names only selectable things; the flavour clause carries
 the region and the story and cannot be read as an instruction; difficulty
 stays in the seam and count, unchanged. The design seat rewrites all 162
 sentences itself. Rubric rule 2 amended.
+
+Landed 2026-09-04 09:16 at `d89b31ac`: 153 sentences rewritten (nine already
+named only a shop or a patch); catalog regenerated; two module-surface pins
+re-measured; remote lanes plain 5,561 in 527 s and Qt 5,561 in 1,022 s.
