@@ -1,0 +1,35 @@
+{
+  "at_or_after": [
+    {
+      "sha1": "at-cutoff",
+      "timestamp": "2012-11-20T00:00:00Z",
+      "url": "https://example.invalid/at-cutoff.png"
+    },
+    {
+      "sha1": "after-cutoff",
+      "timestamp": "2014-01-01T00:00:00Z",
+      "url": "https://example.invalid/after-cutoff.png"
+    }
+  ],
+  "mixed": [
+    {
+      "sha1": "newest",
+      "timestamp": "2023-02-24T22:12:31Z",
+      "url": "https://example.invalid/newest.png"
+    },
+    {
+      "sha1": "newest-before-cutoff",
+      "timestamp": "2012-11-19T23:59:59Z",
+      "url": "https://example.invalid/newest-before-cutoff.png"
+    },
+    {
+      "sha1": "older",
+      "timestamp": "2011-11-26T03:58:14Z",
+      "url": "https://example.invalid/older.png"
+    },
+    {
+      "archivename": "",
+      "filemissing": ""
+    }
+  ]
+}
