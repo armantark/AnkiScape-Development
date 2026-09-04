@@ -113,3 +113,21 @@ the generator; (t1) to (t3) stay off. Plain lane 4,678 OK. Five module-surface
 digest pins refreshed (derived constants moved). The generator's header wording
 was changed so the gate's generated-blob exemption recognizes the file; review
 checks that this is the intended mechanism, not a bypass. Review: Opus, pending.
+
+## 00:15 — S7 review (Opus): ACCEPT-WITH-FINDINGS, two fixes sent back
+
+Verified on primary evidence: the 2012-10-23 buy-limit table (oldid 6457777)
+lists Amulet of glory, (4), (t), (t4) only; the harvested Exchange rows match
+oldids 6570084 and 6570085 exactly. The gate exemption keys on
+`auto-?generated|do not edit|@generated` in the first five lines
+(`slop_gate.py:110-115`); the file is a generator-emitted blob, so the header
+change is the intended mechanism, not a bypass. Fixes sent: (t1) to (t3) must
+be untradeable too; the test must pin the two oldids.
+
+Second-level findings (surfaced, not fixed): 106 items are `tradeable=False`
+while the 2011 cache flags them exchangeable (69 summoning pouches, 37
+NPC-shop clothing and misc), from `MiningBonusItem.tradeable` defaulting to
+False (`data/mining_data.py:98`) and the shop generators defaulting the same
+way. `ROOT_QT_DIGEST` in `tests/test_module_surface.py:29` is
+checkout-path-dependent. The fleet gate drops an exempt generated file from
+every check, not only the line cap (`slop_gate.py:124-132`).
