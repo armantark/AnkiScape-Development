@@ -1131,7 +1131,7 @@ class TestStoragePure(unittest.TestCase):
             ITEM_DEFINITIONS,
         )
 
-        self.assertEqual(migrated["quest_combat_config"], {"version": 1})
+        self.assertNotIn("quest_combat_config", migrated)
         self.assertEqual(migrated["quest_combat_encounters"], {"dragon_slayer": ["elvarg"]})
         self.assertEqual(migrated["quest_combat_encounter_counts"], {"toktz_ket_dill": {"lava_monster": 1}})
         self.assertNotIn("quest_stage_actions", migrated)

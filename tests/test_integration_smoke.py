@@ -1569,7 +1569,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], [])
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
-        self.assertIn("Combat stats required before battle support can resolve: Khazard ogre level 63", calls["dialogs"][0][1])
+        self.assertIn("This fight is not modelled yet (combat stats missing): Khazard ogre level 63", calls["dialogs"][0][1])
 
     def test_quest_answer_progresses_black_knights_disguise_from_equipment(self):
         addon = _load_addon_as_package("ankiscape_black_knights_stage_integration")

@@ -9807,7 +9807,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Action required: Complete TokTz-Ket-Dill stage 6 objective, "
-            "Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "This fight is not modelled yet (combat stats missing): TokTz-Ket-Dill level 100, "
             "Battle required: Lava monster level 47 x2, +1 more"
         )
         self.assertIn(expected, labels)
@@ -9857,7 +9857,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Action required: Complete TokTz-Ket-Dill stage 6 objective, "
-            "Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "This fight is not modelled yet (combat stats missing): TokTz-Ket-Dill level 100, "
             "Battle required: Lava monster level 47, +1 more"
         )
         self.assertIn(expected, labels)
@@ -9875,7 +9875,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Combat stats required before battle support can resolve: Khazard ogre level 63"
+        expected = "Blocked: This fight is not modelled yet (combat stats missing): Khazard ogre level 63"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_fight_arena")
         self.assertIsNotNone(action)

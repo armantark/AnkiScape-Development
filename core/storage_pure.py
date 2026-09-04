@@ -972,10 +972,8 @@ def _migrate_quest_combat_encounter_counts(data: Dict[str, Any]) -> None:
 
 
 def _migrate_quest_stage_side_state(data: Dict[str, Any], version: int) -> None:
-    quest_combat_config = data.get("quest_combat_config")
-    if version < 124 and isinstance(quest_combat_config, dict):
-        data["quest_combat_config"] = dict(quest_combat_config)
-        data["quest_combat_config"].pop("resolver_enabled", None)
+    if version < 124:
+        data.pop("quest_combat_config", None)
     _migrate_quest_flag_collection(data, "quest_combat_encounters")
     _migrate_quest_combat_encounter_counts(data)
     data["quest_combat_active_encounters"] = sanitize_quest_combat_active_encounters_pure(

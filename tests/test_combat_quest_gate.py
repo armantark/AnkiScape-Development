@@ -4,12 +4,14 @@ import copy
 import random
 import sys
 import unittest
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.skill_registry import get_skill, trainable_skill_definitions
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.logic_pure.logic_pure_combat_engine import player_combat_level_pure
+import ankiscape.logic_pure.logic_pure_quest as quest_logic
 from ankiscape.runtime.runtime_actions import handle_quest_answer
 from ankiscape.logic_pure.logic_pure_quest import (
     quest_locked_reasons_pure,
@@ -272,10 +274,6 @@ class TestCombatQuestProductFlow(unittest.TestCase):
         self.assertFalse(errors)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestCombatQuestRuntime(unittest.TestCase):
     def test_quest_answer_runs_delrith_as_persistent_shared_combat(self):
         calls = {"xp": [], "saves": 0, "errors": []}
@@ -314,6 +312,7 @@ class TestCombatQuestRuntime(unittest.TestCase):
         )
 
         first_result = player_data["combat_last_result"]
+        first_player_lifepoints = player_data["combat_lifepoints"]
         first_remaining = player_data["quest_combat_active_encounters"]["demon_slayer"][
             "demon_slayer_delrith_27"
         ]
@@ -324,17 +323,30 @@ class TestCombatQuestRuntime(unittest.TestCase):
         self.assertEqual(first_result["prayers"], ("burst_of_strength",))
         self.assertEqual(first_result["prayer_uptime"], 1.0)
         self.assertLess(first_result["prayer_points_after"], first_result["prayer_points_before"])
+        self.assertLess(first_player_lifepoints, 100)
+        second_review_starting_lifepoints = []
+        apply_combat_burst = quest_logic.apply_combat_burst_pure
 
-        self.assertTrue(
-            handle_quest_answer(
-                _context(player_data, calls, random_values=(0.1,) * 1000)
+        def capture_starting_lifepoints(combat_player_data, *args, **kwargs):
+            second_review_starting_lifepoints.append(combat_player_data["combat_lifepoints"])
+            return apply_combat_burst(combat_player_data, *args, **kwargs)
+
+        with patch.object(
+            quest_logic,
+            "apply_combat_burst_pure",
+            side_effect=capture_starting_lifepoints,
+        ):
+            self.assertTrue(
+                handle_quest_answer(
+                    _context(player_data, calls, random_values=(0.1,) * 1000)
+                )
             )
-        )
         second_result = player_data["combat_last_result"]
         second_remaining = player_data["quest_combat_active_encounters"]["demon_slayer"][
             "demon_slayer_delrith_27"
         ]
         self.assertEqual(second_remaining, first_remaining - second_result["player_damage"])
+        self.assertEqual(second_review_starting_lifepoints, [first_player_lifepoints])
 
         self.assertTrue(
             handle_quest_answer(
@@ -385,3 +397,7 @@ class TestCombatQuestRuntime(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["☠ YOU DIED — killed by Delrith; gear moved to grave"])
+
+
+if __name__ == "__main__":
+    unittest.main()

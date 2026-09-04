@@ -825,7 +825,7 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
                 _quest_blocker(
                     stage,
                     "combat_missing_stats",
-                    f"Combat stats required before battle support can resolve: {display_name}{level_text}{remaining_quantity_text}",
+                    f"This fight is not modelled yet (combat stats missing): {display_name}{level_text}{remaining_quantity_text}",
                     encounter_source,
                     encounter_id=encounter_id,
                     display_name=display_name,

@@ -711,8 +711,9 @@ expected file and provenance key in the asset test.
   Senior H.A.M. guard proves focused generated-row replacement can preserve a
   historical quantity while mapping to a local Darkan NPC/combatdef identity.
   Shield of Arrav adds route-specific Jonny the beard and Weaponsmaster
-  encounters with Darkan resolver stats while keeping both routes blocked by
-  the global combat config until battle support is enabled. Fight Arena adds
+  encounters with Darkan resolver stats; both routes now resolve those fights
+  through the shared engine, while statless encounters are reported as
+  unmodelled. Fight Arena adds
   Bouncer as a Darkan resolver-ready focused stage row while keeping the
   Khazard ogre and Khazard scorpion blocked as missing-stats encounters because
   their available Darkan combatdefs carry hitpoints/max-hit metadata but no

@@ -4578,7 +4578,7 @@ class TestLogic(unittest.TestCase):
             if stage == 6:
                 self.assertEqual(
                     quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-                    ("Combat stats required before battle support can resolve: Skeletons",),
+                    ("This fight is not modelled yet (combat stats missing): Skeletons",),
                 )
                 player_data["quest_combat_encounters"] = {
                     quest_id: ["dealing_with_scabaras_skeletons_1"]
@@ -7106,7 +7106,7 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
-            ("Combat stats required before battle support can resolve: Khazard ogre level 63",),
+            ("This fight is not modelled yet (combat stats missing): Khazard ogre level 63",),
         )
 
         player_data["attack_level"] = 150
@@ -7115,7 +7115,7 @@ class TestLogic(unittest.TestCase):
         player_data["constitution_level"] = 150
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
-            ("Combat stats required before battle support can resolve: Khazard ogre level 63",),
+            ("This fight is not modelled yet (combat stats missing): Khazard ogre level 63",),
         )
         blocked_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertFalse(ok)
@@ -7131,7 +7131,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 9)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
-            ("Combat stats required before battle support can resolve: Khazard scorpion level 44",),
+            ("This fight is not modelled yet (combat stats missing): Khazard scorpion level 44",),
         )
 
         player_data["quest_combat_encounters"]["fight_arena"].append("fight_arena_khazard_scorpion_44")
@@ -7501,7 +7501,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "proof_quest", quest_data), ())
         self.assertFalse(can_attempt_quest_review_pure(player_data, "proof_quest", quest_data))
         self.assertEqual(blockers[0]["reason"], "Needs Redberry pie x1 or Cake x1")
-        self.assertEqual(blockers[-1]["reason"], "Combat stats required before battle support can resolve: Ice giant level 53")
+        self.assertEqual(blockers[-1]["reason"], "This fight is not modelled yet (combat stats missing): Ice giant level 53")
 
         player_data["inventory"]["Cake"] = 1
         player_data["inventory"]["Rope"] = 1
@@ -7510,7 +7510,7 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_missing_stats",))
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "proof_quest", quest_data), ())
-        self.assertEqual(blockers[0]["reason"], "Combat stats required before battle support can resolve: Ice giant level 53")
+        self.assertEqual(blockers[0]["reason"], "This fight is not modelled yet (combat stats missing): Ice giant level 53")
 
         player_data["quest_combat_encounters"] = {"proof_quest": ["ice_giant"]}
         self.assertEqual(quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data), ())
