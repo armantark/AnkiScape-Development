@@ -66,6 +66,7 @@ def default_fish_flingers_state_pure() -> dict[str, Any]:
         "fish_flingers_events_completed": 0,
         "fish_flingers_last_ticket_day": -1,
         "fish_flingers_last_result": "",
+        "fish_flingers_game_log": [],
     }
 
 
@@ -123,6 +124,30 @@ def sanitize_fish_flingers_session_pure(raw: Any) -> dict[str, Any]:
     }
 
 
+FISH_FLINGERS_GAME_LOG_RETAINED = 50
+
+
+def sanitize_fish_flingers_game_log_pure(value: Any) -> list[dict[str, Any]]:
+    """Normalize the settled-game ledger, oldest first, newest 50 kept."""
+
+    if not isinstance(value, (list, tuple)):
+        return []
+    rows: list[dict[str, Any]] = []
+    for raw in value:
+        if not isinstance(raw, Mapping):
+            continue
+        rows.append(
+            {
+                "score": _int(raw.get("score"), maximum=48),
+                "xp": _int(raw.get("xp")),
+                "fishing_level": _int(raw.get("fishing_level"), maximum=99),
+                "review_index": _int(raw.get("review_index")),
+                "medals": _int(raw.get("medals"), maximum=4),
+            }
+        )
+    return rows[-FISH_FLINGERS_GAME_LOG_RETAINED:]
+
+
 def sanitize_fish_flingers_state_pure(
     player_data: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
@@ -159,6 +184,9 @@ def sanitize_fish_flingers_state_pure(
             )
             or defaults["fish_flingers_last_result"]
         )[:320],
+        "fish_flingers_game_log": sanitize_fish_flingers_game_log_pure(
+            source.get("fish_flingers_game_log")
+        ),
     }
 
 
@@ -393,6 +421,20 @@ def apply_fish_flingers_review_pure(
         data["fish_flingers_events_completed"] = _int(
             data.get("fish_flingers_events_completed")
         ) + 1
+        data["fish_flingers_game_log"] = (
+            sanitize_fish_flingers_game_log_pure(
+                data.get("fish_flingers_game_log")
+            )
+            + [
+                {
+                    "score": score,
+                    "xp": xp,
+                    "fishing_level": _int(data.get("fishing_level")),
+                    "review_index": next_review,
+                    "medals": medals,
+                }
+            ]
+        )[-FISH_FLINGERS_GAME_LOG_RETAINED:]
         _finish_event(data)
     else:
         data["fish_flingers"] = {
