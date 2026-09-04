@@ -495,3 +495,16 @@ sandstone 35. No truncation inside the lists. Second-level, pre-existing: at
 an 1100 px window the tab strip clips "Collections" behind a scroll arrow.
 Only S2 remains, at its gated commit. S5's author flags papercuts.md past
 the cleanup threshold; a papercut-fix pass is proposed in the results.
+
+## 03:07 — S2 on its branch; all nine merged into the batch
+
+S2 `goal/pass13-activity-one-click-2026-09-03` at `f75c3cdf` (Sol).
+Reproduction: from Activities, Shooting Stars and Evil Tree armed the
+target, left "Training: Mining", disabled the control as "Selected for
+reviews", and never started. Now every path reaches
+`_start_surface_activity` in one click. Screenshots in
+`~/.t3/userdata/attachments/activity-one-click-screenshots-2026-09-04/`.
+Design-seat copy fix sent: "Select active star" becomes "Mine this star",
+"Select tag only" becomes "Tag this star". Review (correctness plus
+frontend taste): Opus, pending. Batch head `d2992b23` holds all nine
+branches, zero conflicts. Gate runs after the S2 relabel lands.
