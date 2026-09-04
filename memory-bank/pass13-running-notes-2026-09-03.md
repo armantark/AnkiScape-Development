@@ -163,3 +163,13 @@ flagged elite row Disarm and Embark (invent an elite in-region deed). Finding:
 `shaikahan` resolves through bone_sources and prayer data, not
 COMBAT_ENEMY_DATA. Six Falador sentences ride the rule 2 exception; each notes
 field argues it.
+
+## 00:28 — Seers draft reviewed, five rows back
+
+GLM drafted 14. Sent back: the two elite-display rows (Beware of the Dog on
+Farming-28 hops; Happy Hour on 25 beers) need real elite seams (Catherby
+torstol; an invented fletching or magic-tree deed); the air battlestaff
+(Crafting 66) in a medium row becomes a water battlestaff (54); the Ranging
+Guild round gets a count; Dairy Air names its place. Pattern across GLM
+drafts: count raises stand in for difficulty; the reviewer must reject that.
+Fremennik drafting; Burthorpe and Lumbridge still drafting.
