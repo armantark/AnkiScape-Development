@@ -1,0 +1,1 @@
+Older verification steps that enable `resolver_enabled` are obsolete since 2026-09-04; quest fights now resolve through the shared combat engine, and encounters without combat stats are reported as unmodelled.

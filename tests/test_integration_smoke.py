@@ -1545,7 +1545,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Khazard helmet": 1, "Khazard armour": 1, "Khazard cell keys": 1},
             "current_quest": "fight_arena",
             "quests": {"fight_arena": {"started": True, "progress": 8, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1570,7 +1569,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], [])
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
-        self.assertIn("Combat stats required before battle support can resolve: Khazard ogre level 63", calls["dialogs"][0][1])
+        self.assertIn("This fight is not modelled yet (combat stats missing): Khazard ogre level 63", calls["dialogs"][0][1])
 
     def test_quest_answer_progresses_black_knights_disguise_from_equipment(self):
         addon = _load_addon_as_package("ankiscape_black_knights_stage_integration")
@@ -1706,7 +1705,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Stake": 1, "Stake hammer": 1},
             "current_quest": "vampyre_slayer",
             "quests": {"vampyre_slayer": {"started": True, "progress": 3, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1748,7 +1746,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_quest": "shield_of_arrav",
             "quests": {"shield_of_arrav": {"started": True, "progress": 5, "completed": False}},
             "quest_route_states": {"shield_of_arrav": ["Join the Black Arm Gang"]},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1804,7 +1801,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_quest": "a_souls_bane",
             "quests": {"a_souls_bane": {"started": True, "progress": 3, "completed": False}},
             "quest_action_proofs": ["Fill the rage meter with an anger weapon"],
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1855,7 +1851,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 }
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1919,7 +1914,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 },
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1991,7 +1985,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 },
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -2067,7 +2060,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 },
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -2118,7 +2110,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 },
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},

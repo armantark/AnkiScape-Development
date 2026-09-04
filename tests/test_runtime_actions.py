@@ -4132,7 +4132,6 @@ class TestRuntimeActions(unittest.TestCase):
                 "holy_grail": ["Reach the Fisher Realm crossing at the six stone heads"]
             },
             "quest_action_proofs": ["Blow the Magic whistle at the six stone heads"],
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -4159,7 +4158,6 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {"Stake": 1, "Stake hammer": 1},
             "current_quest": "vampyre_slayer",
             "quests": {"vampyre_slayer": {"started": True, "progress": 3, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -4182,42 +4180,12 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Count Draynor"])
 
-    def test_quest_answer_resolves_source_backed_demon_slayer_combat_before_stage_progress(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data = {
-            "inventory": {"Silverlight": 1},
-            "current_quest": "demon_slayer",
-            "quests": {"demon_slayer": {"started": True, "progress": 7, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
-            "quest_points": 0,
-            "pending_skill_exp_rewards": {},
-            "completed_achievements": [],
-            "attack_level": 30,
-            "strength_level": 30,
-            "defense_level": 30,
-            "constitution_level": 30,
-            "prayer_level": 1,
-        }
-
-        ok = handle_quest_answer(
-            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
-        )
-
-        self.assertTrue(ok)
-        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 7)
-        self.assertFalse(player_data["quests"]["demon_slayer"]["completed"])
-        self.assertEqual(player_data["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
-        self.assertEqual(calls["saves"], 1)
-        self.assertEqual(calls["errors"], [])
-        self.assertEqual(calls["activity"], ["Defeated Delrith"])
-
     def test_quest_answer_resolves_style_aware_magic_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
             "inventory": {},
             "current_quest": "another_slice_of_h_a_m",
             "quests": {"another_slice_of_h_a_m": {"started": True, "progress": 4, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_combat_encounters": {"another_slice_of_h_a_m": ["another_slice_of_h_a_m_sigmund_64"]},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
@@ -4255,7 +4223,6 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {},
             "current_quest": "toktz_ket_dill",
             "quests": {"toktz_ket_dill": {"started": True, "progress": 6, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -4298,7 +4265,6 @@ class TestRuntimeActions(unittest.TestCase):
             "current_quest": "a_souls_bane",
             "quests": {"a_souls_bane": {"started": True, "progress": 3, "completed": False}},
             "quest_action_proofs": ["Fill the rage meter with an anger weapon"],
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
             "completed_achievements": [],
@@ -4328,7 +4294,6 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {"Pickaxe": 1},
             "current_quest": "death_to_the_dorgeshuun",
             "quests": {"death_to_the_dorgeshuun": {"started": True, "progress": 5, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_combat_encounters": {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
@@ -4365,7 +4330,6 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {"Coins": 12},
             "current_quest": "troll_stronghold",
             "quests": {"troll_stronghold": {"started": True, "progress": 2, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_combat_encounters": {
                 "troll_stronghold": ["troll_stronghold_twig_troll_71", "troll_stronghold_troll_general_171"]
             },

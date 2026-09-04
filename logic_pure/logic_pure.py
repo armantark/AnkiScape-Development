@@ -268,9 +268,7 @@ from .logic_pure_claims import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_quest import (  # noqa: F401  (re-export)
-    QUEST_COMBAT_CONFIG_VERSION,
     QUEST_COMBAT_DEFAULT_BURST_TICKS,
-    QUEST_COMBAT_RESOLVER_ENABLED_KEY,
     QUEST_SECTION_MINIQUESTS,
     QUEST_SECTION_QUESTS,
     _QUEST_COMBAT_BONUS_ALIASES,
@@ -326,14 +324,12 @@ from .logic_pure_quest import (  # noqa: F401  (re-export)
     can_progress_quest_pure,
     can_start_quest_pure,
     default_quest_combat_active_encounters_pure,
-    default_quest_combat_config_pure,
     normalize_xp_rewards_pure,
     primary_xp_reward_amount_pure,
     quest_availability_state_pure,
     quest_catalog_sections_pure,
     quest_combat_encounter_has_stats_pure,
     quest_combat_encounter_ready_pure,
-    quest_combat_resolver_enabled_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_blockers_pure,
     quest_current_stage_choices_pure,
@@ -342,7 +338,6 @@ from .logic_pure_quest import (  # noqa: F401  (re-export)
     quest_journal_rows_pure,
     quest_locked_reasons_pure,
     quest_unlock_locked_reasons_pure,
-    sanitize_quest_combat_config_pure,
     start_quest_pure,
     target_unlock_locked_reasons_pure,
 )

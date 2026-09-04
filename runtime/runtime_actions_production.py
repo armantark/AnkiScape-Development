@@ -1294,8 +1294,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Quest blocked",
-            f"{quest.get('display_name', quest_id)} is blocked: {', '.join(stage_blocker_reasons)}. "
-            "Questing has been switched off until the current stage requirements are met.",
+            f"{quest.get('display_name', quest_id)} is blocked: {', '.join(stage_blocker_reasons)}. Questing has been switched off until this is resolved.",
         )
         return False
     if not can_start_quest_pure(player_data, quest_id, QUEST_DATA):
@@ -1321,8 +1320,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
             ctx.deactivate_current_skill()
             ctx.show_error_message(
                 "Quest blocked",
-                f"{quest.get('display_name', quest_id)} is blocked: {', '.join(stage_blocker_reasons)}. "
-                "Questing has been switched off until the current stage requirements are met.",
+                f"{quest.get('display_name', quest_id)} is blocked: {', '.join(stage_blocker_reasons)}. Questing has been switched off until this is resolved.",
             )
         return False
     player_data.update(new_data)

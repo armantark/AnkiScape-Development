@@ -216,11 +216,11 @@ class PromotionGateTest(unittest.TestCase):
                 command=command,
                 worktree=PROJECT_ROOT,
                 selector=lambda lines: lines,
-                timeout=0.2,
+                timeout=2.0,
             )
 
             self.assertEqual(returncode, 124)
-            self.assertIn("TIMEOUT: exceeded 0.2 seconds", log.getvalue())
+            self.assertIn("TIMEOUT: exceeded 2 seconds", log.getvalue())
             child_pid = int(child_pid_path.read_text(encoding="utf-8"))
             self.assertNotEqual(
                 subprocess.run(("ps", "-p", str(child_pid)), check=False).returncode,

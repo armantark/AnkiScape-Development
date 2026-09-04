@@ -9384,7 +9384,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._quest_choice_calls[-1], ("shield_of_arrav", "Join the Black Arm Gang"))
 
-    def test_quests_tab_shows_shield_black_arm_contextual_contact_combat_blocker(self) -> None:
+    def test_quests_tab_offers_shield_black_arm_contextual_combat(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "shield_of_arrav"
         pd["quests"]["shield_of_arrav"] = {"started": True, "progress": 5, "completed": False}
@@ -9396,7 +9396,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(all("Needs Weapon store key" not in label for label in labels))
         action = dialog.findChild(QPushButton, "questAction_shield_of_arrav")
         self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
+        self.assertTrue(action.isEnabled())
         self.assertNotIn("Needs Weapon store key", action.toolTip())
         self.assertNotIn("Phoenix Gang partner", action.toolTip())
         self.assertNotIn("Use the weapon store key", action.toolTip())
@@ -9660,7 +9660,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}
         pd["current_quest"] = "vampyre_slayer"
         pd["quests"]["vampyre_slayer"] = {"started": True, "progress": 3, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 40
         pd["strength_level"] = 40
         pd["defense_level"] = 35
@@ -9750,7 +9749,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "merlins_crystal"
         pd["quests"]["merlins_crystal"] = {"started": True, "progress": 3, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 50
         pd["strength_level"] = 50
         pd["defense_level"] = 50
@@ -9774,7 +9772,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "elemental_workshop_i"
         pd["inventory"].update({"Thread": 1, "Leather": 1})
         pd["quests"]["elemental_workshop_i"] = {"started": True, "progress": 2, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 40
         pd["strength_level"] = 40
         pd["defense_level"] = 40
@@ -9800,7 +9797,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "toktz_ket_dill"
         pd["quests"]["toktz_ket_dill"] = {"started": True, "progress": 6, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 50
         pd["strength_level"] = 50
         pd["defense_level"] = 50
@@ -9811,7 +9807,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Action required: Complete TokTz-Ket-Dill stage 6 objective, "
-            "Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "This fight is not modelled yet (combat stats missing): TokTz-Ket-Dill level 100, "
             "Battle required: Lava monster level 47 x2, +1 more"
         )
         self.assertIn(expected, labels)
@@ -9827,7 +9823,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "forgiveness_of_a_chaos_dwarf"
         pd["quests"]["forgiveness_of_a_chaos_dwarf"] = {"started": True, "progress": 4, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 80
         pd["strength_level"] = 80
         pd["defense_level"] = 80
@@ -9851,7 +9846,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "toktz_ket_dill"
         pd["quests"]["toktz_ket_dill"] = {"started": True, "progress": 6, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["quest_combat_encounter_counts"] = {"toktz_ket_dill": {"toktz_ket_dill_lava_monster_47": 1}}
         pd["attack_level"] = 50
         pd["strength_level"] = 50
@@ -9863,7 +9857,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Action required: Complete TokTz-Ket-Dill stage 6 objective, "
-            "Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "This fight is not modelled yet (combat stats missing): TokTz-Ket-Dill level 100, "
             "Battle required: Lava monster level 47, +1 more"
         )
         self.assertIn(expected, labels)
@@ -9872,7 +9866,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "fight_arena"
         pd["quests"]["fight_arena"] = {"started": True, "progress": 8, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 150
         pd["strength_level"] = 150
         pd["defense_level"] = 150
@@ -9882,7 +9875,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Combat stats required before battle support can resolve: Khazard ogre level 63"
+        expected = "Blocked: This fight is not modelled yet (combat stats missing): Khazard ogre level 63"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_fight_arena")
         self.assertIsNotNone(action)
@@ -9892,7 +9885,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "fight_arena"
         pd["quests"]["fight_arena"] = {"started": True, "progress": 10, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["quest_combat_encounters"] = {
             "fight_arena": ["fight_arena_khazard_ogre_63", "fight_arena_khazard_scorpion_44"]
         }
@@ -9915,7 +9907,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "witchs_house"
         pd["quests"]["witchs_house"] = {"started": True, "progress": 9, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 60
         pd["strength_level"] = 60
         pd["defense_level"] = 60
@@ -9942,7 +9933,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "another_slice_of_h_a_m"
         pd["quests"]["another_slice_of_h_a_m"] = {"started": True, "progress": 4, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["quest_combat_encounters"] = {"another_slice_of_h_a_m": ["another_slice_of_h_a_m_sigmund_64"]}
         pd["attack_level"] = 40
         pd["strength_level"] = 40
@@ -9970,7 +9960,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "spirits_of_the_elid"
         pd["quests"]["spirits_of_the_elid"] = {"started": True, "progress": 4, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 90
         pd["strength_level"] = 90
         pd["defense_level"] = 90
@@ -9998,7 +9987,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "a_souls_bane"
         pd["quests"]["a_souls_bane"] = {"started": True, "progress": 3, "completed": False}
         pd["quest_action_proofs"] = ["Fill the rage meter with an anger weapon"]
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 100
         pd["strength_level"] = 100
         pd["defense_level"] = 100
@@ -10029,7 +10017,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 3,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 99
         pd["strength_level"] = 99
         pd["defense_level"] = 99
@@ -10071,7 +10058,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 2,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 99
         pd["strength_level"] = 99
         pd["defense_level"] = 99
@@ -10105,7 +10091,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 4,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 99
         pd["strength_level"] = 99
         pd["defense_level"] = 99
@@ -10133,7 +10118,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 11,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 74
         pd["strength_level"] = 74
         pd["defense_level"] = 74
@@ -10170,7 +10154,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 10,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         for level_key in (
             "attack_level",
             "strength_level",
@@ -10211,7 +10194,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"] = {"Coins": 12}
         pd["current_quest"] = "troll_stronghold"
         pd["quests"]["troll_stronghold"] = {"started": True, "progress": 2, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["quest_combat_encounters"] = {
             "troll_stronghold": ["troll_stronghold_twig_troll_71", "troll_stronghold_troll_general_171"]
         }
@@ -10242,7 +10224,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"]["Muddy skull"] = 1
         pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 4, "completed": False}
         pd["quest_action_proofs"] = ["Return the muddy skull to the ghost's coffin"]
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 20
         pd["strength_level"] = 20
         pd["defense_level"] = 20
