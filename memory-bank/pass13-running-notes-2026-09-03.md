@@ -103,3 +103,13 @@ honoured only in the burial loop; urned ashes and Bonecrusher bones ignore it
 unexercised. Verified: three kill sites are the only ones; `"Bones": 0` is
 pre-existing and not user-visible; `tests/combat/` is collected by both lanes
 and the test-quality audit. The S4 author re-leases the branch for the fixes.
+
+## 00:05 — S7 glory-ge on its branch
+
+`goal/pass13-glory-ge-2026-09-03` at `34fbf491` (GLM). Amulet of glory and
+(4) tradeable (Amulet of glory oldid 6469621, 2012-10-25: noted on the GE as
+"Amulet of glory" and "Amulet of glory(4)"); exchange rows regenerated through
+the generator; (t1) to (t3) stay off. Plain lane 4,678 OK. Five module-surface
+digest pins refreshed (derived constants moved). The generator's header wording
+was changed so the gate's generated-blob exemption recognizes the file; review
+checks that this is the intended mechanism, not a bypass. Review: Opus, pending.
