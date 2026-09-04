@@ -193,3 +193,10 @@ seam); Disarm and Embark becomes the invented elite "Arming the White Knights"
 (forge an Adamant platebody, Smithing 88), disposition now `invented`. Regions
 complete: Ardougne, Varrock, Karamja, Burthorpe, Falador (103 rows). Seers on
 fixes; Lumbridge, Fremennik, Morytania+misc drafting.
+
+## 00:38 — Fremennik draft reviewed, one row back
+
+GLM drafted 12; one seam change accepted (Moonclan Teleport for the
+hard-display row, in region). Sent back: the elite row on three pyrefiends
+(level 43); a Dagannoth King, a kurask (Slayer 70), or a counted Waterbirth
+dagannoth replaces it.
