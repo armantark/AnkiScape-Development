@@ -225,3 +225,10 @@ dispatched to GLM.
 frozen `original_tier` on fairy_mountaineering (the drafter had set it to
 hard). Regions complete: seven, 129 rows. Lumbridge (21) and Morytania+misc
 (12) remain.
+
+## 00:50 — S9 fish-flingers-records on its branch
+
+`goal/pass13-fish-flingers-records-2026-09-03` at `6467d08e` (GLM). Each
+settled game appends score, XP, Fishing level, review index, and medals to
+`fish_flingers_game_log`, newest 50 kept, sanitized on load. Payout untouched.
+Four tests; 21 pass in the Fish Flingers file. Review: Opus, pending.
