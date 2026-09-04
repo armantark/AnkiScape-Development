@@ -151,3 +151,15 @@ on the Brimhaven net spot (easy), "Set in Stone" on Shilo gem rocks (Mining
 40 behind the Shilo gate, medium), and "Brim Full of Tickets" earning 25
 Agility Arena tickets (elite). Design seat renamed Here Be Dragons to Here Be
 Demons. No Brimhaven or Shilo shop exists in the closed transaction registry.
+
+## 00:22 — Falador draft reviewed, six rows back
+
+GLM drafted 19; the two owner-named rows now read as real deeds (the rat-pit
+champion at level 26; big-net catches off Mudskipper Point). Sent back: Family
+Values (Construction 48 in easy), Pipe Dreams (Agility 1 pipe for a 26 source),
+Child of Saradomin (Crafting 16 in hard), A Knight in the Darkness (one monk in
+hard), Mudskips (Fishing 16 x10 is not hard; bass output instead), and the
+flagged elite row Disarm and Embark (invent an elite in-region deed). Finding:
+`shaikahan` resolves through bone_sources and prayer data, not
+COMBAT_ENEMY_DATA. Six Falador sentences ride the rule 2 exception; each notes
+field argues it.
