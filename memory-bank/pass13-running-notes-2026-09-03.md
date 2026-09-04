@@ -532,3 +532,17 @@ that takes no argument; a modal opened in the offscreen lane from
 `show_error_message` (ui/ui.py:4510). An integration-fix pass (Sol) runs on
 the batch worktree now; S2's hardening commit merges after it. Log:
 `ankiscape_worktrees/gate-d2992b23.log`.
+
+## 05:13 — S2 CLOSED on its branch
+
+`goal/pass13-activity-one-click-2026-09-03` at `aa2c6d84` (relabel
+`c2ae2d41`, base `f75c3cdf`). Activity starts route through the undoable
+direct-action seam (`__init__.py:349-382`); declined "Leave …?" stops
+cleanly; landmarks start in one click; generic detail-card dispatch replaced
+about fifty explicit branches; copy rulings applied ("Mine this star", "Tag
+this star", "Start …" everywhere, "Active for reviews", header Start hidden
+on Activities, "Requires:" line on Evil Tree, "Exchange stardust" hidden at
+zero). 137 focused offscreen tests pass; integration smoke 201. Two gate
+refusals were PEP 8 blank-line ratchets at nineteen minutes a round. All nine
+slices closed. Batch: integration fixes at their full lanes; S2's two commits
+merge next; then the final gate and landing.
