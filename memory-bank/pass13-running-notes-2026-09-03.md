@@ -508,3 +508,16 @@ Design-seat copy fix sent: "Select active star" becomes "Mine this star",
 "Select tag only" becomes "Tag this star". Review (correctness plus
 frontend taste): Opus, pending. Batch head `d2992b23` holds all nine
 branches, zero conflicts. Gate runs after the S2 relabel lands.
+
+## 03:14 — S2 review (Opus): ACCEPT-WITH-FINDINGS, two high; fix pass sent
+
+High: routing selections through `on_start_activity` bypasses
+`commit_direct_action`, the undo seam, for about forty selections; fifteen
+`elif not _request_utility_selection(...)` sites became unconditional, so a
+declined "Leave …?" falls through. Medium: four landmark rows still arm
+without starting. Tests weakened (Fist of Guthix start, circus icon). Taste:
+four more "Select …" labels start now; "Selected for reviews" names a
+running state; the header "Start activity" reads as a second step; Evil Tree
+requirements wrap mid-pair at 900 px; disabled "Exchange stardust" reads as
+an action. Copy rulings recorded in the message to S2. The batch gate waits
+for this commit.
