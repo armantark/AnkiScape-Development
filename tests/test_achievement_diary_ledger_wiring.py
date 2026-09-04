@@ -129,7 +129,7 @@ class CurationLedgerWiringTest(unittest.TestCase):
                     "original_tier", "designed_trigger", "wiring",
                     "source_citation", "disposition", "future_system", "notes",
                 ]
-                if row["disposition"] == "invented":
+                if row["disposition"] in {"translated", "invented"}:
                     expected_fields += ["designed_name", "designed_description"]
                     self.assertTrue(row["designed_name"])
                     self.assertTrue(row["designed_description"])

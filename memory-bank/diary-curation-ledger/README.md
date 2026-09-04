@@ -37,8 +37,8 @@ Every row uses this exact key order:
 9. `disposition` — one allowed curation disposition.
 10. `future_system` — one canonical future-system ID for dormant rows, otherwise `null`.
 11. `notes` — source conflicts, translation boundaries, exact current seams, and unresolved evidence.
-12. `designed_name` — required only for `invented`; the name emitted at regeneration.
-13. `designed_description` — required only for `invented`; the description emitted at regeneration.
+12. `designed_name` — required for `translated` and `invented`; the name emitted at regeneration.
+13. `designed_description` — required for `translated` and `invented`; the description emitted at regeneration.
 14. `catalog_regeneration_pending` — optional `true` marker for a row whose checked-in generated task must change; the reproduction test requires the pending set to equal the generated diff exactly.
 
 ## Dispositions

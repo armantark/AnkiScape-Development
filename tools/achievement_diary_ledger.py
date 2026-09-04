@@ -30,6 +30,7 @@ _SPEC_KINDS = frozenset({
 _ITEM_NAMES = frozenset(row.storage_key for row in ITEM_DEFINITIONS)
 _LIVE_DISPOSITIONS = frozenset({"active", "translated", "swapped", "invented"})
 _ALLOWED_DISPOSITIONS = _LIVE_DISPOSITIONS | {"dormant"}
+_DESIGNED_TEXT_DISPOSITIONS = frozenset({"translated", "invented"})
 
 
 def _dynamic_direct_event_domain(event_type: str, field: str) -> frozenset | None:
@@ -243,22 +244,34 @@ def _direct_event_emitters() -> dict[str, dict[str, frozenset | None]]:
 _DIRECT_EVENT_EMITTERS = _direct_event_emitters()
 
 
-def _validate_row_metadata(task_id: str, row: Mapping) -> None:
+def _validate_row_metadata(
+    task_id: str, row: Mapping, source_description: str | None = None
+) -> None:
     disposition = row.get("disposition")
     if disposition not in _ALLOWED_DISPOSITIONS:
         raise SystemExit(
             f"diary ledger task {task_id} has unsupported disposition {disposition!r}"
         )
     designed_text = (row.get("designed_name"), row.get("designed_description"))
-    if disposition == "invented" and not all(
+    if disposition in _DESIGNED_TEXT_DISPOSITIONS and not all(
         isinstance(value, str) and value for value in designed_text
     ):
         raise SystemExit(
-            f"invented diary ledger task {task_id} has no designed task text"
+            f"{disposition} diary ledger task {task_id} has no designed task text"
         )
-    if disposition != "invented" and any(value is not None for value in designed_text):
+    if disposition not in _DESIGNED_TEXT_DISPOSITIONS and any(
+        value is not None for value in designed_text
+    ):
         raise SystemExit(
-            f"non-invented diary ledger task {task_id} carries designed task text"
+            f"{disposition} diary ledger task {task_id} carries designed task text"
+        )
+    if (
+        disposition in _DESIGNED_TEXT_DISPOSITIONS
+        and source_description is not None
+        and row.get("designed_description") == source_description
+    ):
+        raise SystemExit(
+            f"{disposition} diary ledger task {task_id} reuses its source description"
         )
 
 
@@ -422,7 +435,10 @@ class CurationLedger:
         self, task_id: str, base_name: str, base_description: str
     ) -> tuple[str, str]:
         row = self.rows.get(task_id)
-        if row is None or row["disposition"] != "invented":
+        if row is None:
+            return base_name, base_description
+        _validate_row_metadata(task_id, row, base_description)
+        if row["disposition"] not in _DESIGNED_TEXT_DISPOSITIONS:
             return base_name, base_description
         return row["designed_name"], row["designed_description"]
 
