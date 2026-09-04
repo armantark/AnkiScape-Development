@@ -264,3 +264,14 @@ whose title is a dated historical image, or whose recorded revision is not
 the newest strictly before the cutoff, shows the wrong period. A second sweep
 over every RS-wiki entry with the same tool is the class fix; decide after the
 S8 review.
+
+## 01:06 — S8 review (Opus): REJECT, fixes sent back
+
+High: 35 icons were fetched through `%21`-encoded archive URLs that the
+repo's own `fetch_resolved_assets.py:118-122` documents as serving a wrong
+revision; the tool shipped the bytes with the API hash. Fix: literal `!`,
+re-fetch, skip on mismatch. Medium: recorded sha1 and size describe different
+bytes, so reruns re-encode. Also: add `redirects=1` (17 of 75 missed titles
+are capitalisation renames), drop `fetch_date`, produce the contact sheet,
+simplify about 150 lines, add the missing tests. The wider sweep over every
+RS-wiki entry (Iron scimitar class) waits for this to land as S8b.
