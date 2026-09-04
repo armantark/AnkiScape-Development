@@ -41,12 +41,8 @@ from ..logic_pure.logic_pure import (
     smithing_target_locked_reasons_pure,
     utility_activity_locked_reasons_pure,
     woodcutting_target_locked_reasons_pure,
+    thieving_target_locked_reasons_pure,
 )
-
-try:
-    from ..logic_pure.logic_pure import thieving_target_locked_reasons_pure as _thieving_target_locked_reasons_pure
-except ImportError:  # The Thieving logic module may land after this UI slice.
-    _thieving_target_locked_reasons_pure = None
 
 from ..logic.agility_logic import agility_target_locked_reasons_pure
 from ..logic.skilling_boost_logic import skilling_effective_level_pure
@@ -227,30 +223,6 @@ def _smithing_tier_of(spec: Mapping[str, object]) -> str:
     return str(next(iter(requirements), "")).replace(" bar", "").strip() or "Other"
 
 
-def _fallback_thieving_locked_reasons(
-    player_data: Mapping[str, object],
-    spec: Mapping[str, object],
-) -> tuple[str, ...]:
-    """Keep the target surface safe while the shared runtime gate is unavailable."""
-
-    reasons = []
-    level = int(spec.get("level", spec.get("required_level", 1)) or 1)
-    if int(player_data.get("thieving_level", 1) or 1) < level:
-        reasons.append(f"Thieving level {level}")
-
-    quest_id = str(spec.get("quest_gate", spec.get("required_quest", "")) or "")
-    if quest_id:
-        quests = player_data.get("quests", {}) or {}
-        quest_state = quests.get(quest_id, {}) if isinstance(quests, Mapping) else {}
-        completed = bool(quest_state.get("completed")) if isinstance(quest_state, Mapping) else bool(quest_state)
-        if not completed:
-            reasons.append(str(spec.get("quest_gate_label", quest_id.replace("_", " ").title())))
-
-    if spec.get("source_blocked"):
-        reasons.append(str(spec.get("source_blocked_reason", "source values are not closed")))
-    return tuple(dict.fromkeys(reasons))
-
-
 def thieving_target_rows(
     player_data: Mapping[str, object],
     thieving_data: Mapping[str, Mapping[str, object]],
@@ -272,12 +244,9 @@ def thieving_target_rows(
         level = int(spec.get("level", spec.get("required_level", 1)) or 1)
         xp = float(spec.get("xp", spec.get("exp", 0)) or 0)
         group = str(spec.get("group", spec.get("family", "pickpocketing")) or "pickpocketing")
-        if _thieving_target_locked_reasons_pure is not None:
-            locked_reasons = tuple(
-                _thieving_target_locked_reasons_pure(player_data, target_id, thieving_data)
-            )
-        else:
-            locked_reasons = _fallback_thieving_locked_reasons(player_data, spec)
+        locked_reasons = tuple(
+            thieving_target_locked_reasons_pure(player_data, target_id, thieving_data)
+        )
 
         tooltip_lines = [
             f"{group.replace('_', ' ').title()} · Thieving level {level}. You have {level_have}.",
@@ -850,6 +819,7 @@ def mining_target_rows(
                 current=target_id == current_target,
                 icon_path=icon_path,
                 locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -928,6 +898,7 @@ def woodcutting_target_rows(
                 current=target_id == current_target,
                 icon_path=tree_images.get(display),
                 locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display),
             )
         )
     return tuple(rows)
@@ -984,7 +955,7 @@ def fletching_target_rows(
                 icon_path=fletched_item_images.get(output_item),
                 group=str(spec.get("group", "")),
                 locked_reasons=locked_reasons,
-                sort_key=tuple(spec.get("sort_key", ())),
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -1041,7 +1012,7 @@ def herblore_target_rows(
                 icon_path=herblore_item_images.get(output_item),
                 group=str(spec.get("group", "")),
                 locked_reasons=locked_reasons,
-                sort_key=tuple(spec.get("sort_key", ())),
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -1098,6 +1069,7 @@ def firemaking_target_rows(
                 current=target_key == current_target,
                 icon_path=firemaking_item_images.get(str(input_item)) or firemaking_item_images.get(output_item),
                 locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -1250,6 +1222,7 @@ def fishing_target_rows(
                 current=target_key == current_target,
                 icon_path=fishing_item_images.get(icon_fish.get("output_item")) if isinstance(icon_fish, Mapping) else None,
                 locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -1343,7 +1316,7 @@ def hunter_target_rows(
                 icon_path=hunter_item_images.get(primary_output),
                 group=str(spec.get("group", "")),
                 locked_reasons=locked_reasons,
-                sort_key=tuple(spec.get("sort_key", (lvl_req, display_name))),
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)

@@ -114,7 +114,6 @@ HUNTER_GROUP_LABELS = {
     "impling_world": "Implings - world",
 }
 HUNTER_GROUP_ORDER = tuple(HUNTER_GROUP_LABELS.keys())
-_GROUP_SORT = {group_id: index for index, group_id in enumerate(HUNTER_GROUP_ORDER)}
 HUNTER_REUSABLE_TOOLS_BY_GROUP = {
     "bird_snaring": (("Bird snare", 1),),
     "tracking": (("Noose wand", 1),),
@@ -1437,7 +1436,6 @@ def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
             and target.primary_output not in _HUNTER_UNTRADEABLE_ITEMS
         ),
         "notes": target.notes,
-        "sort_key": (_GROUP_SORT.get(target.group, 999), target.sort_order, target.level, target.display_name),
     }
 
 

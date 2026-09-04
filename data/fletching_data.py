@@ -60,7 +60,6 @@ FLETCHING_GROUP_LABELS = {
     "specials": "Specials",
 }
 FLETCHING_GROUP_ORDER = tuple(FLETCHING_GROUP_LABELS.keys())
-_GROUP_SORT = {group_id: index for index, group_id in enumerate(FLETCHING_GROUP_ORDER)}
 
 
 @dataclass(frozen=True)
@@ -286,7 +285,6 @@ def _target_as_dict(target: FletchingTarget) -> Dict[str, object]:
         "unlock_abilities": target.unlock_abilities,
         "notes": target.notes,
         "tradeable": target.tradeable,
-        "sort_key": (_GROUP_SORT.get(target.group, 999), target.sort_order, target.level, target.display_name),
     }
     if target.action == "feather":
         row["material_options"] = {"Feather": FEATHER_ALTERNATIVES}
