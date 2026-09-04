@@ -361,3 +361,12 @@ Regeneration then succeeded: 162 rows, all 162 markers cleared per precedent,
 no source sentence remains. The stage 2 test as briefed also forbade kept
 names; 78 rows keep their source name by rubric rule 5, so the test now covers
 sentences only.
+
+## 01:56 — S6 target-level-order on its branch
+
+`goal/pass13-target-level-order-2026-09-03` at `25d6f3d9` plus a papercuts
+note at `58ed22a3` (GLM). Every row builder sets `sort_key=(level, label)`;
+the tree and flat renderers sort by it; dead hand-curated orders in
+Fletching and Hunter removed (they put 10 before 9). Tests in
+`tests/skills/test_target_level_order.py` (851 assertions across skills).
+Review: Opus, pending. Visual check: once on the merged tree with S2.
