@@ -1,3 +1,4 @@
 # Goal queue maintenance papercuts
 
 - 2026-09-05: While checking asset coverage, the driver guessed `tools/verify/*.py` and received `zsh:1: no matches found: tools/verify/*.py`. The actual full-lane entry points are `run_tests.py` and unittest discovery under `tests`. Asset normalization and provenance checks are in the full suite; these slices contain no asset edits. Do not run a broad asset network audit for this check.
+- 2026-09-05: The driver reported that the native sandbox canary completed with `/usr/bin/sandbox-exec` exit `71` before the probe and exact stderr `sandbox-exec: sandbox_apply: Operation not permitted`. Evidence on the MacBook: `/private/tmp/ankiscape-sandbox-canary.NbIxze/canary-evidence.json`. Ordinary sentinel read/write passed; both recorded hashes were unchanged; no Anki launch or profile access occurred. Native workflows are integration-blocked by unavailable OS sandbox enforcement, not pending approval. Full headless promotion continues.
