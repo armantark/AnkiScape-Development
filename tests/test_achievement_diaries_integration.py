@@ -273,7 +273,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon("ankiscape_diary_undo")
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.saves: list[bool] = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.collection = _FakeCollection()
@@ -295,7 +295,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
         sys.modules.update(self._orig_modules)
 
     def _ready_to_claim(self):
-        player = self.addon.player_data
+        player = self.addon._state.player_data
         tier = self.claim_family.tiers[0]
         for task in tier.tasks:
             _satisfy(player, task)
@@ -311,8 +311,8 @@ class DiaryUndoSeamTest(unittest.TestCase):
 
         addon = self.addon
         tier = self._ready_to_claim()
-        before = copy.deepcopy(dict(addon.player_data))
-        depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        before = copy.deepcopy(dict(addon._state.player_data))
+        depth = len(addon._state.direct_action_undo_stack)
 
         committed = addon.commit_direct_action(
             lambda current: apply_achievement_diary_command_pure(
@@ -322,11 +322,11 @@ class DiaryUndoSeamTest(unittest.TestCase):
 
         self.assertTrue(committed)
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), depth + 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), depth + 1)
         self.assertEqual(len(self.saves), 1)
-        self.assertEqual(addon.player_data["inventory"].get("Ardougne cloak 1"), 1)
+        self.assertEqual(addon._state.player_data["inventory"].get("Ardougne cloak 1"), 1)
 
-        restored = addon._DIRECT_ACTION_UNDO_STACK[-1]["player_data"]
+        restored = addon._state.direct_action_undo_stack[-1]["player_data"]
         self.assertEqual(
             restored["achievement_diaries"]["claimed_tiers"],
             before["achievement_diaries"]["claimed_tiers"],
@@ -342,7 +342,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
 
         addon = self.addon
         tier = self._ready_to_claim()
-        before = copy.deepcopy(dict(addon.player_data))
+        before = copy.deepcopy(dict(addon._state.player_data))
         claim_id = diary_lamp_claim_id(tier.id)
 
         addon.commit_direct_action(
@@ -350,21 +350,21 @@ class DiaryUndoSeamTest(unittest.TestCase):
                 current, "claim_tier", {"tier_id": tier.id}
             )[:2]
         )
-        self.assertEqual(addon.player_data["mining_exp"], before["mining_exp"])
+        self.assertEqual(addon._state.player_data["mining_exp"], before["mining_exp"])
         self.assertEqual(
-            claim_locked_reasons_pure(addon.player_data, claim_id, addon.CLAIM_DATA),
+            claim_locked_reasons_pure(addon._state.player_data, claim_id, addon.CLAIM_DATA),
             (),
         )
 
-        snapshot = addon._DIRECT_ACTION_UNDO_STACK.pop()["player_data"]
-        addon.player_data.clear()
-        addon.player_data.update(snapshot)
+        snapshot = addon._state.direct_action_undo_stack.pop()["player_data"]
+        addon._state.player_data.clear()
+        addon._state.player_data.update(snapshot)
 
-        self.assertFalse(addon.player_data["inventory"].get("Ardougne cloak 1"))
-        self.assertEqual(addon.player_data["mining_exp"], before["mining_exp"])
-        self.assertEqual(addon.player_data["achievement_diaries"]["claimed_tiers"], [])
+        self.assertFalse(addon._state.player_data["inventory"].get("Ardougne cloak 1"))
+        self.assertEqual(addon._state.player_data["mining_exp"], before["mining_exp"])
+        self.assertEqual(addon._state.player_data["achievement_diaries"]["claimed_tiers"], [])
         self.assertEqual(
-            claim_locked_reasons_pure(addon.player_data, claim_id, addon.CLAIM_DATA),
+            claim_locked_reasons_pure(addon._state.player_data, claim_id, addon.CLAIM_DATA),
             ("diary tier",),
         )
 
@@ -381,26 +381,26 @@ class DiaryUndoSeamTest(unittest.TestCase):
                 current, "claim_tier", {"tier_id": tier.id}
             )[:2]
         )
-        before_spend = copy.deepcopy(dict(addon.player_data))
-        depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        before_spend = copy.deepcopy(dict(addon._state.player_data))
+        depth = len(addon._state.direct_action_undo_stack)
         addon.level_up_check = lambda *_args: None
 
         self.assertTrue(addon.on_claim_reward(claim_id, "mining"))
 
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), depth + 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), depth + 1)
         self.assertEqual(
-            addon.player_data["mining_exp"] - before_spend["mining_exp"],
+            addon._state.player_data["mining_exp"] - before_spend["mining_exp"],
             float(tier.lamp.experience),
         )
-        self.assertTrue(addon.player_data["claims"][claim_id]["claimed"])
+        self.assertTrue(addon._state.player_data["claims"][claim_id]["claimed"])
 
-        snapshot = addon._DIRECT_ACTION_UNDO_STACK.pop()["player_data"]
-        addon.player_data.clear()
-        addon.player_data.update(snapshot)
-        self.assertEqual(addon.player_data["mining_exp"], before_spend["mining_exp"])
-        self.assertFalse(addon.player_data["claims"][claim_id]["claimed"])
-        self.assertIn(tier.id, addon.player_data["achievement_diaries"]["claimed_tiers"])
-        self.assertEqual(addon.player_data["inventory"].get(tier.reward_item), 1)
+        snapshot = addon._state.direct_action_undo_stack.pop()["player_data"]
+        addon._state.player_data.clear()
+        addon._state.player_data.update(snapshot)
+        self.assertEqual(addon._state.player_data["mining_exp"], before_spend["mining_exp"])
+        self.assertFalse(addon._state.player_data["claims"][claim_id]["claimed"])
+        self.assertIn(tier.id, addon._state.player_data["achievement_diaries"]["claimed_tiers"])
+        self.assertEqual(addon._state.player_data["inventory"].get(tier.reward_item), 1)
 
     def test_a_refused_claim_writes_nothing(self):
         from ankiscape.logic.achievement_diary_logic import (
@@ -408,14 +408,14 @@ class DiaryUndoSeamTest(unittest.TestCase):
         )
 
         addon = self.addon
-        baseline = copy.deepcopy(dict(addon.player_data))
+        baseline = copy.deepcopy(dict(addon._state.player_data))
         committed = addon.commit_direct_action(
             lambda current: apply_achievement_diary_command_pure(
                 current, "claim_tier", {"tier_id": _varrock().tiers[0].id}
             )[:2]
         )
         self.assertFalse(committed)
-        self.assertEqual(dict(addon.player_data), baseline)
+        self.assertEqual(dict(addon._state.player_data), baseline)
         self.assertEqual(self.collection.entries, [])
         self.assertEqual(self.saves, [])
 
@@ -433,7 +433,7 @@ class DiaryUndoSeamTest(unittest.TestCase):
         )
         self.assertTrue(committed)
         self.assertEqual(
-            addon.player_data["achievement_diaries"]["pinned_task"], task.id
+            addon._state.player_data["achievement_diaries"]["pinned_task"], task.id
         )
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
 
@@ -455,13 +455,13 @@ class DiaryUndoSeamTest(unittest.TestCase):
             )[:2]
         )
         allowed, reason = can_equip_item_pure(
-            tier.reward_item, EQUIPMENT_DATA, addon.player_data
+            tier.reward_item, EQUIPMENT_DATA, addon._state.player_data
         )
         self.assertTrue(allowed, reason)
         _inventory, equipment, worn = equip_item_pure(
             tier.reward_item,
-            addon.player_data["inventory"],
-            addon.player_data["equipment"],
+            addon._state.player_data["inventory"],
+            addon._state.player_data["equipment"],
             EQUIPMENT_DATA,
         )
         self.assertTrue(worn)

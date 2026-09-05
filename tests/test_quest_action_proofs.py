@@ -418,7 +418,7 @@ class TestQuestActionProofReviewFlow(unittest.TestCase):
         saved = []
         errors = []
         addon.check_achievements = lambda _data: None
-        addon.save_player_data = lambda: saved.append(copy.deepcopy(addon.player_data))
+        addon.save_player_data = lambda: saved.append(copy.deepcopy(addon._state.player_data))
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         addon._show_exp = lambda _amount: None
@@ -449,19 +449,19 @@ class TestQuestActionProofReviewFlow(unittest.TestCase):
             MOURNER_FOOD_STORES_PROOF,
             {blocker.get("action_id") for blocker in before},
         )
-        addon.player_data = player
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
+        addon._state.player_data = player
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
 
         _answer_review(addon)
 
         self.assertFalse(errors)
-        self.assertEqual(addon.player_data["current_quest"], "biohazard")
-        self.assertIn(MOURNER_FOOD_STORES_PROOF, addon.player_data["quest_action_proofs"])
+        self.assertEqual(addon._state.player_data["current_quest"], "biohazard")
+        self.assertIn(MOURNER_FOOD_STORES_PROOF, addon._state.player_data["quest_action_proofs"])
         self.assertEqual(len(saved), 1)
         self.assertIn(MOURNER_FOOD_STORES_PROOF, saved[0]["quest_action_proofs"])
         after = quest_current_stage_blockers_pure(
-            addon.player_data,
+            addon._state.player_data,
             "mournings_end_part_i",
             QUEST_DATA,
         )

@@ -662,10 +662,10 @@ class BorkCadenceTests(unittest.TestCase):
 
     def test_one_answered_card_is_one_six_tick_bork_interval(self):
         addon = _load_addon_as_package("ankiscape_bork_hook")
-        addon.player_data = _entered()
-        addon.player_data["current_utility"] = BORK_ACTIVITY_ID
-        addon.current_skill = "Utility / Activities"
-        addon.exp_awarded = False
+        addon._state.player_data = _entered()
+        addon._state.player_data["current_utility"] = BORK_ACTIVITY_ID
+        addon._state.current_skill = "Utility / Activities"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 3
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -680,9 +680,9 @@ class BorkCadenceTests(unittest.TestCase):
 
         # The caster's clock is the durable witness: it gains the review's six
         # ticks once. A multiplied answer would have spent three slices on it.
-        self.assertTrue(addon.player_data["bork"]["active"])
+        self.assertTrue(addon._state.player_data["bork"]["active"])
         self.assertEqual(
-            addon.player_data["bork"]["mage_ticks"], BORK_REVIEW_TICKS
+            addon._state.player_data["bork"]["mage_ticks"], BORK_REVIEW_TICKS
         )
 
 

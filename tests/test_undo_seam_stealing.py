@@ -38,9 +38,9 @@ class StealingCreationUndoSeamTest(unittest.TestCase):
         self.addon.check_achievements = lambda *_args: None
         self.addon._show_activity_gain = lambda *_args: None
         self.addon._show_quest_exp_delta = lambda *_args: None
-        self.addon.current_skill = "Activities"
+        self.addon._state.current_skill = "Activities"
         self.initial = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        self.addon.player_data = copy.deepcopy(self.initial)
+        self.addon._state.player_data = copy.deepcopy(self.initial)
         captured = {}
         self.addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         self.addon._on_main_menu()
@@ -59,9 +59,9 @@ class StealingCreationUndoSeamTest(unittest.TestCase):
         result = self.command("enter", {})
         self.assertTrue(result["ok"], result)
         self.assertEqual(self.col.custom_undo_entries, ["AnkiScape direct action"])
-        self.assertTrue(self.addon.player_data["stealing_creation"]["active_session"])
+        self.assertTrue(self.addon._state.player_data["stealing_creation"]["active_session"])
         self._undo()
-        self.assertEqual(self.addon.player_data, self.initial)
+        self.assertEqual(self.addon._state.player_data, self.initial)
 
     def test_pure_refusal_reports_the_refusal(self):
         result = self.command("leave", {})
@@ -70,7 +70,7 @@ class StealingCreationUndoSeamTest(unittest.TestCase):
             result["message"], "No Stealing Creation session is active."
         )
         self.assertEqual(self.col.custom_undo_entries, [])
-        self.assertEqual(self.addon.player_data, self.initial)
+        self.assertEqual(self.addon._state.player_data, self.initial)
 
     def test_undo_entry_failure_reports_undo_unavailable(self):
         def _raise(name):
@@ -86,7 +86,7 @@ class StealingCreationUndoSeamTest(unittest.TestCase):
                 "message": "Anki could not create an undo entry.",
             },
         )
-        self.assertEqual(self.addon.player_data, self.initial)
+        self.assertEqual(self.addon._state.player_data, self.initial)
 
 
 if __name__ == "__main__":

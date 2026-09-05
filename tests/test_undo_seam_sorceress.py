@@ -50,7 +50,7 @@ class SorceressGardenUndoSeamTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.saves = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.collection = _FakeCollection()
@@ -74,41 +74,41 @@ class SorceressGardenUndoSeamTest(unittest.TestCase):
 
     def test_a_committed_garden_action_restores_through_the_seam(self):
         addon = self.addon
-        addon.player_data["quests"]["diamond_in_the_rough"]["completed"] = True
-        before = copy.deepcopy(addon.player_data)
+        addon._state.player_data["quests"]["diamond_in_the_rough"]["completed"] = True
+        before = copy.deepcopy(addon._state.player_data)
         handler = self._garden_handler()
 
         result = handler("introduce", {})
 
         self.assertTrue(result["ok"])
         self.assertEqual(
-            addon.player_data["sorceress_garden"]["introduced"], True
+            addon._state.player_data["sorceress_garden"]["introduced"], True
         )
         self.assertEqual(
             self.collection.entries, ["AnkiScape direct action"],
             "the garden action must register exactly one undo entry",
         )
         self.assertEqual(len(self.saves), 1)
-        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
-        self.assertEqual(addon.player_data, before)
+        addon._restore_direct_action_snapshot(addon._state.direct_action_undo_stack.pop())
+        self.assertEqual(addon._state.player_data, before)
 
     def test_a_refused_garden_action_returns_its_own_refusal(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         handler = self._garden_handler()
 
         result = handler("introduce", {})
 
         self.assertFalse(result["ok"])
         self.assertIn("Diamond in the Rough", result["message"])
-        self.assertEqual(dict(addon.player_data), before, "nothing may be written")
+        self.assertEqual(dict(addon._state.player_data), before, "nothing may be written")
         self.assertEqual(len(self.saves), 0)
 
     def test_a_garden_action_when_the_undo_entry_cannot_be_created(self):
         """A failed undo entry must be reported as such, never as success."""
         addon = self.addon
-        addon.player_data["quests"]["diamond_in_the_rough"]["completed"] = True
-        before = copy.deepcopy(addon.player_data)
+        addon._state.player_data["quests"]["diamond_in_the_rough"]["completed"] = True
+        before = copy.deepcopy(addon._state.player_data)
         self.collection.accepts = False
         handler = self._garden_handler()
 
@@ -123,7 +123,7 @@ class SorceressGardenUndoSeamTest(unittest.TestCase):
             },
             "a failed undo entry must not echo a successful info dict",
         )
-        self.assertEqual(dict(addon.player_data), before, "nothing may be written")
+        self.assertEqual(dict(addon._state.player_data), before, "nothing may be written")
         self.assertEqual(len(self.saves), 0)
 
 

@@ -36,8 +36,8 @@ class BankstandingNoticeTest(unittest.TestCase):
         addon.show_error_message = lambda title, message: errors.append(
             (title, message)
         )
-        addon.current_skill = "Activities"
-        addon.player_data = {
+        addon._state.current_skill = "Activities"
+        addon._state.player_data = {
             "current_utility": "temple_trekking",
             "review_event_log": [],
         }
@@ -55,10 +55,10 @@ class BankstandingNoticeTest(unittest.TestCase):
             [("Temple Trekking unavailable", "Start or resume a trek before training.")],
         )
         self.assertEqual(popups, [])
-        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(len(addon._state.player_data["review_event_log"]), 1)
         self.assertIn(
             "Start or resume a trek before training.",
-            addon.player_data["review_event_log"][0]["text"],
+            addon._state.player_data["review_event_log"][0]["text"],
         )
 
     def test_popup_ownership_resets_after_a_later_runtime_gain(self):
@@ -74,8 +74,8 @@ class BankstandingNoticeTest(unittest.TestCase):
             (title, message)
         )
         addon._show_activity_gain = gains.append
-        addon.current_skill = "Crafting"
-        addon.player_data = {
+        addon._state.current_skill = "Crafting"
+        addon._state.player_data = {
             "current_utility": "gather_wool",
             "review_event_log": [],
         }
@@ -89,15 +89,15 @@ class BankstandingNoticeTest(unittest.TestCase):
         self.assertEqual(errors, [("Temporary refusal", "Try the next tick.")])
         self.assertEqual(gains, ["The next tick progressed."])
         self.assertEqual(popups, ["The action then ended."])
-        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(len(addon._state.player_data["review_event_log"]), 1)
 
     def test_invalid_target_keeps_one_bankstanding_modal_and_event(self):
         addon = _load_addon_as_package("ankiscape_invalid_utility_target")
         popups = []
         addon.ui.show_bankstanding_dialog = popups.append
         addon.show_error_message = lambda _title, message: self.fail(message)
-        addon.current_skill = "Utilities"
-        addon.player_data = {
+        addon._state.current_skill = "Utilities"
+        addon._state.player_data = {
             "current_utility": "removed_target",
             "review_event_log": [],
         }
@@ -105,10 +105,10 @@ class BankstandingNoticeTest(unittest.TestCase):
         addon.on_utility_answer()
         addon._show_pending_bankstanding_dialog()
 
-        self.assertEqual(addon.current_skill, "Utilities")
-        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(addon._state.current_skill, "Utilities")
+        self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
         self.assertEqual(popups, ["Removed Target could not continue."])
-        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(len(addon._state.player_data["review_event_log"]), 1)
 
     def test_activity_end_keeps_one_reasoned_modal_and_event(self):
         addon = _load_addon_as_package("ankiscape_activity_end_notice")
@@ -117,8 +117,8 @@ class BankstandingNoticeTest(unittest.TestCase):
         addon.ui.update_menu_visibility = lambda *_args: None
         popups = []
         addon.ui.show_bankstanding_dialog = popups.append
-        addon.current_skill = "Activities"
-        addon.player_data = {
+        addon._state.current_skill = "Activities"
+        addon._state.player_data = {
             "current_utility": "conquest",
             "review_event_log": [],
         }
@@ -128,7 +128,7 @@ class BankstandingNoticeTest(unittest.TestCase):
         addon._show_pending_bankstanding_dialog()
 
         self.assertEqual(popups, ["Conquest ended."])
-        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
+        self.assertEqual(len(addon._state.player_data["review_event_log"]), 1)
 
     def test_empty_combat_failure_reasons_use_the_non_material_popup(self):
         calls = {"xp": [], "saves": 0, "errors": []}

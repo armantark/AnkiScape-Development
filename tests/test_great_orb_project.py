@@ -753,9 +753,9 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         }
         player, ok, _info = logic.enter_great_orb_project_pure(player)
         self.assertTrue(ok)
-        addon.player_data = player
-        addon.current_skill = "Activities"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Activities"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 20
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -764,15 +764,15 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         addon._show_exp = lambda _amount: None
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         with patch.object(addon.random, "random", side_effect=[0.99, 0.0] * 8) as rng:
             addon.on_good_answer(before)
         self.assertEqual(rng.call_count, 16)
-        self.assertEqual(addon.player_data["great_orb_project"]["games_completed"], 1)
-        self.assertAlmostEqual(addon.player_data["runecrafting_exp"], 1_039.5)
+        self.assertEqual(addon._state.player_data["great_orb_project"]["games_completed"], 1)
+        self.assertAlmostEqual(addon._state.player_data["runecrafting_exp"], 1_039.5)
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
 
     def test_omni_talisman_claim_xp_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_great_orb_omni_direct")
@@ -788,7 +788,7 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         addon.check_achievements = lambda *_args: None
         addon._show_activity_gain = lambda *_args: None
         addon._show_quest_exp_delta = lambda *_args: None
-        addon.current_skill = "Activities"
+        addon._state.current_skill = "Activities"
         initial = storage.default_player_data(
             package_constants.ORE_DATA, package_constants.ITEM_DEFINITIONS
         )
@@ -799,7 +799,7 @@ class GreatOrbProjectHookTests(unittest.TestCase):
                 for talisman, _tiara in OMNI_TALISMAN_ACCESS_PAIRS
             }
         )
-        addon.player_data = copy.deepcopy(initial)
+        addon._state.player_data = copy.deepcopy(initial)
 
         addon._on_main_menu()
         result = captured["on_great_orb_project_command"](
@@ -808,13 +808,13 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         )
 
         self.assertTrue(result["ok"], result)
-        self.assertEqual(addon.player_data["inventory"]["Omni-talisman"], 1)
-        self.assertEqual(addon.player_data["runecrafting_exp"], OMNI_TALISMAN_XP)
+        self.assertEqual(addon._state.player_data["inventory"]["Omni-talisman"], 1)
+        self.assertEqual(addon._state.player_data["runecrafting_exp"], OMNI_TALISMAN_XP)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
-        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._state.player_data, initial)
 
     def test_master_runecrafter_purchase_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_great_orb_master_direct")
@@ -830,13 +830,13 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         addon.check_achievements = lambda *_args: None
         addon._show_activity_gain = lambda *_args: None
         addon._show_quest_exp_delta = lambda *_args: None
-        addon.current_skill = "Activities"
+        addon._state.current_skill = "Activities"
         initial = storage.default_player_data(
             package_constants.ORE_DATA, package_constants.ITEM_DEFINITIONS
         )
         initial["runecrafting_level"] = 50
         initial["great_orb_project"]["tokens"] = 15_000
-        addon.player_data = copy.deepcopy(initial)
+        addon._state.player_data = copy.deepcopy(initial)
 
         addon._on_main_menu()
         result = captured["on_great_orb_project_command"](
@@ -846,14 +846,14 @@ class GreatOrbProjectHookTests(unittest.TestCase):
 
         self.assertTrue(result["ok"], result)
         self.assertEqual(
-            addon.player_data["inventory"]["Master runecrafter hat"], 1
+            addon._state.player_data["inventory"]["Master runecrafter hat"], 1
         )
-        self.assertEqual(addon.player_data["great_orb_project"]["tokens"], 0)
+        self.assertEqual(addon._state.player_data["great_orb_project"]["tokens"], 0)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
-        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._state.player_data, initial)
 
     def test_korvak_omni_staff_binding_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_great_orb_staff_direct")
@@ -869,7 +869,7 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         addon.check_achievements = lambda *_args: None
         addon._show_activity_gain = lambda *_args: None
         addon._show_quest_exp_delta = lambda *_args: None
-        addon.current_skill = "Activities"
+        addon._state.current_skill = "Activities"
         initial = storage.default_player_data(
             package_constants.ORE_DATA, package_constants.ITEM_DEFINITIONS
         )
@@ -878,7 +878,7 @@ class GreatOrbProjectHookTests(unittest.TestCase):
             {RUNECRAFTING_STAFF_ITEM: 1, "Omni-talisman": 1}
         )
         initial["great_orb_project"]["omni_talisman_xp_claimed"] = True
-        addon.player_data = copy.deepcopy(initial)
+        addon._state.player_data = copy.deepcopy(initial)
 
         addon._on_main_menu()
         result = captured["on_great_orb_project_command"](
@@ -888,13 +888,13 @@ class GreatOrbProjectHookTests(unittest.TestCase):
 
         self.assertTrue(result["ok"], result)
         self.assertEqual(
-            addon.player_data["inventory"][OMNI_TALISMAN_STAFF_ITEM], 1
+            addon._state.player_data["inventory"][OMNI_TALISMAN_STAFF_ITEM], 1
         )
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
-        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._state.player_data, initial)
 
     def test_altar_tablet_is_direct_and_undo_restores_the_route_queue(self):
         addon = _load_addon_as_package("ankiscape_great_orb_tablet_direct")
@@ -908,13 +908,13 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda *_args: None
-        addon.current_skill = "Bankstanding"
+        addon._state.current_skill = "Bankstanding"
         initial = storage.default_player_data(
             package_constants.ORE_DATA, package_constants.ITEM_DEFINITIONS
         )
         initial["runecrafting_level"] = 50
         initial["inventory"]["Air altar teleport"] = 1
-        addon.player_data = copy.deepcopy(initial)
+        addon._state.player_data = copy.deepcopy(initial)
 
         addon._on_main_menu()
         result = captured["on_use_great_orb_project_teleport_tablet"](
@@ -922,18 +922,18 @@ class GreatOrbProjectHookTests(unittest.TestCase):
         )
 
         self.assertTrue(result["ok"], result)
-        self.assertNotIn("Air altar teleport", addon.player_data["inventory"])
+        self.assertNotIn("Air altar teleport", addon._state.player_data["inventory"])
         self.assertEqual(
-            addon.player_data["wicked_hood"]["pending_altar_teleport"], "air"
+            addon._state.player_data["wicked_hood"]["pending_altar_teleport"], "air"
         )
         self.assertEqual(
-            addon.player_data["current_runecrafting"], "craft_air_runes"
+            addon._state.player_data["current_runecrafting"], "craft_air_runes"
         )
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
-        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._state.player_data, initial)
 
 
 if __name__ == "__main__":

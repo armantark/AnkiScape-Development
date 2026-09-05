@@ -54,8 +54,8 @@ class SummoningUndoSeamTest(unittest.TestCase):
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
         addon = self.addon
-        addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        addon.current_skill = "Summoning"
+        addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        addon._state.current_skill = "Summoning"
         addon.save_calls = []
         addon.save_player_data = lambda: addon.save_calls.append(1)
         addon.ui.update_menu_visibility = lambda _skill: None
@@ -79,7 +79,7 @@ class SummoningUndoSeamTest(unittest.TestCase):
         sys.modules.update(self._orig_modules)
 
     def _give_pouch_and_points(self) -> None:
-        data = self.addon.player_data
+        data = self.addon._state.player_data
         inventory = dict(data.get("inventory", {}) or {})
         inventory["Spirit wolf pouch"] = inventory.get(
             "Spirit wolf pouch", 0
@@ -94,15 +94,15 @@ class SummoningUndoSeamTest(unittest.TestCase):
     def test_summon_commits_then_undo_restores_exact_pre_action_state(self):
         addon = self.addon
         self._give_pouch_and_points()
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler("summon", {"familiar_id": "spiritwolf"})
 
         self.assertTrue(result["ok"], result)
-        follower = addon.player_data["summoning_state"]["active_follower"]
+        follower = addon._state.player_data["summoning_state"]["active_follower"]
         self.assertEqual(follower["entity_id"], "spiritwolf")
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), 1)
         self.assertEqual(len(addon.save_calls), 1)
 
         addon._on_state_did_undo(
@@ -110,26 +110,26 @@ class SummoningUndoSeamTest(unittest.TestCase):
         )
 
         self.assertEqual(
-            addon.player_data,
+            addon._state.player_data,
             before,
             "undo must restore the exact pre-action save",
         )
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
     def test_refused_command_reports_refusal_and_writes_nothing(self):
         addon = self.addon
         # No pouch in inventory, so "summon" refuses.
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler("summon", {"familiar_id": "spiritwolf"})
 
         self.assertFalse(result["ok"])
         self.assertTrue(result["message"])
         self.assertEqual(
-            addon.player_data, before, "a refusal must write nothing"
+            addon._state.player_data, before, "a refusal must write nothing"
         )
         self.assertEqual(self.collection.entries, [])
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
         self.assertEqual(addon.save_calls, [])
 
     def test_undo_entry_failure_reports_failure_not_success(self):
@@ -137,14 +137,14 @@ class SummoningUndoSeamTest(unittest.TestCase):
         self._give_pouch_and_points()
 
         addon.mw.col = _FakeCollection(accepts=False)
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler("summon", {"familiar_id": "spiritwolf"})
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["message"], "Anki could not create an undo entry.")
-        self.assertEqual(addon.player_data, before, "nothing may be written")
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.player_data, before, "nothing may be written")
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
         self.assertEqual(addon.save_calls, [])
 
 

@@ -228,9 +228,9 @@ class WerewolfSkullballHookTests(unittest.TestCase):
         logic = sys.modules[f"{addon.__name__}.logic.werewolf_skullball_logic"]
         player, ok, _info = logic.enter_werewolf_skullball_pure(_player())
         self.assertTrue(ok)
-        addon.player_data = player
-        addon.current_skill = "Utility / Activities"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Utility / Activities"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 9
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -239,16 +239,16 @@ class WerewolfSkullballHookTests(unittest.TestCase):
         addon._show_exp = lambda _amount: None
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         before_xp = float(before["agility_exp"])
         with patch.object(addon.random, "random", side_effect=AssertionError("Skullball must not draw RNG")):
             addon.on_good_answer(before)
-        self.assertEqual(addon.player_data["agility_exp"] - before_xp, 750.0)
-        self.assertEqual(addon.player_data["werewolf_skullball_runs_completed"], 1)
-        self.assertEqual(addon.player_data["werewolf_skullball"], {})
+        self.assertEqual(addon._state.player_data["agility_exp"] - before_xp, 750.0)
+        self.assertEqual(addon._state.player_data["werewolf_skullball_runs_completed"], 1)
+        self.assertEqual(addon._state.player_data["werewolf_skullball"], {})
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
 
 
 if __name__ == "__main__":

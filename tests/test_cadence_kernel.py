@@ -225,8 +225,8 @@ class TestCadenceKernelIntegration(unittest.TestCase):
             "opportunities_emitted": 0,
             "cadence_version": 1,
         }
-        addon.player_data = {"cadence_profiles": {"gem_stall": copy.deepcopy(initial)}}
-        addon.current_skill = "None"
+        addon._state.player_data = {"cadence_profiles": {"gem_stall": copy.deepcopy(initial)}}
+        addon._state.current_skill = "None"
         addon.save_player_data = lambda: None
         addon.ui.update_menu_visibility = lambda _skill: None
         addon.update_review_hud = lambda _data, _skill: None
@@ -234,7 +234,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         addon._refresh_skill_availability = lambda: None
 
         before = addon._capture_player_data_snapshot()
-        addon.player_data["cadence_profiles"]["gem_stall"] = {
+        addon._state.player_data["cadence_profiles"]["gem_stall"] = {
             **initial,
             "credit": 54,
             "assigned_reviews": 50,
@@ -248,8 +248,8 @@ class TestCadenceKernelIntegration(unittest.TestCase):
             )
         )
 
-        self.assertEqual(addon.player_data["cadence_profiles"]["gem_stall"], initial)
-        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(addon._state.player_data["cadence_profiles"]["gem_stall"], initial)
+        self.assertEqual(addon._state.review_undo_stack, [])
 
     def test_again_disengages_without_advancing_persisted_combat_phase(self):
         addon = _load_addon_as_package("ankiscape_cadence_again")
@@ -263,16 +263,16 @@ class TestCadenceKernelIntegration(unittest.TestCase):
             "enemy_attack_ticks_remaining": 2,
             "curse_attack_count": 4,
         }
-        addon.player_data = {
+        addon._state.player_data = {
             "inventory": {},
             "current_combat_target": "chicken",
             "combat_encounter": copy.deepcopy(phase),
             "completed_achievements": [],
         }
-        addon.current_skill = "Combat"
-        addon.card_turned = True
-        addon.answer_shown = True
-        addon.exp_awarded = False
+        addon._state.current_skill = "Combat"
+        addon._state.card_turned = True
+        addon._state.answer_shown = True
+        addon._state.exp_awarded = False
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_status_badge = lambda *_args: None
@@ -285,7 +285,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         )
 
         self.assertEqual(
-            addon.player_data["combat_encounter"],
+            addon._state.player_data["combat_encounter"],
             {**phase, "disengaged": True},
         )
 
@@ -309,16 +309,16 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         addon.mw = _DummyMW(
             _DummyCol({"ankiscape_cadence_kernel": True})
         )
-        addon.player_data = {
+        addon._state.player_data = {
             "inventory": {},
             "current_combat_target": "chicken",
             "combat_encounter": copy.deepcopy(phase),
             "completed_achievements": [],
         }
-        addon.current_skill = "Combat"
-        addon.card_turned = True
-        addon.answer_shown = True
-        addon.exp_awarded = False
+        addon._state.current_skill = "Combat"
+        addon._state.card_turned = True
+        addon._state.answer_shown = True
+        addon._state.exp_awarded = False
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
         addon.update_review_status_badge = lambda *_args: None
@@ -370,9 +370,9 @@ class TestCadenceKernelIntegration(unittest.TestCase):
                     }
                 )
             )
-            addon.player_data = {"inventory": {}, "completed_achievements": []}
-            addon.current_skill = "Quests"
-            addon.exp_awarded = False
+            addon._state.player_data = {"inventory": {}, "completed_achievements": []}
+            addon._state.current_skill = "Quests"
+            addon._state.exp_awarded = False
             addon.update_review_hud = lambda *_args: None
             addon._refresh_skill_availability = lambda: None
             addon.on_good_answer({})
@@ -403,7 +403,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         addon._show_exp = lambda value: calls["xp"].append(value)
         addon._show_activity_gain = lambda value: calls["gains"].append(value)
         addon.mw = _DummyMW(_DummyCol(config))
-        addon.player_data = {
+        addon._state.player_data = {
             "inventory": {},
             "woodcutting_level": 1,
             "woodcutting_exp": 0,
@@ -411,15 +411,15 @@ class TestCadenceKernelIntegration(unittest.TestCase):
             "toolbelt": {"woodcutting": ["bronze_hatchet"]},
             "completed_achievements": [],
         }
-        addon.current_skill = "Woodcutting"
-        addon.card_turned = True
-        addon.answer_shown = True
-        addon.exp_awarded = False
+        addon._state.current_skill = "Woodcutting"
+        addon._state.card_turned = True
+        addon._state.answer_shown = True
+        addon._state.exp_awarded = False
         addon.random.seed(20260713)
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
         output_bytes = pickle.dumps(
-            {"player_data": addon.player_data, "calls": calls},
+            {"player_data": addon._state.player_data, "calls": calls},
             protocol=5,
         )
         return output_bytes, addon.random.getstate()

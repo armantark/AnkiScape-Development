@@ -49,8 +49,8 @@ class ManagingMiscellaniaUndoSeamTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        self.addon.player_data["quests"]["throne_of_miscellania"]["completed"] = True
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data["quests"]["throne_of_miscellania"]["completed"] = True
         self.saves = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.collection = _FakeCollection()
@@ -73,24 +73,24 @@ class ManagingMiscellaniaUndoSeamTest(unittest.TestCase):
         return captured["on_managing_miscellania_command"]
 
     def _give_coins(self, amount: int) -> None:
-        inventory = self.addon.player_data.setdefault("inventory", {})
+        inventory = self.addon._state.player_data.setdefault("inventory", {})
         inventory["Coins"] = inventory.get("Coins", 0) + amount
 
     def test_a_committed_kingdom_action_restores_through_the_seam(self):
         addon = self.addon
-        addon.player_data["managing_miscellania"]["coffer"] = 0
+        addon._state.player_data["managing_miscellania"]["coffer"] = 0
         self._give_coins(1000)
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         handler = self._miscellania_handler()
 
         result = handler("deposit", {"quantity": 250})
 
         self.assertTrue(result["ok"])
         self.assertEqual(
-            addon.player_data["managing_miscellania"]["coffer"], 250
+            addon._state.player_data["managing_miscellania"]["coffer"], 250
         )
         self.assertEqual(
-            addon.player_data["inventory"]["Coins"],
+            addon._state.player_data["inventory"]["Coins"],
             before["inventory"]["Coins"] - 250,
         )
         self.assertEqual(
@@ -98,30 +98,30 @@ class ManagingMiscellaniaUndoSeamTest(unittest.TestCase):
             "the kingdom action must register exactly one undo entry",
         )
         self.assertEqual(len(self.saves), 1)
-        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
-        self.assertEqual(addon.player_data, before)
+        addon._restore_direct_action_snapshot(addon._state.direct_action_undo_stack.pop())
+        self.assertEqual(addon._state.player_data, before)
 
     def test_a_refused_kingdom_action_reports_refusal_and_writes_nothing(self):
         addon = self.addon
         # No coins in the inventory: the deposit must be refused outright.
-        addon.player_data["managing_miscellania"]["coffer"] = 0
-        before = copy.deepcopy(addon.player_data)
+        addon._state.player_data["managing_miscellania"]["coffer"] = 0
+        before = copy.deepcopy(addon._state.player_data)
         handler = self._miscellania_handler()
 
         result = handler("deposit", {"quantity": 500})
 
         self.assertFalse(result["ok"])
         self.assertIn("No coins can be deposited", result["message"])
-        self.assertEqual(dict(addon.player_data), before, "nothing may be written")
+        self.assertEqual(dict(addon._state.player_data), before, "nothing may be written")
         self.assertEqual(self.collection.entries, [], "no undo entry may exist")
         self.assertEqual(len(self.saves), 0)
 
     def test_a_kingdom_action_when_the_undo_entry_cannot_be_created(self):
         """A failed undo entry must be reported as such, never as success."""
         addon = self.addon
-        addon.player_data["managing_miscellania"]["coffer"] = 0
+        addon._state.player_data["managing_miscellania"]["coffer"] = 0
         self._give_coins(1000)
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         self.collection.accepts = False
         handler = self._miscellania_handler()
 
@@ -136,7 +136,7 @@ class ManagingMiscellaniaUndoSeamTest(unittest.TestCase):
             },
             "a failed undo entry must not echo a successful info dict",
         )
-        self.assertEqual(dict(addon.player_data), before, "nothing may be written")
+        self.assertEqual(dict(addon._state.player_data), before, "nothing may be written")
         self.assertEqual(len(self.saves), 0)
 
 

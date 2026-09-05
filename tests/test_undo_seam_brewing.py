@@ -48,7 +48,7 @@ class TroubleBrewingUndoSeamTest(unittest.TestCase):
 
         _install_runtime_fakes()
         self.addon = _load_addon_as_package("ankiscape_brewing_seam")
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.addon.save_player_data = lambda: None
         # check_achievements opens a modal dialog on completion; under a live
         # QApplication that blocks forever.
@@ -67,36 +67,36 @@ class TroubleBrewingUndoSeamTest(unittest.TestCase):
 
     def test_setting_the_plan_commits_and_restores_through_the_real_handler(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler("set_policy", {"duty": "sabotage"})
         self.assertTrue(result["ok"])
         self.assertEqual(
-            addon.player_data["trouble_brewing_policy"],
+            addon._state.player_data["trouble_brewing_policy"],
             {"automation_mode": "casual", "duty": "sabotage"},
         )
         self.assertIn("Trouble Brewing plan saved.", result["message"])
         addon._restore_direct_action_snapshot(
-            addon._DIRECT_ACTION_UNDO_STACK.pop()
+            addon._state.direct_action_undo_stack.pop()
         )
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
 
     def test_a_refused_action_reports_its_own_refusal(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler("bogus_action", {})
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["message"], "Unknown Trouble Brewing action.")
         self.assertNotEqual(result["message"], "Anki could not create an undo entry.")
-        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(dict(addon._state.player_data), before)
 
     def test_when_the_undo_entry_cannot_be_created_nothing_is_written_or_claimed(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         addon.mw.col.accepts = False
-        stack_depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        stack_depth = len(addon._state.direct_action_undo_stack)
 
         result = self.handler("set_policy", {"target_games": 3})
 
@@ -105,8 +105,8 @@ class TroubleBrewingUndoSeamTest(unittest.TestCase):
             {"ok": False, "message": "Anki could not create an undo entry."},
             "a failed undo entry must be reported as such, never as success",
         )
-        self.assertEqual(dict(addon.player_data), before, "nothing may be written")
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), stack_depth)
+        self.assertEqual(dict(addon._state.player_data), before, "nothing may be written")
+        self.assertEqual(len(addon._state.direct_action_undo_stack), stack_depth)
 
 
 if __name__ == "__main__":

@@ -231,9 +231,9 @@ class TestZogreFleshEatersProductFlow(unittest.TestCase):
         addon.show_error_message = lambda title, message: calls["dialogs"].append(
             (title, message)
         )
-        addon.player_data = _combat_ready_zogre_player()
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
+        addon._state.player_data = _combat_ready_zogre_player()
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
 
         self.assertTrue(addon.on_set_quest(QUEST_ID), calls["dialogs"])
         original_random = addon.random.random
@@ -241,29 +241,29 @@ class TestZogreFleshEatersProductFlow(unittest.TestCase):
         try:
             for review_count in range(1, 31):
                 _answer_review(addon)
-                if addon.player_data["quests"][QUEST_ID]["completed"]:
+                if addon._state.player_data["quests"][QUEST_ID]["completed"]:
                     break
             else:
                 self.fail("Zogre Flesh Eaters did not complete within 30 reviews")
         finally:
             addon.random.random = original_random
 
-        self.assertTrue(addon.player_data["quests"][QUEST_ID]["completed"])
+        self.assertTrue(addon._state.player_data["quests"][QUEST_ID]["completed"])
         self.assertEqual(
-            quest_action_proofs_for_quest(addon.player_data, QUEST_ID, addon.QUEST_DATA),
+            quest_action_proofs_for_quest(addon._state.player_data, QUEST_ID, addon.QUEST_DATA),
             STAGE_ACTIONS,
         )
-        self.assertEqual(addon.player_data["inventory"]["Black prism"], 1)
-        self.assertEqual(addon.player_data["inventory"]["Relicym's balm"], 0)
-        self.assertEqual(addon.player_data["inventory"]["Ruined backpack"], 1)
-        self.assertEqual(addon.player_data["inventory"]["Zogre bones"], 2)
-        self.assertEqual(addon.player_data["inventory"]["Ourg bones"], 3)
-        self.assertEqual(addon.player_data["inventory"]["Ogre artefact"], 1)
-        self.assertEqual(addon.player_data["fletching_exp"], 2000.0)
-        self.assertEqual(addon.player_data["herblore_exp"], 2000.0)
-        self.assertEqual(addon.player_data["ranged_exp"], 2000.0)
-        self.assertEqual(addon.player_data["prayer_exp"], 0.0)
-        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon._state.player_data["inventory"]["Black prism"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Relicym's balm"], 0)
+        self.assertEqual(addon._state.player_data["inventory"]["Ruined backpack"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Zogre bones"], 2)
+        self.assertEqual(addon._state.player_data["inventory"]["Ourg bones"], 3)
+        self.assertEqual(addon._state.player_data["inventory"]["Ogre artefact"], 1)
+        self.assertEqual(addon._state.player_data["fletching_exp"], 2000.0)
+        self.assertEqual(addon._state.player_data["herblore_exp"], 2000.0)
+        self.assertEqual(addon._state.player_data["ranged_exp"], 2000.0)
+        self.assertEqual(addon._state.player_data["prayer_exp"], 0.0)
+        self.assertEqual(addon._state.current_skill, "Utilities")
         self.assertEqual(calls["gains"][-1], "Zogre Flesh Eaters complete")
         self.assertEqual(calls["dialogs"][-1][0], "Quest complete")
         self.assertIn("Zogre Flesh Eaters is complete", calls["dialogs"][-1][1])

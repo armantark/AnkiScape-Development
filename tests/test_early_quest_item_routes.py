@@ -68,9 +68,9 @@ DOWNSTREAM_QUEST_ROUTES = {
 
 
 def _answer_review(addon):
-    addon.card_turned = True
-    addon.answer_shown = True
-    addon.exp_awarded = False
+    addon._state.card_turned = True
+    addon._state.answer_shown = True
+    addon._state.exp_awarded = False
     addon.on_answer_card(
         _FakeReviewer(),
         4,
@@ -230,19 +230,19 @@ class TestPiratesTreasureRepairedProductFlow(unittest.TestCase):
         addon.level_up_check = lambda _skill, _data: None
         addon.update_review_hud = lambda _data, _skill: None
         addon.show_error_message = lambda _title, _message: None
-        addon.player_data = player
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
-        addon._DIRECT_ACTION_UNDO_STACK.clear()
+        addon._state.player_data = player
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
+        addon._state.direct_action_undo_stack.clear()
 
         for _review in range(3):
             _answer_review(addon)
 
-        self.assertTrue(addon.player_data["quests"]["pirates_treasure"]["completed"])
-        self.assertEqual(addon.player_data["inventory"]["Karamjan rum"], 0)
-        self.assertEqual(addon.player_data["inventory"]["Casket (Pirate's Treasure)"], 1)
+        self.assertTrue(addon._state.player_data["quests"]["pirates_treasure"]["completed"])
+        self.assertEqual(addon._state.player_data["inventory"]["Karamjan rum"], 0)
+        self.assertEqual(addon._state.player_data["inventory"]["Casket (Pirate's Treasure)"], 1)
         self.assertEqual(
-            quest_action_proofs_for_quest(addon.player_data, "pirates_treasure", QUEST_DATA),
+            quest_action_proofs_for_quest(addon._state.player_data, "pirates_treasure", QUEST_DATA),
             (
                 "Smuggle Karamjan rum off Karamja",
                 "Open One-Eyed Hector's chest at the Blue Moon Inn",

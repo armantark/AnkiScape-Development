@@ -56,7 +56,7 @@ class SoulWarsUndoSeamTest(unittest.TestCase):
         self.addon = _load_addon()
         addon = self.addon
         logic = sys.modules[f"{addon.__name__}.logic.soul_wars_logic"]
-        addon.player_data = {
+        addon._state.player_data = {
             "inventory": {},
             "equipment": {},
             "combat_encounter": {},
@@ -66,9 +66,9 @@ class SoulWarsUndoSeamTest(unittest.TestCase):
             "current_utility": "make_soft_clay",
             "activity_session": {"active_id": ""},
         }
-        addon.player_data.update(logic.default_soul_wars_state_pure())
-        addon.player_data = copy.deepcopy(addon.player_data)
-        addon.current_skill = "Activities"
+        addon._state.player_data.update(logic.default_soul_wars_state_pure())
+        addon._state.player_data = copy.deepcopy(addon._state.player_data)
+        addon._state.current_skill = "Activities"
         self.save_calls = []
         addon.save_player_data = lambda: self.save_calls.append(1)
         addon.ui.update_menu_visibility = lambda _skill: None
@@ -93,35 +93,35 @@ class SoulWarsUndoSeamTest(unittest.TestCase):
 
     def test_enter_soul_wars_then_undo_restores_exact_pre_action_state(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler(
             "enter",
             {"automation_mode": "advanced", "duty": "defend", "team": "creation"},
         )
         self.assertTrue(result["ok"], result)
-        self.assertEqual(addon.player_data["current_utility"], "soul_wars")
-        self.assertEqual(addon.player_data["soul_wars"]["duty"], "defend")
+        self.assertEqual(addon._state.player_data["current_utility"], "soul_wars")
+        self.assertEqual(addon._state.player_data["soul_wars"]["duty"], "defend")
         self.assertEqual(
             self.collection.entries, ["AnkiScape direct action"]
         )
         self.assertEqual(len(self.save_calls), 1)
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), 1)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
 
         self.assertEqual(
-            addon.player_data, before, "undo must restore the exact pre-action save"
+            addon._state.player_data, before, "undo must restore the exact pre-action save"
         )
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
     def test_refused_command_reports_refusal_and_writes_and_saves_nothing(self):
         addon = self.addon
         # A cape is equipped, so entering refuses.
-        addon.player_data["equipment"]["cape"] = {"item_name": "Accumulator max cape"}
-        before = copy.deepcopy(addon.player_data)
+        addon._state.player_data["equipment"]["cape"] = {"item_name": "Accumulator max cape"}
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler(
             "enter",
@@ -131,13 +131,13 @@ class SoulWarsUndoSeamTest(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertIn("cape", result["message"].lower())
         self.assertEqual(
-            addon.player_data,
+            addon._state.player_data,
             before,
             "a refusal must write nothing to player state",
         )
         self.assertEqual(self.collection.entries, [])
         self.assertEqual(self.save_calls, [], "a refusal must not save")
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
     def test_undo_entry_failure_returns_failure_not_success(self):
         addon = self.addon
@@ -147,10 +147,10 @@ class SoulWarsUndoSeamTest(unittest.TestCase):
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["message"], "Anki could not create an undo entry.")
-        self.assertEqual(addon.player_data["soul_wars"], {})
-        self.assertEqual(addon.player_data["activity_session"], {"active_id": ""})
+        self.assertEqual(addon._state.player_data["soul_wars"], {})
+        self.assertEqual(addon._state.player_data["activity_session"], {"active_id": ""})
         self.assertEqual(self.save_calls, [])
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
 
 if __name__ == "__main__":

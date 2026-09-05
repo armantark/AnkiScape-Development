@@ -56,8 +56,8 @@ class BarrowsUndoSeamTest(unittest.TestCase):
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
         addon = self.addon
-        addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        addon.current_skill = "Activities"
+        addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        addon._state.current_skill = "Activities"
         addon.save_player_data = lambda: None
         addon.ui.update_menu_visibility = lambda _skill: None
         addon.check_achievements = lambda *_args, **_kwargs: None
@@ -81,42 +81,42 @@ class BarrowsUndoSeamTest(unittest.TestCase):
 
     def test_enter_barrows_then_undo_restores_exact_pre_action_state(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler("enter", {})
         self.assertTrue(result["ok"], result)
         self.assertIn("message", result)
-        self.assertTrue(addon.player_data["barrows"]["active"])
+        self.assertTrue(addon._state.player_data["barrows"]["active"])
         self.assertEqual(
-            addon.player_data["activity_session"]["active_id"], "barrows"
+            addon._state.player_data["activity_session"]["active_id"], "barrows"
         )
         self.assertEqual(
             self.collection.entries, ["AnkiScape direct action"]
         )
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), 1)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
 
         self.assertEqual(
-            addon.player_data, before, "undo must restore the exact pre-action save"
+            addon._state.player_data, before, "undo must restore the exact pre-action save"
         )
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
     def test_refused_command_reports_the_pure_refusal_and_writes_nothing(self):
         addon = self.addon
         # Another persistent activity is active, so "enter" refuses.
-        addon.player_data["activity_session"] = {"active_id": "fishing_trawler"}
-        before = copy.deepcopy(addon.player_data)
+        addon._state.player_data["activity_session"] = {"active_id": "fishing_trawler"}
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.handler("enter", {})
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["message"], "Another persistent activity is active.")
-        self.assertEqual(addon.player_data, before, "a refusal must write nothing")
+        self.assertEqual(addon._state.player_data, before, "a refusal must write nothing")
         self.assertEqual(self.collection.entries, [])
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
     def test_undo_entry_failure_returns_failure_not_success(self):
         addon = self.addon
@@ -126,5 +126,5 @@ class BarrowsUndoSeamTest(unittest.TestCase):
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["message"], "Anki could not create an undo entry.")
-        self.assertEqual(addon.player_data["activity_session"], {"active_id": ""})
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.player_data["activity_session"], {"active_id": ""})
+        self.assertEqual(addon._state.direct_action_undo_stack, [])

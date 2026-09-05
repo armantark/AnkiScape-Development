@@ -64,8 +64,8 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
-        self.addon.player_data = _ready_player_data()
-        self.addon.current_skill = "Runecrafting"
+        self.addon._state.player_data = _ready_player_data()
+        self.addon._state.current_skill = "Runecrafting"
         self.saves = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.addon.mw = _DummyMW(types.SimpleNamespace())
@@ -101,32 +101,32 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
         col = _Col()
         self._install_collection(col)
 
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         before_random = random.getstate()
-        before_stack_depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        before_stack_depth = len(addon._state.direct_action_undo_stack)
 
         result = self.command("essence", {})
 
         self.assertTrue(result["ok"], result)
-        self.assertEqual(addon.player_data["inventory"]["Rune essence"], 28)
+        self.assertEqual(addon._state.player_data["inventory"]["Rune essence"], 28)
         self.assertEqual(col.entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), before_stack_depth + 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), before_stack_depth + 1)
         self.assertEqual(len(self.saves), 1, "a committed change must persist")
-        self.assertNotEqual(addon.player_data, before)
+        self.assertNotEqual(addon._state.player_data, before)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="ankiscape direct action")
         )
 
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
         self.assertEqual(random.getstate(), before_random)
 
     def test_refused_command_reports_the_refusal_and_writes_nothing(self):
         addon = self.addon
         # Fill every free carried-pack slot so `essence` is refused by the pure
         # function for lack of space.
-        addon.player_data["inventory"]["Shark"] = 28
-        addon.player_data["carried_inventory"]["craft_air_runes"] = {"Shark": 28}
+        addon._state.player_data["inventory"]["Shark"] = 28
+        addon._state.player_data["carried_inventory"]["craft_air_runes"] = {"Shark": 28}
 
         # A WORKING recording col, not a raising one: if a broken migration
         # commits a refused change, the corruption must be visible as an undo
@@ -141,13 +141,13 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
         col = _Col()
         self._install_collection(col)
 
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         result = self.command("essence", {})
 
         self.assertFalse(result["ok"])
         self.assertIn("No carried-pack space", result["message"])
         self.assertEqual(
-            addon.player_data,
+            addon._state.player_data,
             before,
             "a refused action must write nothing",
         )
@@ -166,12 +166,12 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
         )
         self.assertEqual(len(self.saves), 0, "nothing may be written or saved")
         self.assertEqual(
-            addon.player_data["inventory"]["Rune essence"],
+            addon._state.player_data["inventory"]["Rune essence"],
             0,
             "the failed action must not withdraw essence",
         )
         self.assertNotIn(
             "Rune essence",
-            addon.player_data["carried_inventory"].get("craft_air_runes", {}),
+            addon._state.player_data["carried_inventory"].get("craft_air_runes", {}),
             "the failed action must not carry essence",
         )

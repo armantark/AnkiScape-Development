@@ -1,0 +1,28 @@
+{
+  "captured_date": "2026-09-05",
+  "consumers": 195,
+  "executed_state_access_lines": 561,
+  "gzip_bytes": 83418,
+  "gzip_sha256": "87015c461e858909524d6d678f59e55f4b9533b9d949a4820b376c9cb2c5ab77",
+  "host": "armans-macbook-pro",
+  "new_test_module_sha256": "49767c1abb571177177475acb2afb0d191af79986474f8d34b8cebdad285bc11",
+  "plaintext_bytes": 1038958,
+  "plaintext_sha256": "f058d76fa058ae9ca9e448930331813a92ed844af468c94cede2cbd25c7e572d",
+  "qualification": "Per-consumer execution proof, not all-branch coverage. Each mapped test may contain multiple asserted subcases.",
+  "root_source_sha256": "ae2209b03d6b43c833c80852be04038b8ae337406adc89314dff3c6727ee2a14",
+  "source_report": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/dispatcher-state-trace-7f1356a980/coverage.json",
+  "state_access_lines": 631,
+  "state_module_sha256": "ebafb188eee573a3dcd09f65814075b95e9bb143c63b163ada719f97b534e86b",
+  "test_run": {
+    "elapsed_seconds": 218.956,
+    "errors": 0,
+    "failures": 0,
+    "ran": 867,
+    "skipped": 1,
+    "skipped_tests": {
+      "tests.test_achievement_diary_ledger_wiring.CurationLedgerRuntimeExecutionTest.test_real_blood_altar_tablet_checks_diary_before_next_teleport": "Great Orb item 13 is held in memory-bank/pending/gop-achievement-check-2026-09-01.patch pending the owner's ruling."
+    }
+  },
+  "tracer_sha256": "6f4fb8ae87daf2cbd0e71d2f40ac8557b256bbece7677d7b74611d7f8180724f",
+  "unexecuted_consumers": 0
+}

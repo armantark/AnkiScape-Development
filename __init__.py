@@ -94,7 +94,7 @@ from .data.construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .logic.cadence_kernel import sanitize_cadence_kernel_enabled_pure
 from .core.logic import (
     combat_level_up_check as _core_combat_level_up_check,
-    DeferredAchievementDialogs,
+    DeferredAchievementDialogs as DeferredAchievementDialogs,
     level_up_check as _core_level_up_check,
     check_achievements,
 )
@@ -326,22 +326,14 @@ from .logic.pet_logic import (
 from .runtime import runtime_actions
 from .runtime.runtime_actions import RuntimeActionContext
 from .logic.cadence_coverage import SINGLE_TICK_UTILITY_IDS
-
-
-global card_turned, exp_awarded, answer_shown
-
-answer_shown = False
-card_turned = False
-exp_awarded = False
-
-current_skill = "None"
+from .runtime.dispatcher_state import state as _state
 
 
 def _normalize_legacy_utility_skill(skill) -> str:
     name = str(skill or "None")
     if name in {"Utility", "Utility / Activities"}:
         return _utility_surface_for_target(
-            player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+            _state.player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
         )
     return name
 
@@ -351,18 +343,18 @@ def start_activity_for_reviews(activity_id) -> bool:
     target = str(activity_id or "")
     if not target:
         return False
-    updated = dict(player_data)
+    updated = dict(_state.player_data)
     if target == SHOOTING_STAR_ACTIVITY_ID:
-        updated, joined, info = apply_shooting_star_join_pure(player_data)
+        updated, joined, info = apply_shooting_star_join_pure(_state.player_data)
         if not joined and info.get("unminable"):
             if not info.get("notice_created"):
                 return False
-            player_data.clear()
-            player_data.update(updated)
+            _state.player_data.clear()
+            _state.player_data.update(updated)
             _switch_to_bankstanding(str(info.get("event_log_text", "Star unminable at your level")))
             save_player_data()
             _show_pending_bankstanding_dialog()
-            update_review_event_log_drawer(player_data)
+            update_review_event_log_drawer(_state.player_data)
             _update_review_context_surface()
             return False
         if not joined:
@@ -375,7 +367,7 @@ def start_activity_for_reviews(activity_id) -> bool:
     )
     if committed:
         try:
-            update_review_hud(player_data, surface)
+            update_review_hud(_state.player_data, surface)
         except Exception:
             pass
     return committed
@@ -390,19 +382,13 @@ except Exception:
     def _is_debug_enabled() -> bool:
         return False
 
-_REVIEW_UNDO_STACK = []
-_DIRECT_ACTION_UNDO_STACK = []
+
 _MAX_REVIEW_UNDO_SNAPSHOTS = 30
 _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS = 50
 _DIRECT_ACTION_UNDO_OPERATION = "AnkiScape direct action"
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _CADENCE_KERNEL_CONFIG_KEY = "ankiscape_cadence_kernel"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
-_REVIEW_FEEDBACK_CONTEXT = None
-_REVIEW_FEEDBACK_INITIAL_XP = 0.0
-_REVIEW_FEEDBACK_FLUSHING = False
-_PENDING_BANKSTANDING_NOTICE = None
-_PENDING_REVIEW_DIALOGS = DeferredAchievementDialogs()
 
 
 class _NamedExperience(float):
@@ -462,28 +448,26 @@ def show_review_popup():
 
 
 def save_player_data():
-    player_data.update(reconcile_bank_layout_for_player_pure(player_data))
-    storage_save_player_data(player_data, current_skill)
+    _state.player_data.update(reconcile_bank_layout_for_player_pure(_state.player_data))
+    storage_save_player_data(_state.player_data, _state.current_skill)
 
 
 def load_player_data():
-    global player_data, current_skill
-    player_data, current_skill = storage_load_player_data()
-    current_skill = _normalize_legacy_utility_skill(current_skill)
-    ui.update_menu_visibility(current_skill)
+    _state.player_data, _state.current_skill = storage_load_player_data()
+    _state.current_skill = _normalize_legacy_utility_skill(_state.current_skill)
+    ui.update_menu_visibility(_state.current_skill)
 
 ## Removed legacy get_exp_to_next_level stub; use logic_pure.get_exp_to_next_level in tests/pure logic.
 
 # UI functions
 
 def initialize_skill():
-    global current_skill
-    current_skill = mw.col.get_config("ankiscape_current_skill", default="None")
-    normalized_skill = _normalize_legacy_utility_skill(current_skill)
-    if normalized_skill != current_skill:
-        current_skill = normalized_skill
-        mw.col.set_config("ankiscape_current_skill", current_skill)
-    ui.update_menu_visibility(current_skill)
+    _state.current_skill = mw.col.get_config("ankiscape_current_skill", default="None")
+    normalized_skill = _normalize_legacy_utility_skill(_state.current_skill)
+    if normalized_skill != _state.current_skill:
+        _state.current_skill = normalized_skill
+        mw.col.set_config("ankiscape_current_skill", _state.current_skill)
+    ui.update_menu_visibility(_state.current_skill)
 
 
 def _initialize_debug_from_config():
@@ -506,15 +490,15 @@ def _initialize_debug_from_config():
 def _record_review_event(kind: str, text: str, *, persist: bool) -> None:
     """The single runtime seam behind every floating review notification."""
 
-    updated = record_review_event_pure(player_data, kind, text)
-    player_data["review_event_log"] = updated["review_event_log"]
+    updated = record_review_event_pure(_state.player_data, kind, text)
+    _state.player_data["review_event_log"] = updated["review_event_log"]
     if persist:
         try:
-            storage_save_player_data(player_data, current_skill)
+            storage_save_player_data(_state.player_data, _state.current_skill)
         except (AttributeError, RuntimeError):
             pass
     try:
-        update_review_event_log_drawer(player_data)
+        update_review_event_log_drawer(_state.player_data)
     except Exception:
         pass
 
@@ -523,20 +507,20 @@ def _show_exp(exp_gained, *, record_event: bool = True) -> None:
     """Record one XP drop, then display it when floating feedback is enabled."""
     try:
         skill_names = list(getattr(exp_gained, "skill_names", ()))
-        if _REVIEW_FEEDBACK_CONTEXT is not None:
+        if _state.review_feedback_context is not None:
             try:
-                _REVIEW_FEEDBACK_CONTEXT["xp"] += float(exp_gained)
+                _state.review_feedback_context["xp"] += float(exp_gained)
             except (TypeError, ValueError):
                 pass
             return
-        if not skill_names and current_skill not in {"", "None"}:
-            skill_names.append(str(current_skill))
+        if not skill_names and _state.current_skill not in {"", "None"}:
+            skill_names.append(str(_state.current_skill))
         if not isinstance(exp_gained, _NamedExperience):
             exp_gained = _NamedExperience(exp_gained, skill_names)
         message = exp_gained.display_text
         if record_event:
             _record_review_event(
-                "xp", message, persist=not _REVIEW_FEEDBACK_FLUSHING
+                "xp", message, persist=not _state.review_feedback_flushing
             )
         # Respect user setting for floating XP (default True)
         show_xp = True
@@ -551,7 +535,7 @@ def _show_exp(exp_gained, *, record_event: bool = True) -> None:
             mw.exp_popup.show_exp(exp_gained)
         # Keep HUD progress in sync with new XP
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except Exception:
             pass
     except Exception:
@@ -567,12 +551,12 @@ def _refresh_open_carried_inventory() -> None:
 def _show_activity_gain(text: str) -> None:
     """Record and show a no-XP Utility or Activity result."""
     try:
-        if _REVIEW_FEEDBACK_CONTEXT is not None:
-            _REVIEW_FEEDBACK_CONTEXT["activity"].append(str(text))
+        if _state.review_feedback_context is not None:
+            _state.review_feedback_context["activity"].append(str(text))
             return
         message = str(text)
         _record_review_event(
-            "activity", message, persist=not _REVIEW_FEEDBACK_FLUSHING
+            "activity", message, persist=not _state.review_feedback_flushing
         )
         show_popup = True
         try:
@@ -622,28 +606,27 @@ def _combine_activity_feedback(messages) -> str:
 
 
 def _begin_review_feedback_context() -> None:
-    global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_INITIAL_XP
-    initial_xp = _REVIEW_FEEDBACK_INITIAL_XP
+    initial_xp = _state.review_feedback_initial_xp
     initial_exp = _implemented_exp_keys_snapshot()
-    _REVIEW_FEEDBACK_CONTEXT = {
+    _state.review_feedback_context = {
         "xp": float(initial_xp or 0.0),
         "skills": list(getattr(initial_xp, "skill_names", ())),
         "initial_exp": initial_exp,
         "recorded_exp": initial_exp,
-        "combat_level_before": player_combat_level_pure(player_data),
+        "combat_level_before": player_combat_level_pure(_state.player_data),
         "activity": [],
     }
-    _REVIEW_FEEDBACK_INITIAL_XP = 0.0
+    _state.review_feedback_initial_xp = 0.0
 
 
 def _record_pending_review_xp_event() -> None:
-    context = _REVIEW_FEEDBACK_CONTEXT
+    context = _state.review_feedback_context
     if context is None:
         return
     recorded_exp = context.get("recorded_exp", {})
     breakdown = []
     for skill in trainable_skill_definitions():
-        gained = float(player_data.get(skill.exp_key, 0) or 0) - float(
+        gained = float(_state.player_data.get(skill.exp_key, 0) or 0) - float(
             recorded_exp.get(skill.exp_key, 0) or 0
         )
         if gained > 0:
@@ -669,16 +652,15 @@ def level_up_check(skill, data) -> None:
 
 
 def _finish_review_feedback_context() -> None:
-    global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_FLUSHING
-    context = _REVIEW_FEEDBACK_CONTEXT or {
+    context = _state.review_feedback_context or {
         "xp": 0.0,
         "skills": [],
         "initial_exp": {},
         "activity": [],
     }
     _record_pending_review_xp_event()
-    _REVIEW_FEEDBACK_CONTEXT = None
-    _REVIEW_FEEDBACK_FLUSHING = True
+    _state.review_feedback_context = None
+    _state.review_feedback_flushing = True
     try:
         xp_total = context.get("xp", 0.0)
         try:
@@ -689,7 +671,7 @@ def _finish_review_feedback_context() -> None:
         initial_exp = context.get("initial_exp", {})
         breakdown = []
         for skill in trainable_skill_definitions():
-            gained = float(player_data.get(skill.exp_key, 0) or 0) - float(
+            gained = float(_state.player_data.get(skill.exp_key, 0) or 0) - float(
                 initial_exp.get(skill.exp_key, 0) or 0
             )
             if gained > 0:
@@ -709,15 +691,15 @@ def _finish_review_feedback_context() -> None:
             if combined:
                 _show_activity_gain(combined)
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except Exception:
             pass
         _core_combat_level_up_check(
             context["combat_level_before"],
-            player_data,
+            _state.player_data,
         )
     finally:
-        _REVIEW_FEEDBACK_FLUSHING = False
+        _state.review_feedback_flushing = False
 
 
 def _catalog_requirement_item_names(*catalogs) -> set[str]:
@@ -808,7 +790,6 @@ _SKILL_AVAILABILITY_INVENTORY_NAMES = tuple(
 _SKILL_AVAILABILITY_LEVEL_KEYS = tuple(sorted(_SKILL_AVAILABILITY_LEVEL_KEYS))
 _SKILL_AVAILABILITY_QUEST_IDS = tuple(sorted(_SKILL_AVAILABILITY_QUEST_IDS))
 _SKILL_AVAILABILITY_ABILITY_IDS = tuple(sorted(_SKILL_AVAILABILITY_ABILITY_IDS))
-_SKILL_AVAILABILITY_CACHE_FINGERPRINT = None
 
 
 def _freeze_skill_availability_value(value):
@@ -825,16 +806,16 @@ def _freeze_skill_availability_value(value):
 
 
 def _skill_availability_fingerprint():
-    inventory = player_data.get("inventory", {}) or {}
-    quests = player_data.get("quests", {}) or {}
-    abilities = player_data.get("unlocked_abilities", ()) or ()
-    current_runecrafting = str(player_data.get("current_runecrafting", "") or "")
-    carried = player_data.get("carried_inventory", {}) or {}
+    inventory = _state.player_data.get("inventory", {}) or {}
+    quests = _state.player_data.get("quests", {}) or {}
+    abilities = _state.player_data.get("unlocked_abilities", ()) or ()
+    current_runecrafting = str(_state.player_data.get("current_runecrafting", "") or "")
+    carried = _state.player_data.get("carried_inventory", {}) or {}
     carried_view = carried.get(current_runecrafting, {}) if isinstance(carried, Mapping) else {}
-    equipment = player_data.get("equipment", {}) or {}
+    equipment = _state.player_data.get("equipment", {}) or {}
     return (
-        tuple((key, player_data.get(key, 1)) for key in _SKILL_AVAILABILITY_LEVEL_KEYS),
-        _freeze_skill_availability_value(player_data.get("skilling_current_levels", {})),
+        tuple((key, _state.player_data.get(key, 1)) for key in _SKILL_AVAILABILITY_LEVEL_KEYS),
+        _freeze_skill_availability_value(_state.player_data.get("skilling_current_levels", {})),
         tuple((name, inventory.get(name, 0)) for name in _SKILL_AVAILABILITY_INVENTORY_NAMES),
         tuple(
             (
@@ -848,9 +829,9 @@ def _skill_availability_fingerprint():
             (ability_id, ability_id in abilities)
             for ability_id in _SKILL_AVAILABILITY_ABILITY_IDS
         ),
-        bool(player_data.get("magic_imbue_active", False)),
+        bool(_state.player_data.get("magic_imbue_active", False)),
         equipment.get("head") if isinstance(equipment, Mapping) else None,
-        _freeze_skill_availability_value(player_data.get("wicked_hood", {})),
+        _freeze_skill_availability_value(_state.player_data.get("wicked_hood", {})),
         current_runecrafting,
         (
             carried_view.get("Wicked hood", 0)
@@ -862,16 +843,16 @@ def _skill_availability_fingerprint():
 
 def _refresh_skill_availability() -> None:
     """Refresh menu availability only when one of its real inputs changed."""
-    global _SKILL_AVAILABILITY_CACHE_FINGERPRINT
+
     try:
         fingerprint = _skill_availability_fingerprint()
-        if fingerprint == _SKILL_AVAILABILITY_CACHE_FINGERPRINT:
+        if fingerprint == _state.skill_availability_cache_fingerprint:
             return
         values = (
             can_smith_any(),
             any(
                 not crafting_target_locked_reasons_pure(
-                    player_data,
+                    _state.player_data,
                     item_name,
                     CRAFTING_DATA,
                     QUEST_UNLOCK_RULES,
@@ -880,7 +861,7 @@ def _refresh_skill_availability() -> None:
             ),
             any(
                 not fletching_target_locked_reasons_pure(
-                    player_data,
+                    _state.player_data,
                     target_key,
                     FLETCHING_DATA,
                     QUEST_UNLOCK_RULES,
@@ -889,7 +870,7 @@ def _refresh_skill_availability() -> None:
             ),
             any(
                 not firemaking_target_locked_reasons_pure(
-                    player_data,
+                    _state.player_data,
                     target_key,
                     FIREMAKING_DATA,
                     QUEST_UNLOCK_RULES,
@@ -898,7 +879,7 @@ def _refresh_skill_availability() -> None:
             ),
             any(
                 not hunter_target_locked_reasons_pure(
-                    player_data,
+                    _state.player_data,
                     target_key,
                     HUNTER_DATA,
                     QUEST_UNLOCK_RULES,
@@ -907,7 +888,7 @@ def _refresh_skill_availability() -> None:
             ),
             any(
                 not cooking_target_locked_reasons_pure(
-                    player_data,
+                    _state.player_data,
                     target_key,
                     COOKING_DATA,
                     QUEST_UNLOCK_RULES,
@@ -915,14 +896,14 @@ def _refresh_skill_availability() -> None:
                 for target_key in COOKING_DATA.keys()
             ),
             can_runecraft_any_pure(
-                player_data,
+                _state.player_data,
                 RUNECRAFTING_DATA,
                 RUNECRAFTING_POUCH_DATA,
                 QUEST_UNLOCK_RULES,
             ),
         )
         refresh_skill_availability(*values)
-        _SKILL_AVAILABILITY_CACHE_FINGERPRINT = fingerprint
+        _state.skill_availability_cache_fingerprint = fingerprint
     except Exception:
         pass
 
@@ -955,7 +936,7 @@ def _award_skill_exp(
     *,
     action_skill_id: str | None = None,
 ) -> float:
-    action_skill_id = str(action_skill_id or current_skill).lower()
+    action_skill_id = str(action_skill_id or _state.current_skill).lower()
     skill_id = str(exp_key).removesuffix("_exp")
     skill = get_skill(skill_id)
     skill_name = (
@@ -964,38 +945,38 @@ def _award_skill_exp(
     # The Goblin cower shield pays 25% bonus Attack, Defence and Constitution
     # experience out of a 1,000-experience budget, then turns cosmetic. It rides
     # the same seam the Stealing Creation tools use rather than a second one.
-    if goblin_cower_shield_can_apply_pure(player_data, exp_key):
+    if goblin_cower_shield_can_apply_pure(_state.player_data, exp_key):
         shield_updated, shield_bonus, _shield_info = (
-            apply_goblin_cower_shield_bonus_pure(player_data, exp_key, base_exp)
+            apply_goblin_cower_shield_bonus_pure(_state.player_data, exp_key, base_exp)
         )
-        player_data.clear()
-        player_data.update(shield_updated)
+        _state.player_data.clear()
+        _state.player_data.update(shield_updated)
         base_exp = float(base_exp) + float(shield_bonus)
     if not stealing_creation_tool_can_apply_pure(
-        player_data,
+        _state.player_data,
         exp_key,
         action_skill_id,
     ):
-        player_data[exp_key] = player_data.get(exp_key, 0) + base_exp
+        _state.player_data[exp_key] = _state.player_data.get(exp_key, 0) + base_exp
         return _NamedExperience(base_exp, (skill_name,))
     updated, bonus_exp, _tool_info = apply_stealing_creation_xp_bonus_pure(
-        player_data,
+        _state.player_data,
         exp_key,
         base_exp,
         random.random,
         action_skill_id=action_skill_id,
     )
-    player_data.clear()
-    player_data.update(updated)
+    _state.player_data.clear()
+    _state.player_data.update(updated)
     total_exp = float(base_exp) + float(bonus_exp)
-    player_data[exp_key] = player_data.get(exp_key, 0) + total_exp
+    _state.player_data[exp_key] = _state.player_data.get(exp_key, 0) + total_exp
     return _NamedExperience(total_exp, (skill_name,))
 
 
 def _update_review_context_surface() -> None:
     try:
         update_review_context_action_strip(
-            player_data,
+            _state.player_data,
             resolve_review_context_action,
         )
     except Exception:
@@ -1028,13 +1009,13 @@ def commit_direct_action(
 
     Returns True when the change was committed.
     """
-    global current_skill
+
     before = {
-        "player_data": copy.deepcopy(player_data),
+        "player_data": copy.deepcopy(_state.player_data),
         "random_state": random.getstate(),
-        "current_skill": current_skill,
+        "current_skill": _state.current_skill,
     }
-    updated, ok = apply_change(player_data)
+    updated, ok = apply_change(_state.player_data)
     if not ok:
         random.setstate(before["random_state"])
         return False
@@ -1056,29 +1037,29 @@ def commit_direct_action(
     except (AttributeError, RuntimeError):
         random.setstate(before["random_state"])
         return False
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data.clear()
-    player_data.update(updated)
+    _state.direct_action_undo_stack.append(before)
+    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    _state.player_data.clear()
+    _state.player_data.update(updated)
     if switch_to_bankstanding:
         _switch_to_bankstanding(
             bankstanding_reason,
             automatic=bool(bankstanding_automatic),
         )
     elif selected_skill is not None:
-        current_skill = _normalize_legacy_utility_skill(selected_skill)
+        _state.current_skill = _normalize_legacy_utility_skill(selected_skill)
         try:
-            mw.col.set_config("ankiscape_current_skill", current_skill)
+            mw.col.set_config("ankiscape_current_skill", _state.current_skill)
         except AttributeError:
             pass
-        ui.update_menu_visibility(current_skill)
+        ui.update_menu_visibility(_state.current_skill)
     if after_apply is not None:
         after_apply()
     save_player_data()
     if switch_to_bankstanding:
         try:
-            update_review_event_log_drawer(player_data)
+            update_review_event_log_drawer(_state.player_data)
         except Exception:
             pass
         _show_pending_bankstanding_dialog()
@@ -1112,9 +1093,9 @@ def resolve_review_context_action(family_id: str, option_id: str) -> bool:
             _update_review_context_surface()
             return False
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
             update_review_status_badge(
-                player_data, _open_activities_sheet, _open_farming_sheet
+                _state.player_data, _open_activities_sheet, _open_farming_sheet
             )
         except Exception:
             pass
@@ -1131,12 +1112,12 @@ def resolve_review_context_action(family_id: str, option_id: str) -> bool:
     if not valid:
         return False
     before = {
-        "player_data": copy.deepcopy(player_data),
+        "player_data": copy.deepcopy(_state.player_data),
         "random_state": random.getstate(),
     }
     if family_id == PHOENIX_EGG_CONTEXT_ID:
         updated, allowed, result = resolve_phoenix_egg_choice_pure(
-            player_data,
+            _state.player_data,
             option_id,
             remember_choice=True,
         )
@@ -1146,7 +1127,7 @@ def resolve_review_context_action(family_id: str, option_id: str) -> bool:
         )
         roll = random.random() if option_id == "gamble" else 0.5
         updated, result = apply_agility_command_pure(
-            player_data,
+            _state.player_data,
             action_id,
             {"remember_choice": True},
             roll=roll,
@@ -1161,22 +1142,22 @@ def resolve_review_context_action(family_id: str, option_id: str) -> bool:
     except (AttributeError, RuntimeError):
         random.setstate(before["random_state"])
         return False
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data.clear()
-    player_data.update(updated)
+    _state.direct_action_undo_stack.append(before)
+    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    _state.player_data.clear()
+    _state.player_data.update(updated)
     xp = float(result.get("xp", 0.0) or 0.0)
     if xp > 0:
         gained = _award_skill_exp("agility_exp", xp)
-        level_up_check("Agility", player_data)
+        level_up_check("Agility", _state.player_data)
         _show_exp(gained)
-    check_achievements(player_data)
+    check_achievements(_state.player_data)
     save_player_data()
     _refresh_skill_availability()
     try:
         mw.update_undo_actions()
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except AttributeError:
         pass
     _update_review_context_surface()
@@ -1184,20 +1165,20 @@ def resolve_review_context_action(family_id: str, option_id: str) -> bool:
 
 
 def _resolve_ignored_review_context_for_answer() -> float:
-    pending = ignored_review_context_choice_pure(player_data)
+    pending = ignored_review_context_choice_pure(_state.player_data)
     if pending is None:
         return 0.0
     family_id, option_id = pending
     if family_id == PHOENIX_EGG_CONTEXT_ID:
         updated, ok, _result = resolve_phoenix_egg_choice_pure(
-            player_data,
+            _state.player_data,
             option_id,
         )
         if not ok:
             return 0.0
-        player_data.clear()
-        player_data.update(updated)
-        check_achievements(player_data)
+        _state.player_data.clear()
+        _state.player_data.update(updated)
+        check_achievements(_state.player_data)
         return 0.0
     if family_id != PIT_REWARD_CONTEXT_ID:
         return 0.0
@@ -1205,42 +1186,42 @@ def _resolve_ignored_review_context_for_answer() -> float:
         "gamble_pit_reward" if option_id == "gamble" else "claim_pit_reward"
     )
     updated, result = apply_agility_command_pure(
-        player_data,
+        _state.player_data,
         action_id,
         {},
         roll=random.random() if option_id == "gamble" else 0.5,
     )
     if not result.get("allowed"):
         return 0.0
-    player_data.clear()
-    player_data.update(updated)
+    _state.player_data.clear()
+    _state.player_data.update(updated)
     xp = float(result.get("xp", 0.0) or 0.0)
     if xp > 0:
         _award_skill_exp("agility_exp", xp)
-        level_up_check("Agility", player_data)
-        check_achievements(player_data)
+        level_up_check("Agility", _state.player_data)
+        check_achievements(_state.player_data)
     return xp
 
 
 def _award_hidden_skill_exp(exp_key: str, level_key: str, base_exp: float) -> None:
     if base_exp <= 0:
         return
-    player_data[exp_key] = player_data.get(exp_key, 0) + base_exp
-    player_data[level_key] = calculate_new_level(
-        player_data.get(exp_key, 0),
-        player_data.get(level_key, 1),
+    _state.player_data[exp_key] = _state.player_data.get(exp_key, 0) + base_exp
+    _state.player_data[level_key] = calculate_new_level(
+        _state.player_data.get(exp_key, 0),
+        _state.player_data.get(level_key, 1),
         EXP_TABLE,
     )
 
 
 def set_prayer_selection(material_id: str, ui_method_id: str) -> bool:
-    updated, ok, _reasons = apply_prayer_selection_pure(player_data, material_id, ui_method_id, PRAYER_DATA)
+    updated, ok, _reasons = apply_prayer_selection_pure(_state.player_data, material_id, ui_method_id, PRAYER_DATA)
     if not ok:
         return False
-    player_data.clear()
-    player_data.update(updated)
+    _state.player_data.clear()
+    _state.player_data.update(updated)
     save_player_data()
-    update_review_hud(player_data, current_skill)
+    update_review_hud(_state.player_data, _state.current_skill)
     return True
 
 
@@ -1258,14 +1239,14 @@ def teleport_training_urn(urn_id: str) -> bool:
     def _after_apply():
         nonlocal gained
         gained = _award_skill_exp(skill.exp_key, base_xp)
-        level_up_check(skill.display_name, player_data)
-        check_achievements(player_data)
+        level_up_check(skill.display_name, _state.player_data)
+        check_achievements(_state.player_data)
 
     if not commit_direct_action(_change, after_apply=_after_apply):
         return False
     _refresh_skill_availability()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     _show_exp(gained)
@@ -1274,7 +1255,7 @@ def teleport_training_urn(urn_id: str) -> bool:
 
 def _implemented_exp_keys_snapshot() -> dict[str, float]:
     return {
-        skill.exp_key: float(player_data.get(skill.exp_key, 0) or 0)
+        skill.exp_key: float(_state.player_data.get(skill.exp_key, 0) or 0)
         for skill in trainable_skill_definitions()
     }
 
@@ -1285,7 +1266,7 @@ def _show_quest_exp_delta(before: dict[str, float]) -> None:
     for skill in trainable_skill_definitions():
         old_exp = before.get(skill.exp_key, 0.0)
         try:
-            new_exp = float(player_data.get(skill.exp_key, 0) or 0)
+            new_exp = float(_state.player_data.get(skill.exp_key, 0) or 0)
         except (TypeError, ValueError):
             new_exp = old_exp
         if new_exp > old_exp:
@@ -1293,14 +1274,14 @@ def _show_quest_exp_delta(before: dict[str, float]) -> None:
             skill_names.append(skill.display_name)
             # Minimal/legacy saves can receive a Combat-stat quest reward before
             # the normal storage migration has seeded that stat's level key.
-            player_data.setdefault(skill.level_key, 1)
-            level_up_check(skill.display_name, player_data)
+            _state.player_data.setdefault(skill.level_key, 1)
+            level_up_check(skill.display_name, _state.player_data)
     if total > 0:
         _show_exp(_NamedExperience(total, skill_names))
 
 
 def _show_runtime_exp(value) -> None:
-    _show_exp(float(value) if _REVIEW_FEEDBACK_CONTEXT is not None else value)
+    _show_exp(float(value) if _state.review_feedback_context is not None else value)
 
 
 def _runtime_action_context() -> RuntimeActionContext:
@@ -1309,8 +1290,8 @@ def _runtime_action_context() -> RuntimeActionContext:
     def _show_runtime_error(title, message) -> None:
         last_reason.update(text=str(message or "").strip(), caller_owns_notice=True)
         _update_pending_bankstanding_reason(last_reason["text"])
-        if _PENDING_BANKSTANDING_NOTICE is not None:
-            _PENDING_BANKSTANDING_NOTICE["show_dialog"] = False
+        if _state.pending_bankstanding_notice is not None:
+            _state.pending_bankstanding_notice["show_dialog"] = False
         show_error_message(title, message)
 
     def _deactivate_runtime_action(reason=None) -> None:
@@ -1326,14 +1307,14 @@ def _runtime_action_context() -> RuntimeActionContext:
         _show_activity_gain(text)
 
     return RuntimeActionContext(
-        player_data=player_data,
+        player_data=_state.player_data,
         random_random=random.random,
         show_error_message=_show_runtime_error,
         deactivate_current_skill=_deactivate_runtime_action,
         award_skill_exp=_award_skill_exp,
         award_hidden_skill_exp=_award_hidden_skill_exp,
         level_up_check=level_up_check,
-        check_achievements=_PENDING_REVIEW_DIALOGS.defer(check_achievements),
+        check_achievements=_state.pending_review_dialogs.defer(check_achievements),
         save_player_data=save_player_data,
         refresh_skill_availability=_refresh_skill_availability,
         show_exp=_show_runtime_exp,
@@ -1352,18 +1333,18 @@ def _runtime_action_context() -> RuntimeActionContext:
 
 def _capture_player_data_snapshot(*, review_answer=False):
     if review_answer:
-        before_player_data = dict(player_data)
+        before_player_data = dict(_state.player_data)
         # Achievement checks append in place; review handlers replace their other
         # top-level values, so only this small list needs an independent copy.
-        if "completed_achievements" in player_data:
+        if "completed_achievements" in _state.player_data:
             before_player_data["completed_achievements"] = copy.deepcopy(
-                player_data["completed_achievements"]
+                _state.player_data["completed_achievements"]
             )
     else:
-        before_player_data = copy.deepcopy(player_data)
+        before_player_data = copy.deepcopy(_state.player_data)
     return {
         "player_data": before_player_data,
-        "current_skill": current_skill,
+        "current_skill": _state.current_skill,
         "random_state": random.getstate(),
     }
 
@@ -1373,28 +1354,28 @@ def _remember_review_award_snapshot(before_state) -> None:
     before_player_data = before_state.get("player_data", before_state)
     changed_values = {}
     removed_keys = []
-    all_keys = set(before_player_data) | set(player_data)
+    all_keys = set(before_player_data) | set(_state.player_data)
     for key in all_keys:
         had_before = key in before_player_data
-        has_after = key in player_data
-        if had_before and (not has_after or before_player_data[key] != player_data[key]):
+        has_after = key in _state.player_data
+        if had_before and (not has_after or before_player_data[key] != _state.player_data[key]):
             changed_values[key] = copy.deepcopy(before_player_data[key])
         elif not had_before and has_after:
             removed_keys.append(key)
 
-    skill_changed = before_state.get("current_skill", current_skill) != current_skill
+    skill_changed = before_state.get("current_skill", _state.current_skill) != _state.current_skill
     random_changed = before_state.get("random_state") != random.getstate()
     if not changed_values and not removed_keys and not skill_changed and not random_changed:
         return
 
-    _REVIEW_UNDO_STACK.append({
+    _state.review_undo_stack.append({
         "values": changed_values,
         "remove": removed_keys,
-        "current_skill": before_state.get("current_skill", current_skill),
+        "current_skill": before_state.get("current_skill", _state.current_skill),
         "random_state": before_state.get("random_state"),
     })
-    if len(_REVIEW_UNDO_STACK) > _MAX_REVIEW_UNDO_SNAPSHOTS:
-        del _REVIEW_UNDO_STACK[:-_MAX_REVIEW_UNDO_SNAPSHOTS]
+    if len(_state.review_undo_stack) > _MAX_REVIEW_UNDO_SNAPSHOTS:
+        del _state.review_undo_stack[:-_MAX_REVIEW_UNDO_SNAPSHOTS]
 
 
 def _save_player_data_if_anki_ready() -> None:
@@ -1423,28 +1404,27 @@ def _looks_like_direct_action_undo(changes) -> bool:
 
 
 def _restore_review_award_snapshot(snapshot) -> None:
-    global player_data, current_skill
     for key in snapshot.get("remove", []):
-        player_data.pop(key, None)
+        _state.player_data.pop(key, None)
     for key, value in snapshot.get("values", {}).items():
-        player_data[key] = copy.deepcopy(value)
-    current_skill = snapshot.get("current_skill", current_skill)
+        _state.player_data[key] = copy.deepcopy(value)
+    _state.current_skill = snapshot.get("current_skill", _state.current_skill)
     random_state = snapshot.get("random_state")
     if random_state is not None:
         random.setstate(random_state)
 
     save_player_data()
     try:
-        ui.update_menu_visibility(current_skill)
+        ui.update_menu_visibility(_state.current_skill)
     except Exception:
         pass
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
         update_review_status_badge(
-            player_data, _open_activities_sheet, _open_farming_sheet
+            _state.player_data, _open_activities_sheet, _open_farming_sheet
         )
-        update_review_fill_drawer(player_data)
-        update_review_event_log_drawer(player_data)
+        update_review_fill_drawer(_state.player_data)
+        update_review_event_log_drawer(_state.player_data)
         _update_review_bank_run_surface()
         _update_review_context_surface()
     except Exception:
@@ -1456,26 +1436,25 @@ def _restore_review_award_snapshot(snapshot) -> None:
 
 
 def _restore_direct_action_snapshot(snapshot) -> None:
-    global current_skill
-    player_data.clear()
-    player_data.update(copy.deepcopy(snapshot["player_data"]))
-    current_skill = snapshot.get("current_skill", current_skill)
+    _state.player_data.clear()
+    _state.player_data.update(copy.deepcopy(snapshot["player_data"]))
+    _state.current_skill = snapshot.get("current_skill", _state.current_skill)
     try:
-        mw.col.set_config("ankiscape_current_skill", current_skill)
+        mw.col.set_config("ankiscape_current_skill", _state.current_skill)
     except (AttributeError, RuntimeError):
         pass
-    ui.update_menu_visibility(current_skill)
+    ui.update_menu_visibility(_state.current_skill)
     random_state = snapshot.get("random_state")
     if random_state is not None:
         random.setstate(random_state)
     save_player_data()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
         update_review_status_badge(
-            player_data, _open_activities_sheet, _open_farming_sheet
+            _state.player_data, _open_activities_sheet, _open_farming_sheet
         )
-        update_review_fill_drawer(player_data)
-        update_review_event_log_drawer(player_data)
+        update_review_fill_drawer(_state.player_data)
+        update_review_event_log_drawer(_state.player_data)
         _update_review_bank_run_surface()
         _update_review_context_surface()
         _refresh_skill_availability()
@@ -1485,26 +1464,25 @@ def _restore_direct_action_snapshot(snapshot) -> None:
 
 def _on_state_did_undo(changes=None) -> None:
     if _looks_like_direct_action_undo(changes):
-        if _DIRECT_ACTION_UNDO_STACK:
-            _restore_direct_action_snapshot(_DIRECT_ACTION_UNDO_STACK.pop())
+        if _state.direct_action_undo_stack:
+            _restore_direct_action_snapshot(_state.direct_action_undo_stack.pop())
         return
-    if not _REVIEW_UNDO_STACK or not _looks_like_review_undo(changes):
+    if not _state.review_undo_stack or not _looks_like_review_undo(changes):
         return
-    snapshot = _REVIEW_UNDO_STACK.pop()
+    snapshot = _state.review_undo_stack.pop()
     _restore_review_award_snapshot(snapshot)
 
 
 def show_skill_selection():
-    global current_skill
-    selected = ui.show_skill_selection_dialog(current_skill, can_smith_any())
+    selected = ui.show_skill_selection_dialog(_state.current_skill, can_smith_any())
     if selected is None:
         return
     save_skill(selected, None)
 
 def _default_bankstanding_reason() -> str:
-    utility_id = str(player_data.get("current_utility", "") or "")
+    utility_id = str(_state.player_data.get("current_utility", "") or "")
     if (
-        current_skill
+        _state.current_skill
         in {
             UTILITY_REVIEW_ACTION_DISPLAY_NAME,
             ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
@@ -1515,7 +1493,7 @@ def _default_bankstanding_reason() -> str:
     ):
         action_name = utility_id.replace("_", " ").title()
     else:
-        action_name = str(current_skill or "Current action")
+        action_name = str(_state.current_skill or "Current action")
         if action_name == "None":
             action_name = "Current action"
     return f"{action_name} could not continue."
@@ -1526,9 +1504,8 @@ def _bankstanding_event_text(reason: str) -> str:
 
 
 def _show_pending_bankstanding_dialog() -> None:
-    global _PENDING_BANKSTANDING_NOTICE
-    notice = _PENDING_BANKSTANDING_NOTICE
-    _PENDING_BANKSTANDING_NOTICE = None
+    notice = _state.pending_bankstanding_notice
+    _state.pending_bankstanding_notice = None
     if notice is None or not notice.get("show_dialog", True):
         return
     reason = str(notice["reason"])
@@ -1543,8 +1520,8 @@ def _show_pending_bankstanding_dialog() -> None:
 
 
 def _show_pending_review_dialogs() -> None:
-    callbacks = tuple(_PENDING_REVIEW_DIALOGS)
-    _PENDING_REVIEW_DIALOGS.clear()
+    callbacks = tuple(_state.pending_review_dialogs)
+    _state.pending_review_dialogs.clear()
     if not callbacks:
         return
     try:
@@ -1563,12 +1540,12 @@ def _show_pending_review_dialogs() -> None:
 
 
 def _update_pending_bankstanding_reason(reason) -> None:
-    notice = _PENDING_BANKSTANDING_NOTICE
+    notice = _state.pending_bankstanding_notice
     reason_text = str(reason or "").strip()
     if notice is None or not reason_text:
         return
     notice["reason"] = reason_text
-    event_log = player_data.get("review_event_log")
+    event_log = _state.player_data.get("review_event_log")
     if isinstance(event_log, list) and event_log and isinstance(event_log[-1], dict):
         event_log[-1]["text"] = _bankstanding_event_text(reason_text)[:500]
 
@@ -1587,38 +1564,38 @@ def _switch_to_bankstanding(
     failure, death, and material exhaustion lands on the settled no-XP
     fallback so the ordinary review-paced market clock keeps moving.
     """
-    global current_skill, _PENDING_BANKSTANDING_NOTICE
+
     if (
-        player_data.get("current_utility") == "bankstanding"
-        and _normalize_legacy_utility_skill(current_skill)
+        _state.player_data.get("current_utility") == "bankstanding"
+        and _normalize_legacy_utility_skill(_state.current_skill)
         == UTILITY_REVIEW_ACTION_DISPLAY_NAME
     ):
         return False
 
     reason_text = str(reason or "").strip() or _default_bankstanding_reason()
-    current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
-    player_data["current_utility"] = "bankstanding"
+    _state.current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
+    _state.player_data["current_utility"] = "bankstanding"
     updated = record_review_event_pure(
-        player_data,
+        _state.player_data,
         "activity",
         _bankstanding_event_text(reason_text),
     )
-    player_data["review_event_log"] = updated["review_event_log"]
+    _state.player_data["review_event_log"] = updated["review_event_log"]
     if automatic:
-        _PENDING_BANKSTANDING_NOTICE = {
+        _state.pending_bankstanding_notice = {
             "reason": reason_text,
             "show_dialog": not caller_owns_notice,
         }
     try:
-        ui.update_menu_visibility(current_skill)
+        ui.update_menu_visibility(_state.current_skill)
     except Exception:
         pass
     try:
-        mw.col.set_config("ankiscape_current_skill", current_skill)
+        mw.col.set_config("ankiscape_current_skill", _state.current_skill)
     except Exception:
         pass
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
@@ -1638,7 +1615,7 @@ def _activity_session_cleared(before, after=None) -> bool:
     before the snapshot is taken so undo restores the former activity whole.
     """
     before_active = str((before or {}).get("active_id", "") or "")
-    after = after if after is not None else player_data.get("activity_session")
+    after = after if after is not None else _state.player_data.get("activity_session")
     after_active = str((after or {}).get("active_id", "") or "")
     return bool(before_active) and not after_active
 
@@ -1664,23 +1641,22 @@ def _fishing_materials_text(method_spec, inventory) -> str:
 
 
 def save_skill(skill, dialog):
-    global current_skill
     if skill == "Smithing" and not can_smith_any():
         show_error_message(
             "No Smithing Actions Available",
             "You don't have the level and materials for any Smithing recipe. Mine ore or pick another target first!",
         )
     else:
-        current_skill = skill
-        ui.update_menu_visibility(current_skill)
+        _state.current_skill = skill
+        ui.update_menu_visibility(_state.current_skill)
         # Persist immediately so the selection survives window close
         try:
-            mw.col.set_config("ankiscape_current_skill", current_skill)
+            mw.col.set_config("ankiscape_current_skill", _state.current_skill)
         except Exception:
             pass
         # Update the HUD immediately so users see the new skill progress without waiting for XP
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except Exception:
             pass
         if dialog:
@@ -1694,18 +1670,18 @@ def save_skill(skill, dialog):
 
 def show_craft_selection():
     selected = ui.show_craft_selection_dialog(
-        current_craft=player_data.get("current_craft", ""),
-        crafting_level=player_data.get("crafting_level", 1),
-        inventory=player_data.get("inventory", {}),
+        current_craft=_state.player_data.get("current_craft", ""),
+        crafting_level=_state.player_data.get("crafting_level", 1),
+        inventory=_state.player_data.get("inventory", {}),
         CRAFTING_DATA=CRAFTING_DATA,
         CRAFTED_ITEM_IMAGES=CRAFTED_ITEM_IMAGES,
     )
     if selected:
-        player_data["current_craft"] = selected
+        _state.player_data["current_craft"] = selected
         save_player_data()
 
 def has_crafting_materials(item):
-    return has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA)
+    return has_crafting_materials_pure(item, _state.player_data["inventory"], CRAFTING_DATA)
 
 def on_crafting_answer():
     return runtime_actions.handle_crafting_answer(_runtime_action_context())
@@ -1740,37 +1716,37 @@ def on_quest_answer():
 
 def show_bar_selection():
     selected = ui.show_bar_selection_dialog(
-        current_bar=player_data.get("current_bar", "Bronze bar"),
-        smithing_level=player_data.get("smithing_level", 1),
+        current_bar=_state.player_data.get("current_bar", "Bronze bar"),
+        smithing_level=_state.player_data.get("smithing_level", 1),
         BAR_DATA=BAR_DATA,
         BAR_IMAGES=BAR_IMAGES,
     )
     if selected:
-        player_data["current_bar"] = selected
-        player_data["current_smith"] = _smelt_target_for_bar(selected)
+        _state.player_data["current_bar"] = selected
+        _state.player_data["current_smith"] = _smelt_target_for_bar(selected)
         save_player_data()
 
 
 def show_tree_selection():
     selected = show_tree_selection_dialog(
-        current_tree=player_data.get("current_tree", ""),
-        woodcutting_level=player_data.get("woodcutting_level", 1),
+        current_tree=_state.player_data.get("current_tree", ""),
+        woodcutting_level=_state.player_data.get("woodcutting_level", 1),
         TREE_DATA=TREE_DATA,
         TREE_IMAGES=TREE_IMAGES,
     )
     if selected:
-        player_data["current_tree"] = selected
+        _state.player_data["current_tree"] = selected
         save_player_data()
 
 def show_ore_selection():
     selected = show_ore_selection_dialog(
-        current_ore=player_data.get("current_ore", "Rune essence"),
-        mining_level=player_data.get("mining_level", 1),
+        current_ore=_state.player_data.get("current_ore", "Rune essence"),
+        mining_level=_state.player_data.get("mining_level", 1),
         ORE_DATA=ORE_DATA,
         ORE_IMAGES=ORE_IMAGES,
     )
     if selected:
-        player_data["current_ore"] = selected
+        _state.player_data["current_ore"] = selected
         save_player_data()
 
 
@@ -1791,16 +1767,16 @@ def _save_livid_farm_direct_action(before, updated, ok, info):
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
         return {"ok": False, "message": "Anki could not create an undo entry."}
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data.clear()
-    player_data.update(updated)
+    _state.direct_action_undo_stack.append(before)
+    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    _state.player_data.clear()
+    _state.player_data.update(updated)
     save_player_data()
     _refresh_skill_availability()
     try:
         mw.update_undo_actions()
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except AttributeError:
         pass
     return {"ok": True, **info}
@@ -1809,11 +1785,10 @@ def _save_livid_farm_direct_action(before, updated, ok, info):
 def on_livid_farm_wish(wish_id):
     before = _capture_player_data_snapshot()
     updated, ok, info = apply_livid_farm_wish_pure(
-        player_data,
+        _state.player_data,
         wish_id,
     )
     return _save_livid_farm_direct_action(before, updated, ok, info)
-
 
 
 def _open_farming_sheet(patch_id=None):
@@ -1854,15 +1829,15 @@ def _open_grand_exchange_sheet():
 
 def _active_review_bank_run_target(handler_key: str) -> str:
     if handler_key == "combat":
-        return str(player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET) or "")
+        return str(_state.player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET) or "")
     target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
-    return str(player_data.get(target_key, "") or "") if target_key else ""
+    return str(_state.player_data.get(target_key, "") or "") if target_key else ""
 
 
 def on_request_review_bank_run() -> bool:
     """Queue the current activity's existing review-paced bank-run path."""
 
-    handler_key = review_action_handler_key(current_skill)
+    handler_key = review_action_handler_key(_state.current_skill)
     target_id = _active_review_bank_run_target(handler_key)
     committed = commit_direct_action(
         lambda data: request_review_bank_run_pure(data, handler_key, target_id)
@@ -1872,9 +1847,9 @@ def on_request_review_bank_run() -> bool:
 
 
 def _update_review_bank_run_surface() -> None:
-    handler_key = review_action_handler_key(current_skill)
+    handler_key = review_action_handler_key(_state.current_skill)
     update_review_bank_run_button(
-        player_data,
+        _state.player_data,
         handler_key,
         on_request_review_bank_run,
         target_id=_active_review_bank_run_target(handler_key),
@@ -1887,7 +1862,7 @@ def _refresh_bank_run_surfaces() -> None:
         from .ui.ui import get_config_bool  # type: ignore
         if get_config_bool("ankiscape_review_hud_enabled", True):
             ensure_review_hud()
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     _update_review_bank_run_surface()
@@ -1924,7 +1899,7 @@ def _on_main_menu(
         if committed:
             _refresh_skill_availability()
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except Exception:
                 pass
         return committed
@@ -1949,7 +1924,7 @@ def _on_main_menu(
         if committed:
             _refresh_skill_availability()
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except Exception:
                 pass
         return committed
@@ -2048,83 +2023,83 @@ def _on_main_menu(
     _GATHERING_HANDLER_KEYS = {"mining", "woodcutting", "fishing", "hunter"}
 
     def _current_gathering_target():
-        handler_key = review_action_handler_key(current_skill)
+        handler_key = review_action_handler_key(_state.current_skill)
         if handler_key not in _GATHERING_HANDLER_KEYS:
             return None
         target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
-        target_id = player_data.get(target_key) if target_key else None
+        target_id = _state.player_data.get(target_key) if target_key else None
         return str(target_id) if target_id else None
 
     def _current_gathering_keep_drop_state():
         target_id = _current_gathering_target()
         if target_id is None:
             return None
-        return (player_data.get("carried_keep_drop") or {}).get(target_id, "keep")
+        return (_state.player_data.get("carried_keep_drop") or {}).get(target_id, "keep")
 
     def _set_carried_keep_drop(drop: bool):
         target_id = _current_gathering_target()
         if target_id is None:
             return
-        keep_drop = player_data.get("carried_keep_drop")
+        keep_drop = _state.player_data.get("carried_keep_drop")
         if not isinstance(keep_drop, dict):
             keep_drop = {}
         if drop:
             keep_drop[target_id] = "drop"
         else:
             keep_drop.pop(target_id, None)
-        player_data["carried_keep_drop"] = keep_drop
+        _state.player_data["carried_keep_drop"] = keep_drop
         save_player_data()
 
     def _current_combat_loot_rows():
         # Advanced per-drop loot control for the enemy currently selected. Each row
         # is {item, mode} where mode is auto/keep/leave from loot_overrides.
-        if review_action_handler_key(current_skill) != "combat":
+        if review_action_handler_key(_state.current_skill) != "combat":
             return ()
-        target_id = player_data.get("current_combat_target")
-        overrides = player_data.get("loot_overrides") or {}
+        target_id = _state.player_data.get("current_combat_target")
+        overrides = _state.player_data.get("loot_overrides") or {}
         rows = []
-        for item_name in combat_observed_drop_item_names_pure(player_data, target_id):
+        for item_name in combat_observed_drop_item_names_pure(_state.player_data, target_id):
             rows.append({"item": item_name, "mode": overrides.get(item_name, "auto")})
         return tuple(rows)
 
     def _set_loot_override(item_name: str, mode: str):
-        overrides = player_data.get("loot_overrides")
+        overrides = _state.player_data.get("loot_overrides")
         if not isinstance(overrides, dict):
             overrides = {}
         if mode in ("keep", "leave"):
             overrides[item_name] = mode
         else:
             overrides.pop(item_name, None)
-        player_data["loot_overrides"] = overrides
+        _state.player_data["loot_overrides"] = overrides
         save_player_data()
 
     # The 4x7 carried-pack grid applies to every skilling target the overlay
     # tracks (gathering AND processing) — a superset of the gathering-only
     # Keep/Drop toggle above.
     def _current_carried_pack_target():
-        handler_key = review_action_handler_key(current_skill)
+        handler_key = review_action_handler_key(_state.current_skill)
         if handler_key == "combat":
-            target_id = player_data.get("current_combat_target")
+            target_id = _state.player_data.get("current_combat_target")
         elif (
             handler_key == "utility"
-            and player_data.get("current_utility")
+            and _state.player_data.get("current_utility")
             in {
                 runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
                 runtime_actions.GNOME_BALL_ACTIVITY_ID,
                 runtime_actions.PHOENIX_LAIR_ACTIVITY_ID,
             }
         ):
-            target_id = player_data.get("current_utility")
+            target_id = _state.player_data.get("current_utility")
         else:
             target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
-            target_id = player_data.get(target_key) if target_key else None
+            target_id = _state.player_data.get(target_key) if target_key else None
         return str(target_id) if target_id else None
 
     def _current_carried_advanced_state():
         target_id = _current_carried_pack_target()
         if target_id is None:
             return False
-        return target_id in (player_data.get("carried_advanced_targets") or {})
+        return target_id in (_state.player_data.get("carried_advanced_targets") or {})
 
     def _current_carried_layout_cells():
         # Exactly 28 (item_name_or_None, display_count) cells, slot-accurate
@@ -2133,7 +2108,7 @@ def _on_main_menu(
         target_id = _current_carried_pack_target()
         if target_id is None:
             return tuple((None, 0) for _ in range(inventory_pure.CARRIED_CAPACITY))
-        layout = (player_data.get("carried_layout") or {}).get(target_id, {})
+        layout = (_state.player_data.get("carried_layout") or {}).get(target_id, {})
         return tuple(
             inventory_pure.layout_to_grid_cells_pure(layout, runtime_actions._OVERLAY_STACKABLE_NAMES)
         )
@@ -2142,7 +2117,7 @@ def _on_main_menu(
         target_id = _current_carried_pack_target()
         if target_id is None:
             return ()
-        carried = (player_data.get("carried_inventory") or {}).get(target_id, {})
+        carried = (_state.player_data.get("carried_inventory") or {}).get(target_id, {})
         return tuple(
             (item_name, int(amount))
             for item_name, amount in carried.items()
@@ -2150,27 +2125,27 @@ def _on_main_menu(
         )
 
     def _current_carried_auto_summary():
-        handler_key = review_action_handler_key(current_skill)
+        handler_key = review_action_handler_key(_state.current_skill)
         target_id = _current_carried_pack_target()
         if target_id is None or handler_key == "combat":
             return ""
         current_view = inventory_pure.clamp_carried_view_to_bank(
-            (player_data.get("carried_inventory") or {}).get(target_id, {}),
-            player_data.get("inventory", {}),
+            (_state.player_data.get("carried_inventory") or {}).get(target_id, {}),
+            _state.player_data.get("inventory", {}),
         )
         if handler_key == "agility":
             target = runtime_actions.AGILITY_TARGETS_BY_ID.get(target_id)
-            casual_layout = runtime_actions._agility_casual_layout_for(player_data, target_id)
+            casual_layout = runtime_actions._agility_casual_layout_for(_state.player_data, target_id)
             projected = inventory_pure.apply_carried_layout_pure(
-                player_data.get("inventory", {}) or {},
+                _state.player_data.get("inventory", {}) or {},
                 casual_layout,
                 inventory_pure.CARRIED_CAPACITY,
                 runtime_actions._OVERLAY_STACKABLE_NAMES,
             )
-            view = current_view if target_id in (player_data.get("carried_primed_targets") or {}) else projected
+            view = current_view if target_id in (_state.player_data.get("carried_primed_targets") or {}) else projected
             carried_weight, effective_weight = agility_carried_weight_pure(
                 view,
-                player_data.get("equipment", {}),
+                _state.player_data.get("equipment", {}),
             )
             foods = [
                 f"{item_name} x{int(amount)}"
@@ -2178,7 +2153,7 @@ def _on_main_menu(
                 if item_name in runtime_actions.COMBAT_FOOD_DATA and int(amount or 0) > 0
             ]
             missing = runtime_actions._agility_carried_requirement_gaps(
-                player_data,
+                _state.player_data,
                 target_id,
                 view,
             )
@@ -2197,9 +2172,9 @@ def _on_main_menu(
         return f"{target_id} Auto pack · {slots}/{inventory_pure.CARRIED_CAPACITY} slots"
 
     def _current_carried_bank_run_summary():
-        if review_action_handler_key(current_skill) == "combat":
+        if review_action_handler_key(_state.current_skill) == "combat":
             return ""
-        run = player_data.get("skilling_bank_run", {}) or {}
+        run = _state.player_data.get("skilling_bank_run", {}) or {}
         remaining = int(run.get("reviews_remaining", 0) or 0) if isinstance(run, dict) else 0
         if remaining > 0:
             route = str(run.get("route_label", "Running to the bank"))
@@ -2210,21 +2185,21 @@ def _on_main_menu(
         target_id = _current_carried_pack_target()
         if target_id is None:
             return
-        advanced = player_data.get("carried_advanced_targets")
+        advanced = _state.player_data.get("carried_advanced_targets")
         if not isinstance(advanced, dict):
             advanced = {}
         if enabled:
             advanced[target_id] = True
         else:
             advanced.pop(target_id, None)
-        player_data["carried_advanced_targets"] = advanced
+        _state.player_data["carried_advanced_targets"] = advanced
         save_player_data()
 
     def _set_carried_layout_quantity(item_name: str, quantity: int):
         target_id = _current_carried_pack_target()
         if target_id is None:
             return False
-        raw_layout = player_data.get("carried_layout")
+        raw_layout = _state.player_data.get("carried_layout")
         layout = dict(raw_layout) if isinstance(raw_layout, dict) else {}
         target_layout, ok = inventory_pure.set_carried_layout_quantity_pure(
             layout.get(target_id, {}),
@@ -2238,7 +2213,7 @@ def _on_main_menu(
             layout[target_id] = target_layout
         else:
             layout.pop(target_id, None)
-        player_data["carried_layout"] = layout
+        _state.player_data["carried_layout"] = layout
         save_player_data()
         return True
 
@@ -2246,51 +2221,51 @@ def _on_main_menu(
         target_id = _current_carried_pack_target()
         if target_id is None:
             return
-        layout = player_data.get("carried_layout")
+        layout = _state.player_data.get("carried_layout")
         if isinstance(layout, dict):
             layout.pop(target_id, None)
-            player_data["carried_layout"] = layout
+            _state.player_data["carried_layout"] = layout
         save_player_data()
 
     def _apply_house_result(result):
         updated, ok = result
         if ok:
-            player_data.update(updated)
-            check_achievements(player_data)
+            _state.player_data.update(updated)
+            check_achievements(_state.player_data)
             save_player_data()
         return ok
 
     def _purchase_house():
-        return _apply_house_result(purchase_house_pure(player_data))
+        return _apply_house_result(purchase_house_pure(_state.player_data))
 
     def _purchase_room(room_id):
-        return _apply_house_result(purchase_house_option_pure(player_data, room_id, ROOM_DATA, kind="room"))
+        return _apply_house_result(purchase_house_option_pure(_state.player_data, room_id, ROOM_DATA, kind="room"))
 
     def _hire_servant(servant_id):
         if not servant_id:
-            player_data["house_servant"] = ""
+            _state.player_data["house_servant"] = ""
             save_player_data()
             return True
-        return _apply_house_result(purchase_house_option_pure(player_data, servant_id, SERVANT_DATA, kind="servant"))
+        return _apply_house_result(purchase_house_option_pure(_state.player_data, servant_id, SERVANT_DATA, kind="servant"))
 
     def _set_house_style(style_id):
-        if style_id == player_data.get("house_style"):
+        if style_id == _state.player_data.get("house_style"):
             return True
-        return _apply_house_result(purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
+        return _apply_house_result(purchase_house_option_pure(_state.player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
 
     def _get_farming_projection():
-        return farming_frontend_projection_pure(player_data)
+        return farming_frontend_projection_pure(_state.player_data)
 
     def _get_ge_projection():
         return ge_frontend_projection_pure(
-            player_data,
+            _state.player_data,
             item_catalog=GE_ITEM_CATALOG,
         )
 
     def _apply_ge_action(action_id, payload):
         if action_id == "preview_offer":
             _unchanged, info = apply_ge_frontend_action_pure(
-                player_data,
+                _state.player_data,
                 action_id,
                 payload,
                 item_catalog=GE_ITEM_CATALOG,
@@ -2321,7 +2296,7 @@ def _on_main_menu(
                     **result["info"],
                     "bank_run_triggered": result["bank_run_triggered"],
                 }
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             try:
                 if result.get("bank_run_triggered"):
@@ -2329,7 +2304,7 @@ def _on_main_menu(
                     # through _trigger_active_bank_run, so show its travel.
                     _refresh_bank_run_surfaces()
                 else:
-                    update_review_hud(player_data, current_skill)
+                    update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -2365,14 +2340,14 @@ def _on_main_menu(
             return updated, change_ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         committed = commit_direct_action(_change, after_apply=_after_apply)
         try:
             update_review_status_badge(
-                player_data, _open_activities_sheet, _open_farming_sheet
+                _state.player_data, _open_activities_sheet, _open_farming_sheet
             )
-            update_review_fill_drawer(player_data)
+            update_review_fill_drawer(_state.player_data)
         except Exception:
             pass
         if not committed:
@@ -2383,17 +2358,17 @@ def _on_main_menu(
                     "ok": False,
                     "reason": "undo_unavailable",
                     "message": "Anki could not create an undo entry.",
-                    "projection": farming_frontend_projection_pure(player_data),
+                    "projection": farming_frontend_projection_pure(_state.player_data),
                 }
             return {
                 "ok": False,
                 "message": change_message,
-                "projection": farming_frontend_projection_pure(player_data),
+                "projection": farming_frontend_projection_pure(_state.player_data),
             }
         return {
             "ok": True,
             "message": change_message,
-            "projection": farming_frontend_projection_pure(player_data),
+            "projection": farming_frontend_projection_pure(_state.player_data),
         }
 
     def _apply_mage_arena_action(action_id, god_id):
@@ -2493,7 +2468,7 @@ def _on_main_menu(
             )
             if committed:
                 try:
-                    update_review_hud(player_data, current_skill)
+                    update_review_hud(_state.player_data, _state.current_skill)
                 except AttributeError:
                     pass
                 _update_review_context_surface()
@@ -2524,9 +2499,9 @@ def _on_main_menu(
                 skill_id = str(result.get("skill_id", "agility")).lower()
                 skill_name = skill_id.replace("_", " ").title()
                 gained = _award_skill_exp(f"{skill_id}_exp", xp)
-                level_up_check(skill_name, player_data)
+                level_up_check(skill_name, _state.player_data)
                 _show_exp(gained)
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         committed = commit_direct_action(
             _change,
@@ -2539,7 +2514,7 @@ def _on_main_menu(
             return {"ok": False, "message": "Anki could not create an undo entry"}
         _refresh_skill_availability()
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         _update_review_context_surface()
@@ -2549,7 +2524,7 @@ def _on_main_menu(
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_policy":
             updated, ok, info = set_warriors_guild_policy_pure(
-                player_data,
+                _state.player_data,
                 automation_mode=str(payload.get("automation_mode", "casual")),
                 payment_mode=str(payload.get("payment_mode", "multi")),
                 single_token=str(payload.get("single_token", "attack")),
@@ -2589,7 +2564,7 @@ def _on_main_menu(
             return {"ok": False, "message": "Anki could not create an undo entry."}
         _refresh_skill_availability()
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -2598,7 +2573,7 @@ def _on_main_menu(
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_private_ground":
             updated, ok, info = set_hunter_private_ground_pure(
-                player_data,
+                _state.player_data,
                 str(payload.get("target_id", "")),
                 bool(payload.get("enabled", False)),
             )
@@ -2622,7 +2597,7 @@ def _on_main_menu(
             }
 
         info = {}
-        old_hunter_level = int(player_data.get("hunter_level", 1) or 1)
+        old_hunter_level = int(_state.player_data.get("hunter_level", 1) or 1)
 
         def _change(current):
             nonlocal info
@@ -2636,10 +2611,10 @@ def _on_main_menu(
         def _after_apply():
             hunter_xp = float(info.get("hunter_xp", 0.0) or 0.0)
             if hunter_xp > 0:
-                player_data["hunter_level"] = old_hunter_level
-                level_up_check("Hunter", player_data)
+                _state.player_data["hunter_level"] = old_hunter_level
+                level_up_check("Hunter", _state.player_data)
                 _show_exp(_NamedExperience(hunter_xp, ("Hunter",)))
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if info.get("reason"):
@@ -2653,7 +2628,7 @@ def _on_main_menu(
             }
         _refresh_skill_availability()
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -2676,7 +2651,7 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if not pure_ok:
@@ -2692,7 +2667,7 @@ def _on_main_menu(
             }
         _refresh_skill_availability()
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -2713,7 +2688,7 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if not pure_ok:
@@ -2730,7 +2705,7 @@ def _on_main_menu(
             }
         _refresh_skill_availability()
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -2757,7 +2732,7 @@ def _on_main_menu(
         def _after_apply():
             _refresh_skill_availability()
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -2800,14 +2775,14 @@ def _on_main_menu(
             if action_id == "redeem_xp":
                 skill_name = str(info.get("skill_name", ""))
                 if skill_name:
-                    level_up_check(skill_name, player_data)
+                    level_up_check(skill_name, _state.player_data)
                 _show_quest_exp_delta(exp_before)
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             if info.get("message"):
                 _show_activity_gain(str(info["message"]))
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -2830,7 +2805,7 @@ def _on_main_menu(
         payload = payload if isinstance(payload, dict) else {}
         exp_before = _implemented_exp_keys_snapshot()
         updated, ok, info = apply_vinesweeper_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload,
         )
@@ -2850,15 +2825,15 @@ def _on_main_menu(
                 "message": "Anki could not create an undo entry.",
             }
         if action_id == "redeem_farming_xp":
-            level_up_check("Farming", player_data)
+            level_up_check("Farming", _state.player_data)
             _show_quest_exp_delta(exp_before)
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
             # commit_direct_action already refreshed Anki's undo menu.
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -2866,7 +2841,7 @@ def _on_main_menu(
     def _apply_dungeoneering_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         updated, ok, info = apply_dungeoneering_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload,
         )
@@ -2880,12 +2855,12 @@ def _on_main_menu(
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -2908,7 +2883,7 @@ def _on_main_menu(
             return updated, accepted
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if not accepted:
@@ -2934,7 +2909,7 @@ def _on_main_menu(
         if result.get("message"):
             _show_activity_gain(str(result["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **result}
@@ -2954,12 +2929,12 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             if info.get("message"):
                 _show_activity_gain(str(info["message"]))
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -2998,7 +2973,7 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if not pure_ok:
@@ -3017,7 +2992,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3025,7 +3000,7 @@ def _on_main_menu(
     def _apply_enchanted_key_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         updated, ok, info = apply_enchanted_key_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload,
         )
@@ -3039,12 +3014,12 @@ def _on_main_menu(
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3052,7 +3027,7 @@ def _on_main_menu(
     def _apply_tears_of_guthix_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         updated, ok, info = apply_tears_of_guthix_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload,
         )
@@ -3066,12 +3041,12 @@ def _on_main_menu(
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3079,7 +3054,7 @@ def _on_main_menu(
     def _apply_skeletal_horror_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         updated, ok, info = apply_skeletal_horror_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload,
             equipment_data=EQUIPMENT_DATA,
@@ -3094,12 +3069,12 @@ def _on_main_menu(
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3107,7 +3082,7 @@ def _on_main_menu(
     def _apply_bork_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         updated, ok, info = apply_bork_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload,
             equipment_data=EQUIPMENT_DATA,
@@ -3122,12 +3097,12 @@ def _on_main_menu(
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3150,12 +3125,12 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             if result["info"].get("message"):
                 _show_activity_gain(str(result["info"]["message"]))
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -3196,10 +3171,10 @@ def _on_main_menu(
             return updated, accepted
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -3232,7 +3207,7 @@ def _on_main_menu(
 
     def _apply_fish_flingers_command(action_id, payload):
         updated, ok, info = apply_fish_flingers_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload if isinstance(payload, dict) else {},
         )
@@ -3246,13 +3221,13 @@ def _on_main_menu(
                 "ok": False,
                 "message": "Anki could not create an undo entry.",
             }
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
             # commit_direct_action already refreshed Anki's undo menu.
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3278,13 +3253,13 @@ def _on_main_menu(
             return updated, accepted
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             if result["info"].get("message"):
                 _show_activity_gain(str(result["info"]["message"]))
             try:
                 # commit_direct_action already refreshed Anki's undo menu.
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -3319,9 +3294,9 @@ def _on_main_menu(
 
         def _after_apply():
             if float(info.get("xp", 0.0) or 0.0) > 0:
-                level_up_check("Runecrafting", player_data)
+                level_up_check("Runecrafting", _state.player_data)
                 _show_quest_exp_delta(exp_before)
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if not pure_ok:
@@ -3339,7 +3314,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3361,12 +3336,12 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             if result["info"].get("message"):
                 _show_activity_gain(str(result["info"]["message"]))
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -3403,7 +3378,7 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if not pure_ok:
@@ -3421,7 +3396,7 @@ def _on_main_menu(
         if info.get("message") and str(action_id) != "set_queue":
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3443,7 +3418,7 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
 
         if not commit_direct_action(_change, after_apply=_after_apply):
@@ -3464,7 +3439,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3485,7 +3460,7 @@ def _on_main_menu(
             return updated, accepted
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             if result.get("message"):
                 _show_activity_gain(str(result["message"]))
 
@@ -3505,7 +3480,7 @@ def _on_main_menu(
             }
         _refresh_skill_availability()
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **result}
@@ -3527,12 +3502,12 @@ def _on_main_menu(
             return updated, accepted
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             if (result["info"] or {}).get("message"):
                 _show_activity_gain(str(result["info"]["message"]))
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -3570,12 +3545,12 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             if result["info"].get("message"):
                 _show_activity_gain(str(result["info"]["message"]))
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -3604,7 +3579,7 @@ def _on_main_menu(
         payload = payload if isinstance(payload, dict) else {}
         exp_before = _implemented_exp_keys_snapshot()
         updated, ok, info = apply_varrock_museum_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload,
         )
@@ -3625,16 +3600,16 @@ def _on_main_menu(
                 skill = get_skill(str(skill_id))
                 level_up_check(
                     skill.display_name if skill is not None else str(skill_id),
-                    player_data,
+                    _state.player_data,
                 )
             _show_quest_exp_delta(exp_before)
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
             # commit_direct_action already refreshed Anki's undo menu.
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3662,15 +3637,15 @@ def _on_main_menu(
                     skill = get_skill(str(skill_id))
                     level_up_check(
                         skill.display_name if skill is not None else str(skill_id),
-                        player_data,
+                        _state.player_data,
                     )
                 _show_quest_exp_delta(exp_before)
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
             if info.get("message"):
                 _show_activity_gain(str(info["message"]))
             try:
-                update_review_hud(player_data, current_skill)
+                update_review_hud(_state.player_data, _state.current_skill)
             except AttributeError:
                 pass
 
@@ -3703,7 +3678,7 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if refused:
@@ -3722,7 +3697,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3754,8 +3729,8 @@ def _on_main_menu(
                     continue
                 exp_key, display_name = skill_rows[skill_id]
                 total_gained += _award_skill_exp(exp_key, float(amount))
-                level_up_check(display_name, player_data)
-            check_achievements(player_data)
+                level_up_check(display_name, _state.player_data)
+            check_achievements(_state.player_data)
             if total_gained > 0:
                 _show_exp(total_gained)
             if info.get("message"):
@@ -3776,7 +3751,7 @@ def _on_main_menu(
             }
         _refresh_skill_availability()
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3810,7 +3785,7 @@ def _on_main_menu(
 
     def _apply_daily_challenges_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        view = daily_challenges_view_pure(player_data)
+        view = daily_challenges_view_pure(_state.player_data)
         # The Quartermaster values a hand-in at the exchange's live guide price,
         # so the coins in the bag track the market rather than a fixed table.
         credited_items = {
@@ -3819,10 +3794,10 @@ def _on_main_menu(
             for item_name in _daily_challenge_credited_items(row["instance_id"])
         }
         updated, ok, info = apply_daily_challenges_command_pure(
-            player_data,
+            _state.player_data,
             str(action_id),
             payload,
-            ge_guide_prices_pure(player_data, credited_items, GE_ITEM_CATALOG),
+            ge_guide_prices_pure(_state.player_data, credited_items, GE_ITEM_CATALOG),
         )
         if not ok:
             return {
@@ -3835,7 +3810,7 @@ def _on_main_menu(
         return {"ok": True, **info}
 
     def _daily_challenge_credited_items(instance_id):
-        for row in player_data.get("daily_challenges", ()) or ():
+        for row in _state.player_data.get("daily_challenges", ()) or ():
             if isinstance(row, dict) and str(row.get("instance_id")) == str(instance_id):
                 credited = row.get("credited")
                 return tuple(credited) if isinstance(credited, dict) else ()
@@ -3857,7 +3832,7 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if not pure_ok:
@@ -3876,7 +3851,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3904,7 +3879,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3936,7 +3911,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -3968,7 +3943,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4005,7 +3980,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4037,7 +4012,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4070,7 +4045,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4099,7 +4074,7 @@ def _on_main_menu(
                 float(rewards[skill.exp_key]),
                 action_skill_id=skill.id,
             )
-            level_up_check(skill.display_name, player_data)
+            level_up_check(skill.display_name, _state.player_data)
             info["awarded_xp"] = awarded_xp
             info["message"] = (
                 f"Read the Troll Invasion reward book · +{awarded_xp:,.0f} "
@@ -4117,7 +4092,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4146,10 +4121,10 @@ def _on_main_menu(
                     float(amount),
                     action_skill_id=skill.id,
                 )
-                level_up_check(skill.display_name, player_data)
+                level_up_check(skill.display_name, _state.player_data)
             if awarded_xp > 0:
                 info["awarded_xp"] = awarded_xp
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if info.get("reason"):
@@ -4161,7 +4136,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4186,7 +4161,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4205,7 +4180,7 @@ def _on_main_menu(
 
         if not commit_direct_action(
             _change,
-            after_apply=lambda: check_achievements(player_data),
+            after_apply=lambda: check_achievements(_state.player_data),
         ):
             if info.get("reason"):
                 return {"ok": False, "message": str(info["reason"]), **info}
@@ -4214,7 +4189,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4240,7 +4215,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4258,7 +4233,7 @@ def _on_main_menu(
             )
             return updated, ok
 
-        if not commit_direct_action(_change, after_apply=lambda: check_achievements(player_data)):
+        if not commit_direct_action(_change, after_apply=lambda: check_achievements(_state.player_data)):
             if info.get("reason"):
                 return {"ok": False, "message": str(info["reason"]), **info}
             return {"ok": False, "message": "Anki could not create an undo entry."}
@@ -4266,7 +4241,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4293,7 +4268,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4319,7 +4294,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4340,13 +4315,13 @@ def _on_main_menu(
 
         def _after_apply():
             record_direct_diary_event_pure(
-                player_data,
+                _state.player_data,
                 True,
                 "managing_miscellania_command",
                 action_id=str(action_id),
                 outputs=dict(info.get("outputs") or {}),
             )
-            check_achievements(player_data)
+            check_achievements(_state.player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
             if refused:
@@ -4363,7 +4338,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4372,7 +4347,7 @@ def _on_main_menu(
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_routine":
             updated, ok, info = set_livid_farm_routine_pure(
-                player_data,
+                _state.player_data,
                 payload.get("routine", "complete"),
             )
             if not ok:
@@ -4392,12 +4367,12 @@ def _on_main_menu(
         before = _capture_player_data_snapshot()
         if action_id == "charge_capacitor":
             updated, ok, info = apply_arcane_capacitor_charge_pure(
-                player_data,
+                _state.player_data,
                 payload.get("spell_id", ""),
             )
         elif action_id == "remove_capacitor_charge":
             updated, ok, info = apply_arcane_capacitor_remove_charge_pure(
-                player_data,
+                _state.player_data,
             )
         else:
             return {"ok": False, "message": "Unknown Livid Farm command."}
@@ -4494,8 +4469,8 @@ def _on_main_menu(
             summon_xp = float(info.get("summon_xp", 0.0) or 0.0)
             if summon_xp > 0:
                 _award_skill_exp("summoning_exp", summon_xp)
-                level_up_check("Summoning", player_data)
-            check_achievements(player_data)
+                level_up_check("Summoning", _state.player_data)
+            check_achievements(_state.player_data)
             _refresh_skill_availability()
 
         committed = commit_direct_action(_change, after_apply=_after_apply)
@@ -4505,7 +4480,7 @@ def _on_main_menu(
         if not committed:
             return {"ok": False, "message": "Anki could not create an undo entry."}
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4524,7 +4499,7 @@ def _on_main_menu(
                 "",
             )
             quest_reasons = quest_unlock_locked_reasons_pure(
-                player_data,
+                _state.player_data,
                 "runecrafting",
                 target_id,
                 QUEST_UNLOCK_RULES,
@@ -4550,7 +4525,7 @@ def _on_main_menu(
             return updated, ok
 
         if not commit_direct_action(
-            _change, after_apply=lambda: check_achievements(player_data)
+            _change, after_apply=lambda: check_achievements(_state.player_data)
         ):
             if not pure_ok:
                 return {
@@ -4564,7 +4539,7 @@ def _on_main_menu(
         if info.get("message"):
             _show_activity_gain(str(info["message"]))
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4572,13 +4547,13 @@ def _on_main_menu(
     def _apply_slayer_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_combat_filter":
-            player_data["slayer_combat_filter"] = bool(
+            _state.player_data["slayer_combat_filter"] = bool(
                 payload.get("enabled", False)
             )
             save_player_data()
             return {
                 "ok": True,
-                "combat_filter": player_data["slayer_combat_filter"],
+                "combat_filter": _state.player_data["slayer_combat_filter"],
             }
         if action_id != "get_assignment":
             return {"ok": False, "message": "Unknown Slayer command."}
@@ -4597,7 +4572,7 @@ def _on_main_menu(
             return updated, ok
 
         committed = commit_direct_action(
-            _change, after_apply=lambda: check_achievements(player_data)
+            _change, after_apply=lambda: check_achievements(_state.player_data)
         )
         if not pure_ok:
             return {
@@ -4610,7 +4585,7 @@ def _on_main_menu(
             return {"ok": False, "message": "Anki could not create an undo entry."}
         _refresh_skill_availability()
         try:
-            update_review_hud(player_data, current_skill)
+            update_review_hud(_state.player_data, _state.current_skill)
         except AttributeError:
             pass
         return {"ok": True, **info}
@@ -4622,7 +4597,7 @@ def _on_main_menu(
         def _change(current):
             updated = current
             if (
-                current_skill == "Agility"
+                _state.current_skill == "Agility"
                 and current.get("current_agility") == "brimhaven_arena"
                 and (current.get("agility_activity_state") or {}).get("brimhaven")
             ):
@@ -4645,8 +4620,8 @@ def _on_main_menu(
         )
 
     ui.show_main_menu(
-        player_data,
-        current_skill,
+        _state.player_data,
+        _state.current_skill,
         on_save_skill=lambda skill: save_skill(skill, None),
         on_set_ore=lambda ore: _set_value("current_ore", ore),
         on_set_tree=lambda tree: _set_value("current_tree", tree),
@@ -4757,7 +4732,7 @@ def _on_main_menu(
         carried_stackable_names=runtime_actions._OVERLAY_STACKABLE_NAMES,
         get_carried_auto_summary=_current_carried_auto_summary,
         get_carried_bank_run_summary=_current_carried_bank_run_summary,
-        carried_auto_is_combat=review_action_handler_key(current_skill) == "combat",
+        carried_auto_is_combat=review_action_handler_key(_state.current_skill) == "combat",
         on_set_combat=_set_combat_target,
         on_set_combat_action=lambda action: _set_combat_method_values(
             {"combat_action": action}
@@ -4823,7 +4798,7 @@ def _set_legacy_bar_target(bar_name: str):
 
 
 def _set_combat_method_values(values):
-    if all(player_data.get(key) == value for key, value in values.items()):
+    if all(_state.player_data.get(key) == value for key, value in values.items()):
         return True
     refusal_reason = [""]
 
@@ -4835,7 +4810,7 @@ def _set_combat_method_values(values):
         return updated, ok
 
     def _after_apply():
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
         _refresh_skill_availability()
 
     if not commit_direct_action(_change, after_apply=_after_apply):
@@ -4844,7 +4819,7 @@ def _set_combat_method_values(values):
         return False
     _refresh_open_carried_inventory()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
@@ -4866,7 +4841,7 @@ def _set_combat_target(target):
     }
     if target not in {"cyclops", "cyclossus"}:
         guild_state = sanitize_warriors_guild_state_pure(
-            player_data.get("warriors_guild")
+            _state.player_data.get("warriors_guild")
         )
         if guild_state["in_cyclops_room"]:
             guild_state["in_cyclops_room"] = False
@@ -4877,7 +4852,7 @@ def _set_combat_target(target):
 
 
 def _set_values(values):
-    if all(player_data.get(key) == value for key, value in values.items()):
+    if all(_state.player_data.get(key) == value for key, value in values.items()):
         return True
 
     def _change(current):
@@ -4893,7 +4868,7 @@ def _set_values(values):
     # so switching e.g. "Gather flax" -> "Make soft clay" must update the study
     # screen right away rather than waiting for the next card.
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
@@ -4905,37 +4880,37 @@ def _set_value(key: str, value):
 
 def _set_combat_prayer_config(key: str, value):
     if key == "combat_dream_thrift" and bool(value):
-        reasons = combat_dream_thrift_locked_reasons_pure(player_data)
+        reasons = combat_dream_thrift_locked_reasons_pure(_state.player_data)
         if reasons:
             show_error_message("Dream unavailable", f"Dream requires {reasons[0]}.")
             return False
     if key == "apply_preset":
-        new_data, ok = apply_combat_preset_pure(player_data, str(value), player_data.get("current_combat_target"))
+        new_data, ok = apply_combat_preset_pure(_state.player_data, str(value), _state.player_data.get("current_combat_target"))
         if ok:
             _save_combat_state_update(new_data)
         return ok
     if key == "save_preset":
-        new_data, ok = save_combat_preset_pure(player_data, str(value))
+        new_data, ok = save_combat_preset_pure(_state.player_data, str(value))
         if ok:
             _save_combat_state_update(new_data)
         return ok
     if key == "pin_target_preset":
-        target_id = str(player_data.get("current_combat_target", ""))
-        pins = dict(player_data.get("combat_target_presets", {}) or {})
+        target_id = str(_state.player_data.get("current_combat_target", ""))
+        pins = dict(_state.player_data.get("combat_target_presets", {}) or {})
         if bool(value):
-            pins[target_id] = str(player_data.get("combat_active_preset", "Default"))
+            pins[target_id] = str(_state.player_data.get("combat_active_preset", "Default"))
         else:
             pins.pop(target_id, None)
-        player_data["combat_target_presets"] = pins
+        _state.player_data["combat_target_presets"] = pins
         save_player_data()
         return True
     if key == "target_override":
         field, enabled = value
-        target_id = str(player_data.get("current_combat_target", ""))
-        overrides = dict(player_data.get("combat_target_overrides", {}) or {})
+        target_id = str(_state.player_data.get("current_combat_target", ""))
+        overrides = dict(_state.player_data.get("combat_target_overrides", {}) or {})
         target_overrides = dict(overrides.get(target_id, {}) or {})
         if enabled:
-            current = player_data.get(str(field))
+            current = _state.player_data.get(str(field))
             target_overrides[str(field)] = list(current) if isinstance(current, list) else current
         else:
             target_overrides.pop(str(field), None)
@@ -4943,45 +4918,45 @@ def _set_combat_prayer_config(key: str, value):
             overrides[target_id] = target_overrides
         else:
             overrides.pop(target_id, None)
-        player_data["combat_target_overrides"] = overrides
+        _state.player_data["combat_target_overrides"] = overrides
         save_player_data()
         return True
-    player_data[key] = value
+    _state.player_data[key] = value
     if key == "combat_prayer_book" and value == "curses":
-        temple = ((player_data.get("quests", {}) or {}).get("the_temple_at_senntisten") or {})
+        temple = ((_state.player_data.get("quests", {}) or {}).get("the_temple_at_senntisten") or {})
         if not temple.get("completed"):
-            player_data[key] = "standard"
-    player_data["combat_selected_prayers"] = list(
-        sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()))
+            _state.player_data[key] = "standard"
+    _state.player_data["combat_selected_prayers"] = list(
+        sanitize_prayer_selection_pure(_state.player_data, _state.player_data.get("combat_selected_prayers", ()))
     )
-    target_id = str(player_data.get("current_combat_target", ""))
-    overrides = player_data.get("combat_target_overrides", {}) or {}
+    target_id = str(_state.player_data.get("current_combat_target", ""))
+    overrides = _state.player_data.get("combat_target_overrides", {}) or {}
     if isinstance(overrides.get(target_id), dict) and key in overrides[target_id]:
-        overrides[target_id][key] = list(player_data[key]) if isinstance(player_data[key], list) else player_data[key]
+        overrides[target_id][key] = list(_state.player_data[key]) if isinstance(_state.player_data[key], list) else _state.player_data[key]
     save_player_data()
     return True
 
 
 def _save_combat_state_update(new_data, *, evaluate_achievements=False):
-    player_data.update(new_data)
+    _state.player_data.update(new_data)
     if evaluate_achievements:
-        check_achievements(player_data)
+        check_achievements(_state.player_data)
     save_player_data()
     _refresh_skill_availability()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
 
 
 def on_set_combat_auto_eat_threshold(threshold_percent):
-    _save_combat_state_update(set_combat_auto_eat_threshold_pure(player_data, threshold_percent))
+    _save_combat_state_update(set_combat_auto_eat_threshold_pure(_state.player_data, threshold_percent))
     return True
 
 
 def on_set_combat_pack_mode(mode):
     new_data, ok, reason = set_combat_pack_mode_pure(
-        player_data, mode, EQUIPMENT_DATA
+        _state.player_data, mode, EQUIPMENT_DATA
     )
     if not ok:
         show_error_message("Cannot change combat supplies", reason)
@@ -4991,7 +4966,7 @@ def on_set_combat_pack_mode(mode):
 
 
 def on_set_combat_auto_eat_food(food_name):
-    new_data, ok, reason = set_combat_auto_eat_food_pure(player_data, food_name)
+    new_data, ok, reason = set_combat_auto_eat_food_pure(_state.player_data, food_name)
     if not ok:
         show_error_message("Cannot configure food", reason or "Choose a supported combat food.")
         return False
@@ -5000,8 +4975,8 @@ def on_set_combat_auto_eat_food(food_name):
 
 
 def _request_active_bank_run_state(data):
-    handler_key = review_action_handler_key(current_skill)
-    skill = get_skill(current_skill)
+    handler_key = review_action_handler_key(_state.current_skill)
+    skill = get_skill(_state.current_skill)
     completes_immediately = False
     if handler_key == "combat" or (skill is not None and skill.id == "slayer"):
         new_data, ok, reason = request_combat_bank_run_now_pure(data)
@@ -5023,12 +4998,12 @@ def _request_active_bank_run_state(data):
 
 def _trigger_active_bank_run() -> bool:
     new_data, ok, _reason, completes_immediately = _request_active_bank_run_state(
-        player_data
+        _state.player_data
     )
     if not ok:
         return False
-    player_data.clear()
-    player_data.update(new_data)
+    _state.player_data.clear()
+    _state.player_data.update(new_data)
     if completes_immediately:
         _show_activity_gain("Bank run — arrived and ready")
         _refresh_open_carried_inventory()
@@ -5038,7 +5013,7 @@ def _trigger_active_bank_run() -> bool:
 def on_do_bank_run_now():
     """Run or request the active skill/activity's bank visit."""
     new_data, ok, reason, completes_immediately = _request_active_bank_run_state(
-        player_data
+        _state.player_data
     )
     if not ok:
         show_error_message("Cannot make a bank run", reason)
@@ -5051,7 +5026,7 @@ def on_do_bank_run_now():
 
 
 def on_refill_combat_loadout():
-    new_data, ok, reason = refill_combat_supply_loadout_pure(player_data, EQUIPMENT_DATA)
+    new_data, ok, reason = refill_combat_supply_loadout_pure(_state.player_data, EQUIPMENT_DATA)
     if not ok:
         show_error_message("Cannot refill combat supplies", reason)
         return False
@@ -5060,7 +5035,7 @@ def on_refill_combat_loadout():
 
 
 def on_unload_combat_loadout():
-    new_data, ok, reason = unload_combat_supply_loadout_pure(player_data)
+    new_data, ok, reason = unload_combat_supply_loadout_pure(_state.player_data)
     if not ok:
         show_error_message("Cannot unload combat supplies", reason)
         return False
@@ -5069,7 +5044,7 @@ def on_unload_combat_loadout():
 
 
 def on_reclaim_death_office():
-    new_data, ok, reason = reclaim_death_office_items_pure(player_data)
+    new_data, ok, reason = reclaim_death_office_items_pure(_state.player_data)
     if not ok:
         show_error_message("Cannot reclaim gear", reason)
         return False
@@ -5081,37 +5056,37 @@ def on_set_quest(quest_id):
     if quest_id not in QUEST_DATA:
         show_error_message("Unknown quest", "Choose a valid quest before reviewing.")
         return False
-    new_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+    new_data, ok = start_quest_pure(_state.player_data, quest_id, QUEST_DATA)
     if not ok:
         show_error_message("Cannot start quest", "You do not meet this quest's requirements.")
         return False
-    player_data.update(new_data)
+    _state.player_data.update(new_data)
     save_player_data()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
 
 
 def on_set_quest_route_choice(quest_id, route_id):
-    new_data, ok = apply_quest_route_choice_pure(player_data, quest_id, QUEST_DATA, route_id)
+    new_data, ok = apply_quest_route_choice_pure(_state.player_data, quest_id, QUEST_DATA, route_id)
     if not ok:
         show_error_message("Cannot choose quest path", "That path is not available right now.")
         return False
-    player_data.update(new_data)
+    _state.player_data.update(new_data)
     save_player_data()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
 
 
 def on_claim_reward(claim_id, selected_skill_id=None):
-    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    before = {"player_data": copy.deepcopy(_state.player_data), "random_state": random.getstate()}
     exp_before = _implemented_exp_keys_snapshot()
-    new_data, ok = apply_claim_pure(player_data, claim_id, CLAIM_DATA, selected_skill_id)
+    new_data, ok = apply_claim_pure(_state.player_data, claim_id, CLAIM_DATA, selected_skill_id)
     if not ok:
         show_error_message("Cannot claim reward", "That claim is not available right now.")
         return False
@@ -5119,13 +5094,13 @@ def on_claim_reward(claim_id, selected_skill_id=None):
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
         return False
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data.clear()
-    player_data.update(new_data)
+    _state.direct_action_undo_stack.append(before)
+    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    _state.player_data.clear()
+    _state.player_data.update(new_data)
     _show_quest_exp_delta(exp_before)
-    check_achievements(player_data)
+    check_achievements(_state.player_data)
     save_player_data()
     _refresh_skill_availability()
     try:
@@ -5133,7 +5108,7 @@ def on_claim_reward(claim_id, selected_skill_id=None):
     except AttributeError:
         pass
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
@@ -5142,26 +5117,26 @@ def on_claim_reward(claim_id, selected_skill_id=None):
 def _claim_stronghold_reward() -> bool:
     """Open the boot-choice dialog and grant the Stronghold reward. Safe to call
     from the hub card or, deferred, when the run completes mid-review."""
-    state = player_data.get("stronghold_of_security") or {}
+    state = _state.player_data.get("stronghold_of_security") or {}
     if not state.get("completed") or state.get("boots_choice") is not None:
         return False
     choice = ui.show_stronghold_reward_dialog()
     if not choice:
         return False
-    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
-    updated = copy.deepcopy(player_data)
+    before = {"player_data": copy.deepcopy(_state.player_data), "random_state": random.getstate()}
+    updated = copy.deepcopy(_state.player_data)
     if not grant_stronghold_reward_pure(updated, choice):
         return False
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
         return False
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data.clear()
-    player_data.update(updated)
-    check_achievements(player_data)
+    _state.direct_action_undo_stack.append(before)
+    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    _state.player_data.clear()
+    _state.player_data.update(updated)
+    check_achievements(_state.player_data)
     save_player_data()
     _refresh_skill_availability()
     _show_activity_gain(f"Claimed {choice} and {STRONGHOLD_REWARD_COINS:,} coins from the Stronghold of Security!")
@@ -5170,7 +5145,7 @@ def _claim_stronghold_reward() -> bool:
     except AttributeError:
         pass
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
@@ -5206,19 +5181,19 @@ def _prompt_near_death(source: str) -> None:
         # not resume standing in front of the thing that nearly killed you.
         # Training is already off either way; declining just keeps the fight
         # pending.
-        player_data["combat_encounter"] = {}
-        player_data.update(
-            repair_combat_supply_loadout_class_pure(player_data, EQUIPMENT_DATA)
+        _state.player_data["combat_encounter"] = {}
+        _state.player_data.update(
+            repair_combat_supply_loadout_class_pure(_state.player_data, EQUIPMENT_DATA)
         )
         _save_player_data_if_anki_ready()
         _refresh_skill_availability()
 
-    _PENDING_REVIEW_DIALOGS.append(_ask)
+    _state.pending_review_dialogs.append(_ask)
 
 
 def _prompt_stronghold_reward() -> None:
     """Queue the boot choice behind the Bankstanding transition notice."""
-    _PENDING_REVIEW_DIALOGS.append(_claim_stronghold_reward)
+    _state.pending_review_dialogs.append(_claim_stronghold_reward)
 
 
 def initialize_menu():
@@ -5249,8 +5224,8 @@ def on_mining_answer():
 def on_attach_tool(item_name):
     new_inventory, new_toolbelt, attached = attach_tool_to_toolbelt_pure(
         item_name,
-        player_data.get("inventory", {}) or {},
-        player_data.get("toolbelt", {}) or {},
+        _state.player_data.get("inventory", {}) or {},
+        _state.player_data.get("toolbelt", {}) or {},
         MINING_PICKAXE_DATA,
         WOODCUTTING_AXE_DATA,
     )
@@ -5260,14 +5235,14 @@ def on_attach_tool(item_name):
             f"You need an unattached {item_name} in your Bank.",
         )
         return False
-    player_data["inventory"] = new_inventory
-    player_data["toolbelt"] = new_toolbelt
+    _state.player_data["inventory"] = new_inventory
+    _state.player_data["toolbelt"] = new_toolbelt
     save_player_data()
     return True
 
 
 def on_equip_item(item_name):
-    ok, reason = can_equip_item_pure(item_name, EQUIPMENT_DATA, player_data)
+    ok, reason = can_equip_item_pure(item_name, EQUIPMENT_DATA, _state.player_data)
     if not ok:
         show_error_message("Cannot equip item", reason)
         return False
@@ -5300,16 +5275,16 @@ def on_equip_item(item_name):
     if item_name in FAMILY_GAUNTLET_ITEMS:
         equipped = commit_direct_action(_apply)
     else:
-        updated, equipped = _apply(player_data)
+        updated, equipped = _apply(_state.player_data)
         if equipped:
-            weapon_changed = (player_data.get("equipment", {}) or {}).get(
+            weapon_changed = (_state.player_data.get("equipment", {}) or {}).get(
                 "weapon"
             ) != (updated.get("equipment", {}) or {}).get("weapon")
             if weapon_changed:
                 _save_combat_state_update(updated, evaluate_achievements=True)
             else:
-                player_data.clear()
-                player_data.update(updated)
+                _state.player_data.clear()
+                _state.player_data.update(updated)
                 save_player_data()
     if not equipped:
         show_error_message(
@@ -5320,7 +5295,7 @@ def on_equip_item(item_name):
 
 
 def on_unequip_slot(slot):
-    item_name = (player_data.get("equipment", {}) or {}).get(slot)
+    item_name = (_state.player_data.get("equipment", {}) or {}).get(slot)
     failure_reason = [""]
 
     def _apply(current):
@@ -5349,16 +5324,16 @@ def on_unequip_slot(slot):
     if item_name in FAMILY_GAUNTLET_ITEMS:
         unequipped = commit_direct_action(_apply)
     else:
-        updated, unequipped = _apply(player_data)
+        updated, unequipped = _apply(_state.player_data)
         if unequipped:
-            weapon_changed = (player_data.get("equipment", {}) or {}).get(
+            weapon_changed = (_state.player_data.get("equipment", {}) or {}).get(
                 "weapon"
             ) != (updated.get("equipment", {}) or {}).get("weapon")
             if weapon_changed:
                 _save_combat_state_update(updated, evaluate_achievements=True)
             else:
-                player_data.clear()
-                player_data.update(updated)
+                _state.player_data.clear()
+                _state.player_data.update(updated)
                 save_player_data()
     if not unequipped:
         show_error_message(
@@ -5372,36 +5347,36 @@ def on_discard_item(item_name, quantity):
     """Discard an exact Bank quantity as one separately undoable direct action."""
     if is_condition_item_pure(item_name, EQUIPMENT_CONDITION_DATA):
         updated = remove_bank_equipment_instances_pure(
-            player_data, item_name, quantity, EQUIPMENT_CONDITION_DATA
+            _state.player_data, item_name, quantity, EQUIPMENT_CONDITION_DATA
         )
-        before_count = int((player_data.get("inventory", {}) or {}).get(item_name, 0) or 0)
+        before_count = int((_state.player_data.get("inventory", {}) or {}).get(item_name, 0) or 0)
         after_count = int((updated.get("inventory", {}) or {}).get(item_name, 0) or 0)
         inventory, ok = updated.get("inventory", {}), after_count == before_count - int(quantity)
     else:
         updated = None
         inventory, ok = inventory_pure.discard_inventory_quantity_pure(
-            player_data.get("inventory", {}) or {},
+            _state.player_data.get("inventory", {}) or {},
             item_name,
             quantity,
         )
     if not ok:
         return False
-    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    before = {"player_data": copy.deepcopy(_state.player_data), "random_state": random.getstate()}
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
         return False
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    _state.direct_action_undo_stack.append(before)
+    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     if updated is not None:
-        player_data.update(updated)
+        _state.player_data.update(updated)
     else:
-        player_data["inventory"] = inventory
+        _state.player_data["inventory"] = inventory
     save_player_data()
     _refresh_skill_availability()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     try:
@@ -5413,8 +5388,8 @@ def on_discard_item(item_name, quantity):
 
 def on_consume_item(item_name):
     """Apply one Bank consumable atomically and make the direct action undoable."""
-    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
-    new_data, result = apply_consumable_pure(player_data, item_name, rng=random.random)
+    before = {"player_data": copy.deepcopy(_state.player_data), "random_state": random.getstate()}
+    new_data, result = apply_consumable_pure(_state.player_data, item_name, rng=random.random)
     if not result.get("allowed"):
         random.setstate(before["random_state"])
         return None
@@ -5423,15 +5398,15 @@ def on_consume_item(item_name):
     except (AttributeError, RuntimeError):
         random.setstate(before["random_state"])
         return None
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data.clear()
-    player_data.update(new_data)
+    _state.direct_action_undo_stack.append(before)
+    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    _state.player_data.clear()
+    _state.player_data.update(new_data)
     save_player_data()
     _refresh_skill_availability()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     try:
@@ -5506,7 +5481,7 @@ def on_open_item_pack(item_name, open_all=False):
         return None
     _refresh_skill_availability()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except AttributeError:
         pass
     return result
@@ -5530,7 +5505,7 @@ def on_open_impling_jar(item_name):
         return None
     _refresh_skill_availability()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except AttributeError:
         pass
     return result
@@ -5539,25 +5514,25 @@ def on_open_impling_jar(item_name):
 def on_convert_rogue_kit(output_item):
     """Convert one Rogue kit into its chosen tool as an undoable Bank action."""
     before = {
-        "player_data": copy.deepcopy(player_data),
+        "player_data": copy.deepcopy(_state.player_data),
         "random_state": random.getstate(),
     }
-    updated, ok, info = convert_rogue_kit_pure(player_data, str(output_item))
+    updated, ok, info = convert_rogue_kit_pure(_state.player_data, str(output_item))
     if not ok:
         return None
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
         return None
-    _DIRECT_ACTION_UNDO_STACK.append(before)
-    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data.clear()
-    player_data.update(updated)
+    _state.direct_action_undo_stack.append(before)
+    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    _state.player_data.clear()
+    _state.player_data.update(updated)
     save_player_data()
     _refresh_skill_availability()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
         mw.update_undo_actions()
     except AttributeError:
         pass
@@ -5565,7 +5540,7 @@ def on_convert_rogue_kit(output_item):
 
 
 def _can_start_current_action() -> bool:
-    handler_key = review_action_handler_key(current_skill)
+    handler_key = review_action_handler_key(_state.current_skill)
     return runtime_actions.can_start_action(_runtime_action_context(), handler_key)
 
 
@@ -5585,17 +5560,17 @@ _COMBAT_RECOVERY_STATE_KEYS = (
 
 
 def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> None:
-    if not any(key in player_data for key in _COMBAT_RECOVERY_STATE_KEYS):
+    if not any(key in _state.player_data for key in _COMBAT_RECOVERY_STATE_KEYS):
         return
-    before_state = copy.deepcopy(player_data)
-    recovered = apply_safe_combat_recovery_pure(player_data, EQUIPMENT_DATA)
+    before_state = copy.deepcopy(_state.player_data)
+    recovered = apply_safe_combat_recovery_pure(_state.player_data, EQUIPMENT_DATA)
     if recovered == before_state:
         return
-    player_data.update(recovered)
+    _state.player_data.update(recovered)
     save_callback()
     _refresh_skill_availability()
     try:
-        update_review_hud(player_data, current_skill)
+        update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
 
@@ -5610,42 +5585,41 @@ def _advance_world_events_after_review() -> None:
     the reviewer D&D badge and the Activities "Live world events" strip.
     """
 
-    spawn_due = evil_tree_spawn_due_pure(player_data)
+    spawn_due = evil_tree_spawn_due_pure(_state.player_data)
     updated, _events = advance_evil_tree_world_clock_pure(
-        player_data,
+        _state.player_data,
         tier_roll=random.random() if spawn_due else 0.0,
         location_roll=random.random() if spawn_due else 0.0,
     )
-    player_data.update(updated)
+    _state.player_data.update(updated)
 
     big_updated, _big_events = advance_big_chinchompa_world_clock_pure(
-        player_data
+        _state.player_data
     )
-    player_data.update(big_updated)
+    _state.player_data.update(big_updated)
 
     star_updated, _star_events = advance_shooting_star_world_clock_pure(
-        player_data
+        _state.player_data
     )
-    player_data.update(star_updated)
+    _state.player_data.update(star_updated)
 
-    goblin_due = goblin_raids_spawn_due_pure(player_data)
+    goblin_due = goblin_raids_spawn_due_pure(_state.player_data)
     goblin_updated, _goblin_events = advance_goblin_raids_world_clock_pure(
-        player_data,
+        _state.player_data,
         site_roll=random.random() if goblin_due else 0.0,
     )
-    player_data.update(goblin_updated)
+    _state.player_data.update(goblin_updated)
 
 
 def on_good_answer(before_state=None, *, defer_commit=False):
-    global current_skill, exp_awarded
-    if exp_awarded:
+    if _state.exp_awarded:
         return
-    handler = _registered_answer_handler(current_skill)
-    has_farm_step = bool(player_data.get("farm_queue"))
+    handler = _registered_answer_handler(_state.current_skill)
+    has_farm_step = bool(_state.player_data.get("farm_queue"))
     if handler or has_farm_step:
         if before_state is None:
             before_state = _capture_player_data_snapshot()
-        handler_key = review_action_handler_key(current_skill)
+        handler_key = review_action_handler_key(_state.current_skill)
         review_progressed = False
         review_ctx = _runtime_action_context()
         review_ctx.save_player_data = lambda: None
@@ -5663,18 +5637,18 @@ def on_good_answer(before_state=None, *, defer_commit=False):
                     if handler_key in {"thieving", "agility", "dungeoneering"}
                     or (
                         handler_key == "utility"
-                        and player_data.get("current_utility")
+                        and _state.player_data.get("current_utility")
                         in SINGLE_TICK_UTILITY_IDS
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())
                     else _review_action_multiplier()
                 )
-                reviewed_skill = current_skill
+                reviewed_skill = _state.current_skill
                 for tick_index in range(action_ticks):
                     if tick_index > 0 and not _can_start_current_action():
                         break
                     before_tick_session = dict(
-                        player_data.get("activity_session") or {}
+                        _state.player_data.get("activity_session") or {}
                     )
                     result = runtime_actions.run_answer_with_carried_overlay(
                         review_ctx, handler_key, handler
@@ -5683,7 +5657,7 @@ def on_good_answer(before_state=None, *, defer_commit=False):
                         review_progressed = True
                     if (
                         result is False
-                        or current_skill != reviewed_skill
+                        or _state.current_skill != reviewed_skill
                         or _activity_session_cleared(before_tick_session)
                     ):
                         break
@@ -5698,79 +5672,78 @@ def on_good_answer(before_state=None, *, defer_commit=False):
                 _save_player_data_if_anki_ready()
                 _remember_review_award_snapshot(before_state)
 
-    exp_awarded = True
+    _state.exp_awarded = True
 
 
 ## Removed roll_gem wrapper; mining uses apply_mining_pure directly.
 
 
 def _active_review_carried_target():
-    handler_key = review_action_handler_key(current_skill)
+    handler_key = review_action_handler_key(_state.current_skill)
     if handler_key == "combat":
-        target_id = player_data.get("current_combat_target")
+        target_id = _state.player_data.get("current_combat_target")
     elif (
         handler_key == "utility"
-        and player_data.get("current_utility")
+        and _state.player_data.get("current_utility")
         in {
             runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
             runtime_actions.GNOME_BALL_ACTIVITY_ID,
         }
     ):
-        target_id = player_data.get("current_utility")
+        target_id = _state.player_data.get("current_utility")
     else:
         target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
-        target_id = player_data.get(target_key) if target_key else None
+        target_id = _state.player_data.get(target_key) if target_key else None
     return str(target_id) if target_id else None
 
 
 def on_answer_card(self, ease, _old):
-    global card_turned, exp_awarded, answer_shown, _REVIEW_FEEDBACK_INITIAL_XP
-    review_answered = card_turned and answer_shown
+    review_answered = _state.card_turned and _state.answer_shown
     successful_answer = ease > 1
-    before_session = player_data.get("activity_session")
+    before_session = _state.player_data.get("activity_session")
     before_state = (
         _capture_player_data_snapshot(review_answer=True) if review_answered else None
     )
     context_xp = (
         _resolve_ignored_review_context_for_answer() if review_answered else 0.0
     )
-    had_farm_step = bool(player_data.get("farm_queue"))
+    had_farm_step = bool(_state.player_data.get("farm_queue"))
     farm_preempted = False
     if review_answered:
         runtime_actions.advance_shared_review_state_for_review(
             _runtime_action_context()
         )
-        player_data.update(
+        _state.player_data.update(
             advance_livid_farm_wish_effects_pure(
-                player_data,
+                _state.player_data,
                 1,
             )
         )
         try:
-            player_data.update(advance_shop_market_clock_pure(player_data))
-            player_data.update(advance_wicked_hood_review_day_pure(player_data))
+            _state.player_data.update(advance_shop_market_clock_pure(_state.player_data))
+            _state.player_data.update(advance_wicked_hood_review_day_pure(_state.player_data))
         except Exception:
             pass
         try:
             challenge_updated, _challenge_events = (
-                advance_daily_challenges_day_pure(player_data, random.random)
+                advance_daily_challenges_day_pure(_state.player_data, random.random)
             )
-            player_data.update(challenge_updated)
+            _state.player_data.update(challenge_updated)
         except Exception:
             pass
         try:
             miscellania_updated, _miscellania_events = (
-                advance_managing_miscellania_world_clock_pure(player_data)
+                advance_managing_miscellania_world_clock_pure(_state.player_data)
             )
-            player_data.update(miscellania_updated)
+            _state.player_data.update(miscellania_updated)
         except Exception:
             pass
         try:
             ge_updated, ge_events = advance_ge_market_tick_pure(
-                player_data,
+                _state.player_data,
                 item_catalog=GE_ITEM_CATALOG,
             )
-            player_data.update(ge_updated)
+            _state.player_data.update(ge_updated)
             if ge_events.get("fills"):
                 _trigger_active_bank_run()
         except Exception:
@@ -5778,33 +5751,33 @@ def on_answer_card(self, ease, _old):
         try:
             summoning_updated, _summoning_events = (
                 advance_summoning_world_tick_pure(
-                    player_data,
+                    _state.player_data,
                     successful_answer=successful_answer,
                     active_carried_target=_active_review_carried_target(),
                 )
             )
-            player_data.update(summoning_updated)
+            _state.player_data.update(summoning_updated)
         except Exception:
             pass
         live_combat = (
             _cadence_kernel_enabled()
-            and review_action_handler_key(current_skill) == "combat"
+            and review_action_handler_key(_state.current_skill) == "combat"
         )
         if successful_answer and not live_combat:
-            player_data.update(
+            _state.player_data.update(
                 advance_temporary_effects_pure(
-                    player_data,
+                    _state.player_data,
                     _review_action_multiplier(),
                 )
             )
         elif (
             not successful_answer
             and _cadence_kernel_enabled()
-            and review_action_handler_key(current_skill) == "combat"
+            and review_action_handler_key(_state.current_skill) == "combat"
         ):
-            encounter = player_data.get("combat_encounter", {}) or {}
+            encounter = _state.player_data.get("combat_encounter", {}) or {}
             if isinstance(encounter, dict) and encounter.get("target_id"):
-                player_data["combat_encounter"] = {
+                _state.player_data["combat_encounter"] = {
                     **encounter,
                     "disengaged": True,
                 }
@@ -5818,29 +5791,29 @@ def on_answer_card(self, ease, _old):
                 _finish_review_feedback_context()
         else:
             runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
-    if successful_answer and review_answered and not exp_awarded and farm_preempted:
+    if successful_answer and review_answered and not _state.exp_awarded and farm_preempted:
         if context_xp > 0:
             _show_exp(context_xp)
             context_xp = 0.0
         _advance_world_events_after_review()
-        exp_awarded = True
-    elif successful_answer and review_answered and not exp_awarded and is_review_action(current_skill):
-        _REVIEW_FEEDBACK_INITIAL_XP = context_xp
+        _state.exp_awarded = True
+    elif successful_answer and review_answered and not _state.exp_awarded and is_review_action(_state.current_skill):
+        _state.review_feedback_initial_xp = context_xp
         context_xp = 0.0
         on_good_answer(before_state, defer_commit=True)
-        exp_awarded = True
+        _state.exp_awarded = True
     elif review_answered and before_state is not None:
-        activity_state = player_data.get("agility_activity_state") or {}
+        activity_state = _state.player_data.get("agility_activity_state") or {}
         if (
             (
                 (
-                    review_action_handler_key(current_skill) == "utility"
-                    and player_data.get("current_utility")
+                    review_action_handler_key(_state.current_skill) == "utility"
+                    and _state.player_data.get("current_utility")
                     == runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID
                 )
                 or (
-                    review_action_handler_key(current_skill) == "agility"
-                    and player_data.get("current_agility")
+                    review_action_handler_key(_state.current_skill) == "agility"
+                    and _state.player_data.get("current_agility")
                     == runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID
                 )
             )
@@ -5854,150 +5827,150 @@ def on_answer_card(self, ease, _old):
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.TROUBLE_BREWING_ACTIVITY_ID
-            and runtime_actions.trouble_brewing_view_pure(player_data).get("active")
+            and runtime_actions.trouble_brewing_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_trouble_brewing_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.CASTLE_WARS_ACTIVITY_ID
-            and runtime_actions.castle_wars_view_pure(player_data).get("active")
+            and runtime_actions.castle_wars_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_castle_wars_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.PEST_CONTROL_ACTIVITY_ID
-            and runtime_actions.pest_control_view_pure(player_data).get("active")
+            and runtime_actions.pest_control_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_pest_control_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.BARBARIAN_ASSAULT_ACTIVITY_ID
-            and runtime_actions.barbarian_assault_view_pure(player_data).get("active")
+            and runtime_actions.barbarian_assault_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_barbarian_assault_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.SOUL_WARS_ACTIVITY_ID
-            and runtime_actions.soul_wars_view_pure(player_data).get("active")
+            and runtime_actions.soul_wars_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_soul_wars_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.SHADES_OF_MORTTON_ACTIVITY_ID
-            and runtime_actions.shades_of_mortton_view_pure(player_data).get("active")
+            and runtime_actions.shades_of_mortton_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_shades_of_mortton_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.CLAN_WARS_ACTIVITY_ID
-            and runtime_actions.clan_wars_view_pure(player_data).get("active")
+            and runtime_actions.clan_wars_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_clan_wars_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.TROLL_INVASION_ACTIVITY_ID
-            and bool(player_data.get("troll_invasion"))
+            and bool(_state.player_data.get("troll_invasion"))
         ):
             runtime_actions.handle_troll_invasion_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.MAGE_TRAINING_ARENA_ACTIVITY_ID
-            and runtime_actions.mage_training_arena_view_pure(player_data).get("active")
+            and runtime_actions.mage_training_arena_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_mage_training_arena_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.RANGING_GUILD_ACTIVITY_ID
-            and runtime_actions.ranging_guild_view_pure(player_data).get("active")
+            and runtime_actions.ranging_guild_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_ranging_guild_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.MOBILISING_ARMIES_ACTIVITY_ID
-            and runtime_actions.mobilising_armies_can_review_pure(player_data)
+            and runtime_actions.mobilising_armies_can_review_pure(_state.player_data)
         ):
             runtime_actions.handle_mobilising_armies_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.TEMPLE_TREKKING_ACTIVITY_ID
-            and runtime_actions.temple_trekking_can_review_pure(player_data)
+            and runtime_actions.temple_trekking_can_review_pure(_state.player_data)
         ):
             runtime_actions.handle_temple_trekking_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.GNOME_RESTAURANT_ACTIVITY_ID
-            and runtime_actions.gnome_restaurant_view_pure(player_data).get("order")
+            and runtime_actions.gnome_restaurant_view_pure(_state.player_data).get("order")
         ):
             runtime_actions.handle_gnome_restaurant_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.CRUCIBLE_ACTIVITY_ID
-            and runtime_actions.crucible_view_pure(player_data).get("active")
+            and runtime_actions.crucible_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_crucible_answer(
                 _runtime_action_context(),
                 productive=False,
             )
         elif (
-            review_action_handler_key(current_skill) == "utility"
-            and player_data.get("current_utility")
+            review_action_handler_key(_state.current_skill) == "utility"
+            and _state.player_data.get("current_utility")
             == runtime_actions.GOBLIN_RAIDS_ACTIVITY_ID
-            and runtime_actions.goblin_raids_view_pure(player_data).get("active")
+            and runtime_actions.goblin_raids_view_pure(_state.player_data).get("active")
         ):
             runtime_actions.handle_goblin_raids_answer(
                 _runtime_action_context(),
@@ -6009,8 +5982,8 @@ def on_answer_card(self, ease, _old):
         _advance_world_events_after_review()
     if context_xp > 0:
         _show_exp(context_xp)
-    card_turned = False
-    answer_shown = False  # Reset for the next card
+    _state.card_turned = False
+    _state.answer_shown = False  # Reset for the next card
     try:
         result = _old(self, ease)
     finally:
@@ -6025,10 +5998,10 @@ def on_answer_card(self, ease, _old):
             _show_pending_review_dialogs()
     try:
         update_review_status_badge(
-            player_data, _open_activities_sheet, _open_farming_sheet
+            _state.player_data, _open_activities_sheet, _open_farming_sheet
         )
-        update_review_fill_drawer(player_data)
-        update_review_event_log_drawer(player_data)
+        update_review_fill_drawer(_state.player_data)
+        update_review_event_log_drawer(_state.player_data)
         _refresh_bank_run_surfaces()
     except Exception:
         pass
@@ -6040,15 +6013,14 @@ def on_card_did_show(card):
     # Flags only. This runs on BOTH the question and answer hooks, so any
     # surface refresh here is duplicate work — _on_rev_show_question and
     # _on_rev_show_answer own the refresh and run after this in each list.
-    global card_turned, exp_awarded, answer_shown
-    card_turned = True
-    exp_awarded = False
-    answer_shown = False
+
+    _state.card_turned = True
+    _state.exp_awarded = False
+    _state.answer_shown = False
 
 
 def on_show_answer(reviewer):
-    global answer_shown
-    answer_shown = True
+    _state.answer_shown = True
 
 
 ## show_error_message now provided by ui.show_error_message
@@ -6057,7 +6029,7 @@ def on_show_answer(reviewer):
 def can_smith_any():
     return any(
         not smithing_target_locked_reasons_pure(
-            player_data, target, SMITHING_DATA, QUEST_UNLOCK_RULES
+            _state.player_data, target, SMITHING_DATA, QUEST_UNLOCK_RULES
         )
         for target in SMITHING_DATA
     )
@@ -6070,11 +6042,11 @@ def can_smelt_any_bar():
 def create_soft_clay():
     new_inv, _exp, ok, _processed = apply_utility_activity_pure(
         DEFAULT_UTILITY_ACTIVITY,
-        player_data["inventory"],
+        _state.player_data["inventory"],
         UTILITY_ACTIVITY_DATA,
     )
     if ok:
-        player_data["inventory"] = new_inv
+        _state.player_data["inventory"] = new_inv
     return ok
 
 # Removed legacy safe_deduct_from_inventory; use utils.safe_deduct_from_inventory where needed.
@@ -6093,10 +6065,10 @@ def _refresh_review_surfaces() -> None:
         _update_review_context_surface()
         ensure_review_status_badge()
         update_review_status_badge(
-            player_data, _open_activities_sheet, _open_farming_sheet
+            _state.player_data, _open_activities_sheet, _open_farming_sheet
         )
-        update_review_fill_drawer(player_data, _open_grand_exchange_sheet)
-        update_review_event_log_drawer(player_data)
+        update_review_fill_drawer(_state.player_data, _open_grand_exchange_sheet)
+        update_review_event_log_drawer(_state.player_data)
         _refresh_bank_run_surfaces()
     except Exception:
         pass

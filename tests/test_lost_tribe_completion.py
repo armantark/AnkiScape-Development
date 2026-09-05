@@ -154,29 +154,29 @@ class TestLostTribeProductFlow(unittest.TestCase):
         addon.show_error_message = lambda title, message: calls["dialogs"].append(
             (title, message)
         )
-        addon.player_data = _ready_lost_tribe_player(thieving_level=13)
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
+        addon._state.player_data = _ready_lost_tribe_player(thieving_level=13)
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
 
         for _review in range(5):
-            addon.card_turned = True
-            addon.answer_shown = True
-            addon.exp_awarded = False
+            addon._state.card_turned = True
+            addon._state.answer_shown = True
+            addon._state.exp_awarded = False
             addon.on_answer_card(
                 _FakeReviewer(),
                 4,
                 lambda _self, _ease: "answered",
             )
 
-        self.assertTrue(addon.player_data["quests"][QUEST_ID]["completed"])
+        self.assertTrue(addon._state.player_data["quests"][QUEST_ID]["completed"])
         self.assertEqual(
-            quest_action_proofs_for_quest(addon.player_data, QUEST_ID, QUEST_DATA),
+            quest_action_proofs_for_quest(addon._state.player_data, QUEST_ID, QUEST_DATA),
             STAGE_ACTIONS,
         )
-        self.assertEqual(addon.player_data["quest_points"], 1)
-        self.assertEqual(addon.player_data["mining_exp"], 3000.0)
-        self.assertEqual(addon.player_data["inventory"]["Ring of life"], 1)
-        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon._state.player_data["quest_points"], 1)
+        self.assertEqual(addon._state.player_data["mining_exp"], 3000.0)
+        self.assertEqual(addon._state.player_data["inventory"]["Ring of life"], 1)
+        self.assertEqual(addon._state.current_skill, "Utilities")
         self.assertEqual(calls["gains"][-1], "The Lost Tribe complete")
         self.assertEqual(calls["dialogs"][-1][0], "Quest complete")
         self.assertIn("The Lost Tribe is complete", calls["dialogs"][-1][1])

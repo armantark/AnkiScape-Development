@@ -49,7 +49,7 @@ class CircusUndoSeamTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.saves = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.collection = _FakeCollection()
@@ -87,33 +87,33 @@ class CircusUndoSeamTest(unittest.TestCase):
             "non_executing": ["ranged", "agility"],
             "automation_mode": "casual",
         }
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = handler("start_activity", payload)
 
         self.assertTrue(result["ok"])
-        state = addon.player_data["circus"]
+        state = addon._state.player_data["circus"]
         self.assertEqual(state["performance_queue"]["executing"], ["magic"])
         self.assertEqual(
             state["performance_queue"]["non_executing"],
             ["ranged", "agility", "fire_breathing", "flaming_poi", "thieving"],
         )
-        snapshot = addon._DIRECT_ACTION_UNDO_STACK.pop()
+        snapshot = addon._state.direct_action_undo_stack.pop()
         self.assertEqual(len(self.saves), 1)
         addon._restore_direct_action_snapshot(snapshot)
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
 
     def test_circus_refusal_returns_the_reason_and_writes_nothing(self):
         addon = self.addon
         handler = self._handler()
-        baseline = copy.deepcopy(addon.player_data)
+        baseline = copy.deepcopy(addon._state.player_data)
 
         result = handler(
             "start_activity",
             {"executing": [], "non_executing": [], "automation_mode": "casual"},
         )
 
-        self.assertEqual(addon.player_data, baseline, "a refusal must write nothing")
+        self.assertEqual(addon._state.player_data, baseline, "a refusal must write nothing")
         self.assertEqual(self.saves, [], "a refusal must not persist anything")
         self.assertFalse(result["ok"])
         self.assertEqual(
@@ -124,7 +124,7 @@ class CircusUndoSeamTest(unittest.TestCase):
         addon = self.addon
         handler = self._handler()
         addon.mw.col = _ClosedCollection()
-        baseline = copy.deepcopy(addon.player_data)
+        baseline = copy.deepcopy(addon._state.player_data)
         payload = {
             "executing": ["magic"],
             "non_executing": [],
@@ -135,7 +135,7 @@ class CircusUndoSeamTest(unittest.TestCase):
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["message"], "Anki could not create an undo entry.")
-        self.assertEqual(addon.player_data, baseline)
+        self.assertEqual(addon._state.player_data, baseline)
         self.assertEqual(len(self.saves), 0)
 
 

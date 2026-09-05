@@ -229,9 +229,9 @@ class TestRumDealProductFlow(unittest.TestCase):
         addon.show_error_message = lambda title, message: calls["dialogs"].append(
             (title, message)
         )
-        addon.player_data = _combat_ready_rum_deal_player(slayer_gloves=True)
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
+        addon._state.player_data = _combat_ready_rum_deal_player(slayer_gloves=True)
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
 
         self.assertTrue(addon.on_set_quest(QUEST_ID), calls["dialogs"])
         original_random = addon.random.random
@@ -239,30 +239,30 @@ class TestRumDealProductFlow(unittest.TestCase):
         try:
             for review_count in range(1, 41):
                 _answer_review(addon)
-                if addon.player_data["quests"][QUEST_ID]["completed"]:
+                if addon._state.player_data["quests"][QUEST_ID]["completed"]:
                     break
             else:
                 self.fail("Rum Deal did not complete within 40 reviews")
         finally:
             addon.random.random = original_random
 
-        self.assertTrue(addon.player_data["quests"][QUEST_ID]["completed"])
+        self.assertTrue(addon._state.player_data["quests"][QUEST_ID]["completed"])
         self.assertEqual(
             quest_action_proofs_for_quest(
-                addon.player_data,
+                addon._state.player_data,
                 QUEST_ID,
                 addon.QUEST_DATA,
             ),
             STAGE_ACTIONS,
         )
         # The frozen contract's quest_route.fever_spider line says the hopper consumes the body once; this retained residue is the open gap.
-        self.assertEqual(addon.player_data["inventory"]["Fever spider body"], 1)
-        self.assertEqual(addon.player_data["inventory"]["Fishbowl and net"], 1)
-        self.assertEqual(addon.player_data["inventory"]["Holy wrench"], 1)
-        self.assertEqual(addon.player_data["farming_exp"], 7000.0)
-        self.assertEqual(addon.player_data["fishing_exp"], 7000.0)
-        self.assertEqual(addon.player_data["prayer_exp"], 7000.0)
-        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon._state.player_data["inventory"]["Fever spider body"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Fishbowl and net"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Holy wrench"], 1)
+        self.assertEqual(addon._state.player_data["farming_exp"], 7000.0)
+        self.assertEqual(addon._state.player_data["fishing_exp"], 7000.0)
+        self.assertEqual(addon._state.player_data["prayer_exp"], 7000.0)
+        self.assertEqual(addon._state.current_skill, "Utilities")
         self.assertEqual(calls["gains"][-1], "Rum Deal complete")
         self.assertEqual(calls["dialogs"][-1][0], "Quest complete")
         self.assertIn("Rum Deal is complete", calls["dialogs"][-1][1])

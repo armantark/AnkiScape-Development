@@ -313,9 +313,9 @@ class PyramidPlunderHookTests(unittest.TestCase):
         player = _player()
         player, ok, _info = logic.enter_pyramid_plunder_pure(player)
         self.assertTrue(ok)
-        addon.player_data = player
-        addon.current_skill = "Utility / Activities"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Utility / Activities"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 3
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -325,11 +325,11 @@ class PyramidPlunderHookTests(unittest.TestCase):
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
         addon._remember_review_award_snapshot = lambda _before: None
-        before = float(addon.player_data["thieving_exp"])
+        before = float(addon._state.player_data["thieving_exp"])
         with patch.object(addon.random, "random", return_value=0.99):
             addon.on_good_answer()
-        self.assertEqual(addon.player_data["pyramid_plunder"]["room"], 4)
-        self.assertEqual(addon.player_data["thieving_exp"] - before, 230.0)
+        self.assertEqual(addon._state.player_data["pyramid_plunder"]["room"], 4)
+        self.assertEqual(addon._state.player_data["thieving_exp"] - before, 230.0)
 
 
 if __name__ == "__main__":

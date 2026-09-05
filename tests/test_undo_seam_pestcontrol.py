@@ -48,8 +48,8 @@ class PestControlUndoSeamTest(unittest.TestCase):
         self.addon.check_achievements = lambda _data: None
         self.col = _DummyCol()
         self.addon.mw = _DummyMW(self.col)
-        self.addon.player_data = _ready_player()
-        self.before = copy.deepcopy(self.addon.player_data)
+        self.addon._state.player_data = _ready_player()
+        self.before = copy.deepcopy(self.addon._state.player_data)
         self.addon._on_main_menu()
         self.handler = captured["on_pest_control_command"]
 
@@ -64,21 +64,21 @@ class PestControlUndoSeamTest(unittest.TestCase):
 
         self.assertTrue(result["ok"], result)
         addon = self.addon
-        self.assertEqual(addon.player_data["pest_control_commendations"], 350)
-        self.assertEqual(addon.player_data["inventory"][CONQUEST_DEFLECTOR_ITEM], 1)
+        self.assertEqual(addon._state.player_data["pest_control_commendations"], 350)
+        self.assertEqual(addon._state.player_data["inventory"][CONQUEST_DEFLECTOR_ITEM], 1)
         self.assertEqual(self.col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertTrue(self.gains, "the purchase feedback message must still show")
 
-        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
-        self.assertEqual(addon.player_data["pest_control_commendations"], 500)
-        self.assertEqual(addon.player_data["inventory"][CONQUEST_DEFLECTOR_ITEM], 0)
+        addon._restore_direct_action_snapshot(addon._state.direct_action_undo_stack.pop())
+        self.assertEqual(addon._state.player_data["pest_control_commendations"], 500)
+        self.assertEqual(addon._state.player_data["inventory"][CONQUEST_DEFLECTOR_ITEM], 0)
 
     def test_refused_command_returns_the_pure_refusal_and_writes_nothing(self):
         result = self.handler("no_such_action", {})
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["reason"], "Unknown Pest Control command.")
-        self.assertEqual(dict(self.addon.player_data), self.before)
+        self.assertEqual(dict(self.addon._state.player_data), self.before)
         self.assertEqual(self.col.custom_undo_entries, [])
 
     def test_accepted_but_no_undo_entry_reports_undo_unavailable(self):
@@ -100,7 +100,7 @@ class PestControlUndoSeamTest(unittest.TestCase):
         )
         # Nothing was written: the player keeps the commendations.
         self.assertEqual(
-            self.addon.player_data["pest_control_commendations"], 500
+            self.addon._state.player_data["pest_control_commendations"], 500
         )
         self.assertEqual(
             self.gains,

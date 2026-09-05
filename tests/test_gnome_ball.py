@@ -330,9 +330,9 @@ class GnomeBallHookTests(unittest.TestCase):
         logic = sys.modules[f"{addon.__name__}.logic.gnome_ball_logic"]
         player, ok, _info = logic.enter_gnome_ball_pure(_player())
         self.assertTrue(ok)
-        addon.player_data = player
-        addon.current_skill = "Utility / Activities"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Utility / Activities"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 9
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -341,23 +341,23 @@ class GnomeBallHookTests(unittest.TestCase):
         addon._show_exp = lambda _amount: None
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         before_agility = float(before["agility_exp"])
         before_ranged = float(before["ranged_exp"])
         with patch.object(addon.random, "random", side_effect=(0.99, 0.99, 0.99)) as rng:
             addon.on_good_answer(before)
         self.assertEqual(rng.call_count, 3)
-        self.assertEqual(addon.player_data["agility_exp"] - before_agility, 52.0)
-        self.assertEqual(addon.player_data["ranged_exp"] - before_ranged, 52.0)
-        self.assertEqual(addon.player_data["gnome_ball_runs_completed"], 1)
-        self.assertEqual(addon.player_data["gnome_ball"], {})
+        self.assertEqual(addon._state.player_data["agility_exp"] - before_agility, 52.0)
+        self.assertEqual(addon._state.player_data["ranged_exp"] - before_ranged, 52.0)
+        self.assertEqual(addon._state.player_data["gnome_ball_runs_completed"], 1)
+        self.assertEqual(addon._state.player_data["gnome_ball"], {})
         self.assertEqual(
-            addon.player_data["carried_inventory"][GNOME_BALL_ACTIVITY_ID]["Gnomeball"],
+            addon._state.player_data["carried_inventory"][GNOME_BALL_ACTIVITY_ID]["Gnomeball"],
             1,
         )
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
 
     def test_banking_the_referee_reward_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_gnome_ball_bank_undo")
@@ -369,34 +369,34 @@ class GnomeBallHookTests(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon.check_achievements = lambda *_args: None
-        addon.current_skill = "Activities"
+        addon._state.current_skill = "Activities"
         state = _player(
             inventory={"Gnomeball": 1},
             carried_inventory={GNOME_BALL_ACTIVITY_ID: {"Gnomeball": 1}},
             carried_advanced_targets={GNOME_BALL_ACTIVITY_ID: True},
             carried_layout={GNOME_BALL_ACTIVITY_ID: {"Gnomeball": 1}},
         )
-        addon.player_data = copy.deepcopy(state)
+        addon._state.player_data = copy.deepcopy(state)
 
         addon._on_main_menu(initial_skill="Activities")
         result = captured["on_agility_command"]("bank_gnomeball_reward", {})
 
         self.assertTrue(result["ok"])
-        self.assertEqual(addon.player_data["inventory"]["Gnomeball"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Gnomeball"], 1)
         self.assertNotIn(
             "Gnomeball",
-            addon.player_data.get("carried_inventory", {}).get(
+            addon._state.player_data.get("carried_inventory", {}).get(
                 GNOME_BALL_ACTIVITY_ID, {}
             ),
         )
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), 1)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
-        self.assertEqual(addon.player_data, state)
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.player_data, state)
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
 
 if __name__ == "__main__":

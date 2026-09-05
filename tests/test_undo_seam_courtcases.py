@@ -46,7 +46,7 @@ class CourtCasesUndoSeamTest(unittest.TestCase):
 
         _install_runtime_fakes()
         self.addon = _load_addon_as_package("ankiscape_undo_seam_courtcases")
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.saves = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         # Stub the modal achievement dialog: an unstubbed one hung the Qt lane.
@@ -68,24 +68,24 @@ class CourtCasesUndoSeamTest(unittest.TestCase):
 
     def test_set_policy_is_undoable_through_the_seam(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
-        before_depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        before = copy.deepcopy(addon._state.player_data)
+        before_depth = len(addon._state.direct_action_undo_stack)
 
         result = self._handler()("set_policy", {"role": "defence", "automation_mode": "advanced"})
 
         self.assertTrue(result["ok"], result)
         self.assertEqual(len(self.collection.entries), 1)
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), before_depth + 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), before_depth + 1)
         self.assertEqual(len(self.saves), 1)
         self.assertEqual(
-            addon.player_data["court_cases_policy"],
+            addon._state.player_data["court_cases_policy"],
             {"role": "defence", "automation_mode": "advanced"},
         )
 
         # Undo restores exactly the pre-action save.
-        addon.player_data.clear()
-        addon.player_data.update(addon._DIRECT_ACTION_UNDO_STACK[-1]["player_data"])
-        self.assertEqual(addon.player_data, before)
+        addon._state.player_data.clear()
+        addon._state.player_data.update(addon._state.direct_action_undo_stack[-1]["player_data"])
+        self.assertEqual(addon._state.player_data, before)
 
     def test_refused_action_returns_the_pure_refusal(self):
         result = self._handler()("set_policy", {"role": "bogus", "automation_mode": "casual"})
@@ -97,7 +97,7 @@ class CourtCasesUndoSeamTest(unittest.TestCase):
 
     def test_undo_entry_failure_reports_undo_unavailable(self):
         self.collection.accepts = False
-        before = copy.deepcopy(self.addon.player_data)
+        before = copy.deepcopy(self.addon._state.player_data)
 
         result = self._handler()("set_policy", {"role": "defence", "automation_mode": "advanced"})
 
@@ -105,7 +105,7 @@ class CourtCasesUndoSeamTest(unittest.TestCase):
             result,
             {"ok": False, "message": "Anki could not create an undo entry."},
         )
-        self.assertEqual(self.addon.player_data, before, "nothing may be written")
+        self.assertEqual(self.addon._state.player_data, before, "nothing may be written")
         self.assertEqual(self.saves, [])
 
 

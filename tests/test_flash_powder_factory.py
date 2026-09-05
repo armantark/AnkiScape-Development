@@ -480,11 +480,11 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
         )
         player, ok, _info = factory_logic.enter_flash_powder_factory_pure(player)
         self.assertTrue(ok)
-        addon.player_data = player
-        addon.current_skill = "Utility / Activities"
-        addon.card_turned = True
-        addon.answer_shown = True
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Utility / Activities"
+        addon._state.card_turned = True
+        addon._state.answer_shown = True
+        addon._state.exp_awarded = False
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon._refresh_skill_availability = lambda: None
@@ -510,7 +510,7 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
                 lambda _self, _ease: "answered",
             )
 
-        session = addon.player_data["agility_activity_state"][
+        session = addon._state.player_data["agility_activity_state"][
             FLASH_POWDER_FACTORY_ACTIVITY_ID
         ]
         self.assertEqual(session["slots_used"], 1)
@@ -523,9 +523,9 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
         player = _player()
         player, ok, _info = factory_logic.enter_flash_powder_factory_pure(player)
         self.assertTrue(ok)
-        addon.player_data = player
-        addon.current_skill = "Utility / Activities"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Utility / Activities"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 10
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -535,7 +535,7 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
         addon._save_player_data_if_anki_ready = lambda: None
         addon._remember_review_award_snapshot = lambda _before: None
         addon.on_good_answer()
-        session = addon.player_data["agility_activity_state"][
+        session = addon._state.player_data["agility_activity_state"][
             FLASH_POWDER_FACTORY_ACTIVITY_ID
         ]
         self.assertEqual(session["slots_used"], 1)
@@ -553,9 +553,9 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
         player, ok, _info = factory_logic.enter_flash_powder_factory_pure(player)
         self.assertTrue(ok)
         player["current_agility"] = FLASH_POWDER_FACTORY_ACTIVITY_ID
-        addon.player_data = player
-        addon.current_skill = "Agility"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Agility"
+        addon._state.exp_awarded = False
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
         addon._refresh_skill_availability = lambda: None
@@ -569,7 +569,7 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
             side_effect=(0.99, 0.0, 0.999, 0.99),
         ):
             addon.on_good_answer()
-        self.assertEqual(addon.player_data["inventory"]["Rogue mask"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Rogue mask"], 1)
 
 
 if __name__ == "__main__":

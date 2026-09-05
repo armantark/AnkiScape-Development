@@ -49,7 +49,7 @@ def _wire_penguin(addon, col):
     captured = {}
     addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
     addon.mw = _DummyMW(col)
-    addon.current_skill = "Activities"
+    addon._state.current_skill = "Activities"
     initial = {
         "inventory": {},
         "penguin_hide_and_seek": penguin_logic.default_penguin_state_pure(),
@@ -57,7 +57,7 @@ def _wire_penguin(addon, col):
         "smithing_level": 1,
     }
     initial["penguin_hide_and_seek"]["points"] = 2
-    addon.player_data = copy.deepcopy(initial)
+    addon._state.player_data = copy.deepcopy(initial)
     addon.save_player_data = lambda: None
     addon.update_review_hud = lambda *_args: None
     addon._refresh_skill_availability = lambda: None
@@ -92,16 +92,16 @@ class PenguinUndoSeamTest(unittest.TestCase):
         result = command("redeem_coins", {})
 
         self.assertTrue(result["ok"])
-        self.assertEqual(addon.player_data["inventory"]["Coins"], 13_000)
-        self.assertEqual(addon.player_data["penguin_hide_and_seek"]["points"], 0)
+        self.assertEqual(addon._state.player_data["inventory"]["Coins"], 13_000)
+        self.assertEqual(addon._state.player_data["penguin_hide_and_seek"]["points"], 0)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), 1)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
-        self.assertEqual(addon.player_data, initial)
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.player_data, initial)
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
     def test_a_refused_command_reports_the_penguin_refusal(self):
         addon = self.addon
@@ -114,13 +114,13 @@ class PenguinUndoSeamTest(unittest.TestCase):
             },
         )()
         initial, command = _wire_penguin(addon, col)
-        addon.player_data["penguin_hide_and_seek"]["points"] = 0
+        addon._state.player_data["penguin_hide_and_seek"]["points"] = 0
         initial["penguin_hide_and_seek"]["points"] = 0
 
         result = command("redeem_coins", {})
 
         self.assertFalse(result["ok"])
-        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._state.player_data, initial)
         self.assertEqual(col.custom_undo_entries, [])
 
     def test_undo_unavailable_reports_failure_not_success(self):
@@ -133,7 +133,7 @@ class PenguinUndoSeamTest(unittest.TestCase):
             result,
             {"ok": False, "message": "Anki could not create an undo entry."},
         )
-        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._state.player_data, initial)
 
 
 if __name__ == "__main__":

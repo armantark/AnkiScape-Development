@@ -211,9 +211,9 @@ class TestQuestCombatGateReviewFlow(unittest.TestCase):
             "progress": 5,
             "completed": False,
         }
-        addon.player_data = player
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
+        addon._state.player_data = player
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
 
         original_random = addon.random.random
         addon.random.random = lambda: 0.0
@@ -224,10 +224,10 @@ class TestQuestCombatGateReviewFlow(unittest.TestCase):
 
         self.assertIn(
             SEA_TROLL_QUEEN_ID,
-            addon.player_data["quest_combat_encounters"][SWAN_SONG_ID],
+            addon._state.player_data["quest_combat_encounters"][SWAN_SONG_ID],
         )
         self.assertEqual(
-            addon.player_data["quests"][SWAN_SONG_ID]["progress"],
+            addon._state.player_data["quests"][SWAN_SONG_ID]["progress"],
             5,
         )
         self.assertEqual(gains[-1], "Defeated Sea Troll Queen")

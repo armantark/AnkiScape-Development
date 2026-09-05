@@ -63,7 +63,7 @@ class GreatOrbProjectUndoSeamTest(unittest.TestCase):
             "Air talisman": 1,
             "Earth talisman": 1,
         }
-        self.addon.player_data = player
+        self.addon._state.player_data = player
         # Stub the surfaces that open dialogs or touch Qt.
         self.addon.check_achievements = lambda *_a, **_k: None
         self.patches = [
@@ -97,31 +97,31 @@ class GreatOrbProjectUndoSeamTest(unittest.TestCase):
 
     def test_entering_commits_through_the_seam_and_undo_restores_the_save(self):
         addon = self.addon
-        before = copy.deepcopy(dict(addon.player_data))
-        depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        before = copy.deepcopy(dict(addon._state.player_data))
+        depth = len(addon._state.direct_action_undo_stack)
 
         result = self._handler()("enter_great_orb_project", {})
 
         self.assertTrue(result["ok"], result)
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), depth + 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), depth + 1)
         self.assertEqual(len(self.saves), 1)
         self.assertEqual(
-            addon.player_data["activity_session"]["active_id"],
+            addon._state.player_data["activity_session"]["active_id"],
             "great_orb_project",
         )
 
         addon._restore_direct_action_snapshot(
-            addon._DIRECT_ACTION_UNDO_STACK.pop()
+            addon._state.direct_action_undo_stack.pop()
         )
-        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(dict(addon._state.player_data), before)
         self.assertEqual(
-            addon.player_data["great_orb_project"]["active"], {}
+            addon._state.player_data["great_orb_project"]["active"], {}
         )
 
     def test_a_refused_command_returns_the_pure_refusal_and_writes_nothing(self):
         addon = self.addon
-        depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        depth = len(addon._state.direct_action_undo_stack)
 
         result = self._handler()("not_an_action", {})
 
@@ -130,15 +130,15 @@ class GreatOrbProjectUndoSeamTest(unittest.TestCase):
             result["message"], "Unknown Great Orb Project action."
         )
         self.assertEqual(
-            addon.player_data["great_orb_project"]["active"], {}
+            addon._state.player_data["great_orb_project"]["active"], {}
         )
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), depth)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), depth)
         self.assertEqual(self.collection.entries, [])
         self.assertEqual(self.saves, [])
 
     def test_when_anki_cannot_create_an_undo_entry_nothing_is_written(self):
         addon = self.addon
-        before = copy.deepcopy(dict(addon.player_data))
+        before = copy.deepcopy(dict(addon._state.player_data))
         self.collection._raise = True
 
         with patch.object(
@@ -150,7 +150,7 @@ class GreatOrbProjectUndoSeamTest(unittest.TestCase):
             result,
             {"ok": False, "message": "Anki could not create an undo entry."},
         )
-        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(dict(addon._state.player_data), before)
         self.assertEqual(self.saves, [])
 
 

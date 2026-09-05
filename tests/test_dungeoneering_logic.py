@@ -1788,8 +1788,8 @@ class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):
         player["dungeoneering"]["boss"]["lifepoints"] = 1
         player["dungeoneering"]["boss"]["encounter"]["enemy_lifepoints"] = 1
 
-        addon.player_data = player
-        addon.current_skill = "Dungeoneering"
+        addon._state.player_data = player
+        addon._state.current_skill = "Dungeoneering"
         addon._review_action_multiplier = lambda: 2
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -1803,9 +1803,9 @@ class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):
         addon.random.random = lambda: 0.5
         try:
             for answered_reviews in range(1, STARTER_SMALL_REVIEW_BUDGET + 1):
-                addon.exp_awarded = False
-                addon.on_good_answer(copy.deepcopy(addon.player_data))
-                active = addon.player_data["dungeoneering"]["active"]
+                addon._state.exp_awarded = False
+                addon.on_good_answer(copy.deepcopy(addon._state.player_data))
+                active = addon._state.player_data["dungeoneering"]["active"]
                 self.assertEqual(
                     active,
                     answered_reviews < STARTER_SMALL_REVIEW_BUDGET,
@@ -1813,7 +1813,7 @@ class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):
                 if active:
                     self.assertEqual(
                         len(
-                            addon.player_data["dungeoneering"]["session"][
+                            addon._state.player_data["dungeoneering"]["session"][
                                 "resolved_room_ids"
                             ]
                         ),
@@ -1822,7 +1822,7 @@ class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):
         finally:
             addon.random.random = original_random
 
-        self.assertEqual(addon.player_data["dungeoneering"]["floors_completed"], 1)
+        self.assertEqual(addon._state.player_data["dungeoneering"]["floors_completed"], 1)
 
     def test_answer_undo_restores_resource_automation_inventory_and_skill_xp_atomically(self):
         from tests.test_integration_smoke import _load_addon_as_package
@@ -1864,9 +1864,9 @@ class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):
             )
             self.assertTrue(ok, info)
 
-        addon.player_data = player
-        addon.current_skill = "Dungeoneering"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Dungeoneering"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 1
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -1875,25 +1875,25 @@ class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):
         addon._show_exp = lambda _amount: None
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         original_random = addon.random.random
         addon.random.random = lambda: 0.5
         try:
             addon.on_good_answer(before)
         finally:
             addon.random.random = original_random
-        self.assertEqual(addon.player_data["dungeoneering"]["session_inventory"]["Heim crab"], 1)
+        self.assertEqual(addon._state.player_data["dungeoneering"]["session_inventory"]["Heim crab"], 1)
         self.assertEqual(
-            addon.player_data["fishing_exp"],
+            addon._state.player_data["fishing_exp"],
             before["fishing_exp"] + 9.0,
         )
         self.assertEqual(
-            addon.player_data["cooking_exp"],
+            addon._state.player_data["cooking_exp"],
             before["cooking_exp"] + 22.0,
         )
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
 
     def test_answer_undo_restores_the_exact_pre_boss_session_and_save(self):
         from tests.test_integration_smoke import _load_addon_as_package
@@ -1939,9 +1939,9 @@ class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):
         player["dungeoneering"]["boss"]["lifepoints"] = 1
         player["dungeoneering"]["boss"]["encounter"]["enemy_lifepoints"] = 1
 
-        addon.player_data = player
-        addon.current_skill = "Dungeoneering"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Dungeoneering"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 1
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -1950,15 +1950,15 @@ class DungeoneeringReviewUndoIntegrationTests(unittest.TestCase):
         addon._show_exp = lambda _amount: None
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         addon.on_good_answer(before)
-        self.assertFalse(addon.player_data["dungeoneering"]["active"])
-        self.assertGreater(addon.player_data["dungeoneering_exp"], before["dungeoneering_exp"])
-        self.assertGreater(addon.player_data["dungeoneering"]["tokens"], 0)
+        self.assertFalse(addon._state.player_data["dungeoneering"]["active"])
+        self.assertGreater(addon._state.player_data["dungeoneering_exp"], before["dungeoneering_exp"])
+        self.assertGreater(addon._state.player_data["dungeoneering"]["tokens"], 0)
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
 
 
 if __name__ == "__main__":

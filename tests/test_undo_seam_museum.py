@@ -49,13 +49,13 @@ def _wire_museum(addon, col):
     captured = {}
     addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
     addon.mw = _DummyMW(col)
-    addon.current_skill = "Activities"
+    addon._state.current_skill = "Activities"
     initial = {
         "inventory": {},
         "varrock_museum": museum_logic.default_varrock_museum_state_pure(),
         "completed_achievements": [],
     }
-    addon.player_data = copy.deepcopy(initial)
+    addon._state.player_data = copy.deepcopy(initial)
     addon.save_player_data = lambda: None
     addon.update_review_hud = lambda *_args: None
     addon._refresh_skill_availability = lambda: None
@@ -93,15 +93,15 @@ class MuseumUndoSeamTest(unittest.TestCase):
 
         self.assertTrue(result["ok"])
         for item_name in ("Trowel", "Rock pick", "Specimen brush"):
-            self.assertEqual(addon.player_data["inventory"][item_name], 1)
+            self.assertEqual(addon._state.player_data["inventory"][item_name], 1)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), 1)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
-        self.assertEqual(addon.player_data, initial)
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.player_data, initial)
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
     def test_a_refused_command_writes_and_saves_nothing(self):
         addon = self.addon
@@ -115,14 +115,14 @@ class MuseumUndoSeamTest(unittest.TestCase):
         )()
         initial, command = _wire_museum(addon, col)
         # The rack is already complete, so the pure function refuses.
-        addon.player_data["inventory"] = {
+        addon._state.player_data["inventory"] = {
             "Trowel": 1,
             "Rock pick": 1,
             "Specimen brush": 1,
             "Leather gloves": 1,
             "Leather boots": 1,
         }
-        initial["inventory"] = copy.deepcopy(addon.player_data["inventory"])
+        initial["inventory"] = copy.deepcopy(addon._state.player_data["inventory"])
         saved = []
         addon.save_player_data = lambda: saved.append(True)
 
@@ -130,10 +130,10 @@ class MuseumUndoSeamTest(unittest.TestCase):
 
         self.assertFalse(result["ok"])
         self.assertIn("already have", result["message"])
-        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._state.player_data, initial)
         self.assertEqual(col.custom_undo_entries, [])
         self.assertEqual(saved, [])
-        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+        self.assertEqual(addon._state.direct_action_undo_stack, [])
 
     def test_undo_unavailable_reports_failure_not_success(self):
         addon = self.addon
@@ -147,7 +147,7 @@ class MuseumUndoSeamTest(unittest.TestCase):
             result,
             {"ok": False, "message": "Anki could not create an undo entry."},
         )
-        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._state.player_data, initial)
         self.assertEqual(saved, [])
 
 

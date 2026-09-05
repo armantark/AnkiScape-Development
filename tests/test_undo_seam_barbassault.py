@@ -52,7 +52,7 @@ class BarbarianAssaultUndoSeamTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.addon.save_player_data = lambda: None
         self.collection = _FakeCollection()
         self.addon.mw = _DummyMW(self.collection)
@@ -74,24 +74,24 @@ class BarbarianAssaultUndoSeamTest(unittest.TestCase):
 
     def test_tutorial_completion_restores_through_the_seam(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         handler = self._handler()
 
         result = handler("tutorial", {})
 
         self.assertTrue(result["ok"], result)
-        self.assertTrue(addon.player_data["barbarian_assault_tutorial_complete"])
+        self.assertTrue(addon._state.player_data["barbarian_assault_tutorial_complete"])
         self.assertEqual(
             self.collection.entries, ["AnkiScape direct action"]
         )
-        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
-        self.assertEqual(addon.player_data, before)
+        addon._restore_direct_action_snapshot(addon._state.direct_action_undo_stack.pop())
+        self.assertEqual(addon._state.player_data, before)
 
     def test_refusal_returns_its_own_refusal_and_writes_nothing(self):
         addon = self.addon
         handler = self._handler()
-        addon.player_data["barbarian_assault_tutorial_complete"] = True
-        baseline = copy.deepcopy(dict(addon.player_data))
+        addon._state.player_data["barbarian_assault_tutorial_complete"] = True
+        baseline = copy.deepcopy(dict(addon._state.player_data))
 
         result = handler("tutorial", {})
 
@@ -100,13 +100,13 @@ class BarbarianAssaultUndoSeamTest(unittest.TestCase):
         self.assertEqual(
             result["reason"], "Captain Cain's tutorial is already complete."
         )
-        self.assertEqual(dict(addon.player_data), baseline)
+        self.assertEqual(dict(addon._state.player_data), baseline)
 
     def test_undo_entry_failure_reports_undo_unavailable(self):
         """A successful action with no undo entry must never look like success."""
         addon = self.addon
         handler = self._handler()
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         self.collection.accepts = False
 
         result = handler("tutorial", {})
@@ -121,7 +121,7 @@ class BarbarianAssaultUndoSeamTest(unittest.TestCase):
             "a failed undo entry must be reported as such, not as success",
         )
         self.assertEqual(
-            dict(addon.player_data), before, "nothing may be written"
+            dict(addon._state.player_data), before, "nothing may be written"
         )
 
 

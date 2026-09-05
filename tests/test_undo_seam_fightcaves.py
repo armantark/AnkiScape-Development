@@ -53,7 +53,7 @@ class FightCavesUndoSeamTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.saves = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.collection = _FakeCollection()
@@ -86,31 +86,31 @@ class FightCavesUndoSeamTest(unittest.TestCase):
     def test_enter_commits_through_the_seam_and_undo_restores_state(self):
         addon = self.addon
         handler = self._handler()
-        before = copy.deepcopy(dict(addon.player_data))
-        stack_depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        before = copy.deepcopy(dict(addon._state.player_data))
+        stack_depth = len(addon._state.direct_action_undo_stack)
 
         result = handler("enter", {})
 
         self.assertTrue(result["ok"], f"enter refused: {result}")
-        state = addon.player_data["fight_caves"]
+        state = addon._state.player_data["fight_caves"]
         self.assertTrue(state["active"])
         self.assertEqual(state["wave"], 1)
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), stack_depth + 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), stack_depth + 1)
         self.assertEqual(len(self.saves), 1)
         self.assertEqual(len(self.gains), 1)
 
         addon._restore_direct_action_snapshot(
-            addon._DIRECT_ACTION_UNDO_STACK.pop()
+            addon._state.direct_action_undo_stack.pop()
         )
-        self.assertEqual(dict(addon.player_data), before)
-        self.assertFalse(addon.player_data["fight_caves"]["active"])
+        self.assertEqual(dict(addon._state.player_data), before)
+        self.assertFalse(addon._state.player_data["fight_caves"]["active"])
 
     def test_refused_action_returns_the_pure_reason_and_writes_nothing(self):
         addon = self.addon
         handler = self._handler()
-        addon.player_data["combat_encounter"] = {"enemy_id": "rock"}
-        before = copy.deepcopy(dict(addon.player_data))
+        addon._state.player_data["combat_encounter"] = {"enemy_id": "rock"}
+        before = copy.deepcopy(dict(addon._state.player_data))
 
         result = handler("enter", {})
 
@@ -121,7 +121,7 @@ class FightCavesUndoSeamTest(unittest.TestCase):
                 "message": "Finish or leave the current Combat encounter first.",
             },
         )
-        self.assertEqual(dict(addon.player_data), before, "refusal wrote state")
+        self.assertEqual(dict(addon._state.player_data), before, "refusal wrote state")
         self.assertEqual(self.collection.entries, [])
         self.assertEqual(self.saves, [])
 
@@ -129,7 +129,7 @@ class FightCavesUndoSeamTest(unittest.TestCase):
         addon = self.addon
         handler = self._handler()
         self.collection.accepts = False
-        before = copy.deepcopy(dict(addon.player_data))
+        before = copy.deepcopy(dict(addon._state.player_data))
 
         result = handler("enter", {})
 
@@ -141,7 +141,7 @@ class FightCavesUndoSeamTest(unittest.TestCase):
                 "message": "Anki could not create an undo entry.",
             },
         )
-        self.assertEqual(dict(addon.player_data), before, "nothing was written")
+        self.assertEqual(dict(addon._state.player_data), before, "nothing was written")
         self.assertEqual(self.saves, [])
 
 

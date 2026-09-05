@@ -35,9 +35,9 @@ def _final_stage_player():
 
 
 def _answer_review(addon):
-    addon.card_turned = True
-    addon.answer_shown = True
-    addon.exp_awarded = False
+    addon._state.card_turned = True
+    addon._state.answer_shown = True
+    addon._state.exp_awarded = False
     addon.on_answer_card(
         _FakeReviewer(),
         4,
@@ -120,28 +120,28 @@ class TestFremennikIslesLampProductFlow(unittest.TestCase):
         addon.level_up_check = lambda _skill, _data: None
         addon.update_review_hud = lambda _data, _skill: None
         addon.show_error_message = lambda _title, _message: None
-        addon.player_data = _final_stage_player()
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
-        addon._DIRECT_ACTION_UNDO_STACK.clear()
+        addon._state.player_data = _final_stage_player()
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
+        addon._state.direct_action_undo_stack.clear()
 
-        before = {row["claim_id"]: row for row in claim_rows_pure(addon.player_data, CLAIM_DATA)}
+        before = {row["claim_id"]: row for row in claim_rows_pure(addon._state.player_data, CLAIM_DATA)}
         self.assertTrue(all(not before[claim_id]["eligible"] for claim_id in CLAIM_IDS))
 
         _answer_review(addon)
 
-        self.assertTrue(addon.player_data["quests"][QUEST_ID]["completed"])
-        self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {})
-        self.assertEqual(addon.player_data["construction_exp"], 5000)
-        self.assertEqual(addon.player_data["crafting_exp"], 5000)
-        self.assertEqual(addon.player_data["woodcutting_exp"], 10000)
-        after = {row["claim_id"]: row for row in claim_rows_pure(addon.player_data, CLAIM_DATA)}
+        self.assertTrue(addon._state.player_data["quests"][QUEST_ID]["completed"])
+        self.assertEqual(addon._state.player_data["pending_skill_exp_rewards"], {})
+        self.assertEqual(addon._state.player_data["construction_exp"], 5000)
+        self.assertEqual(addon._state.player_data["crafting_exp"], 5000)
+        self.assertEqual(addon._state.player_data["woodcutting_exp"], 10000)
+        after = {row["claim_id"]: row for row in claim_rows_pure(addon._state.player_data, CLAIM_DATA)}
         self.assertTrue(all(after[claim_id]["eligible"] for claim_id in CLAIM_IDS))
 
         self.assertTrue(addon.on_claim_reward(CLAIM_IDS[0], "strength"))
-        self.assertEqual(addon.player_data["strength_exp"], 10000)
+        self.assertEqual(addon._state.player_data["strength_exp"], 10000)
         self.assertTrue(addon.on_claim_reward(CLAIM_IDS[1], "strength"))
-        self.assertEqual(addon.player_data["strength_exp"], 20000)
+        self.assertEqual(addon._state.player_data["strength_exp"], 20000)
 
 
 if __name__ == "__main__":

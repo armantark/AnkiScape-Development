@@ -50,8 +50,8 @@ class CastleWarsUndoSeamTest(unittest.TestCase):
 
         _install_runtime_fakes()
         self.addon = _load_addon_as_package("ankiscape_castlewars_undo_seam")
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        self.addon.current_skill = "Utility / Activities"
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.current_skill = "Utility / Activities"
         self.saves = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.collection = _FakeCollection()
@@ -72,52 +72,52 @@ class CastleWarsUndoSeamTest(unittest.TestCase):
 
     def test_saving_a_plan_commits_and_restores_through_the_real_handler(self):
         addon = self.addon
-        before = copy.deepcopy(dict(addon.player_data))
+        before = copy.deepcopy(dict(addon._state.player_data))
 
         result = self.handler("set_policy", {"duty": "defend", "team": "zamorak"})
 
         self.assertTrue(result["ok"])
         self.assertEqual(result["message"], "Castle Wars plan saved.")
-        policy = addon.player_data["castle_wars_policy"]
+        policy = addon._state.player_data["castle_wars_policy"]
         self.assertEqual(policy["duty"], "defend")
         self.assertEqual(policy["team"], "zamorak")
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), 1)
         self.assertEqual(len(self.saves), 1)
 
         addon._restore_direct_action_snapshot(
-            addon._DIRECT_ACTION_UNDO_STACK.pop()
+            addon._state.direct_action_undo_stack.pop()
         )
-        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(dict(addon._state.player_data), before)
 
     def test_entering_a_match_restores_through_the_real_handler(self):
         addon = self.addon
-        before = copy.deepcopy(dict(addon.player_data))
+        before = copy.deepcopy(dict(addon._state.player_data))
 
         result = self.handler("enter", {})
 
         self.assertTrue(result["ok"])
-        state = addon.player_data.get("activity_session") or {}
+        state = addon._state.player_data.get("activity_session") or {}
         self.assertEqual(state.get("active_id"), "castle_wars")
         addon._restore_direct_action_snapshot(
-            addon._DIRECT_ACTION_UNDO_STACK.pop()
+            addon._state.direct_action_undo_stack.pop()
         )
-        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(dict(addon._state.player_data), before)
 
     def test_refused_command_reports_the_refusal_and_writes_nothing(self):
         addon = self.addon
         # A helmet blocks entering Castle Wars.
-        addon.player_data["equipment"]["head"] = "Iron full helm"
-        before = copy.deepcopy(dict(addon.player_data))
+        addon._state.player_data["equipment"]["head"] = "Iron full helm"
+        before = copy.deepcopy(dict(addon._state.player_data))
 
         result = self.handler("enter", {})
 
         self.assertFalse(result["ok"])
         self.assertIn("helmets", result["message"])
-        self.assertEqual(dict(addon.player_data), before)
+        self.assertEqual(dict(addon._state.player_data), before)
         self.assertEqual(len(self.saves), 0)
         self.assertEqual(
-            addon._DIRECT_ACTION_UNDO_STACK,
+            addon._state.direct_action_undo_stack,
             [],
             "a refused command must not register an undo entry",
         )
@@ -136,7 +136,7 @@ class CastleWarsUndoSeamTest(unittest.TestCase):
                 pass
 
         addon.mw.col = _ClosedCollection()
-        baseline = copy.deepcopy(dict(addon.player_data))
+        baseline = copy.deepcopy(dict(addon._state.player_data))
 
         result = self.handler("set_policy", {"duty": "defend"})
 
@@ -149,7 +149,7 @@ class CastleWarsUndoSeamTest(unittest.TestCase):
         self.assertEqual(
             result["message"], "Anki could not create an undo entry."
         )
-        self.assertEqual(dict(addon.player_data), baseline)
+        self.assertEqual(dict(addon._state.player_data), baseline)
         self.assertEqual(len(self.saves), 0)
 
 

@@ -49,7 +49,7 @@ class TrawlerUndoSeamTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         addon = _load_addon()
-        addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.saves: list[bool] = []
         addon.save_player_data = lambda: self.saves.append(True)
         # Stub modal and HUD surfaces; an unstubbed achievement dialog hung the
@@ -91,7 +91,7 @@ class TrawlerUndoSeamTest(unittest.TestCase):
 
         self.assertTrue(result["ok"], result)
         self.assertEqual(
-            addon.player_data["fishing_trawler_policy"]["automation_mode"],
+            addon._state.player_data["fishing_trawler_policy"]["automation_mode"],
             "advanced",
         )
         self.assertEqual(collection.entries, ["AnkiScape direct action"])
@@ -99,12 +99,12 @@ class TrawlerUndoSeamTest(unittest.TestCase):
         self.assertEqual(
             self.shown, [result.get("message", "Fishing Trawler plan saved.")]
         )
-        before_depth = len(addon._DIRECT_ACTION_UNDO_STACK)
-        snapshot = addon._DIRECT_ACTION_UNDO_STACK.pop()
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), before_depth - 1)
+        before_depth = len(addon._state.direct_action_undo_stack)
+        snapshot = addon._state.direct_action_undo_stack.pop()
+        self.assertEqual(len(addon._state.direct_action_undo_stack), before_depth - 1)
         addon._restore_direct_action_snapshot(snapshot)
         self.assertEqual(
-            addon.player_data["fishing_trawler_policy"]["automation_mode"],
+            addon._state.player_data["fishing_trawler_policy"]["automation_mode"],
             "casual",
         )
 
@@ -121,7 +121,7 @@ class TrawlerUndoSeamTest(unittest.TestCase):
 
         self.assertFalse(result["ok"])
         expected = apply_fishing_trawler_command_pure(
-            dict(addon.player_data), "bogus_action", {}
+            dict(addon._state.player_data), "bogus_action", {}
         )[2]["reason"]
         self.assertEqual(result["message"], str(expected))
         self.assertEqual(collection.entries, [])
@@ -146,7 +146,7 @@ class TrawlerUndoSeamTest(unittest.TestCase):
         )
         self.assertEqual(len(self.saves), 0, "nothing was written, so no save")
         self.assertEqual(
-            addon.player_data["fishing_trawler_policy"]["automation_mode"],
+            addon._state.player_data["fishing_trawler_policy"]["automation_mode"],
             "casual",
             "the player data must not carry the accepted change",
         )

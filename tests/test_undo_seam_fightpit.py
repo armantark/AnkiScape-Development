@@ -65,8 +65,8 @@ class UndoSeamFightPitTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon()
-        self.addon.player_data = _ready_player_data(self.addon)
-        self.addon.current_skill = "Activities"
+        self.addon._state.player_data = _ready_player_data(self.addon)
+        self.addon._state.current_skill = "Activities"
         self.saves = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.addon.mw = _DummyMW(types.SimpleNamespace())
@@ -102,28 +102,28 @@ class UndoSeamFightPitTest(unittest.TestCase):
         col = _Col()
         self._install_collection(col)
 
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         before_random = random.getstate()
-        before_stack_depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        before_stack_depth = len(addon._state.direct_action_undo_stack)
 
         result = self.command("enter", {})
 
         self.assertTrue(result["ok"], result)
-        self.assertTrue(addon.player_data["tzhaar_fight_pit"])
+        self.assertTrue(addon._state.player_data["tzhaar_fight_pit"])
         self.assertEqual(
-            addon.player_data["activity_session"]["active_id"],
+            addon._state.player_data["activity_session"]["active_id"],
             "tzhaar_fight_pit",
         )
         self.assertEqual(col.entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), before_stack_depth + 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), before_stack_depth + 1)
         self.assertEqual(len(self.saves), 1, "a committed change must persist")
-        self.assertNotEqual(addon.player_data, before)
+        self.assertNotEqual(addon._state.player_data, before)
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="ankiscape direct action")
         )
 
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
         self.assertEqual(random.getstate(), before_random)
 
     def test_refused_command_writes_and_saves_nothing(self):
@@ -139,8 +139,8 @@ class UndoSeamFightPitTest(unittest.TestCase):
                 entries.append(name)
 
         self._install_collection(_Col())
-        addon.player_data["activity_session"] = {"active_id": "something_else"}
-        before = copy.deepcopy(addon.player_data)
+        addon._state.player_data["activity_session"] = {"active_id": "something_else"}
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.command("enter", {})
 
@@ -151,13 +151,13 @@ class UndoSeamFightPitTest(unittest.TestCase):
         self.assertEqual(entries, [], "a refusal must never reach the undo entry")
         # The half that kills the "commit anyway" mutant: assert NOTHING was
         # written and nothing was saved, not just that a message came back.
-        self.assertEqual(addon.player_data, before, "a refusal must write nothing")
+        self.assertEqual(addon._state.player_data, before, "a refusal must write nothing")
         self.assertEqual(len(self.saves), 0, "a refusal must save nothing")
 
     def test_undo_entry_failure_reports_undo_unavailable_not_success(self):
         addon = self.addon
         self._install_collection(_RaisingCol())
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
 
         result = self.command("enter", {})
 
@@ -165,7 +165,7 @@ class UndoSeamFightPitTest(unittest.TestCase):
         self.assertEqual(result["message"], "Anki could not create an undo entry.")
         self.assertEqual(len(self.saves), 0, "nothing may be written or saved")
         self.assertEqual(
-            addon.player_data,
+            addon._state.player_data,
             before,
             "the failed action must not start a match",
         )

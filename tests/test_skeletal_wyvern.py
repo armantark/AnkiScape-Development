@@ -431,7 +431,7 @@ class SkeletalWyvernReviewUndoTests(unittest.TestCase):
         addon.show_error_message = lambda title, message: self.fail(
             f"{title}: {message}"
         )
-        addon.player_data = _player(
+        addon._state.player_data = _player(
             attack_level=99,
             strength_level=99,
             equipment={"shield": "Elemental shield"},
@@ -449,9 +449,9 @@ class SkeletalWyvernReviewUndoTests(unittest.TestCase):
             },
             slayer_exp=0.0,
         )
-        addon.current_skill = "Combat"
-        addon._REVIEW_UNDO_STACK.clear()
-        initial = copy.deepcopy(addon.player_data)
+        addon._state.current_skill = "Combat"
+        addon._state.review_undo_stack.clear()
+        initial = copy.deepcopy(addon._state.player_data)
         addon_slayer_logic = sys.modules[
             f"{addon.__name__}.logic.slayer_logic"
         ]
@@ -460,9 +460,9 @@ class SkeletalWyvernReviewUndoTests(unittest.TestCase):
         addon.random.random = lambda: 0.0
 
         def answer_once():
-            addon.card_turned = True
-            addon.answer_shown = True
-            addon.exp_awarded = False
+            addon._state.card_turned = True
+            addon._state.answer_shown = True
+            addon._state.exp_awarded = False
             addon.on_answer_card(
                 _FakeReviewer(), 4, lambda _self, _ease: "answered"
             )
@@ -473,23 +473,23 @@ class SkeletalWyvernReviewUndoTests(unittest.TestCase):
                 {"duradel_lapalok": replace(duradel, runtime_enabled=True)},
             ):
                 answer_once()
-                first_result = copy.deepcopy(addon.player_data)
+                first_result = copy.deepcopy(addon._state.player_data)
                 self.assertEqual(first_result["inventory"]["Wyvern bones"], 1)
                 self.assertEqual(
                     first_result["combat_kill_counts"]["skeletal_wyvern"], 1
                 )
                 self.assertEqual(first_result["slayer_assignment"]["remaining"], 39)
                 self.assertEqual(first_result["slayer_exp"], 210.0)
-                self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+                self.assertEqual(len(addon._state.review_undo_stack), 1)
 
                 addon._on_state_did_undo(
                     types.SimpleNamespace(operation="Answer Card")
                 )
-                self.assertEqual(addon.player_data, initial)
-                self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+                self.assertEqual(addon._state.player_data, initial)
+                self.assertEqual(addon._state.review_undo_stack, [])
 
                 answer_once()
-                self.assertEqual(addon.player_data, first_result)
+                self.assertEqual(addon._state.player_data, first_result)
         finally:
             addon.random.random = original_random
 

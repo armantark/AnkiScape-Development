@@ -103,9 +103,9 @@ def _low_combat_zogre_player() -> dict:
 
 
 def _answer_review(addon) -> None:
-    addon.card_turned = True
-    addon.answer_shown = True
-    addon.exp_awarded = False
+    addon._state.card_turned = True
+    addon._state.answer_shown = True
+    addon._state.exp_awarded = False
     addon.on_answer_card(
         _FakeReviewer(),
         4,
@@ -223,17 +223,17 @@ class TestCombatQuestProductFlow(unittest.TestCase):
         addon.show_error_message = lambda title, message: errors.append(
             (title, message)
         )
-        addon.player_data = _zogre_player(combat_level=64)
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
+        addon._state.player_data = _zogre_player(combat_level=64)
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
 
         self.assertTrue(addon.on_set_quest(QUEST_ID), errors)
-        self.assertEqual(addon.player_data["current_quest"], QUEST_ID)
-        self.assertTrue(addon.player_data["quests"][QUEST_ID]["started"])
-        self.assertEqual(addon.player_data["quests"][QUEST_ID]["progress"], 0)
-        self.assertFalse(addon.player_data["quests"][QUEST_ID]["completed"])
+        self.assertEqual(addon._state.player_data["current_quest"], QUEST_ID)
+        self.assertTrue(addon._state.player_data["quests"][QUEST_ID]["started"])
+        self.assertEqual(addon._state.player_data["quests"][QUEST_ID]["progress"], 0)
+        self.assertFalse(addon._state.player_data["quests"][QUEST_ID]["completed"])
 
-        addon.player_data.update(
+        addon._state.player_data.update(
             current_combat_target="zogre",
             combat_attack_style="aggressive",
             combat_lifepoints=640,
@@ -242,7 +242,7 @@ class TestCombatQuestProductFlow(unittest.TestCase):
             combat_encounter={},
             combat_kill_counts={},
         )
-        addon.current_skill = "Combat"
+        addon._state.current_skill = "Combat"
         combat_runtime = sys.modules[
             f"{addon.__name__}.runtime.runtime_actions_combat"
         ]
@@ -265,11 +265,11 @@ class TestCombatQuestProductFlow(unittest.TestCase):
             addon.random.random = original_random
             combat_runtime.COMBAT_ENEMY_DATA = original_enemies
 
-        inventory = addon.player_data["inventory"]
+        inventory = addon._state.player_data["inventory"]
         self.assertGreaterEqual(inventory.get("Ogre coffin key", 0), 1)
         self.assertGreaterEqual(inventory.get("Zogre bones", 0), 1)
-        self.assertEqual(addon.player_data["quests"][QUEST_ID]["progress"], 0)
-        self.assertFalse(addon.player_data["quests"][QUEST_ID]["completed"])
+        self.assertEqual(addon._state.player_data["quests"][QUEST_ID]["progress"], 0)
+        self.assertFalse(addon._state.player_data["quests"][QUEST_ID]["completed"])
 
         self.assertFalse(errors)
 

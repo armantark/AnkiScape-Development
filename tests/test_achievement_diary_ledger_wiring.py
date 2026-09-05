@@ -623,7 +623,7 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
             addon.update_review_hud = lambda *_args: None
             addon._refresh_skill_availability = lambda: None
             addon._show_activity_gain = lambda *_args: None
-            addon.current_skill = "Bankstanding"
+            addon._state.current_skill = "Bankstanding"
             player = storage.default_player_data(
                 package_constants.ORE_DATA, package_constants.ITEM_DEFINITIONS
             )
@@ -632,7 +632,7 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
                 {"started": True, "progress": 99, "completed": True}
             )
             player["inventory"]["Blood altar teleport"] = 1
-            addon.player_data = player
+            addon._state.player_data = player
 
             addon._on_main_menu()
             result = captured["on_use_great_orb_project_teleport_tablet"](
@@ -642,7 +642,7 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
             self.assertTrue(result["ok"], result)
             self.assertIn(
                 "morytania_hard_runecraft_carrier",
-                addon.player_data["achievement_diaries"]["completed_tasks"],
+                addon._state.player_data["achievement_diaries"]["completed_tasks"],
             )
         finally:
             sys.modules.clear()
@@ -784,12 +784,12 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
             )
 
             addon = _load_addon()
-            addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-            addon.player_data["quests"]["throne_of_miscellania"].update(
+            addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+            addon._state.player_data["quests"]["throne_of_miscellania"].update(
                 {"started": True, "progress": 99, "completed": True}
             )
-            addon.player_data.update(default_managing_miscellania_state_pure())
-            state = addon.player_data["managing_miscellania"]
+            addon._state.player_data.update(default_managing_miscellania_state_pure())
+            state = addon._state.player_data["managing_miscellania"]
             state["production_credit"] = 2_000_000
             state["allocations"]["hardwood"] = 10
             state["variants"]["hardwood"] = "mahogany"
@@ -801,15 +801,15 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
             addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
             addon._on_main_menu(initial_skill="Activities")
             task_id = "fremennik_hard_a_periodic_table"
-            self.assertFalse(self._is_complete(addon.player_data, task_id))
+            self.assertFalse(self._is_complete(addon._state.player_data, task_id))
 
             result = captured["on_managing_miscellania_command"]("collect", {})
 
             self.assertTrue(result["ok"], result)
             self.assertGreater(
-                addon.player_data["inventory"].get("Mahogany logs", 0), 0
+                addon._state.player_data["inventory"].get("Mahogany logs", 0), 0
             )
-            self.assertTrue(self._is_complete(addon.player_data, task_id))
+            self.assertTrue(self._is_complete(addon._state.player_data, task_id))
         finally:
             sys.modules.clear()
             sys.modules.update(original_modules)
@@ -897,13 +897,13 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
             runtime_actions = sys.modules[f"{package}.runtime.runtime_actions"]
             logic = sys.modules[f"{package}.core.logic"]
             target = agility_data.AGILITY_TARGETS_BY_ID["barbarian_advanced"]
-            addon.player_data = storage.default_player_data(
+            addon._state.player_data = storage.default_player_data(
                 constants.ORE_DATA, constants.ITEM_DEFINITIONS
             )
             addon.save_player_data = lambda: None
             addon._refresh_skill_availability = lambda: None
             addon._show_activity_gain = lambda _message: None
-            addon.player_data.update(
+            addon._state.player_data.update(
                 {
                     "current_agility": target.id,
                     "agility_level": 99,
@@ -943,10 +943,10 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
                 drain_calls += 1
                 real_drain()
 
-            addon.current_skill = "Agility"
-            addon.card_turned = True
-            addon.answer_shown = True
-            addon.exp_awarded = False
+            addon._state.current_skill = "Agility"
+            addon._state.card_turned = True
+            addon._state.answer_shown = True
+            addon._state.exp_awarded = False
             with (
                 patch.object(logic, "_popups_enabled", return_value=True),
                 patch.object(logic, "show_achievement_dialog", _show_dialog),
@@ -967,7 +967,7 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
                 1,
             )
             self.assertEqual(drain_calls, 1)
-            self.assertEqual(addon._PENDING_REVIEW_DIALOGS, [])
+            self.assertEqual(addon._state.pending_review_dialogs, [])
         finally:
             sys.modules.clear()
             sys.modules.update(original_modules)

@@ -204,37 +204,37 @@ class TestCabinFeverProductFlow(unittest.TestCase):
         addon.show_error_message = lambda title, message: calls["dialogs"].append(
             (title, message)
         )
-        addon.player_data = _cabin_fever_player()
-        before_inventory = dict(addon.player_data["inventory"])
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
+        addon._state.player_data = _cabin_fever_player()
+        before_inventory = dict(addon._state.player_data["inventory"])
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
 
         self.assertTrue(addon.on_set_quest(QUEST_ID), calls["dialogs"])
         for review_count in range(1, 11):
             _answer_review(addon)
-            if addon.player_data["quests"][QUEST_ID]["completed"]:
+            if addon._state.player_data["quests"][QUEST_ID]["completed"]:
                 break
         else:
             self.fail("Cabin Fever did not complete within 10 reviews")
 
-        self.assertTrue(addon.player_data["quests"][QUEST_ID]["completed"])
+        self.assertTrue(addon._state.player_data["quests"][QUEST_ID]["completed"])
         self.assertEqual(
             quest_action_proofs_for_quest(
-                addon.player_data,
+                addon._state.player_data,
                 QUEST_ID,
                 addon.QUEST_DATA,
             ),
             STAGE_ACTIONS,
         )
         self.assertEqual(
-            _inventory_delta(before_inventory, addon.player_data["inventory"]),
+            _inventory_delta(before_inventory, addon._state.player_data["inventory"]),
             {"Book o' piracy": 1},
         )
-        self.assertEqual(addon.player_data["quest_points"], 1002)
-        self.assertEqual(addon.player_data["agility_exp"], 7000.0)
-        self.assertEqual(addon.player_data["crafting_exp"], 7000.0)
-        self.assertEqual(addon.player_data["smithing_exp"], 7000.0)
-        self.assertEqual(addon.current_skill, "Utilities")
+        self.assertEqual(addon._state.player_data["quest_points"], 1002)
+        self.assertEqual(addon._state.player_data["agility_exp"], 7000.0)
+        self.assertEqual(addon._state.player_data["crafting_exp"], 7000.0)
+        self.assertEqual(addon._state.player_data["smithing_exp"], 7000.0)
+        self.assertEqual(addon._state.current_skill, "Utilities")
         self.assertEqual(calls["gains"][-1], "Cabin Fever complete")
         self.assertEqual(calls["dialogs"][-1][0], "Quest complete")
         self.assertIn("Cabin Fever is complete", calls["dialogs"][-1][1])

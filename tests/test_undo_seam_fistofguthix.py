@@ -52,7 +52,7 @@ class FistOfGuthixUndoSeamTest(unittest.TestCase):
     def setUp(self) -> None:
         self._orig_modules = dict(sys.modules)
         self.addon = _load_addon("ankiscape_fog_undo")
-        self.addon.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.addon._state.player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         self.saves: list[bool] = []
         self.addon.save_player_data = lambda: self.saves.append(True)
         self.collection = _FakeCollection()
@@ -77,28 +77,28 @@ class FistOfGuthixUndoSeamTest(unittest.TestCase):
 
     def test_talk_fiara_restores_through_the_real_handler(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
-        depth = len(addon._DIRECT_ACTION_UNDO_STACK)
+        before = copy.deepcopy(addon._state.player_data)
+        depth = len(addon._state.direct_action_undo_stack)
         handler = self._fog_handler()
 
         result = handler("talk_fiara", {})
 
         self.assertTrue(result["ok"])
         self.assertTrue(
-            addon.player_data["fist_of_guthix"]["tutorial_complete"]
+            addon._state.player_data["fist_of_guthix"]["tutorial_complete"]
         )
         self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
-        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), depth + 1)
+        self.assertEqual(len(addon._state.direct_action_undo_stack), depth + 1)
         self.assertEqual(len(self.saves), 1)
-        snapshot = addon._DIRECT_ACTION_UNDO_STACK[-1]["player_data"]
+        snapshot = addon._state.direct_action_undo_stack[-1]["player_data"]
         self.assertEqual(snapshot, before)
 
-        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
-        self.assertEqual(addon.player_data, before)
+        addon._restore_direct_action_snapshot(addon._state.direct_action_undo_stack.pop())
+        self.assertEqual(addon._state.player_data, before)
 
     def test_set_policy_is_undoable_too(self):
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         handler = self._fog_handler()
 
         result = handler(
@@ -107,11 +107,11 @@ class FistOfGuthixUndoSeamTest(unittest.TestCase):
         )
 
         self.assertTrue(result["ok"])
-        state = addon.player_data["fist_of_guthix"]
+        state = addon._state.player_data["fist_of_guthix"]
         self.assertEqual(state["automation_mode"], "advanced")
         self.assertEqual(state["selected_stance"], "centre")
-        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
-        self.assertEqual(addon.player_data, before)
+        addon._restore_direct_action_snapshot(addon._state.direct_action_undo_stack.pop())
+        self.assertEqual(addon._state.player_data, before)
 
     def test_a_refused_command_returns_its_own_refusal(self):
         addon = self.addon
@@ -127,7 +127,7 @@ class FistOfGuthixUndoSeamTest(unittest.TestCase):
     def test_when_the_undo_entry_cannot_be_created_nothing_is_written(self):
         """A failed undo entry must be reported as such, never as success."""
         addon = self.addon
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         self.collection.accepts = False
         handler = self._fog_handler()
 
@@ -138,7 +138,7 @@ class FistOfGuthixUndoSeamTest(unittest.TestCase):
             {"ok": False, "message": "Anki could not create an undo entry."},
             "a failed undo entry must not echo the successful info dict",
         )
-        self.assertEqual(dict(addon.player_data), before, "nothing may be written")
+        self.assertEqual(dict(addon._state.player_data), before, "nothing may be written")
 
 
 if __name__ == "__main__":

@@ -311,9 +311,9 @@ class FishingTrawlerHookTests(unittest.TestCase):
         )
         player, ok, _info = logic.enter_fishing_trawler_pure(player)
         self.assertTrue(ok)
-        addon.player_data = player
-        addon.current_skill = "Activities"
-        addon.exp_awarded = False
+        addon._state.player_data = player
+        addon._state.current_skill = "Activities"
+        addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: 20
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -322,15 +322,15 @@ class FishingTrawlerHookTests(unittest.TestCase):
         addon._show_exp = lambda _amount: None
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
-        before = copy.deepcopy(addon.player_data)
+        before = copy.deepcopy(addon._state.player_data)
         with patch.object(addon.random, "random", return_value=0.9) as rng:
             addon.on_good_answer(before)
         self.assertEqual(rng.call_count, 10)
-        self.assertEqual(addon.player_data["fishing_trawler_trips_completed"], 1)
-        self.assertGreater(addon.player_data["fishing_exp"], before["fishing_exp"])
+        self.assertEqual(addon._state.player_data["fishing_trawler_trips_completed"], 1)
+        self.assertGreater(addon._state.player_data["fishing_exp"], before["fishing_exp"])
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
-        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._state.player_data, before)
 
 
 if __name__ == "__main__":

@@ -193,12 +193,12 @@ class ActivityStartRuntimeTest(unittest.TestCase):
             "current_size": 1,
             "layer_remaining": 1_200,
         }
-        self.addon.player_data = {
+        self.addon._state.player_data = {
             "current_utility": "bankstanding",
             "mining_level": 10,
             "shooting_star": star_state,
         }
-        self.addon.current_skill = "Mining"
+        self.addon._state.current_skill = "Mining"
         hud_calls = []
         self.addon.update_review_hud = lambda data, skill: hud_calls.append(
             (data.get("current_utility"), skill)
@@ -209,9 +209,9 @@ class ActivityStartRuntimeTest(unittest.TestCase):
         )
 
         self.assertEqual(
-            self.addon.player_data["current_utility"], "shooting_stars"
+            self.addon._state.player_data["current_utility"], "shooting_stars"
         )
-        self.assertEqual(self.addon.current_skill, "Activities")
+        self.assertEqual(self.addon._state.current_skill, "Activities")
         self.assertEqual(len(self.seam.saves), 1)
         self.assertEqual(hud_calls, [("shooting_stars", "Activities")])
         self.assertEqual(
@@ -222,9 +222,9 @@ class ActivityStartRuntimeTest(unittest.TestCase):
             type("Changes", (), {"operation": "AnkiScape direct action"})()
         )
         self.assertEqual(
-            self.addon.player_data["current_utility"], "bankstanding"
+            self.addon._state.player_data["current_utility"], "bankstanding"
         )
-        self.assertEqual(self.addon.current_skill, "Mining")
+        self.assertEqual(self.addon._state.current_skill, "Mining")
 
     def test_unminable_star_still_raises_one_persistent_notice(self) -> None:
         from ankiscape.logic.shooting_star_logic import (
@@ -243,13 +243,13 @@ class ActivityStartRuntimeTest(unittest.TestCase):
         calls = {"save": 0, "event_drawer": 0}
         popups = []
         self.addon.ui.show_bankstanding_dialog = popups.append
-        self.addon.player_data = {
+        self.addon._state.player_data = {
             "current_utility": "shooting_stars",
             "mining_level": 10,
             "shooting_star": state,
             "shop_market_clock": {"answered_cards": 20},
         }
-        self.addon.current_skill = "Activities"
+        self.addon._state.current_skill = "Activities"
         self.addon.save_player_data = lambda: calls.__setitem__(
             "save", calls["save"] + 1
         )
@@ -265,15 +265,15 @@ class ActivityStartRuntimeTest(unittest.TestCase):
             self.addon.start_activity_for_reviews("shooting_stars")
         )
 
-        self.assertEqual(self.addon.current_skill, "Utilities")
+        self.assertEqual(self.addon._state.current_skill, "Utilities")
         self.assertEqual(
-            self.addon.player_data["current_utility"], "bankstanding"
+            self.addon._state.player_data["current_utility"], "bankstanding"
         )
         self.assertEqual(calls, {"save": 1, "event_drawer": 1})
         self.assertEqual(len(popups), 1)
         self.assertIn("Star unminable at your level", popups[0])
-        self.assertEqual(len(self.addon.player_data["review_event_log"]), 1)
+        self.assertEqual(len(self.addon._state.player_data["review_event_log"]), 1)
         self.assertEqual(
-            self.addon.player_data["shooting_star"]["notice"]["kind"],
+            self.addon._state.player_data["shooting_star"]["notice"]["kind"],
             "unminable",
         )

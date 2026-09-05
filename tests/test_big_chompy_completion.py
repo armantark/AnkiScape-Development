@@ -70,9 +70,9 @@ def _ready_big_chompy_player(*, include_stage_items=True, include_hunting_ammo=F
 
 
 def _answer_review(addon):
-    addon.card_turned = True
-    addon.answer_shown = True
-    addon.exp_awarded = False
+    addon._state.card_turned = True
+    addon._state.answer_shown = True
+    addon._state.exp_awarded = False
     addon.on_answer_card(
         _FakeReviewer(),
         4,
@@ -280,51 +280,51 @@ class TestBigChompyProductFlow(unittest.TestCase):
             (title, message)
         )
         addon.ui.show_bankstanding_dialog = calls["bankstanding"].append
-        addon.player_data = _ready_big_chompy_player(include_hunting_ammo=True)
-        addon.current_skill = "Quests"
-        addon._REVIEW_UNDO_STACK.clear()
+        addon._state.player_data = _ready_big_chompy_player(include_hunting_ammo=True)
+        addon._state.current_skill = "Quests"
+        addon._state.review_undo_stack.clear()
 
         original_random = addon.random.random
         addon.random.random = lambda: 0.0
         try:
             for review_count in range(1, 9):
                 _answer_review(addon)
-                if addon.player_data["quests"][QUEST_ID]["completed"]:
+                if addon._state.player_data["quests"][QUEST_ID]["completed"]:
                     break
         finally:
             addon.random.random = original_random
 
         self.assertLess(review_count, 8)
-        self.assertTrue(addon.player_data["quests"][QUEST_ID]["completed"])
+        self.assertTrue(addon._state.player_data["quests"][QUEST_ID]["completed"])
         self.assertEqual(
-            quest_action_proofs_for_quest(addon.player_data, QUEST_ID, QUEST_DATA),
+            quest_action_proofs_for_quest(addon._state.player_data, QUEST_ID, QUEST_DATA),
             STAGE_ACTIONS,
         )
-        self.assertEqual(addon.player_data["inventory"]["Ogre bow"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Ogre bow"], 1)
         self.assertEqual(calls["dialogs"][-1][0], "Quest complete")
         self.assertIn(
             "Big Chompy Bird Hunting is complete",
             calls["dialogs"][-1][1],
         )
 
-        addon.current_skill = "Utility / Activities"
-        addon.player_data["current_utility"] = CHOMPY_HUNTING_ACTIVITY_ID
+        addon._state.current_skill = "Utility / Activities"
+        addon._state.player_data["current_utility"] = CHOMPY_HUNTING_ACTIVITY_ID
         _answer_review(addon)
 
-        self.assertEqual(addon.player_data["inventory"]["Raw chompy"], 1)
-        self.assertEqual(addon.player_data["inventory"]["Ogre bow"], 1)
-        self.assertEqual(addon.player_data["inventory"]["Ogre arrow"], 0)
+        self.assertEqual(addon._state.player_data["inventory"]["Raw chompy"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Ogre bow"], 1)
+        self.assertEqual(addon._state.player_data["inventory"]["Ogre arrow"], 0)
         self.assertEqual(calls["gains"][-1], "+1 Raw chompy")
         self.assertGreaterEqual(calls["saves"], review_count + 1)
 
-        event_count = len(addon.player_data.get("review_event_log", ()))
+        event_count = len(addon._state.player_data.get("review_event_log", ()))
         _answer_review(addon)
 
-        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(calls["bankstanding"]), 1)
         self.assertIn("Ogre arrow", calls["bankstanding"][0])
         self.assertEqual(
-            len(addon.player_data["review_event_log"]),
+            len(addon._state.player_data["review_event_log"]),
             event_count + 1,
         )
 
