@@ -230,3 +230,34 @@ The normal commit hook required two utility-only adjustments: the tracer test
 lives at `tests/runtime_actions/test_dispatcher_state_coverage.py`, and the
 state-access survey summarizes its own per-function execution report. The
 report fields and behavioral test remain unchanged. No hook was bypassed.
+
+
+## Final delta review closure
+
+The independent bounded Opus delta review completed with exit 0 on 2026-09-05.
+It found no blocking delta defect and required no code change. It accepted the
+state identity setting, decorated-function trace lookup, distinct nested
+function identities, and the synthetic regression test. The driver also
+accepted the unchanged test's move into the existing runtime-actions package
+and the extraction of per-function report summarization. This closes the
+review findings for author draft `307002127772a6031fae3815a1c17716086fb72d`.
+
+The review is static only. An AST inspection of that draft's root initializer
+measured 729 `_state` attribute nodes on 631 distinct source lines. It found
+zero state-access lines shared by multiple callable scopes and zero state
+attribute accesses outside callable bodies. A separate inspection found none
+in function defaults, decorators, or annotations. The review's unverified
+textual count of 696 is not used as a measured result.
+
+The tracer still supports one owning scope per state-access source line and
+does not record module-scope state access. These limits do not apply to the
+inspected root source. They remain explicit limits; no speculative machinery
+or extra tests were added to expand the supported input.
+
+Fresh MacBook execution of the revised state owner, tracer, and synthetic test
+remains required. Instrument integration, complete Qt proof of the four root
+record removals before any authorized digest update, candidate and post-merge
+full gates, offscreen smoke, and the real native reviewer pass remain open.
+The native initialization canary's exit 71, `Operation not permitted`, is under
+separate diagnosis; no native acceptance or dispatcher diagnosis follows from
+that failure alone. No product test ran during this review-closure pass.
