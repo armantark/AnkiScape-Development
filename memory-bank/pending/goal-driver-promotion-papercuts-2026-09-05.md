@@ -1,0 +1,4 @@
+# Driver promotion papercuts
+
+- 2026-09-05 22:33:15 UTC: While preparing the queue promotion merge, `git merge --no-ff 774cecb1173ceddd5c55124dad40f8e5fc6062d1 -F -` returned exit `129` with `error: could not read file '-'`. No merge occurred. The supported sequence `git merge --no-ff --no-commit` followed by `git commit -F -` with a heredoc succeeded without skipping hooks.
+- 2026-09-05 22:33:15 UTC: While locating gem surface evidence, a read used cape pool 9 instead of gem pool 14 and returned `No such file or directory (os error 2)` for `memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/mbp/summary.json` and `memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/mbp/code-hashes.json`; the retained cape owner snapshot supplied the exact MacBook baseline path.
