@@ -26,7 +26,7 @@ FIRST_WAVE_DIGESTS = {
 QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db",
 }
-ROOT_QT_DIGEST = "2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d"
+ROOT_QT_DIGEST = "53dbd36a7e61becdbba23e63a0c0571b93853b22e5c73aea3967de3e6752af45"
 
 
 def run_tool(interpreter: Path, *args: str, qt: bool = False) -> subprocess.CompletedProcess[str]:

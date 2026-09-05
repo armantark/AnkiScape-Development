@@ -261,3 +261,89 @@ full gates, offscreen smoke, and the real native reviewer pass remain open.
 The native initialization canary's exit 71, `Operation not permitted`, is under
 separate diagnosis; no native acceptance or dispatcher diagnosis follows from
 that failure alone. No product test ran during this review-closure pass.
+
+
+## Revised candidate execution and four-record surface proof
+
+Candidate `a4663b2a7b51d2c1fca2d31bd834548dd1e42e85` contains the author draft,
+its static review closure, and the driver's merge of accepted instrument
+prerequisite `1932b3c07b5dd8bdb598889f2f503607ac92b791`. The repaired runner
+synced that exact candidate to the canonical MacBook mirror at
+`/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork`.
+
+The revised state tests and tracer regression pass: `Ran 12 tests in 3.930s`,
+`OK`, with no skips. The focused trace contains the previous 55 exact modules
+plus `tests/runtime_actions/test_dispatcher_state_coverage.py` and passes:
+`Ran 868 tests in 229.337s`, `OK (skipped=1)`,
+`Unexecuted functions: 0/195`. It records 561 of 631 state-access lines. This
+proves execution of each consumer; it does not claim complete branch coverage.
+The sole skip is
+`tests.test_achievement_diary_ledger_wiring.CurationLedgerRuntimeExecutionTest.test_real_blood_altar_tablet_checks_diary_before_next_teleport`,
+with the unchanged reason `Great Orb item 13 is held in memory-bank/pending/gop-achievement-check-2026-09-01.patch pending the owner's ruling.`
+
+The remote run is
+`/Users/armantarkhanian/ankiscape-remote-test-host/reports/dispatcher-state-a16901cad730`.
+Its trace is
+`/Users/armantarkhanian/ankiscape-remote-test-host/reports/dispatcher-state-final-focused-8cc4917e75.json`.
+The final manifest preserves the exact commands, interpreter and package
+versions, matching local and remote source hashes, logs, complete trace, and
+full Qt root output. The earlier trace remains preserved under its own source
+hashes.
+
+The complete candidate root payload is 8,449,646 bytes and has SHA-256
+`53dbd36a7e61becdbba23e63a0c0571b93853b22e5c73aea3967de3e6752af45`.
+It matches the driver's independently prepared expected payload byte for byte.
+Compared with the complete corrected pinned baseline payload
+`2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d`, the only
+removed records are:
+
+```text
+NAME answer_shown = false
+NAME card_turned = false
+NAME current_skill = "None"
+NAME exp_awarded = false
+```
+
+No record was added or otherwise changed. The serializer remains Git blob
+`2a24be1f43b4921ee41e8306eb324b4f3dc60431`. No surface pin, assertion, serializer,
+or threshold changed during this verification pass.
+
+The inverse AST and lexical proofs were rerun against the explicit accepted
+prerequisite commit, not a moving `HEAD`. All root function/class bodies and
+all 53 migrated test modules pass the permitted state-access/global-declaration
+comparison. All 204 affected lexical scopes retain global resolution through
+the imported state singleton. The anchored programs and exact outputs are in
+`memory-bank/source-audits/evidence/dispatcher-state-2026-09-05/migration-proof-final.json`.
+
+The headless mirror was returned explicitly to the driver after both test
+jobs and the surface capture completed. Driver qualification and the authorized
+root pin update, candidate/post-merge full gates, offscreen smoke, and native
+reviewer acceptance remain open. The evidence files and this update are not a
+claim of final state acceptance.
+
+
+## Driver-qualified root API retirement
+
+The driver independently verified all six final evidence artifacts against
+their declared hashes and byte counts, all 61 recorded source hashes, and the
+complete 8,449,646-byte actual root payload. It matched the independently
+prepared expected payload byte for byte. The complete baseline comparison
+removed only the four records listed above, with no additions or other
+changes. The driver also checked the raw trace log: 868 tests in 229.337s,
+one skip, and zero unexecuted consumers out of 195.
+
+The driver then explicitly authorized the owner-settled API retirement:
+change only `ROOT_QT_DIGEST` in `tests/test_module_surface.py` from
+`2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d` to
+`53dbd36a7e61becdbba23e63a0c0571b93853b22e5c73aea3967de3e6752af45`.
+That one constant is now updated. Every assertion, other pin, serializer,
+and threshold remains unchanged.
+
+The final evidence manifest remains byte-for-byte unchanged at SHA-256
+`89b14ae318594148cde0b878936831693318efddfef9c08f239905582cfd7686`.
+Its source hashes describe the exact tested pre-pin tree,
+`a4663b2a7b51d2c1fca2d31bd834548dd1e42e85`; they must not be read as hashes of
+the later pin-qualified commit. The driver owns the final candidate and
+post-merge full remote gates. Offscreen smoke and native reviewer acceptance
+remain required before the state programme is accepted. No MacBook command
+ran during this pin qualification and commit preparation.

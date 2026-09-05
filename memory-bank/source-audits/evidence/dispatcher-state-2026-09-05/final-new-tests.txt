@@ -1,0 +1,17 @@
+test_activity_commands_publish_real_changes_and_undo_the_saved_profile (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_activity_commands_publish_real_changes_and_undo_the_saved_profile) ... ok
+test_carried_menu_callbacks_read_live_state_and_save_preferences (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_carried_menu_callbacks_read_live_state_and_save_preferences) ... ok
+test_direct_selection_and_undo_publish_the_shared_skill_and_save (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_direct_selection_and_undo_publish_the_shared_skill_and_save) ... ok
+test_house_purchases_and_training_policies_use_the_current_profile (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_house_purchases_and_training_policies_use_the_current_profile) ... ok
+test_lower_state_notice_queue_drains_once_through_the_dispatcher (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_lower_state_notice_queue_drains_once_through_the_dispatcher) ... ok
+test_near_death_confirmation_runs_after_the_review_and_saves_leaving (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_near_death_confirmation_runs_after_the_review_and_saves_leaving) ... ok
+test_profile_load_replaces_the_save_seen_by_contexts_and_persistence (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_profile_load_replaces_the_save_seen_by_contexts_and_persistence) ... ok
+test_review_hooks_earn_once_and_undo_the_shared_save (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_review_hooks_earn_once_and_undo_the_shared_save) ... ok
+test_reward_commands_award_once_and_undo_xp_and_consumed_rewards (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_reward_commands_award_once_and_undo_xp_and_consumed_rewards) ... ok
+test_selection_dialogs_persist_the_shared_targets_and_skill (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_selection_dialogs_persist_the_shared_targets_and_skill) ... ok
+test_tools_quest_choices_and_hidden_xp_share_the_profile_save (tests.runtime_actions.test_dispatcher_state.DispatcherStateTest.test_tools_quest_choices_and_hidden_xp_share_the_profile_save) ... ok
+test_decorated_duplicate_names_and_deferred_comprehensions_stay_distinct (tests.runtime_actions.test_dispatcher_state_coverage.DispatcherStateCoverageTest.test_decorated_duplicate_names_and_deferred_comprehensions_stay_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 3.930s
+
+OK

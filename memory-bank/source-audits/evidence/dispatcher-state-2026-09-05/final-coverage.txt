@@ -1,0 +1,18 @@
+.................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................s.......................................................................................................................................................................................qt.qpa.fonts: Populating font family aliases took 98 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+.........................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 868 tests in 229.337s
+
+OK (skipped=1)
+State access evidence: /Users/armantarkhanian/ankiscape-remote-test-host/reports/dispatcher-state-final-focused-8cc4917e75.json
+Unexecuted functions: 0/195
