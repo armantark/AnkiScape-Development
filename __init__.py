@@ -324,7 +324,7 @@ from .logic.pet_logic import (
     store_active_pet_pure,
 )
 from .runtime import runtime_actions
-from .runtime.runtime_actions import RuntimeActionContext
+from .runtime.runtime_actions import BIG_CHINCHOMPA_UTILITY_ID, EVIL_TREE_UTILITY_ID, RuntimeActionContext
 from .logic.cadence_coverage import SINGLE_TICK_UTILITY_IDS
 from .runtime.dispatcher_state import state as _state
 

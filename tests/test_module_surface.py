@@ -24,7 +24,7 @@ FIRST_WAVE_DIGESTS = {
     "runtime/runtime_actions_activities.py": "f24614aeb194bb68c3c71694dc57962f00a5f95b8c24c6308e365889eb850c55",
 }
 QT_DIGEST_OVERRIDES = {
-    "ui/ui_tab_shop.py": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056",
+    "ui/ui_tab_shop.py": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db",
 }
 ROOT_QT_DIGEST = "2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d"
 
