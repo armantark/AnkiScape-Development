@@ -339,7 +339,7 @@ change only `ROOT_QT_DIGEST` in `tests/test_module_surface.py` from
 That one constant is now updated. Every assertion, other pin, serializer,
 and threshold remains unchanged.
 
-The final evidence manifest remains byte-for-byte unchanged at SHA-256
+At root-pin qualification, the final evidence manifest had SHA-256
 `89b14ae318594148cde0b878936831693318efddfef9c08f239905582cfd7686`.
 Its source hashes describe the exact tested pre-pin tree,
 `a4663b2a7b51d2c1fca2d31bd834548dd1e42e85`; they must not be read as hashes of
@@ -347,3 +347,19 @@ the later pin-qualified commit. The driver owns the final candidate and
 post-merge full remote gates. Offscreen smoke and native reviewer acceptance
 remain required before the state programme is accepted. No MacBook command
 ran during this pin qualification and commit preparation.
+
+
+## Byte-preserving coverage log packaging
+
+The normal hooks accepted pin-qualification commit
+`24b7597b165900c4b89ed10da9fdd4a854064db2`. Its raw coverage log contained a
+trailing space emitted by the Qt font warning, which `git diff --cached --check`
+reported. The log is now stored as `final-coverage.txt.gz` using gzip level 9
+and timestamp 0. Decompression is byte-identical to the verified original:
+1,786 bytes, SHA-256 `3e006e3838bd6daea48690a62ba135bf24eddfdb4812299d5cfeab03408ae926`.
+No test output was stripped or rewritten, and no verification rule changed.
+
+The manifest now declares that artifact's compressed and plaintext hashes.
+Its new SHA-256 is `6c2df53b630199a4f9f147471b400ced62e56cec8ddc3f447e6feecd3c996882`. All source hashes, the tested pre-pin
+commit, runtime results, and root-payload proof remain unchanged. The change
+is evidence packaging only and requires no MacBook rerun.

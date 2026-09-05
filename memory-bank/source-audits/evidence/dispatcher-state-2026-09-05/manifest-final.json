@@ -1,9 +1,11 @@
 {
   "all_source_hashes_match": true,
   "artifacts": {
-    "final-coverage.txt": {
-      "bytes": 1786,
-      "sha256": "3e006e3838bd6daea48690a62ba135bf24eddfdb4812299d5cfeab03408ae926"
+    "final-coverage.txt.gz": {
+      "gzip_bytes": 336,
+      "gzip_sha256": "784bfa62cc01569582a9c3ddacd02d938953d4ced126fe3a47d4ff1bc34265c1",
+      "plaintext_bytes": 1786,
+      "plaintext_sha256": "3e006e3838bd6daea48690a62ba135bf24eddfdb4812299d5cfeab03408ae926"
     },
     "final-new-tests.txt": {
       "bytes": 2560,
