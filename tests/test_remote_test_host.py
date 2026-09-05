@@ -103,6 +103,59 @@ class RemoteTestHostTests(unittest.TestCase):
                     self.assertFalse((destination / ".git").exists())
                     self.assertFalse((destination / ".venv-qt").is_symlink())
 
+    def test_sync_recreates_only_the_remote_interpreter_link_and_preserves_old_mirror(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source"
+            source.mkdir()
+            (source / "tracked.txt").write_text("tracked\n", encoding="utf-8")
+            (source / ".venv-qt").symlink_to("/studio-only/.venv-qt")
+            host_root = root / "remote host"
+            mirror = host_root / run_remote_tests.REMOTE_REPO.name
+            old_mirror = host_root / "repo"
+            old_mirror.mkdir(parents=True)
+            (old_mirror / "keep.txt").write_text("old mirror\n", encoding="utf-8")
+            reports = host_root / "reports"
+            reports.mkdir()
+            (reports / "keep.log").write_text("old report\n", encoding="utf-8")
+            venv = host_root / ".venv-qt"
+            (venv / "bin").mkdir(parents=True)
+            (venv / "bin" / "python").symlink_to(sys.executable)
+
+            def local_ssh(command, *, label):
+                return subprocess.run(
+                    ("/bin/sh", "-c", command),
+                    check=True, text=True, capture_output=True,
+                ).stdout
+
+            def local_rsync(command, *, label):
+                local_command = (*command[:-1], command[-1].removeprefix(f"{run_remote_tests.HOST}:"))
+                return subprocess.run(
+                    local_command, check=True, text=True, capture_output=True,
+                )
+
+            with (
+                patch.object(run_remote_tests, "REMOTE_ROOT", host_root),
+                patch.object(run_remote_tests, "REMOTE_REPO", mirror),
+                patch.object(run_remote_tests, "REMOTE_VENV", venv),
+                patch.object(run_remote_tests, "_ssh", side_effect=local_ssh) as ssh,
+                patch.object(run_remote_tests, "_run_with_retries", side_effect=local_rsync),
+            ):
+                for _ in range(2):
+                    run_remote_tests._sync(source)
+                    run_remote_tests._ssh(*ssh.call_args.args, **ssh.call_args.kwargs)
+                    self.assertEqual(mirror.name, "ankiscape_fork")
+                    self.assertEqual((mirror / ".venv-qt").readlink(), venv)
+                    self.assertFalse((venv / ".venv-qt").is_symlink())
+                    self.assertEqual((mirror / "tracked.txt").read_text(), "tracked\n")
+                    executed = subprocess.run(
+                        (str(mirror / ".venv-qt/bin/python"), "-c", "print('interpreter available')"),
+                        check=True, text=True, capture_output=True,
+                    )
+                    self.assertEqual(executed.stdout, "interpreter available\n")
+                    self.assertEqual((old_mirror / "keep.txt").read_text(), "old mirror\n")
+                    self.assertEqual((reports / "keep.log").read_text(), "old report\n")
+
     def test_remote_mirror_lock_path_is_absolute_and_shared_across_imports(self):
         source = Path(run_remote_tests.__file__)
         probe = (
