@@ -1,6 +1,6 @@
 # Prevent repeated remote test launches
 
-Status: focused MacBook tests on the final source hashes passed, the isolated process canary passed, and independent review corrections are accepted. Full branch and post-merge promotion gates remain pending. The driver owns all MacBook operations and promotion. No local tests, real SSH commands, rsync, browser operations, commits, or changes outside this worktree were performed by the author for this implementation.
+Status: focused MacBook tests on the final source hashes passed, the isolated process canary passed, and independent review corrections are accepted. The full branch gate passed; post-merge promotion checks remain pending. The driver owns all MacBook operations and promotion. No local tests, real SSH commands, rsync, browser operations, commits, or changes outside this worktree were performed by the author for this implementation.
 
 ## Failure and boundary
 
@@ -18,7 +18,7 @@ Under the same caller-held mirror lock, `_sync` first reads an existing pending 
 
 `tests/test_remote_test_host.py` adds subprocess-fake coverage for one-shot command failures, bounded repeat-safe SSH retries, one disconnected launch returning the real test failure and log, and persistent blocking across a second invocation and a direct `_sync` call after launch, polling, or timeout failure. These checks retain the real `_sync` and fake only subprocess and rsync transport; they assert that blocked calls cannot reach mkdir, rsync, link setup, or launch. It also checks that missing and invalid reports retain the guard and a valid failed-test report releases it. All tests isolate the pending file in temporary directories. The existing sync seam accepts the explicit repeat-safe argument.
 
-Static verification: both modified Python files parse with `ast.parse`; no imports or test execution were used. The exact runner diff preserves `_run_with_retries`, `_rsync_command`, `_remote_lane_command`, all host paths, test-count floors, and the remote surface guard. Focused runtime evidence is retained below. Full branch and post-merge promotion checks remain pending.
+Static verification: both modified Python files parse with `ast.parse`; no imports or test execution were used. The exact runner diff preserves `_run_with_retries`, `_rsync_command`, `_remote_lane_command`, all host paths, test-count floors, and the remote surface guard. Focused runtime evidence is retained below. The full branch gate passed; post-merge promotion checks remain pending.
 
 Focused selector: `tests.test_remote_test_host.RemoteTestHostTests`. The driver ran the complete existing module, including its original rsync and interpreter-link canaries, on the MacBook within the approved isolated harness. The separate process canary proved that the pending guard blocks a second sync before a shared-mirror run.
 
@@ -44,7 +44,7 @@ The driver also executed the process canary retained as `process-canary.py.gz` o
 
 The canary injected exit `255` after an actual local detached shell launch. It did not make a network SSH connection and does not demonstrate a naturally occurring SSH disconnect. It verifies the one-shot recovery path with a real background process and real local shell and rsync operations. This evidence does not imply that any orphan worker was present on the shared mirror.
 
-Only the focused module and isolated process canary are complete. Full branch and post-merge gates remain pending. Native UI testing is unnecessary for this pure CLI tool change.
+The focused module, isolated process canary, and full branch gate are complete. Post-merge promotion checks remain pending. Native UI testing is unnecessary for this pure CLI tool change.
 
 - 2026-09-05: While locating the documentation checker, a guessed `tools/promotion_controller.py` and `.pre-commit-config.yaml` lookup returned `No such file or directory (os error 2)`. The actual checker was resolved from `tools/promotion/lane_execution.py` as `tools/audit_docs.py`.
 
@@ -72,6 +72,14 @@ The parent also authorized flattening only the deepest diagnostic assertion loop
 
 The [repair evidence manifest](remote-test-single-launch-2026-09-05/repair-43926d19/manifest.json) retains a separate copy of the MacBook rerun logs and result record, without replacing the earlier historical evidence. Driver session `25446` completed with exit `0`. Plain Python ran 16 tests in 0.201s; Qt Python ran 16 tests in 0.439s. Both reported `OK` with no skips.
 
-The copied result record and current file bytes match runner SHA256 `5de9414af35bb4688810d7d3f9b3331b205988b74a30706de6eca07af2de5e42` and test SHA256 `43926d19b0542ec04c03d1e7dcdf29520e5a47c2f7180f90ddd6b75e13febd8b`. These are the final qualified runner and test hashes. The earlier process canary remains applicable to the unchanged runner bytes; it is explicitly an injected local-process fault, not a natural network SSH failure. Full branch and post-merge gates remain pending.
+The copied result record and current file bytes match runner SHA256 `5de9414af35bb4688810d7d3f9b3331b205988b74a30706de6eca07af2de5e42` and test SHA256 `43926d19b0542ec04c03d1e7dcdf29520e5a47c2f7180f90ddd6b75e13febd8b`. These are the final qualified runner and test hashes. The earlier process canary remains applicable to the unchanged runner bytes; it is explicitly an injected local-process fault, not a natural network SSH failure. The full branch gate passed; post-merge promotion checks remain pending.
 
 - 2026-09-05: The driver attempted canonical `rg --files tools/dispatcher`, which returned `rg: tools/dispatcher: IO error for operation on tools/dispatcher: No such file or directory (os error 2)`. The follow-up unquoted `tools/dispatcher/surface*` returned `zsh:1: no matches found: tools/dispatcher/surface*`. Existing surface helpers are elsewhere; no mutation or runtime occurred.
+
+## Full branch gate and promotion status
+
+The driver completed the full branch gate for `ef6f38018119a21e9c81065c84d7017ee0da5c03` at `2026-09-05T15:57:25-07:00`. The canonical receipt at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/ef6f38018119a21e9c81065c84d7017ee0da5c03.json` records `remote_lanes: true`, `plain_only: false`, and passes for both lanes, `audit_docs`, `audit_test_quality`, `reachability`, `worktree_guard`, worktree cleanliness, and the diff check.
+
+The retained log at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/gate-ef6f3801.log` reports plain `Ran 5567 tests in 574.363s` with `OK (skipped=1367)`, and monolithic Qt `Ran 5567 tests in 1118.951s` with `OK (skipped=5)`, followed by `=== GATE DONE ===`. Receipt SHA256: `ae3a53cddda702aadf34e197361cf5a32c2b46ac5a7f67c735601dd93e5dccee`; log SHA256: `37c0c28de1c28d855103e646d5d8c30be41343d36cfb072450e26ff3e1acf9da`.
+
+Promotion merge `a2631da0a6201344fb85275ae5f7d2e9dc02d96a` contains the qualified runner commit and preserves its runner/test bytes. Its post-merge promotion checks remain pending; the branch receipt does not attest the merged state. Main remains `1932b3c07b5dd8bdb598889f2f503607ac92b791`.
