@@ -202,6 +202,13 @@ Process one unblocked item per iteration. Move discovered design gaps to
    on canonical `main` this seat's repair work rather than a stop condition.
    Commit `324066da` adopts the verified asset-cutoff audit re-run, commit
    `732643e7` lands the previous session's records, and
-   `memory-bank/GOAL-BLOCKED.md` is deleted. Three reviewed papercut branches
-   remain unmerged: `63a3409c`, `b861cdec`, and `8f1092db`.
-6. [ ] Build the stored priority matrix the new goal requires, then work it.
+   `memory-bank/GOAL-BLOCKED.md` is deleted.
+6. [x] The prior papercut branches are reconciled against main.
+   `63a3409c` and `b861cdec` are ancestors of main. The reachability-check
+   branch's original `8f1092db` was re-created as `aa173479` and merged through
+   `9d2b8d97`; none of these three remains eligible unmerged work.
+7. [ ] Execute `memory-bank/goal-priority-matrix.md` under the resumed goal.
+   - [x] Build the stored priority matrix from current queues and owner rulings.
+   - [ ] Complete the first owner-ordered unit: dispatcher state-object
+     restructure (§57/58), with all required verification and native review.
+   - [ ] Re-audit eligible work and preserved candidates after each promotion.

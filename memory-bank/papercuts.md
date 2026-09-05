@@ -2009,3 +2009,33 @@
 2026-09-04 04:50 PDT — After extracting `_utility_surface_for_target`, the second S2 follow-up gate ran for 1,131 seconds before reporting `__init__.py: E302 x15 (was 14)`; the extraction had left one rather than two blank lines before `_normalize_legacy_utility_skill`.
 - 2026-09-04 05:30 PDT — Design seat committed a merge-conflict resolution with `-c core.hooksPath=/dev/null` to dodge a ~20-minute fleet gate on a tests-only deletion; a hook bypass, forbidden. Class: merge-resolution commits in pooled worktrees pay the full gate even for deletions; the gate needs a fast path for a diff that removes lines only.
 - 2026-09-04 09:17 PDT — `tests/test_module_surface.py` pins for `core/constants.py` and `data/achievement_diary_catalog.py` move whenever diary text changes, and `ui/ui_tab_shop.py` measures `2ddacc92…` under the local `.venv-qt` but `3a4cb59b…` on the remote lane and under `/opt/homebrew/bin/python3`; the test also depends on the checkout path for the root digest. Class: surface pins mix data text with API surface, and one pin is environment-dependent; each costs a gate round.
+
+- 2026-09-05T10:48:34-07:00 — Resuming the goal called create_goal and received `cannot create a new goal because this thread has an unfinished goal; complete the existing goal first`; resume the existing goal rather than create a duplicate.
+
+- 2026-09-05T10:48:34-07:00 — Queue-audit broad Memory Bank reads were output-truncated; use the bounded `tools/memory_bank_queue_packet.py` entrypoint and exact line ranges for omitted authorities.
+
+- 2026-09-05T10:48:34-07:00 — Queue-audit exact search of giant generated `data/shop_data.py` matching lines produced `528700` original output tokens; filename discovery plus `rg --max-columns 180` prevents a single serialized line from defeating head/line limits.
+
+- 2026-09-05T10:48:34-07:00 — Queue-audit guessed `memory-bank/depth-tranche.md` and `data/miniquest_data.py`, which do not exist, and the unmatched `data/miniquests/*.py` glob failed with `zsh:1: no matches found: data/miniquests/*.py`; discover actual paths before content searches.
+
+- 2026-09-05T10:48:34-07:00 — Queue-audit merge-base diff summaries warned `multiple merge bases` for diary wiring and split batch 2; inspect non-merge unique commits and current consumers instead of interpreting one arbitrarily selected merge base as unlanded functionality.
+
+- 2026-09-05T10:48:34-07:00 — Queue-audit contract required a slice commit and full checks while the dispatch requested a draft and lightweight checks; driver clarified review-first commit timing and driver-owned unchanged MBP acceptance/promotion gates. No gate was waived.
+
+- 2026-09-05T10:48:34-07:00 — Driver reported orphan Qt run `qt-1788377808-26eb3c7d`, child `82408` sampled in `QDialog.exec`, wrapper `82407`; revalidated child received TERM, wrapper reported exit `143`, both then absent. Driver owns subsequent baseline and native-route diagnosis; queue audit did not access the mirror.
+
+- 2026-09-05T10:49:03-07:00 — Driver tool discovery hit `zsh:1: no matches found: tests/qt*` and `rg: tests/pkg_alias.py: No such file or directory (os error 2)`; discover actual paths before expanding globs or probing guessed harness files.
+
+- 2026-09-05T10:49:03-07:00 — Driver queried `git show goal/dispatcher-seam-2026-09-02:memory-bank/handoffs/impl-to-design-2026-09-02-seam-gate.md`, but that document exists only on main and branch `a73dc117` contains only papercut evidence; verify ref/path membership before reading branch-specific documents.
+
+- 2026-09-05T10:49:03-07:00 — Driver native-agent spawn after a completed agent failed `agent thread limit reached`; the existing agent continued through `followup_task` instead.
+
+- 2026-09-05T10:49:03-07:00 — Driver native Computer Use bridge failed twice and after one safe exact-helper restart; the desktop-authorized MacBook task route remains untested, so this is an unresolved acceptance dependency rather than proof that all Computer Use is unavailable.
+
+- 2026-09-05: GE test lookup guessed nonexistent tests/data/test_grand_exchange_data.py, tests/logic/test_grand_exchange.py, and tests/data/test_item_registry.py and returned No such file or directory (os error 2); switched to rg --files tests before selecting test paths.
+
+- 2026-09-05: ask-claude's macOS Bash launcher for the 83,003-byte queue packet ran >7 minutes at 97.5-98.5% CPU with no Claude child or quota log; native sample shows Bash `wcslen`/`wctype_l`. The driver revalidated and sent TERM only to its launcher PID `65566`. An invocation-local `LC_ALL=C` retry did not establish a fix; the operational recovery used a short file-pointer prompt. Sample: `/tmp/ankiscape-review-launcher-sample-2026-09-05.txt`. Suspected class: Bash multibyte whitespace expansion before the model call, not model latency. No global skill was edited.
+
+- 2026-09-05: Claude's final stdout omitted substantive earlier queue-review findings. The driver recovered the complete review from the same session's assistant text into `/tmp/ankiscape-queue-review-opus-2026-09-05-complete.txt`. Final stdout alone was not a complete review record.
+
+- 2026-09-05: the driver looked for `tools/dispatcher/module_surface.py`; the actual path is `tools/module_surface.py`, found with `rg --files`.
