@@ -18,7 +18,7 @@ from typing import Sequence
 HOST = "armans-macbook-pro"
 REMOTE_HOME = Path("/Users/armantarkhanian")
 REMOTE_ROOT = REMOTE_HOME / "ankiscape-remote-test-host"
-REMOTE_REPO = REMOTE_ROOT / "repo"
+REMOTE_REPO = REMOTE_ROOT / "ankiscape_fork"
 REMOTE_VENV = REMOTE_ROOT / ".venv-qt"
 REMOTE_PLAIN_SITE = REMOTE_ROOT / "plain-site"
 REMOTE_GAME_MAIN = REMOTE_ROOT / "sources" / "game-main"
@@ -116,6 +116,11 @@ def _sync(local_worktree: Path) -> None:
     )
     command = _rsync_command(local_worktree, f"{HOST}:{REMOTE_REPO}/")
     _run_with_retries(command, label="worktree sync")
+    _ssh(
+        f"ln -sfn {shlex.quote(str(REMOTE_VENV))} "
+        f"{shlex.quote(str(REMOTE_REPO / '.venv-qt'))}",
+        label="remote Qt interpreter link",
+    )
 
 
 def _remote_lane_command(lane: str) -> str:
@@ -139,6 +144,7 @@ def _remote_lane_command(lane: str) -> str:
 
 def _preflight(lane: str) -> None:
     common_checks = (
+        f"test -x {shlex.quote(str(REMOTE_VENV / 'bin/python'))}",
         f"test -f {shlex.quote(str(REMOTE_GAME_MAIN / 'data/cfg/items.yml'))}",
         f"test -f {shlex.quote(str(REMOTE_DARKAN / 'developer-information/npcList.txt'))}",
         f"test -f {shlex.quote(str(REMOTE_DARKAN / 'developer-information/beasts.txt'))}",
@@ -153,7 +159,6 @@ def _preflight(lane: str) -> None:
     else:
         cache_root = REMOTE_HOME / "Library/Caches/codex/2012scape-openrs2/extracted"
         lane_checks = (
-            f"test -x {shlex.quote(str(REMOTE_VENV / 'bin/python'))}",
             f"{shlex.quote(str(REMOTE_VENV / 'bin/python'))} -c 'import anki, aqt, PyQt6'",
             "test -x /opt/homebrew/opt/openjdk@25/bin/java",
             "test -x /opt/homebrew/opt/openjdk@25/bin/javac",
