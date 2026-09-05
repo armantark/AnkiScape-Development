@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "/Users/armantarkhanian/ankiscape-remote-test-host/reports/runner-5de9414-focused-harness/process-canary.py",
+    "/Users/armantarkhanian/ankiscape-remote-test-host/reports/runner-5de9414-focused-harness/tools/run_remote_tests.py"
+  ],
+  "exit_code": 0,
+  "script_sha256": "617e451340c4063090016bc09fb0e4fd096fad3a2b96b3370e4cc31ffda50bd4"
+}
