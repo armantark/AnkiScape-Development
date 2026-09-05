@@ -436,7 +436,7 @@ from ..data.herblore_data import (
 from ..data.grind_source_data import grind_source_activities_as_dict
 from ..data.quest_item_acquisition_data import quest_item_acquisition_activities_as_dict, quest_item_acquisition_extra_items_as_dict
 from ..data.shop_data import shop_extra_items_as_dict
-from ..data.summoning_data import summoning_extra_items_as_dict
+from ..data.summoning_data import SUMMONING_POUCHES as _SUMMONING_POUCHES, summoning_extra_items_as_dict
 from ..data.potion_data import potion_items_as_dict, potion_item_names
 from ..data.prayer_data import (
     DEFAULT_PRAYER_TARGET,
@@ -2602,7 +2602,7 @@ for _spec in UTILITY_ACTIVITY_DATA.values():
 
 
 def _known_non_shop_item_names():
-    names = set()
+    names = {pouch.pouch_name for pouch in _SUMMONING_POUCHES}
     for mapping in (
         QUEST_REWARD_ITEM_DATA,
         WOODCUTTING_EXTRA_ITEM_DATA,
