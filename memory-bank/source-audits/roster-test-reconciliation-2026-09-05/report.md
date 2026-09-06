@@ -4,7 +4,7 @@ The split preserves the complete roster test contract. Shared checks, dragon fam
 
 ## Scope and preservation
 
-The source baseline is `814b4d591df4525e0bda4a1f858baf6345ed4d38` on branch `goal/roster-test-reconciliation-2026-09-05`. The parent preserved the incoming work in stash `1a34588b994e4fead010127412b1b84d57e4f27f` before reconciliation. The historical July audit and every unrelated measuring-test pin and assertion remain unchanged.
+The source baseline is `814b4d591df4525e0bda4a1f858baf6345ed4d38` on branch `goal/roster-test-reconciliation-2026-09-05`. The parent preserved the incoming work in stash `1a34588b994e4fead010127412b1b84d57e4f27f` before reconciliation. Every unrelated measuring-test pin and assertion remains unchanged. The complete historical July report is retained byte-for-byte; its readable copy now links the original unittest transcript as described below.
 
 `static-preservation-proof.json` records the complete source test-ID map, source hashes and asset expectations. The independent Opus review accepted the split. Its unchanged response and the parent's dispositions are retained separately from the later runtime reports. The helper-coverage, quote-style, seam and direct-execution suggestions did not require changes to this contract.
 
@@ -34,13 +34,11 @@ Opus session 19221 supplied the pre-capture independent review. The parent suppl
 
 ## Remaining acceptance
 
-Integration status: **blocked by the documentation gate**. The source split, runtime captures and pin adaptation are proven within their recorded scope.
+Integration status: **documentation representation corrected; documentation audit passed**. The source split, runtime captures and pin adaptation retain their recorded scope. This change does not establish full promotion-gate or native programme acceptance.
 
-The focused captures and pin adaptation pass. This report does not claim a full promotion gate, final complexity-hook acceptance, native UI acceptance or publication. Those remain with the parent. Source, roster and measuring bytes stayed frozen during evidence retention.
+The earlier documentation audit reported two `dangling_test_selector` errors in the historical July report at lines 99 and 100. Its complete original bytes are now retained as [immutable evidence](evidence/historical-july-report/combat-enemy-roster-step1-data-report-2026-07-07.md.gz), with the historical Git revision, blob, decoded hash and stored hash/length in [the binding](evidence/historical-july-report/binding.json). Only the fenced unittest transcript in the readable report is replaced by an evidence link; every other byte of its factual contents is preserved. The original command and output have not been rewritten.
 
-The documentation audit reports two `dangling_test_selector` errors in the unchanged historical file `../combat-enemy-roster-step1-data-report-2026-07-07.md`, lines 99 and 100. They reference the old roster module. The historical audit is preserved byte-for-byte as required; this report does not claim the documentation gate passes. The changed audit notes have no reported documentation issues.
-
-No gate change is authorized. The proposed blanket exclusion of `text` fences was rejected because those fences can contain current runnable commands as well as historical output. Any narrower historical-evidence rule requires an explicit owner contract that preserves live command checks. The measuring instrument and historical output remain unchanged.
+The parent revised its earlier operational file freeze for this representation change. The earlier claim that this required a new owner decision was unsupported: no owner ruling prohibited relocating verbatim historical evidence. The unchanged checker continues to validate current source-audit selectors. No text-fence exemption, compatibility test, product edit or measuring-pin change is part of this correction. The earlier failing audit and all prior captured evidence remain unchanged. The unchanged documentation checker reports 662 Markdown files, 445 HTML files and zero issues; [the new receipt](evidence/historical-july-report/documentation-audit.json) retains that result. Full branch and exact merged-tree gates remain pending.
 
 ## Retained evidence
 

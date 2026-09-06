@@ -1096,12 +1096,12 @@
     "sha256": "65e2560b74e1291da055b9fe23a43e9631bd5d021a689aae8f121e5414769ae9"
   },
   "papercuts.md": {
-    "bytes": 2378,
-    "sha256": "432bd2ccf49b2096067912bbebc24ff2f76dad2244578fb94734766af8175fa5"
+    "bytes": 3556,
+    "sha256": "3c5e09c81837cecdd02b1782f608a28e9904b36a43eccc97e7323287d2923cdf"
   },
   "report.md": {
-    "bytes": 5513,
-    "sha256": "cf69f0ddb351f7e0218c54868c68fc5ad21869bbf40a6a99cb8b91c162e4cd5e"
+    "bytes": 6078,
+    "sha256": "e11c18f8e68778b575d58ee91733caaa530f7a6814ece34d7569626d41107097"
   },
   "retained-evidence.json": {
     "bytes": 1294,
@@ -1110,5 +1110,17 @@
   "static-preservation-proof.json": {
     "bytes": 23539,
     "sha256": "b718fee47d76ad35fe2785561d23efdf9dbd36f4ba1bef4b8cb88fa196f6d987"
+  },
+  "evidence/historical-july-report/binding.json": {
+    "bytes": 858,
+    "sha256": "76e4a46c105a6f94d7caec9ca9443bce8634cd2caf437fecf04d8990ee1e13b6"
+  },
+  "evidence/historical-july-report/combat-enemy-roster-step1-data-report-2026-07-07.md.gz": {
+    "bytes": 2585,
+    "sha256": "8ab2afa61d0bbf395431bd496e8bf98994fe4ebea1d10ee98332c62e3e6f7eb5"
+  },
+  "evidence/historical-july-report/documentation-audit.json": {
+    "bytes": 65,
+    "sha256": "66e7dda4d3bc6f7116e940a750512499ee77ea92e918a812de56c40315cfb998"
   }
 }
