@@ -1,0 +1,485 @@
+[
+  {
+    "input": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/openrs2-cache-727-742-legacy-of-seergaze.json",
+    "sha256": "6d49905f8f0e2852b25559815361994c46cc9f4f42571c8e1fcada0c50e30b79",
+    "snapshots": [
+      {
+        "build": 727,
+        "date": "2012-07-24",
+        "openrs2_cache_id": 309,
+        "zip_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/runescape-727-2012-07-24-openrs2-309-disk.zip",
+        "zip_sha256": "ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8",
+        "extracted_query_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache",
+        "definition_rows_sha256": "92e70feddbfdc7b35490e300c4806a97c4f1a66c27b059ee72df0dee1dd98bda",
+        "map_rows_sha256": "2ba797fd59cabf42f8c953c23dfc4cc18545898a150815f819f6449d75887b2f"
+      },
+      {
+        "build": 728,
+        "date": "2012-08-01",
+        "openrs2_cache_id": 310,
+        "zip_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/runescape-728-2012-08-01-openrs2-310-disk.zip",
+        "zip_sha256": "7cbddfea4df57307e6a427fd1a27922062d45896eaf1ce4c2080ece888b4e936",
+        "extracted_query_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/728-2012-08-01/cache",
+        "definition_rows_sha256": "92e70feddbfdc7b35490e300c4806a97c4f1a66c27b059ee72df0dee1dd98bda",
+        "map_rows_sha256": "2ba797fd59cabf42f8c953c23dfc4cc18545898a150815f819f6449d75887b2f"
+      },
+      {
+        "build": 729,
+        "date": "2012-08-11",
+        "openrs2_cache_id": 311,
+        "zip_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/runescape-729-2012-08-11-openrs2-311-disk.zip",
+        "zip_sha256": "bb492440353b6ec6a60faca6ac63ec1153de970505ee504101e5c8305ffd555f",
+        "extracted_query_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/729-2012-08-11/cache",
+        "definition_rows_sha256": "92e70feddbfdc7b35490e300c4806a97c4f1a66c27b059ee72df0dee1dd98bda",
+        "map_rows_sha256": "2ba797fd59cabf42f8c953c23dfc4cc18545898a150815f819f6449d75887b2f"
+      },
+      {
+        "build": 736,
+        "date": "2012-10-09",
+        "openrs2_cache_id": 313,
+        "zip_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/runescape-736-2012-10-09-openrs2-313-disk.zip",
+        "zip_sha256": "68c5deaed6b5eb97e97df0f9e4c16d8728289ba5ccf1dba13b2e0a4131ef264d",
+        "extracted_query_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/736-2012-10-09/cache",
+        "definition_rows_sha256": "6c45cf1fbb5d00b1993307888336f84064b07063283960e61b6bfbd09cbc2087",
+        "map_rows_sha256": "2ba797fd59cabf42f8c953c23dfc4cc18545898a150815f819f6449d75887b2f"
+      },
+      {
+        "build": 741,
+        "date": "2012-11-04",
+        "openrs2_cache_id": 1468,
+        "zip_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/runescape-741-2012-11-04-openrs2-1468-disk.zip",
+        "zip_sha256": "61855e4c9f18e5ae25124277506c5b4d24317caf96f8e0a5cd1b06a037db7180",
+        "extracted_query_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/741-2012-11-04/cache",
+        "definition_rows_sha256": "05c774065d4dd2ca7e62850d5d4917d0854922b958ccf1beea2ca760e30d6198",
+        "map_rows_sha256": "2ba797fd59cabf42f8c953c23dfc4cc18545898a150815f819f6449d75887b2f"
+      },
+      {
+        "build": 742,
+        "date": "2012-11-07",
+        "openrs2_cache_id": 544,
+        "zip_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/runescape-742-2012-11-07-openrs2-544-disk.zip",
+        "zip_sha256": "9f5fdba0d22cdc1b4ad86c984cc0ba4bcd4b3c22039f3290ba48f5083bc100b8",
+        "extracted_query_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache",
+        "definition_rows_sha256": "05c774065d4dd2ca7e62850d5d4917d0854922b958ccf1beea2ca760e30d6198",
+        "map_rows_sha256": "2ba797fd59cabf42f8c953c23dfc4cc18545898a150815f819f6449d75887b2f"
+      }
+    ],
+    "rows": [
+      {
+        "json_pointer": "/definition_row_sets/92e70feddbfdc7b35490e300c4806a97c4f1a66c27b059ee72df0dee1dd98bda/rows/149",
+        "builds": [
+          727,
+          728,
+          729
+        ],
+        "row": {
+          "kind": "item",
+          "id": 13155,
+          "name": "Silver sickle emerald (b)",
+          "value": 3,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, Wield, Cast Bloom, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/definition_row_sets/92e70feddbfdc7b35490e300c4806a97c4f1a66c27b059ee72df0dee1dd98bda/rows/150",
+        "builds": [
+          727,
+          728,
+          729
+        ],
+        "row": {
+          "kind": "item",
+          "id": 13156,
+          "name": "Enchanted sickle emerald (b)",
+          "value": 3,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, Wield, Cast Bloom, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/definition_row_sets/6c45cf1fbb5d00b1993307888336f84064b07063283960e61b6bfbd09cbc2087/rows/149",
+        "builds": [
+          736
+        ],
+        "row": {
+          "kind": "item",
+          "id": 13155,
+          "name": "Silver sickle emerald (b)",
+          "value": 3,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, Wield, Cast Bloom, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/definition_row_sets/6c45cf1fbb5d00b1993307888336f84064b07063283960e61b6bfbd09cbc2087/rows/150",
+        "builds": [
+          736
+        ],
+        "row": {
+          "kind": "item",
+          "id": 13156,
+          "name": "Enchanted sickle emerald (b)",
+          "value": 3,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, Wield, Cast Bloom, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/definition_row_sets/05c774065d4dd2ca7e62850d5d4917d0854922b958ccf1beea2ca760e30d6198/rows/149",
+        "builds": [
+          741,
+          742
+        ],
+        "row": {
+          "kind": "item",
+          "id": 13155,
+          "name": "Silver sickle emerald (b)",
+          "value": 3,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, Wield, Cast Bloom, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/definition_row_sets/05c774065d4dd2ca7e62850d5d4917d0854922b958ccf1beea2ca760e30d6198/rows/150",
+        "builds": [
+          741,
+          742
+        ],
+        "row": {
+          "kind": "item",
+          "id": 13156,
+          "name": "Enchanted sickle emerald (b)",
+          "value": 3,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, Wield, Cast Bloom, null, drop]"
+        }
+      }
+    ],
+    "boundary": "Retained client definitions prove IDs, names and options, not server-side item-state transitions or XP."
+  },
+  {
+    "input": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/openrs2-cache-727-742-in-aid-of-the-myreque.json",
+    "sha256": "f145d761253c2d5c8bf979617caf847bf3f69b6fb7ce5d477457c7c71d5beea7",
+    "snapshots": [
+      {
+        "build": 727,
+        "date": "2012-07-24",
+        "openrs2_cache_id": 309,
+        "zip_sha256": "ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache",
+        "normalized_rows_sha256": "df0190005d6ba7e60ae0f25345dad83eefa28619ee28f0f4e25fb55073865212"
+      },
+      {
+        "build": 728,
+        "date": "2012-08-01",
+        "openrs2_cache_id": 310,
+        "zip_sha256": "7cbddfea4df57307e6a427fd1a27922062d45896eaf1ce4c2080ece888b4e936",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/728-2012-08-01/cache",
+        "normalized_rows_sha256": "df0190005d6ba7e60ae0f25345dad83eefa28619ee28f0f4e25fb55073865212"
+      },
+      {
+        "build": 729,
+        "date": "2012-08-11",
+        "openrs2_cache_id": 311,
+        "zip_sha256": "bb492440353b6ec6a60faca6ac63ec1153de970505ee504101e5c8305ffd555f",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/729-2012-08-11/cache",
+        "normalized_rows_sha256": "df0190005d6ba7e60ae0f25345dad83eefa28619ee28f0f4e25fb55073865212"
+      },
+      {
+        "build": 736,
+        "date": "2012-10-09",
+        "openrs2_cache_id": 313,
+        "zip_sha256": "68c5deaed6b5eb97e97df0f9e4c16d8728289ba5ccf1dba13b2e0a4131ef264d",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/736-2012-10-09/cache",
+        "normalized_rows_sha256": "1f882db29a3ed58f6946c31782041e1813587b656f75b0514e1bcaacac6d8574"
+      },
+      {
+        "build": 741,
+        "date": "2012-11-04",
+        "openrs2_cache_id": 1468,
+        "zip_sha256": "61855e4c9f18e5ae25124277506c5b4d24317caf96f8e0a5cd1b06a037db7180",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/741-2012-11-04/cache",
+        "normalized_rows_sha256": "1f882db29a3ed58f6946c31782041e1813587b656f75b0514e1bcaacac6d8574"
+      },
+      {
+        "build": 742,
+        "date": "2012-11-07",
+        "openrs2_cache_id": 544,
+        "zip_sha256": "9f5fdba0d22cdc1b4ad86c984cc0ba4bcd4b3c22039f3290ba48f5083bc100b8",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache",
+        "normalized_rows_sha256": "1f882db29a3ed58f6946c31782041e1813587b656f75b0514e1bcaacac6d8574"
+      }
+    ],
+    "rows": [
+      {
+        "json_pointer": "/selected_row_sets/df0190005d6ba7e60ae0f25345dad83eefa28619ee28f0f4e25fb55073865212/rows/21",
+        "builds": [
+          727,
+          728,
+          729
+        ],
+        "row": {
+          "kind": "item",
+          "id": 7620,
+          "name": "Silvthrill rod",
+          "value": 1,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, null, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/df0190005d6ba7e60ae0f25345dad83eefa28619ee28f0f4e25fb55073865212/rows/38",
+        "builds": [
+          727,
+          728,
+          729
+        ],
+        "row": {
+          "kind": "item",
+          "id": 7637,
+          "name": "Silvthrill rod",
+          "value": 1,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[Look-at, null, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/df0190005d6ba7e60ae0f25345dad83eefa28619ee28f0f4e25fb55073865212/rows/39",
+        "builds": [
+          727,
+          728,
+          729
+        ],
+        "row": {
+          "kind": "item",
+          "id": 7638,
+          "name": "Silvthrill rod",
+          "value": 1,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[Look-at, null, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/df0190005d6ba7e60ae0f25345dad83eefa28619ee28f0f4e25fb55073865212/rows/50",
+        "builds": [
+          727,
+          728,
+          729
+        ],
+        "row": {
+          "kind": "item",
+          "id": 7649,
+          "name": "Rod clay mould",
+          "value": 100,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, null, null, null, Destroy]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/1f882db29a3ed58f6946c31782041e1813587b656f75b0514e1bcaacac6d8574/rows/21",
+        "builds": [
+          736,
+          741,
+          742
+        ],
+        "row": {
+          "kind": "item",
+          "id": 7620,
+          "name": "Silvthrill rod",
+          "value": 1,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, null, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/1f882db29a3ed58f6946c31782041e1813587b656f75b0514e1bcaacac6d8574/rows/38",
+        "builds": [
+          736,
+          741,
+          742
+        ],
+        "row": {
+          "kind": "item",
+          "id": 7637,
+          "name": "Silvthrill rod",
+          "value": 1,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[Look-at, null, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/1f882db29a3ed58f6946c31782041e1813587b656f75b0514e1bcaacac6d8574/rows/39",
+        "builds": [
+          736,
+          741,
+          742
+        ],
+        "row": {
+          "kind": "item",
+          "id": 7638,
+          "name": "Silvthrill rod",
+          "value": 1,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[Look-at, null, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/1f882db29a3ed58f6946c31782041e1813587b656f75b0514e1bcaacac6d8574/rows/50",
+        "builds": [
+          736,
+          741,
+          742
+        ],
+        "row": {
+          "kind": "item",
+          "id": 7649,
+          "name": "Rod clay mould",
+          "value": 100,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, null, null, null, Destroy]"
+        }
+      }
+    ],
+    "boundary": "Retained client definitions prove IDs, names and options, not server-side item-state transitions or XP."
+  },
+  {
+    "input": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/openrs2-cache-727-742-fremennik-isles.json",
+    "sha256": "b365e436398423fded3344bec53b9f974f712f050fce16a06c290bb7aedf7951",
+    "snapshots": [
+      {
+        "build": 727,
+        "date": "2012-07-24",
+        "openrs2_cache_id": 309,
+        "zip_sha256": "ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache",
+        "normalized_rows_sha256": "326b8537f3894c46286776963ae799a591225e48176da8d6f26d952299a4f00b"
+      },
+      {
+        "build": 728,
+        "date": "2012-08-01",
+        "openrs2_cache_id": 310,
+        "zip_sha256": "7cbddfea4df57307e6a427fd1a27922062d45896eaf1ce4c2080ece888b4e936",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/728-2012-08-01/cache",
+        "normalized_rows_sha256": "326b8537f3894c46286776963ae799a591225e48176da8d6f26d952299a4f00b"
+      },
+      {
+        "build": 729,
+        "date": "2012-08-11",
+        "openrs2_cache_id": 311,
+        "zip_sha256": "bb492440353b6ec6a60faca6ac63ec1153de970505ee504101e5c8305ffd555f",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/729-2012-08-11/cache",
+        "normalized_rows_sha256": "326b8537f3894c46286776963ae799a591225e48176da8d6f26d952299a4f00b"
+      },
+      {
+        "build": 736,
+        "date": "2012-10-09",
+        "openrs2_cache_id": 313,
+        "zip_sha256": "68c5deaed6b5eb97e97df0f9e4c16d8728289ba5ccf1dba13b2e0a4131ef264d",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/736-2012-10-09/cache",
+        "normalized_rows_sha256": "90e97bd34cde4770a3c78b079bbd5bb0106bf881bcec42e9fa809198da2387e1"
+      },
+      {
+        "build": 741,
+        "date": "2012-11-04",
+        "openrs2_cache_id": 1468,
+        "zip_sha256": "61855e4c9f18e5ae25124277506c5b4d24317caf96f8e0a5cd1b06a037db7180",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/741-2012-11-04/cache",
+        "normalized_rows_sha256": "90e97bd34cde4770a3c78b079bbd5bb0106bf881bcec42e9fa809198da2387e1"
+      },
+      {
+        "build": 742,
+        "date": "2012-11-07",
+        "openrs2_cache_id": 544,
+        "zip_sha256": "9f5fdba0d22cdc1b4ad86c984cc0ba4bcd4b3c22039f3290ba48f5083bc100b8",
+        "extracted_path": "~/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache",
+        "normalized_rows_sha256": "90e97bd34cde4770a3c78b079bbd5bb0106bf881bcec42e9fa809198da2387e1"
+      }
+    ],
+    "rows": [
+      {
+        "json_pointer": "/selected_row_sets/326b8537f3894c46286776963ae799a591225e48176da8d6f26d952299a4f00b/definitions/41",
+        "builds": [
+          727,
+          728,
+          729
+        ],
+        "row": {
+          "kind": "item",
+          "id": 10810,
+          "name": "Arctic pine logs",
+          "value": 35,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[Light, null, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/326b8537f3894c46286776963ae799a591225e48176da8d6f26d952299a4f00b/definitions/49",
+        "builds": [
+          727,
+          728,
+          729
+        ],
+        "row": {
+          "kind": "item",
+          "id": 10826,
+          "name": "Fremennik round shield",
+          "value": 500,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, Wield, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/90e97bd34cde4770a3c78b079bbd5bb0106bf881bcec42e9fa809198da2387e1/definitions/41",
+        "builds": [
+          736,
+          741,
+          742
+        ],
+        "row": {
+          "kind": "item",
+          "id": 10810,
+          "name": "Arctic pine logs",
+          "value": 35,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[Light, null, null, null, drop]"
+        }
+      },
+      {
+        "json_pointer": "/selected_row_sets/90e97bd34cde4770a3c78b079bbd5bb0106bf881bcec42e9fa809198da2387e1/definitions/49",
+        "builds": [
+          736,
+          741,
+          742
+        ],
+        "row": {
+          "kind": "item",
+          "id": 10826,
+          "name": "Fremennik round shield",
+          "value": 500,
+          "noted": false,
+          "wield_quest_req": -1,
+          "options": "[null, Wield, null, null, drop]"
+        }
+      }
+    ],
+    "boundary": "Retained client definitions prove IDs, names and options, not server-side item-state transitions or XP."
+  }
+]

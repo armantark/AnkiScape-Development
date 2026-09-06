@@ -1,0 +1,73 @@
+Claude quota preflight: {"source":"ai-usage-widget/oauth_usage","freshness":"fresh","capturedAt":1788659130,"ageSeconds":14,"fiveHour":{"usedPercent":10.0,"remainingPercent":90.0,"resetsAt":1788667199},"weekly":{"usedPercent":7.0,"remainingPercent":93.0,"resetsAt":1789181999},"fableWeekly":{"usedPercent":7.0,"remainingPercent":93.0,"resetsAt":1789181999}}
+I attempted `Write` to the plan file and the tool is disabled for this session, which matches the read-only brief. I take no further action and arm no wake signal. The verdict lives in this message only, restated in full below.
+
+# Verdict: ACCEPT the source audit for retention, with 8 corrections
+
+The packet keeps its stated scope. It proposes no code, claims no run, and marks its blocked fields. One blocker ruling rests on a wrong reading of a source, so that ruling needs rework before the owner decides.
+
+## Verified against the literal sources
+
+| Claim | Result |
+| --- | --- |
+| Legacy rev 6521668 requires the emerald fit, then Level 2 Enchant | Verified |
+| Legacy supplies 1 Cosmic rune and 3 Air runes | Verified, in the "Items obtained during quest" list |
+| Sickle article rev 5504656 gives 20 Crafting XP with a chisel | Verified |
+| Cache binds 13155 and 13156 across builds 727-742 | Verified |
+| In Aid rev 6555220 binds clay, mould, furnace, then Level 1 Enchant | Verified |
+| In Aid lists 1 cosmic rune and 1 water rune | Verified |
+| Spell values Magic 7 / 17.5 XP and Magic 27 / 37 XP | Verified at `data/magic_data.py:334-335` |
+| Shield revs 5827384 and 5641898 both state Woodcutting 54 | Verified |
+| Only rev 5827384 carries `{{beta}}` | Verified |
+| Quest rev 6540919 states 56 for the shield | Verified |
+| Shield materials, retained hammer, 34 Crafting XP | Verified |
+| Two stage deadlocks, and no third | Verified at `data/quest_data.py:9226-9230` and `9371-9376` |
+| Rod clay mould has no producer, so the rod recipe is unreachable | Verified |
+| `quest_gate` means quest completion | Verified at `logic_pure/logic_pure_magic.py:129-134` |
+
+## Corrections
+
+**1. The shield blocker misreads Darkan.** The contract says Darkan "assigns Woodcutting 56 to split-log production and merely says Crafting for the shield". The tier-1 code says otherwise:
+
+```kotlin
+// darkan-world-server/.../fremennikisles/FremennikIsles.kt:417-430
+@JvmStatic
+fun craftShield(player: Player): Boolean {
+    if (stage(player) !in FremennikIslesState.DECREE_ISSUED..FremennikIslesState.RITES_READY || player.skills.getLevelForXp(Skills.WOODCUTTING) < 56 || !inventoryHas(player, FremennikIslesIds.HAMMER)) return false
+    ...
+    if (!consume(player, FremennikIslesIds.ARCTIC_PINE_LOGS to 2, FremennikIslesIds.BRONZE_NAIL to 1, FremennikIslesIds.ROPE to 1)) return false
+    ...
+    player.skills.addXp(Skills.CRAFTING, 34.0)
+```
+
+`craftShield` is separate from `splitLogs` at lines 315-320, and each function holds its own Woodcutting 56 check. The contract described the qualification report, not the source. Retain this quote.
+
+**2. The quest revision also ties 56 to split logs, twice.** The packet quotes only the shield parenthetical. The same revision states:
+
+```
+{{Skillreq|Woodcutting|56}} (Not actually required for the quest if you buy the Round Shield and the split logs from the [[Grand Exchange]])
+*8 [[Split log]] (only if you are under 56 Woodcutting)
+```
+
+Retain both. They weaken the shield parenthetical as independent evidence.
+
+**3. Re-apply the standard, then let the owner rule.** Under `memory-bank/pre-eoc-source-verification-standard.md:108-123`, Darkan is tier 1 and the wiki is tier 5. After correction 1, the value 56 holds tier-1 code plus a pinned pre-cutoff wiki statement, and the value 54 holds one wiki page in two revisions. The conflict is no longer symmetric. As inference, not evidence: 54 equals the Woodcutting level for arctic pine logs, so the article author can have named the input level. The ruling stays with the owner.
+
+**4. Record the emerald XP conflict.** `LegacyOfSeergaze.kt:750-763` fits the emerald with a chisel check and awards no Crafting XP. The wiki gives 20. The standard requires an explicit conflict record, and the packet has none.
+
+**5. Record the emerald enchant level conflict.** `LegacyOfSeergaze.kt:766-779` gates that cast at Magic 49, not at the spell level 27. The contract rules for 27 but never records the tier-1 check. Add the record, and state that the quest already demands Magic 49, so the difference stays unobservable in play.
+
+**6. Fix the rod blocker framing, and keep it blocked.** `InAidOfTheMyreque.kt:69-70` sets `SILVTHRILL_ROD = 7620` and `ENCHANTED_RODS = intArrayOf(7637, 7638)`, and line 444 emits `ENCHANTED_RODS[0]`. `data/crafting_data.py:232` sets `source_item_id=7637` for the raw rod, after the tier-3 2011 implementation. The current value follows the lower-ranked source and conflicts with the higher-ranked one, so keeping 7637 retains a flagged value rather than a neutral default.
+
+**7. Move the mould retention claim.** The quest revision names the mould once and never states retention. Retention comes from `data/crafting_data.py:232`, `required_items=_req(("Rod clay mould", 1))`.
+
+**8. Name the existing start-side gate.** The bypass claim is correct at `runtime/runtime_actions_production.py:500-544`, which checks materials and the Crafting level only. But `runtime/runtime_actions_gates.py:589-596` already calls `crafting_target_locked_reasons_pure`. Name it, so the implementer adds a pre-mutation check and does not duplicate the start check.
+
+Minor: the quest revision says "two arctic logs" and the shield article says "two arctic pine logs". Quote each exactly.
+
+## Not verified
+
+I recomputed no SHA-256 value, because this session has no shell. Internal consistency holds by inspection: `scope.json` matches the packet-manifest entry for `audit/manifest.json`, and `period-sources.json` agrees with `manifest.json`. I read the recorded line counts and did not recount the files. I did not compare the packet copy with the `memory-bank` copy byte for byte.
+
+## Next step, for the owner
+
+Corrections 1 and 2 must enter the audit before anyone rules on the shield threshold. Corrections 4 through 8 need no owner input. Implementation stays blocked until the rod identity closes.

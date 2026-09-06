@@ -1,0 +1,103 @@
+[
+  {
+    "retained": "fremennik-isles-final-preeoc-oldid-6540919.json",
+    "sha256": "84d31386215b1a95cbadea0e99bbd19de213457175c536c09b99f771769735da",
+    "api": "https://runescape.wiki/api.php",
+    "cutoff": "2012-11-20T00:00:00Z",
+    "title": "The Fremennik Isles",
+    "oldid": 6540919,
+    "timestamp": "2012-11-07T09:46:34Z",
+    "negative_finding": null,
+    "redirects": [],
+    "wikitext_path": "/query/pages/13892/revisions/0/slots/main/*"
+  },
+  {
+    "retained": "fremennik-round-shield-lookup.json",
+    "sha256": "d275a44a37416e2b7298951095d255c6e9212033d7da966827f007b0c621465e",
+    "api": "https://runescape.wiki/api.php",
+    "cutoff": "2012-11-20T00:00:00Z",
+    "title": "Fremennik round shield",
+    "oldid": 5827384,
+    "timestamp": "2012-06-25T19:52:33Z",
+    "negative_finding": null,
+    "redirects": [],
+    "wikitext_path": "/query/pages/14012/revisions/0/slots/main/*"
+  },
+  {
+    "retained": "fremennik-round-shield-prior-oldid-5641898.json",
+    "sha256": "0a676ca5615047090023b8eb9c5dfb094e659495c0a7d4dff28a4670b523396e",
+    "api": "https://runescape.wiki/api.php",
+    "cutoff": "2012-11-20T00:00:00Z",
+    "title": "Fremennik round shield",
+    "oldid": 5641898,
+    "timestamp": "2012-05-22T11:53:12Z",
+    "negative_finding": null,
+    "redirects": [],
+    "wikitext_path": "/query/pages/14012/revisions/0/slots/main/*"
+  },
+  {
+    "retained": "in-aid-of-the-myreque-final-preeoc-oldid-6555220.json",
+    "sha256": "7e0f29a586325d3cba5baef4285fce4d982d08b3c4510167770a1065cecd4b01",
+    "api": "https://runescape.wiki/api.php",
+    "cutoff": "2012-11-20T00:00:00Z",
+    "title": "In Aid of the Myreque",
+    "oldid": 6555220,
+    "timestamp": "2012-11-14T12:32:46Z",
+    "negative_finding": null,
+    "redirects": [],
+    "wikitext_path": "/query/pages/6206/revisions/0/slots/main/*"
+  },
+  {
+    "retained": "legacy-of-seergaze-final-preeoc-oldid-6521668.json",
+    "sha256": "38aab4bfe9ece7471be3b892cc24d51eae6e5f0ab57232d9e8c98bbf337309d4",
+    "api": "https://runescape.wiki/api.php",
+    "cutoff": "2012-11-20T00:00:00Z",
+    "title": "Legacy of Seergaze",
+    "oldid": 6521668,
+    "timestamp": "2012-11-02T22:17:22Z",
+    "negative_finding": null,
+    "redirects": [],
+    "wikitext_path": "/query/pages/63938/revisions/0/slots/main/*"
+  },
+  {
+    "retained": "silver-sickle-emerald-b-lookup.json",
+    "sha256": "476f24ad3b2f4c797b3002dd398d71af289ed18621096bc2a959ea2256017a70",
+    "api": "https://runescape.wiki/api.php",
+    "cutoff": "2012-11-20T00:00:00Z",
+    "title": "Silver sickle emerald (b)",
+    "oldid": 5504656,
+    "timestamp": "2012-04-17T22:42:34Z",
+    "negative_finding": null,
+    "redirects": [],
+    "wikitext_path": "/query/pages/98751/revisions/0/slots/main/*"
+  },
+  {
+    "retained": "silvthrill-rod-lookup.json",
+    "sha256": "146d22f606824f56597bf2bb0ec957ed4ae7243cb63f7fcff6daccb68a101b79",
+    "api": "https://runescape.wiki/api.php",
+    "cutoff": "2012-11-20T00:00:00Z",
+    "title": "Silvthrill rod",
+    "oldid": null,
+    "timestamp": null,
+    "negative_finding": "No pre-cutoff revision under this current title; redirected lookup retained separately.",
+    "redirects": [],
+    "wikitext_path": null
+  },
+  {
+    "retained": "silvthrill-rod-redirect-lookup.json",
+    "sha256": "0a05109ba3750030abdbd4f7cfdb86cdded87d62f89d48ba3e22e2a611c712af",
+    "api": "https://runescape.wiki/api.php",
+    "cutoff": "2012-11-20T00:00:00Z",
+    "title": "Silvthril rod",
+    "oldid": 6359850,
+    "timestamp": "2012-10-06T22:07:55Z",
+    "negative_finding": null,
+    "redirects": [
+      {
+        "from": "Silvthrill rod",
+        "to": "Silvthril rod"
+      }
+    ],
+    "wikitext_path": "/query/pages/42144/revisions/0/slots/main/*"
+  }
+]

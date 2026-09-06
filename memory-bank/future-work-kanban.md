@@ -14,6 +14,10 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+Current goal selection and branch disposition: `memory-bank/goal-priority-matrix.md`
+(2026-09-05). Dispatcher state-object restructure is first under the owner's
+§57/58 rulings. Existing UI changes are excluded by this goal.
+
 ### Pass 13 follow-ups — 2026-09-04
 
 Labels: `SOURCE AUDIT` for the first two, `IMPLEMENT` for the rest.
@@ -29,12 +33,17 @@ Labels: `SOURCE AUDIT` for the first two, `IMPLEMENT` for the rest.
   2012-11-20; `tools/fetch_2012_icons.py` is the tool.
 - Quest boss as the HUD current target during a quest fight
   (`ui/ui.py:1557-1574`).
-- Owner spot-check of the 162 rewritten diary deeds; then patch per §4.22.
+- Open owner patch feedback under §58: judge the region compromises in
+  `varrock_hard_but_it_won_t_warp_you_anywhere` and
+  `morytania_medium_izzy_wizzy_let_s_get_lizzy`. Apply corrections as ledger-row
+  patches plus regeneration per §4.22.3; Gate 2 remains passed.
 
-### Diary curation ledger — 320 dormant rows of 474 named tasks
+### Diary curation ledger — wiring and deed text shipped; planned dependencies remain
 
-Labels: `IMPLEMENT`. Pass 13 (2026-09-04) rewrote the 162 translated and
-invented rows with their own text; the 116 dormant rows are unchanged.
+Labels: `DEPENDENCY` for the remaining planned-system rows. The original
+320-row curation ledger is wired for its live dispositions. Pass 13 and §4.26
+landed the translated/invented text and selectable-instruction corrections;
+`diary-curation-ledger/README.md` is the current census and trigger contract.
 
 - Owner-ruled 2026-08-26 (design-thread-queue §4.21 ruling 1, §5.21): every
   diary row becomes a designed achievement; no dead-end triggers; dormant
@@ -44,8 +53,10 @@ invented rows with their own text; the 116 dormant rows are unchanged.
   `tools/generate_achievement_diary_data.py::_SKILL_TYPE_IDS` rotates source
   skill types 17, 18, and 19 across Firemaking, Woodcutting, and Fletching. The
   mapping was repaired on 2026-08-30 in branch
-  `goal/diary-skill-rotation-2026-08-30`. The owner spot-check remains pending,
-  including the row 135 Fire-cape interpretation.
+  `goal/diary-skill-rotation-2026-08-30` and is no longer a wiring blocker.
+  Gate 2 passed by §4.22 ruling 3 on 2026-08-31: the row-by-row cross-lineage
+  review verifies spec-conformance. Row 135 uses the closer equipped-item
+  interpretation; an owner correction is a patch, not a new approval gate.
 
 ### Ranging Guild — shipped and closed 2026-08-10
 

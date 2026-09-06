@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "reviewer": "Opus",
+  "session": "64197",
+  "terminal_exit_code": 0,
+  "acceptance_provenance": "Parent read the complete review and accepted no defects before author commit authorization.",
+  "retained_utc": "2026-09-06T02:17:33.790950+00:00",
+  "source_path": "/tmp/ankiscape-constants-final-repairs-opus-review-2026-09-05.txt",
+  "retained_path": "memory-bank/evidence/constants-reconciliation-2026-09-05/final-repairs-review.txt.gz",
+  "raw_bytes": 4019,
+  "raw_sha256": "9d1197971087173e380bdd2042d1ce2d029fb930cf47ddf414d65c4601de571d",
+  "stored_bytes": 1911,
+  "stored_sha256": "8e1d98381e4346aa3f1ba38b961a94da211edfdbcaa9a625efac0785c9f46709",
+  "runtime_manifest_sha256": "71aa1f93c3bcee0ad2d316d754b057f71952130d2471832fd79e7a011c2f3f27",
+  "source_hashes": {
+    "core/constants.py": "9447fe97f3256121f654c3708b59cea50574e142ed924d5108d7ceb54c2810eb",
+    "core/constants_parts/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "core/constants_parts/activity_assets.py": "2810226e148b356f903069e8af933689f7c1929f22f8268449797d50cba2ad98",
+    "core/constants_parts/activity_updates.py": "3c007e355daddf0d4486c498c43bbc07b0cd294c2abd8de839b1d5a4c1f36629",
+    "core/constants_parts/combat_minigame_sources.py": "d9375acc342d5c74d59d675cac3ea2ba0f95b91a1a7e5fbea5ed651624422751",
+    "core/constants_parts/competitive_minigame_sources.py": "0e799da9ddc013ec1069a13f5b8d5ee20b2c4713be1fc12dd70c5b031f31841f",
+    "core/constants_parts/distraction_sources.py": "739970ee6b6130b7271a5ad19211060082254b3b0dcfb7b2d5d5dc30701e21aa",
+    "core/constants_parts/equipment_sources.py": "15bfbcf97a686a21d38f5757afd021770255a4e9213942d1612acf030b84471b",
+    "core/constants_parts/landmark_and_boss_sources.py": "e371ad624c14f750600bee48bd126c86d064ad5a4057ea2e45d8509a539b8bfe",
+    "core/constants_parts/paths.py": "663e416d4a0b4f2583a08be3d96454ceb714bfb517919d4589b0cf62c84bd647",
+    "core/constants_parts/public_exports.py": "42d2f9f3987bc39833ccd9ecac4598bbeeb356898db324d755fb2d98ed8049a9",
+    "core/constants_parts/quest_items.py": "c461a9d119db2008f151e43b389ae3a66eb903bfc3f21ad3a0051ea4e2afe68f",
+    "core/constants_parts/registry_sources.py": "3d0eed80d9770ccb65030f26a5666df946ce7f1b0a7e76c076b71999a95fd7a2",
+    "core/constants_parts/skill_assets.py": "30b533eeed70ebca4e8940711cc97b44f0e1f388a975f4edcf40a5d392e3a74f",
+    "core/constants_parts/skill_catalog.py": "084fe08384faef54d30f469da3f317a970244e23a57b63502801fdf0b61232b8",
+    "core/constants_parts/skill_minigame_sources.py": "d12c67191ee909066249fb0dbbde83880f3b1b4e75eb090382f731a7136d5c88",
+    "core/constants_parts/skill_sources.py": "0486b918d292ff9b6c71e9b6457f5fece6176af74c9445743e85cb378f9102d6",
+    "core/constants_parts/utility_sources.py": "cd321cea899da6ece635ff9cabaa0756206bf227d0b415ebd9614403c2cb8930",
+    "tests/test_module_surface.py": "8cb6d028d1623c72367f34b61194993221270283bd79e0aaf020198f078d4fec",
+    "tools/module_surface.py": "a66948b912691279dc951ac9e5aa0c144b75a351c9b1bb46b88f67d85ebcf1e5",
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+  },
+  "dispositions": [
+    {
+      "note": "Compatibility import",
+      "decision": "Keep the existing public compatibility import; no source change."
+    },
+    {
+      "note": "Public surface checks",
+      "decision": "Keep the missing/extra checks and the 23 exact public-payload comparisons; no source change."
+    },
+    {
+      "note": "Clue-scroll direct lookup",
+      "decision": "Retain the direct lookup because it preserves behavior; no source change."
+    }
+  ],
+  "remaining": [
+    "Full branch and repository gates",
+    "Native verification",
+    "Exact merged-tree gate and promotion"
+  ],
+  "scope": "Final repaired source review. The parent independently verified all 99 retained runtime files against originals and all 21 current source hashes. No runtime or source changes in this retention pass."
+}

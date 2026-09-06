@@ -1,0 +1,122 @@
+{
+  "status": "AUTHORED_NOT_EXECUTED",
+  "scope": "Only scratch authoring, source-byte hashing, and AST checks were performed. No project imports, generated-script execution, MBP access, sync, runtime tests, Git mutations, or commits.",
+  "artifacts": {
+    "capture": {
+      "path": "/tmp/ankiscape-constants-capture-2026-09-05.py",
+      "bytes": 27743,
+      "sha256": "aba9db7cf975b591b3320be59d359e12e5d72d6062655c6d5e7dd4f4843eb9c3"
+    },
+    "canary": {
+      "path": "/tmp/ankiscape-constants-ownership-canary-2026-09-05.py",
+      "bytes": 4773,
+      "sha256": "8192da12509728bf7b08c464fbc35634793163cdfa43285f2ff9681af9ed86d1"
+    },
+    "driver": {
+      "path": "/tmp/ankiscape-constants-driver-2026-09-05.py",
+      "bytes": 8033,
+      "sha256": "a6ab5009741076d0de921ab0b12236d1859b6ceb3fce4eb5624defb3e50671c6"
+    },
+    "bindings": {
+      "path": "/tmp/ankiscape-constants-bindings-2026-09-05.json",
+      "bytes": 4037,
+      "sha256": "185ab53b2bf475f4022c1172112b1281c319fb46a6d6b2a520324a9e22d78658"
+    }
+  },
+  "source_hashes_verified": 21,
+  "package_file_count": 17,
+  "standalone_module_count": 16,
+  "part_inventory": [
+    "core/constants_parts/__init__.py",
+    "core/constants_parts/activity_assets.py",
+    "core/constants_parts/activity_updates.py",
+    "core/constants_parts/combat_minigame_sources.py",
+    "core/constants_parts/competitive_minigame_sources.py",
+    "core/constants_parts/distraction_sources.py",
+    "core/constants_parts/equipment_sources.py",
+    "core/constants_parts/landmark_and_boss_sources.py",
+    "core/constants_parts/paths.py",
+    "core/constants_parts/public_exports.py",
+    "core/constants_parts/quest_items.py",
+    "core/constants_parts/registry_sources.py",
+    "core/constants_parts/skill_assets.py",
+    "core/constants_parts/skill_catalog.py",
+    "core/constants_parts/skill_minigame_sources.py",
+    "core/constants_parts/skill_sources.py",
+    "core/constants_parts/utility_sources.py"
+  ],
+  "guards": [
+    "Pinned bindings, uploads, canonical runner, preserved HEAD, static manifest, and all 21 source files before remote work",
+    "Local wrong-source canary returns before importing the remote runner",
+    "Canonical mirror lock, pending-run reconciliation, prerequisite checks, retrying upload/sync, uploaded-byte verification",
+    "Remote wrong-source capture must exit 2 with subprocess_count 0 and no results.json before the positive capture",
+    "Exact current part inventory rejects stale activity_base before jobs; source hashes and part inventory checked again afterward",
+    "Every job records all 21 source hashes before launch and after completion; any mismatch stops the entire capture immediately. Unlaunched blocked jobs do not count as subprocesses."
+  ],
+  "ownership_canaries": {
+    "per_lane": [
+      "facade-import",
+      "equipment-alias",
+      "equipment-mutation"
+    ],
+    "frozen_snippet_sha256": "bf51ad676c5b5472270f3474b942549b449e1c7f24c0aaa115092a5d2db6ca75",
+    "assertion_lines": {
+      "facade-import": [
+        4,
+        26
+      ],
+      "equipment-alias": [
+        20
+      ],
+      "equipment-mutation": [
+        25
+      ]
+    },
+    "acceptance": "Only AssertionError at the exact intended assertion in the frozen standalone snippet counts. Original equipment-base objects are untouched. Failure stops the remaining capture jobs."
+  },
+  "planned_subprocess_count": 35,
+  "positive_subprocess_count": 29,
+  "ownership_canary_subprocess_count": 6,
+  "positive_jobs": {
+    "named_test_jobs": 2,
+    "complete_seven_test_module_jobs": 2,
+    "discovery_jobs": 2,
+    "exact_payload_jobs": 23
+  },
+  "discovery": {
+    "baseline_tests_per_lane": 5567,
+    "candidate_tests_per_lane": 5569,
+    "exact_additions": [
+      "test_module_surface.ModuleSurfaceTest.test_constants_parts_import_standalone",
+      "test_module_surface.ModuleSurfaceTest.test_constants_export_order"
+    ],
+    "baseline_order_preserved": true
+  },
+  "payloads": {
+    "required": 23,
+    "comparison": "Whole raw file equality plus pinned baseline raw hashes and strict SHA256 body footers",
+    "baseline": "cut-gem-baseline-6438d422",
+    "plain_root": "Empty unavailable control excluded from required 23"
+  },
+  "interpreter_semantics": "Both outer lanes run the unchanged tests, including their original internal interpreter_cases loops. The mirrored Qt interpreter must resolve to the approved Qt interpreter.",
+  "timeouts": {
+    "per_job_seconds": 300,
+    "driver_capture_seconds": 3600,
+    "cleanup": "Kill and reap only the timed-out job process group, including nested children"
+  },
+  "remaining": [
+    "Parent full script review",
+    "Parent execution after MBP ownership release",
+    "Full branch/repository gates",
+    "Exact merged-tree gate",
+    "Native verification if required"
+  ],
+  "baseline_static_reverification": {
+    "payloads": 23,
+    "raw_hashes_and_strict_footers": "PASS",
+    "plain_root_empty_control": "PASS",
+    "discovery_lanes": 2,
+    "discovery_raw_hash_and_unique_count": "PASS",
+    "scope": "Read retained local baseline bytes only; no runtime executed"
+  }
+}

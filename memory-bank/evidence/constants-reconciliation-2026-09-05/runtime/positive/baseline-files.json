@@ -1,0 +1,61 @@
+{
+  "required": [
+    "plain-core_constants.py.stdout",
+    "plain-data_quest_data.py.stdout",
+    "plain-data_combat_data.py.stdout",
+    "plain-data_slayer_data.py.stdout",
+    "plain-logic_pure_logic_pure_combat_engine.py.stdout",
+    "plain-tests_test_combat_enemy_roster.py.stdout",
+    "plain-logic_shop_logic.py.stdout",
+    "plain-ui_ui_tab_shop.py.stdout",
+    "plain-data_achievement_diary_catalog.py.stdout",
+    "plain-runtime_runtime_actions_carried.py.stdout",
+    "plain-runtime_runtime_actions_activities.py.stdout",
+    "qt-core_constants.py.stdout",
+    "qt-data_quest_data.py.stdout",
+    "qt-data_combat_data.py.stdout",
+    "qt-data_slayer_data.py.stdout",
+    "qt-logic_pure_logic_pure_combat_engine.py.stdout",
+    "qt-tests_test_combat_enemy_roster.py.stdout",
+    "qt-logic_shop_logic.py.stdout",
+    "qt-ui_ui_tab_shop.py.stdout",
+    "qt-data_achievement_diary_catalog.py.stdout",
+    "qt-runtime_runtime_actions_carried.py.stdout",
+    "qt-runtime_runtime_actions_activities.py.stdout",
+    "qt-__init__.py.stdout"
+  ],
+  "available": [
+    "plain-__init__.py.stdout",
+    "plain-core_constants.py.stdout",
+    "plain-data_achievement_diary_catalog.py.stdout",
+    "plain-data_combat_data.py.stdout",
+    "plain-data_quest_data.py.stdout",
+    "plain-data_slayer_data.py.stdout",
+    "plain-logic_pure_logic_pure_combat_engine.py.stdout",
+    "plain-logic_shop_logic.py.stdout",
+    "plain-runtime_runtime_actions_activities.py.stdout",
+    "plain-runtime_runtime_actions_carried.py.stdout",
+    "plain-tests_test_combat_enemy_roster.py.stdout",
+    "plain-ui_ui_tab_shop.py.stdout",
+    "qt-__init__.py.stdout",
+    "qt-core_constants.py.stdout",
+    "qt-data_achievement_diary_catalog.py.stdout",
+    "qt-data_combat_data.py.stdout",
+    "qt-data_quest_data.py.stdout",
+    "qt-data_slayer_data.py.stdout",
+    "qt-logic_pure_logic_pure_combat_engine.py.stdout",
+    "qt-logic_shop_logic.py.stdout",
+    "qt-runtime_runtime_actions_activities.py.stdout",
+    "qt-runtime_runtime_actions_carried.py.stdout",
+    "qt-tests_test_combat_enemy_roster.py.stdout",
+    "qt-ui_ui_tab_shop.py.stdout"
+  ],
+  "excluded": [
+    {
+      "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cut-gem-baseline-6438d422/plain-__init__.py.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Unavailable plain-root control outside the required 23 payloads"
+    }
+  ]
+}

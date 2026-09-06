@@ -13,6 +13,176 @@ from tools import run_remote_tests
 
 
 class RemoteTestHostTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        lock_patch = patch.object(
+            run_remote_tests, "LOCAL_MIRROR_LOCK_PATH", Path(temporary.name) / "mirror.lock"
+        )
+        lock_patch.start()
+        self.addCleanup(lock_patch.stop)
+
+    def test_ssh_does_not_replay_remote_failures_or_arbitrary_commands(self):
+        for returncode, repeat_safe in ((1, False), (2, True), (255, False)):
+            with self.subTest(returncode=returncode, repeat_safe=repeat_safe):
+                result = subprocess.CompletedProcess((), returncode, "test stdout", "test stderr")
+                with (
+                    patch.object(run_remote_tests.subprocess, "run", return_value=result) as execute,
+                    patch.object(run_remote_tests.time, "sleep") as sleep,
+                    self.assertRaises(run_remote_tests.SSHCommandError) as failure,
+                ):
+                    run_remote_tests._ssh("test-command", label="test lane", repeat_safe=repeat_safe)
+                self.assertEqual(execute.call_count, 1)
+                sleep.assert_not_called()
+                self.assertEqual(failure.exception.returncode, returncode)
+                self.assertIn("test stdout", str(failure.exception))
+                self.assertIn("test stderr", str(failure.exception))
+
+    def test_repeat_safe_ssh_retries_only_255_with_existing_bound(self):
+        failed = subprocess.CompletedProcess((), 255, "", "connection lost")
+        success = subprocess.CompletedProcess((), 0, "report", "")
+        for results, expected_attempts in (((failed, success), 2), ((failed,) * 3, 3)):
+            with (
+                self.subTest(expected_attempts=expected_attempts),
+                patch.object(run_remote_tests.subprocess, "run", side_effect=results) as execute,
+                patch.object(run_remote_tests.time, "sleep") as sleep,
+            ):
+                if results[-1].returncode:
+                    with self.assertRaises(run_remote_tests.SSHCommandError):
+                        run_remote_tests._ssh("cat report", label="report", repeat_safe=True)
+                else:
+                    self.assertEqual(
+                        run_remote_tests._ssh("cat report", label="report", repeat_safe=True), "report"
+                    )
+                self.assertEqual(execute.call_count, expected_attempts)
+                self.assertEqual(sleep.call_count, expected_attempts - 1)
+
+    def test_disconnected_launch_reconciles_same_run_and_preserves_failure(self):
+        commands = []
+
+        def execute(command, **_kwargs):
+            remote = command[-1]
+            commands.append(remote)
+            if remote.startswith("nohup "):
+                self.assertTrue(run_remote_tests._pending_path().is_file())
+                return subprocess.CompletedProcess(command, 255, "", "connection lost after launch")
+            return subprocess.CompletedProcess(command, 0, "2\n" if ".report " in remote else "test failed\n", "")
+
+        with (
+            patch.object(run_remote_tests.subprocess, "run", side_effect=execute),
+            contextlib.redirect_stdout(io.StringIO()) as stdout,
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            returncode, output = run_remote_tests._stream_remote_run("qt", timeout=1, poll_interval=0.01)
+        self.assertEqual(returncode, 2)
+        self.assertEqual(output, "test failed\n")
+        self.assertEqual(stdout.getvalue(), "test failed\n")
+        self.assertEqual(sum(command.startswith("nohup ") for command in commands), 1)
+        self.assertFalse(any("rm -f" in command for command in commands))
+        self.assertFalse(run_remote_tests._pending_path().exists())
+        report_command = next(command for command in commands if ".report " in command)
+        self.assertIn(report_command.split()[1], commands[0])
+
+    def test_unresolved_run_blocks_next_sync_after_launch_poll_or_timeout_failure(self):
+        worktree = Path(__file__).resolve().parents[1]
+        for failure_at in ("launch", "poll", "timeout"):
+            with self.subTest(failure_at=failure_at), tempfile.TemporaryDirectory() as temp_dir:
+                launches = []
+
+                def execute(command, **_kwargs):
+                    remote = command[-1]
+                    if remote.startswith("nohup "):
+                        launches.append(remote)
+                        code = 2 if failure_at == "launch" else 255
+                        return subprocess.CompletedProcess(command, code, "launch output", "launch error")
+                    if ".log " in remote and failure_at == "poll":
+                        return subprocess.CompletedProcess(command, 255, "", "poll disconnected")
+                    return subprocess.CompletedProcess(command, 0, "", "")
+
+                with (
+                    patch.object(run_remote_tests, "LOCAL_MIRROR_LOCK_PATH", Path(temp_dir) / "mirror.lock"),
+                    patch.object(run_remote_tests, "_preflight"),
+                    patch.object(run_remote_tests, "_run_with_retries") as rsync,
+                    patch.object(run_remote_tests.subprocess, "run", side_effect=execute) as subprocess_run,
+                    patch.object(run_remote_tests.time, "sleep"),
+                    patch.object(run_remote_tests.time, "monotonic", side_effect=(0, 2)),
+                    contextlib.redirect_stdout(io.StringIO()),
+                    contextlib.redirect_stderr(io.StringIO()) as stderr,
+                ):
+                    args = [str(worktree), "qt", "--timeout", "1"]
+                    self.assertEqual(run_remote_tests.main(args), 1)
+                    mutations = [
+                        call.args[0][-1] for call in subprocess_run.call_args_list
+                        if not call.args[0][-1].startswith("cat ")
+                    ]
+                    self.assertEqual(len(mutations), 3)
+                    self.assertTrue(mutations[0].startswith("mkdir "))
+                    self.assertTrue(mutations[1].startswith("ln "))
+                    self.assertTrue(mutations[2].startswith("nohup "))
+                    pending_path = run_remote_tests._pending_path()
+                    original = pending_path.read_bytes()
+                    pending = json.loads(original)
+                    self.assertEqual(run_remote_tests.main(args), 1)
+                    with self.assertRaises(RuntimeError) as failure:
+                        run_remote_tests._sync(worktree)
+                    self.assertEqual(pending_path.read_bytes(), original)
+                    self.assertEqual(rsync.call_count, 1)
+                    self.assertEqual(len(launches), 1)
+                    self.assertEqual(mutations, [
+                        call.args[0][-1] for call in subprocess_run.call_args_list
+                        if not call.args[0][-1].startswith("cat ")
+                    ])
+                    self.assertIn(str(pending_path), str(failure.exception))
+                    self.assertIn(pending["run_id"], str(failure.exception))
+                    self.assertIn(pending["log_path"], str(failure.exception))
+                    self.assertIn(pending["report_path"], str(failure.exception))
+                    self.assertIn(pending["run_id"], stderr.getvalue())
+                    self.assertIn(pending["log_path"], stderr.getvalue())
+                    self.assertIn(pending["report_path"], stderr.getvalue())
+                    self.assertIn("Read-only inspection:", stderr.getvalue())
+                    self.assertIn(pending["report_path"], subprocess_run.call_args.args[0][-1])
+
+    def test_pending_run_only_releases_mirror_after_valid_completion(self):
+        pending_path = run_remote_tests._pending_path()
+        pending = {
+            "run_id": "qt-prior", "log_path": "/reports/qt-prior.log",
+            "report_path": "/reports/qt-prior.report",
+        }
+        with (
+            patch.object(run_remote_tests.subprocess, "run") as execute,
+            patch.object(run_remote_tests, "_run_with_retries") as rsync,
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            malformed = [json.dumps(value) for value in (
+                None, [], {}, pending | {"run_id": ""},
+                pending | {"log_path": 17}, pending | {"report_path": " "},
+            )] + ["{"]
+            for record in malformed:
+                with self.subTest(record=record):
+                    pending_path.write_text(record)
+                    with self.assertRaises(RuntimeError) as failure:
+                        run_remote_tests._sync(Path("/source"))
+                    self.assertIn(str(pending_path), str(failure.exception))
+                    self.assertEqual(pending_path.read_text(), record)
+                    execute.assert_not_called()
+                    rsync.assert_not_called()
+            pending_path.write_text(json.dumps(pending))
+            for report in ("", "partial", "256"):
+                execute.return_value = subprocess.CompletedProcess((), 0, report, "")
+                with self.assertRaises(RuntimeError):
+                    run_remote_tests._sync(Path("/source"))
+                self.assertTrue(pending_path.is_file())
+                rsync.assert_not_called()
+                self.assertTrue(all(
+                    call.args[0][-1].startswith("cat ") for call in execute.call_args_list
+                ))
+            execute.return_value = subprocess.CompletedProcess((), 0, "1\n", "")
+            run_remote_tests._sync(Path("/source"))
+            rsync.assert_called_once()
+            self.assertTrue(execute.call_args_list[-2].args[0][-1].startswith("mkdir "))
+            self.assertTrue(execute.call_args_list[-1].args[0][-1].startswith("ln "))
+        self.assertFalse(pending_path.exists())
+
     def test_summary_parser_accepts_complete_unittest_output(self):
         summary = run_remote_tests.parse_unittest_summary(
             "progress\nRan 4507 tests in 247.142s\n\nOK (skipped=513)\n"
@@ -122,7 +292,7 @@ class RemoteTestHostTests(unittest.TestCase):
             (venv / "bin").mkdir(parents=True)
             (venv / "bin" / "python").symlink_to(sys.executable)
 
-            def local_ssh(command, *, label):
+            def local_ssh(command, *, label, repeat_safe=False):
                 return subprocess.run(
                     ("/bin/sh", "-c", command),
                     check=True, text=True, capture_output=True,
