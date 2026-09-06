@@ -1,0 +1,31 @@
+Claude quota preflight: {"source":"ai-usage-widget/oauth_usage","freshness":"fresh","capturedAt":1788661893,"ageSeconds":0,"fiveHour":{"usedPercent":14.0,"remainingPercent":86.0,"resetsAt":1788667200},"weekly":{"usedPercent":7.0,"remainingPercent":93.0,"resetsAt":1789182000},"fableWeekly":{"usedPercent":7.0,"remainingPercent":93.0,"resetsAt":1789182000}}
+I completed the reads and the review in this turn. Result below, restated in full.
+
+## Review result: PASS
+
+I read `memory-bank/source-audits/shop-package-split-2026-09-05.md`, the facade, both package parts, and the two owner tests. I ran no command and changed no file.
+
+### What I verified
+
+1. Import depth is correct. `logic/shop/state.py:8-19` and `logic/shop/services.py:7-20` use `...` for `data`, `core`, and `logic_pure`. From `ankiscape.logic.shop.state`, three dots resolve to `ankiscape`, which matches the facade's two-dot form at `logic/shop_logic.py:9-38`.
+2. Services reach state through the sibling path `from .state import (...)` at `logic/shop/services.py:21-30`. That is the correct one-dot depth inside the package.
+3. No reverse dependency exists. Neither part names `shop_logic` or any of the 14 facade functions. Neither part holds a function-local import.
+4. Function ownership matches the audit: 39 defs in `state.py`, 18 in `services.py`, 14 in `shop_logic.py`, total 71. The facade re-imports all 57 moved names, so its public surface keeps every original name.
+5. Metadata is exact. `logic/shop_logic.py:107-117` rebinds `__module__` for 11 names. Those 11 are precisely the public moved functions, 7 from state and 4 from services. No wrapper exists, so each function keeps its own module globals.
+6. The boundary test's constant identity check holds by construction. Both parts import `SHOP_SERVICES`, `SHOP_VENDOR_ACTIONS`, and `SHOP_PLAYER_SELL_PRICES`, and each part uses them (for example `logic/shop/state.py:469`, `481`).
+7. Proof ownership is exact. `source.count("quest_action_proofs")` gives 5 in `logic/shop_logic.py`, 3 in `logic/shop/services.py`, and 0 in `logic/shop/state.py`, which matches `tests/test_quest_action_proofs.py:771-772`. The single services call site sits in `_apply_service_like` at `logic/shop/services.py:617`, which matches line 761. The scanner uses `rglob` at `tests/test_quest_action_proofs.py:512`, so it finds the new subdirectory.
+8. Packaging is real. `logic/shop/__init__.py` is 0 bytes, `logic/__init__.py` imports nothing, and `pkg_alias.py` binds only the root path. So `ankiscape.logic.shop.state` imports without `ankiscape.logic.shop_logic` in `sys.modules`, as `tests/shops/test_module_boundaries.py:18` demands. `tests/shops/__init__.py` exists.
+9. No flat path survives in product code, tests, or the new capture bindings.
+
+### Findings
+
+No blocking finding. I have no required fix.
+
+### Optional notes (not blocking, out of scope for this change)
+
+1. `tests/test_storage_pure.py:55` and `:139` scan the `logic` tier with a non-recursive `glob("*.py")`, so the two new package files fall outside that gate. Both parts contain no `activity_session` write, so this change loses no coverage today. A later change can use `rglob("*.py")` there.
+2. The facade stays at `logic/shop_logic.py` while its parts live in `logic/shop/`. The pinned surface digest at `tests/test_module_surface.py:20` and every importer depend on that module path, so this layout is the correct choice here.
+
+### Still required
+
+The surface digest `a9455907…`, the 5,568 discovery count, and the 23 payload comparisons need the fresh both-lane capture. Static review cannot establish them. Codex owns that run and the commit.
