@@ -1,0 +1,28 @@
+{
+  "model": "opus",
+  "effort": "medium",
+  "exit_code": 0,
+  "scope": "Full frozen product/test/probe diff, static only, PASS; probe portability and equipment isolation corrected afterward.",
+  "reviewed_sources": {
+    "engine": "30377177ba69e1aa112a8d8b384cfd205d6d593133821bdbf74ce85fbcd323f6",
+    "test": "41cc273f999d760ecf7ee1ff2f27771a9f2c152b86802a688cccc99b311e087b",
+    "probe": "96350777352b2d99ac1834de409245d95de28823c97904247591314c3d632954"
+  },
+  "files": {
+    "prompt": {
+      "bytes": 17174,
+      "sha256": "048584d09db1636855876d7d23b4ebab0070dd69c2bd07e9199cebcbd7cf6c25",
+      "retained_path": "opus-initial-prompt.txt.gz"
+    },
+    "review": {
+      "bytes": 3329,
+      "sha256": "dd0911d5d920c31d003fcbaf6a1bd96cb71dcb54de8d94596e204767948f1eeb",
+      "retained_path": "opus-initial-review.txt.gz"
+    },
+    "stderr": {
+      "bytes": 348,
+      "sha256": "708b0948eee2b5b3f9490cb02c01037895b3827ba9fc1a448c4394ad1777f288",
+      "retained_path": "opus-initial-stderr.txt.gz"
+    }
+  }
+}

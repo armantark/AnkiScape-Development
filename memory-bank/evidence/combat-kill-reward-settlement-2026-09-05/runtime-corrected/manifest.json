@@ -1,0 +1,256 @@
+{
+  "status": "PASS",
+  "local_capture": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr",
+  "remote_capture": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr",
+  "source_path_meaning": "Snapshot origin at capture time; a current file at this path may later differ.",
+  "source_hashes": {
+    "logic_pure/logic_pure_combat_engine.py": "30377177ba69e1aa112a8d8b384cfd205d6d593133821bdbf74ce85fbcd323f6",
+    "tests/combat/test_kill_rewards.py": "2a1f0741bbd6b6039537137ae9cd269096af8fb39d04ff3a2a9fb5aaecfd5620",
+    "tools/combat/compare_kill_rewards.py": "37d9d779f062fc37e0ade00464f0724a4a17d97ff21c3a4dd44c36ad0f35dde2"
+  },
+  "comparison_cases_per_lane": 32,
+  "focused_tests_per_lane": 16,
+  "focused_skips_per_lane": 0,
+  "jobs": [
+    {
+      "lane": "plain",
+      "kind": "comparison",
+      "command": "env -u PYTHONOPTIMIZE PATH=/opt/homebrew/bin:/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ANKISCAPE_GAME_MAIN=/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main ANKISCAPE_DARKAN_WORLD_SERVER=/Users/armantarkhanian/ankiscape-remote-test-host/sources/darkan-world-server PYTHONPATH=/Users/armantarkhanian/ankiscape-remote-test-host/plain-site /opt/homebrew/bin/python3 -B tools/combat/compare_kill_rewards.py --baseline /Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/baseline.py --candidate-sha256 30377177ba69e1aa112a8d8b384cfd205d6d593133821bdbf74ce85fbcd323f6 --output /Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/plain-comparison.json",
+      "remote_stdout": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/plain-comparison.stdout",
+      "remote_stderr": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/plain-comparison.stderr",
+      "run": {
+        "run_id": "combat-plain-comparison-1788670637-65a3cee2",
+        "log_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/combat-plain-comparison-1788670637-65a3cee2.log",
+        "report_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/combat-plain-comparison-1788670637-65a3cee2.report"
+      },
+      "exit_code": 0
+    },
+    {
+      "lane": "plain",
+      "kind": "focused",
+      "command": "env -u PYTHONOPTIMIZE PATH=/opt/homebrew/bin:/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ANKISCAPE_GAME_MAIN=/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main ANKISCAPE_DARKAN_WORLD_SERVER=/Users/armantarkhanian/ankiscape-remote-test-host/sources/darkan-world-server PYTHONPATH=/Users/armantarkhanian/ankiscape-remote-test-host/plain-site /opt/homebrew/bin/python3 -B run_tests.py --verbosity 2 CombatKillRewardsTest AutoBuryBonesTest CombatLogicTest.test_combat_burst_kills_once_awards_xp_and_rolls_source_backed_drops CombatLogicTest.test_combat_burst_chains_multiple_kills_within_tick_budget CombatLogicTest.test_vengeance_reflection_kill_counts_and_drops_normally CombatLogicTest.test_combat_burst_caps_to_one_kill_per_review_even_with_many_ticks CombatLogicTest.test_gargoyle_regeneration_is_tick_exact_across_review_boundaries CombatLogicTest.test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn PrayerPassiveMechanicsTest.test_bonecrusher_precedes_auto_prayer_without_duplicate_xp_or_ticks PrayerPassiveMechanicsTest.test_bonecrusher_interception_adds_no_auto_burial_ticks PrayerPassiveMechanicsTest.test_prayer_urn_intercepts_ash_before_auto_prayer",
+      "remote_stdout": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/plain-focused.stdout",
+      "remote_stderr": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/plain-focused.stderr",
+      "run": {
+        "run_id": "combat-plain-focused-1788670642-5db4df98",
+        "log_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/combat-plain-focused-1788670642-5db4df98.log",
+        "report_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/combat-plain-focused-1788670642-5db4df98.report"
+      },
+      "exit_code": 0
+    },
+    {
+      "lane": "qt",
+      "kind": "comparison",
+      "command": "env -u PYTHONOPTIMIZE PATH=/opt/homebrew/bin:/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ANKISCAPE_GAME_MAIN=/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main ANKISCAPE_DARKAN_WORLD_SERVER=/Users/armantarkhanian/ankiscape-remote-test-host/sources/darkan-world-server QT_QPA_PLATFORM=offscreen /Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt/bin/python -B tools/combat/compare_kill_rewards.py --baseline /Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/baseline.py --candidate-sha256 30377177ba69e1aa112a8d8b384cfd205d6d593133821bdbf74ce85fbcd323f6 --output /Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/qt-comparison.json",
+      "remote_stdout": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/qt-comparison.stdout",
+      "remote_stderr": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/qt-comparison.stderr",
+      "run": {
+        "run_id": "combat-qt-comparison-1788670647-25984369",
+        "log_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/combat-qt-comparison-1788670647-25984369.log",
+        "report_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/combat-qt-comparison-1788670647-25984369.report"
+      },
+      "exit_code": 0
+    },
+    {
+      "lane": "qt",
+      "kind": "focused",
+      "command": "env -u PYTHONOPTIMIZE PATH=/opt/homebrew/bin:/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 ANKISCAPE_GAME_MAIN=/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main ANKISCAPE_DARKAN_WORLD_SERVER=/Users/armantarkhanian/ankiscape-remote-test-host/sources/darkan-world-server QT_QPA_PLATFORM=offscreen /Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt/bin/python -B run_tests.py --verbosity 2 CombatKillRewardsTest AutoBuryBonesTest CombatLogicTest.test_combat_burst_kills_once_awards_xp_and_rolls_source_backed_drops CombatLogicTest.test_combat_burst_chains_multiple_kills_within_tick_budget CombatLogicTest.test_vengeance_reflection_kill_counts_and_drops_normally CombatLogicTest.test_combat_burst_caps_to_one_kill_per_review_even_with_many_ticks CombatLogicTest.test_gargoyle_regeneration_is_tick_exact_across_review_boundaries CombatLogicTest.test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn PrayerPassiveMechanicsTest.test_bonecrusher_precedes_auto_prayer_without_duplicate_xp_or_ticks PrayerPassiveMechanicsTest.test_bonecrusher_interception_adds_no_auto_burial_ticks PrayerPassiveMechanicsTest.test_prayer_urn_intercepts_ash_before_auto_prayer",
+      "remote_stdout": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/qt-focused.stdout",
+      "remote_stderr": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ankiscape-combat-focused-corrected-9kp5kuyr/qt-focused.stderr",
+      "run": {
+        "run_id": "combat-qt-focused-1788670652-9f20081b",
+        "log_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/combat-qt-focused-1788670652-9f20081b.log",
+        "report_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/combat-qt-focused-1788670652-9f20081b.report"
+      },
+      "exit_code": 0
+    }
+  ],
+  "source_count": 769,
+  "source_hashes_unchanged": true,
+  "mirror_ownership": "released_to_parent",
+  "pending_record_exists": false,
+  "files": {
+    "plain-comparison.report.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-comparison.report",
+      "stored_bytes": 22,
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "plain-focused.stderr.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-focused.stderr",
+      "stored_bytes": 662,
+      "stored_sha256": "fb8389af1f42eebc9aed773da4fbee287e8e6581e2e48dbd064d02fe0881c2f3",
+      "decoded_bytes": 2889,
+      "decoded_sha256": "2bd4bfc307ce167324c4547edc667669b4f5f8c1ecc94c28eb630dbea291705e"
+    },
+    "qt-focused.report.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-focused.report",
+      "stored_bytes": 22,
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "plain-comparison.json.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-comparison.json",
+      "stored_bytes": 138016,
+      "stored_sha256": "859bc5cf0de8d1d093e4bd7e4373ac8ab19465e4fc560c7563b601dd03f0f788",
+      "decoded_bytes": 902074,
+      "decoded_sha256": "16b04d88f06226b6710387f3a68380fb1923cafba3f04a2164d18d6e8a1cc6a0"
+    },
+    "remote-after.json.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/remote-after.json",
+      "stored_bytes": 36241,
+      "stored_sha256": "f91f3ef971eeb6e31434277c2145ab8c3c4670498655f9311c43072a2bdffe35",
+      "decoded_bytes": 80230,
+      "decoded_sha256": "3972d7be7b92a6e363505667672daf6e27fd6bfecab24017819dd9062d61ad2d"
+    },
+    "plain-focused.stdout.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-focused.stdout",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "capture.json.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/capture.json",
+      "stored_bytes": 73650,
+      "stored_sha256": "545f47557452accaae3005941fd9827b842b20dd9cfe121898572439b21b0eb7",
+      "decoded_bytes": 170936,
+      "decoded_sha256": "51e27bfd96aeee0ddac458c325d968478408b072f0f350af0359b4005c0d3385"
+    },
+    "qt-comparison.log.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-comparison.log",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qt-focused.log.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-focused.log",
+      "stored_bytes": 662,
+      "stored_sha256": "22b78f9961a6e9760e6cf860eaf1468ef9f635b23accd93a9737d769f05b680d",
+      "decoded_bytes": 2889,
+      "decoded_sha256": "cd12b8a7aa71e86b44aee6112df71d5b786a631265835c8e5aa61d108fddd8a7"
+    },
+    "remote-before.json.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/remote-before.json",
+      "stored_bytes": 36546,
+      "stored_sha256": "1ab1770a31d9698944d5431ddcc1b19ec75ea9313cd3a6340ef15f28ba0c344a",
+      "decoded_bytes": 82107,
+      "decoded_sha256": "033a3c7ccedcbf14fb8cfa5d5e113df47ae309ea05b2d7103966b463219b37a6"
+    },
+    "qt-comparison.report.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-comparison.report",
+      "stored_bytes": 22,
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "qt-comparison.stdout.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-comparison.stdout",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "plain-comparison.stderr.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-comparison.stderr",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "plain-focused.report.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-focused.report",
+      "stored_bytes": 22,
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "plain-focused.log.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-focused.log",
+      "stored_bytes": 662,
+      "stored_sha256": "fb8389af1f42eebc9aed773da4fbee287e8e6581e2e48dbd064d02fe0881c2f3",
+      "decoded_bytes": 2889,
+      "decoded_sha256": "2bd4bfc307ce167324c4547edc667669b4f5f8c1ecc94c28eb630dbea291705e"
+    },
+    "qt-focused.stderr.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-focused.stderr",
+      "stored_bytes": 662,
+      "stored_sha256": "22b78f9961a6e9760e6cf860eaf1468ef9f635b23accd93a9737d769f05b680d",
+      "decoded_bytes": 2889,
+      "decoded_sha256": "cd12b8a7aa71e86b44aee6112df71d5b786a631265835c8e5aa61d108fddd8a7"
+    },
+    "qt-focused.stdout.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-focused.stdout",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qt-comparison.json.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-comparison.json",
+      "stored_bytes": 138016,
+      "stored_sha256": "859bc5cf0de8d1d093e4bd7e4373ac8ab19465e4fc560c7563b601dd03f0f788",
+      "decoded_bytes": 902074,
+      "decoded_sha256": "16b04d88f06226b6710387f3a68380fb1923cafba3f04a2164d18d6e8a1cc6a0"
+    },
+    "plain-comparison.stdout.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-comparison.stdout",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "plain-comparison.log.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/plain-comparison.log",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qt-comparison.stderr.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/qt-comparison.stderr",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "case-observations.json.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-9kp5kuyr/case-observations.json",
+      "stored_bytes": 648,
+      "stored_sha256": "d061a6444957df7f4f86cde53ecd483831dd06f38e026f799da463b924c039a4",
+      "decoded_bytes": 21136,
+      "decoded_sha256": "83758f7dd5f0ffb789b31e93108d1885f6c1b97389e0f45f88f0b9c0338ba662"
+    },
+    "driver.py.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-capture-corrected-2026-09-05.py",
+      "stored_bytes": 3255,
+      "stored_sha256": "b16b5c6f044b0d3477bc200c4adbd2801845b88fb508dc3897c96629189ad4ea",
+      "decoded_bytes": 9435,
+      "decoded_sha256": "7580388544bf740639bdb2f615694a64047ed8e7cd631b5b001b5188384bb1a7"
+    },
+    "driver.stdout.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-driver-2026-09-05.stdout",
+      "stored_bytes": 796,
+      "stored_sha256": "57e59d6e58a23128cf654cdf8f85f24acb49403e980f884c8de0e2d21a9a2396",
+      "decoded_bytes": 5961,
+      "decoded_sha256": "e029e55cacc60a11129d52ba95da41fb69aac708d7f7032b9e5d83cd2e08fa0b"
+    },
+    "driver.stderr.gz": {
+      "source_path": "/tmp/ankiscape-combat-focused-corrected-driver-2026-09-05.stderr",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "test-correction.diff.gz": {
+      "source_path": "/tmp/ankiscape-combat-kill-reward-test-correction-2026-09-05.diff",
+      "stored_bytes": 332,
+      "stored_sha256": "96b74d5014352aec32c25a5e65d587abcb4e94e6f30a19441dde8d670fe6c9ad",
+      "decoded_bytes": 812,
+      "decoded_sha256": "7970d8cb3a1c513d821da52455e90cc6156b4e0cd2e4fc3d49ffc2bb0d7c162c"
+    }
+  }
+}

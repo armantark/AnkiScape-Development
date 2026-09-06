@@ -1017,6 +1017,28 @@ def _combat_drop_ownership_view(data, pending_drops):
     return ownership_view
 
 
+def _combat_settle_kill_rewards(data, enemy, target_id, rng, drops, xp_rewards):
+    rolled_drops, refused_clue = _combat_roll_drops(
+        enemy,
+        rng,
+        _combat_drop_ownership_view(data, drops),
+        include_clue_refusal=True,
+    )
+    kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
+    _record_combat_observed_drops_pure(data, target_id, kill_drops)
+    data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
+        data,
+        target_id,
+        kill_drops,
+        bool(data.get("combat_auto_prayer_training")),
+    )
+    if passive_prayer_xp > 0:
+        xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
+    for drop_name, drop_amount in kill_drops.items():
+        drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
+    return data, refused_clue, prayer_ticks
+
+
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -1801,26 +1823,11 @@ def apply_combat_burst_pure(
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
-                rolled_drops, refused_clue = _combat_roll_drops(
-                    enemy,
-                    rng,
-                    _combat_drop_ownership_view(data, drops),
-                    include_clue_refusal=True,
+                data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
+                    data, enemy, target_id, rng, drops, xp_rewards
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
-                kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
-                _record_combat_observed_drops_pure(data, target_id, kill_drops)
-                data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
-                    data,
-                    target_id,
-                    kill_drops,
-                    bool(data.get("combat_auto_prayer_training")),
-                )
-                if passive_prayer_xp > 0:
-                    xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
                 next_player_attack += prayer_ticks
-                for drop_name, drop_amount in kill_drops.items():
-                    drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
                 # Chain into the next spawn of the same target for the remaining
                 # tick budget instead of ending the burst on the first kill (the
                 # old `break` wasted up to half of a ~30s review window). A fresh
@@ -2337,26 +2344,11 @@ def apply_combat_burst_pure(
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
-                rolled_drops, refused_clue = _combat_roll_drops(
-                    enemy,
-                    rng,
-                    _combat_drop_ownership_view(data, drops),
-                    include_clue_refusal=True,
+                data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
+                    data, enemy, target_id, rng, drops, xp_rewards
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
-                kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
-                _record_combat_observed_drops_pure(data, target_id, kill_drops)
-                data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
-                    data,
-                    target_id,
-                    kill_drops,
-                    bool(data.get("combat_auto_prayer_training")),
-                )
-                if passive_prayer_xp > 0:
-                    xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
                 next_player_attack += prayer_ticks
-                for drop_name, drop_amount in kill_drops.items():
-                    drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
                 if (
                     live_cadence
                     or stop_after_first_kill
