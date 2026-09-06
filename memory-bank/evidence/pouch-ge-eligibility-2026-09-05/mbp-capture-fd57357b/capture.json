@@ -1,0 +1,31 @@
+{
+  "started_utc": "2026-09-06T00:14:37.139130+00:00",
+  "repo": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork",
+  "baseline": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cut-gem-baseline-6438d422",
+  "script_sha256": "99f491c6ffd319899fef6008e5619a53ac3f3842ae20059f094a9d71cd83a5e0",
+  "selectors": [
+    "skills.test_summoning_market.",
+    "test_item_values.",
+    "test_item_values_aliases.",
+    "test_grand_exchange_data.",
+    "test_grand_exchange_logic.",
+    "test_shop_data.",
+    "test_shop_logic.",
+    "test_summoning_data.",
+    "test_summoning_logic.",
+    "test_undo_seam_summoning.",
+    "test_direct_action_undo_seam."
+  ],
+  "timeout_seconds_per_process": 300,
+  "expected_selected_count": 218,
+  "expected_selected_ids_sha256": "659a7bb72dce4b7a19a49f5c6a94358bef759abb9e83eeac244b82caa2c58d62",
+  "excluded_tests": [],
+  "selection_basis": "214 retained baseline discovery IDs plus the four current skills.test_summoning_market methods; generated-count case included because frozen maps match its assertions",
+  "candidate_commit": "fd57357bd5f91f760a9a572351466759cc5da713",
+  "baseline_compatibility": {
+    "baseline_commit": "6438d42256236992b10d921d4cca920293b55d93",
+    "candidate_parent_commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+    "author_static_git_diff_check": "All differing paths are under memory-bank; product, tools, and tests are identical",
+    "non_document_path_differences": []
+  }
+}

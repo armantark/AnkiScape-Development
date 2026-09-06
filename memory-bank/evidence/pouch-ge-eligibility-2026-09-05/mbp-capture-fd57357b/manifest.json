@@ -1,0 +1,330 @@
+{
+  "retained_utc": "2026-09-06T00:39:13Z",
+  "candidate_commit": "fd57357bd5f91f760a9a572351466759cc5da713",
+  "candidate_branch": "goal/pouch-ge-eligibility-2026-09-05",
+  "baseline_commit": "6438d42256236992b10d921d4cca920293b55d93",
+  "candidate_parent_commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+  "source_hashes": {
+    "core/constants.py": "a354b29d81c197874b9ff6407b8f2024ffabd156504ce398c714302f30362fd0",
+    "data/item_values.py": "5815a838b702b22d2788f9ad258bd85b3abd20bc246df4aceb673feedda7f785",
+    "generated/grand_exchange_period_generated.py": "92a960aaf7474965bc9d664fce449d12ce4de39db0ad8cbd6c39b15fd6210252",
+    "tests/test_grand_exchange_data.py": "0b130085606b0a8963f30424ee759d8f99d8f31db744440723ced633e7920f53",
+    "tests/skills/test_summoning_market.py": "f29db0aec8342f6faf66f1350605ebc11047ae35ff40d9f44ec747ab3e403730",
+    "tools/module_surface.py": "a66948b912691279dc951ac9e5aa0c144b75a351c9b1bb46b88f67d85ebcf1e5",
+    "tests/test_module_surface.py": "ba48d8b3afbfd957a1298846b263eb9358e5ebf3415d93be1adf76262a65c25f",
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+  },
+  "status": {
+    "historical_capture": "FAIL, unmodified; its outcome parser recognized 205 of 218 records in each focused lane",
+    "focused_plain": "PASS by separate retained-output parsing proof; 218 unique selected IDs, zero skips, zero unmatched records",
+    "focused_qt": "PASS by separate retained-output parsing proof; 218 unique selected IDs, zero skips, zero unmatched records",
+    "capture_integrity": "PASS by semantic proof; 27 subprocesses exited zero and all 23 required payloads are bound",
+    "semantic_reversal": "PASS; 9 changed payloads reverse byte-for-byte to baseline and 14 are already byte-identical",
+    "discovery_comparison": "PASS; each lane adds only the four moved skills.test_summoning_market test IDs, with all baseline IDs and their order preserved",
+    "independent_measurement_review": "ACCEPT session 35717; raw review retained",
+    "surface_pin_reconciliation": "Five exact measured digest literals applied with inverse full-file byte equality; full gates pending",
+    "full_branch_and_repository_gates": "pending",
+    "native_acceptance": "pending",
+    "exact_merged_tree_gate": "pending"
+  },
+  "full_surface_bodies": {
+    "retained_in_git": false,
+    "hash_binding_file": "semantic-proof.json",
+    "hash_binding_field": "payloads[].baseline and payloads[].candidate",
+    "local_baseline_directory": "/tmp/cut-gem-baseline-6438d422",
+    "local_candidate_directory": "/tmp/pouch-verification-0f715ccf",
+    "remote_baseline_directory": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cut-gem-baseline-6438d422",
+    "remote_candidate_directory": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/pouch-verification-0f715ccf",
+    "remote_filename_mapping": "Use the identical basename recorded in each proof payload row.",
+    "excluded_control": "semantic-proof.json separately binds the empty baseline plain-__init__.py.stdout; it is outside the required 23 payloads.",
+    "surface_stderr_references": "focused-parse-proof.json input_bindings retains original paths, byte counts, and hashes for surface stderr streams."
+  },
+  "baseline_discovery": {
+    "duplicated_here": false,
+    "existing_retention": "semantic-proof.json discovery[].baseline records the existing pool14 gzip paths and stored/raw hashes; original files remain unchanged."
+  },
+  "qualification_contracts": [
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/7/ankiscape_fork/memory-bank/evidence/pouch-ge-eligibility-2026-09-05/review-resolved-runtime-invariance.json",
+      "bytes": 27947,
+      "sha256": "fed0fe119fa61ed3aea965bc60d643fc383373d755189fe16ef94a9a81871513"
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/7/ankiscape_fork/memory-bank/evidence/pouch-ge-eligibility-2026-09-05/qualified-buy-limits.json",
+      "bytes": 34468,
+      "sha256": "5f211e7a07308bf357d2cf52244c4ee21c86ae7b4be1720fb22480125cfeab4d"
+    }
+  ],
+  "original_capture_verdict": {
+    "status": "FAIL",
+    "errors": [
+      "plain-focus: expected the complete 218-test selection to pass once each with no skips",
+      "qt-focus: expected the complete 218-test selection to pass once each with no skips"
+    ],
+    "finished_utc": "2026-09-06T00:15:38.785951+00:00",
+    "scope": "Capture integrity and focused tests only; semantic reversal and discovery comparison are pending",
+    "surface_count": 23,
+    "subprocess_count": 27
+  },
+  "provenance": "The parent executed the capture on the MacBook and both proofs locally. This retention step independently hashed the raw proof files, all recorded parsing inputs, all baseline and candidate payloads, and the current eight source files. No proof or product runtime was executed during retention. Historical reports and source manifests remain unchanged.",
+  "files": [
+    {
+      "file": "baseline-files.json",
+      "source_path": "/tmp/pouch-verification-0f715ccf/baseline-files.json",
+      "encoding": "identity",
+      "raw_bytes": 4392,
+      "raw_sha256": "b7c1ba8ae704fe21784d51c8ae8f6e5fd22441ea31c4a0769e37379cb35c7b0a",
+      "stored_bytes": 4392,
+      "stored_sha256": "b7c1ba8ae704fe21784d51c8ae8f6e5fd22441ea31c4a0769e37379cb35c7b0a"
+    },
+    {
+      "file": "baseline-integrity.json",
+      "source_path": "/tmp/pouch-verification-0f715ccf/baseline-integrity.json",
+      "encoding": "identity",
+      "raw_bytes": 10321,
+      "raw_sha256": "995aead1feee5e74bef9c4f009959892f92b9d1c0215aa6f3c4f6111e8515caa",
+      "stored_bytes": 10321,
+      "stored_sha256": "995aead1feee5e74bef9c4f009959892f92b9d1c0215aa6f3c4f6111e8515caa"
+    },
+    {
+      "file": "capture.json",
+      "source_path": "/tmp/pouch-verification-0f715ccf/capture.json",
+      "encoding": "identity",
+      "raw_bytes": 1473,
+      "raw_sha256": "aaad69a3de967068621fd551aeb0dc67712b8a5bc4dada5b9dca7fbf8673f43f",
+      "stored_bytes": 1473,
+      "stored_sha256": "aaad69a3de967068621fd551aeb0dc67712b8a5bc4dada5b9dca7fbf8673f43f"
+    },
+    {
+      "file": "focused-verification.json.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/focused-verification.json",
+      "encoding": "gzip",
+      "raw_bytes": 58592,
+      "raw_sha256": "df4f906d0243f59107bdb52b8dad360a4fdaed4acdc84aed803ca7704c054a1c",
+      "stored_bytes": 5242,
+      "stored_sha256": "b42bee68f1c66ac2b5c461d661b79cee03bd67a0a81a592ec20e4e96cf89de1f"
+    },
+    {
+      "file": "results.json",
+      "source_path": "/tmp/pouch-verification-0f715ccf/results.json",
+      "encoding": "identity",
+      "raw_bytes": 10474,
+      "raw_sha256": "5c5350f5ea1379a53bbd3c34e0d6c480aaacf4687f9afa26f85002bb5c77a510",
+      "stored_bytes": 10474,
+      "stored_sha256": "5c5350f5ea1379a53bbd3c34e0d6c480aaacf4687f9afa26f85002bb5c77a510"
+    },
+    {
+      "file": "source-hashes.json",
+      "source_path": "/tmp/pouch-verification-0f715ccf/source-hashes.json",
+      "encoding": "identity",
+      "raw_bytes": 1683,
+      "raw_sha256": "734e0ef0b1823942128346391a54a896d8ef39517b04bef4faf622990cb562f3",
+      "stored_bytes": 1683,
+      "stored_sha256": "734e0ef0b1823942128346391a54a896d8ef39517b04bef4faf622990cb562f3"
+    },
+    {
+      "file": "source-hashes-after.json",
+      "source_path": "/tmp/pouch-verification-0f715ccf/source-hashes-after.json",
+      "encoding": "identity",
+      "raw_bytes": 808,
+      "raw_sha256": "0b7d52c51b72c01b6006f9de8948bb8b2b4f9f3aaa56e4f1d578cc0a7daccb44",
+      "stored_bytes": 808,
+      "stored_sha256": "0b7d52c51b72c01b6006f9de8948bb8b2b4f9f3aaa56e4f1d578cc0a7daccb44"
+    },
+    {
+      "file": "surface-integrity.json",
+      "source_path": "/tmp/pouch-verification-0f715ccf/surface-integrity.json",
+      "encoding": "identity",
+      "raw_bytes": 10367,
+      "raw_sha256": "e1e340a257cc9fdf716acb98825464535690f9259f34081c8a9f462ccfcf242c",
+      "stored_bytes": 10367,
+      "stored_sha256": "e1e340a257cc9fdf716acb98825464535690f9259f34081c8a9f462ccfcf242c"
+    },
+    {
+      "file": "verification.json",
+      "source_path": "/tmp/pouch-verification-0f715ccf/verification.json",
+      "encoding": "identity",
+      "raw_bytes": 438,
+      "raw_sha256": "a387078e2068a17eaab388261ae2d28274a1020943c80400daeda9c7785036c7",
+      "stored_bytes": 438,
+      "stored_sha256": "a387078e2068a17eaab388261ae2d28274a1020943c80400daeda9c7785036c7"
+    },
+    {
+      "file": "plain-focused-discovery.json.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/plain-focused-discovery.json",
+      "encoding": "gzip",
+      "raw_bytes": 23922,
+      "raw_sha256": "7064f158fbb5492b087c11d0379e89d62ffbfb3c967fe7f00bad006615464118",
+      "stored_bytes": 4996,
+      "stored_sha256": "da220adb11a51c14533a4b7d2f6b36bfd6b0591f3d8cf44f31c0c4e2ea1e28b2"
+    },
+    {
+      "file": "qt-focused-discovery.json.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/qt-focused-discovery.json",
+      "encoding": "gzip",
+      "raw_bytes": 23919,
+      "raw_sha256": "423f4c65e18a26fccbb211f561254ae7604fa11fa77436efb078e8a9b3e64ba7",
+      "stored_bytes": 4993,
+      "stored_sha256": "5b497a0388db59bb0ad3e7137a939eacfe616a0799e184a5074b9f88e1808345"
+    },
+    {
+      "file": "plain-focus.stdout.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/plain-focus.stdout",
+      "encoding": "gzip",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "plain-focus.stderr.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/plain-focus.stderr",
+      "encoding": "gzip",
+      "raw_bytes": 38074,
+      "raw_sha256": "cf0111fdbc9799e70e20bf43f776ceaa2b87489687fdd80320690d1aa6b8878b",
+      "stored_bytes": 6353,
+      "stored_sha256": "da2c8b4d16fb1075ef3cbc55d80d1d3b956d77ae94a00f5ff0f1b0a67f7deee2"
+    },
+    {
+      "file": "plain-discovery.stdout.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/plain-discovery.stdout",
+      "encoding": "gzip",
+      "raw_bytes": 572866,
+      "raw_sha256": "c427c882ddfca032199045bdfe360cb8833d21ff8b33741e89f799e1eb9b3a84",
+      "stored_bytes": 114700,
+      "stored_sha256": "df72272fecf123ecfb09b9e965cb55a88d2098fd4f2a7e7529415d0b291ea9b8"
+    },
+    {
+      "file": "plain-discovery.stderr.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/plain-discovery.stderr",
+      "encoding": "gzip",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "qt-focus.stdout.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/qt-focus.stdout",
+      "encoding": "gzip",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "qt-focus.stderr.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/qt-focus.stderr",
+      "encoding": "gzip",
+      "raw_bytes": 38074,
+      "raw_sha256": "a880e6bfa7893eaa0398dd3ea092cae0de4d64a27276dd1e43122175723a038a",
+      "stored_bytes": 6355,
+      "stored_sha256": "890fab13209cdc27919386aa0a06293041d732affb92973d27e167cf5aee86a0"
+    },
+    {
+      "file": "qt-discovery.stdout.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/qt-discovery.stdout",
+      "encoding": "gzip",
+      "raw_bytes": 572866,
+      "raw_sha256": "c427c882ddfca032199045bdfe360cb8833d21ff8b33741e89f799e1eb9b3a84",
+      "stored_bytes": 114700,
+      "stored_sha256": "df72272fecf123ecfb09b9e965cb55a88d2098fd4f2a7e7529415d0b291ea9b8"
+    },
+    {
+      "file": "qt-discovery.stderr.gz",
+      "source_path": "/tmp/pouch-verification-0f715ccf/qt-discovery.stderr",
+      "encoding": "gzip",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "capture.py.gz",
+      "source_path": "/tmp/ankiscape-pouch-capture-2026-09-05.py",
+      "encoding": "gzip",
+      "raw_bytes": 12132,
+      "raw_sha256": "99f491c6ffd319899fef6008e5619a53ac3f3842ae20059f094a9d71cd83a5e0",
+      "stored_bytes": 4313,
+      "stored_sha256": "95449f42c446cd40390d00e55552c8867ba3a7199b6f788d2e92d5b5dadc3d4e"
+    },
+    {
+      "file": "capture-driver.py.gz",
+      "source_path": "/tmp/ankiscape-pouch-capture-driver-2026-09-05.py",
+      "encoding": "gzip",
+      "raw_bytes": 2951,
+      "raw_sha256": "8eb54b0df6a0bb8b5179ad5271d20eaf05c36b54100fdd81e0c93ba41054cad4",
+      "stored_bytes": 1260,
+      "stored_sha256": "e463c60d9e2b6bf12f9bb78e8b2d254c73cf53535ddb19d0656e4c933069eb3b"
+    },
+    {
+      "file": "semantic-proof.py.gz",
+      "source_path": "/tmp/ankiscape-pouch-semantic-proof-2026-09-05.py",
+      "encoding": "gzip",
+      "raw_bytes": 23109,
+      "raw_sha256": "30bc01803da0c837f4361905d2b134e51b8cb45e52c67629c7959e302208441d",
+      "stored_bytes": 6855,
+      "stored_sha256": "08087f264c1f9701070d49482f8b6830dbc830a0d35fcc5a07eba084d29bbf20"
+    },
+    {
+      "file": "focused-parse-proof.py.gz",
+      "source_path": "/tmp/ankiscape-pouch-focused-parse-proof-2026-09-05.py",
+      "encoding": "gzip",
+      "raw_bytes": 12137,
+      "raw_sha256": "2c75eda446273ebc363a9d463c80fe832cb182e64accd6cc9c400ae22b1f6986",
+      "stored_bytes": 4441,
+      "stored_sha256": "95adb014e6344f6b840dbf6e04ab59053b3afc4589747ea720ba2bf8d85be93c"
+    },
+    {
+      "file": "semantic-proof.json",
+      "source_path": "/tmp/ankiscape-pouch-semantic-proof-0f715ccf.json",
+      "encoding": "identity",
+      "raw_bytes": 125128,
+      "raw_sha256": "981ae056398389adaa2ee5047d7974b23edbe19d2e36fd5f9391347121665dd4",
+      "stored_bytes": 125128,
+      "stored_sha256": "981ae056398389adaa2ee5047d7974b23edbe19d2e36fd5f9391347121665dd4"
+    },
+    {
+      "file": "focused-parse-proof.json",
+      "source_path": "/tmp/ankiscape-pouch-focused-parse-proof-0f715ccf.json",
+      "encoding": "identity",
+      "raw_bytes": 129079,
+      "raw_sha256": "4a5c92b5a7d3359fc87e50954eee583e227ecb9e00bed790b08822b2f922dc34",
+      "stored_bytes": 129079,
+      "stored_sha256": "4a5c92b5a7d3359fc87e50954eee583e227ecb9e00bed790b08822b2f922dc34"
+    },
+    {
+      "file": "measurement-review.txt.gz",
+      "source_path": "/tmp/ankiscape-pouch-measurement-opus-review-2026-09-05.txt",
+      "encoding": "gzip",
+      "raw_bytes": 4089,
+      "raw_sha256": "ab2495196b0ac9f906d0a49e12ee97841c0ffbeccd2af388406c2e0640059ed5",
+      "stored_bytes": 2106,
+      "stored_sha256": "9c76de99ae10285d2a04442c75735dfd13fddca8eeb99398a2a80006b535ce84"
+    },
+    {
+      "file": "instrument-update.json",
+      "source_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/7/ankiscape_fork/memory-bank/evidence/pouch-ge-eligibility-2026-09-05/mbp-capture-fd57357b/instrument-update.json",
+      "encoding": "identity",
+      "raw_bytes": 2472,
+      "raw_sha256": "2964aa6c74d634020b2eaa32e975fb7c1aee56887425d1e84f93c1960960ac41",
+      "stored_bytes": 2472,
+      "stored_sha256": "2964aa6c74d634020b2eaa32e975fb7c1aee56887425d1e84f93c1960960ac41",
+      "provenance": "Authored static instrument application evidence; not a runtime report"
+    },
+    {
+      "file": "final-source.json",
+      "source_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/7/ankiscape_fork/memory-bank/evidence/pouch-ge-eligibility-2026-09-05/mbp-capture-fd57357b/final-source.json",
+      "encoding": "identity",
+      "raw_bytes": 1993,
+      "raw_sha256": "5066efcdcb5c20b64448adbedd6d068fa1afd64b2bcf50bf6246c696bd752a70",
+      "stored_bytes": 1993,
+      "stored_sha256": "5066efcdcb5c20b64448adbedd6d068fa1afd64b2bcf50bf6246c696bd752a70",
+      "provenance": "Authored static instrument application evidence; not a runtime report"
+    }
+  ],
+  "final_source_manifest": "final-source.json",
+  "instrument_application": "instrument-update.json",
+  "historical_capture_note": "source_hashes, the original 25 artifact records, and verification.json remain the historical pre-instrument state. final-source.json separately binds the current files after the five approved digest edits.",
+  "updated_utc": "2026-09-06T00:41:26Z"
+}
