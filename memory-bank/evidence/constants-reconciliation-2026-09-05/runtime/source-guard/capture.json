@@ -1,0 +1,31 @@
+{
+  "started_utc": "2026-09-06T01:50:19.075126+00:00",
+  "repo": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork",
+  "script_sha256": "aba9db7cf975b591b3320be59d359e12e5d72d6062655c6d5e7dd4f4843eb9c3",
+  "baseline": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cut-gem-baseline-6438d422",
+  "discovery_baseline": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ghosts-prerequisite-baseline-ygs2eavk",
+  "source_snapshot_kind": "Frozen source-hash manifest; integration commit was pending at authoring",
+  "preserved_split_commit": "0246e1fc0306d558648b511ca79813e01e46b036",
+  "integration_main_commit": "814b4d591df4525e0bda4a1f858baf6345ed4d38",
+  "author_static_manifest_sha256": "62570531c49eab9fc59e88ab1f107720e6a95b15c83211db3d34094244ff0565",
+  "baseline_product_compatibility": "Parent-approved existing 6438d422 payloads are the product baseline for main814; discovery separately uses the main814 Ghosts prerequisite baseline.",
+  "new_test_selectors": [
+    "test_module_surface.ModuleSurfaceTest.test_constants_parts_import_standalone",
+    "test_module_surface.ModuleSurfaceTest.test_constants_export_order"
+  ],
+  "full_module_selector": "test_module_surface.",
+  "excluded_tests": [],
+  "expected_full_module_ids": [
+    "test_module_surface.ModuleSurfaceTest.test_first_wave_digests",
+    "test_module_surface.ModuleSurfaceTest.test_constants_parts_import_standalone",
+    "test_module_surface.ModuleSurfaceTest.test_constants_export_order",
+    "test_module_surface.ModuleSurfaceTest.test_public_normalization_preserves_sequence_order_and_sorts_unordered_values",
+    "test_module_surface.ModuleSurfaceTest.test_unsupported_values_are_explicitly_unrepresentable",
+    "test_module_surface.ModuleSurfaceTest.test_root_initializer_is_reported_as_unavailable_without_aqt",
+    "test_module_surface.ModuleSurfaceTest.test_root_initializer_digest_under_qt"
+  ],
+  "timeout_seconds_per_process": 300,
+  "timeout_cleanup": "Each job owns a new process group; a timeout kills that group, including nested interpreter_cases children.",
+  "interpreter_semantics": "Each existing test retains interpreter_cases(), which can spawn both interpreters internally. The capture does not replace, patch, or weaken that behavior.",
+  "runtime_ownership_canaries": "Three disposable process fixtures per lane execute the exact frozen standalone snippet and must fail at their intended assertion only."
+}

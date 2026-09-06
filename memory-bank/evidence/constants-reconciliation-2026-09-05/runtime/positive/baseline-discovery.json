@@ -1,0 +1,30 @@
+[
+  {
+    "lane": "plain",
+    "stdout": {
+      "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ghosts-prerequisite-baseline-ygs2eavk/plain-discovery.stdout",
+      "bytes": 572917,
+      "sha256": "0cf05aa2519522896ae1435810c22cbe96d9894675711749cba5e1f96ecd211d"
+    },
+    "stderr": {
+      "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ghosts-prerequisite-baseline-ygs2eavk/plain-discovery.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tests": 5567
+  },
+  {
+    "lane": "qt",
+    "stdout": {
+      "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ghosts-prerequisite-baseline-ygs2eavk/qt-discovery.stdout",
+      "bytes": 572917,
+      "sha256": "0cf05aa2519522896ae1435810c22cbe96d9894675711749cba5e1f96ecd211d"
+    },
+    "stderr": {
+      "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/ghosts-prerequisite-baseline-ygs2eavk/qt-discovery.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tests": 5567
+  }
+]
