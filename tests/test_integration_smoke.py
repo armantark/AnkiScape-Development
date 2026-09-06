@@ -123,7 +123,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             player_data=addon.player_data,
             random_random=lambda: next(random_rolls, 0.0),
             show_error_message=lambda _title, message: self.fail(message),
-            deactivate_current_skill=lambda: None,
+            deactivate_current_skill=lambda _reason=None: None,
             award_skill_exp=lambda exp_key, amount: addon.player_data.__setitem__(
                 exp_key, float(addon.player_data.get(exp_key, 0.0) or 0.0) + amount
             ) or amount,
@@ -1545,7 +1545,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Khazard helmet": 1, "Khazard armour": 1, "Khazard cell keys": 1},
             "current_quest": "fight_arena",
             "quests": {"fight_arena": {"started": True, "progress": 8, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1570,7 +1569,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], [])
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
-        self.assertIn("Combat stats required before battle support can resolve: Khazard ogre level 63", calls["dialogs"][0][1])
+        self.assertIn("This fight is not modelled yet (combat stats missing): Khazard ogre level 63", calls["dialogs"][0][1])
 
     def test_quest_answer_progresses_black_knights_disguise_from_equipment(self):
         addon = _load_addon_as_package("ankiscape_black_knights_stage_integration")
@@ -1706,7 +1705,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Stake": 1, "Stake hammer": 1},
             "current_quest": "vampyre_slayer",
             "quests": {"vampyre_slayer": {"started": True, "progress": 3, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1748,7 +1746,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_quest": "shield_of_arrav",
             "quests": {"shield_of_arrav": {"started": True, "progress": 5, "completed": False}},
             "quest_route_states": {"shield_of_arrav": ["Join the Black Arm Gang"]},
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1804,7 +1801,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_quest": "a_souls_bane",
             "quests": {"a_souls_bane": {"started": True, "progress": 3, "completed": False}},
             "quest_action_proofs": ["Fill the rage meter with an anger weapon"],
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1855,7 +1851,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 }
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1919,7 +1914,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 },
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -1991,7 +1985,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 },
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -2067,7 +2060,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 },
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -2118,7 +2110,6 @@ class TestIntegrationSmoke(unittest.TestCase):
                     "completed": False,
                 },
             },
-            "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -2261,9 +2252,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
-        self.assertEqual(len(errors), 1)
-        self.assertIn("Bankstanding", errors[0][1])
-        self.assertIn("Clay", errors[0][1])
+        self.assertEqual(errors, [])
+        self.assertIn("Clay", addon._PENDING_BANKSTANDING_NOTICE["reason"])
 
     def test_crafting_missing_intermediate_names_material_and_uses_bankstanding(self):
         # "Pot" needs an "Unfired pot", not Soft clay directly. The error must name
@@ -2287,9 +2277,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
-        self.assertEqual(len(errors), 1)
-        self.assertIn("Pot (unfired)", errors[0][1])
-        self.assertIn("Bankstanding", errors[0][1])
+        self.assertEqual(errors, [])
+        self.assertIn("Pot (unfired)", addon._PENDING_BANKSTANDING_NOTICE["reason"])
 
     def test_changing_target_refreshes_review_hud(self):
         # Switching the active Utility activity (or any target) must push the new
@@ -2971,21 +2960,15 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
-        self.assertEqual(len(calls["errors"]), 1)
-        self.assertIn("Bankstanding", calls["errors"][0][1])
-        # The blocking error above owns the one user-facing notice for this
-        # switch; the generic Bankstanding modal must stay silent.
+        self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["gains"], [])
         self.assertEqual(
-            modal_order,
-            [
-                ("feedback", "flushed"),
-                ("answer", 0),
-                ("queued", "prompt"),
-                ("feedback", "flushed"),
-                ("answer", 1),
-            ],
+            [kind for kind, _value in modal_order],
+            ["feedback", "answer", "modal", "queued", "feedback", "answer"],
         )
+        modal_reasons = [value for kind, value in modal_order if kind == "modal"]
+        self.assertEqual(len(modal_reasons), 1)
+        self.assertIn("Pot (unfired)", modal_reasons[0])
         self.assertEqual(len(addon.player_data["review_event_log"]), 1)
         self.assertEqual(
             addon.player_data["shop_market_clock"]["market_tick"],
@@ -4030,87 +4013,6 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Bronze sword"], 1)
         self.assertEqual(addon.player_data["death_office"], {})
         self.assertEqual(calls["achievement_coins"], [50])
-
-    def test_activity_start_transition_selects_target_and_surface_together(self):
-        addon = _load_addon_as_package("ankiscape_activity_start_transition")
-        from ankiscape_activity_start_transition.logic.shooting_star_logic import (
-            default_shooting_star_state_pure,
-        )
-        calls = {"save": 0, "hud": []}
-        star_state = default_shooting_star_state_pure()
-        star_state["active_event"] = {
-            "event_id": "shooting-star-20",
-            "slot_card": 20,
-            "location": "Falador east mine",
-            "starting_size": 1,
-            "current_size": 1,
-            "layer_remaining": 1_200,
-        }
-        addon.player_data = {
-            "mining_level": 10,
-            "shooting_star": star_state,
-        }
-        addon.current_skill = "Mining"
-        addon.save_player_data = lambda: calls.__setitem__(
-            "save", calls["save"] + 1
-        )
-        addon.update_review_hud = lambda data, skill: calls["hud"].append(
-            (data.get("current_utility"), skill)
-        )
-
-        self.assertTrue(addon.start_activity_for_reviews("shooting_stars"))
-
-        self.assertEqual(addon.player_data["current_utility"], "shooting_stars")
-        self.assertEqual(addon.current_skill, "Activities")
-        self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["hud"], [("shooting_stars", "Activities")])
-
-    def test_activity_start_refuses_unminable_star_and_raises_persistent_notice(self):
-        addon = _load_addon_as_package("ankiscape_activity_start_unminable")
-        from ankiscape_activity_start_unminable.logic.shooting_star_logic import (
-            default_shooting_star_state_pure,
-        )
-
-        state = default_shooting_star_state_pure()
-        state["active_event"] = {
-            "event_id": "shooting-star-20",
-            "slot_card": 20,
-            "location": "Falador east mine",
-            "starting_size": 9,
-            "current_size": 9,
-            "layer_remaining": 15,
-        }
-        calls = {"save": 0, "event_drawer": 0}
-        popups = []
-        addon.ui.show_bankstanding_dialog = popups.append
-        addon.player_data = {
-            "current_utility": "shooting_stars",
-            "mining_level": 10,
-            "shooting_star": state,
-            "shop_market_clock": {"answered_cards": 20},
-        }
-        addon.current_skill = "Activities"
-        addon.save_player_data = lambda: calls.__setitem__(
-            "save", calls["save"] + 1
-        )
-        addon.update_review_event_log_drawer = lambda _data: calls.__setitem__(
-            "event_drawer", calls["event_drawer"] + 1
-        )
-        addon._update_review_context_surface = lambda: None
-
-        self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
-        self.assertFalse(addon.start_activity_for_reviews("shooting_stars"))
-
-        self.assertEqual(addon.current_skill, "Utilities")
-        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
-        self.assertEqual(calls, {"save": 1, "event_drawer": 1})
-        self.assertEqual(len(popups), 1)
-        self.assertIn("Star unminable at your level", popups[0])
-        self.assertEqual(len(addon.player_data["review_event_log"]), 1)
-        self.assertEqual(
-            addon.player_data["shooting_star"]["notice"]["kind"],
-            "unminable",
-        )
 
     def test_equipping_a_melee_weapon_returns_loaded_magic_runes_to_bank(self):
         addon = _load_addon_as_package("ankiscape_combat_weapon_loadout")

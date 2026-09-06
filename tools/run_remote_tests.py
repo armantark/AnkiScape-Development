@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import fcntl
+import json
+import os
 import re
 import shlex
 import subprocess
@@ -18,7 +20,7 @@ from typing import Sequence
 HOST = "armans-macbook-pro"
 REMOTE_HOME = Path("/Users/armantarkhanian")
 REMOTE_ROOT = REMOTE_HOME / "ankiscape-remote-test-host"
-REMOTE_REPO = REMOTE_ROOT / "repo"
+REMOTE_REPO = REMOTE_ROOT / "ankiscape_fork"
 REMOTE_VENV = REMOTE_ROOT / ".venv-qt"
 REMOTE_PLAIN_SITE = REMOTE_ROOT / "plain-site"
 REMOTE_GAME_MAIN = REMOTE_ROOT / "sources" / "game-main"
@@ -87,8 +89,76 @@ def _run_with_retries(command: Sequence[str], *, label: str) -> subprocess.Compl
     raise RuntimeError(f"{label} failed after {NETWORK_ATTEMPTS} attempts: {detail}")
 
 
-def _ssh(remote_command: str, *, label: str) -> str:
-    return _run_with_retries((*SSH, remote_command), label=label).stdout
+class SSHCommandError(RuntimeError):
+    def __init__(self, label: str, result: subprocess.CompletedProcess[str]):
+        self.returncode = result.returncode
+        super().__init__(
+            f"{label} failed with exit {result.returncode}; "
+            f"stdout: {result.stdout!r}; stderr: {result.stderr!r}"
+        )
+
+
+def _ssh(remote_command: str, *, label: str, repeat_safe: bool = False) -> str:
+    for attempt in range(1, NETWORK_ATTEMPTS + 1):
+        result = subprocess.run(
+            (*SSH, remote_command), text=True, capture_output=True, check=False
+        )
+        if result.returncode == 0:
+            return result.stdout
+        # SSH 255 can also follow remote execution: only repeat safe operations.
+        if not repeat_safe or result.returncode != 255 or attempt == NETWORK_ATTEMPTS:
+            raise SSHCommandError(label, result)
+        time.sleep(attempt)
+    raise AssertionError("unreachable SSH retry state")
+
+
+def _pending_path() -> Path:
+    return LOCAL_MIRROR_LOCK_PATH.with_suffix(".pending.json")
+
+
+def _completion_report(report_path: str) -> int | None:
+    report = _ssh(
+        f"cat {shlex.quote(report_path)} 2>/dev/null || true",
+        label="remote lane report poll",
+        repeat_safe=True,
+    ).strip()
+    if not report:
+        return None
+    try:
+        returncode = int(report)
+    except ValueError as exc:
+        raise RuntimeError(f"invalid remote lane report {report!r}: {report_path}") from exc
+    if not 0 <= returncode <= 255:
+        raise RuntimeError(f"invalid remote lane report {report!r}: {report_path}")
+    return returncode
+
+
+def _reconcile_pending_run() -> None:
+    pending_path = _pending_path()
+    if pending_path.exists():
+        try:
+            pending = json.loads(pending_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"invalid pending run record; sync blocked: {pending_path}") from exc
+        if not isinstance(pending, dict) or any(
+            not isinstance(pending.get(field), str) or not pending[field].strip()
+            for field in ("run_id", "log_path", "report_path")
+        ):
+            raise RuntimeError(f"invalid pending run record; sync blocked: {pending_path}")
+        try:
+            returncode = _completion_report(pending["report_path"])
+            if returncode is None:
+                raise RuntimeError("previous remote lane has no completion report; sync blocked")
+        except RuntimeError as exc:
+            raise RuntimeError(
+                f"{exc}; pending record: {pending_path}; run: {pending['run_id']}; "
+                f"log: {pending['log_path']}; report: {pending['report_path']}"
+            ) from exc
+        print(
+            f"Previous remote run {pending['run_id']} completed with exit {returncode}; "
+            f"log: {pending['log_path']}", file=sys.stderr,
+        )
+        pending_path.unlink()
 
 
 def _rsync_command(local_worktree: Path, destination: str) -> tuple[str, ...]:
@@ -109,13 +179,21 @@ def _rsync_command(local_worktree: Path, destination: str) -> tuple[str, ...]:
 
 
 def _sync(local_worktree: Path) -> None:
+    _reconcile_pending_run()
     _ssh(
         f"mkdir -p {shlex.quote(str(REMOTE_REPO))} "
         f"{shlex.quote(str(REMOTE_ROOT / 'reports'))}",
         label="remote mirror setup",
+        repeat_safe=True,
     )
     command = _rsync_command(local_worktree, f"{HOST}:{REMOTE_REPO}/")
     _run_with_retries(command, label="worktree sync")
+    _ssh(
+        f"ln -sfn {shlex.quote(str(REMOTE_VENV))} "
+        f"{shlex.quote(str(REMOTE_REPO / '.venv-qt'))}",
+        label="remote Qt interpreter link",
+        repeat_safe=True,
+    )
 
 
 def _remote_lane_command(lane: str) -> str:
@@ -139,6 +217,7 @@ def _remote_lane_command(lane: str) -> str:
 
 def _preflight(lane: str) -> None:
     common_checks = (
+        f"test -x {shlex.quote(str(REMOTE_VENV / 'bin/python'))}",
         f"test -f {shlex.quote(str(REMOTE_GAME_MAIN / 'data/cfg/items.yml'))}",
         f"test -f {shlex.quote(str(REMOTE_DARKAN / 'developer-information/npcList.txt'))}",
         f"test -f {shlex.quote(str(REMOTE_DARKAN / 'developer-information/beasts.txt'))}",
@@ -153,7 +232,6 @@ def _preflight(lane: str) -> None:
     else:
         cache_root = REMOTE_HOME / "Library/Caches/codex/2012scape-openrs2/extracted"
         lane_checks = (
-            f"test -x {shlex.quote(str(REMOTE_VENV / 'bin/python'))}",
             f"{shlex.quote(str(REMOTE_VENV / 'bin/python'))} -c 'import anki, aqt, PyQt6'",
             "test -x /opt/homebrew/opt/openjdk@25/bin/java",
             "test -x /opt/homebrew/opt/openjdk@25/bin/javac",
@@ -168,7 +246,11 @@ def _preflight(lane: str) -> None:
                 )
             ),
         )
-    _ssh(" && ".join((*common_checks, *lane_checks)), label=f"remote {lane} prerequisites")
+    _ssh(
+        " && ".join((*common_checks, *lane_checks)),
+        label=f"remote {lane} prerequisites",
+        repeat_safe=True,
+    )
 
 
 def _stream_remote_run(lane: str, *, timeout: float, poll_interval: float) -> tuple[int, str]:
@@ -187,12 +269,20 @@ def _stream_remote_run(lane: str, *, timeout: float, poll_interval: float) -> tu
         )
     )
     launch = (
-        f"rm -f {shlex.quote(str(log_path))} {shlex.quote(str(report_path))} "
-        f"{shlex.quote(str(temporary_report))}; "
         f"nohup /bin/sh -c {shlex.quote(script)} </dev/null "
         f"> {shlex.quote(str(log_path))} 2>&1 &"
     )
-    _ssh(launch, label="remote lane launch")
+    pending = {"run_id": run_id, "log_path": str(log_path), "report_path": str(report_path)}
+    with _pending_path().open("x", encoding="utf-8") as pending_file:
+        json.dump(pending, pending_file)
+        pending_file.flush()
+        os.fsync(pending_file.fileno())
+    try:
+        _ssh(launch, label="remote lane launch")
+    except SSHCommandError as exc:
+        if exc.returncode != 255:
+            raise
+        print(f"{exc}; reconciling the same run without relaunch", file=sys.stderr)
 
     started = time.monotonic()
     seen = ""
@@ -200,6 +290,7 @@ def _stream_remote_run(lane: str, *, timeout: float, poll_interval: float) -> tu
         output = _ssh(
             f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
             label="remote lane log poll",
+            repeat_safe=True,
         )
         if output.startswith(seen):
             addition = output[len(seen) :]
@@ -209,18 +300,13 @@ def _stream_remote_run(lane: str, *, timeout: float, poll_interval: float) -> tu
             print(addition, end="", flush=True)
         seen = output
 
-        report = _ssh(
-            f"cat {shlex.quote(str(report_path))} 2>/dev/null || true",
-            label="remote lane report poll",
-        ).strip()
-        if report:
-            try:
-                returncode = int(report)
-            except ValueError as exc:
-                raise RuntimeError(f"invalid remote lane report {report!r}") from exc
+        returncode = _completion_report(str(report_path))
+        if returncode is not None:
+            _pending_path().unlink()
             final_output = _ssh(
                 f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
                 label="remote lane final log read",
+                repeat_safe=True,
             )
             if final_output.startswith(seen):
                 addition = final_output[len(seen) :]
@@ -281,6 +367,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         validate_test_summary(args.lane, summary)
     except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
+        pending_path = _pending_path()
+        if pending_path.exists():
+            print(f"Unresolved remote run blocks sync; pending record: {pending_path}", file=sys.stderr)
+            try:
+                pending = json.loads(pending_path.read_text(encoding="utf-8"))
+                print(
+                    f"Run: {pending['run_id']}; log: {pending['log_path']}; "
+                    f"report: {pending['report_path']}", file=sys.stderr,
+                )
+                read_command = f"cat {shlex.quote(pending['report_path'])} {shlex.quote(pending['log_path'])}"
+                print(f"Read-only inspection: {shlex.join((*SSH, read_command))}", file=sys.stderr)
+            except (OSError, ValueError, KeyError, TypeError):
+                print("Pending record is unreadable; preserve it for driver reconciliation of the exact run.", file=sys.stderr)
+            print(
+                "Rerun the test runner to reconcile completion before sync. "
+                "If completion cannot be read, the driver must reconcile this exact run and confirm "
+                "no active worker or in-flight launch before manually clearing the pending record.",
+                file=sys.stderr,
+            )
         return 1
 
     print(f"Remote {args.lane} lane summary:")

@@ -1476,7 +1476,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertFalse(bronze.enabled)
         self.assertIn("materials", bronze.locked_reasons)
         self.assertIn("Copper ore x1 (you have 0)", bronze.tooltip)
-        self.assertEqual(bronze.sort_key[:2], (1, 0))
+        self.assertEqual(bronze.sort_key, (1, "Bronze bar"))
         self.assertFalse(rune_platebody.enabled)
         self.assertIn("level 99", rune_platebody.locked_reasons)
         self.assertNotIn("hammer", bronze.tooltip.lower())

@@ -15,6 +15,8 @@ CRAFTING_DATA = crafting_recipes_as_dict()
 CRAFTING_REQUIRED_ITEM_DATA = crafting_required_items_as_dict()
 CRAFTING_SPECIAL_ITEM_DATA = crafting_special_items_as_dict()
 
+# Keep these shared bindings here for facade export order. skill_assets fills
+# Crafting icons; skill_assets, activity_assets, and the facade extend Utility icons.
 CRAFTED_ITEM_IMAGES = {}
 UTILITY_ITEM_IMAGES = {
     "Soft clay": os.path.join(CRAFTED_ITEMS_FOLDER, "soft_clay.png"),

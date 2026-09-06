@@ -92,7 +92,7 @@ if HAS_QT:
             self.status = QLabel(header)
             self.status.setObjectName("goblinRaidsStatusChip")
             self.status.setStyleSheet(
-                "color: palette(mid); font-size: 11px; font-weight: 700;"
+                "color: palette(text); font-size: 11px; font-weight: 700;"
             )
             header_layout.addWidget(icon)
             header_layout.addWidget(title)
@@ -109,7 +109,7 @@ if HAS_QT:
             self.detail = QLabel(self)
             self.detail.setObjectName("goblinRaidsDetail")
             self.detail.setWordWrap(True)
-            self.detail.setStyleSheet("color: palette(mid); font-size: 11px;")
+            self.detail.setStyleSheet("color: palette(text); font-size: 11px;")
             layout.addWidget(self.detail)
 
             self.progress = QProgressBar(self)

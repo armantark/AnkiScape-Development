@@ -89,7 +89,7 @@ if HAS_QT:
             self.status = QLabel(header)
             self.status.setObjectName("clanWarsStatusChip")
             self.status.setStyleSheet(
-                "color: palette(mid); font-size: 11px; font-weight: 700;"
+                "color: palette(text); font-size: 11px; font-weight: 700;"
             )
             header_layout.addWidget(icon)
             header_layout.addWidget(title)

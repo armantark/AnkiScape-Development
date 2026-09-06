@@ -30,7 +30,6 @@ STAGE_ACTIONS = (
 
 def _combat_ready_rum_deal_player(*, slayer_gloves=False) -> dict:
     player = _maxed_player_for_quest(QUEST_ID)
-    player["quest_combat_config"] = {"resolver_enabled": True}
     player["inventory"]["Shark"] = 28
     player["combat_supply_loadout"]["food"] = {"Shark": 28}
     if slayer_gloves:

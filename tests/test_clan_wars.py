@@ -130,7 +130,7 @@ def _context(player_data: dict, calls: dict) -> RuntimeActionContext:
         show_error_message=lambda title, message: calls["errors"].append(
             (title, message)
         ),
-        deactivate_current_skill=lambda: calls.__setitem__("deactivated", True),
+        deactivate_current_skill=lambda _reason=None: calls.__setitem__("deactivated", True),
         award_skill_exp=lambda _key, amount: amount,
         award_hidden_skill_exp=lambda *_args: None,
         level_up_check=lambda *_args: None,
@@ -581,7 +581,7 @@ class ClanWarsViewTest(unittest.TestCase):
             [row["id"] for row in active["mode_options"] if row["selectable"]],
             [CLAN_WARS_RED_MODE],
         )
-        self.assertEqual(active["primary_label"], "Selected for reviews")
+        self.assertEqual(active["primary_label"], "Active for reviews")
         self.assertFalse(active["primary_enabled"])
         self.assertEqual(active["progress_maximum"], CLAN_WARS_MAX_REVIEWS)
 

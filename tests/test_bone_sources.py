@@ -27,7 +27,7 @@ def _runtime_context(player_data: dict, roll: float, activity_messages: list[str
         player_data=player_data,
         random_random=lambda: roll,
         show_error_message=lambda _title, _message: None,
-        deactivate_current_skill=lambda: None,
+        deactivate_current_skill=lambda _reason=None: None,
         award_skill_exp=lambda _key, xp: xp,
         award_hidden_skill_exp=lambda _key, _level_key, _xp: None,
         level_up_check=lambda _skill, _data: None,

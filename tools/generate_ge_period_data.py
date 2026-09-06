@@ -280,7 +280,7 @@ def write_generated(output_path: Path, harvested: Mapping[str, object]) -> None:
     buy_limits = harvested["buy_limits"]
     provenance = harvested["provenance"]
     lines = [
-        '"""Generated pre-EOC Grand Exchange data. Do not hand-edit.',
+        '"""Auto-generated pre-EOC Grand Exchange data. Do not edit.',
         "",
         "Sources are cutoff RuneScape Wiki Exchange revisions and the complete",
         "period buy-limit table. Regenerate with tools/generate_ge_period_data.py.",

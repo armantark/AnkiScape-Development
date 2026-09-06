@@ -1,7 +1,7 @@
 import os
 import re
 
-from ...data.quest_data import quest_reward_items_as_dict
+from .quest_items import QUEST_REWARD_ITEM_DATA as _QUEST_REWARD_ITEM_DATA
 
 from .skill_sources import *
 from .competitive_minigame_sources import *
@@ -18,10 +18,6 @@ from .skill_catalog import *
 from .skill_assets import *
 from .skill_assets import _asset_slug
 
-_QUEST_REWARD_ITEM_DATA = {
-    **quest_reward_items_as_dict(),
-    **quest_item_acquisition_extra_items_as_dict(),
-}
 
 for _item_name in _QUEST_REWARD_ITEM_DATA:
     _path = os.path.join(

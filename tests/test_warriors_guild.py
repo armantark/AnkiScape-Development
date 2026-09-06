@@ -68,7 +68,7 @@ def _context(player_data, rolls=()):
         player_data=player_data,
         random_random=random_random,
         show_error_message=lambda title, message: calls["errors"].append((title, message)),
-        deactivate_current_skill=lambda: calls.setdefault("deactivated", True),
+        deactivate_current_skill=lambda _reason=None: calls.setdefault("deactivated", True),
         award_skill_exp=lambda _key, amount: amount,
         award_hidden_skill_exp=lambda _exp, _level, _amount: None,
         level_up_check=lambda _skill, _data: None,

@@ -74,7 +74,7 @@ class DiaryReviewDispatchTest(unittest.TestCase):
         sys.modules.update(self._orig_modules)
 
     def test_a_real_crafting_review_credits_a_diary_task(self):
-        from ankiscape.core.logic import check_achievements
+        from ankiscape.core.logic import DeferredAchievementDialogs, check_achievements
         from ankiscape.runtime.runtime_actions_production import handle_crafting_answer
         from ankiscape.runtime.runtime_actions_shared import RuntimeActionContext
 
@@ -114,11 +114,11 @@ class DiaryReviewDispatchTest(unittest.TestCase):
             player_data=player,
             random_random=lambda: 0.5,
             show_error_message=lambda title, message: errors.append((title, message)),
-            deactivate_current_skill=lambda: None,
+            deactivate_current_skill=lambda _reason=None: None,
             award_skill_exp=_award,
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=_level_up,
-            check_achievements=check_achievements,
+            check_achievements=DeferredAchievementDialogs().defer(check_achievements),
             save_player_data=lambda: None,
             refresh_skill_availability=lambda: None,
             show_exp=lambda _amount: None,
@@ -142,7 +142,11 @@ class DiaryReviewDispatchTest(unittest.TestCase):
         )
 
     def test_arachnophagia_requires_the_real_spider_cooking_action(self):
-        from ankiscape.core.logic import check_achievements, level_up_check
+        from ankiscape.core.logic import (
+            DeferredAchievementDialogs,
+            check_achievements,
+            level_up_check,
+        )
         from ankiscape.runtime.runtime_actions_production import handle_cooking_answer
         from ankiscape.runtime.runtime_actions_shared import RuntimeActionContext
 
@@ -172,11 +176,11 @@ class DiaryReviewDispatchTest(unittest.TestCase):
             player_data=player,
             random_random=lambda: 0.0,
             show_error_message=lambda title, message: errors.append((title, message)),
-            deactivate_current_skill=lambda: None,
+            deactivate_current_skill=lambda _reason=None: None,
             award_skill_exp=_award,
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=level_up_check,
-            check_achievements=check_achievements,
+            check_achievements=DeferredAchievementDialogs().defer(check_achievements),
             save_player_data=lambda: None,
             refresh_skill_availability=lambda: None,
             show_exp=lambda _amount: None,
@@ -214,7 +218,7 @@ class DiaryReviewDispatchTest(unittest.TestCase):
         self.assertIn("First Steps", player["completed_achievements"])
 
     def test_progression_anchor_credits_through_the_live_refresh_seam(self):
-        from ankiscape.core.logic import check_achievements
+        from ankiscape.core.logic import DeferredAchievementDialogs, check_achievements
 
         anchor = next(
             task
@@ -227,7 +231,7 @@ class DiaryReviewDispatchTest(unittest.TestCase):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player[f"{condition.key}_level"] = condition.amount
 
-        check_achievements(player)
+        DeferredAchievementDialogs().defer(check_achievements)(player)
 
         self.assertIn(anchor.id, player["achievement_diaries"]["completed_tasks"])
 

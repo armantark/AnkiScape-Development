@@ -41,12 +41,8 @@ from ..logic_pure.logic_pure import (
     smithing_target_locked_reasons_pure,
     utility_activity_locked_reasons_pure,
     woodcutting_target_locked_reasons_pure,
+    thieving_target_locked_reasons_pure,
 )
-
-try:
-    from ..logic_pure.logic_pure import thieving_target_locked_reasons_pure as _thieving_target_locked_reasons_pure
-except ImportError:  # The Thieving logic module may land after this UI slice.
-    _thieving_target_locked_reasons_pure = None
 
 from ..logic.agility_logic import agility_target_locked_reasons_pure
 from ..logic.skilling_boost_logic import skilling_effective_level_pure
@@ -131,7 +127,6 @@ def summoning_target_rows(
     inventory = player_data.get("inventory", {})
     owned = inventory if isinstance(inventory, Mapping) else {}
     rows = []
-    group_order = {"Infuse pouches": 0, "Create scrolls": 1}
     for action in actions:
         target_id = str(getattr(action, "id"))
         familiar_id = str(getattr(action, "familiar_id"))
@@ -183,11 +178,7 @@ def summoning_target_rows(
                 icon_path=item_images.get(output_item),
                 group=group,
                 locked_reasons=reasons,
-                sort_key=(
-                    group_order.get(group, 99),
-                    level,
-                    str(getattr(action, "display_name")),
-                ),
+                sort_key=(level, str(getattr(action, "display_name"))),
             )
         )
     return tuple(rows)
@@ -227,30 +218,6 @@ def _smithing_tier_of(spec: Mapping[str, object]) -> str:
     return str(next(iter(requirements), "")).replace(" bar", "").strip() or "Other"
 
 
-def _fallback_thieving_locked_reasons(
-    player_data: Mapping[str, object],
-    spec: Mapping[str, object],
-) -> tuple[str, ...]:
-    """Keep the target surface safe while the shared runtime gate is unavailable."""
-
-    reasons = []
-    level = int(spec.get("level", spec.get("required_level", 1)) or 1)
-    if int(player_data.get("thieving_level", 1) or 1) < level:
-        reasons.append(f"Thieving level {level}")
-
-    quest_id = str(spec.get("quest_gate", spec.get("required_quest", "")) or "")
-    if quest_id:
-        quests = player_data.get("quests", {}) or {}
-        quest_state = quests.get(quest_id, {}) if isinstance(quests, Mapping) else {}
-        completed = bool(quest_state.get("completed")) if isinstance(quest_state, Mapping) else bool(quest_state)
-        if not completed:
-            reasons.append(str(spec.get("quest_gate_label", quest_id.replace("_", " ").title())))
-
-    if spec.get("source_blocked"):
-        reasons.append(str(spec.get("source_blocked_reason", "source values are not closed")))
-    return tuple(dict.fromkeys(reasons))
-
-
 def thieving_target_rows(
     player_data: Mapping[str, object],
     thieving_data: Mapping[str, Mapping[str, object]],
@@ -262,22 +229,14 @@ def thieving_target_rows(
     rows = []
     current_target = str(player_data.get("current_thieving", default_target) or default_target)
     level_have = int(player_data.get("thieving_level", 1) or 1)
-    group_order = {
-        group: index
-        for index, group in enumerate(("pickpocketing", "stalls", "safes", "blackjacking"))
-    }
-
     for target_id, spec in thieving_data.items():
         display_name = str(spec.get("display_name", spec.get("name", target_id)))
         level = int(spec.get("level", spec.get("required_level", 1)) or 1)
         xp = float(spec.get("xp", spec.get("exp", 0)) or 0)
         group = str(spec.get("group", spec.get("family", "pickpocketing")) or "pickpocketing")
-        if _thieving_target_locked_reasons_pure is not None:
-            locked_reasons = tuple(
-                _thieving_target_locked_reasons_pure(player_data, target_id, thieving_data)
-            )
-        else:
-            locked_reasons = _fallback_thieving_locked_reasons(player_data, spec)
+        locked_reasons = tuple(
+            thieving_target_locked_reasons_pure(player_data, target_id, thieving_data)
+        )
 
         tooltip_lines = [
             f"{group.replace('_', ' ').title()} · Thieving level {level}. You have {level_have}.",
@@ -326,7 +285,7 @@ def thieving_target_rows(
             ),
             group=group,
             locked_reasons=locked_reasons,
-            sort_key=(group_order.get(group, 99), level, display_name),
+            sort_key=(level, display_name),
         ))
     return tuple(rows)
 
@@ -342,7 +301,6 @@ def agility_target_rows(
     rows = []
     current_target = str(player_data.get("current_agility", default_target) or default_target)
     level_have = int(player_data.get("agility_level", 1) or 1)
-    group_order = {"courses": 0, "activities": 1}
     for target in agility_targets:
         target_id = str(getattr(target, "id"))
         display_name = str(getattr(target, "display_name"))
@@ -385,7 +343,7 @@ def agility_target_rows(
             icon_path=agility_target_images.get(target_id),
             group=group,
             locked_reasons=locked_reasons,
-            sort_key=(group_order.get(group, 99), level, display_name),
+            sort_key=(level, display_name),
         ))
     return tuple(rows)
 
@@ -445,7 +403,7 @@ def smithing_target_rows(
                 icon_path=smithing_item_images.get(output_item),
                 group=group,
                 locked_reasons=locked_reasons,
-                sort_key=(lvl_req, 0 if spec.get("station") == "furnace" else 1, display_name),
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -460,7 +418,6 @@ def prayer_target_rows(
     rows = []
     inventory = player_data.get("inventory", {}) or {}
     current = player_data.get("current_prayer", default_target)
-    group_order = {name: index for index, name in enumerate(("Bury", "Scatter", "Ectofuntus", "Gilded altar"))}
     for target_id, spec in prayer_data.items():
         material = str(spec.get("display_name", target_id))
         group = str(spec.get("group", "Prayer"))
@@ -503,7 +460,7 @@ def prayer_target_rows(
             icon_path=prayer_item_images.get(material),
             group=group,
             locked_reasons=locked_reasons,
-            sort_key=(group_order.get(group, 99), xp, material),
+            sort_key=(int(spec.get("level", 1) or 1), material),
         ))
     return tuple(rows)
 
@@ -515,10 +472,8 @@ def construction_target_rows(
     rows = []
     inventory = player_data.get("inventory", {}) or {}
     current = player_data.get("current_construction", default_target)
-    group_order = {"Build": 0, "Flatpacks": 1, "Lectern tablets": 2}
     for target_id, spec in construction_data.items():
         group = "Lectern tablets" if target_id.startswith("tablet_") else "Flatpacks" if target_id.startswith("flatpack_") else str(spec.get("room", "Build")).replace("_", " ").title()
-        order_group = "Build" if not target_id.startswith(("flatpack_", "tablet_")) else group
         reasons = construction_target_locked_reasons_pure(
             player_data, target_id, construction_data, room_data, servant_data,
             nail_data, workbench_tiers,
@@ -540,7 +495,7 @@ def construction_target_rows(
             tooltip=tooltip, enabled=not reasons, current=target_id == current,
             icon_path=construction_item_images.get(icon_name), group=group,
             locked_reasons=reasons,
-            sort_key=(group_order.get(order_group, 0), group, int(level or 1), str(spec.get("display_name", target_id))),
+            sort_key=(int(level or 1), str(spec.get("display_name", target_id))),
         ))
     return tuple(rows)
 
@@ -555,11 +510,6 @@ def magic_target_rows(
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     current = player_data.get("current_magic", default_target)
-    group_order = {name: index for index, name in enumerate((
-        "Alchemy", "Teleports — Standard", "Teleports — Ancient", "Teleports — Lunar",
-        "Enchant jewellery", "Enchant bolts", "Charge orbs", "Conversions",
-        "Lunar skilling", "Pure casts",
-    ))}
     for target_id, spec in magic_data.items():
         name = str(spec.get("display_name", target_id))
         group = str(spec.get("group", "Magic"))
@@ -587,7 +537,7 @@ def magic_target_rows(
             icon_path=spell_icon_path or magic_item_images.get(str(icon_name)),
             group=group,
             locked_reasons=reasons,
-            sort_key=(group_order.get(group, 99), int(spec.get("level", 1) or 1), name),
+            sort_key=(int(spec.get("level", 1) or 1), name),
         ))
     return tuple(rows)
 
@@ -850,6 +800,7 @@ def mining_target_rows(
                 current=target_id == current_target,
                 icon_path=icon_path,
                 locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -928,6 +879,7 @@ def woodcutting_target_rows(
                 current=target_id == current_target,
                 icon_path=tree_images.get(display),
                 locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display),
             )
         )
     return tuple(rows)
@@ -984,7 +936,7 @@ def fletching_target_rows(
                 icon_path=fletched_item_images.get(output_item),
                 group=str(spec.get("group", "")),
                 locked_reasons=locked_reasons,
-                sort_key=tuple(spec.get("sort_key", ())),
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -1041,7 +993,7 @@ def herblore_target_rows(
                 icon_path=herblore_item_images.get(output_item),
                 group=str(spec.get("group", "")),
                 locked_reasons=locked_reasons,
-                sort_key=tuple(spec.get("sort_key", ())),
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -1098,6 +1050,7 @@ def firemaking_target_rows(
                 current=target_key == current_target,
                 icon_path=firemaking_item_images.get(str(input_item)) or firemaking_item_images.get(output_item),
                 locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -1250,6 +1203,7 @@ def fishing_target_rows(
                 current=target_key == current_target,
                 icon_path=fishing_item_images.get(icon_fish.get("output_item")) if isinstance(icon_fish, Mapping) else None,
                 locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
@@ -1343,7 +1297,7 @@ def hunter_target_rows(
                 icon_path=hunter_item_images.get(primary_output),
                 group=str(spec.get("group", "")),
                 locked_reasons=locked_reasons,
-                sort_key=tuple(spec.get("sort_key", (lvl_req, display_name))),
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)

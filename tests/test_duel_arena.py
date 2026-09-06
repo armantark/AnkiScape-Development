@@ -95,7 +95,7 @@ def _context(player_data: dict, calls: dict) -> RuntimeActionContext:
         show_error_message=lambda title, message: calls["errors"].append(
             (title, message)
         ),
-        deactivate_current_skill=lambda: calls.__setitem__("deactivated", True),
+        deactivate_current_skill=lambda _reason=None: calls.__setitem__("deactivated", True),
         award_skill_exp=lambda _key, amount: amount,
         award_hidden_skill_exp=lambda *_args: None,
         level_up_check=lambda *_args: None,

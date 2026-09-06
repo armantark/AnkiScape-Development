@@ -32,6 +32,7 @@ from .core.constants import (
 )
 from .data.smithing_data import DEFAULT_SMITHING_TARGET
 from .data.combat_data import DEFAULT_COMBAT_TARGET
+from .logic_pure.achievement_diary_events import record_direct_diary_event_pure
 from aqt import mw, gui_hooks
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
@@ -93,6 +94,7 @@ from .data.construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .logic.cadence_kernel import sanitize_cadence_kernel_enabled_pure
 from .core.logic import (
     combat_level_up_check as _core_combat_level_up_check,
+    DeferredAchievementDialogs,
     level_up_check as _core_level_up_check,
     check_achievements,
 )
@@ -110,7 +112,6 @@ from .ui.ui import (
     hide_review_hud,
     ensure_review_context_action_strip,
     update_review_context_action_strip,
-    update_review_bank_run_button,
     ensure_review_status_badge,
     update_review_status_badge,
     update_review_fill_drawer,
@@ -232,6 +233,7 @@ from .core.action_registry import (
     UTILITY_REVIEW_ACTION_DISPLAY_NAME,
     is_review_action,
     review_action_handler_key,
+    utility_review_surface_for_target as _utility_surface_for_target,
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
 from .logic.shop_logic import advance_shop_market_clock_pure
@@ -285,13 +287,11 @@ from .logic.summoning_logic import (
     summon_familiar_pure,
 )
 from .logic.slayer_logic import get_slayer_assignment_pure
-from .data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
 from .logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     apply_big_chinchompa_reward_purchase_pure,
     set_hunter_private_ground_pure,
 )
-from .data.evil_tree_data import EVIL_TREE_UTILITY_ID
 from .logic.evil_tree_logic import (
     advance_evil_tree_world_clock_pure,
     evil_tree_spawn_due_pure,
@@ -324,7 +324,7 @@ from .logic.pet_logic import (
     store_active_pet_pure,
 )
 from .runtime import runtime_actions
-from .runtime.runtime_actions import RuntimeActionContext
+from .runtime.runtime_actions import BIG_CHINCHOMPA_UTILITY_ID, EVIL_TREE_UTILITY_ID, RuntimeActionContext
 from .logic.cadence_coverage import SINGLE_TICK_UTILITY_IDS
 
 
@@ -335,26 +335,6 @@ card_turned = False
 exp_awarded = False
 
 current_skill = "None"
-
-_SPECIAL_ACTIVITY_TARGETS = {
-    "stronghold_of_security",
-    "knight_waves",
-    "mage_arena",
-    EVIL_TREE_UTILITY_ID,
-    BIG_CHINCHOMPA_UTILITY_ID,
-}
-
-
-def _utility_surface_for_target(activity_id) -> str:
-    target = str(activity_id or "")
-    if (
-        target in _SPECIAL_ACTIVITY_TARGETS
-        or target.startswith("mage_arena_attune:")
-        or UTILITY_ACTIVITY_DATA.get(target, {}).get("surface")
-        == ACTIVITY_SURFACE_ID
-    ):
-        return ACTIVITY_REVIEW_ACTION_DISPLAY_NAME
-    return UTILITY_REVIEW_ACTION_DISPLAY_NAME
 
 
 def _normalize_legacy_utility_skill(skill) -> str:
@@ -371,6 +351,7 @@ def start_activity_for_reviews(activity_id) -> bool:
     target = str(activity_id or "")
     if not target:
         return False
+    updated = dict(player_data)
     if target == SHOOTING_STAR_ACTIVITY_ID:
         updated, joined, info = apply_shooting_star_join_pure(player_data)
         if not joined and info.get("unminable"):
@@ -378,9 +359,7 @@ def start_activity_for_reviews(activity_id) -> bool:
                 return False
             player_data.clear()
             player_data.update(updated)
-            _switch_to_bankstanding(
-                str(info.get("event_log_text", "Star unminable at your level")),
-            )
+            _switch_to_bankstanding(str(info.get("event_log_text", "Star unminable at your level")))
             save_player_data()
             _show_pending_bankstanding_dialog()
             update_review_event_log_drawer(player_data)
@@ -388,12 +367,18 @@ def start_activity_for_reviews(activity_id) -> bool:
             return False
         if not joined:
             return False
-        player_data.clear()
-        player_data.update(updated)
-    player_data["current_utility"] = target
-    save_skill(_utility_surface_for_target(target), None)
-    save_player_data()
-    return True
+    updated["current_utility"] = target
+    surface = _utility_surface_for_target(target)
+    committed = commit_direct_action(
+        lambda _current: (updated, True),
+        selected_skill=surface,
+    )
+    if committed:
+        try:
+            update_review_hud(player_data, surface)
+        except Exception:
+            pass
+    return committed
 
 # --- Debug logging (centralized) ---
 from .core.debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1
@@ -417,7 +402,7 @@ _REVIEW_FEEDBACK_CONTEXT = None
 _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 _REVIEW_FEEDBACK_FLUSHING = False
 _PENDING_BANKSTANDING_NOTICE = None
-_PENDING_REVIEW_DIALOGS = []
+_PENDING_REVIEW_DIALOGS = DeferredAchievementDialogs()
 
 
 class _NamedExperience(float):
@@ -1322,21 +1307,21 @@ def _runtime_action_context() -> RuntimeActionContext:
     last_reason = {"text": ""}
 
     def _show_runtime_error(title, message) -> None:
-        last_reason["text"] = str(message or "").strip()
+        last_reason.update(text=str(message or "").strip(), caller_owns_notice=True)
         _update_pending_bankstanding_reason(last_reason["text"])
+        if _PENDING_BANKSTANDING_NOTICE is not None:
+            _PENDING_BANKSTANDING_NOTICE["show_dialog"] = False
         show_error_message(title, message)
 
     def _deactivate_runtime_action(reason=None) -> None:
-        _deactivate_current_skill(reason or last_reason["text"])
+        _switch_runtime_action(reason)
 
     def _switch_runtime_action(reason=None, *, caller_owns_notice=False) -> None:
-        _switch_to_bankstanding(
-            reason or last_reason["text"],
-            caller_owns_notice=bool(caller_owns_notice),
-        )
+        notice_owned = bool(caller_owns_notice or last_reason.get("caller_owns_notice"))
+        _switch_to_bankstanding(reason or last_reason["text"], caller_owns_notice=notice_owned)
 
     def _show_runtime_gain(text) -> None:
-        last_reason["text"] = str(text or "").strip()
+        last_reason.update(text=str(text or "").strip(), caller_owns_notice=False)
         _update_pending_bankstanding_reason(last_reason["text"])
         _show_activity_gain(text)
 
@@ -1348,7 +1333,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         award_skill_exp=_award_skill_exp,
         award_hidden_skill_exp=_award_hidden_skill_exp,
         level_up_check=level_up_check,
-        check_achievements=check_achievements,
+        check_achievements=_PENDING_REVIEW_DIALOGS.defer(check_achievements),
         save_player_data=save_player_data,
         refresh_skill_availability=_refresh_skill_availability,
         show_exp=_show_runtime_exp,
@@ -1588,8 +1573,13 @@ def _update_pending_bankstanding_reason(reason) -> None:
         event_log[-1]["text"] = _bankstanding_event_text(reason_text)[:500]
 
 
-def _deactivate_current_skill(reason=None) -> None:
-    """End the active skill by landing on Bankstanding.
+def _switch_to_bankstanding(
+    reason=None,
+    *,
+    automatic: bool = True,
+    caller_owns_notice: bool = False,
+) -> bool:
+    """Land on the no-XP fallback once, then report the accepted transition.
 
     Owner ruling (Pass 11, clause 2): no path that ends, refuses, invalidates,
     or stops an activity may leave `current_skill == "None"`. Deactivation and
@@ -1597,16 +1587,6 @@ def _deactivate_current_skill(reason=None) -> None:
     failure, death, and material exhaustion lands on the settled no-XP
     fallback so the ordinary review-paced market clock keeps moving.
     """
-    _switch_to_bankstanding(reason)
-
-
-def _switch_to_bankstanding(
-    reason=None,
-    *,
-    automatic: bool = True,
-    caller_owns_notice: bool = False,
-) -> bool:
-    """Land on the no-XP fallback once, then report the accepted transition."""
     global current_skill, _PENDING_BANKSTANDING_NOTICE
     if (
         player_data.get("current_utility") == "bankstanding"
@@ -2276,6 +2256,7 @@ def _on_main_menu(
         updated, ok = result
         if ok:
             player_data.update(updated)
+            check_achievements(player_data)
             save_player_data()
         return ok
 
@@ -4277,7 +4258,7 @@ def _on_main_menu(
             )
             return updated, ok
 
-        if not commit_direct_action(_change):
+        if not commit_direct_action(_change, after_apply=lambda: check_achievements(player_data)):
             if info.get("reason"):
                 return {"ok": False, "message": str(info["reason"]), **info}
             return {"ok": False, "message": "Anki could not create an undo entry."}
@@ -4358,6 +4339,13 @@ def _on_main_menu(
             return updated, ok
 
         def _after_apply():
+            record_direct_diary_event_pure(
+                player_data,
+                True,
+                "managing_miscellania_command",
+                action_id=str(action_id),
+                outputs=dict(info.get("outputs") or {}),
+            )
             check_achievements(player_data)
 
         if not commit_direct_action(_change, after_apply=_after_apply):
@@ -4477,6 +4465,13 @@ def _on_main_menu(
                 info = {"reason": reason, "instance_id": reason if ok else ""}
             else:
                 return current, False
+            record_direct_diary_event_pure(
+                updated,
+                ok,
+                "summoning_command",
+                action_id=str(action_id),
+                familiar_id=str(payload.get("familiar_id", "")),
+            )
             return updated, ok
 
         if action_id not in {

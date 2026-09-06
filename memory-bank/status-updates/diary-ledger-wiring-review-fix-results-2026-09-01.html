@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diary ledger wiring review fix results</title>
+<style>
+body{font:16px/1.5 system-ui,sans-serif;max-width:860px;margin:40px auto;padding:0 20px;background:#101318;color:#eef2f7}h1{font-size:2rem}section{background:#1a2029;border:1px solid #313b49;border-radius:12px;padding:18px;margin:16px 0}code{color:#b9e6c1}li{margin:.45rem 0}.ok{color:#9be7aa}
+</style>
+<body>
+<h1>Diary ledger wiring review fix</h1>
+<section><p class="ok"><strong>Complete:</strong> items 1–11.</p>
+<ul>
+<li>Moved Temple Trekking, Shades of Mort'ton, and Managing Miscellania emitters to their successful deed seams.</li>
+<li>Recorded derived combat prayer selection and agility target identity in direct events.</li>
+<li>Replaced the hand-written direct-event rail with production-emitter discovery.</li>
+<li>Added five real-path execution tests and restored normal layout, imports, and dead wrappers.</li>
+<li>Corrected the two permitted ledger records and the papercut entry.</li>
+</ul></section>
+<section><strong>Verification</strong><ul>
+<li>Focused shared suites: 683 tests, OK, 3 skipped.</li>
+<li>Catalog regenerated twice with identical SHA256: <code>c30e551f58501c3d36583cf9d50fb08834dc4a7c151f372e1eff8d63e7d150d2</code>.</li>
+<li>Documentation audit passed; test-quality audit reported 0 hard issues; worktree audit passed; diff check passed.</li>
+</ul></section>
+<section>No UI files changed. Panel layout and rendering code are unchanged; corrected diary event wiring can change completion data shown by existing panel components.</section>
+</body>
+</html>

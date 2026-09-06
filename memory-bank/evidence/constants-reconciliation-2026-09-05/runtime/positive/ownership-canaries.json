@@ -1,0 +1,92 @@
+[
+  {
+    "lane": "plain",
+    "case": "facade-import",
+    "valid": true,
+    "evidence": {
+      "status": "PASS",
+      "case": "facade-import",
+      "caught": "AssertionError",
+      "assertion": "'ankiscape.core.constants' not in sys.modules",
+      "assertion_line": 4,
+      "script_sha256": "bf51ad676c5b5472270f3474b942549b449e1c7f24c0aaa115092a5d2db6ca75",
+      "test_sha256": "8cb6d028d1623c72367f34b61194993221270283bd79e0aaf020198f078d4fec",
+      "original_base_unchanged": true
+    }
+  },
+  {
+    "lane": "plain",
+    "case": "equipment-alias",
+    "valid": true,
+    "evidence": {
+      "status": "PASS",
+      "case": "equipment-alias",
+      "caught": "AssertionError",
+      "assertion": "data is not module._BASE_EQUIPMENT_DATA",
+      "assertion_line": 20,
+      "script_sha256": "bf51ad676c5b5472270f3474b942549b449e1c7f24c0aaa115092a5d2db6ca75",
+      "test_sha256": "8cb6d028d1623c72367f34b61194993221270283bd79e0aaf020198f078d4fec",
+      "original_base_unchanged": true
+    }
+  },
+  {
+    "lane": "plain",
+    "case": "equipment-mutation",
+    "valid": true,
+    "evidence": {
+      "status": "PASS",
+      "case": "equipment-mutation",
+      "caught": "AssertionError",
+      "assertion": "module._BASE_EQUIPMENT_DATA == base",
+      "assertion_line": 25,
+      "script_sha256": "bf51ad676c5b5472270f3474b942549b449e1c7f24c0aaa115092a5d2db6ca75",
+      "test_sha256": "8cb6d028d1623c72367f34b61194993221270283bd79e0aaf020198f078d4fec",
+      "original_base_unchanged": true
+    }
+  },
+  {
+    "lane": "qt",
+    "case": "facade-import",
+    "valid": true,
+    "evidence": {
+      "status": "PASS",
+      "case": "facade-import",
+      "caught": "AssertionError",
+      "assertion": "'ankiscape.core.constants' not in sys.modules",
+      "assertion_line": 4,
+      "script_sha256": "bf51ad676c5b5472270f3474b942549b449e1c7f24c0aaa115092a5d2db6ca75",
+      "test_sha256": "8cb6d028d1623c72367f34b61194993221270283bd79e0aaf020198f078d4fec",
+      "original_base_unchanged": true
+    }
+  },
+  {
+    "lane": "qt",
+    "case": "equipment-alias",
+    "valid": true,
+    "evidence": {
+      "status": "PASS",
+      "case": "equipment-alias",
+      "caught": "AssertionError",
+      "assertion": "data is not module._BASE_EQUIPMENT_DATA",
+      "assertion_line": 20,
+      "script_sha256": "bf51ad676c5b5472270f3474b942549b449e1c7f24c0aaa115092a5d2db6ca75",
+      "test_sha256": "8cb6d028d1623c72367f34b61194993221270283bd79e0aaf020198f078d4fec",
+      "original_base_unchanged": true
+    }
+  },
+  {
+    "lane": "qt",
+    "case": "equipment-mutation",
+    "valid": true,
+    "evidence": {
+      "status": "PASS",
+      "case": "equipment-mutation",
+      "caught": "AssertionError",
+      "assertion": "module._BASE_EQUIPMENT_DATA == base",
+      "assertion_line": 25,
+      "script_sha256": "bf51ad676c5b5472270f3474b942549b449e1c7f24c0aaa115092a5d2db6ca75",
+      "test_sha256": "8cb6d028d1623c72367f34b61194993221270283bd79e0aaf020198f078d4fec",
+      "original_base_unchanged": true
+    }
+  }
+]

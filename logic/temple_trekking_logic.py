@@ -42,6 +42,7 @@ from ..data.temple_trekking_data import (
     TEMPLE_TREKKING_TOKEN_SCORE_THRESHOLDS,
     temple_trekking_enemy_pure,
 )
+from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
 from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     combat_max_lifepoints_pure,
@@ -421,6 +422,12 @@ def prepare_druid_pouch_pure(
         f"{TEMPLE_TREKKING_DRUID_POUCH_PREP_CHARGES} Druid pouch charges."
     )
     data["temple_trekking"] = state
+    record_direct_diary_event_pure(
+        data,
+        True,
+        "temple_trekking_command",
+        action_id="prepare_pouch",
+    )
     return data, True, {"message": state["last_result"]}
 
 
@@ -957,7 +964,7 @@ def temple_trekking_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "save_plan_label": "Save next route/reward" if session else "Save plan",
         "save_plan_enabled": True,
         "primary_label": (
-            "Selected for reviews"
+            "Active for reviews"
             if session and selected_for_reviews
             else "Select for reviews"
             if session

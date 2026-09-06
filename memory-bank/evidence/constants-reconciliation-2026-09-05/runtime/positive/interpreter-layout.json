@@ -1,0 +1,7 @@
+{
+  "outer_plain": "/opt/homebrew/bin/python3",
+  "outer_qt": "/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt/bin/python",
+  "internal_qt": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork/.venv-qt/bin/python",
+  "internal_qt_resolved": "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+  "outer_qt_resolved": "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14"
+}

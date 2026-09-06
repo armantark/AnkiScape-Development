@@ -964,7 +964,6 @@ class TestQuestCombatCadenceBoundary(unittest.TestCase):
             "progress": 6,
             "completed": False,
         }
-        player["quest_combat_config"] = {"resolver_enabled": True}
         player["attack_level"] = 99
         player["strength_level"] = 99
         player["defense_level"] = 99

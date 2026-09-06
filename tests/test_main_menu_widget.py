@@ -9384,7 +9384,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._quest_choice_calls[-1], ("shield_of_arrav", "Join the Black Arm Gang"))
 
-    def test_quests_tab_shows_shield_black_arm_contextual_contact_combat_blocker(self) -> None:
+    def test_quests_tab_offers_shield_black_arm_contextual_combat(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "shield_of_arrav"
         pd["quests"]["shield_of_arrav"] = {"started": True, "progress": 5, "completed": False}
@@ -9396,7 +9396,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(all("Needs Weapon store key" not in label for label in labels))
         action = dialog.findChild(QPushButton, "questAction_shield_of_arrav")
         self.assertIsNotNone(action)
-        self.assertFalse(action.isEnabled())
+        self.assertTrue(action.isEnabled())
         self.assertNotIn("Needs Weapon store key", action.toolTip())
         self.assertNotIn("Phoenix Gang partner", action.toolTip())
         self.assertNotIn("Use the weapon store key", action.toolTip())
@@ -9660,7 +9660,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}
         pd["current_quest"] = "vampyre_slayer"
         pd["quests"]["vampyre_slayer"] = {"started": True, "progress": 3, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 40
         pd["strength_level"] = 40
         pd["defense_level"] = 35
@@ -9750,7 +9749,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "merlins_crystal"
         pd["quests"]["merlins_crystal"] = {"started": True, "progress": 3, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 50
         pd["strength_level"] = 50
         pd["defense_level"] = 50
@@ -9774,7 +9772,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "elemental_workshop_i"
         pd["inventory"].update({"Thread": 1, "Leather": 1})
         pd["quests"]["elemental_workshop_i"] = {"started": True, "progress": 2, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 40
         pd["strength_level"] = 40
         pd["defense_level"] = 40
@@ -9800,7 +9797,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "toktz_ket_dill"
         pd["quests"]["toktz_ket_dill"] = {"started": True, "progress": 6, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 50
         pd["strength_level"] = 50
         pd["defense_level"] = 50
@@ -9811,7 +9807,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Action required: Complete TokTz-Ket-Dill stage 6 objective, "
-            "Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "This fight is not modelled yet (combat stats missing): TokTz-Ket-Dill level 100, "
             "Battle required: Lava monster level 47 x2, +1 more"
         )
         self.assertIn(expected, labels)
@@ -9827,7 +9823,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "forgiveness_of_a_chaos_dwarf"
         pd["quests"]["forgiveness_of_a_chaos_dwarf"] = {"started": True, "progress": 4, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 80
         pd["strength_level"] = 80
         pd["defense_level"] = 80
@@ -9851,7 +9846,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "toktz_ket_dill"
         pd["quests"]["toktz_ket_dill"] = {"started": True, "progress": 6, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["quest_combat_encounter_counts"] = {"toktz_ket_dill": {"toktz_ket_dill_lava_monster_47": 1}}
         pd["attack_level"] = 50
         pd["strength_level"] = 50
@@ -9863,7 +9857,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Action required: Complete TokTz-Ket-Dill stage 6 objective, "
-            "Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "This fight is not modelled yet (combat stats missing): TokTz-Ket-Dill level 100, "
             "Battle required: Lava monster level 47, +1 more"
         )
         self.assertIn(expected, labels)
@@ -9872,7 +9866,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "fight_arena"
         pd["quests"]["fight_arena"] = {"started": True, "progress": 8, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 150
         pd["strength_level"] = 150
         pd["defense_level"] = 150
@@ -9882,7 +9875,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Combat stats required before battle support can resolve: Khazard ogre level 63"
+        expected = "Blocked: This fight is not modelled yet (combat stats missing): Khazard ogre level 63"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_fight_arena")
         self.assertIsNotNone(action)
@@ -9892,7 +9885,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "fight_arena"
         pd["quests"]["fight_arena"] = {"started": True, "progress": 10, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["quest_combat_encounters"] = {
             "fight_arena": ["fight_arena_khazard_ogre_63", "fight_arena_khazard_scorpion_44"]
         }
@@ -9915,7 +9907,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "witchs_house"
         pd["quests"]["witchs_house"] = {"started": True, "progress": 9, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 60
         pd["strength_level"] = 60
         pd["defense_level"] = 60
@@ -9942,7 +9933,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "another_slice_of_h_a_m"
         pd["quests"]["another_slice_of_h_a_m"] = {"started": True, "progress": 4, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["quest_combat_encounters"] = {"another_slice_of_h_a_m": ["another_slice_of_h_a_m_sigmund_64"]}
         pd["attack_level"] = 40
         pd["strength_level"] = 40
@@ -9970,7 +9960,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "spirits_of_the_elid"
         pd["quests"]["spirits_of_the_elid"] = {"started": True, "progress": 4, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 90
         pd["strength_level"] = 90
         pd["defense_level"] = 90
@@ -9998,7 +9987,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "a_souls_bane"
         pd["quests"]["a_souls_bane"] = {"started": True, "progress": 3, "completed": False}
         pd["quest_action_proofs"] = ["Fill the rage meter with an anger weapon"]
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 100
         pd["strength_level"] = 100
         pd["defense_level"] = 100
@@ -10029,7 +10017,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 3,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 99
         pd["strength_level"] = 99
         pd["defense_level"] = 99
@@ -10071,7 +10058,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 2,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 99
         pd["strength_level"] = 99
         pd["defense_level"] = 99
@@ -10105,7 +10091,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 4,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 99
         pd["strength_level"] = 99
         pd["defense_level"] = 99
@@ -10133,7 +10118,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 11,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 74
         pd["strength_level"] = 74
         pd["defense_level"] = 74
@@ -10170,7 +10154,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 10,
             "completed": False,
         }
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         for level_key in (
             "attack_level",
             "strength_level",
@@ -10211,7 +10194,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"] = {"Coins": 12}
         pd["current_quest"] = "troll_stronghold"
         pd["quests"]["troll_stronghold"] = {"started": True, "progress": 2, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["quest_combat_encounters"] = {
             "troll_stronghold": ["troll_stronghold_twig_troll_71", "troll_stronghold_troll_general_171"]
         }
@@ -10242,7 +10224,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"]["Muddy skull"] = 1
         pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 4, "completed": False}
         pd["quest_action_proofs"] = ["Return the muddy skull to the ghost's coffin"]
-        pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 20
         pd["strength_level"] = 20
         pd["defense_level"] = 20
@@ -12350,7 +12331,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("idle at the Bank", hud.sub_lbl.text())
         self.assertNotIn("material prep", hud.sub_lbl.text())
 
-    def test_evil_tree_panel_reports_countdown_and_selects_active_event(self) -> None:
+    def test_evil_tree_panel_reports_countdown_and_starts_active_event(self) -> None:
         from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
@@ -12386,7 +12367,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         active_dialog = self._open(pd)
         utility_tree = self._open_activities(active_dialog)
         button = _find_named_button(active_dialog, "evilTreeSelectButton")
-        self.assertEqual(button.text(), "Select full event")
+        self.assertEqual(button.text(), "Start full event")
         self.assertTrue(button.isEnabled())
         self.assertIn(
             "Nurture → Prepare → Fell",
@@ -12395,9 +12376,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         button.click()
         QApplication.processEvents()
-        self.assertEqual(self._utility_calls[-1], "evil_tree")
+        self.assertEqual(self._activity_start_calls[-1], "evil_tree")
         self.assertEqual(pd["current_utility"], "evil_tree")
-        self.assertEqual(button.text(), "Selected for reviews")
+        self.assertEqual(button.text(), "Active for reviews")
         self.assertFalse(button.isEnabled())
         utility_tree = self._open_utility(active_dialog)
         bankstanding = _utility_row(utility_tree, "bankstanding")
@@ -12406,7 +12387,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_utility"], "bankstanding")
         self._open_activities(active_dialog)
         button = _find_named_button(active_dialog, "evilTreeSelectButton")
-        self.assertEqual(button.text(), "Select full event")
+        self.assertEqual(button.text(), "Start full event")
         self.assertTrue(button.isEnabled())
 
     def test_evil_tree_panel_makes_nurture_only_gate_explicit(self) -> None:
@@ -12435,7 +12416,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         button = _find_named_button(dialog, "evilTreeSelectButton")
         detail = _find_named_label(dialog, "evilTreeDetail").text()
-        self.assertEqual(button.text(), "Select nurture only")
+        self.assertEqual(button.text(), "Start nurture only")
         self.assertTrue(button.isEnabled())
         self.assertIn("cannot fell", detail)
         self.assertIn("75 Woodcutting", detail)
@@ -12551,7 +12532,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         hud.set_data(active, "Utility / Activities")
         self.assertIn("awaiting an active tree", hud.sub_lbl.text())
 
-    def test_big_chinchompa_panel_selects_event_and_runs_reward_shop(self) -> None:
+    def test_big_chinchompa_panel_starts_event_and_runs_reward_shop(self) -> None:
         from ankiscape.logic.big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
@@ -12582,21 +12563,21 @@ class MainMenuWidgetTest(unittest.TestCase):
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
         fullness = _find_named_widget(dialog, "bigChinchompaFullness")
         self.assertIn("source min left", status.text())
-        self.assertEqual(button.text(), "Select active event")
+        self.assertEqual(button.text(), "Start active event")
         self.assertFalse(fullness.isHidden())
 
         button.click()
         QApplication.processEvents()
-        self.assertEqual(self._utility_calls[-1], "big_chinchompa")
+        self.assertEqual(self._activity_start_calls[-1], "big_chinchompa")
         self.assertEqual(pd["current_utility"], "big_chinchompa")
-        self.assertEqual(button.text(), "Selected for reviews")
+        self.assertEqual(button.text(), "Active for reviews")
 
         evil_button = _find_named_button(dialog, "evilTreeSelectButton")
         self.assertTrue(evil_button.isEnabled())
         evil_button.click()
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "evil_tree")
-        self.assertEqual(button.text(), "Select active event")
+        self.assertEqual(button.text(), "Start active event")
         self.assertTrue(button.isEnabled())
 
         button.click()
@@ -12624,7 +12605,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self._open_activities(dialog)
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
-        self.assertEqual(button.text(), "Select active event")
+        self.assertEqual(button.text(), "Start active event")
 
     def test_activity_tree_context_menu_adds_and_removes_every_distraction(self) -> None:
         from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
@@ -12999,7 +12980,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertEqual(pd["current_utility"], "shooting_stars")
         self.assertEqual(self._activity_start_calls, ["shooting_stars"])
-        self.assertEqual(select.text(), "Selected for reviews")
+        self.assertEqual(select.text(), "Active for reviews")
         self.assertTrue(
             any(
                 label.text() == "Training: Activities"
@@ -13030,14 +13011,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         status = _find_named_label(dialog, "shootingStarStatusChip")
         select = _find_named_button(dialog, "shootingStarSelectButton")
         self.assertTrue(status.text().startswith("Size "))
-        self.assertEqual(select.text(), "Select active star")
+        self.assertEqual(select.text(), "Mine this star")
         self.assertTrue(select.isEnabled())
+        self.assertTrue(
+            _find_named_button(dialog, "shootingStarExchangeButton").isHidden()
+        )
 
         select.click()
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "shooting_stars")
         self.assertEqual(self._activity_start_calls[-1], "shooting_stars")
-        self.assertEqual(select.text(), "Selected for reviews")
+        self.assertEqual(select.text(), "Active for reviews")
 
         for object_name in (
             "shootingStarAutomationMode",
@@ -13062,6 +13046,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         exchange = _find_named_button(
             reward_dialog, "shootingStarExchangeButton"
         )
+        self.assertFalse(exchange.isHidden())
         self.assertTrue(exchange.isEnabled())
         exchange.click()
         QApplication.processEvents()
@@ -13074,54 +13059,15 @@ class MainMenuWidgetTest(unittest.TestCase):
             pd["shooting_star"]["ore_bonus_ticks_remaining"], 1_500
         )
 
-    def test_activity_start_control_rerenders_as_currently_active(self) -> None:
-        pd = _make_player_data()
-        pd["current_utility"] = "warriors_guild_animated_armour"
-        dialog = self._open(pd, current_skill="Mining")
+    def test_activities_header_hides_duplicate_start_without_affecting_utilities(self) -> None:
+        dialog = self._open(_make_player_data(), current_skill="Mining")
+
+        def visible_buttons():
+            return {button.text() for button in dialog.findChildren(QPushButton) if button.isVisibleTo(dialog)}
         self._open_activities(dialog)
-        start = next(
-            button
-            for button in dialog.findChildren(QPushButton)
-            if button.text() == "Start activity"
-        )
-
-        start.click()
-        for _ in range(3):
-            QApplication.processEvents()
-
-        self.assertEqual(
-            self._activity_start_calls, ["warriors_guild_animated_armour"]
-        )
-        current = [
-            button
-            for button in dialog.findChildren(QPushButton)
-            if button.text() == "Currently active"
-        ]
-        self.assertEqual(len(current), 1)
-        self.assertFalse(current[0].isEnabled())
-
-    def test_activity_start_control_refuses_a_target_from_the_other_surface(self) -> None:
-        pd = _make_player_data()
-        pd["current_utility"] = "make_soft_clay"
-        dialog = self._open(pd, current_skill="Mining")
-        self._open_activities(dialog)
-        start = next(
-            button
-            for button in dialog.findChildren(QPushButton)
-            if button.text() == "Start activity"
-        )
-
-        start.click()
-        QApplication.processEvents()
-
-        self.assertEqual(self._activity_start_calls, [])
-        self.assertEqual(pd["current_utility"], "make_soft_clay")
-        self.assertTrue(
-            any(
-                "Select an available activity first" in label.text()
-                for label in dialog.findChildren(QLabel)
-            )
-        )
+        self.assertNotIn("Start activity", visible_buttons())
+        self._open_utility(dialog)
+        self.assertIn("Start utility", visible_buttons())
 
     def test_fist_of_guthix_card_tutorial_policy_live_state_and_shop(self) -> None:
         from ankiscape.logic.fist_of_guthix_logic import (
@@ -13155,9 +13101,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary.click()
         QApplication.processEvents()
         self.assertTrue(pd["fist_of_guthix"]["tutorial_complete"])
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(primary.text(), "Start activity")
+        self.assertNotIn("current_utility", pd)
+        self.assertEqual(self._activity_start_calls, [])
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(self._activity_start_calls, ["fist_of_guthix"])
         self.assertEqual(pd["current_utility"], "fist_of_guthix")
-        self.assertEqual(self._utility_calls[-1], "fist_of_guthix")
+        self.assertEqual(primary.text(), "Active for reviews")
 
         mode = dialog.findChild(QComboBox, "fistOfGuthixAutomationMode")
         stance = dialog.findChild(QComboBox, "fistOfGuthixStance")
@@ -13249,8 +13201,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary.click()
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "sorceress_garden")
-        self.assertEqual(self._utility_calls[-1], "sorceress_garden")
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(self._activity_start_calls[-1], "sorceress_garden")
+        self.assertEqual(primary.text(), "Active for reviews")
 
     def test_penguin_card_keeps_bank_only_visibility_ring_locked(self) -> None:
         from ankiscape.logic.penguin_hide_and_seek_logic import default_penguin_state_pure
@@ -13386,7 +13338,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ("select_spy", {"spawn_id": selected_id}),
         )
         self.assertEqual(pd["current_utility"], "penguin_hide_and_seek")
-        self.assertEqual(self._utility_calls[-1], "penguin_hide_and_seek")
+        self.assertEqual(self._activity_start_calls[-1], "penguin_hide_and_seek")
         self.assertEqual(primary.text(), "Selected for next review")
         self.assertEqual(status.text(), "ACTIVE")
 
@@ -13449,7 +13401,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._vinesweeper_calls[-1], ("enter", {}))
         self.assertEqual(pd["current_utility"], "vinesweeper")
-        self.assertEqual(self._utility_calls[-1], "vinesweeper")
+        self.assertEqual(self._activity_start_calls[-1], "vinesweeper")
         self.assertEqual(pd["vinesweeper"]["flags"], 10)
         self.assertEqual(status.text(), "ACTIVE")
         self.assertEqual(primary.accessibleName(), "Leave Winkin's Farm")
@@ -13896,7 +13848,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(self._fight_caves_calls[-1], ("enter", {}))
         self.assertTrue(pd["fight_caves"]["active"])
         self.assertEqual(pd["current_utility"], "fight_caves")
-        self.assertEqual(self._utility_calls[-1], "fight_caves")
+        self.assertEqual(self._activity_start_calls[-1], "fight_caves")
         self.assertEqual(status.text(), "ACTIVE")
         self.assertIn("Wave 1/63", summary.text())
         self.assertEqual(roster.count(), 1)
@@ -14626,7 +14578,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertEqual(pd["current_utility"], "flash_powder_factory")
         self.assertEqual(status.text(), "ACTIVE")
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(primary.text(), "Active for reviews")
         self.assertFalse(leave.isHidden())
 
         mode.setCurrentIndex(mode.findData("advanced"))
@@ -14721,7 +14673,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertEqual(pd["current_utility"], "pyramid_plunder")
         self.assertEqual(status.text(), "ACTIVE")
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(primary.text(), "Active for reviews")
         self.assertFalse(leave.isHidden())
         self.assertFalse(priority.isEnabled())
 
@@ -14833,7 +14785,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertEqual(pd["current_utility"], "werewolf_skullball")
         self.assertEqual(status.text(), "ACTIVE")
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(primary.text(), "Active for reviews")
         self.assertFalse(leave.isHidden())
         self.assertFalse(mode.isEnabled())
 
@@ -14991,7 +14943,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_utility"], "gnome_ball")
         self.assertEqual(status.text(), "ACTIVE")
         self.assertNotEqual(status.styleSheet(), ready_status_style)
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(primary.text(), "Active for reviews")
         self.assertIn("Beat 1/3", summary.text())
         self.assertFalse(leave.isHidden())
 
@@ -15108,7 +15060,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertIn("READY · 2 tickets", currency.text())
         self.assertIn("8 successful reviews", summary.text())
-        self.assertNotIn("claim", summary.text())
+        self.assertEqual(primary.text(), "Start activity")
         self.assertTrue(progress.isHidden())
         self.assertEqual(reward.currentData(), "fishing_hat")
         self.assertEqual(
@@ -15144,7 +15096,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
         )
         self.assertEqual(pd["current_utility"], "fish_flingers")
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(primary.text(), "Active for reviews")
         self.assertIn("ACTIVE", currency.text())
         self.assertIn("Bass at Lake", summary.text())
         self.assertIn("stock 24/24 (100%, Rich)", summary.text())
@@ -15255,7 +15207,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ),
         )
         self.assertEqual(pd["current_utility"], "fishing_trawler")
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(primary.text(), "Active for reviews")
         self.assertIn("AT SEA", status.text())
         self.assertFalse(water.isHidden())
         self.assertFalse(mode.isEnabled())
@@ -15661,7 +15613,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         select.click()
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "managing_miscellania")
-        self.assertEqual(select.text(), "Selected for reviews")
+        self.assertEqual(select.text(), "Active for reviews")
 
         activity_tree = _find_named_widget(dialog, "utilityActivityTree")
         landmark_groups = [
@@ -15938,7 +15890,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._stealing_creation_calls[-1], ("enter", {}))
         self.assertEqual(pd["current_utility"], "stealing_creation")
-        self.assertEqual(self._utility_calls[-1], "stealing_creation")
+        self.assertEqual(self._activity_start_calls[-1], "stealing_creation")
         self.assertEqual(status.text(), "ACTIVE")
         self.assertIn("Review 0/20", summary.text())
         self.assertFalse(leave.isHidden())
@@ -16628,7 +16580,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._utility_calls, ["aggie_make_red_dye"])
 
-    def test_stronghold_landmark_row_selects_activity_when_unfinished(self) -> None:
+    def test_stronghold_landmark_row_starts_activity_when_unfinished(self) -> None:
         pd = _make_player_data()
         pd["stronghold_of_security"] = {"step": 1, "completed": False, "boots_choice": None}
         dialog = self._open(pd)
@@ -16639,11 +16591,30 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("1/4", row.text(0))
         self.assertFalse(row.icon(0).isNull())
 
-        self._utility_calls.clear()
+        self._activity_start_calls.clear()
         utility_tree.itemClicked.emit(row, 0)
         QApplication.processEvents()
-        self.assertEqual(self._utility_calls, ["stronghold_of_security"])
+        self.assertEqual(self._activity_start_calls, ["stronghold_of_security"])
+        self.assertEqual(pd["current_utility"], "stronghold_of_security")
         self.assertEqual(self._stronghold_claim_calls, [])
+
+    def test_knight_waves_and_mage_arena_rows_start_activities(self) -> None:
+        knight = _make_player_data()
+        knight["quests"]["kings_ransom"] = {"completed": True}
+        knight.update({"defense_level": 65, "magic_level": 60})
+        knight_tree = self._open_activities(self._open(knight))
+        knight_tree.itemClicked.emit(_utility_row(knight_tree, "knight_waves"), 0)
+        QApplication.processEvents()
+        self.assertEqual(self._activity_start_calls[-1], "knight_waves")
+        self.assertEqual(knight["current_utility"], "knight_waves")
+
+        mage = _make_player_data()
+        mage["magic_level"] = 60
+        mage_tree = self._open_activities(self._open(mage))
+        mage_tree.itemClicked.emit(_utility_row(mage_tree, "mage_arena"), 0)
+        QApplication.processEvents()
+        self.assertEqual(self._activity_start_calls[-1], "mage_arena")
+        self.assertEqual(mage["current_utility"], "mage_arena")
 
     def test_stronghold_landmark_row_claims_reward_when_completed_unclaimed(self) -> None:
         pd = _make_player_data()
@@ -16699,7 +16670,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             ("select_alignment", "guthix"),
         )
         self.assertEqual(pending["mage_arena"]["alignment"], "guthix")
-        self.assertEqual(self._utility_calls[-1], "mage_arena")
+        self.assertEqual(self._activity_start_calls[-1], "mage_arena")
+        self.assertEqual(pending["current_utility"], "mage_arena")
 
         completed = _make_player_data()
         completed["magic_level"] = 99
@@ -16716,7 +16688,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(attune.flags() & Qt.ItemFlag.ItemIsEnabled)
         completed_tree.itemClicked.emit(attune, 0)
         QApplication.processEvents()
-        self.assertEqual(self._utility_calls[-1], "mage_arena_attune:guthix")
+        self.assertEqual(
+            self._activity_start_calls[-1], "mage_arena_attune:guthix"
+        )
+        self.assertEqual(
+            completed["current_utility"], "mage_arena_attune:guthix"
+        )
 
         switch = _utility_row(completed_tree, "__mage_cape__:guthix")
         completed_tree.itemClicked.emit(switch, 0)
@@ -17825,7 +17802,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             advanced_choice.accessibleName(), "Next courtroom action"
         )
 
-    def test_circus_detail_arms_a_performance_and_exposes_advanced_routine(self) -> None:
+    def test_circus_detail_starts_a_performance_and_exposes_advanced_routine(self) -> None:
         from ankiscape.logic.circus_logic import apply_circus_command_pure
 
         pd = _make_player_data()
@@ -17854,6 +17831,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         strategy = panel.findChild(QComboBox, "circusStrategyCombo")
         mode = panel.findChild(QComboBox, "circusAutomationMode")
         primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        self.assertEqual(primary.text(), "Start activity")
         executing_queue = panel.findChild(QListWidget, "circusExecutingQueue")
         non_executing_queue = panel.findChild(QListWidget, "circusNonExecutingQueue")
         move_to_non_executing = panel.findChild(
@@ -17944,6 +17922,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary.click()
         QApplication.processEvents()
         self.assertEqual(command_calls[-1][0], "start_activity")
+        self.assertEqual(self._activity_start_calls[-1], "big_top_bonanza")
+        self.assertEqual(pd["current_utility"], "big_top_bonanza")
         self.assertEqual(pd["circus"]["selected_performance"], "magic")
         self.assertEqual(pd["circus"]["strategies"]["magic"], "max_xp")
 
@@ -18157,7 +18137,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_utility"], "trouble_brewing")
         self.assertEqual(pd["trouble_brewing"]["duty"], "sabotage")
         self.assertTrue(progress.isVisible())
-        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertEqual(primary.text(), "Active for reviews")
         self.assertFalse(panel.findChild(QWidget, "troubleBrewingSavePlanButton").isEnabled())
 
         pd["trouble_brewing"] = {}
@@ -19999,7 +19979,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         panel.findChild(QPushButton, "varrockMuseumPrimaryButton").click()
         QApplication.processEvents()
-        self.assertEqual(self._utility_calls[-1], "varrock_museum")
+        self.assertEqual(self._activity_start_calls[-1], "varrock_museum")
         dialog.close()
 
 

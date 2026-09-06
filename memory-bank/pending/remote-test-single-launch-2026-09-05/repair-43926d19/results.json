@@ -1,0 +1,39 @@
+{
+  "source_hashes": {
+    "tools/run_remote_tests.py": "5de9414af35bb4688810d7d3f9b3331b205988b74a30706de6eca07af2de5e42",
+    "tests/test_remote_test_host.py": "43926d19b0542ec04c03d1e7dcdf29520e5a47c2f7180f90ddd6b75e13febd8b",
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+  },
+  "results": [
+    {
+      "lane": "plain",
+      "argv": [
+        "/opt/homebrew/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_remote_test_host.py",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "lane": "qt",
+      "argv": [
+        "/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_remote_test_host.py",
+        "-v"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

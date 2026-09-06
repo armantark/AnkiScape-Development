@@ -540,7 +540,7 @@ class GnomeRestaurantPersistenceRuntimeTests(unittest.TestCase):
             show_error_message=lambda title, message: calls["errors"].append(
                 (title, message)
             ),
-            deactivate_current_skill=lambda: None,
+            deactivate_current_skill=lambda _reason=None: None,
             award_skill_exp=lambda _key, amount: amount,
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=lambda *_args: None,

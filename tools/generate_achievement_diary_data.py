@@ -32,6 +32,12 @@ if str(ROOT) not in sys.path:
 
 import pkg_alias  # noqa: F401,E402  (installs the ankiscape package alias)
 from ankiscape.data.quest_data import quests_as_dict  # noqa: E402
+from tools.achievement_diary_ledger import CURATION_LEDGER, resolve_named_counter, resolve_special_counter  # noqa: E402
+from ankiscape.logic_pure.shop_diary_transactions import shop_diary_transaction_counter_key_pure  # noqa: E402
+from tools.achievement_diary_generation.sharding import (  # noqa: E402
+    catalog_outputs,
+    family_module_source,
+)
 
 QUEST_DATA = quests_as_dict()
 
@@ -64,6 +70,7 @@ _SKILL_ACTION_REGISTRIES = {
     "runecrafting": ("ankiscape.core.constants", "RUNECRAFTING_DATA"),
     "smithing": ("ankiscape.core.constants", "SMITHING_DATA"),
     "summoning": ("ankiscape.data.summoning_data", "SUMMONING_ACTIONS_BY_ID"),
+    "thieving": ("ankiscape.data.thieving_data", "THIEVING_TARGETS"),
     "utility": ("ankiscape.core.constants", "UTILITY_ACTIVITY_DATA"),
     "woodcutting": ("ankiscape.core.constants", "TREE_DATA"),
 }
@@ -155,11 +162,10 @@ def _emitted_ledger_outputs() -> dict:
     for skill_id, (module_name, attribute) in _SKILL_ACTION_REGISTRIES.items():
         bucket = emitted.setdefault(skill_id, set())
         for spec in _import_attr(module_name, attribute).values():
-            if not isinstance(spec, dict):
-                continue
-            if spec.get("output_item"):
-                bucket.add(str(spec["output_item"]))
-            bucket.update(str(name) for name in (spec.get("outputs") or {}))
+            source = spec if isinstance(spec, dict) else vars(spec)
+            if source.get("output_item"):
+                bucket.add(str(source["output_item"]))
+            bucket.update(str(name) for name in (source.get("outputs") or {}))
     return emitted
 
 
@@ -215,10 +221,7 @@ def _resolve_shop_transaction(key: str) -> str:
     shop_id, row_separator, row_id = remainder.partition("|")
     if not separator or not row_separator:
         return f"shop_transaction key {key!r} is not '<type>|<shop id>|<row id>'"
-    resolver = _import_attr(
-        "ankiscape.logic.shop_logic", "shop_diary_transaction_counter_key_pure"
-    )
-    if not resolver(transaction_type, shop_id, row_id):
+    if not shop_diary_transaction_counter_key_pure(transaction_type, shop_id, row_id):
         return f"shop_transaction key {key!r} is not recorded by the narrow diary seam"
     return ""
 
@@ -293,18 +296,12 @@ def resolve_condition_key(kind: str, key: str, expected=None) -> str:
     if kind != "counter":
         return ""
     parts = key.split(".")
-    if parts[0] == "combat_kill_counts":
-        from ankiscape.core.constants import COMBAT_ENEMY_DATA
+    if (error := resolve_named_counter(key)) is not None:
+        return error
 
-        if len(parts) != 2 or parts[1] not in COMBAT_ENEMY_DATA:
-            return f"counter key {key!r} names no enemy in COMBAT_ENEMY_DATA"
-        return ""
-    if parts[0] == "shop_transaction_counts":
-        from ankiscape.logic.shop_logic import SHOP_DIARY_TRANSACTION_KEYS
+    if (error := resolve_special_counter(key, _resolve_ledger_key, _resolve_state_path, QUEST_DATA)) is not None:
+        return error
 
-        if len(parts) != 2 or parts[1] not in SHOP_DIARY_TRANSACTION_KEYS:
-            return f"counter key {key!r} names no diary shop transaction"
-        return ""
     if parts[:2] == ["fight_caves", "kill_counts"]:
         if len(parts) != 3 or parts[2] != "ket_zek":
             return f"counter key {key!r} names no recorded Fight Caves variant"
@@ -1175,12 +1172,8 @@ def _task_block(
     conditions_override: tuple[tuple, ...] | None = None,
     identity_tier: str | None = None,
 ) -> str:
-    conditions = (
-        list(conditions_override)
-        if conditions_override is not None
-        else _conditions(task)
-    )
     task_id = f"{family_id}_{identity_tier or tier_name}_{_slug(task['name'])}"
+    conditions = list(conditions_override) if conditions_override is not None else CURATION_LEDGER.conditions_for(task_id, _conditions(task))
     condition_src = ", ".join(_condition_src(condition) for condition in conditions)
     conditions_line = f"({condition_src},)" if conditions else "()"
     access_gate_src = ", ".join(
@@ -1194,8 +1187,8 @@ def _task_block(
     return (
         "            DiaryTask(\n"
         f"                {task_id!r},\n"
-        f"                {task['name']!r},\n"
-        f"                {task['description']!r},\n"
+        f"                {CURATION_LEDGER.text_for(task_id, task['name'], task['description'])[0]!r},\n"
+        f"                {CURATION_LEDGER.text_for(task_id, task['name'], task['description'])[1]!r},\n"
         f"                {conditions_line},\n"
         f"                {source!r},\n"
         f"                {int(task['id'])},\n"
@@ -1337,8 +1330,9 @@ def _source(record: dict, family_id: str) -> str:
     )
 
 
-def build(document: dict, items_yml: Path) -> str:
-    lines: list[str] = []
+def build(document: dict, items_yml: Path) -> dict[str, str]:
+    family_sources: dict[str, str] = {}
+    CURATION_LEDGER.begin()
     families = document["families"]
     definitions = document["task_definitions"]
     kept_total = 0
@@ -1423,8 +1417,8 @@ def build(document: dict, items_yml: Path) -> str:
                 f"            designed_task_count={TASKS_PER_TIER},\n"
                 "        ),"
             )
-        lines.append(
-            "    DiaryFamily(\n"
+        family_block = (
+            "DiaryFamily(\n"
             f"        {family_id!r},\n"
             f"        {meta['name']!r},\n"
             "        'regional',\n"
@@ -1432,8 +1426,9 @@ def build(document: dict, items_yml: Path) -> str:
             f"        {meta['taskmasters'][0]!r},\n"
             f"        {meta['taskmaster_chathead']!r},\n"
             f"        {source!r},\n"
-            "    ),"
+            "    )"
         )
+        family_sources[family_id] = family_module_source(family_block)
 
     for family_id, meta in SPECIAL_FAMILIES.items():
         record = families[family_id]
@@ -1458,8 +1453,8 @@ def build(document: dict, items_yml: Path) -> str:
             if family_id == "burthorpe"
             else MISCELLANEOUS_CUTOFF_TASKS
         )
-        lines.append(
-            "    DiaryFamily(\n"
+        family_block = (
+            "DiaryFamily(\n"
             f"        {family_id!r},\n"
             f"        {meta['name']!r},\n"
             f"        {meta['kind']!r},\n"
@@ -1480,43 +1475,16 @@ def build(document: dict, items_yml: Path) -> str:
             f"        {meta['taskmaster']!r},\n"
             f"        {meta['taskmaster_chathead']!r},\n"
             f"        {source!r},\n"
-            "    ),"
+            "    )"
         )
-    header = (
-        '"""Generated by ``tools/generate_achievement_diary_data.py``. Do not hand-edit.\n\n'
-        "Darkan's achievement classes and rev-727 cache enum 3483 own task identity,\n"
-        "original tier membership, names, descriptions and ordinary requirements.\n"
-        "Regional rows are curated into twelve-task AnkiScape tiers; cross-tier\n"
-        "placements and generic progression anchors are explicitly labelled. Pinned\n"
-        "pre-cutoff wiki revisions are corroboration only. Ordinary requirements\n"
-        "are shown as access gates and never complete a deed. Un-curated deeds are\n"
-        "dormant: visible, incomplete, and excluded from automatic completion.\n\n"
-        f"Named task rows: {kept_total}; designed cutoff denominator: {TOTAL_CUTOFF_TASKS}.\"\"\"\n\n"
-        "from __future__ import annotations\n\n"
-        "from .achievement_diary_data import (\n"
-        "    DiaryCondition,\n"
-        "    DiaryFamily,\n"
-        "    DiaryLamp,\n"
-        "    DiaryTask,\n"
-        "    DiaryTier,\n"
-        ")\n\n"
-        "# PLACEHOLDER(achievement_diaries.misc_coin_reward): miscellaneous rewards use\n"
-        "# the cache-proven 100-coin floor multiplied by completion ordinal. The exact\n"
-        "# period curve needs the server payout routine or decoded completion script.\n\n\n"
-        "DIARY_FAMILIES = (\n"
+        family_sources[family_id] = family_module_source(family_block)
+    CURATION_LEDGER.assert_complete()
+    return catalog_outputs(
+        family_sources,
+        kept_total,
+        TOTAL_CUTOFF_TASKS,
+        _equipment_rows(items_yml),
     )
-    equipment = (
-        "\n\ndef diary_equipment_data_as_dict() -> dict:\n"
-        '    """Register the 32 tier reward items as real wearable equipment.\n\n'
-        "    Without this the whole family would be inert: every tier hands over an\n"
-        "    item that the equipment table has never heard of. The generated table is\n"
-        "    built from the emulator config and must not be hand-edited, so these rows\n"
-        "    join through the same per-family seam Barrows and the penguin ring use.\n"
-        '    """\n\n'
-        "    from .equipment_data import EquipmentBonuses, EquipmentItem\n\n"
-        "    return {\n" + _equipment_rows(items_yml) + "\n    }\n"
-    )
-    return header + "\n".join(lines) + "\n)\n" + equipment
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1533,8 +1501,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     document = json.loads(args.harvest.read_text(encoding="utf-8"))
-    args.out.write_text(build(document, args.items_yml), encoding="utf-8")
-    print(f"wrote {args.out}")
+    outputs = build(document, args.items_yml)
+    for relative_path, source in outputs.items():
+        destination = (
+            args.out
+            if relative_path == "achievement_diary_catalog.py"
+            else args.out.parent / relative_path
+        )
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(source, encoding="utf-8")
+        print(f"wrote {destination}")
     return 0
 
 

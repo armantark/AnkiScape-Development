@@ -26,7 +26,7 @@ def _context(player_data, calls):
         player_data=player_data,
         random_random=lambda: 0.0,
         show_error_message=lambda title, message: calls["errors"].append((title, message)),
-        deactivate_current_skill=lambda: calls.__setitem__("deactivated", calls.get("deactivated", 0) + 1),
+        deactivate_current_skill=lambda _reason=None: calls.__setitem__("deactivated", calls.get("deactivated", 0) + 1),
         award_skill_exp=lambda exp_key, base_exp: base_exp,
         award_hidden_skill_exp=lambda *a: None,
         level_up_check=lambda *a: None,

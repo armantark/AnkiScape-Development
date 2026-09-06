@@ -42,7 +42,6 @@ MINIQUEST_IDS = (HUNT_FOR_SUROK, LAIR_OF_TARN_RAZORLOR)
 
 def _combat_ready_player():
     player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-    player_data["quest_combat_config"] = {"resolver_enabled": True}
     for key in ("attack_level", "strength_level", "defense_level", "constitution_level"):
         player_data[key] = 99
     return player_data

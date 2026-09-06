@@ -1809,13 +1809,13 @@ def apply_combat_burst_pure(
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
+                _record_combat_observed_drops_pure(data, target_id, kill_drops)
                 data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
                     data,
                     target_id,
                     kill_drops,
                     bool(data.get("combat_auto_prayer_training")),
                 )
-                _record_combat_observed_drops_pure(data, target_id, kill_drops)
                 if passive_prayer_xp > 0:
                     xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
                 next_player_attack += prayer_ticks
@@ -2345,13 +2345,13 @@ def apply_combat_burst_pure(
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
+                _record_combat_observed_drops_pure(data, target_id, kill_drops)
                 data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
                     data,
                     target_id,
                     kill_drops,
                     bool(data.get("combat_auto_prayer_training")),
                 )
-                _record_combat_observed_drops_pure(data, target_id, kill_drops)
                 if passive_prayer_xp > 0:
                     xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
                 next_player_attack += prayer_ticks

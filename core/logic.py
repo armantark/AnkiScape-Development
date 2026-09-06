@@ -1,5 +1,7 @@
 """Anki-aware game logic orchestrators (no direct persistence here)."""
 
+from contextvars import ContextVar
+
 from .constants import (
     ACHIEVEMENTS,
     exp_table_for_skill,
@@ -69,6 +71,25 @@ from ..logic.achievement_diary_logic import (
 )
 from ..logic.cape_logic import refresh_capes_pure
 from ..logic.music_log_logic import refresh_music_log_pure
+
+
+_ACTIVE_ACHIEVEMENT_DIALOGS = ContextVar(
+    "active_achievement_dialogs", default=None
+)
+
+
+class DeferredAchievementDialogs(list):
+    """Queue completion dialogs while a review answer is still resolving."""
+
+    def defer(self, check):
+        def _check(data):
+            token = _ACTIVE_ACHIEVEMENT_DIALOGS.set(self)
+            try:
+                return check(data)
+            finally:
+                _ACTIVE_ACHIEVEMENT_DIALOGS.reset(token)
+
+        return _check
 
 
 def _popups_enabled():
@@ -143,8 +164,14 @@ def check_achievements(player_data):
         _record_review_event(player_data, "achievement", message)
     if not _popups_enabled():
         return
+    deferred_dialogs = _ACTIVE_ACHIEVEMENT_DIALOGS.get()
     for title, data in popup_notifications:
-        show_achievement_dialog(title, data)
+        if deferred_dialogs is None:
+            show_achievement_dialog(title, data)
+        else:
+            deferred_dialogs.append(
+                lambda title=title, data=data: show_achievement_dialog(title, data)
+            )
 
 
 def calculate_woodcutting_probability(player_level: int, tree_probability: float) -> float:

@@ -38,8 +38,12 @@ AnkiScape worktree:
 
 The runner uses exactly
 `ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro '<remote command>'`,
-rsyncs to `/Users/armantarkhanian/ankiscape-remote-test-host/repo`, and excludes
-`.git`, `__pycache__`, `.venv-qt`, and `ankiscape_debug.log*`. It launches the
+rsyncs to `/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork`, and excludes
+`.git`, `__pycache__`, `.venv-qt`, and `ankiscape_debug.log*`. After sync, it links
+the mirror's `.venv-qt` to the existing remote environment at
+`/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt`. Both lanes check that
+interpreter before sync because the surface guard uses it in either lane. The
+old `repo` mirror and existing reports remain intact. It launches the
 lane through `nohup`, writes logs and completion reports under
 `/Users/armantarkhanian/ankiscape-remote-test-host/reports`, and polls those
 files. Dispatches started on this machine share the fixed mirror, so the runner
@@ -70,8 +74,8 @@ Build the laptop environments after the repository mirror exists:
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro '/opt/homebrew/bin/brew install ripgrep openjdk@25'
-ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro '/opt/homebrew/bin/python3 -m venv "$HOME/ankiscape-remote-test-host/.venv-qt" && "$HOME/ankiscape-remote-test-host/.venv-qt/bin/python" -m pip install --retries 5 -r "$HOME/ankiscape-remote-test-host/repo/tools/remote_test_host_requirements.txt"'
-ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro 'mkdir -p "$HOME/ankiscape-remote-test-host/plain-site" && /opt/homebrew/bin/python3 -m pip install --target "$HOME/ankiscape-remote-test-host/plain-site" --retries 5 -r "$HOME/ankiscape-remote-test-host/repo/tools/remote_test_host_plain_requirements.txt"'
+ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro '/opt/homebrew/bin/python3 -m venv "$HOME/ankiscape-remote-test-host/.venv-qt" && "$HOME/ankiscape-remote-test-host/.venv-qt/bin/python" -m pip install --retries 5 -r "$HOME/ankiscape-remote-test-host/ankiscape_fork/tools/remote_test_host_requirements.txt"'
+ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro 'mkdir -p "$HOME/ankiscape-remote-test-host/plain-site" && /opt/homebrew/bin/python3 -m pip install --target "$HOME/ankiscape-remote-test-host/plain-site" --retries 5 -r "$HOME/ankiscape-remote-test-host/ankiscape_fork/tools/remote_test_host_plain_requirements.txt"'
 ```
 
 The isolated `plain-site` contains Pillow 12.3.0. Do not use `pip install

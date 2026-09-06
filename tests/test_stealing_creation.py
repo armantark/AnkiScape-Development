@@ -462,7 +462,7 @@ class StealingCreationMigrationAndRuntimeTests(unittest.TestCase):
             player_data=player,
             random_random=lambda: 0.0,
             show_error_message=lambda *_args: self.fail("unexpected runtime error"),
-            deactivate_current_skill=lambda: self.fail("session should remain active"),
+            deactivate_current_skill=lambda _reason=None: self.fail("session should remain active"),
             award_skill_exp=lambda *_args: self.fail("Stealing Creation gives no skill XP"),
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=lambda *_args: None,

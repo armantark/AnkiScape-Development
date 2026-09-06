@@ -55,6 +55,8 @@ from ..core.constants import (
     WOODCUTTING_AXE_DATA,
 )
 from ..logic_pure.logic_pure import (
+    _combat_locks_can_bank_run,
+    active_prayer_selection_pure,
     combat_near_death_without_food_pure,
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
@@ -466,10 +468,15 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         equipment_data=EQUIPMENT_DATA,
     )
     if locked_reasons:
-        ctx.deactivate_current_skill()
-        ctx.show_error_message(
-            "Combat unavailable",
-            f"{enemy.get('display_name', target_id)} cannot be fought yet: {', '.join(locked_reasons)}.",
+        reason_text = (
+            f"{enemy.get('display_name', target_id)} cannot be fought yet: "
+            f"{', '.join(locked_reasons)}."
+        )
+        _switch_material_failure_to_bankstanding(
+            ctx,
+            reason_text,
+            material_failure=_combat_locks_can_bank_run(locked_reasons),
+            fallback_error=("Combat unavailable", reason_text),
         )
         return False
 
@@ -477,6 +484,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         combat_observed_drop_item_names_pure(player_data, target_id)
     )
 
+    active_prayer_selection = tuple(active_prayer_selection_pure(player_data))
     using_finisher = player_data.get("combat_action") == "finisher"
     if using_finisher:
         new_data, ok, result = apply_combat_finisher_pure(
@@ -503,10 +511,17 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             )
             ctx.save_player_data()
             return False
-        ctx.deactivate_current_skill()
         reasons = result.get("locked_reasons") if isinstance(result, dict) else None
         reason_text = ", ".join(reasons) if reasons else "the selected target is unavailable"
-        ctx.show_error_message("Combat unavailable", f"Combat has been switched off because {reason_text}.")
+        _switch_material_failure_to_bankstanding(
+            ctx,
+            f"Combat cannot continue because {reason_text}.",
+            material_failure=_combat_locks_can_bank_run(reasons, allow_empty=False),
+            fallback_error=(
+                "Combat unavailable",
+                f"Combat has been switched off because {reason_text}.",
+            ),
+        )
         return False
 
     guild_result = {}
@@ -587,13 +602,16 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     # Loot filter (owner: no auto-hoarding every tiny drop). The burst already
     # added the drops to the flat inventory, so leave below-value junk by removing
     # it again; stackables, coins, and unknown-value items are kept.
+    # First-seen seeding reads the learning record, not the post-bury drop list:
+    # auto-bury consumes bones before this point, but the kill above still
+    # learned them, and the default must exist before auto-bury is ever turned
+    # off and the filter has to decide the bone's fate.
+    overrides = dict(player_data.get("loot_overrides") or {})
+    for item_name in set(combat_observed_drop_item_names_pure(player_data, target_id)) - observed_item_names:
+        overrides.setdefault(item_name, "keep")
+    player_data["loot_overrides"] = overrides
     if drops:
         threshold = player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD)
-        overrides = dict(player_data.get("loot_overrides") or {})
-        for item_name in drops:
-            if isinstance(item_name, str) and item_name not in observed_item_names:
-                overrides.setdefault(item_name, "keep")
-        player_data["loot_overrides"] = overrides
         if target_id in {"cyclops", "cyclossus"}:
             for item_name in (
                 guild_result.get("defenders", {}).get("drops", {})
@@ -655,6 +673,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             (COMBAT_ENEMY_DATA.get(str(result.get("target_id", target_id))) or {}).get("level", 0)
             or 0
         ),
+        achievement_event_fields={
+            "active_prayer_selection": active_prayer_selection,
+        },
     )
     _refresh_combat_levels(ctx, result.get("xp_rewards", {}))
     ctx.check_achievements(player_data)

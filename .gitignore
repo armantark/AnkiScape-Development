@@ -4,6 +4,7 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 tools/.cache/
+/tmp/
 .venv/
 .venv-qt
 .venv-qt/
@@ -37,3 +38,5 @@ rulesync.local.jsonc
 **/.codex/config.toml
 **/.codex/hooks.json
 !.rulesync/.aiignore
+
+/tmp/

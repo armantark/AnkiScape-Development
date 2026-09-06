@@ -20,10 +20,14 @@ Domain terms with one settled meaning each. Implementation detail stays out.
   differs from the retired "latent" stub, which had no designed trigger at
   all. A deed that can never translate must not be dormant; it is swapped or
   translated instead.
-- **Translated deed** — a designed AnkiScape trigger for a deed whose literal
-  form does not exist here (for example, world traversal). The curation ledger
-  marks every translation, so a translation is never mistaken for a
-  source-faithful trigger.
+- **Translated deed** — a diary deed rebuilt for AnkiScape from a source deed
+  whose literal form does not exist here (for example, world traversal). It
+  keeps the source's region, family, and difficulty. In the game it carries
+  its own name and sentence with no reference to the source deed; the source
+  lives only in the curation ledger, which marks every translation.
+- **Invented deed** — a diary deed written from scratch in the spirit of its
+  region and tier, used when no honest translation of the source deed
+  survives. Like a translated deed, it shows no reference to the source.
 - **Curation ledger** — the reviewable per-task table (task → trigger →
   source citation → translation flag) that authorizes diary wiring. Wiring
   that bypasses the ledger is invalid.

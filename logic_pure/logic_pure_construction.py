@@ -2,6 +2,8 @@
 
 from typing import Iterable, Mapping, Optional
 
+from .achievement_diary_events import record_direct_diary_event_pure
+
 from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
@@ -182,6 +184,7 @@ def purchase_house_pure(player_data, price=1000):
     data["inventory"] = inventory
     data["house_owned"] = True
     data["house_rooms_bought"] = {**dict(data.get("house_rooms_bought", {}) or {}), "garden": True, "parlour": True}
+    record_direct_diary_event_pure(data, True, "construction_command", action_id="purchase_house")
     return data, True
 
 
@@ -207,6 +210,7 @@ def purchase_house_option_pure(player_data, option_id, options, *, kind):
         if rooms.get(option_id): return player_data, False
         rooms[option_id] = True
         data["house_rooms_bought"] = rooms
+        record_direct_diary_event_pure(data, True, "construction_command", action_id="purchase_room")
     elif kind == "servant":
         data["house_servant"] = option_id
     elif kind == "style":

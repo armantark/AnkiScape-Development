@@ -260,7 +260,7 @@ class VinesweeperIntegrationTests(unittest.TestCase):
             player_data=player,
             random_random=lambda: self.fail("compost potion must not consume RNG"),
             show_error_message=lambda *_args: self.fail("unexpected runtime error"),
-            deactivate_current_skill=lambda: self.fail("activity should remain active"),
+            deactivate_current_skill=lambda _reason=None: self.fail("activity should remain active"),
             award_skill_exp=lambda *_args: self.fail("compost potion grants no XP"),
             award_hidden_skill_exp=lambda *_args: None,
             level_up_check=lambda *_args: None,
@@ -292,7 +292,7 @@ class VinesweeperIntegrationTests(unittest.TestCase):
             player_data=player,
             random_random=iter((0.01, 0.99)).__next__,
             show_error_message=lambda *_args: self.fail("unexpected runtime error"),
-            deactivate_current_skill=lambda: deactivated.append(True),
+            deactivate_current_skill=lambda _reason=None: deactivated.append(True),
             award_skill_exp=lambda key, amount: player.__setitem__(
                 key, float(player.get(key, 0.0)) + amount
             ) or amount,

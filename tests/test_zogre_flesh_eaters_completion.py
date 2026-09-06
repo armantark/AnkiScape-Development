@@ -40,7 +40,6 @@ STAGE_ACTIONS = (
 
 def _combat_ready_zogre_player() -> dict:
     player = _zogre_player(combat_level=99)
-    player["quest_combat_config"] = {"resolver_enabled": True}
     player["inventory"]["Shark"] = 28
     player["combat_supply_loadout"]["food"] = {"Shark": 28}
     return player

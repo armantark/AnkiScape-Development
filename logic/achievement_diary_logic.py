@@ -29,6 +29,7 @@ from ..data.achievement_diary_data import (
     diary_lamp_claim_id,
 )
 from ..data.summoning_data import SUMMONING_ACTION_IDS_BY_FAMILY
+from ..logic_pure.achievement_diary_events import sanitize_diary_event_maps_pure
 from .achievement_diary_derived import (  # noqa: F401  (re-export)
     DIARY_DERIVED_VALUE_CEILINGS,
     DIARY_DERIVED_VALUES,
@@ -79,6 +80,8 @@ def default_achievement_diary_state_pure() -> dict[str, Any]:
             "completed_tasks": [],
             "claimed_tiers": [],
             "pinned_task": "",
+            "event_counts": {},
+            "event_stages": {},
             "taskmaster": False,
             # The period reward for all 534 tasks was an emote, which AnkiScape
             # has no system for. The design contract translates it into a
@@ -95,12 +98,15 @@ def sanitize_achievement_diary_state_pure(
     pinned_task = str(source.get("pinned_task", "") or "")[:120]
     if pinned_task and diary_task_by_id_pure(pinned_task) is None:
         pinned_task = ""
+    event_counts, event_stages = sanitize_diary_event_maps_pure(source)
     return {
         "achievement_diaries": {
             "version": ACHIEVEMENT_DIARY_STATE_VERSION,
             "completed_tasks": _str_list(source.get("completed_tasks")),
             "claimed_tiers": _str_list(source.get("claimed_tiers")),
             "pinned_task": pinned_task,
+            "event_counts": event_counts,
+            "event_stages": event_stages,
             "taskmaster": bool(source.get("taskmaster", False)),
             "taskmaster_presented": bool(source.get("taskmaster_presented", False)),
         }

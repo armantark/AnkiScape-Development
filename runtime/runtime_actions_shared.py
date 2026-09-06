@@ -7,6 +7,7 @@ import dataclasses
 from typing import Any, Callable, Optional
 
 from ..logic_pure.quest_action_proofs import record_runtime_quest_action_proofs_pure
+from ..logic_pure.achievement_diary_events import record_farming_diary_event_pure
 
 from ..core.constants import (
     BIRD_NEST_DROP_CHANCE,
@@ -404,16 +405,20 @@ def missing_materials_text(requirements: dict[str, int], inventory: dict[str, An
 
 def _switch_material_failure_to_bankstanding(
     ctx: RuntimeActionContext,
+    reason=None,
     *,
-    caller_owns_notice: bool = False,
+    material_failure: bool = True,
+    fallback_error=None,
 ) -> None:
-    if callable(ctx.switch_to_bankstanding):
-        if caller_owns_notice:
-            ctx.switch_to_bankstanding(caller_owns_notice=True)
-        else:
-            ctx.switch_to_bankstanding()
-    else:
+    if not material_failure:
         ctx.deactivate_current_skill()
+        if fallback_error:
+            ctx.show_error_message(*fallback_error)
+        return
+    if callable(ctx.switch_to_bankstanding):
+        ctx.switch_to_bankstanding(reason)
+    else:
+        ctx.deactivate_current_skill(reason)
 
 
 def fishing_materials_text(method_spec: dict[str, Any], inventory: dict[str, Any]) -> str:
@@ -549,6 +554,7 @@ def _record_action(
     enemy_combat_level: int = 0,
     shattered_heart_skill_id: Optional[str] = None,
     shattered_heart_output_items: Optional[dict[str, int]] = None,
+    achievement_event_fields: Optional[dict[str, Any]] = None,
 ) -> None:
     effective_output_item = output_item
     effective_output_qty = output_qty
@@ -643,6 +649,8 @@ def _record_action(
         output_item=effective_output_item if progress_outputs is None else None,
         output_qty=effective_output_qty,
         output_items=progress_outputs,
+        kills=kills,
+        event_fields=achievement_event_fields,
     )
     if success:
         record_runtime_quest_action_proofs_pure(ctx.player_data, skill_id, action_id)
@@ -764,6 +772,7 @@ def _apply_farming_queue_result(
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     if info.get("status") in {"executed", "continuing"}:
+        rock_info = {}
         rock_skill_id = next(
             (
                 skill_id
@@ -816,6 +825,9 @@ def _apply_farming_queue_result(
             gained += sum(float(value or 0.0) for value in combat_rewards.values())
         if gained > 0:
             ctx.show_exp(gained)
+        record_farming_diary_event_pure(
+            ctx.player_data, info, rock_info.get("replaced_outputs")
+        )
     else:
         ctx.show_activity_gain(f"Farm detour skipped: {info.get('message', 'step is no longer valid')}")
     ctx.check_achievements(ctx.player_data)

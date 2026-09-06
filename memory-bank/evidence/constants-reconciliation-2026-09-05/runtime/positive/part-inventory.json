@@ -1,0 +1,40 @@
+{
+  "expected": [
+    "core/constants_parts/__init__.py",
+    "core/constants_parts/activity_assets.py",
+    "core/constants_parts/activity_updates.py",
+    "core/constants_parts/combat_minigame_sources.py",
+    "core/constants_parts/competitive_minigame_sources.py",
+    "core/constants_parts/distraction_sources.py",
+    "core/constants_parts/equipment_sources.py",
+    "core/constants_parts/landmark_and_boss_sources.py",
+    "core/constants_parts/paths.py",
+    "core/constants_parts/public_exports.py",
+    "core/constants_parts/quest_items.py",
+    "core/constants_parts/registry_sources.py",
+    "core/constants_parts/skill_assets.py",
+    "core/constants_parts/skill_catalog.py",
+    "core/constants_parts/skill_minigame_sources.py",
+    "core/constants_parts/skill_sources.py",
+    "core/constants_parts/utility_sources.py"
+  ],
+  "actual": [
+    "core/constants_parts/__init__.py",
+    "core/constants_parts/activity_assets.py",
+    "core/constants_parts/activity_updates.py",
+    "core/constants_parts/combat_minigame_sources.py",
+    "core/constants_parts/competitive_minigame_sources.py",
+    "core/constants_parts/distraction_sources.py",
+    "core/constants_parts/equipment_sources.py",
+    "core/constants_parts/landmark_and_boss_sources.py",
+    "core/constants_parts/paths.py",
+    "core/constants_parts/public_exports.py",
+    "core/constants_parts/quest_items.py",
+    "core/constants_parts/registry_sources.py",
+    "core/constants_parts/skill_assets.py",
+    "core/constants_parts/skill_catalog.py",
+    "core/constants_parts/skill_minigame_sources.py",
+    "core/constants_parts/skill_sources.py",
+    "core/constants_parts/utility_sources.py"
+  ]
+}

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pass 13 results — 2026-09-04</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%234ade80'/%3E%3Ctext x='8' y='11.5' font-size='9' text-anchor='middle' fill='%230c0e12' font-family='sans-serif'%3E13%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Outfit,"Avenir Next",system-ui,sans-serif;line-height:1.5}
+main{max-width:1180px;margin:0 auto;padding:32px 20px 64px}
+.badge{display:inline-block;font-family:"JetBrains Mono",Menlo,monospace;font-size:.7rem;letter-spacing:.08em;color:var(--green);background:rgba(74,222,128,.12);border:1px solid var(--green);border-radius:999px;padding:4px 12px}
+h1{font-size:2rem;font-weight:700;margin:14px 0 6px}
+.sub{color:var(--text-dim);margin:0 0 22px;max-width:860px}
+h2{font-size:1.1rem;margin:32px 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.tile .n{font-size:1.6rem;font-weight:700;font-family:"JetBrains Mono",Menlo,monospace}
+.tile .l{font-size:.78rem;color:var(--text-dim)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.pri{font-family:"JetBrains Mono",Menlo,monospace;font-size:.62rem;letter-spacing:.08em;padding:2px 8px;border-radius:999px;border:1px solid}
+.done{color:var(--green);border-color:var(--green)}.note{color:var(--amber);border-color:var(--amber)}
+.card h3{margin:0;font-size:1rem}
+.card p{margin:6px 0;font-size:.88rem}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.pane{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px}
+.pane .lbl{font-family:"JetBrains Mono",Menlo,monospace;font-size:.6rem;letter-spacing:.1em;color:var(--text-dim);margin-bottom:6px}
+.dlg{background:#26292f;border-radius:8px;padding:8px;font-size:.72rem;text-align:center}
+.dlg .t{font-weight:700;font-size:.8rem;margin-bottom:3px}
+.row{display:flex;justify-content:space-between;font-size:.72rem;padding:2px 6px;border-bottom:1px solid var(--border)}
+.row .lv{color:var(--text-dim);font-family:"JetBrains Mono",Menlo,monospace}
+.btn{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 9px;font-size:.7rem;margin:2px}
+.btn.on{border-color:var(--accent);color:var(--accent)}
+.tags{margin-top:8px}
+.tag{display:inline-block;font-family:"JetBrains Mono",Menlo,monospace;font-size:.62rem;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 6px;margin:2px 2px 0 0;color:var(--text-dim)}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+.tw{overflow-x:auto}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--text-dim);font-weight:600;font-size:.74rem;letter-spacing:.05em}
+.gate{background:linear-gradient(90deg,rgba(251,191,36,.12),transparent);border:1px solid var(--amber);border-radius:var(--radius);padding:14px 16px;font-size:.9rem;margin:10px 0}
+.steps{list-style:none;padding:0;margin:0;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:.9rem}
+.steps li::before{counter-increment:s;content:counter(s);flex:0 0 26px;height:26px;border-radius:6px;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.8rem}
+code{font-family:"JetBrains Mono",Menlo,monospace;font-size:.82em;background:var(--surface-2);padding:1px 4px;border-radius:4px}
+</style>
+</head>
+<body>
+<main>
+<span class="badge">COMPLETED · PASS 13</span>
+<h1>Pass 13: nine defects closed in one night</h1>
+<p class="sub">Every Pass 13 item landed on main through the promotion gate. Two owner gates remain for the morning: a spot-check of the rewritten diary deeds, and 91 quest fights that carry no combat stats. Plan artifact: <code>memory-bank/status-updates/pass13-plan-2026-09-03.html</code>. Running notes: <code>memory-bank/pass13-running-notes-2026-09-03.md</code>.</p>
+
+<div class="tiles">
+<div class="tile"><div class="n">9/9</div><div class="l">slices landed</div></div>
+<div class="tile"><div class="n">162</div><div class="l">diary deeds rewritten (123 translated, 39 invented)</div></div>
+<div class="tile"><div class="n">100</div><div class="l">icons replaced with verified 2012 revisions</div></div>
+<div class="tile"><div class="n">91</div><div class="l">quest fights without combat stats (owner gate)</div></div>
+<div class="tile"><div class="n">5,561</div><div class="l">plain lane tests, all green</div></div>
+<div class="tile"><div class="n">5,561</div><div class="l">offscreen Qt lane tests, all green</div></div>
+</div>
+
+<h2>Owner gates for the morning</h2>
+<div class="gate"><b>Diary spot-check.</b> The 162 translated and invented deeds now show their own name and sentence. Two rows carry a recorded region compromise: "Tunnel Vision" (Varrock hard) on the Dorgesh-Kaan course, because no Varrock-region agility course exists in the 2012 model, and "Izzy Wizzy Let's Get Lizzy" (Morytania, displays hard) on the swamp lizard, the only Hunter target in Morytania. Table per region: the ledger's <code>notes</code> field on each row records the source deed, the new deed, and the difficulty argument.</div>
+<div class="gate"><b>Quest fights without stats.</b> The dead "battle support" switch is gone and every quest fight runs as a persistent combat instance. 91 of 293 quest encounters across 47 quests still refuse with "This fight is not modelled yet (combat stats missing)". Largest: Rag and Bone Man 8, The Chosen Commander 6, Land of the Goblins 5, Love Story 5, While Guthix Sleeps 5, The Elder Kiln 4. The full list is in the running notes. Harvesting those stats is a source-audit programme, not a patch.</div>
+
+<h2>What changed</h2>
+<div class="grid">
+
+<div class="card">
+<div class="head"><span class="pri done">LANDED</span><h3>Diary deeds read as their own</h3></div>
+<p>The generator now emits designed text for translated and invented rows and refuses a row without it. Nine regional creative drafts were reviewed row by row against the rubric: region, family, difficulty, no reference to removed content. 31 rows changed seam during review because a count raise on an easy action does not make a hard deed.</p>
+<div class="ba">
+<div class="pane"><div class="lbl">BEFORE</div><div class="dlg"><div class="t">I Heard You Like Mudskips</div>Dial to the fairy ring on Mudskipper Point.</div></div>
+<div class="pane"><div class="lbl">AFTER</div><div class="dlg"><div class="t">I Heard You Like Mudskips</div>Catch five bass off Mudskipper Point.</div></div>
+</div>
+<div class="tags"><span class="tag">tools/achievement_diary_ledger.py</span><span class="tag">dormant-task-ledger.jsonl</span><span class="tag">data/achievement_diaries/*</span></div>
+</div>
+
+<div class="card">
+<div class="head"><span class="pri note">RECORDS ONLY</span><h3>Fish Flingers pays the real 2012 amount already</h3></div>
+<p>Research on the 2012 wiki history and Darkan's server source proved the payout formula is the authentic November 2012 one: level 50 paid 8,630 XP at top score in the January 2012 table, so a level-39 game pays about one level. The formula did not change and no rollback is possible or warranted. Each settled game now records its score, XP, level, and medals, capped at fifty, so any future dispute is auditable.</p>
+<p>The perceived size comes from two clocks: ordinary skilling pays per action (trout 50 XP per card), a D&amp;D pays its 2012 per-game sum. Changing that is a design decision on the skilling clock, not a Fish Flingers fix.</p>
+<div class="tags"><span class="tag">logic/fish_flingers_logic.py</span></div>
+</div>
+
+<div class="card">
+<div class="head"><span class="pri done">LANDED</span><h3>Quest fights resolve</h3></div>
+<p>The flag nothing could set is deleted with both messages; a save migration (v124) drops the key. Delrith is proven to span three reviews with persisted life points, use the player's Bronze sword, Shrimps, and Burst of Strength, and route a loss through ordinary gravestone death.</p>
+<div class="ba">
+<div class="pane"><div class="lbl">BEFORE</div><div class="dlg">⚠ Demon Slayer is blocked: Combat locked until battle support is enabled: Delrith level 27.</div></div>
+<div class="pane"><div class="lbl">AFTER</div><div class="dlg">Delrith falls to Silverlight over three reviews.</div></div>
+</div>
+<div class="tags"><span class="tag">logic_pure/logic_pure_quest.py</span><span class="tag">core/storage_pure.py</span></div>
+</div>
+
+<div class="card">
+<div class="head"><span class="pri done">LANDED</span><h3>One click starts an activity</h3></div>
+<p>Reproduced: from Activities, a star or tree was armed, "Training: Mining" stayed, and nothing started. Now every entry path reaches the shared start seam in one click through the undoable direct-action seam. Labels are verb-first ("Mine this star", "Start full event"), the running state reads "Active for reviews", and the header Start is hidden on Activities. A declined "Leave …?" stops cleanly.</p>
+<div class="ba">
+<div class="pane"><div class="lbl">BEFORE</div><span class="btn">Select active star</span><span class="btn">Select full event</span><br><span class="btn on">Start activity</span></div>
+<div class="pane"><div class="lbl">AFTER</div><span class="btn on">Mine this star</span><span class="btn on">Start full event</span></div>
+</div>
+<div class="tags"><span class="tag">ui/ui.py</span><span class="tag">__init__.py</span><span class="tag">tests/ui/</span></div>
+</div>
+
+<div class="card">
+<div class="head"><span class="pri done">LANDED</span><h3>One Bankstanding notice</h3></div>
+<p>One seam change: a local popup clears the pending deferred notice, so the rule holds at about 150 switch sites. Material failures show the deferred modal with the material as the reason; "not in a session" keeps a popup uniformly across activities. Manual Stop stays silent; one event-log line per switch.</p>
+<div class="ba">
+<div class="pane"><div class="lbl">BEFORE</div><div class="dlg">Out of Trout.</div><div class="dlg" style="margin-top:4px">Switched to Bankstanding<br>Reason: Cooking could not continue.</div></div>
+<div class="pane"><div class="lbl">AFTER</div><div class="dlg"><div class="t">Switched to Bankstanding</div>Out of Trout.</div></div>
+</div>
+<div class="tags"><span class="tag">__init__.py</span><span class="tag">runtime/runtime_actions_*.py</span></div>
+</div>
+
+<div class="card">
+<div class="head"><span class="pri done">LANDED</span><h3>Targets in level order</h3></div>
+<p>Every skill row carries a (level, label) key; flat lists sort by level regardless of group; trees keep their group order with level inside. Hand-curated orders that put 10 before 9 are gone. The Activities list stays alphabetical, as ruled in Pass 7.</p>
+<div class="ba">
+<div class="pane"><div class="lbl">HERBLORE · CLEAN HERBS · AFTER</div><div class="row"><span>Clean guam</span><span class="lv">1</span></div><div class="row"><span>Clean ardrigal</span><span class="lv">3</span></div><div class="row"><span>Clean marrentill</span><span class="lv">5</span></div><div class="row"><span>Clean tarromin</span><span class="lv">11</span></div></div>
+<div class="pane"><div class="lbl">MINING · AFTER</div><div class="row"><span>Clay</span><span class="lv">1</span></div><div class="row"><span>Blurite</span><span class="lv">10</span></div><div class="row"><span>Iron</span><span class="lv">15</span></div><div class="row"><span>Coal</span><span class="lv">30</span></div></div>
+</div>
+<div class="tags"><span class="tag">core/target_metadata.py</span><span class="tag">ui/ui.py</span></div>
+</div>
+
+<div class="card">
+<div class="head"><span class="pri done">LANDED</span><h3>Bones are learned</h3></div>
+<p>Drops are recorded before the bury step at all three kill sites, so Bones appear in the keep/drop list under auto-bury. One "leave" override filter now drives auto-burial, Bonecrusher, and urn ash charging. Bank "Bury" targets already existed.</p>
+<div class="tags"><span class="tag">logic_pure/logic_pure_combat_model.py</span><span class="tag">logic_pure/logic_pure_urns.py</span></div>
+</div>
+
+<div class="card">
+<div class="head"><span class="pri done">LANDED</span><h3>Amulet of glory in the GE, and 100 icons from 2012</h3></div>
+<p>Amulet of glory and (4) trade on the GE with the 2012 citation; (1) to (3) and (t1) to (t3) stay off. Of 279 icons with an Old School source, 100 were replaced with hash-verified wiki revisions before 2012-11-20 (Mithril platebody among them); 35 never matched the wiki's hash and stay as they were; 144 have no usable pre-cutoff revision. Contact sheets: <code>memory-bank/evidence/icon-2012-sweep-2026-09-04/</code>.</p>
+<div class="tags"><span class="tag">data/mining_data.py</span><span class="tag">tools/fetch_2012_icons.py</span><span class="tag">assets_provenance.json</span></div>
+</div>
+
+</div>
+
+<h2>Second-level findings, surfaced not fixed</h2>
+<div class="tw"><table>
+<tr><th>Finding</th><th>Where</th><th>Why it matters</th></tr>
+<tr><td>106 items untradeable that the 2011 cache flags exchangeable (69 summoning pouches, 37 shop clothing)</td><td><code>data/mining_data.py:98</code> default</td><td>Same class as the glory bug; a data sweep.</td></tr>
+<tr><td>Iron scimitar and any icon whose wiki title is a dated historical image ("(September 2009)")</td><td><code>assets_provenance.json</code></td><td>A second sweep over every RS-wiki entry with the same tool.</td></tr>
+<tr><td>The boss is not shown as current target during a quest fight; the HUD shows the quest name</td><td><code>ui/ui.py:1557-1574</code></td><td>Your steer asked for it; left as a gap, not built.</td></tr>
+<tr><td>The fleet gate exempts a generated-marker file from every check, not only the line cap</td><td><code>slop_gate.py:124-132</code></td><td>Exemption wider than its purpose.</td></tr>
+<tr><td>Tab strip clips "Collections" behind a scroll arrow at an 1100 px window</td><td>Skills dialog</td><td>Pre-existing truncation at narrow widths.</td></tr>
+<tr><td>Evil Tree card wraps its last requirement value at 900 px</td><td>Activities card</td><td>Wrapping, not truncation; a "Requires:" line would fix it.</td></tr>
+</table></div>
+
+<h2>How it ran</h2>
+<ol class="steps">
+<li>Nine slices in pooled worktrees: Sol wrote S2, S3, S5, S8; GLM wrote S4, S6, S7, S9; Fable owned S1's creative pass with Kimi and GLM drafting nine regions and every row reviewed by the design seat. Every slice had an Opus review; every finding was fixed before the batch.</li>
+<li>A gate pre-run on the merged tree failed at three seams the slices could not see alone: two slices re-pinned the same module-surface digest, a reason parameter met a stub without one, and a modal escaped the offscreen guard. One integration commit fixed them.</li>
+<li>Final promotion gate on the remote lanes: plain 5,561 tests, Qt 5,561 tests, all audits clean. Landed on main as <code>f018c832</code>.</li>
+<li>Process debts recorded: the design seat committed one merge resolution with hooks disabled (logged in papercuts); the worktree pool was full of stale leases from the orchestrator's split programme; papercuts.md is past its cleanup threshold and a papercut-fix pass is proposed.</li>
+</ol>
+</main>
+</body>
+</html>

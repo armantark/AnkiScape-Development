@@ -6,8 +6,8 @@ Design contract clause D16 of
 The load-bearing test here is ``test_every_live_track_can_actually_be_unlocked``:
 it builds the state each track names and asserts the track arrives. A track
 whose trigger no feature can satisfy is an inert row, which is the exact defect
-the log exists to avoid — and the one track that is not yet reachable is
-labelled latent and kept out of the log's denominator instead of pretending.
+the log exists to avoid. Feature-owned rows stay latent until their predicates
+become obtainable, then activate without a separate music-catalog change.
 """
 
 from __future__ import annotations
@@ -99,7 +99,8 @@ class MusicCatalogTest(unittest.TestCase):
     def test_feature_owned_missing_rows_are_latent_but_stay_in_the_denominator(self):
         latent = [track for track in MUSIC_TRACKS if track_is_latent_pure(track)]
         self.assertGreater(len(latent), 600)
-        self.assertIn("The Task at Hand", {track.name for track in latent})
+        self.assertGreaterEqual(len(_all_task_ids()), MUSIC_UNLOCK_TASK_COUNT)
+        self.assertNotIn("The Task at Hand", {track.name for track in latent})
         self.assertTrue(any(track.trigger_kind == "latent" for track in latent))
         totals = music_log_totals_pure(_player())
         self.assertEqual(totals["latent"], len(latent))

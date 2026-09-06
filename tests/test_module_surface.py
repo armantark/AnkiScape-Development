@@ -11,21 +11,22 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "module_surface.py"
 
 FIRST_WAVE_DIGESTS = {
-    "core/constants.py": "7d6ca7ea369a11f8b400419daf6980f966f6cf5d48234e795f6b284705e4126a",
+    "core/constants.py": "d5a79ddfd6c50efa7df57cfbd9b0e615a39cf51a0635d315b6ebe9b814777b47",
     "data/quest_data.py": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e",
     "data/combat_data.py": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77",
     "data/slayer_data.py": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94",
     "logic_pure/logic_pure_combat_engine.py": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850",
     "tests/test_combat_enemy_roster.py": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816",
-    "logic/shop_logic.py": "29902790dca0d3e452b1ecec8a29e0f5834af3b56b549c8f201ce4490d7d27a0",
+    "logic/shop_logic.py": "a9455907c8b77f84fc2b3e8434ef3c91b903b9a63d3d2d4eb89eddba7c972887",
     "ui/ui_tab_shop.py": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056",
-    "data/achievement_diary_catalog.py": "138caf7baf0201d11bb7815d971c450fabf20a536e242846433783f3f1e9e3e6",
-    "runtime/runtime_actions_carried.py": "d3c2178bb94faa3f8c0f1c5537edf817b0323bb5566baedbb7c108da11d9c2be",
+    "data/achievement_diary_catalog.py": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
+    "runtime/runtime_actions_carried.py": "d80cf82f807cff357b4655119717c28c0bd69e46698734a3c6c12401eedfa5f6",
+    "runtime/runtime_actions_activities.py": "f24614aeb194bb68c3c71694dc57962f00a5f95b8c24c6308e365889eb850c55",
 }
 QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db",
 }
-ROOT_QT_DIGEST = "60268f8c330697f9303b0a4e5e59dd1b140b61b271228cd06628d95e5c020f17"
+ROOT_QT_DIGEST = "2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d"
 CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"
 
 
@@ -73,12 +74,13 @@ class ModuleSurfaceTest(unittest.TestCase):
                 "import importlib, sys",
                 "import pkg_alias",
                 "module = importlib.import_module(sys.argv[1])",
+                "assert 'ankiscape.core.constants' not in sys.modules",
                 "leaf = sys.argv[1].rsplit('.', 1)[-1]",
-                "if leaf == 'activity_base':",
-                "    assert not hasattr(module, 'UTILITY_ACTIVITY_DATA')",
                 "if leaf == 'activity_updates':",
                 "    assert len(module.UTILITY_ACTIVITY_DATA) == 218",
                 "if leaf == 'activity_assets':",
+                "    owner = importlib.import_module('ankiscape.core.constants_parts.quest_items')",
+                "    assert module._QUEST_REWARD_ITEM_DATA is owner.QUEST_REWARD_ITEM_DATA",
                 "    assert len(module.UTILITY_ACTIVITY_DATA) == 218",
                 "    assert 'Clue scroll (medium)' in module.TROUBLE_BREWING_ITEM_IMAGES",
                 "    assert not hasattr(module, 'EQUIPMENT_ITEM_DATA')",
@@ -86,17 +88,22 @@ class ModuleSurfaceTest(unittest.TestCase):
                 "    assert not hasattr(module, 'EQUIPMENT_DATA')",
                 "if leaf == 'skill_assets':",
                 "    assert not hasattr(module, 'EQUIPMENT_DATA')",
+                "    base = module._BASE_EQUIPMENT_DATA.copy()",
                 "    data = module._equipment_data_before_diaries()",
+                "    assert data is not module._BASE_EQUIPMENT_DATA",
                 "    diary = importlib.import_module('ankiscape.data.achievement_diary_data')",
                 "    data.update(diary.diary_equipment_data_as_dict())",
                 "    module._add_post_diary_equipment_data(data)",
                 "    assert len(data) == 994",
+                "    assert module._BASE_EQUIPMENT_DATA == base",
+                "assert 'ankiscape.core.constants' not in sys.modules",
                 "print('OK')",
             )
         )
         part_names = sorted(
             path.stem
             for path in (ROOT / "core" / "constants_parts").glob("*.py")
+            if path.stem != "__init__"
         )
         for environment, interpreter, qt in interpreter_cases():
             process_environment = (
@@ -127,6 +134,13 @@ class ModuleSurfaceTest(unittest.TestCase):
                 "import hashlib, json",
                 "import pkg_alias",
                 "from ankiscape.core import constants",
+                "from ankiscape.core.constants_parts.quest_items import QUEST_REWARD_ITEM_DATA",
+                "assert constants.QUEST_REWARD_ITEM_DATA is QUEST_REWARD_ITEM_DATA",
+                "names = set(constants.__all__)",
+                "missing = [name for name in names if not hasattr(constants, name)]",
+                "extra = sorted(name for name in vars(constants) if not name.startswith('_') and name not in names)",
+                "assert not missing, missing",
+                "assert not extra, extra",
                 "payload = json.dumps(",
                 "    constants.__all__,",
                 "    ensure_ascii=False,",

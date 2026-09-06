@@ -6047,3 +6047,16 @@ the obsolete percent key is no longer touched.
 - A shown-dialog Quests-tab check at `1280×752` and `900×560` renders the full four-part Unlocks label without ellipsis or horizontal overflow. No UI code changed.
 - Full verification passes 4,611 tests in both lanes: plain completes in `885.390s` with 515 skips, and real offscreen Qt completes in `1158.408s` with three skips. The explicit `tests.test_quest_catalog` run passes all 37 tests.
 - Evidence: `source-audits/cabin-fever-stages-2-4-2026-09-01.md`.
+
+## Achievement Diary curation ledger wiring — 2026-09-01
+
+- `tools/generate_achievement_diary_data.py` now consumes the canonical 320-row diary ledger. Its 43 `active` and 30 `translated` rows generate live conditions; all 247 `dormant` rows still generate `conditions == ()`.
+- Same-frame deeds use strict generated event predicates over existing runtime result seams. Cumulative telemetry cannot satisfy one-action output thresholds, and output replacement cannot credit an item the action did not produce.
+- The named catalog stays at 474 tasks. Empty conditions move from 320 to 247, while structurally claimable tiers remain 0 of 34 because every tier retains at least one dormant row.
+- The ledger corrected four exact runtime identities during wiring: Coconut crop `palm`, patch `phasmatys_flower`, encounter `lair_of_tarn_razorlor_tarn_ghost`, and Utility ownership for the first three summer-pie preparation actions.
+- The generator is byte-reproducible, and real Mining, Firemaking, and Runecrafting review handlers move two translated rows and one active row from incomplete to complete.
+- The plain lane under the promotion-gate exception passes 4,623 tests in 852.760 seconds with 515 skips. Documentation and test-quality audits pass; reachability remains 1,663 actions, 2,343 reachable items, 163 orphan inputs, and 249 blocked actions.
+- After main's runtime split, the Livid Farm, Agility, Shades of Mort'ton, and Castle Wars emits live in their activity owner modules; bank-run recording and completion callbacks live in the carried overlay.
+- Five real-handler tests cover those relocated emits, and each test was mutation-proven by removing only its emit, observing failure, and restoring the call.
+- No user interface code changed. The Beefy Bill banking service remains the next separate slice.
+- Evidence: `source-audits/diary-ledger-wiring-2026-09-01.md`.

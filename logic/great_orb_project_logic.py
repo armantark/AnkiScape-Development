@@ -23,6 +23,7 @@ from ..data.runecrafting_data import (
     OMNI_TALISMAN_STAFF_ITEM,
     RUNECRAFTING_STAFF_ITEM,
 )
+from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
 from ..logic_pure.logic_pure_quest import quest_unlock_locked_reasons_pure
 from .wicked_hood_logic import ensure_wicked_hood_state_pure
 
@@ -227,6 +228,9 @@ def use_great_orb_project_teleport_tablet_pure(
         "target_id": target_id,
         "destination": destination,
     }
+    record_direct_diary_event_pure(
+        data, True, "great_orb_project_teleport", altar_id=altar_id
+    )
     message = f"Broke {item}; teleported to {destination}."
     if target_id:
         message += " The next matching outbound route is skipped."
@@ -253,6 +257,7 @@ def default_great_orb_project_state_pure() -> dict[str, Any]:
             "active": {},
         },
         "great_orb_project_last_result": "",
+        "runecrafting_last_teleport": {},
     }
 
 

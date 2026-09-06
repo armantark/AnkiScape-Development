@@ -13,6 +13,7 @@ from dataclasses import asdict
 from pathlib import Path
 from unittest.mock import patch
 
+from tools.promotion.promotion_process import open_locked_file
 from tools.promotion_gate import (
     FULL_GATE_CHECKS,
     PLAIN_GATE_CHECKS,
@@ -183,7 +184,7 @@ def pass_gate(
     remote_lanes: bool = False,
 ) -> Path:
     checks = PLAIN_GATE_CHECKS if plain_only else FULL_GATE_CHECKS
-    with patch("tools.promotion_gate._run_gate_checks", return_value=(checks, ())):
+    with patch("tools.promotion.lane_execution._run_gate_checks", return_value=(checks, ())):
         run_gate(
             repo.target,
             plain_only=plain_only,
@@ -215,16 +216,52 @@ class PromotionGateTest(unittest.TestCase):
                 command=command,
                 worktree=PROJECT_ROOT,
                 selector=lambda lines: lines,
-                timeout=0.2,
+                timeout=2.0,
             )
 
             self.assertEqual(returncode, 124)
-            self.assertIn("TIMEOUT: exceeded 0.2 seconds", log.getvalue())
+            self.assertIn("TIMEOUT: exceeded 2 seconds", log.getvalue())
             child_pid = int(child_pid_path.read_text(encoding="utf-8"))
             self.assertNotEqual(
                 subprocess.run(("ps", "-p", str(child_pid)), check=False).returncode,
                 0,
             )
+
+    def test_locked_file_closes_stream_when_path_stat_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "landing.lock"
+            stream = path.open("a+", encoding="utf-8")
+            with (
+                patch.object(Path, "open", return_value=stream),
+                patch.object(Path, "stat", side_effect=PermissionError("denied")),
+            ):
+                with self.assertRaisesRegex(PermissionError, "denied"):
+                    open_locked_file(path, wait=False)
+            self.assertTrue(stream.closed)
+
+    def test_landing_lock_retries_when_contended_record_disappears(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            held = claim_landing_lock(
+                repo.target,
+                operation="landing",
+                worktree=repo.target,
+                commit=repo.target_commit,
+            )
+
+            def remove_record(_path: Path) -> LockRecord:
+                held.release()
+                raise FileNotFoundError
+
+            with patch("tools.promotion.locking._read_record_path", side_effect=remove_record):
+                acquired = claim_landing_lock(
+                    repo.target,
+                    operation="landing",
+                    worktree=repo.target,
+                    commit=repo.target_commit,
+                )
+            acquired.release()
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
 
     def test_landing_lock_refusal_includes_its_age(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -313,6 +350,15 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
             self.assertEqual(repo.head(repo.main), repo.main_commit)
+
+    def test_failed_landing_releases_its_lock(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+
+            with self.assertRaises(GateError):
+                land(repo.target)
+
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
 
     def test_plain_only_gate_records_checks_but_does_not_authorize_landing(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -534,6 +580,7 @@ class PromotionGateTest(unittest.TestCase):
             self.assertIs(payload["remote_lanes"], False)
             self.assertEqual(landed, repo.target_commit)
             self.assertEqual(repo.head(repo.main), repo.target_commit)
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
             self.assertIn(f"Landed {repo.target_commit}", stdout.getvalue())
 
     def test_failed_rerun_removes_prior_landable_evidence(self):
@@ -543,7 +590,7 @@ class PromotionGateTest(unittest.TestCase):
             self.assertTrue(evidence_path.exists())
 
             with patch(
-                "tools.promotion_gate._run_gate_checks",
+                "tools.promotion.lane_execution._run_gate_checks",
                 return_value=(("plain lane",), ("audit_docs (exit 1)",)),
             ):
                 with self.assertRaisesRegex(
@@ -558,7 +605,7 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
     def test_remote_lanes_flag_reaches_run_gate(self):
-        with patch("tools.promotion_gate.run_gate") as gate:
+        with patch("tools.promotion.cli.run_gate") as gate:
             result = promotion_main(
                 ["run", "/scratch/promotion", "--remote-lanes"]
             )
@@ -570,12 +617,59 @@ class PromotionGateTest(unittest.TestCase):
             remote_lanes=True,
         )
 
+    def test_dirty_canonical_checkout_refuses_gate_before_any_lane(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            (repo.main / "state.txt").write_text("dirty\n", encoding="utf-8")
+            stderr = io.StringIO()
+
+            with (
+                patch(
+                    "tools.promotion.lane_execution._run_check"
+                ) as run_check,
+                patch("sys.stderr", stderr),
+            ):
+                with self.assertRaisesRegex(SystemExit, r"^2$"):
+                    promotion_main(["run", str(repo.target)])
+
+            self.assertEqual(
+                stderr.getvalue(),
+                "error: Gate refused: canonical checkout has uncommitted "
+                "tracked changes:\n M state.txt\n",
+            )
+            run_check.assert_not_called()
+
+    def test_untracked_canonical_file_does_not_refuse_gate(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            pending = repo.main / "memory-bank" / "pending"
+            pending.mkdir(parents=True)
+            (pending / "note.md").write_text("untracked\n", encoding="utf-8")
+
+            with (
+                patch(
+                    "tools.promotion.lane_execution._run_check",
+                    return_value=0,
+                ),
+                patch(
+                    "tools.promotion.lane_execution._run_reachability_check",
+                    return_value=0,
+                ),
+            ):
+                log_path = run_gate(
+                    repo.target,
+                    plain_only=False,
+                    stdout=io.StringIO(),
+                )
+
+            self.assertTrue(log_path.exists())
+
     def test_default_gate_uses_local_lane_commands(self):
         canonical = Path("/canonical/ankiscape_fork")
         with (
-            patch("tools.promotion_gate.main_worktree", return_value=canonical),
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree", return_value=canonical),
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 Path("/scratch/promotion"),
@@ -608,9 +702,9 @@ class PromotionGateTest(unittest.TestCase):
     def test_remote_gate_uses_exact_serial_runner_commands(self):
         worktree = Path("/scratch/promotion")
         with (
-            patch("tools.promotion_gate.main_worktree") as main_worktree,
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 worktree,
@@ -653,9 +747,9 @@ class PromotionGateTest(unittest.TestCase):
     def test_remote_plain_only_gate_omits_qt_runner(self):
         worktree = Path("/scratch/promotion")
         with (
-            patch("tools.promotion_gate.main_worktree") as main_worktree,
-            patch("tools.promotion_gate._run_check", return_value=0) as run_check,
-            patch("tools.promotion_gate._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
+            patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
+            patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 worktree,

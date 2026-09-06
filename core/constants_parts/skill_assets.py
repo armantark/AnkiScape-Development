@@ -399,6 +399,7 @@ for _item_name in SMITHING_EXTRA_ITEM_DATA:
     if os.path.exists(_path):
         SMITHING_EXTRA_ITEM_IMAGES[_item_name] = _path
 SMITHING_EXTRA_ITEM_IMAGES["Dragon sq shield"] = SMITHING_EXTRA_ITEM_IMAGES["Rune sq shield"]
+# activity_assets fills this shared map; its binding preserves facade export order.
 QUEST_ITEM_IMAGES = {}
 QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
     "Lever": "temple_lever.png",
@@ -406,6 +407,7 @@ QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
     "Holy symbol (Icthlarin's Little Helper)": "holy_symbol.png",
     "Unholy symbol (Icthlarin's Little Helper)": "unholy_symbol.png",
 }
+# activity_assets fills both Combat maps after these facade bindings.
 COMBAT_ITEM_IMAGES = {}
 COMBAT_ENEMY_IMAGES = {}
 

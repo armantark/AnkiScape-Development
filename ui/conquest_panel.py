@@ -100,7 +100,9 @@ if HAS_QT:
             self.summary = QLabel(self)
             self.summary.setObjectName("conquestSummary")
             self.summary.setWordWrap(True)
-            self.summary.setStyleSheet("color: palette(mid); font-size: 11px;")
+            self.summary.setStyleSheet(
+                "color: palette(text); font-size: 11px;"
+            )
             layout.addWidget(self.summary)
             self.warning = QLabel(self)
             self.warning.setObjectName("conquestWarning")
@@ -207,7 +209,7 @@ if HAS_QT:
                 spin.setObjectName(f"conquestSquad_{spec['id']}")
                 spin.setRange(0, 10)
                 stat = QLabel(str(spec["stat_text"]), page)
-                stat.setStyleSheet("color: palette(mid); font-size: 10px;")
+                stat.setStyleSheet("color: palette(text); font-size: 10px;")
                 grid.addWidget(label, row, 0)
                 grid.addWidget(spin, row, 1)
                 grid.addWidget(stat, row, 2)

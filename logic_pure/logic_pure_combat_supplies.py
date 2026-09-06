@@ -952,9 +952,9 @@ def _combat_bank_run_result(data, target_id, started=False, completed=False):
     }
 
 
-def _combat_locks_can_bank_run(locked_reasons):
+def _combat_locks_can_bank_run(locked_reasons, *, allow_empty=True):
     if not locked_reasons:
-        return True
+        return allow_empty
     return all(
         isinstance(reason, str)
         and (reason == "compatible ammunition" or reason.startswith("runes: "))

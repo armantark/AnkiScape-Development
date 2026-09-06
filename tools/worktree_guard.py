@@ -123,7 +123,7 @@ def audit(repo: Path) -> None:
         raise RuntimeError(f"Anki would load linked/duplicate AnkiScape checkouts:\n{joined}")
     print(f"Worktree layout safe: {canonical}")
     print(f"Linked worktree root: {safe_worktree_root(canonical)}")
-    if not landing_freeze_hook_installed(repo):
+    if repo.resolve() == canonical and not landing_freeze_hook_installed(repo):
         print(f"WARNING: repo-local landing freeze hook missing: {repo_local_hook_path(repo)}")
 
 
@@ -228,6 +228,56 @@ def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
     print(f"Returned pooled worktree: {destination}")
 
 
+PRESERVED_PREFIX = "refs/preserved/"
+
+
+def preserved_ref(name: str) -> str:
+    # Mapping any other ref through the prefix keeps deletion confined to
+    # refs/preserved/ even when a caller passes a full refname.
+    return PRESERVED_PREFIX + name.removeprefix(PRESERVED_PREFIX)
+
+
+def preserved_has_landed(canonical: Path, ref: str) -> bool:
+    result = _git(
+        canonical, "merge-base", "--is-ancestor", ref, "main", check=False
+    )
+    return result.returncode == 0
+
+
+def list_preserved(repo: Path) -> None:
+    canonical, _ = canonical_and_paths(repo)
+    result = _git(
+        canonical,
+        "for-each-ref",
+        PRESERVED_PREFIX,
+        "--format=%(refname) %(objectname:short)",
+        capture=True,
+    )
+    for line in result.stdout.splitlines():
+        ref, short_id = line.split(maxsplit=1)
+        landed = preserved_has_landed(canonical, ref)
+        state = "landed" if landed else "NOT LANDED"
+        print(f"{ref} {short_id} {state}")
+
+
+def delete_preserved(repo: Path, name: str) -> None:
+    canonical, _ = canonical_and_paths(repo)
+    ref = preserved_ref(name)
+    probe = _git(
+        canonical, "show-ref", "--verify", "--quiet", ref, check=False
+    )
+    if probe.returncode != 0:
+        raise RuntimeError(f"no preserved ref: {ref}")
+    if not preserved_has_landed(canonical, ref):
+        raise RuntimeError(
+            f"refusing to delete {ref}: its commit is not an ancestor of "
+            "main; a preserved ref may be deleted only "
+            "after its work has landed"
+        )
+    _git(canonical, "update-ref", "-d", ref)
+    print(f"Deleted preserved ref: {ref}")
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
@@ -244,6 +294,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     release_parser = subparsers.add_parser("release")
     release_parser.add_argument("path", type=Path)
     release_parser.add_argument("--lease-id", required=True)
+    preserved_parser = subparsers.add_parser("preserved")
+    preserved_subparsers = preserved_parser.add_subparsers(
+        dest="preserved_command", required=True
+    )
+    preserved_subparsers.add_parser("list")
+    preserved_delete = preserved_subparsers.add_parser("delete")
+    preserved_delete.add_argument("name")
     args = parser.parse_args(argv)
     try:
         if args.command == "audit":
@@ -252,8 +309,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             add_worktree(args.repo, args.branch, args.name, args.start_point)
         elif args.command == "lease":
             lease_worktree(args.repo, args.branch, args.holder, args.start_point)
-        else:
+        elif args.command == "release":
             release_worktree(args.repo, args.path, args.lease_id)
+        elif args.command == "preserved" and args.preserved_command == "list":
+            list_preserved(args.repo)
+        else:
+            delete_preserved(args.repo, args.name)
     except (RuntimeError, ValueError, OSError, subprocess.CalledProcessError) as exc:
         parser.exit(2, f"error: {exc}\n")
     return 0

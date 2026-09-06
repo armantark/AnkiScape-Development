@@ -112,7 +112,6 @@ from ..logic_pure.logic_pure import (
     default_mage_arena_state_pure,
     MAGE_ARENA_GOD_DATA,
     default_quest_combat_active_encounters_pure,
-    default_quest_combat_config_pure,
     default_red_sandstone_daily_state_pure,
     default_stronghold_state_pure,
     calculate_new_level,
@@ -124,7 +123,6 @@ from ..logic_pure.logic_pure import (
     sanitize_combat_state_pure,
     sanitize_mage_arena_state_pure,
     sanitize_quest_combat_active_encounters_pure,
-    sanitize_quest_combat_config_pure,
     red_sandstone_daily_state_pure,
     sanitize_stronghold_state_pure,
 )
@@ -361,7 +359,7 @@ from ..data.woodcutting_data import (
 )
 
 # Version 119 was reserved for the S4 Druidic Ritual branch before promotion serialized the numbering.
-CURRENT_CONFIG_VERSION = 123
+CURRENT_CONFIG_VERSION = 124
 RETIRED_QUEST_ACTION_PROOFS: set[str] = set()
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _SUPPORTED_ACTIVITY_SESSION_IDS = {
@@ -628,27 +626,23 @@ def _revalidate_v108_diary_deeds(data: Dict[str, Any]) -> None:
 def _revalidate_v121_dormant_diary_deeds(
     data: Dict[str, Any], loaded_config_version: int
 ) -> None:
-    """Drop proxy completions that no current catalog predicate can prove."""
+    """Drop v121 proxy completions, then re-prove today's active deeds."""
 
     if loaded_config_version >= 121:
         return
 
-    from ..data.achievement_diary_data import ACHIEVEMENT_DIARY_CATALOG
+    from ..data.achievement_diary_data import (
+        V121_DORMANT_REVALIDATION_TASK_IDS,
+    )
 
-    dormant_task_ids = {
-        task.id
-        for family in ACHIEVEMENT_DIARY_CATALOG
-        for tier in family.tiers
-        for task in tier.tasks
-        if not task.conditions
-    }
     state = sanitize_achievement_diary_state_pure(data)["achievement_diaries"]
     state["completed_tasks"] = [
         task_id
         for task_id in state["completed_tasks"]
-        if task_id not in dormant_task_ids
+        if task_id not in V121_DORMANT_REVALIDATION_TASK_IDS
     ]
     data["achievement_diaries"] = state
+    data.update(refresh_achievement_diaries_pure(data)[0])
 
 
 def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, Any]:
@@ -704,7 +698,6 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_equipment_instance_state_pure())
     data["quests"] = default_quest_states()
     data["quest_points"] = 0
-    data["quest_combat_config"] = default_quest_combat_config_pure()
     data["quest_combat_encounters"] = {}
     data["quest_combat_encounter_counts"] = {}
     data["quest_combat_active_encounters"] = default_quest_combat_active_encounters_pure()
@@ -978,8 +971,9 @@ def _migrate_quest_combat_encounter_counts(data: Dict[str, Any]) -> None:
     data["quest_combat_encounter_counts"] = clean
 
 
-def _migrate_quest_stage_side_state(data: Dict[str, Any]) -> None:
-    data["quest_combat_config"] = sanitize_quest_combat_config_pure(data.get("quest_combat_config"))
+def _migrate_quest_stage_side_state(data: Dict[str, Any], version: int) -> None:
+    if version < 124:
+        data.pop("quest_combat_config", None)
     _migrate_quest_flag_collection(data, "quest_combat_encounters")
     _migrate_quest_combat_encounter_counts(data)
     data["quest_combat_active_encounters"] = sanitize_quest_combat_active_encounters_pure(
@@ -1540,7 +1534,7 @@ def migrate_loaded_data(
     _migrate_runecrafting_target(data)
     _migrate_herblore_target(data)
     _migrate_quest_state(data)
-    _migrate_quest_stage_side_state(data)
+    _migrate_quest_stage_side_state(data, loaded_config_version)
     _migrate_quest_action_proofs(data, loaded_config_version)
     _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)

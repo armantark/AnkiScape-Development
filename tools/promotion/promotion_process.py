@@ -1,11 +1,35 @@
-"""Process-tree and lock-age utilities for promotion tooling."""
+"""Process-tree and file-lock utilities for promotion tooling."""
 
 from __future__ import annotations
 
+import fcntl
 import os
 import signal
 import subprocess
 import time
+from pathlib import Path
+from typing import IO
+
+
+def open_locked_file(path: Path, *, wait: bool) -> IO[str]:
+    while True:
+        stream = path.open("a+", encoding="utf-8")
+        try:
+            flags = fcntl.LOCK_EX if wait else fcntl.LOCK_EX | fcntl.LOCK_NB
+            fcntl.flock(stream.fileno(), flags)
+        except BaseException:
+            stream.close()
+            raise
+        try:
+            # A waiter may hold an inode that the previous owner unlinked.
+            if os.path.samestat(os.fstat(stream.fileno()), path.stat()):
+                return stream
+        except FileNotFoundError:
+            pass
+        except BaseException:
+            stream.close()
+            raise
+        stream.close()
 
 
 def pid_is_alive(pid: int) -> bool:

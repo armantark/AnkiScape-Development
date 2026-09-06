@@ -15,6 +15,7 @@ from tools.promotion_gate import (
     _write_record,
     claim_landing_lock,
     install_hook,
+    landing_lock_path_for,
 )
 from tools.worktree_guard import audit, landing_freeze_hook_installed
 
@@ -75,6 +76,25 @@ class LandingFreezeHookTest(unittest.TestCase):
                 lock.release()
             self.assertIn("Landing freeze stale", stderr.getvalue())
 
+    def test_disappearing_lock_leaves_main_unblocked(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            path = landing_lock_path_for(repo.main)
+            path.write_text("{}", encoding="utf-8")
+            with (
+                patch.object(
+                    landing_freeze_hook.fcntl,
+                    "flock",
+                    side_effect=BlockingIOError,
+                ),
+                patch.object(
+                    landing_freeze_hook,
+                    "_read_record_path",
+                    side_effect=FileNotFoundError,
+                ),
+            ):
+                self.assertEqual(check(repo.main, stderr=io.StringIO()), 0)
+
     def test_no_lock_leaves_main_untouched(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = PromotionRepo(Path(temp_dir))
@@ -82,7 +102,7 @@ class LandingFreezeHookTest(unittest.TestCase):
             self.assertEqual(check(repo.main, stderr=stderr), 0)
             self.assertEqual(stderr.getvalue(), "")
 
-    def test_audit_reports_missing_hook_then_quiets_after_install(self):
+    def test_audit_requires_hook_only_in_canonical_checkout(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = PromotionRepo(Path(temp_dir))
             (repo.main / "meta.json").write_text(
@@ -95,6 +115,10 @@ class LandingFreezeHookTest(unittest.TestCase):
                 text=True,
             )
             self.assertIn("landing freeze hook missing", missing.stdout)
+            linked = io.StringIO()
+            with patch("sys.stdout", linked):
+                audit(repo.target)
+            self.assertNotIn("landing freeze hook missing", linked.getvalue())
             install_hook(repo.main)
             self.assertTrue(landing_freeze_hook_installed(repo.main))
             present = io.StringIO()

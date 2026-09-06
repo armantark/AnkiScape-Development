@@ -1,0 +1,1 @@
+"""Historical asset tool tests."""

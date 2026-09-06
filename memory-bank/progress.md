@@ -7034,3 +7034,39 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - The read-only Kotlin corroboration is `darkan-world-server/src/main/java/com/rs/game/content/quests/cabin_fever/CabinFever.kt` plus `CabinFeverState.kt`. No source was harvested or repinned, no placeholder was registered, and no UI code changed.
 - Full discovery passes 4,611 tests in both lanes: plain takes `885.390s` with 515 skips, and real offscreen Qt takes `1158.408s` with three skips. The explicit quest-catalog module passes 37 tests.
 - Evidence: `source-audits/cabin-fever-stages-2-4-2026-09-01.md`.
+
+## Achievement Diary curation ledger wiring — 2026-09-01
+
+- `tools/generate_achievement_diary_data.py` now consumes the canonical 320-row diary ledger. Its 43 `active` and 30 `translated` rows generate live conditions; all 247 `dormant` rows still generate `conditions == ()`.
+- Same-frame deeds use strict generated event predicates over existing runtime result seams. Cumulative telemetry cannot satisfy one-action output thresholds, and output replacement cannot credit an item the action did not produce.
+- The named catalog stays at 474 tasks. Empty conditions move from 320 to 247, while structurally claimable tiers remain 0 of 34 because every tier retains at least one dormant row.
+- The ledger corrected four exact runtime identities during wiring: Coconut crop `palm`, patch `phasmatys_flower`, encounter `lair_of_tarn_razorlor_tarn_ghost`, and Utility ownership for the first three summer-pie preparation actions.
+- The generator is byte-reproducible, and real Mining, Firemaking, and Runecrafting review handlers move two translated rows and one active row from incomplete to complete.
+- The plain lane under the promotion-gate exception passes 4,623 tests in 852.760 seconds with 515 skips. Documentation and test-quality audits pass; reachability remains 1,663 actions, 2,343 reachable items, 163 orphan inputs, and 249 blocked actions.
+- After main's runtime split, the Livid Farm, Agility, Shades of Mort'ton, and Castle Wars emits live in their activity owner modules; bank-run recording and completion callbacks live in the carried overlay.
+- Five real-handler tests cover those relocated emits, and each test was mutation-proven by removing only its emit, observing failure, and restoring the call.
+- No user interface code changed. The Beefy Bill banking service remains the next separate slice.
+- Evidence: `source-audits/diary-ledger-wiring-2026-09-01.md`.
+
+## Single Bankstanding transition notice — 2026-09-04
+
+- Automatic runtime transitions now produce one notice: exhausted-material paths pass their exact missing-input reason to the deferred Bankstanding modal, while paths that retain a local refusal popup mark that popup as the notice owner.
+- Fishing, Hunter, production skills, Utility processing, Dungeoneering, Livid Farm, Magic, and combat material locks use the existing switch seam without a second popup. Non-material refusal popups, invalid-target and ended-session modals, the shooting-star modal, silent manual Stop, the redundant-transition guard, and one event per accepted switch remain intact.
+- Required and adjacent pytest coverage passes 485 tests. Full discovery passes 4,682 tests in each lane: plain takes 981.080 seconds with 519 skips, and offscreen Qt takes 1,318.679 seconds with 5 skips.
+- Documentation, test-quality, worktree-layout, whitespace, and fleet slop-gate checks pass. Reachability retains the pre-existing failing baseline: 1,663 actions, 2,343 reachable items, 163 orphan inputs, and 249 blocked actions.
+
+### Single Bankstanding notice review closure — 2026-09-04
+
+- Empty late combat failures now use the non-material refusal popup, Dungeoneering matches the other named-session refusal shape, and runtime gain feedback clears popup ownership before a later tick can switch.
+- Material fallback deactivation receives the material reason when no Bankstanding switch callback exists. The obsolete `_deactivate_current_skill` wrapper is gone, with its Pass 11 contract retained on `_switch_to_bankstanding`.
+- Focused notice, runtime-action, direct-action, integration, review-strip, and Big Chompy coverage passes 489 tests in 128.94 seconds. Full lanes remain delegated to the merged-tree promotion gate per the coordinator ruling.
+
+## Pass 13 merged-batch seam repair — 2026-09-04
+
+- The merged batch exposed three process-level seams that isolated slices did not: stale public-surface pins, reason-incompatible deactivation stubs, and review-earned dialogs escaping their deferred queue.
+- All 11 protected first-wave surfaces were measured under Python 3.14.7 and Python 3.13.5/PyQt6. Only six stale pins changed; the plain root import remains explicitly unavailable with `No module named 'aqt'`.
+- All 45 stale zero-argument `deactivate_current_skill` lambdas now accept an optional reason. The unminable-star transition leaves exactly one notice queued for the post-review drain.
+- Real diary callbacks in review-handler tests now use `DeferredAchievementDialogs`, and explicit dialog-lifecycle tests pass through a nesting-aware allowance while unexpected offscreen modals still raise the exact guard assertion.
+- The focused merged-seam set passes 138 tests with one skip. All 42 affected modules pass 1,164 tests with two skips.
+- Full sequential discovery passes 5,563 tests in each lane: plain takes 884.485 seconds with 1,367 skips, and offscreen Qt takes 1,615.313 seconds with 5 skips. No errors or failures remain.
+- The worktree audit passes, and the canonical live Anki checkout remains clean.

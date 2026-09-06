@@ -25,6 +25,10 @@ from ..data.crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
 from ..core.constants import EXTRA_ITEM_DATA
 
 from ..logic_pure.quest_action_proofs import record_runtime_quest_action_proofs_pure, retract_shop_event_quest_action_proofs_pure
+from ..logic_pure.shop_diary_transactions import (
+    SHOP_DIARY_TRANSACTION_KEYS,
+    shop_diary_transaction_counter_key_pure,
+)
 from ..data.potion_data import (
     EMPTY_FLASK_ITEM,
     POTION_FAMILIES,
@@ -40,47 +44,6 @@ _CANONICAL_SHOP_ROW_NAMES = {
     for shop in SHOP_DATA.values()
     for row in shop.get("stock", ())
 }
-_SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY = {
-    (
-        "buy",
-        "aemads_adventuring_supplies",
-        "aemads_adventuring_supplies:9:227",
-    ): "aemads_vial_of_water",
-    (
-        "buy",
-        "waynes_chains",
-        "waynes_chains:3:1107",
-    ): "waynes_black_chainbody",
-    (
-        "sell",
-        "lumbridge_fishing_supplies",
-        "lumbridge_fishing_supplies:6:317",
-    ): "lumbridge_raw_shrimps_sale",
-    ("buy", "candle_shop", "candle_shop:0:36"): "candle_maker_candle",
-    (
-        "buy",
-        "candle_with_black_shop",
-        "candle_with_black_shop:0:36",
-    ): "candle_maker_candle",
-    ("vendor_action", "", "benny_buy_varrock_herald"): "benny_varrock_herald",
-}
-SHOP_DIARY_TRANSACTION_KEYS = frozenset(
-    _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.values()
-)
-
-
-def shop_diary_transaction_counter_key_pure(
-    transaction_type: str, shop_id: str, row_id: str
-) -> str:
-    """Return the approved narrow diary counter for one exact transaction."""
-
-    return (
-        _SHOP_DIARY_TRANSACTION_KEY_BY_IDENTITY.get(
-            (str(transaction_type), str(shop_id), str(row_id))
-        )
-        or ""
-    )
-
 # Bob Barter's ordinary-vial catalog is the live, non-Daemonheim Herblore
 # catalog. Barbarian mixes use two-dose bowls rather than four-dose vials.
 DECANTABLE_FOUR_DOSE_POTION_BASES = tuple(
@@ -1733,7 +1696,7 @@ def _diary_transaction_key(event: Mapping[str, Any]) -> str:
     event_type = str(event.get("type", ""))
     detail_id = (
         str(event.get("service_id", ""))
-        if event_type == "vendor_action"
+        if event_type in {"service", "vendor_action"}
         else str(event.get("row_id", ""))
     )
     return shop_diary_transaction_counter_key_pure(

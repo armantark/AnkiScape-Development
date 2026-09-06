@@ -1,7 +1,7 @@
 # constants.py
 
 import os
-import re
+import re  # Retained as part of the public constants export contract.
 
 from .constants_parts.skill_sources import *
 from .constants_parts.competitive_minigame_sources import *
@@ -33,7 +33,6 @@ from ..data.quest_data import (
     quests_as_dict,
 )
 from .constants_parts.paths import *
-from .constants_parts.activity_base import *
 
 from .constants_parts.activity_updates import *
 
@@ -42,7 +41,7 @@ from .constants_parts.skill_catalog import *
 QUEST_DATA = quests_as_dict()
 QUEST_REFERENCE_DATA = quest_references_as_dict()
 QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
-QUEST_REWARD_ITEM_DATA = {**quest_reward_items_as_dict(), **quest_item_acquisition_extra_items_as_dict()}
+from .constants_parts.quest_items import QUEST_REWARD_ITEM_DATA
 CLAIM_DATA = claims_as_dict()
 
 from .constants_parts.skill_assets import *

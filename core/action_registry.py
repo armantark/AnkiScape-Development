@@ -9,12 +9,22 @@ from __future__ import annotations
 
 from typing import Optional, Tuple
 
+from .constants import ACTIVITY_SURFACE_ID, UTILITY_ACTIVITY_DATA
 from .skill_registry import implemented_review_skill_names, review_handler_key
+from ..data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
+from ..data.evil_tree_data import EVIL_TREE_UTILITY_ID
 
 
 UTILITY_REVIEW_ACTION_ID = "utility"
 UTILITY_REVIEW_ACTION_DISPLAY_NAME = "Utilities"
 ACTIVITY_REVIEW_ACTION_DISPLAY_NAME = "Activities"
+_SPECIAL_ACTIVITY_TARGETS = {
+    "stronghold_of_security",
+    "knight_waves",
+    "mage_arena",
+    EVIL_TREE_UTILITY_ID,
+    BIG_CHINCHOMPA_UTILITY_ID,
+}
 LEGACY_UTILITY_REVIEW_ACTION_DISPLAY_NAME = "Utility / Activities"
 UTILITY_REVIEW_ACTION_ALIASES: Tuple[str, ...] = (
     "Utility",
@@ -32,6 +42,19 @@ COMBAT_REVIEW_ACTION_ALIASES: Tuple[str, ...] = (COMBAT_REVIEW_ACTION_DISPLAY_NA
 _UTILITY_REVIEW_ACTION_KEYS = {name.strip().lower() for name in UTILITY_REVIEW_ACTION_ALIASES}
 _QUEST_REVIEW_ACTION_KEYS = {name.strip().lower() for name in QUEST_REVIEW_ACTION_ALIASES}
 _COMBAT_REVIEW_ACTION_KEYS = {name.strip().lower() for name in COMBAT_REVIEW_ACTION_ALIASES}
+
+
+def utility_review_surface_for_target(activity_id: str) -> str:
+    """Return the review surface that owns a utility/activity target."""
+    target = str(activity_id or "")
+    if (
+        target in _SPECIAL_ACTIVITY_TARGETS
+        or target.startswith("mage_arena_attune:")
+        or UTILITY_ACTIVITY_DATA.get(target, {}).get("surface")
+        == ACTIVITY_SURFACE_ID
+    ):
+        return ACTIVITY_REVIEW_ACTION_DISPLAY_NAME
+    return UTILITY_REVIEW_ACTION_DISPLAY_NAME
 
 
 def is_utility_review_action(identifier: str) -> bool:
