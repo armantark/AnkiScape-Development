@@ -151,7 +151,7 @@ class MemoryBankQueuePacketTest(unittest.TestCase):
         )
         self.assertIn(
             "root[1]/memory-bank/papercuts.md — "
-            "no papercut entries matched the queue packet vocabulary",
+            "no dated papercut entries matched the queue packet vocabulary",
             packet,
         )
         self.assertNotIn("\n- none\n", packet)
@@ -227,7 +227,7 @@ class MemoryBankQueuePacketTest(unittest.TestCase):
     def test_byte_cap_reports_each_omitted_source(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = self._root(Path(temp_dir), "one")
-            long_line = "x" * 1500
+            long_line = "é" * 1500
             path = root / "memory-bank" / "papercuts.md"
             path.write_text(
                 "# Papercuts\n\n"
@@ -253,9 +253,60 @@ class MemoryBankQueuePacketTest(unittest.TestCase):
             packet,
         )
         self.assertIn(
-            "root[1]/memory-bank/papercuts.md — kept first 8 of 10 papercuts",
+            "root[1]/memory-bank/papercuts.md — kept newest 8 of 10 dated papercuts",
             packet,
         )
+
+    def test_papercuts_select_recent_dates_then_later_lines_with_exact_context(self):
+        lines = [
+            "# Papercuts",
+            "- An undated note is not an incident.",
+            "- 2026-09-05T23:59:00-07:00 — Earlier record on this date.",
+            "  Retain this exact context.",
+            "2026-09-06: Newest day with no time.",
+            "- 2026-08-01 23:00 PDT — Old prepended history.",
+            "2026-09-02 03:00 PDT — Plain timestamp.",
+            "- 2026-09-03: Date-only bullet.",
+            "2026-09-05 00:01 PDT — Later appended same-day record.",
+            "- 2026-08-02: Old appended history.",
+            "2026-09-04T00:00:00+00:00 — ISO timestamp.",
+            "- 2026-09-01: September record.",
+            "2026-08-31: August record.",
+        ]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = self._root(Path(temp_dir), "one")
+            (root / "memory-bank" / "papercuts.md").write_text(
+                "\n".join(lines) + "\n", encoding="utf-8",
+            )
+            packet = build_packet([root])
+
+        source = "root[1]/memory-bank/papercuts.md"
+        actual = [line for line in packet.splitlines() if line.startswith(f"{source}:")]
+        expected_indexes = [4, 8, 2, 3, 10, 7, 6, 11, 12]
+        self.assertEqual(actual, [
+            f"{source}:{index + 1}: {lines[index]}" for index in expected_indexes
+        ])
+        self.assertIn(f"{source} — kept newest 8 of 10 dated papercuts", packet)
+
+    def test_papercut_context_limit_stops_at_plain_and_bulleted_records(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = self._root(Path(temp_dir), "one")
+            (root / "memory-bank" / "papercuts.md").write_text(
+                "2026-09-06: Plain incident.\n"
+                "Context one.\nContext two.\nContext three.\n"
+                "Omitted context four.\n"
+                "- 2026-09-05: Adjacent bullet incident.\n"
+                "2026-09-04: Adjacent plain incident.\n",
+                encoding="utf-8",
+            )
+            packet = build_packet([root])
+
+        source = "root[1]/memory-bank/papercuts.md"
+        self.assertIn(f"{source}:4: Context three.", packet)
+        self.assertNotIn("Omitted context four.", packet)
+        self.assertEqual(packet.count("Adjacent bullet incident."), 1)
+        self.assertEqual(packet.count("Adjacent plain incident."), 1)
+        self.assertIn(f"{source} — papercut at line 1 kept 3 context lines", packet)
 
     def test_invalid_inputs_fail_loudly(self):
         with tempfile.TemporaryDirectory() as temp_dir:

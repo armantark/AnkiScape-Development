@@ -53,7 +53,7 @@ _LABEL_RE = re.compile(
     r"(?:Status|Labels?|Blockers?|Blocks|Class|Classification)(?:\*\*)?\s*:",
     re.IGNORECASE,
 )
-_PAPERCUT_RE = re.compile(r"^- \S")
+_PAPERCUT_RE = re.compile(r"^(?:- )?(\d{4}-\d{2}-\d{2})(?=T|\s|:|$)")
 _BACKLOG_FIELDS = frozenset({"id", "skill", "title", "status", "note"})
 
 
@@ -329,10 +329,14 @@ def _backlog_state(path: Path, source: str) -> SourceBlock:
 
 def _papercuts(path: Path, source: str) -> SourceBlock:
     lines = _read_lines(path)
-    starts = [index for index, line in enumerate(lines) if _PAPERCUT_RE.match(line)]
+    starts = [
+        (match.group(1), index) for index, line in enumerate(lines)
+        if (match := _PAPERCUT_RE.match(line))
+    ]
+    starts.sort(reverse=True)
     selected: list[int] = []
     truncations: list[str] = []
-    for index in starts[:PAPERCUT_LIMIT]:
+    for _date, index in starts[:PAPERCUT_LIMIT]:
         context, truncated = _context_indexes(lines, index, _PAPERCUT_RE)
         selected.extend(context)
         if truncated:
@@ -340,9 +344,9 @@ def _papercuts(path: Path, source: str) -> SourceBlock:
                 f"papercut at line {index + 1} kept {ENTRY_CONTEXT_LIMIT} context lines"
             )
     if not starts:
-        truncations.append("no papercut entries matched the queue packet vocabulary")
+        truncations.append("no dated papercut entries matched the queue packet vocabulary")
     if len(starts) > PAPERCUT_LIMIT:
-        truncations.append(f"kept first {PAPERCUT_LIMIT} of {len(starts)} papercuts")
+        truncations.append(f"kept newest {PAPERCUT_LIMIT} of {len(starts)} dated papercuts")
     return SourceBlock(source, _referenced(source, lines, selected), tuple(truncations))
 
 
