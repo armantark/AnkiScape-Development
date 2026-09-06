@@ -62,7 +62,6 @@ Allowed values are exactly:
 - `item_acquisition_actions`
 - `item_processing_actions`
 - `item_use_actions`
-- `location_visit_actions`
 - `minigame_actions`
 - `npc_dialogue_actions`
 - `object_interaction_actions`
@@ -72,7 +71,6 @@ Allowed values are exactly:
 - `skill_action_telemetry`
 - `spell_cast_actions`
 - `world_emote_actions`
-- `world_transport_actions`
 
 ## Deed-only rule
 
@@ -98,8 +96,8 @@ The assembly and review slice did not run `tools/generate_achievement_diary_data
 
 ## Gates before wiring
 
-1. **Cross-lineage review gate:** an independent reviewer must check all 320 rows, the source-order census, every disposition, every active seam, every translation, every citation, and every dormant future-system assignment. Assembly alone does not satisfy this gate.
-2. **Owner spot-check gate:** the owner must spot-check the reviewed ledger and accept the deed interpretations before any generator or runtime wiring begins. No owner spot-check is claimed by this slice.
+1. **Cross-lineage review gate — passed:** the two Opus review ranges covered all 320 rows and the supporting contract, including the source-order census, dispositions, active seams, translations, citations, and dormant assignments. [The review record](cross-lineage-review.md#review-coverage) identifies both ranges; [its resolution result](cross-lineage-review.md#resolution-result) records resolution of all 19 initial and four final findings.
+2. **Owner spec-conformance gate — passed:** §4.22 ruling 3 on 2026-08-31 replaces an owner read of every row with the row-by-row cross-lineage review against the settled spec. Later owner interpretation feedback is a ledger-row patch plus regeneration; it is not a new pre-wiring approval requirement.
 
 The cross-lineage review and its resolutions are recorded in `cross-lineage-review.md`.
 

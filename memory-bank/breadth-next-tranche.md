@@ -1,13 +1,13 @@
 # Breadth-first: the next tranche
 
-Status: **rewritten 2026-07-26, after nine families landed.** The previous version
-of this file planned batches A, B and C. Batch A is finished, batch B is two
-families in, so the ordering below is what actually remains.
+Status: **historical breadth ledger; breadth is closed.** The family table below
+records the completed July 2026 tranche. Current depth selection and blockers
+are in `memory-bank/goal-priority-matrix.md` and `memory-bank/loop-queue.md`.
 
 ## Where the programme stands
 
-`main` is clean at 3,017 tests and green in both lanes. No worktree is open and
-nothing is interrupted.
+The July 2026 lane and worktree snapshots are historical evidence, not current
+verification. Read the active goal plan for current worktree and lane ownership.
 
 Nine families reached breadth one on 2026-07-26: Skeletal Horror, Duel Arena,
 Clan Wars, Daily Challenges, Treasure Trails (Easy), Tears of Guthix, Enchanted
@@ -30,9 +30,9 @@ cleared. Those are fixed and merged.
 | ~~Dungeoneering~~ | DONE 2026-07-30 | breadth one complete: skill + floors (`0ac64a57`) and phase C kinship/trader/Coal bag (`d0cac104`), execution-verified clean |
 | ~~Conquest~~ | DONE 2026-07-30 | breadth one merged (`10e342dc`) after three Sol verify rounds; schema 102 |
 
-The Sol cross-lineage verification pass over Temple Trekking, Mobilising
-Armies, Gnome Restaurant, and Dominion Tower is running as of 2026-07-28; its
-findings gate calling those four settled.
+The 2026-07-28 verification dispatch is historical; the later
+[Catalog closure — 2026-07-30](#catalog-closure--2026-07-30) record supersedes
+its in-progress status.
 
 **Do not plan from these estimates.** They come from a frontier audit that
 predates both the placeholder rule and the parallel-agent workflow, and they are
@@ -42,11 +42,8 @@ a single day, several of them carrying estimates of 14-20 hours each. The owner'
 own read is that Achievement Diaries is "at most an overnight run, maybe 2-4
 hours". Treat the column as a rough ordering of relative size and nothing more.
 
-**Bork is half-unblocked.** It needed the `Hunt for Surok` miniquest and the
-regional Achievement Diary substrate. The diary substrate now exists — eight
-families, real tiers, real reward equipment, a claim flow and a durable ledger in
-`player_data["achievement_diaries"]` — so only the miniquest still blocks it. See
-`source-audits/bork-loop-2026-07-18.md`.
+**Bork is closed.** The miniquest dependency and daily loop landed at
+`f69bb751`; see [Catalog closure — 2026-07-30](#catalog-closure--2026-07-30).
 
 **Gnome Restaurant reached breadth one on 2026-07-28.** Gnome cooking is live as
 twenty real Cooking targets with exact levels, XP and ingredients; the delivery
@@ -55,7 +52,9 @@ tables; and the long-deferred presentation fork is queued as design decision 3.1
 with both layouts drawn and the recommended one implemented. See
 `source-audits/gnome-restaurant-harvest-2026-07-28.md`.
 
-**The catalog is closed (2026-07-30).** Bork merged with the minimal
+## Catalog closure — 2026-07-30
+
+Bork merged with the minimal
 miniquest ledger (`f69bb751`): Hunt for Surok and The Lair of Tarn Razorlor
 are playable miniquest rows, Bork runs his daily loop, and the Dominion Tarn
 fight gates on Haunted Mine per its pinned source. Every family in the

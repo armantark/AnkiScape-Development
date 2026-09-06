@@ -1,0 +1,81 @@
+{
+  "artifacts": {
+    "ankiscape-remote-single-launch-review-opus-2026-09-05.txt.gz": {
+      "copied_from": "/tmp/ankiscape-remote-single-launch-review-opus-2026-09-05.txt",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 5734,
+      "raw_sha256": "1114ca12b364dffbb689ff3932255bbf3b914f1e7f7dead1d9b06e74d6a5174f",
+      "stored_sha256": "6f9fd4f724c4b6257dcdc3c1964bb8d6f6544140cb8d5b21ac79adb559919f45"
+    },
+    "plain.stderr.gz": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/plain.stderr",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 2939,
+      "raw_sha256": "baa33c57c76c926b70bbe024734a68393b4d964338a1ecbc21c59745060beb70",
+      "stored_sha256": "1a5ff8f12eceb4242b6d5aa3b3ea65f58ce32280bc88254fe8cce0510fdefd98"
+    },
+    "plain.stdout.gz": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/plain.stdout",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "process-canary-result.json": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/process-canary-result.json",
+      "encoding": "byte-for-byte copy",
+      "raw_bytes": 392,
+      "raw_sha256": "ef0f4c3c921792f8ca2c8e0f3b244077cd923a9e12ee07fe30f1da73645d9640",
+      "stored_sha256": "ef0f4c3c921792f8ca2c8e0f3b244077cd923a9e12ee07fe30f1da73645d9640"
+    },
+    "process-canary.py.gz": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/process-canary.py",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 7970,
+      "raw_sha256": "617e451340c4063090016bc09fb0e4fd096fad3a2b96b3370e4cc31ffda50bd4",
+      "stored_sha256": "cee337d295b09b24b3c546d7aebdef22c88d43295682336d279789b203bddd2e"
+    },
+    "process-canary.stderr.gz": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/process-canary.stderr",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 362,
+      "raw_sha256": "10486f4bb0ef847ce240f1c4e926a4d7b9dc5f23e56da4e468b8a715591d5799",
+      "stored_sha256": "3d70443a30fb6b10c8a07b2950d69390c6ebefd7475597d59aa1687ced295f71"
+    },
+    "process-canary.stdout.gz": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/process-canary.stdout",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 345,
+      "raw_sha256": "9429c2113cdfd9a233a187015436aa42c8b6a5927bbd06533720182a5076df11",
+      "stored_sha256": "65fb1759cc54f39552d9b1c3e8494b255d13ee70dbca0a3962270c3810f13dcf"
+    },
+    "qt.stderr.gz": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/qt.stderr",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 2939,
+      "raw_sha256": "665bcdc580b05bd53b1451e261bb00f0558f3abe10a3d6804d9522fe03e1a629",
+      "stored_sha256": "79da61d96f6ae5e22530016d04681c8d6081c5a214473f2c45e75be4bc4c418c"
+    },
+    "qt.stdout.gz": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/qt.stdout",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "results.json": {
+      "copied_from": "/tmp/ankiscape-runner-5de9414-focus-evidence/results.json",
+      "encoding": "byte-for-byte copy",
+      "raw_bytes": 916,
+      "raw_sha256": "2d2d2e1cfc7019ec710a3652d5257ac03e0979b76beb4b5d5315fbfd693468bf",
+      "stored_sha256": "2d2d2e1cfc7019ec710a3652d5257ac03e0979b76beb4b5d5315fbfd693468bf"
+    }
+  },
+  "remote_evidence_directory": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/runner-5de9414-focused-harness",
+  "scope": "Focused MacBook test module and injected local-process canary only; full branch and post-merge gates pending.",
+  "source_hashes": {
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33",
+    "tests/test_remote_test_host.py": "e23e183f8a4d4eba3717e69023b11753491ebd5abf1cc32892469cc85c322463",
+    "tools/run_remote_tests.py": "5de9414af35bb4688810d7d3f9b3331b205988b74a30706de6eca07af2de5e42"
+  }
+}

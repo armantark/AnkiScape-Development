@@ -1,0 +1,45 @@
+{
+  "artifacts": {
+    "plain.stderr.gz": {
+      "copied_from": "/tmp/ankiscape-runner-43926d19-focus/plain.stderr",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 2939,
+      "raw_sha256": "dcd4c818ab4aab4cbb983c0ba472148c4babb5592f515374aaa199ca369fe628",
+      "stored_sha256": "010ceb4ca76d65c3ba76d45055290c1921879f9a0724b9775c8100c3bd54aec0"
+    },
+    "plain.stdout.gz": {
+      "copied_from": "/tmp/ankiscape-runner-43926d19-focus/plain.stdout",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "qt.stderr.gz": {
+      "copied_from": "/tmp/ankiscape-runner-43926d19-focus/qt.stderr",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 2939,
+      "raw_sha256": "8c33570cb57b86bf0cf709b8c3edfb35235d330fce98113d592dd91ed6264b13",
+      "stored_sha256": "b55caf8cecdc947248c3c21453692a7c8750156963712942639aaf9ec10e8973"
+    },
+    "qt.stdout.gz": {
+      "copied_from": "/tmp/ankiscape-runner-43926d19-focus/qt.stdout",
+      "encoding": "gzip, mtime=0; raw bytes retained",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "results.json": {
+      "copied_from": "/tmp/ankiscape-runner-43926d19-focus/results.json",
+      "encoding": "byte-for-byte copy",
+      "raw_bytes": 916,
+      "raw_sha256": "f24d94cd7fdf45bc991acd64083899381c4aae84e48bac49b91297b170f09bf8",
+      "stored_sha256": "f24d94cd7fdf45bc991acd64083899381c4aae84e48bac49b91297b170f09bf8"
+    }
+  },
+  "scope": "MacBook focused module rerun after assertion-only hook repair; full branch and post-merge gates remain pending.",
+  "source_hashes": {
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33",
+    "tests/test_remote_test_host.py": "43926d19b0542ec04c03d1e7dcdf29520e5a47c2f7180f90ddd6b75e13febd8b",
+    "tools/run_remote_tests.py": "5de9414af35bb4688810d7d3f9b3331b205988b74a30706de6eca07af2de5e42"
+  }
+}
