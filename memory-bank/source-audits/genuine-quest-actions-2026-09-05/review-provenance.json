@@ -1,0 +1,103 @@
+{
+  "scope": "Read-only local provenance; no period-authority inference from search order",
+  "git_evidence": [
+    {
+      "argv": [
+        "git",
+        "log",
+        "--format=%H %cI %s",
+        "--",
+        "src/main/java/com/rs/game/content/quests/fremennikisles/FremennikIsles.kt"
+      ],
+      "cwd": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server",
+      "exit_code": 0,
+      "stdout": "161542997012a031807930112f31e767419dd99b 2026-07-16T14:50:48-07:00 Restore the Ice Troll King's three-style fight.\nadb5dd15fe6272fd3c639d5de698f3633ba117b0 2026-07-16T14:43:51-07:00 Restore the November 2012 Fremennik Isles route.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "blame",
+        "-L",
+        "417,430",
+        "--",
+        "src/main/java/com/rs/game/content/quests/fremennikisles/FremennikIsles.kt"
+      ],
+      "cwd": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server",
+      "exit_code": 0,
+      "stdout": "adb5dd15fe (armantark 2026-07-16 14:36:28 -0700 417)     @JvmStatic\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 418)     fun craftShield(player: Player): Boolean {\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 419)         if (stage(player) !in FremennikIslesState.DECREE_ISSUED..FremennikIslesState.RITES_READY || player.skills.getLevelForXp(Skills.WOODCUTTING) < 56 || !inventoryHas(player, FremennikIslesIds.HAMMER)) return false\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 420)         if (hasAnywhere(player, FremennikIslesIds.FREMENNIK_ROUND_SHIELD)) return true\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 421)         if (!consume(player, FremennikIslesIds.ARCTIC_PINE_LOGS to 2, FremennikIslesIds.BRONZE_NAIL to 1, FremennikIslesIds.ROPE to 1)) return false\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 422)         if (!grantUnique(player, FremennikIslesIds.FREMENNIK_ROUND_SHIELD)) {\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 423)             player.inventory.addItem(FremennikIslesIds.ARCTIC_PINE_LOGS, 2)\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 424)             player.inventory.addItem(FremennikIslesIds.BRONZE_NAIL, 1)\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 425)             player.inventory.addItem(FremennikIslesIds.ROPE, 1)\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 426)             return false\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 427)         }\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 428)         player.skills.addXp(Skills.CRAFTING, 34.0)\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 429)         return true\nadb5dd15fe (armantark 2026-07-16 14:36:28 -0700 430)     }\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "blame",
+        "-L",
+        "69,70",
+        "--",
+        "src/main/java/com/rs/game/content/quests/inaidofthemyreque/InAidOfTheMyreque.kt"
+      ],
+      "cwd": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server",
+      "exit_code": 0,
+      "stdout": "d335ce5e37 (armantark 2026-07-15 14:44:20 -0700 69)     const val SILVTHRILL_ROD = 7620\nd335ce5e37 (armantark 2026-07-15 14:44:20 -0700 70)     val ENCHANTED_RODS = intArrayOf(7637, 7638)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "blame",
+        "-L",
+        "750,779",
+        "--",
+        "src/main/java/com/rs/game/content/quests/legacyofseergaze/LegacyOfSeergaze.kt"
+      ],
+      "cwd": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server",
+      "exit_code": 0,
+      "stdout": "63b3c901cb (armantark 2026-07-17 21:44:47 -0700 750)     @JvmStatic\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 751)     fun fitEmeraldToSickle(player: Player): Boolean {\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 752)         if (stage(player) !in FLAIL_CRAFTED..ORNATE_KEY ||\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 753)             !hasTool(player, LegacyOfSeergazeIds.CHISEL)\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 754)         ) return false\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 755)         return exchange(\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 756)             player,\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 757)             arrayOf(\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 758)                 Item(LegacyOfSeergazeIds.BLESSED_SICKLE),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 759)                 Item(LegacyOfSeergazeIds.CUT_EMERALD),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 760)             ),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 761)             arrayOf(Item(LegacyOfSeergazeIds.SILVER_SICKLE_EMERALD)),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 762)         )\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 763)     }\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 764) \n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 765)     @JvmStatic\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 766)     fun enchantEmeraldSickle(player: Player): Boolean {\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 767)         if (stage(player) !in FLAIL_CRAFTED..ORNATE_KEY ||\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 768)             player.skills.getLevelForXp(Skills.MAGIC) < 49\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 769)         ) return false\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 770)         return exchange(\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 771)             player,\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 772)             arrayOf(\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 773)                 Item(LegacyOfSeergazeIds.SILVER_SICKLE_EMERALD),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 774)                 Item(LegacyOfSeergazeIds.COSMIC_RUNE),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 775)                 Item(LegacyOfSeergazeIds.AIR_RUNE, 3),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 776)             ),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 777)             arrayOf(Item(LegacyOfSeergazeIds.ENCHANTED_SICKLE_EMERALD)),\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 778)         )\n63b3c901cb (armantark 2026-07-17 21:44:47 -0700 779)     }\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "--format=fuller",
+        "--stat",
+        "adb5dd15fe6272fd3c639d5de698f3633ba117b0"
+      ],
+      "cwd": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server",
+      "exit_code": 0,
+      "stdout": "commit adb5dd15fe6272fd3c639d5de698f3633ba117b0\nAuthor:     armantark <chuck67322@berkeley.edu>\nAuthorDate: Thu Jul 16 14:36:28 2026 -0700\nCommit:     armantark <chuck67322@berkeley.edu>\nCommitDate: Thu Jul 16 14:43:51 2026 -0700\n\n    Restore the November 2012 Fremennik Isles route.\n\n .../engine/quest/data/QuestInformationParser.java  |   5 +\n .../quests/fremennikisles/FremennikIsles.kt        | 639 +++++++++++++++++++++\n .../world/areas/fremennik_isles/FremennikIsles.kt  |   9 +-\n .../neitiznot/npcs/MawnisBurowgar.kt               |  38 +-\n .../neitiznot/npcs/SlugHemligssen.kt               |  20 +-\n .../neitiznot/npcs/ThakkradSigmundson.kt           |  11 +-\n src/main/java/com/rs/web/QuestProbe.kt             | 309 +++++++++-\n 7 files changed, 989 insertions(+), 42 deletions(-)\n",
+      "stderr": ""
+    }
+  ],
+  "source_excerpts": [
+    {
+      "path": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/fremennikisles/FremennikIsles.kt",
+      "file_sha256": "7b6b0982b0ac515546f4ef16ef3f5dde532cf680f4828d6f8f409768463e1021",
+      "line_start": 417,
+      "line_end": 430,
+      "text": "    @JvmStatic\n    fun craftShield(player: Player): Boolean {\n        if (stage(player) !in FremennikIslesState.DECREE_ISSUED..FremennikIslesState.RITES_READY || player.skills.getLevelForXp(Skills.WOODCUTTING) < 56 || !inventoryHas(player, FremennikIslesIds.HAMMER)) return false\n        if (hasAnywhere(player, FremennikIslesIds.FREMENNIK_ROUND_SHIELD)) return true\n        if (!consume(player, FremennikIslesIds.ARCTIC_PINE_LOGS to 2, FremennikIslesIds.BRONZE_NAIL to 1, FremennikIslesIds.ROPE to 1)) return false\n        if (!grantUnique(player, FremennikIslesIds.FREMENNIK_ROUND_SHIELD)) {\n            player.inventory.addItem(FremennikIslesIds.ARCTIC_PINE_LOGS, 2)\n            player.inventory.addItem(FremennikIslesIds.BRONZE_NAIL, 1)\n            player.inventory.addItem(FremennikIslesIds.ROPE, 1)\n            return false\n        }\n        player.skills.addXp(Skills.CRAFTING, 34.0)\n        return true\n    }\n"
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/legacyofseergaze/LegacyOfSeergaze.kt",
+      "file_sha256": "eb78c2074ea58683cf0d1a418c3661b9d145ca489944ddde21eb3619fa72dd59",
+      "line_start": 750,
+      "line_end": 779,
+      "text": "    @JvmStatic\n    fun fitEmeraldToSickle(player: Player): Boolean {\n        if (stage(player) !in FLAIL_CRAFTED..ORNATE_KEY ||\n            !hasTool(player, LegacyOfSeergazeIds.CHISEL)\n        ) return false\n        return exchange(\n            player,\n            arrayOf(\n                Item(LegacyOfSeergazeIds.BLESSED_SICKLE),\n                Item(LegacyOfSeergazeIds.CUT_EMERALD),\n            ),\n            arrayOf(Item(LegacyOfSeergazeIds.SILVER_SICKLE_EMERALD)),\n        )\n    }\n\n    @JvmStatic\n    fun enchantEmeraldSickle(player: Player): Boolean {\n        if (stage(player) !in FLAIL_CRAFTED..ORNATE_KEY ||\n            player.skills.getLevelForXp(Skills.MAGIC) < 49\n        ) return false\n        return exchange(\n            player,\n            arrayOf(\n                Item(LegacyOfSeergazeIds.SILVER_SICKLE_EMERALD),\n                Item(LegacyOfSeergazeIds.COSMIC_RUNE),\n                Item(LegacyOfSeergazeIds.AIR_RUNE, 3),\n            ),\n            arrayOf(Item(LegacyOfSeergazeIds.ENCHANTED_SICKLE_EMERALD)),\n        )\n    }\n"
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork/runtime/runtime_actions_gates.py",
+      "file_sha256": "1d736cd439e06ebe2ef4a287d856bb09d9451ee1c669955bc49f38972ff6bab2",
+      "line_start": 589,
+      "line_end": 596,
+      "text": "def _can_start_crafting_action(ctx: RuntimeActionContext) -> bool:\n    target = ctx.player_data.get(\"current_craft\", \"form_pot_unfired\")\n    return not crafting_target_locked_reasons_pure(\n        ctx.player_data,\n        target,\n        CRAFTING_DATA,\n        QUEST_UNLOCK_RULES,\n    )\n"
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/crafting/silver/SilverAction.kt",
+      "file_sha256": "d13b5b4b9c01fd634e5c90b646ac00b3fd02e5c644c57098357c3704eed4d266",
+      "line_start": 20,
+      "line_end": 81,
+      "text": "    suspend fun craftSilver(\n        task: QueueTask,\n        player: Player,\n        data: SilverData,\n        amount: Int,\n    ) {\n        val inventory = player.inventory\n\n        repeat(amount) {\n            if (!canCraft(task, data)) {\n                player.animate(Anims.RESET)\n                return\n            }\n            player.animate(Anims.SMELT_FURNACE)\n            player.playSound(Sfx.FURNACE)\n            task.wait(3)\n            if (!inventory.remove(Items.SILVER_BAR, assureFullRemoval = true).hasSucceeded()) {\n                return\n            }\n            if (data.extraItems != null) {\n                data.extraItems.forEach {\n                    if (!inventory.remove(item = it, assureFullRemoval = true).hasSucceeded()) {\n                        return\n                    }\n                }\n            }\n            inventory.add(data.resultItem, assureFullInsertion = true)\n            player.addXp(Skills.CRAFTING, data.experience)\n            task.wait(2)\n        }\n    }\n\n    /**\n     * TODO Add checking for quest-specific items for quest progress\n     */\n    private suspend fun canCraft(\n        task: QueueTask,\n        data: SilverData,\n    ): Boolean {\n        val player = task.player\n        val inventory = player.inventory\n        val resultName =\n            player.world.definitions\n                .get(ItemDef::class.java, data.resultItem.id)\n                .name\n                .lowercase()\n\n        if (!inventory.contains(Items.SILVER_BAR)) {\n            return false\n        }\n\n        if (data.extraItems != null) {\n            data.extraItems.forEach {\n                if (!inventory.contains(it)) {\n                    return false\n                }\n            }\n        }\n\n        if (!inventory.contains(data.mould.id)) {\n            return false\n        }\n"
+    }
+  ]
+}
