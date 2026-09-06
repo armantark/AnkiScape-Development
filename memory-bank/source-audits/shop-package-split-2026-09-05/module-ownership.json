@@ -1,0 +1,415 @@
+{
+  "base_commit": "814b4d591df4525e0bda4a1f858baf6345ed4d38",
+  "baseline_shop_sha256": "faf88588cc138c54456ffcf05476113666a9869591f72fd48a168118696dda7f",
+  "status": "package_layout_frozen_pending_independent_review_and_fresh_capture",
+  "files": {
+    "logic/shop_logic.py": {
+      "sha256": "079d4ce4a2e44ff987deeda475baca069cbd6fc314bc892bb8c1f433d2eadb4a",
+      "bytes": 26911,
+      "lines": 611,
+      "functions": [
+        {
+          "name": "shop_view_model_pure",
+          "line": 120,
+          "baseline_line": 268
+        },
+        {
+          "name": "shop_view_models_pure",
+          "line": 124,
+          "baseline_line": 272
+        },
+        {
+          "name": "_shop_view_model_from_state",
+          "line": 136,
+          "baseline_line": 284
+        },
+        {
+          "name": "search_shop_catalog_pure",
+          "line": 174,
+          "baseline_line": 322
+        },
+        {
+          "name": "preview_shop_buy_pure",
+          "line": 233,
+          "baseline_line": 381
+        },
+        {
+          "name": "_apply_wilderness_ambush",
+          "line": 270,
+          "baseline_line": 418
+        },
+        {
+          "name": "apply_shop_buy_pure",
+          "line": 312,
+          "baseline_line": 460
+        },
+        {
+          "name": "preview_shop_sell_pure",
+          "line": 362,
+          "baseline_line": 510
+        },
+        {
+          "name": "apply_shop_sell_pure",
+          "line": 371,
+          "baseline_line": 519
+        },
+        {
+          "name": "apply_shop_transaction_pure",
+          "line": 418,
+          "baseline_line": 612
+        },
+        {
+          "name": "rollback_shop_event_pure",
+          "line": 430,
+          "baseline_line": 624
+        },
+        {
+          "name": "shop_history_rows_pure",
+          "line": 486,
+          "baseline_line": 680
+        },
+        {
+          "name": "_preview_buy_from_state",
+          "line": 495,
+          "baseline_line": 900
+        },
+        {
+          "name": "_preview_sell_from_state",
+          "line": 553,
+          "baseline_line": 958
+        }
+      ]
+    },
+    "logic/shop/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "lines": 0,
+      "functions": []
+    },
+    "logic/shop/state.py": {
+      "sha256": "bbaa9f851f4b2f849b7ad3800fef400d6e300efe3ab8dfcf64f73859e0378b36",
+      "bytes": 24728,
+      "lines": 613,
+      "functions": [
+        {
+          "name": "default_shop_state_pure",
+          "line": 33,
+          "baseline_line": 74
+        },
+        {
+          "name": "sanitize_shop_state_pure",
+          "line": 45,
+          "baseline_line": 86
+        },
+        {
+          "name": "ensure_shop_state_pure",
+          "line": 122,
+          "baseline_line": 163
+        },
+        {
+          "name": "migrate_shop_diary_transaction_counts_pure",
+          "line": 131,
+          "baseline_line": 172
+        },
+        {
+          "name": "advance_shop_market_clock_pure",
+          "line": 157,
+          "baseline_line": 198
+        },
+        {
+          "name": "shop_access_lock_reason_pure",
+          "line": 170,
+          "baseline_line": 211
+        },
+        {
+          "name": "resolve_shop_id",
+          "line": 223,
+          "baseline_line": 264
+        },
+        {
+          "name": "_clean_int",
+          "line": 227,
+          "baseline_line": 689
+        },
+        {
+          "name": "_clean_optional_int",
+          "line": 237,
+          "baseline_line": 699
+        },
+        {
+          "name": "_canonical_saved_shop_item_name",
+          "line": 246,
+          "baseline_line": 708
+        },
+        {
+          "name": "_migrate_item_delta_names",
+          "line": 252,
+          "baseline_line": 714
+        },
+        {
+          "name": "_migrate_saved_stock_set_names",
+          "line": 267,
+          "baseline_line": 729
+        },
+        {
+          "name": "_migrate_saved_shop_event_item_names",
+          "line": 283,
+          "baseline_line": 745
+        },
+        {
+          "name": "_shop_or_none",
+          "line": 295,
+          "baseline_line": 757
+        },
+        {
+          "name": "_row_definition",
+          "line": 299,
+          "baseline_line": 761
+        },
+        {
+          "name": "_temporary_row_definition_from_group",
+          "line": 306,
+          "baseline_line": 768
+        },
+        {
+          "name": "_temporary_row_definition",
+          "line": 313,
+          "baseline_line": 775
+        },
+        {
+          "name": "_state_row_from_definition",
+          "line": 333,
+          "baseline_line": 795
+        },
+        {
+          "name": "_view_group_state",
+          "line": 348,
+          "baseline_line": 810
+        },
+        {
+          "name": "_transaction_group_state",
+          "line": 362,
+          "baseline_line": 824
+        },
+        {
+          "name": "_compress_group_state",
+          "line": 369,
+          "baseline_line": 831
+        },
+        {
+          "name": "_apply_restock_to_group_state",
+          "line": 392,
+          "baseline_line": 854
+        },
+        {
+          "name": "_row_view",
+          "line": 416,
+          "baseline_line": 878
+        },
+        {
+          "name": "_denied",
+          "line": 438,
+          "baseline_line": 1536
+        },
+        {
+          "name": "_inventory_count",
+          "line": 442,
+          "baseline_line": 1578
+        },
+        {
+          "name": "_add_inventory",
+          "line": 449,
+          "baseline_line": 1585
+        },
+        {
+          "name": "_stocked_row_for_item",
+          "line": 454,
+          "baseline_line": 1590
+        },
+        {
+          "name": "_item_tradeable",
+          "line": 461,
+          "baseline_line": 1597
+        },
+        {
+          "name": "_sell_price_for_item",
+          "line": 477,
+          "baseline_line": 1613
+        },
+        {
+          "name": "_temporary_stock_row",
+          "line": 485,
+          "baseline_line": 1621
+        },
+        {
+          "name": "_item_slug",
+          "line": 500,
+          "baseline_line": 1636
+        },
+        {
+          "name": "_build_event",
+          "line": 504,
+          "baseline_line": 1640
+        },
+        {
+          "name": "_event_display",
+          "line": 540,
+          "baseline_line": 1676
+        },
+        {
+          "name": "_next_event_id",
+          "line": 553,
+          "baseline_line": 1689
+        },
+        {
+          "name": "_diary_transaction_key",
+          "line": 559,
+          "baseline_line": 1695
+        },
+        {
+          "name": "_adjust_diary_transaction_count",
+          "line": 573,
+          "baseline_line": 1709
+        },
+        {
+          "name": "_append_event",
+          "line": 588,
+          "baseline_line": 1724
+        },
+        {
+          "name": "_event_by_id",
+          "line": 600,
+          "baseline_line": 1736
+        },
+        {
+          "name": "_last_rollbackable_event",
+          "line": 609,
+          "baseline_line": 1745
+        }
+      ]
+    },
+    "logic/shop/services.py": {
+      "sha256": "2d973eb337e5e11d610948bf672ea93992692d8b2049a35c508a813483591d3f",
+      "bytes": 23929,
+      "lines": 658,
+      "functions": [
+        {
+          "name": "preview_shop_service_pure",
+          "line": 60,
+          "baseline_line": 566
+        },
+        {
+          "name": "apply_shop_service_pure",
+          "line": 73,
+          "baseline_line": 579
+        },
+        {
+          "name": "preview_shop_vendor_action_pure",
+          "line": 87,
+          "baseline_line": 593
+        },
+        {
+          "name": "apply_shop_vendor_action_pure",
+          "line": 97,
+          "baseline_line": 603
+        },
+        {
+          "name": "_preview_service_like",
+          "line": 106,
+          "baseline_line": 1019
+        },
+        {
+          "name": "_decant_potions_delta",
+          "line": 167,
+          "baseline_line": 1080
+        },
+        {
+          "name": "_preview_decant_potions",
+          "line": 206,
+          "baseline_line": 1119
+        },
+        {
+          "name": "_apply_decant_potions",
+          "line": 268,
+          "baseline_line": 1181
+        },
+        {
+          "name": "_consume_potion_doses",
+          "line": 295,
+          "baseline_line": 1208
+        },
+        {
+          "name": "_fill_potion_flasks_delta",
+          "line": 326,
+          "baseline_line": 1239
+        },
+        {
+          "name": "_preview_fill_potion_flasks",
+          "line": 393,
+          "baseline_line": 1306
+        },
+        {
+          "name": "_decant_flasks_to_vials_delta",
+          "line": 454,
+          "baseline_line": 1367
+        },
+        {
+          "name": "_preview_decant_flasks_to_vials",
+          "line": 493,
+          "baseline_line": 1406
+        },
+        {
+          "name": "_apply_inventory_wide_service",
+          "line": 541,
+          "baseline_line": 1454
+        },
+        {
+          "name": "_apply_fill_potion_flasks",
+          "line": 569,
+          "baseline_line": 1482
+        },
+        {
+          "name": "_apply_decant_flasks_to_vials",
+          "line": 579,
+          "baseline_line": 1492
+        },
+        {
+          "name": "_apply_service_like",
+          "line": 589,
+          "baseline_line": 1502
+        },
+        {
+          "name": "_service_requirement_rows",
+          "line": 623,
+          "baseline_line": 1540
+        }
+      ]
+    },
+    "tests/shops/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "lines": 0,
+      "functions": []
+    },
+    "tests/shops/test_module_boundaries.py": {
+      "sha256": "7e870811462b3b93c9bfe7af62c1ee317e15955aa14068f681b44a95abf25de5",
+      "bytes": 1844,
+      "lines": 58,
+      "functions": []
+    },
+    "tests/test_quest_action_proofs.py": {
+      "sha256": "b26a08e44cef8d25105acb730c4361f6323f7d82436ef77f75d598ff692b3ca3",
+      "bytes": 28112,
+      "lines": 784,
+      "functions": []
+    },
+    "tests/test_module_surface.py": {
+      "sha256": "ba48d8b3afbfd957a1298846b263eb9358e5ebf3415d93be1adf76262a65c25f",
+      "bytes": 4764,
+      "lines": 103,
+      "functions": []
+    }
+  },
+  "historical_flat_capture": "9829; not evidence for execution of this package layout",
+  "functions_total": 71
+}

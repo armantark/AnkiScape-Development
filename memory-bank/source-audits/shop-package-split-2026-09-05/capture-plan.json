@@ -1,0 +1,23 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "source_file_count": 38,
+  "focus_count": 24,
+  "surface_test_count": 5,
+  "child_commands": 29,
+  "public_payload_count": 23,
+  "baseline_discovery_count": 5567,
+  "expected_candidate_discovery_count": 5568,
+  "added_ids": [
+    "shops.test_module_boundaries.ShopModuleBoundariesTest.test_parts_import_independently_and_keep_native_globals"
+  ],
+  "capture_path": "/tmp/ankiscape-shop-package-split-capture-2026-09-05.py",
+  "capture_sha256": "50f87266123b51ac9250af9578b9c0397a84bec66df179c7eb1d52c362851f33",
+  "driver_path": "/tmp/ankiscape-shop-package-split-driver-2026-09-05.py",
+  "driver_sha256": "42cbdf6053de966e6f8166bd6e4523cc6bbc40515e504f257009746d365ef47b",
+  "bindings_path": "/tmp/ankiscape-shop-package-split-bindings-2026-09-05.json",
+  "bindings_sha256": "dee9fc31ed5e316ff7d18cf80ce70ae1191c611bc414b25e07f4521d197686ef",
+  "canonical_runner_sha256": "5de9414af35bb4688810d7d3f9b3331b205988b74a30706de6eca07af2de5e42",
+  "local_canary_executed": false,
+  "remote_execution": false,
+  "historical_flat_capture": "9829; applies only to old flat paths; cannot accept this package layout"
+}

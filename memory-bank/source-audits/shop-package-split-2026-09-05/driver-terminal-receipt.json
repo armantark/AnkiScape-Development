@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "report": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/shop-package-split-oyfvtlm2",
+  "verification": {
+    "status": "PASS",
+    "errors": [],
+    "finished_utc": "2026-09-06T02:53:58.452045+00:00",
+    "subprocess_count": 29,
+    "check_count": 29,
+    "scope": "Exact named focus, module-surface tests, one-added-test discovery, native module globals, and 23 byte-identical public dumps; full gates and native UI acceptance remain pending"
+  },
+  "capture_sha256": "50f87266123b51ac9250af9578b9c0397a84bec66df179c7eb1d52c362851f33",
+  "bindings_sha256": "dee9fc31ed5e316ff7d18cf80ce70ae1191c611bc414b25e07f4521d197686ef",
+  "runner_sha256": "5de9414af35bb4688810d7d3f9b3331b205988b74a30706de6eca07af2de5e42"
+}

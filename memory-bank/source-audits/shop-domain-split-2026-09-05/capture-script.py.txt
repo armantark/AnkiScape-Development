@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""Capture the frozen shop split on the parent-owned MBP mirror; never edit source."""
+from collections import Counter
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import tempfile
+
+ROOT = Path('/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork')
+REPORTS = ROOT.parent / 'reports'
+BINDINGS_PATH = Path('/tmp/ankiscape-shop-domain-split-bindings-2026-09-05.json')
+BINDINGS_SHA256 = '0473ab356907c7fad08aa7fffcfd1034f4fa358f84248ea77e9a7fc8888c231a'
+BASE_COMMIT = '814b4d591df4525e0bda4a1f858baf6345ed4d38'
+OPTIONAL_SKIP_ID = 'test_module_surface.ModuleSurfaceTest.test_root_initializer_is_reported_as_unavailable_without_aqt'
+OPTIONAL_SKIP_STATUS = "skipped 'root initializer requires aqt; use the offscreen Qt interpreter'"
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+
+
+def write_json(path, value):
+    pending = path.with_suffix(path.suffix + '.tmp')
+    pending.write_text(json.dumps(value, indent=2) + '\n')
+    pending.replace(path)
+
+
+def source_hashes(expected):
+    return {name: sha(ROOT / name) for name in expected}
+
+
+def payload(path):
+    raw = path.read_bytes()
+    body, footer = raw.rsplit(b'MODULE_SURFACE_SHA256: ', 1)
+    digest = hashlib.sha256(body).hexdigest()
+    if not body.startswith(b'MODULE_SURFACE module=') or footer != (digest + '\n').encode():
+        raise ValueError('Incomplete public payload: ' + str(path))
+    return {'bytes': len(raw), 'file_sha256': hashlib.sha256(raw).hexdigest(), 'body_sha256': digest}
+
+
+def baseline_evidence(bindings):
+    baseline = REPORTS / bindings['baseline_discovery_directory']
+    old = REPORTS / bindings['baseline_surfaces_directory']
+    report_hashes = {name: sha(baseline / name) for name in bindings['baseline_report_hashes']}
+    if report_hashes != bindings['baseline_report_hashes']:
+        raise ValueError('Retained baseline report binding differs')
+    capture = json.loads((baseline / 'capture.json').read_text())
+    verdict = json.loads((baseline / 'verification.json').read_text())
+    source = json.loads((baseline / 'source-hashes.json').read_text())
+    after = json.loads((baseline / 'source-hashes-after.json').read_text())
+    if (capture['base_commit'] != BASE_COMMIT or verdict['status'] != 'PASS'
+            or verdict['phase'] != 'baseline' or source['actual'] != source['expected']
+            or after != source['expected']):
+        raise ValueError('Retained discovery is not the accepted source-bound baseline')
+    discoveries = {}
+    for lane in ('plain', 'qt'):
+        path = baseline / (lane + '-discovery.stdout')
+        ids = path.read_text().splitlines()
+        if (sha(path) != bindings['baseline_discovery_sha256']
+                or len(ids) != bindings['baseline_discovery_count'] or len(set(ids)) != len(ids)):
+            raise ValueError('Retained baseline discovery differs: ' + lane)
+        discoveries[lane] = ids
+    names = [lane + '-' + module.replace('/', '_') + '.stdout'
+             for lane in ('plain', 'qt')
+             for module in bindings['modules'] + (['__init__.py'] if lane == 'qt' else [])]
+    if names != list(bindings['baseline_surfaces']) or len(names) != 23:
+        raise ValueError('Baseline must bind the explicit 23 public payloads')
+    extra = {path.name for path in old.glob('*.py.stdout')} - set(names) - {'plain-__init__.py.stdout'}
+    control = old / 'plain-__init__.py.stdout'
+    if extra or (control.exists() and control.read_bytes()):
+        raise ValueError('Unexpected baseline payload or nonempty plain-root control')
+    surfaces = {name: payload(old / name) for name in names}
+    if surfaces != bindings['baseline_surfaces']:
+        raise ValueError('Retained complete public payloads differ')
+    return discoveries, {'report_hashes': report_hashes, 'surfaces': surfaces,
+                         'discovery_sha256': bindings['baseline_discovery_sha256'],
+                         'discovery_count': bindings['baseline_discovery_count']}
+
+
+def environment(lane):
+    env = dict(os.environ, PATH='/opt/homebrew/bin:/usr/bin:/bin', QT_QPA_PLATFORM='offscreen',
+               ANKISCAPE_GAME_MAIN=str(ROOT.parent / 'sources/game-main'),
+               ANKISCAPE_DARKAN_WORLD_SERVER=str(ROOT.parent / 'sources/darkan-world-server'))
+    env.pop('PYTHONPATH', None)
+    if lane == 'plain':
+        env['PYTHONPATH'] = str(ROOT.parent / 'plain-site')
+    return env
+
+
+def capture(out, results, expected, lane, mode, arguments):
+    before = source_hashes(expected)
+    if before != expected:
+        raise ValueError(lane + '-' + mode + ': source mismatch; command not launched')
+    interpreter = '/opt/homebrew/bin/python3' if lane == 'plain' else str(ROOT.parent / '.venv-qt/bin/python')
+    name = lane + '-' + mode
+    row = {'lane': lane, 'mode': mode, 'argv': [interpreter, *arguments], 'cwd': str(ROOT),
+           'status': 'running', 'exit_code': None, 'stdout': name + '.stdout',
+           'stderr': name + '.stderr', 'source_hashes_before': before,
+           'started_utc': datetime.now(timezone.utc).isoformat()}
+    results.append(row)
+    write_json(out / 'results.json', results)
+    try:
+        with (out / row['stdout']).open('xb') as stdout, (out / row['stderr']).open('xb') as stderr:
+            row['exit_code'] = subprocess.run(row['argv'], cwd=ROOT, env=environment(lane),
+                                               stdout=stdout, stderr=stderr, timeout=300).returncode
+        row['status'] = 'finished'
+    except (OSError, subprocess.TimeoutExpired) as error:
+        row.update(status='error', error=repr(error))
+    row['finished_utc'] = datetime.now(timezone.utc).isoformat()
+    row['source_hashes_after'] = source_hashes(expected)
+    for stream in ('stdout', 'stderr'):
+        path = out / row[stream]
+        row[stream + '_sha256'] = sha(path)
+        row[stream + '_bytes'] = path.stat().st_size if path.is_file() else None
+    write_json(out / 'results.json', results)
+    print(name, row['exit_code'], row['status'], flush=True)
+    if row['status'] != 'finished' or row['exit_code'] != 0:
+        raise ValueError(name + ': subprocess did not finish successfully; capture stopped')
+    if row['source_hashes_after'] != expected:
+        raise ValueError(name + ': source changed during command; capture stopped')
+    return row
+
+
+def passing_tests(text, expected_ids, allow_plain_root_skip=False):
+    outcomes, cursor, skips = [], 0, 0
+    pattern = r'^(test_\S+) \(([^\n]+)\)(?:\n([^\n]*))? \.\.\. (.+)$'
+    for match in re.finditer(pattern, text, re.MULTILINE):
+        method, test_id, description, status = match.groups()
+        if text[cursor:match.start()].strip() or method != test_id.rsplit('.', 1)[-1]:
+            raise ValueError('Unexpected test output or mismatched named ID')
+        if status != 'ok':
+            if not (allow_plain_root_skip and test_id == OPTIONAL_SKIP_ID and status == OPTIONAL_SKIP_STATUS):
+                raise ValueError('Non-passing named test: ' + test_id + ': ' + status)
+            skips += 1
+        outcomes.append({'id': test_id, 'status': status, 'description': description})
+        cursor = match.end()
+    ids = [row['id'] for row in outcomes]
+    if Counter(ids) != Counter(expected_ids) or len(set(ids)) != len(ids):
+        raise ValueError('Executed tests differ from the complete named selection')
+    ending = 'OK' + (f' (skipped={skips})' if skips else '')
+    summary = re.fullmatch(r'\n\n-{70}\nRan (\d+) tests? in ([0-9]+\.[0-9]+)s\n\n' + re.escape(ending) + r'\n', text[cursor:])
+    if summary is None or int(summary.group(1)) != len(expected_ids):
+        raise ValueError('Missing exact count and successful summary, or unexpected trailing output')
+    return {'status': 'PASS', 'count': len(ids), 'skips': skips,
+            'seconds': summary.group(2), 'outcomes': outcomes}
+
+
+def main():
+    if not ROOT.is_dir():
+        raise RuntimeError('The fixed MBP mirror is unavailable; no capture commands launched')
+    out = Path(tempfile.mkdtemp(prefix='shop-domain-split-', dir=REPORTS))
+    print(out, flush=True)
+    results, checks, errors, expected, before = [], [], [], {}, {}
+    try:
+        if sha(BINDINGS_PATH) != BINDINGS_SHA256:
+            raise ValueError('Capture bindings differ; no runtime commands launched')
+        bindings = json.loads(BINDINGS_PATH.read_text())
+        if bindings['base_commit'] != BASE_COMMIT:
+            raise ValueError('Wrong source baseline')
+        expected = bindings['source_hashes']
+        before = source_hashes(expected)
+        write_json(out / 'source-hashes.json', {'expected': expected, 'actual': before})
+        write_json(out / 'capture.json', {
+            'started_utc': datetime.now(timezone.utc).isoformat(), 'root': str(ROOT),
+            'base_commit': BASE_COMMIT, 'script_sha256': sha(Path(__file__)),
+            'bindings_sha256': BINDINGS_SHA256, 'focus_ids': bindings['focus_ids'],
+            'surface_test_ids': bindings['surface_test_ids'], 'added_ids': bindings['added_ids'],
+            'required_payloads': list(bindings['baseline_surfaces']), 'timeout_seconds': 300,
+        })
+        required = dict(expected)
+        if sys.argv[1:] == ['--source-hash-canary']:
+            required['logic/shop_logic.py'] = '0' * 64
+            write_json(out / 'source-hash-canary.json', {'deliberately_wrong_expected': required, 'file_mutations': []})
+        elif sys.argv[1:]:
+            raise ValueError('Unknown capture arguments')
+        if before != required:
+            raise ValueError('Source hash mismatch; no runtime commands launched')
+        baselines, evidence_before = baseline_evidence(bindings)
+        write_json(out / 'baseline-integrity.json', evidence_before)
+        discoveries = {}
+        for lane in ('plain', 'qt'):
+            row = capture(out, results, expected, lane, 'discovery', ['run_tests.py', '--list', '--max-results', '10000'])
+            ids = (out / row['stdout']).read_text().splitlines()
+            added = bindings['added_ids']
+            if ((out / row['stderr']).read_bytes() or len(set(ids)) != len(ids)
+                    or len(ids) != len(baselines[lane]) + len(added)
+                    or Counter(test_id for test_id in ids if test_id in added) != Counter(added)
+                    or [test_id for test_id in ids if test_id not in added] != baselines[lane]):
+                raise ValueError(lane + ': discovery must preserve every ordered baseline ID and add only the boundary test')
+            if not set(bindings['focus_ids'] + bindings['surface_test_ids']) <= set(ids):
+                raise ValueError(lane + ': required named tests are not discovered')
+            discoveries[lane] = {'count': len(ids), 'ids': ids, 'stdout_sha256': row['stdout_sha256']}
+            write_json(out / 'discovery.json', discoveries)
+            checks.append({'lane': lane, 'mode': 'discovery', 'status': 'PASS', 'count': len(ids),
+                           'added_ids': added, 'existing_order_preserved': True})
+            write_json(out / 'checks.json', checks)
+            for mode, args, test_ids in (
+                ('focus', ['run_tests.py', *bindings['focus_ids'], '--verbosity', '2'], bindings['focus_ids']),
+                ('module-surface-tests', ['run_tests.py', 'test_module_surface.', '--verbosity', '2'], bindings['surface_test_ids']),
+            ):
+                row = capture(out, results, expected, lane, mode, args)
+                if (out / row['stdout']).read_bytes():
+                    raise ValueError(lane + '-' + mode + ': unexpected test stdout')
+                check = passing_tests((out / row['stderr']).read_text(), test_ids,
+                                      allow_plain_root_skip=mode == 'module-surface-tests')
+                checks.append({'lane': lane, 'mode': mode, **check})
+                write_json(out / 'checks.json', checks)
+            for module in bindings['modules'] + (['__init__.py'] if lane == 'qt' else []):
+                row = capture(out, results, expected, lane, module.replace('/', '_'), ['tools/module_surface.py', module])
+                path = out / row['stdout']
+                original = REPORTS / bindings['baseline_surfaces_directory'] / row['stdout']
+                measured = payload(path)
+                if measured != bindings['baseline_surfaces'][row['stdout']] or path.read_bytes() != original.read_bytes():
+                    raise ValueError(lane + ': complete public payload changed: ' + module)
+                checks.append({'lane': lane, 'mode': row['mode'], 'status': 'PASS',
+                               'byte_identical': True, **measured})
+                write_json(out / 'checks.json', checks)
+        _ids, evidence_after = baseline_evidence(bindings)
+        write_json(out / 'baseline-integrity-after.json', evidence_after)
+        if evidence_after != evidence_before:
+            raise ValueError('Retained baseline inputs changed during capture')
+        if len(results) != 29 or len(checks) != 29:
+            raise ValueError('Capture did not complete the six test/discovery and 23 public-payload commands')
+    except (OSError, UnicodeError, ValueError, KeyError) as error:
+        errors.append(str(error))
+    after = source_hashes(expected)
+    write_json(out / 'source-hashes-after.json', after)
+    if after != before:
+        errors.append('Source files changed during capture')
+    verdict = {'status': 'FAIL' if errors else 'PASS', 'errors': errors,
+               'finished_utc': datetime.now(timezone.utc).isoformat(), 'subprocess_count': len(results),
+               'check_count': len(checks),
+               'scope': 'Exact named focus, module-surface tests, one-added-test discovery, native module globals, and 23 byte-identical public dumps; full gates and native UI acceptance remain pending'}
+    write_json(out / 'verification.json', verdict)
+    print(json.dumps(verdict), flush=True)
+    return 2 if errors and not results else int(bool(errors))
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

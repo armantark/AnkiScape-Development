@@ -1,0 +1,32 @@
+{
+  "evidence_basis": "Parent task reports, retained separately from the raw independently checked evidence",
+  "review": {
+    "session": "17784",
+    "status": "PASS",
+    "exit_code": 0,
+    "required_fixes": []
+  },
+  "source_review": "Parent verified all71 original function ASTs exactly once and read all relative import and test-owner changes.",
+  "local_source_hash_canary": {
+    "status": "PASS",
+    "exit_code": 0,
+    "remote_commands_launched": 0,
+    "runner_imported": false,
+    "mirror_lock_acquired": false,
+    "source_file_count": 38,
+    "source_bindings_unchanged": true,
+    "driver_sha256": "42cbdf6053de966e6f8166bd6e4523cc6bbc40515e504f257009746d365ef47b"
+  },
+  "focused_capture": {
+    "session": "73051",
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "independent_report_verification": "Parent verified29 jobs,58 raw streams,38 source bindings before and after,23 complete baseline payloads, ordered discovery5567 to5568, focus24 and surface5. Parent also read all raw plain focus and Qt surface output.",
+  "status": "Focused evidence accepted; full gates and exact merged-tree verification pending; normal commit not yet authorized.",
+  "retained_repeat_canary": {
+    "raw_file": "driver-local-canary.json",
+    "sha256": "47057a7bfc3e1ef0711776df0d61ca0f3c54456b516ec1ca77d516c0d98d01df",
+    "source": "Parent repeated the same canary during evidence retention and supplied this raw stdout; original earlier reported result is separate."
+  }
+}

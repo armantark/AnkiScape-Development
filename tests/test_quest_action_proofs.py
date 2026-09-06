@@ -758,7 +758,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
             call_sites,
             {
                 ("logic/shop_logic.py", "apply_shop_buy_pure", "record_runtime_quest_action_proofs_pure"),
-                ("logic/shop_logic.py", "_apply_service_like", "record_runtime_quest_action_proofs_pure"),
+                ("logic/shop/services.py", "_apply_service_like", "record_runtime_quest_action_proofs_pure"),
                 ("logic/shop_logic.py", "rollback_shop_event_pure", "retract_shop_event_quest_action_proofs_pure"),
                 ("logic_pure/logic_pure_quest.py", "_consume_quest_current_stage_items", "record_quest_stage_action_proofs_pure"),
                 ("runtime/runtime_actions_shared.py", "_record_action", "record_runtime_quest_action_proofs_pure"),
@@ -768,7 +768,8 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
             mention_counts,
             {
                 "core/storage_pure.py": 8,
-                "logic/shop_logic.py": 6,
+                "logic/shop_logic.py": 5,
+                "logic/shop/services.py": 3,
                 "logic_pure/logic_pure_quest.py": 1,
                 "logic_pure/logic_pure_state.py": 5,
                 "logic_pure/quest_action_proofs.py": 24,

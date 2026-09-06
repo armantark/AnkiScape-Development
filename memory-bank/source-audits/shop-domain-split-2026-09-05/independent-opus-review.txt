@@ -1,0 +1,54 @@
+Claude quota preflight: {"source":"ai-usage-widget/oauth_usage","freshness":"fresh","capturedAt":1788658091,"ageSeconds":22,"fiveHour":{"usedPercent":9.0,"remainingPercent":91.0,"resetsAt":1788667200},"weekly":{"usedPercent":7.0,"remainingPercent":93.0,"resetsAt":1789182000},"fableWeekly":{"usedPercent":7.0,"remainingPercent":93.0,"resetsAt":1789182000}}
+The plan file cannot be written: the Write tool is disabled for this session, including for subagents. The `Write` call I attempted returned `Error: No such tool available: Write`. The review is delivered in chat instead, and nothing about it is pending.
+
+# Independent review: shop domain split — ACCEPT
+
+I read the whole frozen packet: the 1,412-line diff, the baseline module, the three candidate modules, both tests, the manifest, the bindings, the verify script, the capture script, and both records. No source-proven defect. Every finding below is optional or waits on the pending runtime pass.
+
+## Source-proven
+
+1. Sizes are 611, 613, and 658 lines, all below 1,000.
+2. The import graph is acyclic. The facade imports state and services; services imports state; state imports no shop module. Nothing in that chain reaches back: `core/constants.py` and `logic_pure/quest_action_proofs.py` import only data modules, and `core/__init__.py`, `data/__init__.py`, `logic_pure/__init__.py`, `logic/__init__.py` import nothing.
+3. The facade gains only the import blocks and the metadata block at `logic/shop_logic.py:39-118`. The count closes exactly: 613 + 658 + 58 new-file lines, plus 80 facade lines, plus 3 test lines equals 1,412 added lines.
+4. The digest pin holds by construction. `tools/module_surface.py:302-305` dumps only non-underscore names, and `tools/module_surface.py:39-46,84-89` builds a function entry from `__module__` and `__qualname__` alone. The eleven assignments at `logic/shop_logic.py:107-117` cover exactly the eleven moved public functions.
+5. Consumer names all resolve: `core/storage_pure.py:129-133`, `logic/shop_fixtures.py:8-17`, `ui/ui_tab_shop.py:33-46`, `logic/achievement_diary_logic.py:37`, `__init__.py:239`, `tools/audit_item_reachability.py:1669-1722`, `tests/test_shop_logic.py:6-27`.
+6. No product or test file patches a `shop_logic` attribute, so per-module globals break no patch seam.
+7. I counted `quest_action_proofs` directly: 5 in the candidate facade, 3 in `logic/shop_services.py`, 0 in `logic/shop_state.py`. That matches `tests/test_quest_action_proofs.py:771-772`.
+8. `run_tests.py:131` discovers with `start_dir=tests`, and `tests/shops/__init__.py` makes the new package importable, which yields the bound ID `shops.test_module_boundaries...`.
+9. `tests/shops/test_module_boundaries.py:30-31` pins facade identity for every owned function, private ones included.
+10. The capture script is safe: source hashes before and after each command, refusal to launch on mismatch, a fresh report directory, exclusive stream creation, and a `--source-hash-canary` mode that proves the stop.
+
+## Findings
+
+F1 — path-dependent test selection (optional). `tests/shops/test_module_boundaries.py:19-25` picks owned functions by `__code__.co_filename`. Bytecode compiled under another absolute path empties `owned` and fails `assert owned` for an unrelated reason; pooled worktrees share caches. Select by the property under test and delete the redundant line 27:
+
+```python
+owned = {
+    name: value
+    for name, value in vars(part).items()
+    if inspect.isfunction(value) and value.__globals__ is vars(part)
+}
+assert owned
+```
+
+F2 — moved constants are not identity-pinned (optional). `tests/shops/test_module_boundaries.py:36-37` pins three data objects only, and `_CANONICAL_SHOP_ROW_NAMES` is private, so no gate covers its re-export:
+
+```python
+for name in ('SHOP_SERVICES', 'SHOP_VENDOR_ACTIONS', 'SHOP_PLAYER_SELL_PRICES',
+             'MAX_SHOP_EVENT_HISTORY', '_CANONICAL_SHOP_ROW_NAMES',
+             'DECANTABLE_FOUR_DOSE_POTION_BASES', 'DECANTABLE_FLASK_POTION_BASES'):
+    if hasattr(part, name):
+        assert getattr(part, name) is getattr(shop, name), name
+```
+
+F3 — evidence wording (optional). `memory-bank/goal-priority-matrix.md:26` calls parent review pending and omits the executed static proof recorded at `memory-bank/source-audits/shop-domain-split-2026-09-05.md:47-51`. One clause naming `PASS_STATIC_ONLY` closes it. Neither record overclaims; both deny any commit or landing.
+
+## Unverified runtime risks
+
+The `a9455907...` digest depends on the eleven `__module__` assignments running before any dump. Every consumer reaches those functions through the facade, so the order holds, but only the 23 byte-identical payload captures prove it. Likewise `tests/shops/test_module_boundaries.py:18` requires that importing a part never loads the facade; the source supports this, and a real interpreter must confirm it.
+
+## Observations, no change wanted
+
+The facade keeps about 22 unused private re-imports; they are load-bearing for the identity loop and `getattr` access, so a later cleanup must not strip them. `shop_access_lock_reason_pure` and `_denied` sit in the state module because state is the only dependency-free module, which is the right trade under the zero-edit rule. The author's cross-branch note stands: a merge with the retained-proof repair must keep both the count 25 for `logic_pure/quest_action_proofs.py` and the new `logic/shop_services.py: 3` entry.
+
+Remaining gates are unchanged: the frozen capture, both full lanes, the required audits, the native shop test, and the manual browse, buy, undo, and potion-exchange pass.

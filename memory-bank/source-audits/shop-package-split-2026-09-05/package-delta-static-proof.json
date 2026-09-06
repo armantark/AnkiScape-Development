@@ -1,0 +1,38 @@
+{
+  "status": "PASS_STATIC_ONLY",
+  "checks": [
+    {
+      "original": "logic/shop_logic.py",
+      "candidate": "logic/shop_logic.py",
+      "check": "byte-identical except approved import/test path substitutions",
+      "sha256": "079d4ce4a2e44ff987deeda475baca069cbd6fc314bc892bb8c1f433d2eadb4a"
+    },
+    {
+      "original": "logic/shop_state.py",
+      "candidate": "logic/shop/state.py",
+      "check": "byte-identical except approved import/test path substitutions",
+      "sha256": "bbaa9f851f4b2f849b7ad3800fef400d6e300efe3ab8dfcf64f73859e0378b36"
+    },
+    {
+      "original": "logic/shop_services.py",
+      "candidate": "logic/shop/services.py",
+      "check": "byte-identical except approved import/test path substitutions",
+      "sha256": "2d973eb337e5e11d610948bf672ea93992692d8b2049a35c508a813483591d3f"
+    },
+    {
+      "original": "tests/shops/test_module_boundaries.py",
+      "candidate": "tests/shops/test_module_boundaries.py",
+      "check": "byte-identical except approved import/test path substitutions",
+      "sha256": "7e870811462b3b93c9bfe7af62c1ee317e15955aa14068f681b44a95abf25de5"
+    },
+    {
+      "original": "tests/test_quest_action_proofs.py",
+      "candidate": "tests/test_quest_action_proofs.py",
+      "check": "byte-identical except approved import/test path substitutions",
+      "sha256": "b26a08e44cef8d25105acb730c4361f6323f7d82436ef77f75d598ff692b3ca3"
+    }
+  ],
+  "new_package_initializer": "empty",
+  "runtime_executed": false,
+  "static_script_sha256": "b51eaf1f32176dd0d65dbc2f550d68a610243565bdfe284e69df3a353a31ab92"
+}
