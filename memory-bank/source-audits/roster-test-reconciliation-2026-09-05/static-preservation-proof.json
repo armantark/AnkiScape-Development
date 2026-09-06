@@ -1,0 +1,586 @@
+{
+  "baseline_head": "814b4d591df4525e0bda4a1f858baf6345ed4d38",
+  "source_roster_sha256": "29e9c281b3da02f301eea56301ee36e750ac49c5dff2bb3fb9ee8a1e79be795b",
+  "test_count": 36,
+  "unchanged_test_method_asts": 35,
+  "changed_test_method_names": [
+    "test_new_slayer_family_assets_are_present_and_provenanced"
+  ],
+  "shared_helper_ast_identical": true,
+  "contract_constants_ast_identical": true,
+  "mapping": [
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_green_dragon_preserves_cutoff_combat_and_drop_selectors",
+      "after": "tests.combat_roster.test_dragon_families.CombatEnemyRosterDataTest.test_green_dragon_preserves_cutoff_combat_and_drop_selectors",
+      "name": "test_green_dragon_preserves_cutoff_combat_and_drop_selectors",
+      "before_line": 528,
+      "after_line": 7,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_blue_dragon_family_preserves_adult_and_baby_cutoff_variants",
+      "after": "tests.combat_roster.test_dragon_families.CombatEnemyRosterDataTest.test_blue_dragon_family_preserves_adult_and_baby_cutoff_variants",
+      "name": "test_blue_dragon_family_preserves_adult_and_baby_cutoff_variants",
+      "before_line": 739,
+      "after_line": 44,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_bronze_dragon_preserves_cutoff_metal_dragon_contract",
+      "after": "tests.combat_roster.test_dragon_families.CombatEnemyRosterDataTest.test_bronze_dragon_preserves_cutoff_metal_dragon_contract",
+      "name": "test_bronze_dragon_preserves_cutoff_metal_dragon_contract",
+      "before_line": 790,
+      "after_line": 95,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_iron_dragon_preserves_cutoff_metal_dragon_contract",
+      "after": "tests.combat_roster.test_dragon_families.CombatEnemyRosterDataTest.test_iron_dragon_preserves_cutoff_metal_dragon_contract",
+      "name": "test_iron_dragon_preserves_cutoff_metal_dragon_contract",
+      "before_line": 834,
+      "after_line": 139,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_steel_dragon_preserves_cutoff_metal_dragon_contract",
+      "after": "tests.combat_roster.test_dragon_families.CombatEnemyRosterDataTest.test_steel_dragon_preserves_cutoff_metal_dragon_contract",
+      "name": "test_steel_dragon_preserves_cutoff_metal_dragon_contract",
+      "before_line": 878,
+      "after_line": 183,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_red_dragon_family_preserves_cutoff_adult_and_baby_contracts",
+      "after": "tests.combat_roster.test_dragon_families.CombatEnemyRosterDataTest.test_red_dragon_family_preserves_cutoff_adult_and_baby_contracts",
+      "name": "test_red_dragon_family_preserves_cutoff_adult_and_baby_contracts",
+      "before_line": 925,
+      "after_line": 230,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_black_dragon_preserves_cutoff_ordinary_variant_contract",
+      "after": "tests.combat_roster.test_dragon_families.CombatEnemyRosterDataTest.test_black_dragon_preserves_cutoff_ordinary_variant_contract",
+      "name": "test_black_dragon_preserves_cutoff_ordinary_variant_contract",
+      "before_line": 982,
+      "after_line": 287,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_desert_lizard_preserves_the_period_finisher_variant",
+      "after": "tests.combat_roster.test_finisher_families.CombatEnemyRosterDataTest.test_desert_lizard_preserves_the_period_finisher_variant",
+      "name": "test_desert_lizard_preserves_the_period_finisher_variant",
+      "before_line": 1498,
+      "after_line": 7,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_rockslug_preserves_the_period_finisher_and_frozen_state",
+      "after": "tests.combat_roster.test_finisher_families.CombatEnemyRosterDataTest.test_rockslug_preserves_the_period_finisher_and_frozen_state",
+      "name": "test_rockslug_preserves_the_period_finisher_and_frozen_state",
+      "before_line": 1558,
+      "after_line": 67,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_gargoyle_preserves_the_period_reusable_finisher_and_regeneration",
+      "after": "tests.combat_roster.test_finisher_families.CombatEnemyRosterDataTest.test_gargoyle_preserves_the_period_reusable_finisher_and_regeneration",
+      "name": "test_gargoyle_preserves_the_period_reusable_finisher_and_regeneration",
+      "before_line": 1590,
+      "after_line": 99,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_mutated_zygomites_preserve_period_variants_and_charged_finisher",
+      "after": "tests.combat_roster.test_finisher_families.CombatEnemyRosterDataTest.test_mutated_zygomites_preserve_period_variants_and_charged_finisher",
+      "name": "test_mutated_zygomites_preserve_period_variants_and_charged_finisher",
+      "before_line": 1627,
+      "after_line": 136,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_no_enemy_id_collides_with_a_skilling_target_id",
+      "after": "tests.combat_roster.test_roster_contract.CombatEnemyRosterDataTest.test_no_enemy_id_collides_with_a_skilling_target_id",
+      "name": "test_no_enemy_id_collides_with_a_skilling_target_id",
+      "before_line": 159,
+      "after_line": 22,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_new_enemies_have_required_schema",
+      "after": "tests.combat_roster.test_roster_contract.CombatEnemyRosterDataTest.test_new_enemies_have_required_schema",
+      "name": "test_new_enemies_have_required_schema",
+      "before_line": 178,
+      "after_line": 40,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_new_slayer_family_assets_are_present_and_provenanced",
+      "after": "tests.combat_roster.test_roster_contract.CombatEnemyRosterDataTest.test_new_slayer_family_assets_are_present_and_provenanced",
+      "name": "test_new_slayer_family_assets_are_present_and_provenanced",
+      "before_line": 362,
+      "after_line": 211,
+      "ast_identical": false
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_slayer_targets_require_their_source_levels",
+      "after": "tests.combat_roster.test_roster_contract.CombatEnemyRosterDataTest.test_slayer_targets_require_their_source_levels",
+      "name": "test_slayer_targets_require_their_source_levels",
+      "before_line": 637,
+      "after_line": 309,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_new_enemy_drops_are_well_formed",
+      "after": "tests.combat_roster.test_roster_contract.CombatEnemyRosterDataTest.test_new_enemy_drops_are_well_formed",
+      "name": "test_new_enemy_drops_are_well_formed",
+      "before_line": 1679,
+      "after_line": 346,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_jackal_preserves_the_cutoff_dogs_family_combat_row",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_jackal_preserves_the_cutoff_dogs_family_combat_row",
+      "name": "test_jackal_preserves_the_cutoff_dogs_family_combat_row",
+      "before_line": 349,
+      "after_line": 7,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_ogre_preserves_the_cutoff_ordinary_variant_and_exact_seed_roll",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_ogre_preserves_the_cutoff_ordinary_variant_and_exact_seed_roll",
+      "name": "test_ogre_preserves_the_cutoff_ordinary_variant_and_exact_seed_roll",
+      "before_line": 565,
+      "after_line": 20,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_icefiend_preserves_the_cutoff_ordinary_variant",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_icefiend_preserves_the_cutoff_ordinary_variant",
+      "name": "test_icefiend_preserves_the_cutoff_ordinary_variant",
+      "before_line": 596,
+      "after_line": 51,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_pyrefiend_preserves_the_cutoff_ordinary_variant_and_drop_table",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_pyrefiend_preserves_the_cutoff_ordinary_variant_and_drop_table",
+      "name": "test_pyrefiend_preserves_the_cutoff_ordinary_variant_and_drop_table",
+      "before_line": 616,
+      "after_line": 71,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_jelly_preserves_the_cutoff_ordinary_variant_and_drop_table",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_jelly_preserves_the_cutoff_ordinary_variant_and_drop_table",
+      "name": "test_jelly_preserves_the_cutoff_ordinary_variant_and_drop_table",
+      "before_line": 674,
+      "after_line": 92,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_fire_giant_preserves_the_cutoff_ordinary_variant_and_selectors",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_fire_giant_preserves_the_cutoff_ordinary_variant_and_selectors",
+      "name": "test_fire_giant_preserves_the_cutoff_ordinary_variant_and_selectors",
+      "before_line": 702,
+      "after_line": 120,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_cave_horror_preserves_cutoff_access_scream_and_drop_contract",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_cave_horror_preserves_cutoff_access_scream_and_drop_contract",
+      "name": "test_cave_horror_preserves_cutoff_access_scream_and_drop_contract",
+      "before_line": 1033,
+      "after_line": 157,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_bloodveld_preserves_the_cutoff_level_76_variant_and_drop_table",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_bloodveld_preserves_the_cutoff_level_76_variant_and_drop_table",
+      "name": "test_bloodveld_preserves_the_cutoff_level_76_variant_and_drop_table",
+      "before_line": 1085,
+      "after_line": 209,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_infernal_mage_preserves_the_cutoff_variant_and_drop_selector",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_infernal_mage_preserves_the_cutoff_variant_and_drop_selector",
+      "name": "test_infernal_mage_preserves_the_cutoff_variant_and_drop_selector",
+      "before_line": 1113,
+      "after_line": 237,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_basilisk_preserves_the_cutoff_variant_and_drop_selector",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_basilisk_preserves_the_cutoff_variant_and_drop_selector",
+      "name": "test_basilisk_preserves_the_cutoff_variant_and_drop_selector",
+      "before_line": 1155,
+      "after_line": 279,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_aberrant_spectre_preserves_stench_and_exact_tables",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_aberrant_spectre_preserves_stench_and_exact_tables",
+      "name": "test_aberrant_spectre_preserves_stench_and_exact_tables",
+      "before_line": 1189,
+      "after_line": 313,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_dust_devil_preserves_cutoff_damage_gate_and_exact_selectors",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_dust_devil_preserves_cutoff_damage_gate_and_exact_selectors",
+      "name": "test_dust_devil_preserves_cutoff_damage_gate_and_exact_selectors",
+      "before_line": 1226,
+      "after_line": 350,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_crocodile_preserves_the_level_63_desert_variant",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_crocodile_preserves_the_level_63_desert_variant",
+      "name": "test_crocodile_preserves_the_level_63_desert_variant",
+      "before_line": 1264,
+      "after_line": 388,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_otherworldly_being_preserves_zanaris_identity_and_exact_table",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_otherworldly_being_preserves_zanaris_identity_and_exact_table",
+      "name": "test_otherworldly_being_preserves_zanaris_identity_and_exact_table",
+      "before_line": 1296,
+      "after_line": 420,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_jungle_horror_preserves_route_identity_and_drop_selector",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_jungle_horror_preserves_route_identity_and_drop_selector",
+      "name": "test_jungle_horror_preserves_route_identity_and_drop_selector",
+      "before_line": 1324,
+      "after_line": 448,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_shadow_warrior_preserves_route_identity_and_drop_selectors",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_shadow_warrior_preserves_route_identity_and_drop_selectors",
+      "name": "test_shadow_warrior_preserves_route_identity_and_drop_selectors",
+      "before_line": 1353,
+      "after_line": 477,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table",
+      "name": "test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table",
+      "before_line": 1389,
+      "after_line": 513,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_wall_beast_preserves_the_cutoff_variant_and_drop_table",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_wall_beast_preserves_the_cutoff_variant_and_drop_table",
+      "name": "test_wall_beast_preserves_the_cutoff_variant_and_drop_table",
+      "before_line": 1417,
+      "after_line": 541,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_vampyre_preserves_the_cutoff_variant_and_lossless_drop_table",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_vampyre_preserves_the_cutoff_variant_and_lossless_drop_table",
+      "name": "test_vampyre_preserves_the_cutoff_variant_and_lossless_drop_table",
+      "before_line": 1457,
+      "after_line": 581,
+      "ast_identical": true
+    },
+    {
+      "before": "tests.test_combat_enemy_roster.CombatEnemyRosterDataTest.test_young_grotworm_uses_one_exact_darkan_selector",
+      "after": "tests.combat_roster.test_slayer_families.CombatEnemyRosterDataTest.test_young_grotworm_uses_one_exact_darkan_selector",
+      "name": "test_young_grotworm_uses_one_exact_darkan_selector",
+      "before_line": 1489,
+      "after_line": 613,
+      "ast_identical": true
+    }
+  ],
+  "asset_contract": {
+    "image_title_pairs": [
+      [
+        "jackal",
+        "Jackal.png"
+      ],
+      [
+        "goat",
+        "Desert Goat.png"
+      ],
+      [
+        "ogre",
+        "Ogre.png"
+      ],
+      [
+        "icefiend",
+        "Icefiend.png"
+      ],
+      [
+        "pyrefiend",
+        "Pyrefiend.png"
+      ],
+      [
+        "jelly",
+        "Jelly.png"
+      ],
+      [
+        "bloodveld",
+        "Bloodveld.png"
+      ],
+      [
+        "infernal_mage",
+        "Infernal Mage.png"
+      ],
+      [
+        "aberrant_spectre",
+        "Aberrant spectre.png"
+      ],
+      [
+        "basilisk",
+        "Basilisk.png"
+      ],
+      [
+        "crocodile",
+        "Crocodile.png"
+      ],
+      [
+        "otherworldly_being",
+        "Otherworldly being.png"
+      ],
+      [
+        "jungle_horror",
+        "Jungle horror.png"
+      ],
+      [
+        "shadow_warrior",
+        "Shadow warrior.png"
+      ],
+      [
+        "kalphite_soldier",
+        "Kalphite Soldier.png"
+      ],
+      [
+        "wall_beast",
+        "Wall beast icon.png"
+      ],
+      [
+        "vampyre",
+        "Vampire (historical) (level 61).png"
+      ],
+      [
+        "gelatinous_abomination",
+        "Gelatinous abomination icon.png"
+      ],
+      [
+        "young_grotworm",
+        "Young grotworm.png"
+      ],
+      [
+        "monkey",
+        "Karamja monkey.png"
+      ],
+      [
+        "desert_lizard",
+        "Desert lizard (green).png"
+      ],
+      [
+        "rockslug",
+        "Rock slug icon.png"
+      ],
+      [
+        "gargoyle",
+        "Gargoyle icon.png"
+      ],
+      [
+        "mutated_zygomite_level_74",
+        "Mutated zygomite icon.png"
+      ],
+      [
+        "mutated_zygomite_level_86",
+        "Mutated zygomite icon.png"
+      ],
+      [
+        "green_dragon",
+        "Green dragon 1.png"
+      ],
+      [
+        "harpie_bug_swarm",
+        "Harpie Bugs Swarm.png"
+      ],
+      [
+        "killerwatt",
+        "Killerwatt icon.png"
+      ],
+      [
+        "sea_snake_hatchling",
+        "Sea Snake Hatchling.png"
+      ],
+      [
+        "sea_snake_young",
+        "Sea Snake Young.png"
+      ],
+      [
+        "brine_rat",
+        "Brine rat icon.png"
+      ],
+      [
+        "molanisk",
+        "Molanisk icon.png"
+      ],
+      [
+        "turoth",
+        "Turoth icon.png"
+      ],
+      [
+        "fire_giant",
+        "Fire giant.png"
+      ],
+      [
+        "blue_dragon",
+        "Blue dragon.png"
+      ],
+      [
+        "baby_blue_dragon",
+        "Baby blue dragon.png"
+      ],
+      [
+        "bronze_dragon",
+        "Bronze dragon.png"
+      ],
+      [
+        "iron_dragon",
+        "Iron dragon.png"
+      ],
+      [
+        "steel_dragon",
+        "Steel dragon.png"
+      ],
+      [
+        "red_dragon",
+        "Red dragon old 5.png"
+      ],
+      [
+        "black_dragon",
+        "Black dragon.png"
+      ],
+      [
+        "baby_red_dragon",
+        "Baby red dragon.png"
+      ],
+      [
+        "cave_horror",
+        "Cave horror icon.png"
+      ],
+      [
+        "dagannoth",
+        "Dagannoth ranged.png"
+      ],
+      [
+        "dagannoth_level_92",
+        "Dagannoth melee.png"
+      ],
+      [
+        "elf_warrior",
+        "Elf warrior (Iorwerth ranger) (2010).png"
+      ],
+      [
+        "elf_warrior_level_108",
+        "Elf warrior (Iorwerth warrior) (2010).png"
+      ]
+    ],
+    "exact_timestamp_pins": {
+      "killerwatt": "2011-11-23T11:58:22Z",
+      "sea_snake_hatchling": "2010-08-07T18:37:31Z",
+      "sea_snake_young": "2012-03-09T03:02:36Z",
+      "brine_rat": "2010-06-01T15:33:31Z",
+      "dagannoth": "2011-11-19T16:36:18Z",
+      "dagannoth_level_92": "2011-11-19T18:45:30Z",
+      "elf_warrior": "2014-08-27T14:36:09Z",
+      "elf_warrior_level_108": "2014-08-27T14:36:14Z",
+      "molanisk": "2011-11-26T04:43:26Z",
+      "turoth": "2011-11-30T02:42:28Z",
+      "fire_giant": "2011-11-21T02:39:58Z",
+      "blue_dragon": "2011-02-01T13:53:37Z",
+      "baby_blue_dragon": "2012-05-10T09:54:19Z",
+      "bronze_dragon": "2010-12-11T13:46:01Z",
+      "iron_dragon": "2010-12-29T13:34:17Z",
+      "red_dragon": "2010-07-05T19:36:16Z",
+      "black_dragon": "2010-12-28T12:10:25Z",
+      "baby_red_dragon": "2011-12-11T10:26:02Z",
+      "cave_horror": "2010-06-01T15:33:33Z"
+    },
+    "strict_timestamp_cutoffs": {
+      "steel_dragon": "2012-11-20T00:00:00Z"
+    },
+    "pair_order_identical": true,
+    "assertion_kinds_and_values_preserved": true,
+    "root_expression": "Path(pkg_alias.__file__).resolve().parent",
+    "root_anchor_provenance": "pkg_alias.py lives at the repository root; its existing _ROOT uses its own __file__. No package import was performed."
+  },
+  "protected_files": [
+    {
+      "path": "tests/test_module_surface.py",
+      "sha256": "ba48d8b3afbfd957a1298846b263eb9358e5ebf3415d93be1adf76262a65c25f",
+      "bytes": 4764,
+      "identical_to_main_814": true
+    },
+    {
+      "path": "memory-bank/source-audits/combat-enemy-roster-step1-data-report-2026-07-07.md",
+      "sha256": "27450deb0cd511b4f0f5ab27515a0a6c22f88732a7c4e78eb4c10a7e75c6e9fb",
+      "bytes": 6813,
+      "identical_to_main_814": true
+    },
+    {
+      "path": "pkg_alias.py",
+      "sha256": "26566e93eebfefe8afc6e4d9ecf3c96349b73938d893a9bdbbac0d400589cdf9",
+      "bytes": 1810,
+      "identical_to_main_814": true
+    }
+  ],
+  "candidate_files": [
+    {
+      "path": "tests/combat_roster/__init__.py",
+      "bytes": 0,
+      "lines": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "semicolon_operators": 0
+    },
+    {
+      "path": "tests/combat_roster/contract.py",
+      "bytes": 4457,
+      "lines": 183,
+      "sha256": "58ff5663b1b2fac9e77e7869dc5230c30b09af9655bfd9cbe3d8ff76a9c0d524",
+      "semicolon_operators": 0
+    },
+    {
+      "path": "tests/combat_roster/test_dragon_families.py",
+      "bytes": 13332,
+      "lines": 336,
+      "sha256": "fafc75f68295abea97ab142460b5f5aaadfe4aa159e10c7d378bb478bfc8152b",
+      "semicolon_operators": 0
+    },
+    {
+      "path": "tests/combat_roster/test_finisher_families.py",
+      "bytes": 8132,
+      "lines": 186,
+      "sha256": "9a7c16bb429d82d03af0dca477f0fa4eb13679c6e6e94cb19cd72974d8a8a7b6",
+      "semicolon_operators": 0
+    },
+    {
+      "path": "tests/combat_roster/test_roster_contract.py",
+      "bytes": 17342,
+      "lines": 364,
+      "sha256": "373286d6e928fcaae43e1b3d70850a3ed223ff854b6f68b0f6d20349af85d08d",
+      "semicolon_operators": 0
+    },
+    {
+      "path": "tests/combat_roster/test_slayer_families.py",
+      "bytes": 25795,
+      "lines": 620,
+      "sha256": "f58c882d25ac6dd3933dd7fb19c0347e70d6fcfdcad318c3c4f39ff1583372d4",
+      "semicolon_operators": 0
+    }
+  ],
+  "runtime_status": "Not run. No project imports or module-surface measurements. Existing roster digest entry intentionally remains pending parent measurement."
+}

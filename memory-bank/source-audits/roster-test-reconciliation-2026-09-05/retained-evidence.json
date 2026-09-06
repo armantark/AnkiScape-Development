@@ -1,0 +1,35 @@
+{
+  "scope": "Lossless deterministic gzip representation of frozen review evidence",
+  "files": [
+    {
+      "raw_path": "asset-test-diff.patch",
+      "raw_bytes": 6523,
+      "raw_sha256": "338d4263f72ac4822b380466ded078f84b13183c3b5d5c0d0b2e7cb673650472",
+      "stored_path": "asset-test-diff.patch.gz",
+      "stored_bytes": 1071,
+      "stored_sha256": "8dc2110daa6de0779af9667418b6c3fef47f5b38f7366b1efa04180a8faea316",
+      "encoding": "gzip",
+      "mtime": 0
+    },
+    {
+      "raw_path": "complete-test-split.patch",
+      "raw_bytes": 145434,
+      "raw_sha256": "ce77a5976e8c6f1314185935defb1203c430c50b568c5f7103b3318a502f94e7",
+      "stored_path": "complete-test-split.patch.gz",
+      "stored_bytes": 21056,
+      "stored_sha256": "5f8e88457118cffb11dd84a9faa859ff815dca82a9b498957fdfc8da96374fb7",
+      "encoding": "gzip",
+      "mtime": 0
+    },
+    {
+      "raw_path": "incoming-test-module-surface-conflict.txt",
+      "raw_bytes": 5501,
+      "raw_sha256": "3032aee6407be6744239bde4a89e27171f94c6f0cf1028cff81383e5f433159a",
+      "stored_path": "incoming-test-module-surface-conflict.txt.gz",
+      "stored_bytes": 2439,
+      "stored_sha256": "65e2560b74e1291da055b9fe23a43e9631bd5d021a689aae8f121e5414769ae9",
+      "encoding": "gzip",
+      "mtime": 0
+    }
+  ]
+}
