@@ -1,0 +1,50 @@
+{
+  "base_commit": "5888f215ee1bd6fb6cdc3e003a7dfe57a2f4c56a",
+  "baseline_sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+  "baseline_stored_sha256": "bf8ba8cb7c2eb12379ea703e1c3264abf6c3bfc9425497552030ec12311b2055",
+  "gate": {
+    "path": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+    "sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+    "thresholds": {
+      "CCN_MAX": 15,
+      "COGNITIVE_MAX": 15,
+      "HALSTEAD_MAX": 80,
+      "FILE_LINES_MAX": 1000
+    },
+    "layout_codes": "E301,E302,E303,E305,E306,E701,E702,E703"
+  },
+  "tools": {
+    "lizard": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/lizard",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/lizard/bin/lizard",
+      "sha256": "9f4becf742daaf2c86fc43a7aa14e986623d3b6bebecd426bc7636e46ce6184c",
+      "version_stdout": "1.24.0\n",
+      "version_stderr": "",
+      "version_exit_code": 0
+    },
+    "complexipy": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/complexipy",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/complexipy/bin/complexipy",
+      "sha256": "0e5d4ecd86ed5fab94a9372e2f94e0b16227f45618ea7a1fb11729a31888ae52",
+      "version_stdout": "7.0.1\n",
+      "version_stderr": "",
+      "version_exit_code": 0
+    },
+    "radon": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/radon",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/radon/bin/radon",
+      "sha256": "c5b3293a495616659bb22bef6b04a37582eea82e48c5b3450e281059ee94fd53",
+      "version_stdout": "6.0.1\n",
+      "version_stderr": "",
+      "version_exit_code": 0
+    },
+    "pycodestyle": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/pycodestyle",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/pycodestyle/bin/pycodestyle",
+      "sha256": "19d602cb82513894d6047f640bb14cc213f7cf96c6e981eea2f4fcb36f83a34f",
+      "version_stdout": "2.14.0\n",
+      "version_stderr": "",
+      "version_exit_code": 0
+    }
+  }
+}

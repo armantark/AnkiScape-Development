@@ -2085,3 +2085,11 @@
 - 2026-09-07T14:51:51-07:00: Enemy-roll preparation: AGENTS.md is absent in the pooled worktree; applied the project instructions supplied in the task. Parent observation handles returned Unknown process id 79206 and Unknown process id 98298; these are missing handles, not failed jobs. Parent refreshed roster d35 receipt all 8 PASS at 2026-09-07T14:33:54-07:00 and completed Opus output.
 
 - 2026-09-07T15:00:14-07:00: Normal enemy-roll commit session 96877 exited 1: slop-gate: PEP 8 layout violations were introduced: tools/combat/check_enemy_attack_rolls_driver_guards.py: E302 x1 (was 0); E305 x1 (was 0). tools/combat/run_enemy_attack_rolls_remote.py: E301 x1 (was 0); E302 x1 (was 0); E305 x1 (was 0). Added blank lines only; ASTs are identical. No amend or hook bypass; prior guard binding retained and parent rerun required.
+
+- 2026-09-07T15:28:25-07:00: Player-roll static preparation searched tests/test_mage_arena.py, which does not exist; locate the existing mage-arena tests by content before reading their fixtures.
+
+- 2026-09-07T16:05:28-07:00 P4 independent Kimi attempt exited 1 with `error: tool loop exceeded 24 turns`; stdout was 0 bytes. Raw stdout/stderr retained under `memory-bank/evidence/combat-player-attack-rolls-2026-09-07/kimi-failed-attempt.*.gz`; this was not a completed review.
+
+- 2026-09-07T16:13:09-07:00 P4 direct product-only Kimi attempt exited 1 with `error: provider returned empty output`; stdout was 0 bytes. Prompt and raw stdout/stderr retained under `memory-bank/evidence/combat-player-attack-rolls-2026-09-07/kimi-direct-failed.*.gz`; this was not a completed review.
+
+- 2026-09-07T16:22:12-07:00 P4 product Opus review found `guild_player` supplied 30 of each Warriors Guild token, below the 200-token single-entry requirement. Parent verified the requirement and authorized only fixture tokens 30 -> 200; source inventory and driver pin were rebound before runtime.

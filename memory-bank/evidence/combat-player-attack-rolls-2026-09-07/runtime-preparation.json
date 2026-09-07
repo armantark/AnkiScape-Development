@@ -1,0 +1,55 @@
+{
+  "status": "STATIC_RUNTIME_PREPARATION_ONLY",
+  "driver_execution": "NOT_EXECUTED",
+  "canary_execution": "NOT_EXECUTED",
+  "remote_execution": "NOT_EXECUTED",
+  "parent_guard_status": "PASS",
+  "parent_guard_cases": 7,
+  "parent_guard_product_import_attempts": [],
+  "source_inventory_sha256": "e13590b2376b4a916be9256e6d954950997561cf5fa3f0a705d8da0b3e9f620b",
+  "source_inventory_entries": 877,
+  "historical_manifest_sha256": "753df2153f24b4ba5a3298de08e1c1cbd3cb99c5907bfff01cc6534da16e5199",
+  "historical_review_index_sha256": "42a57521d7a52d356abb5b0aa99dd84333b95248bf3ffc8eb43a13ccd72067f2",
+  "source_sha256": {
+    "tools/combat/run_player_attack_rolls_remote.py": "bc5b7d9bbf8cd0f235aafd218f47f2c370874ea64173d8900ac1ea9447d74ffe",
+    "tools/combat/check_player_remote_resume.py": "c2806c31c96771bfff8430b98a4599de0b520b7c1fa191e8ec1af14985e17170",
+    "memory-bank/handoffs/combat-player-attack-rolls-runtime-2026-09-07.md": "f391faf9475eb3fb8aa3bfb86716fa90272d5cc179c0895bc18ce11346f6a5a6"
+  },
+  "evidence_sha256": {
+    "runtime-static-metrics.json": "f0bbd23851ed32a663f524862530aeb4c244fccbd6c4a6041d4b28fbc6553150",
+    "runtime-static-raw.json.gz": "20dee73b11a0db7af6a69261a9641b6b4d42bee453f56a68e2d9c594b8f5d66a",
+    "runtime-static-verification.py.gz": "a949b85a9a63a8098d53f0f16ea278c66620db00bf0cb4a19cf8d459752c95a0",
+    "runtime-operational-review.diff": "4db4f701b6a9b362b9dde8a4d537594ec1583e24a7b134110e12b885fb2509fb",
+    "parent-guard-results.json.gz": "b89f1a1334e49e61f60424fb0c13cffbf315ef477e6f243ba6099e3c87a74787",
+    "kimi-failed-attempt.stdout.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "kimi-failed-attempt.stderr.gz": "e99fe728766fbc88b899ddba648d27439d32358f5c8f9b7c0affdaa867dc73f2"
+  },
+  "retained_raw": {
+    "parent-guard-results.json.gz": {
+      "sha256": "b89f1a1334e49e61f60424fb0c13cffbf315ef477e6f243ba6099e3c87a74787",
+      "decoded_sha256": "cdb3e34453596eb3295db32b6983f0ff68d49ecac277afdbec584b281e8365fc",
+      "decoded_bytes": 980,
+      "source": "/tmp/ankiscape-player-roll-guards-2026-09-07.json"
+    },
+    "kimi-failed-attempt.stdout.gz": {
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "source": "/tmp/ankiscape-player-roll-kimi-review-2026-09-07.txt"
+    },
+    "kimi-failed-attempt.stderr.gz": {
+      "sha256": "e99fe728766fbc88b899ddba648d27439d32358f5c8f9b7c0affdaa867dc73f2",
+      "decoded_sha256": "028c84be856963cf800be8f0b002573ab9891fb44ae85a50bb3086ae89bd46c6",
+      "decoded_bytes": 316,
+      "source": "/tmp/ankiscape-player-roll-kimi-review-2026-09-07.stderr"
+    }
+  },
+  "runtime_review_bytes": 23062,
+  "static_status": "PASS",
+  "failed_review_attempt": {
+    "status": "FAILED_NOT_REVIEW",
+    "exit_code": 1,
+    "error": "error: tool loop exceeded 24 turns",
+    "stdout_bytes": 0
+  }
+}

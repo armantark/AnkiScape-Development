@@ -1,0 +1,45 @@
+{
+  "status": "PARENT_LOCAL_GUARD_AND_INERT_CANARY_EXECUTED",
+  "prior_preparation_sha256": "ae28718175693ead9aee5579650f125d63ff783ab88a0c500cad7eb9b134ccbd",
+  "retained_raw": {
+    "parent-driver-guard.json.gz": {
+      "sha256": "df8d3b4508113cfa923a71692cf5271e9012f0dd14693bdf7e87a4bee00ac43d",
+      "decoded_sha256": "a106798319f020618535787c05d97c3b10905aec139fbedd18f409831aca3646",
+      "decoded_bytes": 169,
+      "source": "/tmp/ankiscape-player-roll-driver-guard-2026-09-07/local-guard.json"
+    },
+    "parent-resume-canary.json.gz": {
+      "sha256": "6260addbcd4b43a87ac87b074cd212583a5409d611306a63b6e51cd7781e77a5",
+      "decoded_sha256": "dc90a85314132108443a5113d1032609be3d522f5d5489062e99809371ddcd67",
+      "decoded_bytes": 2785,
+      "source": "/tmp/ankiscape-player-roll-resume-canary-2026-09-07.json"
+    },
+    "kimi-direct-failed.prompt.txt.gz": {
+      "sha256": "75ca9639e0b9ee8aafb3db94df3339a11c4d3f3b13d5fa23f32cd8497ac28f17",
+      "decoded_sha256": "bffd373ed9adf544c73abf232cba950ee8cc6205fc88753f09659056e89b0f20",
+      "decoded_bytes": 22919,
+      "source": "/tmp/ankiscape-player-roll-kimi-direct-prompt-2026-09-07.txt"
+    },
+    "kimi-direct-failed.stdout.gz": {
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "source": "/tmp/ankiscape-player-roll-kimi-direct-review-2026-09-07.txt"
+    },
+    "kimi-direct-failed.stderr.gz": {
+      "sha256": "d30e14d6f5279b2e82da842f5a0b9929854dba44bb9a1ce8ba124640b6df990b",
+      "decoded_sha256": "058bac6159b1ccde55a4ab490f26a973964c1b0e0f1ebac69375e96972011df7",
+      "decoded_bytes": 319,
+      "source": "/tmp/ankiscape-player-roll-kimi-direct-review-2026-09-07.stderr"
+    }
+  },
+  "execution_owner": "parent",
+  "remote_runtime_status": "NOT_AUTHORIZED_NOT_EXECUTED_BY_THIS_AGENT",
+  "independent_product_review_status": "PENDING",
+  "failed_product_review_attempt": {
+    "exit_code": 1,
+    "stdout_bytes": 0,
+    "error": "error: provider returned empty output"
+  },
+  "scope": "Retains parent-executed local driver guard and inert resume canary; neither is product runtime proof. Historical preparation and frozen sources remain unchanged."
+}

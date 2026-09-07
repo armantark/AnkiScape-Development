@@ -1,0 +1,13 @@
+{
+  "product": {
+    "path": "product-review.diff",
+    "bytes": 22242,
+    "sha256": "610c04f82036e1c3a14e4479bcfe45b0e63a4075e0f9bd82a4b8bb8693886d1d"
+  },
+  "operational": {
+    "path": "operational-review.diff",
+    "bytes": 17749,
+    "sha256": "4b7427988f5a74e1ccde064fb96bae2dd3ccfc6b79daa02252fbfe14ef1e3bf7"
+  },
+  "manifest_sha256": "753df2153f24b4ba5a3298de08e1c1cbd3cb99c5907bfff01cc6534da16e5199"
+}

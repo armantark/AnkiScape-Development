@@ -1,0 +1,49 @@
+{
+  "status": "STATIC_PREPARATION_ONLY_ACCEPTANCE_CANARY_UNEXECUTED",
+  "canary_path": "tools/combat/check_player_remote_resume.py",
+  "previous_canary_sha256": "c2806c31c96771bfff8430b98a4599de0b520b7c1fa191e8ec1af14985e17170",
+  "candidate_canary_sha256": "678d061f5b0dded9e78368be6704a8a72087f911ab52799a64ee750c420c28a3",
+  "driver_sha256": "bc5b7d9bbf8cd0f235aafd218f47f2c370874ea64173d8900ac1ea9447d74ffe",
+  "source_inventory_sha256": "e13590b2376b4a916be9256e6d954950997561cf5fa3f0a705d8da0b3e9f620b",
+  "historical_preparation_sha256": "ae28718175693ead9aee5579650f125d63ff783ab88a0c500cad7eb9b134ccbd",
+  "supersession": "Historical canary binding and parent canary run apply to retained pre-change bytes only. This supplement binds the new unexecuted canary. Product and driver remain unchanged.",
+  "operational_review": {
+    "exit_code": 0,
+    "raw": {
+      "driver-opus-review.prompt.gz": {
+        "sha256": "37cfc5fc4c38f0d345df102775daf80c4fd72a5032a0f2919a93f26e44005af9",
+        "decoded_sha256": "501981aea329d98f807772ba2797d333c0dcdc9add9e2964fd4c0f89cbd70547",
+        "decoded_bytes": 877
+      },
+      "driver-opus-review.stdout.gz": {
+        "sha256": "36bbb1016544fb038e0802c7f10c0388f037349f088092c2393a33f2e8d4ad62",
+        "decoded_sha256": "82844409fc1836fd01aae0ef45386106af6e009334797f22b0d3a3faf80c6a89",
+        "decoded_bytes": 5441
+      },
+      "driver-opus-review.stderr.gz": {
+        "sha256": "7f018d06e6763654b70c15478c6c15c82f672c5aff6d233d7009eb799709a183",
+        "decoded_sha256": "9b0c91590bea7a85954f5fe161b19edd6205a1e78e3402d2a20e7478e8d9f8b8",
+        "decoded_bytes": 359
+      }
+    },
+    "parent_dispositions": {
+      "D1": "Added inert acceptance checks for valid twenty-row input and rejection of swapped order, unequal payload, zero RNG calls, and mismatched observed route.",
+      "D2": "Rejected as false positive: actual driver line 219 already sets repeat_safe=True. No code change.",
+      "D3": "Directory fsync is outside the process-kill threat model. No code change.",
+      "D4": "Pre/post complete reports plus the chained launch guard and job log suffice. No new requirement."
+    }
+  },
+  "evidence_sha256": {
+    "resume-canary-before-acceptance-stops.py.gz": "79ecb2a10ebeae6ef0ba5f8e4c28aa8d23c077bc2c5590b40ca8bef1550a754c",
+    "acceptance-static-metrics.json": "cced03093665c994a3bdaf9355816f49a90f122e7193e0208a73988fb66a350c",
+    "acceptance-static-raw.json.gz": "e6960236635039c3705e7a5d3ce518ee3a5151cd72c3ad973e2955aef3943b9e",
+    "acceptance-static-verification.py.gz": "5ff39636d37b3329f4480dc34229dca27fad7b6b0c83ae3878a7eee4d1ad241e",
+    "acceptance-canary-review.diff": "774779e8de76f8e1e5e52813a10da35caa1dfecaece5855cd614a8ddc4553b4f",
+    "driver-opus-review.prompt.gz": "37cfc5fc4c38f0d345df102775daf80c4fd72a5032a0f2919a93f26e44005af9",
+    "driver-opus-review.stdout.gz": "36bbb1016544fb038e0802c7f10c0388f037349f088092c2393a33f2e8d4ad62",
+    "driver-opus-review.stderr.gz": "7f018d06e6763654b70c15478c6c15c82f672c5aff6d233d7009eb799709a183"
+  },
+  "review_packet_bytes": 2530,
+  "static_status": "PASS",
+  "runtime_execution": "NOT_AUTHORIZED_NOT_EXECUTED_BY_THIS_AGENT"
+}

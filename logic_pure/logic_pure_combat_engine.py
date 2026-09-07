@@ -1094,6 +1094,48 @@ def _combat_enemy_attack_rolls(
     return enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit
 
 
+def _combat_player_attack_rolls(
+    data, combat_class, style_id, melee_style_type, player_totals,
+    prayer_effects, selected_ammo, spell_spec, spell_id,
+):
+    if combat_class == "ranged":
+        player_attack_roll = _combat_effective_player_ranged_level(data, style_id) * float(
+            prayer_effects.get("ranged_attack", prayer_effects.get("ranged", 1.0))
+        ) * (_combat_attack_bonus_from_totals(player_totals, "ranged") + 64)
+        player_max_hit = _combat_ranged_max_hit_old_hp(
+            _combat_effective_player_ranged_level(data, style_id) * float(
+                prayer_effects.get("ranged_strength", prayer_effects.get("ranged", 1.0))
+            ),
+            _combat_ranged_strength_bonus(player_totals, selected_ammo),
+        )
+    elif combat_class == "magic":
+        player_attack_roll = _combat_effective_player_magic_level(data) * float(
+            prayer_effects.get("magic", 1.0)
+        ) * (_combat_attack_bonus_from_totals(player_totals, "magic") + 64)
+        player_max_hit = _combat_magic_max_hit_old_hp(
+            spell_spec,
+            player_totals,
+            data,
+            spell_id,
+        )
+    else:
+        player_attack_roll = _combat_effective_player_attack_level(data, style_id) * float(
+            prayer_effects.get("attack", 1.0)
+        ) * (
+            _combat_attack_bonus_from_totals(
+                player_totals,
+                style_type=melee_style_type,
+            )
+            + 64
+        )
+        player_max_hit = _combat_melee_max_hit_old_hp(
+            _combat_effective_player_strength_level(data, style_id)
+            * float(prayer_effects.get("strength", 1.0)),
+            _equipment_bonus_value(player_totals, "melee_strength"),
+        )
+    return player_attack_roll, player_max_hit
+
+
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -1465,40 +1507,21 @@ def apply_combat_burst_pure(
     selected_ammo = None
     if combat_class == "ranged":
         selected_ammo = _combat_selected_ranged_ammo(data, ranged_weapon_spec, target_id)
-        player_attack_roll = _combat_effective_player_ranged_level(data, style_id) * float(prayer_effects.get("ranged_attack", prayer_effects.get("ranged", 1.0))) * (
-            _combat_attack_bonus_from_totals(player_totals, "ranged") + 64
-        )
         enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
             _combat_defence_bonus_from_totals(enemy_totals, "ranged") + 64
         )
-        player_max_hit = _combat_ranged_max_hit_old_hp(
-            _combat_effective_player_ranged_level(data, style_id) * float(prayer_effects.get("ranged_strength", prayer_effects.get("ranged", 1.0))),
-            _combat_ranged_strength_bonus(player_totals, selected_ammo),
-        )
     elif combat_class == "magic":
-        player_attack_roll = _combat_effective_player_magic_level(data) * float(prayer_effects.get("magic", 1.0)) * (
-            _combat_attack_bonus_from_totals(player_totals, "magic") + 64
-        )
         enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
             _combat_defence_bonus_from_totals(enemy_totals, "magic") + 64
         )
-        player_max_hit = _combat_magic_max_hit_old_hp(
-            spell_spec,
-            player_totals,
-            data,
-            spell_id,
-        )
     else:
-        player_attack_roll = _combat_effective_player_attack_level(data, style_id) * float(prayer_effects.get("attack", 1.0)) * (
-            _combat_attack_bonus_from_totals(player_totals, style_type=melee_style_type) + 64
-        )
         enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
             _combat_defence_bonus_from_totals(enemy_totals, style_type=melee_style_type) + 64
         )
-        player_max_hit = _combat_melee_max_hit_old_hp(
-            _combat_effective_player_strength_level(data, style_id) * float(prayer_effects.get("strength", 1.0)),
-            _equipment_bonus_value(player_totals, "melee_strength"),
-        )
+    player_attack_roll, player_max_hit = _combat_player_attack_rolls(
+        data, combat_class, style_id, melee_style_type, player_totals,
+        prayer_effects, selected_ammo, spell_spec, spell_id,
+    )
     if enemy.get("warriors_guild_gate"):
         player_max_hit *= warriors_guild_cyclops_damage_multiplier_pure(data)
     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
@@ -2055,41 +2078,10 @@ def apply_combat_burst_pure(
                 for skill_id, amount in attack_drains.items():
                     stat_drains[skill_id] = _non_negative_int(stat_drains.get(skill_id, 0), 0) + amount
                 if attack_drains:
-                    if combat_class == "ranged":
-                        player_attack_roll = _combat_effective_player_ranged_level(data, style_id) * float(
-                            prayer_effects.get("ranged_attack", prayer_effects.get("ranged", 1.0))
-                        ) * (_combat_attack_bonus_from_totals(player_totals, "ranged") + 64)
-                        player_max_hit = _combat_ranged_max_hit_old_hp(
-                            _combat_effective_player_ranged_level(data, style_id) * float(
-                                prayer_effects.get("ranged_strength", prayer_effects.get("ranged", 1.0))
-                            ),
-                            _combat_ranged_strength_bonus(player_totals, selected_ammo),
-                        )
-                    elif combat_class == "magic":
-                        player_attack_roll = _combat_effective_player_magic_level(data) * float(
-                            prayer_effects.get("magic", 1.0)
-                        ) * (_combat_attack_bonus_from_totals(player_totals, "magic") + 64)
-                        player_max_hit = _combat_magic_max_hit_old_hp(
-                            spell_spec,
-                            player_totals,
-                            data,
-                            spell_id,
-                        )
-                    else:
-                        player_attack_roll = _combat_effective_player_attack_level(data, style_id) * float(
-                            prayer_effects.get("attack", 1.0)
-                        ) * (
-                            _combat_attack_bonus_from_totals(
-                                player_totals,
-                                style_type=melee_style_type,
-                            )
-                            + 64
-                        )
-                        player_max_hit = _combat_melee_max_hit_old_hp(
-                            _combat_effective_player_strength_level(data, style_id)
-                            * float(prayer_effects.get("strength", 1.0)),
-                            _equipment_bonus_value(player_totals, "melee_strength"),
-                        )
+                    player_attack_roll, player_max_hit = _combat_player_attack_rolls(
+                        data, combat_class, style_id, melee_style_type, player_totals,
+                        prayer_effects, selected_ammo, spell_spec, spell_id,
+                    )
                     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
             else:
                 landed = False
