@@ -1,0 +1,323 @@
+{
+  "status": "FOCUSED_AND_DIFFERENTIAL_PASS_ACCEPTANCE_PENDING",
+  "base_commit": "0af0b0d5492fd8415c7eb52dba80c886691c5fa0",
+  "baseline_sha256": "30377177ba69e1aa112a8d8b384cfd205d6d593133821bdbf74ce85fbcd323f6",
+  "source_sha256": {
+    "logic_pure/logic_pure_combat_engine.py": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+    "tests/combat/test_enemy_attack_rolls.py": "f9d87f74b3d3b6aef50c538fb8c259c3cb5cdbfed532da46e7878240843925f5",
+    "tools/combat/compare_enemy_attack_rolls.py": "9653e8edfbabae995a5fa80a0f10a6944ccc58d148dec3fb484cc1f7f742a252"
+  },
+  "source_inventory_count": 771,
+  "recovery_checks": [
+    "Frozen baseline equals git base engine bytes",
+    "All retained inventory hashes match current sources",
+    "Engine, tests and probe parse with ast.parse",
+    "Retained static engine hash matches current engine"
+  ],
+  "retained_preflight_cases": [
+    {
+      "case": "correct",
+      "exit_code": 0,
+      "stdout": "{\"product_import_attempts\": [], \"product_modules_loaded\": []}\n"
+    },
+    {
+      "case": "wrong-candidate",
+      "exit_code": 1,
+      "stdout": "{\"product_import_attempts\": [], \"product_modules_loaded\": []}\n"
+    },
+    {
+      "case": "wrong-baseline",
+      "exit_code": 1,
+      "stdout": "{\"product_import_attempts\": [], \"product_modules_loaded\": []}\n"
+    },
+    {
+      "case": "wrong-inventory",
+      "exit_code": 1,
+      "stdout": "{\"product_import_attempts\": [], \"product_modules_loaded\": []}\n"
+    }
+  ],
+  "static_commands_in": "static-raw.json.gz",
+  "preflight_commands_in": "preflight-checks.json.gz",
+  "focused_selectors": [
+    "tests.combat.test_enemy_attack_rolls"
+  ],
+  "differential_families": [
+    "initial reporting",
+    "selected overrides and early exits",
+    "maximum-hit branches",
+    "weakening",
+    "changing defence",
+    "live curse prayer and spell effects",
+    "special damage bypasses"
+  ],
+  "runtime_status": "FOCUSED_AND_DIFFERENTIAL_PASS",
+  "missing_checks": [
+    "Normal commit hooks and commit after parent approval",
+    "Both full branch lanes",
+    "Merged-tree checks after integration",
+    "Native acceptance remains parent-owned; this extraction changes no UI and this receipt contains no native UI proof"
+  ],
+  "runtime_requirements": [
+    "Extract baseline-engine.py.gz to plain Python file on authorised host",
+    "Use retained source inventory and current candidate hash",
+    "Do not set PYTHONOPTIMIZE or use -O",
+    "Parent owns shared MBP mirror"
+  ],
+  "evidence_sha256": {
+    "baseline-engine.py.gz": "9a5360da9c6b00e18fdbfab778a634fddd4751f12a61f5339019349583d9e342",
+    "correct-preflight.json.gz": "7a9b76f6c029f0ab72a0c2a79b53bc7646ffbc3101eb2ef26168a4ea91eb5453",
+    "preflight-checks.json.gz": "111165aadcb8ebef719130afdbfdb3cfdd0e6279a5dead3abab2d1a8a6a3e02e",
+    "preflight_import_guard.py.gz": "f5cc52ab78d48e318e370ba5a97b5878669a052408d69b6e3b20f83062cb4286",
+    "source-inventory.json.gz": "426cafbfbd349229fb59de064f290cc31a5bf233188d64011a6435ae47e94562",
+    "static-metrics.json": "adfebe3c10194416f8c645d7abb7be4ac8b92f3f2521423f64096336454f498f",
+    "static-ratchet.json": "5627d1f6e13d7a7b3613305ddcd75b96f626de3c1fdd18bc5ddabc45697bf83a",
+    "static-raw.json.gz": "0ae384703090a5f2e1a08355f3c650071ef0c34c8892fede39a839f7321745d3",
+    "summarize_static.py.gz": "39cb3767baac0a390a7cdc51a3667048f46511cfcd3cfb1889acb0c70f84bcab",
+    "wrong-baseline.py.gz": "0376ba75d3afeb5b75e7b621825bf95201b08a80d86f6eeaf2ed4e5a2ddcac11",
+    "wrong-inventory.json.gz.gz": "8754fc4da55a05c4e0006049be727ab62a51fc25e69f1de68ffc5137f74820c2"
+  },
+  "human_review": {
+    "path": "human-review.diff",
+    "bytes": 24939,
+    "sha256": "548f2241608f30cdabcb89e2ba7ecfbd91af23d11515e615e72b99c542831056",
+    "context_lines": 0,
+    "includes": [
+      "logic_pure/logic_pure_combat_engine.py",
+      "tests/combat/test_enemy_attack_rolls.py",
+      "tools/combat/compare_enemy_attack_rolls.py",
+      "memory-bank/plans/combat-enemy-attack-rolls-2026-09-05.md",
+      "memory-bank/handoffs/combat-enemy-attack-rolls-2026-09-05.md",
+      "memory-bank/papercuts.md"
+    ]
+  },
+  "operational_scripts": {
+    "tools/combat/run_enemy_attack_rolls_remote.py": {
+      "sha256": "e5059b87d20532a3f07be792978b24f77be2a327d487964d68eb6b96adde1f6f",
+      "in_product_source_inventory": false
+    },
+    "tools/combat/check_enemy_attack_rolls_driver_guards.py": {
+      "sha256": "68a8b701776c46f0091399b1969f3d8ca263a9bbc790d891fc354ab6f0216568",
+      "in_product_source_inventory": false
+    }
+  },
+  "product_snapshot": {
+    "inventory": "source-inventory.json.gz",
+    "scope": "Explicit frozen product and existing test/probe source paths. Added operational driver and canary are separately hashed; they are not members of this snapshot.",
+    "runtime_status": "FOCUSED_AND_DIFFERENTIAL_PASS"
+  },
+  "review_packets": {
+    "historical_product_preparation": {
+      "path": "human-review.diff",
+      "sha256": "548f2241608f30cdabcb89e2ba7ecfbd91af23d11515e615e72b99c542831056",
+      "frozen": true,
+      "scope": "Original product/test/probe and preparation documentation; excludes subsequent operational scripts and metadata."
+    },
+    "operational_scripts": {
+      "paths": [
+        "tools/combat/run_enemy_attack_rolls_remote.py",
+        "tools/combat/check_enemy_attack_rolls_driver_guards.py"
+      ],
+      "review": "Parent full read, followed by parent full corrections review.",
+      "corrections_path": "driver-corrections.diff",
+      "corrections_sha256": "3e66dadfeccbd11a8ccb5391e218e1068da28bcda58877caa06f59dc8a5d67af"
+    },
+    "current_metadata": {
+      "path": "driver-evidence-review.diff",
+      "scope": "This manifest update only; raw guard result retained separately."
+    }
+  },
+  "runtime": {
+    "manifest": "runtime/manifest.json",
+    "manifest_sha256": "b45f837923c1706b362ac112db7651f8e932e81e0e464f8c372d51fc24c57c31",
+    "capture_sha256": "ee879c3c559e50fb7bfa078a387dc3edccd6499b928ac818f7d5ad05b307b520",
+    "verification": {
+      "jobs": 4,
+      "job_exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "focused_tests_per_lane": 10,
+      "focused_skips_per_lane": 0,
+      "comparison_cases_per_lane": 22,
+      "comparison_complete_payload_bytes_equal": true,
+      "source_inventory_count": 771,
+      "source_snapshots_equal": true,
+      "ownership": "released",
+      "pending_record_exists": false
+    }
+  },
+  "independent_review": {
+    "status": "CLOSED_AFTER_PARENT_RESOLUTION",
+    "session": "74917",
+    "exit_code": 0,
+    "original_verdict": "conditional static PASS",
+    "resolution": "independent-review-resolution.md",
+    "resolution_sha256": "4e97137893642d43a8a0f73e4882afac7dad3d7bbbc82e09a73082bfe9a3e4c5",
+    "provenance": {
+      "direct-prompt-2026-09-07.txt": {
+        "source": "/tmp/ankiscape-enemy-rolls-kimi-direct-prompt-2026-09-07.txt",
+        "retained": "kimi-direct-prompt-2026-09-07.txt.gz",
+        "decoded_bytes": 25427,
+        "decoded_sha256": "a5198d3102b2508d1a7427c57b3993cd4470df4ad86c448059ccd847717fe2bf",
+        "stored_sha256": "af9d531927e14d565a702d047e253a1834d0d81a0019f6639ba64355f991c5e5"
+      },
+      "direct-review-2026-09-07.txt": {
+        "source": "/tmp/ankiscape-enemy-rolls-kimi-direct-review-2026-09-07.txt",
+        "retained": "kimi-direct-review-2026-09-07.txt.gz",
+        "decoded_bytes": 6534,
+        "decoded_sha256": "4a2b4114b009d820167d3ea1ee13a55a3a0dcb2fbae4218c8bb4cbe5d4cd4c8f",
+        "stored_sha256": "b0b335bc75c5e4eac74f1b514fd98d713556dfcc3727ccbf8399d1c140d13535"
+      },
+      "direct-review-2026-09-07.stderr": {
+        "source": "/tmp/ankiscape-enemy-rolls-kimi-direct-review-2026-09-07.stderr",
+        "retained": "kimi-direct-review-2026-09-07.stderr.gz",
+        "decoded_bytes": 279,
+        "decoded_sha256": "6c94e5d321fb341e556c5730f7293b226eb1c8cfd961599c986379389dd4dc6e",
+        "stored_sha256": "23aec13fc230e2903f34be1e17c9bf60a41c0078024bbb550ff9b870d4202fff"
+      }
+    },
+    "independent_ast_F1": {
+      "removed_name_counts": {
+        "enemy_style": 0,
+        "enemy_class": 0,
+        "magic_melee": 0,
+        "enemy_attack_stat": 0,
+        "enemy_attack_bonus": 0
+      },
+      "enemy_attack_roll": [
+        {
+          "line": 1509,
+          "context": "Store"
+        },
+        {
+          "line": 1931,
+          "context": "Store"
+        },
+        {
+          "line": 2112,
+          "context": "Load"
+        }
+      ]
+    },
+    "scope": "Product extraction, focused tests and comparison probe only; operational driver/canary excluded."
+  },
+  "operational_independent_review": {
+    "status": "CLOSED_AFTER_PARENT_VERIFICATION",
+    "owner": "parent",
+    "reviewer": "Opus medium",
+    "scope": [
+      "tools/combat/run_enemy_attack_rolls_remote.py",
+      "tools/combat/check_enemy_attack_rolls_driver_guards.py"
+    ],
+    "original_verdict": "Approve with two small corrections.",
+    "reviewed_operational_scripts": {
+      "tools/combat/run_enemy_attack_rolls_remote.py": {
+        "sha256": "e12d4ab210806d72769cc3cc0aeeb687f4ac50c21ea0f27fa876e639d06f9c7b",
+        "in_product_source_inventory": false
+      },
+      "tools/combat/check_enemy_attack_rolls_driver_guards.py": {
+        "sha256": "85bc25ac7a72b259672d2b641bdbf63c3912e40033ee4b9ca4c6b9dbc189e88e",
+        "in_product_source_inventory": false
+      }
+    },
+    "provenance": {
+      "prompt-2026-09-07.txt": {
+        "source": "/tmp/ankiscape-enemy-rolls-tools-opus-prompt-2026-09-07.txt",
+        "retained": "tools-opus-prompt-2026-09-07.txt.gz",
+        "decoded_bytes": 16098,
+        "decoded_sha256": "e17446f1ad1606e19502694d38f37f1641a37c06e99e0490dae71b20efcd387d",
+        "stored_sha256": "fb8b8b7abf335c1324f4c611ab4e83ab577d32e1d93499978ba784ee0b145917"
+      },
+      "review-2026-09-07.txt": {
+        "source": "/tmp/ankiscape-enemy-rolls-tools-opus-review-2026-09-07.txt",
+        "retained": "tools-opus-review-2026-09-07.txt.gz",
+        "decoded_bytes": 5386,
+        "decoded_sha256": "7843591be4012070124e4847bc815b6d7f69b258db9c762025fbc8cb4b1aafab",
+        "stored_sha256": "96b168626d2b980137f18c22f50e9cfbdd755b16125a4e7b5c60e2e45d3e57e2"
+      },
+      "review-2026-09-07.stderr": {
+        "source": "/tmp/ankiscape-enemy-rolls-tools-opus-review-2026-09-07.stderr",
+        "retained": "tools-opus-review-2026-09-07.stderr.gz",
+        "decoded_bytes": 359,
+        "decoded_sha256": "75b293284207d04075f9846311f74661256462919db8aca5c1f91811dc93c446",
+        "stored_sha256": "c64fd10d622918f5424ddf257e330489ae9db40be44744d6b5af742fa25ca294"
+      }
+    },
+    "resolution": [
+      "Added explicit optimized-interpreter refusal before assertion guards.",
+      "Hash and decode the same inventory bytes from one read.",
+      "Parent verified tools/run_remote_tests.py writes the pending record before remote lane launch at lines 275-282.",
+      "Existing pins and canary arms retained. Parent read the complete corrections packet and executed the extended canary: all five cases passed, including the exact optimized-interpreter refusal.",
+      "Parent reran all five guard cases after AST-identical blank-line hook corrections; zero remote calls, sync calls or product import attempts. Positive sources equal the frozen inventory."
+    ]
+  },
+  "historical_driver_guard_canary": {
+    "status": "PASS",
+    "executed_by": "parent",
+    "source_capture": "/tmp/ankiscape-enemy-rolls-driver-guard-result-2026-09-07.json",
+    "raw_sha256": "a7eb97dfcbec593ddf9483eeef53722a9f7686d071de8aeafd8bda2d9c8c3bf6",
+    "retained_path": "driver-guard-result-2026-09-07.json.gz",
+    "retained_sha256": "233f9be4b75e7492bee3168e300b141b8dd6208aa35d6569fcb09ef199bb8927",
+    "case_count": 4,
+    "remote_calls": 0,
+    "sync_calls": 0,
+    "product_import_attempts": [],
+    "bound_operational_scripts": {
+      "tools/combat/run_enemy_attack_rolls_remote.py": {
+        "sha256": "e12d4ab210806d72769cc3cc0aeeb687f4ac50c21ea0f27fa876e639d06f9c7b",
+        "in_product_source_inventory": false
+      },
+      "tools/combat/check_enemy_attack_rolls_driver_guards.py": {
+        "sha256": "85bc25ac7a72b259672d2b641bdbf63c3912e40033ee4b9ca4c6b9dbc189e88e",
+        "in_product_source_inventory": false
+      }
+    },
+    "scope": "Historical four-case result bound to the scripts below; optimized refusal extension awaits parent execution."
+  },
+  "pre_layout_driver_guard_canary": {
+    "status": "PASS",
+    "executed_by": "parent",
+    "source_capture": "/tmp/ankiscape-enemy-rolls-final-guard-result-2026-09-07.json",
+    "raw_sha256": "10860f3a4dab25296112d1f05fabc429ba6905b05cf6c99ce4a248551b8df534",
+    "retained_path": "final-driver-guard-result-2026-09-07.json.gz",
+    "retained_sha256": "b92d725d760b47829bc6dd1c893c00c1244a325a2c8ad9bd97bae26812b15a78",
+    "case_count": 5,
+    "remote_calls": 0,
+    "sync_calls": 0,
+    "product_import_attempts": [],
+    "bound_operational_scripts": {
+      "tools/combat/run_enemy_attack_rolls_remote.py": {
+        "sha256": "bf77f28031f32bb170b407f33b906d453644167d278ebf5e088eb007f0d2b830",
+        "in_product_source_inventory": false
+      },
+      "tools/combat/check_enemy_attack_rolls_driver_guards.py": {
+        "sha256": "d1655933713c8b2fc3a7f80128283be3e351433aee986e0303e45526de4dd96b",
+        "in_product_source_inventory": false
+      }
+    }
+  },
+  "driver_guard_canary": {
+    "status": "PASS",
+    "executed_by": "parent",
+    "source_capture": "/tmp/ankiscape-enemy-rolls-layout-guard-result-2026-09-07.json",
+    "raw_sha256": "10860f3a4dab25296112d1f05fabc429ba6905b05cf6c99ce4a248551b8df534",
+    "retained_path": "layout-driver-guard-result-2026-09-07.json.gz",
+    "retained_sha256": "b92d725d760b47829bc6dd1c893c00c1244a325a2c8ad9bd97bae26812b15a78",
+    "case_count": 5,
+    "remote_calls": 0,
+    "sync_calls": 0,
+    "product_import_attempts": [],
+    "bound_operational_scripts": {
+      "tools/combat/run_enemy_attack_rolls_remote.py": {
+        "sha256": "e5059b87d20532a3f07be792978b24f77be2a327d487964d68eb6b96adde1f6f",
+        "in_product_source_inventory": false
+      },
+      "tools/combat/check_enemy_attack_rolls_driver_guards.py": {
+        "sha256": "68a8b701776c46f0091399b1969f3d8ca263a9bbc790d891fc354ab6f0216568",
+        "in_product_source_inventory": false
+      }
+    }
+  }
+}

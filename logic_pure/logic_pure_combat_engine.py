@@ -1017,6 +1017,83 @@ def _combat_drop_ownership_view(data, pending_drops):
     return ownership_view
 
 
+def _combat_settle_kill_rewards(data, enemy, target_id, rng, drops, xp_rewards):
+    rolled_drops, refused_clue = _combat_roll_drops(
+        enemy,
+        rng,
+        _combat_drop_ownership_view(data, drops),
+        include_clue_refusal=True,
+    )
+    kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
+    _record_combat_observed_drops_pure(data, target_id, kill_drops)
+    data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
+        data,
+        target_id,
+        kill_drops,
+        bool(data.get("combat_auto_prayer_training")),
+    )
+    if passive_prayer_xp > 0:
+        xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
+    for drop_name, drop_amount in kill_drops.items():
+        drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
+    return data, refused_clue, prayer_ticks
+
+
+def _combat_enemy_attack_rolls(
+    data,
+    enemy,
+    combat_class,
+    style_id,
+    player_totals,
+    enemy_totals,
+    prayer_effects,
+    enemy_attack_factor,
+    weakening_equipment,
+    weakening_active,
+):
+    enemy_style = _combat_enemy_attack_style(enemy, combat_class)
+    enemy_class = _combat_enemy_attack_class(enemy, combat_class)
+    magic_melee = enemy_style == "magic_melee"
+    enemy_attack_stat = (
+        "attack"
+        if magic_melee
+        else {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
+    )
+    enemy_attack_bonus = (
+        _combat_attack_bonus_from_totals(
+            enemy_totals,
+            "melee",
+            style_type="stab",
+        )
+        if magic_melee
+        else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
+    )
+    enemy_attack_roll = (
+        _positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8
+    ) * enemy_attack_factor * (enemy_attack_bonus + 64)
+    if weakening_active:
+        enemy_attack_roll *= max(
+            0.0,
+            float(weakening_equipment.get("enemy_accuracy_multiplier", 1.0)),
+        )
+    player_defence_roll = _combat_effective_player_defence_level(data, style_id) * float(prayer_effects.get("defence", 1.0)) * (
+        _combat_defence_bonus_from_totals(player_totals, enemy_class) + 64
+    )
+    enemy_accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
+    enemy_max_hit = _combat_enemy_max_hit_old_hp(
+        enemy,
+        _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
+        _equipment_bonus_value(enemy_totals, "melee_strength"),
+        enemy_totals,
+    )
+    if weakening_active:
+        enemy_max_hit *= max(
+            0.0,
+            float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
+        )
+    return enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit
+
+
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -1426,51 +1503,16 @@ def apply_combat_burst_pure(
         player_max_hit *= warriors_guild_cyclops_damage_multiplier_pure(data)
     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
 
-    # The enemy attacks with ITS style: a mage's accuracy comes off its magic
-    # level + magic attack bonus, and the player resists with magic defence.
-    enemy_style = _combat_enemy_attack_style(enemy, combat_class)
-    enemy_class = _combat_enemy_attack_class(enemy, combat_class)
-    magic_melee = enemy_style == "magic_melee"
-    enemy_attack_stat = (
-        "attack"
-        if magic_melee
-        else {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
-    )
-    enemy_attack_bonus = (
-        _combat_attack_bonus_from_totals(
-            enemy_totals,
-            "melee",
-            style_type="stab",
-        )
-        if magic_melee
-        else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
-    )
-    enemy_attack_roll = (
-        _positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8
-    ) * enemy_attack_factor * (enemy_attack_bonus + 64)
     weakening_equipment, weakening_active = _combat_weakening_equipment_state(
         data, enemy
     )
-    if weakening_active:
-        enemy_attack_roll *= max(
-            0.0,
-            float(weakening_equipment.get("enemy_accuracy_multiplier", 1.0)),
+    enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit = (
+        _combat_enemy_attack_rolls(
+            data, enemy, combat_class, style_id, player_totals, enemy_totals,
+            prayer_effects, enemy_attack_factor, weakening_equipment,
+            weakening_active,
         )
-    player_defence_roll = _combat_effective_player_defence_level(data, style_id) * float(prayer_effects.get("defence", 1.0)) * (
-        _combat_defence_bonus_from_totals(player_totals, enemy_class) + 64
     )
-    enemy_accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
-    enemy_max_hit = _combat_enemy_max_hit_old_hp(
-        enemy,
-        _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
-        _equipment_bonus_value(enemy_totals, "melee_strength"),
-        enemy_totals,
-    )
-    if weakening_active:
-        enemy_max_hit *= max(
-            0.0,
-            float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
-        )
     protective_equipment, protection_active = _combat_protective_equipment_state(
         data, enemy, combat_class
     )
@@ -1801,26 +1843,11 @@ def apply_combat_burst_pure(
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
-                rolled_drops, refused_clue = _combat_roll_drops(
-                    enemy,
-                    rng,
-                    _combat_drop_ownership_view(data, drops),
-                    include_clue_refusal=True,
+                data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
+                    data, enemy, target_id, rng, drops, xp_rewards
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
-                kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
-                _record_combat_observed_drops_pure(data, target_id, kill_drops)
-                data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
-                    data,
-                    target_id,
-                    kill_drops,
-                    bool(data.get("combat_auto_prayer_training")),
-                )
-                if passive_prayer_xp > 0:
-                    xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
                 next_player_attack += prayer_ticks
-                for drop_name, drop_amount in kill_drops.items():
-                    drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
                 # Chain into the next spawn of the same target for the remaining
                 # tick budget instead of ending the burst on the first kill (the
                 # old `break` wasted up to half of a ~30s review window). A fresh
@@ -1901,60 +1928,13 @@ def apply_combat_burst_pure(
                 attack_enemy = dict(enemy)
                 attack_enemy["attack_style"] = selected_style
                 attack_enemy.pop("attack_style_by_player_class", None)
-            enemy_style = _combat_enemy_attack_style(attack_enemy, combat_class)
-            enemy_class = _combat_enemy_attack_class(attack_enemy, combat_class)
-            magic_melee = enemy_style == "magic_melee"
-            enemy_attack_stat = (
-                "attack"
-                if magic_melee
-                else {"magic": "magic", "ranged": "ranged"}.get(
-                    enemy_class, "attack"
+            enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit = (
+                _combat_enemy_attack_rolls(
+                    data, attack_enemy, combat_class, style_id, player_totals, enemy_totals,
+                    prayer_effects, enemy_attack_factor, weakening_equipment,
+                    weakening_active,
                 )
             )
-            enemy_attack_bonus = (
-                _combat_attack_bonus_from_totals(
-                    enemy_totals, "melee", style_type="stab"
-                )
-                if magic_melee
-                else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
-            )
-            enemy_attack_roll = (
-                _positive_int(
-                    attack_enemy.get("stats", {}).get(enemy_attack_stat, 1), 1
-                )
-                + 8
-            ) * enemy_attack_factor * (enemy_attack_bonus + 64)
-            if weakening_active:
-                enemy_attack_roll *= max(
-                    0.0,
-                    float(
-                        weakening_equipment.get("enemy_accuracy_multiplier", 1.0)
-                    ),
-                )
-            player_defence_roll = (
-                _combat_effective_player_defence_level(data, style_id)
-                * float(prayer_effects.get("defence", 1.0))
-                * (_combat_defence_bonus_from_totals(player_totals, enemy_class) + 64)
-            )
-            enemy_accuracy = _combat_accuracy(
-                enemy_attack_roll, player_defence_roll
-            )
-            enemy_max_hit = _combat_enemy_max_hit_old_hp(
-                attack_enemy,
-                _positive_int(
-                    attack_enemy.get("stats", {}).get("strength", 1), 1
-                )
-                + 8,
-                _equipment_bonus_value(enemy_totals, "melee_strength"),
-                enemy_totals,
-            )
-            if weakening_active:
-                enemy_max_hit *= max(
-                    0.0,
-                    float(
-                        weakening_equipment.get("enemy_damage_multiplier", 1.0)
-                    ),
-                )
             _combat_advance_dragonfire_effects(
                 data, tick - dragonfire_effect_tick
             )
@@ -2337,26 +2317,11 @@ def apply_combat_burst_pure(
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
-                rolled_drops, refused_clue = _combat_roll_drops(
-                    enemy,
-                    rng,
-                    _combat_drop_ownership_view(data, drops),
-                    include_clue_refusal=True,
+                data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
+                    data, enemy, target_id, rng, drops, xp_rewards
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
-                kill_drops = _combat_apply_triple_charm_reward(data, rolled_drops)
-                _record_combat_observed_drops_pure(data, target_id, kill_drops)
-                data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
-                    data,
-                    target_id,
-                    kill_drops,
-                    bool(data.get("combat_auto_prayer_training")),
-                )
-                if passive_prayer_xp > 0:
-                    xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
                 next_player_attack += prayer_ticks
-                for drop_name, drop_amount in kill_drops.items():
-                    drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
                 if (
                     live_cadence
                     or stop_after_first_kill

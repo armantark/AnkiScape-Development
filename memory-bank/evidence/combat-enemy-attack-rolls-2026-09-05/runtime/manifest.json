@@ -1,0 +1,185 @@
+{
+  "source_capture_directory": "/tmp/ankiscape-enemy-rolls-ijukkzy6",
+  "status": "FOCUSED_AND_DIFFERENTIAL_PASS_NOT_FULL_ACCEPTANCE",
+  "files": {
+    "capture.json": {
+      "path": "runtime/capture.json.gz",
+      "decoded_bytes": 171974,
+      "decoded_sha256": "ee879c3c559e50fb7bfa078a387dc3edccd6499b928ac818f7d5ad05b307b520",
+      "stored_bytes": 73639,
+      "stored_sha256": "8651736c5eb8af65622b2863ff13d50abe00d074b1daae360d3983d52c266efb"
+    },
+    "plain-comparison-preflight.json": {
+      "path": "runtime/plain-comparison-preflight.json.gz",
+      "decoded_bytes": 164198,
+      "decoded_sha256": "d2d6659643240fb01ee1c3ceccb256eef26c32920c6c9845a05fe68f3d6eda08",
+      "stored_bytes": 72268,
+      "stored_sha256": "7a9b76f6c029f0ab72a0c2a79b53bc7646ffbc3101eb2ef26168a4ea91eb5453"
+    },
+    "plain-comparison.json": {
+      "path": "runtime/plain-comparison.json.gz",
+      "decoded_bytes": 649120,
+      "decoded_sha256": "b69d0a7dfb4717458b84a4d2c1cc140c7d39db619de2c658ab90ed7401ed6d71",
+      "stored_bytes": 142395,
+      "stored_sha256": "f3cabf198232d38d1547ad405a7324fa9176feda8fd203cabc1fe6851cd12007"
+    },
+    "plain-comparison.log": {
+      "path": "runtime/plain-comparison.log.gz",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "plain-comparison.report": {
+      "path": "runtime/plain-comparison.report.gz",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_bytes": 22,
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    "plain-comparison.stderr": {
+      "path": "runtime/plain-comparison.stderr.gz",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "plain-comparison.stdout": {
+      "path": "runtime/plain-comparison.stdout.gz",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "plain-focused.log": {
+      "path": "runtime/plain-focused.log.gz",
+      "decoded_bytes": 1886,
+      "decoded_sha256": "4a38e376c8fb275b5a42372880ac27f55d6223fb18f7331a2813e89d556d4cf9",
+      "stored_bytes": 466,
+      "stored_sha256": "1b5e65d692f2ef1912f4424b74c7fae2ccf860e13dbf6cf7fca250bb768cdb59"
+    },
+    "plain-focused.report": {
+      "path": "runtime/plain-focused.report.gz",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_bytes": 22,
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    "plain-focused.stderr": {
+      "path": "runtime/plain-focused.stderr.gz",
+      "decoded_bytes": 1886,
+      "decoded_sha256": "4a38e376c8fb275b5a42372880ac27f55d6223fb18f7331a2813e89d556d4cf9",
+      "stored_bytes": 466,
+      "stored_sha256": "1b5e65d692f2ef1912f4424b74c7fae2ccf860e13dbf6cf7fca250bb768cdb59"
+    },
+    "plain-focused.stdout": {
+      "path": "runtime/plain-focused.stdout.gz",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "qt-comparison-preflight.json": {
+      "path": "runtime/qt-comparison-preflight.json.gz",
+      "decoded_bytes": 164198,
+      "decoded_sha256": "d2d6659643240fb01ee1c3ceccb256eef26c32920c6c9845a05fe68f3d6eda08",
+      "stored_bytes": 72268,
+      "stored_sha256": "7a9b76f6c029f0ab72a0c2a79b53bc7646ffbc3101eb2ef26168a4ea91eb5453"
+    },
+    "qt-comparison.json": {
+      "path": "runtime/qt-comparison.json.gz",
+      "decoded_bytes": 649120,
+      "decoded_sha256": "b69d0a7dfb4717458b84a4d2c1cc140c7d39db619de2c658ab90ed7401ed6d71",
+      "stored_bytes": 142395,
+      "stored_sha256": "f3cabf198232d38d1547ad405a7324fa9176feda8fd203cabc1fe6851cd12007"
+    },
+    "qt-comparison.log": {
+      "path": "runtime/qt-comparison.log.gz",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "qt-comparison.report": {
+      "path": "runtime/qt-comparison.report.gz",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_bytes": 22,
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    "qt-comparison.stderr": {
+      "path": "runtime/qt-comparison.stderr.gz",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "qt-comparison.stdout": {
+      "path": "runtime/qt-comparison.stdout.gz",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "qt-focused.log": {
+      "path": "runtime/qt-focused.log.gz",
+      "decoded_bytes": 1886,
+      "decoded_sha256": "4a38e376c8fb275b5a42372880ac27f55d6223fb18f7331a2813e89d556d4cf9",
+      "stored_bytes": 466,
+      "stored_sha256": "1b5e65d692f2ef1912f4424b74c7fae2ccf860e13dbf6cf7fca250bb768cdb59"
+    },
+    "qt-focused.report": {
+      "path": "runtime/qt-focused.report.gz",
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_bytes": 22,
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    "qt-focused.stderr": {
+      "path": "runtime/qt-focused.stderr.gz",
+      "decoded_bytes": 1886,
+      "decoded_sha256": "4a38e376c8fb275b5a42372880ac27f55d6223fb18f7331a2813e89d556d4cf9",
+      "stored_bytes": 466,
+      "stored_sha256": "1b5e65d692f2ef1912f4424b74c7fae2ccf860e13dbf6cf7fca250bb768cdb59"
+    },
+    "qt-focused.stdout": {
+      "path": "runtime/qt-focused.stdout.gz",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "remote-after.json": {
+      "path": "runtime/remote-after.json.gz",
+      "decoded_bytes": 80459,
+      "decoded_sha256": "d52d426ea32e2a761ea54b67733b2807fd045e063d23cf9501491eaa8d536745",
+      "stored_bytes": 36345,
+      "stored_sha256": "426cafbfbd349229fb59de064f290cc31a5bf233188d64011a6435ae47e94562"
+    },
+    "remote-before.json": {
+      "path": "runtime/remote-before.json.gz",
+      "decoded_bytes": 82340,
+      "decoded_sha256": "88e82847438431491119647a7655297c3af093b16571f2400f15d5bb1dffc005",
+      "stored_bytes": 36641,
+      "stored_sha256": "d3b893bfa1f40f53e2af9f1015c69dd776b0d3f273ae9ff4070347552431d5c3"
+    }
+  },
+  "verification": {
+    "jobs": 4,
+    "job_exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "focused_tests_per_lane": 10,
+    "focused_skips_per_lane": 0,
+    "comparison_cases_per_lane": 22,
+    "comparison_complete_payload_bytes_equal": true,
+    "source_inventory_count": 771,
+    "source_snapshots_equal": true,
+    "ownership": "released",
+    "pending_record_exists": false
+  },
+  "focused_summary_verification": "Parent read full stderr and independently confirmed ten tests and zero skips per lane."
+}

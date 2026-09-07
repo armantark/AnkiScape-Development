@@ -1,0 +1,553 @@
+{
+  "status": "PASS",
+  "metrics": {
+    "baseline": {
+      "sha256": "30377177ba69e1aa112a8d8b384cfd205d6d593133821bdbf74ce85fbcd323f6",
+      "lines": 3037,
+      "metrics": {
+        "_combat_roll_damage_lifepoints": {
+          "ccn": 4,
+          "physical_lines": 16,
+          "cognitive": 3,
+          "halstead_difficulty": 3.0
+        },
+        "combat_target_preview_pure": {
+          "ccn": 54,
+          "physical_lines": 235,
+          "cognitive": 58,
+          "halstead_difficulty": 7.930232558139535
+        },
+        "combat_enemy_pressure_attack_pure": {
+          "ccn": 8,
+          "physical_lines": 74,
+          "cognitive": 7,
+          "halstead_difficulty": 3.4615384615384617
+        },
+        "apply_safe_combat_recovery_pure": {
+          "ccn": 12,
+          "physical_lines": 72,
+          "cognitive": 13,
+          "halstead_difficulty": 7.857142857142857
+        },
+        "start_combat_grave_walk_pure": {
+          "ccn": 4,
+          "physical_lines": 10,
+          "cognitive": 3,
+          "halstead_difficulty": 1.0
+        },
+        "advance_combat_grave_review_pure": {
+          "ccn": 8,
+          "physical_lines": 22,
+          "cognitive": 8,
+          "halstead_difficulty": 3.4615384615384617
+        },
+        "combat_grave_banner_view_pure": {
+          "ccn": 5,
+          "physical_lines": 23,
+          "cognitive": 5,
+          "halstead_difficulty": 0.5
+        },
+        "combat_death_office_items_pure": {
+          "ccn": 2,
+          "physical_lines": 2,
+          "cognitive": 1,
+          "halstead_difficulty": 0.5
+        },
+        "combat_death_office_reclaim_cost_pure": {
+          "ccn": 1,
+          "physical_lines": 2,
+          "cognitive": 0,
+          "halstead_difficulty": 0.5
+        },
+        "combat_death_office_summary_pure": {
+          "ccn": 4,
+          "physical_lines": 12,
+          "cognitive": 3,
+          "halstead_difficulty": 2.0
+        },
+        "reclaim_death_office_items_pure": {
+          "ccn": 6,
+          "physical_lines": 25,
+          "cognitive": 5,
+          "halstead_difficulty": 2.9545454545454546
+        },
+        "_combat_drop_ownership_view": {
+          "ccn": 4,
+          "physical_lines": 11,
+          "cognitive": 3,
+          "halstead_difficulty": 1.5
+        },
+        "_combat_settle_kill_rewards": {
+          "ccn": 4,
+          "physical_lines": 20,
+          "cognitive": 2,
+          "halstead_difficulty": 2.0
+        },
+        "apply_combat_burst_pure._live_curse_adjustments": {
+          "ccn": 5,
+          "physical_lines": 13
+        },
+        "apply_combat_burst_pure._live_prayer_factor": {
+          "ccn": 3,
+          "physical_lines": 7
+        },
+        "apply_combat_burst_pure": {
+          "ccn": 342,
+          "physical_lines": 1563,
+          "cognitive": 674,
+          "halstead_difficulty": 16.593090211132438
+        },
+        "_blocked_toolbelt_rows": {
+          "ccn": 5,
+          "physical_lines": 13,
+          "cognitive": 6,
+          "halstead_difficulty": 2.0
+        },
+        "bank_gear_rows_pure": {
+          "ccn": 11,
+          "physical_lines": 52,
+          "cognitive": 13,
+          "halstead_difficulty": 1.6363636363636365
+        },
+        "_combat_supply_loadout_class_compatible_pure": {
+          "ccn": 8,
+          "physical_lines": 18,
+          "cognitive": 4,
+          "halstead_difficulty": 2.638888888888889
+        },
+        "repair_combat_supply_loadout_class_pure": {
+          "ccn": 3,
+          "physical_lines": 9,
+          "cognitive": 2,
+          "halstead_difficulty": 0
+        },
+        "combat_supply_loadout_summary_pure": {
+          "ccn": 6,
+          "physical_lines": 27,
+          "cognitive": 5,
+          "halstead_difficulty": 1.7142857142857142
+        },
+        "combat_has_active_encounter_pure": {
+          "ccn": 4,
+          "physical_lines": 7,
+          "cognitive": 2,
+          "halstead_difficulty": 1.5
+        },
+        "request_combat_bank_run_now_pure": {
+          "ccn": 3,
+          "physical_lines": 17,
+          "cognitive": 2,
+          "halstead_difficulty": 1.0
+        },
+        "reconcile_combat_method_pure": {
+          "ccn": 3,
+          "physical_lines": 11,
+          "cognitive": 2,
+          "halstead_difficulty": 0.5
+        },
+        "set_combat_pack_mode_pure": {
+          "ccn": 2,
+          "physical_lines": 8,
+          "cognitive": 1,
+          "halstead_difficulty": 0
+        },
+        "set_combat_auto_eat_threshold_pure": {
+          "ccn": 1,
+          "physical_lines": 5,
+          "cognitive": 0,
+          "halstead_difficulty": 0
+        },
+        "set_combat_auto_eat_food_pure": {
+          "ccn": 8,
+          "physical_lines": 12,
+          "cognitive": 3,
+          "halstead_difficulty": 4.3076923076923075
+        },
+        "refill_combat_supply_loadout_pure": {
+          "ccn": 7,
+          "physical_lines": 27,
+          "cognitive": 6,
+          "halstead_difficulty": 1.3333333333333333
+        },
+        "unload_combat_supply_loadout_pure": {
+          "ccn": 8,
+          "physical_lines": 17,
+          "cognitive": 9,
+          "halstead_difficulty": 1.6666666666666667
+        },
+        "player_combat_level_pure": {
+          "ccn": 1,
+          "physical_lines": 14,
+          "cognitive": 0,
+          "halstead_difficulty": 1.36
+        },
+        "combat_attack_style_trained_skills_pure": {
+          "ccn": 2,
+          "physical_lines": 5,
+          "cognitive": 1,
+          "halstead_difficulty": 0.5
+        },
+        "combat_weapon_style_options_pure": {
+          "ccn": 6,
+          "physical_lines": 37,
+          "cognitive": 6,
+          "halstead_difficulty": 1.5
+        },
+        "combat_hud_state_pure._pct": {
+          "ccn": 2,
+          "physical_lines": 2
+        },
+        "combat_hud_state_pure": {
+          "ccn": 18,
+          "physical_lines": 94,
+          "cognitive": 22,
+          "halstead_difficulty": 4.34
+        }
+      }
+    },
+    "engine": {
+      "sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+      "lines": 3010,
+      "metrics": {
+        "_combat_roll_damage_lifepoints": {
+          "ccn": 4,
+          "physical_lines": 16,
+          "cognitive": 3,
+          "halstead_difficulty": 3.0
+        },
+        "combat_target_preview_pure": {
+          "ccn": 54,
+          "physical_lines": 235,
+          "cognitive": 58,
+          "halstead_difficulty": 7.930232558139535
+        },
+        "combat_enemy_pressure_attack_pure": {
+          "ccn": 8,
+          "physical_lines": 74,
+          "cognitive": 7,
+          "halstead_difficulty": 3.4615384615384617
+        },
+        "apply_safe_combat_recovery_pure": {
+          "ccn": 12,
+          "physical_lines": 72,
+          "cognitive": 13,
+          "halstead_difficulty": 7.857142857142857
+        },
+        "start_combat_grave_walk_pure": {
+          "ccn": 4,
+          "physical_lines": 10,
+          "cognitive": 3,
+          "halstead_difficulty": 1.0
+        },
+        "advance_combat_grave_review_pure": {
+          "ccn": 8,
+          "physical_lines": 22,
+          "cognitive": 8,
+          "halstead_difficulty": 3.4615384615384617
+        },
+        "combat_grave_banner_view_pure": {
+          "ccn": 5,
+          "physical_lines": 23,
+          "cognitive": 5,
+          "halstead_difficulty": 0.5
+        },
+        "combat_death_office_items_pure": {
+          "ccn": 2,
+          "physical_lines": 2,
+          "cognitive": 1,
+          "halstead_difficulty": 0.5
+        },
+        "combat_death_office_reclaim_cost_pure": {
+          "ccn": 1,
+          "physical_lines": 2,
+          "cognitive": 0,
+          "halstead_difficulty": 0.5
+        },
+        "combat_death_office_summary_pure": {
+          "ccn": 4,
+          "physical_lines": 12,
+          "cognitive": 3,
+          "halstead_difficulty": 2.0
+        },
+        "reclaim_death_office_items_pure": {
+          "ccn": 6,
+          "physical_lines": 25,
+          "cognitive": 5,
+          "halstead_difficulty": 2.9545454545454546
+        },
+        "_combat_drop_ownership_view": {
+          "ccn": 4,
+          "physical_lines": 11,
+          "cognitive": 3,
+          "halstead_difficulty": 1.5
+        },
+        "_combat_settle_kill_rewards": {
+          "ccn": 4,
+          "physical_lines": 20,
+          "cognitive": 2,
+          "halstead_difficulty": 2.0
+        },
+        "_combat_enemy_attack_rolls": {
+          "ccn": 5,
+          "physical_lines": 53,
+          "cognitive": 4,
+          "halstead_difficulty": 1.65
+        },
+        "apply_combat_burst_pure._live_curse_adjustments": {
+          "ccn": 5,
+          "physical_lines": 13
+        },
+        "apply_combat_burst_pure._live_prayer_factor": {
+          "ccn": 3,
+          "physical_lines": 7
+        },
+        "apply_combat_burst_pure": {
+          "ccn": 334,
+          "physical_lines": 1481,
+          "cognitive": 658,
+          "halstead_difficulty": 16.68762677484787
+        },
+        "_blocked_toolbelt_rows": {
+          "ccn": 5,
+          "physical_lines": 13,
+          "cognitive": 6,
+          "halstead_difficulty": 2.0
+        },
+        "bank_gear_rows_pure": {
+          "ccn": 11,
+          "physical_lines": 52,
+          "cognitive": 13,
+          "halstead_difficulty": 1.6363636363636365
+        },
+        "_combat_supply_loadout_class_compatible_pure": {
+          "ccn": 8,
+          "physical_lines": 18,
+          "cognitive": 4,
+          "halstead_difficulty": 2.638888888888889
+        },
+        "repair_combat_supply_loadout_class_pure": {
+          "ccn": 3,
+          "physical_lines": 9,
+          "cognitive": 2,
+          "halstead_difficulty": 0
+        },
+        "combat_supply_loadout_summary_pure": {
+          "ccn": 6,
+          "physical_lines": 27,
+          "cognitive": 5,
+          "halstead_difficulty": 1.7142857142857142
+        },
+        "combat_has_active_encounter_pure": {
+          "ccn": 4,
+          "physical_lines": 7,
+          "cognitive": 2,
+          "halstead_difficulty": 1.5
+        },
+        "request_combat_bank_run_now_pure": {
+          "ccn": 3,
+          "physical_lines": 17,
+          "cognitive": 2,
+          "halstead_difficulty": 1.0
+        },
+        "reconcile_combat_method_pure": {
+          "ccn": 3,
+          "physical_lines": 11,
+          "cognitive": 2,
+          "halstead_difficulty": 0.5
+        },
+        "set_combat_pack_mode_pure": {
+          "ccn": 2,
+          "physical_lines": 8,
+          "cognitive": 1,
+          "halstead_difficulty": 0
+        },
+        "set_combat_auto_eat_threshold_pure": {
+          "ccn": 1,
+          "physical_lines": 5,
+          "cognitive": 0,
+          "halstead_difficulty": 0
+        },
+        "set_combat_auto_eat_food_pure": {
+          "ccn": 8,
+          "physical_lines": 12,
+          "cognitive": 3,
+          "halstead_difficulty": 4.3076923076923075
+        },
+        "refill_combat_supply_loadout_pure": {
+          "ccn": 7,
+          "physical_lines": 27,
+          "cognitive": 6,
+          "halstead_difficulty": 1.3333333333333333
+        },
+        "unload_combat_supply_loadout_pure": {
+          "ccn": 8,
+          "physical_lines": 17,
+          "cognitive": 9,
+          "halstead_difficulty": 1.6666666666666667
+        },
+        "player_combat_level_pure": {
+          "ccn": 1,
+          "physical_lines": 14,
+          "cognitive": 0,
+          "halstead_difficulty": 1.36
+        },
+        "combat_attack_style_trained_skills_pure": {
+          "ccn": 2,
+          "physical_lines": 5,
+          "cognitive": 1,
+          "halstead_difficulty": 0.5
+        },
+        "combat_weapon_style_options_pure": {
+          "ccn": 6,
+          "physical_lines": 37,
+          "cognitive": 6,
+          "halstead_difficulty": 1.5
+        },
+        "combat_hud_state_pure._pct": {
+          "ccn": 2,
+          "physical_lines": 2
+        },
+        "combat_hud_state_pure": {
+          "ccn": 18,
+          "physical_lines": 94,
+          "cognitive": 22,
+          "halstead_difficulty": 4.34
+        }
+      }
+    },
+    "tests": {
+      "sha256": "f9d87f74b3d3b6aef50c538fb8c259c3cb5cdbfed532da46e7878240843925f5",
+      "lines": 114,
+      "metrics": {
+        "attack_fixture": {
+          "ccn": 1,
+          "physical_lines": 15,
+          "cognitive": 0,
+          "halstead_difficulty": 0
+        },
+        "weakening_fixture": {
+          "ccn": 2,
+          "physical_lines": 12,
+          "cognitive": 1,
+          "halstead_difficulty": 0
+        },
+        "draining_fixture": {
+          "ccn": 1,
+          "physical_lines": 9,
+          "cognitive": 0,
+          "halstead_difficulty": 0
+        },
+        "test_selected_style_overrides_the_player_class_mapping": {
+          "ccn": 3,
+          "physical_lines": 21,
+          "halstead_difficulty": 0.5
+        },
+        "test_weakening_is_sampled_once_and_applies_to_each_attack": {
+          "ccn": 2,
+          "physical_lines": 18,
+          "halstead_difficulty": 0.5
+        },
+        "test_defence_drained_by_one_attack_changes_the_next_accuracy": {
+          "ccn": 2,
+          "physical_lines": 18,
+          "halstead_difficulty": 1.0
+        },
+        "CombatEnemyAttackRollsTest::test_defence_drained_by_one_attack_changes_the_next_accuracy": {
+          "cognitive": 1
+        },
+        "CombatEnemyAttackRollsTest::test_selected_style_overrides_the_player_class_mapping": {
+          "cognitive": 1
+        },
+        "CombatEnemyAttackRollsTest::test_weakening_is_sampled_once_and_applies_to_each_attack": {
+          "cognitive": 1
+        }
+      }
+    },
+    "probe": {
+      "sha256": "9653e8edfbabae995a5fa80a0f10a6944ccc58d148dec3fb484cc1f7f742a252",
+      "lines": 179,
+      "metrics": {
+        "source_hashes": {
+          "ccn": 2,
+          "physical_lines": 9,
+          "cognitive": 1,
+          "halstead_difficulty": 1.0
+        },
+        "attack_cases": {
+          "ccn": 9,
+          "physical_lines": 71,
+          "cognitive": 8,
+          "halstead_difficulty": 0.6666666666666666
+        },
+        "capture": {
+          "ccn": 2,
+          "physical_lines": 20,
+          "cognitive": 1,
+          "halstead_difficulty": 0.5
+        },
+        "compare": {
+          "ccn": 2,
+          "physical_lines": 22,
+          "cognitive": 1,
+          "halstead_difficulty": 1.5
+        },
+        "main": {
+          "ccn": 5,
+          "physical_lines": 24,
+          "cognitive": 3,
+          "halstead_difficulty": 1.0
+        }
+      }
+    }
+  },
+  "existing_definition_count": 34,
+  "unchanged_existing_definitions": [
+    "_blocked_toolbelt_rows",
+    "_combat_drop_ownership_view",
+    "_combat_roll_damage_lifepoints",
+    "_combat_settle_kill_rewards",
+    "_combat_supply_loadout_class_compatible_pure",
+    "advance_combat_grave_review_pure",
+    "apply_combat_burst_pure._live_curse_adjustments",
+    "apply_combat_burst_pure._live_prayer_factor",
+    "apply_safe_combat_recovery_pure",
+    "bank_gear_rows_pure",
+    "combat_attack_style_trained_skills_pure",
+    "combat_death_office_items_pure",
+    "combat_death_office_reclaim_cost_pure",
+    "combat_death_office_summary_pure",
+    "combat_enemy_pressure_attack_pure",
+    "combat_grave_banner_view_pure",
+    "combat_has_active_encounter_pure",
+    "combat_hud_state_pure",
+    "combat_hud_state_pure._pct",
+    "combat_supply_loadout_summary_pure",
+    "combat_target_preview_pure",
+    "combat_weapon_style_options_pure",
+    "player_combat_level_pure",
+    "reclaim_death_office_items_pure",
+    "reconcile_combat_method_pure",
+    "refill_combat_supply_loadout_pure",
+    "repair_combat_supply_loadout_class_pure",
+    "request_combat_bank_run_now_pure",
+    "set_combat_auto_eat_food_pure",
+    "set_combat_auto_eat_threshold_pure",
+    "set_combat_pack_mode_pure",
+    "start_combat_grave_walk_pure",
+    "unload_combat_supply_loadout_pure"
+  ],
+  "changed_existing_definitions": [
+    "apply_combat_burst_pure"
+  ],
+  "added_definitions": [
+    "_combat_enemy_attack_rolls"
+  ],
+  "other_module_statements_unchanged": true,
+  "helper_matches_initial_formula_without_once_sampled_weakening_lookup": true,
+  "helper_matches_retaliation_formula_after_enemy_name_normalization": true,
+  "weakening_lookup_count_before_after": [
+    1,
+    1
+  ],
+  "helper_call_count": 2
+}
