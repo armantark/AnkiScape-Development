@@ -1,0 +1,918 @@
+{
+  "status": "PASS_STATIC_ONLY",
+  "created_utc": "2026-09-06T02:13:59.194927+00:00",
+  "candidate_branch": "goal/quest-data-reconciliation-2026-09-05",
+  "candidate_head": "814b4d591df4525e0bda4a1f858baf6345ed4d38",
+  "integration_main_commit": "814b4d591df4525e0bda4a1f858baf6345ed4d38",
+  "preserved_split_head": "0128255a0e3aa223a3d33b67c2d96f2115d9ad5a",
+  "preserved_stash": "26edc9cce80d09bb7bc1bc243defb040ee49e253",
+  "preserved_untracked_stash_tree": "4af562cde28ce09d78deffeea251577e83bc613e",
+  "baseline_quest_source_sha256": "825e9cc0ef5c16acab2f18e9842b9c7d90b4e3b84da9ad1700680cf4036c160e",
+  "main_quest_source_equals_preserved_baseline": true,
+  "source_hashes": {
+    "data/quest_data.py": "43edea17763a79ef7f860dd0f2d19417b2e80422bad1dc395688ae570613270e",
+    "data/quest/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "data/quest/catalog.py": "bce5aa68676ed3ca33d57f5e0e1c7fddeb2c30be228bd6fe3499a035de377752",
+    "data/quest/catalog_overrides.py": "972858a6ea98247ce27fed644f1cf5cb2450a58dde8bde2e89c3419285ac86ec",
+    "data/quest/choices.py": "b54638fc8b3ad72c9e73de917a2ea27d7021731bb42d86fe3160e0d90106d1d3",
+    "data/quest/combat_replacements.py": "8ebc748583d247569c9fd7389446cc7b6ec08f706ba7a614ea850a721d2c0a3c",
+    "data/quest/contract.py": "b7443a86b042af331e5bf9d99dc462d080466c3c635f4bfceeb6088289a62c74",
+    "data/quest/definitions/__init__.py": "11fd3f099b8b6d098e66f9c2c051b31dba1e5f141bd0e12dd9c33a6ba6d7a349",
+    "data/quest/definitions/free/__init__.py": "4467b11975caced33183a4e15e88844588f087eaeb925205d19703e128e8d397",
+    "data/quest/definitions/free/black_knights_fortress.py": "4d2d3765e314f9b888978f2d5ba028e5c7da4f5d98604506ba33afed0bd089be",
+    "data/quest/definitions/free/cooks_assistant.py": "bbbb4510da24ad3e5352b1d54d8f306be906433ff50b1cf3989429ddf67ae83a",
+    "data/quest/definitions/free/demon_slayer.py": "094ceb9432ac3423d09bda91f7e571d8d84172d89ce730e6e116f2f47cd98b47",
+    "data/quest/definitions/free/dragon_slayer.py": "a9f58d200687ebe72a9fe868f99dc9a48ce4b4252348e93a81610f09ceec1425",
+    "data/quest/definitions/free/ernest_the_chicken.py": "1dc808ae63aade9f96072454d888bb7c2f53abee822b227224600fbb125f5ed7",
+    "data/quest/definitions/free/goblin_diplomacy.py": "cddfcf8ecf7531d0d5bc390199301f85262e9bc36da6474aa0113af2965f9c20",
+    "data/quest/definitions/free/imp_catcher.py": "18114a233be1cc0def255aa6fe094456ea47f4c224ac6f0987c32550adcbd0bf",
+    "data/quest/definitions/free/pirates_treasure.py": "768fd2b6c60da6085d5e8ef4611e5949866f650693724b9235a4c0bb2e384848",
+    "data/quest/definitions/free/rune_mysteries.py": "5c968cfcd9a0983ca1fc268021e05287e9309ab08b8bf7f0ef1213cf5386e5ec",
+    "data/quest/definitions/free/shield_of_arrav.py": "7ec1055d4cf69a9f7f24826fd3ed6aecd0e7026483ddc7f842d5628917fef14c",
+    "data/quest/definitions/free/the_knights_sword.py": "554696f0ab138f94943a8a2b1940a8598628fd1221704789d73f2b42dd58d927",
+    "data/quest/definitions/free/the_restless_ghost.py": "bd778cef0125ce8ec8f99f046554725dee1b16306ac801d436b735028c4a2230",
+    "data/quest/definitions/free/vampyre_slayer.py": "c053f44df41be6c1d0116106b815a0c8e00eccde7b79390ced659d1db217680c",
+    "data/quest/definitions/members/__init__.py": "9c61c87f2a9fa9334fd516d3f28ec12c409ed1b199fa83e6bf1b9083c72a1009",
+    "data/quest/definitions/members/druidic_ritual.py": "ad35635ac3018607a5e78ffd6523b60c617af65e640514f908a42f2c839d688b",
+    "data/quest/definitions/members/family_crest.py": "df2b8060296108cdba2b85714b5c24766fe47381aa77e52e9015d9748c83610b",
+    "data/quest/definitions/members/fight_arena.py": "af7a7222a2ac1976ef1ef640ecef46114a88b1b407a6c382055875120e90e1ed",
+    "data/quest/definitions/members/heroes_quest.py": "fb18a207fe009573cde1223750f78ea3dd05700a3817955e3a9de09b481b6db1",
+    "data/quest/definitions/members/jungle_potion.py": "f41a3e0e4451a5f00e2ace4b358cc62aaf689ad90117ba5619a35d502d2c61af",
+    "data/quest/definitions/members/legacy_of_seergaze.py": "23f27b496a6657672e69937f5690adfc307eb9100bf0e04f037d0fc9aaf426ab",
+    "data/quest/definitions/members/lost_city.py": "8eb0488e30cc91e72b5d5e629bdcdc6a4c69d1638e1b491a163feeb5a3b83b23",
+    "data/quest/definitions/members/lunar_diplomacy.py": "790cb9bf2d4ea5fe7f78280632cb2e076431ca42fbdf47d10be73d80388d8056",
+    "data/quest/definitions/members/merlins_crystal.py": "95921fdf28ac10d594488b1c1b2b82e9a21ff180bedd9e1f172c418fdfdfc76f",
+    "data/quest/definitions/members/mournings_end_part_ii.py": "4e4af5ebd1f2307e93670ed4dfa9f3810715c604b9fff39b8662271af01c0726",
+    "data/quest/definitions/members/priest_in_peril.py": "fdd779ed0366b81c73cae2f09dc9b5f923370c78ae9fe0aef8c3b5a90af36d20",
+    "data/quest/definitions/members/shilo_village.py": "5b5b8d066413ffc3b6626aca1ef2ef96be9145b7e481666d004b344816a8eece",
+    "data/quest/definitions/members/swan_song.py": "9226c3ec5309fa3756e203f06a07e20b6575da21c95bf63a12e47f5c9da067d3",
+    "data/quest/definitions/members/tai_bwo_wannai_trio.py": "e18334653dae3c92057d6a0bfbce514590cc9897930b9ba16404c1983e501e95",
+    "data/quest/definitions/members/temple_of_ikov.py": "04e1a9eff6632c0a59e07bc7d45faab674b46befca196f7c259f47098db9d736",
+    "data/quest/definitions/members/witchs_house.py": "bcc72928c49a594d819a3aeb4689a74b04f299899c9349b9a9445fd30f29aec6",
+    "data/quest/definitions/miniquests/__init__.py": "1446e9318c7719f3c7374b76bf95a0d87c974fba0d1797c79212cc5b3183b0de",
+    "data/quest/definitions/miniquests/hunt_for_surok.py": "eaccdb950adb2d9b76f40f1b64cd19e06192d0666fb5c336a7a3ce6172bf8158",
+    "data/quest/definitions/miniquests/lair_of_tarn_razorlor.py": "c608dd814822efac73f9a6bdb7c169943895ac999805aafc68caf458926e8d85",
+    "data/quest/dependencies.py": "4803940f52fc71e0607bfb6243a9e8f8885237de20ffd91e509b55279ed99edb",
+    "data/quest/ids.py": "427501d6269526955307da8a7e1c8ee0468df81f20188d98ae3ebcdbb7ba4add",
+    "data/quest/item_names.py": "15a31285d38bd7b0f1c8204a177e61f5b0b1462466a1aec84b983503aadfefd9",
+    "data/quest/ledger.py": "612ec0cf6ac3c7b2763b8d30a8d42c0eaa8609f39faecc8049a2d29d33d2f73e",
+    "data/quest/reward_item_fragments.py": "b2ede0f9a6483c411dc1e310030203ced6da9438c228f1216de084f39f7370cf",
+    "data/quest/reward_items.py": "b3cee55faa02ce9e2bf373344466ce3d7290adfc6dfee51c7ccc5cb496f62f66",
+    "data/quest/serializers.py": "2aaa3601ea008baf3b09b827aa5546799fa051e77018466fdf7a2a6fb83d19b4",
+    "data/quest/sources.py": "1973299bcae45bec0be1937c9108bad54bc7ae683dced2bae24249c41775e6e0",
+    "data/quest/stage_additions.py": "2f1ed0407dfc7409169015cca638f2e38a251274724097de2949317f22dcd2d7",
+    "data/quest/stage_cleanups.py": "1c79c3b56aebf6925b415b3f992da0eae62a4ae8e075a58827db24c8e57907b7",
+    "data/quest/stage_overrides/__init__.py": "0125ab43734d4584208cabb99a1f272a8f721421823b18ee9fe526a827a00a9a",
+    "data/quest/stage_overrides/free/__init__.py": "5266cea9ccb259962d0b11966bf315be868383975b5f9ae04b9e617f2b7855e0",
+    "data/quest/stage_overrides/free/stolen_hearts.py": "cc9a166429374b34f92505122f49ee3ae74ea1796059d667b42342bf319fef5c",
+    "data/quest/stage_overrides/members/__init__.py": "a02f1fffb10f3959506fb59c0f174834b0674189c557ff915e6ae041af993f9d",
+    "data/quest/stage_overrides/members/classic/__init__.py": "6a22094d24ef8c87a89d487a60e88de9a2ccf0e1e9baeac4e63a286cfe360fc0",
+    "data/quest/stage_overrides/members/classic/biohazard.py": "5b355ef2caf6577700c716cddaca592980f0e74c05bc704e2eb20f89fc8baa49",
+    "data/quest/stage_overrides/members/classic/clock_tower.py": "bc40379721172313f1736db25a78d4ecfc471e7bb6d8dc5bbfa18339b8c2015a",
+    "data/quest/stage_overrides/members/classic/fishing_contest.py": "42ed1e2e576e9fa2cd8236ec6f5a8d337f65c0a91a2df2fc025cfcf176b648e7",
+    "data/quest/stage_overrides/members/classic/hazeel_cult.py": "da833a175b7f5b2c6e25ab8750c23747ada35911e81b57c13984bba6edf2679b",
+    "data/quest/stage_overrides/members/classic/holy_grail.py": "a8d181a18ba76c975d80faeacf7a7079c392d2d0c207933261d2a6073ffe23fb",
+    "data/quest/stage_overrides/members/classic/monks_friend.py": "e83c9c0f9cfb428dc5932dd56a07d7dddf3beec057c214114992fc632b43182c",
+    "data/quest/stage_overrides/members/classic/plague_city.py": "4002e1369f6d9e7a189a4aa7c1582c1f4c7a97f9fd5a5b39bfd6d07359da70cc",
+    "data/quest/stage_overrides/members/classic/scorpion_catcher.py": "45848b9a9aa887813cc0c4b3d67ebc3cc403680bc381a39a5edccb1799e9a45b",
+    "data/quest/stage_overrides/members/classic/sheep_herder.py": "7affaf6e998cab37cb45231c3c2ecdf097741e2cdc1a6084cb100cc6a1e533c2",
+    "data/quest/stage_overrides/members/classic/tree_gnome_village.py": "aedcfaf11aeefeddd503162bc081a81cb6ab759c4322bc9092f2d05b1808b0eb",
+    "data/quest/stage_overrides/members/classic/tribal_totem.py": "40ffea89ae7cd1f17493b616a8eedd85f04473a5a757dc8980db332add76416c",
+    "data/quest/stage_overrides/members/classic/waterfall_quest.py": "3a6b27fbfd2a847b5912855871bf42b12cfb4acef1f00e938a8b349c56ce0e8a",
+    "data/quest/stage_overrides/members/later/__init__.py": "392b0a95dba965549b7b881ce6261376637b2fea6fea8a8b57996097f6013204",
+    "data/quest/stage_overrides/members/later/a_fairy_tale_i_growing_pains.py": "a2038032984254b3e877db60601fa0247d60654323869c02b9d2c4656a16e0d3",
+    "data/quest/stage_overrides/members/later/a_souls_bane.py": "b1d21e5e9c23070092c3292ef61d5a73ae499f0ed0a452e4e55118ad645aad16",
+    "data/quest/stage_overrides/members/later/carnillean_rising.py": "0a28ddf1d66a1df440950b026c9f39ff93eb795c5131c0e5ac562cd44426b147",
+    "data/quest/stage_overrides/members/later/deadliest_catch.py": "29d8c732b84a46e4ebcd9060e0b574e838fc62747a6c27f67e563064345f2e65",
+    "data/quest/stage_overrides/members/later/diamond_in_the_rough.py": "ae75e2293acf621343cfc89bf7f86566b7f019d62eec4b9af1a1d1e3f46f5dfa",
+    "data/quest/stage_overrides/members/later/dwarf_cannon.py": "972fbb6eafcdb57cd1e338060fe2e068917fb6e6d330d05a346ede0ee6e66394",
+    "data/quest/stage_overrides/members/later/gertrudes_cat.py": "51ced4b89cf550888d54888d9d651916ff3deb5f7f5db934e8df717d106511d1",
+    "data/quest/stage_overrides/members/later/icthlarins_little_helper.py": "1a8248e0423df9df825b8e3ebe68d66483cb87609a368ad08ab9d9d4efb160eb",
+    "data/quest/stage_overrides/members/later/nature_spirit.py": "5663f20cb7a5ee22ecf1e18508a523dfa13237400e6e2ab62605cc873b83d82a",
+    "data/quest/stage_overrides/members/later/smoking_kills.py": "a2b55f40b0238943dab8e06239274617dc1aacd2a822c5623e8cfd5a381a05e4",
+    "data/quest/stage_overrides/members/later/some_like_it_cold.py": "9b06b99fc091f5a6896c5846e42243e520ca4578f4a6b8e442f71832fd2f2461",
+    "data/quest/stage_overrides/members/later/song_from_the_depths.py": "9024ded53b6c4467598da0dfb5e38921a76a86da029d51e974b8f8191ab9c17f",
+    "data/quest/stage_overrides/members/later/wolf_whistle.py": "f60ff8c3e6734607e4c819094a04f5d8039515ba45035c28d6dc0cdd8f122330",
+    "data/quest/stage_requirements.py": "d7bd34152e19d8fca1875843f07b6ba992ffee881b12ca5f10c80599da82fd4c",
+    "tests/quest_catalog/test_split_contract.py": "1ca4308e9d9ce6e7eac03f70dad99983353822f3fc71b71d8c38569d636e248a",
+    "tests/test_quest_catalog.py": "948e830415b008cb8cba5fbeb41fdd63523792426654cc263c832a29d28371e8",
+    "tests/quest_catalog/test_literal_mappings.py": "f7ca8d473d726f0fb755e65a94a60dcec5c1e684bd3257b34ce97d3bdd26a729",
+    "tests/test_module_surface.py": "ba48d8b3afbfd957a1298846b263eb9358e5ebf3415d93be1adf76262a65c25f",
+    "tools/module_surface.py": "a66948b912691279dc951ac9e5aa0c144b75a351c9b1bb46b88f67d85ebcf1e5",
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+  },
+  "original_definitions": [
+    {
+      "name": "QuestStage",
+      "original_line": 1052,
+      "path": "data/quest/contract.py",
+      "line": 7,
+      "ast_identical": true,
+      "original_ast_sha256": "c3cf7418b9b6e8023ae1c1204e0d5d03f9ebe057f962ebc24e5a2680121e8fed",
+      "candidate_ast_sha256": "c3cf7418b9b6e8023ae1c1204e0d5d03f9ebe057f962ebc24e5a2680121e8fed"
+    },
+    {
+      "name": "QuestCombatEncounter",
+      "original_line": 1058,
+      "path": "data/quest/contract.py",
+      "line": 13,
+      "ast_identical": true,
+      "original_ast_sha256": "23990500b4d5d41999e88e91df6595ba7ec649012dc89b9e2e28a49cf9ac68b4",
+      "candidate_ast_sha256": "23990500b4d5d41999e88e91df6595ba7ec649012dc89b9e2e28a49cf9ac68b4"
+    },
+    {
+      "name": "QuestStageRequirement",
+      "original_line": 1073,
+      "path": "data/quest/contract.py",
+      "line": 28,
+      "ast_identical": true,
+      "original_ast_sha256": "993ca00fcd6f954d166df2206be45cf3a7b27243f6f034e1876f5e1ef56f7429",
+      "candidate_ast_sha256": "993ca00fcd6f954d166df2206be45cf3a7b27243f6f034e1876f5e1ef56f7429"
+    },
+    {
+      "name": "QuestChoiceOption",
+      "original_line": 1093,
+      "path": "data/quest/contract.py",
+      "line": 48,
+      "ast_identical": true,
+      "original_ast_sha256": "db5c293e3e4b58c2354b9be39186bd7942dc826a7605cdaa60a3a060681c38ff",
+      "candidate_ast_sha256": "db5c293e3e4b58c2354b9be39186bd7942dc826a7605cdaa60a3a060681c38ff"
+    },
+    {
+      "name": "QuestChoice",
+      "original_line": 1100,
+      "path": "data/quest/contract.py",
+      "line": 55,
+      "ast_identical": true,
+      "original_ast_sha256": "4ece22e92fb3d494a2c2d3139ed0d5110cf029adb2a04061795aef80948ae255",
+      "candidate_ast_sha256": "4ece22e92fb3d494a2c2d3139ed0d5110cf029adb2a04061795aef80948ae255"
+    },
+    {
+      "name": "QuestPrerequisite",
+      "original_line": 1108,
+      "path": "data/quest/contract.py",
+      "line": 63,
+      "ast_identical": true,
+      "original_ast_sha256": "cc801f1306f9ef7726b91ed13f416adc6f71004dbdc8a3f858206fddf73fa944",
+      "candidate_ast_sha256": "cc801f1306f9ef7726b91ed13f416adc6f71004dbdc8a3f858206fddf73fa944"
+    },
+    {
+      "name": "QuestSkillRequirement",
+      "original_line": 1114,
+      "path": "data/quest/contract.py",
+      "line": 69,
+      "ast_identical": true,
+      "original_ast_sha256": "8a0b6dc5127a1f0852af67ef5b372513ef4afcb8a7c7e15fed2f9198c906cb04",
+      "candidate_ast_sha256": "8a0b6dc5127a1f0852af67ef5b372513ef4afcb8a7c7e15fed2f9198c906cb04"
+    },
+    {
+      "name": "QuestXpReward",
+      "original_line": 1121,
+      "path": "data/quest/contract.py",
+      "line": 76,
+      "ast_identical": true,
+      "original_ast_sha256": "35f0dceefc931f91af22edf2299007e99daf5ed19e9861d661e6ce19a1d671ad",
+      "candidate_ast_sha256": "35f0dceefc931f91af22edf2299007e99daf5ed19e9861d661e6ce19a1d671ad"
+    },
+    {
+      "name": "QuestLampReward",
+      "original_line": 1127,
+      "path": "data/quest/contract.py",
+      "line": 82,
+      "ast_identical": true,
+      "original_ast_sha256": "de79060eb71e9b12cb5c3ce417eac1592d7e9c287d30afce67613b2a71445eb2",
+      "candidate_ast_sha256": "de79060eb71e9b12cb5c3ce417eac1592d7e9c287d30afce67613b2a71445eb2"
+    },
+    {
+      "name": "QuestDefinition",
+      "original_line": 1138,
+      "path": "data/quest/contract.py",
+      "line": 93,
+      "ast_identical": true,
+      "original_ast_sha256": "3aec768f0f83f43fbf07f3e0abce1a078be7f460092b1f4035ae74c95b95155c",
+      "candidate_ast_sha256": "3aec768f0f83f43fbf07f3e0abce1a078be7f460092b1f4035ae74c95b95155c"
+    },
+    {
+      "name": "ClaimDefinition",
+      "original_line": 1171,
+      "path": "data/quest/contract.py",
+      "line": 126,
+      "ast_identical": true,
+      "original_ast_sha256": "14195882d42fa22502005e0187136fadf2c35d3a3022d8364556b048e1efcba9",
+      "candidate_ast_sha256": "14195882d42fa22502005e0187136fadf2c35d3a3022d8364556b048e1efcba9"
+    },
+    {
+      "name": "QuestReference",
+      "original_line": 1189,
+      "path": "data/quest/contract.py",
+      "line": 144,
+      "ast_identical": true,
+      "original_ast_sha256": "7df4a0d35876d6ca29e294621341d87d43bb215fbc7c23535081e31db900db45",
+      "candidate_ast_sha256": "7df4a0d35876d6ca29e294621341d87d43bb215fbc7c23535081e31db900db45"
+    },
+    {
+      "name": "QuestUnlockRule",
+      "original_line": 1197,
+      "path": "data/quest/contract.py",
+      "line": 152,
+      "ast_identical": true,
+      "original_ast_sha256": "432c6bc7c3da5361244e8b889797f2b7da8d7a3e417e310d123965e7f8ebe7fa",
+      "candidate_ast_sha256": "432c6bc7c3da5361244e8b889797f2b7da8d7a3e417e310d123965e7f8ebe7fa"
+    },
+    {
+      "name": "TargetUnlockRequirement",
+      "original_line": 1207,
+      "path": "data/quest/contract.py",
+      "line": 162,
+      "ast_identical": true,
+      "original_ast_sha256": "fde4e2853d0d26c87b1291fcd3a546362e43c9e86c75ccc0756663ef7f95c003",
+      "candidate_ast_sha256": "fde4e2853d0d26c87b1291fcd3a546362e43c9e86c75ccc0756663ef7f95c003"
+    },
+    {
+      "name": "TargetUnlockRule",
+      "original_line": 1216,
+      "path": "data/quest/contract.py",
+      "line": 171,
+      "ast_identical": true,
+      "original_ast_sha256": "898e2960a628a627bcb83df421364cfc41a8bfb91d62650f522b243492cda8e4",
+      "candidate_ast_sha256": "898e2960a628a627bcb83df421364cfc41a8bfb91d62650f522b243492cda8e4"
+    },
+    {
+      "name": "_clean_journal",
+      "original_line": 1223,
+      "path": "data/quest/contract.py",
+      "line": 178,
+      "ast_identical": true,
+      "original_ast_sha256": "ff22c3c5e62ce2e81363ca10449be92e9ea9af591263869446870aabcdc97427",
+      "candidate_ast_sha256": "ff22c3c5e62ce2e81363ca10449be92e9ea9af591263869446870aabcdc97427"
+    },
+    {
+      "name": "_simple_stage",
+      "original_line": 1233,
+      "path": "data/quest/contract.py",
+      "line": 188,
+      "ast_identical": true,
+      "original_ast_sha256": "0f3d4c6be394a6b0d108ad9ce5ea3c0ea4a743862d969e26c7fca36d7deebb68",
+      "candidate_ast_sha256": "0f3d4c6be394a6b0d108ad9ce5ea3c0ea4a743862d969e26c7fca36d7deebb68"
+    },
+    {
+      "name": "_stage_req",
+      "original_line": 3758,
+      "path": "data/quest/contract.py",
+      "line": 192,
+      "ast_identical": true,
+      "original_ast_sha256": "09dc9f034e8db69d141f6148b5cdfaa153205f0e1c58d89cbe233ab1adb8129b",
+      "candidate_ast_sha256": "09dc9f034e8db69d141f6148b5cdfaa153205f0e1c58d89cbe233ab1adb8129b"
+    },
+    {
+      "name": "_combat",
+      "original_line": 3797,
+      "path": "data/quest/contract.py",
+      "line": 231,
+      "ast_identical": true,
+      "original_ast_sha256": "0e54ccaadb1e8b8a301a2b8f9b59927e3767b96babf7864f7af9c789ebf8c9bd",
+      "candidate_ast_sha256": "0e54ccaadb1e8b8a301a2b8f9b59927e3767b96babf7864f7af9c789ebf8c9bd"
+    },
+    {
+      "name": "QuestStageRequirementCleanup",
+      "original_line": 3831,
+      "path": "data/quest/contract.py",
+      "line": 265,
+      "ast_identical": true,
+      "original_ast_sha256": "d4ca451ee14481169d8eb6e18640d4ff275051894eed69c3f9563ae7f7f38a3b",
+      "candidate_ast_sha256": "d4ca451ee14481169d8eb6e18640d4ff275051894eed69c3f9563ae7f7f38a3b"
+    },
+    {
+      "name": "_generated_stage_count",
+      "original_line": 10006,
+      "path": "data/quest/catalog.py",
+      "line": 27,
+      "ast_identical": true,
+      "original_ast_sha256": "e16aa2fda44a0403562b17f153147dddbc2144eea9dde4fa83f2c8536cdd7c7b",
+      "candidate_ast_sha256": "e16aa2fda44a0403562b17f153147dddbc2144eea9dde4fa83f2c8536cdd7c7b"
+    },
+    {
+      "name": "_generated_journal_stages",
+      "original_line": 10010,
+      "path": "data/quest/catalog.py",
+      "line": 31,
+      "ast_identical": true,
+      "original_ast_sha256": "fcf2cf1060865be46a36a4a68a77f6a6977ea63f784fa1776f3dbcfb77421580",
+      "candidate_ast_sha256": "fcf2cf1060865be46a36a4a68a77f6a6977ea63f784fa1776f3dbcfb77421580"
+    },
+    {
+      "name": "_catalog_journal_stages",
+      "original_line": 10020,
+      "path": "data/quest/catalog.py",
+      "line": 41,
+      "ast_identical": true,
+      "original_ast_sha256": "d9dd4c37616b2d722664c1f12d415bf11a27e3e6f7c01999cd94b9043fcb364f",
+      "candidate_ast_sha256": "d9dd4c37616b2d722664c1f12d415bf11a27e3e6f7c01999cd94b9043fcb364f"
+    },
+    {
+      "name": "_quest_reward_item_name",
+      "original_line": 10039,
+      "path": "data/quest/catalog.py",
+      "line": 60,
+      "ast_identical": true,
+      "original_ast_sha256": "075a5e8e9ef6220291a722720fee1953a6d0737c2fdf123bfebc3b81c837618e",
+      "candidate_ast_sha256": "075a5e8e9ef6220291a722720fee1953a6d0737c2fdf123bfebc3b81c837618e"
+    },
+    {
+      "name": "_catalog_int",
+      "original_line": 10046,
+      "path": "data/quest/catalog.py",
+      "line": 67,
+      "ast_identical": true,
+      "original_ast_sha256": "e797b2bb5ca7f20fb20bdaa53e6922ac1f46556d94acb20f5b7866c700c49939",
+      "candidate_ast_sha256": "e797b2bb5ca7f20fb20bdaa53e6922ac1f46556d94acb20f5b7866c700c49939"
+    },
+    {
+      "name": "_catalog_bool",
+      "original_line": 10053,
+      "path": "data/quest/catalog.py",
+      "line": 74,
+      "ast_identical": true,
+      "original_ast_sha256": "ab4ae1e9fa7d39463af161744b4b0ba2b253ba66ea0425581852101406d0ca3a",
+      "candidate_ast_sha256": "ab4ae1e9fa7d39463af161744b4b0ba2b253ba66ea0425581852101406d0ca3a"
+    },
+    {
+      "name": "_catalog_item_pairs",
+      "original_line": 10058,
+      "path": "data/quest/catalog.py",
+      "line": 79,
+      "ast_identical": true,
+      "original_ast_sha256": "854ed3f4978ef69324f629ebf5b905f3ad48259411d35a2bf504acc1656e0d31",
+      "candidate_ast_sha256": "854ed3f4978ef69324f629ebf5b905f3ad48259411d35a2bf504acc1656e0d31"
+    },
+    {
+      "name": "_catalog_item_options",
+      "original_line": 10083,
+      "path": "data/quest/catalog.py",
+      "line": 104,
+      "ast_identical": true,
+      "original_ast_sha256": "3f9d6b1fc460eef43cbdc20b21a09096bd61e0743e08ddcc8d6bf429c191a618",
+      "candidate_ast_sha256": "3f9d6b1fc460eef43cbdc20b21a09096bd61e0743e08ddcc8d6bf429c191a618"
+    },
+    {
+      "name": "_catalog_object_pairs",
+      "original_line": 10096,
+      "path": "data/quest/catalog.py",
+      "line": 117,
+      "ast_identical": true,
+      "original_ast_sha256": "3a40d2ab3a823f3f338dad82b79f9fc3ff3e119a8c3f7b13172a5f44200e0935",
+      "candidate_ast_sha256": "3a40d2ab3a823f3f338dad82b79f9fc3ff3e119a8c3f7b13172a5f44200e0935"
+    },
+    {
+      "name": "_catalog_strings",
+      "original_line": 10102,
+      "path": "data/quest/catalog.py",
+      "line": 123,
+      "ast_identical": true,
+      "original_ast_sha256": "0ea95846ebcf265cab4c507805791b171eafd729a54629d7257877ee5f5273f6",
+      "candidate_ast_sha256": "0ea95846ebcf265cab4c507805791b171eafd729a54629d7257877ee5f5273f6"
+    },
+    {
+      "name": "_catalog_combat_encounters",
+      "original_line": 10110,
+      "path": "data/quest/catalog.py",
+      "line": 131,
+      "ast_identical": true,
+      "original_ast_sha256": "6df37ff48a0b3b3b56ce316899f5312352fc0e71470681ae1a6691acb56e20ff",
+      "candidate_ast_sha256": "6df37ff48a0b3b3b56ce316899f5312352fc0e71470681ae1a6691acb56e20ff"
+    },
+    {
+      "name": "_catalog_stage_requirements",
+      "original_line": 10139,
+      "path": "data/quest/catalog.py",
+      "line": 160,
+      "ast_identical": true,
+      "original_ast_sha256": "226e046e89496f22a2d37ace767159990e9acde8eda3cbd00988a8d4cfbaabb6",
+      "candidate_ast_sha256": "226e046e89496f22a2d37ace767159990e9acde8eda3cbd00988a8d4cfbaabb6"
+    },
+    {
+      "name": "_quest_from_catalog",
+      "original_line": 10182,
+      "path": "data/quest/catalog.py",
+      "line": 203,
+      "ast_identical": true,
+      "original_ast_sha256": "09cb109b7504b36e7e34fdff8a37ca9ab7330e567c357f0bdf938c6f21484b96",
+      "candidate_ast_sha256": "09cb109b7504b36e7e34fdff8a37ca9ab7330e567c357f0bdf938c6f21484b96"
+    },
+    {
+      "name": "_quest_catalog_row_id",
+      "original_line": 10268,
+      "path": "data/quest/catalog.py",
+      "line": 289,
+      "ast_identical": true,
+      "original_ast_sha256": "1644963df8d037a6f2e1157f3d5692e34ce3ea4eacde5f9d5453ff946b64dee3",
+      "candidate_ast_sha256": "1644963df8d037a6f2e1157f3d5692e34ce3ea4eacde5f9d5453ff946b64dee3"
+    },
+    {
+      "name": "_dedupe_stage_requirements",
+      "original_line": 10272,
+      "path": "data/quest/catalog.py",
+      "line": 293,
+      "ast_identical": true,
+      "original_ast_sha256": "6c99683048113380051c374fde77014259d3358ae7af15e1149cac67cfbb1669",
+      "candidate_ast_sha256": "6c99683048113380051c374fde77014259d3358ae7af15e1149cac67cfbb1669"
+    },
+    {
+      "name": "_apply_combat_encounter_replacements",
+      "original_line": 10299,
+      "path": "data/quest/catalog.py",
+      "line": 320,
+      "ast_identical": true,
+      "original_ast_sha256": "bb1d18ee15e5e39a88a89fea17047310f4aced070e096f1ab5b6d9c879274258",
+      "candidate_ast_sha256": "bb1d18ee15e5e39a88a89fea17047310f4aced070e096f1ab5b6d9c879274258"
+    },
+    {
+      "name": "_remove_stage_item_names",
+      "original_line": 10326,
+      "path": "data/quest/catalog.py",
+      "line": 347,
+      "ast_identical": true,
+      "original_ast_sha256": "635d35bc3bb4a808cfcc137eb221d8e670bed952ed7a392da927c3ed7e78c2de",
+      "candidate_ast_sha256": "635d35bc3bb4a808cfcc137eb221d8e670bed952ed7a392da927c3ed7e78c2de"
+    },
+    {
+      "name": "_remove_stage_option_item_names",
+      "original_line": 10336,
+      "path": "data/quest/catalog.py",
+      "line": 357,
+      "ast_identical": true,
+      "original_ast_sha256": "5401281e924e8ec38163ae2d51c80653eaa072bb565feecc669bd14f6104eae3",
+      "candidate_ast_sha256": "5401281e924e8ec38163ae2d51c80653eaa072bb565feecc669bd14f6104eae3"
+    },
+    {
+      "name": "_append_unique_strings",
+      "original_line": 10351,
+      "path": "data/quest/catalog.py",
+      "line": 372,
+      "ast_identical": true,
+      "original_ast_sha256": "e522badd0e8c57f97609c647a14d5967e0d706cb6f2376f64b75a8114824cdfe",
+      "candidate_ast_sha256": "e522badd0e8c57f97609c647a14d5967e0d706cb6f2376f64b75a8114824cdfe"
+    },
+    {
+      "name": "_append_stage_item_pairs",
+      "original_line": 10359,
+      "path": "data/quest/catalog.py",
+      "line": 380,
+      "ast_identical": true,
+      "original_ast_sha256": "225919693096ede43c2c8b67d973c2f7d11373986fd9ad4559222c223910a53a",
+      "candidate_ast_sha256": "225919693096ede43c2c8b67d973c2f7d11373986fd9ad4559222c223910a53a"
+    },
+    {
+      "name": "_append_stage_item_options",
+      "original_line": 10376,
+      "path": "data/quest/catalog.py",
+      "line": 397,
+      "ast_identical": true,
+      "original_ast_sha256": "2390e06cf6720fe5af86506a993ba4eb3e7a76a984200eafd56cdfaf779a848e",
+      "candidate_ast_sha256": "2390e06cf6720fe5af86506a993ba4eb3e7a76a984200eafd56cdfaf779a848e"
+    },
+    {
+      "name": "_override_stage_item_pairs",
+      "original_line": 10387,
+      "path": "data/quest/catalog.py",
+      "line": 408,
+      "ast_identical": true,
+      "original_ast_sha256": "3938d184debd9769e75c49fa4f507cf0304c165d8c4391bbee69c76ddfe82cda",
+      "candidate_ast_sha256": "3938d184debd9769e75c49fa4f507cf0304c165d8c4391bbee69c76ddfe82cda"
+    },
+    {
+      "name": "_apply_stage_item_name_overrides",
+      "original_line": 10396,
+      "path": "data/quest/catalog.py",
+      "line": 417,
+      "ast_identical": true,
+      "original_ast_sha256": "6c3d32da6d0e168d8b5c4dd42f355098d7c4e9cd68206a2b18829f7758afb5d2",
+      "candidate_ast_sha256": "6c3d32da6d0e168d8b5c4dd42f355098d7c4e9cd68206a2b18829f7758afb5d2"
+    },
+    {
+      "name": "_apply_stage_requirement_cleanup",
+      "original_line": 10421,
+      "path": "data/quest/catalog.py",
+      "line": 442,
+      "ast_identical": true,
+      "original_ast_sha256": "4923f6e0f02711646e34fae7a11f14e8f005b34dc2516594f8438029ddd1c79d",
+      "candidate_ast_sha256": "4923f6e0f02711646e34fae7a11f14e8f005b34dc2516594f8438029ddd1c79d"
+    },
+    {
+      "name": "_apply_stage_requirement_cleanups",
+      "original_line": 10467,
+      "path": "data/quest/catalog.py",
+      "line": 488,
+      "ast_identical": true,
+      "original_ast_sha256": "abc181106921f77c24555902574314a0462f6f1a7f70235a4d2fef19c3bb38d3",
+      "candidate_ast_sha256": "abc181106921f77c24555902574314a0462f6f1a7f70235a4d2fef19c3bb38d3"
+    },
+    {
+      "name": "_quest_with_stage_requirements",
+      "original_line": 10489,
+      "path": "data/quest/catalog.py",
+      "line": 510,
+      "ast_identical": true,
+      "original_ast_sha256": "744766d40606d16dbbe07871859de12ab2efe2970a2067b585c326f014a88abc",
+      "candidate_ast_sha256": "744766d40606d16dbbe07871859de12ab2efe2970a2067b585c326f014a88abc"
+    },
+    {
+      "name": "_quest_target_unlock_rule",
+      "original_line": 11073,
+      "path": "data/quest/ledger.py",
+      "line": 173,
+      "ast_identical": true,
+      "original_ast_sha256": "1442c2091640ee2b33e117be269a6859c7120c70560154b524ac99dd049cbc15",
+      "candidate_ast_sha256": "1442c2091640ee2b33e117be269a6859c7120c70560154b524ac99dd049cbc15"
+    },
+    {
+      "name": "_lamp_claim_id",
+      "original_line": 11161,
+      "path": "data/quest/ledger.py",
+      "line": 261,
+      "ast_identical": true,
+      "original_ast_sha256": "03368702a52c64c6c8bbbf4d7725f4e4e4dcf9628fbd7c8e72a5867128dfd27c",
+      "candidate_ast_sha256": "03368702a52c64c6c8bbbf4d7725f4e4e4dcf9628fbd7c8e72a5867128dfd27c"
+    },
+    {
+      "name": "_quest_lamp_claims",
+      "original_line": 11165,
+      "path": "data/quest/ledger.py",
+      "line": 265,
+      "ast_identical": true,
+      "original_ast_sha256": "c76e420ea777cb2ba39f40c7a9fc3e1c6697352357d72b52ce685fead4445355",
+      "candidate_ast_sha256": "c76e420ea777cb2ba39f40c7a9fc3e1c6697352357d72b52ce685fead4445355"
+    },
+    {
+      "name": "default_quest_states",
+      "original_line": 11293,
+      "path": "data/quest/ledger.py",
+      "line": 393,
+      "ast_identical": true,
+      "original_ast_sha256": "1c31d457138f784c48f1d99dcc4ba4eca32b257b13f7a2baa8b388d1649b72b3",
+      "candidate_ast_sha256": "1c31d457138f784c48f1d99dcc4ba4eca32b257b13f7a2baa8b388d1649b72b3"
+    },
+    {
+      "name": "default_claim_states",
+      "original_line": 11297,
+      "path": "data/quest/ledger.py",
+      "line": 397,
+      "ast_identical": true,
+      "original_ast_sha256": "b4eca8695388844c992db8d1c607fc0455a5fad6b04eac2a7526ded8a3cc9511",
+      "candidate_ast_sha256": "b4eca8695388844c992db8d1c607fc0455a5fad6b04eac2a7526ded8a3cc9511"
+    },
+    {
+      "name": "_quest_requirement_dict",
+      "original_line": 11307,
+      "path": "data/quest/serializers.py",
+      "line": 7,
+      "ast_identical": true,
+      "original_ast_sha256": "d0b4ad7da5ebe1720bbbe2f64dd7f04e050f721fb831f99e44de704cf7247fe4",
+      "candidate_ast_sha256": "d0b4ad7da5ebe1720bbbe2f64dd7f04e050f721fb831f99e44de704cf7247fe4"
+    },
+    {
+      "name": "_skill_requirement_dict",
+      "original_line": 11311,
+      "path": "data/quest/serializers.py",
+      "line": 11,
+      "ast_identical": true,
+      "original_ast_sha256": "b81dce57e6573b479e73733080fbeb8ecd2ac014a73caf1c2526b8a93ed12f6b",
+      "candidate_ast_sha256": "b81dce57e6573b479e73733080fbeb8ecd2ac014a73caf1c2526b8a93ed12f6b"
+    },
+    {
+      "name": "_xp_reward_dict",
+      "original_line": 11315,
+      "path": "data/quest/serializers.py",
+      "line": 15,
+      "ast_identical": true,
+      "original_ast_sha256": "3467460e31258900f3e443b7db817f7f66da6e3abadcd9bb43a8c625a68208d8",
+      "candidate_ast_sha256": "3467460e31258900f3e443b7db817f7f66da6e3abadcd9bb43a8c625a68208d8"
+    },
+    {
+      "name": "_lamp_reward_dict",
+      "original_line": 11319,
+      "path": "data/quest/serializers.py",
+      "line": 19,
+      "ast_identical": true,
+      "original_ast_sha256": "77d2ec30de4a97e2b37b0274c5deed3f64992b2228465b17a6cf7ca1759cf40d",
+      "candidate_ast_sha256": "77d2ec30de4a97e2b37b0274c5deed3f64992b2228465b17a6cf7ca1759cf40d"
+    },
+    {
+      "name": "_quest_choice_option_dict",
+      "original_line": 11331,
+      "path": "data/quest/serializers.py",
+      "line": 31,
+      "ast_identical": true,
+      "original_ast_sha256": "b30ff2e475a0c5502816906ef2b4019ebb6f9a4b5ed87e6475c21d5a221a2830",
+      "candidate_ast_sha256": "b30ff2e475a0c5502816906ef2b4019ebb6f9a4b5ed87e6475c21d5a221a2830"
+    },
+    {
+      "name": "_quest_choice_dict",
+      "original_line": 11335,
+      "path": "data/quest/serializers.py",
+      "line": 35,
+      "ast_identical": true,
+      "original_ast_sha256": "de1b68091abf9a7c240969e1c81581ba345c395f45dc6965fe75792027bf3f61",
+      "candidate_ast_sha256": "de1b68091abf9a7c240969e1c81581ba345c395f45dc6965fe75792027bf3f61"
+    },
+    {
+      "name": "_combat_encounter_dict",
+      "original_line": 11344,
+      "path": "data/quest/serializers.py",
+      "line": 44,
+      "ast_identical": true,
+      "original_ast_sha256": "9db0c9c3c6317084051c89ba33d7340f4895b8342136f5890f8abf21e9422748",
+      "candidate_ast_sha256": "9db0c9c3c6317084051c89ba33d7340f4895b8342136f5890f8abf21e9422748"
+    },
+    {
+      "name": "_stage_requirement_dict",
+      "original_line": 11360,
+      "path": "data/quest/serializers.py",
+      "line": 60,
+      "ast_identical": true,
+      "original_ast_sha256": "89d7f1ba9af7dab735dc86c5e9f24da507585169b424ecf062af5e5c8e338c59",
+      "candidate_ast_sha256": "89d7f1ba9af7dab735dc86c5e9f24da507585169b424ecf062af5e5c8e338c59"
+    },
+    {
+      "name": "quests_as_dict",
+      "original_line": 11389,
+      "path": "data/quest/serializers.py",
+      "line": 89,
+      "ast_identical": true,
+      "original_ast_sha256": "30066853217e1bec25fd9ac2525921b154211869d2ab6e07fe40a63d1de32109",
+      "candidate_ast_sha256": "30066853217e1bec25fd9ac2525921b154211869d2ab6e07fe40a63d1de32109"
+    },
+    {
+      "name": "quest_references_as_dict",
+      "original_line": 11424,
+      "path": "data/quest/serializers.py",
+      "line": 124,
+      "ast_identical": true,
+      "original_ast_sha256": "7edd021a1357b34360e673e053f1f1aca9e024a7cf3e0bbba0b1c75ae0c2e46d",
+      "candidate_ast_sha256": "7edd021a1357b34360e673e053f1f1aca9e024a7cf3e0bbba0b1c75ae0c2e46d"
+    },
+    {
+      "name": "target_unlock_rules_as_dict",
+      "original_line": 11431,
+      "path": "data/quest/serializers.py",
+      "line": 131,
+      "ast_identical": true,
+      "original_ast_sha256": "954df7584fc0f112c03447b537c51f4fc7dbab04fe27254e3747bfdea281c5a9",
+      "candidate_ast_sha256": "954df7584fc0f112c03447b537c51f4fc7dbab04fe27254e3747bfdea281c5a9"
+    },
+    {
+      "name": "quest_unlock_rules_as_dict",
+      "original_line": 11452,
+      "path": "data/quest/serializers.py",
+      "line": 152,
+      "ast_identical": true,
+      "original_ast_sha256": "c376c792bbfdada6152563b906c398b9369105d047c78164325c092a66507edf",
+      "candidate_ast_sha256": "c376c792bbfdada6152563b906c398b9369105d047c78164325c092a66507edf"
+    },
+    {
+      "name": "quest_reward_items_as_dict",
+      "original_line": 11456,
+      "path": "data/quest/reward_items.py",
+      "line": 71,
+      "ast_identical": false,
+      "original_ast_sha256": "d82d0fef262846461c903ada4a75033012e179cfbde7c981563043514947e7f0",
+      "candidate_ast_sha256": "6a35cea16a6201a6dcc69e15cf4e9e6a15058f5a18d4c2e432605f9382753c32"
+    },
+    {
+      "name": "claims_as_dict",
+      "original_line": 12644,
+      "path": "data/quest/ledger.py",
+      "line": 410,
+      "ast_identical": false,
+      "original_ast_sha256": "2b290daed5de62780876fb927e56c2119de95d992f237bb832116cd8c0d61b2b",
+      "candidate_ast_sha256": "6b4339499f53263a033df0fba6bb51bb72e1b6e8675dce4b91ce2ff5e854ac86"
+    }
+  ],
+  "mapping_preservation": [
+    {
+      "name": "QUEST_CHOICE_REPLACEMENTS_BY_ID",
+      "entries": 2,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID",
+      "entries": 1,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID",
+      "entries": 1,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID",
+      "entries": 15,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID",
+      "entries": 15,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID",
+      "entries": 15,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID",
+      "entries": 43,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_UNLOCK_REPLACEMENTS_BY_ID",
+      "entries": 22,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_XP_REWARD_REPLACEMENTS_BY_ID",
+      "entries": 9,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID",
+      "entries": 3,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID",
+      "entries": 45,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID",
+      "entries": 4,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID",
+      "entries": 74,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID",
+      "entries": 8,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    },
+    {
+      "name": "QUEST_REFERENCES_BY_ID",
+      "entries": 0,
+      "exact_key_set_and_value_asts": true,
+      "unique_keys": true
+    }
+  ],
+  "assembly_order": {
+    "stage_replacement_entries": 45,
+    "stage_replacement_original_order": true,
+    "cleanup_entries": 74,
+    "complete_cleanup_assignment_ast_identical": true,
+    "reward_fragments": 39,
+    "reward_rows": 207,
+    "reward_original_ordered_key_and_value_asts": true
+  },
+  "reward_projection": {
+    "path": "data/quest/reward_items.py",
+    "helper_line": 55,
+    "public_line": 71,
+    "catalog_helper_body_is_original_catalog_projection_plus_return": true,
+    "authored_additions_loop_ast_identical": true,
+    "non_item_filter_and_return_ast_identical": true,
+    "fragment_metadata_copied_per_call": true,
+    "metadata_value_ast_kinds": {
+      "Constant": 392,
+      "JoinedStr": 200,
+      "Name": 5
+    },
+    "metadata_name_values_are_string_constants": [
+      "LEGACY_OF_SEERGAZE_REWARD_SOURCE",
+      "LEGACY_OF_SEERGAZE_SOURCE",
+      "LET_THEM_EAT_PIE_SPICES_SOURCE",
+      "LOST_CITY_SOURCE_PATH",
+      "TAI_BWO_WANNAI_TRIO_SOURCE"
+    ],
+    "scope": "Static allocation analysis only; the new identity and mutation test is authored but not executed. The original in-function literal allocated a fresh metadata dictionary per item per call."
+  },
+  "claims_adapter": {
+    "path": "data/quest/ledger.py",
+    "line": 410,
+    "only_change": "from .achievement_diary_data import diary_lamp_claims_as_dict -> from ..achievement_diary_data import diary_lamp_claims_as_dict"
+  },
+  "public_exports": {
+    "count": 703,
+    "exact_original_binding_order": true,
+    "order_sha256": "52c2a717897772ebfd24a710e38aeec1d477ea615aafc364530e7c5d34d4de76",
+    "runtime_missing_extra_checks_authored": true
+  },
+  "protected_main_files_byte_identical": [
+    "tests/test_quest_catalog.py",
+    "tests/quest_catalog/test_literal_mappings.py",
+    "tests/test_module_surface.py",
+    "tools/module_surface.py",
+    "run_tests.py"
+  ],
+  "consolidations": {
+    "data/quest/stage_cleanups.py": {
+      "lines": 986,
+      "original_literal_lines": 976,
+      "replaces": [
+        "data/quest/stage_cleanups/__init__.py",
+        "data/quest/stage_cleanups/classic.py",
+        "data/quest/stage_cleanups/later.py"
+      ]
+    },
+    "data/quest/sources.py": {
+      "lines": 963,
+      "replaces": [
+        "data/quest/sources/__init__.py",
+        "data/quest/sources/catalog.py"
+      ]
+    }
+  },
+  "part_inventory": {
+    "part_files": 83,
+    "production_files": 84,
+    "largest_module_lines": 986,
+    "facade_lines": 728,
+    "all_modules_at_most_1000_lines": true,
+    "explicit_import_graph_nodes": 84,
+    "explicit_import_graph_edges": 486,
+    "explicit_import_graph_acyclic": true,
+    "facade_backimports": false,
+    "preexisting_external_diary_cycle_removed": false
+  },
+  "new_test_ids": [
+    "quest_catalog.test_split_contract.TestQuestSplitContract.test_reward_item_metadata_is_owned_by_each_projection",
+    "quest_catalog.test_split_contract.TestQuestSplitContract.test_every_quest_part_imports_without_loading_the_facade",
+    "quest_catalog.test_split_contract.TestQuestSplitContract.test_public_exports_preserve_names_and_original_order"
+  ],
+  "conflict_resolution": {
+    "path": "tests/test_quest_catalog.py",
+    "index_base_blob": "adb3be490fa5685e6b4049b54ab7d9701f36a4c5",
+    "index_main_blob": "8533f7a45fd55a85f4eb75f91acfe78152abbadb",
+    "index_stash_blob": "ccf247b1f0ff805bcd75f139494d73f20e0cacdd",
+    "markers": [
+      "<<<<<<< Updated upstream",
+      "=======",
+      ">>>>>>> Stashed changes"
+    ],
+    "resolution": "Entire main file restored under owner rulings 44 and 47; its replacement scanner and measuring module remain byte-identical to main."
+  },
+  "verification_pending": [
+    "Independent source and measurement review",
+    "Authoritative complexity gate for changed reward projector and new helper",
+    "Native independent imports and all three new behavior/export tests in both interpreter lanes",
+    "Complete quest and shared measuring modules in both lanes",
+    "All required current-main public payloads and serialized quest tables byte-identical",
+    "Exact main discovery plus only the three added test IDs",
+    "Full branch/repository and exact merged-tree gates"
+  ],
+  "scope": "Only file authoring, source reads, AST comparison, and source hashing ran. No project imports, test execution, runtime, MBP access, sync, external actions, or commits. The parent retained the complete original dirty split in the named stash, which remains untouched.",
+  "independent_review": {
+    "session": "21419",
+    "original_path": "/tmp/ankiscape-quest-data-reconciliation-opus-review-2026-09-05.txt",
+    "raw_bytes": 5081,
+    "raw_sha256": "aa221d1aa88a2da508fd746be287a8949aa20450f56d49ccfaa391c36ae50c62",
+    "retained_path": "memory-bank/evidence/quest-data-reconciliation-2026-09-05/reconciliation-review.txt.gz",
+    "stored_bytes": 2461,
+    "stored_sha256": "dad95a673b328082f426088485e2add3baa697e2c67892aaa9f8a37f311792db",
+    "parent_terminal_result": "exit 0, PASS",
+    "reviewed_source_manifest_sha256": "b8941e4b6480aecf59a80baf98c48d78de708a394ab5f68b401a7c82c0a5fc1f",
+    "dispositions": [
+      {
+        "finding": "Unused imports in reward_items.py",
+        "decision": "Removed .ids, .sources, and .item_names star imports."
+      },
+      {
+        "finding": "Mutation comparison uses an independent expected value",
+        "decision": "Deep-copy the second result before mutation and compare the third result with that snapshot; retain every per-row identity assertion."
+      },
+      {
+        "finding": "Optional aggregate duplicate-export test",
+        "decision": "Not added. Parent/group exports intentionally overlap; exact public surface, original export order, and static definition checks retain the contract."
+      },
+      {
+        "finding": "Optional comment and runtime concern",
+        "decision": "No additional source change. Runtime verification remains pending."
+      }
+    ]
+  }
+}
