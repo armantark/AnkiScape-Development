@@ -2071,3 +2071,17 @@
 - 2026-09-06T05:02:00Z: Final combat human diff exceeded its 25,000-byte review cap at 26,164 bytes; condensed handoff prose while retaining full source and evidence.
 
 - 2026-09-06: Locating the combat documentation audit, rg returned exit 2 for absent .pre-commit-config.yaml and pyproject.toml; the command is python3 tools/audit_docs.py.
+
+- 2026-09-06: Checking enemy-roll Halstead limits, rg returned exit 2 for absent /Users/ArmanTarkhanian1/.codex/hooks/slop_gate.py; git config --get core.hooksPath identifies /Users/ArmanTarkhanian1/fleet/config/git/hooks.
+
+- 2026-09-07T20:34:26.860920+00:00 Recovering combat enemy attack rolls: memory-bank/handoffs/combat-enemy-attack-rolls-2026-09-05.md referenced memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05/manifest.json, but that file was absent after interruption; completed the evidence index without rerunning runtime proof.
+- 2026-09-07T20:34:53.134418+00:00 Combat enemy attack review packaging: default-context human diff was 26,275 bytes against the 25,000-byte cap; use one context line while retaining every changed source and documentation line.
+- 2026-09-07T20:35:16.800856+00:00 Combat review: one-context-line diff still measured 25,898 bytes; zero-context diff with condensed handoff then measured 25,087 bytes; shortened handoff again without dropping source changes.
+- 2026-09-07T20:45:52.454987+00:00 Parent Kimi review82373 failed 'error: tool loop exceeded 24 turns'; retry no-tools complete-diff74917 running.
+- 2026-09-07T20:45:52.455137+00:00 Parent tail '../gate-f00f510e.log' yielded 'No such file or directory'; actual log is ../../ankiscape_worktrees/gate-f00f510e.log.
+- 2026-09-07T20:48:27.086909+00:00 Parent runtime review assumed five focused tests from an incomplete filtered search; complete AST confirms CombatEnemyAttackStyleTest has 7 and CombatEnemyAttackRollsTest has 3, so require exactly 10 without reducing coverage.
+- 2026-09-07T21:12:33.989885+00:00 Updating operational-review pending status changed independent-review-resolution.md to SHA256 4e97137893642d43a8a0f73e4882afac7dad3d7bbbc82e09a73082bfe9a3e4c5 but manifest independent_review.resolution_sha256 remained ddbc07363fbe378f7bcf19548ce91adde890fa0b11809cbaf05c9d3e055ab351; refreshed the binding and checked current bindings.
+
+- 2026-09-07T14:51:51-07:00: Enemy-roll preparation: AGENTS.md is absent in the pooled worktree; applied the project instructions supplied in the task. Parent observation handles returned Unknown process id 79206 and Unknown process id 98298; these are missing handles, not failed jobs. Parent refreshed roster d35 receipt all 8 PASS at 2026-09-07T14:33:54-07:00 and completed Opus output.
+
+- 2026-09-07T15:00:14-07:00: Normal enemy-roll commit session 96877 exited 1: slop-gate: PEP 8 layout violations were introduced: tools/combat/check_enemy_attack_rolls_driver_guards.py: E302 x1 (was 0); E305 x1 (was 0). tools/combat/run_enemy_attack_rolls_remote.py: E301 x1 (was 0); E302 x1 (was 0); E305 x1 (was 0). Added blank lines only; ASTs are identical. No amend or hook bypass; prior guard binding retained and parent rerun required.

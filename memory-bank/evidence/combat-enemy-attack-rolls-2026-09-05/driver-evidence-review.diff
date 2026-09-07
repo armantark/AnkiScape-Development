@@ -1,0 +1,78 @@
+--- a/memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05/manifest.json
++++ b/memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05/manifest.json
+@@ -52,9 +52,8 @@
+   ],
+   "runtime_status": "NOT_RUN",
+   "missing_checks": [
+-    "Parent full human diff review",
+-    "Cross-lineage review",
+-    "Authorised host focused tests and differential probe",
++    "Cross-lineage verdict pending parent Kimi74917",
++    "Authorised host focused tests and differential probe after parent mirror ownership available",
+     "Normal commit hooks after parent approval",
+     "Both full test lanes",
+     "Merged-tree verification"
+@@ -91,5 +90,63 @@
+       "memory-bank/handoffs/combat-enemy-attack-rolls-2026-09-05.md",
+       "memory-bank/papercuts.md"
+     ]
++  },
++  "operational_scripts": {
++    "tools/combat/run_enemy_attack_rolls_remote.py": {
++      "sha256": "e12d4ab210806d72769cc3cc0aeeb687f4ac50c21ea0f27fa876e639d06f9c7b",
++      "in_product_source_inventory": false
++    },
++    "tools/combat/check_enemy_attack_rolls_driver_guards.py": {
++      "sha256": "85bc25ac7a72b259672d2b641bdbf63c3912e40033ee4b9ca4c6b9dbc189e88e",
++      "in_product_source_inventory": false
++    }
++  },
++  "product_snapshot": {
++    "inventory": "source-inventory.json.gz",
++    "scope": "Explicit frozen product and existing test/probe source paths. Added operational driver and canary are separately hashed; they are not members of this snapshot.",
++    "runtime_status": "NOT_RUN"
++  },
++  "driver_guard_canary": {
++    "status": "PASS",
++    "executed_by": "parent",
++    "source_capture": "/tmp/ankiscape-enemy-rolls-driver-guard-result-2026-09-07.json",
++    "raw_sha256": "a7eb97dfcbec593ddf9483eeef53722a9f7686d071de8aeafd8bda2d9c8c3bf6",
++    "retained_path": "driver-guard-result-2026-09-07.json.gz",
++    "retained_sha256": "233f9be4b75e7492bee3168e300b141b8dd6208aa35d6569fcb09ef199bb8927",
++    "case_count": 4,
++    "remote_calls": 0,
++    "sync_calls": 0,
++    "product_import_attempts": [],
++    "bound_operational_scripts": {
++      "tools/combat/run_enemy_attack_rolls_remote.py": {
++        "sha256": "e12d4ab210806d72769cc3cc0aeeb687f4ac50c21ea0f27fa876e639d06f9c7b",
++        "in_product_source_inventory": false
++      },
++      "tools/combat/check_enemy_attack_rolls_driver_guards.py": {
++        "sha256": "85bc25ac7a72b259672d2b641bdbf63c3912e40033ee4b9ca4c6b9dbc189e88e",
++        "in_product_source_inventory": false
++      }
++    }
++  },
++  "review_packets": {
++    "historical_product_preparation": {
++      "path": "human-review.diff",
++      "sha256": "548f2241608f30cdabcb89e2ba7ecfbd91af23d11515e615e72b99c542831056",
++      "frozen": true,
++      "scope": "Original product/test/probe and preparation documentation; excludes subsequent operational scripts and metadata."
++    },
++    "operational_scripts": {
++      "paths": [
++        "tools/combat/run_enemy_attack_rolls_remote.py",
++        "tools/combat/check_enemy_attack_rolls_driver_guards.py"
++      ],
++      "review": "Parent full read, followed by parent full corrections review.",
++      "corrections_path": "driver-corrections.diff",
++      "corrections_sha256": "3e66dadfeccbd11a8ccb5391e218e1068da28bcda58877caa06f59dc8a5d67af"
++    },
++    "current_metadata": {
++      "path": "driver-evidence-review.diff",
++      "scope": "This manifest update only; raw guard result retained separately."
++    }
+   }
+ }

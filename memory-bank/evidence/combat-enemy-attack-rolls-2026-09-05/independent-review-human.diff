@@ -1,0 +1,85 @@
+--- a/memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05/manifest.json
++++ b/memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05/manifest.json
+@@ -52,7 +52,6 @@
+   ],
+   "runtime_status": "FOCUSED_AND_DIFFERENTIAL_PASS",
+   "missing_checks": [
+-    "Cross-lineage verdict: parent Kimi74917 pending",
+     "Normal commit hooks and commit after parent approval",
+     "Both full branch lanes",
+     "Merged-tree checks after integration",
+@@ -170,5 +169,59 @@
+       "ownership": "released",
+       "pending_record_exists": false
+     }
++  },
++  "independent_review": {
++    "status": "CLOSED_AFTER_PARENT_RESOLUTION",
++    "session": "74917",
++    "exit_code": 0,
++    "original_verdict": "conditional static PASS",
++    "resolution": "independent-review-resolution.md",
++    "resolution_sha256": "ddbc07363fbe378f7bcf19548ce91adde890fa0b11809cbaf05c9d3e055ab351",
++    "provenance": {
++      "direct-prompt-2026-09-07.txt": {
++        "source": "/tmp/ankiscape-enemy-rolls-kimi-direct-prompt-2026-09-07.txt",
++        "retained": "kimi-direct-prompt-2026-09-07.txt.gz",
++        "decoded_bytes": 25427,
++        "decoded_sha256": "a5198d3102b2508d1a7427c57b3993cd4470df4ad86c448059ccd847717fe2bf",
++        "stored_sha256": "af9d531927e14d565a702d047e253a1834d0d81a0019f6639ba64355f991c5e5"
++      },
++      "direct-review-2026-09-07.txt": {
++        "source": "/tmp/ankiscape-enemy-rolls-kimi-direct-review-2026-09-07.txt",
++        "retained": "kimi-direct-review-2026-09-07.txt.gz",
++        "decoded_bytes": 6534,
++        "decoded_sha256": "4a2b4114b009d820167d3ea1ee13a55a3a0dcb2fbae4218c8bb4cbe5d4cd4c8f",
++        "stored_sha256": "b0b335bc75c5e4eac74f1b514fd98d713556dfcc3727ccbf8399d1c140d13535"
++      },
++      "direct-review-2026-09-07.stderr": {
++        "source": "/tmp/ankiscape-enemy-rolls-kimi-direct-review-2026-09-07.stderr",
++        "retained": "kimi-direct-review-2026-09-07.stderr.gz",
++        "decoded_bytes": 279,
++        "decoded_sha256": "6c94e5d321fb341e556c5730f7293b226eb1c8cfd961599c986379389dd4dc6e",
++        "stored_sha256": "23aec13fc230e2903f34be1e17c9bf60a41c0078024bbb550ff9b870d4202fff"
++      }
++    },
++    "independent_ast_F1": {
++      "removed_name_counts": {
++        "enemy_style": 0,
++        "enemy_class": 0,
++        "magic_melee": 0,
++        "enemy_attack_stat": 0,
++        "enemy_attack_bonus": 0
++      },
++      "enemy_attack_roll": [
++        {
++          "line": 1509,
++          "context": "Store"
++        },
++        {
++          "line": 1931,
++          "context": "Store"
++        },
++        {
++          "line": 2112,
++          "context": "Load"
++        }
++      ]
++    }
+   }
+ }
+--- /dev/null
++++ b/memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05/independent-review-resolution.md
+@@ -0,0 +1,12 @@
++# Enemy-roll independent review resolution
++
++Kimi session74917 exited 0 with conditional static PASS. Parent read the complete response and closed the findings below. Runtime proof remains separate. No source edits were needed.
++
++- F1 closed: independent AST inspection finds zero references in apply_combat_burst_pure for each of enemy_style, enemy_class, magic_melee, enemy_attack_stat and enemy_attack_bonus. enemy_attack_roll has Store nodes at 1509 and 1931 and its remaining Load at 2112. Parent read frozen base0af and confirmed original lines1473-1475 only sample weakening state and do not read those rolls. Parent also verified both subsequent runtime lanes.
++- F2 and F3 declined: optional comment and tuple-docstring additions repeat clear names and the explicit return. They identify no correctness defect.
++- F4 satisfied: manifest runtime requirements prohibit -O. Driver and remote commands remove PYTHONOPTIMIZE and retained setup records optimize0. No claim is made that an assertion rejects execution with -O.
++- F5 closed by parent source and runtime review: RecordedRandom falls back to seeded random.Random(20260905) after its prefix, so the prefix cannot exhaust the RNG. The empty-prefix runtime case records four draws and passes.
++- F6 satisfied: the differential capture already checks input nonmutation.
++- F7 satisfied: historical product human-review.diff remains 24,939 bytes with SHA256 548f2241608f30cdabcb89e2ba7ecfbd91af23d11515e615e72b99c542831056; manifest exists. Operational and review deltas are separate parent-reviewed packets. The combined worktree diff is not claimed to fit 25KB.
++
++Cross-lineage review is closed after parent resolution. Normal commit hooks and parent commit approval, full branch lanes, exact merged-tree checks and parent native programme acceptance remain open. Parent independently verified all 23 retained runtime files against original decoded bytes and complete file membership. No remote action, native UI action or code change accompanies this record.

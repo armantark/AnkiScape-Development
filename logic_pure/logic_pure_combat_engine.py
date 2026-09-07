@@ -1039,6 +1039,61 @@ def _combat_settle_kill_rewards(data, enemy, target_id, rng, drops, xp_rewards):
     return data, refused_clue, prayer_ticks
 
 
+def _combat_enemy_attack_rolls(
+    data,
+    enemy,
+    combat_class,
+    style_id,
+    player_totals,
+    enemy_totals,
+    prayer_effects,
+    enemy_attack_factor,
+    weakening_equipment,
+    weakening_active,
+):
+    enemy_style = _combat_enemy_attack_style(enemy, combat_class)
+    enemy_class = _combat_enemy_attack_class(enemy, combat_class)
+    magic_melee = enemy_style == "magic_melee"
+    enemy_attack_stat = (
+        "attack"
+        if magic_melee
+        else {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
+    )
+    enemy_attack_bonus = (
+        _combat_attack_bonus_from_totals(
+            enemy_totals,
+            "melee",
+            style_type="stab",
+        )
+        if magic_melee
+        else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
+    )
+    enemy_attack_roll = (
+        _positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8
+    ) * enemy_attack_factor * (enemy_attack_bonus + 64)
+    if weakening_active:
+        enemy_attack_roll *= max(
+            0.0,
+            float(weakening_equipment.get("enemy_accuracy_multiplier", 1.0)),
+        )
+    player_defence_roll = _combat_effective_player_defence_level(data, style_id) * float(prayer_effects.get("defence", 1.0)) * (
+        _combat_defence_bonus_from_totals(player_totals, enemy_class) + 64
+    )
+    enemy_accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
+    enemy_max_hit = _combat_enemy_max_hit_old_hp(
+        enemy,
+        _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
+        _equipment_bonus_value(enemy_totals, "melee_strength"),
+        enemy_totals,
+    )
+    if weakening_active:
+        enemy_max_hit *= max(
+            0.0,
+            float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
+        )
+    return enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit
+
+
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -1448,51 +1503,16 @@ def apply_combat_burst_pure(
         player_max_hit *= warriors_guild_cyclops_damage_multiplier_pure(data)
     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
 
-    # The enemy attacks with ITS style: a mage's accuracy comes off its magic
-    # level + magic attack bonus, and the player resists with magic defence.
-    enemy_style = _combat_enemy_attack_style(enemy, combat_class)
-    enemy_class = _combat_enemy_attack_class(enemy, combat_class)
-    magic_melee = enemy_style == "magic_melee"
-    enemy_attack_stat = (
-        "attack"
-        if magic_melee
-        else {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
-    )
-    enemy_attack_bonus = (
-        _combat_attack_bonus_from_totals(
-            enemy_totals,
-            "melee",
-            style_type="stab",
-        )
-        if magic_melee
-        else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
-    )
-    enemy_attack_roll = (
-        _positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8
-    ) * enemy_attack_factor * (enemy_attack_bonus + 64)
     weakening_equipment, weakening_active = _combat_weakening_equipment_state(
         data, enemy
     )
-    if weakening_active:
-        enemy_attack_roll *= max(
-            0.0,
-            float(weakening_equipment.get("enemy_accuracy_multiplier", 1.0)),
+    enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit = (
+        _combat_enemy_attack_rolls(
+            data, enemy, combat_class, style_id, player_totals, enemy_totals,
+            prayer_effects, enemy_attack_factor, weakening_equipment,
+            weakening_active,
         )
-    player_defence_roll = _combat_effective_player_defence_level(data, style_id) * float(prayer_effects.get("defence", 1.0)) * (
-        _combat_defence_bonus_from_totals(player_totals, enemy_class) + 64
     )
-    enemy_accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
-    enemy_max_hit = _combat_enemy_max_hit_old_hp(
-        enemy,
-        _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
-        _equipment_bonus_value(enemy_totals, "melee_strength"),
-        enemy_totals,
-    )
-    if weakening_active:
-        enemy_max_hit *= max(
-            0.0,
-            float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
-        )
     protective_equipment, protection_active = _combat_protective_equipment_state(
         data, enemy, combat_class
     )
@@ -1908,60 +1928,13 @@ def apply_combat_burst_pure(
                 attack_enemy = dict(enemy)
                 attack_enemy["attack_style"] = selected_style
                 attack_enemy.pop("attack_style_by_player_class", None)
-            enemy_style = _combat_enemy_attack_style(attack_enemy, combat_class)
-            enemy_class = _combat_enemy_attack_class(attack_enemy, combat_class)
-            magic_melee = enemy_style == "magic_melee"
-            enemy_attack_stat = (
-                "attack"
-                if magic_melee
-                else {"magic": "magic", "ranged": "ranged"}.get(
-                    enemy_class, "attack"
+            enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit = (
+                _combat_enemy_attack_rolls(
+                    data, attack_enemy, combat_class, style_id, player_totals, enemy_totals,
+                    prayer_effects, enemy_attack_factor, weakening_equipment,
+                    weakening_active,
                 )
             )
-            enemy_attack_bonus = (
-                _combat_attack_bonus_from_totals(
-                    enemy_totals, "melee", style_type="stab"
-                )
-                if magic_melee
-                else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
-            )
-            enemy_attack_roll = (
-                _positive_int(
-                    attack_enemy.get("stats", {}).get(enemy_attack_stat, 1), 1
-                )
-                + 8
-            ) * enemy_attack_factor * (enemy_attack_bonus + 64)
-            if weakening_active:
-                enemy_attack_roll *= max(
-                    0.0,
-                    float(
-                        weakening_equipment.get("enemy_accuracy_multiplier", 1.0)
-                    ),
-                )
-            player_defence_roll = (
-                _combat_effective_player_defence_level(data, style_id)
-                * float(prayer_effects.get("defence", 1.0))
-                * (_combat_defence_bonus_from_totals(player_totals, enemy_class) + 64)
-            )
-            enemy_accuracy = _combat_accuracy(
-                enemy_attack_roll, player_defence_roll
-            )
-            enemy_max_hit = _combat_enemy_max_hit_old_hp(
-                attack_enemy,
-                _positive_int(
-                    attack_enemy.get("stats", {}).get("strength", 1), 1
-                )
-                + 8,
-                _equipment_bonus_value(enemy_totals, "melee_strength"),
-                enemy_totals,
-            )
-            if weakening_active:
-                enemy_max_hit *= max(
-                    0.0,
-                    float(
-                        weakening_equipment.get("enemy_damage_multiplier", 1.0)
-                    ),
-                )
             _combat_advance_dragonfire_effects(
                 data, tick - dragonfire_effect_tick
             )
