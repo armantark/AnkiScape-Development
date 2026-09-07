@@ -1,0 +1,29 @@
+--- tools/carried/compare_processing_reconciliation.py
++++ tools/carried/compare_processing_reconciliation.py
+@@ -120,6 +120,7 @@
+     if config["repeated"]:
+         presence["Input"] = 1
+         consumables["Input"] = 1
++
+     def admission(ctx, _skill, _target):
+         ctx.player_data["cadence_profiles"]["probe"] += 1
+         events.append(["cadence_admission", copy.deepcopy(player)])
+@@ -296,7 +297,6 @@
+         raise SystemExit('pre-import stop canary failed; runtime remains prohibited')
+ 
+ 
+-
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
+--- tools/carried/run_processing_reconciliation_remote.py
++++ tools/carried/run_processing_reconciliation_remote.py
+@@ -16,7 +16,7 @@
+ 
+ EVIDENCE = Path('memory-bank/evidence/carried-processing-reconciliation-2026-09-07')
+ MANIFEST = EVIDENCE / 'final-source-manifest.json.gz'
+-PIN = '9f194e33ae7ef018b863315cf56ae88aac4fd6a1ff1c3bfa3c8d05a71dad05df'
++PIN = '11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31'
+ SELECTORS = [
+     'tests.test_carried_processing_reconciliation',
+     'tests.test_runtime_actions.TestProcessingPackOverlay',

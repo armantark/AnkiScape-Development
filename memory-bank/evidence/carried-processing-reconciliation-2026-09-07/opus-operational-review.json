@@ -1,0 +1,37 @@
+{
+  "session": 2351,
+  "parent_reported_exit_code": 0,
+  "verdict": "Findings; bounded corrections prepared, not executed.",
+  "findings_applied": [
+    "F1: pending ownership checked before fresh sync; canary covers absent state with foreign pending.",
+    "F3: resume-before outputs preserve initial before raw/source evidence; canary verifies unchanged bytes.",
+    "F4: exact SSHCommandError text retained as destination.error.txt before reraising.",
+    "F6: nonblocking busy lock exits with its path.",
+    "F7: refusal field records measured event-count equality."
+  ],
+  "findings_resolved_without_change": {
+    "F2_F5": "Parent verified frozen 903-source inventory includes tools/run_remote_tests.py SHA256 5de9414af35bb4688810d7d3f9b3331b205988b74a30706de6eca07af2de5e42 and matching bytes. Parent confirmed its literal remote lane launch and pending-before-dispatch. Source guard prevents runner-label drift; no after-launch check added."
+  },
+  "historical": "Earlier review/guard packets retain their original bytes and bindings. Sessions 4602/94701 were not provider reviews.",
+  "files": {
+    "prompt": {
+      "source": "/tmp/ankiscape-carried-driver-opus-scoped-prompt-2026-09-07.txt",
+      "raw_bytes": 1063,
+      "raw_sha256": "3fdccfd93a96ef51b56835f72cc9f8a0a7023b72aee0d204d9d4e59f46ec3e9c",
+      "gzip_sha256": "88e274be6d62ea34337468cfca6f4380574af9c06461de66aba8e7c1a1efe2f2"
+    },
+    "response": {
+      "source": "/tmp/ankiscape-carried-driver-opus-scoped-review-2026-09-07.txt",
+      "raw_bytes": 6280,
+      "raw_sha256": "86e2d66af5311daa704e0a60b9b4551d3fa52c3edcb6b934fea17cb39a3015f7",
+      "gzip_sha256": "eaf222995da93e0ef69a74baf6c05c982e6cfed9fe448aae776f0243efb5889f"
+    },
+    "stderr": {
+      "source": "/tmp/ankiscape-carried-driver-opus-scoped-review-2026-09-07.stderr",
+      "raw_bytes": 350,
+      "raw_sha256": "ca64b04eb00fb9a14412f86a52ed4f8eb7f9d5ae2ff3e2245c538ad6a55b0177",
+      "gzip_sha256": "af5a25ff78bdead00634a2adccd2278209e53b23d843b00d24d9acbe2006aaf2"
+    }
+  },
+  "prompt_provenance": "Exact 1063-byte argv brief reconstructed verbatim by parent from executed tool call; no added newline; not an original stdin file."
+}

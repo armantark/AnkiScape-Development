@@ -1,0 +1,48 @@
+{
+  "status": "CURRENT_GUARDS_AND_DELTA_REVIEW_CLOSED",
+  "review_session": 47764,
+  "parent_reported_exit_code": 0,
+  "parent_full_read_verdict": "PASS",
+  "parent_verification": "All 903 bindings, relocated test byte identity and unchanged product independently verified. Local guard and resumption canary passed and were fully read.",
+  "nonblocking_observations": "Real runner enforces the keyword; parent checked manifest bytes. No further fake or pin changes required.",
+  "pending": "Runtime refresh under current manifest, full gates, post-merge and native proof. Parent session 54955 retains mirror ownership, Qt underway.",
+  "attribution": "Parent executed and read review/guards; this agent retains supplied exact raw evidence only.",
+  "bindings": {
+    "tools/carried/run_processing_reconciliation_remote.py": "eb1df501c09348ab7a30cf3223dedc6cf8ba2f18ddacc2cf9d82e3436cd11ae1",
+    "tools/carried/check_processing_remote_resume.py": "85921b6101717261fc9eeadc360aed4b0e7dccd2bc1d5f7b27c6a427e26f86e3",
+    "memory-bank/evidence/carried-processing-reconciliation-2026-09-07/final-source-manifest.json.gz": "c2d0e39132fb5d8b9081a21caf0ffa69e4f2ec88cb3141402bed70f4a0c6203f",
+    "tests/runtime_actions/test_carried_processing_reconciliation.py": "b832af6c920bb80745b385caa1f74dad7585811d74fe18b78697d72541642f5c"
+  },
+  "files": {
+    "review-response": {
+      "source": "/tmp/ankiscape-carried-hook-opus-review-2026-09-07.txt",
+      "raw_bytes": 3013,
+      "raw_sha256": "9fcb18feaa368178ca87be1d78387b99a28842d7209820cd67cbb2ecfff3a0ed",
+      "gzip_sha256": "514697e5cdc3d24cb155e0455709bff2448d684de92fe0ebd79b4642d4394a54"
+    },
+    "review-stderr": {
+      "source": "/tmp/ankiscape-carried-hook-opus-review-2026-09-07.stderr",
+      "raw_bytes": 359,
+      "raw_sha256": "5485be7346aa801e1b59c56e0c9800c89d86867b6eb1ca787417df849aee008c",
+      "gzip_sha256": "13fe4161b0ef80cd2bddf11159feee14f6473c2a9c9013afc272dbdef882125b"
+    },
+    "local-guard": {
+      "source": "/tmp/ankiscape-carried-hook-correction-guard-2026-09-07/local-guard.json",
+      "raw_bytes": 168,
+      "raw_sha256": "28467d33ca68b05294c19a31b8e5788a315354cba170586e9ab99e6ad46caed3",
+      "gzip_sha256": "c5fa5c2fd569db64908cff360cb22cc4fc3242e8645fdf0f7de8f9d6658959df"
+    },
+    "resume-canary": {
+      "source": "/tmp/ankiscape-carried-hook-correction-resume-2026-09-07.json",
+      "raw_bytes": 1507,
+      "raw_sha256": "27408e4ea643132a8f27c77b7d268fde0fa70a061540cdf4572486cfe6fd17f3",
+      "gzip_sha256": "ef873ac4fa4275fc56de86bd967ffe8aa27dacd7157a1300ebcd9df7995e081f"
+    },
+    "prompt": {
+      "provenance": "Exact argv string supplied by parent, no newline.",
+      "raw_bytes": 860,
+      "raw_sha256": "c67a0df40901e3c95e9f1668e23898977251180c7e1489a6df259ee3cfe22d48",
+      "gzip_sha256": "df65b09be200bdd7de04728d5bd1d21773c3bc15eda66f7ede7ce177294570e2"
+    }
+  }
+}

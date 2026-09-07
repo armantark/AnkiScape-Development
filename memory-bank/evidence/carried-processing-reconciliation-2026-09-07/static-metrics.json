@@ -1,0 +1,415 @@
+{
+  "gate_path": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+  "gate_sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+  "thresholds": {
+    "CCN_MAX": 15,
+    "COGNITIVE_MAX": 15,
+    "HALSTEAD_MAX": 80
+  },
+  "environment_overrides": false,
+  "method": "Installed gate measurement APIs on source-only temporary copies; no product imports or tests.",
+  "measurements": {
+    "baseline": {
+      "ccn": [
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_try_pack_yak_winter_storage_overlay",
+          "value": 34
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "run_answer_with_carried_overlay.restore_cadence_profiles_after_rejection",
+          "value": 4
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "run_answer_with_carried_overlay",
+          "value": 189
+        }
+      ],
+      "cognitive": [
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_try_pack_yak_winter_storage_overlay",
+          "value": 20
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "run_answer_with_carried_overlay",
+          "value": 267
+        }
+      ],
+      "halstead": [
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_try_pack_yak_winter_storage_overlay",
+          "value": 7.838709677419355
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "run_answer_with_carried_overlay",
+          "value": 11.831521739130435
+        }
+      ]
+    },
+    "candidate": {
+      "ccn": [
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "sha",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "verify_sources",
+          "value": 7
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "load_wrappers",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "context.context.observe.callback",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "context.observe",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "context.award",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "context.hidden",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "context.rng",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "context",
+          "value": 2
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fake_handler.handler",
+          "value": 3
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fake_handler",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fixture_player",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "run_fixture.admission",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "run_fixture",
+          "value": 8
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fixture_cases",
+          "value": 4
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "real_trip.handler",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "real_trip",
+          "value": 2
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "compare",
+          "value": 2
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "main",
+          "value": 5
+        },
+        {
+          "path": "tools/carried/check_processing_reconciliation_guards.py",
+          "function": "canary",
+          "value": 3
+        },
+        {
+          "path": "tools/carried/check_processing_reconciliation_guards.py",
+          "function": "main",
+          "value": 1
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_try_pack_yak_winter_storage_overlay",
+          "value": 34
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_reconcile_processing_inventory",
+          "value": 13
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "run_answer_with_carried_overlay.restore_cadence_profiles_after_rejection",
+          "value": 4
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "run_answer_with_carried_overlay",
+          "value": 165
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "test_consumption_preserves_repeated_categories_and_input_ownership",
+          "value": 1
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "test_hidden_potions_and_alternatives_have_distinct_absence_rules",
+          "value": 1
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "test_replaced_inventory_consumes_but_shared_inventory_keeps_old_semantics",
+          "value": 2
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "test_overproduction_is_not_consumption_and_bank_zero_is_retained",
+          "value": 1
+        }
+      ],
+      "cognitive": [
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_reconcile_processing_inventory",
+          "value": 15
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_try_pack_yak_winter_storage_overlay",
+          "value": 20
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "run_answer_with_carried_overlay",
+          "value": 229
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "TestProcessingInventoryReconciliation::test_consumption_preserves_repeated_categories_and_input_ownership",
+          "value": 0
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "TestProcessingInventoryReconciliation::test_hidden_potions_and_alternatives_have_distinct_absence_rules",
+          "value": 0
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "TestProcessingInventoryReconciliation::test_overproduction_is_not_consumption_and_bank_zero_is_retained",
+          "value": 0
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "TestProcessingInventoryReconciliation::test_replaced_inventory_consumes_but_shared_inventory_keeps_old_semantics",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/check_processing_reconciliation_guards.py",
+          "function": "main",
+          "value": 0
+        },
+        {
+          "path": "tools/carried/check_processing_reconciliation_guards.py",
+          "function": "canary",
+          "value": 2
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fixture_player",
+          "value": 0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "load_wrappers",
+          "value": 0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "sha",
+          "value": 0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "compare",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "context",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "real_trip",
+          "value": 1
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fake_handler",
+          "value": 2
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "main",
+          "value": 3
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fixture_cases",
+          "value": 4
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "verify_sources",
+          "value": 7
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "run_fixture",
+          "value": 8
+        }
+      ],
+      "halstead": [
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_try_pack_yak_winter_storage_overlay",
+          "value": 7.838709677419355
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "_reconcile_processing_inventory",
+          "value": 3.3846153846153846
+        },
+        {
+          "path": "runtime/runtime_actions_carried_overlay.py",
+          "function": "run_answer_with_carried_overlay",
+          "value": 10.96951219512195
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "test_consumption_preserves_repeated_categories_and_input_ownership",
+          "value": 0.5
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "test_hidden_potions_and_alternatives_have_distinct_absence_rules",
+          "value": 0.0
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "test_replaced_inventory_consumes_but_shared_inventory_keeps_old_semantics",
+          "value": 1.0
+        },
+        {
+          "path": "tests/test_carried_processing_reconciliation.py",
+          "function": "test_overproduction_is_not_consumption_and_bank_zero_is_retained",
+          "value": 0.0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "sha",
+          "value": 0.0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "verify_sources",
+          "value": 2.125
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "load_wrappers",
+          "value": 0.0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "context",
+          "value": 0.5
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fake_handler",
+          "value": 0.5
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fixture_player",
+          "value": 0.0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "run_fixture",
+          "value": 1.0769230769230769
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "fixture_cases",
+          "value": 0.0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "real_trip",
+          "value": 0.5
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "compare",
+          "value": 1.0
+        },
+        {
+          "path": "tools/carried/compare_processing_reconciliation.py",
+          "function": "main",
+          "value": 1.25
+        },
+        {
+          "path": "tools/carried/check_processing_reconciliation_guards.py",
+          "function": "canary",
+          "value": 3.888888888888889
+        },
+        {
+          "path": "tools/carried/check_processing_reconciliation_guards.py",
+          "function": "main",
+          "value": 1.875
+        }
+      ]
+    }
+  },
+  "candidate_source_sha256": {
+    "runtime/runtime_actions_carried_overlay.py": "7cff89b7be42afbb15be7afcc023732ccefd820cd24a2c0c1a0c160fda7ecd57",
+    "tests/test_carried_processing_reconciliation.py": "b832af6c920bb80745b385caa1f74dad7585811d74fe18b78697d72541642f5c",
+    "tools/carried/compare_processing_reconciliation.py": "6b7e2281a92e055c076691ff9f629ce1a81ffe742742724c4751ac77a23239c1",
+    "tools/carried/check_processing_reconciliation_guards.py": "7d2089af7689e4799c67afcf020ec9bf1eb18e199fae22587ba4bedcc953bc48"
+  }
+}

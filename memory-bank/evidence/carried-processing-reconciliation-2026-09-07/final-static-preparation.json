@@ -1,0 +1,18 @@
+{
+  "runtime_executed": false,
+  "whole_module_restoration_verified": true,
+  "baseline_overlay_sha256": "72dfdb810cc19a30337e1077dd31771dc30315a2e740e28e0f39944565a85484",
+  "candidate_overlay_sha256": "7cff89b7be42afbb15be7afcc023732ccefd820cd24a2c0c1a0c160fda7ecd57",
+  "original_manifest_sha256": "30f83b86b72eedfcef5667ef798eaa16f81292a30c457338ce4140fb2f8856cb",
+  "final_manifest_sha256": "9f194e33ae7ef018b863315cf56ae88aac4fd6a1ff1c3bfa3c8d05a71dad05df",
+  "source_files": 903,
+  "historical_missing_source": "tools/carried/check_processing_reconciliation_guards.py",
+  "historical_probe_expected_sha256": "6b7e2281a92e055c076691ff9f629ce1a81ffe742742724c4751ac77a23239c1",
+  "final_probe_sha256": "c8997ff832fe9157168f7d40e7cffb28d0638ed08e833248017f2aeceb249f32",
+  "focused_tests_sha256": "b832af6c920bb80745b385caa1f74dad7585811d74fe18b78697d72541642f5c",
+  "human_review_patch_bytes": 23377,
+  "human_review_patch_sha256": "78206a8a6139369b2cf2bc4224664470705b50914f3891d8abd70a73e193b882",
+  "frozen_gate_source_sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+  "optimization_correction_patch_bytes": 2445,
+  "optimization_correction_patch_sha256": "0ff67ec794e01284cd42fc73a25180995ac2f15e977e90545325ac1025a1e899"
+}

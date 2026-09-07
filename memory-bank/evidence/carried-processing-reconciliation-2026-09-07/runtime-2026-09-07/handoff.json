@@ -1,0 +1,102 @@
+{
+  "execution_attribution": "Parent executed authorized MBP runtime session 80696 and reported terminal 0. This agent only retained and parsed original outputs; no runtime or guard executed by this agent.",
+  "state": {
+    "manifest_sha256": "11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31",
+    "root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/5/ankiscape_fork",
+    "session": "8adbadf4fe6f4857a466c54c551000a5",
+    "completed": [
+      "plain-focused",
+      "plain-comparison",
+      "qt-focused",
+      "qt-comparison"
+    ],
+    "current": null
+  },
+  "complete": {
+    "jobs": [
+      "plain-focused",
+      "plain-comparison",
+      "qt-focused",
+      "qt-comparison"
+    ],
+    "manifest_sha256": "11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31"
+  },
+  "jobs": {
+    "plain": {
+      "focused_log": "..................................\n----------------------------------------------------------------------\nRan 34 tests in 0.014s\n\nOK\n",
+      "comparison_cases": 18,
+      "comparison_names": [
+        "partial-replace-False",
+        "rejected-replace-False",
+        "none_return-replace-False",
+        "zero_return-replace-False",
+        "dry-replace-False",
+        "output_over_input-replace-False",
+        "partial-replace-True",
+        "rejected-replace-True",
+        "none_return-replace-True",
+        "zero_return-replace-True",
+        "dry-replace-True",
+        "output_over_input-replace-True",
+        "rejection-winter-True-child-cadence-False",
+        "rejection-winter-False-child-cadence-True",
+        "real-firemaking-trip",
+        "real-advanced-thread",
+        "real-advanced-mould",
+        "real-advanced-feathers"
+      ],
+      "equal_flags": true,
+      "complete_payloads_equal": true,
+      "source_files": 903,
+      "manifest_sha256": "11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31",
+      "completion_exit_codes": {
+        "focused": 0,
+        "comparison": 0
+      }
+    },
+    "qt": {
+      "focused_log": "..................................\n----------------------------------------------------------------------\nRan 34 tests in 0.011s\n\nOK\n",
+      "comparison_cases": 18,
+      "comparison_names": [
+        "partial-replace-False",
+        "rejected-replace-False",
+        "none_return-replace-False",
+        "zero_return-replace-False",
+        "dry-replace-False",
+        "output_over_input-replace-False",
+        "partial-replace-True",
+        "rejected-replace-True",
+        "none_return-replace-True",
+        "zero_return-replace-True",
+        "dry-replace-True",
+        "output_over_input-replace-True",
+        "rejection-winter-True-child-cadence-False",
+        "rejection-winter-False-child-cadence-True",
+        "real-firemaking-trip",
+        "real-advanced-thread",
+        "real-advanced-mould",
+        "real-advanced-feathers"
+      ],
+      "equal_flags": true,
+      "complete_payloads_equal": true,
+      "source_files": 903,
+      "manifest_sha256": "11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31",
+      "completion_exit_codes": {
+        "focused": 0,
+        "comparison": 0
+      }
+    }
+  },
+  "raw_artifacts": 29,
+  "raw_inventory_sha256": "bfc6c22a19d1687936c1077ed60748501bb8153ec26ca086037350744870f238",
+  "bindings": {
+    "runtime/runtime_actions_carried_overlay.py": "7cff89b7be42afbb15be7afcc023732ccefd820cd24a2c0c1a0c160fda7ecd57",
+    "tests/test_carried_processing_reconciliation.py": "b832af6c920bb80745b385caa1f74dad7585811d74fe18b78697d72541642f5c",
+    "tools/carried/compare_processing_reconciliation.py": "a2031a7b0681de1153870e98027b28ed597a68a6f3abd8aab4805df97ba65315",
+    "tools/carried/run_processing_reconciliation_remote.py": "bc482ec47074f1652ff1ad36ab9b4dc9b0414ec80c88e7ab6bd4cdfcff1c07da",
+    "memory-bank/evidence/carried-processing-reconciliation-2026-09-07/final-source-manifest.json.gz": "11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31"
+  },
+  "pending": "Full-source/full-branch gate, post-merge and native proof pending.",
+  "mirror": "Merged combat 7e19 uses mirror under parent session 54955; main remains 6aee. No mirror access performed.",
+  "parent_independent_validation": "CLOSED: 18 complete payload comparisons equal per lane; four zero exits; 34 focused tests OK with zero skips per lane; all eight pre/post guards match the exact 903-source manifest, report no imports and match before/after; all 29 original raw bytes and both stored/decoded hashes verified, with current source bindings."
+}
