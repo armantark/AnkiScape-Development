@@ -1,0 +1,17 @@
+{
+  "gzip_mtime": 0,
+  "historical_blob": "f28d1ad66003fd1d6736a9ce4018c4978d43a590",
+  "historical_report_path": "memory-bank/source-audits/combat-enemy-roster-step1-data-report-2026-07-07.md",
+  "historical_revision": "8d74d3fa889720392440e379b1cba596c1a2a74f",
+  "raw_bytes": 6813,
+  "raw_sha256": "27450deb0cd511b4f0f5ab27515a0a6c22f88732a7c4e78eb4c10a7e75c6e9fb",
+  "readable_report_sha256": "a4f5ab06e099361a78f2756b9a9937a55725982ef766b5f073ac562228532b53",
+  "replacement_boundary": {
+    "first_line": 97,
+    "last_line": 106,
+    "scope": "Only the historical fenced unittest transcript is replaced by a link; the complete original report is retained."
+  },
+  "retained_file": "combat-enemy-roster-step1-data-report-2026-07-07.md.gz",
+  "stored_bytes": 2585,
+  "stored_sha256": "8ab2afa61d0bbf395431bd496e8bf98994fe4ebea1d10ee98332c62e3e6f7eb5"
+}

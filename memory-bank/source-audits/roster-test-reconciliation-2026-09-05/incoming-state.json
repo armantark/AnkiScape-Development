@@ -1,0 +1,17 @@
+{
+  "recorded_at": "2026-09-06T02:12:34.589942+00:00",
+  "branch": "goal/roster-test-reconciliation-2026-09-05",
+  "head": "814b4d591df4525e0bda4a1f858baf6345ed4d38",
+  "preserved_stash": "1a34588b994e4fead010127412b1b84d57e4f27f",
+  "stash_disposition": "Preserved; never dropped or modified by author.",
+  "incoming_status": "M  memory-bank/source-audits/combat-enemy-roster-step1-data-report-2026-07-07.md\nD  tests/test_combat_enemy_roster.py\nUU tests/test_module_surface.py\n?? memory-bank/source-audits/roster-test-reconciliation-2026-09-05/\n?? tests/combat_roster/\n",
+  "unmerged_paths": [
+    "tests/test_module_surface.py"
+  ],
+  "incoming_conflict_sha256": "3032aee6407be6744239bde4a89e27171f94c6f0cf1028cff81383e5f433159a",
+  "authorized_restores": [
+    "tests/test_module_surface.py",
+    "memory-bank/source-audits/combat-enemy-roster-step1-data-report-2026-07-07.md"
+  ],
+  "scope": "Only the retained roster split and the named asset-test simplification. No runtime imports, source measurements that import modules, MBP, product changes or commit."
+}

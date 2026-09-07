@@ -1,0 +1,10 @@
+{
+  "branch": "goal/roster-test-reconciliation-2026-09-05",
+  "head": "814b4d591df4525e0bda4a1f858baf6345ed4d38",
+  "status": "D  tests/test_combat_enemy_roster.py\n?? memory-bank/source-audits/roster-test-reconciliation-2026-09-05/\n?? tests/combat_roster/\n",
+  "staged_paths": [
+    "tests/test_combat_enemy_roster.py"
+  ],
+  "preserved_stash_present": true,
+  "unmerged_paths": []
+}
