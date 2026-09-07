@@ -1,0 +1,32 @@
+{
+  "candidate": "12850beed2aa644b0d051f6e1e4a90d9154a9b69",
+  "accepted_landing": "0005e1cb42530706ab9ceb85e5be80ce3a0685f9",
+  "is_ancestor": true,
+  "sources": [
+    {
+      "path": "logic/shop/__init__.py",
+      "candidate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "landed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical": true
+    },
+    {
+      "path": "logic/shop/services.py",
+      "candidate_sha256": "2d973eb337e5e11d610948bf672ea93992692d8b2049a35c508a813483591d3f",
+      "landed_sha256": "2d973eb337e5e11d610948bf672ea93992692d8b2049a35c508a813483591d3f",
+      "identical": true
+    },
+    {
+      "path": "logic/shop/state.py",
+      "candidate_sha256": "bbaa9f851f4b2f849b7ad3800fef400d6e300efe3ab8dfcf64f73859e0378b36",
+      "landed_sha256": "bbaa9f851f4b2f849b7ad3800fef400d6e300efe3ab8dfcf64f73859e0378b36",
+      "identical": true
+    },
+    {
+      "path": "logic/shop_logic.py",
+      "candidate_sha256": "079d4ce4a2e44ff987deeda475baca069cbd6fc314bc892bb8c1f433d2eadb4a",
+      "landed_sha256": "079d4ce4a2e44ff987deeda475baca069cbd6fc314bc892bb8c1f433d2eadb4a",
+      "identical": true
+    }
+  ],
+  "scope": "Shop logic only; does not close ui/ui_tab_shop.py or native verification."
+}
