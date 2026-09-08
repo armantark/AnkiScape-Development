@@ -1,0 +1,162 @@
+{
+  "run_id": "papercut-queue-recency-1788670516",
+  "baseline_commit": "518a651db9e12e80ae9a1fd6e2b7b11c7357b360",
+  "source_sha256": {
+    "tools/memory_bank_queue_packet.py": "18f53770d381e83da2c6777b322ce9c8934e47d5427dd15480d33258c033fe00",
+    "tests/test_memory_bank_queue_packet.py": "b342fc23c01b863a4ed20e9a0327bff29e66ca6b24741b79d7b5f8dd3d75d72d",
+    "baseline_518a_tool": "28b7a1911fae65efcca0e365b72c752ff9ca85d1a308c2a6f7c2d1cacbcca538"
+  },
+  "archive": "verification-1788670516.tar.gz",
+  "archive_bytes": 31271,
+  "archive_sha256": "85abaf6feecd81e71a60e2626543cf63acf5c1d8c4128d893164bd61d2ceda59",
+  "files": {
+    "actual-cli.status.json": {
+      "bytes": 200,
+      "sha256": "9252d88890f899c466ae8d7b0ef32990bd9ecb929f9fe01ef1e3eefc607781fa"
+    },
+    "actual-cli.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "actual-cli.stdout": {
+      "bytes": 24537,
+      "sha256": "f75501b5fe4bad1a17c8c0d087195a3cf9e8d4bf9aad694cdd4659d704827a20"
+    },
+    "baseline-canary/tests/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-canary/tests/test_memory_bank_queue_packet.py": {
+      "bytes": 15832,
+      "sha256": "b342fc23c01b863a4ed20e9a0327bff29e66ca6b24741b79d7b5f8dd3d75d72d"
+    },
+    "baseline-canary/tools/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-canary/tools/memory_bank_queue_packet.py": {
+      "bytes": 17632,
+      "sha256": "28b7a1911fae65efcca0e365b72c752ff9ca85d1a308c2a6f7c2d1cacbcca538"
+    },
+    "baseline-canary.status.json": {
+      "bytes": 502,
+      "sha256": "1e274e593473a8e71320c23b5dd44b011e333bbe442e54cc9fab2a544f0199ad"
+    },
+    "baseline-canary.stderr": {
+      "bytes": 5048,
+      "sha256": "e911c91286ec110ebf14868a78a99e75e887a9716dc3385f6fbcc9bb30d0c013"
+    },
+    "baseline-canary.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-tool.py.txt": {
+      "bytes": 17632,
+      "sha256": "28b7a1911fae65efcca0e365b72c752ff9ca85d1a308c2a6f7c2d1cacbcca538"
+    },
+    "candidate-canary/tests/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-canary/tests/test_memory_bank_queue_packet.py": {
+      "bytes": 15832,
+      "sha256": "b342fc23c01b863a4ed20e9a0327bff29e66ca6b24741b79d7b5f8dd3d75d72d"
+    },
+    "candidate-canary/tools/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-canary/tools/memory_bank_queue_packet.py": {
+      "bytes": 17767,
+      "sha256": "18f53770d381e83da2c6777b322ce9c8934e47d5427dd15480d33258c033fe00"
+    },
+    "candidate-canary.status.json": {
+      "bytes": 503,
+      "sha256": "d11f717ac865754f67cbc0e9205152a70ab70306ad4d4bf81e598862b3f1b99e"
+    },
+    "candidate-canary.stderr": {
+      "bytes": 510,
+      "sha256": "4fdf1ae434bbe155ed78274d9e04c17b8ce4e60d9c82c3c07a24c5499e33930e"
+    },
+    "candidate-canary.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-plain.status.json": {
+      "bytes": 229,
+      "sha256": "022ef06813e7964fd1cbebd216a54a7da009c77378d49b0739e61ebcbe4d616c"
+    },
+    "candidate-plain.stderr": {
+      "bytes": 1940,
+      "sha256": "d6bbb1f6515f1bf7911a077d57baffd0cb759ce458ea9a417f8f85c27cdfcc13"
+    },
+    "candidate-plain.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-qt.status.json": {
+      "bytes": 273,
+      "sha256": "a31fccb77a416c010cfbe614ba574c7ee630f4a6cc0ba5bc9611106d710454c9"
+    },
+    "candidate-qt.stderr": {
+      "bytes": 1940,
+      "sha256": "49eab3555951c3b477199916dae49c9b38919d8a146ee857bced92e2cfaf999d"
+    },
+    "candidate-qt.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "documentation-audit.json": {
+      "bytes": 65,
+      "sha256": "98645759d6383b789079f56ab6d119240bc7d4fe163cfbcff63d105dfe7202bb"
+    },
+    "expected-selection.json": {
+      "bytes": 3717,
+      "sha256": "e2a05d414ccee90355c2fd05eb611dd7141877d75c07d9c9a02d890aa4e23e6b"
+    },
+    "frozen-source-hashes.json": {
+      "bytes": 314,
+      "sha256": "13b2159b4f1be35f299584eae035aa486c7e6170dc53a4b7864cc06b6a13071c"
+    },
+    "job.exit": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "job.log": {
+      "bytes": 162,
+      "sha256": "d9fb6aa7df4d579724e0ab795ee77686d5448aeea8403e91975b8b8df38717db"
+    },
+    "kimi-review-25853.txt": {
+      "bytes": 3965,
+      "sha256": "1d3d44c67e0653a85294ed17b015f5f5d5693c412453df1c419799e35c194d17"
+    },
+    "remote-driver.py": {
+      "bytes": 2970,
+      "sha256": "ca0669c7af18642260cb1f145bf1f51258de2842df19100d44c8eedcb21230db"
+    },
+    "remote-driver.stderr": {
+      "bytes": 182,
+      "sha256": "3b1b250a4a9a5cb74fe9e174cf10acc2324b9dd2b435602293a36f2a2ccaf95f"
+    },
+    "remote-driver.stdout": {
+      "bytes": 269,
+      "sha256": "738c5f77cec2d859f701da3032ddeb1069832c79913556407be8fb7397192201"
+    },
+    "source-hashes-after.json": {
+      "bytes": 222,
+      "sha256": "38c833f7f58cb4a6aae6c2ba5b5a8cb2b907f4f70a0cddeb6a112e9a586183c6"
+    },
+    "source-hashes-before.json": {
+      "bytes": 222,
+      "sha256": "38c833f7f58cb4a6aae6c2ba5b5a8cb2b907f4f70a0cddeb6a112e9a586183c6"
+    },
+    "summary.json": {
+      "bytes": 2346,
+      "sha256": "8038eb7170fd750607849e3804d42ce22ee8a84d8520a3e8f29e53436c780241"
+    },
+    "verify.py": {
+      "bytes": 4742,
+      "sha256": "9b2a61368400c7614dc239ba123c39fe1b088a1343a5513cbd046ac66c2ba3a5"
+    }
+  }
+}
