@@ -2152,3 +2152,10 @@
 - 2026-09-07T16:00:08-07:00: Parent initially invoked the resumption canary without --output; argparse exited 2 with exact error `check_processing_remote_resume.py: error: the following arguments are required: --output`. No product or remote action occurred; parent is correcting the command.
 
 - 2026-09-07T16:01:01-07:00: During read-only remote-runner status inspection, parent searched a guessed tools/remote_testing directory; rg returned `rg: tools/remote_testing: No such file or directory (os error 2)`. The pending-path implementation is directly in tools/run_remote_tests.py.
+- 2026-09-07T15:28:25-07:00: Player-roll static preparation searched tests/test_mage_arena.py, which does not exist; locate the existing mage-arena tests by content before reading their fixtures.
+
+- 2026-09-07T16:05:28-07:00 P4 independent Kimi attempt exited 1 with `error: tool loop exceeded 24 turns`; stdout was 0 bytes. Raw stdout/stderr retained under `memory-bank/evidence/combat-player-attack-rolls-2026-09-07/kimi-failed-attempt.*.gz`; this was not a completed review.
+
+- 2026-09-07T16:13:09-07:00 P4 direct product-only Kimi attempt exited 1 with `error: provider returned empty output`; stdout was 0 bytes. Prompt and raw stdout/stderr retained under `memory-bank/evidence/combat-player-attack-rolls-2026-09-07/kimi-direct-failed.*.gz`; this was not a completed review.
+
+- 2026-09-07T16:22:12-07:00 P4 product Opus review found `guild_player` supplied 30 of each Warriors Guild token, below the 200-token single-entry requirement. Parent verified the requirement and authorized only fixture tokens 30 -> 200; source inventory and driver pin were rebound before runtime.

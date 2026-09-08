@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "baseline_sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+  "candidate_sha256": "2b5a8a808f688cb179e59f882e58abefb1cb008d00cbca42e771d393d1c10ba8",
+  "changed_existing_definitions": [
+    "apply_combat_burst_pure"
+  ],
+  "added_definitions": [
+    "_combat_player_attack_rolls"
+  ],
+  "other_definitions_and_module_statements_unchanged": true,
+  "helper_formulas_equal_initial_and_postdrain_AST": true,
+  "helper_calls": 2,
+  "ammo_selection_calls": 1,
+  "guild_multiplier_calls_in_burst": 1,
+  "guild_multiplier_calls_in_helper": 0,
+  "full_patch_decoded_sha256": "dd1b0f27c109033876ca9b76e9010bf7141b2760ffc072e33fc62fe459da006f",
+  "full_patch_decoded_bytes": 7607,
+  "restore_commands": [
+    {
+      "argv": [
+        "git",
+        "apply",
+        "-"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--reverse",
+        "-"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

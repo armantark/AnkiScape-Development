@@ -1,0 +1,302 @@
+{
+  "status": "FOCUSED_AND_DIFFERENTIAL_RUNTIME_VERIFIED",
+  "session": "3482ec8ddfb549e8b5c35c8dd788a3fc",
+  "execution_owner": "parent",
+  "jobs": [
+    "plain-focused",
+    "plain-comparison",
+    "qt-focused",
+    "qt-comparison"
+  ],
+  "focused_tests_each_lane": 8,
+  "focused_skips_each_lane": 0,
+  "differential_cases_each_lane": 20,
+  "complete_payload_and_rng_bytes_equal": true,
+  "all_expected_routes_observed": true,
+  "source_guards": 8,
+  "source_inventory_entries": 877,
+  "source_inventory_sha256": "976d29addd0a0e68659e27c23f2f3019f0a2ea2d63435fe3daf6311ddc939308",
+  "source_sha256": {
+    "logic_pure/logic_pure_combat_engine.py": "2b5a8a808f688cb179e59f882e58abefb1cb008d00cbca42e771d393d1c10ba8",
+    "tests/combat/test_player_attack_rolls.py": "dff223e29f13778018175237a743da35d1ea00a178d2a50cea74d4870b5f1f2f",
+    "tools/combat/compare_player_attack_rolls.py": "7bf7ec7711bcd714837ed697c51da3311e30da676fcbc578f365832d5233d76b",
+    "tools/combat/check_player_attack_rolls_guards.py": "ddd6b863b4455715ef2c58de3164eb3578259160a2b38aea34742ac9f8d360ef",
+    "tools/combat/run_player_attack_rolls_remote.py": "3c0090c84aa56fc8e514ec2d8fee2ee0583ffcdd7b7e79617e73552a0eb81337",
+    "tools/combat/check_player_remote_resume.py": "678d061f5b0dded9e78368be6704a8a72087f911ab52799a64ee750c420c28a3"
+  },
+  "reviews": "Both independent reviews closed after parent verification and authorized literal fixture correction.",
+  "pending": [
+    "Normal author commit hooks",
+    "Full branch gate",
+    "Exact composition gate",
+    "Parent native programme acceptance"
+  ],
+  "retained_files": {
+    "complete.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/complete.json",
+      "raw_sha256": "05577184ea9714d5380bae062adfe5606d7ca9f7b38a8e744b3ed162eed85bdc",
+      "raw_bytes": 193,
+      "gzip_sha256": "6a86b1a87c8237f2f02a13d6ab7445604f0a32c9c68cd35c151c8c7ce54b48fb",
+      "gzip_bytes": 155
+    },
+    "local-before.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/local-before.json",
+      "raw_sha256": "8c2cf12968a7c3705da96553666b244c171f380b0ba0a3f18dcc6c9e68f80e36",
+      "raw_bytes": 96299,
+      "gzip_sha256": "976d29addd0a0e68659e27c23f2f3019f0a2ea2d63435fe3daf6311ddc939308",
+      "gzip_bytes": 42405
+    },
+    "plain-comparison-after.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison-after.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "plain-comparison-after.raw.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison-after.raw.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "plain-comparison-before.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison-before.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "plain-comparison-before.raw.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison-before.raw.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "plain-comparison-completion.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison-completion.json",
+      "raw_sha256": "50031a0bd51328fdc3cd94d3193fc036f745350d752044651e4412858ce4a532",
+      "raw_bytes": 507,
+      "gzip_sha256": "d53550688f71042c803b80f324465565032919a77da8474765542be7b1016d24",
+      "gzip_bytes": 237
+    },
+    "plain-comparison-local-after.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison-local-after.json",
+      "raw_sha256": "8c2cf12968a7c3705da96553666b244c171f380b0ba0a3f18dcc6c9e68f80e36",
+      "raw_bytes": 96299,
+      "gzip_sha256": "976d29addd0a0e68659e27c23f2f3019f0a2ea2d63435fe3daf6311ddc939308",
+      "gzip_bytes": 42405
+    },
+    "plain-comparison.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison.json",
+      "raw_sha256": "261d828e36207761b20b050e93a67e997450d30582cce5c0db46dcd09e3b2c91",
+      "raw_bytes": 1274304,
+      "gzip_sha256": "e66b39657a255f56c5b2e73a6afb725e0bedcd2e67e4aa76a6db02cc99fa7e81",
+      "gzip_bytes": 385880
+    },
+    "plain-comparison.log.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "gzip_bytes": 20
+    },
+    "plain-comparison.report.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-comparison.report",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2,
+      "gzip_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "gzip_bytes": 22
+    },
+    "plain-focused-after.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-focused-after.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "plain-focused-after.raw.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-focused-after.raw.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "plain-focused-before.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-focused-before.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "plain-focused-before.raw.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-focused-before.raw.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "plain-focused-completion.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-focused-completion.json",
+      "raw_sha256": "4ff02d835e8a447599dda6c2f81ab32f756129c8d3f91b39219548f4d0dc0ab1",
+      "raw_bytes": 501,
+      "gzip_sha256": "79ca142f021938b17d38974d3f25ccc66a9cd09cc49e7864092c8358c9a13bad",
+      "gzip_bytes": 236
+    },
+    "plain-focused-local-after.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-focused-local-after.json",
+      "raw_sha256": "8c2cf12968a7c3705da96553666b244c171f380b0ba0a3f18dcc6c9e68f80e36",
+      "raw_bytes": 96299,
+      "gzip_sha256": "976d29addd0a0e68659e27c23f2f3019f0a2ea2d63435fe3daf6311ddc939308",
+      "gzip_bytes": 42405
+    },
+    "plain-focused.log.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-focused.log",
+      "raw_sha256": "34c9a4ec71b194db9aa5af08b537f946950191bb93f4824d5236fe569b5b76ba",
+      "raw_bytes": 1540,
+      "gzip_sha256": "f776f44475739d30749554f325962cd0236d34ff220c72805476937817118cb5",
+      "gzip_bytes": 411
+    },
+    "plain-focused.report.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/plain-focused.report",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2,
+      "gzip_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "gzip_bytes": 22
+    },
+    "qt-comparison-after.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison-after.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "qt-comparison-after.raw.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison-after.raw.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "qt-comparison-before.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison-before.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "qt-comparison-before.raw.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison-before.raw.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "qt-comparison-completion.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison-completion.json",
+      "raw_sha256": "aaa20919751ebe0896f690f88fcf503647fddcc987586c28ae91552fd7f22e19",
+      "raw_bytes": 492,
+      "gzip_sha256": "218274206aeb3c464abd65b1fc6280a8390c3b874a0173482e6089ca3823137f",
+      "gzip_bytes": 238
+    },
+    "qt-comparison-local-after.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison-local-after.json",
+      "raw_sha256": "8c2cf12968a7c3705da96553666b244c171f380b0ba0a3f18dcc6c9e68f80e36",
+      "raw_bytes": 96299,
+      "gzip_sha256": "976d29addd0a0e68659e27c23f2f3019f0a2ea2d63435fe3daf6311ddc939308",
+      "gzip_bytes": 42405
+    },
+    "qt-comparison.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison.json",
+      "raw_sha256": "5a61bd1bb8f59811e0675e0bd320e5e7551f9bafeb2c8354d595331a337420db",
+      "raw_bytes": 1274304,
+      "gzip_sha256": "74496df4d06d9ec09c5e69e80a2bb1c9e9a637cb32611b71de4afb11cc1fe3b3",
+      "gzip_bytes": 385801
+    },
+    "qt-comparison.log.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "gzip_bytes": 20
+    },
+    "qt-comparison.report.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-comparison.report",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2,
+      "gzip_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "gzip_bytes": 22
+    },
+    "qt-focused-after.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-focused-after.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "qt-focused-after.raw.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-focused-after.raw.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "qt-focused-before.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-focused-before.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "qt-focused-before.raw.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-focused-before.raw.json",
+      "raw_sha256": "aba50eefc3b095c0104fb15e7420e168b0e51e36292947dbce9b09c505593611",
+      "raw_bytes": 196392,
+      "gzip_sha256": "12c6692f29a64125fd8161500c7790a10f3ab68fccea0bc058bc6849f980d515",
+      "gzip_bytes": 84518
+    },
+    "qt-focused-completion.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-focused-completion.json",
+      "raw_sha256": "2784fd4c94e8dc4ad3ef3e87d6bc3707eeec9ecadf6d31944bb3e536676cff8f",
+      "raw_bytes": 486,
+      "gzip_sha256": "a5a40d1741736d6fe668419bdef7dc755a69160a927a7994891bd28d254827af",
+      "gzip_bytes": 233
+    },
+    "qt-focused-local-after.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-focused-local-after.json",
+      "raw_sha256": "8c2cf12968a7c3705da96553666b244c171f380b0ba0a3f18dcc6c9e68f80e36",
+      "raw_bytes": 96299,
+      "gzip_sha256": "976d29addd0a0e68659e27c23f2f3019f0a2ea2d63435fe3daf6311ddc939308",
+      "gzip_bytes": 42405
+    },
+    "qt-focused.log.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-focused.log",
+      "raw_sha256": "a3d19a00a7e8b427a3afa605b1e8dac07441545afe5288c711cf08b1814c9a7e",
+      "raw_bytes": 1540,
+      "gzip_sha256": "b172c4b6aab8f215a830ae09cd0a0b19578697a23a14ad71642de05a0a2e807f",
+      "gzip_bytes": 411
+    },
+    "qt-focused.report.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/qt-focused.report",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2,
+      "gzip_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "gzip_bytes": 22
+    },
+    "state.json.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07/state.json",
+      "raw_sha256": "b82d264e2f616c6f7893f8a488af09a9d0e60098caee9d5c7fb7a17bd31d3bd8",
+      "raw_bytes": 545,
+      "gzip_sha256": "c31fa9b48e56e5f773673ed295a4fb74b43aaaf9158cd46c101aa40edda2cbef",
+      "gzip_bytes": 338
+    },
+    "driver-console.log.gz": {
+      "source": "/tmp/ankiscape-player-roll-runtime-2026-09-07.log",
+      "raw_sha256": "bedbae551bc4ee2c4f5c47669fc6d28b5b698a86e4ec0e8146d028b476454469",
+      "raw_bytes": 3080,
+      "gzip_sha256": "dcbff17190666109834f6b90d1deb9f2716fe37510ed3a8cf2d3725ab4306143",
+      "gzip_bytes": 433
+    }
+  }
+}

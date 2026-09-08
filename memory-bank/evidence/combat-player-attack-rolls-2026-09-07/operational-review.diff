@@ -1,0 +1,241 @@
+--- a/tools/combat/check_player_attack_rolls_guards.py
++++ b/tools/combat/check_player_attack_rolls_guards.py
+@@ -0,0 +1,89 @@
++"""Exercise only pre-import comparison guards after parent authorization."""
++
++import argparse
++import contextlib
++import gzip
++import hashlib
++import io
++import json
++import os
++from pathlib import Path
++import runpy
++import subprocess
++import sys
++import tempfile
++from unittest.mock import patch
++
++
++ROOT = Path(__file__).resolve().parents[2]
++PROBE = ROOT / "tools/combat/compare_player_attack_rolls.py"
++EVIDENCE = ROOT / "memory-bank/evidence/combat-player-attack-rolls-2026-09-07"
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--candidate-sha256", required=True)
++    parser.add_argument("--inventory-sha256", required=True)
++    args = parser.parse_args()
++    attempts, rows = [], []
++
++    def audit(event, values):
++        if event == "import" and values[0].split(".")[0] in {"ankiscape", "pkg_alias", "tests"}:
++            attempts.append(values[0])
++            raise RuntimeError("Product import attempted during guard canary.")
++
++    sys.addaudithook(audit)
++    with tempfile.TemporaryDirectory(prefix="player-roll-guards-") as directory:
++        scratch = Path(directory)
++        baseline, wrong = scratch / "baseline.py", scratch / "wrong.py"
++        baseline.write_bytes(gzip.decompress((EVIDENCE / "baseline-engine.py.gz").read_bytes()))
++        wrong.write_bytes(b"wrong baseline")
++        inventory = EVIDENCE / "source-inventory.json.gz"
++        changed = json.loads(gzip.decompress(inventory.read_bytes()))
++        changed["logic_pure/logic_pure_combat_engine.py"] = "0" * 64
++        altered = scratch / "altered.json.gz"
++        altered.write_bytes(gzip.compress(json.dumps(changed).encode(), mtime=0))
++        altered_hash = hashlib.sha256(altered.read_bytes()).hexdigest()
++        arguments = [str(PROBE), "--preflight", "--baseline", str(baseline), "--inventory", str(inventory), "--inventory-sha256", args.inventory_sha256, "--candidate-sha256", args.candidate_sha256, "--output", str(scratch / "result.json")]
++        cases = [
++            ("correct", [], None),
++            ("wrong-baseline", ["--baseline", str(wrong)], "Baseline source hash differs."),
++            ("wrong-candidate", ["--candidate-sha256", "0" * 64], "Candidate source hash differs."),
++            ("wrong-inventory-pin", ["--inventory", str(altered)], "Inventory hash differs."),
++            ("wrong-source-inventory", ["--inventory", str(altered), "--inventory-sha256", altered_hash], "Source inventory differs."),
++        ]
++        for name, extra, expected_error in cases:
++            stdout, stderr = io.StringIO(), io.StringIO()
++            with patch.object(sys, "argv", arguments + extra), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
++                try:
++                    runpy.run_path(str(PROBE), run_name="__main__")
++                except AssertionError as error:
++                    assert expected_error is not None and str(error) == expected_error
++                else:
++                    assert expected_error is None
++                    assert json.loads((scratch / "result.json").read_text())["status"] == "PREFLIGHT_PASS"
++            assert not attempts
++            rows.append({"case": name, "outcome": expected_error or "PREFLIGHT_PASS", "stdout": stdout.getvalue(), "stderr": stderr.getvalue()})
++        bootstrap = """import runpy, sys
++def audit(event, values):
++    if event == 'import' and values[0].split('.')[0] in {'ankiscape', 'pkg_alias', 'tests'}:
++        raise RuntimeError('Product import attempted during optimized canary.')
++sys.addaudithook(audit)
++sys.argv = sys.argv[1:]
++runpy.run_path(sys.argv[0], run_name='__main__')
++"""
++        for name, flags, optimize in (("optimized-flag", ["-O"], None), ("optimized-env-zero", [], "0")):
++            environment = dict(os.environ)
++            environment.pop("PYTHONOPTIMIZE", None)
++            if optimize is not None:
++                environment["PYTHONOPTIMIZE"] = optimize
++            result = subprocess.run([sys.executable, "-B", *flags, "-c", bootstrap, *arguments], env=environment, capture_output=True, text=True, timeout=30)
++            assert result.returncode == 1 and result.stdout == ""
++            assert result.stderr.strip() == "Refusing to run with optimizations; the pins are assertions."
++            rows.append({"case": name, "outcome": result.stderr.strip()})
++    assert not any(name.split(".")[0] in {"ankiscape", "pkg_alias", "tests"} for name in sys.modules)
++    print(json.dumps({"status": "PASS", "cases": rows, "product_import_attempts": attempts}, indent=2))
++
++
++if __name__ == "__main__":
++    main()
+--- a/memory-bank/plans/combat-player-attack-rolls-2026-09-07.md
++++ b/memory-bank/plans/combat-player-attack-rolls-2026-09-07.md
+@@ -0,0 +1,19 @@
++# Player attack calculations
++
++Base: `5888f215ee1bd6fb6cdc3e003a7dfe57a2f4c56a`. This plan is frozen before implementation. P4 owns this source slice only. The parent owns runtime authorization, independent review, full gates and promotion.
++
++## Contract
++
++Extract the duplicated player attack roll and maximum-hit formulas into one private helper in logic_pure/logic_pure_combat_engine.py. Inputs are current player data, combat class, style ID, melee style type, prepared equipment totals, prepared prayer effects, selected ammo, spell specification and spell ID. Return exactly the attack roll and maximum hit. Preserve expression order, fallback factors and current-level reads within each formula.
++
++Keep ammo selection, enemy defence calculation, initial-only Warriors Guild multiplier, accuracy calculation, drain application and all RNG calls in the caller. Keep initial and post-drain calls. Do not extend this slice into preview, live prayer scaling, protection, damage, encounter scheduling or any UI.
++
++Called formula helpers read their inputs. Equipment totals and enemy totals are prepared values; charged spell calculation sanitizes into a new arena state. No callback, RNG or shared-state mutation occurs within these calculations. The initial caller will prepare ammo and enemy defence before calculating player attack/max hit together. This changes only the ordering of independent reads of prepared values; formula expression order and state sampling remain unchanged. No broader contract is needed.
++
++## Evidence and acceptance
++
++The full baseline engine is retained as baseline-engine.py.gz with decoded SHA256 486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4. initial-pins.json binds the baseline, installed static gate and measuring tools before edits. Neither the baseline nor the instrument may change.
++
++Add a few focused whole-burst behavior checks. Prepare a whole-burst differential probe against the frozen engine, including complete returned state/result, input nonmutation, RNG draws and generator state. Assert that the claimed routes occur: melee/ranged/magic initialization and actual stat drains, prayer-blocked drain, independent ranged attack/strength prayer factors, charged spell, and the initial-only Guild multiplier. Use the existing cockatrice, basilisk, spectre and Guild mechanics. Do not create impossible compound enemy mechanics to reach branches.
++
++Prepare negative source and optimized-interpreter canaries that stop before product imports. Parent runtime remains required; static preparation executes no tests, product imports, gameplay, remote commands or test discovery. Run the installed static layout checker before freezing final source hashes. Retain an explicit source inventory, whole-file restorable product diff, raw static measurements and gate ratchet results. Product/test/probe and operational metadata review packets are each at most 25,000 bytes; full machine evidence stays separate. No pre-existing tests or gates change. No commit is authorized during preparation.
+--- a/memory-bank/handoffs/combat-player-attack-rolls-2026-09-07.md
++++ b/memory-bank/handoffs/combat-player-attack-rolls-2026-09-07.md
+@@ -0,0 +1,26 @@
++# Player-roll preparation handoff
++
++Status: static preparation only. P4 starts at `5888f215ee1bd6fb6cdc3e003a7dfe57a2f4c56a`. No tests, product imports, test discovery, gameplay, remote commands or commits ran. Parent review, runtime authorization, both full lanes, normal hooks, exact merged-tree gates and native programme acceptance remain open. The parent owns the shared MacBook mirror.
++
++## Source boundary
++
++One private helper shares the player attack roll and maximum-hit formulas. Both original formula branches match the helper AST. Initial ammo selection, enemy defence, Guild multiplier, accuracy assignment and the drain/RNG branch remain in the caller. Read-only formula dependencies permit preparing enemy defence before the grouped player calculation. The Guild multiplier is still initial-only: real Guild bursts exercise it once, and structural proof confirms it is absent from the helper and drain path. No impossible Guild-plus-drain enemy is used.
++
++The complete baseline engine and candidate engine are retained. The full engine patch was applied forward and backward in a disposable directory; both recovered byte streams match their hashes. All tracked Python and JSON files except the candidate engine match the base. The inventory adds the new tests, probe and guard plus the fixed baseline and measuring-gate pins. It contains 877 entries. External host dependencies are not included; parent runtime must record those separately. The inventory hash is supplied through the command line from the independent manifest, rather than embedded into a probe that the inventory itself hashes.
++
++The installed layout checker passed before this source freeze. Installed gate metric and layout ratchets passed. The burst changes from CCN 334 / cognitive 658 to CCN 332 / cognitive 651; the helper is 3 / 3. These are static measurements, not behavior evidence. Raw outputs and the exact static verification script are retained.
++
++## Unexecuted verification
++
++The focused selection contains five new test methods and three existing regression methods. The comparison plans twenty named whole-burst scenarios and records complete returned player/result values, formula observations, input nonmutation, RNG draws and generator state. Each case has explicit route expectations; an empty-prefix case must advance the seeded generator. Do not accept equality if its route assertions fail. The new focused tests independently check post-drain current-level reads, blocked drains, distinct Rigour factors, charged maximum hit and the caller's Guild multiplier.
++
++Run the guard first after reviewing the product and operational packets. Its seven cases include wrong baseline, wrong candidate, wrong inventory pin, a wrong source map, `-O`, and `PYTHONOPTIMIZE=0`; each negative case must stop before product imports. The correct preflight hashes source only. Run the focused selection and comparison in both authorized host lanes, with zero focused skips, all twenty expected case labels, all equality and route flags true, and unchanged inventories. Use the parent-owned host runner; these commands describe the payload and do not grant mirror ownership.
++
++```sh
++python3 -B tools/combat/check_player_attack_rolls_guards.py --candidate-sha256 2b5a8a808f688cb179e59f882e58abefb1cb008d00cbca42e771d393d1c10ba8 --inventory-sha256 e13590b2376b4a916be9256e6d954950997561cf5fa3f0a705d8da0b3e9f620b > /tmp/ankiscape-player-roll-guards-2026-09-07.json
++python3 -B -c 'import gzip; from pathlib import Path; Path("/tmp/ankiscape-player-roll-baseline-2026-09-07.py").write_bytes(gzip.decompress(Path("memory-bank/evidence/combat-player-attack-rolls-2026-09-07/baseline-engine.py.gz").read_bytes()))'
++python3 -B run_tests.py --verbosity 2 CombatPlayerAttackRollsTest CombatLogicTest.test_cockatrice_drains_reduce_later_attacks_in_the_same_review CombatLogicTest.test_basilisk_prayer_blocks_unshielded_damage_but_not_random_stat_drain CombatLogicTest.test_aberrant_spectre_prayer_blocks_drain_but_not_stench_damage
++python3 -B tools/combat/compare_player_attack_rolls.py --baseline /tmp/ankiscape-player-roll-baseline-2026-09-07.py --candidate-sha256 2b5a8a808f688cb179e59f882e58abefb1cb008d00cbca42e771d393d1c10ba8 --inventory memory-bank/evidence/combat-player-attack-rolls-2026-09-07/source-inventory.json.gz --inventory-sha256 e13590b2376b4a916be9256e6d954950997561cf5fa3f0a705d8da0b3e9f620b --output /tmp/ankiscape-player-roll-comparison-2026-09-07.json
++```
++
++Manual review of each retained lane must confirm the real drain/prayer/charge/Guild observations and inspect the complete output and RNG comparison. This is a backend extraction; no UI proof is claimed. Preserve all raw reports and bind them to this inventory before commit authorization. Any source correction requires a new source freeze and new runtime binding.
+--- a/memory-bank/papercuts.md
++++ b/memory-bank/papercuts.md
+@@ -2087,0 +2088,2 @@
++
++- 2026-09-07T15:28:25-07:00: Player-roll static preparation searched tests/test_mage_arena.py, which does not exist; locate the existing mage-arena tests by content before reading their fixtures.
+--- a/memory-bank/evidence/combat-player-attack-rolls-2026-09-07/manifest.json
++++ b/memory-bank/evidence/combat-player-attack-rolls-2026-09-07/manifest.json
+@@ -0,0 +1,90 @@
++{
++  "status": "STATIC_PREPARATION_ONLY_RUNTIME_UNEXECUTED",
++  "base_commit": "5888f215ee1bd6fb6cdc3e003a7dfe57a2f4c56a",
++  "baseline_sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
++  "source_sha256": {
++    "logic_pure/logic_pure_combat_engine.py": "2b5a8a808f688cb179e59f882e58abefb1cb008d00cbca42e771d393d1c10ba8",
++    "tests/combat/test_player_attack_rolls.py": "609905c4816f65e850b97232f48ed22141cdd9e8a42c7cd4510f254e21de9743",
++    "tools/combat/compare_player_attack_rolls.py": "7bf7ec7711bcd714837ed697c51da3311e30da676fcbc578f365832d5233d76b",
++    "tools/combat/check_player_attack_rolls_guards.py": "ddd6b863b4455715ef2c58de3164eb3578259160a2b38aea34742ac9f8d360ef"
++  },
++  "inventory": {
++    "path": "source-inventory.json.gz",
++    "sha256": "e13590b2376b4a916be9256e6d954950997561cf5fa3f0a705d8da0b3e9f620b",
++    "entries": 877,
++    "scope": "All base-tracked Python and JSON files; three new source files; fixed baseline/gate/pins. Manifest is the independent authority for the command-line inventory hash."
++  },
++  "static_metrics": {
++    "status": "PASS",
++    "path": "static-metrics.json",
++    "scope": "Installed CCN/cognitive/Halstead/layout/file-growth ratchets only; not full commit hooks or runtime."
++  },
++  "focused_selectors": [
++    "CombatPlayerAttackRollsTest",
++    "CombatLogicTest.test_cockatrice_drains_reduce_later_attacks_in_the_same_review",
++    "CombatLogicTest.test_basilisk_prayer_blocks_unshielded_damage_but_not_random_stat_drain",
++    "CombatLogicTest.test_aberrant_spectre_prayer_blocks_drain_but_not_stench_damage"
++  ],
++  "planned_focused_methods": 8,
++  "planned_case_labels": [
++    "initial:melee",
++    "drain:melee:live=False",
++    "drain:melee:live=True",
++    "initial:ranged",
++    "drain:ranged:live=False",
++    "drain:ranged:live=True",
++    "initial:magic",
++    "drain:magic:live=False",
++    "drain:magic:live=True",
++    "rng-seeded:melee",
++    "spectre:blocked=False",
++    "spectre:blocked=True",
++    "basilisk:prayer-still-drains",
++    "ranged-prayer:eagle_eye",
++    "ranged-prayer:rigour",
++    "charge:False",
++    "charge:True",
++    "charge:after-drain",
++    "guild:single",
++    "guild:multi"
++  ],
++  "guard_status": "NOT_EXECUTED",
++  "runtime_status": "NOT_EXECUTED",
++  "independent_review_status": "PENDING",
++  "missing_acceptance": [
++    "Parent full review",
++    "Independent review",
++    "Authorized pre-import guard execution",
++    "Focused and differential runs in both host lanes",
++    "Normal commit hooks and author commit",
++    "Full branch and exact merged-tree gates",
++    "Parent native programme acceptance"
++  ],
++  "evidence_sha256": {
++    "baseline-engine.py.gz": "bf8ba8cb7c2eb12379ea703e1c3264abf6c3bfc9425497552030ec12311b2055",
++    "candidate-engine.py.gz": "c25eaf00a02b6ccd45a748de58ac6ec75ec7f1e50edda943338df5c401b56fd5",
++    "engine-full.diff.gz": "71c3836e501d35b747f5987c64f4f4314cc9343c29f44325f582ca3af81d6f14",
++    "initial-pins.json": "2e108ef24a4ba0f4ae050a33f856bfd4a08d2acc8e187d0fbba9021285e9312b",
++    "product-review.diff": "610c04f82036e1c3a14e4479bcfe45b0e63a4075e0f9bd82a4b8bb8693886d1d",
++    "slop-gate.py.gz": "e5d9458a4b47eb763610651d1d1b90f3cefce37b765b1649a26e6b27b62e4f5f",
++    "source-inventory.json.gz": "e13590b2376b4a916be9256e6d954950997561cf5fa3f0a705d8da0b3e9f620b",
++    "static-metrics.json": "2fa82a56a179f6e142fabd8cfd5368a0bc09a2f362898948cda0fc678cbb1816",
++    "static-raw.json.gz": "01d0f70e5a1aaee5274071307d81df8cdb7cd903cd2d4da20080d956544832ca",
++    "static-verification.py.gz": "8a339e32046a95b3c0c115efa1feb311bc73cc180eb60da5c9796a62ff562da0",
++    "structural-proof.json": "f314e917d7dcc47c525148ce9798fbc895c630b4c0a78c630abe869f085aee54"
++  },
++  "product_review": {
++    "path": "product-review.diff",
++    "bytes": 22242,
++    "sha256": "610c04f82036e1c3a14e4479bcfe45b0e63a4075e0f9bd82a4b8bb8693886d1d"
++  },
++  "plan": {
++    "path": "memory-bank/plans/combat-player-attack-rolls-2026-09-07.md",
++    "sha256": "d6088d404ea51576f4e4be8a9c583367052c78e38a50bac23ef4584f4675f222",
++    "immutable": true
++  },
++  "handoff": {
++    "path": "memory-bank/handoffs/combat-player-attack-rolls-2026-09-07.md",
++    "sha256": "1b691d67cd001207578609f246354ebe971246ad069b3e229b381aadf4ba22ba"
++  }
++}

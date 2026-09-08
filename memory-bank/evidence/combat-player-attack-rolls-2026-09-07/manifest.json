@@ -1,0 +1,90 @@
+{
+  "status": "STATIC_PREPARATION_ONLY_RUNTIME_UNEXECUTED",
+  "base_commit": "5888f215ee1bd6fb6cdc3e003a7dfe57a2f4c56a",
+  "baseline_sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+  "source_sha256": {
+    "logic_pure/logic_pure_combat_engine.py": "2b5a8a808f688cb179e59f882e58abefb1cb008d00cbca42e771d393d1c10ba8",
+    "tests/combat/test_player_attack_rolls.py": "609905c4816f65e850b97232f48ed22141cdd9e8a42c7cd4510f254e21de9743",
+    "tools/combat/compare_player_attack_rolls.py": "7bf7ec7711bcd714837ed697c51da3311e30da676fcbc578f365832d5233d76b",
+    "tools/combat/check_player_attack_rolls_guards.py": "ddd6b863b4455715ef2c58de3164eb3578259160a2b38aea34742ac9f8d360ef"
+  },
+  "inventory": {
+    "path": "source-inventory.json.gz",
+    "sha256": "e13590b2376b4a916be9256e6d954950997561cf5fa3f0a705d8da0b3e9f620b",
+    "entries": 877,
+    "scope": "All base-tracked Python and JSON files; three new source files; fixed baseline/gate/pins. Manifest is the independent authority for the command-line inventory hash."
+  },
+  "static_metrics": {
+    "status": "PASS",
+    "path": "static-metrics.json",
+    "scope": "Installed CCN/cognitive/Halstead/layout/file-growth ratchets only; not full commit hooks or runtime."
+  },
+  "focused_selectors": [
+    "CombatPlayerAttackRollsTest",
+    "CombatLogicTest.test_cockatrice_drains_reduce_later_attacks_in_the_same_review",
+    "CombatLogicTest.test_basilisk_prayer_blocks_unshielded_damage_but_not_random_stat_drain",
+    "CombatLogicTest.test_aberrant_spectre_prayer_blocks_drain_but_not_stench_damage"
+  ],
+  "planned_focused_methods": 8,
+  "planned_case_labels": [
+    "initial:melee",
+    "drain:melee:live=False",
+    "drain:melee:live=True",
+    "initial:ranged",
+    "drain:ranged:live=False",
+    "drain:ranged:live=True",
+    "initial:magic",
+    "drain:magic:live=False",
+    "drain:magic:live=True",
+    "rng-seeded:melee",
+    "spectre:blocked=False",
+    "spectre:blocked=True",
+    "basilisk:prayer-still-drains",
+    "ranged-prayer:eagle_eye",
+    "ranged-prayer:rigour",
+    "charge:False",
+    "charge:True",
+    "charge:after-drain",
+    "guild:single",
+    "guild:multi"
+  ],
+  "guard_status": "NOT_EXECUTED",
+  "runtime_status": "NOT_EXECUTED",
+  "independent_review_status": "PENDING",
+  "missing_acceptance": [
+    "Parent full review",
+    "Independent review",
+    "Authorized pre-import guard execution",
+    "Focused and differential runs in both host lanes",
+    "Normal commit hooks and author commit",
+    "Full branch and exact merged-tree gates",
+    "Parent native programme acceptance"
+  ],
+  "evidence_sha256": {
+    "baseline-engine.py.gz": "bf8ba8cb7c2eb12379ea703e1c3264abf6c3bfc9425497552030ec12311b2055",
+    "candidate-engine.py.gz": "c25eaf00a02b6ccd45a748de58ac6ec75ec7f1e50edda943338df5c401b56fd5",
+    "engine-full.diff.gz": "71c3836e501d35b747f5987c64f4f4314cc9343c29f44325f582ca3af81d6f14",
+    "initial-pins.json": "2e108ef24a4ba0f4ae050a33f856bfd4a08d2acc8e187d0fbba9021285e9312b",
+    "product-review.diff": "610c04f82036e1c3a14e4479bcfe45b0e63a4075e0f9bd82a4b8bb8693886d1d",
+    "slop-gate.py.gz": "e5d9458a4b47eb763610651d1d1b90f3cefce37b765b1649a26e6b27b62e4f5f",
+    "source-inventory.json.gz": "e13590b2376b4a916be9256e6d954950997561cf5fa3f0a705d8da0b3e9f620b",
+    "static-metrics.json": "2fa82a56a179f6e142fabd8cfd5368a0bc09a2f362898948cda0fc678cbb1816",
+    "static-raw.json.gz": "01d0f70e5a1aaee5274071307d81df8cdb7cd903cd2d4da20080d956544832ca",
+    "static-verification.py.gz": "8a339e32046a95b3c0c115efa1feb311bc73cc180eb60da5c9796a62ff562da0",
+    "structural-proof.json": "f314e917d7dcc47c525148ce9798fbc895c630b4c0a78c630abe869f085aee54"
+  },
+  "product_review": {
+    "path": "product-review.diff",
+    "bytes": 22242,
+    "sha256": "610c04f82036e1c3a14e4479bcfe45b0e63a4075e0f9bd82a4b8bb8693886d1d"
+  },
+  "plan": {
+    "path": "memory-bank/plans/combat-player-attack-rolls-2026-09-07.md",
+    "sha256": "d6088d404ea51576f4e4be8a9c583367052c78e38a50bac23ef4584f4675f222",
+    "immutable": true
+  },
+  "handoff": {
+    "path": "memory-bank/handoffs/combat-player-attack-rolls-2026-09-07.md",
+    "sha256": "1b691d67cd001207578609f246354ebe971246ad069b3e229b381aadf4ba22ba"
+  }
+}
