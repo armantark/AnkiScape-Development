@@ -1,0 +1,57 @@
+{
+  "status": "PARENT_REVIEWED_SELECTION_ONLY_NO_AUTHORING",
+  "completed_attempt": {
+    "session": 12351,
+    "exit_code": 0,
+    "parent_full_read": true
+  },
+  "failed_attempt": {
+    "session": 17252,
+    "exit_code": 1,
+    "recommendation": null,
+    "error": "error: tool loop exceeded 24 turns"
+  },
+  "files": {
+    "completed-stdout": {
+      "original_path": "/tmp/ankiscape-next-combat-seam-fixed-kimi-2026-09-08.txt",
+      "stored_path": "completed-stdout.gz",
+      "original_bytes": 3645,
+      "original_sha256": "90019ec4f54c6cd4141815338a714b94a1c35c2a8696a270e541a83ef1cb8944",
+      "stored_bytes": 1676,
+      "stored_sha256": "6cf75cf981b98d599408e926d068090bfbcf1c32bd4aa5e0d99e04155a6fff4b"
+    },
+    "completed-stderr": {
+      "original_path": "/tmp/ankiscape-next-combat-seam-fixed-kimi-2026-09-08.stderr",
+      "stored_path": "completed-stderr.gz",
+      "original_bytes": 281,
+      "original_sha256": "874d20e9041c7a5ccd2f2161d6eab8c58e59004739e5ce37651d37793e7ddcad",
+      "stored_bytes": 198,
+      "stored_sha256": "27340377151c4b0db2f20f639c54420ec6121710350e057a537ed2a403541e74"
+    },
+    "fixed-prompt": {
+      "original_path": "/tmp/ankiscape-next-combat-seam-fixed-prompt-2026-09-08.txt",
+      "stored_path": "fixed-prompt.gz",
+      "original_bytes": 9907,
+      "original_sha256": "4679fd483d4ac1408d88ce1375bfd7866fe037d8854e6252718d045d102f9f88",
+      "stored_bytes": 2680,
+      "stored_sha256": "486f1505948bc6939282269c7eafbaa3bbece6d67b24c635b3d598a74ea217a3"
+    },
+    "failed-stdout": {
+      "original_path": "/tmp/ankiscape-next-combat-seam-kimi-2026-09-08.txt",
+      "stored_path": "failed-stdout.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "failed-stderr": {
+      "original_path": "/tmp/ankiscape-next-combat-seam-kimi-2026-09-08.stderr",
+      "stored_path": "failed-stderr.gz",
+      "original_bytes": 315,
+      "original_sha256": "f310cf97295ff30760e02ce07bb12e1791bf827c6f115bcd62dd936582c689ee",
+      "stored_bytes": 221,
+      "stored_sha256": "67490831bcab2639ace405caa94369940c5d7ac0b462b0c52e92c8e25eb04cda"
+    }
+  },
+  "parent_correction": "Reject the review sketch that returns zero for disabled drain and skips zero writes. Return None only when normalized base is <= 0; otherwise return the exact clamped integer, including zero. Caller checks is not None and preserves subtraction, counter and data write before protection. No no-op-write assumption is accepted."
+}
