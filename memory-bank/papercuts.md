@@ -2225,3 +2225,10 @@
 - 2026-09-08: Exact Keep/Drop helper extraction failed the unchanged cognitive gate at 17 > 15 (other ratchets empty). Parent authorized a single guard normalization: Drop then return, followed by dedented Keep body; rejected candidate and raw metrics remain in `rejected-nested-keep`.
 
 - 2026-09-08: Root guessed `logic_pure/inventory*` and received a zsh no-matches error; the existing helper module is `logic/inventory_pure.py`. Root found no existing drop-gains helper there.
+- 2026-09-08: P4 selector preparation attempted to read carried-new-bank-trip static pins in the clean base checkout and received `No such file or directory`; those pins remain in the P3 evidence checkout. No source import occurred.
+
+- 2026-09-08: P4 comparator correction could not start: `zsh:1: can't create temp file for here document: no space left on device` (exit 1). No product import or runtime started. Root reported initial /tmp 100% with 108 MiB available; external disk change then yielded 37,654,580 KiB available at 98%, a 1,048,576-byte write/read/fsync canary PASS, and fresh free_bytes=38627680256. Root deleted only its exclusive canary tempfile, not user data/evidence/caches; cause unknown. Read-only cleanup-target glob returned `zsh:1: no matches found: /private/var/folders/*/*/T/selector-fixed-static-*`; no matching deletion was attempted.
+
+- 2026-09-08: Parent queried the selector command proposal and received `cat: memory-bank/evidence/unproductive-activity-selector-2026-09-08/command-proposal.json: No such file or directory`; the enumerated file is `runtime-protocol-command-proposal.json`. Parent will use the exact enumerated name.
+
+- 2026-09-08: Root runtime-retention verification first treated `stored_path` as checkout-relative instead of evidence-directory-relative, then treated the descriptive `encoding` value as literal `gzip`. Corrected verification confirmed all 44 original/stored hashes, sizes and exact or decompressed byte identities.
