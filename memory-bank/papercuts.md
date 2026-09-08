@@ -2183,3 +2183,5 @@
 - 2026-09-07T17:47:45-07:00 — Static instrument lookup used the wrong evidence date and received `rg: memory-bank/evidence/combat-enemy-attack-rolls-2026-09-06: No such file or directory (os error 2)`; the existing directory is `memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05`.
 
 - 2026-09-07T17:50:04-07:00 — Parent static verification session `22474` exited `1`: `AssertionError {'ccn': [], 'cognitive': [], 'halstead': [], 'layout': [], 'file_growth': [('logic_pure/logic_pure_combat_engine.py', 3006)]}`. The engine baseline is `3002` lines and candidate is `3006`; preserve the fixed file-growth gate and revise the extraction boundary after independent review.
+
+- 2026-09-08 — Kimi read-only next combat seam review session `17252` ended with exit `1` and `error: tool loop exceeded 24 turns`; no recommendation returned. The root retry in session `12351` uses a fixed 9,907-character source packet from I engine lines `2012-2182` with no filesystem tools.
