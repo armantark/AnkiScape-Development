@@ -491,6 +491,7 @@ from .logic_pure_state import (
 
 from .logic_pure_combat_specials import (
     _combat_dragonfire_damage_lifepoints,
+    _combat_enemy_prayer_drain,
     _combat_wyvern_breath_damage_event,
 )
 
@@ -2119,14 +2120,10 @@ def apply_combat_burst_pure(
                     landed = False
                 damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
             raw_enemy_damage = damage
-            prayer_drain_base = _non_negative_int(
-                enemy.get("prayer_drain_base", 0), 0
+            prayer_drain = _combat_enemy_prayer_drain(
+                enemy, raw_enemy_damage, prayer_points_after
             )
-            if prayer_drain_base > 0:
-                prayer_drain = prayer_drain_base
-                if bool(enemy.get("prayer_drain_damage", False)):
-                    prayer_drain += max(0, raw_enemy_damage)
-                prayer_drain = min(prayer_points_after, prayer_drain)
+            if prayer_drain is not None:
                 prayer_points_after -= prayer_drain
                 enemy_prayer_drain += prayer_drain
                 data["combat_prayer_points"] = prayer_points_after

@@ -6060,3 +6060,11 @@ the obsolete percent key is no longer touched.
 - Five real-handler tests cover those relocated emits, and each test was mutation-proven by removing only its emit, observing failure, and restoring the call.
 - No user interface code changed. The Beefy Bill banking service remains the next separate slice.
 - Evidence: `source-audits/diary-ledger-wiring-2026-09-01.md`.
+
+## Combat prayer-drain extraction — 2026-09-08
+
+- Branch `goal/combat-prayer-drain-2026-09-08` extracts only the enemy prayer-drain calculation into `logic_pure/logic_pure_combat_specials.py`.
+- Plain and Qt each passed three focused tests with zero skips. Both lanes passed nine frozen-engine comparison cases with complete return, pickle-byte, random-number route, and input nonmutation equality.
+- The runtime used the exact 1,185-entry inventory `248d5502a017d83e2a060a2041061a5acd442a8101200bea52029ac3de1a2850`. The four run IDs are retained in `evidence/combat-prayer-drain-2026-09-08/runtime-retention-manifest.json`.
+- The focused and differential runtime gates are closed for this branch. The full source gate, composition, landing, and native programme acceptance remain pending.
+- The queue audit identifies preview-food calculation as the only settled next combat boundary. Do not start it until the current source gate is active and the parent assigns ownership.

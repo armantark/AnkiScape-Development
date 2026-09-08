@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "method": "COMPILE_AST_HASH_ONLY",
+  "runtime_executed_by_this_check": false,
+  "remote_calls": false,
+  "product_imports_before": [],
+  "product_imports_after": [],
+  "product_sources": {
+    "logic_pure/logic_pure_combat_engine.py": "934f0bccbdd7a11a0bde6df361d6355c0c339c2daf69e51d98b5b933952e4c49",
+    "logic_pure/logic_pure_combat_specials.py": "3b74a4720bbc3135b1c87df910999d69607f0f41b67f4dbf126de4f60910b619",
+    "tests/combat/test_prayer_drain.py": "1a47dd557ba6af1764c9888d60b40b878eadb630006c7ffacea4f353a64c7f80"
+  },
+  "comparator": {
+    "sha256": "d23d947054c234076d88564d94d667d5c527a774d3cfeccd097f6dc80a11cd9f",
+    "bytes": 10148,
+    "lines": 260,
+    "compile": "PASS",
+    "prior_sha256": "023a0b92360e3cd86a6a4ce513bc7fa22946369a6201c50a974bbc8c7133d185",
+    "prior_bytes": 10254,
+    "reconstructs_prior_by_restoring_only_removed_guard": true
+  },
+  "inventory": {
+    "entries": 1185,
+    "stored_sha256": "248d5502a017d83e2a060a2041061a5acd442a8101200bea52029ac3de1a2850",
+    "decoded_sha256": "2cd88d178bef2d6ef805306178cd11f11f85a0403a03e43e7a519b0266f7790a",
+    "all_entries_rehashed": true
+  },
+  "harness": {
+    "stored_bytes": 4484,
+    "stored_sha256": "2732e1e734a79f359ac1a5ed95705d8bb0ea4b4d15680e37e1218fc54ee067c4",
+    "decoded_bytes": 13958,
+    "decoded_sha256": "f96e818d23d32721069821cb1bbf8c27c335c017035a95fb0961edc60def6888",
+    "compile": "PASS",
+    "inventory_pin": "248d5502a017d83e2a060a2041061a5acd442a8101200bea52029ac3de1a2850",
+    "redundant_inventory_constants_removed": true
+  },
+  "checker": {
+    "stored_bytes": 2057,
+    "stored_sha256": "2aaf980ecd1fd2080bf6a491bb9421df1454e67c91fdcba3b8a4a7ba8ffefbed",
+    "decoded_bytes": 6969,
+    "decoded_sha256": "efc91844b1d3961d409ac33d6d0aca2b838f3da5e073fdd2327a4765358d1e89",
+    "compile": "PASS",
+    "temporary_directory_module": "tempfile"
+  }
+}

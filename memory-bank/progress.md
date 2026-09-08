@@ -7070,3 +7070,11 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - The focused merged-seam set passes 138 tests with one skip. All 42 affected modules pass 1,164 tests with two skips.
 - Full sequential discovery passes 5,563 tests in each lane: plain takes 884.485 seconds with 1,367 skips, and offscreen Qt takes 1,615.313 seconds with 5 skips. No errors or failures remain.
 - The worktree audit passes, and the canonical live Anki checkout remains clean.
+
+## Enemy prayer-drain extraction — 2026-09-08
+
+- Moved the pure prayer-drain calculation from the combat engine into the existing combat-specials module. The caller still owns all state mutation and keeps the calculation before protection scaling.
+- Added direct boundary coverage and a full-burst regression that proves damage-scaled drain uses raw damage before protection. The existing Tz-Kih integration test remains in the focused set.
+- Plain and Qt each passed three focused tests in `0.002` seconds with zero skips. Both lanes passed nine frozen-engine comparison cases and all 18 complete outputs matched byte-for-byte under protocol 4.
+- Retained all 42 exact runtime files as deterministic gzip. A parent-only restricted unpickler independently verified all 18 comparison rows without a runtime rerun.
+- Full source, composition, landing, and native programme gates remain pending. This branch is not accepted on main.

@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "method": "AST_PARSE_ONLY",
+  "product_imports_before": [],
+  "product_imports_after": [],
+  "baseline_specials": {
+    "sha256": "b165f3f63f1de2fbffeec9c0ee79df498c1614f05872ed7e911e7b86fd5601ca",
+    "ast_sha256": "7a3d57ed634fc99d3a58e1810ab3f1370f9352f29eab6c696879717d622e7ada"
+  },
+  "candidate_specials": {
+    "sha256": "3b74a4720bbc3135b1c87df910999d69607f0f41b67f4dbf126de4f60910b619",
+    "stripped_ast_sha256": "7a3d57ed634fc99d3a58e1810ab3f1370f9352f29eab6c696879717d622e7ada"
+  },
+  "removed_candidate_nodes": [
+    "FunctionDef:_combat_enemy_prayer_drain"
+  ],
+  "stripped_candidate_equals_entire_baseline_specials_ast": true,
+  "baseline_engine": {
+    "sha256": "5f641672a316655fa63a25ce9ea5d24a80645f362f338df1929a8808a253936b",
+    "combat_specials_imports": [
+      "_combat_dragonfire_damage_lifepoints",
+      "_combat_wyvern_breath_damage_event"
+    ],
+    "combat_enemy_prayer_drain_name_references": 0,
+    "imports_new_helper": false
+  },
+  "conclusion": "The frozen baseline engine reaches only the unchanged pre-existing combat-special helpers."
+}
