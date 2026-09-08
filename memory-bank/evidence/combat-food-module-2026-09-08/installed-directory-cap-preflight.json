@@ -1,0 +1,29 @@
+{
+  "actual_candidate_directories": {
+    "logic_pure": {
+      "added": "logic_pure/logic_pure_combat_food.py",
+      "code_files": 27,
+      "under_cap": true
+    },
+    "tests/combat": {
+      "added": "tests/combat/test_preview_food.py",
+      "code_files": 8,
+      "under_cap": true
+    },
+    "tools/combat": {
+      "added": "tools/combat/compare_preview_food.py",
+      "code_files": 24,
+      "under_cap": true
+    }
+  },
+  "all_candidate_directories_under_cap": true,
+  "directory_file_cap": 40,
+  "fixture_correction_effect_on_directory_counts": "NONE",
+  "full_source_gate_pending": true,
+  "installed_gate_elapsed_seconds": 34.642,
+  "installed_gate_report": "memory-bank/evidence/combat-food-module-2026-09-08/installed-slop-gate.json",
+  "installed_gate_scope": "revised complete candidate in temporary index",
+  "installed_gate_status": "PASS",
+  "instrument": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+  "status": "PASS"
+}

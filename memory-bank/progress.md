@@ -7070,3 +7070,18 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - The focused merged-seam set passes 138 tests with one skip. All 42 affected modules pass 1,164 tests with two skips.
 - Full sequential discovery passes 5,563 tests in each lane: plain takes 884.485 seconds with 1,367 skips, and offscreen Qt takes 1,615.313 seconds with 5 skips. No errors or failures remain.
 - The worktree audit passes, and the canonical live Anki checkout remains clean.
+
+## Combat food module extraction — 2026-09-08
+
+- Added `logic_pure/logic_pure_combat_food.py` as the owner of the default food order, consumption, loaded count, banked count, and loaded-food availability.
+- Preserved the complete baseline namespace set through direct re-exports. The new preview helper is limited to the food module and engine.
+- Parent runtime jobs `plain-1788896592-6b36c0ba` and `qt-1788896684-cbc79c52` each passed nine focused tests with zero skips in 0.002 seconds.
+- Parent runtime jobs `plain-1788896628-a8430591` and `qt-1788896707-9a1e7c54` each passed all 15 differential cases.
+- Differential proof includes complete value equality, full pickle-byte equality, restricted-unpickler structure equality, exact routes, and input nonmutation.
+- The complete 1,218-entry inventory matched before and after all four jobs. Local-after bytes also match the current source.
+- Retained all 42 runtime files with exact raw and gzip bindings in `evidence/combat-food-module-2026-09-08/runtime-acceptance.json`.
+- Preserved the first failed comparison separately. Its baseline and candidate matched; an unreachable authored fixture caused the route-only failure.
+- Re-encoded six historical `.py` source copies as deterministic gzip after the first full staged slop gate treated them as new code. Exact decoded bindings and the previous raw manifest are preserved; the full staged gate now passes.
+- Re-encoded nine raw historical prompt and diff files after the cached diff check exposed context-space lines. All decoded bytes and eight pre-change manifest snapshots remain exact; a new unpinned storage overlay owns the current mappings.
+- Focused, differential, and full staged slop acceptance is complete. Root review, branch commit, full source, merge, post-merge, and main landing remain pending. Native programme acceptance is separate.
+- Evidence: `source-audits/combat-food-module-extraction-2026-09-08.md`.

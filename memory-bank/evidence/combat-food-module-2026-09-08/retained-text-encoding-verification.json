@@ -1,0 +1,58 @@
+{
+  "binding_count": 9,
+  "generated_at": "2026-09-08T14:00:28-07:00",
+  "historical_manifest_policy": {
+    "active_manifest_is_unpinned_and_rebuilt": true,
+    "manifest_snapshot_count": 8,
+    "storage_references_live_only_in_unpinned_overlay": true
+  },
+  "mismatch_report": {
+    "mismatch_count_before_restoration": 10,
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/source-inventory-mismatches-before-restoration.json",
+    "sha256": "796b4aed576d139cacb5ac5200df06afbbd4dbdffb5c75215f155c6c473c48bd"
+  },
+  "original_files_removed": true,
+  "restoration": {
+    "inventory_pinned_path_count": 10,
+    "restored_inventory_paths": {
+      "memory-bank/evidence/combat-food-module-pre-root-review-2026-09-08/archive-manifest.json": "71d51be6fe8042bb0d65d0256b142b9e1982567cca67db073758d23b0eef2fd9",
+      "memory-bank/evidence/combat-food-module-pre-root-review-2026-09-08/manifest.json": "ed2d7886d201556e32b092ff7b7cd999b7850cb8e99ebf9b57b17bda599a030b",
+      "memory-bank/evidence/combat-food-module-pre-root-review-2026-09-08/static-preparation.json": "4cd5cba79f39d9ae72dd86f2c0e74aa9d967161524b5d1c05769f5750342c415",
+      "memory-bank/evidence/combat-preview-food-2026-09-08/manifest.json": "b1b398220830a18bb857e0a682c22e91517195f4088023e3221e277d061e582a",
+      "memory-bank/evidence/combat-preview-food-2026-09-08/product-review-acceptance.json": "0a7e1317fa1a88b881bf9b2b5601603237c28f73c58658f8a6c1cb21e2c86e0e",
+      "memory-bank/evidence/combat-preview-food-2026-09-08/static-preparation.json": "3918aac742652df0cb50f2f2968616f45638d34590d2b2f7b53dfcbe4ca0ac62",
+      "memory-bank/evidence/combat-preview-food-file-growth-blocked-2026-09-08/evidence-exact/manifest.json": "b1b398220830a18bb857e0a682c22e91517195f4088023e3221e277d061e582a",
+      "memory-bank/evidence/combat-preview-food-file-growth-blocked-2026-09-08/evidence-exact/product-review-acceptance.json": "0a7e1317fa1a88b881bf9b2b5601603237c28f73c58658f8a6c1cb21e2c86e0e",
+      "memory-bank/evidence/combat-preview-food-file-growth-blocked-2026-09-08/evidence-exact/static-preparation.json": "3918aac742652df0cb50f2f2968616f45638d34590d2b2f7b53dfcbe4ca0ac62",
+      "memory-bank/evidence/combat-preview-food-file-growth-blocked-2026-09-08/manifest.json": "0658a2e341fad612460271f3ae48074cdbf8113a2924dc94415e429b03e8a560"
+    },
+    "restored_unpinned_metadata": {
+      "memory-bank/evidence/combat-food-module-2026-09-08/final-opus-parent-resolution.json": "e49d12b73bfda907080c62332dad9e9e539337fc7c35908a6b72afc331e25980",
+      "memory-bank/evidence/combat-food-module-2026-09-08/static-preparation.json": "1a393f91980d0f554c3526bef0b9a77eabfd273ae5b612a143a9b08fa6ad4da8",
+      "memory-bank/evidence/combat-food-module-pre-fixture-fix-2026-09-08/archive-manifest.json": "6ab9665e67f64d9aea8270124cef621e6f684c346e7e365a85f004bdcf801dec",
+      "memory-bank/evidence/combat-food-module-pre-fixture-fix-2026-09-08/main-evidence/final-opus-parent-resolution.json": "e49d12b73bfda907080c62332dad9e9e539337fc7c35908a6b72afc331e25980",
+      "memory-bank/evidence/combat-food-module-pre-fixture-fix-2026-09-08/main-evidence/manifest.json": "15d9834af326ef6d4db970e33e6603f8034b5fd51e3e87fc5065c6a8b5eeb5fd",
+      "memory-bank/evidence/combat-food-module-pre-fixture-fix-2026-09-08/main-evidence/static-preparation.json": "06899faa19ce049f1ddcf1f74087d119086ea6049f34408a0632cef6a5866478"
+    },
+    "restored_unpinned_metadata_count": 6
+  },
+  "round_trip_verified": true,
+  "source_inventory": {
+    "entry_count": 1218,
+    "full_verification_path": "memory-bank/evidence/combat-food-module-2026-09-08/source-inventory-full-verification-after-retained-text-encoding.json",
+    "full_verification_sha256": "643d87dc7a21e092ef71531922a7083b9198d011896303bbecf6ba7aedc6e1ef",
+    "mismatch_count": 0,
+    "missing_count": 0,
+    "pins_unchanged": true,
+    "stored_bytes": 58512,
+    "stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e",
+    "target_overlap": [],
+    "verified_entry_count": 1218
+  },
+  "status": "PASS",
+  "storage_overlay": {
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/retained-text-storage-overlay.json",
+    "sha256": "323b73531e93359e96e574dd57016b5ed0354d961fa666fd7d4a94042254e364"
+  },
+  "validation_errors": []
+}

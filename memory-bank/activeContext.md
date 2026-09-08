@@ -6060,3 +6060,16 @@ the obsolete percent key is no longer touched.
 - Five real-handler tests cover those relocated emits, and each test was mutation-proven by removing only its emit, observing failure, and restoring the call.
 - No user interface code changed. The Beefy Bill banking service remains the next separate slice.
 - Evidence: `source-audits/diary-ledger-wiring-2026-09-01.md`.
+
+## Combat food module extraction — 2026-09-08
+
+- Moved the default food order and four existing food helpers into `logic_pure/logic_pure_combat_food.py` without changing their source or prior namespace identities.
+- Extracted the engine's inline preview-food loop into the same module. The helper remains private to the food module and engine.
+- Parent runtime acceptance passed nine focused tests with zero skips in both plain and Qt lanes. Each lane took 0.002 seconds.
+- Both differential lanes passed all 15 cases with complete value, pickle-byte, restricted-unpickler structure, route, and input-nonmutation equality.
+- All four jobs retained equal before and after guards for the complete 1,218-entry source inventory.
+- The first failed comparator attempt remains preserved. Its only failure was an unreachable authored `Safe` route caused by a level-1 fixture clamp.
+- The first full staged slop gate failed because six historical source copies retained `.py` suffixes. They now use deterministic gzip storage with exact decoded bindings; the previous raw archive manifest remains preserved, and the full staged gate passes.
+- The cached diff check then exposed context-space lines in nine raw historical prompt and diff files. Their exact bytes now use deterministic gzip storage. All eight pre-change manifest snapshots remain preserved, and a new unpinned storage overlay owns the current mappings.
+- Focused, differential, and full staged slop proof is complete. Root review, branch commit, full source, merge, post-merge, and main landing remain pending. Native programme acceptance is separate.
+- Evidence: `source-audits/combat-food-module-extraction-2026-09-08.md`.

@@ -1,0 +1,39 @@
+{
+  "status": "FAILED_REVIEW_RETAINED_NO_RULING",
+  "generated_at": "2026-09-08T10:10:26-07:00",
+  "review_session": 77200,
+  "exit_code": 0,
+  "stdout_empty": true,
+  "ruling": null,
+  "cause": "UNPROVEN",
+  "cause_note": "A transient local disk-full incident occurred during the same period, but no evidence attributes this empty review output to that incident.",
+  "source_status": "FROZEN_UNACCEPTED_AFTER_FILE_GROWTH_GATE",
+  "streams": {
+    "module-split-kimi.stdout.gz": {
+      "original_path": "/tmp/ankiscape-combat-food-module-kimi-2026-09-08.txt",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "module-split-kimi.stderr.gz": {
+      "original_path": "/tmp/ankiscape-combat-food-module-kimi-2026-09-08.stderr",
+      "raw_bytes": 280,
+      "raw_sha256": "f30e34d735d5b9610529c181bf1c3c708b80042b25e2be62dac2bf0c90756dca",
+      "stored_bytes": 197,
+      "stored_sha256": "3f7edabbf01d3681df095e607e2a79f81c8b2f0182b63cba7df3d7c7d7b35801"
+    },
+    "module-split-kimi.prompt.gz": {
+      "original_path": "/tmp/ankiscape-combat-food-module-kimi-prompt-2026-09-08.txt",
+      "raw_bytes": 86127,
+      "raw_sha256": "5e2e8be440cf06fc81bc6a146019eb6325acf4bebe985552734f93bcf626dbe9",
+      "stored_bytes": 19204,
+      "stored_sha256": "deba4a42309cf62e319181dbb2b3cfb389c5d2b760d6688d1d855970735d76c5"
+    }
+  },
+  "retry": {
+    "session": 28262,
+    "status": "RUNNING_ROOT_OWNED",
+    "streams_retained": false
+  }
+}

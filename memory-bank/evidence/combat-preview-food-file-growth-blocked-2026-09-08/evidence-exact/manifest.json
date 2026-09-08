@@ -1,0 +1,154 @@
+{
+  "status": "AUTHOR_PACKET_SOURCE_ONLY_PASS_RUNTIME_NOT_STARTED_NOT_ACCEPTED",
+  "generated_at": "2026-09-08T09:47:02-07:00",
+  "branch": "goal/combat-preview-food-2026-09-08",
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "boundary": {
+    "review_session": 88713,
+    "documentation_commit_not_on_main": "7def8acb6c303af79873182d7d812737ca56799f",
+    "copied_manifest": "boundary-manifest.json",
+    "manifest_sha256": "04f8a69582ce73e7c59acbd7ddbe324af3c72dd2b2c19f00ea4e2abbdf258064"
+  },
+  "scope": {
+    "helper": "_combat_preview_food_available",
+    "arguments": [
+      "player_data",
+      "active_encounter"
+    ],
+    "product_files": [
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_supplies.py"
+    ],
+    "engine_prefix_suffix_ast_equal": true,
+    "risk_state_wilderness_poison_counters_unchanged": true,
+    "ui_or_gameplay_change": false,
+    "new_module_or_state": false
+  },
+  "source_pins": {
+    "logic_pure/logic_pure_combat_engine.py": {
+      "status": "PASS",
+      "bytes": 120996,
+      "lines": 2943,
+      "sha256": "6e7e29cb34eaa89f82879eecf94cc66e52bb1b467fc72f7edbc2cbae9d84d051"
+    },
+    "logic_pure/logic_pure_combat_supplies.py": {
+      "status": "PASS",
+      "bytes": 69707,
+      "lines": 1772,
+      "sha256": "9d1e1247df8bce200be7c84f858dcc1616229bea0ce34393e71b152efd86c214"
+    },
+    "tests/combat/test_preview_food.py": {
+      "status": "PASS",
+      "bytes": 4184,
+      "lines": 127,
+      "sha256": "75cf9c59c8fb9f0277498d58f9e64a286b099781485491bdfc391a42ab0ab1e4"
+    },
+    "tools/combat/compare_preview_food.py": {
+      "status": "PASS",
+      "bytes": 12629,
+      "lines": 369,
+      "sha256": "ac5d1515e0ec8d78fffdde046b00cac2b1c0d2c1530de70b758ce36ac9263f25"
+    }
+  },
+  "snapshots": {
+    "baseline-engine.py.gz": {
+      "stored_bytes": 23333,
+      "stored_sha256": "1e3f72610e12711057b32af3e07bfbdb41be10b17228036750ff390fdadd90b6",
+      "decoded_bytes": 121500,
+      "decoded_sha256": "5f641672a316655fa63a25ce9ea5d24a80645f362f338df1929a8808a253936b"
+    },
+    "baseline-supplies.py.gz": {
+      "stored_bytes": 13669,
+      "stored_sha256": "503aed6ea0c3510268ef45d75573e945e23baf04536d76aac4eafc0f309bdf4b",
+      "decoded_bytes": 68949,
+      "decoded_sha256": "c49dca01ceca5432424a870403109bdea656b363ea804d2d769e9ebc024afbcc"
+    },
+    "candidate-engine.py.gz": {
+      "stored_bytes": 23224,
+      "stored_sha256": "ca01cb185ea08709c7c89095be6ec3288b5832a3039a017230b7c108a0047a62",
+      "decoded_bytes": 120996,
+      "decoded_sha256": "6e7e29cb34eaa89f82879eecf94cc66e52bb1b467fc72f7edbc2cbae9d84d051"
+    },
+    "candidate-supplies.py.gz": {
+      "stored_bytes": 13793,
+      "stored_sha256": "fc904d9f18e62a1034d1e332cebcd5e130b0d233a01a34930c4b4b4f23538ef8",
+      "decoded_bytes": 69707,
+      "decoded_sha256": "9d1e1247df8bce200be7c84f858dcc1616229bea0ce34393e71b152efd86c214"
+    }
+  },
+  "source_inventory": {
+    "path": "memory-bank/evidence/combat-preview-food-2026-09-08/source-inventory.json.gz",
+    "entries": 1185,
+    "stored_bytes": 57193,
+    "stored_sha256": "1d1082ace555433a16ebaeee3b22066fe9a2b90b7cbf0037f991520c8bc5ef46",
+    "decoded_bytes": 140632,
+    "decoded_sha256": "a9de42e11258907fb6211c568d80d94dec7ab13376c4e01618819d2f7628689c",
+    "all_entries_rehashed": true,
+    "current_evidence_directory_excluded_except_four_source_snapshots": true
+  },
+  "static_preparation": {
+    "path": "static-preparation.json",
+    "sha256": "3918aac742652df0cb50f2f2968616f45638d34590d2b2f7b53dfcbe4ca0ac62",
+    "status": "AUTHOR_SOURCE_ONLY_PASS_RUNTIME_NOT_STARTED",
+    "product_imports_started": false
+  },
+  "comparator_preflight": {
+    "path": "comparator-preflight.json",
+    "sha256": "3cd4f065cf14f457564b15a49b005b8b30870b120ed17d7b2820b7ed1bcc9ae9",
+    "status": "PREFLIGHT_PASS",
+    "product_imported": false
+  },
+  "diff_packets": {
+    "product-and-test.diff": "d7e271af201d3464ca51bd91054365c39b11ab622a971df16bb4bb548fbc1391",
+    "comparator.diff": "c934da1b72544bd131b7a013593a62b58e3df8ce0e6d568575ed926594dee8c2"
+  },
+  "focused_tests": [
+    "test_missing_empty_and_none_food_selections_remain_distinct",
+    "test_catalog_counts_and_encounter_bank_gate_remain_exact",
+    "test_invalid_inputs_and_per_item_short_circuit_remain_exact",
+    "test_preview_uses_loadout_during_an_active_encounter"
+  ],
+  "comparison": {
+    "case_count": 15,
+    "case_labels": [
+      "selection:missing-default",
+      "selection:empty",
+      "selection:none",
+      "catalog:unsupported",
+      "source:bank-ready",
+      "source:bank-gated-during-encounter",
+      "source:loadout-during-encounter",
+      "count:negative-clamped",
+      "inventory:invalid-truthy-ready",
+      "inventory:invalid-truthy-gated",
+      "selection:unhashable",
+      "selection:short-circuit-before-unhashable",
+      "risk:safe-threshold",
+      "risk:wilderness-overwrite",
+      "risk:poison-escalation"
+    ],
+    "complete_return_or_exception_equality": true,
+    "pickle_protocol": 4,
+    "exception_type_args_and_message_captured": true,
+    "route_assertions": true,
+    "input_nonmutation_assertions_present": true,
+    "rng_applicable": false,
+    "source_before_and_after_guards": true,
+    "optimization_refusal": true
+  },
+  "runtime_recipe": {
+    "focused": "python3 -m unittest -v tests.combat.test_preview_food",
+    "comparison": "python3 tools/combat/compare_preview_food.py --inventory memory-bank/evidence/combat-preview-food-2026-09-08/source-inventory.json.gz --inventory-sha256 1d1082ace555433a16ebaeee3b22066fe9a2b90b7cbf0037f991520c8bc5ef46 --output memory-bank/evidence/combat-preview-food-2026-09-08/runtime-comparison.json",
+    "owner": "root on MacBook Pro after explicit runtime release",
+    "rng_applicable": false
+  },
+  "pending": [
+    "root static ratchets",
+    "cross-lineage product review",
+    "plain and Qt focused runtime",
+    "full-preview differential runtime",
+    "full gates",
+    "commit authorization",
+    "landing"
+  ]
+}

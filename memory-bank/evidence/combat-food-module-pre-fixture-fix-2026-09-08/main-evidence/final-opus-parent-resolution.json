@@ -1,0 +1,60 @@
+{
+  "status": "FINAL_OPUS_APPROVE_WITH_CHECKS_PARENT_RESOLVED",
+  "generated_at": "2026-09-08T12:01:13-07:00",
+  "review": {
+    "terminal_exit_code": 0,
+    "prompt_source_used": "final-opus-review-prompt.txt",
+    "prompt_bytes": 84699,
+    "prompt_same_84699_byte_source_used_for_retry": true,
+    "files": {
+      "final-opus-review-prompt.txt": {
+        "bytes": 84699,
+        "sha256": "4ade86edfb754e862b1e2f3d7546d913a9b9762d41fb9bf6952bf28e379ef40b"
+      },
+      "final-opus-review-retry.stdout.txt": {
+        "bytes": 7052,
+        "sha256": "971f720533045fa31a3f2c7c50503cca77126486cad28c30e7d8e1b22db2da4c"
+      },
+      "final-opus-review-retry.stderr.txt": {
+        "bytes": 360,
+        "sha256": "4f20b0e9f62f1f2e18b6c47c872755c25eb8e78fb60cd57400ccd9820863ee42"
+      }
+    },
+    "food_verdict": "APPROVE_WITH_CHECKS",
+    "retry_invocation": {
+      "command_file": "final-opus-review-retry.argv.txt",
+      "command_file_bytes": 538,
+      "command_file_sha256": "190ac4fb59161de2761a9bd05fb21103c132b2febc7ca0e4a03f5ddff3c7c798",
+      "stdout_path": "/tmp/ankiscape-food-poison-final-opus-retry-2026-09-08.txt",
+      "stderr_path": "/tmp/ankiscape-food-poison-final-opus-retry-2026-09-08.stderr"
+    }
+  },
+  "parent_resolution": {
+    "engine_preview_removed_local_name_loads": {
+      "loadout": 0,
+      "bank_inventory": 0
+    },
+    "donor_import_actual_load_counts": {
+      "logic_pure/logic_pure_combat_model.py": {
+        "Mapping": 126,
+        "COMBAT_FOOD_DATA": 1,
+        "_positive_int": 61,
+        "_non_negative_int": 57
+      },
+      "logic_pure/logic_pure_combat_supplies.py": {
+        "Mapping": 41,
+        "COMBAT_FOOD_DATA": 1,
+        "_positive_int": 17,
+        "_non_negative_int": 102
+      }
+    },
+    "donor_import_removals_needed": false,
+    "comparator_limit": "The frozen engine resolves moved food functions from candidate modules. The comparison proves the call-site extraction; exact AST relocation, baseline re-export identity, and four existing combat tests prove the moved bodies.",
+    "route_expected_limit": "route_expected is authored. A wrong route expectation does not prove changed product behavior; equal and pickle_bytes_equal are the behavior oracle.",
+    "instrument_policy": "Do not weaken or fix the comparator instrument to make an authored route expectation pass."
+  },
+  "source_inventory_sha256": "dfa42e3ccac39fb17bb605cfe69173dcc626298fced81e8d99192d51aaa6a73e",
+  "frozen_source_inventory_harness_unchanged": true,
+  "runtime_executed": false,
+  "remote_executed": false
+}

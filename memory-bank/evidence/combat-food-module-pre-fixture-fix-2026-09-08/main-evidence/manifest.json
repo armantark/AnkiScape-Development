@@ -1,0 +1,116 @@
+{
+  "status": "PARENT_STATIC_AND_INERT_PASS_PRODUCT_RUNTIME_NOT_STARTED",
+  "generated_at": "2026-09-08T11:49:36-07:00",
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "evidence_root": "memory-bank/evidence/combat-food-module-2026-09-08",
+  "files": {
+    "RUNNING.md": {
+      "bytes": 2125,
+      "sha256": "05cd0f501215151dd6e5354849eeee423aa2e5da93d5c92318d1179aa821967a"
+    },
+    "baseline-engine.py.gz": {
+      "bytes": 23333,
+      "sha256": "1e3f72610e12711057b32af3e07bfbdb41be10b17228036750ff390fdadd90b6"
+    },
+    "baseline-model.py.gz": {
+      "bytes": 25095,
+      "sha256": "ef0bacc967010c3ad6bf51812ebfc10f1a3e52b7505bb0959925c6049322bca8"
+    },
+    "baseline-supplies.py.gz": {
+      "bytes": 13669,
+      "sha256": "503aed6ea0c3510268ef45d75573e945e23baf04536d76aac4eafc0f309bdf4b"
+    },
+    "boundary-validation.json": {
+      "bytes": 7811,
+      "sha256": "4713995b18a519fb1ee3d184140a86d8954046e9d4f1a5a986098cb4462d3ee7"
+    },
+    "candidate-comparator.py.gz": {
+      "bytes": 3524,
+      "sha256": "c4e85b9540a17567925f8da542653cac95fe126a2f0794886e07a66d77d335d3"
+    },
+    "candidate-engine.py.gz": {
+      "bytes": 23226,
+      "sha256": "3525e9186f6dfacd9bb53c3964ef8511c34a0163dd978a0f259f4a30ba462532"
+    },
+    "candidate-food.py.gz": {
+      "bytes": 973,
+      "sha256": "582b29ca53151f413024a3d4e92014082ae0379a3a54772f9cbdc356b89b5815"
+    },
+    "candidate-model.py.gz": {
+      "bytes": 24734,
+      "sha256": "eb8f212db31353ca45b3f3a605fd4b1d45906e7c46a0f38aad4f7d4608f60626"
+    },
+    "candidate-supplies.py.gz": {
+      "bytes": 13585,
+      "sha256": "fb356eb03ad9e3a0893071fc5aebb9f1e40905b6dad6a54379a76ac6e7005489"
+    },
+    "candidate-test.py.gz": {
+      "bytes": 1447,
+      "sha256": "b03e3282905bed98575fafa0848c9a5488141f71f37a747a6956b663bab38458"
+    },
+    "comparator-preflight.json": {
+      "bytes": 297403,
+      "sha256": "9f59ea6150335ec21222c2ef547b54a78d66e911630ca8219dfac9ed0a0f5cea"
+    },
+    "comparator.diff": {
+      "bytes": 14061,
+      "sha256": "6a246b95c678b0bb7d6a8ad2aca8a4748a7aa22254f943618147b927d7f66908"
+    },
+    "coverage-proposal.json": {
+      "bytes": 6842,
+      "sha256": "cb8f1dec3c46bd2cc7e1ac061e7201f5b1be7794b72a14565ee6555436f0cd02"
+    },
+    "early-module-cap-gate.json": {
+      "bytes": 357,
+      "sha256": "d5cce01ffb3cac15c93237c8e974d75798254a74c89f297c453e3f3ef09c4e58"
+    },
+    "installed-slop-gate.json": {
+      "bytes": 268,
+      "sha256": "55ea501bce792b8db0a443a92b04cbb78e17544e7a969509e33d7f096b51a94a"
+    },
+    "parent-ast-proof.json": {
+      "bytes": 1154,
+      "sha256": "271b8a4dca08c30c3b9fc4948c97e22a46df29d858a44f5ffa10ac7c8a6d63a6"
+    },
+    "parent-inert-safety-check.json": {
+      "bytes": 906,
+      "sha256": "fb2cc5189b863a01c04cbfa3b1d57dda3230f2dd069061536175571b3514b19f"
+    },
+    "parent-verification.json": {
+      "bytes": 1820,
+      "sha256": "488f65636368257b5cb96af0408ca7f02559b830161906e8e9370c35cdc46bda"
+    },
+    "product-and-test.diff": {
+      "bytes": 18775,
+      "sha256": "4a4916f20b1e8b0d7b00f83175fa4e1c4cc3767d07524f7da84e26a0c0e0a3d0"
+    },
+    "runtime-harness.py.gz": {
+      "bytes": 4896,
+      "sha256": "ada207a5ec852b834a5284e38f6dcdd0bd9c34e3f5f812cd26b759959cb23d75"
+    },
+    "runtime-safety-check.py.gz": {
+      "bytes": 2058,
+      "sha256": "0a4fae6ed513b3b6b05aaafbb498e3b4114b5a7c17084b459a4f42475ff24de9"
+    },
+    "source-inventory.json.gz": {
+      "bytes": 58509,
+      "sha256": "dfa42e3ccac39fb17bb605cfe69173dcc626298fced81e8d99192d51aaa6a73e"
+    },
+    "static-preparation.json": {
+      "bytes": 17872,
+      "sha256": "06899faa19ce049f1ddcf1f74087d119086ea6049f34408a0632cef6a5866478"
+    }
+  },
+  "file_count": 24,
+  "source_inventory_sha256": "dfa42e3ccac39fb17bb605cfe69173dcc626298fced81e8d99192d51aaa6a73e",
+  "static_preparation_sha256": "06899faa19ce049f1ddcf1f74087d119086ea6049f34408a0632cef6a5866478",
+  "coverage_proposal_sha256": "cb8f1dec3c46bd2cc7e1ac061e7201f5b1be7794b72a14565ee6555436f0cd02",
+  "boundary_validation_sha256": "4713995b18a519fb1ee3d184140a86d8954046e9d4f1a5a986098cb4462d3ee7",
+  "installed_slop_gate_sha256": "55ea501bce792b8db0a443a92b04cbb78e17544e7a969509e33d7f096b51a94a",
+  "parent_verification_sha256": "488f65636368257b5cb96af0408ca7f02559b830161906e8e9370c35cdc46bda",
+  "product_imports_started_by_author": false,
+  "parent_inert_check_executed": true,
+  "runtime_executed": false,
+  "remote_executed": false,
+  "runtime_owner": "root"
+}

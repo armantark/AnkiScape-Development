@@ -1,0 +1,226 @@
+{
+  "archive": {
+    "binding_count": 6,
+    "bindings": [
+      {
+        "checks": {
+          "decoded_bytes": true,
+          "decoded_sha256": true,
+          "original_removed": true,
+          "stored_bytes": true,
+          "stored_sha256": true
+        },
+        "decoded_bytes": 13455,
+        "decoded_sha256": "f83981bc914ed7af9df3bedae4a34f1e1d32bcf2d30bfb446c477d842f8b4180",
+        "original_path": "candidate-source/compare_preview_food.py",
+        "stored_bytes": 3524,
+        "stored_path": "candidate-source/compare_preview_food.py.gz",
+        "stored_sha256": "c4e85b9540a17567925f8da542653cac95fe126a2f0794886e07a66d77d335d3"
+      },
+      {
+        "checks": {
+          "decoded_bytes": true,
+          "decoded_sha256": true,
+          "original_removed": true,
+          "stored_bytes": true,
+          "stored_sha256": true
+        },
+        "decoded_bytes": 121028,
+        "decoded_sha256": "9f31e068a990c0519fb01157ac71f8a52cb1f11ff69492fd2cc636c04bbf1e03",
+        "original_path": "candidate-source/logic_pure_combat_engine.py",
+        "stored_bytes": 23226,
+        "stored_path": "candidate-source/logic_pure_combat_engine.py.gz",
+        "stored_sha256": "3525e9186f6dfacd9bb53c3964ef8511c34a0163dd978a0f259f4a30ba462532"
+      },
+      {
+        "checks": {
+          "decoded_bytes": true,
+          "decoded_sha256": true,
+          "original_removed": true,
+          "stored_bytes": true,
+          "stored_sha256": true
+        },
+        "decoded_bytes": 3781,
+        "decoded_sha256": "e2179a3b0f14567381a3dc7910f186ebc511d80d45bd94979cbba9940c6b150b",
+        "original_path": "candidate-source/logic_pure_combat_food.py",
+        "stored_bytes": 973,
+        "stored_path": "candidate-source/logic_pure_combat_food.py.gz",
+        "stored_sha256": "582b29ca53151f413024a3d4e92014082ae0379a3a54772f9cbdc356b89b5815"
+      },
+      {
+        "checks": {
+          "decoded_bytes": true,
+          "decoded_sha256": true,
+          "original_removed": true,
+          "stored_bytes": true,
+          "stored_sha256": true
+        },
+        "decoded_bytes": 116678,
+        "decoded_sha256": "41fa60477b5d42a872dcf01ccc9456530533ba338e2eb96727457d60c9c3cac2",
+        "original_path": "candidate-source/logic_pure_combat_model.py",
+        "stored_bytes": 24734,
+        "stored_path": "candidate-source/logic_pure_combat_model.py.gz",
+        "stored_sha256": "eb8f212db31353ca45b3f3a605fd4b1d45906e7c46a0f38aad4f7d4608f60626"
+      },
+      {
+        "checks": {
+          "decoded_bytes": true,
+          "decoded_sha256": true,
+          "original_removed": true,
+          "stored_bytes": true,
+          "stored_sha256": true
+        },
+        "decoded_bytes": 67971,
+        "decoded_sha256": "a134996d4be7c3f1d7fdad70b2744905407274d8a992bb3996ebe149834107fd",
+        "original_path": "candidate-source/logic_pure_combat_supplies.py",
+        "stored_bytes": 13585,
+        "stored_path": "candidate-source/logic_pure_combat_supplies.py.gz",
+        "stored_sha256": "fb356eb03ad9e3a0893071fc5aebb9f1e40905b6dad6a54379a76ac6e7005489"
+      },
+      {
+        "checks": {
+          "decoded_bytes": true,
+          "decoded_sha256": true,
+          "original_removed": true,
+          "stored_bytes": true,
+          "stored_sha256": true
+        },
+        "decoded_bytes": 6675,
+        "decoded_sha256": "503f4005225941c98362b8c0f05853a573dc1aa775669f85cfc945a32ccee4b4",
+        "original_path": "candidate-source/test_preview_food.py",
+        "stored_bytes": 1447,
+        "stored_path": "candidate-source/test_preview_food.py.gz",
+        "stored_sha256": "b03e3282905bed98575fafa0848c9a5488141f71f37a747a6956b663bab38458"
+      }
+    ],
+    "importable_python_files_remaining": [],
+    "manifest_sha256": "6ab9665e67f64d9aea8270124cef621e6f684c346e7e365a85f004bdcf801dec",
+    "previous_manifest": {
+      "bytes": 15848,
+      "path": "memory-bank/evidence/combat-food-module-pre-fixture-fix-2026-09-08/archive-manifest-before-archive-encoding.json",
+      "sha256": "e70f250d2ce0592e7747c3646c2b5fc13ec39e90e196fa50597b83f262d0fcef"
+    },
+    "retained_text_encoding_manifest_sha256": "6ab9665e67f64d9aea8270124cef621e6f684c346e7e365a85f004bdcf801dec",
+    "round_trip_verified": true
+  },
+  "frozen_candidate_snapshots": {
+    "logic_pure/logic_pure_combat_engine.py": {
+      "decoded_bytes": 121028,
+      "decoded_sha256": "9f31e068a990c0519fb01157ac71f8a52cb1f11ff69492fd2cc636c04bbf1e03",
+      "source_path": "logic_pure/logic_pure_combat_engine.py",
+      "source_sha256": "9f31e068a990c0519fb01157ac71f8a52cb1f11ff69492fd2cc636c04bbf1e03",
+      "stored_bytes": 23226,
+      "stored_path": "memory-bank/evidence/combat-food-module-2026-09-08/candidate-engine.py.gz",
+      "stored_sha256": "3525e9186f6dfacd9bb53c3964ef8511c34a0163dd978a0f259f4a30ba462532"
+    },
+    "logic_pure/logic_pure_combat_food.py": {
+      "decoded_bytes": 3781,
+      "decoded_sha256": "e2179a3b0f14567381a3dc7910f186ebc511d80d45bd94979cbba9940c6b150b",
+      "source_path": "logic_pure/logic_pure_combat_food.py",
+      "source_sha256": "e2179a3b0f14567381a3dc7910f186ebc511d80d45bd94979cbba9940c6b150b",
+      "stored_bytes": 973,
+      "stored_path": "memory-bank/evidence/combat-food-module-2026-09-08/candidate-food.py.gz",
+      "stored_sha256": "582b29ca53151f413024a3d4e92014082ae0379a3a54772f9cbdc356b89b5815"
+    },
+    "logic_pure/logic_pure_combat_model.py": {
+      "decoded_bytes": 116678,
+      "decoded_sha256": "41fa60477b5d42a872dcf01ccc9456530533ba338e2eb96727457d60c9c3cac2",
+      "source_path": "logic_pure/logic_pure_combat_model.py",
+      "source_sha256": "41fa60477b5d42a872dcf01ccc9456530533ba338e2eb96727457d60c9c3cac2",
+      "stored_bytes": 24734,
+      "stored_path": "memory-bank/evidence/combat-food-module-2026-09-08/candidate-model.py.gz",
+      "stored_sha256": "eb8f212db31353ca45b3f3a605fd4b1d45906e7c46a0f38aad4f7d4608f60626"
+    },
+    "logic_pure/logic_pure_combat_supplies.py": {
+      "decoded_bytes": 67971,
+      "decoded_sha256": "a134996d4be7c3f1d7fdad70b2744905407274d8a992bb3996ebe149834107fd",
+      "source_path": "logic_pure/logic_pure_combat_supplies.py",
+      "source_sha256": "a134996d4be7c3f1d7fdad70b2744905407274d8a992bb3996ebe149834107fd",
+      "stored_bytes": 13585,
+      "stored_path": "memory-bank/evidence/combat-food-module-2026-09-08/candidate-supplies.py.gz",
+      "stored_sha256": "fb356eb03ad9e3a0893071fc5aebb9f1e40905b6dad6a54379a76ac6e7005489"
+    },
+    "tests/combat/test_preview_food.py": {
+      "decoded_bytes": 6675,
+      "decoded_sha256": "503f4005225941c98362b8c0f05853a573dc1aa775669f85cfc945a32ccee4b4",
+      "source_path": "tests/combat/test_preview_food.py",
+      "source_sha256": "503f4005225941c98362b8c0f05853a573dc1aa775669f85cfc945a32ccee4b4",
+      "stored_bytes": 1447,
+      "stored_path": "memory-bank/evidence/combat-food-module-2026-09-08/candidate-test.py.gz",
+      "stored_sha256": "b03e3282905bed98575fafa0848c9a5488141f71f37a747a6956b663bab38458"
+    },
+    "tools/combat/compare_preview_food.py": {
+      "decoded_bytes": 13486,
+      "decoded_sha256": "c87fa181e2e951ef8923e2206cf8ae181055e5f1a523d3770078c2533b9336b3",
+      "source_path": "tools/combat/compare_preview_food.py",
+      "source_sha256": "c87fa181e2e951ef8923e2206cf8ae181055e5f1a523d3770078c2533b9336b3",
+      "stored_bytes": 3527,
+      "stored_path": "memory-bank/evidence/combat-food-module-2026-09-08/candidate-comparator.py.gz",
+      "stored_sha256": "d5050da676d859a235cfb62ec9a15c3e67146e8d153412e56d865e69e73057c4"
+    }
+  },
+  "frozen_evidence": {
+    "corrected-parent-inert-safety-check.json": {
+      "bytes": 906,
+      "sha256": "e64be8d59c5ad026b33f9e1924e67a37b5ac46589d8c43ce01d06fa9875b1a7c"
+    },
+    "runtime-acceptance.json": {
+      "bytes": 28304,
+      "sha256": "d19fe72a37effb6f7dbcc4ff9ae906a0a1bfe84fcbc47342dec2d0e83ff91888"
+    },
+    "runtime-harness.py.gz": {
+      "bytes": 4897,
+      "sha256": "4e05a181b2e9bdee39b0070841042f5c044ddc19493c8798787a767caa5a235e"
+    },
+    "runtime-safety-check.py.gz": {
+      "bytes": 2058,
+      "sha256": "0a4fae6ed513b3b6b05aaafbb498e3b4114b5a7c17084b459a4f42475ff24de9"
+    },
+    "source-inventory.json.gz": {
+      "bytes": 58512,
+      "sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e"
+    }
+  },
+  "frozen_focus_paths": {
+    "logic_pure/logic_pure_combat_engine.py": {
+      "bytes": 121028,
+      "inventory_sha256": "9f31e068a990c0519fb01157ac71f8a52cb1f11ff69492fd2cc636c04bbf1e03",
+      "sha256": "9f31e068a990c0519fb01157ac71f8a52cb1f11ff69492fd2cc636c04bbf1e03"
+    },
+    "logic_pure/logic_pure_combat_food.py": {
+      "bytes": 3781,
+      "inventory_sha256": "e2179a3b0f14567381a3dc7910f186ebc511d80d45bd94979cbba9940c6b150b",
+      "sha256": "e2179a3b0f14567381a3dc7910f186ebc511d80d45bd94979cbba9940c6b150b"
+    },
+    "logic_pure/logic_pure_combat_model.py": {
+      "bytes": 116678,
+      "inventory_sha256": "41fa60477b5d42a872dcf01ccc9456530533ba338e2eb96727457d60c9c3cac2",
+      "sha256": "41fa60477b5d42a872dcf01ccc9456530533ba338e2eb96727457d60c9c3cac2"
+    },
+    "logic_pure/logic_pure_combat_supplies.py": {
+      "bytes": 67971,
+      "inventory_sha256": "a134996d4be7c3f1d7fdad70b2744905407274d8a992bb3996ebe149834107fd",
+      "sha256": "a134996d4be7c3f1d7fdad70b2744905407274d8a992bb3996ebe149834107fd"
+    },
+    "tests/combat/test_preview_food.py": {
+      "bytes": 6675,
+      "inventory_sha256": "503f4005225941c98362b8c0f05853a573dc1aa775669f85cfc945a32ccee4b4",
+      "sha256": "503f4005225941c98362b8c0f05853a573dc1aa775669f85cfc945a32ccee4b4"
+    },
+    "tools/combat/compare_preview_food.py": {
+      "bytes": 13486,
+      "inventory_sha256": "c87fa181e2e951ef8923e2206cf8ae181055e5f1a523d3770078c2533b9336b3",
+      "sha256": "c87fa181e2e951ef8923e2206cf8ae181055e5f1a523d3770078c2533b9336b3"
+    }
+  },
+  "generated_at": "2026-09-08T13:40:59-07:00",
+  "source_inventory": {
+    "archive_entries": [],
+    "entry_count": 1218,
+    "mismatch_count": 0,
+    "stored_bytes": 58512,
+    "stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e",
+    "verified_current_entries": 1218
+  },
+  "status": "PASS"
+}

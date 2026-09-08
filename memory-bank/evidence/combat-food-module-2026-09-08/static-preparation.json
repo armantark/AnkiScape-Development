@@ -1,0 +1,434 @@
+{
+  "status": "FIXTURE_CORRECTION_STATIC_PASS_RUNTIME_RERUN_NOT_STARTED",
+  "generated_at": "2026-09-08T12:16:00-07:00",
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "compile_only": {
+    "logic_pure/logic_pure_combat_food.py": {
+      "status": "PASS",
+      "bytes": 3781,
+      "lines": 112,
+      "sha256": "e2179a3b0f14567381a3dc7910f186ebc511d80d45bd94979cbba9940c6b150b"
+    },
+    "logic_pure/logic_pure_combat_engine.py": {
+      "status": "PASS",
+      "bytes": 121028,
+      "lines": 2944,
+      "sha256": "9f31e068a990c0519fb01157ac71f8a52cb1f11ff69492fd2cc636c04bbf1e03"
+    },
+    "logic_pure/logic_pure_combat_model.py": {
+      "status": "PASS",
+      "bytes": 116678,
+      "lines": 2875,
+      "sha256": "41fa60477b5d42a872dcf01ccc9456530533ba338e2eb96727457d60c9c3cac2"
+    },
+    "logic_pure/logic_pure_combat_supplies.py": {
+      "status": "PASS",
+      "bytes": 67971,
+      "lines": 1725,
+      "sha256": "a134996d4be7c3f1d7fdad70b2744905407274d8a992bb3996ebe149834107fd"
+    },
+    "tests/combat/test_preview_food.py": {
+      "status": "PASS",
+      "bytes": 6675,
+      "lines": 200,
+      "sha256": "503f4005225941c98362b8c0f05853a573dc1aa775669f85cfc945a32ccee4b4"
+    },
+    "tools/combat/compare_preview_food.py": {
+      "status": "PASS",
+      "bytes": 13486,
+      "lines": 397,
+      "sha256": "c87fa181e2e951ef8923e2206cf8ae181055e5f1a523d3770078c2533b9336b3"
+    }
+  },
+  "product_imports_started": false,
+  "runtime_executed": false,
+  "remote_executed": false,
+  "baseline_relocation_count": 5,
+  "baseline_relocations": {
+    "_DEFAULT_COMBAT_AUTO_EAT_FOOD": {
+      "baseline_owner": "logic_pure/logic_pure_combat_model.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "28d34c3e74b83670722b78455742dbed475ca26e6b09886175cf951210155322",
+      "candidate_source_sha256": "28d34c3e74b83670722b78455742dbed475ca26e6b09886175cf951210155322",
+      "baseline_ast_sha256": "bb4157e760f700d62b44215008f5291c66392f1593374139db609380d4d81158",
+      "candidate_ast_sha256": "bb4157e760f700d62b44215008f5291c66392f1593374139db609380d4d81158",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "_combat_consume_auto_food": {
+      "baseline_owner": "logic_pure/logic_pure_combat_model.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "094669ea227215197b40d4c26bd22a0978ea157ae2f5abfe37768829342b38a1",
+      "candidate_source_sha256": "094669ea227215197b40d4c26bd22a0978ea157ae2f5abfe37768829342b38a1",
+      "baseline_ast_sha256": "250c26fcc0c5a40bb7e68e977a0cbfd9270dce644db4db7b542f783c77b6d7b9",
+      "candidate_ast_sha256": "250c26fcc0c5a40bb7e68e977a0cbfd9270dce644db4db7b542f783c77b6d7b9",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "_combat_loaded_food_count": {
+      "baseline_owner": "logic_pure/logic_pure_combat_supplies.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "f454d793b01d9143ff72c1213b8f53f6c5158229c36513239b3f1b50c0fe1bb5",
+      "candidate_source_sha256": "f454d793b01d9143ff72c1213b8f53f6c5158229c36513239b3f1b50c0fe1bb5",
+      "baseline_ast_sha256": "fde6ec0c44d4e2254fa84f5f7398edf2425ade585716ed9c58b446b9b6ac3221",
+      "candidate_ast_sha256": "fde6ec0c44d4e2254fa84f5f7398edf2425ade585716ed9c58b446b9b6ac3221",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "_combat_banked_auto_food_count": {
+      "baseline_owner": "logic_pure/logic_pure_combat_supplies.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "5de709370066df83cf3d99d5011779e8507a9ea4e86fa6852dc52404b553943b",
+      "candidate_source_sha256": "5de709370066df83cf3d99d5011779e8507a9ea4e86fa6852dc52404b553943b",
+      "baseline_ast_sha256": "3a2facde4efa514b343a6f7399510490aafbb5b4131551508733ead87f844f74",
+      "candidate_ast_sha256": "3a2facde4efa514b343a6f7399510490aafbb5b4131551508733ead87f844f74",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "_combat_auto_eat_food_available": {
+      "baseline_owner": "logic_pure/logic_pure_combat_supplies.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "6c8693c37972b31038148f969873468da7e11a954100016560cdd533bd27dea2",
+      "candidate_source_sha256": "6c8693c37972b31038148f969873468da7e11a954100016560cdd533bd27dea2",
+      "baseline_ast_sha256": "ffa0cacfcc6bc11060fc9e18ba8592463c46b3386140f0fc01251358255ecde2",
+      "candidate_ast_sha256": "ffa0cacfcc6bc11060fc9e18ba8592463c46b3386140f0fc01251358255ecde2",
+      "source_exact": true,
+      "ast_exact": true
+    }
+  },
+  "baseline_export_inventory": {
+    "_DEFAULT_COMBAT_AUTO_EAT_FOOD": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_model.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py",
+      "logic_pure/logic_pure_thieving.py"
+    ],
+    "_combat_consume_auto_food": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_model.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py",
+      "logic_pure/logic_pure_thieving.py"
+    ],
+    "_combat_loaded_food_count": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ],
+    "_combat_banked_auto_food_count": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ],
+    "_combat_auto_eat_food_available": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ]
+  },
+  "candidate_export_inventory": {
+    "_DEFAULT_COMBAT_AUTO_EAT_FOOD": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_model.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py",
+      "logic_pure/logic_pure_thieving.py"
+    ],
+    "_combat_consume_auto_food": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_model.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py",
+      "logic_pure/logic_pure_thieving.py"
+    ],
+    "_combat_loaded_food_count": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ],
+    "_combat_banked_auto_food_count": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ],
+    "_combat_auto_eat_food_available": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ]
+  },
+  "baseline_exports_preserved": true,
+  "preview_helper": {
+    "classification": "NEW_HELPER_EXTRACTED_FROM_BASELINE_INLINE_LOOP",
+    "baseline_export_inventory": [],
+    "candidate_export_inventory": [
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py"
+    ],
+    "supplies_export_added": false,
+    "blocked_draft_source_history": {
+      "baseline_source_sha256": "7cfb8df19d6e7136e4fddb46dffb64d9dd972c212d0800879d5c30db038544b7",
+      "candidate_source_sha256": "7cfb8df19d6e7136e4fddb46dffb64d9dd972c212d0800879d5c30db038544b7",
+      "baseline_ast_sha256": "4447326fe04d7a7a6e3d863b70f03971de61bb45828237a051883e8a4ce32495",
+      "candidate_ast_sha256": "4447326fe04d7a7a6e3d863b70f03971de61bb45828237a051883e8a4ce32495",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "baseline_inline_replacement": {
+      "baseline_statement_types": [
+        "Assign",
+        "Assign",
+        "Assign",
+        "For"
+      ],
+      "prefix_ast_equal": true,
+      "suffix_ast_equal": true,
+      "candidate_single_call": true
+    }
+  },
+  "new_module_imports": [
+    {
+      "module": "typing",
+      "level": 0,
+      "names": [
+        "Mapping"
+      ]
+    },
+    {
+      "module": "data.combat_data",
+      "level": 2,
+      "names": [
+        "COMBAT_FOOD_DATA"
+      ]
+    },
+    {
+      "module": "logic_pure_state",
+      "level": 1,
+      "names": [
+        "_non_negative_int",
+        "_positive_int",
+        "_sanitize_combat_supply_loadout"
+      ]
+    }
+  ],
+  "new_module_import_whitelist_exact": true,
+  "new_module_scc": [
+    "logic_pure.logic_pure_combat_food"
+  ],
+  "new_module_edges": [
+    "logic_pure.logic_pure_state"
+  ],
+  "comparator_signature": {
+    "parameters": [
+      "baseline_bytes"
+    ],
+    "call_count": 1,
+    "sole_call_argument_count": 1,
+    "unused_output_parameter_removed": true
+  },
+  "coverage_proposal": {
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/coverage-proposal.json",
+    "sha256": "cb8f1dec3c46bd2cc7e1ac061e7201f5b1be7794b72a14565ee6555436f0cd02",
+    "selector_count": 9,
+    "existing_selector_count": 4,
+    "new_selector_count": 5,
+    "selectors": [
+      "PreviewFoodAvailabilityTest.test_baseline_food_reexports_keep_identity_and_default_order",
+      "PreviewFoodAvailabilityTest.test_missing_empty_and_none_food_selections_remain_distinct",
+      "PreviewFoodAvailabilityTest.test_catalog_counts_and_encounter_bank_gate_remain_exact",
+      "PreviewFoodAvailabilityTest.test_invalid_inputs_and_per_item_short_circuit_remain_exact",
+      "PreviewFoodAvailabilityTest.test_preview_uses_loadout_during_an_active_encounter",
+      "CombatLogicTest.test_auto_eat_consumes_food_after_enemy_damage_under_threshold",
+      "CombatLogicTest.test_active_encounter_starts_bank_run_for_banked_food_when_loadout_is_empty",
+      "CombatLogicTest.test_auto_flee_bails_out_when_low_lp_and_out_of_food",
+      "CombatLogicTest.test_manual_refill_loadout_uses_food_queue_and_current_magic_spell"
+    ],
+    "all_selectors_unique": true,
+    "expected_tests_per_focused_run": 9
+  },
+  "comparison_static": {
+    "case_count": 15,
+    "complete_return_or_exception_equality": true,
+    "pickle_protocol": 4,
+    "exception_type_args_and_message_captured": true,
+    "route_assertions": true,
+    "input_nonmutation_assertions_present": true,
+    "rng_applicable": false,
+    "source_before_and_after_guards": true,
+    "optimization_refusal": true
+  },
+  "source_inventory": {
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/source-inventory.json.gz",
+    "entries": 1218,
+    "stored_bytes": 58512,
+    "stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e",
+    "decoded_bytes": 145964,
+    "decoded_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+    "all_entries_rehashed": true,
+    "mismatches": [],
+    "current_evidence_directory_excluded_except_source_snapshots": true
+  },
+  "snapshots": {
+    "baseline-engine.py.gz": {
+      "stored_bytes": 23333,
+      "stored_sha256": "1e3f72610e12711057b32af3e07bfbdb41be10b17228036750ff390fdadd90b6",
+      "decoded_bytes": 121500,
+      "decoded_sha256": "5f641672a316655fa63a25ce9ea5d24a80645f362f338df1929a8808a253936b"
+    },
+    "baseline-supplies.py.gz": {
+      "stored_bytes": 13669,
+      "stored_sha256": "503aed6ea0c3510268ef45d75573e945e23baf04536d76aac4eafc0f309bdf4b",
+      "decoded_bytes": 68949,
+      "decoded_sha256": "c49dca01ceca5432424a870403109bdea656b363ea804d2d769e9ebc024afbcc"
+    },
+    "baseline-model.py.gz": {
+      "stored_bytes": 25095,
+      "stored_sha256": "ef0bacc967010c3ad6bf51812ebfc10f1a3e52b7505bb0959925c6049322bca8",
+      "decoded_bytes": 118179,
+      "decoded_sha256": "ae8a62d3120eb27b2bc8869c63eb84bfd586f1dd29e6e914d03973c1ebe0ad64"
+    },
+    "candidate-engine.py.gz": {
+      "stored_bytes": 23226,
+      "stored_sha256": "3525e9186f6dfacd9bb53c3964ef8511c34a0163dd978a0f259f4a30ba462532",
+      "decoded_bytes": 121028,
+      "decoded_sha256": "9f31e068a990c0519fb01157ac71f8a52cb1f11ff69492fd2cc636c04bbf1e03"
+    },
+    "candidate-supplies.py.gz": {
+      "stored_bytes": 13585,
+      "stored_sha256": "fb356eb03ad9e3a0893071fc5aebb9f1e40905b6dad6a54379a76ac6e7005489",
+      "decoded_bytes": 67971,
+      "decoded_sha256": "a134996d4be7c3f1d7fdad70b2744905407274d8a992bb3996ebe149834107fd"
+    },
+    "candidate-model.py.gz": {
+      "stored_bytes": 24734,
+      "stored_sha256": "eb8f212db31353ca45b3f3a605fd4b1d45906e7c46a0f38aad4f7d4608f60626",
+      "decoded_bytes": 116678,
+      "decoded_sha256": "41fa60477b5d42a872dcf01ccc9456530533ba338e2eb96727457d60c9c3cac2"
+    },
+    "candidate-food.py.gz": {
+      "stored_bytes": 973,
+      "stored_sha256": "582b29ca53151f413024a3d4e92014082ae0379a3a54772f9cbdc356b89b5815",
+      "decoded_bytes": 3781,
+      "decoded_sha256": "e2179a3b0f14567381a3dc7910f186ebc511d80d45bd94979cbba9940c6b150b"
+    },
+    "candidate-test.py.gz": {
+      "stored_bytes": 1447,
+      "stored_sha256": "b03e3282905bed98575fafa0848c9a5488141f71f37a747a6956b663bab38458",
+      "decoded_bytes": 6675,
+      "decoded_sha256": "503f4005225941c98362b8c0f05853a573dc1aa775669f85cfc945a32ccee4b4"
+    },
+    "candidate-comparator.py.gz": {
+      "stored_bytes": 3527,
+      "stored_sha256": "d5050da676d859a235cfb62ec9a15c3e67146e8d153412e56d865e69e73057c4",
+      "decoded_bytes": 13486,
+      "decoded_sha256": "c87fa181e2e951ef8923e2206cf8ae181055e5f1a523d3770078c2533b9336b3"
+    }
+  },
+  "preflight": {
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/comparator-preflight.json",
+    "bytes": 297403,
+    "sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+    "status": "PREFLIGHT_PASS",
+    "product_imported": false,
+    "sources_before_after_equal": true
+  },
+  "installed_gate": {
+    "status": "PASS",
+    "scope": "revised complete candidate in temporary index",
+    "temporary_index": true,
+    "instrument": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+    "exit_code": 0,
+    "elapsed_seconds": 34.642,
+    "stdout": "",
+    "stderr": "",
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/installed-slop-gate.json",
+    "report_sha256": "55ea501bce792b8db0a443a92b04cbb78e17544e7a969509e33d7f096b51a94a"
+  },
+  "early_module_cap_gate": {
+    "status": "PASS",
+    "scope": "synthetic new-module cap probe only",
+    "candidate_path": "logic_pure/logic_pure_combat_food.py",
+    "candidate_blob_sha": "ca153b2252a6d019a07cb55b4ea9a58c38e1eac6",
+    "temporary_index": true,
+    "instrument": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/early-module-cap-gate.json",
+    "report_sha256": "d5cce01ffb3cac15c93237c8e974d75798254a74c89f297c453e3f3ef09c4e58"
+  },
+  "quantitative_limits": {
+    "directory_python_files": 27,
+    "directory_code_file_limit": 40,
+    "new_module_lines": 112,
+    "grown_code_file_line_limit": 1000,
+    "head_lines": {
+      "logic_pure/logic_pure_combat_engine.py": 2952,
+      "logic_pure/logic_pure_combat_model.py": 2919,
+      "logic_pure/logic_pure_combat_supplies.py": 1749
+    },
+    "candidate_lines": {
+      "logic_pure/logic_pure_combat_food.py": 112,
+      "logic_pure/logic_pure_combat_engine.py": 2944,
+      "logic_pure/logic_pure_combat_model.py": 2875,
+      "logic_pure/logic_pure_combat_supplies.py": 1725
+    }
+  },
+  "prior_packet_archive": {
+    "path": "memory-bank/evidence/combat-food-module-pre-root-review-2026-09-08",
+    "archive_manifest_sha256": "71d51be6fe8042bb0d65d0256b142b9e1982567cca67db073758d23b0eef2fd9",
+    "copied_packet_file_count": 23,
+    "copy_exact": true
+  },
+  "boundary_evidence": {
+    "boundary_validation_sha256": "4713995b18a519fb1ee3d184140a86d8954046e9d4f1a5a986098cb4462d3ee7",
+    "retry_boundary_manifest": "memory-bank/evidence/combat-food-module-boundary-2026-09-08/manifest.json",
+    "retry_boundary_manifest_sha256": "19ba74dd82df7c48fefb9ff563113c6a63a73403def644cf1011ec80cb739fd4",
+    "blocked_candidate_manifest": "memory-bank/evidence/combat-preview-food-file-growth-blocked-2026-09-08/manifest.json",
+    "blocked_candidate_manifest_sha256": "0658a2e341fad612460271f3ae48074cdbf8113a2924dc94415e429b03e8a560",
+    "dream_moved": false
+  },
+  "diff_packets": {
+    "product-and-test.diff": "4a4916f20b1e8b0d7b00f83175fa4e1c4cc3767d07524f7da84e26a0c0e0a3d0",
+    "comparator.diff": "0b5f9124f6704e0665e6b18fbaf2cb2c1ab5495099585a83f4434de9a07d10b9"
+  },
+  "runtime_packet": {
+    "runtime-harness.py.gz": "4e05a181b2e9bdee39b0070841042f5c044ddc19493c8798787a767caa5a235e",
+    "runtime-safety-check.py.gz": "0a4fae6ed513b3b6b05aaafbb498e3b4114b5a7c17084b459a4f42475ff24de9",
+    "inert_safety_check_executed_by_author": false,
+    "owner": "root after exact-file inspection and runtime release"
+  },
+  "trailing_whitespace": {
+    "logic_pure/logic_pure_combat_food.py": [],
+    "logic_pure/logic_pure_combat_engine.py": [],
+    "logic_pure/logic_pure_combat_model.py": [],
+    "logic_pure/logic_pure_combat_supplies.py": [],
+    "tests/combat/test_preview_food.py": [],
+    "tools/combat/compare_preview_food.py": []
+  },
+  "fixture_correction": {
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/fixture-correction-static.json",
+    "sha256": "1dfad4101a51a7b7c5feb079f4962999977ce6cdfd868120886f4bd2d2d9c603",
+    "failed_state_archive_manifest_sha256": "e70f250d2ce0592e7747c3646c2b5fc13ec39e90e196fa50597b83f262d0fcef",
+    "only_comparator_input_added": "constitution_level=10",
+    "expected_safe_preserved": true,
+    "product_and_test_bytes_unchanged": true,
+    "runtime_rerun_executed": false
+  }
+}
