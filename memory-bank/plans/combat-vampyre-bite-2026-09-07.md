@@ -1,0 +1,9 @@
+# Vampyre bite transaction
+
+Base is 7e19aadf16dc223d87669f064114c8ef1a9c4a85. P3 owns static preparation only. Parent owns review, runtime authorization, shared mirror, commit and integration. This plan is immutable before implementation.
+
+Extract only the existing bite transaction at original combat-engine lines 2218-2286 into one private helper. Keep the outer Mapping/enemy-live gate, reflection and Redemption/death ordering, and aggregate counters in the burst. The helper takes working player data, the bite specification, landed damage, enemy LP/max LP and RNG; it returns bite occurrence, actual stat drains and capped healing. It mutates the same working data through the existing drain operation. Preserve chance and skill draw order, TypeError/ValueError handling, filtering and ordering of skill names, clamping, drain floor and healing cap. Do not recalculate player rolls or add mechanics.
+
+Add a few real-catalog burst tests in the existing tests/combat package. Prepare a frozen complete-engine differential using full return values, input nonmutation, ordered RNG values and generator state. Prove bite hit/miss, malformed conversion, skill selection, floor and healing caps, reflection before the bite gate, and a resumed encounter. Reuse the existing recorded RNG and whole-source inventory pattern. Keep original tests, baseline and installed gate unchanged. Source and optimized-interpreter guards must fail before product imports; parent executes them first.
+
+No runtime framework, remote driver, product import, tests, guards, audits, source harvesting, UI, child agents, commit or remote action is authorized. Produce separate product/test and probe/guard review packets, each below 25,000 bytes where practical, with exact source bindings and explicit pending runtime proof.

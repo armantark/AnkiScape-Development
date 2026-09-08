@@ -1,0 +1,45 @@
+{
+  "status": "PROPOSED_NOT_EXECUTED",
+  "root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork",
+  "requirements": [
+    "Parent reads the full operational packet and bindings.",
+    "Parent runs the fixed static check and reads every report before the inert canary.",
+    "Parent runs the inert canary and local guard, then reads all output.",
+    "Parent alone schedules runtime after existing mirror ownership is released; keep the same output path when resuming."
+  ],
+  "commands": [
+    [
+      "python3",
+      "-B",
+      "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/combat-vampyre-bite-2026-09-07/operational-static-verification.py"
+    ],
+    [
+      "python3",
+      "-B",
+      "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/tools/combat/check_vampyre_bite_remote_resume.py",
+      "--output",
+      "/tmp/ankiscape-vampyre-bite-resume-canary-2026-09-07.json"
+    ],
+    [
+      "python3",
+      "-B",
+      "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/tools/combat/run_vampyre_bite_remote.py",
+      "--root",
+      "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork",
+      "--output",
+      "/tmp/ankiscape-vampyre-bite-remote-2026-09-07",
+      "--guard-only"
+    ],
+    [
+      "python3",
+      "-B",
+      "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/tools/combat/run_vampyre_bite_remote.py",
+      "--root",
+      "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork",
+      "--output",
+      "/tmp/ankiscape-vampyre-bite-remote-2026-09-07",
+      "--timeout",
+      "1800"
+    ]
+  ]
+}
