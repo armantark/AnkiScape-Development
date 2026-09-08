@@ -2161,3 +2161,5 @@
 - 2026-09-07T16:22:12-07:00 P4 product Opus review found `guild_player` supplied 30 of each Warriors Guild token, below the 200-token single-entry requirement. Parent verified the requirement and authorized only fixture tokens 30 -> 200; source inventory and driver pin were rebound before runtime.
 
 - 2026-09-08 — Kimi read-only next combat seam review session `17252` ended with exit `1` and `error: tool loop exceeded 24 turns`; no recommendation returned. The root retry in session `12351` uses a fixed 9,907-character source packet from I engine lines `2012-2182` with no filesystem tools.
+
+- 2026-09-08 03:42 UTC — The root integration diff read initially used nonexistent `logic/combat_engine.py` and `logic/combat_specials.py` and returned empty. `git diff --name-only` identified the actual paths `logic_pure/logic_pure_combat_engine.py` and `logic_pure/logic_pure_combat_specials.py`; the subsequent full diff read succeeded.
