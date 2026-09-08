@@ -20,7 +20,7 @@ Root accepted all four jobs. Plain and Qt each ran three focused tests in 0.003s
 
 The four exact run identities, complete focused logs, verification conclusions, and coverage limits are recorded in `parent-runtime-verification.json`. `runtime-retention-manifest.json` binds every retained runtime artifact by original path, original hash, and stored/decoded hashes. The `runtime/` directory contains exact deterministic-gzip copies of the parent job files.
 
-The source guard and five inert safety cases are accepted. Root owned all product runtime and remote operations. Full source gate, promotion, and native acceptance remain pending. Finisher caps have direct focused-unit coverage; the full-burst differential routes contain no finisher.
+The source guard and five inert safety cases are accepted. Root owned all product runtime and remote operations. Root accepted full source gate `99807` for `c225c456934f7f052854938c619d801d9474dc17`, exit 0 and all eight checks at `2026-09-08T14:12:03-07:00`, and merged it into integration `b2306c3ebc963779d53328b3139536fa5c99ed7e`. Combined-tree verification, canonical-main promotion, and native acceptance remain pending. Finisher caps have direct focused-unit coverage; the full-burst differential routes contain no finisher.
 
 ## Diff-only simplification review
 
@@ -39,3 +39,5 @@ Root accepted final Opus review 64659. Exact review streams, root AST proof, and
 The runtime utility now retains exact comparison bytes before source-after checks, comparison validation, or nonzero-exit rejection. A fifth inert canary prepares a failed comparison and requires byte-identical retention with no acceptance file. Root executed and accepted all five inert cases; the exact result is retained as `parent-inert.json.gz`. Original utility bytes and packets are preserved with a `before-retention-` prefix; `retention-fix.diff.gz` contains every changed utility line. Fixed source-only checks pass for the correction. Product, tests, comparator, and frozen inventory are unchanged.
 
 The exact product review and retention-fix diffs are gzip archives because their required unified-diff context spaces fail `git diff --cached --check` as raw text. Decoded bytes and original hash bindings are preserved; no evidence whitespace was trimmed.
+
+The exact gate log prefix reconstruction and unchanged raw evidence are retained in `memory-bank/evidence/c225c456-gate-log-prefix-2026-09-08/README.md`. Root read the complete reconstructed log and the receipt; this was not a test rerun.

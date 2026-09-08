@@ -10,7 +10,15 @@ The initial first implementation unit was the dispatcher state-object restructur
 
 Disposition meanings: `eligible` has a settled action; `verification_pending` needs the unchanged gates before acceptance; `source_blocked` names missing evidence; `dependency_blocked` waits on a named live substrate; `integration_blocked` means a required host capability or fixed integration gate prevents acceptance; `excluded_ui` falls outside this goal; `closed` needs no implementation; `preserve` means do not merge, delete, or alter that work. A source-blocked unit does not stop independent eligible work.
 
-## Current selection checkpoint — combined prayer, bank-trip and selector batch landed, 2026-09-08
+## Current integration checkpoint — KEEP and death-prayer source gates accepted, 2026-09-08
+
+Root accepted carried KEEP source `441a1c706f860e0808e2cfda07d297c5981f2b31` with all eight checks at `2026-09-08T13:31:53-07:00`, then merged it into integration `d6ee87f28a45d6e12201870e423848fb5a42254e`. Root accepted death-prayer source `c225c456934f7f052854938c619d801d9474dc17`, gate `99807`, exit 0 and all eight checks at `2026-09-08T14:12:03-07:00`, then merged it into current integration `b2306c3ebc963779d53328b3139536fa5c99ed7e`. Poison is already integrated through `464edf35`. No post-merge gate has run for this combined tree. Canonical main remains `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`; promotion and native acceptance remain pending.
+
+Food source `d87e51be3ee770bbf19284ab3136538a8e816c93` is committed with normal hooks; its source gate `87718` is active as reported by root. Do not treat it as accepted or merged. These are root-reported execution states, not checks rerun by this documentation task.
+
+The death-prayer gate log prefix incident is documented in `memory-bank/evidence/c225c456-gate-log-prefix-2026-09-08/README.md`. Exact raw, snapshot, and reconstructed bytes are retained; the canonical raw log and historical source packets/receipts remain unchanged.
+
+## Earlier checkpoint — combined prayer, bank-trip and selector batch landed, 2026-09-08
 
 Root verified canonical main clean at `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12` after landing the exact combined tree. The canonical receipt completed at `2026-09-08T11:29:58-07:00` with all eight checks, `remote_lanes=true` and `plain_only=false`. Root read the complete gate log and receipt. Dated lane results: plain ran 5616 tests in 569.735s with 1367 skips; Qt ran 5616 tests in 1107.387s with 5 skips. This documentation update did not rerun those checks. Prayer-drain `f3157d4de6129a0831d83c555756c13c42daf3ce`, bank-trip `9cebd4df511d118729874db283689f1d2af3beec`, and selector `93e02bbd1e67d0e240acf4e90b92ece4fa3a36a8` are included and landed. Their combined verification and landing are closed; native programme acceptance remains separate and unproven. Enemy-poison independent review and focused/differential runtime are accepted: root verified three focused tests with zero skips and twelve complete comparisons per lane. Its full branch and post-merge gates remain pending; it is not landed. Food acceptance remains pending.
 

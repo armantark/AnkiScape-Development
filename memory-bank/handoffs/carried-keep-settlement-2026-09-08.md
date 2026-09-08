@@ -31,4 +31,4 @@ The normal commit failed because the new test widened the existing tests root be
 
 ## Remaining gates
 
-Run the full branch gate and combined gate before landing. Native Anki validation remains parent-owned. Focused and comparison acceptance does not establish full branch or native acceptance. Keep the source, tests, comparator, inventory, and harness frozen until the parent admits the next step.
+Root accepted the full source gate for `441a1c706f860e0808e2cfda07d297c5981f2b31`, all eight checks at `2026-09-08T13:31:53-07:00`. Root-reported plain results: 5,619 tests in 571.757s with 1,367 skips; Qt: 5,619 tests in 1102.915s with 5 skips. Root merged the source into integration `d6ee87f28a45d6e12201870e423848fb5a42254e`; current integration is `b2306c3ebc963779d53328b3139536fa5c99ed7e` after death-prayer. No post-merge gate has run. Canonical main remains `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`; promotion and native Anki acceptance remain pending. This documentation task did not rerun the source gate.

@@ -6,7 +6,11 @@ Root verified canonical main clean at `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`
 
 Prayer-drain `f3157d4de6129a0831d83c555756c13c42daf3ce`, bank-trip `9cebd4df511d118729874db283689f1d2af3beec`, and selector `93e02bbd1e67d0e240acf4e90b92ece4fa3a36a8` are included and landed. Their combined verification and landing are closed; native programme acceptance remains separate and unproven. Enemy-poison independent review and focused/differential runtime are accepted: root verified three focused tests with zero skips and twelve complete comparisons per lane. Root accepted its full source gate `45290`, exit 0 with all eight checks, at `2026-09-08T12:42:15-07:00` for source `5eaaf97a3c1cc64bc81cff6f276ebcedbb209db8`, then merged it into integration `464edf35`. Post-merge, canonical-main promotion, and native acceptance remain pending. Food acceptance remains pending. No new push is authorized. Earlier dated sections below retain their historical state.
 
-Death-prayer focused and differential runtime are accepted by root: three focused tests per lane, zero skips, and twelve complete comparisons per lane with exact source, RNG, payload, and nonmutation verification. Full source gate, promotion, and native acceptance remain pending. See `memory-bank/handoffs/combat-death-prayer-2026-09-08.md`.
+Root accepted carried KEEP source `441a1c706f860e0808e2cfda07d297c5981f2b31` with all eight checks at `2026-09-08T13:31:53-07:00`, then merged it into integration `d6ee87f28a45d6e12201870e423848fb5a42254e`. Root accepted death-prayer source `c225c456934f7f052854938c619d801d9474dc17`, gate `99807`, exit 0 and all eight checks at `2026-09-08T14:12:03-07:00`, then merged it into current integration `b2306c3ebc963779d53328b3139536fa5c99ed7e`. Poison is already integrated through `464edf35`. No post-merge gate has run for this combined tree. Canonical main remains `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`; promotion and native acceptance remain pending.
+
+Food source `d87e51be3ee770bbf19284ab3136538a8e816c93` is committed with normal hooks; its source gate `87718` is active as reported by root. Do not treat it as accepted or merged. These are root-reported execution states, not checks rerun by this documentation task.
+
+The death-prayer gate log prefix incident is documented in `memory-bank/evidence/c225c456-gate-log-prefix-2026-09-08/README.md`. Exact raw, snapshot, and reconstructed bytes are retained; the canonical raw log and historical source packets/receipts remain unchanged.
 
 ## Module surface harness is ready — 2026-09-01
 
