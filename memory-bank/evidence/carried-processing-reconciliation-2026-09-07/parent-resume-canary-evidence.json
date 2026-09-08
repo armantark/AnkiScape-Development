@@ -1,0 +1,11 @@
+{
+  "source": "/tmp/ankiscape-carried-resume-canary-2026-09-07.json",
+  "raw_sha256": "fcf20d774035c760810fb81dad43cc73c794127a81283696ca002b97e5710a6f",
+  "gzip_sha256": "23b19dedbaaa6bc6354339c3383418a585bb408c667f399395314d50075861cd",
+  "raw_bytes": 1013,
+  "gzip_bytes": 428,
+  "driver_sha256": "42938234731951000cdf04dd3210c515c6e92b11814f5288573473c28b8f87e0",
+  "canary_sha256": "a5b1a2be55a77059343a5c4b41d99f0bc8710dac91d4c82d20442419cc03ebe2",
+  "execution_attribution": "Parent executed inert operational canary with reported exit 0; this agent retained raw evidence only.",
+  "scope": "No product runtime verification."
+}

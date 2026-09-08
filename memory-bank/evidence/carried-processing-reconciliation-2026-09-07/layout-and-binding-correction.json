@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-07",
+  "comparator_ast_identical": true,
+  "previous_probe_sha256": "c8997ff832fe9157168f7d40e7cffb28d0638ed08e833248017f2aeceb249f32",
+  "final_probe_sha256": "a2031a7b0681de1153870e98027b28ed597a68a6f3abd8aab4805df97ba65315",
+  "previous_manifest_sha256": "9f194e33ae7ef018b863315cf56ae88aac4fd6a1ff1c3bfa3c8d05a71dad05df",
+  "final_manifest_sha256": "11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31",
+  "previous_driver_sha256": "42938234731951000cdf04dd3210c515c6e92b11814f5288573473c28b8f87e0",
+  "final_driver_sha256": "331948941ad85e6df04fe53a49b9aa585addc5a87a5297f9748b955f254760ec",
+  "correction_packet_bytes": 1225,
+  "correction_packet_sha256": "15734a6b0c91f0214d9cb40d4205fa00147121fb9569fb232021e3c907a496d9",
+  "prior_review_and_guard_evidence": "Historical exact reviewed bytes retained unchanged; not relabeled as current.",
+  "execution": "No driver, comparator, canary, or tests executed."
+}

@@ -1,0 +1,132 @@
+--- tools/carried/run_processing_reconciliation_remote.py
++++ tools/carried/run_processing_reconciliation_remote.py
+@@ -81,7 +81,11 @@
+ def capture_guard(remote, lane, output, destination, manifest):
+     command = (f'cd {shlex.quote(str(remote.REMOTE_REPO))} && '
+                + guard_command(remote, lane, output) + f' && cat {shlex.quote(str(output))}')
+-    raw = remote._ssh(command, label='carried source guard', repeat_safe=True)
++    try:
++        raw = remote._ssh(command, label='carried source guard', repeat_safe=True)
++    except remote.SSHCommandError as error:
++        destination.with_suffix('.error.txt').write_text(str(error))
++        raise
+     destination.with_suffix('.raw.json').write_text(raw)
+     if json.loads(raw) != {'guards_passed': True, 'product_imports': False}:
+         raise ValueError('remote source guard did not report a pre-import success')
+@@ -104,6 +108,11 @@
+ def run_jobs(args, remote, manifest):
+     state_path = args.output / 'state.json'
+     state = json.loads(state_path.read_text()) if state_path.exists() else None
++    pending_path = remote._pending_path()
++    if pending_path.exists():
++        pending = json.loads(pending_path.read_text())
++        if state is None or state['current'] is None or pending != state['current']['pending']:
++            raise RuntimeError('another or unknown remote run owns the mirror pending record')
+     if state is None:
+         remote._sync(args.root)
+         state = {'manifest_sha256': PIN, 'root': str(args.root), 'session': uuid.uuid4().hex,
+@@ -111,11 +120,6 @@
+         save(state_path, state)
+     if state['manifest_sha256'] != PIN or state['root'] != str(args.root):
+         raise ValueError('saved run belongs to another source binding or root')
+-    pending_path = remote._pending_path()
+-    if pending_path.exists():
+-        pending = json.loads(pending_path.read_text())
+-        if state['current'] is None or pending != state['current']['pending']:
+-            raise RuntimeError('another or unknown remote run owns the mirror pending record')
+     original_ssh = remote._ssh
+     for lane in ('plain', 'qt'):
+         remote._preflight(lane)
+@@ -128,8 +132,9 @@
+             local_sources(args.root)
+             stem = remote.REMOTE_ROOT / 'reports' / f"carried-{state['session']}-{job}"
+             result_path = str(stem) + '.json.gz'
+-            capture_guard(remote, lane, str(stem) + '-before.json',
+-                          args.output / f'{job}-before.json', manifest)
++            guard_phase = 'before' if state['current'] is None else 'resume-before'
++            capture_guard(remote, lane, f'{stem}-{guard_phase}.json',
++                          args.output / f'{job}-{guard_phase}.json', manifest)
+             if state['current'] is None:
+                 command = remote_prefix(remote, lane) + ' '
+                 if kind == 'focused':
+@@ -213,7 +218,10 @@
+     from tools import run_remote_tests as remote
+     remote.LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+     with remote.LOCAL_MIRROR_LOCK_PATH.open('a+') as lock:
+-        fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
++        try:
++            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            raise SystemExit(f'remote mirror busy: {remote.LOCAL_MIRROR_LOCK_PATH}')
+         run_jobs(args, remote, manifest)
+ 
+ 
+--- tools/carried/check_processing_remote_resume.py
++++ tools/carried/check_processing_remote_resume.py
+@@ -60,9 +60,15 @@
+             _pending_path=lambda: pending_path, _ssh=ssh, _stream_remote_run=stream,
+             _completion_report=completion, _remote_lane_command=lambda lane: '',
+         )
++
++        def fake_guard(remote_arg, lane, remote_output, destination, manifest):
++            events.append(['fake-source-guard', str(remote_output), destination.name])
++            destination.write_text(json.dumps(events[-1]))
++            destination.with_suffix('.raw.json').write_text(json.dumps(events[-1]))
++
+         run_args = SimpleNamespace(root=root, output=output, timeout=1)
+         with patch.object(driver, 'local_sources', return_value={}), \
+-             patch.object(driver, 'capture_guard', side_effect=lambda *a: events.append(['fake-source-guard'])):
++             patch.object(driver, 'capture_guard', side_effect=fake_guard):
+             try:
+                 driver.run_jobs(run_args, remote, {})
+             except TimeoutError as error:
+@@ -75,6 +81,8 @@
+             assert json.loads(pending_path.read_text()) == pending
+             assert first_state['completed'] == []
+             first_events = list(events)
++            initial_guard = (output / 'plain-focused-before.json').read_bytes()
++            initial_raw = (output / 'plain-focused-before.raw.json').read_bytes()
+             try:
+                 driver.run_jobs(run_args, remote, {})
+             except RuntimeError as error:
+@@ -88,6 +96,10 @@
+             assert (output / 'plain-focused.log').read_text().startswith('Inert failed-job output;')
+             assert json.loads((output / 'plain-focused-completion.json').read_text())['exit_code'] == 23
+             resume_events = events[len(first_events):]
++            assert (output / 'plain-focused-before.json').read_bytes() == initial_guard
++            assert (output / 'plain-focused-before.raw.json').read_bytes() == initial_raw
++            assert (output / 'plain-focused-resume-before.json').exists()
++            assert (output / 'plain-focused-resume-before.raw.json').exists()
+             unrelated = dict(pending, run_id='inert-unrelated-run')
+             pending_path.write_text(json.dumps(unrelated))
+             event_count = len(events)
+@@ -99,10 +111,28 @@
+                 raise AssertionError('unrelated pending run was accepted')
+             assert len(events) == event_count
+             assert json.loads(pending_path.read_text()) == unrelated
++            unrelated_refused = len(events) == event_count
++            fresh_output = root / 'fresh-output'
++            fresh_output.mkdir()
++            fresh_args = SimpleNamespace(root=root, output=fresh_output, timeout=1)
++            fresh_event_count = len(events)
++            try:
++                driver.run_jobs(fresh_args, remote, {})
++            except RuntimeError as error:
++                assert str(error) == 'another or unknown remote run owns the mirror pending record'
++            else:
++                raise AssertionError('fresh run accepted an unrelated pending record')
++            assert len(events) == fresh_event_count
++            assert not (fresh_output / 'state.json').exists()
++            assert json.loads(pending_path.read_text()) == unrelated
+             report = {'inert_only': True, 'product_imports': False, 'real_remote_calls': False,
+                       'launch_timeout_retained_identity': pending, 'first_events': first_events,
+                       'resume_events': resume_events, 'resume_launches': 0, 'resume_syncs': 0,
+-                      'resumed_failed_exit': 23, 'unrelated_pending_refused_before_operations': True}
++                      'resumed_failed_exit': 23, 'unrelated_pending_refused_before_operations': unrelated_refused,
++                      'fresh_foreign_pending_refused_before_operations': len(events) == fresh_event_count,
++                      'initial_before_evidence_unchanged': (
++                          (output / 'plain-focused-before.json').read_bytes() == initial_guard
++                          and (output / 'plain-focused-before.raw.json').read_bytes() == initial_raw)}
+     args.output.write_text(json.dumps(report, indent=2) + '\n')
+ 
+ 

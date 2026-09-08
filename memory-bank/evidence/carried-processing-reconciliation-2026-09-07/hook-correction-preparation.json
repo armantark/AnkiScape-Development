@@ -1,0 +1,22 @@
+{
+  "manifest_sha256": "c2d0e39132fb5d8b9081a21caf0ffa69e4f2ec88cb3141402bed70f4a0c6203f",
+  "manifest_files": 903,
+  "hashes": {
+    "tools/carried/run_processing_reconciliation_remote.py": "eb1df501c09348ab7a30cf3223dedc6cf8ba2f18ddacc2cf9d82e3436cd11ae1",
+    "tools/carried/check_processing_remote_resume.py": "85921b6101717261fc9eeadc360aed4b0e7dccd2bc1d5f7b27c6a427e26f86e3"
+  },
+  "test_file_sha256": "b832af6c920bb80745b385caa1f74dad7585811d74fe18b78697d72541642f5c",
+  "test_body_ast_identical": true,
+  "test_bytes_identical": true,
+  "correction_packet_bytes": 11751,
+  "correction_packet_sha256": "324aefc3342aadec64aaf43d627e036e8c6136f7957a3b420d8d815a5aaa9a4e",
+  "gate_source_sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+  "checks": "Installed static layout, CCN, cognitive, Halstead and dead-code analyzers only; no product/test/probe/driver execution.",
+  "meaningful_operations": [
+    "run_jobs owns mirror sequence and saved run ownership",
+    "run_job owns one job guard/observation/evidence/completion lifecycle",
+    "launch_job owns pending identity persistence before dispatch",
+    "validate_job_output owns retained output validation for the two job types"
+  ],
+  "pending": "Parent full correction read; updated binding guard and inert resume/error canaries; then parent-authorized runtime/full gates and normal commit. Earlier successful proof remains bound to pre-hook-fix bytes."
+}

@@ -1,0 +1,202 @@
+--- tools/carried/run_processing_reconciliation_remote.py
++++ tools/carried/run_processing_reconciliation_remote.py
+@@ -16,9 +16,9 @@
+ 
+ EVIDENCE = Path('memory-bank/evidence/carried-processing-reconciliation-2026-09-07')
+ MANIFEST = EVIDENCE / 'final-source-manifest.json.gz'
+-PIN = '11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31'
++PIN = 'c2d0e39132fb5d8b9081a21caf0ffa69e4f2ec88cb3141402bed70f4a0c6203f'
+ SELECTORS = [
+-    'tests.test_carried_processing_reconciliation',
++    'tests.runtime_actions.test_carried_processing_reconciliation',
+     'tests.test_runtime_actions.TestProcessingPackOverlay',
+     'tests.test_runtime_actions.TestCarriedOverlayWrapper',
+ ] + ['tests.test_runtime_actions.TestRuntimeActions.' + name for name in (
+@@ -120,79 +120,94 @@
+         save(state_path, state)
+     if state['manifest_sha256'] != PIN or state['root'] != str(args.root):
+         raise ValueError('saved run belongs to another source binding or root')
+-    original_ssh = remote._ssh
+     for lane in ('plain', 'qt'):
+         remote._preflight(lane)
+         for kind in ('focused', 'comparison'):
+-            job = f'{lane}-{kind}'
+-            if job in state['completed']:
+-                continue
+-            if state['current'] is not None and state['current']['job'] != job:
+-                raise ValueError('saved active job differs from the next required job')
+-            local_sources(args.root)
+-            stem = remote.REMOTE_ROOT / 'reports' / f"carried-{state['session']}-{job}"
+-            result_path = str(stem) + '.json.gz'
+-            guard_phase = 'before' if state['current'] is None else 'resume-before'
+-            capture_guard(remote, lane, f'{stem}-{guard_phase}.json',
+-                          args.output / f'{job}-{guard_phase}.json', manifest)
+-            if state['current'] is None:
+-                command = remote_prefix(remote, lane) + ' '
+-                if kind == 'focused':
+-                    command += shlex.join(['-m', 'unittest', *SELECTORS])
+-                else:
+-                    command += shlex.join([
+-                        'tools/carried/compare_processing_reconciliation.py', '--root', str(remote.REMOTE_REPO),
+-                        '--manifest', str(remote.REMOTE_REPO / MANIFEST), '--manifest-sha256', PIN,
+-                        '--output', result_path])
+-                command = guard_command(remote, lane, str(stem) + '-launch.json') + ' && ' + command
+-
+-                def launch_ssh(text, *, label, repeat_safe=False):
+-                    if label == 'remote lane launch':
+-                        pending = json.loads(pending_path.read_text())
+-                        state['current'] = {'job': job, 'pending': pending, 'result_path': result_path}
+-                        save(state_path, state)
+-                    return original_ssh(text, label=label, repeat_safe=repeat_safe)
+-
+-                with patch.object(remote, '_remote_lane_command', return_value=command), \
+-                     patch.object(remote, '_ssh', side_effect=launch_ssh):
+-                    code, raw = remote._stream_remote_run(lane, timeout=args.timeout, poll_interval=5)
+-            else:
+-                code, raw = observe_existing(remote, state['current']['pending'], args.timeout)
+-            (args.output / f'{job}.log').write_text(raw)
+-            save(args.output / f'{job}-completion.json', {'exit_code': code, 'run': state['current']})
+-            capture_guard(remote, lane, str(stem) + '-after.json',
+-                          args.output / f'{job}-after.json', manifest)
+-            local_sources(args.root)
+-            if code != 0:
+-                raise RuntimeError(f'{job} failed with exit {code}; retained exact run must not relaunch')
+-            if kind == 'focused':
+-                summary = remote.parse_unittest_summary(raw)
+-                if summary.tests != 34 or summary.skipped != 0:
+-                    raise ValueError(f'{job}: expected 34 tests and zero skips, got {summary}')
+-            else:
+-                reader = ('import base64,pathlib; print(base64.b64encode(pathlib.Path('
+-                          + repr(result_path) + ').read_bytes()).decode())')
+-                encoded = remote._ssh(remote_prefix(remote, lane) + ' -c ' + shlex.quote(reader),
+-                                      label='carried comparison bytes', repeat_safe=True)
+-                packed = base64.b64decode(encoded.strip(), validate=True)
+-                (args.output / f'{job}.json.gz').write_bytes(packed)
+-                report = json.loads(gzip.decompress(packed))
+-                if (report['manifest_sha256'] != PIN or report['source_files'] != 903
+-                        or report['baseline_commit'] != manifest['baseline_commit']):
+-                    raise ValueError('comparison output source binding mismatch')
+-                rows = report['comparisons']
+-                if [row['case'] for row in rows] != CASES:
+-                    raise ValueError('comparison must contain exactly the 18 named cases in order')
+-                if not all(row['equal'] is True and row['baseline'] == row['candidate'] for row in rows):
+-                    raise ValueError('complete comparison payload differs')
+-            if pending_path.exists():
+-                if json.loads(pending_path.read_text()) != state['current']['pending']:
+-                    raise RuntimeError('pending run identity changed; refusing to clear it')
+-                pending_path.unlink()
+-            state['completed'].append(job)
+-            state['current'] = None
++            if f'{lane}-{kind}' not in state['completed']:
++                run_job(args, remote, manifest, state, lane, kind)
++    save(args.output / 'complete.json', {'jobs': state['completed'], 'manifest_sha256': PIN})
++
++
++def launch_job(args, remote, state, lane, kind, job, stem, result_path):
++    state_path = args.output / 'state.json'
++    pending_path = remote._pending_path()
++    original_ssh = remote._ssh
++    command = remote_prefix(remote, lane) + ' '
++    if kind == 'focused':
++        command += shlex.join(['-m', 'unittest', *SELECTORS])
++    else:
++        command += shlex.join([
++            'tools/carried/compare_processing_reconciliation.py', '--root', str(remote.REMOTE_REPO),
++            '--manifest', str(remote.REMOTE_REPO / MANIFEST), '--manifest-sha256', PIN,
++            '--output', result_path])
++    command = guard_command(remote, lane, str(stem) + '-launch.json') + ' && ' + command
++
++    def launch_ssh(text, *, label, repeat_safe=False):
++        if label == 'remote lane launch':
++            pending = json.loads(pending_path.read_text())
++            state['current'] = {'job': job, 'pending': pending, 'result_path': result_path}
+             save(state_path, state)
+-    save(args.output / 'complete.json', {'jobs': state['completed'], 'manifest_sha256': PIN})
++        return original_ssh(text, label=label, repeat_safe=repeat_safe)
++
++    with patch.object(remote, '_remote_lane_command', return_value=command), \
++         patch.object(remote, '_ssh', side_effect=launch_ssh):
++        return remote._stream_remote_run(lane, timeout=args.timeout, poll_interval=5)
++
++
++def validate_job_output(args, remote, manifest, lane, kind, job, raw, result_path):
++    if kind == 'focused':
++        summary = remote.parse_unittest_summary(raw)
++        if summary.tests != 34 or summary.skipped != 0:
++            raise ValueError(f'{job}: expected 34 tests and zero skips, got {summary}')
++    else:
++        reader = ('import base64,pathlib; print(base64.b64encode(pathlib.Path('
++                  + repr(result_path) + ').read_bytes()).decode())')
++        encoded = remote._ssh(remote_prefix(remote, lane) + ' -c ' + shlex.quote(reader),
++                              label='carried comparison bytes', repeat_safe=True)
++        packed = base64.b64decode(encoded.strip(), validate=True)
++        (args.output / f'{job}.json.gz').write_bytes(packed)
++        report = json.loads(gzip.decompress(packed))
++        if (report['manifest_sha256'] != PIN or report['source_files'] != 903
++                or report['baseline_commit'] != manifest['baseline_commit']):
++            raise ValueError('comparison output source binding mismatch')
++        rows = report['comparisons']
++        if [row['case'] for row in rows] != CASES:
++            raise ValueError('comparison must contain exactly the 18 named cases in order')
++        if not all(row['equal'] is True and row['baseline'] == row['candidate'] for row in rows):
++            raise ValueError('complete comparison payload differs')
++
++
++def run_job(args, remote, manifest, state, lane, kind):
++    state_path = args.output / 'state.json'
++    pending_path = remote._pending_path()
++    job = f'{lane}-{kind}'
++    if state['current'] is not None and state['current']['job'] != job:
++        raise ValueError('saved active job differs from the next required job')
++    local_sources(args.root)
++    stem = remote.REMOTE_ROOT / 'reports' / f"carried-{state['session']}-{job}"
++    result_path = str(stem) + '.json.gz'
++    guard_phase = 'before' if state['current'] is None else 'resume-before'
++    capture_guard(remote, lane, f'{stem}-{guard_phase}.json',
++                  args.output / f'{job}-{guard_phase}.json', manifest)
++    if state['current'] is None:
++        code, raw = launch_job(args, remote, state, lane, kind, job, stem, result_path)
++    else:
++        code, raw = observe_existing(remote, state['current']['pending'], args.timeout)
++    (args.output / f'{job}.log').write_text(raw)
++    save(args.output / f'{job}-completion.json', {'exit_code': code, 'run': state['current']})
++    capture_guard(remote, lane, str(stem) + '-after.json',
++                  args.output / f'{job}-after.json', manifest)
++    local_sources(args.root)
++    if code != 0:
++        raise RuntimeError(f'{job} failed with exit {code}; retained exact run must not relaunch')
++    validate_job_output(args, remote, manifest, lane, kind, job, raw, result_path)
++    if pending_path.exists():
++        if json.loads(pending_path.read_text()) != state['current']['pending']:
++            raise RuntimeError('pending run identity changed; refusing to clear it')
++        pending_path.unlink()
++    state['completed'].append(job)
++    state['current'] = None
++    save(state_path, state)
+ 
+ 
+ def main():
+--- tools/carried/check_processing_remote_resume.py
++++ tools/carried/check_processing_remote_resume.py
+@@ -39,7 +39,7 @@
+                 return 'Inert failed-job output; no test results were fabricated.\n'
+             raise AssertionError(f'unexpected fake SSH operation: {label}')
+ 
+-        def stream(lane, *, timeout, poll_interval):
++        def stream(lane, *, timeout, **_options):
+             events.append(['launch', lane])
+             pending_path.write_text(json.dumps(pending))
+             remote._ssh('INERT LAUNCH ONLY', label='remote lane launch')
+@@ -61,7 +61,7 @@
+             _completion_report=completion, _remote_lane_command=lambda lane: '',
+         )
+ 
+-        def fake_guard(remote_arg, lane, remote_output, destination, manifest):
++        def fake_guard(_remote_arg, lane, remote_output, destination, manifest):
+             events.append(['fake-source-guard', str(remote_output), destination.name])
+             destination.write_text(json.dumps(events[-1]))
+             destination.with_suffix('.raw.json').write_text(json.dumps(events[-1]))
+diff --git a/tests/test_carried_processing_reconciliation.py b/tests/runtime_actions/test_carried_processing_reconciliation.py
+similarity index 100%
+rename from tests/test_carried_processing_reconciliation.py
+rename to tests/runtime_actions/test_carried_processing_reconciliation.py

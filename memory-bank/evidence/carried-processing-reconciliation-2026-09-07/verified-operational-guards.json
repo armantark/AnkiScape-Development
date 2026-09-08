@@ -1,0 +1,38 @@
+{
+  "status": "CLOSED_AFTER_PARENT_VERIFICATION",
+  "attribution": "Parent fully read correction and executed/read these three inert or local guards, all reported exit 0; this agent retained raw bytes only.",
+  "bindings": {
+    "tools/carried/run_processing_reconciliation_remote.py": "bc482ec47074f1652ff1ad36ab9b4dc9b0414ec80c88e7ab6bd4cdfcff1c07da",
+    "tools/carried/check_processing_remote_resume.py": "c5654ce5eea930747b8f788c68cc043406e2281b1dc98453edfc90fadba9532e",
+    "memory-bank/evidence/carried-processing-reconciliation-2026-09-07/final-source-manifest.json.gz": "11a73aaab68f86fcd16db96c6a01f65c93ce9f185b3a1b96e7422a538952db31"
+  },
+  "outputs": {
+    "driver-local-guard": {
+      "source": "/tmp/ankiscape-carried-operational-driver-guard-2026-09-07/local-guard.json",
+      "raw_sha256": "72ba9021de51c770e7b93ed614a2307dc6d04ea8745d33a4edd415ea9e6ebff7",
+      "gzip_sha256": "a8b9f3ece90ecb2ab87fb0123d285a2cae6088acc66cdcbe38dd40b36f57ea88",
+      "raw_bytes": 168,
+      "gzip_bytes": 150,
+      "parent_reported_exit_code": 0
+    },
+    "extended-resume": {
+      "source": "/tmp/ankiscape-carried-operational-resume-2026-09-07.json",
+      "raw_sha256": "534990974539bb3a634f1a896c889f61bc5a74d1dfb21eb0475026621fc4de67",
+      "gzip_sha256": "9777e587736424d8ec98cf89645872ae06b1d3e980713f8b76ecf08ecf288fac",
+      "raw_bytes": 1507,
+      "gzip_bytes": 532,
+      "parent_reported_exit_code": 0
+    },
+    "guard-error": {
+      "source": "/tmp/ankiscape-carried-guard-error-canary-2026-09-07.json",
+      "raw_sha256": "b6ae887befad4bd9f73efa1ce2003774e2234d0ec4e3355edd3cdab507c136f8",
+      "gzip_sha256": "2396eeb904afd0e435069e8a3c5bec923afc3fb6156e09438bc0cfb0e847a299",
+      "raw_bytes": 190,
+      "gzip_bytes": 147,
+      "parent_reported_exit_code": 0
+    }
+  },
+  "resolution": "F1 fresh foreign pending refused before operations; F3 initial before evidence unchanged; exact-run resumption had zero second launch/sync and retained failure 23; F4 exact exception text retained and identical exception reraised. F2/F5 resolved by the pinned existing runner as recorded in opus-operational-review.json. Parent approved the specific fixes; no second review required.",
+  "pending": "Product focused tests, comparisons and full gates remain pending. P3 gate 78739 owns the shared mirror.",
+  "historical": "Earlier review and guard bytes remain unchanged and bound to their historical source versions."
+}

@@ -1,0 +1,20 @@
+{
+  "canaries": {
+    "source": "/tmp/ankiscape-carried-canaries-2026-09-07.json",
+    "raw_sha256": "10d71996ed32fe0b53c05d29dfe58b2dbfa4d0fe9b7e8a24044207dd9c94917d",
+    "gzip_sha256": "686036f5927c003b36d009b781d28d2cb056f151f0002b089eff5da1832f2c34",
+    "raw_bytes": 3606,
+    "gzip_bytes": 534,
+    "reported_executor": "parent",
+    "reported_exit_code": 0
+  },
+  "positive-guard": {
+    "source": "/tmp/ankiscape-carried-positive-guard-2026-09-07.json",
+    "raw_sha256": "59f0a1376fd277363bdaa62f7b99423ac7591fe77ffe2864fac73641d976d61d",
+    "gzip_sha256": "f3abb93f80b17e4f79e4327735af06035a4628514d08a16920980166d7b742ba",
+    "raw_bytes": 50,
+    "gzip_bytes": 69,
+    "reported_executor": "parent",
+    "reported_exit_code": 0
+  }
+}

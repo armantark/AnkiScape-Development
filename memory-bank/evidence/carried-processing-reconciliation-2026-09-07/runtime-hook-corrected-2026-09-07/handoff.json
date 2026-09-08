@@ -1,0 +1,56 @@
+{
+  "status": "CURRENT_RUNTIME_VERIFIED",
+  "parent_session": 48383,
+  "parent_reported_exit_code": 0,
+  "state": {
+    "manifest_sha256": "c2d0e39132fb5d8b9081a21caf0ffa69e4f2ec88cb3141402bed70f4a0c6203f",
+    "root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/5/ankiscape_fork",
+    "session": "7c93ff38f58f493fa9b30ad4eb249d0b",
+    "completed": [
+      "plain-focused",
+      "plain-comparison",
+      "qt-focused",
+      "qt-comparison"
+    ],
+    "current": null
+  },
+  "jobs": {
+    "plain": {
+      "focused_log": "..................................\n----------------------------------------------------------------------\nRan 34 tests in 0.012s\n\nOK\n",
+      "case_count": 18,
+      "complete_payloads_equal": true,
+      "manifest_sha256": "c2d0e39132fb5d8b9081a21caf0ffa69e4f2ec88cb3141402bed70f4a0c6203f",
+      "source_files": 903,
+      "completion_exit_codes": {
+        "focused": 0,
+        "comparison": 0
+      }
+    },
+    "qt": {
+      "focused_log": "..................................\n----------------------------------------------------------------------\nRan 34 tests in 0.013s\n\nOK\n",
+      "case_count": 18,
+      "complete_payloads_equal": true,
+      "manifest_sha256": "c2d0e39132fb5d8b9081a21caf0ffa69e4f2ec88cb3141402bed70f4a0c6203f",
+      "source_files": 903,
+      "completion_exit_codes": {
+        "focused": 0,
+        "comparison": 0
+      }
+    }
+  },
+  "raw_artifacts": 29,
+  "raw_inventory_sha256": "44af150fc69ac6ada37d2fbcb951519f7b353178750490975816e7ec4d75ec50",
+  "parent_independent_validation": "Both focused logs: 34 OK, zero skips (plain 0.012s, Qt 0.013s); 18 full baseline/candidate payloads equal per lane; four zero completions; before/after guards same.",
+  "reviews": "Product static review and operational delta review closed.",
+  "pending": "Full-branch, merged and native proof.",
+  "mirror": "Root P4 runtime 72876 sole owner; main 7e19 cleanly landed.",
+  "attribution": "Parent executed and verified refreshed runtime; this agent only retained and parsed original outputs. Historical session 80696 evidence unchanged.",
+  "bindings": {
+    "tools/carried/run_processing_reconciliation_remote.py": "eb1df501c09348ab7a30cf3223dedc6cf8ba2f18ddacc2cf9d82e3436cd11ae1",
+    "tools/carried/check_processing_remote_resume.py": "85921b6101717261fc9eeadc360aed4b0e7dccd2bc1d5f7b27c6a427e26f86e3",
+    "tools/carried/compare_processing_reconciliation.py": "a2031a7b0681de1153870e98027b28ed597a68a6f3abd8aab4805df97ba65315",
+    "tests/runtime_actions/test_carried_processing_reconciliation.py": "b832af6c920bb80745b385caa1f74dad7585811d74fe18b78697d72541642f5c",
+    "runtime/runtime_actions_carried_overlay.py": "7cff89b7be42afbb15be7afcc023732ccefd820cd24a2c0c1a0c160fda7ecd57",
+    "memory-bank/evidence/carried-processing-reconciliation-2026-09-07/final-source-manifest.json.gz": "c2d0e39132fb5d8b9081a21caf0ffa69e4f2ec88cb3141402bed70f4a0c6203f"
+  }
+}

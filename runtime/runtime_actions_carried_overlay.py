@@ -142,6 +142,37 @@ def _try_pack_yak_winter_storage_overlay(
     return updated_view, max(0, churn - 1), True
 
 
+def _reconcile_processing_inventory(
+    bank: dict[str, Any],
+    scoped_inventory: dict[str, Any],
+    after_scoped: dict[str, Any],
+    carried_view: dict[str, int],
+    required_items: tuple[str, ...],
+    hidden_potions: set[str],
+    hidden_alternatives: set[str],
+) -> tuple[dict[str, Any], dict[str, int]]:
+    reconciled = dict(after_scoped)
+    view = dict(carried_view)
+    for item_name in hidden_potions:
+        if item_name in bank:
+            reconciled[item_name] = bank[item_name]
+    for item_name in hidden_alternatives:
+        if item_name in bank:
+            reconciled[item_name] = bank[item_name]
+        else:
+            reconciled.pop(item_name, None)
+    # Categories may share a key: each occurrence still consumes carried stock.
+    for item_name in required_items:
+        true_before = int(bank.get(item_name, 0) or 0)
+        capped_before = int(scoped_inventory.get(item_name, 0) or 0)
+        after_amount = int(after_scoped.get(item_name, 0) or 0)
+        consumed = max(0, capped_before - after_amount)
+        reconciled[item_name] = max(0, true_before - consumed)
+        if consumed > 0:
+            view[item_name] = max(0, int(view.get(item_name, 0) or 0) - consumed)
+    return reconciled, {name: count for name, count in view.items() if count > 0}
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
@@ -638,42 +669,15 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             return False
         after_scoped = player_data.get("inventory", {}) or {}
         new_view = _carried_target_view(player_data, target_id)
-        reconciled = dict(after_scoped)
-        for item_name in scoped_potion_items - consumable_requirements.keys():
-            if item_name in bank:
-                reconciled[item_name] = bank[item_name]
-        for option in scoped_alternatives - requirements.keys():
-            if option in bank:
-                reconciled[option] = bank[option]
-            else:
-                reconciled.pop(option, None)
-        for item_name, _need in requirements.items():
-            true_before = int(bank.get(item_name, 0) or 0)
-            capped_before = int(scoped_inventory.get(item_name, 0) or 0)
-            after_amount = int(after_scoped.get(item_name, 0) or 0)
-            consumed = max(0, capped_before - after_amount)
-            reconciled[item_name] = max(0, true_before - consumed)
-            if consumed > 0:
-                new_view[item_name] = max(0, int(new_view.get(item_name, 0) or 0) - consumed)
-        for item_name, _need in carried_presence_requirements.items():
-            true_before = int(bank.get(item_name, 0) or 0)
-            capped_before = int(scoped_inventory.get(item_name, 0) or 0)
-            after_amount = int(after_scoped.get(item_name, 0) or 0)
-            consumed = max(0, capped_before - after_amount)
-            reconciled[item_name] = max(0, true_before - consumed)
-            if consumed > 0:
-                new_view[item_name] = max(0, int(new_view.get(item_name, 0) or 0) - consumed)
-        for item_name, _need in consumable_requirements.items():
-            true_before = int(bank.get(item_name, 0) or 0)
-            capped_before = int(scoped_inventory.get(item_name, 0) or 0)
-            after_amount = int(after_scoped.get(item_name, 0) or 0)
-            consumed = max(0, capped_before - after_amount)
-            reconciled[item_name] = max(0, true_before - consumed)
-            if consumed > 0:
-                new_view[item_name] = max(
-                    0, int(new_view.get(item_name, 0) or 0) - consumed
-                )
-        new_view = {name: count for name, count in new_view.items() if count > 0}
+        reconciled, new_view = _reconcile_processing_inventory(
+            bank,
+            scoped_inventory,
+            after_scoped,
+            new_view,
+            (*requirements, *carried_presence_requirements, *consumable_requirements),
+            scoped_potion_items - consumable_requirements.keys(),
+            scoped_alternatives - requirements.keys(),
+        )
         player_data["inventory"] = reconciled
         if result is not False:
             player_data["skilling_bank_run"] = new_state
