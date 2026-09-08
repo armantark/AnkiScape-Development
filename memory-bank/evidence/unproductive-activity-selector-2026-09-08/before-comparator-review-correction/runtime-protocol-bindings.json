@@ -1,0 +1,37 @@
+{
+  "status": "COMPILE_ONLY_NOT_EXECUTED",
+  "inventory_sha256": "d39e7269bf2aaab918cb7c6646965bb20df80601fa46342315da24a9c43f85fc",
+  "files": [
+    {
+      "path": "runtime-harness.py.gz",
+      "stored_bytes": 4697,
+      "stored_sha256": "a53c50c4525f2fd4b60cd1e50a62ae86e747c543e704fec48785f2868ed57905",
+      "decoded_bytes": 15703,
+      "decoded_sha256": "db51e8403e5424750785d744eddbf71c7a2e7688c9f04119f7526d5699196018",
+      "reference_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-new-bank-trip-2026-09-08/runtime-harness.py.gz",
+      "reference_stored_sha256": "6ab92f0bc9cb7f8a3c863b251456c249f1d439abad37b0221327faf74e93971f",
+      "reference_decoded_sha256": "f718d51544578276070b4f56beae4a86b07210d92b5f7020570f5c7bb4c343e9"
+    },
+    {
+      "path": "runtime-safety-check.py.gz",
+      "stored_bytes": 2066,
+      "stored_sha256": "95c3148845a0e535f63572849a60a58cb58828c093bd9e9d01834952cae16850",
+      "decoded_bytes": 7005,
+      "decoded_sha256": "f46b7ffd26534a17d646ef4c3fbf2dcbfbdab6fc0ab5ebf52dea5106bfe8b3cb",
+      "reference_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-new-bank-trip-2026-09-08/runtime-safety-check.py.gz",
+      "reference_stored_sha256": "2d99ae5256c5cb653829a73c2ce2cdc7f5ae979f82e0668cf465669dd0a47ff5",
+      "reference_decoded_sha256": "a30f9d4e5e37be9dcee700129db794ae84b9c4d31fec37bf7c106011735bd0a8"
+    }
+  ],
+  "delta_bytes": 8514,
+  "delta_sha256": "1832adf4bdc14bbdf44d75405b00fd68d500781fe5972dcc82950d30047d5bc9",
+  "expected_focused": 4,
+  "expected_cases": 54,
+  "inert_cases_unchanged": [
+    "run-one-existing-pending",
+    "run-one-bad-source",
+    "run-one-pending-during-sync",
+    "identity-before-launch"
+  ],
+  "scope": "Only evidence files authored. Product/test/comparator/inventory unchanged. No runtime, product imports or remote operations. Root reviews and runs inert checks before any remote job."
+}

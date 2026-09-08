@@ -1,0 +1,187 @@
+--- P3/runtime-harness.py
++++ P4/runtime-harness.py
+@@ -1,4 +1,4 @@
+-"""Run one pinned carried-new-bank-trip proof on the owned remote mirror."""
++"""Run one pinned unproductive-activity-selector proof on the owned remote mirror."""
+ 
+ import argparse
+ import base64
+@@ -13,29 +13,71 @@
+ import uuid
+ from unittest.mock import patch
+ 
+-EVIDENCE = Path("memory-bank/evidence/carried-new-bank-trip-2026-09-08")
++EVIDENCE = Path("memory-bank/evidence/unproductive-activity-selector-2026-09-08")
+ INVENTORY = EVIDENCE / "source-inventory.json.gz"
+-INVENTORY_SHA256 = "17abe3bfc643377d667a81f28d651e33c2d9bc6d16e14bce3cc13a356b614910"
++INVENTORY_SHA256 = "c7cdc3f184b0cbaa95c720b382bf0d8ec6e1a9651281e166c91484df9246f8c5"
+ BASELINE_COMMIT = "6dacde5486c72e73ca170c039bf8207dec22ac81"
+ SELECTORS = [
+-    "TestInitializeDueBankTrip.test_credit_is_consumed_before_roll_and_teleport_after_roll",
+-    "TestInitializeDueBankTrip.test_zero_duration_never_draws_and_only_moving_credit_is_consumed",
+-    "TestInitializeDueBankTrip.test_fractional_trip_keeps_both_rounding_routes_and_nonmatching_teleport",
+-    "TestCarriedOverlayWrapper.test_manual_request_enters_the_same_review_paced_bank_run",
+-    "TestCarriedOverlayWrapper.test_full_run_energy_credit_waives_and_consumes_the_next_moving_trip",
+-    "TestRuntimeActions.test_runecrafting_tablet_skips_only_the_outbound_runecrafting_phase",
+-    "TestRuntimeActions.test_wicked_hood_teleport_finishes_an_already_outbound_route"
++    "TestUnproductiveActivitySelector.test_predicates_and_handlers_resolve_after_import_only_when_selected",
++    "TestUnproductiveActivitySelector.test_irregular_predicates_keep_their_original_meaning",
++    "TestUnproductiveActivitySelector.test_flash_powder_routes_and_sequential_equality",
++    "TestUnproductiveActivityCaller.test_failed_review_builds_activity_context_only_for_a_match_and_keeps_tail"
+ ]
+ CASES = [
+-    "moving",
+-    "partial-credit",
+-    "waived",
+-    "waived-rejected",
+-    "not-due",
+-    "active-trip",
+-    "altar-teleport-False",
+-    "altar-teleport-True",
+-    "winter-storage-rejection"
++    "TROUBLE_BREWING_ACTIVITY_ID:False",
++    "TROUBLE_BREWING_ACTIVITY_ID:True",
++    "TROUBLE_BREWING_ACTIVITY_ID:predicate-error",
++    "CASTLE_WARS_ACTIVITY_ID:False",
++    "CASTLE_WARS_ACTIVITY_ID:True",
++    "CASTLE_WARS_ACTIVITY_ID:predicate-error",
++    "PEST_CONTROL_ACTIVITY_ID:False",
++    "PEST_CONTROL_ACTIVITY_ID:True",
++    "PEST_CONTROL_ACTIVITY_ID:predicate-error",
++    "BARBARIAN_ASSAULT_ACTIVITY_ID:False",
++    "BARBARIAN_ASSAULT_ACTIVITY_ID:True",
++    "BARBARIAN_ASSAULT_ACTIVITY_ID:predicate-error",
++    "SOUL_WARS_ACTIVITY_ID:False",
++    "SOUL_WARS_ACTIVITY_ID:True",
++    "SOUL_WARS_ACTIVITY_ID:predicate-error",
++    "SHADES_OF_MORTTON_ACTIVITY_ID:False",
++    "SHADES_OF_MORTTON_ACTIVITY_ID:True",
++    "SHADES_OF_MORTTON_ACTIVITY_ID:predicate-error",
++    "CLAN_WARS_ACTIVITY_ID:False",
++    "CLAN_WARS_ACTIVITY_ID:True",
++    "CLAN_WARS_ACTIVITY_ID:predicate-error",
++    "TROLL_INVASION_ACTIVITY_ID:False",
++    "TROLL_INVASION_ACTIVITY_ID:True",
++    "MAGE_TRAINING_ARENA_ACTIVITY_ID:False",
++    "MAGE_TRAINING_ARENA_ACTIVITY_ID:True",
++    "MAGE_TRAINING_ARENA_ACTIVITY_ID:predicate-error",
++    "RANGING_GUILD_ACTIVITY_ID:False",
++    "RANGING_GUILD_ACTIVITY_ID:True",
++    "RANGING_GUILD_ACTIVITY_ID:predicate-error",
++    "MOBILISING_ARMIES_ACTIVITY_ID:False",
++    "MOBILISING_ARMIES_ACTIVITY_ID:True",
++    "MOBILISING_ARMIES_ACTIVITY_ID:predicate-error",
++    "TEMPLE_TREKKING_ACTIVITY_ID:False",
++    "TEMPLE_TREKKING_ACTIVITY_ID:True",
++    "TEMPLE_TREKKING_ACTIVITY_ID:predicate-error",
++    "GNOME_RESTAURANT_ACTIVITY_ID:False",
++    "GNOME_RESTAURANT_ACTIVITY_ID:True",
++    "GNOME_RESTAURANT_ACTIVITY_ID:predicate-error",
++    "CRUCIBLE_ACTIVITY_ID:False",
++    "CRUCIBLE_ACTIVITY_ID:True",
++    "CRUCIBLE_ACTIVITY_ID:predicate-error",
++    "GOBLIN_RAIDS_ACTIVITY_ID:False",
++    "GOBLIN_RAIDS_ACTIVITY_ID:True",
++    "GOBLIN_RAIDS_ACTIVITY_ID:predicate-error",
++    "flash:utility:{'flash_powder_factory': {'active': False}}",
++    "flash:utility:{'flash_powder_factory': {}}",
++    "flash:utility:['truthy non-dict']",
++    "flash:agility:{'flash_powder_factory': {'active': False}}",
++    "flash:agility:{'flash_powder_factory': {}}",
++    "flash:agility:['truthy non-dict']",
++    "no-match:utility:[]",
++    "no-match:utility:'unknown'",
++    "no-match:other:'flash_powder_factory'",
++    "no-match:None:'flash_powder_factory'"
+ ]
+ 
+ 
+@@ -98,7 +140,7 @@
+ 
+ def comparator_command(remote, lane, output, *, preflight=False):
+     arguments = [
+-        "tools/carried/compare_new_bank_trip.py",
++        "tools/runtime/compare_unproductive_activity_selector.py",
+         "--inventory",
+         str(remote.REMOTE_REPO / INVENTORY),
+         "--inventory-sha256",
+@@ -135,7 +177,7 @@
+     )
+     raw = remote._ssh(
+         command,
+-        label="carried-new-bank-trip source guard",
++        label="unproductive-activity-selector source guard",
+         repeat_safe=True,
+     )
+     decoded = base64.b64decode(raw.strip(), validate=True)
+@@ -181,7 +223,7 @@
+             try:
+                 text = remote._ssh(
+                     f"cat {shlex.quote(identity[key])} 2>/dev/null || true",
+-                    label=f"carried-new-bank-trip interrupted {key}",
++                    label=f"unproductive-activity-selector interrupted {key}",
+                     repeat_safe=True,
+                 )
+             except Exception as inspection_error:
+@@ -202,7 +244,7 @@
+         raise ValueError("comparison source snapshots differ")
+     rows = report.get("cases")
+     if not isinstance(rows, list) or [row.get("case") for row in rows] != CASES:
+-        raise ValueError("comparison must contain exactly the nine named cases in order")
++        raise ValueError("comparison must contain exactly the 54 named cases in order")
+     for row in rows:
+         before = base64.b64decode(row["baseline_pickle_base64"], validate=True)
+         after = base64.b64decode(row["candidate_pickle_base64"], validate=True)
+@@ -210,7 +252,7 @@
+             raise ValueError("complete output pickle equality failed")
+         observed, expected = row["observed"], row["expected"]
+         if row.get("route_pass") is not True or any(observed.get(key) != value for key, value in expected.items()):
+-            raise ValueError("advertised carried new bank trip route was not exercised")
++            raise ValueError("advertised unproductive activity route was not exercised")
+ 
+ 
+ def retain_comparison(remote, lane, remote_path, local_path, sources):
+@@ -221,7 +263,7 @@
+     )
+     encoded = remote._ssh(
+         remote_prefix(remote, lane) + " -c " + shlex.quote(reader),
+-        label="carried-new-bank-trip comparison bytes",
++        label="unproductive-activity-selector comparison bytes",
+         repeat_safe=True,
+     )
+     raw = base64.b64decode(encoded.strip(), validate=True)
+@@ -242,7 +284,7 @@
+         remote._sync(args.root)
+     assert_no_pending(remote)
+     session = uuid.uuid4().hex
+-    stem = remote.REMOTE_ROOT / "reports" / f"carried-new-bank-trip-{session}-{args.lane}-{args.kind}"
++    stem = remote.REMOTE_ROOT / "reports" / f"unproductive-activity-selector-{session}-{args.lane}-{args.kind}"
+     capture_guard(remote, args.lane, str(stem) + "-before.json.gz", args.output / "before.json", sources)
+     launch_guard = comparator_command(
+         remote,
+@@ -266,7 +308,7 @@
+     identity = json.loads((args.output / "identity.json").read_text())["pending"]
+     report_text = remote._ssh(
+         "cat " + shlex.quote(identity["report_path"]),
+-        label="carried-new-bank-trip exact-run report",
++        label="unproductive-activity-selector exact-run report",
+         repeat_safe=True,
+     )
+     (args.output / "run.report").write_text(report_text)
+--- P3/runtime-safety-check.py
++++ P4/runtime-safety-check.py
+@@ -1,4 +1,4 @@
+-"""Exercise carried-new-bank-trip runtime safety stops without product imports or remote calls."""
++"""Exercise unproductive-activity-selector runtime safety stops without product imports or remote calls."""
+ 
+ import argparse
+ import gzip
+@@ -11,7 +11,7 @@
+ 
+ 
+ def load_harness(path):
+-    module = types.ModuleType("carried_new_bank_trip_runtime_harness_under_test")
++    module = types.ModuleType("unproductive_activity_selector_runtime_harness_under_test")
+     raw = gzip.decompress(path.read_bytes())
+     exec(compile(raw, "runtime-harness.py", "exec"), module.__dict__)
+     return module

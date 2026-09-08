@@ -1,0 +1,12 @@
+{
+  "status": "INERT_CANARY_PASS_PARENT_VERIFIED",
+  "runtime": "NOT_RUN",
+  "source": "/tmp/ankiscape-selector-parent-static-2026-09-08/inert-canary.json",
+  "original_bytes": 906,
+  "original_sha256": "39fcf086cf5e74fec004eb793be91bbe977d389c07ef8dbed888225a6e8d1d2c",
+  "stored_path": "parent-inert-canary.json.gz",
+  "stored_bytes": 360,
+  "stored_sha256": "459b9e5624709e0b108744742c5ada8156f1feee4806453bc05c5d910531e31f",
+  "parent_acceptance": "Root fully read harness and safety check, then ran the four safety stops with an outer audit hook forbidding subprocess, os.system, socket and product imports. All passed; actual remote calls, product imports and denied attempts were zero.",
+  "scope": "Exact evidence retention only; source and operational files unchanged."
+}

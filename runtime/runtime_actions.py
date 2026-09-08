@@ -903,3 +903,41 @@ def can_start_action(ctx: RuntimeActionContext, handler_key: Optional[str]) -> b
 
 def answer_handler_for_key(handler_key: Optional[str]) -> Optional[Callable[[RuntimeActionContext], bool]]:
     return ANSWER_HANDLERS.get(str(handler_key or ""))
+
+
+_UNPRODUCTIVE_ACTIVITY_ANSWERS = (
+    (TROUBLE_BREWING_ACTIVITY_ID, lambda player_data: trouble_brewing_view_pure(player_data).get("active"), "handle_trouble_brewing_answer"),
+    (CASTLE_WARS_ACTIVITY_ID, lambda player_data: castle_wars_view_pure(player_data).get("active"), "handle_castle_wars_answer"),
+    (PEST_CONTROL_ACTIVITY_ID, lambda player_data: pest_control_view_pure(player_data).get("active"), "handle_pest_control_answer"),
+    (BARBARIAN_ASSAULT_ACTIVITY_ID, lambda player_data: barbarian_assault_view_pure(player_data).get("active"), "handle_barbarian_assault_answer"),
+    (SOUL_WARS_ACTIVITY_ID, lambda player_data: soul_wars_view_pure(player_data).get("active"), "handle_soul_wars_answer"),
+    (SHADES_OF_MORTTON_ACTIVITY_ID, lambda player_data: shades_of_mortton_view_pure(player_data).get("active"), "handle_shades_of_mortton_answer"),
+    (CLAN_WARS_ACTIVITY_ID, lambda player_data: clan_wars_view_pure(player_data).get("active"), "handle_clan_wars_answer"),
+    (TROLL_INVASION_ACTIVITY_ID, lambda player_data: bool(player_data.get("troll_invasion")), "handle_troll_invasion_answer"),
+    (MAGE_TRAINING_ARENA_ACTIVITY_ID, lambda player_data: mage_training_arena_view_pure(player_data).get("active"), "handle_mage_training_arena_answer"),
+    (RANGING_GUILD_ACTIVITY_ID, lambda player_data: ranging_guild_view_pure(player_data).get("active"), "handle_ranging_guild_answer"),
+    (MOBILISING_ARMIES_ACTIVITY_ID, lambda player_data: mobilising_armies_can_review_pure(player_data), "handle_mobilising_armies_answer"),
+    (TEMPLE_TREKKING_ACTIVITY_ID, lambda player_data: temple_trekking_can_review_pure(player_data), "handle_temple_trekking_answer"),
+    (GNOME_RESTAURANT_ACTIVITY_ID, lambda player_data: gnome_restaurant_view_pure(player_data).get("order"), "handle_gnome_restaurant_answer"),
+    (CRUCIBLE_ACTIVITY_ID, lambda player_data: crucible_view_pure(player_data).get("active"), "handle_crucible_answer"),
+    (GOBLIN_RAIDS_ACTIVITY_ID, lambda player_data: goblin_raids_view_pure(player_data).get("active"), "handle_goblin_raids_answer"),
+)
+
+
+def unproductive_activity_answer_handler(
+    player_data: dict[str, Any], handler_key: Optional[str],
+) -> Optional[Callable[..., Any]]:
+    activity_state = player_data.get("agility_activity_state") or {}
+    if (
+        ((handler_key == "utility" and player_data.get("current_utility") == FLASH_POWDER_FACTORY_ACTIVITY_ID)
+         or (handler_key == "agility" and player_data.get("current_agility") == FLASH_POWDER_FACTORY_ACTIVITY_ID))
+        and isinstance(activity_state, dict)
+        and activity_state.get(FLASH_POWDER_FACTORY_ACTIVITY_ID)
+    ):
+        return globals()["handle_flash_powder_factory_answer"]
+    if handler_key == "utility":
+        current = player_data.get("current_utility")
+        for activity_id, predicate, handler_name in _UNPRODUCTIVE_ACTIVITY_ANSWERS:
+            if current == activity_id and predicate(player_data):
+                return globals()[handler_name]
+    return None

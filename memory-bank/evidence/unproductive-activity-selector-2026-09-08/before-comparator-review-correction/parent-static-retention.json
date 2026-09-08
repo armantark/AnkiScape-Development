@@ -1,0 +1,51 @@
+{
+  "status": "STATIC_PASS_PARENT_VERIFIED",
+  "runtime": "NOT_RUN",
+  "files": [
+    {
+      "original_path": "/tmp/ankiscape-selector-parent-static-2026-09-08/ast-proof.json",
+      "original_bytes": 1453,
+      "original_sha256": "6c394b35351bfe26f249073f30dcf488552d39589ab982e3ba892d6c3ed5cb71",
+      "stored_path": "parent-static/ast-proof.json.gz",
+      "stored_bytes": 498,
+      "stored_sha256": "61066490df51374385b6c82c611e020251eb98d91cf219c706d754f31c827cd7",
+      "encoding": "deterministic gzip of exact original bytes"
+    },
+    {
+      "original_path": "/tmp/ankiscape-selector-parent-static-2026-09-08/review-row-proof.json",
+      "original_bytes": 400,
+      "original_sha256": "6e24f85d01bc963833946bf6ab40e245499c91d42a940931ec0bf5e55405ac9a",
+      "stored_path": "parent-static/review-row-proof.json.gz",
+      "stored_bytes": 282,
+      "stored_sha256": "ab3b825c57560374d36e8dcbe3e4d9522a96e9d3213e54ebd7657afe56ec8780",
+      "encoding": "deterministic gzip of exact original bytes"
+    },
+    {
+      "original_path": "/tmp/ankiscape-selector-parent-static-2026-09-08/static-measurements.json",
+      "original_bytes": 82782,
+      "original_sha256": "68bdaa371ff65040dbad6eca56cd25db6a1a0bd4b57dd26e93cbc5ce5db6c2f4",
+      "stored_path": "parent-static/static-measurements.json.gz",
+      "stored_bytes": 9705,
+      "stored_sha256": "bb9759cebaaa3c352ae60d199c2ecbeb5faef163f9edc44a9ab6b37b649fb527",
+      "encoding": "deterministic gzip of exact original bytes"
+    },
+    {
+      "original_path": "/tmp/ankiscape-selector-parent-static-2026-09-08/static-measurements.raw.json.gz",
+      "original_bytes": 41714,
+      "original_sha256": "1b978eb2d2ceb193da48829db31b5db899f2b971c4c18b01e53ebc055320af10",
+      "stored_path": "parent-static/static-measurements.raw.json.gz",
+      "stored_bytes": 41714,
+      "stored_sha256": "1b978eb2d2ceb193da48829db31b5db899f2b971c4c18b01e53ebc055320af10",
+      "encoding": "original gzip bytes"
+    },
+    {
+      "original_path": "/tmp/ankiscape-selector-parent-static-2026-09-08/verify.py",
+      "original_bytes": 5087,
+      "original_sha256": "f6a6b8e53a0a3dc0e71aea3bc5919eff78710303e41d86682f1292ca98ae86a3",
+      "stored_path": "parent-static/verify.py.gz",
+      "stored_bytes": 1857,
+      "stored_sha256": "70869658eb56b57a10dba94dd10e8a776507def66c37b1e34905bd5056e608d7",
+      "encoding": "deterministic gzip of exact original bytes"
+    }
+  ]
+}

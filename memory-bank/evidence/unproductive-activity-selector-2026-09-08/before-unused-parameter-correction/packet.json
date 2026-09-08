@@ -1,0 +1,55 @@
+{
+  "status": "PRODUCT_STATIC_PASS_COMPARATOR_CORRECTION_PENDING_PARENT_VERIFICATION_RUNTIME_NOT_RUN",
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "sources": {
+    "__init__.py": "cb2d9ec7d79dba1d195adcc98ed0cf0b17be8323d57a9b8846772ba88fde234e",
+    "runtime/runtime_actions.py": "b87aa266afe7946049e7bc02610bae7d7c93f0454a3d7ac1dfad11dd1ebc0126",
+    "tests/runtime_actions/test_unproductive_activity_selector.py": "9d760b070c6ff0ab74c0edd206ab3a13f99db6caa74aa492dbed28da82d6443d",
+    "tests/runtime_actions/test_unproductive_activity_caller.py": "914bd2a30916d9fc994907317f6fb57c1292cd7decd4af98299476a61f43c760",
+    "tools/runtime/compare_unproductive_activity_selector.py": "6105e44464b818ddbde245518b93fc3fbd119a4dc0f3542b7b8cda64148ba708"
+  },
+  "inventory_sha256": "731e495b12e0db26e5a3843eff16a415750d4b62103c7df8619a4d8061197a87",
+  "inventory_count": 905,
+  "whole_entrypoint_inverse_verified": true,
+  "runtime_append_only_verified": true,
+  "predicate_ast_order_exact": true,
+  "static_report_sha256": "68bdaa371ff65040dbad6eca56cd25db6a1a0bd4b57dd26e93cbc5ce5db6c2f4",
+  "static_raw_sha256": "327a3ead841541970226db4b048aee227fbea248510b325ab5770c25f8f27647",
+  "product_patch": {
+    "bytes": 11768,
+    "sha256": "f47523bbf92a844c177dca3c7a80c048e745160ef36be4bdf4d8fb47b788c4e2"
+  },
+  "full_patch": {
+    "bytes": 30132,
+    "sha256": "ea46447b3a152269f504d140d928bb5416c249f182dc36a30f8635f23c5c72ad"
+  },
+  "focused_methods": 4,
+  "differential_cases": 54,
+  "measurements": {
+    "selector_ccn": 12,
+    "selector_cognitive": 13,
+    "selector_halstead": 1.7857142857142858,
+    "lines": {
+      "base": {
+        "__init__.py": 6221,
+        "runtime/runtime_actions.py": 905
+      },
+      "candidate": {
+        "__init__.py": 6052,
+        "runtime/runtime_actions.py": 943,
+        "tests/runtime_actions/test_unproductive_activity_selector.py": 75,
+        "tests/runtime_actions/test_unproductive_activity_caller.py": 47,
+        "tools/runtime/compare_unproductive_activity_selector.py": 211
+      }
+    },
+    "all_ratchets": {
+      "ccn": [],
+      "cognitive": [],
+      "halstead": [],
+      "layout": [],
+      "file_growth": []
+    }
+  },
+  "scope": "Only two product files, two new test files and one comparator. P3 unchanged. No product import/test/remote/review/commit by author.",
+  "static_measurement_scope": "Retained full static report precedes comparator dead-write removal; final comparator requires parent verification. Product/test source hashes unchanged."
+}

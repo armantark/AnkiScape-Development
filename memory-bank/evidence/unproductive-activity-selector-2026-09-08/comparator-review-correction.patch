@@ -1,0 +1,10 @@
+--- a/tools/runtime/compare_unproductive_activity_selector.py
++++ b/tools/runtime/compare_unproductive_activity_selector.py
+@@ -174,7 +174,6 @@
+                         "expected": expected, "observed": observed,
+                         "baseline_pickle_base64": base64.b64encode(before_bytes).decode(),
+                         "candidate_pickle_base64": base64.b64encode(after_bytes).decode()})
+-        output.write_bytes(gzip.compress(json.dumps({"cases": results}, indent=2).encode(), mtime=0))
+     return results
+ 
+ 
