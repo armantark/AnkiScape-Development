@@ -1,0 +1,35 @@
+--- a/runtime/runtime_actions_carried_overlay.py
++++ b/runtime/runtime_actions_carried_overlay.py
+@@ -18,6 +18,7 @@
+     run_bank_run_diary_callbacks_pure,
+ )
+ from ..logic.agility_travel import (
++    AgilityTravelProfile,
+     agility_travel_profile_pure,
+     apply_run_energy_credit_pure,
+     scheduled_travel_reviews_pure,
+@@ -173,7 +174,13 @@
+     return reconciled, {name: count for name, count in view.items() if count > 0}
+ 
+ 
+-def _initialize_due_bank_trip(ctx, handler_key, target_id, view, target_altar):
++def _initialize_due_bank_trip(
++    ctx: RuntimeActionContext,
++    handler_key: str,
++    target_id: str,
++    view: dict[str, int],
++    target_altar: str,
++) -> tuple[AgilityTravelProfile, int, tuple[dict[str, Any], ...], bool]:
+     player_data = ctx.player_data
+     route_phases = ()
+     outbound_teleport_used = False
+--- a/tests/runtime_actions/test_carried_new_bank_trip.py
++++ b/tests/runtime_actions/test_carried_new_bank_trip.py
+@@ -39,6 +39,7 @@
+         self.assertEqual((cost, [phase["id"] for phase in phases]), (5, ["return", "bank"]))
+         self.assertEqual(player["agility_last_travel"]["scheduled_reviews"], 10)
+         self.assertEqual(player["agility_last_travel"]["adjusted_reviews"], profile.adjusted_reviews)
++        self.assertEqual(player["agility_last_travel"]["run_energy_credit_used_pct"], 50)
+         self.assertEqual(view, before_view)
+ 
+     def test_zero_duration_never_draws_and_only_moving_credit_is_consumed(self):

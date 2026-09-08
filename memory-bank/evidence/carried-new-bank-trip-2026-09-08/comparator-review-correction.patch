@@ -1,0 +1,11 @@
+--- a/tools/carried/compare_new_bank_trip.py
++++ b/tools/carried/compare_new_bank_trip.py
+@@ -121,7 +121,7 @@
+     rng = RecordedRandom((0.0,))
+     config = {"replace": True, "result": False, "repeated": False,
+               "winter": True, "child_cadence": False, "after": {"Input": 3}}
+-    with patch.object(existing, "context", side_effect=lambda player, events: recorded_context(player, events, rng)):
++    with patch.object(existing, "context", lambda player, events: recorded_context(player, events, rng)):
+         captured = existing.run_fixture(module, config)
+     captured["rng"] = rng.snapshot()
+     return captured

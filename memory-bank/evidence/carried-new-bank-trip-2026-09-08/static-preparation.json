@@ -1,0 +1,27 @@
+{
+  "status": "STATIC_PREPARATION_ONLY",
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "baseline_overlay_sha256": "7cff89b7be42afbb15be7afcc023732ccefd820cd24a2c0c1a0c160fda7ecd57",
+  "stored_baseline_sha256": "c69053221e5d5d74bc8d39297a392da9fea247143b6ab7f549715b46457bf898",
+  "sources": {
+    "runtime/runtime_actions_carried_overlay.py": "fcf4c8df0f6faf0dd6719b85e5de0a2e2f0a927b2d02ba85b3b9b5684332c54d",
+    "tests/runtime_actions/test_carried_new_bank_trip.py": "19e8b950848edd16ca21165be68b4ef662fd64a32510d73ce93603f2d605d6f2",
+    "tools/carried/compare_new_bank_trip.py": "ec7bda4f73121d7cbe2bcfee9ec12c24a5cafd2696dbcfffcf250e58479b25db"
+  },
+  "inventory_sha256": "17abe3bfc643377d667a81f28d651e33c2d9bc6d16e14bce3cc13a356b614910",
+  "inventory_files": 905,
+  "helper_body_ast_matches_original_block": true,
+  "whole_file_restoration_matches_baseline": true,
+  "syntax_compile_without_execution": true,
+  "product_and_tests": {
+    "bytes": 10286,
+    "sha256": "c42a070fb0a1f3b189b7af2bae6af195d87238d76e2386f753bf5cd930c580c0"
+  },
+  "comparison_packet": {
+    "bytes": 9889,
+    "sha256": "6e7706d4a88a531e25813b7008d07ad6fd32c1a0b7671b37dab8b8934afb3c4d"
+  },
+  "focused_methods_prepared": 3,
+  "whole_overlay_cases_prepared": 9,
+  "pending": "Parent acceptance of exact comparator simplification and current static pins; operational review and all runtime remain pending."
+}

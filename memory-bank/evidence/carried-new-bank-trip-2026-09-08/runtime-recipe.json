@@ -1,0 +1,53 @@
+{
+  "status": "PROPOSED_NOT_EXECUTED",
+  "source_root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork",
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "inventory_sha256": "17abe3bfc643377d667a81f28d651e33c2d9bc6d16e14bce3cc13a356b614910",
+  "remote_host": "armans-macbook-pro",
+  "remote_working_directory": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork",
+  "focused_args": [
+    "run_tests.py",
+    "--verbosity",
+    "2",
+    "TestInitializeDueBankTrip",
+    "TestCarriedOverlayWrapper.test_manual_request_enters_the_same_review_paced_bank_run",
+    "TestCarriedOverlayWrapper.test_full_run_energy_credit_waives_and_consumes_the_next_moving_trip",
+    "TestRuntimeActions.test_runecrafting_tablet_skips_only_the_outbound_runecrafting_phase",
+    "TestRuntimeActions.test_wicked_hood_teleport_finishes_an_already_outbound_route"
+  ],
+  "expected_focused_methods": 7,
+  "expected_skips": 0,
+  "comparison_args": [
+    "tools/carried/compare_new_bank_trip.py",
+    "--inventory",
+    "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork/memory-bank/evidence/carried-new-bank-trip-2026-09-08/source-inventory.json.gz",
+    "--inventory-sha256",
+    "17abe3bfc643377d667a81f28d651e33c2d9bc6d16e14bce3cc13a356b614910",
+    "--output",
+    "/Users/armantarkhanian/ankiscape-remote-test-host/reports/carried-new-bank-trip-LANE-SESSION.json.gz"
+  ],
+  "preflight": "Use the same comparison arguments with --preflight and a distinct output path. Both report formats are gzip JSON. Replace LANE and SESSION once with the parent-owned exact lane and durable run ID; never reuse an output for another attempt.",
+  "ordered_cases": [
+    "moving",
+    "partial-credit",
+    "waived",
+    "waived-rejected",
+    "not-due",
+    "active-trip",
+    "altar-teleport-False",
+    "altar-teleport-True",
+    "winter-storage-rejection"
+  ],
+  "ownership_protocol": [
+    "Parent first reviews product/comparison packets, verifies all pins and runs the fixed static instruments.",
+    "Parent uses existing tools.run_remote_tests primitives only after its prior mirror job releases ownership. Acquire the shared nonblocking LOCAL_MIRROR_LOCK_PATH and refuse any unknown pending identity before _sync.",
+    "Verify local source inventory before synchronization. Run _preflight for the selected lane. Run and retain comparator --preflight on the synchronized source before any product run.",
+    "Use _stream_remote_run with a scoped _remote_lane_command replacement for exactly one focused or comparison job. Its pending record must be persisted before remote lane launch. Parent also retains the exact pending identity outside the source tree before dispatch.",
+    "On timeout or ambiguous launch, retain and observe that same run through _completion_report and its exact log path. Do not resync, relaunch or use _sync pending reconciliation as a retry.",
+    "Retain each exact job report, log, result gzip and source pre/postflight bytes before starting the next job. A nonzero exit or route mismatch requires parent inspection; do not retry as transport failure.",
+    "Check local source bindings again after each job. Clear pending state only when its identity matches the retained run and parent acceptance is complete.",
+    "Run focused and comparison jobs in plain and Qt lanes. Require seven named tests, zero skips, all nine named comparator rows in order, exact pickle bytes including RNG state/events, explicit routes and complete identical source bindings.",
+    "Do not call this a full branch or native acceptance gate. Author commit remains prohibited until the parent authorizes it."
+  ],
+  "scope": "No per-slice remote driver or canary framework authored. The parent must make its existing orchestration concrete before actual execution."
+}

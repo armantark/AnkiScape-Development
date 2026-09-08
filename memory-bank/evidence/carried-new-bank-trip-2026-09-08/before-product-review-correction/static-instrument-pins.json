@@ -1,0 +1,42 @@
+{
+  "gate": {
+    "path": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+    "sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+    "thresholds": {
+      "CCN_MAX": 15,
+      "COGNITIVE_MAX": 15,
+      "HALSTEAD_MAX": 80,
+      "FILE_LINES_MAX": 1000
+    },
+    "layout_codes": "E301,E302,E303,E305,E306,E701,E702,E703"
+  },
+  "tools": {
+    "lizard": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/lizard",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/lizard/bin/lizard",
+      "sha256": "9f4becf742daaf2c86fc43a7aa14e986623d3b6bebecd426bc7636e46ce6184c"
+    },
+    "complexipy": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/complexipy",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/complexipy/bin/complexipy",
+      "sha256": "0e5d4ecd86ed5fab94a9372e2f94e0b16227f45618ea7a1fb11729a31888ae52"
+    },
+    "radon": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/radon",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/radon/bin/radon",
+      "sha256": "c5b3293a495616659bb22bef6b04a37582eea82e48c5b3450e281059ee94fd53"
+    },
+    "pycodestyle": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/pycodestyle",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/pycodestyle/bin/pycodestyle",
+      "sha256": "19d602cb82513894d6047f640bb14cc213f7cf96c6e981eea2f4fcb36f83a34f"
+    }
+  },
+  "provenance": "Fixed previously reviewed instruments, proposed for parent verification only; no analyzers or product runtime executed by author.",
+  "inventory_sha256": "ac9552b1e0985cd078a3f5da09298574e7ad14485c91a1d3d3466ac1be0a7505",
+  "sources": {
+    "runtime/runtime_actions_carried_overlay.py": "d272f0539638ee88f82b88813d7c2b22f9b169527a8f0dfe359fae7765302677",
+    "tests/runtime_actions/test_carried_new_bank_trip.py": "e46d406a3fff06baa84d21fbf9e44cc0fea9b95e42effe9d55fa3266b1e44a7e",
+    "tools/carried/compare_new_bank_trip.py": "71eb21e72f6aed7bc9729e2f57bc679f2326588303d56ce20aa1ddaa572b6184"
+  }
+}

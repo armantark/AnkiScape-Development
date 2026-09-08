@@ -1,0 +1,49 @@
+--- before/runtime-harness.py
++++ after/runtime-harness.py
+@@ -7,7 +7,6 @@
+ import hashlib
+ import json
+ import os
+-import pickle
+ from pathlib import Path
+ import shlex
+ import sys
+@@ -205,31 +204,13 @@
+     if not isinstance(rows, list) or [row.get("case") for row in rows] != CASES:
+         raise ValueError("comparison must contain exactly the nine named cases in order")
+     for row in rows:
+-        validate_case(row)
+-
+-
+-def validate_case(row):
+-    before = base64.b64decode(row["baseline_pickle_base64"], validate=True)
+-    after = base64.b64decode(row["candidate_pickle_base64"], validate=True)
+-    if row.get("equal") is not True or row.get("pickle_bytes_equal") is not True or before != after:
+-        raise ValueError("complete output pickle equality failed")
+-    observed, expected = row["observed"], row["expected"]
+-    if row.get("route_pass") is not True or any(observed.get(key) != value for key, value in expected.items()):
+-        raise ValueError("advertised carried new bank trip route was not exercised")
+-    validate_capture(row, pickle.loads(after))
+-
+-
+-def validate_capture(row, captured):
+-    if not isinstance(captured["events"], list) or not isinstance(captured["player"], dict):
+-        raise ValueError("complete callback and player capture missing")
+-    state, prefix, draws = captured["rng"]
+-    if not isinstance(state, tuple) or prefix != (0.0,) or not isinstance(draws, tuple):
+-        raise ValueError("complete recorded RNG snapshot missing")
+-    if row["case"] == "winter-storage-rejection":
+-        if not draws:
+-            raise ValueError("rollback recorded no RNG draws")
+-    elif captured.get("player_identity_preserved") is not True or len(draws) != row["observed"]["rng_calls"]:
+-        raise ValueError("live player identity or recorded RNG count differs")
++        before = base64.b64decode(row["baseline_pickle_base64"], validate=True)
++        after = base64.b64decode(row["candidate_pickle_base64"], validate=True)
++        if row.get("equal") is not True or row.get("pickle_bytes_equal") is not True or before != after:
++            raise ValueError("complete output pickle equality failed")
++        observed, expected = row["observed"], row["expected"]
++        if row.get("route_pass") is not True or any(observed.get(key) != value for key, value in expected.items()):
++            raise ValueError("advertised carried new bank trip route was not exercised")
+ 
+ 
+ def retain_comparison(remote, lane, remote_path, local_path, sources):
