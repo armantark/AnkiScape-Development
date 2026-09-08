@@ -1,0 +1,12 @@
+{
+  "reviewer": "root",
+  "status": "CORRECTION_ACCEPTED_STATIC_ONLY",
+  "reviewed_patch": "route-proof-correction.patch",
+  "finding": "The original synthetic route checks could pass without exercising overflow or Drop.",
+  "resolution": "Root read the complete seven-line net correction. Recorded notification counts witness full and partial overflow, and recorded bank, carried inventory and churn witness Drop. Existing return, handler count, identity and full-payload equality checks remain.",
+  "inventory_sha256": "f6a52e210302912f861709bf1c7bfed18fa97d06d89ea59157f363ac45a98fde",
+  "root_verified_source_entries": 908,
+  "corrected_inert_proof": "corrected-parent-inert.json.gz",
+  "runtime_status": "NOT_RUN; shared MBP mirror remains owned by the active P13 gate.",
+  "remaining": "Root must verify recursive packet and review/archive pins before runtime admission."
+}

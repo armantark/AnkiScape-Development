@@ -2232,3 +2232,15 @@
 - 2026-09-08: Parent queried the selector command proposal and received `cat: memory-bank/evidence/unproductive-activity-selector-2026-09-08/command-proposal.json: No such file or directory`; the enumerated file is `runtime-protocol-command-proposal.json`. Parent will use the exact enumerated name.
 
 - 2026-09-08: Root runtime-retention verification first treated `stored_path` as checkout-relative instead of evidence-directory-relative, then treated the descriptive `encoding` value as literal `gzip`. Corrected verification confirmed all 44 original/stored hashes, sizes and exact or decompressed byte identities.
+
+- 2026-09-08: Root pool request returned `all 16 worktrees are in use or dirty (max_trees = 16)`; resolved by returning clean fully merged P4, not changing the cap. Root glob `tools/worktrees/*.py` returned zsh `no matches found`; read the actual `tools/worktree_guard.py` instead.
+
+- 2026-09-08: During Keep settlement preparation, a read used misspelled cwd `/Users/ArmanTarkhanianian1`; exec returned `Failed to create unified exec process: No such file or directory (os error 2)`. Corrected to the leased P4 path; no product code ran.
+
+- 2026-09-08: Keep final review found that full-wrapper equality did not prove the overflow or Drop route. Added recorded notification and state witnesses before runtime admission.
+- 2026-09-08: Root Keep orchestration hit `SyntaxError: Unexpected string` from a typo in `yield_time_ms`; the tool never executed, and the corrected call passed.
+- 2026-09-08: A Keep source read named nonexistent `inventory_pure.py`; `rg` reported `No such file or directory (os error 2)`. Read the actual `logic/inventory_pure.py` next.
+
+- 2026-09-08: Root inspected `/tmp/ankiscape-keep-corrected-runtime-2026-09-08/plain-comparison/comparison.json` and got `FileNotFoundError [Errno 2]` because the KEEP harness retains `comparison.json.gz` and `before.raw.json.gz`/`after.raw.json.gz`, whereas the food harness used plain JSON. Inspect actual retained filenames before selecting the decoder. No runtime rerun was required.
+
+- 2026-09-08: Normal Keep commit attempt 61809 failed exit 1 with `slop-gate: code files were added to directories already at 40 files:\n  tests: 237 code files (was 236)\n  -> Create a cohesive subdirectory instead of widening this directory.` No commit was created. The preparatory runner measured CCN, cognitive complexity, Halstead effort, layout and file size but omitted the installed gate's directory/import checks. Move the unchanged test into existing `tests/runtime_actions/` and run the complete installed gate against the staged delta.

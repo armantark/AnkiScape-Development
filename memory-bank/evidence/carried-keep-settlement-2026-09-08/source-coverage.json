@@ -1,0 +1,24 @@
+{
+  "schema": "gzip JSON object with baseline_commit, baseline_overlay_sha256, and files path-to-SHA256 map",
+  "inventory_sha256": "c8f55969c8c9e36eaca8a55050d15aaba5b51b026b3d431301a5a7417b028806",
+  "entries": 908,
+  "base_repository_python_files": 905,
+  "covered_base_repository_python_files": 905,
+  "missing_base_repository_python_files": [],
+  "new_python_files": [
+    "tests/runtime_actions/test_carried_keep_settlement.py",
+    "tools/carried/compare_keep_settlement.py"
+  ],
+  "changed_source_hashes": {
+    "runtime/runtime_actions_carried_overlay.py": "4d304b3cc31ee0884027be0cbb103597df4952f25cf97f961908b3e7b20d3ebe",
+    "tests/runtime_actions/test_carried_keep_settlement.py": "6ac42e06c1ee81afc072f58fd84c7b4f9eeb2c9a929b866311a4b289e868b66e",
+    "tools/carried/compare_keep_settlement.py": "f4ddc66065d3d5afcbd9ca78f22677056c9c5c892e4f422f4dcb2e1a2d758549"
+  },
+  "excluded_archival_python": [
+    "memory-bank/evidence/combat-vampyre-bite-2026-09-07/operational-static-verification.py",
+    "memory-bank/evidence/combat-vampyre-bite-2026-09-07/static-verification.py",
+    "memory-bank/evidence/combat-vampyre-bite-2026-09-07/vulture-correction-operational-static-verification.py",
+    "memory-bank/evidence/combat-vampyre-bite-2026-09-07/vulture-correction-static-verification.py"
+  ],
+  "operational_binding": "Runtime harness and safety checker are retained gzip operational evidence with separate exact byte bindings; they are not imported by either product test lane."
+}

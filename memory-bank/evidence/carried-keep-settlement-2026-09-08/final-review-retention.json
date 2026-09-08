@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/Users/ArmanTarkhanian1/.codex/skills/ask-claude/scripts/claude_prompt.sh",
+    "--model",
+    "opus",
+    "--effort",
+    "medium",
+    "--output-format",
+    "text",
+    "--read-only-tools",
+    "--cwd",
+    "/tmp",
+    "--",
+    "Read the complete file /tmp/ankiscape-keep-final-death-boundary-opus-2026-09-08.prompt using Read. It contains your task, constraints and every review input. Review both scopes as directed there. Read every section without truncation. Reading only this file is authorized; no other files, edits, shell, network, execution, agents or side effects. Return separate KEEP final-review and DEATH PRAYER boundary verdicts with concrete findings. Do not claim runtime success."
+  ],
+  "stdout": "/tmp/ankiscape-keep-final-death-boundary-opus-2026-09-08.stdout",
+  "stderr": "/tmp/ankiscape-keep-final-death-boundary-opus-2026-09-08.stderr",
+  "files": [
+    {
+      "file": "final-review.prompt.gz",
+      "decoded_bytes": 26615,
+      "decoded_sha256": "f6df1055d0eff152be15a22fe667a7fb6e3a58aedf15f43397351e350562af45"
+    },
+    {
+      "file": "final-review.stdout.gz",
+      "decoded_bytes": 5289,
+      "decoded_sha256": "cbd6925733f0bf1aeaa86561d8076402bb15a18b507fa5fb091c92b58959b836"
+    },
+    {
+      "file": "final-review.stderr.gz",
+      "decoded_bytes": 360,
+      "decoded_sha256": "e15cdc9310501d8080598120fea9f14898ff16fbec55132f3b27bd6ea28e5a6a"
+    }
+  ]
+}

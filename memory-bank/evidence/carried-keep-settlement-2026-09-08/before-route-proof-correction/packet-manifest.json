@@ -1,0 +1,29 @@
+{
+  "status": "STATIC_PASS_RUNTIME_NOT_RUN",
+  "files": {
+    "baseline-overlay.py.gz": "918612e6ea98c63f13df334adf5068a7489aa768a961800f7abca0de8fec8e37",
+    "boundary-review-retention.json": "459ed50d01f4a33b9173b94439cffd126ba3e1779aee860f911f37c2d9a67ff3",
+    "boundary-review.prompt.gz": "3c522c70604f6bcfc5cbc35eb2031d97aa0b17bf8d8152be7633aaeae470c433",
+    "boundary-review.stderr.gz": "a14b669a629417a72cdf8d5b1910a63a55d0f01537d1583095871113e480069c",
+    "boundary-review.stdout.gz": "1d63503c5055064bb711a4358cb31a82a92749a4269a6eb1a630767c0a0b3e27",
+    "operational-static-measurements.json": "49b9462a5bac12928aec765ec2be9a62f623f63d38a3a812f9b42ec8435a0747",
+    "operational-static-measurements.raw.json.gz": "66b40ab11d2260bcf021ae2213387eb85399a65d1f5f9cc52c2f59f6dbbf4151",
+    "operational-static-verification.py.gz": "e596d8fecebdbb57737dab35f8e8564ee37d0727bcf0e5253ddb612822be8bbf",
+    "original-runtime-harness.py.gz": "6ab92f0bc9cb7f8a3c863b251456c249f1d439abad37b0221327faf74e93971f",
+    "original-runtime-safety-check.py.gz": "2d99ae5256c5cb653829a73c2ce2cdc7f5ae979f82e0668cf465669dd0a47ff5",
+    "parent-ast-review-retention.json": "6de1d146ef3336a6ee6e16413de8d7ab7e638b98a1e24e8b28884c377361260a",
+    "parent-ast-review.json.gz": "ba8df9a67130796ddcbd7fc683709858cf49443b8e23f562d1c0c7d5de27a37a",
+    "product.patch": "272aab357bb03a1844e14ae3a174d2c29a58433e97e5b86d4012dcb6a8c944ac",
+    "runtime-harness.py.gz": "9a9a1085ce3b8209a10e5db37b2d9def8da7e1b7c38429376b443a3bae7bba2b",
+    "runtime-protocol-adaptation.patch": "3667b85b6149f4d409d2b917052e397cc278c3e517302681708e2ce3af13727b",
+    "runtime-protocol-bindings.json": "b6fab3f0631663466c54d39587ccfe26321b68175ce2feb3a4ee9f8b80d3be63",
+    "runtime-recipe.json": "445f051d4cf4118c42a753f4a35f797d0cfc9a3754a220073dc74efbafbbea81",
+    "runtime-safety-check.py.gz": "a2c4e1fd7031c1210c8cb9ab3dabb03a3402c6ebc1ead3cc6cca6486c3e2cfae",
+    "source-coverage.json": "1c4171a4e3fe9225e34b1278fc3186111c42cac1d43c617a9b05a0b81670d800",
+    "source-inventory.json.gz": "295525148f728f8d39fb1f814a01aaab1c6ba569c2516628bc880e1e6d7a1d94",
+    "static-instrument-pins.json": "737d2b903226b4fb95e557ecd9a8c7b5b4a9f1fa6ef9d515ad2c4477d84fc1e6",
+    "static-measurements.json": "08bc6a832b83357b65b660f7a6f0983d2cf33c14ab41db5f95a0d7893335c451",
+    "static-measurements.raw.json.gz": "68e55880e73b16ed514aa32e043f68e0e08e99dfd4a474767c5a18eaf547e771",
+    "static-verification.py.gz": "392b7f92ad82aa16b334aee5a82582b163ad173db8aa3f2a6357b2a9e5fa512e"
+  }
+}
