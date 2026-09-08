@@ -1,0 +1,141 @@
+--- a/tools/combat/compare_wyvern_breath.py
++++ b/tools/combat/compare_wyvern_breath.py
+@@ -72,7 +72,7 @@
+         "unprotected": sum(result["unprotected_attacks"] for result in results),
+         "events": [event for result in results for event in result["enemy_specials"]],
+         "remaining": [step[0][0]["combat_encounter"].get("player_attack_ticks_remaining") for step in steps],
+-        "steps": len(steps),
++        "steps": len(steps), "rng_calls": len(steps[-1][1][2]),
+     }
+ 
+ 
+@@ -86,9 +86,10 @@
+     if live:
+         remaining = [3] if damage is None else [8 - index for index in range(len(chunks))]
+     return {
+-        "damage": 0 if damage is None else damage,
++        "damage": 1 if damage is None else damage,
+         "unprotected": int(damage == 500), "events": events,
+         "remaining": remaining, "steps": len(chunks),
++        "rng_calls": 5 if damage is None else (3 if live else 4),
+     }
+ 
+ 
+@@ -145,7 +146,9 @@
+     assert before[ENGINE_PATH] == args.candidate_sha256, "Candidate source hash differs."
+     report = {"baseline_sha256": BASELINE_SHA256, "inventory_sha256": args.inventory_sha256, "sources_before": before}
+     if args.preflight:
+-        report.update(status="PREFLIGHT_PASS", product_imported=False)
++        product_modules = sorted(name for name in sys.modules if name.split(".")[0] in {"ankiscape", "pkg_alias", "tests"})
++        assert not product_modules, {"product_modules": product_modules}
++        report.update(status="PREFLIGHT_PASS", product_imported=bool(product_modules), product_modules=product_modules)
+     else:
+         sys.path.insert(0, str(root))
+         rows = compare(baseline_bytes, args.output)
+--- a/tools/combat/check_wyvern_breath_guards.py
++++ b/tools/combat/check_wyvern_breath_guards.py
+@@ -54,16 +54,21 @@
+         ]
+         for name, extra, expected_error in cases:
+             stdout, stderr = io.StringIO(), io.StringIO()
++            observed_error, exception_type = None, None
+             with patch.object(sys, "argv", arguments + extra), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                 try:
+                     runpy.run_path(str(PROBE), run_name="__main__")
+-                except AssertionError as error:
+-                    assert expected_error is not None and str(error) == expected_error
+-                else:
+-                    assert expected_error is None
+                     assert json.loads((scratch / "result.json").read_text())["status"] == "PREFLIGHT_PASS"
+-            assert not attempts
+-            rows.append({"case": name, "outcome": expected_error or "PREFLIGHT_PASS", "stdout": stdout.getvalue(), "stderr": stderr.getvalue()})
++                except BaseException as error:
++                    observed_error, exception_type = str(error), type(error).__name__
++            row = {"case": name, "outcome": observed_error or "PREFLIGHT_PASS",
++                   "observed_error": observed_error, "exception_type": exception_type,
++                   "stdout": stdout.getvalue(), "stderr": stderr.getvalue(),
++                   "returncode": None, "execution": "in-process"}
++            rows.append(row)
++            assert observed_error == expected_error, {"cases": rows, "product_import_attempts": attempts}
++            assert exception_type == ("AssertionError" if expected_error else None), {"cases": rows}
++            assert not attempts, {"cases": rows, "product_import_attempts": attempts}
+         bootstrap = """import runpy, sys
+ def audit(event, values):
+     if event == 'import' and values[0].split('.')[0] in {'ankiscape', 'pkg_alias', 'tests'}:
+@@ -78,9 +83,12 @@
+             if optimize is not None:
+                 environment["PYTHONOPTIMIZE"] = optimize
+             result = subprocess.run([sys.executable, "-B", *flags, "-c", bootstrap, *arguments], env=environment, capture_output=True, text=True, timeout=30)
+-            assert result.returncode == 1 and result.stdout == ""
+-            assert result.stderr.strip() == "Refusing to run with optimizations; the pins are assertions."
+-            rows.append({"case": name, "outcome": result.stderr.strip()})
++            row = {"case": name, "outcome": result.stderr.strip(),
++                   "returncode": result.returncode, "stdout": result.stdout,
++                   "stderr": result.stderr, "execution": "subprocess"}
++            rows.append(row)
++            assert result.returncode == 1 and result.stdout == "", {"cases": rows}
++            assert result.stderr.strip() == "Refusing to run with optimizations; the pins are assertions.", {"cases": rows}
+     assert not any(name.split(".")[0] in {"ankiscape", "pkg_alias", "tests"} for name in sys.modules)
+     print(json.dumps({"status": "PASS", "cases": rows, "product_import_attempts": attempts}, indent=2))
+ 
+--- a/memory-bank/evidence/combat-wyvern-breath-2026-09-07/manifest.json
++++ b/memory-bank/evidence/combat-wyvern-breath-2026-09-07/manifest.json
+@@ -6,12 +6,12 @@
+   "candidate_sha256": "848aac25a3e4e76377e50c69a75984e6592c2ac1830e10b45a9de3208b5d52dc",
+   "sources": {
+     "logic_pure/logic_pure_combat_engine.py": "848aac25a3e4e76377e50c69a75984e6592c2ac1830e10b45a9de3208b5d52dc",
+-    "tools/combat/compare_wyvern_breath.py": "714b395b1729be558eea7cb2c5c6baff78536104156224af0ede047fd2964065",
+-    "tools/combat/check_wyvern_breath_guards.py": "c88aae78b0853e20e90c6e891a04d8448f60155e3795648a97e9e715a960b19a"
++    "tools/combat/compare_wyvern_breath.py": "21201744815b2d3e151cbfec0a9915460297a4eb0368a508fbcbfba2db3e804d",
++    "tools/combat/check_wyvern_breath_guards.py": "a8aa07fde9ef5e57cd0c2dc3feb14559eb30b9bfb1b9a27fd15759a397262577"
+   },
+   "inventory": {
+     "path": "source-inventory.json.gz",
+-    "sha256": "8f5edd9c9b09041e2eeb64493ce70199127c4d9a5d21464679f018a12283c236",
++    "sha256": "51f5316769752ec0161f2148381b4b7ca0b0498cd469b340a0ed8a9a04bac44e",
+     "entries": 1075,
+     "scope": "All tracked Python and JSON sources plus the new probe and guard and both full engine snapshots. External interpreter/dependency provenance remains parent-owned."
+   },
+@@ -56,5 +56,12 @@
+   ],
+   "acceptance": "Guard negatives stop before product import; focused tests have zero skips; both authorized lanes have all named cases, equality and pickle-byte equality and route flags true, and identical full source inventories before and after. Normal hooks, full lanes, exact merged-tree gates, and programme native acceptance remain parent-owned.",
+   "static_checks": "UNEXECUTED: AST/layout/installed metrics and ratchets, restoration, source audit, normal hooks.",
+-  "planned_focused_methods": 5
++  "planned_focused_methods": 5,
++  "operational_correction": "Static parent review: measured import absence, expected RNG totals, actual guard diagnostics, and ordinary-control damage corrected to the existing landed-hit minimum of 1 LP. All checks remain unexecuted.",
++  "expected_rng_calls": {
++    "live_breath": 3,
++    "resumed_breath_cumulative": 3,
++    "legacy_breath": 4,
++    "ordinary_control": 5
++  }
+ }
+--- a/memory-bank/handoffs/combat-wyvern-breath-2026-09-07.md
++++ b/memory-bank/handoffs/combat-wyvern-breath-2026-09-07.md
+@@ -13,10 +13,16 @@
+ The parent must first review the complete product and operational packets, verify all bindings, inspect the full diff, and run the installed syntax/layout/metric ratchets and forward/reverse patch restoration. These are proposed checks, not completed evidence. Normal hooks, both full lanes, exact merged-tree gates, and programme native acceptance remain open. The commands below are payloads for the authorized host, not permission to sync or launch it.
+ 
+ ```sh
+-python3 -B tools/combat/check_wyvern_breath_guards.py --candidate-sha256 848aac25a3e4e76377e50c69a75984e6592c2ac1830e10b45a9de3208b5d52dc --inventory-sha256 8f5edd9c9b09041e2eeb64493ce70199127c4d9a5d21464679f018a12283c236 > /tmp/ankiscape-wyvern-breath-guards-2026-09-07.json
++python3 -B tools/combat/check_wyvern_breath_guards.py --candidate-sha256 848aac25a3e4e76377e50c69a75984e6592c2ac1830e10b45a9de3208b5d52dc --inventory-sha256 51f5316769752ec0161f2148381b4b7ca0b0498cd469b340a0ed8a9a04bac44e > /tmp/ankiscape-wyvern-breath-guards-2026-09-07.json
+ python3 -B -c 'import gzip; from pathlib import Path; Path("/tmp/ankiscape-wyvern-breath-baseline-2026-09-07.py").write_bytes(gzip.decompress(Path("memory-bank/evidence/combat-wyvern-breath-2026-09-07/baseline-engine.py.gz").read_bytes()))'
+ python3 -B run_tests.py --verbosity 2 SkeletalWyvernKernelTests SkeletalWyvernReviewUndoTests
+-python3 -B tools/combat/compare_wyvern_breath.py --baseline /tmp/ankiscape-wyvern-breath-baseline-2026-09-07.py --candidate-sha256 848aac25a3e4e76377e50c69a75984e6592c2ac1830e10b45a9de3208b5d52dc --inventory memory-bank/evidence/combat-wyvern-breath-2026-09-07/source-inventory.json.gz --inventory-sha256 8f5edd9c9b09041e2eeb64493ce70199127c4d9a5d21464679f018a12283c236 --output /tmp/ankiscape-wyvern-breath-comparison-2026-09-07.json
++python3 -B tools/combat/compare_wyvern_breath.py --baseline /tmp/ankiscape-wyvern-breath-baseline-2026-09-07.py --candidate-sha256 848aac25a3e4e76377e50c69a75984e6592c2ac1830e10b45a9de3208b5d52dc --inventory memory-bank/evidence/combat-wyvern-breath-2026-09-07/source-inventory.json.gz --inventory-sha256 51f5316769752ec0161f2148381b4b7ca0b0498cd469b340a0ed8a9a04bac44e --output /tmp/ankiscape-wyvern-breath-comparison-2026-09-07.json
+ ```
+ 
+ Require all seven guard cases with no product import, all five focused methods with zero skips, and all nineteen named comparison cases in each authorized lane. Retain raw logs and reports. Require value equality, byte equality, route success, and the exact source inventory before and after each run. Neither this note nor a prepared command proves those outcomes.
++
++## Parent operational review correction
++
++The original review packets remain unchanged. The correction packet contains the operational changes against those reviewed sources. Preflight now measures loaded product modules before reporting absence. Guard rows retain actual exceptions, stdout, stderr, and subprocess return codes; failed assertions include those rows. In-process runs label their return code as null because no subprocess ran.
++
++Source tracing gives three RNG draws for a live breath: player miss, enemy selector, and breath damage. Resuming for the next tick adds no attack and retains three cumulative draws. Legacy cadence attacks at ticks zero and four, then selects and rolls breath at tick six, for four draws. The ordinary control lands both attacks and rolls both damage values, plus the selector, for five draws. Its enemy damage is 1 LP, the existing minimum for a landed ordinary attack. These are proposed explicit expectations, not measured results. The same full comparison and guard acceptance conditions still apply. No engine or test source changed during this correction.
+--- a/memory-bank/papercuts.md
++++ b/memory-bank/papercuts.md
+@@ -2159,3 +2159,5 @@
+ - 2026-09-07T16:13:09-07:00 P4 direct product-only Kimi attempt exited 1 with `error: provider returned empty output`; stdout was 0 bytes. Prompt and raw stdout/stderr retained under `memory-bank/evidence/combat-player-attack-rolls-2026-09-07/kimi-direct-failed.*.gz`; this was not a completed review.
+ 
+ - 2026-09-07T16:22:12-07:00 P4 product Opus review found `guild_player` supplied 30 of each Warriors Guild token, below the 200-token single-entry requirement. Parent verified the requirement and authorized only fixture tokens 30 -> 200; source inventory and driver pin were rebound before runtime.
++
++- 2026-09-07T17:45:05-07:00 — Static Wyvern guard review used an unmatched shell glob and received `zsh:1: no matches found: tools/combat/compare_vampyre*`; locate instrument paths with `rg --files` before using a filename glob.

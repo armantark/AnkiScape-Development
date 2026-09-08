@@ -2177,3 +2177,9 @@
 - 2026-09-08T00:42Z: Root attempted guessed `tools/combat/check_vampyre_bite_probe_guards.py`; `rg` returned `No such file or directory`. Use the enumerated actual canary path `tools/combat/compare_vampyre_bite.py --canaries`. Additional root guesses `memory-bank/handoffs/combat-vampyre-bite-2026-09-07.md` and `tools/promotion/paths.py` did not exist (`rg` exit 2); the enumerated commands supplied afterward worked.
 
 - 2026-09-08: Root initially tried `plain-comparison.json` while reading P3 runtime evidence; the enumerated output is `plain-comparison.json.gz`. Use the listed artifacts and preserve already-compressed bytes.
+
+- 2026-09-07T17:45:05-07:00 — Static Wyvern guard review used an unmatched shell glob and received `zsh:1: no matches found: tools/combat/compare_vampyre*`; locate instrument paths with `rg --files` before using a filename glob.
+
+- 2026-09-07T17:47:45-07:00 — Static instrument lookup used the wrong evidence date and received `rg: memory-bank/evidence/combat-enemy-attack-rolls-2026-09-06: No such file or directory (os error 2)`; the existing directory is `memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05`.
+
+- 2026-09-07T17:50:04-07:00 — Parent static verification session `22474` exited `1`: `AssertionError {'ccn': [], 'cognitive': [], 'halstead': [], 'layout': [], 'file_growth': [('logic_pure/logic_pure_combat_engine.py', 3006)]}`. The engine baseline is `3002` lines and candidate is `3006`; preserve the fixed file-growth gate and revise the extraction boundary after independent review.

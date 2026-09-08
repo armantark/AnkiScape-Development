@@ -1,0 +1,42 @@
+{
+  "status": "STATIC_AUTHORING_ONLY_ALL_CHECKS_UNEXECUTED",
+  "packets": {
+    "product-review.diff": {
+      "bytes": 11633,
+      "sha256": "87d923739d5ae6f2324e1e75c2677e69827cf3a5b4c940f8cec1a724e0217197",
+      "complete": true
+    },
+    "operational-review.diff": {
+      "bytes": 12660,
+      "sha256": "36855bd97bcfd790a45b51cd1d88590703f1ff812f10ded98cedf8bdf2255878",
+      "complete": true
+    },
+    "operational-correction.diff": {
+      "bytes": 11847,
+      "sha256": "b7e6c36dbf40a57877efb4bc8ff3900f1952160c94f0a60e6a7956f3c0913edc",
+      "complete": true
+    }
+  },
+  "historical_bindings": {
+    "manifest.json": "3a4321873f48c9edde058f924c5d42f1de3684ff9bc54c3cecab7729c5dce0fa",
+    "baseline-engine.py.gz": "c25eaf00a02b6ccd45a748de58ac6ec75ec7f1e50edda943338df5c401b56fd5",
+    "candidate-engine.py.gz": "62ddb9d82195734f567eb8c75dbf8d43407e12872d684f303731c2594a04cdc6",
+    "engine-full.diff.gz": "050010860f6032e8df162e06ec1c9c361eaaf322ffb9bf9e3cb97e54ff5be78a",
+    "source-inventory.json.gz": "8f5edd9c9b09041e2eeb64493ce70199127c4d9a5d21464679f018a12283c236"
+  },
+  "bindings": {
+    "manifest.json": "4c32825d474d7db23b8617efd5b75d5d81e14909bb449d510f7eb41918ed7566",
+    "baseline-engine.py.gz": "c25eaf00a02b6ccd45a748de58ac6ec75ec7f1e50edda943338df5c401b56fd5",
+    "candidate-engine.py.gz": "62ddb9d82195734f567eb8c75dbf8d43407e12872d684f303731c2594a04cdc6",
+    "engine-full.diff.gz": "050010860f6032e8df162e06ec1c9c361eaaf322ffb9bf9e3cb97e54ff5be78a",
+    "source-inventory.json.gz": "51f5316769752ec0161f2148381b4b7ca0b0498cd469b340a0ed8a9a04bac44e",
+    "original-operational-sources.json.gz": "00f8316a4d268ee507f58cc328ab113af0e2e1f514fe35f2a6461a0665a07e1d",
+    "original-source-inventory.json.gz": "8f5edd9c9b09041e2eeb64493ce70199127c4d9a5d21464679f018a12283c236"
+  },
+  "packet_order": [
+    "product-review.diff",
+    "operational-review.diff",
+    "operational-correction.diff"
+  ],
+  "historical_note": "Original packets and their bindings are retained; apply the operational correction for the current source snapshot. Original text is also retained in original-operational-sources.json.gz."
+}

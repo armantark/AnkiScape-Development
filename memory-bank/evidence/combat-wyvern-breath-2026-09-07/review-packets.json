@@ -1,0 +1,59 @@
+{
+  "status": "STATIC_AUTHORING_ONLY_ALL_CHECKS_UNEXECUTED",
+  "packets": {
+    "product-review.diff": {
+      "bytes": 11633,
+      "sha256": "87d923739d5ae6f2324e1e75c2677e69827cf3a5b4c940f8cec1a724e0217197",
+      "complete": true
+    },
+    "operational-review.diff": {
+      "bytes": 12660,
+      "sha256": "36855bd97bcfd790a45b51cd1d88590703f1ff812f10ded98cedf8bdf2255878",
+      "complete": true
+    },
+    "operational-correction.diff": {
+      "bytes": 11847,
+      "sha256": "b7e6c36dbf40a57877efb4bc8ff3900f1952160c94f0a60e6a7956f3c0913edc",
+      "complete": true
+    },
+    "module-correction.diff": {
+      "bytes": 18606,
+      "sha256": "6187c56b27efa86f8910818bb9c0ac33e0dc2459d9c6e6afae107f98dd22daf9",
+      "complete": true
+    }
+  },
+  "historical_bindings": {
+    "manifest.json": "3a4321873f48c9edde058f924c5d42f1de3684ff9bc54c3cecab7729c5dce0fa",
+    "baseline-engine.py.gz": "c25eaf00a02b6ccd45a748de58ac6ec75ec7f1e50edda943338df5c401b56fd5",
+    "candidate-engine.py.gz": "62ddb9d82195734f567eb8c75dbf8d43407e12872d684f303731c2594a04cdc6",
+    "engine-full.diff.gz": "050010860f6032e8df162e06ec1c9c361eaaf322ffb9bf9e3cb97e54ff5be78a",
+    "source-inventory.json.gz": "8f5edd9c9b09041e2eeb64493ce70199127c4d9a5d21464679f018a12283c236"
+  },
+  "bindings": {
+    "manifest.json": "6371505bdf0248d4aec09e6d44414167167a2fc6834c50d094218956622b3fbf",
+    "baseline-engine.py.gz": "c25eaf00a02b6ccd45a748de58ac6ec75ec7f1e50edda943338df5c401b56fd5",
+    "candidate-engine.py.gz": "ed1e8118f4d260a65885a56181c8d28b1cc5140e03dac510ec67b877414c31d2",
+    "candidate-specials.py.gz": "8bc5d16b82de425e7c20c2e90d1ee6b6fcc8293798c3319c20a42f9dd785cfc7",
+    "engine-full.diff.gz": "23624fd98f4abfa0d1b46524274b64639abb0e50b91df60897e79955146f6a1d",
+    "product-full.diff.gz": "fd3d0605ced23ff28e7bb881cc0ac5e1583a8f37bd7bd02f08a0d0a9c86bdbb0",
+    "source-inventory.json.gz": "bafb3e85e96bcff10bba3934fbf98ad09527a9f84fb9a726617f2f3980f60534",
+    "static-preparation.json": "3e856b2b222c0840ce0670265e305d6e121af596e577d2595acd2638019ab27e",
+    "opus-original-review.json": "69b4414f5ec0ef1c0162c35f2401b937dfa97e94e63fd64b251e846d42cebb90"
+  },
+  "packet_order": [
+    "product-review.diff",
+    "operational-review.diff",
+    "operational-correction.diff",
+    "module-correction.diff"
+  ],
+  "historical_note": "Original packets and their bindings are retained; apply the operational correction for the current source snapshot. Original text is also retained in original-operational-sources.json.gz.",
+  "pre_module_bindings": {
+    "manifest.json": "4c32825d474d7db23b8617efd5b75d5d81e14909bb449d510f7eb41918ed7566",
+    "baseline-engine.py.gz": "c25eaf00a02b6ccd45a748de58ac6ec75ec7f1e50edda943338df5c401b56fd5",
+    "candidate-engine.py.gz": "62ddb9d82195734f567eb8c75dbf8d43407e12872d684f303731c2594a04cdc6",
+    "engine-full.diff.gz": "050010860f6032e8df162e06ec1c9c361eaaf322ffb9bf9e3cb97e54ff5be78a",
+    "source-inventory.json.gz": "51f5316769752ec0161f2148381b4b7ca0b0498cd469b340a0ed8a9a04bac44e",
+    "original-operational-sources.json.gz": "00f8316a4d268ee507f58cc328ab113af0e2e1f514fe35f2a6461a0665a07e1d",
+    "original-source-inventory.json.gz": "8f5edd9c9b09041e2eeb64493ce70199127c4d9a5d21464679f018a12283c236"
+  }
+}
