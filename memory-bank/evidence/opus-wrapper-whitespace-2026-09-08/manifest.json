@@ -1,0 +1,39 @@
+{
+  "status": "PARENT_VERIFIED_EPHEMERAL_FIX_ONLY_INSTALLED_SKILL_UNCHANGED",
+  "files": {
+    "original.sh": {
+      "original_path": "/Users/ArmanTarkhanian1/.codex/skills/ask-claude/scripts/claude_prompt.sh",
+      "stored_path": "original.sh.gz",
+      "raw_bytes": 4609,
+      "raw_sha256": "c8c1c089020cc021728bc74d08abd98ccc6d62c400af03060713c7a53ecec18e",
+      "stored_bytes": 1688,
+      "stored_sha256": "82360442fa48a136b3325b26713ee35b4f00a7fbddbd347304205cb58bb91a37"
+    },
+    "patched.sh": {
+      "original_path": "/tmp/ankiscape-opus-wrapper-fix-2026-09-08/claude_prompt.sh",
+      "stored_path": "patched.sh.gz",
+      "raw_bytes": 4619,
+      "raw_sha256": "075cebd18c55279d4a71e079ae8b6b26feed6a7fef4fffbb8f5d85a8ea136925",
+      "stored_bytes": 1700,
+      "stored_sha256": "cf59f38d19cd5dc0c290a306b9944a08825fc2f9b1871c830733a87f4c45e98f"
+    },
+    "resolver.diff": {
+      "original_path": "/tmp/ankiscape-opus-wrapper-fix-2026-09-08/resolver.diff",
+      "stored_path": "resolver.diff.gz",
+      "raw_bytes": 653,
+      "raw_sha256": "f32eb10d5844eab7dc927197851c87d56844931f95b78b980379a9b1f20dde2a",
+      "stored_bytes": 398,
+      "stored_sha256": "06d789ad9a77571a7292f89f877ab4104f2ed5a12799ec9797aa4d7833622c27"
+    },
+    "canary-report.json": {
+      "original_path": "/tmp/ankiscape-opus-wrapper-fix-2026-09-08/canary-report.json",
+      "stored_path": "canary-report.json.gz",
+      "raw_bytes": 3934,
+      "raw_sha256": "cf9fa845b389568f36f679c58babaa62c33c3358d2908490af1c32582056ec0f",
+      "stored_bytes": 867,
+      "stored_sha256": "5b9d700f96897eadbbd277ad164f2b0c741eda50286e48e30fce7393b69dccbd"
+    }
+  },
+  "parent_observation": "Root sent SIGTERM to exact own wrapper PIDs 49225 and 54552. Prayer PID 49225 exited 143 with empty streams; only prayer was relaunched through the patched resolver, recovered-suffix output session 46166. Bank PID 54552 proceeded to live Claude child 83513 instead of exiting, with fresh quota stderr capturedAt 1788844380; root retained original bank session 73869 and did not relaunch it. No causal claim about SIGTERM making the bank process proceed.",
+  "provider_calls_by_this_leaf": false
+}
