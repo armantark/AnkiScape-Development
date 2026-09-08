@@ -491,6 +491,7 @@ from .logic_pure_state import (
 
 from .logic_pure_combat_specials import (
     _combat_dragonfire_damage_lifepoints,
+    _combat_enemy_poison_application,
     _combat_enemy_prayer_drain,
     _combat_wyvern_breath_damage_event,
 )
@@ -2279,20 +2280,11 @@ def apply_combat_burst_pure(
             if food_event:
                 food_used.append(food_event)
             poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
-            if poison_damage > 0:
-                try:
-                    poison_roll = float(rng())
-                except (TypeError, ValueError):
-                    poison_roll = 1.0
-                if poison_roll < COMBAT_POISON_NPC_ATTACK_CHANCE:
-                    applied, _reason = _combat_apply_poison_effect_to_data(data, poison_damage)
-                    if applied:
-                        status_applied["poison"] = combat_poison_damage_for_ticks_pure(
-                            combat_poison_ticks_for_initial_damage_pure(poison_damage)
-                        )
-                        potion_event = _combat_consume_antipoison_if_needed(data)
-                        if potion_event:
-                            potions_used.append(potion_event)
+            potion_event = _combat_enemy_poison_application(
+                data, poison_damage, rng, status_applied
+            )
+            if potion_event:
+                potions_used.append(potion_event)
 
     data, equipment_condition_events = advance_equipped_condition_pure(
         data, ticks_elapsed, EQUIPMENT_CONDITION_DATA

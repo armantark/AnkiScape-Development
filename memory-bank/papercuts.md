@@ -2232,3 +2232,9 @@
 - 2026-09-08: Parent queried the selector command proposal and received `cat: memory-bank/evidence/unproductive-activity-selector-2026-09-08/command-proposal.json: No such file or directory`; the enumerated file is `runtime-protocol-command-proposal.json`. Parent will use the exact enumerated name.
 
 - 2026-09-08: Root runtime-retention verification first treated `stored_path` as checkout-relative instead of evidence-directory-relative, then treated the descriptive `encoding` value as literal `gzip`. Corrected verification confirmed all 44 original/stored hashes, sizes and exact or decompressed byte identities.
+
+2026-09-08T11:27:54.577562-07:00 P13 enemy-poison proof preparation: zsh rejected an unmatched reference-file glob with `zsh:1: no matches found: tools/combat/*selector*`; used `rg --files` to locate the accepted harness snapshots.
+
+2026-09-08T11:54:48.246393-07:00 Root final Opus wrapper session72295 stalled before quota preflight: process68288 was verified with lsof against exact stdout/stderr /tmp/ankiscape-food-poison-final-opus-2026-09-08.txt and /tmp/ankiscape-food-poison-final-opus-2026-09-08.stderr; ps at17:38 elapsed showed CPU98.8%, CPUtime17:12.11, both files0B. Root sent SIGTERM only to68288; terminal143. The same full84699B prompt with LC_ALL=C --dry-run raised subprocess.TimeoutExpired after30s before any provider call. Bash long-prompt substitution is suspected; no specific line is proven. Root retries a short prompt with scoped read-only access to the exact preserved84KB input in Opus session20073; no product changes. Shell discovery `command -v -a bash` failed with zsh error127; /opt/homebrew/bin/bash was absent. No repair or runtime scope.
+
+2026-09-08T11:59:30.428713-07:00 Root checkpoint update initially guessed nonexistent `memory-bank/priority-matrix.md`; rg returned2. `rg --files memory-bank` identified the actual `memory-bank/goal-priority-matrix.md`; resolved without repair scope.
