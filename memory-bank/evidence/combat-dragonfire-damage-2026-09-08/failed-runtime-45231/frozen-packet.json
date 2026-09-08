@@ -1,0 +1,180 @@
+{
+  "status": "FAILED_RUN_FROZEN_PACKET_PRESERVED_BEFORE_CORRECTION",
+  "runtime_session": 45231,
+  "files": 19,
+  "total_original_bytes": 289189,
+  "total_stored_bytes": 148026,
+  "entries": [
+    {
+      "path": "logic_pure/logic_pure_combat_engine.py",
+      "original_bytes": 122947,
+      "original_sha256": "3979378d514a18aa2bc2a3217ff117e6fe5f4f2104a31776786a6f55c02325c1",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/logic_pure/logic_pure_combat_engine.py.gz",
+      "stored_bytes": 23381,
+      "stored_sha256": "f7110cc11f03742d6dd740ee5ede686153590638fd8c4007b8c6de797335a4ac",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "logic_pure/logic_pure_combat_specials.py",
+      "original_bytes": 2096,
+      "original_sha256": "b165f3f63f1de2fbffeec9c0ee79df498c1614f05872ed7e911e7b86fd5601ca",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/logic_pure/logic_pure_combat_specials.py.gz",
+      "stored_bytes": 671,
+      "stored_sha256": "5f950f453fca4a5c98a064f4d30f22a7072a42079de662fdf75185eceb805330",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "tools/combat/compare_dragonfire_damage.py",
+      "original_bytes": 9146,
+      "original_sha256": "dff2a2a3c8da79b9d76a6b1f1ba0f47907fd049e5c7da0276dfbfe385ebe20af",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/tools/combat/compare_dragonfire_damage.py.gz",
+      "stored_bytes": 2804,
+      "stored_sha256": "5699a5cd556ff9e6e7316d2948afa47da710512ab53de50763797d23169053e8",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "tools/combat/check_dragonfire_damage_guards.py",
+      "original_bytes": 6872,
+      "original_sha256": "bd00316be0fda09da3e30c5935c7704e8204a48b383df4bd509e169a4f299014",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/tools/combat/check_dragonfire_damage_guards.py.gz",
+      "stored_bytes": 1992,
+      "stored_sha256": "178a5f2b91bfe45a0d5c6a752d316b790326084e83a56a328a7f9d799d2893aa",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "tools/combat/run_dragonfire_damage_remote.py",
+      "original_bytes": 14262,
+      "original_sha256": "02efd98e454122b88b107982a3720d787a658a3b981c5acdcb5736063ccd6f7a",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/tools/combat/run_dragonfire_damage_remote.py.gz",
+      "stored_bytes": 4763,
+      "stored_sha256": "154c19a008ea67f7543c49a236a10d854638c7f7ee522c6bb78bfca111d6f6fd",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "tools/combat/check_dragonfire_damage_remote_resume.py",
+      "original_bytes": 10374,
+      "original_sha256": "5001b3ff4b6f694890a94bd094867819760f7341c72021736a92328c34c496f9",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/tools/combat/check_dragonfire_damage_remote_resume.py.gz",
+      "stored_bytes": 3256,
+      "stored_sha256": "c2391ed7e26d72ed18bf17d51f8bae33df9d1b372e6c38e1d0d304695ae8858a",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/baseline-engine.py.gz",
+      "original_bytes": 23443,
+      "original_sha256": "ed1e8118f4d260a65885a56181c8d28b1cc5140e03dac510ec67b877414c31d2",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/baseline-engine.py.gz.gz",
+      "stored_bytes": 23471,
+      "stored_sha256": "4a5e2e73e6d554c07bcf86125799fc99cd1f54b17cf2b5b86cdcf54a0789ceb6",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/baseline-specials.py.gz",
+      "original_bytes": 549,
+      "original_sha256": "8bc5d16b82de425e7c20c2e90d1ee6b6fcc8293798c3319c20a42f9dd785cfc7",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/baseline-specials.py.gz.gz",
+      "stored_bytes": 572,
+      "stored_sha256": "9c52d5061ec3d467cd916f5db7533ca4de598c96039a1a06ac9882fb92da3e06",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/candidate-engine.py.gz",
+      "original_bytes": 23381,
+      "original_sha256": "f7110cc11f03742d6dd740ee5ede686153590638fd8c4007b8c6de797335a4ac",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/candidate-engine.py.gz.gz",
+      "stored_bytes": 23409,
+      "stored_sha256": "c166b19ee784d6e104bcaedafb86412241034d9e9b82bece3be20bea61b508a6",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/candidate-specials.py.gz",
+      "original_bytes": 671,
+      "original_sha256": "5f950f453fca4a5c98a064f4d30f22a7072a42079de662fdf75185eceb805330",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/candidate-specials.py.gz.gz",
+      "stored_bytes": 694,
+      "stored_sha256": "1da13ea31cd8221b834f9c2535363375441ffa76d15e1ab92b2a29cb639c8ab7",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/source-inventory.json.gz",
+      "original_bytes": 52455,
+      "original_sha256": "066efd5c99a0f77627ce8644e043b489a2943295ff7af21d03d36254a3239543",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/source-inventory.json.gz.gz",
+      "stored_bytes": 52493,
+      "stored_sha256": "2cd82fc24b6728ae28a450aab2d3883cfe700a5ba8c4013afa6187a2f66e204a",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/manifest.json",
+      "original_bytes": 2708,
+      "original_sha256": "5fdb4e8961a29cc9f0619a1cdf5ba002359e078dece192e4e1274fdc8ef85f26",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/manifest.json.gz",
+      "stored_bytes": 1168,
+      "stored_sha256": "ba8dfa2a9ea43933b3389a3ce1e9488cb79ae425a825b46b2124e67660ac5f28",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/product.diff",
+      "original_bytes": 3059,
+      "original_sha256": "c899531c9bd51b1e883747912ff7f72f61fd457600009eecc404823d3dd8bab1",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/product.diff.gz",
+      "stored_bytes": 831,
+      "stored_sha256": "2c469a557c30490eb75dd242408243c4ed347e2a77172e609b4b702c3afc76a1",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/static-verification.py.gz",
+      "original_bytes": 2550,
+      "original_sha256": "7a88ac8aa527fc50fb2ad6131a94881c237cdffe5145bbd2be3d4d7a7fd5b67b",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/static-verification.py.gz.gz",
+      "stored_bytes": 2573,
+      "stored_sha256": "52212285c8df322d05d60cad79821321da382b28d408230e0397a81a1648567d",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/static-instrument-pins.json",
+      "original_bytes": 3507,
+      "original_sha256": "e571f9e470d01ff5627ab071da1ce74aeda6dc4a1f04a4fc49443f12ec214481",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/static-instrument-pins.json.gz",
+      "stored_bytes": 1463,
+      "stored_sha256": "4e6c4cf0ad1704d8b9979ec659e927c0fcdf6e66bc8f905dd69fc03721c04a5c",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/static-preparation.json",
+      "original_bytes": 1583,
+      "original_sha256": "8bd74a2409abb032641fd17597a302b11fe1a81ce78af11810bc2075be97c62e",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/static-preparation.json.gz",
+      "stored_bytes": 753,
+      "stored_sha256": "97ce16af284429c53baa96beb4b9c0bf60bf3795cdc0bbfc8b20cc1195519012",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/runtime-preparation.json",
+      "original_bytes": 1425,
+      "original_sha256": "25c5247c57bcdbd65ad0387869bcedd33c041c677438cf8a1bdee013c56d6806",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/runtime-preparation.json.gz",
+      "stored_bytes": 773,
+      "stored_sha256": "2571c6d92d6bf82bc9e5a5f4d7efe3c9dc988e7a8077d47a0b39f7223ef71612",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/local-operational-acceptance.json",
+      "original_bytes": 5159,
+      "original_sha256": "60838b6d36d6eda1dad86b92d50b8747ada2533da59245acdc942462f977e11a",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/evidence/combat-dragonfire-damage-2026-09-08/local-operational-acceptance.json.gz",
+      "stored_bytes": 1624,
+      "stored_sha256": "987083299a5d3e97fc25c29235ff7fb9214ca86c29431e491bb9f1d27d19fd9e",
+      "decoded_matches_original": true
+    },
+    {
+      "path": "memory-bank/handoffs/combat-dragonfire-damage-2026-09-08.md",
+      "original_bytes": 3002,
+      "original_sha256": "3d2b04042137af13412b90ff874329c0c7adb2815d196052329f13f1cff6a23b",
+      "stored_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231/frozen-packet/memory-bank/handoffs/combat-dragonfire-damage-2026-09-08.md.gz",
+      "stored_bytes": 1335,
+      "stored_sha256": "b37e64000fbb1b035108f8dea15b859beca3fb01c5a3d1a38e117c4ff3dba082",
+      "decoded_matches_original": true
+    }
+  ]
+}
