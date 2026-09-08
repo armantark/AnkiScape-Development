@@ -2163,3 +2163,5 @@
 - 2026-09-08 — Kimi read-only next combat seam review session `17252` ended with exit `1` and `error: tool loop exceeded 24 turns`; no recommendation returned. The root retry in session `12351` uses a fixed 9,907-character source packet from I engine lines `2012-2182` with no filesystem tools.
 
 - 2026-09-08 03:42 UTC — The root integration diff read initially used nonexistent `logic/combat_engine.py` and `logic/combat_specials.py` and returned empty. `git diff --name-only` identified the actual paths `logic_pure/logic_pure_combat_engine.py` and `logic_pure/logic_pure_combat_specials.py`; the subsequent full diff read succeeded.
+
+- 2026-09-08 04:29 UTC — The root searched nonexistent `tools/remote_test_host/*.py`; zsh returned `zsh:1: no matches found: tools/remote_test_host/*.py`. Enumerating `rg --files tools` and searching the exact returned paths corrected the lookup.
