@@ -7,6 +7,16 @@ from .logic_pure_combat_supplies import combat_dragonfire_protection_pure
 from .logic_pure_state import _non_negative_int
 
 
+def _combat_enemy_prayer_drain(enemy, raw_enemy_damage, prayer_points_after):
+    prayer_drain_base = _non_negative_int(enemy.get("prayer_drain_base", 0), 0)
+    if prayer_drain_base <= 0:
+        return None
+    prayer_drain = prayer_drain_base
+    if bool(enemy.get("prayer_drain_damage", False)):
+        prayer_drain += max(0, raw_enemy_damage)
+    return min(prayer_points_after, prayer_drain)
+
+
 def _combat_wyvern_breath_damage_event(
     data, breath_spec, protective_equipment, protection_active, max_player_lp, rng,
 ):

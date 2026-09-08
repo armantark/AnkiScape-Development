@@ -1,0 +1,54 @@
+{
+  "status": "PASS_RETAINED_EXACTLY",
+  "parent_static_session": 10436,
+  "runtime_status": "NOT_RUN",
+  "product_imports_started": false,
+  "source_inventory": {
+    "entries": 1185,
+    "sha256": "0e65bf4228203169d5193a7b1f9f09423b5510c015e62694d01d9c40c6432a2f",
+    "verified_before_and_after": true
+  },
+  "source_pins": {
+    "logic_pure/logic_pure_combat_engine.py": "934f0bccbdd7a11a0bde6df361d6355c0c339c2daf69e51d98b5b933952e4c49",
+    "logic_pure/logic_pure_combat_specials.py": "3b74a4720bbc3135b1c87df910999d69607f0f41b67f4dbf126de4f60910b619",
+    "tests/combat/test_prayer_drain.py": "1a47dd557ba6af1764c9888d60b40b878eadb630006c7ffacea4f353a64c7f80",
+    "tools/combat/compare_prayer_drain.py": "023a0b92360e3cd86a6a4ce513bc7fa22946369a6201c50a974bbc8c7133d185"
+  },
+  "measured_gate": {
+    "sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+    "thresholds": {
+      "CCN_MAX": 15,
+      "COGNITIVE_MAX": 15,
+      "HALSTEAD_MAX": 80,
+      "FILE_LINES_MAX": 1000
+    },
+    "failures": {
+      "ccn": [],
+      "cognitive": [],
+      "halstead": [],
+      "layout": [],
+      "file_growth": []
+    }
+  },
+  "report": {
+    "original_path": "/tmp/combat-prayer-drain-2026-09-08-parent-static.json",
+    "retained_path": "memory-bank/evidence/combat-prayer-drain-2026-09-08/parent-static.json",
+    "original_bytes": 309228,
+    "original_sha256": "55bb0ebc95dcbbca766d370ba03d450b7d27abde3ef62ebf224582fac8ffd479",
+    "retained_bytes": 309228,
+    "retained_sha256": "55bb0ebc95dcbbca766d370ba03d450b7d27abde3ef62ebf224582fac8ffd479",
+    "byte_identical": true
+  },
+  "raw_stream": {
+    "original_path": "/tmp/combat-prayer-drain-2026-09-08-parent-static.raw.json.gz",
+    "retained_path": "memory-bank/evidence/combat-prayer-drain-2026-09-08/parent-static.raw.json.gz",
+    "original_bytes": 11681,
+    "original_sha256": "20891d141478288a6cd817c1dbbb40586834525cacb5695ba57ac4adafe5c5a3",
+    "retained_bytes": 11681,
+    "retained_sha256": "20891d141478288a6cd817c1dbbb40586834525cacb5695ba57ac4adafe5c5a3",
+    "byte_identical": true,
+    "recompressed": false,
+    "decompressed_bytes": 96742,
+    "decompressed_sha256": "a3eac8f6b89c123846b9d1dc17f48108520a78a6bfa9ee340d4c7b15bf05fa04"
+  }
+}
