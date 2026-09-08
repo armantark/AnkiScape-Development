@@ -2249,3 +2249,11 @@
 - 2026-09-08: Root inspected `/tmp/ankiscape-keep-corrected-runtime-2026-09-08/plain-comparison/comparison.json` and got `FileNotFoundError [Errno 2]` because the KEEP harness retains `comparison.json.gz` and `before.raw.json.gz`/`after.raw.json.gz`, whereas the food harness used plain JSON. Inspect actual retained filenames before selecting the decoder. No runtime rerun was required.
 
 - 2026-09-08: Normal Keep commit attempt 61809 failed exit 1 with `slop-gate: code files were added to directories already at 40 files:\n  tests: 237 code files (was 236)\n  -> Create a cohesive subdirectory instead of widening this directory.` No commit was created. The preparatory runner measured CCN, cognitive complexity, Halstead effort, layout and file size but omitted the installed gate's directory/import checks. Move the unchanged test into existing `tests/runtime_actions/` and run the complete installed gate against the staged delta.
+
+- 2026-09-08T12:50:32-07:00 — While locating the death-prayer review, a shell glob failed with `zsh:1: no matches found: /tmp/ankiscape-death-prayer*`. Root supplied the exact `ankiscape-keep-final-death-boundary-opus-2026-09-08` prefix; read the named files directly.
+
+- 2026-09-08T13:10:54-07:00 — Root final-review lookup failed with `cat: memory-bank/evidence/combat-death-prayer-2026-09-08/final-review-retention.json: No such file or directory`. The retained final review metadata is `memory-bank/evidence/combat-death-prayer-2026-09-08/parent-review-resolution.json`.
+
+- 2026-09-08T13:39:13-07:00 — Death-prayer staged evidence check returned exit 2: `product-review.diff` and `retention-fix.diff` had `trailing whitespace.` from literal unified-diff context spaces. Retained exact bytes in deterministic gzip with decoded hashes and preserved prior manifest/index; no trimming or waiver.
+
+- 2026-09-08 — Root's generic death-prayer manifest verifier assumed every `decoded_sha256` entry also had `decoded_bytes` and raised `KeyError: 'decoded_bytes'`. The rerun checked the optional byte count only when present; all actual hash and original-byte bindings passed.

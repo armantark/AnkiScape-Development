@@ -16,6 +16,6 @@ Opus session 20073 approves the poison slice. Root verified that the helper pres
 
 ## Remaining work
 
-Full branch and post-merge gates remain pending. The source is not landed; native programme acceptance remains unproven. Root owns gate execution and promotion.
+Root accepted full source gate `45290`, exit 0 with all eight checks, at `2026-09-08T12:42:15-07:00` for `5eaaf97a3c1cc64bc81cff6f276ebcedbb209db8`. Root merged that source into integration `464edf35`. Post-merge verification, canonical-main promotion, and native programme acceptance remain pending. Canonical main remains `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`; prayer-drain, bank-trip, and selector are already landed there with the exact `2026-09-08T11:29:58-07:00` all-eight receipt. Root owns remaining gates and promotion.
 
 On the approved loaded add-on, use a poisonous target and a loaded Antipoison (1). Observe poison application followed by one automatic cure, the expected vial replacement, and no duplicate potion event. Repeat without antipoison and with active immunity. Confirm the displayed state agrees with the stored status and dose changes. This native check remains unperformed. Run only after the parent approves the native test environment; this author has no runtime ownership.

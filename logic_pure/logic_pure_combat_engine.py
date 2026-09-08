@@ -490,6 +490,7 @@ from .logic_pure_state import (
 
 
 from .logic_pure_combat_specials import (
+    _combat_death_prayer_damage,
     _combat_dragonfire_damage_lifepoints,
     _combat_enemy_poison_application,
     _combat_enemy_prayer_drain,
@@ -2308,21 +2309,8 @@ def apply_combat_burst_pure(
     death_burst = 0
     if died:
         if "wrath" in selected_prayers or "retribution" in selected_prayers:
-            cap_multiplier = 2.5 if "wrath" in selected_prayers else .25
-            try:
-                death_roll = max(0.0, min(1.0, float(rng())))
-            except (TypeError, ValueError):
-                death_roll = 0.0
-            death_burst, automatic_finisher = _combat_cap_damage_for_finisher(
-                data,
-                finisher,
-                enemy_lp,
-                int(
-                    _positive_int(data.get("prayer_level", 1), 1)
-                    * cap_multiplier
-                    * death_roll
-                ),
-                allow_automatic=False,
+            death_burst, automatic_finisher = _combat_death_prayer_damage(
+                data, selected_prayers, finisher, enemy_lp, rng
             )
             if automatic_finisher:
                 automatic_finishers += 1
