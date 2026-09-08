@@ -1,0 +1,152 @@
+{
+  "status": "STATIC_PREPARATION_RUNTIME_REVIEW_CORRECTED_LOCAL_RERUN_PENDING",
+  "base_commit": "5888f215ee1bd6fb6cdc3e003a7dfe57a2f4c56a",
+  "baseline_sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+  "source_sha256": {
+    "logic_pure/logic_pure_combat_engine.py": "1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a",
+    "tests/combat/test_enemy_unequip_transaction.py": "dbd931bb0545e7d691fa400eb4a1aa1f573198a08cc31ab2775949bc31089ad7",
+    "tools/combat/compare_enemy_unequip_transaction.py": "a5b57b0c78349a1c3a57d7e39e90d45b79cdd57f8492f9e6eaceb4a96f624dcf",
+    "tools/combat/check_enemy_unequip_guards.py": "3d3aafd882ae09fe2c201ee12ef1a8ca891a40e9ad7c90f46add422596137061"
+  },
+  "inventory": {
+    "path": "source-inventory.json.gz",
+    "sha256": "6144b3ffe002b2c41ae1447f5bd6c8fcdfa6a2fcec82f5244f42a3c7c6ff8e17",
+    "entries": 877,
+    "scope": "All base-tracked Python and JSON files; three new product evidence files; fixed baseline, gate, and pins. Runtime driver and canary use a separate binding."
+  },
+  "static_metrics": {
+    "status": "PASS",
+    "path": "static-metrics.json",
+    "failures": {
+      "ccn": [],
+      "cognitive": [],
+      "halstead": [],
+      "layout": [],
+      "file_growth": []
+    },
+    "base_engine_lines": 3010,
+    "candidate_engine_lines": 3009,
+    "scope": "Installed CCN, cognitive, Halstead, layout, and file-growth no-growth ratchets only. The engine does not comply with the 1,000-line threshold."
+  },
+  "focused_selectors": [
+    "EnemyUnequipTransactionTest",
+    "ChaosElementalTests.test_unequip_special_moves_weapon_to_carried_pack_and_preserves_encounter"
+  ],
+  "unittest_methods": 4,
+  "scenario_cases": 5,
+  "differential_labels": [
+    "weapon:live-resume",
+    "sorted-fallback:legacy",
+    "empty:legacy",
+    "condition:live-resume"
+  ],
+  "reviews": {
+    "product": {
+      "status": "PASS_WITH_RESOLVED_FINDINGS",
+      "raw_path": "opus-review.txt",
+      "raw_sha256": "3dabb351f9fe322d71a7c2cab8ca04a460952c852ea081d091d7711a8fa61456"
+    },
+    "runtime": {
+      "status": "PASS_WITH_GUARD_EVIDENCE_BLOCKER_CORRECTED",
+      "raw_path": "runtime-opus-review.txt",
+      "raw_bytes": 6723,
+      "raw_sha256": "d394e108bcac3c04b8b6c091a6d5aca3d76a6fa966b2c9f172f2b7a9674ac39a",
+      "resolution_path": "runtime-review-resolution.md",
+      "parent_correction_check": "PENDING"
+    }
+  },
+  "historical_local_acceptance": {
+    "status": "PASS",
+    "inventory_sha256": "af68716ab32fe90efb9606bbae911ba1bb42421d6921a12163ff4980b42e64d2",
+    "path": "local-operational-acceptance.json",
+    "sha256": "530a14e8fa254ce0f3feddf1cf375f72042e422b72af0bcf26584c08cbe9256a",
+    "scope": "Corrected guard, inert canary, and driver local guard before the runtime-review guard evidence correction."
+  },
+  "current_guard_status": "NOT_EXECUTED",
+  "current_canary_status": "NOT_EXECUTED",
+  "current_driver_local_guard_status": "NOT_EXECUTED",
+  "product_runtime_status": "NOT_EXECUTED",
+  "remote_runtime_status": "NOT_EXECUTED",
+  "runtime_sources": {
+    "source_sha256": {
+      "tools/combat/run_enemy_unequip_remote.py": "4bd1e354856f5f27a006fa23a81da1b034c61467b860b45b91863bb32b9b7261",
+      "tools/combat/check_enemy_unequip_remote_resume.py": "2d9cdf71f903e1d02ab95d1c689c492c7bf1a55115137b54bf36ed194833cff9"
+    },
+    "static_status": "PASS",
+    "static_failures": {
+      "ccn": [],
+      "cognitive": [],
+      "halstead": [],
+      "layout": [],
+      "file_growth": [],
+      "dead_code": []
+    },
+    "review_packet_before_correction": {
+      "path": "runtime-operational-review.diff",
+      "bytes": 22686,
+      "sha256": "71ab84cd05e9660b1e3fb71e183b12d3cd39aac69fbb685bb02541fdc7571145"
+    },
+    "correction_packet": {
+      "path": "runtime-review-correction.diff",
+      "bytes": 4843,
+      "sha256": "4dec175245e869d4d51cb6faafcc7736cf931da24ed69b74fb7215513f2e31c9"
+    }
+  },
+  "evidence_sha256": {
+    "baseline-engine.py.gz": "cc43ce15c3b14734bd2c39fdfc4516a5f6f386ddc7e163ef6627ed1d60bdffd7",
+    "candidate-engine.py.gz": "32127386abd9085c5ad42a840402e777fa1ee09fe472f814d9454fd6c3d072b5",
+    "corrected-local-preimport-guards.json": "8293a9abfabc1d08996e5db0417b35d46ca161eac22729996009a93b0096579f",
+    "driver-before-runtime-review.py.gz": "135669434ce8eef50f54c54a1c6162ec743c20ddc93deab09b0d5d294207f0fb",
+    "engine-full.diff.gz": "7f35d04bc8d5a93105b4b30510a996d727c9e4ffc2825936d263592f7aa9183b",
+    "guard-before-runtime-review.py.gz": "59e17cf481b693cf04fd6391f5325e86e3bca8f6976a3dcc66da7a10b9554ba0",
+    "handoff-before-runtime-review.md.gz": "1f2052fabae3b1ea6a237124d735fba3cc43badbfd5e40500f65230a0afb78db",
+    "independent-review-corrections.diff": "15c8e9dc5374bc9e6e13c563ba3e67fdafb0ca5ed1ff4b4976787c1d07830e51",
+    "independent-review-resolution.md": "a15649dcf1edb53f60e311e80dbeb8ebe71495c8378eb05f4682fa6e80a45a9a",
+    "initial-pins.json": "d7836abbb47d3ae93524fecd6d132efa38804acc3f4a6f105028ee25b339b21b",
+    "local-driver-guard.json": "815c815628fd4701cd66e25cb208bc07ed7c4398eee38f332f293730d2f266c7",
+    "local-operational-acceptance.json": "530a14e8fa254ce0f3feddf1cf375f72042e422b72af0bcf26584c08cbe9256a",
+    "local-preimport-guards.json": "83f2e8725069e13a4080355032ee9da5917d3af8980a3eb1e88f29155a2fcfba",
+    "local-resume-canary.json": "b7e740b57408d34c79859349dcdd423e0cadcb82dc7214144706a068d1d4297d",
+    "manifest-before-review-corrections.json": "b7247bc2d064dd7c969105616d9d07e1941621ed86197ac0dc3bbb807bc4a606",
+    "manifest-before-runtime-review-correction.json": "e80357bdc5fe37b04790a80f3caacfa6b8bc16e65568afe171f83eae79b09870",
+    "operational-review.diff": "8eb043191355c750a3bc025a738545706c865875394f18555294e25ff86844f5",
+    "opus-review.txt": "3dabb351f9fe322d71a7c2cab8ca04a460952c852ea081d091d7711a8fa61456",
+    "product-review.diff": "d7ddd14ff25d3c1856ed04cbe80800f73a1a160098e85f90dc8439d6330da5ab",
+    "review-packets-before-runtime-review-correction.json": "2b4fa9be9b3e92e35357158fd3cfecf8dc6536fe2668069ae5327d0dc1edc0ae",
+    "runtime-operational-review.diff": "71ab84cd05e9660b1e3fb71e183b12d3cd39aac69fbb685bb02541fdc7571145",
+    "runtime-opus-review.txt": "d394e108bcac3c04b8b6c091a6d5aca3d76a6fa966b2c9f172f2b7a9674ac39a",
+    "runtime-preparation-before-runtime-review-correction.json": "bf52965eae1598eb5f03d7027f63d996d08e63e524d773a25bb60891f0d3a2f1",
+    "runtime-review-correction.diff": "4dec175245e869d4d51cb6faafcc7736cf931da24ed69b74fb7215513f2e31c9",
+    "runtime-review-resolution.md": "11c73416395e39a7405ee0bef1c1be147b5c411024bb384e4bf1b93ebdb9361b",
+    "runtime-simplification-review.md": "3f5ed037c3a90676622bc3da8fdc30886d7d5d61a8b2222d3be8dc263758090b",
+    "runtime-static-metrics.json": "862183b273151e0190905ebefece7f15f8e0394110b5e4ab90a6d28ff02a7a6d",
+    "runtime-static-raw.json.gz": "7310bead96bb56485380aa97e426c0d4612e39d5d91baee852233aca86f6f832",
+    "runtime-static-verification.py.gz": "db9c72d9ea4ce693c15394facce18046aae6a9898f09ef7dbb0347b31df9d6bf",
+    "simplification-review.md": "56fd1e3c76e1c69c5d960ad38a367021443a9ae7c0071da814f5609cb69cc6de",
+    "slop-gate.py.gz": "4b4b6090863d97a0c8b4eba710befdf6942d508f8b98fcd1ae5e007f31ed4b27",
+    "source-inventory.json.gz": "6144b3ffe002b2c41ae1447f5bd6c8fcdfa6a2fcec82f5244f42a3c7c6ff8e17",
+    "static-metrics.json": "1ecde3754ebde3740ae33ee42bdec2f20b7ad1c712b9b4e89c01a17ab97791fa",
+    "static-raw.json.gz": "8f7d339b4f9e600fb2914be4569aa6780f0487e16948aad91e8afa34be32863b",
+    "static-verification.py.gz": "2dac5d5738c65c3d0d527bffb2ea3441a74a214b879926eca9aa3c08748d875f",
+    "structural-proof.json": "83c21ea6ec2c3b5f76bbc8ad66900da65477c54ca214e6b9aa36e961768fc3cf"
+  },
+  "plan": {
+    "path": "memory-bank/plans/combat-unequip-transaction-2026-09-07.md",
+    "sha256": "c7abcdfa483853d2af7475b1d78edf57a4c68cd77b3624cf496617bf2603cc46",
+    "immutable": true
+  },
+  "handoff": {
+    "path": "memory-bank/handoffs/combat-unequip-transaction-2026-09-07.md",
+    "sha256": "4b1273cbb7be9bb70d5e93dadac2078d5d094a4568232ec82e88469b53bc2816"
+  },
+  "missing_acceptance": [
+    "Parent runtime-review correction code check",
+    "Rerun corrected pre-import guards",
+    "Rerun inert canary",
+    "Rerun driver local guard",
+    "Authorized four-job remote execution",
+    "Normal commit hooks and author commit",
+    "Full branch and exact merged-tree gates",
+    "Parent native program acceptance"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "status": "LOCAL_ACCEPTANCE_PASS_REVIEWS_CLOSED_REMOTE_RUNTIME_PENDING",
+  "execution_owner": "parent",
+  "parent_exit_codes": {
+    "corrected_preimport_guards": 0,
+    "inert_resume_canary": 0,
+    "driver_local_guard": 0
+  },
+  "parent_full_read": true,
+  "retained_raw": {
+    "corrected_preimport_guards": {
+      "path": "final-local-preimport-guards.json",
+      "source": "/tmp/ankiscape-enemy-unequip-guards-final-2026-09-07.json",
+      "bytes": 1427,
+      "sha256": "84e91da9fa478a81e8aafd7c0f68ec0296b82d6e81058f997fc0429e2e9ef956"
+    },
+    "inert_resume_canary": {
+      "path": "final-local-resume-canary.json",
+      "source": "/tmp/ankiscape-enemy-unequip-resume-canary-final-2026-09-07.json",
+      "bytes": 2453,
+      "sha256": "ce55bdfa2f1976c74797d766764b9701ea2c592d56c1aa04a961efcc4389f6dd"
+    },
+    "driver_local_guard": {
+      "path": "final-local-driver-guard.json",
+      "source": "/tmp/ankiscape-enemy-unequip-driver-guard-final-2026-09-07/local-guard.json",
+      "bytes": 169,
+      "sha256": "fa37549089dcf876055524591e33261d48532aa6e654d1eac331faf9e52f306a"
+    }
+  },
+  "source_binding": {
+    "inventory_sha256": "6144b3ffe002b2c41ae1447f5bd6c8fcdfa6a2fcec82f5244f42a3c7c6ff8e17",
+    "inventory_entries": 877,
+    "engine_sha256": "1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a",
+    "test_sha256": "dbd931bb0545e7d691fa400eb4a1aa1f573198a08cc31ab2775949bc31089ad7",
+    "probe_sha256": "a5b57b0c78349a1c3a57d7e39e90d45b79cdd57f8492f9e6eaceb4a96f624dcf",
+    "guard_sha256": "3d3aafd882ae09fe2c201ee12ef1a8ca891a40e9ad7c90f46add422596137061",
+    "driver_sha256": "4bd1e354856f5f27a006fa23a81da1b034c61467b860b45b91863bb32b9b7261",
+    "canary_sha256": "2d9cdf71f903e1d02ab95d1c689c492c7bf1a55115137b54bf36ed194833cff9"
+  },
+  "accepted_local_proof": [
+    "All seven current pre-import guard cases passed.",
+    "Each refused guard case retained return code 1 and its observed standard error with the trailing newline.",
+    "The inert canary retained exact pending identity and refused relaunch, resync, foreign pending state, payload mismatch, zero random draws, route mismatch, and case reordering.",
+    "The driver local guard matched all 877 current source files and made no remote call or product import."
+  ],
+  "product_review": "CLOSED_PASS",
+  "operational_review": "CLOSED_PASS",
+  "unittest_methods": 4,
+  "scenario_cases": 5,
+  "differential_labels": 4,
+  "current_mirror_owner": "P4 full gate 51344",
+  "focused_runtime": "NOT_EXECUTED",
+  "comparison_runtime": "NOT_EXECUTED",
+  "remote_runtime": "NOT_EXECUTED",
+  "commit": "NOT_EXECUTED",
+  "historical_records_preserved": [
+    "local-preimport-guards.json",
+    "corrected-local-preimport-guards.json",
+    "local-resume-canary.json",
+    "local-driver-guard.json",
+    "local-operational-acceptance.json"
+  ],
+  "next_gate": "Parent starts the P13 exact runtime job only after P4 full gate 51344 releases the mirror."
+}

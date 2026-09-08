@@ -1,0 +1,466 @@
+--- /dev/null
++++ b/tools/combat/run_enemy_unequip_remote.py
+@@ -0,0 +1,268 @@
++"""Run the pinned enemy-unequip proofs with retained, resumable mirror ownership."""
++
++import argparse
++import base64
++import fcntl
++import gzip
++import hashlib
++import json
++import os
++from pathlib import Path
++import shlex
++import sys
++import time
++import uuid
++from unittest.mock import patch
++
++EVIDENCE = Path('memory-bank/evidence/combat-unequip-transaction-2026-09-07')
++INVENTORY = EVIDENCE / 'source-inventory.json.gz'
++PIN = 'af68716ab32fe90efb9606bbae911ba1bb42421d6921a12163ff4980b42e64d2'
++BASELINE = '486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4'
++CANDIDATE = '1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a'
++SELECTORS = [
++    'EnemyUnequipTransactionTest',
++    'ChaosElementalTests.test_unequip_special_moves_weapon_to_carried_pack_and_preserves_encounter',
++]
++CASES = [
++    'weapon:live-resume',
++    'sorted-fallback:legacy',
++    'empty:legacy',
++    'condition:live-resume',
++]
++
++
++def save(path, value):
++    temporary = path.with_suffix(path.suffix + '.tmp')
++    with temporary.open('w') as stream:
++        json.dump(value, stream, indent=2)
++        stream.write('\n')
++        stream.flush()
++        os.fsync(stream.fileno())
++    temporary.replace(path)
++
++
++def local_sources(root):
++    raw = (root / INVENTORY).read_bytes()
++    if hashlib.sha256(raw).hexdigest() != PIN:
++        raise ValueError('source inventory pin mismatch; no remote calls permitted')
++    sources = json.loads(gzip.decompress(raw))
++    if len(sources) != 877:
++        raise ValueError('expected exactly 877 pinned source files')
++    for name, expected in sources.items():
++        if hashlib.sha256((root / name).read_bytes()).hexdigest() != expected:
++            raise ValueError(f'local source mismatch: {name}')
++    return sources
++
++
++def remote_prefix(remote, lane):
++    environment = ['env', '-u', 'PYTHONOPTIMIZE', 'PATH=/opt/homebrew/bin:/usr/bin:/bin',
++                   f'ANKISCAPE_GAME_MAIN={remote.REMOTE_GAME_MAIN}',
++                   f'ANKISCAPE_DARKAN_WORLD_SERVER={remote.REMOTE_DARKAN}']
++    if lane == 'plain':
++        environment += [f'PYTHONPATH={remote.REMOTE_PLAIN_SITE}', '/opt/homebrew/bin/python3']
++    else:
++        environment += ['QT_QPA_PLATFORM=offscreen', str(remote.REMOTE_VENV / 'bin/python')]
++    return shlex.join(environment + ['-B'])
++
++
++def probe_command(remote, lane, baseline, output, *, preflight=False):
++    arguments = ['tools/combat/compare_enemy_unequip_transaction.py', '--baseline', baseline,
++                 '--candidate-sha256', CANDIDATE, '--inventory', str(remote.REMOTE_REPO / INVENTORY),
++                 '--inventory-sha256', PIN, '--output', str(output)]
++    if preflight:
++        arguments.append('--preflight')
++    return remote_prefix(remote, lane) + ' ' + shlex.join(arguments)
++
++
++def capture_guard(remote, lane, baseline, output, destination, sources):
++    command = (f'cd {shlex.quote(str(remote.REMOTE_REPO))} && '
++               + probe_command(remote, lane, baseline, output, preflight=True)
++               + f' && cat {shlex.quote(str(output))}')
++    try:
++        raw = remote._ssh(command, label='enemy unequip source guard', repeat_safe=True)
++    except remote.SSHCommandError as error:
++        destination.with_suffix('.error.txt').write_text(str(error))
++        raise
++    destination.with_suffix('.raw.json').write_text(raw)
++    report = json.loads(raw)
++    if report != {'baseline_sha256': BASELINE, 'inventory_sha256': PIN,
++                  'sources_before': sources, 'sources_after': sources,
++                  'status': 'PREFLIGHT_PASS', 'product_imported': False}:
++        raise ValueError('remote source guard did not report the complete pinned inventory')
++    save(destination, report)
++
++
++def prepare_session(args, remote, sources):
++    path = args.output / 'state.json'
++    state = json.loads(path.read_text()) if path.exists() else None
++    pending_path = remote._pending_path()
++    if pending_path.exists():
++        pending = json.loads(pending_path.read_text())
++        if state is None or state['current'] is None or pending != state['current']['pending']:
++            raise RuntimeError('another or unknown remote run owns the mirror pending record')
++    if state is not None:
++        if state['inventory_sha256'] != PIN or state['root'] != str(args.root):
++            raise ValueError('saved run belongs to another source binding or root')
++        if json.loads((args.output / 'local-before.json').read_text()) != sources:
++            raise ValueError('initial local source snapshot differs')
++        return state
++    save(args.output / 'local-before.json', sources)
++    remote._sync(args.root)
++    session = uuid.uuid4().hex
++    baseline = str(remote.REMOTE_REPO / EVIDENCE / 'baseline-engine.py.gz')
++    state = {'inventory_sha256': PIN, 'root': str(args.root), 'session': session,
++             'baseline': baseline, 'completed': [], 'current': None}
++    save(path, state)
++    return state
++
++
++def observe_existing(remote, pending, timeout):
++    started = time.monotonic()
++    while True:
++        code = remote._completion_report(pending['report_path'])
++        if code is not None:
++            raw = remote._ssh('cat ' + shlex.quote(pending['log_path']),
++                              label='enemy unequip exact-run final log', repeat_safe=True)
++            return code, raw
++        if time.monotonic() - started >= timeout:
++            raise TimeoutError(f"same remote run remains pending: {pending['run_id']}")
++        time.sleep(5)
++
++
++def launch_job(args, remote, state, lane, job, command, result_path):
++    original_ssh = remote._ssh
++
++    def launch_ssh(text, *, label, repeat_safe=False):
++        if label == 'remote lane launch':
++            pending = json.loads(remote._pending_path().read_text())
++            state['current'] = {'job': job, 'pending': pending, 'result_path': result_path}
++            save(args.output / 'state.json', state)
++        return original_ssh(text, label=label, repeat_safe=repeat_safe)
++
++    with patch.object(remote, '_remote_lane_command', return_value=command), \
++         patch.object(remote, '_ssh', side_effect=launch_ssh):
++        return remote._stream_remote_run(lane, timeout=args.timeout, poll_interval=5)
++
++
++def validate_cases(rows):
++    if [row['case'] for row in rows] != CASES:
++        raise ValueError('comparison must contain exactly the four named cases in order')
++    for row in rows:
++        before = base64.b64decode(row['baseline_pickle_base64'], validate=True)
++        after = base64.b64decode(row['candidate_pickle_base64'], validate=True)
++        if row['equal'] is not True or before != after or row['rng_calls'] <= 0:
++            raise ValueError('complete output and RNG payload differs or has no draws')
++        if row['route_pass'] is not True or any(row['route_observed'][key] != value for key, value in row['route_expected'].items()):
++            raise ValueError('advertised comparison route was not exercised')
++
++
++def retain_comparison(remote, lane, result_path, destination, sources):
++    reader = ('import base64,pathlib; print(base64.b64encode(pathlib.Path('
++              + repr(result_path) + ').read_bytes()).decode())')
++    encoded = remote._ssh(remote_prefix(remote, lane) + ' -c ' + shlex.quote(reader),
++                          label='enemy unequip comparison bytes', repeat_safe=True)
++    raw = base64.b64decode(encoded.strip(), validate=True)
++    destination.write_bytes(raw)
++    report = json.loads(raw)
++    if (report['status'] != 'PASS' or report['baseline_sha256'] != BASELINE
++            or report['inventory_sha256'] != PIN
++            or report['sources_before'] != sources or report['sources_after'] != sources):
++        raise ValueError('comparison source binding or status differs')
++    validate_cases(report['cases'])
++
++
++def accept_job(args, remote, state, lane, kind, sources):
++    current = state['current']
++    job = current['job']
++    if kind == 'focused':
++        summary = remote.parse_unittest_summary((args.output / f'{job}.log').read_text())
++        if summary.tests != 4 or summary.skipped != 0:
++            raise ValueError(f'{job}: expected 4 tests and zero skips, got {summary}')
++    else:
++        retain_comparison(remote, lane, current['result_path'], args.output / f'{job}.json', sources)
++    pending_path = remote._pending_path()
++    if pending_path.exists():
++        if json.loads(pending_path.read_text()) != current['pending']:
++            raise RuntimeError('pending run identity changed; refusing to clear it')
++        pending_path.unlink()
++    state['completed'].append(job)
++    state['current'] = None
++    save(args.output / 'state.json', state)
++
++
++def run_job(args, remote, sources, state, lane, kind):
++    job = f'{lane}-{kind}'
++    if job in state['completed']:
++        return
++    if state['current'] is not None and state['current']['job'] != job:
++        raise ValueError('saved active job differs from the next required job')
++    local_sources(args.root)
++    stem = remote.REMOTE_ROOT / 'reports' / f"enemy-unequip-{state['session']}-{job}"
++    result_path = str(stem) + '.json'
++    phase = 'before' if not (args.output / f'{job}-before.json').exists() else 'resume-before-' + uuid.uuid4().hex[:8]
++    capture_guard(remote, lane, state['baseline'], f'{stem}-{phase}.json', args.output / f'{job}-{phase}.json', sources)
++    if state['current'] is None:
++        command = (remote_prefix(remote, lane) + ' ' + shlex.join(['run_tests.py', '--verbosity', '2', *SELECTORS])
++                   if kind == 'focused' else probe_command(remote, lane, state['baseline'], result_path))
++        command = probe_command(remote, lane, state['baseline'], str(stem) + '-launch.json', preflight=True) + ' && ' + command
++        code, raw = launch_job(args, remote, state, lane, job, command, result_path)
++    else:
++        code, raw = observe_existing(remote, state['current']['pending'], args.timeout)
++    (args.output / f'{job}.log').write_text(raw)
++    save(args.output / f'{job}-completion.json', {'exit_code': code, 'run': state['current']})
++    report = remote._ssh('cat ' + shlex.quote(state['current']['pending']['report_path']),
++                         label='enemy unequip exact-run report', repeat_safe=True)
++    (args.output / f'{job}.report').write_text(report)
++    if int(report.strip()) != code:
++        raise ValueError('completion report changed')
++    capture_guard(remote, lane, state['baseline'], str(stem) + '-after.json', args.output / f'{job}-after.json', sources)
++    save(args.output / f'{job}-local-after.json', local_sources(args.root))
++    if code != 0:
++        raise RuntimeError(f'{job} failed with exit {code}; retained exact run must not relaunch')
++    accept_job(args, remote, state, lane, kind, sources)
++
++
++def run_jobs(args, remote, sources):
++    state = prepare_session(args, remote, sources)
++    for lane in ('plain', 'qt'):
++        remote._preflight(lane)
++        for kind in ('focused', 'comparison'):
++            run_job(args, remote, sources, state, lane, kind)
++    save(args.output / 'complete.json', {'jobs': state['completed'], 'inventory_sha256': PIN})
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[2])
++    parser.add_argument('--output', type=Path, required=True)
++    parser.add_argument('--timeout', type=float, default=1800)
++    parser.add_argument('--guard-only', action='store_true')
++    args = parser.parse_args()
++    if sys.flags.optimize or 'PYTHONOPTIMIZE' in os.environ:
++        raise SystemExit('optimized interpreter refused; no remote calls permitted')
++    if args.timeout <= 0:
++        parser.error('--timeout must be positive')
++    args.root, args.output = args.root.resolve(), args.output.resolve()
++    if args.output.is_relative_to(args.root):
++        parser.error('--output must be outside the source tree')
++    sources = local_sources(args.root)
++    args.output.mkdir(parents=True, exist_ok=True)
++    if args.guard_only:
++        save(args.output / 'local-guard.json', {'source_files': len(sources), 'inventory_sha256': PIN,
++                                              'remote_calls': False, 'product_imports': False})
++        return
++    sys.path.insert(0, str(args.root))
++    from tools import run_remote_tests as remote
++    if remote.HOST != 'armans-macbook-pro' or str(remote.REMOTE_REPO) != '/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork':
++        raise ValueError('remote host or repository pin differs')
++    remote.LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
++    with remote.LOCAL_MIRROR_LOCK_PATH.open('a+') as lock:
++        try:
++            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            raise SystemExit(f'remote mirror busy: {remote.LOCAL_MIRROR_LOCK_PATH}')
++        run_jobs(args, remote, sources)
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/tools/combat/check_enemy_unequip_remote_resume.py
+@@ -0,0 +1,192 @@
++"""Check exact-run resumption with inert fakes; never import the real runner."""
++
++import argparse
++import base64
++import copy
++import importlib.util
++import json
++from pathlib import Path
++import sys
++import tempfile
++from types import SimpleNamespace
++from unittest.mock import patch
++
++
++def expect_error(action, error_type, message):
++    try:
++        action()
++    except error_type as error:
++        assert str(error) == message
++    else:
++        raise AssertionError('expected refusal did not occur')
++
++
++def make_remote(root, pending, events):
++    pending_path = root / 'pending.json'
++
++    def ssh(command, *, label, repeat_safe=False):
++        events.append(['ssh', label, command, repeat_safe])
++        if label == 'remote lane launch':
++            return ''
++        if label == 'enemy unequip exact-run final log':
++            assert command == 'cat /inert/first.log'
++            return 'Inert failed-job output; no test results were fabricated.\n'
++        if label == 'enemy unequip exact-run report':
++            assert command == 'cat /inert/first.report'
++            return '23\n'
++        raise AssertionError(f'unexpected fake SSH operation: {label}')
++
++    def stream(lane, *, timeout, poll_interval):
++        events.append(['launch', lane, timeout, poll_interval])
++        pending_path.write_text(json.dumps(pending))
++        remote._ssh('INERT LAUNCH ONLY', label='remote lane launch')
++        raise TimeoutError('inert observation timeout after launch')
++
++    def completion(path):
++        events.append(['observe', path])
++        assert path == pending['report_path']
++        return 23
++
++    remote = SimpleNamespace(
++        REMOTE_ROOT=Path('/inert'), REMOTE_REPO=Path('/inert/repo'),
++        REMOTE_GAME_MAIN=Path('/inert/game'), REMOTE_DARKAN=Path('/inert/darkan'),
++        REMOTE_PLAIN_SITE=Path('/inert/plain'), REMOTE_VENV=Path('/inert/qt'),
++        _sync=lambda path: events.append(['sync', str(path)]),
++        _preflight=lambda lane: events.append(['preflight', lane]),
++        _pending_path=lambda: pending_path, _ssh=ssh, _stream_remote_run=stream,
++        _completion_report=completion, _remote_lane_command=lambda lane: lane,
++    )
++    return remote
++
++
++def refuse_foreign(driver, args, remote, events, pending):
++    foreign = dict(pending, run_id='inert-unrelated-run')
++    remote._pending_path().write_text(json.dumps(foreign))
++    count = len(events)
++    expect_error(lambda: driver.run_jobs(args, remote, {}), RuntimeError,
++                 'another or unknown remote run owns the mirror pending record')
++    assert len(events) == count
++    assert json.loads(remote._pending_path().read_text()) == foreign
++
++
++def resume_canary(driver, root):
++    output = root / 'output'
++    output.mkdir()
++    pending = {'run_id': 'inert-first-run', 'log_path': '/inert/first.log',
++               'report_path': '/inert/first.report'}
++    events = []
++    remote = make_remote(root, pending, events)
++    args = SimpleNamespace(root=root, output=output, timeout=1)
++
++    def fake_guard(_remote, lane, baseline, remote_output, destination, sources):
++        events.append(['fake-source-guard', lane, baseline, str(remote_output), destination.name, sources])
++        destination.write_text(json.dumps(events[-1]))
++        destination.with_suffix('.raw.json').write_text(json.dumps(events[-1]))
++
++    with patch.object(driver, 'local_sources', return_value={}), \
++         patch.object(driver, 'capture_guard', side_effect=fake_guard):
++        expect_error(lambda: driver.run_jobs(args, remote, {}), TimeoutError,
++                     'inert observation timeout after launch')
++        state = json.loads((output / 'state.json').read_text())
++        assert state['current']['pending'] == pending
++        assert state['completed'] == []
++        first_events = list(events)
++        before = {path.name: path.read_bytes() for path in output.glob('plain-focused-before*.json')}
++        expect_error(lambda: driver.run_jobs(args, remote, {}), RuntimeError,
++                     'plain-focused failed with exit 23; retained exact run must not relaunch')
++        assert sum(event[0] == 'launch' for event in events) == 1
++        assert sum(event[0] == 'sync' for event in events) == 1
++        assert ['observe', pending['report_path']] in events
++        assert json.loads((output / 'state.json').read_text())['current']['pending'] == pending
++        assert json.loads(remote._pending_path().read_text()) == pending
++        assert json.loads((output / 'plain-focused-completion.json').read_text())['exit_code'] == 23
++        assert (output / 'plain-focused.log').read_text().startswith('Inert failed-job output;')
++        assert (output / 'plain-focused.report').read_text() == '23\n'
++        assert all((output / name).read_bytes() == raw for name, raw in before.items())
++        assert len(list(output.glob('plain-focused-resume-before-*.json'))) == 2
++        resume_events = events[len(first_events):]
++        refuse_foreign(driver, args, remote, events, pending)
++        fresh = root / 'fresh-output'
++        fresh.mkdir()
++        refuse_foreign(driver, SimpleNamespace(root=root, output=fresh, timeout=1), remote, events, pending)
++        assert not (fresh / 'state.json').exists()
++    return {'inert_only': True, 'real_remote_calls': False, 'product_imports': False,
++            'launch_timeout_retained_identity': pending, 'first_events': first_events,
++            'resume_events': resume_events, 'resume_launches': 0, 'resume_syncs': 0,
++            'resumed_failed_exit': 23, 'initial_before_evidence_unchanged': True,
++            'existing_and_fresh_foreign_pending_refused': True}
++
++
++def guard_error_canary(driver, root):
++    class InertSSHError(RuntimeError):
++        pass
++
++    message = "inert source guard failed: stdout=''; stderr='inventory mismatch before imports'"
++    remote = make_remote(root, {}, [])
++    remote.SSHCommandError = InertSSHError
++    destination = root / 'guard.json'
++    with patch.object(remote, '_ssh', side_effect=InertSSHError(message)):
++        expect_error(lambda: driver.capture_guard(remote, 'plain', '/inert/baseline.py.gz',
++                                                  '/inert/guard.json', destination, {}),
++                     InertSSHError, message)
++    assert destination.with_suffix('.error.txt').read_text() == message
++    assert not destination.exists()
++    return {'error_retained_verbatim': message}
++
++
++def acceptance_canary(driver):
++    payload = base64.b64encode(b'INERT BYTES, NOT A GAME RESULT OR PICKLE').decode()
++    rows = [{'case': label, 'equal': True, 'rng_calls': 1, 'route_pass': True,
++             'route_expected': {'inert_route': True}, 'route_observed': {'inert_route': True},
++             'baseline_pickle_base64': payload, 'candidate_pickle_base64': payload}
++            for label in driver.CASES]
++    driver.validate_cases(rows)
++    swapped = copy.deepcopy(rows)
++    swapped[0], swapped[1] = swapped[1], swapped[0]
++    expect_error(lambda: driver.validate_cases(swapped), ValueError,
++                 'comparison must contain exactly the four named cases in order')
++    unequal = copy.deepcopy(rows)
++    unequal[0]['candidate_pickle_base64'] = base64.b64encode(b'OTHER INERT BYTES').decode()
++    expect_error(lambda: driver.validate_cases(unequal), ValueError,
++                 'complete output and RNG payload differs or has no draws')
++    no_draws = copy.deepcopy(rows)
++    no_draws[0]['rng_calls'] = 0
++    expect_error(lambda: driver.validate_cases(no_draws), ValueError,
++                 'complete output and RNG payload differs or has no draws')
++    wrong_route = copy.deepcopy(rows)
++    wrong_route[0]['route_observed']['inert_route'] = False
++    expect_error(lambda: driver.validate_cases(wrong_route), ValueError,
++                 'advertised comparison route was not exercised')
++    return {'inert_only': True, 'game_or_test_execution': False,
++            'synthetic_rows_accepted': len(rows), 'swapped_order_refused': True,
++            'unequal_payload_refused': True, 'zero_rng_calls_refused': True,
++            'route_observation_mismatch_refused': True}
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--output', type=Path, required=True)
++    args = parser.parse_args()
++    if sys.flags.optimize:
++        raise SystemExit('optimized interpreter refused')
++
++    def forbid_product(event, values):
++        if event == 'import' and (values[0].startswith(('ankiscape', 'pkg_alias', 'tests'))
++                                  or values[0] == 'tools.run_remote_tests'):
++            raise RuntimeError('inert canary attempted a product or real-runner import')
++
++    sys.addaudithook(forbid_product)
++    path = Path(__file__).with_name('run_enemy_unequip_remote.py')
++    spec = importlib.util.spec_from_file_location('inert_enemy_unequip_driver', path)
++    driver = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(driver)
++    with tempfile.TemporaryDirectory(prefix='enemy-unequip-resume-canary-') as temporary:
++        root = Path(temporary)
++        report = resume_canary(driver, root)
++        report['source_guard_error'] = guard_error_canary(driver, root)
++        report['acceptance_stops'] = acceptance_canary(driver)
++    args.output.write_text(json.dumps(report, indent=2) + '\n')
++
++
++if __name__ == '__main__':
++    main()

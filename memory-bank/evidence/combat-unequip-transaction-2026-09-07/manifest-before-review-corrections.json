@@ -1,0 +1,82 @@
+{
+  "status": "STATIC_PREPARATION_ONLY_RUNTIME_UNEXECUTED",
+  "base_commit": "5888f215ee1bd6fb6cdc3e003a7dfe57a2f4c56a",
+  "baseline_sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+  "source_sha256": {
+    "logic_pure/logic_pure_combat_engine.py": "1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a",
+    "tests/combat/test_enemy_unequip_transaction.py": "dbd931bb0545e7d691fa400eb4a1aa1f573198a08cc31ab2775949bc31089ad7",
+    "tools/combat/compare_enemy_unequip_transaction.py": "1f58cf6d84c9c6a7eb11b52aabd24c5013f31730e66f7cb5276b579e666b51f7",
+    "tools/combat/check_enemy_unequip_guards.py": "fbde015953cc290551da5482abc8721c7ca81d2275276e53ffb0f73d5304c3f0"
+  },
+  "inventory": {
+    "path": "source-inventory.json.gz",
+    "sha256": "26b408ce88e2a45c06896ccbde26f02fec3e65da4ab92268b45a2ecd256dfe3a",
+    "entries": 877,
+    "scope": "All base-tracked Python and JSON files; three new source files; fixed baseline, gate, and pins. The manifest is the independent authority for the command-line inventory hash."
+  },
+  "static_metrics": {
+    "status": "PASS",
+    "path": "static-metrics.json",
+    "failures": {
+      "ccn": [],
+      "cognitive": [],
+      "halstead": [],
+      "layout": [],
+      "file_growth": []
+    },
+    "base_engine_lines": 3010,
+    "candidate_engine_lines": 3009,
+    "scope": "Installed CCN, cognitive, Halstead, layout, and file-growth ratchets only. This is not a full commit hook or runtime check."
+  },
+  "focused_selectors": [
+    "EnemyUnequipTransactionTest",
+    "ChaosElementalTests.test_unequip_special_moves_weapon_to_carried_pack_and_preserves_encounter"
+  ],
+  "planned_focused_cases": 5,
+  "planned_case_labels": [
+    "weapon:live-resume",
+    "sorted-fallback:legacy",
+    "empty:legacy",
+    "condition:live-resume"
+  ],
+  "guard_status": "NOT_EXECUTED",
+  "runtime_status": "NOT_EXECUTED",
+  "independent_review_status": "PENDING",
+  "missing_acceptance": [
+    "Parent full review",
+    "Independent review",
+    "Authorized pre-import guard execution",
+    "Focused and differential runs in both host lanes",
+    "Normal commit hooks and author commit",
+    "Full branch and exact merged-tree gates",
+    "Parent native program acceptance"
+  ],
+  "evidence_sha256": {
+    "baseline-engine.py.gz": "cc43ce15c3b14734bd2c39fdfc4516a5f6f386ddc7e163ef6627ed1d60bdffd7",
+    "candidate-engine.py.gz": "32127386abd9085c5ad42a840402e777fa1ee09fe472f814d9454fd6c3d072b5",
+    "engine-full.diff.gz": "7f35d04bc8d5a93105b4b30510a996d727c9e4ffc2825936d263592f7aa9183b",
+    "initial-pins.json": "d7836abbb47d3ae93524fecd6d132efa38804acc3f4a6f105028ee25b339b21b",
+    "product-review.diff": "d7ddd14ff25d3c1856ed04cbe80800f73a1a160098e85f90dc8439d6330da5ab",
+    "simplification-review.md": "56fd1e3c76e1c69c5d960ad38a367021443a9ae7c0071da814f5609cb69cc6de",
+    "slop-gate.py.gz": "4b4b6090863d97a0c8b4eba710befdf6942d508f8b98fcd1ae5e007f31ed4b27",
+    "source-inventory.json.gz": "26b408ce88e2a45c06896ccbde26f02fec3e65da4ab92268b45a2ecd256dfe3a",
+    "static-metrics.json": "fba99688986f7041114bc35e328d7196f5dd6bd528a9013df13f5879915d47b9",
+    "static-raw.json.gz": "89832f091bc90607ed69c094aac1d7cd18e5953093d81d253ba841a3c5f17d71",
+    "static-verification.py.gz": "2dac5d5738c65c3d0d527bffb2ea3441a74a214b879926eca9aa3c08748d875f",
+    "structural-proof.json": "83c21ea6ec2c3b5f76bbc8ad66900da65477c54ca214e6b9aa36e961768fc3cf"
+  },
+  "product_review": {
+    "path": "product-review.diff",
+    "bytes": 18057,
+    "sha256": "d7ddd14ff25d3c1856ed04cbe80800f73a1a160098e85f90dc8439d6330da5ab"
+  },
+  "plan": {
+    "path": "memory-bank/plans/combat-unequip-transaction-2026-09-07.md",
+    "sha256": "c7abcdfa483853d2af7475b1d78edf57a4c68cd77b3624cf496617bf2603cc46",
+    "immutable": true
+  },
+  "handoff": {
+    "path": "memory-bank/handoffs/combat-unequip-transaction-2026-09-07.md",
+    "sha256": "75cd3186ea5f7071a9f218a947fab6f5c4c50f246033049cede19d8f853b784e"
+  }
+}

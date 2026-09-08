@@ -1094,6 +1094,38 @@ def _combat_enemy_attack_rolls(
     return enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit
 
 
+def _combat_apply_enemy_unequip_special(data, target_id):
+    before_equipment = dict(data.get("equipment", {}) or {})
+    slot_order = ("weapon",) + tuple(sorted(slot for slot in before_equipment if slot != "weapon"))
+    removed_item = ""
+    removed_slot = ""
+    for slot in slot_order:
+        item_name = before_equipment.get(slot)
+        if not isinstance(item_name, str) or not item_name:
+            continue
+        removed_item = item_name
+        removed_slot = slot
+        break
+    if removed_item:
+        equipment = dict(before_equipment)
+        equipment.pop(removed_slot, None)
+        inventory = dict(data.get("inventory", {}) or {})
+        inventory[removed_item] = int(inventory.get(removed_item, 0) or 0) + 1
+        carried = dict(data.get("carried_inventory", {}) or {})
+        carried_view = dict(carried.get(target_id, {}) or {})
+        carried_view[removed_item] = (
+            int(carried_view.get(removed_item, 0) or 0) + 1
+        )
+        carried[target_id] = carried_view
+        data["equipment"] = equipment
+        data["inventory"] = inventory
+        data["carried_inventory"] = carried
+        data = sync_equipment_instances_pure(
+            data, before_equipment, EQUIPMENT_CONDITION_DATA
+        )
+    return data, {"kind": "unequip", "item": removed_item, "slot": removed_slot}
+
+
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -1883,43 +1915,10 @@ def apply_combat_burst_pure(
                 enemy_specials.append({"kind": "teleport", "delay_ticks": delay})
                 break
             if attack_kind == "unequip":
-                before_equipment = dict(data.get("equipment", {}) or {})
-                slot_order = ("weapon",) + tuple(
-                    sorted(slot for slot in before_equipment if slot != "weapon")
+                data, unequip_event = _combat_apply_enemy_unequip_special(
+                    data, target_id
                 )
-                removed_item = ""
-                removed_slot = ""
-                for slot in slot_order:
-                    item_name = before_equipment.get(slot)
-                    if not isinstance(item_name, str) or not item_name:
-                        continue
-                    removed_item = item_name
-                    removed_slot = slot
-                    break
-                if removed_item:
-                    equipment = dict(before_equipment)
-                    equipment.pop(removed_slot, None)
-                    inventory = dict(data.get("inventory", {}) or {})
-                    inventory[removed_item] = int(inventory.get(removed_item, 0) or 0) + 1
-                    carried = dict(data.get("carried_inventory", {}) or {})
-                    carried_view = dict(carried.get(target_id, {}) or {})
-                    carried_view[removed_item] = (
-                        int(carried_view.get(removed_item, 0) or 0) + 1
-                    )
-                    carried[target_id] = carried_view
-                    data["equipment"] = equipment
-                    data["inventory"] = inventory
-                    data["carried_inventory"] = carried
-                    data = sync_equipment_instances_pure(
-                        data, before_equipment, EQUIPMENT_CONDITION_DATA
-                    )
-                enemy_specials.append(
-                    {
-                        "kind": "unequip",
-                        "item": removed_item,
-                        "slot": removed_slot,
-                    }
-                )
+                enemy_specials.append(unequip_event)
                 break
 
             attack_enemy = enemy

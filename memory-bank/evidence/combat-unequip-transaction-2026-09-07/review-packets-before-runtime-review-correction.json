@@ -1,0 +1,23 @@
+{
+  "product_before_review_corrections": {
+    "path": "product-review.diff",
+    "bytes": 18057,
+    "sha256": "d7ddd14ff25d3c1856ed04cbe80800f73a1a160098e85f90dc8439d6330da5ab"
+  },
+  "operational_before_runtime": {
+    "path": "operational-review.diff",
+    "bytes": 20340,
+    "sha256": "8eb043191355c750a3bc025a738545706c865875394f18555294e25ff86844f5"
+  },
+  "review_corrections": {
+    "path": "independent-review-corrections.diff",
+    "bytes": 13663,
+    "sha256": "15c8e9dc5374bc9e6e13c563ba3e67fdafb0ca5ed1ff4b4976787c1d07830e51"
+  },
+  "runtime_operational": {
+    "path": "runtime-operational-review.diff",
+    "bytes": 22686,
+    "sha256": "71ab84cd05e9660b1e3fb71e183b12d3cd39aac69fbb685bb02541fdc7571145"
+  },
+  "manifest_sha256": "e80357bdc5fe37b04790a80f3caacfa6b8bc16e65568afe171f83eae79b09870"
+}
