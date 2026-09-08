@@ -4,6 +4,7 @@ from typing import Mapping
 
 from .logic_pure_combat_model import (
     COMBAT_POISON_NPC_ATTACK_CHANCE,
+    _combat_cap_damage_for_finisher,
     _combat_unprotected_damage_lifepoints,
 )
 from .logic_pure_combat_supplies import (
@@ -13,7 +14,28 @@ from .logic_pure_combat_supplies import (
     combat_poison_damage_for_ticks_pure,
     combat_poison_ticks_for_initial_damage_pure,
 )
-from .logic_pure_state import _non_negative_int
+from .logic_pure_state import _non_negative_int, _positive_int
+
+
+def _combat_death_prayer_damage(data, selected_prayers, finisher, enemy_lp, rng):
+    cap_multiplier = 2.5 if "wrath" in selected_prayers else .25
+    # Death prayers include 1.0; special-attack damage rolls exclude it.
+    try:
+        death_roll = max(0.0, min(1.0, float(rng())))
+    except (TypeError, ValueError):
+        death_roll = 0.0
+    death_burst, automatic_finisher = _combat_cap_damage_for_finisher(
+        data,
+        finisher,
+        enemy_lp,
+        int(
+            _positive_int(data.get("prayer_level", 1), 1)
+            * cap_multiplier
+            * death_roll
+        ),
+        allow_automatic=False,
+    )
+    return death_burst, automatic_finisher
 
 
 def _combat_enemy_poison_application(data, poison_damage, rng, status_applied):

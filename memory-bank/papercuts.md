@@ -2238,3 +2238,11 @@
 2026-09-08T11:54:48.246393-07:00 Root final Opus wrapper session72295 stalled before quota preflight: process68288 was verified with lsof against exact stdout/stderr /tmp/ankiscape-food-poison-final-opus-2026-09-08.txt and /tmp/ankiscape-food-poison-final-opus-2026-09-08.stderr; ps at17:38 elapsed showed CPU98.8%, CPUtime17:12.11, both files0B. Root sent SIGTERM only to68288; terminal143. The same full84699B prompt with LC_ALL=C --dry-run raised subprocess.TimeoutExpired after30s before any provider call. Bash long-prompt substitution is suspected; no specific line is proven. Root retries a short prompt with scoped read-only access to the exact preserved84KB input in Opus session20073; no product changes. Shell discovery `command -v -a bash` failed with zsh error127; /opt/homebrew/bin/bash was absent. No repair or runtime scope.
 
 2026-09-08T11:59:30.428713-07:00 Root checkpoint update initially guessed nonexistent `memory-bank/priority-matrix.md`; rg returned2. `rg --files memory-bank` identified the actual `memory-bank/goal-priority-matrix.md`; resolved without repair scope.
+
+- 2026-09-08T12:50:32-07:00 — While locating the death-prayer review, a shell glob failed with `zsh:1: no matches found: /tmp/ankiscape-death-prayer*`. Root supplied the exact `ankiscape-keep-final-death-boundary-opus-2026-09-08` prefix; read the named files directly.
+
+- 2026-09-08T13:10:54-07:00 — Root final-review lookup failed with `cat: memory-bank/evidence/combat-death-prayer-2026-09-08/final-review-retention.json: No such file or directory`. The retained final review metadata is `memory-bank/evidence/combat-death-prayer-2026-09-08/parent-review-resolution.json`.
+
+- 2026-09-08T13:39:13-07:00 — Death-prayer staged evidence check returned exit 2: `product-review.diff` and `retention-fix.diff` had `trailing whitespace.` from literal unified-diff context spaces. Retained exact bytes in deterministic gzip with decoded hashes and preserved prior manifest/index; no trimming or waiver.
+
+- 2026-09-08 — Root's generic death-prayer manifest verifier assumed every `decoded_sha256` entry also had `decoded_bytes` and raised `KeyError: 'decoded_bytes'`. The rerun checked the optional byte count only when present; all actual hash and original-byte bindings passed.

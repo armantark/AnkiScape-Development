@@ -1,0 +1,342 @@
+{
+  "status": "FOCUSED_AND_DIFFERENTIAL_RUNTIME_PASS_FULL_GATES_PENDING",
+  "source": "Root-owned completed jobs; retention only by this author.",
+  "artifacts": {
+    "plain-focused/accepted.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/accepted.json",
+      "original_sha256": "fa029494c0d54d89acb253108ea2c6743290953505c2c821de29e89a115d42d6",
+      "decoded_sha256": "fa029494c0d54d89acb253108ea2c6743290953505c2c821de29e89a115d42d6",
+      "stored_sha256": "72c1f91f07f9bff07165fac45eb3357d4301340b8d9a8a11a914d08e5323aac1",
+      "decoded_bytes": 436,
+      "stored_bytes": 251
+    },
+    "plain-focused/after.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/after.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "plain-focused/after.raw.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/after.raw.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "plain-focused/before.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/before.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "plain-focused/before.raw.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/before.raw.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "plain-focused/completion.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/completion.json",
+      "original_sha256": "9047e04ef8c1f9bd837fc6a7b8bead23070f85ccc01fc62a52b0f4b9319b31a1",
+      "decoded_sha256": "9047e04ef8c1f9bd837fc6a7b8bead23070f85ccc01fc62a52b0f4b9319b31a1",
+      "stored_sha256": "673de2f43d2211f8058ddfd5c4bda695be0c9404e86ba5ac490cab4bfa2f97f4",
+      "decoded_bytes": 303,
+      "stored_bytes": 166
+    },
+    "plain-focused/identity.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/identity.json",
+      "original_sha256": "64de248999b766bcf14c63d3f98c8b68e1691b497f3feab2f5d8bfaf5eb1c832",
+      "decoded_sha256": "64de248999b766bcf14c63d3f98c8b68e1691b497f3feab2f5d8bfaf5eb1c832",
+      "stored_sha256": "73f974c17857dbb4cb2b7e1163278af1b31f59755c14c5960402088833eec828",
+      "decoded_bytes": 325,
+      "stored_bytes": 172
+    },
+    "plain-focused/local-after.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/local-after.json",
+      "original_sha256": "5d40df82827e624f17f980af9fe11a4f2d6dec89bf74367149113896782687e3",
+      "decoded_sha256": "5d40df82827e624f17f980af9fe11a4f2d6dec89bf74367149113896782687e3",
+      "stored_sha256": "24f46780c27c25f7abcff45da4c4831633823e7e18472ed01d7f55a88babb535",
+      "decoded_bytes": 155386,
+      "stored_bytes": 61359
+    },
+    "plain-focused/run.log.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/run.log",
+      "original_sha256": "6cd0294c23e45476ba62a2414e8386d938ddecdf9f98f57df18d31f2802680f4",
+      "decoded_sha256": "6cd0294c23e45476ba62a2414e8386d938ddecdf9f98f57df18d31f2802680f4",
+      "stored_sha256": "d91ad0228a3a6609005ad5d599ff6064913d5018f9b331f0eb29d8612ad5f7a7",
+      "decoded_bytes": 498,
+      "stored_bytes": 194
+    },
+    "plain-focused/run.report.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-focused/run.report",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "decoded_bytes": 2,
+      "stored_bytes": 22
+    },
+    "plain-comparison/accepted.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/accepted.json",
+      "original_sha256": "2eb7695934903b7bc82312ca13c725777b2eb09c7ce1c71908a9cd57ca9d0054",
+      "decoded_sha256": "2eb7695934903b7bc82312ca13c725777b2eb09c7ce1c71908a9cd57ca9d0054",
+      "stored_sha256": "1276c128ed941174c503ea104bb86fc4052a3063dbaa5b4ff4bca54fb5b71c6b",
+      "decoded_bytes": 439,
+      "stored_bytes": 253
+    },
+    "plain-comparison/after.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/after.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "plain-comparison/after.raw.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/after.raw.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "plain-comparison/before.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/before.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "plain-comparison/before.raw.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/before.raw.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "plain-comparison/comparison.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/comparison.json",
+      "original_sha256": "156d57bed8584b2e778592e8715c5bf695972b304361f7d2e57e8aa541804063",
+      "decoded_sha256": "156d57bed8584b2e778592e8715c5bf695972b304361f7d2e57e8aa541804063",
+      "stored_sha256": "2fd80f4e775c43f40bf01498502056b3d46df8b1e45f55b61633238b7d119d99",
+      "decoded_bytes": 587259,
+      "stored_bytes": 150853
+    },
+    "plain-comparison/completion.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/completion.json",
+      "original_sha256": "6fb4ffb70c17bb19265f78dac0a0c989715d278404856be01efebcda6d3b2e6b",
+      "decoded_sha256": "6fb4ffb70c17bb19265f78dac0a0c989715d278404856be01efebcda6d3b2e6b",
+      "stored_sha256": "9664e27859ce5f9c897ea06af4b4a5d6ec2ef1a51844ef9927bdce1c76021b13",
+      "decoded_bytes": 303,
+      "stored_bytes": 166
+    },
+    "plain-comparison/identity.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/identity.json",
+      "original_sha256": "bb7c8ba0059d88f9fcde2e6ea6906a9d374a540758f848026d6882a57e426b82",
+      "decoded_sha256": "bb7c8ba0059d88f9fcde2e6ea6906a9d374a540758f848026d6882a57e426b82",
+      "stored_sha256": "171dec7f513195f73c17be55900dcd578c24ae9b5d26b95d88dc5d568385213e",
+      "decoded_bytes": 328,
+      "stored_bytes": 174
+    },
+    "plain-comparison/local-after.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/local-after.json",
+      "original_sha256": "5d40df82827e624f17f980af9fe11a4f2d6dec89bf74367149113896782687e3",
+      "decoded_sha256": "5d40df82827e624f17f980af9fe11a4f2d6dec89bf74367149113896782687e3",
+      "stored_sha256": "24f46780c27c25f7abcff45da4c4831633823e7e18472ed01d7f55a88babb535",
+      "decoded_bytes": 155386,
+      "stored_bytes": 61359
+    },
+    "plain-comparison/run.log.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/run.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "stored_bytes": 20
+    },
+    "plain-comparison/run.report.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/plain-comparison/run.report",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "decoded_bytes": 2,
+      "stored_bytes": 22
+    },
+    "qt-focused/accepted.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/accepted.json",
+      "original_sha256": "13549724200eee5d10016f4ea275d76796e423e1527827e3af4f34db94298875",
+      "decoded_sha256": "13549724200eee5d10016f4ea275d76796e423e1527827e3af4f34db94298875",
+      "stored_sha256": "5f335de3c6092b9704e3251656a5872a8e1207832e6eb662491c7ecff6db0b9e",
+      "decoded_bytes": 424,
+      "stored_bytes": 249
+    },
+    "qt-focused/after.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/after.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "qt-focused/after.raw.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/after.raw.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "qt-focused/before.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/before.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "qt-focused/before.raw.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/before.raw.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "qt-focused/completion.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/completion.json",
+      "original_sha256": "124128057524a0463da309ff50c39e3e865d909196628554b125f863cf223c5c",
+      "decoded_sha256": "124128057524a0463da309ff50c39e3e865d909196628554b125f863cf223c5c",
+      "stored_sha256": "ebb938e7b36733d5b4d0c8a845fddf34a9063c93e0b0b8e50d75d64ba2a8f6aa",
+      "decoded_bytes": 294,
+      "stored_bytes": 166
+    },
+    "qt-focused/identity.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/identity.json",
+      "original_sha256": "8a300c33a9537a11c8a6daf49d261bf4de08b5b5a38e3515e2e9e7cc31ff5e12",
+      "decoded_sha256": "8a300c33a9537a11c8a6daf49d261bf4de08b5b5a38e3515e2e9e7cc31ff5e12",
+      "stored_sha256": "719e284c379d3a42f66da86eed0ca07a6a21028dc557bb0ef71c3c5fb0138ec1",
+      "decoded_bytes": 313,
+      "stored_bytes": 170
+    },
+    "qt-focused/local-after.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/local-after.json",
+      "original_sha256": "5d40df82827e624f17f980af9fe11a4f2d6dec89bf74367149113896782687e3",
+      "decoded_sha256": "5d40df82827e624f17f980af9fe11a4f2d6dec89bf74367149113896782687e3",
+      "stored_sha256": "24f46780c27c25f7abcff45da4c4831633823e7e18472ed01d7f55a88babb535",
+      "decoded_bytes": 155386,
+      "stored_bytes": 61359
+    },
+    "qt-focused/run.log.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/run.log",
+      "original_sha256": "6cd0294c23e45476ba62a2414e8386d938ddecdf9f98f57df18d31f2802680f4",
+      "decoded_sha256": "6cd0294c23e45476ba62a2414e8386d938ddecdf9f98f57df18d31f2802680f4",
+      "stored_sha256": "d91ad0228a3a6609005ad5d599ff6064913d5018f9b331f0eb29d8612ad5f7a7",
+      "decoded_bytes": 498,
+      "stored_bytes": 194
+    },
+    "qt-focused/run.report.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-focused/run.report",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "decoded_bytes": 2,
+      "stored_bytes": 22
+    },
+    "qt-comparison/accepted.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/accepted.json",
+      "original_sha256": "c36f017b89f0c48bf19d9991d58d4835b3cb0de7518cbdbb1fe26127e96a953e",
+      "decoded_sha256": "c36f017b89f0c48bf19d9991d58d4835b3cb0de7518cbdbb1fe26127e96a953e",
+      "stored_sha256": "74db25e860fd571c0db1ab0b5cfa52699c86d1a169dbce3cff28bca347fe6ccb",
+      "decoded_bytes": 427,
+      "stored_bytes": 251
+    },
+    "qt-comparison/after.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/after.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "qt-comparison/after.raw.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/after.raw.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "qt-comparison/before.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/before.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "qt-comparison/before.raw.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/before.raw.json",
+      "original_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "decoded_sha256": "356be31dd96b5ded85603cbf39d13036703446182d6e74b741c2346cdc7d8e29",
+      "stored_sha256": "cd282cf74cb329a9292368690069da25a7ac58a45d0794bcc4fdae1551dc12ea",
+      "decoded_bytes": 316252,
+      "stored_bytes": 122561
+    },
+    "qt-comparison/comparison.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/comparison.json",
+      "original_sha256": "156d57bed8584b2e778592e8715c5bf695972b304361f7d2e57e8aa541804063",
+      "decoded_sha256": "156d57bed8584b2e778592e8715c5bf695972b304361f7d2e57e8aa541804063",
+      "stored_sha256": "2fd80f4e775c43f40bf01498502056b3d46df8b1e45f55b61633238b7d119d99",
+      "decoded_bytes": 587259,
+      "stored_bytes": 150853
+    },
+    "qt-comparison/completion.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/completion.json",
+      "original_sha256": "2073eb9b4f40a4a4489c93b39ecf34252f009a9a14f24d2ae771b98736d4fdcf",
+      "decoded_sha256": "2073eb9b4f40a4a4489c93b39ecf34252f009a9a14f24d2ae771b98736d4fdcf",
+      "stored_sha256": "65817430812f82ef0c5b370e3bbffaeb05dbd7e107318538acb0a770d12f8879",
+      "decoded_bytes": 294,
+      "stored_bytes": 165
+    },
+    "qt-comparison/identity.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/identity.json",
+      "original_sha256": "ff15081b2f523f6278e859070a227bfdd520d0d4dbfc9f36e7d5e103da1ba5fe",
+      "decoded_sha256": "ff15081b2f523f6278e859070a227bfdd520d0d4dbfc9f36e7d5e103da1ba5fe",
+      "stored_sha256": "04d499cc6c4f634e3021ffe83a28e1c93f712156a70b7be87d580d7bf6ec1ac0",
+      "decoded_bytes": 316,
+      "stored_bytes": 170
+    },
+    "qt-comparison/local-after.json.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/local-after.json",
+      "original_sha256": "5d40df82827e624f17f980af9fe11a4f2d6dec89bf74367149113896782687e3",
+      "decoded_sha256": "5d40df82827e624f17f980af9fe11a4f2d6dec89bf74367149113896782687e3",
+      "stored_sha256": "24f46780c27c25f7abcff45da4c4831633823e7e18472ed01d7f55a88babb535",
+      "decoded_bytes": 155386,
+      "stored_bytes": 61359
+    },
+    "qt-comparison/run.log.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/run.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decoded_bytes": 0,
+      "stored_bytes": 20
+    },
+    "qt-comparison/run.report.gz": {
+      "original_path": "/tmp/ankiscape-death-prayer-final-runtime-2026-09-08/qt-comparison/run.report",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae",
+      "decoded_bytes": 2,
+      "stored_bytes": 22
+    }
+  }
+}
