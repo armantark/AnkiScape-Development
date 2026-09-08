@@ -1,0 +1,568 @@
+{
+  "all_stored_files_decode_to_original_bytes": true,
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "completed_scope": [
+    "focused plain",
+    "focused Qt",
+    "differential plain",
+    "differential Qt"
+  ],
+  "current_pins": {
+    "comparator_sha256": "c87fa181e2e951ef8923e2206cf8ae181055e5f1a523d3770078c2533b9336b3",
+    "corrected_inert_canary_sha256": "e64be8d59c5ad026b33f9e1924e67a37b5ac46589d8c43ce01d06fa9875b1a7c",
+    "source_inventory_decoded_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+    "source_inventory_stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e"
+  },
+  "failed_attempt_preserved": {
+    "archive_manifest_sha256": "1d173e4a34f581ba80aa5e057778fa3c1d3f78ce588cc370006f0845d105b7a4",
+    "failed_comparison_sha256": "5de3389dd351ea25257b04a6862e3366b902e0232a8ea299d63b2571eb64545b",
+    "path": "memory-bank/evidence/combat-food-module-runtime-attempt-1-2026-09-08",
+    "reason": "The authored safe-threshold route retained constitution level 1, which capped requested 100 lifepoints to 10. Baseline and candidate remained byte-identical."
+  },
+  "native_programme_acceptance": {
+    "separate_from_landing_workflow": true,
+    "status": "pending"
+  },
+  "new_owner_approval_required_for_landing": false,
+  "original_directory": "/tmp/ankiscape-food-corrected-runtime-2026-09-08",
+  "parent_verified_acceptance": {
+    "comparison": {
+      "plain": {
+        "cases": 15,
+        "run_id": "plain-1788896628-a8430591",
+        "status": "PASS"
+      },
+      "qt": {
+        "cases": 15,
+        "run_id": "qt-1788896707-9a1e7c54",
+        "status": "PASS"
+      }
+    },
+    "complete_pickle_bytes_equal": true,
+    "complete_return_values_equal": true,
+    "focused": {
+      "plain": {
+        "run_id": "plain-1788896592-6b36c0ba",
+        "seconds": 0.002,
+        "skips": 0,
+        "tests": 9
+      },
+      "qt": {
+        "run_id": "qt-1788896684-cbc79c52",
+        "seconds": 0.002,
+        "skips": 0,
+        "tests": 9
+      }
+    },
+    "inputs_unchanged": true,
+    "local_after_and_current_sources_exact": true,
+    "restricted_unpickler_structure_equal": true,
+    "routes_equal_expected": true,
+    "source_guard_before_after_raw_bytes_and_maps_equal": true,
+    "source_inventory_entries": 1218,
+    "zero_exit_reports": 4
+  },
+  "pending_scope": [
+    "root review",
+    "normal branch commit",
+    "full source gate",
+    "merge into composition tree I",
+    "exact post-merge gate",
+    "main landing"
+  ],
+  "retained_file_count": 42,
+  "retained_files": [
+    {
+      "decoded_bytes": 439,
+      "decoded_sha256": "29b6fad53dde14d76c10a807fc2057a502ff350007f96fab05420dae500b5537",
+      "original_bytes": 439,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/accepted.json",
+      "original_sha256": "29b6fad53dde14d76c10a807fc2057a502ff350007f96fab05420dae500b5537",
+      "stored_bytes": 252,
+      "stored_path": "accepted-runtime/plain-comparison-accepted.json.gz",
+      "stored_sha256": "17899b6083e0c816af89ead161766552fe81f919e0548b0ba4d777647e219620"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/after.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/plain-comparison-after.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/after.raw.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/plain-comparison-after.raw.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/before.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/plain-comparison-before.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/before.raw.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/plain-comparison-before.raw.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 336856,
+      "decoded_sha256": "bf2d9bf91d14795f2e0cc15d9a4ee8c36bfd1bd3fba12e91f44456d833b53cb6",
+      "original_bytes": 336856,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/comparison.json",
+      "original_sha256": "bf2d9bf91d14795f2e0cc15d9a4ee8c36bfd1bd3fba12e91f44456d833b53cb6",
+      "stored_bytes": 121640,
+      "stored_path": "accepted-runtime/plain-comparison-comparison.json.gz",
+      "stored_sha256": "a6347c6b69f9a193de72534ba1e900975a49d6ac8630f3824ff2a61d56644b6e"
+    },
+    {
+      "decoded_bytes": 303,
+      "decoded_sha256": "56ce09a8e57c212dbdda43f3feea24cea3755e911683d80ff2925d861d95899b",
+      "original_bytes": 303,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/completion.json",
+      "original_sha256": "56ce09a8e57c212dbdda43f3feea24cea3755e911683d80ff2925d861d95899b",
+      "stored_bytes": 166,
+      "stored_path": "accepted-runtime/plain-comparison-completion.json.gz",
+      "stored_sha256": "8c43177011be3ed641e4913c6f10dc3a22602ae073bb5778e58d5489266430f5"
+    },
+    {
+      "decoded_bytes": 328,
+      "decoded_sha256": "e7cac839d7947b83f59966c5a087557d4a670c150dc0d992b7a60b39667c7f6b",
+      "original_bytes": 328,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/identity.json",
+      "original_sha256": "e7cac839d7947b83f59966c5a087557d4a670c150dc0d992b7a60b39667c7f6b",
+      "stored_bytes": 175,
+      "stored_path": "accepted-runtime/plain-comparison-identity.json.gz",
+      "stored_sha256": "023b3051fe20e0d5b0956c1c53e1598f24825e4bce7dfff0e31eb91014f56ab1"
+    },
+    {
+      "decoded_bytes": 145964,
+      "decoded_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+      "original_bytes": 145964,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/local-after.json",
+      "original_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+      "stored_bytes": 58512,
+      "stored_path": "accepted-runtime/plain-comparison-local-after.json.gz",
+      "stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/run.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_path": "accepted-runtime/plain-comparison-run.log.gz",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "original_bytes": 2,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-comparison/run.report",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_bytes": 22,
+      "stored_path": "accepted-runtime/plain-comparison-run.report.gz",
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    {
+      "decoded_bytes": 436,
+      "decoded_sha256": "47e27b3d2abb98c09bf6fffd7751fa13aa6998e12791a279545b76b5e6b33398",
+      "original_bytes": 436,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/accepted.json",
+      "original_sha256": "47e27b3d2abb98c09bf6fffd7751fa13aa6998e12791a279545b76b5e6b33398",
+      "stored_bytes": 250,
+      "stored_path": "accepted-runtime/plain-focused-accepted.json.gz",
+      "stored_sha256": "8cc7e21c28ddb90f895de263f9840fb9e5f5021e8b77034c755747e7ef8738fb"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/after.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/plain-focused-after.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/after.raw.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/plain-focused-after.raw.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/before.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/plain-focused-before.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/before.raw.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/plain-focused-before.raw.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 303,
+      "decoded_sha256": "c33ffaa48aec6f449464344c3fbef9320b120f840837121db050a181f21eb399",
+      "original_bytes": 303,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/completion.json",
+      "original_sha256": "c33ffaa48aec6f449464344c3fbef9320b120f840837121db050a181f21eb399",
+      "stored_bytes": 166,
+      "stored_path": "accepted-runtime/plain-focused-completion.json.gz",
+      "stored_sha256": "2e30db4fe3aac36a9563ee0ab553b84859cc8e9d7cc8ee7948bb6c1ac9476abc"
+    },
+    {
+      "decoded_bytes": 325,
+      "decoded_sha256": "6b6653d1ecda0859a27e39a16f706ecdf214d95c797b0ebcb2573548acba4161",
+      "original_bytes": 325,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/identity.json",
+      "original_sha256": "6b6653d1ecda0859a27e39a16f706ecdf214d95c797b0ebcb2573548acba4161",
+      "stored_bytes": 173,
+      "stored_path": "accepted-runtime/plain-focused-identity.json.gz",
+      "stored_sha256": "708e371d3890d12cc277cc0426c0df67050bf3cf7ce0e46e088e51b3ed8ee823"
+    },
+    {
+      "decoded_bytes": 145964,
+      "decoded_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+      "original_bytes": 145964,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/local-after.json",
+      "original_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+      "stored_bytes": 58512,
+      "stored_path": "accepted-runtime/plain-focused-local-after.json.gz",
+      "stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e"
+    },
+    {
+      "decoded_bytes": 1680,
+      "decoded_sha256": "0a3c25ad50b260ddcd30d0483b67cfacef21a0a3670fbc24348120cc4d4e62da",
+      "original_bytes": 1680,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/run.log",
+      "original_sha256": "0a3c25ad50b260ddcd30d0483b67cfacef21a0a3670fbc24348120cc4d4e62da",
+      "stored_bytes": 444,
+      "stored_path": "accepted-runtime/plain-focused-run.log.gz",
+      "stored_sha256": "893aefe426735d73866f1ff9cb99591db4bff7f07bccf7e941a8318ac8f051cd"
+    },
+    {
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "original_bytes": 2,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/plain-focused/run.report",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_bytes": 22,
+      "stored_path": "accepted-runtime/plain-focused-run.report.gz",
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    {
+      "decoded_bytes": 427,
+      "decoded_sha256": "f74e09e9161b1a8b18c3a9d708047798a2a525b72f489434b5afc007af3bda5d",
+      "original_bytes": 427,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/accepted.json",
+      "original_sha256": "f74e09e9161b1a8b18c3a9d708047798a2a525b72f489434b5afc007af3bda5d",
+      "stored_bytes": 248,
+      "stored_path": "accepted-runtime/qt-comparison-accepted.json.gz",
+      "stored_sha256": "debf3e902aa711b2e7ad66f18b668d9c0318e1b35e4e591731e3c0acb1c5fc6a"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/after.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/qt-comparison-after.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/after.raw.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/qt-comparison-after.raw.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/before.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/qt-comparison-before.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/before.raw.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/qt-comparison-before.raw.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 336856,
+      "decoded_sha256": "bf2d9bf91d14795f2e0cc15d9a4ee8c36bfd1bd3fba12e91f44456d833b53cb6",
+      "original_bytes": 336856,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/comparison.json",
+      "original_sha256": "bf2d9bf91d14795f2e0cc15d9a4ee8c36bfd1bd3fba12e91f44456d833b53cb6",
+      "stored_bytes": 121640,
+      "stored_path": "accepted-runtime/qt-comparison-comparison.json.gz",
+      "stored_sha256": "a6347c6b69f9a193de72534ba1e900975a49d6ac8630f3824ff2a61d56644b6e"
+    },
+    {
+      "decoded_bytes": 294,
+      "decoded_sha256": "321c073eb32e3a1925a4bccc4e0aaf4dcee4c4ef9b89e8b8effb0815f208e83c",
+      "original_bytes": 294,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/completion.json",
+      "original_sha256": "321c073eb32e3a1925a4bccc4e0aaf4dcee4c4ef9b89e8b8effb0815f208e83c",
+      "stored_bytes": 164,
+      "stored_path": "accepted-runtime/qt-comparison-completion.json.gz",
+      "stored_sha256": "1016dc7d2d43edef46252a215575cba8057007f4d9afee50994f08586b6e18f7"
+    },
+    {
+      "decoded_bytes": 316,
+      "decoded_sha256": "83571b2794889725c6b297e96346e56b670f521bcf077ec7a019883e059477e0",
+      "original_bytes": 316,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/identity.json",
+      "original_sha256": "83571b2794889725c6b297e96346e56b670f521bcf077ec7a019883e059477e0",
+      "stored_bytes": 170,
+      "stored_path": "accepted-runtime/qt-comparison-identity.json.gz",
+      "stored_sha256": "2e485550eb6223ebbd9b8d60d913ed3fe65a07c5a779e8a93bf263c301bbd705"
+    },
+    {
+      "decoded_bytes": 145964,
+      "decoded_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+      "original_bytes": 145964,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/local-after.json",
+      "original_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+      "stored_bytes": 58512,
+      "stored_path": "accepted-runtime/qt-comparison-local-after.json.gz",
+      "stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e"
+    },
+    {
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/run.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_path": "accepted-runtime/qt-comparison-run.log.gz",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "original_bytes": 2,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-comparison/run.report",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_bytes": 22,
+      "stored_path": "accepted-runtime/qt-comparison-run.report.gz",
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    {
+      "decoded_bytes": 424,
+      "decoded_sha256": "de507f0f430fcf07221146fcfec6758f7c8ffe0c459202e4d26f7040a080db3b",
+      "original_bytes": 424,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/accepted.json",
+      "original_sha256": "de507f0f430fcf07221146fcfec6758f7c8ffe0c459202e4d26f7040a080db3b",
+      "stored_bytes": 248,
+      "stored_path": "accepted-runtime/qt-focused-accepted.json.gz",
+      "stored_sha256": "bc6cae3078874dc03883ae7b7a76a2cb8cce09686e1e7520996245a713e5a28b"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/after.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/qt-focused-after.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/after.raw.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/qt-focused-after.raw.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/before.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/qt-focused-before.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 297403,
+      "decoded_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "original_bytes": 297403,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/before.raw.json",
+      "original_sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad",
+      "stored_bytes": 116982,
+      "stored_path": "accepted-runtime/qt-focused-before.raw.json.gz",
+      "stored_sha256": "a1d1c693a70a2c683a81ec2914a159f8bd0260f725fd73883c64020b14ac328e"
+    },
+    {
+      "decoded_bytes": 294,
+      "decoded_sha256": "bf2c5f785768041987600bea9f6e0216c6b23e1aa556b7c0ad500d93999c0d2a",
+      "original_bytes": 294,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/completion.json",
+      "original_sha256": "bf2c5f785768041987600bea9f6e0216c6b23e1aa556b7c0ad500d93999c0d2a",
+      "stored_bytes": 165,
+      "stored_path": "accepted-runtime/qt-focused-completion.json.gz",
+      "stored_sha256": "99f5ab4d7a455e831ed5c2946f5587d5118ccfb09e7f53922dbd37c2b234d85e"
+    },
+    {
+      "decoded_bytes": 313,
+      "decoded_sha256": "79f49d0f71735c1d74ff17503d1b1405074ffd6d4978092e33d9d0a256b0f3e1",
+      "original_bytes": 313,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/identity.json",
+      "original_sha256": "79f49d0f71735c1d74ff17503d1b1405074ffd6d4978092e33d9d0a256b0f3e1",
+      "stored_bytes": 170,
+      "stored_path": "accepted-runtime/qt-focused-identity.json.gz",
+      "stored_sha256": "8347f92d5aab8cff918538b996580a79b0119ab519875eea288a9d3412b71506"
+    },
+    {
+      "decoded_bytes": 145964,
+      "decoded_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+      "original_bytes": 145964,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/local-after.json",
+      "original_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+      "stored_bytes": 58512,
+      "stored_path": "accepted-runtime/qt-focused-local-after.json.gz",
+      "stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e"
+    },
+    {
+      "decoded_bytes": 1680,
+      "decoded_sha256": "0a3c25ad50b260ddcd30d0483b67cfacef21a0a3670fbc24348120cc4d4e62da",
+      "original_bytes": 1680,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/run.log",
+      "original_sha256": "0a3c25ad50b260ddcd30d0483b67cfacef21a0a3670fbc24348120cc4d4e62da",
+      "stored_bytes": 444,
+      "stored_path": "accepted-runtime/qt-focused-run.log.gz",
+      "stored_sha256": "893aefe426735d73866f1ff9cb99591db4bff7f07bccf7e941a8318ac8f051cd"
+    },
+    {
+      "decoded_bytes": 2,
+      "decoded_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "original_bytes": 2,
+      "original_path": "/tmp/ankiscape-food-corrected-runtime-2026-09-08/qt-focused/run.report",
+      "original_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "stored_bytes": 22,
+      "stored_path": "accepted-runtime/qt-focused-run.report.gz",
+      "stored_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    }
+  ],
+  "retained_original_bytes": 6023586,
+  "retained_stored_bytes": 2352403,
+  "retention_verification": {
+    "plain-comparison": {
+      "accepted_status": "PASS",
+      "comparison_cases": 15,
+      "comparison_source_entry_count": 1218,
+      "comparison_source_maps_equal": true,
+      "comparison_status": "PASS",
+      "complete_pickle_bytes_equal": true,
+      "complete_return_values_equal": true,
+      "completion_exit_code": 0,
+      "identity_matches": true,
+      "inputs_unchanged": true,
+      "local_after_matches_decoded_inventory": true,
+      "normalized_and_raw_guard_bytes_equal": true,
+      "report_zero": true,
+      "routes_equal_expected": true,
+      "run_id": "plain-1788896628-a8430591",
+      "source_guard_json_bytes_equal": true,
+      "source_guard_raw_bytes_equal": true
+    },
+    "plain-focused": {
+      "accepted_status": "PASS",
+      "completion_exit_code": 0,
+      "focused_seconds": 0.002,
+      "focused_skips": 0,
+      "focused_tests": 9,
+      "identity_matches": true,
+      "local_after_matches_decoded_inventory": true,
+      "normalized_and_raw_guard_bytes_equal": true,
+      "report_zero": true,
+      "run_id": "plain-1788896592-6b36c0ba",
+      "source_guard_json_bytes_equal": true,
+      "source_guard_raw_bytes_equal": true
+    },
+    "qt-comparison": {
+      "accepted_status": "PASS",
+      "comparison_cases": 15,
+      "comparison_source_entry_count": 1218,
+      "comparison_source_maps_equal": true,
+      "comparison_status": "PASS",
+      "complete_pickle_bytes_equal": true,
+      "complete_return_values_equal": true,
+      "completion_exit_code": 0,
+      "identity_matches": true,
+      "inputs_unchanged": true,
+      "local_after_matches_decoded_inventory": true,
+      "normalized_and_raw_guard_bytes_equal": true,
+      "report_zero": true,
+      "routes_equal_expected": true,
+      "run_id": "qt-1788896707-9a1e7c54",
+      "source_guard_json_bytes_equal": true,
+      "source_guard_raw_bytes_equal": true
+    },
+    "qt-focused": {
+      "accepted_status": "PASS",
+      "completion_exit_code": 0,
+      "focused_seconds": 0.002,
+      "focused_skips": 0,
+      "focused_tests": 9,
+      "identity_matches": true,
+      "local_after_matches_decoded_inventory": true,
+      "normalized_and_raw_guard_bytes_equal": true,
+      "report_zero": true,
+      "run_id": "qt-1788896684-cbc79c52",
+      "source_guard_json_bytes_equal": true,
+      "source_guard_raw_bytes_equal": true
+    }
+  },
+  "source_changes_during_retention": "NONE",
+  "status": "PARENT_ACCEPTED_FOCUSED_AND_DIFFERENTIAL_RUNTIME_COMPLETE_RETENTION"
+}

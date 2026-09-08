@@ -1,0 +1,72 @@
+{
+  "authorized_delta": {
+    "added_line": "        constitution_level=10,",
+    "case": "risk:safe-threshold",
+    "new_bytes": 13486,
+    "new_lines": 397,
+    "new_sha256": "c87fa181e2e951ef8923e2206cf8ae181055e5f1a523d3770078c2533b9336b3",
+    "old_bytes": 13455,
+    "old_lines": 396,
+    "old_sha256": "f83981bc914ed7af9df3bedae4a34f1e1d32bcf2d30bfb446c477d842f8b4180",
+    "path": "tools/combat/compare_preview_food.py",
+    "removed_lines": []
+  },
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "candidate_comparator_snapshot": {
+    "bytes": 3527,
+    "sha256": "d5050da676d859a235cfb62ec9a15c3e67146e8d153412e56d865e69e73057c4"
+  },
+  "comparator_diff": {
+    "bytes": 14093,
+    "sha256": "0b5f9124f6704e0665e6b18fbaf2cb2c1ab5495099585a83f4434de9a07d10b9"
+  },
+  "comparator_snapshot_exact": true,
+  "compile_only_pass": true,
+  "diagnosis": {
+    "bytes": 3408,
+    "sha256": "da44c398bb8aaa25c4aaa6a0ab4424330e2a4fd8c6b81c9b5cdf8e8f76d25719"
+  },
+  "failed_remote_run_id": "plain-1788894087-ac18d6d3",
+  "failed_state_archive": "memory-bank/evidence/combat-food-module-pre-fixture-fix-2026-09-08",
+  "failed_state_archive_manifest_sha256": "e70f250d2ce0592e7747c3646c2b5fc13ec39e90e196fa50597b83f262d0fcef",
+  "fixture_semantics": {
+    "case_count": 15,
+    "combat_lifepoints": 100,
+    "constitution_level": 10,
+    "derived_max_lifepoints": 100,
+    "expected_risk_band": "Safe",
+    "failed_run_enemy_max_hit": 16,
+    "safe_predicate": "100 > 16 * 3",
+    "strict_safe_threshold": 48
+  },
+  "inventory": {
+    "all_entries_rehashed": true,
+    "decoded_sha256": "33661c9e4063888339a0f5f63ef96da333872c029e2f1d976497f93d678d80dd",
+    "entries": 1218,
+    "mismatches": [],
+    "stored_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e"
+  },
+  "preflight": {
+    "bytes": 297403,
+    "sha256": "182fd656b26b398f0788e7bb18b3f50f899212ff22b054683958643bbe4c8aad"
+  },
+  "product_and_test_bytes_unchanged": true,
+  "product_and_test_sha256": {
+    "logic_pure/logic_pure_combat_engine.py": "9f31e068a990c0519fb01157ac71f8a52cb1f11ff69492fd2cc636c04bbf1e03",
+    "logic_pure/logic_pure_combat_food.py": "e2179a3b0f14567381a3dc7910f186ebc511d80d45bd94979cbba9940c6b150b",
+    "logic_pure/logic_pure_combat_model.py": "41fa60477b5d42a872dcf01ccc9456530533ba338e2eb96727457d60c9c3cac2",
+    "logic_pure/logic_pure_combat_supplies.py": "a134996d4be7c3f1d7fdad70b2744905407274d8a992bb3996ebe149834107fd",
+    "tests/combat/test_preview_food.py": "503f4005225941c98362b8c0f05853a573dc1aa775669f85cfc945a32ccee4b4"
+  },
+  "product_imports_started": false,
+  "remote_rerun_executed": false,
+  "runtime_harness_change": {
+    "bytes": 4897,
+    "new_inventory_sha256": "8bc7bc539a399c047e65858d9830d862ec95a90862a787912be295eb7e277e2e",
+    "old_inventory_sha256": "dfa42e3ccac39fb17bb605cfe69173dcc626298fced81e8d99192d51aaa6a73e",
+    "only_inventory_pin_changed": true,
+    "sha256": "4e05a181b2e9bdee39b0070841042f5c044ddc19493c8798787a767caa5a235e"
+  },
+  "runtime_rerun_executed": false,
+  "status": "FIXTURE_CORRECTION_STATIC_PASS_RUNTIME_RERUN_NOT_STARTED"
+}

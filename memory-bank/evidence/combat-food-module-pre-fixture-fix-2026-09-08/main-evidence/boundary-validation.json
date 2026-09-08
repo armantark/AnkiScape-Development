@@ -1,0 +1,191 @@
+{
+  "status": "PASS",
+  "generated_at": "2026-09-08T11:17:07-07:00",
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "baseline_relocation_count": 5,
+  "baseline_relocations": {
+    "_DEFAULT_COMBAT_AUTO_EAT_FOOD": {
+      "baseline_owner": "logic_pure/logic_pure_combat_model.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "28d34c3e74b83670722b78455742dbed475ca26e6b09886175cf951210155322",
+      "candidate_source_sha256": "28d34c3e74b83670722b78455742dbed475ca26e6b09886175cf951210155322",
+      "baseline_ast_sha256": "bb4157e760f700d62b44215008f5291c66392f1593374139db609380d4d81158",
+      "candidate_ast_sha256": "bb4157e760f700d62b44215008f5291c66392f1593374139db609380d4d81158",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "_combat_consume_auto_food": {
+      "baseline_owner": "logic_pure/logic_pure_combat_model.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "094669ea227215197b40d4c26bd22a0978ea157ae2f5abfe37768829342b38a1",
+      "candidate_source_sha256": "094669ea227215197b40d4c26bd22a0978ea157ae2f5abfe37768829342b38a1",
+      "baseline_ast_sha256": "250c26fcc0c5a40bb7e68e977a0cbfd9270dce644db4db7b542f783c77b6d7b9",
+      "candidate_ast_sha256": "250c26fcc0c5a40bb7e68e977a0cbfd9270dce644db4db7b542f783c77b6d7b9",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "_combat_loaded_food_count": {
+      "baseline_owner": "logic_pure/logic_pure_combat_supplies.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "f454d793b01d9143ff72c1213b8f53f6c5158229c36513239b3f1b50c0fe1bb5",
+      "candidate_source_sha256": "f454d793b01d9143ff72c1213b8f53f6c5158229c36513239b3f1b50c0fe1bb5",
+      "baseline_ast_sha256": "fde6ec0c44d4e2254fa84f5f7398edf2425ade585716ed9c58b446b9b6ac3221",
+      "candidate_ast_sha256": "fde6ec0c44d4e2254fa84f5f7398edf2425ade585716ed9c58b446b9b6ac3221",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "_combat_banked_auto_food_count": {
+      "baseline_owner": "logic_pure/logic_pure_combat_supplies.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "5de709370066df83cf3d99d5011779e8507a9ea4e86fa6852dc52404b553943b",
+      "candidate_source_sha256": "5de709370066df83cf3d99d5011779e8507a9ea4e86fa6852dc52404b553943b",
+      "baseline_ast_sha256": "3a2facde4efa514b343a6f7399510490aafbb5b4131551508733ead87f844f74",
+      "candidate_ast_sha256": "3a2facde4efa514b343a6f7399510490aafbb5b4131551508733ead87f844f74",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "_combat_auto_eat_food_available": {
+      "baseline_owner": "logic_pure/logic_pure_combat_supplies.py",
+      "candidate_owner": "logic_pure/logic_pure_combat_food.py",
+      "baseline_source_sha256": "6c8693c37972b31038148f969873468da7e11a954100016560cdd533bd27dea2",
+      "candidate_source_sha256": "6c8693c37972b31038148f969873468da7e11a954100016560cdd533bd27dea2",
+      "baseline_ast_sha256": "ffa0cacfcc6bc11060fc9e18ba8592463c46b3386140f0fc01251358255ecde2",
+      "candidate_ast_sha256": "ffa0cacfcc6bc11060fc9e18ba8592463c46b3386140f0fc01251358255ecde2",
+      "source_exact": true,
+      "ast_exact": true
+    }
+  },
+  "baseline_export_inventory": {
+    "_DEFAULT_COMBAT_AUTO_EAT_FOOD": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_model.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py",
+      "logic_pure/logic_pure_thieving.py"
+    ],
+    "_combat_consume_auto_food": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_model.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py",
+      "logic_pure/logic_pure_thieving.py"
+    ],
+    "_combat_loaded_food_count": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ],
+    "_combat_banked_auto_food_count": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ],
+    "_combat_auto_eat_food_available": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ]
+  },
+  "candidate_export_inventory": {
+    "_DEFAULT_COMBAT_AUTO_EAT_FOOD": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_model.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py",
+      "logic_pure/logic_pure_thieving.py"
+    ],
+    "_combat_consume_auto_food": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_model.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py",
+      "logic_pure/logic_pure_thieving.py"
+    ],
+    "_combat_loaded_food_count": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ],
+    "_combat_banked_auto_food_count": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ],
+    "_combat_auto_eat_food_available": [
+      "logic_pure/logic_pure.py",
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py",
+      "logic_pure/logic_pure_combat_supplies.py",
+      "logic_pure/logic_pure_consumables.py"
+    ]
+  },
+  "baseline_exports_preserved": true,
+  "preview_helper": {
+    "classification": "NEW_HELPER_EXTRACTED_FROM_BASELINE_INLINE_LOOP",
+    "baseline_export_inventory": [],
+    "candidate_export_inventory": [
+      "logic_pure/logic_pure_combat_engine.py",
+      "logic_pure/logic_pure_combat_food.py"
+    ],
+    "supplies_export_added": false,
+    "blocked_draft_source_history": {
+      "baseline_source_sha256": "7cfb8df19d6e7136e4fddb46dffb64d9dd972c212d0800879d5c30db038544b7",
+      "candidate_source_sha256": "7cfb8df19d6e7136e4fddb46dffb64d9dd972c212d0800879d5c30db038544b7",
+      "baseline_ast_sha256": "4447326fe04d7a7a6e3d863b70f03971de61bb45828237a051883e8a4ce32495",
+      "candidate_ast_sha256": "4447326fe04d7a7a6e3d863b70f03971de61bb45828237a051883e8a4ce32495",
+      "source_exact": true,
+      "ast_exact": true
+    },
+    "baseline_inline_replacement": {
+      "baseline_statement_types": [
+        "Assign",
+        "Assign",
+        "Assign",
+        "For"
+      ],
+      "prefix_ast_equal": true,
+      "suffix_ast_equal": true,
+      "candidate_single_call": true
+    }
+  },
+  "new_module_imports": [
+    {
+      "module": "typing",
+      "level": 0,
+      "names": [
+        "Mapping"
+      ]
+    },
+    {
+      "module": "data.combat_data",
+      "level": 2,
+      "names": [
+        "COMBAT_FOOD_DATA"
+      ]
+    },
+    {
+      "module": "logic_pure_state",
+      "level": 1,
+      "names": [
+        "_non_negative_int",
+        "_positive_int",
+        "_sanitize_combat_supply_loadout"
+      ]
+    }
+  ],
+  "new_module_import_whitelist_exact": true,
+  "dream_moved": false
+}

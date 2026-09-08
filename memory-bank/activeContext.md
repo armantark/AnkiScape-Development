@@ -8,7 +8,7 @@ Prayer-drain `f3157d4de6129a0831d83c555756c13c42daf3ce`, bank-trip `9cebd4df511d
 
 Root accepted carried KEEP source `441a1c706f860e0808e2cfda07d297c5981f2b31` with all eight checks at `2026-09-08T13:31:53-07:00`, then merged it into integration `d6ee87f28a45d6e12201870e423848fb5a42254e`. Root accepted death-prayer source `c225c456934f7f052854938c619d801d9474dc17`, gate `99807`, exit 0 and all eight checks at `2026-09-08T14:12:03-07:00`, then merged it into current integration `b2306c3ebc963779d53328b3139536fa5c99ed7e`. Poison is already integrated through `464edf35`. No post-merge gate has run for this combined tree. Canonical main remains `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`; promotion and native acceptance remain pending.
 
-Food source `d87e51be3ee770bbf19284ab3136538a8e816c93` is committed with normal hooks; its source gate `87718` is active as reported by root. Do not treat it as accepted or merged. These are root-reported execution states, not checks rerun by this documentation task.
+Root accepted food source `d87e51be3ee770bbf19284ab3136538a8e816c93`, source gate `87718`, exit 0 and all eight checks at `2026-09-08T14:41:23-07:00`, after reading the complete log and receipt. Root-reported plain results: 5,612 tests in 572.395s with 1,367 skips; Qt: 5,612 tests in 1102.668s with 5 skips. The source is being merged into pre-merge integration `afca8a37` with poison, KEEP, and death-prayer. The combined gate, canonical-main promotion, and native acceptance remain pending; main remains `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`. This documentation resolution did not rerun any gate.
 
 The death-prayer gate log prefix incident is documented in `memory-bank/evidence/c225c456-gate-log-prefix-2026-09-08/README.md`. Exact raw, snapshot, and reconstructed bytes are retained; the canonical raw log and historical source packets/receipts remain unchanged.
 
@@ -6073,10 +6073,23 @@ the obsolete percent key is no longer touched.
 - No user interface code changed. The Beefy Bill banking service remains the next separate slice.
 - Evidence: `source-audits/diary-ledger-wiring-2026-09-01.md`.
 
-## Combat prayer-drain extraction — 2026-09-08
+## Historical combat prayer-drain extraction — 2026-09-08
 
 - Branch `goal/combat-prayer-drain-2026-09-08` extracts only the enemy prayer-drain calculation into `logic_pure/logic_pure_combat_specials.py`.
 - Plain and Qt each passed three focused tests with zero skips. Both lanes passed nine frozen-engine comparison cases with complete return, pickle-byte, random-number route, and input nonmutation equality.
 - The runtime used the exact 1,185-entry inventory `248d5502a017d83e2a060a2041061a5acd442a8101200bea52029ac3de1a2850`. The four run IDs are retained in `evidence/combat-prayer-drain-2026-09-08/runtime-retention-manifest.json`.
 - The focused and differential runtime gates are closed for this branch. The full source gate, composition, landing, and native programme acceptance remain pending.
 - The queue audit identifies preview-food calculation as the only settled next combat boundary. Do not start it until the current source gate is active and the parent assigns ownership.
+
+## Combat food module extraction — 2026-09-08
+
+- Moved the default food order and four existing food helpers into `logic_pure/logic_pure_combat_food.py` without changing their source or prior namespace identities.
+- Extracted the engine's inline preview-food loop into the same module. The helper remains private to the food module and engine.
+- Parent runtime acceptance passed nine focused tests with zero skips in both plain and Qt lanes. Each lane took 0.002 seconds.
+- Both differential lanes passed all 15 cases with complete value, pickle-byte, restricted-unpickler structure, route, and input-nonmutation equality.
+- All four jobs retained equal before and after guards for the complete 1,218-entry source inventory.
+- The first failed comparator attempt remains preserved. Its only failure was an unreachable authored `Safe` route caused by a level-1 fixture clamp.
+- The first full staged slop gate failed because six historical source copies retained `.py` suffixes. They now use deterministic gzip storage with exact decoded bindings; the previous raw archive manifest remains preserved, and the full staged gate passes.
+- The cached diff check then exposed context-space lines in nine raw historical prompt and diff files. Their exact bytes now use deterministic gzip storage. All eight pre-change manifest snapshots remain preserved, and a new unpinned storage overlay owns the current mappings.
+- Root accepted food source `d87e51be3ee770bbf19284ab3136538a8e816c93`, source gate `87718`, exit 0 and all eight checks at `2026-09-08T14:41:23-07:00`, after reading the complete log and receipt. Root-reported plain results: 5,612 tests in 572.395s with 1,367 skips; Qt: 5,612 tests in 1102.668s with 5 skips. The source is being merged into pre-merge integration `afca8a37` with poison, KEEP, and death-prayer. The combined gate, canonical-main promotion, and native acceptance remain pending; main remains `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`. This documentation resolution did not rerun any gate.
+- Evidence: `source-audits/combat-food-module-extraction-2026-09-08.md`.

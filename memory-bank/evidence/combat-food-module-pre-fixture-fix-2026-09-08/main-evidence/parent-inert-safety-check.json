@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "inert": true,
+  "actual_remote_calls": 0,
+  "product_imports_before": [],
+  "product_imports_after": [],
+  "cases": [
+    {
+      "case": "run-one-existing-pending",
+      "stopped": true,
+      "error": "existing remote pending work blocks this one-job run: /var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/tmpn9t_wwhu/pending.json"
+    },
+    {
+      "case": "run-one-bad-source",
+      "stopped": true,
+      "error": "source inventory pin mismatch; no remote calls permitted"
+    },
+    {
+      "case": "run-one-pending-during-sync",
+      "stopped": true,
+      "pending_preserved": true,
+      "error": "existing remote pending work blocks this one-job run: /var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/tmpn9t_wwhu/pending.json"
+    },
+    {
+      "case": "identity-before-launch",
+      "identity_durable_before_launch": true,
+      "actual_remote_calls": 0
+    }
+  ]
+}

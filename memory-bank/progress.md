@@ -7071,10 +7071,25 @@ Sources, the omitted rateless drops and the rest of the judgements are in
 - Full sequential discovery passes 5,563 tests in each lane: plain takes 884.485 seconds with 1,367 skips, and offscreen Qt takes 1,615.313 seconds with 5 skips. No errors or failures remain.
 - The worktree audit passes, and the canonical live Anki checkout remains clean.
 
-## Enemy prayer-drain extraction — 2026-09-08
+## Historical enemy prayer-drain extraction — 2026-09-08
 
 - Moved the pure prayer-drain calculation from the combat engine into the existing combat-specials module. The caller still owns all state mutation and keeps the calculation before protection scaling.
 - Added direct boundary coverage and a full-burst regression that proves damage-scaled drain uses raw damage before protection. The existing Tz-Kih integration test remains in the focused set.
 - Plain and Qt each passed three focused tests in `0.002` seconds with zero skips. Both lanes passed nine frozen-engine comparison cases and all 18 complete outputs matched byte-for-byte under protocol 4.
 - Retained all 42 exact runtime files as deterministic gzip. A parent-only restricted unpickler independently verified all 18 comparison rows without a runtime rerun.
 - Full source, composition, landing, and native programme gates remain pending. This branch is not accepted on main.
+
+## Combat food module extraction — 2026-09-08
+
+- Added `logic_pure/logic_pure_combat_food.py` as the owner of the default food order, consumption, loaded count, banked count, and loaded-food availability.
+- Preserved the complete baseline namespace set through direct re-exports. The new preview helper is limited to the food module and engine.
+- Parent runtime jobs `plain-1788896592-6b36c0ba` and `qt-1788896684-cbc79c52` each passed nine focused tests with zero skips in 0.002 seconds.
+- Parent runtime jobs `plain-1788896628-a8430591` and `qt-1788896707-9a1e7c54` each passed all 15 differential cases.
+- Differential proof includes complete value equality, full pickle-byte equality, restricted-unpickler structure equality, exact routes, and input nonmutation.
+- The complete 1,218-entry inventory matched before and after all four jobs. Local-after bytes also match the current source.
+- Retained all 42 runtime files with exact raw and gzip bindings in `evidence/combat-food-module-2026-09-08/runtime-acceptance.json`.
+- Preserved the first failed comparison separately. Its baseline and candidate matched; an unreachable authored fixture caused the route-only failure.
+- Re-encoded six historical `.py` source copies as deterministic gzip after the first full staged slop gate treated them as new code. Exact decoded bindings and the previous raw manifest are preserved; the full staged gate now passes.
+- Re-encoded nine raw historical prompt and diff files after the cached diff check exposed context-space lines. All decoded bytes and eight pre-change manifest snapshots remain exact; a new unpinned storage overlay owns the current mappings.
+- Root accepted food source `d87e51be3ee770bbf19284ab3136538a8e816c93`, source gate `87718`, exit 0 and all eight checks at `2026-09-08T14:41:23-07:00`, after reading the complete log and receipt. Root-reported plain results: 5,612 tests in 572.395s with 1,367 skips; Qt: 5,612 tests in 1102.668s with 5 skips. The source is being merged into pre-merge integration `afca8a37` with poison, KEEP, and death-prayer. The combined gate, canonical-main promotion, and native acceptance remain pending; main remains `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12`. This documentation resolution did not rerun any gate.
+- Evidence: `source-audits/combat-food-module-extraction-2026-09-08.md`.

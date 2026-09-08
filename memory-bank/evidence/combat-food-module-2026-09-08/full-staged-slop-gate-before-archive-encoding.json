@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "python3",
+    "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py"
+  ],
+  "cwd": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/5/ankiscape_fork",
+  "elapsed_seconds": 42.253,
+  "exit_code": 1,
+  "generated_at": "2026-09-08T13:14:40-07:00",
+  "status": "FAIL",
+  "stderr": {
+    "bytes": 0,
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/full-staged-slop-gate-before-archive-encoding.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout": {
+    "bytes": 14183,
+    "path": "memory-bank/evidence/combat-food-module-2026-09-08/full-staged-slop-gate-before-archive-encoding.stdout.txt",
+    "sha256": "5b0f0b82c51fdb4aefa2a0b147a91772b6d6bdef98224325e4933ec9463d049f"
+  }
+}

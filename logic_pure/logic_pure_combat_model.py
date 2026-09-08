@@ -72,6 +72,11 @@ from ..data.combat_data import (
     WEAPON_TYPE_UNARMED_STYLES,
 )
 
+from .logic_pure_combat_food import (  # noqa: F401  (re-export)
+    _DEFAULT_COMBAT_AUTO_EAT_FOOD,
+    _combat_consume_auto_food,
+)
+
 from .logic_pure_urns import (  # noqa: F401  (re-export)
     active_urn_state_pure,
     carried_target_item_count_pure,
@@ -241,27 +246,6 @@ from .logic_pure_state import (
     _signed_int,
     default_combat_supply_loadout_pure,
     quest_completed_pure,
-)
-
-
-_DEFAULT_COMBAT_AUTO_EAT_FOOD = (
-    "Shark",
-    "Monkfish",
-    "Swordfish",
-    "Bass",
-    "Lobster",
-    "Tuna",
-    "Salmon",
-    "Pike",
-    "Trout",
-    "Cod",
-    "Mackerel",
-    "Herring",
-    "Cooked meat",
-    "Cooked chicken",
-    "Sardine",
-    "Shrimps",
-    "Crayfish",
 )
 
 
@@ -2872,34 +2856,6 @@ def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
     }
     data["combat_last_result"] = result
     return data, True, result
-
-
-def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
-    threshold_percent = _positive_int(data.get("combat_auto_eat_threshold_percent", 40), 40)
-    threshold = max(1, int(max_lifepoints * threshold_percent / 100.0))
-    if current_lifepoints > threshold or current_lifepoints >= max_lifepoints:
-        return current_lifepoints, None
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    food_loadout = dict(loadout.get("food", {}) or {})
-    for item_name in data.get("combat_auto_eat_food", ()) or ():
-        food = COMBAT_FOOD_DATA.get(item_name)
-        if not food or _positive_int(food_loadout.get(item_name, 0), 0) <= 0:
-            continue
-        food_loadout[item_name] = _positive_int(food_loadout.get(item_name, 0), 0) - 1
-        if food_loadout[item_name] <= 0:
-            food_loadout.pop(item_name, None)
-        loadout["food"] = food_loadout
-        data["combat_supply_loadout"] = loadout
-        healed_by = _positive_int(food.get("heal_lifepoints", 0), 0)
-        maximum = max_lifepoints + _positive_int(
-            food.get("max_overheal_lifepoints", 0),
-            0,
-        )
-        return min(maximum, current_lifepoints + healed_by), {
-            "item": item_name,
-            "healed_by": healed_by,
-        }
-    return current_lifepoints, None
 
 
 def apply_combat_stat_delta_pure(data, skill_id, delta):
