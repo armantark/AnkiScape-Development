@@ -1,0 +1,17 @@
+{
+  "reason": "slop-gate: code files were added to directories already at 40 files:\n  tests: 237 code files (was 236)\n  -> Create a cohesive subdirectory instead of widening this directory.\n",
+  "failed_commit_session": 61809,
+  "failed_commit_exit": 1,
+  "commit_created": false,
+  "old_path": "tests/test_carried_keep_settlement.py",
+  "new_path": "tests/runtime_actions/test_carried_keep_settlement.py",
+  "test_bytes_unchanged": true,
+  "test_sha256": "6ac42e06c1ee81afc072f58fd84c7b4f9eeb2c9a929b866311a4b289e868b66e",
+  "comparator_unchanged": true,
+  "product_unchanged": true,
+  "selectors_unchanged": "Class/method fragments are matched against recursive unittest discovery; tests/runtime_actions/__init__.py already exists.",
+  "old_inventory_sha256": "f6a52e210302912f861709bf1c7bfed18fa97d06d89ea59157f363ac45a98fde",
+  "inventory_sha256": "c8f55969c8c9e36eaca8a55050d15aaba5b51b026b3d431301a5a7417b028806",
+  "prior_preflight_gap": "The custom static runner called five metric/layout/file-size checks but did not call the complete installed slop_gate.collect_reports, so directory width and import modularity were not checked.",
+  "runtime": "New inventory runtime not run. Prior accepted evidence remains historical."
+}

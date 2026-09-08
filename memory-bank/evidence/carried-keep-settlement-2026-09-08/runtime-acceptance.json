@@ -1,0 +1,55 @@
+{
+  "status": "HISTORICAL_PRE_RELOCATION_RUNTIME_ACCEPTED",
+  "inventory_sha256": "f6a52e210302912f861709bf1c7bfed18fa97d06d89ea59157f363ac45a98fde",
+  "jobs": [
+    {
+      "lane": "plain",
+      "kind": "focused",
+      "run_id": "plain-1788896776-9dbde80a",
+      "exit_code": 0,
+      "source_entries": 908,
+      "tests": 3,
+      "skipped": 0,
+      "reported_seconds": 0.0
+    },
+    {
+      "lane": "plain",
+      "kind": "comparison",
+      "run_id": "plain-1788896829-2981594a",
+      "exit_code": 0,
+      "source_entries": 908,
+      "comparisons": 9,
+      "full_pickle_bytes_equal": true,
+      "route_witnesses_pass": true
+    },
+    {
+      "lane": "qt",
+      "kind": "focused",
+      "run_id": "qt-1788896851-7cf08cb2",
+      "exit_code": 0,
+      "source_entries": 908,
+      "tests": 3,
+      "skipped": 0,
+      "reported_seconds": 0.0
+    },
+    {
+      "lane": "qt",
+      "kind": "comparison",
+      "run_id": "qt-1788896887-9ca30dff",
+      "exit_code": 0,
+      "source_entries": 908,
+      "comparisons": 9,
+      "full_pickle_bytes_equal": true,
+      "route_witnesses_pass": true
+    }
+  ],
+  "parent_verification": "Root independently decoded every complete pickle payload with PrimitiveOnly and verified structure, route witnesses, both lane equivalence, and all 908 current/local/remote source bindings.",
+  "author_retention_verification": "All exact source bytes retained, gzip inputs preserved without recompression, plain inputs deterministically compressed, decoded hashes verified. Completion identities, exit reports, source maps and full encoded pickle byte equality rechecked without product imports.",
+  "pending": [
+    "rerun focused and comparison gates for relocated test inventory",
+    "full branch gate",
+    "combined gate",
+    "main landing",
+    "native Anki acceptance"
+  ]
+}
