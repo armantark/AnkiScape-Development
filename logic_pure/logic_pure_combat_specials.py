@@ -3,6 +3,7 @@
 from typing import Mapping
 
 from .logic_pure_combat_model import _combat_unprotected_damage_lifepoints
+from .logic_pure_combat_supplies import combat_dragonfire_protection_pure
 from .logic_pure_state import _non_negative_int
 
 
@@ -39,3 +40,23 @@ def _combat_wyvern_breath_damage_event(
         "max_hit": breath_max_hit,
         "delay_ticks": delay,
     }
+
+
+def _combat_dragonfire_damage_lifepoints(
+    data, enemy, magic_prayer_active, rng,
+):
+    dragonfire_state = combat_dragonfire_protection_pure(
+        data,
+        enemy,
+        magic_prayer_active=magic_prayer_active,
+    )
+    dragonfire_max_hit = _non_negative_int(
+        dragonfire_state.get("max_hit", 0), 0
+    )
+    try:
+        dragonfire_roll = max(
+            0.0, min(float(rng()), 0.999999999999)
+        )
+    except (TypeError, ValueError):
+        dragonfire_roll = 0.0
+    return int(dragonfire_roll * (dragonfire_max_hit + 1))

@@ -1,0 +1,40 @@
+{
+  "status": "RNG_ROUTE_CORRECTION_PREPARED_UNEXECUTED",
+  "product_inventory_sha256": "514fe3820a5fd83ae09ed73fc39e83055a9e01412eb1c35cf581799c38744cfa",
+  "operational_sources": {
+    "tools/combat/run_dragonfire_damage_remote.py": "0d50cbfd90a572820e87bcb4c8cfede382ba1e2aabd2da4913b1f370440a2159",
+    "tools/combat/check_dragonfire_damage_remote_resume.py": "5001b3ff4b6f694890a94bd094867819760f7341c72021736a92328c34c496f9"
+  },
+  "static_script_stored_sha256": "7a88ac8aa527fc50fb2ad6131a94881c237cdffe5145bbd2be3d4d7a7fd5b67b",
+  "static_script_decoded_sha256": "35a682851b741a53b76a009c98224bcd729970e077059b6a4a6310db1c39ee1a",
+  "static_instrument_pins_sha256": "fb4d3839af9a0ba7dafe14547d30d984f77c40403471bbddf7f7b5e8c6175ae7",
+  "parent_product_review": {
+    "terminal_status": 0,
+    "result": "PASS",
+    "retention_status": "parent_verified",
+    "retention_sha256": "cb7b2cd54133cb3853dbad5c18db7454ab3f6cd4e5a4c3d8945bd16ac964a126"
+  },
+  "planned_cases": 12,
+  "planned_focused_methods": 3,
+  "planned_lanes": [
+    "plain",
+    "qt"
+  ],
+  "parent_preimport_guard": {
+    "status": "parent_verified_pass",
+    "terminal_status": 0,
+    "guard_cases": 8,
+    "product_import_attempts": [],
+    "retention_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/parent-preimport-guard-retention.json",
+    "retention_sha256": "49e839a55514b8b6059e4b54ab922ecf248c225863589af288f82ee94476db36",
+    "inventory_sha256": "066efd5c99a0f77627ce8644e043b489a2943295ff7af21d03d36254a3239543",
+    "scope": "PRESERVED_FAILED_PACKET"
+  },
+  "runtime_correction": {
+    "failed_session": 45231,
+    "failed_output_must_not_resume": true,
+    "distinct_output_required": true,
+    "review_status": "PENDING",
+    "runtime_executed": false
+  }
+}

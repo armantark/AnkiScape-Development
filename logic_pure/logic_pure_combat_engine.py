@@ -489,7 +489,10 @@ from .logic_pure_state import (
 )
 
 
-from .logic_pure_combat_specials import _combat_wyvern_breath_damage_event
+from .logic_pure_combat_specials import (
+    _combat_dragonfire_damage_lifepoints,
+    _combat_wyvern_breath_damage_event,
+)
 
 
 def _combat_roll_damage_lifepoints(max_hit_old_hp, rng):
@@ -2005,27 +2008,18 @@ def apply_combat_burst_pure(
                 enemy_specials.append(breath_event)
             elif dragonfire_attack:
                 dragonfire_attacks += 1
-                dragonfire_state = combat_dragonfire_protection_pure(
+                damage = _combat_dragonfire_damage_lifepoints(
                     data,
                     enemy,
-                    magic_prayer_active=bool(
+                    bool(
                         tick_prayer_uptime > 0
                         and float(
                             prayer_effects.get("protect_magic", 0.0)
                         )
                         > 0.0
                     ),
+                    rng,
                 )
-                dragonfire_max_hit = _non_negative_int(
-                    dragonfire_state.get("max_hit", 0), 0
-                )
-                try:
-                    dragonfire_roll = max(
-                        0.0, min(float(rng()), 0.999999999999)
-                    )
-                except (TypeError, ValueError):
-                    dragonfire_roll = 0.0
-                damage = int(dragonfire_roll * (dragonfire_max_hit + 1))
             elif (
                 isinstance(unprotected_effect, Mapping)
                 and not bool(unprotected_effect.get("additive_to_attack"))

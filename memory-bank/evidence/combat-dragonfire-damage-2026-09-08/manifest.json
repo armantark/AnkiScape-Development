@@ -1,0 +1,68 @@
+{
+  "status": "prepared_not_run",
+  "branch": "goal/combat-dragonfire-damage-2026-09-08",
+  "baseline_commit": "9826842463f2e73d178d2042e8d5b726a8dd5aa2",
+  "baseline_sources": {
+    "logic_pure/logic_pure_combat_engine.py": "9b1265b5600971f8a6927773d5e840595fa1864ccb3459979471d5b3522db585",
+    "logic_pure/logic_pure_combat_specials.py": "5396e6aa10e872d76f66301dd8e690a004ac33efa344d39527609f373cdb2504"
+  },
+  "candidate_sources": {
+    "logic_pure/logic_pure_combat_engine.py": "3979378d514a18aa2bc2a3217ff117e6fe5f4f2104a31776786a6f55c02325c1",
+    "logic_pure/logic_pure_combat_specials.py": "b165f3f63f1de2fbffeec9c0ee79df498c1614f05872ed7e911e7b86fd5601ca"
+  },
+  "instruments": {
+    "tools/combat/compare_dragonfire_damage.py": "1dfb3aebca62e5c6c7606f514f9ffdefc0edcb13758f6f2b7e273f7aa39887f1",
+    "tools/combat/check_dragonfire_damage_guards.py": "bd00316be0fda09da3e30c5935c7704e8204a48b383df4bd509e169a4f299014"
+  },
+  "source_inventory_sha256": "514fe3820a5fd83ae09ed73fc39e83055a9e01412eb1c35cf581799c38744cfa",
+  "product_diff": {
+    "path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/product.diff",
+    "sha256": "c899531c9bd51b1e883747912ff7f72f61fd457600009eecc404823d3dd8bab1"
+  },
+  "comparison_cases": 12,
+  "focused_tests": [
+    "CombatLogicTest.test_green_dragon_protection_layers_match_the_sourced_tiers",
+    "CombatLogicTest.test_green_dragon_breath_bypasses_melee_accuracy_and_uses_tier_cap",
+    "CombatLogicTest.test_antifire_expires_and_auto_refreshes_inside_one_combat_review"
+  ],
+  "executed": {
+    "static": false,
+    "guards": false,
+    "focused_plain": false,
+    "focused_qt": false,
+    "comparison_plain": false,
+    "comparison_qt": false,
+    "runtime": false,
+    "remote": false
+  },
+  "product_review": {
+    "status": "parent_verified_pass",
+    "reported_terminal_status": 0,
+    "reported_review_result": "PASS",
+    "product_diff_sha256": "c899531c9bd51b1e883747912ff7f72f61fd457600009eecc404823d3dd8bab1",
+    "retention_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/product-opus-review-retention.json",
+    "retention_sha256": "cb7b2cd54133cb3853dbad5c18db7454ab3f6cd4e5a4c3d8945bd16ac964a126"
+  },
+  "operational_instruments": {
+    "tools/combat/run_dragonfire_damage_remote.py": "0d50cbfd90a572820e87bcb4c8cfede382ba1e2aabd2da4913b1f370440a2159",
+    "tools/combat/check_dragonfire_damage_remote_resume.py": "5001b3ff4b6f694890a94bd094867819760f7341c72021736a92328c34c496f9"
+  },
+  "remote_preparation": {
+    "status": "prepared_not_run",
+    "inventory_entries": 1083,
+    "focused_methods": 3,
+    "comparison_cases": 12,
+    "plain_lane": false,
+    "qt_lane": false,
+    "inert_resume_canary": false
+  },
+  "runtime_correction": {
+    "status": "prepared_not_run",
+    "failed_runtime_session": 45231,
+    "failed_evidence": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/failed-runtime-45231.json",
+    "failed_evidence_sha256": "a32880091b94a3d36d5d09dfaaa68fb4b11343491dc43f0b0b9210264c4340b6",
+    "correction": "Two generated route expectations now include the zero-chance wilderness ambush RNG draw.",
+    "product_changed": false,
+    "runtime_relaunched": false
+  }
+}

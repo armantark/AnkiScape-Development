@@ -1,0 +1,67 @@
+{
+  "status": "PREPARED_UNEXECUTED_PENDING_INDEPENDENT_REVIEW",
+  "failed_runtime_session": 45231,
+  "failure": "The first 11 routes expected 3 RNG calls and observed 4; complete values and pickle bytes remained equal in all 12 cases.",
+  "rng_trace": [
+    {
+      "draw": 1,
+      "value_source": "case prefix first value (1.0)",
+      "consumer": "player accuracy roll",
+      "source": "logic_pure/logic_pure_combat_engine.py:1796"
+    },
+    {
+      "draw": 2,
+      "value_source": "case prefix second value (0.0)",
+      "consumer": "dragonfire chance roll against 1/4",
+      "source": "logic_pure/logic_pure_combat_engine.py:1984-1991"
+    },
+    {
+      "draw": 3,
+      "value_source": "case prefix third value (per-case damage roll)",
+      "consumer": "dragonfire damage roll",
+      "source": "logic_pure/logic_pure_combat_specials.py:56-59"
+    },
+    {
+      "draw": 4,
+      "value_source": "seeded RecordedRandom fallback (0.587382882695181)",
+      "consumer": "zero-chance wilderness ambush trigger roll",
+      "source": "logic_pure/logic_pure_combat_model.py:985-995, called by logic_pure/logic_pure_combat_engine.py:2421-2429"
+    }
+  ],
+  "fixture_trace": {
+    "wilderness_mapping": "tools/combat/compare_dragonfire_damage.py:34-42 sets wilderness_risk={}",
+    "prefixes": "tools/combat/compare_dragonfire_damage.py:70-105 provide three values",
+    "fallback": "tools/combat/compare_kill_rewards.py:24-34 seeds 20260905 and falls back after the prefix",
+    "ordinary_attack_selector": "logic_pure/logic_pure_combat_model.py:1654-1658 returns without RNG because Green dragon has no attack_table"
+  },
+  "authorized_source_change": {
+    "path": "tools/combat/compare_dragonfire_damage.py",
+    "diff_path": "memory-bank/evidence/combat-dragonfire-damage-2026-09-08/rng-route-correction.diff",
+    "diff_sha256": "3defeaddf7d8408bd061863a4e19ac7b4c5ac89de609c3ddbff5ba7882a6cf4b",
+    "changes": [
+      "rng_calls 3 -> 4 for the five tier cases",
+      "rng_calls 3 -> 4 for the six roll cases"
+    ]
+  },
+  "pins": {
+    "product_engine_sha256": "3979378d514a18aa2bc2a3217ff117e6fe5f4f2104a31776786a6f55c02325c1",
+    "product_specials_sha256": "b165f3f63f1de2fbffeec9c0ee79df498c1614f05872ed7e911e7b86fd5601ca",
+    "comparator_before_sha256": "dff2a2a3c8da79b9d76a6b1f1ba0f47907fd049e5c7da0276dfbfe385ebe20af",
+    "comparator_after_sha256": "1dfb3aebca62e5c6c7606f514f9ffdefc0edcb13758f6f2b7e273f7aa39887f1",
+    "inventory_before_sha256": "066efd5c99a0f77627ce8644e043b489a2943295ff7af21d03d36254a3239543",
+    "inventory_after_sha256": "514fe3820a5fd83ae09ed73fc39e83055a9e01412eb1c35cf581799c38744cfa",
+    "driver_before_sha256": "02efd98e454122b88b107982a3720d787a658a3b981c5acdcb5736063ccd6f7a",
+    "driver_after_sha256": "0d50cbfd90a572820e87bcb4c8cfede382ba1e2aabd2da4913b1f370440a2159",
+    "manifest_before_sha256": "5fdb4e8961a29cc9f0619a1cdf5ba002359e078dece192e4e1274fdc8ef85f26",
+    "manifest_after_sha256": "32d48f148f19e865527b5a5a543a3a9bb07e78d63667ece20cc540c62b400c14",
+    "static_pins_before_sha256": "e571f9e470d01ff5627ab071da1ce74aeda6dc4a1f04a4fc49443f12ec214481",
+    "static_pins_after_sha256": "fb4d3839af9a0ba7dafe14547d30d984f77c40403471bbddf7f7b5e8c6175ae7",
+    "guard_sha256": "bd00316be0fda09da3e30c5935c7704e8204a48b383df4bd509e169a4f299014",
+    "canary_sha256": "5001b3ff4b6f694890a94bd094867819760f7341c72021736a92328c34c496f9",
+    "static_verifier_sha256": "7a88ac8aa527fc50fb2ad6131a94881c237cdffe5145bbd2be3d4d7a7fd5b67b"
+  },
+  "expiry_observed_rng_calls": 9,
+  "expiry_contract_changed": false,
+  "runtime_relaunched": false,
+  "failed_output_must_not_resume": true
+}
