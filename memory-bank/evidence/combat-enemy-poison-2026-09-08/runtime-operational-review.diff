@@ -1,0 +1,556 @@
+--- /dev/null
++++ b/memory-bank/evidence/combat-enemy-poison-2026-09-08/runtime-harness.py
+@@ -0,0 +1,349 @@
++"""Run one pinned enemy-poison proof on the owned remote mirror."""
++
++import argparse
++import base64
++import fcntl
++import gzip
++import hashlib
++import json
++import os
++from pathlib import Path
++import shlex
++import sys
++import uuid
++from unittest.mock import patch
++
++EVIDENCE = Path("memory-bank/evidence/combat-enemy-poison-2026-09-08")
++INVENTORY = EVIDENCE / "source-inventory.json.gz"
++INVENTORY_SHA256 = "08015a82dda7eb5fd0c1769c3eded6e21c8ba846720aa95dd108d3db5b9fd47b"
++BASELINE_COMMIT = "1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12"
++BASELINE_SHA256 = "934f0bccbdd7a11a0bde6df361d6355c0c339c2daf69e51d98b5b933952e4c49"
++SELECTORS = ['EnemyPoisonApplicationTest.test_burst_poison_routes_preserve_consumption_and_draws', 'EnemyPoisonApplicationTest.test_status_is_written_before_antipoison_consumption', 'EnemyPoisonApplicationTest.test_unhandled_rng_errors_propagate']
++CASES = ['missing', 'invalid', 'negative', 'zero', 'apply', 'negative-roll', 'threshold', 'invalid-roll', 'none-roll', 'immune', 'stronger', 'cure']
++
++
++def save(path, value):
++    temporary = path.with_suffix(path.suffix + ".tmp")
++    with temporary.open("w") as stream:
++        json.dump(value, stream, indent=2)
++        stream.write("\n")
++        stream.flush()
++        os.fsync(stream.fileno())
++    temporary.replace(path)
++    directory = os.open(path.parent, os.O_RDONLY)
++    try:
++        os.fsync(directory)
++    finally:
++        os.close(directory)
++
++
++def local_sources(root):
++    raw = (root / INVENTORY).read_bytes()
++    if hashlib.sha256(raw).hexdigest() != INVENTORY_SHA256:
++        raise ValueError("source inventory pin mismatch; no remote calls permitted")
++    sources = json.loads(gzip.decompress(raw))
++    for name, expected in sources.items():
++        source = root / name
++        if not source.is_file():
++            raise ValueError(f"local source missing: {name}")
++        if hashlib.sha256(source.read_bytes()).hexdigest() != expected:
++            raise ValueError(f"local source mismatch: {name}")
++    return sources
++
++
++def assert_no_pending(remote):
++    pending = remote._pending_path()
++    if pending.exists():
++        raise RuntimeError(f"existing remote pending work blocks this one-job run: {pending}")
++
++
++def remote_prefix(remote, lane):
++    environment = [
++        "env",
++        "-u",
++        "PYTHONOPTIMIZE",
++        "PATH=/opt/homebrew/bin:/usr/bin:/bin",
++        f"ANKISCAPE_GAME_MAIN={remote.REMOTE_GAME_MAIN}",
++        f"ANKISCAPE_DARKAN_WORLD_SERVER={remote.REMOTE_DARKAN}",
++    ]
++    if lane == "plain":
++        environment += [
++            f"PYTHONPATH={remote.REMOTE_PLAIN_SITE}",
++            "/opt/homebrew/bin/python3",
++        ]
++    else:
++        environment += [
++            "QT_QPA_PLATFORM=offscreen",
++            str(remote.REMOTE_VENV / "bin/python"),
++        ]
++    return shlex.join(environment + ["-B"])
++
++
++def comparator_command(remote, lane, output, *, preflight=False):
++    arguments = [
++        "tools/combat/compare_enemy_poison_application.py",
++        "--root",
++        str(remote.REMOTE_REPO),
++        "--inventory",
++        str(remote.REMOTE_REPO / INVENTORY),
++        "--inventory-sha256",
++        INVENTORY_SHA256,
++        "--output",
++        str(output),
++    ]
++    if preflight:
++        arguments.append("--preflight")
++    return remote_prefix(remote, lane) + " " + shlex.join(arguments)
++
++
++def expected_guard(sources):
++    return {
++        "baseline_commit": BASELINE_COMMIT,
++        "baseline_sha256": BASELINE_SHA256,
++        "inventory_sha256": INVENTORY_SHA256,
++        "sources_before": sources,
++        "status": "PREFLIGHT_PASS",
++        "product_imported": False,
++        "product_modules": [],
++        "sources_after": sources,
++    }
++
++
++def capture_guard(remote, lane, remote_output, local_output, sources):
++    command = (
++        f"cd {shlex.quote(str(remote.REMOTE_REPO))} && "
++        + comparator_command(remote, lane, remote_output, preflight=True)
++        + f" && cat {shlex.quote(str(remote_output))}"
++    )
++    raw = remote._ssh(
++        command,
++        label="enemy-poison source guard",
++        repeat_safe=True,
++    )
++    local_output.with_suffix(".raw.json").write_text(raw)
++    report = json.loads(raw)
++    if report != expected_guard(sources):
++        raise ValueError("remote source guard did not report the complete pinned inventory")
++    save(local_output, report)
++
++
++def launch_one(args, remote, command):
++    original_ssh = remote._ssh
++
++    def launch_ssh(text, *, label, repeat_safe=False):
++        if label == "remote lane launch":
++            pending_path = remote._pending_path()
++            pending = json.loads(pending_path.read_text())
++            if set(pending) != {"run_id", "log_path", "report_path"}:
++                raise RuntimeError("new pending identity has an unexpected shape")
++            save(
++                args.output / "identity.json",
++                {"lane": args.lane, "kind": args.kind, "pending": pending},
++            )
++        return original_ssh(text, label=label, repeat_safe=repeat_safe)
++
++    with patch.object(remote, "_remote_lane_command", return_value=command), patch.object(
++        remote, "_ssh", side_effect=launch_ssh
++    ):
++        return remote._stream_remote_run(
++            args.lane,
++            timeout=args.timeout,
++            poll_interval=5,
++        )
++
++
++def retain_interrupted(remote, output, error):
++    retained = {"error_type": type(error).__name__, "error": str(error)}
++    identity_path = output / "identity.json"
++    if identity_path.exists():
++        identity = json.loads(identity_path.read_text())["pending"]
++        retained["pending"] = identity
++        for key, suffix in (("log_path", "interrupted.log"), ("report_path", "interrupted.report")):
++            try:
++                text = remote._ssh(
++                    f"cat {shlex.quote(identity[key])} 2>/dev/null || true",
++                    label=f"enemy-poison interrupted {key}",
++                    repeat_safe=True,
++                )
++            except Exception as inspection_error:
++                retained[f"{key}_inspection_error"] = str(inspection_error)
++            else:
++                (output / suffix).write_text(text)
++    save(output / "interrupted.json", retained)
++
++
++def validate_comparison(report, sources):
++    if report.get("status") != "PASS":
++        raise ValueError("comparison did not pass")
++    if report.get("baseline_commit") != BASELINE_COMMIT:
++        raise ValueError("comparison baseline commit differs")
++    if report.get("baseline_sha256") != BASELINE_SHA256:
++        raise ValueError("comparison baseline source differs")
++    if report.get("inventory_sha256") != INVENTORY_SHA256:
++        raise ValueError("comparison inventory differs")
++    if report.get("sources_before") != sources or report.get("sources_after") != sources:
++        raise ValueError("comparison source snapshots differ")
++    rows = report.get("cases")
++    if not isinstance(rows, list) or [row.get("case") for row in rows] != CASES:
++        raise ValueError("comparison must contain exactly the twelve named cases in order")
++    for row in rows:
++        before = base64.b64decode(row["baseline_pickle_base64"], validate=True)
++        after = base64.b64decode(row["candidate_pickle_base64"], validate=True)
++        observed = row.get("route_observed")
++        expected = row.get("route_expected")
++        if row.get("equal") is not True or row.get("pickle_bytes_equal") is not True:
++            raise ValueError("complete output equality failed")
++        if before != after:
++            raise ValueError("decoded complete-output pickle bytes differ")
++        if row.get("route_pass") is not True or observed != expected:
++            raise ValueError("advertised enemy-poison route was not exercised")
++        if row.get("inputs_unchanged") != {
++            "player": True,
++            "enemies": True,
++            "equipment": True,
++        }:
++            raise ValueError("comparison input nonmutation check failed")
++        rng_calls = observed.get("rng_calls")
++        if not isinstance(rng_calls, int) or isinstance(rng_calls, bool) or rng_calls <= 0:
++            raise ValueError("comparison recorded no RNG draws")
++        if observed.get("rng_draws") != expected.get("rng_draws"):
++            raise ValueError("comparison RNG route differs")
++
++
++def retain_comparison(remote, lane, remote_path, local_path, sources):
++    reader = (
++        "import base64,pathlib; print(base64.b64encode(pathlib.Path("
++        + repr(str(remote_path))
++        + ").read_bytes()).decode())"
++    )
++    encoded = remote._ssh(
++        remote_prefix(remote, lane) + " -c " + shlex.quote(reader),
++        label="enemy-poison comparison bytes",
++        repeat_safe=True,
++    )
++    raw = base64.b64decode(encoded.strip(), validate=True)
++    local_path.write_bytes(raw)
++    validate_comparison(json.loads(raw), sources)
++
++
++def run_one(args, remote, sources):
++    assert_no_pending(remote)
++    if local_sources(args.root) != sources:
++        raise ValueError("local source snapshot changed before sync")
++    remote._preflight(args.lane)
++    with patch.object(
++        remote,
++        "_reconcile_pending_run",
++        side_effect=lambda: assert_no_pending(remote),
++    ):
++        remote._sync(args.root)
++    assert_no_pending(remote)
++    session = uuid.uuid4().hex
++    stem = remote.REMOTE_ROOT / "reports" / f"enemy-poison-{session}-{args.lane}-{args.kind}"
++    capture_guard(remote, args.lane, str(stem) + "-before.json", args.output / "before.json", sources)
++    launch_guard = comparator_command(
++        remote,
++        args.lane,
++        str(stem) + "-launch-preflight.json",
++        preflight=True,
++    )
++    result_path = str(stem) + ".json" if args.kind == "comparison" else None
++    if args.kind == "focused":
++        product_command = remote_prefix(remote, args.lane) + " " + shlex.join(
++            ["run_tests.py", "--verbosity", "2", *SELECTORS]
++        )
++    else:
++        product_command = comparator_command(remote, args.lane, result_path)
++    try:
++        code, log = launch_one(args, remote, launch_guard + " && " + product_command)
++    except BaseException as error:
++        retain_interrupted(remote, args.output, error)
++        raise
++    (args.output / "run.log").write_text(log)
++    identity = json.loads((args.output / "identity.json").read_text())["pending"]
++    report_text = remote._ssh(
++        "cat " + shlex.quote(identity["report_path"]),
++        label="enemy-poison exact-run report",
++        repeat_safe=True,
++    )
++    (args.output / "run.report").write_text(report_text)
++    if int(report_text.strip()) != code:
++        raise ValueError("completion report changed")
++    save(args.output / "completion.json", {"exit_code": code, "pending": identity})
++    capture_guard(remote, args.lane, str(stem) + "-after.json", args.output / "after.json", sources)
++    save(args.output / "local-after.json", local_sources(args.root))
++    if code != 0:
++        raise RuntimeError(f"exact run failed with exit {code}; no relaunch permitted")
++    if args.kind == "focused":
++        summary = remote.parse_unittest_summary(log)
++        if summary.tests != len(SELECTORS) or summary.skipped != 0:
++            raise ValueError(
++                f"expected {len(SELECTORS)} tests and zero skips, got {summary}"
++            )
++    else:
++        retain_comparison(
++            remote,
++            args.lane,
++            result_path,
++            args.output / "comparison.json",
++            sources,
++        )
++    save(
++        args.output / "accepted.json",
++        {
++            "status": "PASS",
++            "lane": args.lane,
++            "kind": args.kind,
++            "inventory_sha256": INVENTORY_SHA256,
++            "identity": identity,
++        },
++    )
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--root", type=Path, required=True)
++    parser.add_argument("--output", type=Path, required=True)
++    parser.add_argument("--lane", choices=("plain", "qt"), required=True)
++    parser.add_argument("--kind", choices=("focused", "comparison"), required=True)
++    parser.add_argument("--timeout", type=float, default=1800)
++    args = parser.parse_args()
++    if sys.flags.optimize or "PYTHONOPTIMIZE" in os.environ:
++        raise SystemExit("optimized interpreter refused; no remote calls permitted")
++    if args.timeout <= 0:
++        parser.error("--timeout must be positive")
++    args.root = args.root.resolve()
++    args.output = args.output.resolve()
++    if args.output.is_relative_to(args.root):
++        parser.error("--output must be outside the source tree")
++    if args.output.exists() and any(args.output.iterdir()):
++        parser.error("--output must be absent or empty; one invocation owns one job")
++    if not (args.root / "run_tests.py").is_file():
++        parser.error("--root is not an AnkiScape worktree")
++    sources = local_sources(args.root)
++    forbidden = sorted(
++        name
++        for name in sys.modules
++        if name == "pkg_alias" or name.split(".")[0] in {"ankiscape", "tests"}
++    )
++    if forbidden:
++        raise RuntimeError(f"local product imported before remote setup: {forbidden}")
++    args.output.mkdir(parents=True, exist_ok=True)
++    sys.path.insert(0, str(args.root))
++    from tools import run_remote_tests as remote
++
++    if remote.HOST != "armans-macbook-pro":
++        raise ValueError("remote host pin differs")
++    if str(remote.REMOTE_REPO) != "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork":
++        raise ValueError("remote repository pin differs")
++    remote.LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
++    with remote.LOCAL_MIRROR_LOCK_PATH.open("a+") as lock:
++        try:
++            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            raise SystemExit(f"remote mirror busy: {remote.LOCAL_MIRROR_LOCK_PATH}")
++        run_one(args, remote, sources)
++
++
++if __name__ == "__main__":
++    main()
+--- /dev/null
++++ b/memory-bank/evidence/combat-enemy-poison-2026-09-08/runtime-safety-check.py
+@@ -0,0 +1,201 @@
++"""Exercise enemy-poison runtime safety stops without product imports or remote calls."""
++
++import argparse
++import gzip
++import json
++from pathlib import Path
++import sys
++from tempfile import TemporaryDirectory
++import types
++from unittest.mock import patch
++
++
++def load_harness(path):
++    module = types.ModuleType("enemy_poison_application_runtime_harness_under_test")
++    raw = gzip.decompress(path.read_bytes())
++    exec(compile(raw, "runtime-harness.py", "exec"), module.__dict__)
++    return module
++
++
++def invocation(root, output):
++    return types.SimpleNamespace(
++        root=root,
++        output=output,
++        lane="plain",
++        kind="focused",
++        timeout=1,
++    )
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--harness", required=True, type=Path)
++    parser.add_argument("--output", required=True, type=Path)
++    args = parser.parse_args()
++    before = sorted(
++        name
++        for name in sys.modules
++        if name == "pkg_alias" or name.split(".")[0] in {"ankiscape", "tests"}
++    )
++    harness = load_harness(args.harness)
++    results = []
++    with TemporaryDirectory() as temporary:
++        root = Path(temporary)
++        pending = root / "pending.json"
++
++        class StubRemote:
++            def __init__(self):
++                self.calls = []
++
++            def _pending_path(self):
++                return pending
++
++            def _preflight(self, lane):
++                self.calls.append("preflight")
++
++            def _sync(self, source):
++                self.calls.append("sync")
++
++        existing = StubRemote()
++        pending.write_text(
++            json.dumps(
++                {"run_id": "existing", "log_path": "log", "report_path": "report"}
++            )
++        )
++        try:
++            harness.run_one(
++                invocation(root / "unused", root / "existing-output"),
++                existing,
++                {"sentinel": "hash"},
++            )
++        except RuntimeError as error:
++            if existing.calls:
++                raise AssertionError("existing pending work allowed remote setup")
++            results.append(
++                {"case": "run-one-existing-pending", "stopped": True, "error": str(error)}
++            )
++        else:
++            raise AssertionError("run_one did not stop for existing pending work")
++        pending.unlink()
++
++        mismatched = root / "mismatched"
++        (mismatched / harness.EVIDENCE).mkdir(parents=True)
++        (mismatched / harness.INVENTORY).write_bytes(b"not-the-pinned-inventory")
++        bad_source = StubRemote()
++        try:
++            harness.run_one(
++                invocation(mismatched, root / "bad-source-output"),
++                bad_source,
++                {"sentinel": "hash"},
++            )
++        except ValueError as error:
++            if bad_source.calls:
++                raise AssertionError("bad local source allowed remote setup")
++            results.append(
++                {"case": "run-one-bad-source", "stopped": True, "error": str(error)}
++            )
++        else:
++            raise AssertionError("run_one did not stop for a bad local inventory")
++
++        racing = StubRemote()
++
++        def dangerous_reconcile():
++            racing.calls.append("dangerous-reconcile")
++            pending.unlink()
++
++        def racing_sync(source):
++            racing.calls.append("sync")
++            pending.write_text(
++                json.dumps(
++                    {"run_id": "racing", "log_path": "log", "report_path": "report"}
++                )
++            )
++            racing._reconcile_pending_run()
++
++        racing._reconcile_pending_run = dangerous_reconcile
++        racing._sync = racing_sync
++        with patch.object(harness, "local_sources", return_value={"sentinel": "hash"}):
++            try:
++                harness.run_one(
++                    invocation(root / "pinned", root / "racing-output"),
++                    racing,
++                    {"sentinel": "hash"},
++                )
++            except RuntimeError as error:
++                if racing.calls != ["preflight", "sync"]:
++                    raise AssertionError(f"unexpected racing-pending calls: {racing.calls}")
++                if not pending.exists():
++                    raise AssertionError("strict sync guard cleared the racing pending record")
++                results.append(
++                    {
++                        "case": "run-one-pending-during-sync",
++                        "stopped": True,
++                        "pending_preserved": True,
++                        "error": str(error),
++                    }
++                )
++            else:
++                raise AssertionError("run_one allowed pending work that appeared during sync")
++        pending.unlink()
++
++        launch_output = root / "launch"
++        launch_output.mkdir()
++        launch_pending = root / "launch-pending.json"
++        expected = {
++            "run_id": "plain-stub-proof",
++            "log_path": "/stub/log",
++            "report_path": "/stub/report",
++        }
++        launch_stub = types.SimpleNamespace()
++        launch_stub._pending_path = lambda: launch_pending
++        launch_stub._remote_lane_command = lambda lane: "unpatched"
++        launch_seen = {"value": False}
++
++        def original_ssh(text, *, label, repeat_safe=False):
++            identity = json.loads((launch_output / "identity.json").read_text())
++            if identity != {"lane": "plain", "kind": "focused", "pending": expected}:
++                raise AssertionError("identity was not durable before the launch call")
++            launch_seen["value"] = True
++            return ""
++
++        def stream(lane, *, timeout, poll_interval):
++            launch_pending.write_text(json.dumps(expected))
++            launch_stub._ssh("stub launch", label="remote lane launch")
++            return 0, "stub log"
++
++        launch_stub._ssh = original_ssh
++        launch_stub._stream_remote_run = stream
++        code, log = harness.launch_one(
++            invocation(root, launch_output),
++            launch_stub,
++            "stub command",
++        )
++        if (code, log, launch_seen["value"]) != (0, "stub log", True):
++            raise AssertionError("stub launch did not complete as expected")
++        results.append(
++            {
++                "case": "identity-before-launch",
++                "identity_durable_before_launch": True,
++                "actual_remote_calls": 0,
++            }
++        )
++    after = sorted(
++        name
++        for name in sys.modules
++        if name == "pkg_alias" or name.split(".")[0] in {"ankiscape", "tests"}
++    )
++    if after != before:
++        raise AssertionError(f"product import set changed: {before} -> {after}")
++    report = {
++        "status": "PASS",
++        "inert": True,
++        "actual_remote_calls": 0,
++        "product_imports_before": before,
++        "product_imports_after": after,
++        "cases": results,
++    }
++    args.output.write_text(json.dumps(report, indent=2) + "\n")
++
++
++if __name__ == "__main__":
++    main()

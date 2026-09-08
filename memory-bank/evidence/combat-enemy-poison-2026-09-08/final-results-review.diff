@@ -1,0 +1,120 @@
+diff --git a/memory-bank/activeContext.md b/memory-bank/activeContext.md
+index 99d5a146..ee48c736 100644
+--- a/memory-bank/activeContext.md
++++ b/memory-bank/activeContext.md
+@@ -1,5 +1,11 @@
+ # Active Context
+ 
++## Current cleanup checkpoint — 2026-09-08
++
++Root verified canonical main clean at `1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12` after landing the exact combined tree. The canonical receipt completed at `2026-09-08T11:29:58-07:00` with all eight checks, `remote_lanes=true` and `plain_only=false`. Root read the complete gate log and receipt. Dated lane results: plain ran 5616 tests in 569.735s with 1367 skips; Qt ran 5616 tests in 1107.387s with 5 skips. This documentation update did not rerun those checks.
++
++Prayer-drain `f3157d4de6129a0831d83c555756c13c42daf3ce`, bank-trip `9cebd4df511d118729874db283689f1d2af3beec`, and selector `93e02bbd1e67d0e240acf4e90b92ece4fa3a36a8` are included and landed. Their combined verification and landing are closed; native programme acceptance remains separate and unproven. Enemy-poison independent review and focused/differential runtime are accepted: root verified three focused tests with zero skips and twelve complete comparisons per lane. Its full branch and post-merge gates remain pending; it is not landed. Food acceptance remains pending. No new push is authorized. Earlier dated sections below retain their historical state.
++
+ ## Module surface harness is ready — 2026-09-01
+ 
+ - `tools/module_surface.py` now imports through `pkg_alias`, emits a sorted
+diff --git a/memory-bank/papercuts.md b/memory-bank/papercuts.md
+index af36dc2d..06a67b9e 100644
+--- a/memory-bank/papercuts.md
++++ b/memory-bank/papercuts.md
+@@ -2232,3 +2232,9 @@
+ - 2026-09-08: Parent queried the selector command proposal and received `cat: memory-bank/evidence/unproductive-activity-selector-2026-09-08/command-proposal.json: No such file or directory`; the enumerated file is `runtime-protocol-command-proposal.json`. Parent will use the exact enumerated name.
+ 
+ - 2026-09-08: Root runtime-retention verification first treated `stored_path` as checkout-relative instead of evidence-directory-relative, then treated the descriptive `encoding` value as literal `gzip`. Corrected verification confirmed all 44 original/stored hashes, sizes and exact or decompressed byte identities.
++
++2026-09-08T11:27:54.577562-07:00 P13 enemy-poison proof preparation: zsh rejected an unmatched reference-file glob with `zsh:1: no matches found: tools/combat/*selector*`; used `rg --files` to locate the accepted harness snapshots.
++
++2026-09-08T11:54:48.246393-07:00 Root final Opus wrapper session72295 stalled before quota preflight: process68288 was verified with lsof against exact stdout/stderr /tmp/ankiscape-food-poison-final-opus-2026-09-08.txt and /tmp/ankiscape-food-poison-final-opus-2026-09-08.stderr; ps at17:38 elapsed showed CPU98.8%, CPUtime17:12.11, both files0B. Root sent SIGTERM only to68288; terminal143. The same full84699B prompt with LC_ALL=C --dry-run raised subprocess.TimeoutExpired after30s before any provider call. Bash long-prompt substitution is suspected; no specific line is proven. Root retries a short prompt with scoped read-only access to the exact preserved84KB input in Opus session20073; no product changes. Shell discovery `command -v -a bash` failed with zsh error127; /opt/homebrew/bin/bash was absent. No repair or runtime scope.
++
++2026-09-08T11:59:30.428713-07:00 Root checkpoint update initially guessed nonexistent `memory-bank/priority-matrix.md`; rg returned2. `rg --files memory-bank` identified the actual `memory-bank/goal-priority-matrix.md`; resolved without repair scope.
+--- /dev/null
++++ b/memory-bank/source-audits/combat-enemy-poison-2026-09-08.md
+@@ -0,0 +1,18 @@
++# Enemy poison extraction evidence — 2026-09-08
++
++## Boundary
++
++The engine keeps positive enemy poison-damage normalization and the truthy potion-event append after automatic food consumption. The existing specials module owns the positive gate, one float-converted RNG draw, the unchanged TypeError/ValueError fallback, poison application, the status write, and antipoison consumption. The status write precedes consumption. Existing private exports remain.
++
++Root verified whole-engine and specials AST inverse equality. The helper is exact except that it returns the antipoison event. Root found no later potion_event consumer and verified the model chance is exactly 0.4; the frozen threshold case tests that boundary. No UI, RNG policy, gameplay rule, callback, wrapper, new module, or fallback was added.
++
++## Verification
++
++Evidence directory: `memory-bank/evidence/combat-enemy-poison-2026-09-08/`.
++
++- `source-static-report.json`, `source-static-raw.json.gz`, and `source-static-measure.py.gz` retain reproducible source-only metrics, tool pins, file-growth checks and directory module counts. All fixed ratchets pass. The initial E303 failure and authorized whitespace correction remain recorded separately.
++- `parent-proof-retention.json` binds the exact parent AST, inert safety, and five source-guard results. No product import attempt occurred in the source-guard verification.
++- `final-opus-review-retention.json` binds the exact review input, retry command, outputs and parent resolutions. Opus session 20073 approves the poison slice.
++- `runtime-retention-manifest.json` binds all 42 files from the four parent-run jobs. `parent-runtime-verification.json` records exact run identifiers and results. Plain and Qt each passed three focused tests with zero skips and twelve complete differential cases. Root checked complete pickle bytes and restricted-decoded structures, exact RNG traces, route outcomes, nonmutation, and all 1263 source pins.
++
++These runtime measurements are dated parent evidence. This author did not run product code or remote commands. The full branch gate, post-merge gate and native programme acceptance remain pending. The source is not landed. The handoff contains the remaining manual instructions.
+--- /dev/null
++++ b/memory-bank/evidence/combat-enemy-poison-2026-09-08/parent-runtime-verification.json
+@@ -0,0 +1,42 @@
++{
++  "status": "FOCUSED_AND_DIFFERENTIAL_RUNTIME_PASS_FULL_GATES_PENDING",
++  "authority": "Root full-read and verification reported to this author; this author performed retention only.",
++  "jobs": {
++    "plain-focused": {
++      "session": 63290,
++      "terminal_exit": 0,
++      "run_id": "plain-1788894233-c2f73453",
++      "tests": 3,
++      "seconds": 0.003,
++      "skips": 0
++    },
++    "plain-comparison": {
++      "session": 31034,
++      "terminal_exit": 0,
++      "run_id": "plain-1788894295-a7df253d",
++      "cases": 12
++    },
++    "qt-focused": {
++      "session": 66125,
++      "terminal_exit": 0,
++      "run_id": "qt-1788894371-3a3b8c0f",
++      "tests": 3,
++      "seconds": 0.003,
++      "skips": 0
++    },
++    "qt-comparison": {
++      "session": 71671,
++      "terminal_exit": 0,
++      "run_id": "qt-1788894459-e0db09a3",
++      "cases": 12
++    }
++  },
++  "verified_by_parent": [
++    "All 1263 source pins match before, after, raw, local and comparison snapshots.",
++    "All 12 complete payload pairs per lane match as pickle bytes and RestrictedUnpickler structures.",
++    "Exact RNG draws, draw counts, route outcomes and input nonmutation match."
++  ],
++  "full_branch_gate": "PENDING",
++  "post_merge_gate": "PENDING",
++  "native_programme": "UNPROVEN"
++}
+--- /dev/null
++++ b/memory-bank/handoffs/combat-enemy-poison-2026-09-08.md
+@@ -0,0 +1,21 @@
++# Enemy poison extraction
++
++## Change
++
++The existing specials module owns the positive poison gate, one float-converted RNG draw, the unchanged TypeError/ValueError fallback, poison application, the status write, and antipoison consumption. The engine keeps enemy damage normalization and the truthy potion-event append at the same location after food. The status write precedes consumption. Existing engine private exports remain. No UI or gameplay rule changed.
++
++## Accepted evidence
++
++Root accepted the independent review and all four focused/differential runtime jobs. Plain and Qt each ran three focused tests in 0.003s with zero skips and compared twelve complete payload pairs. Root verified pickle-byte equality, RestrictedUnpickler structure equality, exact RNG draws/counts, route outcomes, input nonmutation, and all 1263 source bindings before and after execution. These are dated parent-run results, not a rerun by this author.
++
++The exact 42 runtime files are retained under `memory-bank/evidence/combat-enemy-poison-2026-09-08/runtime/`. `runtime-retention-manifest.json` binds each stored and decoded artifact; `parent-runtime-verification.json` records exact run identifiers and results. The same evidence directory retains source-only measurements, instrument pins, raw analyzer output, AST inverse proof, source-guard checks, inert safety proof, and the fixed runtime protocol. All static metric, layout, file-growth and module-count ratchets pass.
++
++## Review resolution
++
++Opus session 20073 approves the poison slice. Root verified that the helper preserves the original statements except for returning the antipoison event. Whole-function AST inspection found no later consumer of the caller's potion_event local. The model chance is exactly 0.4, so the frozen threshold test checks the exact boundary. The source guard already verifies the baseline specials bytes. No additional fallback, import removal, test change or report field was required. Exact review inputs, outputs and resolutions remain in `final-opus-review-retention.json`.
++
++## Remaining work
++
++Full branch and post-merge gates remain pending. The source is not landed; native programme acceptance remains unproven. Root owns gate execution and promotion.
++
++On the approved loaded add-on, use a poisonous target and a loaded Antipoison (1). Observe poison application followed by one automatic cure, the expected vial replacement, and no duplicate potion event. Repeat without antipoison and with active immunity. Confirm the displayed state agrees with the stored status and dose changes. This native check remains unperformed. Run only after the parent approves the native test environment; this author has no runtime ownership.
