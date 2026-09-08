@@ -1,0 +1,291 @@
+--- a/tools/combat/compare_enemy_unequip_transaction.py
++++ b/tools/combat/compare_enemy_unequip_transaction.py
+@@ -104,23 +104,32 @@
+         current = result[0]
+     assert enemies == COMBAT_ENEMY_DATA, "The burst mutated enemy data."
+     assert equipment == EQUIPMENT_DATA, "The burst mutated equipment data."
+-    assert rng.draws, "The enemy attack selector did not consume RNG."
++    assert rng.draws, "The combat burst did not consume RNG."
+     return steps
+ 
+ 
+-def route_observation(steps):
++def route_observation(steps, initial_player):
+     first_result = steps[0][0][2]
+     final_player = steps[-1][0][0]
+     event = first_result["enemy_specials"][0]
+     item = event["item"]
++    initial_inventory = initial_player.get("inventory", {})
++    initial_carried = initial_player.get("carried_inventory", {}).get(
++        "chaos_elemental", {}
++    )
+     instance = final_player.get("equipment_instances", {}).get("equipment-1", {})
+     return {
+         "item": item,
+         "slot": event["slot"],
+         "equipment_removed": not item or event["slot"] not in final_player["equipment"],
+-        "bank_delta": final_player["inventory"].get(item, 0) if item else 0,
++        "bank_delta": (
++            final_player["inventory"].get(item, 0) - initial_inventory.get(item, 0)
++            if item
++            else 0
++        ),
+         "pack_delta": (
+             final_player["carried_inventory"]["chaos_elemental"].get(item, 0)
++            - initial_carried.get(item, 0)
+             if item
+             else 0
+         ),
+@@ -137,12 +146,13 @@
+     from ankiscape.logic_pure import logic_pure_combat_engine as candidate
+ 
+     baseline = types.ModuleType("ankiscape.logic_pure._frozen_enemy_unequip_engine")
++    baseline.__package__ = "ankiscape.logic_pure"
+     exec(compile(baseline_bytes, "frozen-enemy-unequip-engine.py", "exec"), baseline.__dict__)
+     rows = []
+     for label, player, chunks, live, expected in cases():
+         before = capture(baseline.apply_combat_burst_pure, player, chunks, live)
+         after = capture(candidate.apply_combat_burst_pure, player, chunks, live)
+-        observed = route_observation(after)
++        observed = route_observation(after, player)
+         route_pass = (
+             observed["item"] == expected["item"]
+             and observed["slot"] == expected["slot"]
+--- a/tools/combat/check_enemy_unequip_guards.py
++++ b/tools/combat/check_enemy_unequip_guards.py
+@@ -1,23 +1,31 @@
+ """Exercise only enemy-unequip pre-import guards after parent authorization."""
+ 
+ import argparse
+-import contextlib
+ import gzip
+ import hashlib
+-import io
+ import json
+ import os
+ from pathlib import Path
+-import runpy
+ import subprocess
+ import sys
+ import tempfile
+-from unittest.mock import patch
+ 
+ 
+ ROOT = Path(__file__).resolve().parents[2]
+ PROBE = ROOT / "tools/combat/compare_enemy_unequip_transaction.py"
+ EVIDENCE = ROOT / "memory-bank/evidence/combat-unequip-transaction-2026-09-07"
++BOOTSTRAP = """import runpy, sys
++def audit(event, values):
++    if event == 'import' and values[0].split('.')[0] in {'ankiscape', 'pkg_alias', 'tests'}:
++        raise RuntimeError('Product import attempted during guard canary.')
++sys.addaudithook(audit)
++sys.argv = sys.argv[1:]
++try:
++    runpy.run_path(sys.argv[0], run_name='__main__')
++except AssertionError as error:
++    print(str(error), file=sys.stderr)
++    raise SystemExit(1)
++"""
+ 
+ 
+ def main():
+@@ -25,18 +33,6 @@
+     parser.add_argument("--candidate-sha256", required=True)
+     parser.add_argument("--inventory-sha256", required=True)
+     args = parser.parse_args()
+-    attempts = []
+-
+-    def audit(event, values):
+-        if event == "import" and values[0].split(".")[0] in {
+-            "ankiscape",
+-            "pkg_alias",
+-            "tests",
+-        }:
+-            attempts.append(values[0])
+-            raise RuntimeError("Product import attempted during guard canary.")
+-
+-    sys.addaudithook(audit)
+     with tempfile.TemporaryDirectory(prefix="enemy-unequip-guards-") as directory:
+         scratch = Path(directory)
+         baseline = EVIDENCE / "baseline-engine.py.gz"
+@@ -64,99 +60,76 @@
+             "--output",
+             str(scratch / "result.json"),
+         ]
++        refused = "Refusing to run with optimizations; the pins are assertions."
+         cases = (
+-            ("correct", (), None),
++            ("correct", (), None, (), None),
+             (
+                 "wrong-baseline",
+                 ("--baseline", str(wrong_baseline)),
+                 "Stored baseline hash differs.",
++                (),
++                None,
+             ),
+             (
+                 "wrong-candidate",
+                 ("--candidate-sha256", "0" * 64),
+                 "Candidate source hash differs.",
++                (),
++                None,
+             ),
+             (
+                 "wrong-inventory-pin",
+                 ("--inventory", str(altered)),
+                 "Inventory hash differs.",
++                (),
++                None,
+             ),
+             (
+                 "wrong-source-inventory",
+-                (
+-                    "--inventory",
+-                    str(altered),
+-                    "--inventory-sha256",
+-                    altered_hash,
+-                ),
++                ("--inventory", str(altered), "--inventory-sha256", altered_hash),
+                 "Source inventory differs.",
++                (),
++                None,
+             ),
++            ("optimized-flag", (), refused, ("-O",), None),
++            ("optimized-env-zero", (), refused, (), "0"),
+         )
+         rows = []
+-        for name, extra, expected_error in cases:
+-            stdout = io.StringIO()
+-            stderr = io.StringIO()
+-            with (
+-                patch.object(sys, "argv", arguments + list(extra)),
+-                contextlib.redirect_stdout(stdout),
+-                contextlib.redirect_stderr(stderr),
+-            ):
+-                try:
+-                    runpy.run_path(str(PROBE), run_name="__main__")
+-                except AssertionError as error:
+-                    assert expected_error is not None and str(error) == expected_error
+-                else:
+-                    assert expected_error is None
+-                    assert json.loads(
+-                        (scratch / "result.json").read_text()
+-                    )["status"] == "PREFLIGHT_PASS"
+-            assert not attempts
+-            rows.append(
+-                {
+-                    "case": name,
+-                    "outcome": expected_error or "PREFLIGHT_PASS",
+-                    "stdout": stdout.getvalue(),
+-                    "stderr": stderr.getvalue(),
+-                }
+-            )
+-        bootstrap = """import runpy, sys
+-def audit(event, values):
+-    if event == 'import' and values[0].split('.')[0] in {'ankiscape', 'pkg_alias', 'tests'}:
+-        raise RuntimeError('Product import attempted during optimized canary.')
+-sys.addaudithook(audit)
+-sys.argv = sys.argv[1:]
+-runpy.run_path(sys.argv[0], run_name='__main__')
+-"""
+-        for name, flags, optimize in (
+-            ("optimized-flag", ("-O",), None),
+-            ("optimized-env-zero", (), "0"),
+-        ):
++        for name, extra, expected_error, flags, optimize in cases:
+             environment = dict(os.environ)
+             environment.pop("PYTHONOPTIMIZE", None)
+             if optimize is not None:
+                 environment["PYTHONOPTIMIZE"] = optimize
+             result = subprocess.run(
+-                [sys.executable, "-B", *flags, "-c", bootstrap, *arguments],
++                [sys.executable, "-B", *flags, "-c", BOOTSTRAP, *arguments, *extra],
+                 env=environment,
+                 capture_output=True,
+                 text=True,
+                 timeout=30,
+             )
+-            assert result.returncode == 1 and result.stdout == ""
+-            assert result.stderr.strip() == (
+-                "Refusing to run with optimizations; the pins are assertions."
++            if expected_error is None:
++                assert result.returncode == 0
++                assert result.stdout == result.stderr == ""
++                assert json.loads(
++                    (scratch / "result.json").read_text()
++                )["status"] == "PREFLIGHT_PASS"
++            else:
++                assert result.returncode == 1 and result.stdout == ""
++                assert result.stderr.strip() == expected_error
++            rows.append(
++                {
++                    "case": name,
++                    "outcome": expected_error or "PREFLIGHT_PASS",
++                    "stdout": result.stdout,
++                    "stderr": result.stderr if expected_error is None else "",
++                }
+             )
+-            rows.append({"case": name, "outcome": result.stderr.strip()})
+-    assert not any(
+-        name.split(".")[0] in {"ankiscape", "pkg_alias", "tests"}
+-        for name in sys.modules
+-    )
+     print(
+         json.dumps(
+             {
+                 "status": "PASS",
+                 "cases": rows,
+-                "product_import_attempts": attempts,
++                "product_import_attempts": [],
+             },
+             indent=2,
+         )
+--- a/memory-bank/handoffs/combat-unequip-transaction-2026-09-07.md
++++ b/memory-bank/handoffs/combat-unequip-transaction-2026-09-07.md
+@@ -24,11 +24,13 @@
+ 
+ The frozen baseline engine has SHA-256 `486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4`. The candidate engine has SHA-256 `1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a`.
+ 
+-The source inventory has 877 entries. Its SHA-256 is `26b408ce88e2a45c06896ccbde26f02fec3e65da4ab92268b45a2ecd256dfe3a`.
++The source inventory has 877 entries. Its SHA-256 is `af68716ab32fe90efb9606bbae911ba1bb42421d6921a12163ff4980b42e64d2`.
+ 
+ ## Static verification
+ 
+-The installed complexity and layout ratchets passed. The candidate engine has 3,009 lines, and the baseline has 3,010 lines.
++The installed complexity and layout no-growth ratchets passed. The candidate engine has 3,009 lines, and the baseline has 3,010 lines.
++
++The engine exceeds the global 1,000-line limit. The static pass confirms no growth; it does not claim threshold compliance.
+ 
+ The structural proof confirms all of these facts:
+ 
+@@ -45,19 +47,25 @@
+ 
+ Review `product-review.diff` and `operational-review.diff` first. Then run the guard before all product imports.
+ 
+-The focused test selection has four new whole-burst cases and one existing unequip regression. The comparison has four named cases across live and legacy cadence.
++The focused selection has four test methods. Its three new methods contain four scenarios, and the existing regression adds the fifth scenario.
+ 
+-The comparison records complete returned values, input immutability, random draws, and random-generator state. Each case also has a route assertion.
++The comparison has four named labels across live and legacy cadence.
++
++The comparison records complete returned values, input immutability, ordered random draws, and the captured generator state. Each case also has a route assertion.
++
++The fixed 100-draw prefix means these cases do not advance the underlying pseudo-random generator. Do not treat that state trace as independent seeded-state coverage.
+ 
+ Run these commands in each authorized host lane:
+ 
+ ```sh
+-python3 -B tools/combat/check_enemy_unequip_guards.py --candidate-sha256 1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a --inventory-sha256 26b408ce88e2a45c06896ccbde26f02fec3e65da4ab92268b45a2ecd256dfe3a > /tmp/ankiscape-enemy-unequip-guards-2026-09-07.json
++python3 -B tools/combat/check_enemy_unequip_guards.py --candidate-sha256 1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a --inventory-sha256 af68716ab32fe90efb9606bbae911ba1bb42421d6921a12163ff4980b42e64d2 > /tmp/ankiscape-enemy-unequip-guards-corrected-2026-09-07.json
+ python3 -B run_tests.py --verbosity 2 EnemyUnequipTransactionTest ChaosElementalTests.test_unequip_special_moves_weapon_to_carried_pack_and_preserves_encounter
+-python3 -B tools/combat/compare_enemy_unequip_transaction.py --baseline memory-bank/evidence/combat-unequip-transaction-2026-09-07/baseline-engine.py.gz --candidate-sha256 1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a --inventory memory-bank/evidence/combat-unequip-transaction-2026-09-07/source-inventory.json.gz --inventory-sha256 26b408ce88e2a45c06896ccbde26f02fec3e65da4ab92268b45a2ecd256dfe3a --output /tmp/ankiscape-enemy-unequip-comparison-2026-09-07.json
++python3 -B tools/combat/compare_enemy_unequip_transaction.py --baseline memory-bank/evidence/combat-unequip-transaction-2026-09-07/baseline-engine.py.gz --candidate-sha256 1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a --inventory memory-bank/evidence/combat-unequip-transaction-2026-09-07/source-inventory.json.gz --inventory-sha256 af68716ab32fe90efb9606bbae911ba1bb42421d6921a12163ff4980b42e64d2 --output /tmp/ankiscape-enemy-unequip-comparison-2026-09-07.json
+ ```
+ 
+-Require all seven guard cases to pass before product imports. Require all focused tests to pass with zero skips.
++Require all seven guard cases to pass before product imports. The guard also refuses `PYTHONOPTIMIZE=0` because its source pins use assertions.
++
++Require unittest to report four methods and zero skips. The passing subtest does not add another method to that count.
+ 
+ Require these comparison labels: `weapon:live-resume`, `sorted-fallback:legacy`, `empty:legacy`, and `condition:live-resume`. Each equality flag and route flag must be true.
+ 

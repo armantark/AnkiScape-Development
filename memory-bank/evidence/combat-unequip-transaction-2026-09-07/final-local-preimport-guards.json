@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "correct",
+      "outcome": "PREFLIGHT_PASS",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-baseline",
+      "outcome": "Stored baseline hash differs.",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Stored baseline hash differs.\n"
+    },
+    {
+      "case": "wrong-candidate",
+      "outcome": "Candidate source hash differs.",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Candidate source hash differs.\n"
+    },
+    {
+      "case": "wrong-inventory-pin",
+      "outcome": "Inventory hash differs.",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Inventory hash differs.\n"
+    },
+    {
+      "case": "wrong-source-inventory",
+      "outcome": "Source inventory differs.",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Source inventory differs.\n"
+    },
+    {
+      "case": "optimized-flag",
+      "outcome": "Refusing to run with optimizations; the pins are assertions.",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Refusing to run with optimizations; the pins are assertions.\n"
+    },
+    {
+      "case": "optimized-env-zero",
+      "outcome": "Refusing to run with optimizations; the pins are assertions.",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Refusing to run with optimizations; the pins are assertions.\n"
+    }
+  ]
+}

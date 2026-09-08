@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "correct",
+      "outcome": "PREFLIGHT_PASS",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-baseline",
+      "outcome": "Stored baseline hash differs.",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-candidate",
+      "outcome": "Candidate source hash differs.",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-inventory-pin",
+      "outcome": "Inventory hash differs.",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "wrong-source-inventory",
+      "outcome": "Source inventory differs.",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "optimized-flag",
+      "outcome": "Refusing to run with optimizations; the pins are assertions.",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "optimized-env-zero",
+      "outcome": "Refusing to run with optimizations; the pins are assertions.",
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "product_import_attempts": []
+}

@@ -1,0 +1,52 @@
+{
+  "status": "LOCAL_SAFETY_LAYERS_PASS_REMOTE_RUNTIME_PENDING",
+  "execution_owner": "parent",
+  "parent_exit_codes": {
+    "corrected_preimport_guards": 0,
+    "inert_resume_canary": 0,
+    "driver_local_guard": 0
+  },
+  "parent_full_read": true,
+  "retained_raw": {
+    "corrected_preimport_guards": {
+      "path": "corrected-local-preimport-guards.json",
+      "source": "/tmp/ankiscape-enemy-unequip-guards-corrected-2026-09-07.json",
+      "bytes": 1060,
+      "sha256": "8293a9abfabc1d08996e5db0417b35d46ca161eac22729996009a93b0096579f"
+    },
+    "inert_resume_canary": {
+      "path": "local-resume-canary.json",
+      "source": "/tmp/ankiscape-enemy-unequip-resume-canary-2026-09-07.json",
+      "bytes": 2453,
+      "sha256": "b7e740b57408d34c79859349dcdd423e0cadcb82dc7214144706a068d1d4297d"
+    },
+    "driver_local_guard": {
+      "path": "local-driver-guard.json",
+      "source": "/tmp/ankiscape-enemy-unequip-driver-guard-2026-09-07/local-guard.json",
+      "bytes": 169,
+      "sha256": "815c815628fd4701cd66e25cb208bc07ed7c4398eee38f332f293730d2f266c7"
+    }
+  },
+  "source_binding": {
+    "inventory_sha256": "af68716ab32fe90efb9606bbae911ba1bb42421d6921a12163ff4980b42e64d2",
+    "inventory_entries": 877,
+    "probe_sha256": "a5b57b0c78349a1c3a57d7e39e90d45b79cdd57f8492f9e6eaceb4a96f624dcf",
+    "guard_sha256": "e4337d80137426b4e8a41dadf2bb50c99007693eb91be57609f65cfdf1a246d1",
+    "driver_sha256": "01faf5c307fd13839bb94a298cb990e8f436d12dea792e76c10f0081c13f820f",
+    "canary_sha256": "2d9cdf71f903e1d02ab95d1c689c492c7bf1a55115137b54bf36ed194833cff9"
+  },
+  "accepted_local_proof": [
+    "All seven corrected pre-import guard cases passed with no product import attempt.",
+    "The inert canary retained exact pending identity and refused resume relaunch, resync, foreign pending state, payload mismatch, zero random draws, route mismatch, and case reordering.",
+    "The driver local guard matched all 877 source files and made no remote call or product import."
+  ],
+  "unittest_methods": 4,
+  "scenario_cases": 5,
+  "differential_labels": 4,
+  "operational_review": "Opus 15738 running",
+  "current_mirror_owner": "P4 full gate 51344",
+  "product_runtime": "NOT_EXECUTED",
+  "remote_runtime": "NOT_EXECUTED",
+  "commit": "NOT_EXECUTED",
+  "next_gate": "Wait for P4 full gate 51344 and Opus 15738 before exact remote run proof."
+}

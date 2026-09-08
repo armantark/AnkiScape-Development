@@ -1,0 +1,141 @@
+{
+  "status": "STATIC_RUNTIME_REVIEW_CORRECTION_ONLY_LOCAL_RERUN_PENDING",
+  "current_guard_execution": "NOT_EXECUTED",
+  "current_canary_execution": "NOT_EXECUTED",
+  "current_driver_local_guard_execution": "NOT_EXECUTED",
+  "driver_execution": "NOT_EXECUTED",
+  "product_runtime": "NOT_EXECUTED",
+  "remote_execution": "NOT_EXECUTED",
+  "current_mirror_owner": "P4 full gate 51344",
+  "historical_local_acceptance": {
+    "inventory_sha256": "af68716ab32fe90efb9606bbae911ba1bb42421d6921a12163ff4980b42e64d2",
+    "status": "PASS",
+    "acceptance_path": "local-operational-acceptance.json",
+    "acceptance_sha256": "530a14e8fa254ce0f3feddf1cf375f72042e422b72af0bcf26584c08cbe9256a",
+    "corrected_guard_sha256": "8293a9abfabc1d08996e5db0417b35d46ca161eac22729996009a93b0096579f",
+    "resume_canary_sha256": "b7e740b57408d34c79859349dcdd423e0cadcb82dc7214144706a068d1d4297d",
+    "driver_local_guard_sha256": "815c815628fd4701cd66e25cb208bc07ed7c4398eee38f332f293730d2f266c7"
+  },
+  "current_product_binding": {
+    "source_inventory_sha256": "6144b3ffe002b2c41ae1447f5bd6c8fcdfa6a2fcec82f5244f42a3c7c6ff8e17",
+    "source_inventory_entries": 877,
+    "source_sha256": {
+      "logic_pure/logic_pure_combat_engine.py": "1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a",
+      "tests/combat/test_enemy_unequip_transaction.py": "dbd931bb0545e7d691fa400eb4a1aa1f573198a08cc31ab2775949bc31089ad7",
+      "tools/combat/compare_enemy_unequip_transaction.py": "a5b57b0c78349a1c3a57d7e39e90d45b79cdd57f8492f9e6eaceb4a96f624dcf",
+      "tools/combat/check_enemy_unequip_guards.py": "3d3aafd882ae09fe2c201ee12ef1a8ca891a40e9ad7c90f46add422596137061"
+    },
+    "manifest_sha256": "a21785cdfbe4ee4fdcbe10c7748a8bac9062e855cb9a97dfbcc3802faf509f7b",
+    "review_packets_sha256": "7df2fbd5fadb858f4a738b349366374980dcbffc5055c3d68cf7d6888091b200"
+  },
+  "runtime_review": {
+    "status": "PASS_WITH_GUARD_EVIDENCE_BLOCKER_CORRECTED",
+    "raw_path": "runtime-opus-review.txt",
+    "raw_bytes": 6723,
+    "raw_sha256": "d394e108bcac3c04b8b6c091a6d5aca3d76a6fa966b2c9f172f2b7a9674ac39a",
+    "correction_packet": "runtime-review-correction.diff",
+    "correction_packet_bytes": 4843,
+    "correction_packet_sha256": "4dec175245e869d4d51cb6faafcc7736cf931da24ed69b74fb7215513f2e31c9",
+    "parent_correction_check": "PENDING"
+  },
+  "runtime_source_sha256": {
+    "tools/combat/run_enemy_unequip_remote.py": "4bd1e354856f5f27a006fa23a81da1b034c61467b860b45b91863bb32b9b7261",
+    "tools/combat/check_enemy_unequip_remote_resume.py": "2d9cdf71f903e1d02ab95d1c689c492c7bf1a55115137b54bf36ed194833cff9"
+  },
+  "execution_contract": {
+    "jobs": [
+      "plain-focused",
+      "plain-comparison",
+      "qt-focused",
+      "qt-comparison"
+    ],
+    "unittest_methods": 4,
+    "scenario_cases": 5,
+    "differential_labels": [
+      "weapon:live-resume",
+      "sorted-fallback:legacy",
+      "empty:legacy",
+      "condition:live-resume"
+    ],
+    "lock_scope": "The local mirror lock encloses the complete four-job run.",
+    "baseline_transport": "Use the frozen gzip baseline directly.",
+    "checkpoint_policy": "Keep each completed comparison case on disk because the process state is volatile."
+  },
+  "static_verification": {
+    "product_status": "PASS",
+    "product_failures": {
+      "ccn": [],
+      "cognitive": [],
+      "halstead": [],
+      "layout": [],
+      "file_growth": []
+    },
+    "runtime_status": "PASS",
+    "runtime_failures": {
+      "ccn": [],
+      "cognitive": [],
+      "halstead": [],
+      "layout": [],
+      "file_growth": [],
+      "dead_code": []
+    },
+    "maximum_ccn": {
+      "function": "tools/combat/run_enemy_unequip_remote.py|prepare_session",
+      "value": 10
+    },
+    "maximum_cognitive": {
+      "function": "tools/combat/run_enemy_unequip_remote.py|prepare_session",
+      "value": 11
+    },
+    "maximum_halstead": {
+      "function": "tools/combat/run_enemy_unequip_remote.py|run_job",
+      "value": 5.420454545454546
+    },
+    "thresholds": {
+      "CCN_MAX": 15,
+      "COGNITIVE_MAX": 15,
+      "HALSTEAD_MAX": 80,
+      "FILE_LINES_MAX": 1000
+    },
+    "layout_claim": "No-growth ratchet only; the 3,009-line engine exceeds the 1,000-line limit.",
+    "dead_code_tool": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/vulture",
+      "sha256": "3b30e99d70b73c39a3f058bab014378bbe83644198bf76dc258b498b458ffe32",
+      "version": "vulture 2.16"
+    }
+  },
+  "historical_runtime_review_packet": {
+    "path": "runtime-operational-review.diff",
+    "bytes": 22686,
+    "sha256": "71ab84cd05e9660b1e3fb71e183b12d3cd39aac69fbb685bb02541fdc7571145"
+  },
+  "evidence_sha256": {
+    "manifest.json": "a21785cdfbe4ee4fdcbe10c7748a8bac9062e855cb9a97dfbcc3802faf509f7b",
+    "review-packets.json": "7df2fbd5fadb858f4a738b349366374980dcbffc5055c3d68cf7d6888091b200",
+    "runtime-opus-review.txt": "d394e108bcac3c04b8b6c091a6d5aca3d76a6fa966b2c9f172f2b7a9674ac39a",
+    "runtime-review-correction.diff": "4dec175245e869d4d51cb6faafcc7736cf931da24ed69b74fb7215513f2e31c9",
+    "runtime-review-resolution.md": "11c73416395e39a7405ee0bef1c1be147b5c411024bb384e4bf1b93ebdb9361b",
+    "runtime-static-metrics.json": "862183b273151e0190905ebefece7f15f8e0394110b5e4ab90a6d28ff02a7a6d",
+    "runtime-static-raw.json.gz": "7310bead96bb56485380aa97e426c0d4612e39d5d91baee852233aca86f6f832",
+    "runtime-static-verification.py.gz": "db9c72d9ea4ce693c15394facce18046aae6a9898f09ef7dbb0347b31df9d6bf",
+    "source-inventory.json.gz": "6144b3ffe002b2c41ae1447f5bd6c8fcdfa6a2fcec82f5244f42a3c7c6ff8e17",
+    "static-metrics.json": "1ecde3754ebde3740ae33ee42bdec2f20b7ad1c712b9b4e89c01a17ab97791fa",
+    "static-raw.json.gz": "8f7d339b4f9e600fb2914be4569aa6780f0487e16948aad91e8afa34be32863b",
+    "static-verification.py.gz": "2dac5d5738c65c3d0d527bffb2ea3441a74a214b879926eca9aa3c08748d875f"
+  },
+  "unexecuted_commands": [
+    "python3 -B tools/combat/check_enemy_unequip_guards.py --candidate-sha256 1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a --inventory-sha256 6144b3ffe002b2c41ae1447f5bd6c8fcdfa6a2fcec82f5244f42a3c7c6ff8e17 > /tmp/ankiscape-enemy-unequip-guards-final-2026-09-07.json",
+    "python3 -B tools/combat/check_enemy_unequip_remote_resume.py --output /tmp/ankiscape-enemy-unequip-resume-canary-final-2026-09-07.json",
+    "python3 -B tools/combat/run_enemy_unequip_remote.py --guard-only --output /tmp/ankiscape-enemy-unequip-driver-guard-final-2026-09-07",
+    "python3 -B tools/combat/run_enemy_unequip_remote.py --output /tmp/ankiscape-enemy-unequip-runtime-2026-09-07"
+  ],
+  "missing_acceptance": [
+    "Parent runtime-review correction code check",
+    "Rerun corrected pre-import guards",
+    "Rerun inert canary",
+    "Rerun driver local guard",
+    "Authorized four-job remote execution",
+    "Normal commit hooks and author commit",
+    "Full branch and exact merged-tree gates"
+  ]
+}

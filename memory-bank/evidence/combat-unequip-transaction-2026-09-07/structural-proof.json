@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "baseline_sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+  "candidate_sha256": "1ef64d445983f5512a27d298aa22da81479f9b1be9d2132939fde57b9485be3a",
+  "other_definitions_and_module_statements_unchanged": true,
+  "moved_transaction_AST_equal": true,
+  "event_mapping_AST_equal": true,
+  "helper_calls": 1,
+  "sync_calls_in_helper": 1,
+  "caller_keeps_schedule_then_selection": true,
+  "caller_keeps_event_append_and_break": true,
+  "helper_has_no_rng_or_loop_control_state": true
+}
