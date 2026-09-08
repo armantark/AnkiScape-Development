@@ -1,0 +1,113 @@
+{
+  "status": "FAIL",
+  "failures": {
+    "ccn": [],
+    "cognitive": [
+      [
+        "runtime/runtime_actions_carried_overlay.py",
+        "_settle_gathering_keep_drop",
+        17,
+        0
+      ]
+    ],
+    "halstead": [],
+    "layout": [],
+    "file_growth": []
+  },
+  "lines": {
+    "base": {
+      "runtime/runtime_actions_carried_overlay.py": 783
+    },
+    "candidate": {
+      "runtime/runtime_actions_carried_overlay.py": 793
+    }
+  },
+  "sources": {
+    "runtime/runtime_actions_carried_overlay.py": "b7139a7ee6f695539c4073c1fc940dbd7b176dabc59c1fa6056d981ba3e4d4fe"
+  },
+  "gate": {
+    "path": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+    "sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+    "thresholds": {
+      "CCN_MAX": 15,
+      "COGNITIVE_MAX": 15,
+      "HALSTEAD_MAX": 80,
+      "FILE_LINES_MAX": 1000
+    },
+    "layout_codes": "E301,E302,E303,E305,E306,E701,E702,E703"
+  },
+  "tools": {
+    "lizard": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/lizard",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/lizard/bin/lizard",
+      "sha256": "9f4becf742daaf2c86fc43a7aa14e986623d3b6bebecd426bc7636e46ce6184c"
+    },
+    "complexipy": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/complexipy",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/complexipy/bin/complexipy",
+      "sha256": "0e5d4ecd86ed5fab94a9372e2f94e0b16227f45618ea7a1fb11729a31888ae52"
+    },
+    "radon": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/radon",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/radon/bin/radon",
+      "sha256": "c5b3293a495616659bb22bef6b04a37582eea82e48c5b3450e281059ee94fd53"
+    },
+    "pycodestyle": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/pycodestyle",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/pycodestyle/bin/pycodestyle",
+      "sha256": "19d602cb82513894d6047f640bb14cc213f7cf96c6e981eea2f4fcb36f83a34f"
+    }
+  },
+  "inventory_sha256": "11677d2e33959f6382016338e9a90098deb82183b6c647611dee10210388b6d2",
+  "source_entries_verified": 903,
+  "product_import_attempts": [],
+  "metrics": {
+    "base": {
+      "ccn": {
+        "runtime/runtime_actions_carried_overlay.py|_try_pack_yak_winter_storage_overlay": 34,
+        "runtime/runtime_actions_carried_overlay.py|_reconcile_processing_inventory": 13,
+        "runtime/runtime_actions_carried_overlay.py|_initialize_due_bank_trip": 7,
+        "runtime/runtime_actions_carried_overlay.py|run_answer_with_carried_overlay.restore_cadence_profiles_after_rejection": 4,
+        "runtime/runtime_actions_carried_overlay.py|run_answer_with_carried_overlay": 159
+      },
+      "cognitive": {
+        "runtime/runtime_actions_carried_overlay.py|_initialize_due_bank_trip": 9,
+        "runtime/runtime_actions_carried_overlay.py|_reconcile_processing_inventory": 15,
+        "runtime/runtime_actions_carried_overlay.py|_try_pack_yak_winter_storage_overlay": 20,
+        "runtime/runtime_actions_carried_overlay.py|run_answer_with_carried_overlay": 215
+      },
+      "halstead": {
+        "runtime/runtime_actions_carried_overlay.py|_try_pack_yak_winter_storage_overlay": 7.838709677419355,
+        "runtime/runtime_actions_carried_overlay.py|_reconcile_processing_inventory": 3.3846153846153846,
+        "runtime/runtime_actions_carried_overlay.py|_initialize_due_bank_trip": 1.0,
+        "runtime/runtime_actions_carried_overlay.py|run_answer_with_carried_overlay": 10.932098765432098
+      },
+      "layout": {}
+    },
+    "candidate": {
+      "ccn": {
+        "runtime/runtime_actions_carried_overlay.py|_try_pack_yak_winter_storage_overlay": 34,
+        "runtime/runtime_actions_carried_overlay.py|_reconcile_processing_inventory": 13,
+        "runtime/runtime_actions_carried_overlay.py|_settle_gathering_keep_drop": 13,
+        "runtime/runtime_actions_carried_overlay.py|_initialize_due_bank_trip": 7,
+        "runtime/runtime_actions_carried_overlay.py|run_answer_with_carried_overlay.restore_cadence_profiles_after_rejection": 4,
+        "runtime/runtime_actions_carried_overlay.py|run_answer_with_carried_overlay": 147
+      },
+      "cognitive": {
+        "runtime/runtime_actions_carried_overlay.py|_initialize_due_bank_trip": 9,
+        "runtime/runtime_actions_carried_overlay.py|_reconcile_processing_inventory": 15,
+        "runtime/runtime_actions_carried_overlay.py|_settle_gathering_keep_drop": 17,
+        "runtime/runtime_actions_carried_overlay.py|_try_pack_yak_winter_storage_overlay": 20,
+        "runtime/runtime_actions_carried_overlay.py|run_answer_with_carried_overlay": 191
+      },
+      "halstead": {
+        "runtime/runtime_actions_carried_overlay.py|_try_pack_yak_winter_storage_overlay": 7.838709677419355,
+        "runtime/runtime_actions_carried_overlay.py|_reconcile_processing_inventory": 3.3846153846153846,
+        "runtime/runtime_actions_carried_overlay.py|_settle_gathering_keep_drop": 3.1818181818181817,
+        "runtime/runtime_actions_carried_overlay.py|_initialize_due_bank_trip": 1.0,
+        "runtime/runtime_actions_carried_overlay.py|run_answer_with_carried_overlay": 10.863636363636363
+      },
+      "layout": {}
+    }
+  }
+}

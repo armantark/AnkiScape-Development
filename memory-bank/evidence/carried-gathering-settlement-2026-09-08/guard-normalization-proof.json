@@ -1,0 +1,8 @@
+{
+  "original_cognitive": 17,
+  "limit": 15,
+  "rejected_candidate_sha256": "b7139a7ee6f695539c4073c1fc940dbd7b176dabc59c1fa6056d981ba3e4d4fe",
+  "current_candidate_sha256": "b8c50e35a7598e8f32505fcbdedd3aff66686370fb9b1fcb0827a311d97f5f05",
+  "proof": "Prelude AST unchanged; new not-keep branch contains identical original drop If then bare return; dedented Keep statements match original Keep body AST. Reversing this normalization reconstructs exact rejected helper and whole-file inverse baseline. Raw helper AST identity is not claimed.",
+  "normalization_only_verified": true
+}

@@ -2217,3 +2217,11 @@
 - 2026-09-08: While retaining the carried new bank trip review, a read guessed runtime_actions/carried/overlay.py and returned `No such file or directory`; the actual source is runtime/runtime_actions_carried_overlay.py.
 
 - 2026-09-08T05:16:47.347426+00:00: Comparator Opus wrapper exited 1 when validate_claude_output.py raised FileNotFoundError for removed `/var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/ask-claude-output.X3MFYl`; parent validated retained complete stdout with installed validator and exit 0. Runtime was NOT_RUN.
+
+- 2026-09-08: Root searched nonexistent `tools/remote_tests`; the actual `_ssh` implementation is in `tools/run_remote_tests.py:101`. No runtime or remote call occurred in this author slice.
+
+- 2026-09-08: Gathering author looked for `memory-bank/evidence/unproductive-activity-selector-2026-09-08/static-instrument-pins.json` in I-based P3 and received `FileNotFoundError: [Errno 2] No such file or directory`; selector has not merged into this base. Reused unchanged carried-new-bank-trip instrument pins instead; no product imports or runtime.
+
+- 2026-09-08: Exact Keep/Drop helper extraction failed the unchanged cognitive gate at 17 > 15 (other ratchets empty). Parent authorized a single guard normalization: Drop then return, followed by dedented Keep body; rejected candidate and raw metrics remain in `rejected-nested-keep`.
+
+- 2026-09-08: Root guessed `logic_pure/inventory*` and received a zsh no-matches error; the existing helper module is `logic/inventory_pure.py`. Root found no existing drop-gains helper there.

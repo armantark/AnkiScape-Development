@@ -1,0 +1,48 @@
+{
+  "status": "INTEGRATION_BLOCKED",
+  "reason": "Both approved eight-parameter Keep/Drop nesting forms measure cognitive complexity 17 against unchanged limit 15. Other ratchets passed.",
+  "next_prerequisite": "A reviewed smaller responsibility boundary that passes the unchanged cognitive limit.",
+  "files": [
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/runtime/runtime_actions_carried_overlay.py",
+      "sha256": "b8c50e35a7598e8f32505fcbdedd3aff66686370fb9b1fcb0827a311d97f5f05",
+      "bytes": 32702
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/product.patch",
+      "sha256": "8335eba39ba60c4e754d6d34ef57a23ddace58d94bbcbc184f1fd99981a87e93",
+      "bytes": 5583
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-measurements.json",
+      "sha256": "6245485806ec7d4582d4f79f3f1ca3c42d221b2d38d98740691ccf629a11c7bc",
+      "bytes": 5215
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-measurements.raw.json.gz",
+      "sha256": "9d6621f784774eab6ebb641b1f245817247b651f79c7d2fabc103646990568bb",
+      "bytes": 2183
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/guard-normalization-proof.json",
+      "sha256": "b262a232bb2c8fe835a8f914eadac326d419c10cd9420c58c596bcdc31bafb94",
+      "bytes": 585
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/candidate-overlay.py.gz",
+      "sha256": "2e40e2e48047c031b6e568f8675b33cb71368facc702911cb4b0829f73e976df",
+      "bytes": 7799
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-measurements.json",
+      "sha256": "579a76ee9555d0f6b881deb6f04fb40928b3fac4ad0e73e6d966d44029817bb4",
+      "bytes": 5229
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-measurements.raw.json.gz",
+      "sha256": "a47dfa1217e8b55bb971c6681a13a43fe08d0f6c1037e5496a4d7a37197b6ad1",
+      "bytes": 2147
+    }
+  ],
+  "scope": "Both candidates preserved. No restore, deletion, commit, runtime or product import."
+}

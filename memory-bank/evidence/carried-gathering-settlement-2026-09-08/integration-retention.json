@@ -1,0 +1,252 @@
+{
+  "status": "PARENT_VERIFIED_INTEGRATION_BLOCKER_RETAINED_NO_PRODUCT_CHANGE",
+  "files": [
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/baseline-overlay.py.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/baseline-overlay.py.gz",
+      "original_bytes": 7731,
+      "stored_bytes": 7731,
+      "original_sha256": "918612e6ea98c63f13df334adf5068a7489aa768a961800f7abca0de8fec8e37",
+      "stored_sha256": "918612e6ea98c63f13df334adf5068a7489aa768a961800f7abca0de8fec8e37",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/blocker-manifest.json",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/blocker-manifest.json",
+      "original_bytes": 3269,
+      "stored_bytes": 3269,
+      "original_sha256": "29f0fae0a90139213ff0b5d26543c8f08774c175c124212a1e02342400b9b022",
+      "stored_sha256": "29f0fae0a90139213ff0b5d26543c8f08774c175c124212a1e02342400b9b022",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/boundary-review-retention.json",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/boundary-review-retention.json",
+      "original_bytes": 1264,
+      "stored_bytes": 1264,
+      "original_sha256": "ec144590d9833071f71bff57c4dc8d7198fbcc64413d42f465270c1e00d50473",
+      "stored_sha256": "ec144590d9833071f71bff57c4dc8d7198fbcc64413d42f465270c1e00d50473",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/boundary-review.prompt.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/boundary-review.prompt.gz",
+      "original_bytes": 12856,
+      "stored_bytes": 12856,
+      "original_sha256": "60539560432dc491d71a75292e3509912f11f7220a3d85cf23f0a881ac49add4",
+      "stored_sha256": "60539560432dc491d71a75292e3509912f11f7220a3d85cf23f0a881ac49add4",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/boundary-review.stderr.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/boundary-review.stderr.gz",
+      "original_bytes": 197,
+      "stored_bytes": 197,
+      "original_sha256": "398a435299113aa87272196ebdb1fcd83f8574caca218d125f11626be5aacc92",
+      "stored_sha256": "398a435299113aa87272196ebdb1fcd83f8574caca218d125f11626be5aacc92",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/boundary-review.stdout.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/boundary-review.stdout.gz",
+      "original_bytes": 2017,
+      "stored_bytes": 2017,
+      "original_sha256": "f629c7a0964c9769bbc63da076c81ef9d9e2597d565cef239fd4efbbe7ac0e39",
+      "stored_sha256": "f629c7a0964c9769bbc63da076c81ef9d9e2597d565cef239fd4efbbe7ac0e39",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/guard-normalization-proof.json",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/guard-normalization-proof.json",
+      "original_bytes": 585,
+      "stored_bytes": 585,
+      "original_sha256": "b262a232bb2c8fe835a8f914eadac326d419c10cd9420c58c596bcdc31bafb94",
+      "stored_sha256": "b262a232bb2c8fe835a8f914eadac326d419c10cd9420c58c596bcdc31bafb94",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/product.patch",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/product.patch",
+      "original_bytes": 5583,
+      "stored_bytes": 5583,
+      "original_sha256": "8335eba39ba60c4e754d6d34ef57a23ddace58d94bbcbc184f1fd99981a87e93",
+      "stored_sha256": "8335eba39ba60c4e754d6d34ef57a23ddace58d94bbcbc184f1fd99981a87e93",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/baseline-overlay.py.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/baseline-overlay.py.gz",
+      "original_bytes": 7731,
+      "stored_bytes": 7731,
+      "original_sha256": "918612e6ea98c63f13df334adf5068a7489aa768a961800f7abca0de8fec8e37",
+      "stored_sha256": "918612e6ea98c63f13df334adf5068a7489aa768a961800f7abca0de8fec8e37",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/boundary-review-retention.json",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/boundary-review-retention.json",
+      "original_bytes": 1264,
+      "stored_bytes": 1264,
+      "original_sha256": "ec144590d9833071f71bff57c4dc8d7198fbcc64413d42f465270c1e00d50473",
+      "stored_sha256": "ec144590d9833071f71bff57c4dc8d7198fbcc64413d42f465270c1e00d50473",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/boundary-review.prompt.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/boundary-review.prompt.gz",
+      "original_bytes": 12856,
+      "stored_bytes": 12856,
+      "original_sha256": "60539560432dc491d71a75292e3509912f11f7220a3d85cf23f0a881ac49add4",
+      "stored_sha256": "60539560432dc491d71a75292e3509912f11f7220a3d85cf23f0a881ac49add4",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/boundary-review.stderr.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/boundary-review.stderr.gz",
+      "original_bytes": 197,
+      "stored_bytes": 197,
+      "original_sha256": "398a435299113aa87272196ebdb1fcd83f8574caca218d125f11626be5aacc92",
+      "stored_sha256": "398a435299113aa87272196ebdb1fcd83f8574caca218d125f11626be5aacc92",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/boundary-review.stdout.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/boundary-review.stdout.gz",
+      "original_bytes": 2017,
+      "stored_bytes": 2017,
+      "original_sha256": "f629c7a0964c9769bbc63da076c81ef9d9e2597d565cef239fd4efbbe7ac0e39",
+      "stored_sha256": "f629c7a0964c9769bbc63da076c81ef9d9e2597d565cef239fd4efbbe7ac0e39",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/candidate-overlay.py.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/candidate-overlay.py.gz",
+      "original_bytes": 7799,
+      "stored_bytes": 7799,
+      "original_sha256": "2e40e2e48047c031b6e568f8675b33cb71368facc702911cb4b0829f73e976df",
+      "stored_sha256": "2e40e2e48047c031b6e568f8675b33cb71368facc702911cb4b0829f73e976df",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/product.patch",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/product.patch",
+      "original_bytes": 5693,
+      "stored_bytes": 5693,
+      "original_sha256": "4c72b335a79d96da02b8bcb1e63e1f47b9a3338cc365ecdc977e54c0a6e15188",
+      "stored_sha256": "4c72b335a79d96da02b8bcb1e63e1f47b9a3338cc365ecdc977e54c0a6e15188",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/source-inventory.json.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/source-inventory.json.gz",
+      "original_bytes": 42997,
+      "stored_bytes": 42997,
+      "original_sha256": "11677d2e33959f6382016338e9a90098deb82183b6c647611dee10210388b6d2",
+      "stored_sha256": "11677d2e33959f6382016338e9a90098deb82183b6c647611dee10210388b6d2",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-instrument-pins.json",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-instrument-pins.json",
+      "original_bytes": 1814,
+      "stored_bytes": 1814,
+      "original_sha256": "b4774b92e09f5e69c2913a0e5c3a413242054e705ca9897eb437038fc4fa172b",
+      "stored_sha256": "b4774b92e09f5e69c2913a0e5c3a413242054e705ca9897eb437038fc4fa172b",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-measurements.json",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-measurements.json",
+      "original_bytes": 5229,
+      "stored_bytes": 5229,
+      "original_sha256": "579a76ee9555d0f6b881deb6f04fb40928b3fac4ad0e73e6d966d44029817bb4",
+      "stored_sha256": "579a76ee9555d0f6b881deb6f04fb40928b3fac4ad0e73e6d966d44029817bb4",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-measurements.raw.json.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-measurements.raw.json.gz",
+      "original_bytes": 2147,
+      "stored_bytes": 2147,
+      "original_sha256": "a47dfa1217e8b55bb971c6681a13a43fe08d0f6c1037e5496a4d7a37197b6ad1",
+      "stored_sha256": "a47dfa1217e8b55bb971c6681a13a43fe08d0f6c1037e5496a4d7a37197b6ad1",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-verification.py.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-nested-keep/static-verification.py.gz",
+      "original_bytes": 1828,
+      "stored_bytes": 1828,
+      "original_sha256": "eba5c71fe0bf2a7f36267cbd3d7c374bfbc66f8eb9db15fd639265fdca0917fd",
+      "stored_sha256": "eba5c71fe0bf2a7f36267cbd3d7c374bfbc66f8eb9db15fd639265fdca0917fd",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/source-inventory.json.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/source-inventory.json.gz",
+      "original_bytes": 42994,
+      "stored_bytes": 42994,
+      "original_sha256": "d7c72c53c37e56f3924e3982ed120cc9b33311a12949e0f78442dc61e32fc3e0",
+      "stored_sha256": "d7c72c53c37e56f3924e3982ed120cc9b33311a12949e0f78442dc61e32fc3e0",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-instrument-pins.json",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-instrument-pins.json",
+      "original_bytes": 1814,
+      "stored_bytes": 1814,
+      "original_sha256": "8b70cad0bc6dc0ca9d7d2b6629f403f66ff9e53a43d9e98919b969207eea9223",
+      "stored_sha256": "8b70cad0bc6dc0ca9d7d2b6629f403f66ff9e53a43d9e98919b969207eea9223",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-measurements.json",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-measurements.json",
+      "original_bytes": 5215,
+      "stored_bytes": 5215,
+      "original_sha256": "6245485806ec7d4582d4f79f3f1ca3c42d221b2d38d98740691ccf629a11c7bc",
+      "stored_sha256": "6245485806ec7d4582d4f79f3f1ca3c42d221b2d38d98740691ccf629a11c7bc",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-measurements.raw.json.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-measurements.raw.json.gz",
+      "original_bytes": 2183,
+      "stored_bytes": 2183,
+      "original_sha256": "9d6621f784774eab6ebb641b1f245817247b651f79c7d2fabc103646990568bb",
+      "stored_sha256": "9d6621f784774eab6ebb641b1f245817247b651f79c7d2fabc103646990568bb",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-verification.py.gz",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/static-verification.py.gz",
+      "original_bytes": 1828,
+      "stored_bytes": 1828,
+      "original_sha256": "eba5c71fe0bf2a7f36267cbd3d7c374bfbc66f8eb9db15fd639265fdca0917fd",
+      "stored_sha256": "eba5c71fe0bf2a7f36267cbd3d7c374bfbc66f8eb9db15fd639265fdca0917fd",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/handoffs/carried-gathering-settlement-2026-09-08.md",
+      "stored_path": "memory-bank/handoffs/carried-gathering-settlement-2026-09-08.md",
+      "original_bytes": 3153,
+      "stored_bytes": 3153,
+      "original_sha256": "b736bb30143b38747a430967a50ea21dca0ff87a43a1cfc5c7c31091543650f6",
+      "stored_sha256": "b736bb30143b38747a430967a50ea21dca0ff87a43a1cfc5c7c31091543650f6",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/runtime/runtime_actions_carried_overlay.py",
+      "stored_path": "memory-bank/evidence/carried-gathering-settlement-2026-09-08/rejected-normalized-overlay.py.gz",
+      "original_bytes": 32702,
+      "stored_bytes": 7800,
+      "original_sha256": "b8c50e35a7598e8f32505fcbdedd3aff66686370fb9b1fcb0827a311d97f5f05",
+      "stored_sha256": "3a28651e94100cc69326231d1c31727a8fb519610ff112ed58054c011a53c717",
+      "encoding": "gzip-mtime-zero"
+    }
+  ],
+  "source_checkout": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork",
+  "parent_findings": "Both exact nested and approved guard-normalized helpers measure cognitive 17 against unchanged limit 15. Other ratchets pass. Normalized overlay grows 783 to 794 lines.",
+  "next_prerequisite": "Reviewed smaller responsibility boundary passing unchanged gates.",
+  "execution": "No rejected-source runtime, tests or commit; this retention performed no product imports or execution."
+}
