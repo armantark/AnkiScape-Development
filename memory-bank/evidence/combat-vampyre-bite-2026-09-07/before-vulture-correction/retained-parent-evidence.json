@@ -1,0 +1,18 @@
+{
+  "source-canaries.json.gz": {
+    "sha256": "fa6e2b36359b2d704d6951c21c3da55e0e16b1a6f7275a4e3cdcf6863922a492",
+    "decoded_sha256": "c900464aaa7dcb27a7309663d35b34849f5c9850909494ccebdc43338cafbb24",
+    "origin": "/tmp/ankiscape-vampyre-bite-source-canaries-2026-09-07.json"
+  },
+  "preflight.json.gz": {
+    "sha256": "9aff1d3147ef07676cdf3bc73f0ce0f1f3d1ff558fc1950126605587dd3f4b77",
+    "decoded_sha256": "f0af6843bbf0c747deb18ca9a88583724c4ce8b2d7df03e8c905b87a79f3bc66",
+    "origin": "/tmp/ankiscape-vampyre-bite-preflight-2026-09-07.json"
+  },
+  "static-measurements.json": {
+    "sha256": "5c6d8d5018677bd879012ef6fa126c20bdbaba3084c45fffdb1dd323dabdfa38"
+  },
+  "static-measurement-raw.json.gz": {
+    "sha256": "4604d00fdc07b8922cb623768746b6527f188b5895588ea084918df40fdec287"
+  }
+}

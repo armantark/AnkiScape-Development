@@ -1,0 +1,47 @@
+{
+  "gate": {
+    "path": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+    "sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+    "thresholds": {
+      "CCN_MAX": 15,
+      "COGNITIVE_MAX": 15,
+      "HALSTEAD_MAX": 80,
+      "FILE_LINES_MAX": 1000
+    },
+    "layout_codes": "E301,E302,E303,E305,E306,E701,E702,E703"
+  },
+  "tools": {
+    "lizard": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/lizard",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/lizard/bin/lizard",
+      "sha256": "9f4becf742daaf2c86fc43a7aa14e986623d3b6bebecd426bc7636e46ce6184c"
+    },
+    "complexipy": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/complexipy",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/complexipy/bin/complexipy",
+      "sha256": "0e5d4ecd86ed5fab94a9372e2f94e0b16227f45618ea7a1fb11729a31888ae52"
+    },
+    "radon": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/radon",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/radon/bin/radon",
+      "sha256": "c5b3293a495616659bb22bef6b04a37582eea82e48c5b3450e281059ee94fd53"
+    },
+    "pycodestyle": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/pycodestyle",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/pycodestyle/bin/pycodestyle",
+      "sha256": "19d602cb82513894d6047f640bb14cc213f7cf96c6e981eea2f4fcb36f83a34f"
+    }
+  },
+  "provenance": "Parent-only proposed operational verification; no driver, canary, analyzer, product or runner execution by the author. Runtime inventory remains unchanged.",
+  "inventory_sha256": "b672526ae457602f240223728bd7625f5dee4b7b104bda6e0676215c6d01ff18",
+  "sources": {
+    "tools/combat/run_vampyre_bite_remote.py": "368c1e5ddfcbd7c903b8199492c790ed5c353d14371fcd6a91748e45590efde5",
+    "tools/combat/check_vampyre_bite_remote_resume.py": "df7004ab4997afc952c989048ab0f13239e3d2751386f37045e6a8ed7e4864c2"
+  },
+  "packet": {
+    "path": "memory-bank/evidence/combat-vampyre-bite-2026-09-07/remote-driver-and-canary.patch",
+    "sha256": "a9b8ef53ee22258078826bdd7106b78614e41679cc9bd9df3d90e339e010ab9d",
+    "bytes": 24204
+  },
+  "verification_script_sha256": "e1f285e308a850ef4f7a251ef7e17d6ffa14e25b0d33edd239f2e55deb01f87a"
+}

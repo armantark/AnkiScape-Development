@@ -2136,3 +2136,11 @@
 - 2026-09-07T14:51:51-07:00: Enemy-roll preparation: AGENTS.md is absent in the pooled worktree; applied the project instructions supplied in the task. Parent observation handles returned Unknown process id 79206 and Unknown process id 98298; these are missing handles, not failed jobs. Parent refreshed roster d35 receipt all 8 PASS at 2026-09-07T14:33:54-07:00 and completed Opus output.
 
 - 2026-09-07T15:00:14-07:00: Normal enemy-roll commit session 96877 exited 1: slop-gate: PEP 8 layout violations were introduced: tools/combat/check_enemy_attack_rolls_driver_guards.py: E302 x1 (was 0); E305 x1 (was 0). tools/combat/run_enemy_attack_rolls_remote.py: E301 x1 (was 0); E302 x1 (was 0); E305 x1 (was 0). Added blank lines only; ASTs are identical. No amend or hook bypass; prior guard binding retained and parent rerun required.
+
+- 2026-09-07: P3 operational preparation initially read P13 tool names from the canonical cwd and got `cat: tools/combat/run_enemy_unequip_remote.py: No such file or directory`; pooled worktrees are hidden below `.treehouse`, so source discovery required `rg --files --hidden` and the explicit P13 workdir.
+
+- 2026-09-07: Parent fixed Vulture precommit check exited 3 at min-confidence 90 before runtime: `tools/combat/compare_vampyre_bite.py:155: unused variable 'target' (100% confidence)`. The intentionally unused MetaPathFinder parameter is now `_target`; parent correction checks remain pending.
+
+- 2026-09-08T00:42Z: Root attempted guessed `tools/combat/check_vampyre_bite_probe_guards.py`; `rg` returned `No such file or directory`. Use the enumerated actual canary path `tools/combat/compare_vampyre_bite.py --canaries`. Additional root guesses `memory-bank/handoffs/combat-vampyre-bite-2026-09-07.md` and `tools/promotion/paths.py` did not exist (`rg` exit 2); the enumerated commands supplied afterward worked.
+
+- 2026-09-08: Root initially tried `plain-comparison.json` while reading P3 runtime evidence; the enumerated output is `plain-comparison.json.gz`. Use the listed artifacts and preserve already-compressed bytes.

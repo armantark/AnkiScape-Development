@@ -1,0 +1,23 @@
+{
+  "base_commit": "7e19aadf16dc223d87669f064114c8ef1a9c4a85",
+  "baseline_sha256": "486a532d00d4e5693894b77a022ef83a32e03f55e841c2ff92ab12fc7e9ad2d4",
+  "candidate_sha256": "1bdaa6c806f7a9c236afc5dfe3e00aee9c3bfec6e259427d247e45cabc03a162",
+  "test_sha256": "ce5cc0b3f17f9ca3ea1c5eb170948dc3c966f4ef76fc4d9469504ba2ac7a8c59",
+  "probe_sha256": "99b0a7d1000d890c6f3bfa4537da14d64cdf0b20a8ae9e6462922689d9a9d33d",
+  "source_inventory_sha256": "b672526ae457602f240223728bd7625f5dee4b7b104bda6e0676215c6d01ff18",
+  "source_inventory_files": 1029,
+  "product_and_tests_bytes": 10153,
+  "product_and_tests_sha256": "9a172b07dcfe225879bfeb75cf3d14d4ee5c2069efad5088c38b5ff517be975a",
+  "probe_and_guards_bytes": 11684,
+  "probe_and_guards_sha256": "a20ff8fecfc9eee8de9f08124257c47eab2fd57a06ff6765acdf904c79e8587c",
+  "whole_file_restoration_verified": true,
+  "validation": "AST parsing and byte/hash binding only. No tests, product imports, guards, audits, metric analyzers, or runtime executed.",
+  "test_methods_prepared": 3,
+  "differential_cases_prepared": 16,
+  "pending": "Parent full review, fixed static gates, pre-import canaries/positive guard, focused and differential runtime in plain/Qt, full branch and exact merged-tree acceptance. No runtime driver added.",
+  "reviewed_probe_sha256": "2f842f957eace2724d9e01cc1dcae01cdb427ac099c48f04c189434f188b3050",
+  "reviewed_source_inventory_sha256": "21c678074d102f591e3ff133547f7ca18b0d81d58e577108ab6e900ab57e6ac7",
+  "operational_correction_bytes": 4486,
+  "operational_correction_sha256": "30fa96ac7d200b881ffc665c6a02da2fc2ae821cd4ae6fda1dffd806837d276c",
+  "probe_and_guards_packet_status": "Original reviewed bytes retained; apply review-operational-correction.patch for current probe."
+}

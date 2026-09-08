@@ -1094,6 +1094,46 @@ def _combat_enemy_attack_rolls(
     return enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit
 
 
+def _combat_apply_vampyre_bite(data, bite_spec, damage, enemy_lp, enemy_max_lp, rng):
+    bite_numerator = _positive_int(bite_spec.get("chance_numerator", 1), 1)
+    bite_denominator = _positive_int(bite_spec.get("chance_denominator", 1), 1)
+    try:
+        bite_triggered = float(rng()) < bite_numerator / bite_denominator
+    except (TypeError, ValueError):
+        bite_triggered = False
+    if not bite_triggered:
+        return False, {}, 0
+    bite_skills = tuple(
+        skill_id
+        for skill_id in (bite_spec.get("stat_drain_skills", ()) or ())
+        if isinstance(skill_id, str)
+    )
+    bite_drains = {}
+    if bite_skills:
+        try:
+            skill_roll = max(0.0, min(float(rng()), 0.999999999999))
+        except (TypeError, ValueError):
+            skill_roll = 0.0
+        drained_skill = bite_skills[int(skill_roll * len(bite_skills))]
+        bite_drains = _combat_apply_unprotected_stat_drains(
+            data,
+            {
+                "stat_drain": {
+                    "kind": "flat_to_floor",
+                    "amount": _positive_int(bite_spec.get("stat_drain_amount", 1), 1),
+                    "floor": _positive_int(bite_spec.get("stat_drain_floor", 1), 1),
+                    "skills": (drained_skill,),
+                },
+            },
+        )
+    bite_healing = min(
+        max(0, damage),
+        _positive_int(bite_spec.get("max_heal", 1), 1),
+        max(0, enemy_max_lp - enemy_lp),
+    )
+    return True, bite_drains, bite_healing
+
+
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -2216,70 +2256,15 @@ def apply_combat_burst_pure(
                     enemy_lp -= reflected
                     player_damage += reflected
                 if isinstance(bite_spec, Mapping) and enemy_lp > 0:
-                    bite_numerator = _positive_int(
-                        bite_spec.get("chance_numerator", 1), 1
+                    bite_triggered, bite_drains, bite_healing = _combat_apply_vampyre_bite(
+                        data, bite_spec, damage, enemy_lp, enemy_max_lp, rng
                     )
-                    bite_denominator = _positive_int(
-                        bite_spec.get("chance_denominator", 1), 1
-                    )
-                    try:
-                        bite_triggered = (
-                            float(rng()) < bite_numerator / bite_denominator
-                        )
-                    except (TypeError, ValueError):
-                        bite_triggered = False
                     if bite_triggered:
                         vampyre_bites += 1
-                        bite_skills = tuple(
-                            skill_id
-                            for skill_id in (
-                                bite_spec.get("stat_drain_skills", ()) or ()
+                        for skill_id, amount in bite_drains.items():
+                            stat_drains[skill_id] = (
+                                _non_negative_int(stat_drains.get(skill_id, 0), 0) + amount
                             )
-                            if isinstance(skill_id, str)
-                        )
-                        if bite_skills:
-                            try:
-                                skill_roll = max(
-                                    0.0, min(float(rng()), 0.999999999999)
-                                )
-                            except (TypeError, ValueError):
-                                skill_roll = 0.0
-                            drained_skill = bite_skills[
-                                int(skill_roll * len(bite_skills))
-                            ]
-                            bite_drains = _combat_apply_unprotected_stat_drains(
-                                data,
-                                {
-                                    "stat_drain": {
-                                        "kind": "flat_to_floor",
-                                        "amount": _positive_int(
-                                            bite_spec.get(
-                                                "stat_drain_amount", 1
-                                            ),
-                                            1,
-                                        ),
-                                        "floor": _positive_int(
-                                            bite_spec.get(
-                                                "stat_drain_floor", 1
-                                            ),
-                                            1,
-                                        ),
-                                        "skills": (drained_skill,),
-                                    },
-                                },
-                            )
-                            for skill_id, amount in bite_drains.items():
-                                stat_drains[skill_id] = (
-                                    _non_negative_int(
-                                        stat_drains.get(skill_id, 0), 0
-                                    )
-                                    + amount
-                                )
-                        bite_healing = min(
-                            max(0, damage),
-                            _positive_int(bite_spec.get("max_heal", 1), 1),
-                            max(0, enemy_max_lp - enemy_lp),
-                        )
                         if bite_healing > 0:
                             enemy_lp += bite_healing
                             enemy_healing += bite_healing

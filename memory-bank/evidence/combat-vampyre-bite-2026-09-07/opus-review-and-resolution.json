@@ -1,0 +1,24 @@
+{
+  "review_session": 61588,
+  "parent_reported_exit_code": 0,
+  "product_fixtures_routes": "PASS, parent fully read and accepted.",
+  "files": {
+    "response": {
+      "source": "/tmp/ankiscape-vampyre-bite-opus-review-2026-09-07.txt",
+      "raw_sha256": "7bcf136cd4cde37d85c0b8178a1ff5f4be130d8d32635d1a08eba17ecba81b66",
+      "gzip_sha256": "6a8c609a9c9c5e5491bddd649a6888294f1dba39c03bca7f11343c8eab276ad2",
+      "raw_bytes": 9404
+    },
+    "stderr": {
+      "source": "/tmp/ankiscape-vampyre-bite-opus-review-2026-09-07.stderr",
+      "raw_sha256": "dbbf7826b2aee39e928c55477e90241029cd5a0086b15689ca95815275360812",
+      "gzip_sha256": "43ad9051195c46d0d1e57ac7344a87e39eb9d6aacd5c3e7ba24a0a3bf6d0b20e",
+      "raw_bytes": 358
+    }
+  },
+  "corrections": "Operational proof only: exact pickle bytes plus value equality; pre-canary inventory pin; environment-only optimization canary with measured zero flags; positive preflight requires measured absent import sentinel.",
+  "baseline_resolution": "baseline-engine.py.gz is already explicitly bound by the source inventory at bf8ba8cb7c2eb12379ea703e1c3264abf6c3bfc9425497552030ec12311b2055. Any byte tampering fails the per-file source guard before both separately fixed stored/decoded baseline checks; no duplicate unreachable baseline canary added.",
+  "rng_precision": "Controlled-prefix routes enforce the exact draw count, so no seeded fallback is consumed. Reflection kills before the bite gate after two controlled draws; subsequent real drop draws use the existing seed 20260905 and are compared with generator state.",
+  "pickle_precision": "Both Python value equality and identical pickle bytes are required. Pickle also captures types and internal aliases; equal values with unequal bytes can signal an alias/type or serialization distinction and must be inspected, not silently accepted.",
+  "status": "Product/tests frozen; operational corrections prepared but unexecuted; parent static checks, guards and runtime remain pending."
+}
