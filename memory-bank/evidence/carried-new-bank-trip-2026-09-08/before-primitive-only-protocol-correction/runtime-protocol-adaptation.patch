@@ -1,0 +1,269 @@
+--- P13/runtime-harness.py
++++ P3/runtime-harness.py
+@@ -1,4 +1,4 @@
+-"""Run one pinned prayer-drain proof on the owned remote mirror."""
++"""Run one pinned carried-new-bank-trip proof on the owned remote mirror."""
+ 
+ import argparse
+ import base64
+@@ -7,32 +7,36 @@
+ import hashlib
+ import json
+ import os
++import pickle
+ from pathlib import Path
+ import shlex
+ import sys
+ import uuid
+ from unittest.mock import patch
+ 
+-EVIDENCE = Path("memory-bank/evidence/combat-prayer-drain-2026-09-08")
++EVIDENCE = Path("memory-bank/evidence/carried-new-bank-trip-2026-09-08")
+ INVENTORY = EVIDENCE / "source-inventory.json.gz"
+-INVENTORY_SHA256 = "248d5502a017d83e2a060a2041061a5acd442a8101200bea52029ac3de1a2850"
++INVENTORY_SHA256 = "17abe3bfc643377d667a81f28d651e33c2d9bc6d16e14bce3cc13a356b614910"
+ BASELINE_COMMIT = "6dacde5486c72e73ca170c039bf8207dec22ac81"
+-BASELINE_SHA256 = "5f641672a316655fa63a25ce9ea5d24a80645f362f338df1929a8808a253936b"
+ SELECTORS = [
+-    "PrayerDrainTest.test_disabled_and_enabled_zero_drain_are_distinct",
+-    "PrayerDrainTest.test_damage_scaled_drain_uses_raw_hit_before_protection",
+-    "FightCavesMechanicsTests.test_review_persists_damage_and_tz_kih_drains_prayer_on_later_attacks",
++    "TestInitializeDueBankTrip.test_credit_is_consumed_before_roll_and_teleport_after_roll",
++    "TestInitializeDueBankTrip.test_zero_duration_never_draws_and_only_moving_credit_is_consumed",
++    "TestInitializeDueBankTrip.test_fractional_trip_keeps_both_rounding_routes_and_nonmatching_teleport",
++    "TestCarriedOverlayWrapper.test_manual_request_enters_the_same_review_paced_bank_run",
++    "TestCarriedOverlayWrapper.test_full_run_energy_credit_waives_and_consumes_the_next_moving_trip",
++    "TestRuntimeActions.test_runecrafting_tablet_skips_only_the_outbound_runecrafting_phase",
++    "TestRuntimeActions.test_wicked_hood_teleport_finishes_an_already_outbound_route"
+ ]
+ CASES = [
+-    "disabled:missing",
+-    "disabled:invalid",
+-    "disabled:negative",
+-    "disabled:zero",
+-    "enabled:base-only",
+-    "enabled:raw-damage-before-protection",
+-    "enabled:available-points-cap",
+-    "enabled:zero-available",
+-    "enabled:missed-hit",
++    "moving",
++    "partial-credit",
++    "waived",
++    "waived-rejected",
++    "not-due",
++    "active-trip",
++    "altar-teleport-False",
++    "altar-teleport-True",
++    "winter-storage-rejection"
+ ]
+ 
+ 
+@@ -55,7 +59,7 @@
+     raw = (root / INVENTORY).read_bytes()
+     if hashlib.sha256(raw).hexdigest() != INVENTORY_SHA256:
+         raise ValueError("source inventory pin mismatch; no remote calls permitted")
+-    sources = json.loads(gzip.decompress(raw))
++    sources = json.loads(gzip.decompress(raw))["files"]
+     for name, expected in sources.items():
+         source = root / name
+         if not source.is_file():
+@@ -95,9 +99,7 @@
+ 
+ def comparator_command(remote, lane, output, *, preflight=False):
+     arguments = [
+-        "tools/combat/compare_prayer_drain.py",
+-        "--root",
+-        str(remote.REMOTE_REPO),
++        "tools/carried/compare_new_bank_trip.py",
+         "--inventory",
+         str(remote.REMOTE_REPO / INVENTORY),
+         "--inventory-sha256",
+@@ -113,29 +115,33 @@
+ def expected_guard(sources):
+     return {
+         "baseline_commit": BASELINE_COMMIT,
+-        "baseline_sha256": BASELINE_SHA256,
+         "inventory_sha256": INVENTORY_SHA256,
+         "sources_before": sources,
+         "status": "PREFLIGHT_PASS",
+         "product_imported": False,
+-        "product_modules": [],
+         "sources_after": sources,
+     }
+ 
+ 
+ def capture_guard(remote, lane, remote_output, local_output, sources):
++    reader = (
++        "import base64,pathlib; print(base64.b64encode(pathlib.Path("
++        + repr(str(remote_output))
++        + ").read_bytes()).decode())"
++    )
+     command = (
+         f"cd {shlex.quote(str(remote.REMOTE_REPO))} && "
+         + comparator_command(remote, lane, remote_output, preflight=True)
+-        + f" && cat {shlex.quote(str(remote_output))}"
++        + " && " + remote_prefix(remote, lane) + " -c " + shlex.quote(reader)
+     )
+     raw = remote._ssh(
+         command,
+-        label="prayer-drain source guard",
++        label="carried-new-bank-trip source guard",
+         repeat_safe=True,
+     )
+-    local_output.with_suffix(".raw.json").write_text(raw)
+-    report = json.loads(raw)
++    decoded = base64.b64decode(raw.strip(), validate=True)
++    local_output.with_suffix(".raw.json.gz").write_bytes(decoded)
++    report = json.loads(gzip.decompress(decoded))
+     if report != expected_guard(sources):
+         raise ValueError("remote source guard did not report the complete pinned inventory")
+     save(local_output, report)
+@@ -176,7 +182,7 @@
+             try:
+                 text = remote._ssh(
+                     f"cat {shlex.quote(identity[key])} 2>/dev/null || true",
+-                    label=f"prayer-drain interrupted {key}",
++                    label=f"carried-new-bank-trip interrupted {key}",
+                     repeat_safe=True,
+                 )
+             except Exception as inspection_error:
+@@ -191,8 +197,6 @@
+         raise ValueError("comparison did not pass")
+     if report.get("baseline_commit") != BASELINE_COMMIT:
+         raise ValueError("comparison baseline commit differs")
+-    if report.get("baseline_sha256") != BASELINE_SHA256:
+-        raise ValueError("comparison baseline source differs")
+     if report.get("inventory_sha256") != INVENTORY_SHA256:
+         raise ValueError("comparison inventory differs")
+     if report.get("sources_before") != sources or report.get("sources_after") != sources:
+@@ -201,27 +205,31 @@
+     if not isinstance(rows, list) or [row.get("case") for row in rows] != CASES:
+         raise ValueError("comparison must contain exactly the nine named cases in order")
+     for row in rows:
+-        before = base64.b64decode(row["baseline_pickle_base64"], validate=True)
+-        after = base64.b64decode(row["candidate_pickle_base64"], validate=True)
+-        observed = row.get("route_observed")
+-        expected = row.get("route_expected")
+-        if row.get("equal") is not True or row.get("pickle_bytes_equal") is not True:
+-            raise ValueError("complete output equality failed")
+-        if before != after:
+-            raise ValueError("decoded complete-output pickle bytes differ")
+-        if row.get("route_pass") is not True or observed != expected:
+-            raise ValueError("advertised prayer-drain route was not exercised")
+-        if row.get("inputs_unchanged") != {
+-            "player": True,
+-            "enemies": True,
+-            "equipment": True,
+-        }:
+-            raise ValueError("comparison input nonmutation check failed")
+-        rng_calls = observed.get("rng_calls")
+-        if not isinstance(rng_calls, int) or isinstance(rng_calls, bool) or rng_calls <= 0:
+-            raise ValueError("comparison recorded no RNG draws")
+-        if observed.get("rng_draws") != expected.get("rng_draws"):
+-            raise ValueError("comparison RNG route differs")
++        validate_case(row)
++
++
++def validate_case(row):
++    before = base64.b64decode(row["baseline_pickle_base64"], validate=True)
++    after = base64.b64decode(row["candidate_pickle_base64"], validate=True)
++    if row.get("equal") is not True or row.get("pickle_bytes_equal") is not True or before != after:
++        raise ValueError("complete output pickle equality failed")
++    observed, expected = row["observed"], row["expected"]
++    if row.get("route_pass") is not True or any(observed.get(key) != value for key, value in expected.items()):
++        raise ValueError("advertised carried new bank trip route was not exercised")
++    validate_capture(row, pickle.loads(after))
++
++
++def validate_capture(row, captured):
++    if not isinstance(captured["events"], list) or not isinstance(captured["player"], dict):
++        raise ValueError("complete callback and player capture missing")
++    state, prefix, draws = captured["rng"]
++    if not isinstance(state, tuple) or prefix != (0.0,) or not isinstance(draws, tuple):
++        raise ValueError("complete recorded RNG snapshot missing")
++    if row["case"] == "winter-storage-rejection":
++        if not draws:
++            raise ValueError("rollback recorded no RNG draws")
++    elif captured.get("player_identity_preserved") is not True or len(draws) != row["observed"]["rng_calls"]:
++        raise ValueError("live player identity or recorded RNG count differs")
+ 
+ 
+ def retain_comparison(remote, lane, remote_path, local_path, sources):
+@@ -232,12 +240,12 @@
+     )
+     encoded = remote._ssh(
+         remote_prefix(remote, lane) + " -c " + shlex.quote(reader),
+-        label="prayer-drain comparison bytes",
++        label="carried-new-bank-trip comparison bytes",
+         repeat_safe=True,
+     )
+     raw = base64.b64decode(encoded.strip(), validate=True)
+     local_path.write_bytes(raw)
+-    validate_comparison(json.loads(raw), sources)
++    validate_comparison(json.loads(gzip.decompress(raw)), sources)
+ 
+ 
+ def run_one(args, remote, sources):
+@@ -253,15 +261,15 @@
+         remote._sync(args.root)
+     assert_no_pending(remote)
+     session = uuid.uuid4().hex
+-    stem = remote.REMOTE_ROOT / "reports" / f"prayer-drain-{session}-{args.lane}-{args.kind}"
+-    capture_guard(remote, args.lane, str(stem) + "-before.json", args.output / "before.json", sources)
++    stem = remote.REMOTE_ROOT / "reports" / f"carried-new-bank-trip-{session}-{args.lane}-{args.kind}"
++    capture_guard(remote, args.lane, str(stem) + "-before.json.gz", args.output / "before.json", sources)
+     launch_guard = comparator_command(
+         remote,
+         args.lane,
+-        str(stem) + "-launch-preflight.json",
++        str(stem) + "-launch-preflight.json.gz",
+         preflight=True,
+     )
+-    result_path = str(stem) + ".json" if args.kind == "comparison" else None
++    result_path = str(stem) + ".json.gz" if args.kind == "comparison" else None
+     if args.kind == "focused":
+         product_command = remote_prefix(remote, args.lane) + " " + shlex.join(
+             ["run_tests.py", "--verbosity", "2", *SELECTORS]
+@@ -277,14 +285,14 @@
+     identity = json.loads((args.output / "identity.json").read_text())["pending"]
+     report_text = remote._ssh(
+         "cat " + shlex.quote(identity["report_path"]),
+-        label="prayer-drain exact-run report",
++        label="carried-new-bank-trip exact-run report",
+         repeat_safe=True,
+     )
+     (args.output / "run.report").write_text(report_text)
+     if int(report_text.strip()) != code:
+         raise ValueError("completion report changed")
+     save(args.output / "completion.json", {"exit_code": code, "pending": identity})
+-    capture_guard(remote, args.lane, str(stem) + "-after.json", args.output / "after.json", sources)
++    capture_guard(remote, args.lane, str(stem) + "-after.json.gz", args.output / "after.json", sources)
+     save(args.output / "local-after.json", local_sources(args.root))
+     if code != 0:
+         raise RuntimeError(f"exact run failed with exit {code}; no relaunch permitted")
+@@ -299,7 +307,7 @@
+             remote,
+             args.lane,
+             result_path,
+-            args.output / "comparison.json",
++            args.output / "comparison.json.gz",
+             sources,
+         )
+     save(
+--- P13/runtime-safety-check.py
++++ P3/runtime-safety-check.py
+@@ -1,4 +1,4 @@
+-"""Exercise prayer-drain runtime safety stops without product imports or remote calls."""
++"""Exercise carried-new-bank-trip runtime safety stops without product imports or remote calls."""
+ 
+ import argparse
+ import gzip
+@@ -11,7 +11,7 @@
+ 
+ 
+ def load_harness(path):
+-    module = types.ModuleType("prayer_drain_runtime_harness_under_test")
++    module = types.ModuleType("carried_new_bank_trip_runtime_harness_under_test")
+     raw = gzip.decompress(path.read_bytes())
+     exec(compile(raw, "runtime-harness.py", "exec"), module.__dict__)
+     return module

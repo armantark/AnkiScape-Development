@@ -1,0 +1,69 @@
+{
+  "status": "PARENT_REVIEW_FINDINGS_RESOLVED_STATIC_ONLY",
+  "runtime": "NOT_RUN",
+  "original_session": 73869,
+  "wrapper_exit": 1,
+  "wrapper_failure": "FileNotFoundError for removed /var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/ask-claude-output.X3MFYl",
+  "parent_retained_stdout_validation": {
+    "validator": "validate_claude_output.py",
+    "arguments": "--model opus --output-format text",
+    "exit": 0
+  },
+  "findings": [
+    {
+      "finding": "One-draw pool exhausts or repeats",
+      "decision": "REJECTED",
+      "evidence": "tools/combat/compare_kill_rewards.py:24-36: RecordedRandom seeds random.Random with 20260905, uses prefix only while position < len(prefix), then super().random(); snapshot retains state, prefix and all draws."
+    },
+    {
+      "finding": "Add travel_present route field",
+      "decision": "REJECTED",
+      "evidence": "tools/carried/compare_new_bank_trip.py:131-136 retains full value and exact pickle equality, including complete player data. Existing handler count and RNG count distinguish active-trip and not-due routes; no material gap requires another field."
+    },
+    {
+      "finding": "Retain baseline_observed separately",
+      "decision": "REJECTED",
+      "evidence": "tools/carried/compare_new_bank_trip.py:135 retains baseline_pickle_base64, sufficient to recover baseline diagnostics without duplicate schema."
+    },
+    {
+      "finding": "Replace side_effect MagicMock with direct context replacement",
+      "decision": "ACCEPTED",
+      "evidence": "tools/carried/compare_new_bank_trip.py:124, sole one-line correction; unused call recording removed."
+    },
+    {
+      "finding": "Delete main sys.path.insert",
+      "decision": "REJECTED",
+      "evidence": "tools/carried/compare_new_bank_trip.py:141 imports tools.carried before calling load_wrappers at line143; direct script entrypoint needs root sys.path before compare."
+    }
+  ],
+  "retained": [
+    {
+      "source": "/tmp/ankiscape-new-bank-trip-comparator-opus-2026-09-08.txt",
+      "bytes": 3321,
+      "sha256": "4b1ec9bc80e8179f69983807fb33cf9229608e57261ee92757680d8c3d0038af",
+      "stored": "comparator-opus-review.stdout.gz",
+      "stored_bytes": 1608,
+      "stored_sha256": "4d52b493c4161b0cb67a394b2c90276cf499e9310952677f81c38a9f771711ff"
+    },
+    {
+      "source": "/tmp/ankiscape-new-bank-trip-comparator-opus-2026-09-08.stderr",
+      "bytes": 1471,
+      "sha256": "546f6582832983c5119271c4650a81f1f2016e350ebdc87a6b0f29664edee1cd",
+      "stored": "comparator-opus-review.stderr.gz",
+      "stored_bytes": 664,
+      "stored_sha256": "2ff5543c2665030e1aee8f26f2dc791ba1eb8569f3dc80fc8361f3f19e92a9c2"
+    },
+    {
+      "source": "/tmp/ankiscape-new-bank-trip-comparator-opus-prompt-2026-09-08.txt",
+      "bytes": 20064,
+      "sha256": "21c401759c450bc3db8267b701fd46a8017ff5a76af425e5e0e6ac17a597ae11",
+      "stored": "comparator-opus-review.prompt.gz",
+      "stored_bytes": 6749,
+      "stored_sha256": "c29622b5f2a555ccd95e44aef171014fd629390f808fa83541141f3ba6a60e75"
+    }
+  ],
+  "comparator_sha256": "ec7bda4f73121d7cbe2bcfee9ec12c24a5cafd2696dbcfffcf250e58479b25db",
+  "inventory_sha256": "17abe3bfc643377d667a81f28d651e33c2d9bc6d16e14bce3cc13a356b614910",
+  "correction_patch_sha256": "a641d017dbfa482360c4b9b1679db5caf337c8939abfee9ec1a268524583aaac",
+  "scope": "Only comparator one-line simplification and evidence/bindings changes. Product and tests frozen. No imports, analyzers, runtime, remote, commits or new harness."
+}

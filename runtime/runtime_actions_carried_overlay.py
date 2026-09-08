@@ -18,6 +18,7 @@ from ..logic_pure.achievement_diary_events import (
     run_bank_run_diary_callbacks_pure,
 )
 from ..logic.agility_travel import (
+    AgilityTravelProfile,
     agility_travel_profile_pure,
     apply_run_energy_credit_pure,
     scheduled_travel_reviews_pure,
@@ -171,6 +172,67 @@ def _reconcile_processing_inventory(
         if consumed > 0:
             view[item_name] = max(0, int(view.get(item_name, 0) or 0) - consumed)
     return reconciled, {name: count for name, count in view.items() if count > 0}
+
+
+def _initialize_due_bank_trip(
+    ctx: RuntimeActionContext,
+    handler_key: str,
+    target_id: str,
+    view: dict[str, int],
+    target_altar: str,
+) -> tuple[AgilityTravelProfile, int, tuple[dict[str, Any], ...], bool]:
+    player_data = ctx.player_data
+    route_phases = ()
+    outbound_teleport_used = False
+    travel_profile = agility_travel_profile_pure(
+        handler_key,
+        target_id,
+        int(player_data.get("agility_level", 1) or 1),
+        view,
+        player_data.get("equipment", {}),
+    )
+    travel_profile, run_energy_credit_used = apply_run_energy_credit_pure(
+        travel_profile,
+        player_data.get("agility_run_energy_credit_pct", 0),
+    )
+    if run_energy_credit_used:
+        player_data["agility_run_energy_credit_pct"] = 0
+    # The only new RNG draw happens at the moment a trip is actually due.
+    scheduled_reviews = (
+        scheduled_travel_reviews_pure(travel_profile, ctx.random_random())
+        if travel_profile.adjusted_reviews > 0
+        else 0
+    )
+    if target_altar:
+        teleported_data, outbound_teleport_used = consume_wicked_hood_route_teleport_pure(
+            player_data, target_altar
+        )
+        if outbound_teleport_used:
+            player_data.clear()
+            player_data.update(teleported_data)
+        route_phases = runecrafting_route_phases_pure(
+            scheduled_reviews, skip_outbound=outbound_teleport_used
+        )
+        reviews_cost = sum(int(phase["reviews"]) for phase in route_phases)
+    else:
+        reviews_cost = scheduled_reviews
+    player_data["agility_last_travel"] = {
+        "handler_key": handler_key,
+        "target_id": target_id,
+        "base_reviews": travel_profile.base_reviews,
+        "adjusted_reviews": travel_profile.adjusted_reviews,
+        "scheduled_reviews": scheduled_reviews,
+        "charged_reviews": reviews_cost,
+        "level_gain": travel_profile.level_gain,
+        "weight_gain": travel_profile.weight_gain,
+        "carried_weight_kg": travel_profile.carried_weight_kg,
+        "effective_weight_kg": travel_profile.effective_weight_kg,
+        "route_label": travel_profile.route_label,
+        "source_status": travel_profile.source_status,
+        "run_energy_credit_used_pct": run_energy_credit_used,
+        "outbound_teleport_used": outbound_teleport_used,
+    }
+    return travel_profile, reviews_cost, route_phases, outbound_teleport_used
 
 
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
@@ -459,61 +521,15 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         )
     )
     travel_profile = None
-    run_energy_credit_used = 0
     reviews_cost = inventory_pure.SKILLING_BANK_RUN_REVIEWS
     route_phases = ()
     outbound_teleport_used = False
     if active_run:
         reviews_cost = max(1, int(bank_run.get("reviews_total", bank_run.get("reviews_remaining", 1)) or 1))
     elif trip_due:
-        travel_profile = agility_travel_profile_pure(
-            handler_key,
-            target_id,
-            int(player_data.get("agility_level", 1) or 1),
-            view,
-            player_data.get("equipment", {}),
+        travel_profile, reviews_cost, route_phases, outbound_teleport_used = (
+            _initialize_due_bank_trip(ctx, handler_key, target_id, view, target_altar)
         )
-        travel_profile, run_energy_credit_used = apply_run_energy_credit_pure(
-            travel_profile,
-            player_data.get("agility_run_energy_credit_pct", 0),
-        )
-        if run_energy_credit_used:
-            player_data["agility_run_energy_credit_pct"] = 0
-        # The only new RNG draw happens at the moment a trip is actually due.
-        scheduled_reviews = (
-            scheduled_travel_reviews_pure(travel_profile, ctx.random_random())
-            if travel_profile.adjusted_reviews > 0
-            else 0
-        )
-        if target_altar:
-            teleported_data, outbound_teleport_used = consume_wicked_hood_route_teleport_pure(
-                player_data, target_altar
-            )
-            if outbound_teleport_used:
-                player_data.clear()
-                player_data.update(teleported_data)
-            route_phases = runecrafting_route_phases_pure(
-                scheduled_reviews, skip_outbound=outbound_teleport_used
-            )
-            reviews_cost = sum(int(phase["reviews"]) for phase in route_phases)
-        else:
-            reviews_cost = scheduled_reviews
-        player_data["agility_last_travel"] = {
-            "handler_key": handler_key,
-            "target_id": target_id,
-            "base_reviews": travel_profile.base_reviews,
-            "adjusted_reviews": travel_profile.adjusted_reviews,
-            "scheduled_reviews": scheduled_reviews,
-            "charged_reviews": reviews_cost,
-            "level_gain": travel_profile.level_gain,
-            "weight_gain": travel_profile.weight_gain,
-            "carried_weight_kg": travel_profile.carried_weight_kg,
-            "effective_weight_kg": travel_profile.effective_weight_kg,
-            "route_label": travel_profile.route_label,
-            "source_status": travel_profile.source_status,
-            "run_energy_credit_used_pct": run_energy_credit_used,
-            "outbound_teleport_used": outbound_teleport_used,
-        }
 
     if trip_due and reviews_cost <= 0:
         new_state, new_view, new_churn = {}, {}, 0

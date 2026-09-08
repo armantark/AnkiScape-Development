@@ -1,0 +1,65 @@
+{
+  "status": "PROPOSED_NOT_EXECUTED",
+  "materialization": "Parent verifies gzip and decoded pins, then decompresses each file to a fresh path outside the source tree. No product sources may change.",
+  "inert_argv": [
+    "python3",
+    "-B",
+    "/tmp/carried-new-bank-trip-runtime-safety-check.py",
+    "--harness",
+    "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork/memory-bank/evidence/carried-new-bank-trip-2026-09-08/runtime-harness.py.gz",
+    "--output",
+    "/tmp/carried-new-bank-trip-runtime-safety-check.json"
+  ],
+  "one_job_argv_template": [
+    "python3",
+    "-B",
+    "/tmp/carried-new-bank-trip-runtime-harness.py",
+    "--root",
+    "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork",
+    "--output",
+    "/tmp/carried-new-bank-trip-RUN-LANE-KIND",
+    "--lane",
+    "LANE",
+    "--kind",
+    "KIND"
+  ],
+  "jobs": [
+    {
+      "lane": "plain",
+      "kind": "focused"
+    },
+    {
+      "lane": "plain",
+      "kind": "comparison"
+    },
+    {
+      "lane": "qt",
+      "kind": "focused"
+    },
+    {
+      "lane": "qt",
+      "kind": "comparison"
+    }
+  ],
+  "rules": "Parent runs and accepts one job at a time after mirror release, using fresh output directory. No resume or relaunch; interruption retains exact identity/log/report. Clear unknown pending is forbidden. No harness execution by author.",
+  "selectors": [
+    "TestInitializeDueBankTrip.test_credit_is_consumed_before_roll_and_teleport_after_roll",
+    "TestInitializeDueBankTrip.test_zero_duration_never_draws_and_only_moving_credit_is_consumed",
+    "TestInitializeDueBankTrip.test_fractional_trip_keeps_both_rounding_routes_and_nonmatching_teleport",
+    "TestCarriedOverlayWrapper.test_manual_request_enters_the_same_review_paced_bank_run",
+    "TestCarriedOverlayWrapper.test_full_run_energy_credit_waives_and_consumes_the_next_moving_trip",
+    "TestRuntimeActions.test_runecrafting_tablet_skips_only_the_outbound_runecrafting_phase",
+    "TestRuntimeActions.test_wicked_hood_teleport_finishes_an_already_outbound_route"
+  ],
+  "cases": [
+    "moving",
+    "partial-credit",
+    "waived",
+    "waived-rejected",
+    "not-due",
+    "active-trip",
+    "altar-teleport-False",
+    "altar-teleport-True",
+    "winter-storage-rejection"
+  ]
+}

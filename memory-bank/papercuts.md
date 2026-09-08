@@ -2212,3 +2212,8 @@
 - 2026-09-08T16:43:31+00:00 — Parent dependency lookup queried nonexistent paths and returned `rg: combat/combat_supplies.py: No such file or directory (os error 2)` and `rg: magic.py: No such file or directory (os error 2)`. `rg --files` identified `logic_pure/logic_pure_combat_supplies.py` and `logic_pure/logic_pure_magic.py`; no product change was involved.
 
 - 2026-09-08T16:49:02+00:00 — Prayer-source integration conflicted only in `memory-bank/goal-priority-matrix.md` over older pending versus current landed status. The first patch used `Current selection checkpoint — source gates advanced, 2026-09-08` and failed with `Failed to find expected lines`. Root read the actual HEAD heading `Current selection checkpoint — combat and papercut batch landed, 2026-09-08`, preserved the landed record, added exact prayer-source acceptance, and merged successfully at `488edfc0`; there was no code conflict.
+- 2026-09-08: New-bank-trip preparation guessed `runtime/runtime_actions_carried_cadence.py` and received `sed: runtime/runtime_actions_carried_cadence.py: No such file or directory`; the existing import resolves `_admit_live_cadence` in `runtime/runtime_actions_shared.py:702`.
+
+- 2026-09-08: While retaining the carried new bank trip review, a read guessed runtime_actions/carried/overlay.py and returned `No such file or directory`; the actual source is runtime/runtime_actions_carried_overlay.py.
+
+- 2026-09-08T05:16:47.347426+00:00: Comparator Opus wrapper exited 1 when validate_claude_output.py raised FileNotFoundError for removed `/var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/ask-claude-output.X3MFYl`; parent validated retained complete stdout with installed validator and exit 0. Runtime was NOT_RUN.
