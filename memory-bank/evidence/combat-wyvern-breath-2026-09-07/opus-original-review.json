@@ -1,0 +1,19 @@
+{
+  "status": "PARENT_REPORTED_PASS_CODE",
+  "session": 75164,
+  "scope": "Before module relocation; original raw review preserved. Parent verified runtime concerns 1-3 through initial static execution. No runtime acceptance inferred.",
+  "streams": {
+    "txt": {
+      "stored": "opus-original-review.txt.gz",
+      "raw_bytes": 5197,
+      "raw_sha256": "c5520965678d0239feb86963edac9a313aea9db5ac7deeb8636d3e41ad66c40b",
+      "stored_sha256": "30be58ae7482700d1292e0da9fd213710a07bdc686f4dee5f797747fa9fc38aa"
+    },
+    "stderr": {
+      "stored": "opus-original-review.stderr.gz",
+      "raw_bytes": 360,
+      "raw_sha256": "c7ad24b4224ac7251b03944b1d8947e744769868224eae4aa185eb806418e2f3",
+      "stored_sha256": "0a72c25723b9c387f6ab20209cbcfd13807f69cc3b85614dbe007bfe16388355"
+    }
+  }
+}

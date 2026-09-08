@@ -2159,3 +2159,9 @@
 - 2026-09-07T16:13:09-07:00 P4 direct product-only Kimi attempt exited 1 with `error: provider returned empty output`; stdout was 0 bytes. Prompt and raw stdout/stderr retained under `memory-bank/evidence/combat-player-attack-rolls-2026-09-07/kimi-direct-failed.*.gz`; this was not a completed review.
 
 - 2026-09-07T16:22:12-07:00 P4 product Opus review found `guild_player` supplied 30 of each Warriors Guild token, below the 200-token single-entry requirement. Parent verified the requirement and authorized only fixture tokens 30 -> 200; source inventory and driver pin were rebound before runtime.
+
+- 2026-09-07T17:45:05-07:00 — Static Wyvern guard review used an unmatched shell glob and received `zsh:1: no matches found: tools/combat/compare_vampyre*`; locate instrument paths with `rg --files` before using a filename glob.
+
+- 2026-09-07T17:47:45-07:00 — Static instrument lookup used the wrong evidence date and received `rg: memory-bank/evidence/combat-enemy-attack-rolls-2026-09-06: No such file or directory (os error 2)`; the existing directory is `memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05`.
+
+- 2026-09-07T17:50:04-07:00 — Parent static verification session `22474` exited `1`: `AssertionError {'ccn': [], 'cognitive': [], 'halstead': [], 'layout': [], 'file_growth': [('logic_pure/logic_pure_combat_engine.py', 3006)]}`. The engine baseline is `3002` lines and candidate is `3006`; preserve the fixed file-growth gate and revise the extraction boundary after independent review.

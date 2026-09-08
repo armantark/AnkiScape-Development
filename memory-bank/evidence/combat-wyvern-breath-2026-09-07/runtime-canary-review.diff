@@ -1,0 +1,253 @@
+--- /dev/null
++++ b/tools/combat/check_wyvern_remote_resume.py
+@@ -0,0 +1,209 @@
++"""Check exact-run resumption with inert fakes; never import the real runner."""
++
++import argparse
++import base64
++import copy
++import importlib.util
++import json
++import os
++from pathlib import Path
++import sys
++import tempfile
++from types import SimpleNamespace
++from unittest.mock import patch
++
++
++def expect_error(action, error_type, message):
++    try:
++        action()
++    except error_type as error:
++        assert str(error) == message
++    else:
++        raise AssertionError('expected refusal did not occur')
++
++
++def make_remote(root, pending, events):
++    pending_path = root / 'pending.json'
++
++    def ssh(command, *, label, repeat_safe=False):
++        events.append(['ssh', label, command, repeat_safe])
++        if label in ('remote lane launch', 'wyvern baseline setup'):
++            return ''
++        if label == 'wyvern exact-run final log':
++            assert command == 'cat /inert/first.log'
++            return 'Inert failed-job output; no test results were fabricated.\n'
++        if label == 'wyvern exact-run report':
++            assert command == 'cat /inert/first.report'
++            return '23\n'
++        raise AssertionError(f'unexpected fake SSH operation: {label}')
++
++    def stream(lane, *, timeout, poll_interval):
++        events.append(['launch', lane, timeout, poll_interval])
++        pending_path.write_text(json.dumps(pending))
++        remote._ssh('INERT LAUNCH ONLY', label='remote lane launch')
++        raise TimeoutError('inert observation timeout after launch')
++
++    def completion(path):
++        events.append(['observe', path])
++        assert path == pending['report_path']
++        return 23
++
++    remote = SimpleNamespace(
++        REMOTE_ROOT=Path('/inert'), REMOTE_REPO=Path('/inert/repo'),
++        REMOTE_GAME_MAIN=Path('/inert/game'), REMOTE_DARKAN=Path('/inert/darkan'),
++        REMOTE_PLAIN_SITE=Path('/inert/plain'), REMOTE_VENV=Path('/inert/qt'),
++        _sync=lambda path: events.append(['sync', str(path)]),
++        _preflight=lambda lane: events.append(['preflight', lane]),
++        _pending_path=lambda: pending_path, _ssh=ssh, _stream_remote_run=stream,
++        _completion_report=completion, _remote_lane_command=lambda lane: lane,
++    )
++    return remote
++
++
++def refuse_foreign(driver, args, remote, events, pending):
++    foreign = dict(pending, run_id='inert-unrelated-run')
++    remote._pending_path().write_text(json.dumps(foreign))
++    count = len(events)
++    expect_error(lambda: driver.run_jobs(args, remote, {}), RuntimeError,
++                 'another or unknown remote run owns the mirror pending record')
++    assert len(events) == count
++    assert json.loads(remote._pending_path().read_text()) == foreign
++
++
++def resume_canary(driver, root):
++    output = root / 'output'
++    output.mkdir()
++    pending = {'run_id': 'inert-first-run', 'log_path': '/inert/first.log',
++               'report_path': '/inert/first.report'}
++    events = []
++    remote = make_remote(root, pending, events)
++    args = SimpleNamespace(root=root, output=output, timeout=1)
++
++    def fake_guard(_remote, lane, baseline, remote_output, destination, sources):
++        events.append(['fake-source-guard', lane, baseline, str(remote_output), destination.name, sources])
++        destination.write_text(json.dumps(events[-1]))
++        destination.with_suffix('.raw.json').write_text(json.dumps(events[-1]))
++
++    with patch.object(driver, 'local_sources', return_value={}), \
++         patch.object(driver, 'capture_guard', side_effect=fake_guard):
++        expect_error(lambda: driver.run_jobs(args, remote, {}), TimeoutError,
++                     'inert observation timeout after launch')
++        state = json.loads((output / 'state.json').read_text())
++        assert state['current']['pending'] == pending
++        assert state['completed'] == []
++        first_events = list(events)
++        before = {path.name: path.read_bytes() for path in output.glob('plain-focused-before*.json')}
++        expect_error(lambda: driver.run_jobs(args, remote, {}), RuntimeError,
++                     'plain-focused failed with exit 23; retained exact run must not relaunch')
++        assert sum(event[0] == 'launch' for event in events) == 1
++        assert sum(event[0] == 'sync' for event in events) == 1
++        assert ['observe', pending['report_path']] in events
++        assert json.loads((output / 'state.json').read_text())['current']['pending'] == pending
++        assert json.loads(remote._pending_path().read_text()) == pending
++        assert json.loads((output / 'plain-focused-completion.json').read_text())['exit_code'] == 23
++        assert (output / 'plain-focused.log').read_text().startswith('Inert failed-job output;')
++        assert (output / 'plain-focused.report').read_text() == '23\n'
++        assert all((output / name).read_bytes() == raw for name, raw in before.items())
++        assert len(list(output.glob('plain-focused-resume-before-*.json'))) == 2
++        resume_events = events[len(first_events):]
++        refuse_foreign(driver, args, remote, events, pending)
++        fresh = root / 'fresh-output'
++        fresh.mkdir()
++        refuse_foreign(driver, SimpleNamespace(root=root, output=fresh, timeout=1), remote, events, pending)
++        assert not (fresh / 'state.json').exists()
++    return {'inert_only': True, 'real_remote_calls': False, 'product_imports': False,
++            'launch_timeout_retained_identity': pending, 'first_events': first_events,
++            'resume_events': resume_events, 'resume_launches': 0, 'resume_syncs': 0,
++            'resumed_failed_exit': 23, 'initial_before_evidence_unchanged': True,
++            'existing_and_fresh_foreign_pending_refused': True}
++
++
++def guard_error_canary(driver, root):
++    class InertSSHError(RuntimeError):
++        pass
++
++    message = "inert source guard failed: stdout=''; stderr='inventory mismatch before imports'"
++    remote = make_remote(root, {}, [])
++    remote.SSHCommandError = InertSSHError
++    destination = root / 'guard.json'
++    with patch.object(remote, '_ssh', side_effect=InertSSHError(message)):
++        expect_error(lambda: driver.capture_guard(remote, 'plain', '/inert/baseline.py',
++                                                  '/inert/guard.json', destination, {}),
++                     InertSSHError, message)
++    assert destination.with_suffix('.error.txt').read_text() == message
++    assert not destination.exists()
++    return {'error_retained_verbatim': message}
++
++
++def acceptance_canary(driver):
++    payload = base64.b64encode(b'INERT BYTES, NOT A GAME RESULT OR PICKLE').decode()
++    rows = [{'case': label, 'equal': True, 'pickle_bytes_equal': True, 'rng_calls': calls, 'route_pass': True,
++             'route_expected': {'inert_route': True, 'rng_calls': calls},
++             'route_observed': {'inert_route': True, 'rng_calls': calls},
++             'baseline_pickle_base64': payload, 'candidate_pickle_base64': payload}
++            for label, calls in zip(driver.CASES, driver.RNG_COUNTS)]
++    driver.validate_cases(rows)
++    swapped = copy.deepcopy(rows)
++    swapped[0], swapped[1] = swapped[1], swapped[0]
++    expect_error(lambda: driver.validate_cases(swapped), ValueError,
++                 'comparison must contain exactly the 19 named cases in order')
++    unequal = copy.deepcopy(rows)
++    unequal[0]['candidate_pickle_base64'] = base64.b64encode(b'OTHER INERT BYTES').decode()
++    expect_error(lambda: driver.validate_cases(unequal), ValueError,
++                 'complete output and RNG payload differs or has no draws')
++    no_draws = copy.deepcopy(rows)
++    no_draws[0]['rng_calls'] = 0
++    expect_error(lambda: driver.validate_cases(no_draws), ValueError,
++                 'complete output and RNG payload differs or has no draws')
++    wrong_count = copy.deepcopy(rows)
++    wrong_count[0]['rng_calls'] += 1
++    expect_error(lambda: driver.validate_cases(wrong_count), ValueError,
++                 'complete output and RNG payload differs or has no draws')
++    false_bytes_flag = copy.deepcopy(rows)
++    false_bytes_flag[0]['pickle_bytes_equal'] = False
++    expect_error(lambda: driver.validate_cases(false_bytes_flag), ValueError,
++                 'complete output and RNG payload differs or has no draws')
++    wrong_route = copy.deepcopy(rows)
++    wrong_route[0]['route_observed']['inert_route'] = False
++    expect_error(lambda: driver.validate_cases(wrong_route), ValueError,
++                 'advertised comparison route was not exercised')
++    return {'inert_only': True, 'game_or_test_execution': False,
++            'synthetic_rows_accepted': len(rows), 'swapped_order_refused': True,
++            'unequal_payload_refused': True, 'zero_rng_calls_refused': True,
++            'route_observation_mismatch_refused': True,
++            'wrong_nonzero_rng_count_refused': True, 'false_pickle_bytes_flag_refused': True}
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--output', type=Path, required=True)
++    args = parser.parse_args()
++    if sys.flags.optimize or 'PYTHONOPTIMIZE' in os.environ:
++        raise SystemExit('optimized interpreter refused')
++
++    attempts = []
++
++    def forbid_product(event, values):
++        if event == 'import' and (values[0].startswith(('ankiscape', 'pkg_alias', 'tests'))
++                                  or values[0] == 'tools.run_remote_tests'):
++            attempts.append(values[0])
++            raise RuntimeError('inert canary attempted a product or real-runner import')
++
++    sys.addaudithook(forbid_product)
++    path = Path(__file__).with_name('run_wyvern_breath_remote.py')
++    spec = importlib.util.spec_from_file_location('inert_wyvern_driver', path)
++    driver = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(driver)
++    with tempfile.TemporaryDirectory(prefix='wyvern-resume-canary-') as temporary:
++        root = Path(temporary)
++        report = resume_canary(driver, root)
++        report['source_guard_error'] = guard_error_canary(driver, root)
++        report['acceptance_stops'] = acceptance_canary(driver)
++    modules = sorted(name for name in sys.modules if name.split('.')[0] in {'ankiscape', 'pkg_alias', 'tests'} or name == 'tools.run_remote_tests')
++    assert not attempts and not modules, {'attempts': attempts, 'modules': modules}
++    report.update(product_imports=bool(modules), forbidden_modules=modules, forbidden_import_attempts=attempts)
++    args.output.write_text(json.dumps(report, indent=2) + '\n')
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/memory-bank/evidence/combat-wyvern-breath-2026-09-07/runtime-preparation.json
+@@ -0,0 +1,38 @@
++{
++  "status": "RUNTIME_DRIVER_AND_CANARY_UNEXECUTED",
++  "product_inventory_sha256": "bafb3e85e96bcff10bba3934fbf98ad09527a9f84fb9a726617f2f3980f60534",
++  "operational_sources": {
++    "tools/combat/run_wyvern_breath_remote.py": "3e4639857c97bf28c4a8b14542885ef6183dd0aa4ca215d1df761e6210f1b1b8",
++    "tools/combat/check_wyvern_remote_resume.py": "7b117ce6ec631e189943115be357c00743d489da8e4b135983acb2d978ef769d"
++  },
++  "runtime_static_script_stored_sha256": "32a62eaf8cd76454b4558573b6c3ae63fb97a3039518353a45b5d72393d15065",
++  "runtime_static_script_decoded_sha256": "85710c5f63f13508d8f01e085a214c6d750d1350c98406e83a552b7d2a9e151e",
++  "parent_product_acceptance": {
++    "static_session": 39751,
++    "exit_code": 0,
++    "guard_cases": 7,
++    "product_imports": false,
++    "retained": {
++      "accepted-product-static-metrics.json": {
++        "sha256": "d00a9c440ca2cd75c84fe874bb833c756854d00ba2c8d2e95344969270541b66",
++        "raw_bytes": 274784
++      },
++      "accepted-product-static-raw.json.gz": {
++        "sha256": "bdde6660b98616119bb7b5cb88d93378f77b9452f7d7367c23f69ff7af014da2",
++        "raw_bytes": 10656
++      },
++      "accepted-product-guards.json.gz": {
++        "stored_sha256": "7aec2a9a3b0560422e280eaf2518cf92b7d1d356a440ce2281b50e141445030d",
++        "raw_sha256": "09e2f80261653d9e2875dd4511984b0e5debfa908d33159b574b53e5a2602875",
++        "raw_bytes": 2038
++      },
++      "accepted-product-guards.stderr.gz": {
++        "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
++        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++        "raw_bytes": 0
++      }
++    }
++  },
++  "planned_cases": 19,
++  "planned_focused_methods": 5
++}

@@ -1,0 +1,11 @@
+{
+  "status": "PARENT_EXECUTION_FAILED",
+  "parent_terminal_session": 22474,
+  "parent_reported_exit_code": 1,
+  "parent_reported_error": "AssertionError {'ccn': [], 'cognitive': [], 'halstead': [], 'layout': [], 'file_growth': [('logic_pure/logic_pure_combat_engine.py', 3006)]}",
+  "files": {
+    "first-failed-static-metrics.json": "ab868d0d0dbf653535bd2ca42cfe39aef7fdb2b89d4d8eeb7195d602864d1bef",
+    "first-failed-static-raw.json.gz": "c2021755285d26eeab1c8ac66df84a2aa938915214f3793ed3897f5e2b56344b"
+  },
+  "proposal": "Move the unchanged helper to a new focused pure combat-special module; existing combat model and supplies files also exceed the file-growth threshold. No correction authorized or performed."
+}
