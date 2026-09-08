@@ -2159,3 +2159,5 @@
 - 2026-09-07T16:13:09-07:00 P4 direct product-only Kimi attempt exited 1 with `error: provider returned empty output`; stdout was 0 bytes. Prompt and raw stdout/stderr retained under `memory-bank/evidence/combat-player-attack-rolls-2026-09-07/kimi-direct-failed.*.gz`; this was not a completed review.
 
 - 2026-09-07T16:22:12-07:00 P4 product Opus review found `guild_player` supplied 30 of each Warriors Guild token, below the 200-token single-entry requirement. Parent verified the requirement and authorized only fixture tokens 30 -> 200; source inventory and driver pin were rebound before runtime.
+
+- 2026-09-08 — Kimi read-only next combat seam review session `17252` ended with exit `1` and `error: tool loop exceeded 24 turns`; no recommendation returned. The root retry in session `12351` uses a fixed 9,907-character source packet from I engine lines `2012-2182` with no filesystem tools.
