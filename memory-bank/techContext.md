@@ -53,7 +53,7 @@
   paths through `tools/repo_search.py`.
 - Give each writer one narrow unit. Do not give one writer a complete slice.
 - Run focused tests by discovered ID fragment, not guessed class attributes:
-  `/opt/homebrew/bin/python3 run_tests.py MainMenuWidgetTest.test_name`. Use
+  `/opt/homebrew/bin/python3 run_tests.py MainMenuWidgetTest.test_initial_panel_shows_a_gathering_skill`. Use
   `--list` to confirm matches and `--verbosity 2` only for a small diagnosis;
   full discovery defaults to compact output.
 - Keep long test and audit output in separate logs with `python3
@@ -220,7 +220,7 @@ AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **20
 - **The OSRS wiki is NOT a 2011 source.** OSRS branched from a 2007 backup; treat OSRS data as 2007 baseline + OSRS-only additions, useful only as a cross-check for 2007/2011-unchanged content.
 - **Baseline implementation evidence:** the local `2011Scape/game` emulator source (Apache-2.0, client rev 667 = Oct 4 2011; upstream `github.com/2011Scape/game`) at `/Users/ArmanTarkhanian1/Downloads/game-main`. It is authoritative only for mechanics unchanged between that snapshot and the cutoff; later content and changed mechanics require pre-EOC 2012 evidence.
 - **Historical semantics:** literal wikitext from exact pre-cutoff RuneScape Wiki `oldid` revisions, backed by dated Wayback captures where page histories or transcluded dependencies are unavailable.
-- **Dated cache cross-checks:** the seven OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md`. They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` require Java 25 and the locally cached Darkan core 2.0.5 jars.
+- **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` require Java 25 and the locally cached Darkan core 2.0.5 jars.
 - **Darkan:** use the fidelity-revamped implementation as server-mechanics evidence only after reconciling it with pinned pre-EOC sources. A modern Darkan commit is a reconstruction, not automatically period proof. Wait when the necessary high-fidelity behavior or corroborating history does not yet exist.
 
 Seven tools read the Darkan thread's checkout at

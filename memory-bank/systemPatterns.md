@@ -480,7 +480,7 @@ expected file and provenance key in the asset test.
   focused replacement rows, and focused addition rows; use replacements when
   generated data conflicts with stronger 2011Scape/Darkan evidence, and use
   additions when a source-backed quest action exists but the generated item or
-  combat parser cannot infer it. The current audit reports 194/194 quests with
+  combat parser cannot infer it. `tools/audit_quest_stage_gate_coverage.py` reports every catalog quest with
   at least one stage requirement, and the Priest in Peril focused override
   fixes its generated stage-61/prose-parser row into nine source-backed stages.
   The 2011Scape starter batch then replaced bad generated rows for Cook's
@@ -593,10 +593,10 @@ expected file and provenance key in the asset test.
   cannonball and quest gates, bucket-of-sap uses are action gates, Within the
   Light's keys/crystal puzzle objects are action-gated, and The Fremennik
   Isles yak-hide armour/round shield prep is modeled as current-stage actions.
-  The live audit now reports 194/194 quests with stage requirements, 1,120
-  stage rows, 174 quests with item/tool blockers, 190 quests with action
-  blockers, 32 quests with route blockers, 120 quests with combat blockers, 121
-  produced-inventory rows, and 185/288 resolver-ready combat rows.
+  The census (quests, stage rows, item, tool, action, route, and combat
+  blockers, produced-inventory rows, resolver-ready combat rows) comes from
+  `python3 tools/audit_quest_stage_gate_coverage.py`; the figures move with
+  every quest slice, so this file does not carry them.
   This is all-catalog machine-readable stage-gate coverage, not proof of
   minute-detail historical simulation for every quest.
   Use
@@ -734,10 +734,10 @@ expected file and provenance key in the asset test.
   splits Nazastarool into three focused sourced forms, Legends' Quest preserves
   Nezikchened as a three-kill encounter, The Feud adds Tough guy, and Recipe for
   Disaster: Freeing Sir Amik Varze adds a resolver-ready Black Dragon while the
-  Evil Chicken stays missing-stats blocked. Current stat coverage is 201/293
-  combat rows; the remaining 92 statless rows
+  Evil Chicken stays missing-stats blocked. Statless combat rows
   are classified by
-  `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
+  `tools/audit_quest_combat_stat_gaps.py` and are active quest debt; the
+  current count lives on `memory-bank/future-work-kanban.md` (Pass 13 follow-ups).
   Historical RuneScape Wiki monster pages are now audited by
   `tools/audit_quest_historical_wiki_combat_stats.py` as a separate source tier:
   LP, max hit, and attack-style prose are useful metadata, but they must not be
@@ -943,11 +943,13 @@ verification gate remains open.
 
 ## Main-menu deferred tabs (`ui/ui_menu_ctx.py`, `ui_tab_*.py`)
 
-Opening the menu used to cost ~1.2 s on a real save because every tab was built
-up front. The three expensive surfaces now build on first show: `ui/ui_tab_shop.py`,
-`ui/ui_tab_quests.py` and `ui/ui_tab_achievements.py` export a
+Opening the menu cost about 1.2 s on a real save (measured 2026-07) when every
+tab was built up front. Five tabs build on first show: Shop, Quests,
+Challenges, Achievements, and Collections each export a
 `build_<name>_tab(ctx) -> QWidget`, and `show_main_menu` inserts an empty
 placeholder page per tab and fills it from a `QTabWidget.currentChanged` hook.
+Skills, Grand Exchange, Equipment, Stats, and Settings build at open, and the
+Bank widget tree also builds at open behind its placeholder.
 Rules that keep this correct:
 
 - Connect the `currentChanged` hook only after every placeholder is inserted.
@@ -962,9 +964,10 @@ Rules that keep this correct:
   (`_open_shop_tab` / `_open_quests_tab` / `_open_achievements_tab`), and quest
   journal bodies fill on first expand, so reading journal text needs
   `_expand_quest_card`.
-- Skills, Bank and Equipment stay inline. They are ~3% of the open cost and are
-  mutually recursive through `_refresh_equipment_views`, so splitting them buys
-  nothing and pays the whole coupling bill.
+- Skills, Bank and Equipment are mutually recursive through
+  `_refresh_equipment_views`; splitting them means splitting that coupling.
+  No profiler exists in `tools/`, so open-cost shares are unmeasured; the
+  open-time target and facts sit on `memory-bank/future-work-kanban.md`.
 
 Related: `shop_logic.shop_view_models_pure` exists because
 `ensure_shop_state_pure` deep-copies the entire save, and the browse list needs

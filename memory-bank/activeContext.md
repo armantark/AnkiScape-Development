@@ -1,12 +1,152 @@
 # Active Context
 
+## Current focus — 2026-09-13
+
+- Main is `66be9ee8`, clean. The live Anki install under `addons21/ankiscape_fork` is the canonical checkout; all work runs in pooled worktrees through `tools/worktree_guard.py`.
+- Pass 14 rulings are in `memory-bank/design-thread-queue.md` §4.27. The Codex brief `memory-bank/codex-briefs/pass14-owner-notes-handoff-2026-09-13.md` holds two slices, `encounter-no-lock` and `slayer-complete-dialog`. The owner starts the Codex thread himself. The orchestrator thread stays parked until Pass 14 lands.
+- Open owner gates: the spot-check of the 162 rewritten diary deeds and the 91 stat-less quest encounters (Pass 13, §4.25); native programme acceptance for the 2026-09-05 to 2026-09-08 cleanup batch (`memory-bank/goal-priority-matrix.md`).
+- Parked: the papercut triage-and-fix pass (1,192 entries) until the Codex block resets; menu open time on `memory-bank/future-work-kanban.md` with a 300 ms target.
+- Landed since the 2026-08-31 sweep: Pass 13 batch `f018c832` and diary sentence rewrite `d89b31ac` (2026-09-04); the goal cleanup programme of 2026-09-05 to 2026-09-08: dispatcher shared state `4fd93b0b`, quest-data split `f00f510e`, shop split `0005e1cb`, roster reconciliation `6aeebc6c`, combat reward and enemy rolls `7e19aadf`, carried processing and player attack rolls `afae5ee6`, papercut queue recency `f943385e`, combined combat batch `6dacde54`, and the prayer-drain, bank-trip, and activity-selector integration `1bf2cfe2`.
+
+Last staleness sweep: 2026-09-13
+
+## Combat prayer-drain extraction — 2026-09-08
+
+- Branch `goal/combat-prayer-drain-2026-09-08` extracts only the enemy prayer-drain calculation into `logic_pure/logic_pure_combat_specials.py`.
+- Plain and Qt each passed three focused tests with zero skips. Both lanes passed nine frozen-engine comparison cases with complete return, pickle-byte, random-number route, and input nonmutation equality.
+- The runtime used the exact 1,185-entry inventory `248d5502a017d83e2a060a2041061a5acd442a8101200bea52029ac3de1a2850`. The four run IDs are retained in `evidence/combat-prayer-drain-2026-09-08/runtime-retention-manifest.json`.
+- The source gate passed on 2026-09-08 and the commit `f3157d4d` landed on main in the 2026-09-08 integration `1bf2cfe2`. Native programme acceptance stays an owner gate.
+- The queue audit identifies preview-food calculation as the next settled combat boundary. The goal thread is parked until Pass 14 lands (owner, 2026-09-13).
+
+## Achievement Diary curation ledger wiring — 2026-09-01
+
+- `tools/generate_achievement_diary_data.py` now consumes the canonical 320-row diary ledger. Its 43 `active` and 30 `translated` rows generate live conditions; all 247 `dormant` rows still generate `conditions == ()`.
+- Same-frame deeds use strict generated event predicates over existing runtime result seams. Cumulative telemetry cannot satisfy one-action output thresholds, and output replacement cannot credit an item the action did not produce.
+- The named catalog stays at 474 tasks. Empty conditions move from 320 to 247, while structurally claimable tiers remain 0 of 34 because every tier retains at least one dormant row.
+- The ledger corrected four exact runtime identities during wiring: Coconut crop `palm`, patch `phasmatys_flower`, encounter `lair_of_tarn_razorlor_tarn_ghost`, and Utility ownership for the first three summer-pie preparation actions.
+- The generator is byte-reproducible, and real Mining, Firemaking, and Runecrafting review handlers move two translated rows and one active row from incomplete to complete.
+- The plain lane under the promotion-gate exception passes 4,623 tests in 852.760 seconds with 515 skips. Documentation and test-quality audits pass; reachability remains 1,663 actions, 2,343 reachable items, 163 orphan inputs, and 249 blocked actions.
+- After main's runtime split, the Livid Farm, Agility, Shades of Mort'ton, and Castle Wars emits live in their activity owner modules; bank-run recording and completion callbacks live in the carried overlay.
+- Five real-handler tests cover those relocated emits, and each test was mutation-proven by removing only its emit, observing failure, and restoring the call.
+- No user interface code changed. The Beefy Bill banking service remains the next separate slice.
+- Evidence: `source-audits/diary-ledger-wiring-2026-09-01.md`.
+
+## Cabin Fever stage closure — 2026-09-01
+
+- Replaced the three impossible Cabin Fever objectives on stages `2`–`4` with frozen-contract actions for cannon sabotage plus three hull repairs, exactly ten stored plunder, and the one-canister/three-cannonball sinking sequence. Every cleanup removes its exact generated sentinel before adding the automatic action.
+- The assembled quest remains four requirement rows with stages `{1, 2, 3, 4}` and no Cabin Fever combat encounter. Pirate aggression is not promoted into a fight because its exact behavior remains source-blocked; the two existing encounter-relocation helpers stay untouched.
+- Completion remains exactly 2 quest points, 7,000 Smithing, Crafting, and Agility XP, and one registered Book o' piracy. The unlock catalog now follows the frozen contract, and Fever spider Slayer assignments acquire the missing Cabin Fever predicate.
+- Pure and real review-answer completion both measure the inventory delta as only `Book o' piracy ×1`; the starting 3,500 coins and Tinderbox remain unchanged. Quest-local Rope `7155`, Fuse `7109`, Repair plank `7148`, Tacks `7150`, Plunder `7143`, Cannon barrel `7145`, Ramrod `7120`, Gunpowder `7108`, Canister `7149`, and Cannon balls `7147` remain custody-model leads rather than invented global inputs.
+- Reachability moves from `1663 / 2304 / 165 / 32 / 133 / 252 / 1219` to `1663 / 2343 / 163 / 31 / 132 / 249 / 1230`; blocked stage rows move `137 -> 136`, and completable quests move `53 -> 54`. Book o' piracy is the sole direct new route; the other thirty-eight closure routes are existing descendants and are not credited as direct outputs.
+- A shown-dialog Quests-tab check at `1280×752` and `900×560` renders the full four-part Unlocks label without ellipsis or horizontal overflow. No UI code changed.
+- Full verification passes 4,611 tests in both lanes: plain completes in `885.390s` with 515 skips, and real offscreen Qt completes in `1158.408s` with three skips. The explicit `tests.test_quest_catalog` run passes all 37 tests.
+- Evidence: `source-audits/cabin-fever-stages-2-4-2026-09-01.md`.
+
+## Rum Deal stage closure — 2026-09-01
+
+- Replaced all four impossible generated Rum Deal objectives with actions mapped from the pre-existing frozen Darkan contract and pinned dossier; no source was harvested or repinned.
+- Removed quest-supplied and optional preparation gates, while moving the mandatory equipment-aware `Slayer gloves x1` gate to stage `4`, where the Fever spider fight occurs.
+- Kept the Evil spirit on stage `3`, moved the Fever spider to stage `4`, and added its guaranteed `Fever spider body x1` quest drop. Completion rewards remain exactly the existing `7,000` Farming, Fishing, and Prayer XP plus Fishbowl and net and Holy wrench.
+- Added stage-contract, pure-flow, and dynamically loaded real review-answer coverage in `tests/test_rum_deal_completion.py`; `tests/test_quest_catalog.py` now rejects the complete source-excluded generated item set while the focused test separately requires the gloves gate.
+- Re-measured reachability at `1663 / 2304 / 165 / 32 / 133 / 252 / 1219`, with 137 blocked stage rows and 53 completable quests. Fishbowl and net and Holy wrench are the only newly reachable registered items; the retained, unregistered Fever spider body permanently appears as an iconless, valueless, unsellable Bank row under `Other`.
+- The source audit is `memory-bank/source-audits/rum-deal-stages-1-4-2026-09-01.md`. The missing Priest in Peril and Zogre Flesh Eaters start prerequisites, current-470-Prayer resource predicate, and quest-local item custody nodes remain explicit follow-ons.
+
+## Quest proof store clean break — 2026-09-01
+
+- Config version 123 retires the quest-local `quest_stage_actions` model. New and copied player data omit it, completed stages write only the global `quest_action_proofs` ledger, and migration drops the old key from existing saves.
+- Version-121 and older saves still start with empty proofs. Version-122 saves retain sanitized non-retired proofs. `RETIRED_QUEST_ACTION_PROOFS` is empty today; every schema upgrade subtracts it from older saves, including the currently shipped cohort on the next bump, and a patched retirement test proves a retired proof no longer satisfies a gate while a non-retired proof survives.
+- The recursive production census covers root `__init__.py`, nested modules, and `generated/`, and detects direct, alias-backed, and mutation-method writes, including writes through a value returned by `pop`; the bare migration `pop` is deliberately allowed.
+- All 213 assertions that pinned the old store were moved to the proof ledger or migration-removal checks. No assertion was deleted. The shared 18-line test helper keeps quest-stage assertions exact without growing any oversized file or deleting prose.
+- A catalog-wide safety pin holds all 528 unique `auto_actions` IDs to one quest owner and rejects any `required_actions` gate satisfied by a different quest's auto-action proof. Both duplicate-owner and cross-quest-gate mutation probes fail the pin.
+- Reachability remains 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215, with 139 blocked quest-stage rows and 51 completable quests. No pin moved. Both complete lanes pass 4,601 tests: plain skips 515 and real offscreen Qt skips three. No user interface changed. Evidence: `source-audits/quest-proof-store-cleanup-2026-09-01.md`.
+
+## Shared global quest-action proofs — 2026-08-31
+
+- Config version 122 adds the sorted `quest_action_proofs` ledger. Every pre-122 save starts with an empty ledger; telemetry, inventory, completed quests, and `quest_stage_actions` do not backfill it. Repeatable Shop and Crafting actions can earn proofs afterward, but an already-passed one-time Biohazard cauldron stage is not replayed.
+- Quest `required_actions` now read global proofs. A proof earned while another quest is current can satisfy the matching gate. Rolling back a Shop event retracts the proof that event emitted.
+- Three hand-written actions are wired through genuine paths: Hamab's M'amulet mould purchase for Do No Evil, Thakkrad cure plus successful Yak-hide Crafting for The Fremennik Isles, and Biohazard's cauldron action for Mourning's End Part I.
+- The other eight hand-written actions remain unwired because their exact mechanics are absent or a generic substitute would not match the source. All 693 generated stage-objective sentinels remain separate source work.
+- The proof-aware reachability closure requires the exact bound action or item source and exposes its earned global proof set. The Biohazard-to-Mourning's End proof is pinned. All seven graph pins remain 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215; blocked stage rows remain 139 and completable quests remain 51.
+- No user interface changed. Evidence: `source-audits/shared-quest-action-proofs-2026-08-31.md`.
+- Both complete lanes pass 4,596 tests: plain skips 515 and real offscreen Qt skips three.
+
+## Quest combat gate fallback — 2026-08-31
+
+- A missing encounter `npc_configs.minimum_player_combat` now means no aggregate player-combat gate in both readiness and stage-blocker construction. The reachability audit uses the same rule.
+- Smoking Kills and Dream Mentor already had the two sourced quest-entry Combat 85 requirements, so no duplicate catalog rows were added.
+- All ten explicit encounter gates remain unchanged. All four explicit gate-1 records are redundant but retained as harmless source provenance.
+- The live census moves from 131 impossible encounter rows across 60 quests to 91 across 47 quests. The reversal clears 40 rows; the 24 rows shared with the 91-row resolver-stat gap remain blocked on stats.
+- Current fixed-point reachability remains 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked quest-stage rows, and 51 completable quests. Earlier action blockers mask the combat change in this immediate report, so no pin moved.
+- Focused combat and reachability coverage passes 64 tests, including a real review-answer defeat of the formerly impossible Sea Troll Queen.
+- Evidence: `source-audits/quest-combat-gate-fallback-2026-08-31.md`.
+
+## Early quest item roots — 2026-08-31
+
+- Pirate's Treasure now consumes canonical `Karamjan rum`, matching the existing Karamja Wines, Spirits, and Beers stock row.
+- Source-backed Utility routes produce Ugthanki dung, Fish food, and Insect repellent. Ugthanki dung is registered as unstackable, untradeable item `4601` and its route unlocks when The Feud starts.
+- The reachability audit now traverses Agility stage outputs. Exactly one modelled Agility stage output was omitted: `agility_pyramid:retrieve_top` now routes `Pyramid top`. Nineteen other Agility reward identities still have no stage producer and remain outside this slice.
+- `catch_karambwan` and Tiadeche's Karambwan Stall both unlock when Tai Bwo Wannai Trio starts. They previously encoded quest completion and created the stage-2 circularity.
+- Against rebased main, reachability moves from 1,659 / 2,270 / 167 / 32 / 135 / 256 / 1,182 to 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215 for actions / reachable items / orphan inputs / root orphans / cascade orphans / unresolved actions / seed items. Blocked quest-stage rows move from 143 to 139.
+- Thirty-one items gain routes: ten direct or adjacent economy items and twenty-one existing quest-owned products or rewards. No downstream quest producer was added.
+- The newly exposed `dealing_with_scabaras_skeletons_1` and `tai_bwo_wannai_trio_monkey` combat rows remain blocked. They are second-level combat-resolver gaps, not item-source gaps.
+- Real Qt checks at 900×560 in light and dark palettes show all three Utility labels without clipping or horizontal overflow. No UI code changed.
+- Evidence: `source-audits/early-quest-item-roots-2026-08-31.md`.
+
+## Vinesweeper point-economy reachability — 2026-08-31
+
+- The reachability instrument now requires a reachable Spade before a repeatable Vinesweeper operation can produce the synthetic point currency, then models all 45 inventory reward purchases while excluding the state-only Flag row.
+- Dose-specific Compost potion actions require Compost and preserve each lower dose through the final Vial, matching the runtime rather than crediting free degradation.
+- Measured pins move from 1,609 / 2,257 / 179 / 37 / 142 / 266 / 1,182 to 1,659 / 2,270 / 167 / 32 / 135 / 256 / 1,182; blocked quest-stage rows remain 143.
+- Exactly 12 player items gain routes: the eight-item Wergali chain and all four Compost potion doses. The thirteenth new graph route is the synthetic Vinesweeper point.
+- The live table has 46 rows. Two direct reward outputs were newly reachable, 43 were already reachable, and Flag is not an item. Bittercap mushroom spore and Spirit seed are the only two of 44 seed/spore rewards without a live consumer.
+- Vinesweeper points persist without a cap. An attainability probe forced all 170 operations into a maximum-award band and reached the 55,250-point ceiling for that sequence; ordinary play averages about 130.45 points per operation and needs roughly 424 operations to reproduce that balance and buy the top reward.
+- Evidence: `source-audits/vinesweeper-loop-2026-07-18.md`.
+
+## The Fremennik Isles combat choices — 2026-08-31
+
+- The invalid 10,000 `combat` XP row is replaced by two independent 10,000 XP Bank Claims choices over Attack, Strength, Defence, and Constitution. Both choices may target the same skill and have no level requirement beyond the claim contract's minimum level 1.
+- Construction 5,000 XP, Crafting 5,000 XP, and Woodcutting 10,000 XP remain direct quest-completion rewards.
+- A catalog pin now rejects every direct quest XP reward whose skill ID does not resolve to a trainable `SkillDefinition`.
+- Existing completed saves automatically gain both unclaimed, eligible lamp claims. A previously parked `combat_exp: 10000.0` record remains inert and invisible; no migration was added because it causes no visible defect.
+- Reachability remains 1,609 actions, 2,257 reachable items, 179 orphan inputs, 37 root orphans, 142 cascade orphans, 266 unresolved actions, 1,182 seed items, and 143 blocked quest-stage rows.
+- Both complete lanes pass 4,566 tests: plain skips 515 and offscreen Qt skips three.
+- Evidence: `source-audits/the-fremennik-isles-combat-lamps-2026-08-31.md`.
+
+## Combat quest level requirements — 2026-08-31
+
+- A `combat` quest requirement now uses `player_combat_level_pure`. A low player gets the normal `Combat N` blocker.
+- The unknown-skill path still returns `(not implemented)`. The skill registry remains unchanged.
+- All six affected quests start for a player who meets their combat level, other skill levels, quest points, and prerequisite quests.
+- A catalog pin rejects any quest-level or stage-level required skill ID that is neither a trainable skill nor the exact `combat` pseudo-skill.
+- A max-player differential probe found 196 of 196 live quests skill-eligible. The current and skill-aware reachability reports were identical.
+- The audit and all pins remain unchanged at 1,609 actions, 2,257 reachable items, 179 orphan inputs, 37 root orphans, 142 cascade orphans, 266 unresolved actions, 1,182 seed items, 143 blocked rows, and 46 completable quests.
+- A real add-on review starts Zogre Flesh Eaters and reaches the key plus Zogre bones before quest completion. Existing route tests cover the three coffin bones and all four bonemeals.
+- Evidence: `source-audits/combat-quest-level-requirement-2026-08-31.md`.
+
+## Big Chompy Bird Hunting completion — 2026-08-31
+
+- All three generated Big Chompy Bird Hunting stage sentinels are removed. The existing Cooking 30, Ranged 30, Fletching 5, Feather, Wolf-bones, and Chompy-bird combat gates remain live, and stage 3 includes the required raw-chompy hand-off and three seasoning requests before spit-roasting.
+- Completed Big Chompy Bird Hunting unlocks `Utility:hunt_chompy_birds`. Each action consumes one Ogre arrow, requires a non-consumed Ogre bow, produces one Raw chompy, displays `cookingitems/raw_chompy.png`, and names the missing arrow when materials run out.
+- The reachability instrument still reports a move from 1,608 actions / 2,244 reachable items / 190 orphan inputs / 277 unresolved actions to 1,609 / 2,257 / 179 / 266. Root and cascade orphans report 39 / 151 to 37 / 142, seed items 1,179 to 1,182, and blocked stage rows 144 to 143.
+- This slice actually delivers exactly four items: Ogre bow, Raw chompy, Raw wild pie, and Wild pie. Big Chompy Bird Hunting is the sole newly completable quest.
+- The audit's other nine credited Zogre/coffin items are phantom. `tools/audit_item_reachability.py:943-948` omits required skills from startability, while runtime returns `Combat 89 (not implemented)` at `logic_pure/logic_pure_quest.py:146` and refuses to start Zogre Flesh Eaters. Six combat-category quests share the instrument gap; the audit and requirement fixes belong to the next slice.
+- The combat equipment registry also lacks Ogre bow and uses plural `Ogre arrows` while the item registry uses canonical singular `Ogre arrow`; that equipability gap remains a follow-on.
+- Evidence: `source-audits/big-chompy-bird-hunting-completion-2026-08-31.md`.
+
+## UI approval boundary — 2026-08-29
+
+- Do not change an existing user interface unless the owner explicitly requests that interface change.
+- A defect report about clipping, reachability, or another behavior does not authorize a layout or style redesign.
+- A new interface that belongs to an approved implementation is permitted only after a frontend-taste model reviews it.
+- Commit `03ea285df1a9b7d120179e9e5bbf5356468a3b8a` restores the main menu to the owner-settled Qt behavior from `806a2f63`.
+
 ## Module surface harness is ready — 2026-09-01
 
 - `tools/module_surface.py` now imports through `pkg_alias`, emits a sorted
   deep public-surface dump, and appends a SHA-256 digest. Multiple module paths
   use clean child interpreters so import side effects cannot couple baselines.
 - `tests/test_module_surface.py` pins nine plain-lane first-wave surfaces and
-  the root `__init__.py` digest under offscreen Qt (`357e7725ed616467dde1113fb8eb4e99c748808f785bbc5a39ad5692059dc4a3`).
+  the root `__init__.py` digest under offscreen Qt; the pinned value lives in `ROOT_QT_DIGEST` in that test and moves with every root change.
   Without `aqt`, the root test skips with a stated reason; `ui/ui_tab_shop.py`
   and the test module both import in the plain lane and have pinned digests.
 
@@ -95,7 +235,6 @@
   Cleanup encounter-frequency and favour system also remains outside this
   ordinary-hide producer slice.
 
-Last staleness sweep: 2026-08-31
 
 ## The Lost Tribe has no generated stage blockers — 2026-08-31
 
@@ -133,10 +272,10 @@ Last staleness sweep: 2026-08-31
 - A Darkan doorbell supplied the read-only target contract at
   `/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/the-lost-tribe-target-contract.json`,
   baseline world commit `e720c3e1f18960653695042b392f4d1180a07b76` and tree
-  `69353b61f8cd7a2783729fcf7e99df5de4ce23a4`. Its verdict remains exactly
+  `69353b61f8cd7a2783729fcf7e99df5de4ce23a4`. Its verdict at that time was
   `PARTIAL[source_blocked,conflicting_sources,missing_data]`; the exact
-  intermediate meanings of varbit `532` remain source-blocked and were neither
-  recovered nor inferred.
+  intermediate meanings of varbit `532` were source-blocked then. The
+  2026-08-31 entry above records all twelve values from `TheLostTribeState.kt`.
 - Literal `curl` fetches independently pinned The Lost Tribe oldid `6534350`,
   timestamp `2012-11-04T20:05:19Z`, and Template:Questreq oldid `6552449`,
   timestamp `2012-11-13T19:50:29Z`. Their permanent URLs are
@@ -369,12 +508,12 @@ Last staleness sweep: 2026-08-31
 ## Clean break — 2026-08-30
 
 - The owner requested a clean break. The papercut implementation workflow and all dispatched reviews are complete. The sequential MacBook gate task was stopped, and no background task remains.
-- Canonical `main` remains at `faa4add6cc2e03bb797af504970f9b290f3c559b`. It has two uncommitted Memory Bank files: this session's pause record in `memory-bank/GOAL-BLOCKED.md`, and an another-writer change to `memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json`. The foreign change has three inserted lines, 32 deleted lines, and working blob `8ecc6d48a58b41f416a0186eac66d83d932b69f5`. This session did not stage, revert, repair, or commit it.
+- Canonical `main` was at `faa4add6cc2e03bb797af504970f9b290f3c559b`. It had two uncommitted Memory Bank files: this session's pause record in `memory-bank/GOAL-BLOCKED.md`, and an another-writer change to `memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json`. The foreign change has three inserted lines, 32 deleted lines, and working blob `8ecc6d48a58b41f416a0186eac66d83d932b69f5`. This session did not stage, revert, repair, or commit it.
 - Main-menu commits `d5da2f3a1921f6592fd4ec32c3b86542b0ca71a6` and `03ea285df1a9b7d120179e9e5bbf5356468a3b8a` removed every autonomous tab layout and style change. An independent Opus review accepted the exact restoration, and both MacBook lanes plus all repository checks passed at `03ea285d`. Native confirmation still needs a normal Anki restart.
 - The durable UI boundary is: do not change an existing interface without explicit owner approval. Each new interface in approved work needs a frontend-taste model review before promotion.
 - Papercut remediation came from the owner's separate direct request, not from the original goal text. Triage found 14 eligible classes and independently verified four. Three bounded non-UI slices were implemented and received final cross-lineage `accept` verdicts with no findings.
 - `goal/papercut-test-cwd-2026-08-30` is clean at `63a3409c0dd3b45f87548fdbcd74056bbc758e19`. `goal/papercut-worktree-bootstrap-2026-08-30` is clean at `b861cdecf96d729e1f46b200e6e9313fd0730cb8`. `goal/papercut-reachability-check-2026-08-30` is clean at `8f1092db1b6355fe83a02eeb32b0715c36cb9d99`.
-- The first papercut branch passed the MacBook plain lane: `Ran 4526 tests in 251.013s`, `OK (skipped=513)`. Its Qt lane and both later branch gates did not run because the owner requested the break. No repository test ran on the Mac Studio. All three branches remain unmerged.
+- The first papercut branch passed the MacBook plain lane: `Ran 4526 tests in 251.013s`, `OK (skipped=513)`. Its Qt lane and both later branch gates did not run because the owner requested the break. No repository test ran on the Mac Studio. All three branches were unmerged at the break; the reachability-check branch was recreated and merged through `9d2b8d97` on 2026-08-30, and the two accepted papercut branches landed the same day (entry below).
 - The preserved Collections worktree contains only an existing-interface width change, tests for that interface contract, and Memory Bank state. It contains no non-UI product correction. Do not continue or delete it without a later owner decision.
 - The 2026-08-28 normal-profile Anki process evidence below is historical. Recheck exact process arguments before any resumed native work; do not assume those PIDs remain live.
 - `memory-bank/GOAL-BLOCKED.md` preserves the active goal verbatim. Resume only after canonical `main` is clean at one stable `HEAD`.
@@ -571,7 +710,7 @@ Last staleness sweep: 2026-08-31
 - The four unresolved investigation gates are the Kinship party-simulation
   packet, main-tab narrow-window and larger-font headroom, Collections table
   value elision, and custom Cooking-row native activation.
-- The final verified product head remains
+- The final verified product head at that time was
   `1d461b16ba423a69488097c1e0d01365df914c48`. Canonical `main` was clean at
   that commit before the incorrect closure records landed above it. Four accepted
   promotions remain valid: remote promotion safety, Safety-gloves refresh,
@@ -706,7 +845,7 @@ bug (fixed, Darkan semantics ported); Fish Flingers ~5.3k XP came from an
 invented formula, replaced by the Darkan payout registered as
 `fish_flingers.xp_payout` provisional/darkan (real sessions score 28–43,
 median 38 → 4,593 XP at Fishing 25); the 0/10 tricks run was ~1-in-32 bad
-luck, not a defect. PENDING: the native MacBook Pro visual check — the laptop
+luck, not a defect. Open at that time: the native MacBook Pro visual check — the laptop
 slept through every SSH window; the ready-to-run orchestration prompt is
 `pass10-native-prompt.md` in the session scratchpad and should run as the
 first step of the next pass or on the owner's word. Trace and closure notes:
@@ -725,7 +864,7 @@ costume scoring remain unchanged; Batch B still owns the Circus panel's Arm
 button and queue controls. Focused verification is green: 22 Circus/runtime/
 integration tests, 198 adjacent pure/runtime tests, and one offscreen Qt test.
 
-## Current Focus
+## Focus as of 2026-08-19
 
 **2026-08-19, skill-button availability refresh corrected.** The open Skills
 menu now recomputes Smithing, Crafting, Fletching, Firemaking, Hunter, Cooking,
@@ -921,7 +1060,7 @@ This pre-existing data-depth debt is closed.
 
 The earlier Wyvern bones entry remains below as written history.
 
-## Current Focus
+## Focus as of 2026-08-11
 
 **2026-08-11, Wyvern bones acquisition closure.** A level-72 Skeletal Wyvern
 Combat row now gives one Wyvern bones item per kill. The seed activates 12
@@ -4185,7 +4324,7 @@ The dated completion-audit files are archived under
 `memory-bank/archive/2026-07/baselines/`; live registry and Kanban state outrank
 them.
 
-## Current Truth
+## Truth as of 2026-07-15
 
 - `core/skill_registry.py` has 19 complete skill surfaces and six partial trainable skills; it has no planned skill surface.
 - Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, Construction, Thieving, Agility, Slayer, and Summoning.
@@ -4263,7 +4402,7 @@ them.
 - Activities/minigames use Utility/Activities at the platform layer, but each family needs its own complete reward/state/source contract.
 - Global level-1-to-99 balancing waits until all skills and major methods are present.
 
-## Next Recommended Work
+## Recommended work as of 2026-07-15
 
 1. Continue the depth queue with the next smallest player-visible settled
    acquisition gap; keep Cursed magic parked until Spirit of Summer exists.
@@ -5938,133 +6077,3 @@ the obsolete percent key is no longer touched.
   offscreen Qt skips three. The branch adds no panel rule or unmarked
   reconstruction; the placeholder-register suites pass all 22 tests.
 - Evidence: `source-audits/quest-jungle-potion-playable-2026-08-13.md`.
-
-## UI approval boundary — 2026-08-29
-
-- Do not change an existing user interface unless the owner explicitly requests that interface change.
-- A defect report about clipping, reachability, or another behavior does not authorize a layout or style redesign.
-- A new interface that belongs to an approved implementation is permitted only after a frontend-taste model reviews it.
-- Commit `03ea285df1a9b7d120179e9e5bbf5356468a3b8a` restores the main menu to the owner-settled Qt behavior from `806a2f63`.
-
-## Big Chompy Bird Hunting completion — 2026-08-31
-
-- All three generated Big Chompy Bird Hunting stage sentinels are removed. The existing Cooking 30, Ranged 30, Fletching 5, Feather, Wolf-bones, and Chompy-bird combat gates remain live, and stage 3 includes the required raw-chompy hand-off and three seasoning requests before spit-roasting.
-- Completed Big Chompy Bird Hunting unlocks `Utility:hunt_chompy_birds`. Each action consumes one Ogre arrow, requires a non-consumed Ogre bow, produces one Raw chompy, displays `cookingitems/raw_chompy.png`, and names the missing arrow when materials run out.
-- The reachability instrument still reports a move from 1,608 actions / 2,244 reachable items / 190 orphan inputs / 277 unresolved actions to 1,609 / 2,257 / 179 / 266. Root and cascade orphans report 39 / 151 to 37 / 142, seed items 1,179 to 1,182, and blocked stage rows 144 to 143.
-- This slice actually delivers exactly four items: Ogre bow, Raw chompy, Raw wild pie, and Wild pie. Big Chompy Bird Hunting is the sole newly completable quest.
-- The audit's other nine credited Zogre/coffin items are phantom. `tools/audit_item_reachability.py:943-948` omits required skills from startability, while runtime returns `Combat 89 (not implemented)` at `logic_pure/logic_pure_quest.py:146` and refuses to start Zogre Flesh Eaters. Six combat-category quests share the instrument gap; the audit and requirement fixes belong to the next slice.
-- The combat equipment registry also lacks Ogre bow and uses plural `Ogre arrows` while the item registry uses canonical singular `Ogre arrow`; that equipability gap remains a follow-on.
-- Evidence: `source-audits/big-chompy-bird-hunting-completion-2026-08-31.md`.
-
-## Combat quest level requirements — 2026-08-31
-
-- A `combat` quest requirement now uses `player_combat_level_pure`. A low player gets the normal `Combat N` blocker.
-- The unknown-skill path still returns `(not implemented)`. The skill registry remains unchanged.
-- All six affected quests start for a player who meets their combat level, other skill levels, quest points, and prerequisite quests.
-- A catalog pin rejects any quest-level or stage-level required skill ID that is neither a trainable skill nor the exact `combat` pseudo-skill.
-- A max-player differential probe found 196 of 196 live quests skill-eligible. The current and skill-aware reachability reports were identical.
-- The audit and all pins remain unchanged at 1,609 actions, 2,257 reachable items, 179 orphan inputs, 37 root orphans, 142 cascade orphans, 266 unresolved actions, 1,182 seed items, 143 blocked rows, and 46 completable quests.
-- A real add-on review starts Zogre Flesh Eaters and reaches the key plus Zogre bones before quest completion. Existing route tests cover the three coffin bones and all four bonemeals.
-- Evidence: `source-audits/combat-quest-level-requirement-2026-08-31.md`.
-
-## The Fremennik Isles combat choices — 2026-08-31
-
-- The invalid 10,000 `combat` XP row is replaced by two independent 10,000 XP Bank Claims choices over Attack, Strength, Defence, and Constitution. Both choices may target the same skill and have no level requirement beyond the claim contract's minimum level 1.
-- Construction 5,000 XP, Crafting 5,000 XP, and Woodcutting 10,000 XP remain direct quest-completion rewards.
-- A catalog pin now rejects every direct quest XP reward whose skill ID does not resolve to a trainable `SkillDefinition`.
-- Existing completed saves automatically gain both unclaimed, eligible lamp claims. A previously parked `combat_exp: 10000.0` record remains inert and invisible; no migration was added because it causes no visible defect.
-- Reachability remains 1,609 actions, 2,257 reachable items, 179 orphan inputs, 37 root orphans, 142 cascade orphans, 266 unresolved actions, 1,182 seed items, and 143 blocked quest-stage rows.
-- Both complete lanes pass 4,566 tests: plain skips 515 and offscreen Qt skips three.
-- Evidence: `source-audits/the-fremennik-isles-combat-lamps-2026-08-31.md`.
-
-## Vinesweeper point-economy reachability — 2026-08-31
-
-- The reachability instrument now requires a reachable Spade before a repeatable Vinesweeper operation can produce the synthetic point currency, then models all 45 inventory reward purchases while excluding the state-only Flag row.
-- Dose-specific Compost potion actions require Compost and preserve each lower dose through the final Vial, matching the runtime rather than crediting free degradation.
-- Measured pins move from 1,609 / 2,257 / 179 / 37 / 142 / 266 / 1,182 to 1,659 / 2,270 / 167 / 32 / 135 / 256 / 1,182; blocked quest-stage rows remain 143.
-- Exactly 12 player items gain routes: the eight-item Wergali chain and all four Compost potion doses. The thirteenth new graph route is the synthetic Vinesweeper point.
-- The live table has 46 rows. Two direct reward outputs were newly reachable, 43 were already reachable, and Flag is not an item. Bittercap mushroom spore and Spirit seed are the only two of 44 seed/spore rewards without a live consumer.
-- Vinesweeper points persist without a cap. An attainability probe forced all 170 operations into a maximum-award band and reached the 55,250-point ceiling for that sequence; ordinary play averages about 130.45 points per operation and needs roughly 424 operations to reproduce that balance and buy the top reward.
-- Evidence: `source-audits/vinesweeper-loop-2026-07-18.md`.
-
-## Early quest item roots — 2026-08-31
-
-- Pirate's Treasure now consumes canonical `Karamjan rum`, matching the existing Karamja Wines, Spirits, and Beers stock row.
-- Source-backed Utility routes produce Ugthanki dung, Fish food, and Insect repellent. Ugthanki dung is registered as unstackable, untradeable item `4601` and its route unlocks when The Feud starts.
-- The reachability audit now traverses Agility stage outputs. Exactly one modelled Agility stage output was omitted: `agility_pyramid:retrieve_top` now routes `Pyramid top`. Nineteen other Agility reward identities still have no stage producer and remain outside this slice.
-- `catch_karambwan` and Tiadeche's Karambwan Stall both unlock when Tai Bwo Wannai Trio starts. They previously encoded quest completion and created the stage-2 circularity.
-- Against rebased main, reachability moves from 1,659 / 2,270 / 167 / 32 / 135 / 256 / 1,182 to 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215 for actions / reachable items / orphan inputs / root orphans / cascade orphans / unresolved actions / seed items. Blocked quest-stage rows move from 143 to 139.
-- Thirty-one items gain routes: ten direct or adjacent economy items and twenty-one existing quest-owned products or rewards. No downstream quest producer was added.
-- The newly exposed `dealing_with_scabaras_skeletons_1` and `tai_bwo_wannai_trio_monkey` combat rows remain blocked. They are second-level combat-resolver gaps, not item-source gaps.
-- Real Qt checks at 900×560 in light and dark palettes show all three Utility labels without clipping or horizontal overflow. No UI code changed.
-- Evidence: `source-audits/early-quest-item-roots-2026-08-31.md`.
-
-## Quest combat gate fallback — 2026-08-31
-
-- A missing encounter `npc_configs.minimum_player_combat` now means no aggregate player-combat gate in both readiness and stage-blocker construction. The reachability audit uses the same rule.
-- Smoking Kills and Dream Mentor already had the two sourced quest-entry Combat 85 requirements, so no duplicate catalog rows were added.
-- All ten explicit encounter gates remain unchanged. All four explicit gate-1 records are redundant but retained as harmless source provenance.
-- The live census moves from 131 impossible encounter rows across 60 quests to 91 across 47 quests. The reversal clears 40 rows; the 24 rows shared with the 91-row resolver-stat gap remain blocked on stats.
-- Current fixed-point reachability remains 1,663 actions, 2,301 reachable items, 165 orphan inputs, 32 root orphans, 133 cascade orphans, 252 unresolved actions, 1,215 seed items, 139 blocked quest-stage rows, and 51 completable quests. Earlier action blockers mask the combat change in this immediate report, so no pin moved.
-- Focused combat and reachability coverage passes 64 tests, including a real review-answer defeat of the formerly impossible Sea Troll Queen.
-- Evidence: `source-audits/quest-combat-gate-fallback-2026-08-31.md`.
-
-## Shared global quest-action proofs — 2026-08-31
-
-- Config version 122 adds the sorted `quest_action_proofs` ledger. Every pre-122 save starts with an empty ledger; telemetry, inventory, completed quests, and `quest_stage_actions` do not backfill it. Repeatable Shop and Crafting actions can earn proofs afterward, but an already-passed one-time Biohazard cauldron stage is not replayed.
-- Quest `required_actions` now read global proofs. A proof earned while another quest is current can satisfy the matching gate. Rolling back a Shop event retracts the proof that event emitted.
-- Three hand-written actions are wired through genuine paths: Hamab's M'amulet mould purchase for Do No Evil, Thakkrad cure plus successful Yak-hide Crafting for The Fremennik Isles, and Biohazard's cauldron action for Mourning's End Part I.
-- The other eight hand-written actions remain unwired because their exact mechanics are absent or a generic substitute would not match the source. All 693 generated stage-objective sentinels remain separate source work.
-- The proof-aware reachability closure requires the exact bound action or item source and exposes its earned global proof set. The Biohazard-to-Mourning's End proof is pinned. All seven graph pins remain 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215; blocked stage rows remain 139 and completable quests remain 51.
-- No user interface changed. Evidence: `source-audits/shared-quest-action-proofs-2026-08-31.md`.
-- Both complete lanes pass 4,596 tests: plain skips 515 and real offscreen Qt skips three.
-
-## Quest proof store clean break — 2026-09-01
-
-- Config version 123 retires the quest-local `quest_stage_actions` model. New and copied player data omit it, completed stages write only the global `quest_action_proofs` ledger, and migration drops the old key from existing saves.
-- Version-121 and older saves still start with empty proofs. Version-122 saves retain sanitized non-retired proofs. `RETIRED_QUEST_ACTION_PROOFS` is empty today; every schema upgrade subtracts it from older saves, including the currently shipped cohort on the next bump, and a patched retirement test proves a retired proof no longer satisfies a gate while a non-retired proof survives.
-- The recursive production census covers root `__init__.py`, nested modules, and `generated/`, and detects direct, alias-backed, and mutation-method writes, including writes through a value returned by `pop`; the bare migration `pop` is deliberately allowed.
-- All 213 assertions that pinned the old store were moved to the proof ledger or migration-removal checks. No assertion was deleted. The shared 18-line test helper keeps quest-stage assertions exact without growing any oversized file or deleting prose.
-- A catalog-wide safety pin holds all 528 unique `auto_actions` IDs to one quest owner and rejects any `required_actions` gate satisfied by a different quest's auto-action proof. Both duplicate-owner and cross-quest-gate mutation probes fail the pin.
-- Reachability remains 1,663 / 2,301 / 165 / 32 / 133 / 252 / 1,215, with 139 blocked quest-stage rows and 51 completable quests. No pin moved. Both complete lanes pass 4,601 tests: plain skips 515 and real offscreen Qt skips three. No user interface changed. Evidence: `source-audits/quest-proof-store-cleanup-2026-09-01.md`.
-
-## Rum Deal stage closure — 2026-09-01
-
-- Replaced all four impossible generated Rum Deal objectives with actions mapped from the pre-existing frozen Darkan contract and pinned dossier; no source was harvested or repinned.
-- Removed quest-supplied and optional preparation gates, while moving the mandatory equipment-aware `Slayer gloves x1` gate to stage `4`, where the Fever spider fight occurs.
-- Kept the Evil spirit on stage `3`, moved the Fever spider to stage `4`, and added its guaranteed `Fever spider body x1` quest drop. Completion rewards remain exactly the existing `7,000` Farming, Fishing, and Prayer XP plus Fishbowl and net and Holy wrench.
-- Added stage-contract, pure-flow, and dynamically loaded real review-answer coverage in `tests/test_rum_deal_completion.py`; `tests/test_quest_catalog.py` now rejects the complete source-excluded generated item set while the focused test separately requires the gloves gate.
-- Re-measured reachability at `1663 / 2304 / 165 / 32 / 133 / 252 / 1219`, with 137 blocked stage rows and 53 completable quests. Fishbowl and net and Holy wrench are the only newly reachable registered items; the retained, unregistered Fever spider body permanently appears as an iconless, valueless, unsellable Bank row under `Other`.
-- The source audit is `memory-bank/source-audits/rum-deal-stages-1-4-2026-09-01.md`. The missing Priest in Peril and Zogre Flesh Eaters start prerequisites, current-470-Prayer resource predicate, and quest-local item custody nodes remain explicit follow-ons.
-
-## Cabin Fever stage closure — 2026-09-01
-
-- Replaced the three impossible Cabin Fever objectives on stages `2`–`4` with frozen-contract actions for cannon sabotage plus three hull repairs, exactly ten stored plunder, and the one-canister/three-cannonball sinking sequence. Every cleanup removes its exact generated sentinel before adding the automatic action.
-- The assembled quest remains four requirement rows with stages `{1, 2, 3, 4}` and no Cabin Fever combat encounter. Pirate aggression is not promoted into a fight because its exact behavior remains source-blocked; the two existing encounter-relocation helpers stay untouched.
-- Completion remains exactly 2 quest points, 7,000 Smithing, Crafting, and Agility XP, and one registered Book o' piracy. The unlock catalog now follows the frozen contract, and Fever spider Slayer assignments acquire the missing Cabin Fever predicate.
-- Pure and real review-answer completion both measure the inventory delta as only `Book o' piracy ×1`; the starting 3,500 coins and Tinderbox remain unchanged. Quest-local Rope `7155`, Fuse `7109`, Repair plank `7148`, Tacks `7150`, Plunder `7143`, Cannon barrel `7145`, Ramrod `7120`, Gunpowder `7108`, Canister `7149`, and Cannon balls `7147` remain custody-model leads rather than invented global inputs.
-- Reachability moves from `1663 / 2304 / 165 / 32 / 133 / 252 / 1219` to `1663 / 2343 / 163 / 31 / 132 / 249 / 1230`; blocked stage rows move `137 -> 136`, and completable quests move `53 -> 54`. Book o' piracy is the sole direct new route; the other thirty-eight closure routes are existing descendants and are not credited as direct outputs.
-- A shown-dialog Quests-tab check at `1280×752` and `900×560` renders the full four-part Unlocks label without ellipsis or horizontal overflow. No UI code changed.
-- Full verification passes 4,611 tests in both lanes: plain completes in `885.390s` with 515 skips, and real offscreen Qt completes in `1158.408s` with three skips. The explicit `tests.test_quest_catalog` run passes all 37 tests.
-- Evidence: `source-audits/cabin-fever-stages-2-4-2026-09-01.md`.
-
-## Achievement Diary curation ledger wiring — 2026-09-01
-
-- `tools/generate_achievement_diary_data.py` now consumes the canonical 320-row diary ledger. Its 43 `active` and 30 `translated` rows generate live conditions; all 247 `dormant` rows still generate `conditions == ()`.
-- Same-frame deeds use strict generated event predicates over existing runtime result seams. Cumulative telemetry cannot satisfy one-action output thresholds, and output replacement cannot credit an item the action did not produce.
-- The named catalog stays at 474 tasks. Empty conditions move from 320 to 247, while structurally claimable tiers remain 0 of 34 because every tier retains at least one dormant row.
-- The ledger corrected four exact runtime identities during wiring: Coconut crop `palm`, patch `phasmatys_flower`, encounter `lair_of_tarn_razorlor_tarn_ghost`, and Utility ownership for the first three summer-pie preparation actions.
-- The generator is byte-reproducible, and real Mining, Firemaking, and Runecrafting review handlers move two translated rows and one active row from incomplete to complete.
-- The plain lane under the promotion-gate exception passes 4,623 tests in 852.760 seconds with 515 skips. Documentation and test-quality audits pass; reachability remains 1,663 actions, 2,343 reachable items, 163 orphan inputs, and 249 blocked actions.
-- After main's runtime split, the Livid Farm, Agility, Shades of Mort'ton, and Castle Wars emits live in their activity owner modules; bank-run recording and completion callbacks live in the carried overlay.
-- Five real-handler tests cover those relocated emits, and each test was mutation-proven by removing only its emit, observing failure, and restoring the call.
-- No user interface code changed. The Beefy Bill banking service remains the next separate slice.
-- Evidence: `source-audits/diary-ledger-wiring-2026-09-01.md`.
-
-## Combat prayer-drain extraction — 2026-09-08
-
-- Branch `goal/combat-prayer-drain-2026-09-08` extracts only the enemy prayer-drain calculation into `logic_pure/logic_pure_combat_specials.py`.
-- Plain and Qt each passed three focused tests with zero skips. Both lanes passed nine frozen-engine comparison cases with complete return, pickle-byte, random-number route, and input nonmutation equality.
-- The runtime used the exact 1,185-entry inventory `248d5502a017d83e2a060a2041061a5acd442a8101200bea52029ac3de1a2850`. The four run IDs are retained in `evidence/combat-prayer-drain-2026-09-08/runtime-retention-manifest.json`.
-- The focused and differential runtime gates are closed for this branch. The full source gate, composition, landing, and native programme acceptance remain pending.
-- The queue audit identifies preview-food calculation as the only settled next combat boundary. Do not start it until the current source gate is active and the parent assigns ownership.
