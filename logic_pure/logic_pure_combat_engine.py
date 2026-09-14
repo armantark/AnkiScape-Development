@@ -2606,8 +2606,6 @@ def _combat_supply_loadout_class_compatible_pure(player_data, equipment_data=Non
 
 
 def repair_combat_supply_loadout_class_pure(player_data, equipment_data=None):
-    if combat_has_active_encounter_pure(player_data):
-        return player_data
     if _combat_supply_loadout_class_compatible_pure(player_data, equipment_data):
         return player_data
     repaired, _ok, _reason = reconcile_combat_method_pure(
@@ -2657,9 +2655,7 @@ def combat_has_active_encounter_pure(player_data):
 def request_combat_bank_run_now_pure(player_data):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
-    # Owner ruling (Pass 11): a manual bank run is allowed mid-fight; the
-    # encounter survives the two-review route and resumes after, exactly like
-    # the automatic state machine.
+    data["combat_encounter"] = {}
     active_run = data.get("combat_bank_run")
     if isinstance(active_run, Mapping) and _non_negative_int(
         active_run.get("reviews_remaining", 0), 0
@@ -2676,21 +2672,14 @@ def request_combat_bank_run_now_pure(player_data):
 def reconcile_combat_method_pure(player_data, updates, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
-    if combat_has_active_encounter_pure(data):
-        return data, False, "Finish the active fight before changing combat method."
     data.update(updates)
-    data, ok, reason = unload_combat_supply_loadout_pure(data)
-    if not ok:
-        return data, False, reason
-    data, ok, reason = refill_combat_supply_loadout_pure(data, equipment_data)
-    return data, ok, reason
+    data, _ok, _reason = unload_combat_supply_loadout_pure(data)
+    return refill_combat_supply_loadout_pure(data, equipment_data)
 
 
 def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
-    if combat_has_active_encounter_pure(data):
-        return data, False, "Finish the active fight before changing supply mode."
     data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
     data = derive_casual_combat_magic_pure(data)
     return reconcile_combat_method_pure(player_data, data, equipment_data)
@@ -2720,8 +2709,6 @@ def set_combat_auto_eat_food_pure(player_data, food_name):
 def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
-    if combat_has_active_encounter_pure(data):
-        return data, False, "An active fight cannot refill supplies between review bursts."
     _combat_refill_food_loadout(data)
     _combat_refill_antipoison_loadout(data)
     style = COMBAT_ATTACK_STYLE_DATA.get(
@@ -2749,8 +2736,6 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
 def unload_combat_supply_loadout_pure(player_data):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
-    if combat_has_active_encounter_pure(data):
-        return data, False, "An active fight cannot unload supplies between review bursts."
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     inventory = dict(data.get("inventory", {}) or {})
     for key in ("food", "potions", "stat_potions", "ammo", "runes", "finishers", "hazards"):

@@ -1,0 +1,840 @@
+<task>Give a bounded, read-only correctness and frontend-taste review of the supplied AnkiScape changes. All necessary source is below; no tools are available or needed. Return concrete defects, required corrections, and layout risks awaiting rendering. Settled owner rulings are immutable. S1 is implemented; S2 is still a proposed patch. Do not claim either full lanes or screenshot checks passed.</task>
+<contract>Nothing may be refused because an enemy is alive. Style/spell/weapon/supply changes take effect next review and keep Encounter enemy LP/countdowns. Kill/death/flee/bank run/Action or target change end the Encounter. Finisher selection stays within the Combat Action and retains the weakened target. Manual refill/unload and incompatible-pack repair are accepted. Do not invent bank-only access. S2 queues exactly one notice from apply_slayer_kills_pure completed, capturing assignment initial_count and family plural. The existing pending_review_dialogs list flushes through QTimer after Anki answers. It must preserve the completion activity/event text and Combat. Title Slayer assignment complete. Body You have defeated {count} {enemy plural}. See a Slayer master for a new assignment. Button OK. Add only Slayer: {remaining} of {total} left below kills for an active assignment. No cadence/XP/menu loading changes. Existing near-death Yes/No copy asking to walk away after Bankstanding is recorded separately; only flag it as required if directly necessary for the accepted scope. Root will simplify S2's defensive default count/name lookups to direct completed-assignment fields. The viewport requirements are default parent1000x700 and parent900x560, actual offscreen Qt captures pending. ReviewHUD is fixed340x128. Existing Level Up dialog is fixed380x200 with64px skill icon and an OK button; reuse its conventions. No decorative headings, new settings, broad refactors, new mechanics, or whole-UI redesign.</contract>
+
+<s1_diff>
+diff --git a/__init__.py b/__init__.py
+index b921b1a2..2df3438a 100644
+--- a/__init__.py
++++ b/__init__.py
+@@ -231,6 +231,7 @@ from .core.storage import load_player_data as storage_load_player_data, save_pla
+ from .core.action_registry import (
+     ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
+     UTILITY_REVIEW_ACTION_DISPLAY_NAME,
++    is_combat_review_action,
+     is_review_action,
+     review_action_handler_key,
+     utility_review_surface_for_target as _utility_surface_for_target,
+@@ -1048,6 +1049,8 @@ def commit_direct_action(
+             automatic=bool(bankstanding_automatic),
+         )
+     elif selected_skill is not None:
++        if selected_skill != _state.current_skill or not is_combat_review_action(selected_skill):
++            _state.player_data["combat_encounter"] = {}
+         _state.current_skill = _normalize_legacy_utility_skill(selected_skill)
+         try:
+             mw.col.set_config("ankiscape_current_skill", _state.current_skill)
+@@ -1565,6 +1568,8 @@ def _switch_to_bankstanding(
+     fallback so the ordinary review-paced market clock keeps moving.
+     """
+
++    # Clear before the idempotence guard to end stale Encounters in idle saves.
++    _state.player_data["combat_encounter"] = {}
+     if (
+         _state.player_data.get("current_utility") == "bankstanding"
+         and _normalize_legacy_utility_skill(_state.current_skill)
+@@ -1647,8 +1652,12 @@ def save_skill(skill, dialog):
+             "You don't have the level and materials for any Smithing recipe. Mine ore or pick another target first!",
+         )
+     else:
++        action_changed = skill != _state.current_skill
+         _state.current_skill = skill
+         ui.update_menu_visibility(_state.current_skill)
++        if action_changed:
++            _state.player_data["combat_encounter"] = {}
++            _save_player_data_if_anki_ready()
+         # Persist immediately so the selection survives window close
+         try:
+             mw.col.set_config("ankiscape_current_skill", _state.current_skill)
+@@ -4611,6 +4620,7 @@ def _on_main_menu(
+                     return current, False
+             updated = dict(updated)
+             updated["current_utility"] = "bankstanding"
++            updated["combat_encounter"] = {}
+             return updated, True
+
+         return commit_direct_action(
+@@ -4800,13 +4810,11 @@ def _set_legacy_bar_target(bar_name: str):
+ def _set_combat_method_values(values):
+     if all(_state.player_data.get(key) == value for key, value in values.items()):
+         return True
+-    refusal_reason = [""]
+
+     def _change(current):
+-        updated, ok, reason = reconcile_combat_method_pure(
++        updated, ok, _reason = reconcile_combat_method_pure(
+             current, values, EQUIPMENT_DATA
+         )
+-        refusal_reason[0] = reason
+         return updated, ok
+
+     def _after_apply():
+@@ -4814,8 +4822,6 @@ def _set_combat_method_values(values):
+         _refresh_skill_availability()
+
+     if not commit_direct_action(_change, after_apply=_after_apply):
+-        if refusal_reason[0]:
+-            show_error_message("Cannot change combat method", refusal_reason[0])
+         return False
+     _refresh_open_carried_inventory()
+     try:
+@@ -4839,6 +4845,8 @@ def _set_combat_target(target):
+         "combat_action": "attack",
+         "current_combat_target": target,
+     }
++    if _state.player_data.get("current_combat_target") != target:
++        values["combat_encounter"] = {}
+     if target not in {"cyclops", "cyclossus"}:
+         guild_state = sanitize_warriors_guild_state_pure(
+             _state.player_data.get("warriors_guild")
+@@ -4955,12 +4963,9 @@ def on_set_combat_auto_eat_threshold(threshold_percent):
+
+
+ def on_set_combat_pack_mode(mode):
+-    new_data, ok, reason = set_combat_pack_mode_pure(
++    new_data, _ok, _reason = set_combat_pack_mode_pure(
+         _state.player_data, mode, EQUIPMENT_DATA
+     )
+-    if not ok:
+-        show_error_message("Cannot change combat supplies", reason)
+-        return False
+     _save_combat_state_update(new_data, evaluate_achievements=True)
+     return True
+
+@@ -5246,7 +5251,6 @@ def on_equip_item(item_name):
+     if not ok:
+         show_error_message("Cannot equip item", reason)
+         return False
+-    failure_reason = [""]
+
+     def _apply(current):
+         before_equipment = dict(current.get("equipment", {}) or {})
+@@ -5267,7 +5271,7 @@ def on_equip_item(item_name):
+             )
+         )
+         if before_equipment.get("weapon") != new_equipment.get("weapon"):
+-            updated, equipped, failure_reason[0] = reconcile_combat_method_pure(
++            updated, _ok, _reason = reconcile_combat_method_pure(
+                 current, updated, EQUIPMENT_DATA
+             )
+         return updated, equipped
+@@ -5289,14 +5293,13 @@ def on_equip_item(item_name):
+     if not equipped:
+         show_error_message(
+             "Cannot equip item",
+-            failure_reason[0] or f"You need {item_name} in your bank to equip it.",
++            f"You need {item_name} in your bank to equip it.",
+         )
+     return equipped
+
+
+ def on_unequip_slot(slot):
+     item_name = (_state.player_data.get("equipment", {}) or {}).get(slot)
+-    failure_reason = [""]
+
+     def _apply(current):
+         before_equipment = dict(current.get("equipment", {}) or {})
+@@ -5316,7 +5319,7 @@ def on_unequip_slot(slot):
+             )
+         )
+         if before_equipment.get("weapon") != new_equipment.get("weapon"):
+-            updated, unequipped, failure_reason[0] = reconcile_combat_method_pure(
++            updated, _ok, _reason = reconcile_combat_method_pure(
+                 current, updated, EQUIPMENT_DATA
+             )
+         return updated, unequipped
+@@ -5338,7 +5341,7 @@ def on_unequip_slot(slot):
+     if not unequipped:
+         show_error_message(
+             "Cannot unequip item",
+-            failure_reason[0] or "That equipment slot is already empty.",
++            "That equipment slot is already empty.",
+         )
+     return unequipped
+
+diff --git a/logic_pure/logic_pure_combat_engine.py b/logic_pure/logic_pure_combat_engine.py
+index ab464533..f2f17de2 100644
+--- a/logic_pure/logic_pure_combat_engine.py
++++ b/logic_pure/logic_pure_combat_engine.py
+@@ -2606,8 +2606,6 @@ def _combat_supply_loadout_class_compatible_pure(player_data, equipment_data=Non
+
+
+ def repair_combat_supply_loadout_class_pure(player_data, equipment_data=None):
+-    if combat_has_active_encounter_pure(player_data):
+-        return player_data
+     if _combat_supply_loadout_class_compatible_pure(player_data, equipment_data):
+         return player_data
+     repaired, _ok, _reason = reconcile_combat_method_pure(
+@@ -2657,9 +2655,7 @@ def combat_has_active_encounter_pure(player_data):
+ def request_combat_bank_run_now_pure(player_data):
+     data = _copy_player_data_with_nested(player_data)
+     data.update(sanitize_combat_state_pure(data))
+-    # Owner ruling (Pass 11): a manual bank run is allowed mid-fight; the
+-    # encounter survives the two-review route and resumes after, exactly like
+-    # the automatic state machine.
++    data["combat_encounter"] = {}
+     active_run = data.get("combat_bank_run")
+     if isinstance(active_run, Mapping) and _non_negative_int(
+         active_run.get("reviews_remaining", 0), 0
+@@ -2676,8 +2672,6 @@ def request_combat_bank_run_now_pure(player_data):
+ def reconcile_combat_method_pure(player_data, updates, equipment_data=None):
+     data = _copy_player_data_with_nested(player_data)
+     data.update(sanitize_combat_state_pure(data))
+-    if combat_has_active_encounter_pure(data):
+-        return data, False, "Finish the active fight before changing combat method."
+     data.update(updates)
+     data, ok, reason = unload_combat_supply_loadout_pure(data)
+     if not ok:
+@@ -2689,8 +2683,6 @@ def reconcile_combat_method_pure(player_data, updates, equipment_data=None):
+ def set_combat_pack_mode_pure(player_data, mode, equipment_data=None):
+     data = _copy_player_data_with_nested(player_data)
+     data.update(sanitize_combat_state_pure(data))
+-    if combat_has_active_encounter_pure(data):
+-        return data, False, "Finish the active fight before changing supply mode."
+     data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
+     data = derive_casual_combat_magic_pure(data)
+     return reconcile_combat_method_pure(player_data, data, equipment_data)
+@@ -2720,8 +2712,6 @@ def set_combat_auto_eat_food_pure(player_data, food_name):
+ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
+     data = _copy_player_data_with_nested(player_data)
+     data.update(sanitize_combat_state_pure(data))
+-    if combat_has_active_encounter_pure(data):
+-        return data, False, "An active fight cannot refill supplies between review bursts."
+     _combat_refill_food_loadout(data)
+     _combat_refill_antipoison_loadout(data)
+     style = COMBAT_ATTACK_STYLE_DATA.get(
+@@ -2749,8 +2739,6 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
+ def unload_combat_supply_loadout_pure(player_data):
+     data = _copy_player_data_with_nested(player_data)
+     data.update(sanitize_combat_state_pure(data))
+-    if combat_has_active_encounter_pure(data):
+-        return data, False, "An active fight cannot unload supplies between review bursts."
+     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+     inventory = dict(data.get("inventory", {}) or {})
+     for key in ("food", "potions", "stat_potions", "ammo", "runes", "finishers", "hazards"):
+diff --git a/logic_pure/logic_pure_combat_supplies.py b/logic_pure/logic_pure_combat_supplies.py
+index ea517c72..d76e72a1 100644
+--- a/logic_pure/logic_pure_combat_supplies.py
++++ b/logic_pure/logic_pure_combat_supplies.py
+@@ -982,6 +982,7 @@ def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_wea
+     if not bank_run:
+         data["combat_bank_run"] = {}
+         return None
++    data["combat_encounter"] = {}
+     remaining = _non_negative_int(bank_run.get("reviews_remaining", 0), 0) - 1
+     if remaining <= 0:
+         data["combat_bank_run"] = {}
+diff --git a/ui/ui.py b/ui/ui.py
+index 70dd672c..025a3893 100644
+--- a/ui/ui.py
++++ b/ui/ui.py
+@@ -7636,13 +7636,11 @@ def show_main_menu(
+             action_row.setVisible(bool(state["required"]))
+
+         if on_set_combat_action is not None:
+-            def _set_combat_action(_index: int) -> None:
+-                if on_set_combat_action(
++            action_combo.currentIndexChanged.connect(
++                lambda _index: on_set_combat_action(
+                     str(action_combo.currentData() or "attack")
+-                ) is False:
+-                    _refresh_combat_action()
+-
+-            action_combo.currentIndexChanged.connect(_set_combat_action)
++                )
++            )
+         _refresh_combat_action()
+
+         # Attack-style picker. The valid styles depend on the equipped weapon's
+@@ -7690,25 +7688,9 @@ def show_main_menu(
+                     current_index = index
+             combo.setCurrentIndex(current_index)
+             if on_set_combat_style is not None:
+-                def _set_combat_style(_index: int, c=combo) -> None:
+-                    if on_set_combat_style(c.currentData()) is False:
+-                        persisted = (
+-                            player_data.get("combat_attack_style"),
+-                            player_data.get("combat_attack_style_type"),
+-                        )
+-                        persisted_index = next(
+-                            (
+-                                index
+-                                for index in range(c.count())
+-                                if c.itemData(index) == persisted
+-                            ),
+-                            0,
+-                        )
+-                        c.blockSignals(True)
+-                        c.setCurrentIndex(persisted_index)
+-                        c.blockSignals(False)
+-
+-                combo.currentIndexChanged.connect(_set_combat_style)
++                combo.currentIndexChanged.connect(
++                    lambda _index, c=combo: on_set_combat_style(c.currentData())
++                )
+             style_row_layout.addWidget(combo, 1)
+             _style_combo_ref["combo"] = combo
+             style_row.setVisible(True)
+@@ -7747,24 +7729,11 @@ def show_main_menu(
+                 selected_spell_index = spell_index
+         spell_combo.setCurrentIndex(selected_spell_index)
+         if on_set_combat_spell is not None:
+-            def _set_combat_spell(_index: int) -> None:
+-                if on_set_combat_spell(
++            spell_combo.currentIndexChanged.connect(
++                lambda _index: on_set_combat_spell(
+                     spell_combo.currentData() or DEFAULT_COMBAT_SPELL
+-                ) is False:
+-                    spell_combo.blockSignals(True)
+-                    spell_combo.setCurrentIndex(
+-                        max(
+-                            0,
+-                            spell_combo.findData(
+-                                player_data.get(
+-                                    "current_combat_spell", DEFAULT_COMBAT_SPELL
+-                                )
+-                            ),
+-                        )
+-                    )
+-                    spell_combo.blockSignals(False)
+-
+-            spell_combo.currentIndexChanged.connect(_set_combat_spell)
++                )
++            )
+         spell_layout.addWidget(spell_label)
+         spell_layout.addWidget(spell_combo, 1)
+         layout.addWidget(spell_row)
+@@ -8935,6 +8904,7 @@ def show_main_menu(
+                 return False
+             on_set_utility(activity_id)
+             player_data["current_utility"] = activity_id
++            player_data["combat_encounter"] = {}
+             return True
+
+         evil_box = QtFrame()
+@@ -21259,6 +21229,7 @@ def show_main_menu(
+             if selection_callback(activity_id) is False:
+                 return False
+             player_data["current_utility"] = activity_id
++            player_data["combat_encounter"] = {}
+             selected_surface = (
+                 _utility_surface_name_for_target(activity_id)
+                 if activate
+@@ -25378,22 +25349,10 @@ def show_main_menu(
+         supply_mode_combo.setCurrentIndex(max(0, supply_mode_combo.findData(str(player_data.get("combat_pack_mode", "balanced")))))
+
+         def _on_pack_mode(_index: int) -> None:
+-            accepted = True
+             if on_set_combat_pack_mode is not None:
+-                accepted = on_set_combat_pack_mode(
++                on_set_combat_pack_mode(
+                     supply_mode_combo.currentData() or "balanced"
+-                ) is not False
+-            if not accepted:
+-                supply_mode_combo.blockSignals(True)
+-                supply_mode_combo.setCurrentIndex(
+-                    max(
+-                        0,
+-                        supply_mode_combo.findData(
+-                            str(player_data.get("combat_pack_mode", "balanced"))
+-                        ),
+-                    )
+                 )
+-                supply_mode_combo.blockSignals(False)
+             _refresh_carried_panel()
+
+         supply_mode_combo.currentIndexChanged.connect(_on_pack_mode)
+
+</s1_diff>
+<s2_runtime_patch>
+diff --git a/runtime/runtime_actions_context.py b/runtime/runtime_actions_context.py
+--- a/runtime/runtime_actions_context.py
++++ b/runtime/runtime_actions_context.py
+@@ -35,4 +35,5 @@ class RuntimeActionContext:
+     # the handler has already stopped the review either way.
+     prompt_near_death: Optional[Callable[[str], None]] = None
++    prompt_slayer_completion: Optional[Callable[[int, str], None]] = None
+     switch_to_bankstanding: Optional[Callable[..., None]] = None
+     refresh_carried_inventory: Optional[Callable[[], None]] = None
+diff --git a/runtime/runtime_actions_combat.py b/runtime/runtime_actions_combat.py
+--- a/runtime/runtime_actions_combat.py
++++ b/runtime/runtime_actions_combat.py
+@@ -592,6 +592,12 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
+         xp_rewards["slayer_exp"] = slayer_xp
+         result["xp_rewards"] = xp_rewards
+     result["slayer"] = slayer_result
++    if slayer_result.get("completed") and callable(ctx.prompt_slayer_completion):
++        assignment = new_data.get("slayer_assignment") or {}
++        ctx.prompt_slayer_completion(
++            int(assignment.get("initial_count", 0) or 0),
++            str(slayer_result.get("family_display_name", "") or "").lower(),
++        )
+     player_data.update(new_data)
+     player_data.update(
+         repair_combat_supply_loadout_class_pure(player_data, EQUIPMENT_DATA)
+diff --git a/tests/test_runtime_actions.py b/tests/test_runtime_actions.py
+--- a/tests/test_runtime_actions.py
++++ b/tests/test_runtime_actions.py
+@@ -48,7 +48,13 @@ from ankiscape.runtime.runtime_actions import (
+ )
+
+
+-def _context(player_data, calls=None, random_values=None, review_action_multiplier=1):
++def _context(
++    player_data,
++    calls=None,
++    random_values=None,
++    review_action_multiplier=1,
++    prompt_slayer_completion=None,
++):
+     calls = calls if calls is not None else {"xp": [], "saves": 0, "errors": []}
+     random_iter = iter(random_values or ())
+
+@@ -86,6 +92,7 @@ def _context(player_data, calls=None, random_values=None, review_action_multiplier=1):
+         implemented_exp_keys_snapshot=lambda: {},
+         show_quest_exp_delta=lambda _before: None,
+         review_action_multiplier=review_action_multiplier,
++        prompt_slayer_completion=prompt_slayer_completion,
+     )
+
+
+@@ -2823,44 +2830,73 @@ class TestRuntimeActions(unittest.TestCase):
+         telemetry = player_data["action_telemetry"]["actions"]["combat:chicken"]
+         self.assertEqual(telemetry["outputs"]["Clue scroll (medium)"], 1)
+
+-    def test_combat_handler_credits_matching_slayer_assignment_atomically(self):
++    def test_combat_handler_prompts_once_when_slayer_assignment_completes(self):
+         calls = {"xp": [], "saves": 0, "errors": []}
++        completions = []
+         player_data = {
+             "inventory": {},
+             "equipment": {},
+-            "current_combat_target": "giant_bat",
+-            "combat_attack_style": "accurate",
++            "current_combat_target": "black_bear",
++            "combat_action": "attack",
++            "combat_attack_style": "aggressive",
++            "combat_attack_style_type": "crush",
+             "combat_lifepoints": 990,
+             "combat_auto_eat_food": ["Shrimps"],
+             "attack_level": 99,
+             "strength_level": 99,
+             "defense_level": 99,
+             "constitution_level": 99,
+-            "slayer_level": 1,
++            "slayer_level": 99,
+             "slayer_exp": 0.0,
+             "slayer_assignment": {
+                 "master_id": "turael_spria",
+-                "family_id": "bats",
+-                "initial_count": 50,
+-                "remaining": 50,
++                "family_id": "bears",
++                "initial_count": 17,
++                "remaining": 2,
+             },
+             "completed_achievements": [],
+         }
+
+-        ok = handle_combat_answer(
+-            _context(player_data, calls, [0.0, 0.999999] * 100)
+-        )
++        def defeat_one_bear():
++            player_data["combat_encounter"] = {
++                "target_id": "black_bear",
++                "enemy_lifepoints": 1,
++                "player_attack_ticks_remaining": 0,
++                "enemy_attack_ticks_remaining": 99,
++            }
++            ctx = _context(
++                player_data,
++                calls,
++                [0.0, 0.999999] * 100,
++                prompt_slayer_completion=lambda count, enemy_plural: completions.append(
++                    (count, enemy_plural)
++                ),
++            )
++            ctx.cadence_live_enabled = True
++            self.assertTrue(handle_combat_answer(ctx))
+
+-        self.assertTrue(ok)
+-        credited = 50 - player_data["slayer_assignment"]["remaining"]
+-        self.assertGreater(credited, 0)
+-        self.assertEqual(player_data["slayer_exp"], 32.0 * credited)
+-        self.assertIn("Slayer", calls["level_checks"])
+-        self.assertIn("Slayer kills left", calls["activity"][0])
+-        self.assertEqual(calls["saves"], 1)
++        defeat_one_bear()
++        self.assertEqual(player_data["slayer_assignment"]["remaining"], 1)
++        self.assertEqual(completions, [])
++        defeat_one_bear()
++        self.assertEqual(player_data["slayer_assignment"]["remaining"], 0)
++        self.assertEqual(completions, [(17, "bears")])
++        defeat_one_bear()
++        self.assertEqual(completions, [(17, "bears")])
++
++        self.assertEqual(player_data["slayer_exp"], 50.0)
++        self.assertEqual(calls["level_checks"].count("Slayer"), 2)
++        self.assertIn("1 Slayer kills left", calls["activity"][0])
++        self.assertIn("Slayer assignment complete", calls["activity"][1])
++        self.assertNotIn("Slayer", calls["activity"][2])
++        self.assertEqual(calls["saves"], 3)
++        self.assertNotIn("deactivated", calls)
++        self.assertEqual(player_data["combat_action"], "attack")
++        self.assertEqual(player_data["current_combat_target"], "black_bear")
+
+     def test_combat_handler_does_not_credit_an_off_task_target(self):
+         calls = {"xp": [], "saves": 0, "errors": []}
++        completions = []
+         player_data = {
+             "inventory": {},
+             "equipment": {},
+@@ -2867,6 +2903,12 @@ class TestRuntimeActions(unittest.TestCase):
+             "current_combat_target": "black_bear",
+             "combat_attack_style": "accurate",
+             "combat_lifepoints": 990,
++            "combat_encounter": {
++                "target_id": "black_bear",
++                "enemy_lifepoints": 1,
++                "player_attack_ticks_remaining": 0,
++                "enemy_attack_ticks_remaining": 99,
++            },
+             "combat_auto_eat_food": ["Shrimps"],
+             "attack_level": 99,
+             "strength_level": 99,
+@@ -2883,14 +2925,23 @@ class TestRuntimeActions(unittest.TestCase):
+             "completed_achievements": [],
+         }
+
+-        ok = handle_combat_answer(
+-            _context(player_data, calls, [0.0, 0.999999] * 100)
++        ctx = _context(
++            player_data,
++            calls,
++            [0.0, 0.999999] * 100,
++            prompt_slayer_completion=lambda count, enemy_plural: completions.append(
++                (count, enemy_plural)
++            ),
+         )
++        ctx.cadence_live_enabled = True
++        ok = handle_combat_answer(ctx)
+
+         self.assertTrue(ok)
++        self.assertEqual(player_data["combat_kill_counts"]["black_bear"], 1)
+         self.assertEqual(player_data["slayer_assignment"]["remaining"], 50)
+         self.assertEqual(player_data["slayer_exp"], 0.0)
+         self.assertNotIn("Slayer", calls.get("level_checks", []))
++        self.assertEqual(completions, [])
+
+     def test_combat_handler_finisher_refuses_and_reports_a_second_clue(self):
+         enemy_data = copy.deepcopy(runtime_actions_combat.COMBAT_ENEMY_DATA)
+
+</s2_runtime_patch>
+<s2_ui_and_tests>
+{
+  "ui": [
+    {
+      "path": "ui/ui.py",
+      "old": "            info.addLayout(bottom_row)\n\n            root.addLayout(info, 1)",
+      "value": "            info.addLayout(bottom_row)\n            self.slayer_lbl = QLabel(\"\")\n            self.slayer_lbl.setObjectName(\"slayerAssignmentProgress\")\n            self.slayer_lbl.setStyleSheet(self.chips_lbl.styleSheet())\n            info.addWidget(self.slayer_lbl)\n\n            root.addLayout(info, 1)"
+    },
+    {
+      "path": "ui/ui.py",
+      "old": "            skill = skill or \"None\"\n            # While a bank run",
+      "value": "            skill = skill or \"None\"\n            self.slayer_lbl.setVisible(False)\n            # While a bank run"
+    },
+    {
+      "path": "ui/ui.py",
+      "old": "                self.chips_lbl.setVisible(True)\n\n                self.adjustSize()",
+      "value": "                self.chips_lbl.setVisible(True)\n                self.slayer_lbl.setText(state[\"slayer_progress\"])\n                self.slayer_lbl.setVisible(bool(state[\"slayer_progress\"]))\n\n                self.adjustSize()"
+    },
+    {
+      "path": "ui/ui.py",
+      "old": "def show_achievement_dialog(achievement: str, data: dict):",
+      "value": "def show_slayer_completion_dialog(count: int, enemy_plural: str) -> None:\n    \"\"\"Show an assignment completion on the Level Up dialog surface.\"\"\"\n    if not HAS_QT:\n        return\n    dialog = QDialog(mw)\n    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)\n    dialog.setWindowTitle(\"Slayer assignment complete\")\n    dialog.setFixedSize(380, 200)\n    layout = QVBoxLayout()\n\n    icon_path = skill_icon_path_for(\"Slayer\")\n    if icon_path:\n        icon_label = QLabel()\n        pixmap = QPixmap(icon_path)\n        icon_label.setPixmap(pixmap.scaled(\n            64, 64, Qt.AspectRatioMode.KeepAspectRatio,\n            Qt.TransformationMode.SmoothTransformation,\n        ))\n        layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)\n\n    message = QLabel(\n        f\"You have defeated {count} {enemy_plural}. \"\n        \"See a Slayer master for a new assignment.\"\n    )\n    message.setObjectName(\"slayerCompletionMessage\")\n    message.setWordWrap(True)\n    message.setAlignment(Qt.AlignmentFlag.AlignCenter)\n    layout.addWidget(message)\n\n    ok_button = QPushButton(\"OK\")\n    ok_button.clicked.connect(dialog.accept)\n    layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignCenter)\n    dialog.setLayout(layout)\n    dialog.exec()\n\n\ndef show_achievement_dialog(achievement: str, data: dict):"
+    },
+    {
+      "path": "logic_pure/logic_pure_combat_engine.py",
+      "old": "from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA",
+      "value": "from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA\nfrom ..logic.slayer_logic import sanitize_slayer_state_pure as _sanitize_slayer_state_pure"
+    },
+    {
+      "path": "logic_pure/logic_pure_combat_engine.py",
+      "old": "    finisher = combat_finisher_state_pure(player_data, target_id, enemy_data)\n    status = combat_status_summary_pure(player_data)",
+      "value": "    assignment = _sanitize_slayer_state_pure(player_data)[\"slayer_assignment\"]\n    slayer_progress = (\n        f\"Slayer: {assignment['remaining']} of {assignment['initial_count']} left\"\n        if assignment and not assignment[\"completed\"] else \"\"\n    )\n    finisher = combat_finisher_state_pure(player_data, target_id, enemy_data)\n    status = combat_status_summary_pure(player_data)"
+    },
+    {
+      "path": "logic_pure/logic_pure_combat_engine.py",
+      "old": "        \"kills_total\": kills_total,\n        \"last_kills\": last_kills,",
+      "value": "        \"kills_total\": kills_total,\n        \"slayer_progress\": slayer_progress,\n        \"last_kills\": last_kills,"
+    },
+    {
+      "path": "__init__.py",
+      "old": "        prompt_near_death=_prompt_near_death,\n        refresh_carried_inventory",
+      "value": "        prompt_near_death=_prompt_near_death,\n        prompt_slayer_completion=lambda count, enemy_plural: _state.pending_review_dialogs.append(\n            lambda: ui.show_slayer_completion_dialog(count, enemy_plural)\n        ),\n        refresh_carried_inventory"
+    }
+  ],
+  "dialog_tests": "\n    def test_slayer_completion_dialog_uses_the_level_up_surface(self) -> None:\n        captured = {}\n\n        def capture_and_close() -> None:\n            modal = QApplication.activeModalWidget()\n            captured[\"title\"] = modal.windowTitle()\n            captured[\"message\"] = modal.findChild(\n                self.ui.QLabel, \"slayerCompletionMessage\"\n            ).text()\n            buttons = modal.findChildren(self.ui.QPushButton)\n            captured[\"buttons\"] = [button.text() for button in buttons]\n            buttons[0].click()\n\n        QTimer.singleShot(0, capture_and_close)\n        with allow_modal_dialogs():\n            self.ui.show_slayer_completion_dialog(17, \"bears\")\n\n        self.assertEqual(captured[\"title\"], \"Slayer assignment complete\")\n        self.assertEqual(captured[\"message\"], (\n            \"You have defeated 17 bears. See a Slayer master for a new assignment.\"\n        ))\n        self.assertEqual(captured[\"buttons\"], [\"OK\"])\n\n    def test_final_slayer_review_shows_the_dialog_after_anki_answers_and_keeps_combat(self) -> None:\n        from unittest.mock import patch\n        from tests.test_integration_smoke import (\n            _DummyCol, _FakeReviewer, _install_runtime_fakes, _load_addon_as_package,\n        )\n\n        real_qt = sys.modules[\"aqt.qt\"]\n        with patch.dict(sys.modules):\n            _install_runtime_fakes()\n            sys.modules[\"aqt.qt\"] = real_qt\n            addon = _load_addon_as_package(\"ankiscape_slayer_review_dialog\")\n            self.parent.col = _DummyCol({\"ankiscape_cadence_kernel\": True})\n            self.parent.update_undo_actions = lambda: None\n            addon.mw = self.parent\n            addon.ui.mw = self.parent\n            for name in (\n                \"save_player_data\", \"check_achievements\", \"level_up_check\",\n                \"_refresh_skill_availability\", \"_refresh_open_carried_inventory\",\n                \"update_review_hud\", \"update_review_status_badge\",\n                \"update_review_fill_drawer\", \"update_review_event_log_drawer\",\n                \"_refresh_bank_run_surfaces\", \"_update_review_context_surface\",\n                \"_show_exp\",\n            ):\n                setattr(addon, name, lambda *_args: None)\n            constants = sys.modules[f\"{addon.__name__}.core.constants\"]\n            storage = sys.modules[f\"{addon.__name__}.core.storage_pure\"]\n            player = storage.default_player_data(\n                constants.ORE_DATA, constants.ITEM_DEFINITIONS\n            )\n            player.update({\n                \"current_combat_target\": \"black_bear\",\n                \"combat_action\": \"attack\",\n                \"combat_attack_style\": \"aggressive\",\n                \"combat_attack_style_type\": \"crush\",\n                \"attack_level\": 99, \"strength_level\": 99, \"defense_level\": 99,\n                \"constitution_level\": 99, \"combat_lifepoints\": 990,\n                \"slayer_assignment\": {\n                    \"master_id\": \"turael_spria\", \"family_id\": \"bears\",\n                    \"initial_count\": 17, \"remaining\": 1,\n                },\n                \"combat_encounter\": {\n                    \"target_id\": \"black_bear\", \"enemy_lifepoints\": 1,\n                    \"player_attack_ticks_remaining\": 0,\n                    \"enemy_attack_ticks_remaining\": 99,\n                },\n            })\n            addon._state.player_data = player\n            addon._state.current_skill = \"Combat\"\n            timeline = []\n            captures = []\n            original_dialog = addon.ui.show_slayer_completion_dialog\n\n            def show_dialog(count, enemy_plural):\n                captures.append({\"timeline\": list(timeline), \"args\": (count, enemy_plural)})\n\n                def capture_and_close():\n                    modal = QApplication.activeModalWidget()\n                    captures[-1][\"message\"] = modal.findChild(\n                        addon.ui.QLabel, \"slayerCompletionMessage\"\n                    ).text()\n                    modal.findChild(addon.ui.QPushButton).click()\n\n                QTimer.singleShot(0, capture_and_close)\n                original_dialog(count, enemy_plural)\n\n            addon.ui.show_slayer_completion_dialog = show_dialog\n\n            def anki_answer(_reviewer, _ease):\n                timeline.append(\"anki_answer\")\n                self.assertEqual(len(addon._state.pending_review_dialogs), 1)\n                self.assertIsNone(QApplication.activeModalWidget())\n                self.assertEqual(captures, [])\n                return \"answered\"\n\n            def prime_review():\n                addon._state.card_turned = True\n                addon._state.answer_shown = True\n                addon._state.exp_awarded = False\n\n            with patch.object(addon.random, \"random\", return_value=0.5):\n                prime_review()\n                self.assertEqual(\n                    addon.on_answer_card(_FakeReviewer(), 4, anki_answer), \"answered\"\n                )\n                timeline.append(\"returned\")\n                with allow_modal_dialogs():\n                    for _ in range(4):\n                        QApplication.processEvents()\n\n                self.assertEqual(captures, [{\n                    \"timeline\": [\"anki_answer\", \"returned\"],\n                    \"args\": (17, \"bears\"),\n                    \"message\": \"You have defeated 17 bears. See a Slayer master for a new assignment.\",\n                }])\n                self.assertEqual(addon._state.current_skill, \"Combat\")\n                self.assertEqual(addon._state.pending_review_dialogs, [])\n                self.assertTrue(player[\"slayer_assignment\"][\"completed\"])\n                self.assertTrue(any(\n                    \"Slayer assignment complete\" in event[\"text\"]\n                    for event in player[\"review_event_log\"]\n                ))\n\n                prime_review()\n                addon.on_answer_card(_FakeReviewer(), 4, lambda *_args: None)\n                for _ in range(4):\n                    QApplication.processEvents()\n                self.assertEqual(addon._state.current_skill, \"Combat\")\n                self.assertGreater(player[\"combat_last_result\"][\"player_attacks\"], 0)\n                self.assertEqual(len(captures), 1)\n",
+  "hud_test": "\n    def test_hud_reads_slayer_assignment_and_hides_it_when_combat_or_task_ends(self) -> None:\n        player = _make_player_data()\n        player[\"slayer_assignment\"] = {\n            \"master_id\": \"turael_spria\", \"family_id\": \"bears\",\n            \"initial_count\": 17, \"remaining\": 4,\n        }\n        hud = self._ui.ReviewHUD(None)\n        self.addCleanup(hud.close)\n        hud.set_data(player, \"Combat\")\n        QApplication.processEvents()\n        self.assertEqual(hud.slayer_lbl.text(), \"Slayer: 4 of 17 left\")\n        self.assertTrue(hud.slayer_lbl.isVisible())\n        self.assertGreaterEqual(hud.slayer_lbl.y(), hud.chips_lbl.y() + hud.chips_lbl.height())\n\n        hud.set_data(player, \"Mining\")\n        self.assertFalse(hud.slayer_lbl.isVisible())\n        hud.set_data(player, \"Combat\")\n        self.assertTrue(hud.slayer_lbl.isVisible())\n        player[\"slayer_assignment\"][\"remaining\"] = 0\n        hud.set_data(player, \"Combat\")\n        self.assertFalse(hud.slayer_lbl.isVisible())\n        player[\"slayer_assignment\"] = {}\n        hud.set_data(player, \"Combat\")\n        self.assertFalse(hud.slayer_lbl.isVisible())\n",
+  "hud_pure_test": "\nclass SlayerHudStateTest(unittest.TestCase):\n    def test_hud_count_uses_a_valid_active_assignment(self):\n        from ankiscape.logic_pure.logic_pure_combat_engine import combat_hud_state_pure\n\n        assignment = {\n            \"master_id\": \"turael_spria\", \"family_id\": \"bears\",\n            \"initial_count\": 17, \"remaining\": 4,\n        }\n        for value, expected in (\n            (assignment, \"Slayer: 4 of 17 left\"),\n            ({**assignment, \"remaining\": 0}, \"\"),\n            ({**assignment, \"family_id\": \"unknown\"}, \"\"),\n            ({}, \"\"),\n        ):\n            with self.subTest(assignment=value):\n                self.assertEqual(\n                    combat_hud_state_pure({\"slayer_assignment\": value})[\"slayer_progress\"],\n                    expected,\n                )\n\n"
+}
+
+</s2_ui_and_tests>
+<current_hud_layout>
+    class ReviewHUD(QWidget):
+        """The compact XP box inside the native reviewer strip."""
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            # This remains an ordinary child of the native review strip. It must
+            # accept mouse events because the Bank run button lives inside it.
+            try:
+                self.setWindowFlags(Qt.WindowType.Widget)
+            except Exception:
+                pass
+            self.setAutoFillBackground(False)
+            self.setObjectName("AnkiScapeReviewHUD")
+            self.setProperty("ankiscapeOverlayRequested", True)
+            self.setFixedSize(340, REVIEW_STRIP_HEIGHT)
+
+            # Layout
+            root = QHBoxLayout(self)
+            root.setContentsMargins(12, 10, 12, 10)
+            root.setSpacing(10)
+
+            leading = QVBoxLayout()
+            leading.setContentsMargins(0, 0, 0, 0)
+            leading.setSpacing(4)
+            self.icon_lbl = QLabel()
+            self.icon_lbl.setFixedSize(28, 28)
+            leading.addWidget(
+                self.icon_lbl, 0, Qt.AlignmentFlag.AlignHCenter
+            )
+            leading.addStretch(1)
+            root.addLayout(leading)
+
+            info = QVBoxLayout()
+            info.setContentsMargins(0, 0, 0, 0)
+            info.setSpacing(4)
+            self.title_lbl = QLabel("Skill")
+            self.title_lbl.setStyleSheet("color: white; font-weight: 600;")
+            info.addWidget(self.title_lbl)
+
+            # The text and fill are separate so the progress fill never sits
+            # behind the progress text.
+            self.progress_lbl = QLabel("")
+            self.progress_lbl.setObjectName("reviewHudProgressText")
+            self.progress_lbl.setStyleSheet(
+                "color: rgba(255,255,255,0.9); font-size: 11px;"
+            )
+            self.progress_lbl.setWordWrap(False)
+            info.addWidget(self.progress_lbl)
+
+            self.progress = QProgressBar()
+            self.progress.setTextVisible(False)
+            self.progress.setFixedHeight(12)
+            self.progress.setRange(0, 100)
+            self.progress.setValue(0)
+            self.progress.setStyleSheet(
+                f"""
+                QProgressBar {{
+                    background-color: rgba(255,255,255,0.15);
+                    border: 1px solid {_HUD_BORDER};
+                    border-radius: 6px;
+                }}
+                QProgressBar::chunk {{
+                    background-color: {_HUD_ACCENT};
+                    border-radius: 5px;
+                }}
+                """
+            )
+            info.addWidget(self.progress)
+
+            self.combat_resources = QWidget()
+            self.combat_resources.setObjectName("combatHudResources")
+            resource_layout = QHBoxLayout(self.combat_resources)
+            resource_layout.setContentsMargins(0, 0, 0, 0)
+            resource_layout.setSpacing(5)
+            self.combat_resource_labels = {}
+            for resource_id, icon_name in (
+                ("lifepoints", "hitpoints_orb.png"),
+                ("prayer", "prayer_orb.png"),
+                ("summoning", "summoning_orb.png"),
+            ):
+                icon_lbl = QLabel()
+                icon_lbl.setObjectName(f"combatHudResourceIcon_{resource_id}")
+                icon_lbl.setFixedSize(18, 18)
+                icon = _pixel_path_icon(
+                    os.path.join(current_dir, "icon", icon_name), 18
+                )
+                if icon is not None:
+                    icon_lbl.setPixmap(icon.pixmap(QSize(18, 18)))
+                value_lbl = QLabel()
+                value_lbl.setObjectName(f"combatHudResourceValue_{resource_id}")
+                value_lbl.setStyleSheet(
+                    "color: rgba(255,255,255,0.85); font-size: 10px;"
+                )
+                resource_layout.addWidget(icon_lbl)
+                resource_layout.addWidget(value_lbl)
+                self.combat_resource_labels[resource_id] = value_lbl
+            resource_layout.addStretch(1)
+            self.combat_resources.setVisible(False)
+            info.addWidget(self.combat_resources)
+
+            # A running activity trains real skills, and section 4.8 says those
+            # bars are what the strip is for. The primary skill reuses
+            # self.progress; this holds a second one, which is as many as one
+            # compact row can carry.
+            self.second_progress = QProgressBar()
+            self.second_progress.setObjectName("reviewHudSecondSkillBar")
+            self.second_progress.setFixedHeight(12)
+            self.second_progress.setRange(0, 100)
+            self.second_progress.setValue(0)
+            self.second_progress.setStyleSheet(self.progress.styleSheet())
+            self.second_progress.setVisible(False)
+            self.second_progress_lbl = QLabel("")
+            self.second_progress_lbl.setObjectName("reviewHudSecondSkillText")
+            self.second_progress_lbl.setStyleSheet(
+                "color: rgba(255,255,255,0.9); font-size: 11px;"
+            )
+            self.second_progress_lbl.setWordWrap(False)
+            self.second_progress_lbl.setVisible(False)
+            info.addWidget(self.second_progress_lbl)
+            info.addWidget(self.second_progress)
+
+            self.sub_lbl = QLabel("")
+            self.sub_lbl.setStyleSheet("color: rgba(255,255,255,0.85); font-size: 11px;")
+            info.addWidget(self.sub_lbl)
+
+            # Small line echoing the target currently selected in the menu
+            # (e.g. "Pot (unfired)"). Updated live via set_data whenever the
+            # player changes their selection.
+            self.target_lbl = QLabel("")
+            self.target_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
+            info.addWidget(self.target_lbl)
+
+            self.world_notice_lbl = QLabel("")
+            self.world_notice_lbl.setObjectName("reviewWorldNotice")
+            self.world_notice_lbl.setStyleSheet(
+                "color: #f0c75e; font-size: 10px; font-weight: 600;"
+            )
+            self.world_notice_lbl.setVisible(False)
+            info.addWidget(self.world_notice_lbl)
+
+            # Combat-only: a second health bar for the enemy, and a chip line
+            # naming the skills the current attack style trains plus the running
+            # kill count. Hidden for every non-combat skill (see set_data).
+            self.enemy_progress = QProgressBar()
+            self.enemy_progress.setTextVisible(False)
+            self.enemy_progress.setFixedHeight(8)
+            self.enemy_progress.setRange(0, 100)
+            self.enemy_progress.setValue(0)
+            self.enemy_progress.setStyleSheet(
+                f"""
+                QProgressBar {{
+                    background-color: rgba(255,255,255,0.15);
+                    border: 1px solid {_HUD_BORDER};
+                    border-radius: 5px;
+                }}
+                QProgressBar::chunk {{
+                    background-color: {_HUD_ENEMY};
+                    border-radius: 4px;
+                }}
+                """
+            )
+            info.addWidget(self.enemy_progress)
+
+            self.chips_lbl = QLabel("")
+            self.chips_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
+            bottom_row = QHBoxLayout()
+            bottom_row.setContentsMargins(0, 0, 0, 0)
+            bottom_row.setSpacing(6)
+            bottom_row.addWidget(self.chips_lbl, 1)
+            self.action_column = QHBoxLayout()
+            self.action_column.setContentsMargins(0, 0, 0, 0)
+            bottom_row.addLayout(self.action_column)
+            info.addLayout(bottom_row)
+
+            root.addLayout(info, 1)
+
+            # Aesthetic container style
+            self.setStyleSheet(
+                f"""
+                QWidget#AnkiScapeReviewHUD {{
+</current_hud_layout>
+<current_dialog_queue_and_near_death>
+        from aqt.qt import QTimer  # type: ignore
+    except Exception:
+        QTimer = None  # type: ignore
+    if QTimer is not None:
+        QTimer.singleShot(0, lambda: ui.show_bankstanding_dialog(reason))
+    else:
+        ui.show_bankstanding_dialog(reason)
+
+
+def _show_pending_review_dialogs() -> None:
+    callbacks = tuple(_state.pending_review_dialogs)
+    _state.pending_review_dialogs.clear()
+    if not callbacks:
+        return
+    try:
+        from aqt.qt import QTimer  # type: ignore
+    except Exception:
+        QTimer = None  # type: ignore
+    if QTimer is not None:
+        def _show_all() -> None:
+            for callback in callbacks:
+                callback()
+
+        QTimer.singleShot(0, _show_all)
+    else:
+        for callback in callbacks:
+            callback()
+
+
+def _update_pending_bankstanding_reason(reason) -> None:
+    notice = _state.pending_bankstanding_notice
+    reason_text = str(reason or "").strip()
+    if notice is None or not reason_text:
+def _prompt_near_death(source: str) -> None:
+    """Ask whether to leave when a review is refused for near-death with no food.
+
+    Queued behind the Bankstanding notice so neither modal can open inside
+    Anki's answer-card processing or cover the other. The handler has already
+    switched training off, so declining simply leaves the player parked where
+    they are.
+    """
+
+    def _ask() -> None:
+        try:
+            from aqt.qt import QMessageBox  # type: ignore
+        except Exception:
+            return
+        label = "the activity" if source != "combat" else "combat"
+        answer = QMessageBox.question(
+            mw,
+            "You are about to die",
+            f"Lifepoints are critical and there is no food left in your pack or "
+            f"your bank.\n\n{label.capitalize()} has been switched off so the "
+            f"next review cannot kill you. Walk away from the fight as well?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        # Yes also walks away from the open encounter, so the next session does
+        # not resume standing in front of the thing that nearly killed you.
+        # Training is already off either way; declining just keeps the fight
+        # pending.
+        _state.player_data["combat_encounter"] = {}
+        _state.player_data.update(
+            repair_combat_supply_loadout_class_pure(_state.player_data, EQUIPMENT_DATA)
+        )
+        _save_player_data_if_anki_ready()
+        _refresh_skill_availability()
+
+    _state.pending_review_dialogs.append(_ask)
+
+
+def _prompt_stronghold_reward() -> None:
+</current_dialog_queue_and_near_death>
+<output>Keep the final review concise. Distinguish confirmed bugs from unrendered layout risks. Give a clear accept or required-changes decision, with exact affected code and trigger. You have not seen screenshots. No tool calls.</output>

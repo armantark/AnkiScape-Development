@@ -1,0 +1,2 @@
+Kimi quota preflight: {"source":"ai-usage-widget/kimi_code_usage","freshness":"fresh","capturedAt":1789368049,"ageSeconds":1,"fiveHour":{"usedPercent":0.0,"remainingPercent":100.0,"resetsAt":1789384297},"weekly":{"usedPercent":24.0,"remainingPercent":76.0,"resetsAt":1789535497}}
+error: tool loop exceeded 24 turns

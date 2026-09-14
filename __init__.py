@@ -231,6 +231,7 @@ from .core.storage import load_player_data as storage_load_player_data, save_pla
 from .core.action_registry import (
     ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
     UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+    is_combat_review_action,
     is_review_action,
     review_action_handler_key,
     utility_review_surface_for_target as _utility_surface_for_target,
@@ -983,6 +984,20 @@ def _update_review_context_surface() -> None:
         pass
 
 
+def _select_review_action(skill):
+    selected_skill = _normalize_legacy_utility_skill(skill)
+    changed = selected_skill != _state.current_skill
+    if changed or not is_combat_review_action(selected_skill):
+        _state.player_data["combat_encounter"] = {}
+    _state.current_skill = selected_skill
+    try:
+        mw.col.set_config("ankiscape_current_skill", _state.current_skill)
+    except AttributeError:
+        pass
+    ui.update_menu_visibility(_state.current_skill)
+    return changed
+
+
 def commit_direct_action(
     apply_change,
     *,
@@ -1048,12 +1063,7 @@ def commit_direct_action(
             automatic=bool(bankstanding_automatic),
         )
     elif selected_skill is not None:
-        _state.current_skill = _normalize_legacy_utility_skill(selected_skill)
-        try:
-            mw.col.set_config("ankiscape_current_skill", _state.current_skill)
-        except AttributeError:
-            pass
-        ui.update_menu_visibility(_state.current_skill)
+        _select_review_action(selected_skill)
     if after_apply is not None:
         after_apply()
     save_player_data()
@@ -1565,6 +1575,8 @@ def _switch_to_bankstanding(
     fallback so the ordinary review-paced market clock keeps moving.
     """
 
+    # Clear before the idempotence guard to end stale Encounters in idle saves.
+    _state.player_data["combat_encounter"] = {}
     if (
         _state.player_data.get("current_utility") == "bankstanding"
         and _normalize_legacy_utility_skill(_state.current_skill)
@@ -1647,13 +1659,8 @@ def save_skill(skill, dialog):
             "You don't have the level and materials for any Smithing recipe. Mine ore or pick another target first!",
         )
     else:
-        _state.current_skill = skill
-        ui.update_menu_visibility(_state.current_skill)
-        # Persist immediately so the selection survives window close
-        try:
-            mw.col.set_config("ankiscape_current_skill", _state.current_skill)
-        except Exception:
-            pass
+        if _select_review_action(skill):
+            _save_player_data_if_anki_ready()
         # Update the HUD immediately so users see the new skill progress without waiting for XP
         try:
             update_review_hud(_state.player_data, _state.current_skill)
@@ -4611,6 +4618,7 @@ def _on_main_menu(
                     return current, False
             updated = dict(updated)
             updated["current_utility"] = "bankstanding"
+            updated["combat_encounter"] = {}
             return updated, True
 
         return commit_direct_action(
@@ -4800,13 +4808,11 @@ def _set_legacy_bar_target(bar_name: str):
 def _set_combat_method_values(values):
     if all(_state.player_data.get(key) == value for key, value in values.items()):
         return True
-    refusal_reason = [""]
 
     def _change(current):
-        updated, ok, reason = reconcile_combat_method_pure(
+        updated, ok, _reason = reconcile_combat_method_pure(
             current, values, EQUIPMENT_DATA
         )
-        refusal_reason[0] = reason
         return updated, ok
 
     def _after_apply():
@@ -4814,8 +4820,6 @@ def _set_combat_method_values(values):
         _refresh_skill_availability()
 
     if not commit_direct_action(_change, after_apply=_after_apply):
-        if refusal_reason[0]:
-            show_error_message("Cannot change combat method", refusal_reason[0])
         return False
     _refresh_open_carried_inventory()
     try:
@@ -4839,6 +4843,8 @@ def _set_combat_target(target):
         "combat_action": "attack",
         "current_combat_target": target,
     }
+    if _state.player_data.get("current_combat_target") != target:
+        values["combat_encounter"] = {}
     if target not in {"cyclops", "cyclossus"}:
         guild_state = sanitize_warriors_guild_state_pure(
             _state.player_data.get("warriors_guild")
@@ -4955,12 +4961,9 @@ def on_set_combat_auto_eat_threshold(threshold_percent):
 
 
 def on_set_combat_pack_mode(mode):
-    new_data, ok, reason = set_combat_pack_mode_pure(
+    new_data, _ok, _reason = set_combat_pack_mode_pure(
         _state.player_data, mode, EQUIPMENT_DATA
     )
-    if not ok:
-        show_error_message("Cannot change combat supplies", reason)
-        return False
     _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
@@ -5026,19 +5029,13 @@ def on_do_bank_run_now():
 
 
 def on_refill_combat_loadout():
-    new_data, ok, reason = refill_combat_supply_loadout_pure(_state.player_data, EQUIPMENT_DATA)
-    if not ok:
-        show_error_message("Cannot refill combat supplies", reason)
-        return False
+    new_data, _ok, _reason = refill_combat_supply_loadout_pure(_state.player_data, EQUIPMENT_DATA)
     _save_combat_state_update(new_data)
     return True
 
 
 def on_unload_combat_loadout():
-    new_data, ok, reason = unload_combat_supply_loadout_pure(_state.player_data)
-    if not ok:
-        show_error_message("Cannot unload combat supplies", reason)
-        return False
+    new_data, _ok, _reason = unload_combat_supply_loadout_pure(_state.player_data)
     _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
@@ -5246,7 +5243,6 @@ def on_equip_item(item_name):
     if not ok:
         show_error_message("Cannot equip item", reason)
         return False
-    failure_reason = [""]
 
     def _apply(current):
         before_equipment = dict(current.get("equipment", {}) or {})
@@ -5267,7 +5263,7 @@ def on_equip_item(item_name):
             )
         )
         if before_equipment.get("weapon") != new_equipment.get("weapon"):
-            updated, equipped, failure_reason[0] = reconcile_combat_method_pure(
+            updated, _ok, _reason = reconcile_combat_method_pure(
                 current, updated, EQUIPMENT_DATA
             )
         return updated, equipped
@@ -5289,14 +5285,13 @@ def on_equip_item(item_name):
     if not equipped:
         show_error_message(
             "Cannot equip item",
-            failure_reason[0] or f"You need {item_name} in your bank to equip it.",
+            f"You need {item_name} in your bank to equip it.",
         )
     return equipped
 
 
 def on_unequip_slot(slot):
     item_name = (_state.player_data.get("equipment", {}) or {}).get(slot)
-    failure_reason = [""]
 
     def _apply(current):
         before_equipment = dict(current.get("equipment", {}) or {})
@@ -5316,7 +5311,7 @@ def on_unequip_slot(slot):
             )
         )
         if before_equipment.get("weapon") != new_equipment.get("weapon"):
-            updated, unequipped, failure_reason[0] = reconcile_combat_method_pure(
+            updated, _ok, _reason = reconcile_combat_method_pure(
                 current, updated, EQUIPMENT_DATA
             )
         return updated, unequipped
@@ -5338,7 +5333,7 @@ def on_unequip_slot(slot):
     if not unequipped:
         show_error_message(
             "Cannot unequip item",
-            failure_reason[0] or "That equipment slot is already empty.",
+            "That equipment slot is already empty.",
         )
     return unequipped
 

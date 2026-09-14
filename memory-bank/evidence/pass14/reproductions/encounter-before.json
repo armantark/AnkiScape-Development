@@ -1,0 +1,45 @@
+{
+  "scenario": "encounter",
+  "phase": "before",
+  "encounter_before": {
+    "target_id": "black_bear",
+    "enemy_lifepoints": 230,
+    "player_attack_ticks_remaining": 3,
+    "enemy_attack_ticks_remaining": 3,
+    "curse_attack_count": 1,
+    "magic_effects_applied": [],
+    "spell_enemy_attack_factor": 1.0,
+    "spell_enemy_defence_factor": 1.0
+  },
+  "encounter_after_bankstanding": {
+    "target_id": "black_bear",
+    "enemy_lifepoints": 230,
+    "player_attack_ticks_remaining": 3,
+    "enemy_attack_ticks_remaining": 3,
+    "curse_attack_count": 1,
+    "magic_effects_applied": [],
+    "spell_enemy_attack_factor": 1.0,
+    "spell_enemy_defence_factor": 1.0
+  },
+  "style_change_accepted": false,
+  "style": "aggressive",
+  "errors": [
+    [
+      "Cannot change combat method",
+      "Finish the active fight before changing combat method."
+    ]
+  ],
+  "enemy_max_lifepoints": 250,
+  "encounter_on_return": {
+    "target_id": "black_bear",
+    "enemy_lifepoints": 230,
+    "player_attack_ticks_remaining": 2,
+    "enemy_attack_ticks_remaining": 2,
+    "curse_attack_count": 1,
+    "magic_effects_applied": [],
+    "spell_enemy_attack_factor": 1.0,
+    "spell_enemy_defence_factor": 1.0
+  },
+  "return_fresh": false,
+  "qt_platform": "offscreen"
+}

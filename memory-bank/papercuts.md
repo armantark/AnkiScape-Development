@@ -2234,3 +2234,37 @@
 - 2026-09-08: Root runtime-retention verification first treated `stored_path` as checkout-relative instead of evidence-directory-relative, then treated the descriptive `encoding` value as literal `gzip`. Corrected verification confirmed all 44 original/stored hashes, sizes and exact or decompressed byte identities.
 
 - 2026-09-13: `python3 tools/xp_rate_audit.py --level 39` still prints `COMBAT: 50 ticks/review DEFINES R = 120.`; it imports the retired legacy `COMBAT_BURST_TICKS` from `data/combat_data.py` while the live kernel uses `LIVE_COMBAT_TICKS_PER_REVIEW = 6` (`logic/cadence_live.py:30-32`). Its combat lines are stale evidence; the skilling lines are still valid.
+
+- 2026-09-13T22:25:32: Pass 14 guarded lease failed: all 16 worktrees are in use or dirty (max_trees = 16); returned clean, merged, process-free slot 8 through the guard. Baseline harness also hit AttributeError: module ankiscape_pass14_reproduction has no attribute apply_combat_burst_pure; imported the pure owner directly. Two shell wildcard reads failed with zsh: no matches found; use rg --files for discovery.
+- 2026-09-13T22:28:54: Pass 14 plan passed artifact preflight but audit_docs rejected missing_final_newline; added only the terminal newline before slice commit.
+- 2026-09-13T22:32:11: Slayer baseline harness hit AttributeError: module 'ankiscape_pass14_slayer_before' has no attribute 'ITEM_DEFINITIONS'; evidence worker corrected the instrument to read its loaded package core.constants.
+- 2026-09-13T22:57:42: S1 draft focused run: Ran 3 tests in 1.221s, FAILED (errors=1); test_bankstanding_ends_the_fight_and_the_next_one_starts_fresh raised KeyError: 'enemy_lifepoints' because its probe omitted live_cadence=True and ran a complete encounter. Added the live-review flag.
+
+- 2026-09-13T23:01:55: Pass 14 S1 neighbour probe ran 133 tests in 32.171s with 2 failures, both `None != 30` in tests/test_direct_action_undo_seam.py; fresh-enemy fixtures omitted `live_cadence=True` and invoked whole-fight mode.
+
+- 2026-09-13T23:04:14: Pass 14 S2 read-only inspection used an unmatched zsh glob `core/*combat*`; shell returned `zsh:1: no matches found: core/*combat*`. Re-ran the targeted search with verified paths.
+
+- 2026-09-13T23:05:41: Pass 14 queue inspection included nonexistent `core/runtime_state.py`; rg reported `No such file or directory (os error 2)`. The queue implementation is in `core/logic.py`.
+
+- 2026-09-13T23:06:41: Pass 14 Slayer catalogue inspection mistyped `data/slayer/contract.py` as `logic/slayer/contract.py`; sed returned `No such file or directory`. Reuse the path returned by rg rather than reconstructing it.
+
+- 2026-09-13T23:10:18: Pass 14 read-only inspection named nonexistent `tests/runtime_actions/support.py` and `ask-kimi/scripts/kimi_client.py`; tools returned `No such file or directory`. The runtime helper is in `tests/test_runtime_actions.py`, and `rg --files` located `ask-kimi/scripts/kimi_direct.py`.
+
+- 2026-09-13T23:10:18: S1 live-method coverage used a maximum damage roll that killed its 173-LP bear before the retention assertion; the bounded positive-damage fixture now keeps the Encounter alive. Delegate reports 44 focused tests passed in plain (2.774s) and Qt (2.532s).
+
+- 2026-09-13T23:16:12: S1 full focused run: `Ran 1075 tests in 274.012s`, `FAILED (failures=1)`; `test_combat_supply_mode_changes_during_an_active_fight` got `AssertionError: 'balanced' != 'max_output'` because its recording-only callback did not update player state before the real carried-panel refresh. The test now applies `set_combat_pack_mode_pure`.
+
+- 2026-09-13T23:22:56: S2 strip inspection used unmatched shell glob `ui/review*.py`; zsh returned `no matches found`. Subsequent searches pass patterns through `rg --glob` so the shell cannot reject the search before rg runs.
+
+- 2026-09-13T23:34:44: S1 remote plain lane ran `5632 tests in 596.217s`, `FAILED (failures=1, skipped=1367)`. `test_load_leaves_an_active_encounter_loadout_untouched` failed with `AssertionError: {} != {'Air rune': 5, 'Mind rune': 5}`; the storage neighbour still pinned the retired active-Encounter class-repair guard. It now verifies repaired supplies with unchanged enemy LP and countdowns.
+
+- 2026-09-13T23:45:33: Kimi Pass 14 read-only review returned `error: tool loop exceeded 24 turns` without a final review. Retrying with one self-contained source packet and no filesystem tools; the tool-turn cap is unchanged.
+
+- 2026-09-14T00:27:55.336297-07:00 Pass 14 S1 commit refused by unchanged slop-gate after two active complexipy runs: commit_direct_action cyclomatic 16 (was 14), cognitive 19 (was 16); _build_combat_setup_panel cyclomatic 72 (was 70); _slayer_reproduction cognitive 19; oversized file growth in __init__.py, combat supplies, five test modules, and tools directory 153 files (was 151). Git staged evidence also contained trailing whitespace in raw diff context and captured logs; correcting records and organizing authored code without loosening gates.
+- 2026-09-14T00:27:55.336316-07:00 Pass 14 source lookup guessed nonexistent logic_pure/logic_pure_combat_loadout.py; use the actual combat supplies module.
+- 2026-09-14T00:30:24.376793-07:00 Pass 14 targeted complexipy report: --output /tmp/pass14-checks-complexity with no existing directory writes that exact path as a file, not a directory containing complexipy-results.json. Read the reported output path.
+- 2026-09-14T00:36:58.555469-07:00 Pass 14 preparation inventory checked memory-bank/evidence/pass14/s2-gate-safe before the delegated proposal existed; rg reported No such file or directory (os error 2). Wait for ownership return before inspecting proposal files.
+- 2026-09-14T00:38:19.475504-07:00 Pass 14 test relocation first probe: Ran 23 tests in 3.899s, one error and two plain-lane widget skips; tests/combat/test_encounter_lifecycle.py:294 raised AttributeError: module 'tests.test_combat_logic' has no attribute 'repair_combat_supply_loadout_class_pure' after the legacy import moved. Import the production function directly in the focused module.
+- 2026-09-14T00:38:51.200853-07:00 Pass 14 relocated-test import rerun: Ran 13 tests in 3.492s, one error and two plain-lane widget skips; ModuleNotFoundError: No module named 'ankiscape' from importing production before pkg_alias. Use the standard explicit pkg_alias bootstrap instead of inheriting another test module's import side effect.
+- 2026-09-14T01:09:33.727186-07:00 Pass 14 second S1 commit refused after the complexity checks: slop-gate: PEP 8 layout violations were introduced: tests/test_combat_logic.py: E302 x2 (was 1). The removed-test seam before CombatEnemyAttackStyleTest had one blank line at line597; restore its second blank line. Python AST equality was verified; existing E302 at the unrelated legacy boundary remains unchanged.
+- 2026-09-14T01:09:33.727210-07:00 Pass 14 delegated evidence-only line-count loop used zsh variable path, which overwrote its tied PATH and yielded six zsh:1: command not found: git errors. The leaf reran with file_name and returned the measured counts; no Git configuration or code was changed by this retry.

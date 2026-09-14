@@ -334,6 +334,70 @@ class TestCadenceKernelIntegration(unittest.TestCase):
 
         self.assertEqual(seen, [phase])
 
+    def test_a_mid_fight_style_change_reaches_the_next_live_review(self):
+        """Owner ruling (Pass 14): a change applies from the next review.
+
+        The style is changed with the bear alive, and the very next live review
+        swings with it: Attack is trained, Strength is not, and the bear is the
+        same one.
+        """
+        addon = _load_addon_as_package("ankiscape_cadence_live_style_change")
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": True}))
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._refresh_open_carried_inventory = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon._show_exp = lambda _value: None
+        addon._show_activity_gain = lambda _value: None
+        addon._state.player_data = {
+            "inventory": {},
+            "equipment": {"weapon": "Rune scimitar"},
+            "attack_level": 40,
+            "strength_level": 40,
+            "defense_level": 21,
+            "constitution_level": 28,
+            "combat_lifepoints": 280,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "current_combat_target": "black_bear",
+            "combat_action": "attack",
+            "combat_attack_style": "aggressive",
+            "combat_attack_style_type": "slash",
+            "combat_encounter": {
+                "target_id": "black_bear",
+                "enemy_lifepoints": 230,
+                "player_attack_ticks_remaining": 0,
+                "enemy_attack_ticks_remaining": 99,
+            },
+            "completed_achievements": [],
+        }
+        addon._state.current_skill = "Combat"
+
+        self.assertTrue(addon._set_combat_attack_style(("accurate", "slash")))
+
+        addon._state.card_turned = True
+        addon._state.answer_shown = True
+        addon._state.exp_awarded = False
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.5  # every roll lands for half the maximum
+        try:
+            addon.on_answer_card(
+                _FakeReviewer(), 4, lambda _self, _ease: "answered"
+            )
+        finally:
+            addon.random.random = original_random
+
+        player_data = addon._state.player_data
+        self.assertGreater(player_data["attack_exp"], 0.0)
+        self.assertEqual(player_data["strength_exp"], 0.0)
+        self.assertEqual(
+            player_data["combat_encounter"]["target_id"], "black_bear"
+        )
+
     def test_flag_off_preserves_exact_outputs_and_rng_consumption(self):
         baseline_output, baseline_rng = self._run_legacy_review(
             "ankiscape_cadence_off_baseline",

@@ -594,37 +594,6 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
                     loadout["food"], {"Sardine": allocation[0]}
                 )
 
-    def test_pack_mode_repairs_invalid_dream_fight_but_rejects_a_real_fight(self):
-        reported = self._melee(
-            magic_level=1,
-            quests={"dream_mentor": {"completed": False}},
-            combat_dream_thrift=True,
-            combat_encounter={"target_id": "citizen", "enemy_lifepoints": 67},
-            inventory={"Shrimps": 89},
-            combat_auto_eat_food=["Shrimps"],
-            combat_supply_loadout={"food": {"Shrimps": 1}},
-        )
-
-        repaired, ok, reason = set_combat_pack_mode_pure(
-            reported, "max_safety", EQUIPMENT_DATA
-        )
-        self.assertTrue(ok, reason)
-        self.assertFalse(repaired["combat_dream_thrift"])
-        self.assertEqual(repaired["combat_encounter"], {})
-        self.assertEqual(repaired["combat_supply_loadout"]["food"], {"Shrimps": 20})
-
-        active = dict(repaired)
-        active["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 3}
-        refused, ok, reason = set_combat_pack_mode_pure(
-            active, "max_output", EQUIPMENT_DATA
-        )
-        self.assertFalse(ok)
-        self.assertEqual(
-            reason, "Finish the active fight before changing supply mode."
-        )
-        self.assertEqual(refused["combat_pack_mode"], "max_safety")
-        self.assertEqual(refused["combat_supply_loadout"]["food"], {"Shrimps": 20})
-
 
 class CombatEnemyAttackStyleTest(unittest.TestCase):
     """The enemy attacks with ITS style: its accuracy comes off the matching attack
@@ -5759,45 +5728,6 @@ class CombatLogicTest(unittest.TestCase):
             updated["inventory"],
             {"Air rune": 0, "Mind rune": 0, "Water rune": 0},
         )
-
-    def test_combat_method_reconciliation_rejects_a_live_encounter(self):
-        player = _player(
-            combat_attack_style="magic_standard",
-            current_combat_spell="wind_strike",
-            equipment={"weapon": "Staff"},
-            combat_supply_loadout={
-                "runes": {"Air rune": 5, "Mind rune": 5}
-            },
-            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
-        )
-
-        updated, ok, reason = reconcile_combat_method_pure(
-            player,
-            {"current_combat_spell": "water_strike"},
-            EQUIPMENT_DATA,
-        )
-
-        self.assertFalse(ok)
-        self.assertEqual(reason, "Finish the active fight before changing combat method.")
-        self.assertEqual(updated["current_combat_spell"], "wind_strike")
-        self.assertEqual(
-            updated["combat_supply_loadout"]["runes"],
-            {"Air rune": 5, "Mind rune": 5},
-        )
-
-    def test_manual_refill_loadout_blocks_inside_active_encounter(self):
-        player = _player(
-            inventory={"Shark": 30},
-            combat_auto_eat_food=["Shark"],
-            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
-        )
-
-        refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
-
-        self.assertFalse(ok)
-        self.assertIn("active fight", reason)
-        self.assertEqual(refilled["inventory"]["Shark"], 30)
-        self.assertEqual(refilled["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
 
     def test_manual_refill_loads_the_selected_targets_finisher(self):
         player = _player(

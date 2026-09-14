@@ -771,7 +771,7 @@ class ReviewBankRunViewTest(unittest.TestCase):
         self.assertTrue(utility_ok)
         self.assertEqual(utility["review_bank_run_requested_handler"], "utility")
 
-    def test_combat_request_runs_the_route_inside_a_live_encounter(self):
+    def test_combat_request_ends_the_encounter_it_leaves(self):
         combat, ok = request_review_bank_run_pure(
             {
                 **_player(),
@@ -786,11 +786,9 @@ class ReviewBankRunViewTest(unittest.TestCase):
             combat["combat_bank_run"],
             {"reviews_remaining": 2, "target_id": "chicken"},
         )
-        # The encounter survives the two-review trip.
-        self.assertEqual(
-            combat["combat_encounter"],
-            {"target_id": "chicken", "disengaged": False},
-        )
+        # Owner ruling (Pass 14): the trip leaves the fight, so the enemy is gone
+        # and the walk back starts a fresh one.
+        self.assertEqual(combat["combat_encounter"], {})
 
 
 class BankRunTravelViewTest(unittest.TestCase):

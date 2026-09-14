@@ -4028,21 +4028,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("max_output", calls)
         dialog.deleteLater()
 
-    def test_combat_supply_mode_reverts_when_active_fight_rejects_change(self) -> None:
-        player = _make_player_data()
-        player["combat_pack_mode"] = "balanced"
-        player["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 3}
-        dialog = self._open(
-            player,
-            current_skill="Combat",
-            on_set_combat_pack_mode=lambda _mode: False,
-        )
-        combo = dialog.findChild(QComboBox, "combatPackModeCombo")
-        combo.setCurrentIndex(combo.findData("max_output"))
-        QApplication.processEvents()
-        self.assertEqual(combo.currentData(), "balanced")
-        dialog.deleteLater()
-
     def test_locked_dream_thrift_control_explains_its_requirements(self) -> None:
         player = _make_player_data()
         player["magic_level"] = 1
@@ -6686,95 +6671,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         ready_dialog.deleteLater()
         reusable_dialog.deleteLater()
         charged_dialog.deleteLater()
-
-    def test_live_encounter_refusals_restore_all_combat_method_selectors(self) -> None:
-        from ankiscape.core.constants import EQUIPMENT_DATA
-        from ankiscape.logic_pure.logic_pure import reconcile_combat_method_pure
-
-        pd = _make_player_data()
-        pd.update(
-            {
-                "current_combat_target": "desert_lizard",
-                "combat_action": "attack",
-                "combat_attack_style": "aggressive",
-                "combat_attack_style_type": "slash",
-                "current_combat_spell": "wind_strike",
-                "equipment": {"weapon": "Bronze longsword"},
-                "slayer_level": 99,
-                "combat_encounter": {
-                    "target_id": "desert_lizard",
-                    "enemy_lifepoints": 30,
-                },
-                "combat_supply_loadout": {
-                    "finishers": {"Ice cooler": 1},
-                    "hazards": {"Waterskin (4)": 1},
-                },
-            }
-        )
-        attempts = {}
-
-        def refuse(key, value, updates):
-            attempts[key] = value
-            _updated, ok, reason = reconcile_combat_method_pure(
-                pd, updates, EQUIPMENT_DATA
-            )
-            self.assertFalse(ok)
-            self.assertEqual(
-                reason,
-                "Finish the active fight before changing combat method.",
-            )
-            return ok
-
-        dialog = self._open(
-            pd,
-            current_skill="Combat",
-            on_set_combat_action=lambda value: refuse(
-                "action", value, {"combat_action": value}
-            ),
-            on_set_combat_style=lambda value: refuse(
-                "style",
-                value,
-                {
-                    "combat_attack_style": value[0],
-                    "combat_attack_style_type": value[1],
-                },
-            ),
-            on_set_combat_spell=lambda value: refuse(
-                "spell", value, {"current_combat_spell": value}
-            ),
-        )
-
-        action_combo = dialog.findChild(QComboBox, "combatActionCombo")
-        style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
-        spell_combo = dialog.findChild(QComboBox, "combatSpellCombo")
-        self.assertIsNotNone(action_combo)
-        self.assertIsNotNone(style_combo)
-        self.assertIsNotNone(spell_combo)
-
-        action_combo.setCurrentIndex(action_combo.findData("finisher"))
-        QApplication.processEvents()
-        style_combo.setCurrentIndex(
-            next(
-                index
-                for index in range(style_combo.count())
-                if style_combo.itemData(index) == ("defensive", "slash")
-            )
-        )
-        QApplication.processEvents()
-        spell_combo.setCurrentIndex(spell_combo.findData("water_strike"))
-        QApplication.processEvents()
-
-        self.assertEqual(action_combo.currentData(), "attack")
-        self.assertEqual(style_combo.currentData(), ("aggressive", "slash"))
-        self.assertEqual(spell_combo.currentData(), "wind_strike")
-        self.assertEqual(
-            attempts,
-            {
-                "action": "finisher",
-                "style": ("defensive", "slash"),
-                "spell": "water_strike",
-            },
-        )
 
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
         from ankiscape.ui import ui

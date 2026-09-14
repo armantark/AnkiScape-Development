@@ -130,6 +130,52 @@ class BankstandingNoticeTest(unittest.TestCase):
         self.assertEqual(popups, ["Conquest ended."])
         self.assertEqual(len(addon._state.player_data["review_event_log"]), 1)
 
+    def test_bankstanding_ends_the_fight_and_the_next_one_starts_fresh(self):
+        """Owner ruling (Pass 14): the encounter ends when the action leaves combat.
+
+        This is the owner's own incident: fight, stop, then meet a fresh enemy.
+        """
+        addon = _load_addon_as_package("ankiscape_bankstanding_ends_encounter")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.update_review_hud = lambda *_args: None
+        addon.ui.update_menu_visibility = lambda *_args: None
+        addon.ui.show_bankstanding_dialog = lambda _text: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon._state.current_skill = "Combat"
+        addon._state.player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "chicken",
+            "combat_action": "attack",
+            "combat_lifepoints": 200,
+            "constitution_level": 20,
+            "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 4},
+            "review_event_log": [],
+        }
+
+        self.assertTrue(
+            addon._switch_to_bankstanding(
+                "Training was stopped manually.", automatic=False
+            )
+        )
+
+        self.assertEqual(addon._state.player_data["combat_encounter"], {})
+        combat = sys.modules[
+            f"{addon.__name__}.logic_pure.logic_pure_combat_engine"
+        ]
+        fought, ok, result = combat.apply_combat_burst_pure(
+            addon._state.player_data,
+            ticks=1,
+            rng=lambda: 0.999999,  # every roll misses, so a fresh enemy reads full
+            allow_bank_run=False,
+            live_cadence=True,
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(
+            fought["combat_encounter"]["enemy_lifepoints"],
+            addon.COMBAT_ENEMY_DATA["chicken"]["stats"]["hitpoints"],
+        )
+
     def test_empty_combat_failure_reasons_use_the_non_material_popup(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

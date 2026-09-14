@@ -966,7 +966,7 @@ def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_wea
     bank_run = _sanitize_combat_bank_run(data.get("combat_bank_run"))
     if bank_run and bank_run.get("target_id") not in (None, target_id):
         bank_run = {}
-    started = False
+    started = not bank_run
     if not bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
         if not _combat_try_pack_yak_winter_storage(
             data,
@@ -978,10 +978,10 @@ def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_wea
             enemy_data,
         ):
             bank_run = {"reviews_remaining": COMBAT_BANK_RUN_REVIEWS, "target_id": target_id}
-            started = True
     if not bank_run:
         data["combat_bank_run"] = {}
         return None
+    data["combat_encounter"] = {}
     remaining = _non_negative_int(bank_run.get("reviews_remaining", 0), 0) - 1
     if remaining <= 0:
         data["combat_bank_run"] = {}

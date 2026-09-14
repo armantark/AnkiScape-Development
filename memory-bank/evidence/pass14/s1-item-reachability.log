@@ -1,0 +1,164 @@
+1663 actions; 2343 reachable items; 163 orphan inputs; 249 blocked actions
+- Agility mix (1): Item action:consume:Agility mix (1)
+- Agility mix (2): Item action:consume:Agility mix (2)
+- Antifire flask (1): Item action:consume:Antifire flask (1)
+- Antifire flask (2): Item action:consume:Antifire flask (2)
+- Antifire flask (3): Item action:consume:Antifire flask (3), Shop service:teplin_decant_flasks_to_vials:Antifire
+- Antifire flask (4): Item action:consume:Antifire flask (4)
+- Antifire flask (5): Item action:consume:Antifire flask (5)
+- Antifire flask (6): Item action:consume:Antifire flask (6)
+- Astral rune shards: Utility:grind_astral_rune_shards
+- Attack flask (1): Item action:consume:Attack flask (1)
+- Attack flask (2): Item action:consume:Attack flask (2)
+- Attack flask (3): Item action:consume:Attack flask (3), Shop service:teplin_decant_flasks_to_vials:Attack potion
+- Attack flask (4): Item action:consume:Attack flask (4)
+- Attack flask (5): Item action:consume:Attack flask (5)
+- Attack flask (6): Item action:consume:Attack flask (6)
+- Blood talisman: Runecrafting:bind_blood_talisman_staff, Runecrafting:bind_blood_tiara
+- Caviar: Fishing:catch_leaping_fish, Herblore:finished_agility_mix, Herblore:finished_antifire_mix, Herblore:finished_antip_supermix
+- Chain link mould: Crafting:silver_silvthrill_chain
+- Combat flask (1): Item action:consume:Combat flask (1)
+- Combat flask (2): Item action:consume:Combat flask (2)
+- Combat flask (3): Item action:consume:Combat flask (3), Shop service:teplin_decant_flasks_to_vials:Combat potion
+- Combat flask (4): Item action:consume:Combat flask (4)
+- Combat flask (5): Item action:consume:Combat flask (5)
+- Combat flask (6): Item action:consume:Combat flask (6)
+- Conductor mould: Crafting:silver_conductor
+- Crab meat: Utility:grind_crab_meat
+- Crafting flask (1): Item action:consume:Crafting flask (1)
+- Crafting flask (2): Item action:consume:Crafting flask (2)
+- Crafting flask (3): Item action:consume:Crafting flask (3), Shop service:teplin_decant_flasks_to_vials:Crafting potion
+- Crafting flask (4): Item action:consume:Crafting flask (4)
+- Crafting flask (5): Item action:consume:Crafting flask (5)
+- Crafting flask (6): Item action:consume:Crafting flask (6)
+- Cured yak-hide: Crafting:leather_yakhide_armour, Crafting:leather_yakhide_armour_10824
+- Cursed magic logs: Firemaking:cursed_magic_logs
+- Defence flask (1): Item action:consume:Defence flask (1)
+- Defence flask (2): Item action:consume:Defence flask (2)
+- Defence flask (3): Item action:consume:Defence flask (3), Shop service:teplin_decant_flasks_to_vials:Defence potion
+- Defence flask (4): Item action:consume:Defence flask (4)
+- Defence flask (5): Item action:consume:Defence flask (5)
+- Defence flask (6): Item action:consume:Defence flask (6)
+- Demonic sigil mould: Crafting:silver_demonic_sigil
+- Diamond root: Utility:grind_diamond_root
+- Dried thistle: Utility:grind_dried_thistle
+- Emerald lantern (lit): Utility:extinguish_emerald_lantern
+- Emerald lantern (unlit): Utility:light_emerald_lantern
+- Emerald lens: Crafting:combine_bullseye_emerald_lantern
+- Fish offcuts: Fishing:catch_leaping_fish
+- Fletching flask (1): Item action:consume:Fletching flask (1)
+- Fletching flask (2): Item action:consume:Fletching flask (2)
+- Fletching flask (3): Item action:consume:Fletching flask (3), Shop service:teplin_decant_flasks_to_vials:Fletching potion
+- Fletching flask (4): Item action:consume:Fletching flask (4)
+- Fletching flask (5): Item action:consume:Fletching flask (5)
+- Fletching flask (6): Item action:consume:Fletching flask (6)
+- Fletching potion (1): Item action:consume:Fletching potion (1)
+- Fletching potion (2): Item action:consume:Fletching potion (2)
+- Fletching potion (3): Item action:consume:Fletching potion (3), Shop service:bob_barter_decant_four:Fletching potion, Shop service:teplin_fill_potion_flasks:Fletching potion
+- Fletching potion (4): Item action:consume:Fletching potion (4)
+- Fresh crab claw: Crafting:chisel_crab_claw
+- Fresh crab shell: Crafting:chisel_crab_helmet
+- Gorak claws: Utility:grind_gorak_claws
+- Inferno adze: Farming:clear:magic, Farming:clear:maple, Farming:clear:oak, Farming:clear:willow
+- Jade vine seed: Farming:jade_vine
+- Kelp: Utility:grind_kelp
+- Leaping salmon: Cooking:gut_leaping_salmon
+- Leaping sturgeon: Cooking:gut_leaping_sturgeon
+- Leaping trout: Cooking:gut_leaping_trout
+- Magic essence (2): Herblore:finished_magic_essence_mix
+- Magic flask (1): Item action:consume:Magic flask (1)
+- Magic flask (2): Item action:consume:Magic flask (2)
+- Magic flask (3): Item action:consume:Magic flask (3), Shop service:teplin_decant_flasks_to_vials:Magic potion
+- Magic flask (4): Item action:consume:Magic flask (4)
+- Magic flask (5): Item action:consume:Magic flask (5)
+- Magic flask (6): Item action:consume:Magic flask (6)
+- Mining helmet (lit): Utility:extinguish_mining_helmet
+- Mining helmet (unlit): Utility:light_mining_helmet
+- Mushroom spore: Farming:bittercap
+- Orb of armadyl: Crafting:combine_armadyl_battlestaff
+- Phoenix feather: Herblore:finished_super_antifire
+- Potion flask: Shop service:teplin_fill_potion_flasks:Antifire, Shop service:teplin_fill_potion_flasks:Attack potion, Shop service:teplin_fill_potion_flasks:Combat potion, Shop service:teplin_fill_potion_flasks:Crafting potion
+- Prayer flask (1): Item action:consume:Prayer flask (1)
+- Prayer flask (2): Item action:consume:Prayer flask (2)
+- Prayer flask (3): Item action:consume:Prayer flask (3), Shop service:teplin_decant_flasks_to_vials:Prayer potion
+- Prayer flask (4): Item action:consume:Prayer flask (4)
+- Prayer flask (5): Item action:consume:Prayer flask (5)
+- Prayer flask (6): Item action:consume:Prayer flask (6)
+- Ranging flask (1): Item action:consume:Ranging flask (1)
+- Ranging flask (2): Item action:consume:Ranging flask (2)
+- Ranging flask (3): Item action:consume:Ranging flask (3), Shop service:teplin_decant_flasks_to_vials:Ranging potion
+- Ranging flask (4): Item action:consume:Ranging flask (4)
+- Ranging flask (5): Item action:consume:Ranging flask (5)
+- Ranging flask (6): Item action:consume:Ranging flask (6)
+- Raw monkfish: Cooking:cook_monkfish
+- Raw spider on stick: Cooking:cook_spider_on_a_stick
+- Red sandstone: Utility:make_robust_glass
+- Relicym's balm (2): Herblore:finished_relicyms_mix
+- Robust glass: Crafting:glass_potion_flask
+- Rod clay mould: Crafting:silver_silvthrill_rod
+- Roe: Fishing:catch_leaping_fish, Herblore:finished_relicyms_mix, Herblore:finished_restore_mix
+- Shaikahan bonemeal: Prayer:ectofuntus_shaikahan_bones
+- Shaikahan bones: Utility:grind_prayer_shaikahan_bones
+- Shards of armadyl: Utility:grind_shards_of_armadyl
+- Shield right half: Smithing:repair_dragon_sq_shield
+- Shrunk ogleroot: Herblore:finished_shrink_me_quick
+- Skewer stick: Utility:skewer_spider_on_a_stick
+- Spider carcass: Utility:skewer_spider_on_a_stick
+- Spirit roots: Crafting:spin_spirit_roots_to_crossbow_string
+- Strength flask (1): Item action:consume:Strength flask (1)
+- Strength flask (2): Item action:consume:Strength flask (2)
+- Strength flask (3): Item action:consume:Strength flask (3), Shop service:teplin_decant_flasks_to_vials:Strength potion
+- Strength flask (4): Item action:consume:Strength flask (4)
+- Strength flask (5): Item action:consume:Strength flask (5)
+- Strength flask (6): Item action:consume:Strength flask (6)
+- Summoning flask (1): Item action:consume:Summoning flask (1)
+- Summoning flask (2): Item action:consume:Summoning flask (2)
+- Summoning flask (3): Item action:consume:Summoning flask (3), Shop service:teplin_decant_flasks_to_vials:Summoning potion
+- Summoning flask (4): Item action:consume:Summoning flask (4)
+- Summoning flask (5): Item action:consume:Summoning flask (5)
+- Summoning flask (6): Item action:consume:Summoning flask (6)
+- Super antifire (1): Item action:consume:Super antifire (1)
+- Super antifire (2): Item action:consume:Super antifire (2)
+- Super antifire (3): Item action:consume:Super antifire (3), Shop service:bob_barter_decant_four:Super antifire, Shop service:teplin_fill_potion_flasks:Super antifire
+- Super antifire (4): Item action:consume:Super antifire (4)
+- Super antifire flask (1): Item action:consume:Super antifire flask (1)
+- Super antifire flask (2): Item action:consume:Super antifire flask (2)
+- Super antifire flask (3): Item action:consume:Super antifire flask (3), Shop service:teplin_decant_flasks_to_vials:Super antifire
+- Super antifire flask (4): Item action:consume:Super antifire flask (4)
+- Super antifire flask (5): Item action:consume:Super antifire flask (5)
+- Super antifire flask (6): Item action:consume:Super antifire flask (6)
+- Super attack flask (1): Item action:consume:Super attack flask (1)
+- Super attack flask (2): Item action:consume:Super attack flask (2)
+- Super attack flask (3): Item action:consume:Super attack flask (3), Shop service:teplin_decant_flasks_to_vials:Super attack
+- Super attack flask (4): Item action:consume:Super attack flask (4)
+- Super attack flask (5): Item action:consume:Super attack flask (5)
+- Super attack flask (6): Item action:consume:Super attack flask (6)
+- Super defence flask (1): Item action:consume:Super defence flask (1)
+- Super defence flask (2): Item action:consume:Super defence flask (2)
+- Super defence flask (3): Item action:consume:Super defence flask (3), Shop service:teplin_decant_flasks_to_vials:Super defence
+- Super defence flask (4): Item action:consume:Super defence flask (4)
+- Super defence flask (5): Item action:consume:Super defence flask (5)
+- Super defence flask (6): Item action:consume:Super defence flask (6)
+- Super prayer flask (1): Item action:consume:Super prayer flask (1)
+- Super prayer flask (2): Item action:consume:Super prayer flask (2)
+- Super prayer flask (3): Item action:consume:Super prayer flask (3), Shop service:teplin_decant_flasks_to_vials:Super prayer
+- Super prayer flask (4): Item action:consume:Super prayer flask (4)
+- Super prayer flask (5): Item action:consume:Super prayer flask (5)
+- Super prayer flask (6): Item action:consume:Super prayer flask (6)
+- Super restore flask (1): Item action:consume:Super restore flask (1)
+- Super restore flask (2): Item action:consume:Super restore flask (2)
+- Super restore flask (3): Item action:consume:Super restore flask (3), Shop service:teplin_decant_flasks_to_vials:Super restore
+- Super restore flask (4): Item action:consume:Super restore flask (4)
+- Super restore flask (5): Item action:consume:Super restore flask (5)
+- Super restore flask (6): Item action:consume:Super restore flask (6)
+- Super strength flask (1): Item action:consume:Super strength flask (1)
+- Super strength flask (2): Item action:consume:Super strength flask (2)
+- Super strength flask (3): Item action:consume:Super strength flask (3), Shop service:teplin_decant_flasks_to_vials:Super strength
+- Super strength flask (4): Item action:consume:Super strength flask (4)
+- Super strength flask (5): Item action:consume:Super strength flask (5)
+- Super strength flask (6): Item action:consume:Super strength flask (6)
+- Suqah tooth: Utility:grind_suqah_tooth
+- Tchiki monkey nuts: Utility:grind_tchiki_monkey_nuts
+- White lily seed: Farming:white_lily
+- White tree sapling: Farming:white_tree
+- Wimpy feather: Herblore:finished_fletching_potion

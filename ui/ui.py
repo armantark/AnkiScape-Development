@@ -7636,13 +7636,11 @@ def show_main_menu(
             action_row.setVisible(bool(state["required"]))
 
         if on_set_combat_action is not None:
-            def _set_combat_action(_index: int) -> None:
-                if on_set_combat_action(
-                    str(action_combo.currentData() or "attack")
-                ) is False:
-                    _refresh_combat_action()
-
-            action_combo.currentIndexChanged.connect(_set_combat_action)
+            action_combo.currentIndexChanged.connect(
+                lambda _index: on_set_combat_action(
+                    str(action_combo.currentData())
+                )
+            )
         _refresh_combat_action()
 
         # Attack-style picker. The valid styles depend on the equipped weapon's
@@ -7690,25 +7688,9 @@ def show_main_menu(
                     current_index = index
             combo.setCurrentIndex(current_index)
             if on_set_combat_style is not None:
-                def _set_combat_style(_index: int, c=combo) -> None:
-                    if on_set_combat_style(c.currentData()) is False:
-                        persisted = (
-                            player_data.get("combat_attack_style"),
-                            player_data.get("combat_attack_style_type"),
-                        )
-                        persisted_index = next(
-                            (
-                                index
-                                for index in range(c.count())
-                                if c.itemData(index) == persisted
-                            ),
-                            0,
-                        )
-                        c.blockSignals(True)
-                        c.setCurrentIndex(persisted_index)
-                        c.blockSignals(False)
-
-                combo.currentIndexChanged.connect(_set_combat_style)
+                combo.currentIndexChanged.connect(
+                    lambda _index, c=combo: on_set_combat_style(c.currentData())
+                )
             style_row_layout.addWidget(combo, 1)
             _style_combo_ref["combo"] = combo
             style_row.setVisible(True)
@@ -7747,24 +7729,11 @@ def show_main_menu(
                 selected_spell_index = spell_index
         spell_combo.setCurrentIndex(selected_spell_index)
         if on_set_combat_spell is not None:
-            def _set_combat_spell(_index: int) -> None:
-                if on_set_combat_spell(
-                    spell_combo.currentData() or DEFAULT_COMBAT_SPELL
-                ) is False:
-                    spell_combo.blockSignals(True)
-                    spell_combo.setCurrentIndex(
-                        max(
-                            0,
-                            spell_combo.findData(
-                                player_data.get(
-                                    "current_combat_spell", DEFAULT_COMBAT_SPELL
-                                )
-                            ),
-                        )
-                    )
-                    spell_combo.blockSignals(False)
-
-            spell_combo.currentIndexChanged.connect(_set_combat_spell)
+            spell_combo.currentIndexChanged.connect(
+                lambda _index: on_set_combat_spell(
+                    spell_combo.currentData()
+                )
+            )
         spell_layout.addWidget(spell_label)
         spell_layout.addWidget(spell_combo, 1)
         layout.addWidget(spell_row)
@@ -8935,6 +8904,7 @@ def show_main_menu(
                 return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
+            player_data["combat_encounter"] = {}
             return True
 
         evil_box = QtFrame()
@@ -21259,6 +21229,7 @@ def show_main_menu(
             if selection_callback(activity_id) is False:
                 return False
             player_data["current_utility"] = activity_id
+            player_data["combat_encounter"] = {}
             selected_surface = (
                 _utility_surface_name_for_target(activity_id)
                 if activate
@@ -25378,22 +25349,10 @@ def show_main_menu(
         supply_mode_combo.setCurrentIndex(max(0, supply_mode_combo.findData(str(player_data.get("combat_pack_mode", "balanced")))))
 
         def _on_pack_mode(_index: int) -> None:
-            accepted = True
             if on_set_combat_pack_mode is not None:
-                accepted = on_set_combat_pack_mode(
+                on_set_combat_pack_mode(
                     supply_mode_combo.currentData() or "balanced"
-                ) is not False
-            if not accepted:
-                supply_mode_combo.blockSignals(True)
-                supply_mode_combo.setCurrentIndex(
-                    max(
-                        0,
-                        supply_mode_combo.findData(
-                            str(player_data.get("combat_pack_mode", "balanced"))
-                        ),
-                    )
                 )
-                supply_mode_combo.blockSignals(False)
             _refresh_carried_panel()
 
         supply_mode_combo.currentIndexChanged.connect(_on_pack_mode)

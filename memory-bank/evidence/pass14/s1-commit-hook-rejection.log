@@ -1,0 +1,20 @@
+slop-gate: cyclomatic complexity above 15 was introduced:
+  __init__.py: commit_direct_action 16 (was 14)
+  ui/ui.py: show_main_menu._build_combat_setup_panel 72 (was 70)
+  -> Simplify the control flow (consolidate branches, use a table or early returns); do not split into trivial helpers to game the number.
+slop-gate: cognitive complexity above 15 was introduced:
+  __init__.py: commit_direct_action 19 (was 16)
+  tools/pass14_reproduce.py: _slayer_reproduction 19 (new)
+  -> Flatten the nesting: invert conditions, return early, or lift the inner loop body to a named function that earns its name.
+slop-gate: code files above 1000 lines were grown:
+  __init__.py: 6055 lines (was 6052)
+  logic_pure/logic_pure_combat_supplies.py: 1750 lines (was 1749)
+  tests/test_combat_logic.py: 8729 lines (was 8522)
+  tests/test_direct_action_undo_seam.py: 1916 lines (was 1859)
+  tests/test_integration_smoke.py: 9612 lines (was 9460)
+  tests/test_main_menu_widget.py: 19995 lines (was 19987)
+  tests/test_storage_pure.py: 2313 lines (was 2312)
+  -> Split along module seams (a cohesive unit per file), not at an arbitrary line count.
+slop-gate: code files were added to directories already at 40 files:
+  tools: 153 code files (was 151)
+  -> Create a cohesive subdirectory instead of widening this directory.

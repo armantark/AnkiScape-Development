@@ -1,0 +1,42 @@
+# Review: S1 (implemented) and S2 (proposed patch)
+
+Static read-only review only. I have not run test lanes and have not seen offscreen captures; nothing below claims either passed.
+
+## Decision
+
+- **S1: Required changes** — one contract violation, one robustness regression to close or prove unreachable.
+- **S2: Approve with two minor pre-landing tweaks**; HUD fit must be confirmed by the pending viewport captures.
+
+## S1 — Confirmed defects
+
+**1. Action change does not end the Encounter (contract violation).**
+The contract ends the Encounter on "Action or target change" and separately keeps finisher selection *within* the Combat Action. S1 clears `combat_encounter` on target change (`_set_combat_target`), skill/activity change (`commit_direct_action`, `save_skill`, both utility-selection sites), bankstanding (`_switch_to_bankstanding`, `_on_main_menu`), and bank runs (`request_combat_bank_run_now_pure`, `_combat_progress_or_start_bank_run`). No supplied path clears it when `combat_action` changes via the Action combo (`on_set_combat_action` → method-values/`reconcile_combat_method_pure`), which now applies the change and preserves the encounter.
+*Trigger:* mid-Encounter, switch Action in the combat menu → new Action takes effect next review against stale enemy LP/countdowns.
+*Correction:* mirror `_set_combat_target` — when the persisted `combat_action` actually differs, commit `combat_encounter: {}` in the same values; ensure finisher selection does not trip that clear. If the real handler (not in the supplied source) already clears, disregard.
+
+**2. Silenced residual refusals / unconditional save.**
+- `on_set_combat_pack_mode` now ignores `_ok`/`_reason` and always calls `_save_combat_state_update(new_data, …)`. If `set_combat_pack_mode_pure → reconcile_combat_method_pure → unload_combat_supply_loadout_pure` can still return `ok=False` for any non-encounter reason, this persists a partially reconciled loadout and reports success.
+- `_set_combat_method_values` fails silently, and ui.py removed the combo revert-on-`False` for action/style/spell/pack pickers; `on_equip_item`/`on_unequip_slot` ignore reconcile's `ok` and fall back to a possibly wrong message.
+
+The contract forbids enemy-alive refusals only. *Correction:* either gate the save on `ok` and restore error surfacing/revert for remaining failure modes, or state in code that these paths are now infallible (unload cannot fail once the encounter guard is gone).
+
+## S1 — Verified by reading (compliant)
+
+Refusal guards removed from `reconcile_combat_method_pure`, `set_combat_pack_mode_pure`, `refill/unload_combat_supply_loadout_pure`, `repair_combat_supply_loadout_class_pure`; style/spell/weapon/supply changes keep the Encounter; target/bank-run/bankstanding/activity transitions clear and persist it; bank-only access not invented; near-death Yes/No copy untouched (not flagged, per instruction). One verify-only nuance: the automatic bank run clears the Encounter on the progression path — confirm the run-start review itself also clears so no stale Encounter outlives the first run review (manual run clears immediately).
+
+## S2 — Required before landing (minor)
+
+1. Construct `slayer_lbl` hidden (`setVisible(False)`) in `ReviewHUD.__init__`; as patched it is born visible and occupies a row in the fixed-height strip until the first `set_data`.
+2. Confirm `from ..logic.slayer_logic import sanitize_slayer_state_pure` keeps `logic_pure` headless and cycle-free (`slayer_logic` must not import Qt or the combat engine). The HUD pure test's reliance on sanitize injecting `completed` and validating `family_id` is otherwise sound.
+
+Settled, not flagged: Root's simplification of the defensive `initial_count`/`family_display_name` lookups in `handle_combat_answer`.
+
+## S2 — Verified by reading (compliant)
+
+Exactly one notice queued from the `completed` result, capturing `initial_count` and lowered family plural; delivery rides the existing `pending_review_dialogs` + `QTimer` flush after Anki answers; title/body/OK match the mandated strings verbatim; activity/event text and Combat preserved; HUD adds only `Slayer: {remaining} of {total} left`, below the kills/chips row, combat-only, active-assignment-only (hidden at `remaining 0`, empty assignment, unknown family); dialog reuses Level Up conventions (fixed 380×200, 64px icon, OK); no cadence/XP/menu changes.
+
+## Layout risks awaiting rendering (unverified, not claims of failure)
+
+- **ReviewHUD fixed 340×128 overflow:** in combat the `info` column already carries title, XP text, XP bar (12), resource row (18), enemy bar (8), and the chips/action row. Adding the slayer row plus 4px spacing and 20px margins puts estimated content height at or above 128px, and `adjustSize()` cannot grow a fixed-size widget — the slayer label (last row) or the action buttons are the likely clip casualties. Must be checked on the pending 1000×700 and 900×560 parent captures; if it clips, compensate inside existing rows (e.g., confirm sub/target/notice rows are empty in combat) rather than resizing.
+- **HUD geometry test** asserts `slayer_lbl.y()` ordering on a never-shown widget; layout positions may be unset until shown/activated — test-side flakiness risk, not product code.
+- **Dialog:** worst-case body ("…defeated 120 {long plural}…") wraps within 380×200 on Level Up conventions; low risk, confirm on capture.
