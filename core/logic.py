@@ -1,5 +1,6 @@
 """Anki-aware game logic orchestrators (no direct persistence here)."""
 
+from collections.abc import Callable
 from contextvars import ContextVar
 
 from .constants import (
@@ -90,6 +91,26 @@ class DeferredAchievementDialogs(list):
                 _ACTIVE_ACHIEVEMENT_DIALOGS.reset(token)
 
         return _check
+
+
+def show_pending_review_dialogs(
+    callbacks: tuple[Callable[[], None], ...],
+) -> None:
+    if not callbacks:
+        return
+    try:
+        from aqt.qt import QTimer  # type: ignore
+    except Exception:
+        QTimer = None
+
+    def _show_all() -> None:
+        for callback in callbacks:
+            callback()
+
+    if QTimer is not None:
+        QTimer.singleShot(0, _show_all)
+    else:
+        _show_all()
 
 
 def _popups_enabled():

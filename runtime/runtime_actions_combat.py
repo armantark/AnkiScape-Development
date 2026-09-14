@@ -420,6 +420,33 @@ from .runtime_actions_context import (
 )
 
 
+def _apply_slayer_kill_credit(
+    ctx: RuntimeActionContext,
+    new_data: dict,
+    result: dict,
+    target_id: str,
+) -> tuple[dict, dict]:
+    new_data, slayer_result = apply_slayer_kills_pure(
+        new_data,
+        target_id=str(result.get("target_id", target_id)),
+        kills=int(result.get("kills", 0) or 0),
+        enemy_data=COMBAT_ENEMY_DATA,
+    )
+    slayer_xp = float(slayer_result.get("slayer_xp", 0.0) or 0.0)
+    if slayer_xp > 0:
+        xp_rewards = dict(result.get("xp_rewards", {}) or {})
+        xp_rewards["slayer_exp"] = slayer_xp
+        result["xp_rewards"] = xp_rewards
+    result["slayer"] = slayer_result
+    if slayer_result.get("completed") and ctx.prompt_slayer_completion is not None:
+        assignment = new_data["slayer_assignment"]
+        ctx.prompt_slayer_completion(
+            int(assignment["initial_count"]),
+            slayer_result["family_display_name"].lower(),
+        )
+    return new_data, slayer_result
+
+
 def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
@@ -580,18 +607,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             new_data["current_combat_target"] = "cyclops"
         result["warriors_guild"] = guild_result
 
-    new_data, slayer_result = apply_slayer_kills_pure(
-        new_data,
-        target_id=str(result.get("target_id", target_id)),
-        kills=int(result.get("kills", 0) or 0),
-        enemy_data=COMBAT_ENEMY_DATA,
+    new_data, slayer_result = _apply_slayer_kill_credit(
+        ctx, new_data, result, target_id
     )
-    slayer_xp = float(slayer_result.get("slayer_xp", 0.0) or 0.0)
-    if slayer_xp > 0:
-        xp_rewards = dict(result.get("xp_rewards", {}) or {})
-        xp_rewards["slayer_exp"] = slayer_xp
-        result["xp_rewards"] = xp_rewards
-    result["slayer"] = slayer_result
     player_data.update(new_data)
     player_data.update(
         repair_combat_supply_loadout_class_pure(player_data, EQUIPMENT_DATA)

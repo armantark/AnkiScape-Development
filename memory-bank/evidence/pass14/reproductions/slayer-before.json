@@ -1,0 +1,20 @@
+{
+  "scenario": "slayer",
+  "phase": "before",
+  "review_progressed": true,
+  "assignment_after_final_kill": {
+    "master_id": "turael_spria",
+    "family_id": "bears",
+    "initial_count": 17,
+    "remaining": 0,
+    "completed": true
+  },
+  "slayer_tasks_completed": 1,
+  "activity_events": [
+    "Defeated Black bear \u00b7 Slayer assignment complete"
+  ],
+  "queued_completion_dialogs_before_flush": 0,
+  "completion_dialog": {},
+  "combat_action_after_dialog": "Combat",
+  "qt_platform": "offscreen"
+}

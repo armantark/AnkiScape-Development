@@ -1,0 +1,30 @@
+## Verdict: ACCEPT — no blocking defects found
+
+Bounded review of the four captures' geometry JSON, the diff, and the shared helper source. Findings below are derived from measured bounds/text and code reading only; I have not viewed the PNGs and make no pixel-level claims.
+
+## Contract verification
+
+| Contract item | Evidence | Status |
+|---|---|---|
+| Queue once on final kill | `_apply_slayer_kill_credit` prompts only when `slayer_result.get("completed")`; one append per answer cycle; operator test: earlier/off-task/subsequent kills do not prompt | Pass |
+| Flush after Anki answer | `_show_pending_review_dialogs` → `ui.show_pending_review_dialogs`, same `QTimer.singleShot(0)` deferral with headless fallback; semantics identical to prior inline code; real `on_answer_card` test shows native answer returns before modal | Pass |
+| Reuse Level Up dialog 380x200 / 64px icon / OK | `show_completion_dialog` sets fixed 380x200, scales pixmap 64x64 KeepAspectRatio, single OK → `dialog.accept`; capture size [380,200] at both parent sizes; OK at y=151 h=25, bottom 176 ≤ 200 | Pass |
+| Exact title | `window_title: "Slayer assignment complete"` in both captures | Pass |
+| Exact body | Code: `f"You have defeated {count} {enemy_plural}. " "See a Slayer master for a new assignment."` → measured text "You have defeated 17 bears. See a Slayer master for a new assignment."; word_wrap on; measured text 341x30 inside 358x51, fits | Pass |
+| One HUD line below kills, only during active assignment + Combat | `slayer_lbl` added after `bottom_row` (kills y=87 h=15, bottom 102; slayer y=104 h=14, bottom 118 ≤ 128); set only in Combat branch of `set_data`; `_set_slayer_progress("")` at top of `set_data` hides it for all other branches; pure returns `""` when no assignment or completed; format string exactly `Slayer: {remaining} of {initial_count} left` | Pass |
+| Preserve other row text and 340x128 HUD | Title "Combat — Lv 30", resources 280/280 · 1/1 · 1/1, target "Black bear", kills "Kills: 13 · Trains Strength • Constitution" all unchanged; HUD 340x128 at both parents; contained in parent and ReviewStrip at 700 and 560 (560 case edge-flush, still contained) | Pass |
+| No XP/cadence/menu changes or redesign | Slayer XP merge (`xp_rewards["slayer_exp"]`) preserved verbatim in the extraction; no cadence or menu diffs; level-up path keeps `levelUpMessage`/`levelUpTransition` object names, transition stylesheet, title, and geometry through the shared helper | Pass |
+
+## Specific checks for the known risk area
+
+- The observed spacing defect (title compressed to 14px vs measured 15px at spacing 4) is resolved: `_set_slayer_progress` uses spacing 2 only when the Slayer line is visible, 4 otherwise, and the final geometry shows title height 15 in both parents with zero overlaps and `all_text_fits: true`.
+- Lambda closure binds `count`/`enemy_plural` at prompt time; no late-binding hazard.
+- Refactor of `show_level_up_dialog` is behavior-preserving from source: same dialog construction, attributes, icon row, alignment, and OK wiring; no regression evidence.
+
+## Non-blocking caveats (bounded scope)
+
+1. **Pluralization trust.** The body lowercases `slayer_result["family_display_name"]` and assumes it is plural. Verified only for "bears" in this evidence; an oddly singular family name would read awkwardly ("17 black bear"). No measured defect — flagging as the one unproven text path.
+2. **`new_data["slayer_assignment"]` direct key access** in the completion branch. Safe if `apply_slayer_kills_pure` always populates it on completion (tests indicate so), but it is a KeyError edge if that invariant ever breaks.
+3. Image-level aesthetics (icon centering, wrapped-line raggedness) cannot be judged from geometry; bounds and text-fit probes are the full extent of this review.
+
+No correctness or contract defects identified. Ship it.

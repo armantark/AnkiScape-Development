@@ -1,0 +1,6 @@
+slop-gate: import fan-out above 25 was introduced:
+  ui/ui.py: fan-out 163 (was 162)
+  -> Depend on a narrower module boundary, or split the file along its responsibilities.
+slop-gate: new dead code was introduced:
+  ui/ui.py: unused import 'show_pending_review_dialogs' (90% confidence)
+  -> Delete it, or reference it; if vulture is wrong, add it to the repo's vulture whitelist.

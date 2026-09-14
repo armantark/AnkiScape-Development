@@ -389,6 +389,182 @@ class DialogLifecycleTest(unittest.TestCase):
         self.assertEqual(captured["message"], "Your Combat level increased.")
         self.assertEqual(captured["transition"], "Level 3 → 4")
 
+    def test_slayer_completion_dialog_uses_the_level_up_surface(self) -> None:
+        captured = {}
+
+        def capture_and_close() -> None:
+            modal = QApplication.activeModalWidget()
+            captured["title"] = modal.windowTitle()
+            captured["message"] = modal.findChild(
+                self.ui.QLabel,
+                "slayerCompletionMessage",
+            ).text()
+            buttons = modal.findChildren(self.ui.QPushButton)
+            captured["buttons"] = [button.text() for button in buttons]
+            buttons[0].click()
+
+        QTimer.singleShot(0, capture_and_close)
+        with allow_modal_dialogs():
+            self.ui.show_slayer_completion_dialog(17, "bears")
+
+        self.assertEqual(captured["title"], "Slayer assignment complete")
+        self.assertEqual(
+            captured["message"],
+            "You have defeated 17 bears. See a Slayer master for a new assignment.",
+        )
+        self.assertEqual(captured["buttons"], ["OK"])
+
+    def test_final_slayer_review_shows_the_dialog_after_anki_answers_and_keeps_combat(
+        self,
+    ) -> None:
+        from unittest.mock import patch
+
+        from tests.test_integration_smoke import (
+            _DummyCol,
+            _FakeReviewer,
+            _install_runtime_fakes,
+            _load_addon_as_package,
+        )
+
+        real_qt = sys.modules["aqt.qt"]
+        with patch.dict(sys.modules):
+            _install_runtime_fakes()
+            sys.modules["aqt.qt"] = real_qt
+            addon = _load_addon_as_package("ankiscape_slayer_review_dialog")
+            self.parent.col = _DummyCol({"ankiscape_cadence_kernel": True})
+            self.parent.update_undo_actions = lambda: None
+            addon.mw = self.parent
+            addon.ui.mw = self.parent
+            for name in (
+                "save_player_data",
+                "check_achievements",
+                "level_up_check",
+                "_refresh_skill_availability",
+                "_refresh_open_carried_inventory",
+                "update_review_hud",
+                "update_review_status_badge",
+                "update_review_fill_drawer",
+                "update_review_event_log_drawer",
+                "_refresh_bank_run_surfaces",
+                "_update_review_context_surface",
+                "_show_exp",
+            ):
+                setattr(addon, name, lambda *_args: None)
+            constants = sys.modules[f"{addon.__name__}.core.constants"]
+            storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+            player = storage.default_player_data(
+                constants.ORE_DATA,
+                constants.ITEM_DEFINITIONS,
+            )
+            player.update(
+                {
+                    "current_combat_target": "black_bear",
+                    "combat_action": "attack",
+                    "combat_attack_style": "aggressive",
+                    "combat_attack_style_type": "crush",
+                    "attack_level": 99,
+                    "strength_level": 99,
+                    "defense_level": 99,
+                    "constitution_level": 99,
+                    "combat_lifepoints": 990,
+                    "slayer_assignment": {
+                        "master_id": "turael_spria",
+                        "family_id": "bears",
+                        "initial_count": 17,
+                        "remaining": 1,
+                    },
+                    "combat_encounter": {
+                        "target_id": "black_bear",
+                        "enemy_lifepoints": 1,
+                        "player_attack_ticks_remaining": 0,
+                        "enemy_attack_ticks_remaining": 99,
+                    },
+                }
+            )
+            addon._state.player_data = player
+            addon._state.current_skill = "Combat"
+            timeline = []
+            captures = []
+            original_dialog = addon.ui.show_slayer_completion_dialog
+
+            def show_dialog(count, enemy_plural):
+                captures.append(
+                    {
+                        "timeline": list(timeline),
+                        "args": (count, enemy_plural),
+                    }
+                )
+
+                def capture_and_close():
+                    modal = QApplication.activeModalWidget()
+                    captures[-1]["message"] = modal.findChild(
+                        addon.ui.QLabel,
+                        "slayerCompletionMessage",
+                    ).text()
+                    modal.findChild(addon.ui.QPushButton).click()
+
+                QTimer.singleShot(0, capture_and_close)
+                original_dialog(count, enemy_plural)
+
+            addon.ui.show_slayer_completion_dialog = show_dialog
+
+            def anki_answer(_reviewer, _ease):
+                timeline.append("anki_answer")
+                self.assertEqual(len(addon._state.pending_review_dialogs), 1)
+                self.assertIsNone(QApplication.activeModalWidget())
+                self.assertEqual(captures, [])
+                return "answered"
+
+            def prime_review():
+                addon._state.card_turned = True
+                addon._state.answer_shown = True
+                addon._state.exp_awarded = False
+
+            with patch.object(addon.random, "random", return_value=0.5):
+                prime_review()
+                self.assertEqual(
+                    addon.on_answer_card(_FakeReviewer(), 4, anki_answer),
+                    "answered",
+                )
+                timeline.append("returned")
+                with allow_modal_dialogs():
+                    for _ in range(4):
+                        QApplication.processEvents()
+
+                self.assertEqual(
+                    captures,
+                    [
+                        {
+                            "timeline": ["anki_answer", "returned"],
+                            "args": (17, "bears"),
+                            "message": (
+                                "You have defeated 17 bears. See a Slayer master "
+                                "for a new assignment."
+                            ),
+                        }
+                    ],
+                )
+                self.assertEqual(addon._state.current_skill, "Combat")
+                self.assertEqual(addon._state.pending_review_dialogs, [])
+                self.assertTrue(player["slayer_assignment"]["completed"])
+                self.assertTrue(
+                    any(
+                        "Slayer assignment complete" in event["text"]
+                        for event in player["review_event_log"]
+                    )
+                )
+
+                prime_review()
+                addon.on_answer_card(_FakeReviewer(), 4, lambda *_args: None)
+                for _ in range(4):
+                    QApplication.processEvents()
+                self.assertEqual(addon._state.current_skill, "Combat")
+                self.assertGreater(
+                    player["combat_last_result"]["player_damage"],
+                    0,
+                )
+                self.assertEqual(len(captures), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pass 14 results</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0e12'/%3E%3Cpath d='M8 24L24 8M17 8h7v7' stroke='%234ade80' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Outfit,system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:36px 22px 48px}h1{font-size:clamp(2rem,4vw,3rem);line-height:1.1;margin:8px 0 16px}h2{font-size:1.25rem;margin:0 0 18px}h3{font-size:1rem;margin:0 0 8px}p{margin:0 0 14px}.lead{max-width:760px;color:var(--text-dim)}.complete{color:var(--green);font-weight:700}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;min-width:0}.before,.after{padding:16px;border-radius:8px;margin:12px 0;background:var(--surface-2);border-left:3px solid var(--red)}.after{border-left-color:var(--green)}.label{font-weight:700;color:var(--text-dim);font-size:.85rem}.bar{height:9px;background:var(--border);border-radius:5px;overflow:hidden;margin:10px 0}.bar span{height:100%;display:block;background:var(--red)}.after .bar span{background:var(--green)}.metric{font:700 1.4rem 'JetBrains Mono',ui-monospace,monospace}.mock-dialog{text-align:center;background:#2c2c2c;border:1px solid #555;border-radius:8px;padding:20px 14px}.mock-dialog p{font-size:.92rem}.ok{display:inline-block;padding:3px 28px;border:1px solid #558751;background:#3c493f;border-radius:3px}.hud-line{font:14px 'JetBrains Mono',ui-monospace,monospace;margin-top:12px;padding:12px;background:var(--bg);border-radius:6px}.checks{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.check{padding:14px;background:var(--surface-2);border-radius:8px}.check small{display:block;color:var(--text-dim)}.wide{grid-column:1/-1}.note{color:var(--text-dim);font-size:.9rem;margin-top:18px}.followup{border-left:3px solid var(--amber);padding-left:16px}.passed{color:var(--green)}@media(max-width:800px){.grid{grid-template-columns:1fr}.checks{grid-template-columns:1fr 1fr}main{padding:24px 16px}.card{padding:20px}}@media(max-width:440px){.checks{grid-template-columns:1fr}}
+</style></head><body><main>
+<p class="complete">Both slices passed verification</p>
+<h1>Pass 14 results</h1>
+<p class="lead">Combat method changes work during an Encounter. A clear dialog now marks the end of a Slayer assignment.</p>
+<div class="grid">
+<section class="card"><h2>Leave the fight. Start a fresh Encounter.</h2>
+<p>Changes to style, spell, weapon, and supply mode apply on the next review. They preserve the current enemy’s life points and attack timing.</p>
+<div class="before"><p class="label">Before: black bear reproduction</p><div class="metric">230 / 250 LP</div><div class="bar"><span style="width:92%"></span></div><p>Bankstanding retained the old Encounter. The game refused the style change.</p></div>
+<div class="after"><p class="label">After: the same reproduction</p><div class="metric">250 / 250 LP</div><div class="bar"><span style="width:100%"></span></div><p>Bankstanding ends the Encounter. The style change succeeds. Combat starts a fresh bear.</p></div>
+<p class="note">A kill, death, flee, bank run, or Action or target change ends the Encounter.</p></section>
+<section class="card"><h2>See when the Slayer assignment ends.</h2>
+<p>The last required kill queues one dialog. It opens after the review. The Combat Action stays selected.</p>
+<div class="mock-dialog"><h3>Slayer assignment complete</h3><p>You have defeated 17 bears. See a Slayer master for a new assignment.</p><span class="ok">OK</span></div>
+<p class="note">Illustration of the verified dialog. The existing completion activity text and event record remain.</p>
+<div class="hud-line">Slayer: 4 of 17 left</div>
+<p class="note">The review heads-up display (HUD) shows this line below the kill count while the assignment is active.</p>
+<p>Earlier kills show no notice. Later kills do not repeat it. The next review continues Combat.</p></section>
+<section class="card wide"><h2>Verification evidence</h2><div class="checks">
+<div class="check"><small>S1 plain lane</small><strong class="metric">5617</strong><small>tests passed · 1361 skips</small></div>
+<div class="check"><small>S1 Qt lane</small><strong class="metric">5617</strong><small>tests passed · 5 skips</small></div>
+<div class="check"><small>S2 plain lane</small><strong class="metric">5620</strong><small>tests passed · 1363 skips</small></div>
+<div class="check"><small>S2 Qt lane</small><strong class="metric">5620</strong><small>tests passed · 5 skips</small></div>
+</div><p class="note">The focused suites and adjacent suites passed. Codex inspected four offscreen Qt captures at default size and 560 logical points tall. Text fits with no overlap. Kimi accepted the final UI review.</p>
+<p class="passed">The documentation and test-quality audits passed. The existing reachability baseline did not change.</p></section>
+<section class="card wide"><h2>Left for a separate pass</h2><div class="followup"><p>The near-death prompt still asks whether to leave an Encounter that has already ended. A duplicate import block also remains.</p><p>Combat pace, XP formulas, and menu load behavior retain their current contracts.</p></div></section>
+</div></main></body></html>

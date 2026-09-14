@@ -1,0 +1,33 @@
+{
+  "scenario": "slayer",
+  "phase": "after",
+  "review_progressed": true,
+  "assignment_after_final_kill": {
+    "master_id": "turael_spria",
+    "family_id": "bears",
+    "initial_count": 17,
+    "remaining": 0,
+    "completed": true
+  },
+  "slayer_tasks_completed": 1,
+  "activity_events": [
+    "Defeated Black bear \u00b7 Slayer assignment complete"
+  ],
+  "queued_completion_dialogs_before_flush": 1,
+  "completion_dialog": {
+    "window_title": "Slayer assignment complete",
+    "size": [
+      380,
+      200
+    ],
+    "labels": [
+      "",
+      "You have defeated 17 bears. See a Slayer master for a new assignment."
+    ],
+    "buttons": [
+      "OK"
+    ]
+  },
+  "combat_action_after_dialog": "Combat",
+  "qt_platform": "offscreen"
+}

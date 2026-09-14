@@ -1,0 +1,11 @@
+status: pass
+HEAD: a6622434659324c2fff5f7b76f155cc1d356cbca
+scope: 32 changed outer functions across 14 changed Python files
+module-level-only changed paths: tests/test_module_surface.py; tools/pass14/checks.py
+thresholds: cognitive 15; Halstead difficulty 80
+new/worsened cognitive violations: none
+new/worsened Halstead violations: none
+grandfathered cognitive: runtime/runtime_actions_combat.py:handle_combat_answer 187 -> 184
+highest new cognitive: tools/pass14/screenshots.py:_text_geometry = 14
+highest new Halstead: tools/pass14/screenshots.py:main = 2.5
+overall max Halstead: runtime/runtime_actions_combat.py:handle_combat_answer 8.3841059602649 -> 8.342465753424657

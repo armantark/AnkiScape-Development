@@ -48,7 +48,13 @@ from ankiscape.runtime.runtime_actions import (
 )
 
 
-def _context(player_data, calls=None, random_values=None, review_action_multiplier=1):
+def _context(
+    player_data,
+    calls=None,
+    random_values=None,
+    review_action_multiplier=1,
+    prompt_slayer_completion=None,
+):
     calls = calls if calls is not None else {"xp": [], "saves": 0, "errors": []}
     random_iter = iter(random_values or ())
 
@@ -86,6 +92,7 @@ def _context(player_data, calls=None, random_values=None, review_action_multipli
         implemented_exp_keys_snapshot=lambda: {},
         show_quest_exp_delta=lambda _before: None,
         review_action_multiplier=review_action_multiplier,
+        prompt_slayer_completion=prompt_slayer_completion,
     )
 
 
@@ -2823,75 +2830,6 @@ class TestRuntimeActions(unittest.TestCase):
         telemetry = player_data["action_telemetry"]["actions"]["combat:chicken"]
         self.assertEqual(telemetry["outputs"]["Clue scroll (medium)"], 1)
 
-    def test_combat_handler_credits_matching_slayer_assignment_atomically(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data = {
-            "inventory": {},
-            "equipment": {},
-            "current_combat_target": "giant_bat",
-            "combat_attack_style": "accurate",
-            "combat_lifepoints": 990,
-            "combat_auto_eat_food": ["Shrimps"],
-            "attack_level": 99,
-            "strength_level": 99,
-            "defense_level": 99,
-            "constitution_level": 99,
-            "slayer_level": 1,
-            "slayer_exp": 0.0,
-            "slayer_assignment": {
-                "master_id": "turael_spria",
-                "family_id": "bats",
-                "initial_count": 50,
-                "remaining": 50,
-            },
-            "completed_achievements": [],
-        }
-
-        ok = handle_combat_answer(
-            _context(player_data, calls, [0.0, 0.999999] * 100)
-        )
-
-        self.assertTrue(ok)
-        credited = 50 - player_data["slayer_assignment"]["remaining"]
-        self.assertGreater(credited, 0)
-        self.assertEqual(player_data["slayer_exp"], 32.0 * credited)
-        self.assertIn("Slayer", calls["level_checks"])
-        self.assertIn("Slayer kills left", calls["activity"][0])
-        self.assertEqual(calls["saves"], 1)
-
-    def test_combat_handler_does_not_credit_an_off_task_target(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data = {
-            "inventory": {},
-            "equipment": {},
-            "current_combat_target": "black_bear",
-            "combat_attack_style": "accurate",
-            "combat_lifepoints": 990,
-            "combat_auto_eat_food": ["Shrimps"],
-            "attack_level": 99,
-            "strength_level": 99,
-            "defense_level": 99,
-            "constitution_level": 99,
-            "slayer_level": 1,
-            "slayer_exp": 0.0,
-            "slayer_assignment": {
-                "master_id": "turael_spria",
-                "family_id": "bats",
-                "initial_count": 50,
-                "remaining": 50,
-            },
-            "completed_achievements": [],
-        }
-
-        ok = handle_combat_answer(
-            _context(player_data, calls, [0.0, 0.999999] * 100)
-        )
-
-        self.assertTrue(ok)
-        self.assertEqual(player_data["slayer_assignment"]["remaining"], 50)
-        self.assertEqual(player_data["slayer_exp"], 0.0)
-        self.assertNotIn("Slayer", calls.get("level_checks", []))
-
     def test_combat_handler_finisher_refuses_and_reports_a_second_clue(self):
         enemy_data = copy.deepcopy(runtime_actions_combat.COMBAT_ENEMY_DATA)
         enemy_data["desert_lizard"]["drops"] = {
@@ -3196,7 +3134,6 @@ class TestRuntimeActions(unittest.TestCase):
         handle_combat_answer(ctx)
 
         self.assertEqual(prompted, [], "a fetchable bank must not raise the prompt")
-
 
     def test_fatal_combat_burst_graves_loot_earned_before_death(self):
         enemy = {

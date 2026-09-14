@@ -1,0 +1,1069 @@
+<task>Perform the required bounded frontend-taste review of final AnkiScape S2. Return concrete defects or acceptance. No tools, no edits, no delegation. These are measured observations from the operator; you have text, not image input, so do not claim to have viewed images.</task>
+<contract>Settled: queue once on final Slayer kill, flush after Anki answer, preserve existing activity/event text and continued Combat. Reuse Level Up dialog 380x200,64px icon,OK. Exact title Slayer assignment complete; body You have defeated {count} {enemy plural}. See a Slayer master for a new assignment. One HUD line Slayer: {remaining} of {total} left below kills only during active assignment/Combat. Preserve other row text and 340x128 HUD. No XP/cadence/menu changes or redesign.</contract>
+<observed>Root inspected all four final PNGs at parents1000x700 and900x560. Dialog body wraps into two readable lines; icon, body and OK fit. HUD contains unchanged title, resource values, target, bars and kills line, then Slayer count. No ellipses/overlaps/clipping. Initial row spacing4 compressed the title to14px versus measured15px; final _set_slayer_progress uses spacing2 for active Slayer and4 otherwise and all bounds/text-fit probes pass. HUD is contained in both ReviewStrip and parent at both heights. Final-kill real on_answer_card test proves native answer returns before modal opens, then another real review damages the next enemy with Combat still selected. Earlier/off-task/subsequent kills do not prompt. Pure view sanitizes assignment state. Source review found no correctness defects.</observed>
+<geometry>{
+  "qt_platform": "offscreen",
+  "style": "fusion",
+  "interpretation": {
+    "default_parent_logical_size": [
+      1000,
+      700
+    ],
+    "compact_parent_logical_size": [
+      900,
+      560
+    ],
+    "dialog_resize": "Each real modal was shown and resized to its own natural size hint. The 560 logical-point requirement applies to the parent window height, not to the dialog.",
+    "grab_order": "show -> resize -> four processEvents passes -> grab"
+  },
+  "dialog": {
+    "default": {
+      "window_title": "Slayer assignment complete",
+      "parent_requested_size": [
+        1000,
+        700
+      ],
+      "parent_actual_size": [
+        1000,
+        700
+      ],
+      "dialog_natural_size": [
+        262,
+        153
+      ],
+      "dialog_minimum_size": [
+        380,
+        200
+      ],
+      "dialog_maximum_size": [
+        380,
+        200
+      ],
+      "dialog_capture_size": [
+        380,
+        200
+      ],
+      "geometry": {
+        "labels_and_buttons": [
+          {
+            "kind": "QLabel",
+            "object_name": "slayerCompletionMessage",
+            "text": "You have defeated 17 bears. See a Slayer master for a new assignment.",
+            "visible": true,
+            "word_wrap": true,
+            "geometry": {
+              "x": 11,
+              "y": 81,
+              "width": 358,
+              "height": 51
+            },
+            "contents_size": [
+              358,
+              51
+            ],
+            "measured_text_size": [
+              341,
+              30
+            ],
+            "size_hint": [
+              240,
+              30
+            ],
+            "minimum_size_hint": [
+              72,
+              15
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QPushButton",
+            "object_name": "",
+            "text": "OK",
+            "visible": true,
+            "geometry": {
+              "x": 150,
+              "y": 151,
+              "width": 80,
+              "height": 25
+            },
+            "size_hint": [
+              80,
+              25
+            ],
+            "minimum_size_hint": [
+              80,
+              25
+            ],
+            "contained": true,
+            "text_fits": true
+          }
+        ],
+        "overlaps": [],
+        "all_contained": true,
+        "all_text_fits": true
+      },
+      "image": {
+        "path": "memory-bank/evidence/pass14/screenshots/slayer-dialog-default.png",
+        "logical_size": [
+          380,
+          200
+        ],
+        "pixel_size": [
+          380,
+          200
+        ],
+        "device_pixel_ratio": 1.0
+      }
+    },
+    "parent-900x560": {
+      "window_title": "Slayer assignment complete",
+      "parent_requested_size": [
+        900,
+        560
+      ],
+      "parent_actual_size": [
+        900,
+        560
+      ],
+      "dialog_natural_size": [
+        262,
+        153
+      ],
+      "dialog_minimum_size": [
+        380,
+        200
+      ],
+      "dialog_maximum_size": [
+        380,
+        200
+      ],
+      "dialog_capture_size": [
+        380,
+        200
+      ],
+      "geometry": {
+        "labels_and_buttons": [
+          {
+            "kind": "QLabel",
+            "object_name": "slayerCompletionMessage",
+            "text": "You have defeated 17 bears. See a Slayer master for a new assignment.",
+            "visible": true,
+            "word_wrap": true,
+            "geometry": {
+              "x": 11,
+              "y": 81,
+              "width": 358,
+              "height": 51
+            },
+            "contents_size": [
+              358,
+              51
+            ],
+            "measured_text_size": [
+              341,
+              30
+            ],
+            "size_hint": [
+              240,
+              30
+            ],
+            "minimum_size_hint": [
+              72,
+              15
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QPushButton",
+            "object_name": "",
+            "text": "OK",
+            "visible": true,
+            "geometry": {
+              "x": 150,
+              "y": 151,
+              "width": 80,
+              "height": 25
+            },
+            "size_hint": [
+              80,
+              25
+            ],
+            "minimum_size_hint": [
+              80,
+              25
+            ],
+            "contained": true,
+            "text_fits": true
+          }
+        ],
+        "overlaps": [],
+        "all_contained": true,
+        "all_text_fits": true
+      },
+      "image": {
+        "path": "memory-bank/evidence/pass14/screenshots/slayer-dialog-parent-900x560.png",
+        "logical_size": [
+          380,
+          200
+        ],
+        "pixel_size": [
+          380,
+          200
+        ],
+        "device_pixel_ratio": 1.0
+      }
+    }
+  },
+  "hud": {
+    "default": {
+      "parent_requested_size": [
+        1000,
+        700
+      ],
+      "parent_actual_size": [
+        1000,
+        700
+      ],
+      "hud_geometry_in_parent": {
+        "x": 309,
+        "y": 572,
+        "width": 340,
+        "height": 128
+      },
+      "hud_contained_in_parent": true,
+      "hud_contained_in_strip": true,
+      "geometry": {
+        "labels_and_buttons": [
+          {
+            "kind": "QLabel",
+            "object_name": "",
+            "text": "Combat \u2014 Lv 30",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 50,
+              "y": 10,
+              "width": 278,
+              "height": 15
+            },
+            "contents_size": [
+              278,
+              15
+            ],
+            "measured_text_size": [
+              99,
+              15
+            ],
+            "size_hint": [
+              99,
+              15
+            ],
+            "minimum_size_hint": [
+              99,
+              15
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "combatHudResourceValue_lifepoints",
+            "text": "280/280",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 73,
+              "y": 41,
+              "width": 44,
+              "height": 18
+            },
+            "contents_size": [
+              44,
+              18
+            ],
+            "measured_text_size": [
+              43,
+              12
+            ],
+            "size_hint": [
+              44,
+              12
+            ],
+            "minimum_size_hint": [
+              44,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "combatHudResourceValue_prayer",
+            "text": "1/1",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 145,
+              "y": 41,
+              "width": 14,
+              "height": 18
+            },
+            "contents_size": [
+              14,
+              18
+            ],
+            "measured_text_size": [
+              14,
+              12
+            ],
+            "size_hint": [
+              14,
+              12
+            ],
+            "minimum_size_hint": [
+              14,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "combatHudResourceValue_summoning",
+            "text": "1/1",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 187,
+              "y": 41,
+              "width": 14,
+              "height": 18
+            },
+            "contents_size": [
+              14,
+              18
+            ],
+            "measured_text_size": [
+              14,
+              12
+            ],
+            "size_hint": [
+              14,
+              12
+            ],
+            "minimum_size_hint": [
+              14,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "",
+            "text": "Black bear",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 50,
+              "y": 61,
+              "width": 278,
+              "height": 14
+            },
+            "contents_size": [
+              278,
+              14
+            ],
+            "measured_text_size": [
+              54,
+              12
+            ],
+            "size_hint": [
+              54,
+              12
+            ],
+            "minimum_size_hint": [
+              54,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "",
+            "text": "Kills: 13 \u00b7 Trains Strength \u2022 Constitution",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 50,
+              "y": 87,
+              "width": 278,
+              "height": 15
+            },
+            "contents_size": [
+              278,
+              15
+            ],
+            "measured_text_size": [
+              201,
+              12
+            ],
+            "size_hint": [
+              202,
+              12
+            ],
+            "minimum_size_hint": [
+              202,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "slayerAssignmentProgress",
+            "text": "Slayer: 4 of 17 left",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 50,
+              "y": 104,
+              "width": 278,
+              "height": 14
+            },
+            "contents_size": [
+              278,
+              14
+            ],
+            "measured_text_size": [
+              93,
+              12
+            ],
+            "size_hint": [
+              94,
+              12
+            ],
+            "minimum_size_hint": [
+              94,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          }
+        ],
+        "overlaps": [],
+        "all_contained": true,
+        "all_text_fits": true
+      },
+      "image": {
+        "path": "memory-bank/evidence/pass14/screenshots/slayer-hud-default.png",
+        "logical_size": [
+          340,
+          128
+        ],
+        "pixel_size": [
+          340,
+          128
+        ],
+        "device_pixel_ratio": 1.0
+      }
+    },
+    "parent-900x560": {
+      "parent_requested_size": [
+        900,
+        560
+      ],
+      "parent_actual_size": [
+        900,
+        560
+      ],
+      "hud_geometry_in_parent": {
+        "x": 259,
+        "y": 432,
+        "width": 340,
+        "height": 128
+      },
+      "hud_contained_in_parent": true,
+      "hud_contained_in_strip": true,
+      "geometry": {
+        "labels_and_buttons": [
+          {
+            "kind": "QLabel",
+            "object_name": "",
+            "text": "Combat \u2014 Lv 30",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 50,
+              "y": 10,
+              "width": 278,
+              "height": 15
+            },
+            "contents_size": [
+              278,
+              15
+            ],
+            "measured_text_size": [
+              99,
+              15
+            ],
+            "size_hint": [
+              99,
+              15
+            ],
+            "minimum_size_hint": [
+              99,
+              15
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "combatHudResourceValue_lifepoints",
+            "text": "280/280",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 73,
+              "y": 41,
+              "width": 44,
+              "height": 18
+            },
+            "contents_size": [
+              44,
+              18
+            ],
+            "measured_text_size": [
+              43,
+              12
+            ],
+            "size_hint": [
+              44,
+              12
+            ],
+            "minimum_size_hint": [
+              44,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "combatHudResourceValue_prayer",
+            "text": "1/1",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 145,
+              "y": 41,
+              "width": 14,
+              "height": 18
+            },
+            "contents_size": [
+              14,
+              18
+            ],
+            "measured_text_size": [
+              14,
+              12
+            ],
+            "size_hint": [
+              14,
+              12
+            ],
+            "minimum_size_hint": [
+              14,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "combatHudResourceValue_summoning",
+            "text": "1/1",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 187,
+              "y": 41,
+              "width": 14,
+              "height": 18
+            },
+            "contents_size": [
+              14,
+              18
+            ],
+            "measured_text_size": [
+              14,
+              12
+            ],
+            "size_hint": [
+              14,
+              12
+            ],
+            "minimum_size_hint": [
+              14,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "",
+            "text": "Black bear",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 50,
+              "y": 61,
+              "width": 278,
+              "height": 14
+            },
+            "contents_size": [
+              278,
+              14
+            ],
+            "measured_text_size": [
+              54,
+              12
+            ],
+            "size_hint": [
+              54,
+              12
+            ],
+            "minimum_size_hint": [
+              54,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "",
+            "text": "Kills: 13 \u00b7 Trains Strength \u2022 Constitution",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 50,
+              "y": 87,
+              "width": 278,
+              "height": 15
+            },
+            "contents_size": [
+              278,
+              15
+            ],
+            "measured_text_size": [
+              201,
+              12
+            ],
+            "size_hint": [
+              202,
+              12
+            ],
+            "minimum_size_hint": [
+              202,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          },
+          {
+            "kind": "QLabel",
+            "object_name": "slayerAssignmentProgress",
+            "text": "Slayer: 4 of 17 left",
+            "visible": true,
+            "word_wrap": false,
+            "geometry": {
+              "x": 50,
+              "y": 104,
+              "width": 278,
+              "height": 14
+            },
+            "contents_size": [
+              278,
+              14
+            ],
+            "measured_text_size": [
+              93,
+              12
+            ],
+            "size_hint": [
+              94,
+              12
+            ],
+            "minimum_size_hint": [
+              94,
+              12
+            ],
+            "contained": true,
+            "text_fits": true
+          }
+        ],
+        "overlaps": [],
+        "all_contained": true,
+        "all_text_fits": true
+      },
+      "image": {
+        "path": "memory-bank/evidence/pass14/screenshots/slayer-hud-parent-900x560.png",
+        "logical_size": [
+          340,
+          128
+        ],
+        "pixel_size": [
+          340,
+          128
+        ],
+        "device_pixel_ratio": 1.0
+      }
+    }
+  }
+}
+</geometry>
+<diff>diff --git a/__init__.py b/__init__.py
+index 39ee1123..680b95e7 100644
+--- a/__init__.py
++++ b/__init__.py
+@@ -1337,6 +1337,7 @@ def _runtime_action_context() -> RuntimeActionContext:
+         cadence_live_enabled=_cadence_kernel_enabled(),
+         prompt_stronghold_reward=_prompt_stronghold_reward,
+         prompt_near_death=_prompt_near_death,
++        prompt_slayer_completion=_prompt_slayer_completion,
+         refresh_carried_inventory=_refresh_open_carried_inventory,
+     )
+
+@@ -1532,21 +1533,7 @@ def _show_pending_bankstanding_dialog() -> None:
+ def _show_pending_review_dialogs() -> None:
+     callbacks = tuple(_state.pending_review_dialogs)
+     _state.pending_review_dialogs.clear()
+-    if not callbacks:
+-        return
+-    try:
+-        from aqt.qt import QTimer  # type: ignore
+-    except Exception:
+-        QTimer = None  # type: ignore
+-    if QTimer is not None:
+-        def _show_all() -> None:
+-            for callback in callbacks:
+-                callback()
+-
+-        QTimer.singleShot(0, _show_all)
+-    else:
+-        for callback in callbacks:
+-            callback()
++    ui.show_pending_review_dialogs(callbacks)
+
+
+ def _update_pending_bankstanding_reason(reason) -> None:
+@@ -5193,6 +5180,12 @@ def _prompt_stronghold_reward() -> None:
+     _state.pending_review_dialogs.append(_claim_stronghold_reward)
+
+
++def _prompt_slayer_completion(count: int, enemy_plural: str) -> None:
++    _state.pending_review_dialogs.append(
++        lambda: ui.show_slayer_completion_dialog(count, enemy_plural)
++    )
++
++
+ def initialize_menu():
+     debug_log("initialize_menu: creating AnkiScape menu")
+     ui.create_menu(on_main_menu=_on_main_menu)
+diff --git a/logic/slayer_logic.py b/logic/slayer_logic.py
+index 55730192..121620f3 100644
+--- a/logic/slayer_logic.py
++++ b/logic/slayer_logic.py
+@@ -162,6 +162,13 @@ def sanitize_slayer_state_pure(player_data: Mapping[str, Any]) -> dict:
+     return data
+
+
++def slayer_assignment_progress_pure(player_data: Mapping[str, Any]) -> str:
++    assignment = sanitize_slayer_state_pure(player_data)["slayer_assignment"]
++    if not assignment or assignment["completed"]:
++        return ""
++    return f"Slayer: {assignment['remaining']} of {assignment['initial_count']} left"
++
++
+ def get_slayer_assignment_pure(
+     player_data: Mapping[str, Any],
+     *,
+diff --git a/runtime/runtime_actions_combat.py b/runtime/runtime_actions_combat.py
+index 35ba545b..d9afc88f 100644
+--- a/runtime/runtime_actions_combat.py
++++ b/runtime/runtime_actions_combat.py
+@@ -420,6 +420,33 @@ from .runtime_actions_context import (
+ )
+
+
++def _apply_slayer_kill_credit(
++    ctx: RuntimeActionContext,
++    new_data: dict,
++    result: dict,
++    target_id: str,
++) -> tuple[dict, dict]:
++    new_data, slayer_result = apply_slayer_kills_pure(
++        new_data,
++        target_id=str(result.get("target_id", target_id)),
++        kills=int(result.get("kills", 0) or 0),
++        enemy_data=COMBAT_ENEMY_DATA,
++    )
++    slayer_xp = float(slayer_result.get("slayer_xp", 0.0) or 0.0)
++    if slayer_xp > 0:
++        xp_rewards = dict(result.get("xp_rewards", {}) or {})
++        xp_rewards["slayer_exp"] = slayer_xp
++        result["xp_rewards"] = xp_rewards
++    result["slayer"] = slayer_result
++    if slayer_result.get("completed") and ctx.prompt_slayer_completion is not None:
++        assignment = new_data["slayer_assignment"]
++        ctx.prompt_slayer_completion(
++            int(assignment["initial_count"]),
++            slayer_result["family_display_name"].lower(),
++        )
++    return new_data, slayer_result
++
++
+ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
+     player_data = ctx.player_data
+     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+@@ -580,18 +607,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
+             new_data["current_combat_target"] = "cyclops"
+         result["warriors_guild"] = guild_result
+
+-    new_data, slayer_result = apply_slayer_kills_pure(
+-        new_data,
+-        target_id=str(result.get("target_id", target_id)),
+-        kills=int(result.get("kills", 0) or 0),
+-        enemy_data=COMBAT_ENEMY_DATA,
++    new_data, slayer_result = _apply_slayer_kill_credit(
++        ctx, new_data, result, target_id
+     )
+-    slayer_xp = float(slayer_result.get("slayer_xp", 0.0) or 0.0)
+-    if slayer_xp > 0:
+-        xp_rewards = dict(result.get("xp_rewards", {}) or {})
+-        xp_rewards["slayer_exp"] = slayer_xp
+-        result["xp_rewards"] = xp_rewards
+-    result["slayer"] = slayer_result
+     player_data.update(new_data)
+     player_data.update(
+         repair_combat_supply_loadout_class_pure(player_data, EQUIPMENT_DATA)
+diff --git a/runtime/runtime_actions_context.py b/runtime/runtime_actions_context.py
+index 31d346b7..96e0f8b0 100644
+--- a/runtime/runtime_actions_context.py
++++ b/runtime/runtime_actions_context.py
+@@ -34,5 +34,6 @@ class RuntimeActionContext:
+     # food and nothing bankable to fetch. The UI asks whether to leave; the
+     # handler has already stopped the review either way.
+     prompt_near_death: Optional[Callable[[str], None]] = None
++    prompt_slayer_completion: Optional[Callable[[int, str], None]] = None
+     switch_to_bankstanding: Optional[Callable[..., None]] = None
+     refresh_carried_inventory: Optional[Callable[[], None]] = None
+diff --git a/ui/ui.py b/ui/ui.py
+index 031fd988..3e21f011 100644
+--- a/ui/ui.py
++++ b/ui/ui.py
+@@ -70,6 +70,7 @@ except Exception:
+     mw = None  # type: ignore
+     HAS_QT = False
+
++from .completion_dialogs import show_completion_dialog, show_pending_review_dialogs
+ from ..core.action_registry import review_action_handler_key
+ from ..core.constants import (
+     EXP_TABLE,
+@@ -476,6 +477,7 @@ from ..data.slayer_data import (
+ )
+ from ..logic.slayer_logic import (
+     sanitize_slayer_state_pure,
++    slayer_assignment_progress_pure,
+     slayer_master_display_name_pure,
+     slayer_master_persona_pure,
+     slayer_target_ids_for_assignment_pure,
+@@ -2391,6 +2393,7 @@ if HAS_QT:
+             root.addLayout(leading)
+
+             info = QVBoxLayout()
++            self._info_layout = info
+             info.setContentsMargins(0, 0, 0, 0)
+             info.setSpacing(4)
+             self.title_lbl = QLabel("Skill")
+@@ -2531,6 +2534,11 @@ if HAS_QT:
+             self.action_column.setContentsMargins(0, 0, 0, 0)
+             bottom_row.addLayout(self.action_column)
+             info.addLayout(bottom_row)
++            self.slayer_lbl = QLabel("")
++            self.slayer_lbl.setObjectName("slayerAssignmentProgress")
++            self.slayer_lbl.setStyleSheet(self.chips_lbl.styleSheet())
++            self.slayer_lbl.setVisible(False)
++            info.addWidget(self.slayer_lbl)
+
+             root.addLayout(info, 1)
+
+@@ -2620,8 +2628,14 @@ if HAS_QT:
+             )
+             self.target_lbl.setVisible(bool(also_trains))
+
++        def _set_slayer_progress(self, text: str) -> None:
++            self.slayer_lbl.setText(text)
++            self.slayer_lbl.setVisible(bool(text))
++            self._info_layout.setSpacing(2 if text else 4)
++
+         def set_data(self, player_data: dict, skill: str) -> None:
+             """Update HUD content from player data and currently active skill."""
++            self._set_slayer_progress("")
+             self.setProperty("ankiscapeOverlayRequested", True)
+             skill = skill or "None"
+             # While a bank run is active or queued it owns the entire progress
+@@ -2876,6 +2890,7 @@ if HAS_QT:
+                 kills = state["kills_total"]
+                 self.chips_lbl.setText(f"Kills: {kills} · Trains {trains}")
+                 self.chips_lbl.setVisible(True)
++                self._set_slayer_progress(slayer_assignment_progress_pure(player_data))
+
+                 self.adjustSize()
+                 self._reposition()
+@@ -4510,41 +4525,24 @@ def show_error_message(title: str, message: str):
+     error_dialog.exec()
+
+
+-def show_level_up_dialog(skill: str, old_level: int, new_level: int):
+-    """Level-up dialog with a skill icon."""
+-    dialog = QDialog(mw)
+-    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+-    dialog.setWindowTitle("Level Up!")
+-    dialog.setFixedSize(380, 200)
+-    layout = QVBoxLayout()
+-
+-    # Icon row (registry-driven so new skills like Fletching show their icon)
+-    icon_path = skill_icon_path_for(skill)
+-    if icon_path:
+-        icon_label = QLabel()
+-        pixmap = QPixmap(icon_path)
+-        icon_label.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+-        layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
+-
+-    msg = QLabel(f"Your {skill} level increased.")
+-    msg.setObjectName("levelUpMessage")
+-    msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
+-    layout.addWidget(msg)
+-
+-    transition = QLabel(f"Level {old_level} → {new_level}")
+-    transition.setObjectName("levelUpTransition")
+-    transition.setAlignment(Qt.AlignmentFlag.AlignCenter)
+-    transition.setStyleSheet(
+-        "font-size: 16px; font-weight: 700; color: palette(text);"
++def show_level_up_dialog(skill: str, old_level: int, new_level: int) -> None:
++    show_completion_dialog(
++        QDialog(mw), skill_icon_path_for(skill), title="Level Up!",
++        message=f"Your {skill} level increased.", message_object_name="levelUpMessage",
++        transition=f"Level {old_level} → {new_level}",
+     )
+-    layout.addWidget(transition)
+
+-    ok_button = QPushButton("OK")
+-    ok_button.clicked.connect(dialog.accept)
+-    layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+-    dialog.setLayout(layout)
+-    dialog.exec()
++def show_slayer_completion_dialog(count: int, enemy_plural: str) -> None:
++    if not HAS_QT:
++        return
++    show_completion_dialog(
++        QDialog(mw), skill_icon_path_for("Slayer"),
++        title="Slayer assignment complete",
++        message=f"You have defeated {count} {enemy_plural}. "
++        "See a Slayer master for a new assignment.",
++        message_object_name="slayerCompletionMessage", wrap_message=True,
++    )
+
+
+ def show_achievement_dialog(achievement: str, data: dict):
+</diff>
+<shared_dialog>"""Completion dialogs and their post-review dispatch."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+
+
+def show_completion_dialog(
+    dialog,
+    icon_path: str | None,
+    *,
+    title: str,
+    message: str,
+    message_object_name: str,
+    transition: str | None = None,
+    wrap_message: bool = False,
+) -> None:
+    from aqt.qt import (  # type: ignore
+        QLabel,
+        QPixmap,
+        QPushButton,
+        Qt,
+        QVBoxLayout,
+    )
+
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+    dialog.setWindowTitle(title)
+    dialog.setFixedSize(380, 200)
+    layout = QVBoxLayout()
+
+    if icon_path:
+        icon_label = QLabel()
+        icon_label.setPixmap(
+            QPixmap(icon_path).scaled(
+                64,
+                64,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
+        layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    message_label = QLabel(message)
+    message_label.setObjectName(message_object_name)
+    message_label.setWordWrap(wrap_message)
+    message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    layout.addWidget(message_label)
+    if transition is not None:
+        transition_label = QLabel(transition)
+        transition_label.setObjectName("levelUpTransition")
+        transition_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        transition_label.setStyleSheet(
+            "font-size: 16px; font-weight: 700; color: palette(text);"
+        )
+        layout.addWidget(transition_label)
+
+    ok_button = QPushButton("OK")
+    ok_button.clicked.connect(dialog.accept)
+    layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignCenter)
+    dialog.setLayout(layout)
+    dialog.exec()
+
+
+def show_pending_review_dialogs(
+    callbacks: tuple[Callable[[], None], ...],
+) -> None:
+    if not callbacks:
+        return
+    try:
+        from aqt.qt import QTimer  # type: ignore
+    except Exception:
+        QTimer = None
+
+    def _show_all() -> None:
+        for callback in callbacks:
+            callback()
+
+    if QTimer is not None:
+        QTimer.singleShot(0, _show_all)
+    else:
+        _show_all()
+</shared_dialog>

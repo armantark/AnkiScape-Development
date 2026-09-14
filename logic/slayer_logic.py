@@ -162,6 +162,13 @@ def sanitize_slayer_state_pure(player_data: Mapping[str, Any]) -> dict:
     return data
 
 
+def slayer_assignment_progress_pure(player_data: Mapping[str, Any]) -> str:
+    assignment = sanitize_slayer_state_pure(player_data)["slayer_assignment"]
+    if not assignment or assignment["completed"]:
+        return ""
+    return f"Slayer: {assignment['remaining']} of {assignment['initial_count']} left"
+
+
 def get_slayer_assignment_pure(
     player_data: Mapping[str, Any],
     *,

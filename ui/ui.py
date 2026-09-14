@@ -70,6 +70,7 @@ except Exception:
     mw = None  # type: ignore
     HAS_QT = False
 
+from . import completion_dialogs
 from ..core.action_registry import review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
@@ -476,6 +477,7 @@ from ..data.slayer_data import (
 )
 from ..logic.slayer_logic import (
     sanitize_slayer_state_pure,
+    slayer_assignment_progress_pure,
     slayer_master_display_name_pure,
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
@@ -2391,6 +2393,7 @@ if HAS_QT:
             root.addLayout(leading)
 
             info = QVBoxLayout()
+            self._info_layout = info
             info.setContentsMargins(0, 0, 0, 0)
             info.setSpacing(4)
             self.title_lbl = QLabel("Skill")
@@ -2531,6 +2534,11 @@ if HAS_QT:
             self.action_column.setContentsMargins(0, 0, 0, 0)
             bottom_row.addLayout(self.action_column)
             info.addLayout(bottom_row)
+            self.slayer_lbl = QLabel("")
+            self.slayer_lbl.setObjectName("slayerAssignmentProgress")
+            self.slayer_lbl.setStyleSheet(self.chips_lbl.styleSheet())
+            self.slayer_lbl.setVisible(False)
+            info.addWidget(self.slayer_lbl)
 
             root.addLayout(info, 1)
 
@@ -2620,8 +2628,14 @@ if HAS_QT:
             )
             self.target_lbl.setVisible(bool(also_trains))
 
+        def _set_slayer_progress(self, text: str) -> None:
+            self.slayer_lbl.setText(text)
+            self.slayer_lbl.setVisible(bool(text))
+            self._info_layout.setSpacing(2 if text else 4)
+
         def set_data(self, player_data: dict, skill: str) -> None:
             """Update HUD content from player data and currently active skill."""
+            self._set_slayer_progress("")
             self.setProperty("ankiscapeOverlayRequested", True)
             skill = skill or "None"
             # While a bank run is active or queued it owns the entire progress
@@ -2876,6 +2890,7 @@ if HAS_QT:
                 kills = state["kills_total"]
                 self.chips_lbl.setText(f"Kills: {kills} · Trains {trains}")
                 self.chips_lbl.setVisible(True)
+                self._set_slayer_progress(slayer_assignment_progress_pure(player_data))
 
                 self.adjustSize()
                 self._reposition()
@@ -4510,41 +4525,24 @@ def show_error_message(title: str, message: str):
     error_dialog.exec()
 
 
-def show_level_up_dialog(skill: str, old_level: int, new_level: int):
-    """Level-up dialog with a skill icon."""
-    dialog = QDialog(mw)
-    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
-    dialog.setWindowTitle("Level Up!")
-    dialog.setFixedSize(380, 200)
-    layout = QVBoxLayout()
-
-    # Icon row (registry-driven so new skills like Fletching show their icon)
-    icon_path = skill_icon_path_for(skill)
-    if icon_path:
-        icon_label = QLabel()
-        pixmap = QPixmap(icon_path)
-        icon_label.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
-
-    msg = QLabel(f"Your {skill} level increased.")
-    msg.setObjectName("levelUpMessage")
-    msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    layout.addWidget(msg)
-
-    transition = QLabel(f"Level {old_level} → {new_level}")
-    transition.setObjectName("levelUpTransition")
-    transition.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    transition.setStyleSheet(
-        "font-size: 16px; font-weight: 700; color: palette(text);"
+def show_level_up_dialog(skill: str, old_level: int, new_level: int) -> None:
+    completion_dialogs.show_completion_dialog(
+        QDialog(mw), skill_icon_path_for(skill), title="Level Up!",
+        message=f"Your {skill} level increased.", message_object_name="levelUpMessage",
+        transition=f"Level {old_level} → {new_level}",
     )
-    layout.addWidget(transition)
 
-    ok_button = QPushButton("OK")
-    ok_button.clicked.connect(dialog.accept)
-    layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    dialog.setLayout(layout)
-    dialog.exec()
+def show_slayer_completion_dialog(count: int, enemy_plural: str) -> None:
+    if not HAS_QT:
+        return
+    completion_dialogs.show_completion_dialog(
+        QDialog(mw), skill_icon_path_for("Slayer"),
+        title="Slayer assignment complete",
+        message=f"You have defeated {count} {enemy_plural}. "
+        "See a Slayer master for a new assignment.",
+        message_object_name="slayerCompletionMessage", wrap_message=True,
+    )
 
 
 def show_achievement_dialog(achievement: str, data: dict):

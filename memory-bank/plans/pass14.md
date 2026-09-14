@@ -68,3 +68,39 @@ The global hook refused file growth and new complexity. Keep every behavioral as
 ## S1 completed verification
 
 plain: Ran 5617 tests in 596.100s; OK (skipped=1361). qt: Ran 5617 tests in 1146.352s; OK (skipped=5). Logs are in ankiscape_worktrees/pass14-evidence/s1-hook-fix-lanes/. The unchanged global hook then found one newly missing blank line between moved-test definitions; restore it and verify Python AST equality before committing. This formatting correction changes no executed statement. The separate local new-module and six-module neighbour logs are in ankiscape_worktrees/pass14-evidence/test-organization/.
+
+## S2 behavior and focused verification
+
+S1 committed as a6622434659324c2fff5f7b76f155cc1d356cbca. S2 queues the completed assignment count and family name through the existing pending-review list. The shared completion renderer keeps the Level Up dialog surface; the native answer returns before the queued modal opens. The pure Slayer view supplies the HUD count. Active Slayer progress uses 2-point row spacing so all text fits the existing 340 by 128 HUD; other states retain 4-point spacing. All existing row text is preserved.
+
+Focused suites and neighbours: Ran 890 tests in 253.149s; OK. The direct final-review test captures the native answer return before opening the real modal, accepts OK, and executes another Combat review that damages an enemy. Earlier, off-task, and subsequent completed-assignment kills do not queue another notice. The before/after Slayer reproduction changes from zero queued dialogs to one; assignment completion, existing activity text, and the Combat Action remain intact.
+
+Offscreen Qt images were shown, resized, event-pumped, captured, and inspected by Codex at parent sizes 1000 by 700 and 900 by 560 logical points. All four captures pass text-fit, containment, and overlap probes in evidence/pass14/screenshots/probes.json. The HUD also fits inside its ReviewStrip and parent. No text is truncated. The dialog is 380 by 200 logical points. Independent source review found no actionable defect; the required final Kimi taste pass uses the rendered geometry and operator observations.
+
+The standalone audits report: Audited 713 Markdown and 446 HTML files. Documentation audit passed. Test quality: 4761 tests across 266 files; hard issues: 0; structural clone candidates: 31 groups. Reachability remains the pinned debt: 1663 actions; 2343 reachable items; 163 orphan inputs; 249 blocked actions. Worktree layout is safe. The quick PEP 8 and cyclomatic ratchets report no new violations.
+
+A second-level source finding remains unchanged: runtime/runtime_actions_combat.py imports RuntimeActionContext and shared helpers twice, around lines 388-420. This duplication does not affect the two requested behaviors and is outside this pass.
+
+- Final Kimi K3 frontend-taste review: ACCEPT, no blocking defects found. It reviewed final source and all four geometry records, with Codex providing the image inspection. Review record: memory-bank/evidence/pass14/s2-kimi-taste-output.txt. The direct completed-assignment key and plural family name are existing pure-logic contracts, not new fallback cases.
+
+- Bounded cognitive/Halstead preflight against S1 HEAD passed: 32 changed outer functions across 14 Python paths, no new or worsened violations. The combat handler cognitive value decreases from 187 to 184; new screenshot geometry code is 14. Raw evidence stays under ankiscape_worktrees/pass14-evidence/s2-cognitive-preflight/.
+
+- S2 full plain lane passed: Ran 5620 tests in 593.072s; OK (skipped=1363). The offscreen Qt lane follows sequentially on the frozen source. Logs: ankiscape_worktrees/pass14-evidence/s2-full-lanes/.
+
+## S2 completed verification
+
+The full sequential lanes passed on the final S2 source: plain Ran 5620 tests in 593.072s; OK (skipped=1363). Offscreen Qt Ran 5620 tests in 1137.014s; OK (skipped=5). The focused and adjacent suites passed 890 tests in 253.149s. Lane logs are under ankiscape_worktrees/pass14-evidence/s2-full-lanes/. The one results artifact is memory-bank/status-updates/pass14-results-2026-09-14.html; its mechanical preflight passed, and it was opened in Zen. Final promotion must bind both remote lanes and audits to the committed tree before landing.
+
+- Results artifact published at https://3804sun2odmh.postplan.dev. The immutable plan remains at https://qz880in824zp.postplan.dev. Final documentation audit: Audited 713 Markdown and 447 HTML files. Documentation audit passed.
+
+## S2 commit-boundary correction
+
+The normal commit hook rejected the additional UI dependency and the unused public import; no S2 commit was created. Keep post-review scheduling with the existing core/logic.py review orchestrators, and keep ui/completion_dialogs.py responsible only for rendering the shared dialog. The two function ASTs are identical before and after this separation. Root retains the queue snapshot and clear, then calls the scheduling helper through its existing core.logic dependency. No audit, threshold, hook, or bypass setting changed.
+
+The actual import/dead-code/layout preflight now passes with zero violations. The gate identifies ui/completion_dialogs.py as a part of ui/ui.py. The reusable tools/pass14/check_imports.py records this evidence before the full commit hook. Final source pins were remeasured remotely; the root Qt digest is 029716e1c03079e0cf96e22b64e01ef710a988aeb6f4d403cb5f1acc72e894a5. The final scheduling neighbour run passed 60 tests in 8.814s with one expected skip. Both the final Slayer reproduction and all four screenshot probes passed; every PNG is byte-identical to the inspected and reviewed image. Expanded focused suites and both full sequential lanes now run on the final source under ankiscape_worktrees/pass14-evidence/s2-scheduling-verification/ and s2-scheduling-lanes/.
+
+- 2026-09-14T09:46:51.677487+00:00: Final expanded focused and neighbouring suites passed: Ran 1058 tests in 275.975s; OK (skipped=1). The final plain and Qt lanes remain sequential in ankiscape_worktrees/pass14-evidence/s2-scheduling-lanes/. Source is frozen. The normal local commit hook may run alongside this remote verification; any source mutation or failed check requires correction and fresh verification before promotion.
+
+- Final application verification passed: plain Ran 5620 tests in 581.546s; OK (skipped=1363). Offscreen Qt Ran 5620 tests in 1129.200s; OK (skipped=5). Logs: ankiscape_worktrees/pass14-evidence/s2-scheduling-lanes/. The commit hook found only the new import-preflight utility main at cognitive complexity 16, above 15; simplify that utility and check the explicit threshold before another normal commit. Application source stays unchanged.
+
+- 2026-09-14T10:07:24.221593+00:00: The structural preflight utility now iterates the existing staged paths directly, removing one nested condition. Explicit complexipy -mx 15 reports tools/pass14/check_imports.py main 13 and exits 0. This tooling-only correction leaves all application and test source from the passing final lanes unchanged.

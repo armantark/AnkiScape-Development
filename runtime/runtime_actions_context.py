@@ -34,5 +34,6 @@ class RuntimeActionContext:
     # food and nothing bankable to fetch. The UI asks whether to leave; the
     # handler has already stopped the review either way.
     prompt_near_death: Optional[Callable[[str], None]] = None
+    prompt_slayer_completion: Optional[Callable[[int, str], None]] = None
     switch_to_bankstanding: Optional[Callable[..., None]] = None
     refresh_carried_inventory: Optional[Callable[[], None]] = None

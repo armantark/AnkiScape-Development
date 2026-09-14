@@ -27,6 +27,7 @@ from ankiscape.logic.slayer_logic import (
     eligible_slayer_families_pure,
     get_slayer_assignment_pure,
     sanitize_slayer_state_pure,
+    slayer_assignment_progress_pure,
     slayer_master_display_name_pure,
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
@@ -615,6 +616,27 @@ class SlayerAssignmentLogicTest(unittest.TestCase):
             ),
             "Spria",
         )
+
+
+class SlayerHudStateTest(unittest.TestCase):
+    def test_hud_count_uses_a_valid_active_assignment(self):
+        assignment = {
+            "master_id": "turael_spria",
+            "family_id": "bears",
+            "initial_count": 17,
+            "remaining": 4,
+        }
+        for value, expected in (
+            (assignment, "Slayer: 4 of 17 left"),
+            ({**assignment, "remaining": 0}, ""),
+            ({**assignment, "family_id": "unknown"}, ""),
+            ({}, ""),
+        ):
+            with self.subTest(assignment=value):
+                self.assertEqual(
+                    slayer_assignment_progress_pure({"slayer_assignment": value}),
+                    expected,
+                )
 
 
 if __name__ == "__main__":

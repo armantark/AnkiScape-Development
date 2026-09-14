@@ -97,6 +97,7 @@ from .core.logic import (
     DeferredAchievementDialogs as DeferredAchievementDialogs,
     level_up_check as _core_level_up_check,
     check_achievements,
+    show_pending_review_dialogs,
 )
 from .logic_pure.logic_pure_combat_engine import player_combat_level_pure
 from .ui.ui import (
@@ -1337,6 +1338,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         cadence_live_enabled=_cadence_kernel_enabled(),
         prompt_stronghold_reward=_prompt_stronghold_reward,
         prompt_near_death=_prompt_near_death,
+        prompt_slayer_completion=_prompt_slayer_completion,
         refresh_carried_inventory=_refresh_open_carried_inventory,
     )
 
@@ -1532,21 +1534,7 @@ def _show_pending_bankstanding_dialog() -> None:
 def _show_pending_review_dialogs() -> None:
     callbacks = tuple(_state.pending_review_dialogs)
     _state.pending_review_dialogs.clear()
-    if not callbacks:
-        return
-    try:
-        from aqt.qt import QTimer  # type: ignore
-    except Exception:
-        QTimer = None  # type: ignore
-    if QTimer is not None:
-        def _show_all() -> None:
-            for callback in callbacks:
-                callback()
-
-        QTimer.singleShot(0, _show_all)
-    else:
-        for callback in callbacks:
-            callback()
+    show_pending_review_dialogs(callbacks)
 
 
 def _update_pending_bankstanding_reason(reason) -> None:
@@ -5191,6 +5179,12 @@ def _prompt_near_death(source: str) -> None:
 def _prompt_stronghold_reward() -> None:
     """Queue the boot choice behind the Bankstanding transition notice."""
     _state.pending_review_dialogs.append(_claim_stronghold_reward)
+
+
+def _prompt_slayer_completion(count: int, enemy_plural: str) -> None:
+    _state.pending_review_dialogs.append(
+        lambda: ui.show_slayer_completion_dialog(count, enemy_plural)
+    )
 
 
 def initialize_menu():
