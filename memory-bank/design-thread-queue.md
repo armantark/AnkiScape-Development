@@ -2447,3 +2447,53 @@ sentences itself. Rubric rule 2 amended.
 Landed 2026-09-04 09:16 at `d89b31ac`: 153 sentences rewritten (nine already
 named only a shop or a patch); catalog regenerated; two module-surface pins
 re-measured; remote lanes plain 5,561 in 527 s and Qt 5,561 in 1,022 s.
+
+### 4.27 Pass 14 grill — rulings of 2026-09-13 22:11
+
+Owner notes of 2026-09-13 (`~/Downloads/ankiscape notes.rtfd`, Pass 14, five
+notes, no images). Grilled in two rounds with four read-only fact-finders.
+Brief: `memory-bank/codex-briefs/pass14-owner-notes-handoff-2026-09-13.md`.
+The owner runs the Codex thread himself; no orchestrator thread until the
+brief lands.
+
+1. **No combat lock.** Owner: "I don't really know why there's a lock for
+   anything at all." Style, spell, weapon, supply mode, and action change are
+   never refused while an enemy is alive. A change applies from the next
+   review. The refusal seam at `logic_pure/logic_pure_combat_engine.py:2676-2696`
+   and the pin `test_live_encounter_rejects_every_combat_method_mutation`
+   (`tests/test_integration_smoke.py:4066-4124`) both go.
+2. **Encounter lifetime.** Owner: "a bank run would in fact reset the encounter
+   to a new monster ... Anything where you have to leave at least one 'screen'
+   away will reset the monster." An encounter survives only between reviews of
+   the same combat action against the same target. Kill, death, flee, bank run,
+   or any action change ends it; the next fight starts a fresh enemy. Today the
+   bank run preserves the encounter (`logic_pure_combat_supplies.py:965-991`)
+   and Bankstanding/Stop leave it alive (`__init__.py:1553-1601,4596-4620`);
+   that stale encounter is the lock the owner hit.
+3. **Combat pace: no change.** Fact-finder read the live save (Attack 31,
+   Strength 26, Defence 21, Constitution 28, full mithril, mithril scimitar,
+   aggressive) and ran the code's own formulas against the black bear (level
+   19, 250 LP): hit chance 79.7%, mean landed hit 29.5 LP, 11.4 swings, 45.8
+   ticks, 7.6 reviews per fresh bear; save telemetry 647 attempts / 65 bear
+   kills, about 10 per kill. XP per bear is 2012-exact: 100 Strength, 33.25
+   Constitution, 25 Slayer. Cross-skill check with `tools/xp_rate_audit.py
+   --level 39`: iron ore pays about 32 XP/review, bears about 16 XP/review
+   (plus 3 Slayer on task); 2012 pays 35,000-38,000 versus about 17,000 per
+   hour, the same 2 to 1. The cadence contract of 2026-07-13 stands as its
+   option (a). Owner: "(c) sounds hacky." The early slowness was low-level
+   accuracy.
+4. **Menu open time: parked to the kanban.** Owner: "throw it on the
+   longer-term kanban." Facts recorded there. Target 300 ms when picked up.
+5. **Slayer completion.** A blocking dialog on the Level Up surface, fired
+   after the review like the diary dialogs. Title "Slayer assignment complete",
+   body "You have defeated {count} {enemy plural}. See a Slayer master for a
+   new assignment.", button "OK". The fight continues. The review HUD gains one
+   line "Slayer: {remaining} of {total} left". Today the text rides the
+   1.4-second XP bubble and is swallowed into the event log on an XP-paying
+   kill (`__init__.py:654-692`); no dialog existed.
+6. **Glossary.** Added Action and Encounter; Bankstanding amended to "the
+   neutral action".
+
+Assumptions stated in the brief: a mid-fight weapon swap does not reset the
+enemy or the attack countdown; the Slayer dialog fires once per assignment on
+the review that lands the last kill.

@@ -18,6 +18,21 @@ Current goal selection and branch disposition: `memory-bank/goal-priority-matrix
 (2026-09-05). Dispatcher state-object restructure is first under the owner's
 §57/58 rulings. Existing UI changes are excluded by this goal.
 
+### Pass 14 follow-up — 2026-09-13
+
+Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
+
+- Main menu open time from the review screen. Facts (fact-finder 2026-09-13):
+  a new `QDialog` per open (`ui/ui.py:4887-4892`); Skills, Grand Exchange,
+  Equipment, Stats, Settings build at open (`ui/ui.py:23491-23493`); the Bank
+  widget tree also builds at open and only attaches behind a placeholder
+  (`ui/ui.py:24861-24872,27272-27285`); Shop, Quests, Challenges, Achievements,
+  Collections are truly deferred. Last measurement about 1.2 s per open on a
+  real save (`memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
+  Target: under 300 ms click-to-visible on the owner's save, measured before
+  and after with a profiling script against a copy of the save. Keep the
+  fresh-dialog-per-open design; defer every tab including Bank.
+
 ### Pass 13 follow-ups — 2026-09-04
 
 Labels: `SOURCE AUDIT` for the first two, `IMPLEMENT` for the rest.

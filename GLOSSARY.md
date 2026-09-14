@@ -31,6 +31,14 @@ Domain terms with one settled meaning each. Implementation detail stays out.
 - **Curation ledger** — the reviewable per-task table (task → trigger →
   source citation → translation flag) that authorizes diary wiring. Wiring
   that bypasses the ledger is invalid.
-- **Bankstanding** — the neutral Utilities state every ended session lands on.
-  An automatic switch to Bankstanding notifies the player; a manual Stop does
-  not.
+- **Action** — the one skill, activity, or utility that reviews advance for
+  the player. The player has exactly one action at a time. Combat is the action
+  "attack" against a chosen target.
+- **Bankstanding** — the neutral action every ended session lands on. An
+  automatic switch to Bankstanding notifies the player; a manual Stop does not.
+- **Encounter** — one fight against one enemy that persists between reviews:
+  the enemy's remaining life points and the attack countdowns carry from card
+  to card. An encounter lives only while the action stays combat against the
+  same target. A kill, a death, a flee, a bank run, or any action change ends
+  it, and the next fight starts a fresh enemy. Nothing is locked while an
+  encounter is alive.

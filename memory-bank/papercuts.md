@@ -2232,3 +2232,5 @@
 - 2026-09-08: Parent queried the selector command proposal and received `cat: memory-bank/evidence/unproductive-activity-selector-2026-09-08/command-proposal.json: No such file or directory`; the enumerated file is `runtime-protocol-command-proposal.json`. Parent will use the exact enumerated name.
 
 - 2026-09-08: Root runtime-retention verification first treated `stored_path` as checkout-relative instead of evidence-directory-relative, then treated the descriptive `encoding` value as literal `gzip`. Corrected verification confirmed all 44 original/stored hashes, sizes and exact or decompressed byte identities.
+
+- 2026-09-13: `python3 tools/xp_rate_audit.py --level 39` still prints `COMBAT: 50 ticks/review DEFINES R = 120.`; it imports the retired legacy `COMBAT_BURST_TICKS` from `data/combat_data.py` while the live kernel uses `LIVE_COMBAT_TICKS_PER_REVIEW = 6` (`logic/cadence_live.py:30-32`). Its combat lines are stale evidence; the skilling lines are still valid.
