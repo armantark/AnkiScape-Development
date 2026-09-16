@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branch review results — 2026-09-15</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>&#127919;</text></svg>">
+<style>
+:root{
+  --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+  --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:Outfit,"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.55; padding:2.5rem 1.25rem 4rem;
+}
+.wrap{max-width:1060px;margin:0 auto}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+header{margin-bottom:2rem}
+.badge{
+  display:inline-block; font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent); background:var(--accent-glow);
+  border:1px solid rgba(79,140,255,.35); border-radius:999px;
+  padding:.3rem .8rem; margin-bottom:.9rem;
+}
+h1{font-size:2rem;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.sub{color:var(--text-dim);font-size:.95rem;margin-top:.55rem;max-width:66ch}
+
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;margin:1.75rem 0 2.25rem}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem .95rem}
+.metric .n{font-size:1.6rem;font-weight:700;letter-spacing:-.02em;line-height:1}
+.metric .l{color:var(--text-dim);font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;margin-top:.4rem}
+.metric.ok .n{color:var(--green)} .metric.warn .n{color:var(--amber)} .metric.dim .n{color:var(--text-dim)}
+
+h2{font-size:1.05rem;font-weight:600;margin:2.25rem 0 .85rem;display:flex;align-items:center;gap:.6rem}
+h2::before{content:"";width:3px;height:1.05em;background:var(--accent);border-radius:2px}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.85rem}
+th{
+  text-align:left;color:var(--text-dim);font-weight:500;font-size:.68rem;
+  text-transform:uppercase;letter-spacing:.09em;padding:.7rem .85rem;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+td{padding:.62rem .85rem;border-bottom:1px solid rgba(42,48,64,.5);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.br{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.76rem}
+.pill{
+  display:inline-block;font-size:.66rem;font-weight:600;letter-spacing:.03em;
+  padding:.17rem .5rem;border-radius:5px;white-space:nowrap;
+}
+.p-landed{background:rgba(74,222,128,.14);color:var(--green)}
+.p-fix{background:rgba(251,191,36,.14);color:var(--amber)}
+.p-stale{background:rgba(139,149,168,.16);color:var(--text-dim)}
+.p-hold{background:rgba(167,139,250,.16);color:var(--purple)}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.15rem}
+.card.full{grid-column:1/-1}
+.card h3{font-size:.95rem;font-weight:600;margin-bottom:.5rem;display:flex;gap:.55rem;align-items:baseline}
+.card p{color:var(--text-dim);font-size:.85rem}
+.card p + p{margin-top:.6rem}
+.card strong{color:var(--text);font-weight:600}
+.lab{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.62rem;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.lab.red{color:var(--red)} .lab.amber{color:var(--amber)}
+.lab.green{color:var(--green)} .lab.purple{color:var(--purple)}
+
+.files{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem}
+.file{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:5px;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.65rem;
+  color:var(--text-dim);padding:.2rem .45rem;
+}
+
+pre{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+  padding:.8rem .9rem;overflow-x:auto;font-size:.74rem;line-height:1.7;
+  font-family:"JetBrains Mono",ui-monospace,monospace;margin-top:.7rem;
+}
+.was{color:var(--red)} .now{color:var(--green)} .cm{color:var(--text-dim)}
+
+.steps{display:grid;gap:.6rem;margin-top:.3rem}
+.step{display:flex;gap:.8rem;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem .95rem}
+.num{
+  flex:0 0 auto;width:1.55rem;height:1.55rem;border-radius:6px;
+  background:var(--accent-glow);border:1px solid rgba(79,140,255,.4);color:var(--accent);
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.75rem;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+}
+.step .t{font-size:.87rem;font-weight:600}
+.step .d{color:var(--text-dim);font-size:.82rem;margin-top:.2rem}
+
+footer{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.75rem}
+
+@media (max-width:900px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}
+  h1{font-size:1.6rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="badge">Results &middot; 2026-09-15</div>
+  <h1>Ten unmerged branches reviewed. Two landed on main.</h1>
+  <p class="sub">A Kimi K3 swarm reviewed the ten largest branches that were not in main. Fable then tried to refute every finding. Six findings failed that test. Two branches merged, and both test suites stay green.</p>
+</header>
+
+<div class="metrics">
+  <div class="metric"><div class="n">10</div><div class="l">Branches reviewed</div></div>
+  <div class="metric warn"><div class="n">17</div><div class="l">Findings raised</div></div>
+  <div class="metric dim"><div class="n">6</div><div class="l">Refuted</div></div>
+  <div class="metric ok"><div class="n">2</div><div class="l">Merges landed</div></div>
+  <div class="metric ok"><div class="n">5638</div><div class="l">Tests green</div></div>
+</div>
+
+<h2>Where each branch stands</h2>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Branch</th><th>State</th><th>What it holds</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="br">promote-carried-player-cleanup-2026-09-07</td>
+      <td><span class="pill p-landed">landed 9f0f059f</span></td>
+      <td>Four combat and carried extractions. It already contained the preview-food, enemy-poison, keep-settlement and death-prayer branches, so one merge replaced five.</td>
+    </tr>
+    <tr>
+      <td class="br">pouch-ge-eligibility-2026-09-05</td>
+      <td><span class="pill p-landed">landed 7a59bd6a</span></td>
+      <td>Seventy-seven Summoning pouches can now be traded. Eighty pouch names are seeded and all eighty register as tradeable.</td>
+    </tr>
+    <tr>
+      <td class="br">combat-preview-food-2026-09-08</td>
+      <td><span class="pill p-landed">inside 9f0f059f</span></td>
+      <td>Contained in the promotion branch. No separate merge is needed.</td>
+    </tr>
+    <tr>
+      <td class="br">combat-enemy-poison-2026-09-08</td>
+      <td><span class="pill p-landed">inside 9f0f059f</span></td>
+      <td>Contained in the promotion branch.</td>
+    </tr>
+    <tr>
+      <td class="br">carried-keep-settlement-2026-09-08</td>
+      <td><span class="pill p-landed">inside 9f0f059f</span></td>
+      <td>Contained in the promotion branch.</td>
+    </tr>
+    <tr>
+      <td class="br">combat-death-prayer-2026-09-08</td>
+      <td><span class="pill p-landed">inside 9f0f059f</span></td>
+      <td>Contained in the promotion branch. Its two findings are now moot.</td>
+    </tr>
+    <tr>
+      <td class="br">diary-ledger-wiring-2026-09-01</td>
+      <td><span class="pill p-stale">delete it</span></td>
+      <td>Fully landed already. A merge produces a tree identical to main, so the branch adds nothing. K3 called this a blocker that would revert main. That was wrong.</td>
+    </tr>
+    <tr>
+      <td class="br">skippy-mogres-2026-09-01</td>
+      <td><span class="pill p-hold">needs re&#8209;homing</span></td>
+      <td>The Skippy and the Mogres miniquest, a Mogre target, and the nettle tea chain. Four of its edit targets moved in the September data split, so each row needs a new home.</td>
+    </tr>
+    <tr>
+      <td class="br">cape-tradeability-2026-09-05</td>
+      <td><span class="pill p-fix">one real fix</span></td>
+      <td>Spotted and Spottier capes become tradeable. Its test writes an attribute the runtime no longer reads, and the file merges cleanly, so the suite would fail silently.</td>
+    </tr>
+    <tr>
+      <td class="br">cut-gem-tradeability-2026-09-05</td>
+      <td><span class="pill p-fix">pins only</span></td>
+      <td>Cut Jade and Red topaz become tradeable. Only the surface digest pins block it.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>The one defect that is on main</h2>
+<div class="cards">
+  <div class="card full">
+    <h3><span class="lab amber">Minor &middot; main</span> A Great Orb Project tablet sets state that nothing evaluates</h3>
+    <p>When a player breaks a teleport tablet, the handler commits the state change but never runs an achievement check. The Morytania hard deed that reads <code>runecrafting_last_teleport</code> is therefore not evaluated while that state is live. The next review or reload credits the deed, so the loss needs a second tablet break with no review between, which is not the normal flow.</p>
+    <p><strong>The fix already exists in the repository</strong> and is held behind a size-gate ruling on the root module. K3 claimed main had resolved this through a new event type; the verifier checked, and the event main records is consumed by no deed at all.</p>
+    <div class="files">
+      <span class="file">__init__.py:5422</span>
+      <span class="file">memory-bank/pending/gop-achievement-check-2026-09-01.patch</span>
+      <span class="file">data/achievement_diaries/morytania.py:333</span>
+    </div>
+  </div>
+</div>
+
+<h2>What the verification overturned</h2>
+<div class="cards">
+  <div class="card">
+    <h3><span class="lab red">Refuted</span> The diary branch reverting main</h3>
+    <p>K3 rated this a blocker twice. Git settles it: the merge result is byte-identical to main. The deletions K3 saw came from a diff against a stale merge base, not from the merge.</p>
+  </div>
+  <div class="card">
+    <h3><span class="lab red">Refuted</span> The Ghast pouch flipping to tradeable</h3>
+    <p>The claim rests on a shop row that does not exist. The pouch reads as tradeable on the merge base, on the branch, and on main alike. Nothing flips.</p>
+  </div>
+  <div class="card">
+    <h3><span class="lab red">Refuted</span> A wasted Fishing explosive</h3>
+    <p>A zero-damage burst would only waste the lure when the cadence kernel is off. That flag defaults on and nothing outside tests writes it.</p>
+  </div>
+  <div class="card">
+    <h3><span class="lab red">Refuted</span> A missing save-version bump</h3>
+    <p>Quest rows migrate unconditionally. The three bumps K3 cited each added a new top-level key, which this branch does not.</p>
+  </div>
+</div>
+
+<h2>The digest pins hid three of their four failures</h2>
+<div class="cards">
+  <div class="card full">
+    <p>The surface test compares module fingerprints in a loop with a plain equality check, so the run stops at the first mismatch. It reported one moved pin. Four had moved. Making the pouches tradeable changes the carried and activities modules too, because those embed item data.</p>
+<pre><span class="cm"># measured on the merged tree, not taken from either side</span>
+logic/shop_logic.py                    <span class="was">a9455907</span> &#8594; <span class="now">c5889991</span>
+runtime/runtime_actions_carried.py     <span class="was">c768085a</span> &#8594; <span class="now">af12523b</span>
+runtime/runtime_actions_activities.py  <span class="was">d3d927a2</span> &#8594; <span class="now">8e24cf43</span>
+ROOT_QT_DIGEST                         <span class="was">029716e1</span> &#8594; <span class="now">0a4b4fe7</span></pre>
+    <p>Neither the branch nor main could have held the right values, because the merged tree combines both changes. A <code>subTest</code> in that loop would report every mismatch at once.</p>
+  </div>
+</div>
+
+<h2>What is left for you</h2>
+<div class="steps">
+  <div class="step"><div class="num">1</div><div><div class="t">Delete goal/diary-ledger-wiring-2026-09-01</div><div class="d">It is fully landed. Keeping it invites someone to merge a no-op and read the stale diff as a regression, which is exactly what happened here.</div></div></div>
+  <div class="step"><div class="num">2</div><div><div class="t">Decide whether the held Great Orb Project patch can land</div><div class="d">It waits on a size-gate ruling for the root module. Until then the deed depends on the next review to credit it.</div></div></div>
+  <div class="step"><div class="num">3</div><div><div class="t">Rebase the two tradeability branches</div><div class="d">Both need their pins regenerated on the merged tree. The cape branch also needs its test switched to the shared state owner before it can prove anything.</div></div></div>
+  <div class="step"><div class="num">4</div><div><div class="t">Re-home the Mogre content, or retire the branch</div><div class="d">Main already names the quest id in the Slayer contract, so the content is half-expected. Four rows need new files under the split data layout.</div></div></div>
+  <div class="step"><div class="num">5</div><div><div class="t">Nine branches were never reviewed</div><div class="d">Smaller ones, plus four data-only source branches and two mechanical file-split branches. They stay unreviewed, not cleared.</div></div></div>
+</div>
+
+<h2>How the run went</h2>
+<div class="cards">
+  <div class="card">
+    <h3><span class="lab purple">Budget</span> The K3 window, not the weekly one</h3>
+    <p>The run stopped twice on a five-hour limit while the injected counter still showed the weekly allowance as free. The counter also missed the recovery by 91 minutes in the other direction. A one-word probe agent settles it in seven seconds.</p>
+  </div>
+  <div class="card">
+    <h3><span class="lab green">Method</span> Ten reviewers, two at a time</h3>
+    <p>Each reviewer read a prepared diff, so no agent touched git state. Cached results made both resumes free for the branches already done. Verification moved to Fable when K3 ran out.</p>
+  </div>
+</div>
+
+<footer>
+  Main at <span class="mono">565ca904</span> &middot; pure suite <span class="mono">OK (skipped=1363)</span> &middot; offscreen Qt <span class="mono">OK (skipped=5)</span> &middot; 5638 tests each &middot; findings retained at <span class="mono">/tmp/k3-review-2026-09-15/k3-findings.json</span>
+</footer>
+
+</div>
+</body>
+</html>
