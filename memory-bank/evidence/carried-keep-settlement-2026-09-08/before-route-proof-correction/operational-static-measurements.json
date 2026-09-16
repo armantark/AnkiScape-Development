@@ -1,0 +1,198 @@
+{
+  "status": "PASS",
+  "failures": {
+    "ccn": [],
+    "cognitive": [],
+    "halstead": [],
+    "layout": [],
+    "file_growth": []
+  },
+  "lines": {
+    "base": {
+      "runtime-harness.py": 352,
+      "runtime-safety-check.py": 201
+    },
+    "candidate": {
+      "runtime-harness.py": 341,
+      "runtime-safety-check.py": 245
+    }
+  },
+  "sources": {
+    "runtime-harness.py": "6d1b7ff6f4253e1ad45cf51f8165a636ecbfc752b42f3ece6f56d37dab67c63d",
+    "runtime-safety-check.py": "a166cf72d18dc49402e59b13ed3719ca24108e0076f92d09627f88bf508238e6"
+  },
+  "gate": {
+    "path": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+    "sha256": "41a91e5164b7bace435c7dc035fd51363bf3c5923dd727e85365644c19f9a70c",
+    "thresholds": {
+      "CCN_MAX": 15,
+      "COGNITIVE_MAX": 15,
+      "HALSTEAD_MAX": 80,
+      "FILE_LINES_MAX": 1000
+    },
+    "layout_codes": "E301,E302,E303,E305,E306,E701,E702,E703"
+  },
+  "tools": {
+    "lizard": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/lizard",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/lizard/bin/lizard",
+      "sha256": "9f4becf742daaf2c86fc43a7aa14e986623d3b6bebecd426bc7636e46ce6184c"
+    },
+    "complexipy": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/complexipy",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/complexipy/bin/complexipy",
+      "sha256": "0e5d4ecd86ed5fab94a9372e2f94e0b16227f45618ea7a1fb11729a31888ae52"
+    },
+    "radon": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/radon",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/radon/bin/radon",
+      "sha256": "c5b3293a495616659bb22bef6b04a37582eea82e48c5b3450e281059ee94fd53"
+    },
+    "pycodestyle": {
+      "path": "/Users/ArmanTarkhanian1/.local/bin/pycodestyle",
+      "resolved_path": "/Users/ArmanTarkhanian1/.local/share/uv/tools/pycodestyle/bin/pycodestyle",
+      "sha256": "19d602cb82513894d6047f640bb14cc213f7cf96c6e981eea2f4fcb36f83a34f"
+    }
+  },
+  "inventory_sha256": "295525148f728f8d39fb1f814a01aaab1c6ba569c2516628bc880e1e6d7a1d94",
+  "source_entries_verified": 908,
+  "product_import_attempts": [],
+  "metrics": {
+    "base": {
+      "ccn": {
+        "runtime-safety-check.py|load_harness": 1,
+        "runtime-safety-check.py|invocation": 1,
+        "runtime-safety-check.py|main.__init__": 1,
+        "runtime-safety-check.py|main._pending_path": 1,
+        "runtime-safety-check.py|main._preflight": 1,
+        "runtime-safety-check.py|main._sync": 1,
+        "runtime-safety-check.py|main.dangerous_reconcile": 1,
+        "runtime-safety-check.py|main.racing_sync": 1,
+        "runtime-safety-check.py|main.original_ssh": 2,
+        "runtime-safety-check.py|main.stream": 1,
+        "runtime-safety-check.py|main": 16,
+        "runtime-harness.py|save": 2,
+        "runtime-harness.py|local_sources": 5,
+        "runtime-harness.py|assert_no_pending": 2,
+        "runtime-harness.py|remote_prefix": 2,
+        "runtime-harness.py|comparator_command": 2,
+        "runtime-harness.py|expected_guard": 1,
+        "runtime-harness.py|capture_guard": 2,
+        "runtime-harness.py|launch_one.launch_ssh": 3,
+        "runtime-harness.py|launch_one": 1,
+        "runtime-harness.py|retain_interrupted": 4,
+        "runtime-harness.py|validate_comparison": 16,
+        "runtime-harness.py|retain_comparison": 1,
+        "runtime-harness.py|run_one": 10,
+        "runtime-harness.py|main": 15
+      },
+      "cognitive": {
+        "runtime-harness.py|expected_guard": 0,
+        "runtime-harness.py|retain_comparison": 0,
+        "runtime-harness.py|save": 0,
+        "runtime-harness.py|assert_no_pending": 1,
+        "runtime-harness.py|capture_guard": 1,
+        "runtime-harness.py|comparator_command": 1,
+        "runtime-harness.py|remote_prefix": 2,
+        "runtime-harness.py|launch_one": 5,
+        "runtime-harness.py|local_sources": 6,
+        "runtime-harness.py|retain_interrupted": 6,
+        "runtime-harness.py|run_one": 12,
+        "runtime-harness.py|main": 14,
+        "runtime-harness.py|validate_comparison": 14,
+        "runtime-safety-check.py|invocation": 0,
+        "runtime-safety-check.py|load_harness": 0,
+        "runtime-safety-check.py|main": 20
+      },
+      "halstead": {
+        "runtime-safety-check.py|load_harness": 0.0,
+        "runtime-safety-check.py|invocation": 0.0,
+        "runtime-safety-check.py|main": 4.7,
+        "runtime-harness.py|save": 0.5,
+        "runtime-harness.py|local_sources": 1.6875,
+        "runtime-harness.py|assert_no_pending": 0.0,
+        "runtime-harness.py|remote_prefix": 1.875,
+        "runtime-harness.py|comparator_command": 1.0,
+        "runtime-harness.py|expected_guard": 0.0,
+        "runtime-harness.py|capture_guard": 1.0,
+        "runtime-harness.py|launch_one": 1.5,
+        "runtime-harness.py|retain_interrupted": 0.75,
+        "runtime-harness.py|validate_comparison": 2.206896551724138,
+        "runtime-harness.py|retain_comparison": 0.5,
+        "runtime-harness.py|run_one": 3.2222222222222223,
+        "runtime-harness.py|main": 4.5
+      },
+      "layout": {}
+    },
+    "candidate": {
+      "ccn": {
+        "runtime-safety-check.py|load_harness": 1,
+        "runtime-safety-check.py|invocation": 1,
+        "runtime-safety-check.py|failed_comparison_is_retained.ssh": 3,
+        "runtime-safety-check.py|failed_comparison_is_retained": 5,
+        "runtime-safety-check.py|main.__init__": 1,
+        "runtime-safety-check.py|main._pending_path": 1,
+        "runtime-safety-check.py|main._preflight": 1,
+        "runtime-safety-check.py|main._sync": 1,
+        "runtime-safety-check.py|main.dangerous_reconcile": 1,
+        "runtime-safety-check.py|main.racing_sync": 1,
+        "runtime-safety-check.py|main.original_ssh": 2,
+        "runtime-safety-check.py|main.stream": 1,
+        "runtime-safety-check.py|main": 16,
+        "runtime-harness.py|save": 2,
+        "runtime-harness.py|local_sources": 5,
+        "runtime-harness.py|assert_no_pending": 2,
+        "runtime-harness.py|remote_prefix": 2,
+        "runtime-harness.py|comparator_command": 2,
+        "runtime-harness.py|expected_guard": 1,
+        "runtime-harness.py|capture_guard": 2,
+        "runtime-harness.py|launch_one.launch_ssh": 3,
+        "runtime-harness.py|launch_one": 1,
+        "runtime-harness.py|retain_interrupted": 4,
+        "runtime-harness.py|validate_comparison": 16,
+        "runtime-harness.py|retain_comparison": 1,
+        "runtime-harness.py|run_one": 11,
+        "runtime-harness.py|main": 15
+      },
+      "cognitive": {
+        "runtime-harness.py|expected_guard": 0,
+        "runtime-harness.py|retain_comparison": 0,
+        "runtime-harness.py|save": 0,
+        "runtime-harness.py|assert_no_pending": 1,
+        "runtime-harness.py|capture_guard": 1,
+        "runtime-harness.py|comparator_command": 1,
+        "runtime-harness.py|remote_prefix": 2,
+        "runtime-harness.py|launch_one": 5,
+        "runtime-harness.py|local_sources": 6,
+        "runtime-harness.py|retain_interrupted": 6,
+        "runtime-harness.py|run_one": 13,
+        "runtime-harness.py|main": 14,
+        "runtime-harness.py|validate_comparison": 14,
+        "runtime-safety-check.py|invocation": 0,
+        "runtime-safety-check.py|load_harness": 0,
+        "runtime-safety-check.py|failed_comparison_is_retained": 9,
+        "runtime-safety-check.py|main": 20
+      },
+      "halstead": {
+        "runtime-safety-check.py|load_harness": 0.0,
+        "runtime-safety-check.py|invocation": 0.0,
+        "runtime-safety-check.py|failed_comparison_is_retained": 1.9090909090909092,
+        "runtime-safety-check.py|main": 4.7,
+        "runtime-harness.py|save": 0.5,
+        "runtime-harness.py|local_sources": 1.6875,
+        "runtime-harness.py|assert_no_pending": 0.0,
+        "runtime-harness.py|remote_prefix": 1.875,
+        "runtime-harness.py|comparator_command": 1.0,
+        "runtime-harness.py|expected_guard": 0.0,
+        "runtime-harness.py|capture_guard": 1.0,
+        "runtime-harness.py|launch_one": 1.5,
+        "runtime-harness.py|retain_interrupted": 0.75,
+        "runtime-harness.py|validate_comparison": 2.206896551724138,
+        "runtime-harness.py|retain_comparison": 0.5,
+        "runtime-harness.py|run_one": 3.4444444444444446,
+        "runtime-harness.py|main": 4.5
+      },
+      "layout": {}
+    }
+  }
+}

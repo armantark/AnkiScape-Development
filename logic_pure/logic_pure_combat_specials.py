@@ -2,9 +2,56 @@
 
 from typing import Mapping
 
-from .logic_pure_combat_model import _combat_unprotected_damage_lifepoints
-from .logic_pure_combat_supplies import combat_dragonfire_protection_pure
-from .logic_pure_state import _non_negative_int
+from .logic_pure_combat_model import (
+    COMBAT_POISON_NPC_ATTACK_CHANCE,
+    _combat_cap_damage_for_finisher,
+    _combat_unprotected_damage_lifepoints,
+)
+from .logic_pure_combat_supplies import (
+    _combat_apply_poison_effect_to_data,
+    _combat_consume_antipoison_if_needed,
+    combat_dragonfire_protection_pure,
+    combat_poison_damage_for_ticks_pure,
+    combat_poison_ticks_for_initial_damage_pure,
+)
+from .logic_pure_state import _non_negative_int, _positive_int
+
+
+def _combat_death_prayer_damage(data, selected_prayers, finisher, enemy_lp, rng):
+    cap_multiplier = 2.5 if "wrath" in selected_prayers else .25
+    # Death prayers include 1.0; special-attack damage rolls exclude it.
+    try:
+        death_roll = max(0.0, min(1.0, float(rng())))
+    except (TypeError, ValueError):
+        death_roll = 0.0
+    death_burst, automatic_finisher = _combat_cap_damage_for_finisher(
+        data,
+        finisher,
+        enemy_lp,
+        int(
+            _positive_int(data.get("prayer_level", 1), 1)
+            * cap_multiplier
+            * death_roll
+        ),
+        allow_automatic=False,
+    )
+    return death_burst, automatic_finisher
+
+
+def _combat_enemy_poison_application(data, poison_damage, rng, status_applied):
+    if poison_damage > 0:
+        try:
+            poison_roll = float(rng())
+        except (TypeError, ValueError):
+            poison_roll = 1.0
+        if poison_roll < COMBAT_POISON_NPC_ATTACK_CHANCE:
+            applied, _reason = _combat_apply_poison_effect_to_data(data, poison_damage)
+            if applied:
+                status_applied["poison"] = combat_poison_damage_for_ticks_pure(
+                    combat_poison_ticks_for_initial_damage_pure(poison_damage)
+                )
+                return _combat_consume_antipoison_if_needed(data)
+    return None
 
 
 def _combat_enemy_prayer_drain(enemy, raw_enemy_damage, prayer_points_after):

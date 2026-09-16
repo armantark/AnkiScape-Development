@@ -1,0 +1,8 @@
+{
+  "staged_python": {
+    "runtime/runtime_actions_carried_overlay.py": "4d304b3cc31ee0884027be0cbb103597df4952f25cf97f961908b3e7b20d3ebe",
+    "tests/runtime_actions/test_carried_keep_settlement.py": "6ac42e06c1ee81afc072f58fd84c7b4f9eeb2c9a929b866311a4b289e868b66e",
+    "tools/carried/compare_keep_settlement.py": "f4ddc66065d3d5afcbd9ca78f22677056c9c5c892e4f422f4dcb2e1a2d758549"
+  },
+  "inventory_sha256": "c8f55969c8c9e36eaca8a55050d15aaba5b51b026b3d431301a5a7417b028806"
+}

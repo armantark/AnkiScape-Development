@@ -1,0 +1,150 @@
+{
+  "status": "PASS_WITH_EXISTING_DEFAULT_REEXPORT_NOTE",
+  "generated_at": "2026-09-08T09:55:55-07:00",
+  "helper_dependencies": {
+    "_sanitize_combat_supply_loadout": {
+      "resolved": true,
+      "imports": [
+        {
+          "module": ".logic_pure_state",
+          "line": 227
+        },
+        {
+          "module": ".logic_pure_state",
+          "line": 293
+        }
+      ],
+      "helper_load_lines": [
+        368
+      ]
+    },
+    "_non_negative_int": {
+      "resolved": true,
+      "imports": [
+        {
+          "module": ".logic_pure_state",
+          "line": 227
+        },
+        {
+          "module": ".logic_pure_state",
+          "line": 293
+        }
+      ],
+      "helper_load_lines": [
+        377,
+        383
+      ]
+    },
+    "COMBAT_FOOD_DATA": {
+      "resolved": true,
+      "imports": [
+        {
+          "module": "..data.combat_data",
+          "line": 32
+        }
+      ],
+      "helper_load_lines": [
+        375
+      ]
+    },
+    "_DEFAULT_COMBAT_AUTO_EAT_FOOD": {
+      "resolved": true,
+      "imports": [
+        {
+          "module": ".logic_pure_combat_model",
+          "line": 58
+        }
+      ],
+      "helper_load_lines": [
+        373
+      ]
+    }
+  },
+  "engine_existing_names": {
+    "COMBAT_FOOD_DATA": {
+      "internal_consumers": [
+        2703,
+        2709
+      ]
+    },
+    "_non_negative_int": {
+      "internal_consumers": [
+        629,
+        838,
+        839,
+        913,
+        941,
+        967,
+        985,
+        1010,
+        1012,
+        1035,
+        1250,
+        1254,
+        1259,
+        1260,
+        1377,
+        1402,
+        1407,
+        1446,
+        1456,
+        1623,
+        1628,
+        1636,
+        1742,
+        1744,
+        1772,
+        1779,
+        1884,
+        1971,
+        2075,
+        2113,
+        2214,
+        2413,
+        2519,
+        2563,
+        2658,
+        2753,
+        2754,
+        2756,
+        2856,
+        2860,
+        2869,
+        2898,
+        2901
+      ]
+    },
+    "_sanitize_combat_supply_loadout": {
+      "internal_consumers": [
+        2583,
+        2614,
+        2748
+      ]
+    },
+    "_DEFAULT_COMBAT_AUTO_EAT_FOOD": {
+      "internal_consumers": [],
+      "imports": [
+        {
+          "module": ".logic_pure_combat_model",
+          "line": 116
+        },
+        {
+          "module": ".logic_pure_combat_model",
+          "line": 381
+        }
+      ],
+      "note": "No internal consumer remains after the move. The first binding is in the existing explicit F401 re-export block; the second is the existing duplicate working import. Neither was changed because the authorized correction was import ordering, and removing an established re-export was outside the settled boundary."
+    }
+  },
+  "tests_combat_package": {
+    "path": "tests/combat/__init__.py",
+    "exists": true,
+    "bytes": 26,
+    "sha256": "14dec5c1cb4e4e2e80f87d7ae91f97529454bc5a294d9ff18126cf8a672dfd47"
+  },
+  "baseline_supplies_provenance": {
+    "snapshot": "baseline-supplies.py.gz",
+    "claim": "Exact baseline provenance integrity only. The comparator does not execute the frozen supplies file and this evidence does not claim otherwise.",
+    "root_independent_ast_proof_pending": true
+  }
+}

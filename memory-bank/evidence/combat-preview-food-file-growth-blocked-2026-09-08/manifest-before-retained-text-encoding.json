@@ -1,0 +1,90 @@
+{
+  "status": "ARCHIVED_EXACT_BLOCKED_FILE_GROWTH_CANDIDATE",
+  "generated_at": "2026-09-08T10:26:47-07:00",
+  "branch": "goal/combat-preview-food-2026-09-08",
+  "baseline_commit": "6dacde5486c72e73ca170c039bf8207dec22ac81",
+  "blocking_gate": {
+    "exit_code": 1,
+    "stdout": [
+      "slop-gate: code files above 1000 lines were grown:",
+      "  logic_pure/logic_pure_combat_supplies.py: 1772 lines (was 1749)",
+      "  -> Split along module seams (a cohesive unit per file), not at an arbitrary line count."
+    ],
+    "stderr": ""
+  },
+  "candidate_sources": {
+    "logic_pure/logic_pure_combat_engine.py": {
+      "archive_file": "logic_pure__logic_pure_combat_engine.py.gz",
+      "raw_bytes": 120996,
+      "raw_sha256": "e803209d74faf20d2fe6a19e008f5707b9cfd76f8688cd2e3d6340cac7dd0493",
+      "stored_bytes": 23221,
+      "stored_sha256": "2757c9f8205a9eb6eb460699cf01376af789499d9a1b1010fdf7f05ea7767c6d"
+    },
+    "logic_pure/logic_pure_combat_supplies.py": {
+      "archive_file": "logic_pure__logic_pure_combat_supplies.py.gz",
+      "raw_bytes": 69707,
+      "raw_sha256": "9d1e1247df8bce200be7c84f858dcc1616229bea0ce34393e71b152efd86c214",
+      "stored_bytes": 13793,
+      "stored_sha256": "fc904d9f18e62a1034d1e332cebcd5e130b0d233a01a34930c4b4b4f23538ef8"
+    },
+    "tests/combat/test_preview_food.py": {
+      "archive_file": "tests__combat__test_preview_food.py.gz",
+      "raw_bytes": 4184,
+      "raw_sha256": "75cf9c59c8fb9f0277498d58f9e64a286b099781485491bdfc391a42ab0ab1e4",
+      "stored_bytes": 1032,
+      "stored_sha256": "5e43dc48251b866f87fe19dbb69ee4f95c83bcb55ca9dd6a5fc88ba41e390698"
+    },
+    "tools/combat/compare_preview_food.py": {
+      "archive_file": "tools__combat__compare_preview_food.py.gz",
+      "raw_bytes": 12557,
+      "raw_sha256": "f9e36410457a8cc4b5ed336bb26982b151fb76bf772ce4f67a7cb3b79f090dc3",
+      "stored_bytes": 3326,
+      "stored_sha256": "dbafdd2c85c38aad463d6b711e98720971f1e318849fe79adaf5dac8f63863f1"
+    },
+    "memory-bank/papercuts.md": {
+      "archive_file": "memory-bank__papercuts.md.gz",
+      "raw_bytes": 594749,
+      "raw_sha256": "3d6d567edc4c1cc0ae7eeb889feef983c15795fa225e9009acfa032c86cc6a50",
+      "stored_bytes": 194937,
+      "stored_sha256": "62c45f123244cafa952be3270a04421fb2e1d1fbe486c558e5193fc372083297"
+    }
+  },
+  "evidence_exact": {
+    "source_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/5/ankiscape_fork/memory-bank/evidence/combat-preview-food-2026-09-08",
+    "archive_path": "evidence-exact",
+    "file_count": 28,
+    "files": {
+      "RUNNING.md": "6c7cb0de78723099c6f8ffe5ee62f1c64337913228d10358bf3145abc16fd050",
+      "baseline-engine.py.gz": "1e3f72610e12711057b32af3e07bfbdb41be10b17228036750ff390fdadd90b6",
+      "baseline-supplies.py.gz": "503aed6ea0c3510268ef45d75573e945e23baf04536d76aac4eafc0f309bdf4b",
+      "boundary-manifest.json": "04f8a69582ce73e7c59acbd7ddbe324af3c72dd2b2c19f00ea4e2abbdf258064",
+      "candidate-engine.py.gz": "2757c9f8205a9eb6eb460699cf01376af789499d9a1b1010fdf7f05ea7767c6d",
+      "candidate-supplies.py.gz": "fc904d9f18e62a1034d1e332cebcd5e130b0d233a01a34930c4b4b4f23538ef8",
+      "comparator-preflight.json": "2477ea9abf0b288358e4c281b3ae6b6559a1a65c3f569738c22de74faf436b15",
+      "comparator.diff": "89fd6990ddcfa5cc2e6818c89b59ef4a93a4bed9dbb25f4466fc86ec5eb9e07b",
+      "fixed-file-growth-gate.json": "d6503c8740e7efd9af4df9a15d5688a0eb34374c2a97f2f6f429cfe12bae1555",
+      "manifest.json": "b1b398220830a18bb857e0a682c22e91517195f4088023e3221e277d061e582a",
+      "module-split-kimi.prompt.gz": "deba4a42309cf62e319181dbb2b3cfb389c5d2b760d6688d1d855970735d76c5",
+      "module-split-kimi.stderr.gz": "3f7edabbf01d3681df095e607e2a79f81c8b2f0182b63cba7df3d7c7d7b35801",
+      "module-split-kimi.stdout.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "module-split-review-failed.json": "ac481cab3ba16ef786a54bff3294d8bcac4cc2a4c725d46c51ac531860e81b90",
+      "product-and-test.diff": "301e66fa1a8ca56c71f207ad44bbbf5513b059ca5575df4f2ba5ed57de225172",
+      "product-opus-review.prompt.gz": "6a2f100900803d5f23b8b8d6d9c4acafdb3c4e37db5b36fabc42bceea9296f45",
+      "product-opus-review.stderr.gz": "685ee6e387a6f8301d88a7ff9baaec69edc8346c548aaedf2fb6c35045f9c724",
+      "product-opus-review.stdout.gz": "cd89fcd7a59729e65eb6f9cd2a8a27b7b6b651404b7b4bccd69d213a25357030",
+      "product-review-acceptance.json": "0a7e1317fa1a88b881bf9b2b5601603237c28f73c58658f8a6c1cb21e2c86e0e",
+      "reviewed-candidate-engine.py.gz": "ca01cb185ea08709c7c89095be6ec3288b5832a3039a017230b7c108a0047a62",
+      "reviewed-candidate-supplies.py.gz": "fc904d9f18e62a1034d1e332cebcd5e130b0d233a01a34930c4b4b4f23538ef8",
+      "reviewed-comparator.diff": "c934da1b72544bd131b7a013593a62b58e3df8ce0e6d568575ed926594dee8c2",
+      "reviewed-product-and-test.diff": "d7e271af201d3464ca51bd91054365c39b11ab622a971df16bb4bb548fbc1391",
+      "reviewer-limitations-static.json": "c86f1f31e8ab0b90036e61df5ecb51d6efbe78c54c16b91d8372a3f7a803e9f5",
+      "runtime-harness.py.gz": "8708339859f9a55b189967e2bcb4005e87fab572cd6f918a9d4d7031dc5046ec",
+      "runtime-safety-check.py.gz": "0a4fae6ed513b3b6b05aaafbb498e3b4114b5a7c17084b459a4f42475ff24de9",
+      "source-inventory.json.gz": "851819b7543ff8a00bcf769ef7f098c91a5ad8a5cf17ba015437c7509a76d2d9",
+      "static-preparation.json": "3918aac742652df0cb50f2f2968616f45638d34590d2b2f7b53dfcbe4ca0ac62"
+    }
+  },
+  "accepted": false,
+  "runtime_executed": false,
+  "committed": false
+}

@@ -174,6 +174,38 @@ def _reconcile_processing_inventory(
     return reconciled, {name: count for name, count in view.items() if count > 0}
 
 
+def _fold_keep_gains_and_write_carried(
+    player_data, target_id, post_handler_view, gains,
+    new_churn, churn_delta, capacity, evil_tree_overflow,
+):
+    overflow_items: dict[str, int] = {}
+    if evil_tree_overflow:
+        post_handler_view, overflow_items = (
+            inventory_pure.carried_fold_gains_with_overflow_pure(
+                post_handler_view,
+                gains,
+                _OVERLAY_STACKABLE_NAMES,
+                capacity,
+            )
+        )
+    else:
+        post_handler_view = inventory_pure.carried_fold_gains_pure(
+            post_handler_view,
+            gains,
+            _OVERLAY_STACKABLE_NAMES,
+        )
+    _set_carried_target_map(player_data, "carried_inventory", target_id, post_handler_view)
+    _set_carried_target_map(
+        player_data,
+        "carried_churn",
+        target_id,
+        min(capacity, new_churn + churn_delta)
+        if evil_tree_overflow
+        else new_churn + churn_delta,
+    )
+    return overflow_items
+
+
 def _initialize_due_bank_trip(
     ctx: RuntimeActionContext,
     handler_key: str,
@@ -741,30 +773,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
                 _without_urn_substitutions(inv_after),
                 _OVERLAY_STACKABLE_NAMES,
             )
-            overflow_items: dict[str, int] = {}
-            if evil_tree_overflow:
-                post_handler_view, overflow_items = (
-                    inventory_pure.carried_fold_gains_with_overflow_pure(
-                        post_handler_view,
-                        gains,
-                        _OVERLAY_STACKABLE_NAMES,
-                        capacity,
-                    )
-                )
-            else:
-                post_handler_view = inventory_pure.carried_fold_gains_pure(
-                    post_handler_view,
-                    gains,
-                    _OVERLAY_STACKABLE_NAMES,
-                )
-            _set_carried_target_map(player_data, "carried_inventory", target_id, post_handler_view)
-            _set_carried_target_map(
-                player_data,
-                "carried_churn",
-                target_id,
-                min(capacity, new_churn + churn_delta)
-                if evil_tree_overflow
-                else new_churn + churn_delta,
+            overflow_items = _fold_keep_gains_and_write_carried(
+                player_data, target_id, post_handler_view, gains,
+                new_churn, churn_delta, capacity, evil_tree_overflow,
             )
             if overflow_items:
                 ctx.show_activity_gain(

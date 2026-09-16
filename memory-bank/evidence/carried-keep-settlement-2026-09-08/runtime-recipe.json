@@ -1,0 +1,17 @@
+{
+  "status": "PROPOSED_NOT_EXECUTED",
+  "source_root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/4/ankiscape_fork",
+  "baseline_commit": "1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12",
+  "inventory_sha256": "c8f55969c8c9e36eaca8a55050d15aaba5b51b026b3d431301a5a7417b028806",
+  "parent_only_execution": true,
+  "runtime_harness": "runtime-harness.py.gz",
+  "safety_check": "runtime-safety-check.py.gz",
+  "focused_methods": 3,
+  "expected_skips": 0,
+  "comparison_cases": 9,
+  "commands": {
+    "inert_safety": "python3 -B /tmp/carried-keep-safety.py --harness /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/4/ankiscape_fork/memory-bank/evidence/carried-keep-settlement-2026-09-08/runtime-harness.py.gz --output /tmp/carried-keep-inert-proof.json",
+    "one_job": "python3 -B /tmp/carried-keep-harness.py --root '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/4/ankiscape_fork' --output /tmp/carried-keep-LANE-KIND-UNIQUE --lane LANE --kind KIND"
+  },
+  "execution_notes": "Parent decodes the exact bound gzip scripts into the command paths first. Run the inert safety check under the existing process/network denial audit. Replace LANE with plain or qt and KIND with focused or comparison. Use a distinct absent output directory for every job. Preserve pending identities on failure; do not resync or relaunch. Root must review and admit each step."
+}

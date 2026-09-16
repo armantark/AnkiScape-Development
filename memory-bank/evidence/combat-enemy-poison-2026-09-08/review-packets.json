@@ -1,0 +1,18 @@
+{
+  "status": "STATIC_PREPARATION_ONLY",
+  "manifest_sha256": "9821309e6d4c0b45bf5ba92bc3f3290761f6c8927bcf9538a1ec69b4af63b43f",
+  "packets": {
+    "product-review.diff": {
+      "bytes": 7317,
+      "sha256": "aff4d90ebdb9a673f8347abc73ed6e8a830c3de9e7b6cec11fcf8009d8cbd07f"
+    },
+    "operational-review.diff": {
+      "bytes": 18072,
+      "sha256": "2ca6099851395dda74b70303419838498d36b370590330586dfab32b7e42d913"
+    },
+    "runtime-operational-review.diff": {
+      "bytes": 21586,
+      "sha256": "428db56ccd0828c6988fffbae414ddc22fa235d353daae55bf90c5f47d4a3e1e"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "scope": "full candidate in temporary index",
+  "temporary_index": true,
+  "instrument": "/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py",
+  "exit_code": 0,
+  "elapsed_seconds": 32.588,
+  "stdout": "",
+  "stderr": ""
+}

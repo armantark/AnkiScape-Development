@@ -1,0 +1,42 @@
+{
+  "status": "FOCUSED_AND_DIFFERENTIAL_RUNTIME_PASS_FULL_GATES_PENDING",
+  "authority": "Root full-read and verification reported to this author; this author performed retention only.",
+  "jobs": {
+    "plain-focused": {
+      "session": 63290,
+      "terminal_exit": 0,
+      "run_id": "plain-1788894233-c2f73453",
+      "tests": 3,
+      "seconds": 0.003,
+      "skips": 0
+    },
+    "plain-comparison": {
+      "session": 31034,
+      "terminal_exit": 0,
+      "run_id": "plain-1788894295-a7df253d",
+      "cases": 12
+    },
+    "qt-focused": {
+      "session": 66125,
+      "terminal_exit": 0,
+      "run_id": "qt-1788894371-3a3b8c0f",
+      "tests": 3,
+      "seconds": 0.003,
+      "skips": 0
+    },
+    "qt-comparison": {
+      "session": 71671,
+      "terminal_exit": 0,
+      "run_id": "qt-1788894459-e0db09a3",
+      "cases": 12
+    }
+  },
+  "verified_by_parent": [
+    "All 1263 source pins match before, after, raw, local and comparison snapshots.",
+    "All 12 complete payload pairs per lane match as pickle bytes and RestrictedUnpickler structures.",
+    "Exact RNG draws, draw counts, route outcomes and input nonmutation match."
+  ],
+  "full_branch_gate": "PENDING",
+  "post_merge_gate": "PENDING",
+  "native_programme": "UNPROVEN"
+}

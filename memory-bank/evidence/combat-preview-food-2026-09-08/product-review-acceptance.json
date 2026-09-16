@@ -1,0 +1,55 @@
+{
+  "status": "PASS_WITH_MINOR_CORRECTIONS_PENDING",
+  "generated_at": "2026-09-08T09:50:58-07:00",
+  "review_session": 98845,
+  "review_exit_code": 0,
+  "verdict": "PASS",
+  "reviewed_sources": {
+    "logic_pure/logic_pure_combat_engine.py": "6e7e29cb34eaa89f82879eecf94cc66e52bb1b467fc72f7edbc2cbae9d84d051",
+    "logic_pure/logic_pure_combat_supplies.py": "9d1e1247df8bce200be7c84f858dcc1616229bea0ce34393e71b152efd86c214",
+    "tests/combat/test_preview_food.py": "75cf9c59c8fb9f0277498d58f9e64a286b099781485491bdfc391a42ab0ab1e4",
+    "tools/combat/compare_preview_food.py": "ac5d1515e0ec8d78fffdde046b00cac2b1c0d2c1530de70b758ce36ac9263f25"
+  },
+  "reviewed_packet": {
+    "reviewed-product-and-test.diff": "d7e271af201d3464ca51bd91054365c39b11ab622a971df16bb4bb548fbc1391",
+    "reviewed-comparator.diff": "c934da1b72544bd131b7a013593a62b58e3df8ce0e6d568575ed926594dee8c2",
+    "reviewed-candidate-engine.py.gz": "ca01cb185ea08709c7c89095be6ec3288b5832a3039a017230b7c108a0047a62",
+    "reviewed-candidate-supplies.py.gz": "fc904d9f18e62a1034d1e332cebcd5e130b0d233a01a34930c4b4b4f23538ef8"
+  },
+  "review_streams": {
+    "product-opus-review.stdout.gz": {
+      "original_path": "/tmp/ankiscape-preview-food-opus-2026-09-08.txt",
+      "raw_bytes": 4443,
+      "raw_sha256": "1a3b2eed5abf09e413031d376431a8e859e70c4856b1dd2307b6cf92b66c13d9",
+      "stored_bytes": 2097,
+      "stored_sha256": "cd89fcd7a59729e65eb6f9cd2a8a27b7b6b651404b7b4bccd69d213a25357030"
+    },
+    "product-opus-review.stderr.gz": {
+      "original_path": "/tmp/ankiscape-preview-food-opus-2026-09-08.stderr",
+      "raw_bytes": 350,
+      "raw_sha256": "3c81d88fda6aafcf0b628db097c5b6e58fbd73e7e78f634465f9e72516ced8cc",
+      "stored_bytes": 212,
+      "stored_sha256": "685ee6e387a6f8301d88a7ff9baaec69edc8346c548aaedf2fb6c35045f9c724"
+    },
+    "product-opus-review.prompt.gz": {
+      "original_path": "/tmp/ankiscape-preview-food-opus-prompt-2026-09-08.txt",
+      "raw_bytes": 21075,
+      "raw_sha256": "cf33b6cdae0e292851dbeb8150138079638f9c10a091eb01af266e428a822d31",
+      "stored_bytes": 5388,
+      "stored_sha256": "6a2f100900803d5f23b8b8d6d9c4acafdb3c4e37db5b36fabc42bceea9296f45"
+    }
+  },
+  "accepted_corrections": [
+    "Move `_combat_preview_food_available` before `_combat_progress_or_start_bank_run` in the engine import list.",
+    "Remove the unnecessary per-case output rewrite from the 15-case comparator."
+  ],
+  "baseline_supplies_finding_resolution": {
+    "resolution": "RETAIN_AS_PROVENANCE_INTEGRITY_ONLY",
+    "reason": "The frozen supplies snapshot is checked only for exact baseline provenance. It is not presented as a behavioral dependency proof. Root will independently AST-prove that candidate supplies changes only add the helper."
+  },
+  "reviewer_limitations_to_verify": [
+    "helper dependencies resolve in supplies",
+    "engine old imports retain other consumers",
+    "tests/combat/__init__.py exists"
+  ]
+}

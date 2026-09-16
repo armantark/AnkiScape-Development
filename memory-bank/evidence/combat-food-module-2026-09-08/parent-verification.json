@@ -1,0 +1,39 @@
+{
+  "status": "PARENT_STATIC_AND_INERT_PASS_PRODUCT_RUNTIME_NOT_STARTED",
+  "generated_at": "2026-09-08T11:46:54-07:00",
+  "parent_ast_proof": {
+    "path": "parent-ast-proof.json",
+    "bytes": 1154,
+    "sha256": "271b8a4dca08c30c3b9fc4948c97e22a46df29d858a44f5ffa10ac7c8a6d63a6",
+    "status": "PASS",
+    "source_inventory_sha256": "dfa42e3ccac39fb17bb605cfe69173dcc626298fced81e8d99192d51aaa6a73e"
+  },
+  "parent_inert_safety_check": {
+    "path": "parent-inert-safety-check.json",
+    "bytes": 906,
+    "sha256": "fb2cc5189b863a01c04cbfa3b1d57dda3230f2dd069061536175571b3514b19f",
+    "status": "PASS",
+    "case_count": 4,
+    "actual_remote_calls": 0,
+    "product_imports_before": [],
+    "product_imports_after": [],
+    "outer_audit_hook_blocked": [
+      "subprocess",
+      "socket",
+      "product imports"
+    ]
+  },
+  "frozen_files_unchanged": {
+    "source-inventory.json.gz": "dfa42e3ccac39fb17bb605cfe69173dcc626298fced81e8d99192d51aaa6a73e",
+    "runtime-harness.py.gz": "ada207a5ec852b834a5284e38f6dcdd0bd9c34e3f5f812cd26b759959cb23d75",
+    "runtime-safety-check.py.gz": "0a4fae6ed513b3b6b05aaafbb498e3b4114b5a7c17084b459a4f42475ff24de9",
+    "candidate-food.py.gz": "582b29ca53151f413024a3d4e92014082ae0379a3a54772f9cbdc356b89b5815",
+    "candidate-engine.py.gz": "3525e9186f6dfacd9bb53c3964ef8511c34a0163dd978a0f259f4a30ba462532",
+    "candidate-model.py.gz": "eb8f212db31353ca45b3f3a605fd4b1d45906e7c46a0f38aad4f7d4608f60626",
+    "candidate-supplies.py.gz": "fb356eb03ad9e3a0893071fc5aebb9f1e40905b6dad6a54379a76ac6e7005489",
+    "candidate-test.py.gz": "b03e3282905bed98575fafa0848c9a5488141f71f37a747a6956b663bab38458",
+    "candidate-comparator.py.gz": "c4e85b9540a17567925f8da542653cac95fe126a2f0794886e07a66d77d335d3"
+  },
+  "product_runtime_executed": false,
+  "remote_executed": false
+}

@@ -1,0 +1,14 @@
+test_baseline_food_reexports_keep_identity_and_default_order (combat.test_preview_food.PreviewFoodAvailabilityTest.test_baseline_food_reexports_keep_identity_and_default_order) ... ok
+test_catalog_counts_and_encounter_bank_gate_remain_exact (combat.test_preview_food.PreviewFoodAvailabilityTest.test_catalog_counts_and_encounter_bank_gate_remain_exact) ... ok
+test_invalid_inputs_and_per_item_short_circuit_remain_exact (combat.test_preview_food.PreviewFoodAvailabilityTest.test_invalid_inputs_and_per_item_short_circuit_remain_exact) ... ok
+test_missing_empty_and_none_food_selections_remain_distinct (combat.test_preview_food.PreviewFoodAvailabilityTest.test_missing_empty_and_none_food_selections_remain_distinct) ... ok
+test_preview_uses_loadout_during_an_active_encounter (combat.test_preview_food.PreviewFoodAvailabilityTest.test_preview_uses_loadout_during_an_active_encounter) ... ok
+test_active_encounter_starts_bank_run_for_banked_food_when_loadout_is_empty (test_combat_logic.CombatLogicTest.test_active_encounter_starts_bank_run_for_banked_food_when_loadout_is_empty) ... ok
+test_auto_eat_consumes_food_after_enemy_damage_under_threshold (test_combat_logic.CombatLogicTest.test_auto_eat_consumes_food_after_enemy_damage_under_threshold) ... ok
+test_auto_flee_bails_out_when_low_lp_and_out_of_food (test_combat_logic.CombatLogicTest.test_auto_flee_bails_out_when_low_lp_and_out_of_food) ... ok
+test_manual_refill_loadout_uses_food_queue_and_current_magic_spell (test_combat_logic.CombatLogicTest.test_manual_refill_loadout_uses_food_queue_and_current_magic_spell) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.001s
+
+OK

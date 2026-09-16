@@ -1,0 +1,23 @@
+{
+  "scope": "Parent-supplied proof artifacts only; no product runtime executed by this agent.",
+  "artifacts": {
+    "parent-inert.json.gz": {
+      "source": "/tmp/ankiscape-poison-parent-inert-2026-09-08.json",
+      "stored_sha256": "4149a4b145f79194b512780f2ad362e8cf56aab1b66e8098396632de6d27cb76",
+      "decoded_sha256": "d16d6685c219c09ecd5d0d7d0a3817cb74bce8caecfcd26b3e319c9068144afd",
+      "decoded_bytes": 906
+    },
+    "parent-ast-proof.json.gz": {
+      "source": "/tmp/ankiscape-poison-parent-static-2026-09-08/ast-proof.json",
+      "stored_sha256": "024be5d142e5462414327e171d9981ee146762589e24693c60eb5be925685838",
+      "decoded_sha256": "35aded6c7dfe6d36d8dfc2172c5374f4744926b77978f1858bf60a6159b741d1",
+      "decoded_bytes": 289
+    },
+    "parent-guards.json.gz": {
+      "source": "/tmp/ankiscape-poison-parent-guards-2026-09-08.json",
+      "stored_sha256": "61135dbb80e486007ab6c60e16f55c2302f2e881acd9bc05b3cfa703f2a0a6db",
+      "decoded_sha256": "83611e19d14746fafde040d1124dbc0fa6c4bcd49f685a2b31a2f4d04dba27c7",
+      "decoded_bytes": 809
+    }
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "status": "STATIC_PREPARATION_ONLY",
+  "base_commit": "1bf2cfe2fa77cea2bb24528c6844d7473b1c2d12",
+  "branch": "goal/combat-enemy-poison-2026-09-08",
+  "source_inventory_count": 1263,
+  "source_inventory_sha256": "08015a82dda7eb5fd0c1769c3eded6e21c8ba846720aa95dd108d3db5b9fd47b",
+  "source_pins": {
+    "logic_pure/logic_pure_combat_engine.py": "fa1d5b3e01ce286fb1f4e285b9b98ddd3e4ef970e1eab8a0dfa1b4a93bd4b3c7",
+    "logic_pure/logic_pure_combat_specials.py": "7fc80346a6a1c6cee9ddfe817a25cee2f4e050bd9c8e1d8790bb9c052950ee7b",
+    "tests/combat/test_enemy_poison_application.py": "8222a5b89a3484965b3c40b610468fc07178f309dcd141b9743b9f4b52a0739b",
+    "tools/combat/compare_enemy_poison_application.py": "83222eba9eef06bd8826a5c3240ac96afb689a32348519d28699401ba4a82607",
+    "tools/combat/check_enemy_poison_guards.py": "8e1570f6b40927b6468a59d0e681e6efac90c9db73eb789112518b9b2febef2c"
+  },
+  "planned_case_labels": [
+    "missing",
+    "invalid",
+    "negative",
+    "zero",
+    "apply",
+    "negative-roll",
+    "threshold",
+    "invalid-roll",
+    "none-roll",
+    "immune",
+    "stronger",
+    "cure"
+  ],
+  "focused_selector": "tests.combat.test_enemy_poison_application.EnemyPoisonApplicationTest",
+  "planned_focused_methods": 3,
+  "runtime_executed": false,
+  "guard_canary_executed": false,
+  "static_checks": "AST and installed fixed CCN/cognitive/Halstead/layout ratchets, file growth and directory module-count checks PASS. Source-only instruments/raw output retained. Initial E303 failure archived and corrected with parent authorization.",
+  "boundary_review": "Kimi Candidate 1 accepted by root; Candidate 2 is unrelated and excluded.",
+  "simplification_review": "Same existing specials module, four explicit inputs and event return; no adapter, return annotation, new module, callback or state wrapper. Existing private imports remain. Caller owns normalization and truthy event append.",
+  "evidence_pins": {
+    "ast-check.json": {
+      "stored_sha256": "512c4d1165cce15d07db5faea80bad3fa6e0d7f7e327afd62f727e7ec56bc964"
+    },
+    "baseline-engine.py.gz": {
+      "stored_sha256": "334b2c069598e4e7f35ffdf555ac2e142b2b447b45d56b5924bad2134a348728",
+      "decoded_sha256": "934f0bccbdd7a11a0bde6df361d6355c0c339c2daf69e51d98b5b933952e4c49"
+    },
+    "baseline-specials.py.gz": {
+      "stored_sha256": "a54bdebc535564774cdaa7ce7a15128e9217f759cb067f04bc39865fc34f478e",
+      "decoded_sha256": "3b74a4720bbc3135b1c87df910999d69607f0f41b67f4dbf126de4f60910b619"
+    },
+    "boundary-review-prompt.txt.gz": {
+      "stored_sha256": "60539560432dc491d71a75292e3509912f11f7220a3d85cf23f0a881ac49add4",
+      "decoded_sha256": "af7340b443dc4999e6de4e47ec0a6c9474d82a5d91878c99506b238cf69dc2e2"
+    },
+    "boundary-review.stderr.gz": {
+      "stored_sha256": "398a435299113aa87272196ebdb1fcd83f8574caca218d125f11626be5aacc92",
+      "decoded_sha256": "529eacf50fc295afb1a205896940533c9a93a5ff50645af50bb9d70b50b34611"
+    },
+    "boundary-review.txt.gz": {
+      "stored_sha256": "f629c7a0964c9769bbc63da076c81ef9d9e2597d565cef239fd4efbbe7ac0e39",
+      "decoded_sha256": "79e4369eb79a382ebdaeb18f7c6b61f72ad212226f2b6962e6056036888b27f7"
+    },
+    "candidate-engine.py.gz": {
+      "stored_sha256": "cf9c83765ac9cf949fd772c0e76d3c65cbc898ae748811c4980f067ace505c16",
+      "decoded_sha256": "fa1d5b3e01ce286fb1f4e285b9b98ddd3e4ef970e1eab8a0dfa1b4a93bd4b3c7"
+    },
+    "candidate-specials.py.gz": {
+      "stored_sha256": "223978a64e84cd0cb373c5f879c6a1ef2f3b343dccfab952034aae0cb07cc03c",
+      "decoded_sha256": "7fc80346a6a1c6cee9ddfe817a25cee2f4e050bd9c8e1d8790bb9c052950ee7b"
+    },
+    "engine-full.diff.gz": {
+      "stored_sha256": "1f3f529c31f588ad32a7c5a7945bf054d26b4ca9212c7227073fb99e36cade67",
+      "decoded_sha256": "47997f20b78e99c12c615771253a1dfe5157cb0bbf1067219d761568e322f839"
+    },
+    "failed-layout-source-static-raw.json.gz.gz": {
+      "stored_sha256": "7276882e8042dd66b194cfff71222ecbdbb14ce2a79936c1235af6e92c503563",
+      "decoded_sha256": "a5d05c84c19e8ac85223ef4d3f6f89bf47e8736de85e1fd4f862807b9ad30760"
+    },
+    "failed-layout-source-static-report.json.gz": {
+      "stored_sha256": "4c4849c0edf0239e210aaae583e2714d5143e413e4550e0bdf9d583d82c5b8a6",
+      "decoded_sha256": "d05becdc94ebaeb545be609100d19cd546e3cc887fa066cee2441a0e3e8f5f4a"
+    },
+    "initial-manifest.json.gz": {
+      "stored_sha256": "45db69f48f3523bdcf348d0fb6c16e4f9bdf6fb148a835f430831c222e1ed7cb",
+      "decoded_sha256": "5c89df3ee8e9b3a3fca49b28842a9ec87e7958fd1542d96995d90a9b876f87d2"
+    },
+    "initial-operational-review.diff.gz": {
+      "stored_sha256": "9863193995b7bbd09f4265e66f2fe4207eb4c16a39400040c20ba99c5d42f4d1",
+      "decoded_sha256": "e3a6bfa31280fb60a70a01197b5b31751d0463076656b6849ca147cf5ef2b209"
+    },
+    "initial-product-review.diff.gz": {
+      "stored_sha256": "e889b99ad6bfd7abc3c76bdf1494330b2efc6a51fc8af74d003018bb5c7df6dd",
+      "decoded_sha256": "aff4d90ebdb9a673f8347abc73ed6e8a830c3de9e7b6cec11fcf8009d8cbd07f"
+    },
+    "initial-review-packets.json.gz": {
+      "stored_sha256": "c3bfd95daa11397eb37d67a9b3f5199ac632d5f76e7db0490bc3427e10da78b6",
+      "decoded_sha256": "e15fc9f9cd23573995c0236bfa12443138deab67fbc62bfcc4e1a4d809bc8979"
+    },
+    "initial-source-inventory.json.gz.gz": {
+      "stored_sha256": "a4a6e91e9b87f1730a7c1e547fda5610041d90d05b223164e1e1c32b14a8be9c",
+      "decoded_sha256": "8abebd198219077881fc945edc2fd58c528d257e54709ce39ea3a34865426e58"
+    },
+    "initial-static-metrics.json.gz": {
+      "stored_sha256": "a7439926d86d149cb72c73932ba4d8e60fd3b6478f1b3d877544236b12d6bd8c",
+      "decoded_sha256": "f4b3093ff8abfb952c38ec3981fe18655055dbbeb849c0287d13777ff8b55bff"
+    },
+    "runtime-harness.py.gz": {
+      "stored_sha256": "c355d71156f34b03825c10f061e515e5e1c884f0be5b877f9e5a8b9af9090511",
+      "decoded_sha256": "72bfea916f67f1cf8b6d61d2ffe32cd0b16a6f3fb1e13ebd632469ce39c4c5db"
+    },
+    "runtime-safety-check.py.gz": {
+      "stored_sha256": "790d019d82f897cb04753d185d62c75532a527e1c1a1099c7c4cae17d8ccb846",
+      "decoded_sha256": "292125f8fdc98f61f0a3edc2165b9828997b63ce6f2274664876c78b253cf937"
+    },
+    "source-inventory.json.gz": {
+      "stored_sha256": "08015a82dda7eb5fd0c1769c3eded6e21c8ba846720aa95dd108d3db5b9fd47b",
+      "decoded_sha256": "b45473d28e99266ad88a2e341c88eaa94e35fc0afa92cc0b98690c5a41a75e40"
+    },
+    "source-static-measure.py.gz": {
+      "stored_sha256": "0b4593857f1d15388a808d5702629b5f3cd9ff978a80b5bce190868ddd732b3a",
+      "decoded_sha256": "e0c9f32af10a0617a43a4075b19b68784e851c6087e24f86b8da96fc8f95d171"
+    },
+    "source-static-raw.json.gz": {
+      "stored_sha256": "1955913778a7e2235c63e2d0a5ca43f8532224774b788d05cc706af42fa2ca6c",
+      "decoded_sha256": "1799447f020476af19117dbf8583a09da629bfa55b27dc498ba1dea13e5a3a2d"
+    },
+    "source-static-report.json": {
+      "stored_sha256": "72bf9b0e2fe249ef834723d8e729ae523b6dd01db8584bc921da261df8c63cd3"
+    },
+    "specials-full.diff.gz": {
+      "stored_sha256": "5b8d6f61b155d52935a8c7464ff13ab82c49816110bfbb5275a15d335f7fad10",
+      "decoded_sha256": "6cfeb5260736440ba3586ac21d2408eee43174ccdc825baf4905ce99819a85ae"
+    },
+    "static-metrics.json": {
+      "stored_sha256": "f4b3093ff8abfb952c38ec3981fe18655055dbbeb849c0287d13777ff8b55bff"
+    }
+  },
+  "runtime_protocol": "One pinned job per invocation; accepted prayer-drain protocol with domain, baseline, inventory, selectors and case-list substitutions. No execution or safety-canary result is claimed.",
+  "inert_safety_executed": false
+}

@@ -377,6 +377,8 @@ from .logic_pure_combat_supplies import (
     combat_status_summary_pure,
 )
 
+from .logic_pure_combat_food import _combat_preview_food_available
+
 from .logic_pure_combat_model import (
     COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
     COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
@@ -490,7 +492,9 @@ from .logic_pure_state import (
 
 
 from .logic_pure_combat_specials import (
+    _combat_death_prayer_damage,
     _combat_dragonfire_damage_lifepoints,
+    _combat_enemy_poison_application,
     _combat_enemy_prayer_drain,
     _combat_wyvern_breath_damage_event,
 )
@@ -630,17 +634,7 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         )
     encounter = player_data.get("combat_encounter", {}) or {}
     active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
-    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
-    bank_inventory = player_data.get("inventory", {}) or {}
-    has_food = False
-    for item_name in player_data.get("combat_auto_eat_food", _DEFAULT_COMBAT_AUTO_EAT_FOOD):
-        if item_name not in COMBAT_FOOD_DATA:
-            continue
-        loadout_count = _non_negative_int((loadout.get("food", {}) or {}).get(item_name, 0), 0)
-        bank_count = 0 if active_encounter else _non_negative_int(bank_inventory.get(item_name, 0), 0)
-        if loadout_count + bank_count > 0:
-            has_food = True
-            break
+    has_food = _combat_preview_food_available(player_data, active_encounter)
     if enemy_max_lp_hit <= 0 or current_lp > enemy_max_lp_hit * 3:
         risk = "Safe"
     elif has_food:
@@ -2279,20 +2273,11 @@ def apply_combat_burst_pure(
             if food_event:
                 food_used.append(food_event)
             poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
-            if poison_damage > 0:
-                try:
-                    poison_roll = float(rng())
-                except (TypeError, ValueError):
-                    poison_roll = 1.0
-                if poison_roll < COMBAT_POISON_NPC_ATTACK_CHANCE:
-                    applied, _reason = _combat_apply_poison_effect_to_data(data, poison_damage)
-                    if applied:
-                        status_applied["poison"] = combat_poison_damage_for_ticks_pure(
-                            combat_poison_ticks_for_initial_damage_pure(poison_damage)
-                        )
-                        potion_event = _combat_consume_antipoison_if_needed(data)
-                        if potion_event:
-                            potions_used.append(potion_event)
+            potion_event = _combat_enemy_poison_application(
+                data, poison_damage, rng, status_applied
+            )
+            if potion_event:
+                potions_used.append(potion_event)
 
     data, equipment_condition_events = advance_equipped_condition_pure(
         data, ticks_elapsed, EQUIPMENT_CONDITION_DATA
@@ -2316,21 +2301,8 @@ def apply_combat_burst_pure(
     death_burst = 0
     if died:
         if "wrath" in selected_prayers or "retribution" in selected_prayers:
-            cap_multiplier = 2.5 if "wrath" in selected_prayers else .25
-            try:
-                death_roll = max(0.0, min(1.0, float(rng())))
-            except (TypeError, ValueError):
-                death_roll = 0.0
-            death_burst, automatic_finisher = _combat_cap_damage_for_finisher(
-                data,
-                finisher,
-                enemy_lp,
-                int(
-                    _positive_int(data.get("prayer_level", 1), 1)
-                    * cap_multiplier
-                    * death_roll
-                ),
-                allow_automatic=False,
+            death_burst, automatic_finisher = _combat_death_prayer_damage(
+                data, selected_prayers, finisher, enemy_lp, rng
             )
             if automatic_finisher:
                 automatic_finishers += 1

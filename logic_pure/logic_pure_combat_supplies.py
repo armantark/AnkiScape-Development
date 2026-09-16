@@ -85,7 +85,6 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     _COMBAT_RANGED_STYLE_IDS,
     _COMBAT_VALID_PACK_MODES,
     _COMBAT_XP_MODE_TO_STYLE_ID,
-    _DEFAULT_COMBAT_AUTO_EAT_FOOD,
     _carried_inventory_grave_counts,
     _combat_accuracy,
     _combat_apply_follower_death,
@@ -101,7 +100,6 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     _combat_base_skill_level,
     _combat_cap_damage_for_finisher,
     _combat_coerce_pack_mode,
-    _combat_consume_auto_food,
     _combat_consume_hazard_dose,
     _combat_consume_loaded_finisher,
     _combat_death_office_items,
@@ -185,6 +183,14 @@ from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     derive_casual_combat_magic_pure,
     sanitize_combat_state_pure,
     save_combat_preset_pure,
+)
+
+from .logic_pure_combat_food import (  # noqa: F401  (re-export)
+    _DEFAULT_COMBAT_AUTO_EAT_FOOD,
+    _combat_auto_eat_food_available,
+    _combat_banked_auto_food_count,
+    _combat_consume_auto_food,
+    _combat_loaded_food_count,
 )
 
 from .logic_pure_prayer import (  # noqa: F401  (re-export)
@@ -341,27 +347,6 @@ def _combat_refill_food_loadout(data):
     loadout["food"] = {item: amount for item, amount in food_loadout.items() if amount > 0}
     data["inventory"] = inventory
     data["combat_supply_loadout"] = loadout
-
-
-def _combat_loaded_food_count(data):
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    food_loadout = loadout.get("food", {}) or {}
-    total = 0
-    for item_name in data.get("combat_auto_eat_food", ()) or ():
-        if isinstance(item_name, str):
-            total += _non_negative_int(food_loadout.get(item_name, 0), 0)
-    return total
-
-
-def _combat_banked_auto_food_count(data):
-    inventory = data.get("inventory", {}) or {}
-    if not isinstance(inventory, Mapping):
-        return 0
-    total = 0
-    for item_name in data.get("combat_auto_eat_food", ()) or ():
-        if isinstance(item_name, str) and item_name in COMBAT_FOOD_DATA:
-            total += _non_negative_int(inventory.get(item_name, 0), 0)
-    return total
 
 
 def _combat_loaded_ranged_ammo(data, weapon_spec):
@@ -1555,15 +1540,6 @@ def combat_status_summary_pure(player_data):
     if immunity_ticks > 0:
         return f"Poison immune: {immunity_ticks} ticks"
     return ""
-
-
-def _combat_auto_eat_food_available(data):
-    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    food_loadout = loadout.get("food", {}) or {}
-    for item_name in data.get("combat_auto_eat_food", ()) or ():
-        if item_name in COMBAT_FOOD_DATA and _positive_int(food_loadout.get(item_name, 0), 0) > 0:
-            return True
-    return False
 
 
 def _combat_should_auto_flee(data, current_lifepoints, max_lifepoints):
