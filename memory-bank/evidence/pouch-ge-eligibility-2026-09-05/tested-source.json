@@ -1,0 +1,12 @@
+{
+  "head": "ffb846d6631e4b73731f6573dd8d7c0e77e439db",
+  "branch": "goal/pouch-ge-eligibility-2026-09-05",
+  "files": {
+    "core/constants.py": "791077e0ebec4b9eee5e9671efd8b0229d201111cafc1b737e9bbef93913b6e9",
+    "data/item_values.py": "08fea01bf3bc526583b1bd5066b77a4de33b303a654ad5a723b3894a5fce778d",
+    "generated/grand_exchange_period_generated.py": "92a960aaf7474965bc9d664fce449d12ce4de39db0ad8cbd6c39b15fd6210252",
+    "tests/test_grand_exchange_data.py": "0b130085606b0a8963f30424ee759d8f99d8f31db744440723ced633e7920f53",
+    "tests/test_summoning_market.py": "7215e9527acf3fd7f00f91bc67157a6f3fc758e3e3ba3ecd5eefce4a5ce0327a"
+  },
+  "tracked_diff_sha256": "7f97cf966d659301bd32785766502479df7bdcd9655de918e11a07c6d71f4a34"
+}

@@ -1,0 +1,3695 @@
+{
+  "status": "PASS",
+  "baseline_directory": "/tmp/cut-gem-baseline-6438d422",
+  "candidate_directory": "/tmp/pouch-verification-0f715ccf",
+  "contracts": [
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/7/ankiscape_fork/memory-bank/evidence/pouch-ge-eligibility-2026-09-05/review-resolved-runtime-invariance.json",
+      "bytes": 27947,
+      "sha256": "fed0fe119fa61ed3aea965bc60d643fc383373d755189fe16ef94a9a81871513"
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/7/ankiscape_fork/memory-bank/evidence/pouch-ge-eligibility-2026-09-05/qualified-buy-limits.json",
+      "bytes": 34468,
+      "sha256": "5f211e7a07308bf357d2cf52244c4ee21c86ae7b4be1720fb22480125cfeab4d"
+    }
+  ],
+  "source_binding": {
+    "capture_script": {
+      "path": "/tmp/ankiscape-pouch-capture-2026-09-05.py",
+      "bytes": 12132,
+      "sha256": "99f491c6ffd319899fef6008e5619a53ac3f3842ae20059f094a9d71cd83a5e0"
+    },
+    "hashes": {
+      "core/constants.py": "a354b29d81c197874b9ff6407b8f2024ffabd156504ce398c714302f30362fd0",
+      "data/item_values.py": "5815a838b702b22d2788f9ad258bd85b3abd20bc246df4aceb673feedda7f785",
+      "generated/grand_exchange_period_generated.py": "92a960aaf7474965bc9d664fce449d12ce4de39db0ad8cbd6c39b15fd6210252",
+      "tests/test_grand_exchange_data.py": "0b130085606b0a8963f30424ee759d8f99d8f31db744440723ced633e7920f53",
+      "tests/skills/test_summoning_market.py": "f29db0aec8342f6faf66f1350605ebc11047ae35ff40d9f44ec747ab3e403730",
+      "tools/module_surface.py": "a66948b912691279dc951ac9e5aa0c144b75a351c9b1bb46b88f67d85ebcf1e5",
+      "tests/test_module_surface.py": "ba48d8b3afbfd957a1298846b263eb9358e5ebf3415d93be1adf76262a65c25f",
+      "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+    },
+    "before": {
+      "path": "/tmp/pouch-verification-0f715ccf/source-hashes.json",
+      "bytes": 1683,
+      "sha256": "734e0ef0b1823942128346391a54a896d8ef39517b04bef4faf622990cb562f3"
+    },
+    "after": {
+      "path": "/tmp/pouch-verification-0f715ccf/source-hashes-after.json",
+      "bytes": 808,
+      "sha256": "0b7d52c51b72c01b6006f9de8948bb8b2b4f9f3aaa56e4f1d578cc0a7daccb44"
+    }
+  },
+  "generated_maps": {
+    "baseline": {
+      "repo": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork",
+      "commit": "6438d42256236992b10d921d4cca920293b55d93",
+      "path": "generated/grand_exchange_period_generated.py",
+      "read_only_argv": [
+        "git",
+        "-C",
+        "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork",
+        "show",
+        "6438d42256236992b10d921d4cca920293b55d93:generated/grand_exchange_period_generated.py"
+      ],
+      "bytes": 468023,
+      "sha256": "55188e1db6cf4509742bd644ea946eb0992e4bfacaf2b06f84733c244c0ffa3c"
+    },
+    "candidate": {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/7/ankiscape_fork/generated/grand_exchange_period_generated.py",
+      "bytes": 470506,
+      "sha256": "92a960aaf7474965bc9d664fce449d12ce4de39db0ad8cbd6c39b15fd6210252"
+    },
+    "before_count": 1753,
+    "after_count": 1830,
+    "additions": {
+      "Abyssal lurker pouch": 5000,
+      "Abyssal parasite pouch": 5000,
+      "Abyssal titan pouch": 5000,
+      "Adamant minotaur pouch": 5000,
+      "Albino rat pouch": 5000,
+      "Arctic bear pouch": 5000,
+      "Barker toad pouch": 5000,
+      "Beaver pouch": 5000,
+      "Bloated leech pouch": 5000,
+      "Bronze minotaur pouch": 5000,
+      "Bull ant pouch": 5000,
+      "Bunyip pouch": 5000,
+      "Compost mound pouch": 5000,
+      "Desert wyrm pouch": 5000,
+      "Dreadfowl pouch": 5000,
+      "Evil turnip pouch": 5000,
+      "Fire titan pouch": 5000,
+      "Forge regent pouch": 5000,
+      "Fruit bat pouch": 5000,
+      "Geyser titan pouch": 5000,
+      "Giant chinchompa pouch": 5000,
+      "Giant ent pouch": 5000,
+      "Granite crab pouch": 5000,
+      "Granite lobster pouch": 5000,
+      "Honey badger pouch": 5000,
+      "Hydra pouch": 5000,
+      "Ibis pouch": 5000,
+      "Ice titan pouch": 5000,
+      "Iron minotaur pouch": 5000,
+      "Iron titan pouch": 5000,
+      "Karam. overlord pouch": 5000,
+      "Lava titan pouch": 5000,
+      "Macaw pouch": 5000,
+      "Magpie pouch": 5000,
+      "Mithril minotaur pouch": 5000,
+      "Moss titan pouch": 5000,
+      "Obsidian golem pouch": 5000,
+      "Pack yak pouch": 5000,
+      "Praying mantis pouch": 5000,
+      "Pyrelord pouch": 5000,
+      "Ravenous locust pouch": 5000,
+      "Rune minotaur pouch": 5000,
+      "Smoke devil pouch": 5000,
+      "Spirit cobra pouch": 5000,
+      "Spirit cockatrice pouch": 5000,
+      "Spirit coraxatrice pouch": 5000,
+      "Spirit dagannoth pouch": 5000,
+      "Spirit graahk pouch": 5000,
+      "Spirit guthatrice pouch": 5000,
+      "Spirit jelly pouch": 5000,
+      "Spirit kalphite pouch": 5000,
+      "Spirit kyatt pouch": 5000,
+      "Spirit larupia pouch": 5000,
+      "Spirit mosquito pouch": 5000,
+      "Spirit pengatrice pouch": 5000,
+      "Spirit saratrice pouch": 5000,
+      "Spirit scorpion pouch": 5000,
+      "Spirit spider pouch": 5000,
+      "Spirit terrorbird pouch": 5000,
+      "Spirit tz-kih pouch": 5000,
+      "Spirit vulatrice pouch": 5000,
+      "Spirit wolf pouch": 5000,
+      "Spirit zamatrice pouch": 5000,
+      "Steel minotaur pouch": 5000,
+      "Steel titan pouch": 5000,
+      "Stranger plant pouch": 5000,
+      "Swamp titan pouch": 5000,
+      "Talon beast pouch": 5000,
+      "Thorny snail pouch": 5000,
+      "Unicorn stallion pouch": 5000,
+      "Vampire bat pouch": 5000,
+      "Void ravager pouch": 5000,
+      "Void shifter pouch": 5000,
+      "Void spinner pouch": 5000,
+      "Void torcher pouch": 5000,
+      "War tortoise pouch": 5000,
+      "Wolpertinger pouch": 5000
+    },
+    "all_other_assignments_identical": true,
+    "reversed_file_byte_exact": true,
+    "reversed_sha256": "55188e1db6cf4509742bd644ea946eb0992e4bfacaf2b06f84733c244c0ffa3c"
+  },
+  "extra_baseline_control": {
+    "path": "/tmp/cut-gem-baseline-6438d422/plain-__init__.py.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "role": "Unavailable plain root control; outside the required 23 payloads"
+  },
+  "payloads": [
+    {
+      "file": "plain-core_constants.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-core_constants.py.stdout",
+        "bytes": 16897417,
+        "sha256": "90bc427f383db2fac70328dd3a2040a551138b5a066bbc3e374c57a58a1eb20b",
+        "body_sha256": "d5a79ddfd6c50efa7df57cfbd9b0e615a39cf51a0635d315b6ebe9b814777b47"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-core_constants.py.stdout",
+        "bytes": 16881429,
+        "sha256": "0a327b37c1ac5433092f58ab25419b68a75ac3f61281227161051f075eefb03c",
+        "body_sha256": "1bd42011ca5b3dcfcbbd2346005d7d534cfb760e07dee441757d3b16a56b43dc"
+      },
+      "changed_exports": [
+        "EXTRA_ITEM_DATA",
+        "ITEM_DEFINITIONS",
+        "SHOP_ONLY_EXTRA_ITEM_DATA"
+      ],
+      "reversed_body_sha256": "d5a79ddfd6c50efa7df57cfbd9b0e615a39cf51a0635d315b6ebe9b814777b47",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-data_quest_data.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-data_quest_data.py.stdout",
+        "bytes": 11137240,
+        "sha256": "3eb1d304475e198035ba767ec2e33e7e9f892dd62de47edab6565f4332899d95",
+        "body_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-data_quest_data.py.stdout",
+        "bytes": 11137240,
+        "sha256": "3eb1d304475e198035ba767ec2e33e7e9f892dd62de47edab6565f4332899d95",
+        "body_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-data_combat_data.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-data_combat_data.py.stdout",
+        "bytes": 1665740,
+        "sha256": "9e282ee1308fc98a3df3307a313cf119f03eefb2f975fb2c271c400d0f0c613a",
+        "body_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-data_combat_data.py.stdout",
+        "bytes": 1665740,
+        "sha256": "9e282ee1308fc98a3df3307a313cf119f03eefb2f975fb2c271c400d0f0c613a",
+        "body_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-data_slayer_data.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-data_slayer_data.py.stdout",
+        "bytes": 821288,
+        "sha256": "957fae47446ed8518154a44c426940fd4c661d352700cfb12437ae30b05d42b7",
+        "body_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-data_slayer_data.py.stdout",
+        "bytes": 821288,
+        "sha256": "957fae47446ed8518154a44c426940fd4c661d352700cfb12437ae30b05d42b7",
+        "body_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-logic_pure_logic_pure_combat_engine.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-logic_pure_logic_pure_combat_engine.py.stdout",
+        "bytes": 1334283,
+        "sha256": "635563a81165945ceab475eb324b9fdf39a47fe890ff22db50a9953a0002b6aa",
+        "body_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-logic_pure_logic_pure_combat_engine.py.stdout",
+        "bytes": 1334283,
+        "sha256": "635563a81165945ceab475eb324b9fdf39a47fe890ff22db50a9953a0002b6aa",
+        "body_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-tests_test_combat_enemy_roster.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-tests_test_combat_enemy_roster.py.stdout",
+        "bytes": 1033939,
+        "sha256": "aad6cf638c0eb7bc92e3450020bb8bbe826cb9b3ec4136432612ea2aa8edf4a9",
+        "body_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-tests_test_combat_enemy_roster.py.stdout",
+        "bytes": 1033939,
+        "sha256": "aad6cf638c0eb7bc92e3450020bb8bbe826cb9b3ec4136432612ea2aa8edf4a9",
+        "body_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-logic_shop_logic.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-logic_shop_logic.py.stdout",
+        "bytes": 3748500,
+        "sha256": "3c8a9dd028c3c289779db511235b0378941a0ffda21ff22e1fdf26fa96c9f731",
+        "body_sha256": "a9455907c8b77f84fc2b3e8434ef3c91b903b9a63d3d2d4eb89eddba7c972887"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-logic_shop_logic.py.stdout",
+        "bytes": 3749579,
+        "sha256": "25cdf63888e15e165a0d9c4211372e7de44f70d812d14ed19e34a51e62cc1cfd",
+        "body_sha256": "c58899919d9c1de6e7bb060d687e89a1e7113ac916a189014d9c9695bc063307"
+      },
+      "changed_exports": [
+        "EXTRA_ITEM_DATA"
+      ],
+      "reversed_body_sha256": "a9455907c8b77f84fc2b3e8434ef3c91b903b9a63d3d2d4eb89eddba7c972887",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-ui_ui_tab_shop.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-ui_ui_tab_shop.py.stdout",
+        "bytes": 2281014,
+        "sha256": "7f4d49ff91c87fe94b948b7de2c5e4e3ba13a03a3bd879ca8b48fa3a4a21db56",
+        "body_sha256": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-ui_ui_tab_shop.py.stdout",
+        "bytes": 2281014,
+        "sha256": "7f4d49ff91c87fe94b948b7de2c5e4e3ba13a03a3bd879ca8b48fa3a4a21db56",
+        "body_sha256": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-data_achievement_diary_catalog.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-data_achievement_diary_catalog.py.stdout",
+        "bytes": 533473,
+        "sha256": "8c365ea6ed137687749aabfb2884a227efd9f5666f20b60b76b5930ba9a8bc77",
+        "body_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-data_achievement_diary_catalog.py.stdout",
+        "bytes": 533473,
+        "sha256": "8c365ea6ed137687749aabfb2884a227efd9f5666f20b60b76b5930ba9a8bc77",
+        "body_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-runtime_runtime_actions_carried.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-runtime_runtime_actions_carried.py.stdout",
+        "bytes": 9507810,
+        "sha256": "92851ad09407cec6bc926438f238a23293f6987684e83c011e52bc1779fb26e9",
+        "body_sha256": "d80cf82f807cff357b4655119717c28c0bd69e46698734a3c6c12401eedfa5f6"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-runtime_runtime_actions_carried.py.stdout",
+        "bytes": 9506714,
+        "sha256": "4eec9d1e6e3534547b6952c3f2881a5a19718c72bd23b38f433aa2f5b23e2644",
+        "body_sha256": "6c3c3a4e5431495f00a5c16dcd82fdc4985301d2a7f577e97e2b64c6bb7b445a"
+      },
+      "changed_exports": [
+        "ITEM_DEFINITIONS",
+        "ITEM_VALUES"
+      ],
+      "reversed_body_sha256": "d80cf82f807cff357b4655119717c28c0bd69e46698734a3c6c12401eedfa5f6",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "plain-runtime_runtime_actions_activities.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/plain-runtime_runtime_actions_activities.py.stdout",
+        "bytes": 8930531,
+        "sha256": "708cbb4cb237b2b34a313f26d80167c131138a9cce0a35f25e0f6ef848e989c4",
+        "body_sha256": "f24614aeb194bb68c3c71694dc57962f00a5f95b8c24c6308e365889eb850c55"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-runtime_runtime_actions_activities.py.stdout",
+        "bytes": 8929179,
+        "sha256": "4d0cda954406afd4aae69e80a027fbd090ba0714536cfd660fdbf2b6f7ecb520",
+        "body_sha256": "9027d3143c2a1038189fdee3a559198ecac0fa12fcb12986fe4e48799ee2806b"
+      },
+      "changed_exports": [
+        "ITEM_DEFINITIONS"
+      ],
+      "reversed_body_sha256": "f24614aeb194bb68c3c71694dc57962f00a5f95b8c24c6308e365889eb850c55",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-core_constants.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-core_constants.py.stdout",
+        "bytes": 16897417,
+        "sha256": "90bc427f383db2fac70328dd3a2040a551138b5a066bbc3e374c57a58a1eb20b",
+        "body_sha256": "d5a79ddfd6c50efa7df57cfbd9b0e615a39cf51a0635d315b6ebe9b814777b47"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-core_constants.py.stdout",
+        "bytes": 16881429,
+        "sha256": "0a327b37c1ac5433092f58ab25419b68a75ac3f61281227161051f075eefb03c",
+        "body_sha256": "1bd42011ca5b3dcfcbbd2346005d7d534cfb760e07dee441757d3b16a56b43dc"
+      },
+      "changed_exports": [
+        "EXTRA_ITEM_DATA",
+        "ITEM_DEFINITIONS",
+        "SHOP_ONLY_EXTRA_ITEM_DATA"
+      ],
+      "reversed_body_sha256": "d5a79ddfd6c50efa7df57cfbd9b0e615a39cf51a0635d315b6ebe9b814777b47",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-data_quest_data.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-data_quest_data.py.stdout",
+        "bytes": 11137240,
+        "sha256": "3eb1d304475e198035ba767ec2e33e7e9f892dd62de47edab6565f4332899d95",
+        "body_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-data_quest_data.py.stdout",
+        "bytes": 11137240,
+        "sha256": "3eb1d304475e198035ba767ec2e33e7e9f892dd62de47edab6565f4332899d95",
+        "body_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-data_combat_data.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-data_combat_data.py.stdout",
+        "bytes": 1665740,
+        "sha256": "9e282ee1308fc98a3df3307a313cf119f03eefb2f975fb2c271c400d0f0c613a",
+        "body_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-data_combat_data.py.stdout",
+        "bytes": 1665740,
+        "sha256": "9e282ee1308fc98a3df3307a313cf119f03eefb2f975fb2c271c400d0f0c613a",
+        "body_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-data_slayer_data.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-data_slayer_data.py.stdout",
+        "bytes": 821288,
+        "sha256": "957fae47446ed8518154a44c426940fd4c661d352700cfb12437ae30b05d42b7",
+        "body_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-data_slayer_data.py.stdout",
+        "bytes": 821288,
+        "sha256": "957fae47446ed8518154a44c426940fd4c661d352700cfb12437ae30b05d42b7",
+        "body_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-logic_pure_logic_pure_combat_engine.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-logic_pure_logic_pure_combat_engine.py.stdout",
+        "bytes": 1334283,
+        "sha256": "635563a81165945ceab475eb324b9fdf39a47fe890ff22db50a9953a0002b6aa",
+        "body_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-logic_pure_logic_pure_combat_engine.py.stdout",
+        "bytes": 1334283,
+        "sha256": "635563a81165945ceab475eb324b9fdf39a47fe890ff22db50a9953a0002b6aa",
+        "body_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-tests_test_combat_enemy_roster.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-tests_test_combat_enemy_roster.py.stdout",
+        "bytes": 1033939,
+        "sha256": "aad6cf638c0eb7bc92e3450020bb8bbe826cb9b3ec4136432612ea2aa8edf4a9",
+        "body_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-tests_test_combat_enemy_roster.py.stdout",
+        "bytes": 1033939,
+        "sha256": "aad6cf638c0eb7bc92e3450020bb8bbe826cb9b3ec4136432612ea2aa8edf4a9",
+        "body_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-logic_shop_logic.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-logic_shop_logic.py.stdout",
+        "bytes": 3748500,
+        "sha256": "3c8a9dd028c3c289779db511235b0378941a0ffda21ff22e1fdf26fa96c9f731",
+        "body_sha256": "a9455907c8b77f84fc2b3e8434ef3c91b903b9a63d3d2d4eb89eddba7c972887"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-logic_shop_logic.py.stdout",
+        "bytes": 3749579,
+        "sha256": "25cdf63888e15e165a0d9c4211372e7de44f70d812d14ed19e34a51e62cc1cfd",
+        "body_sha256": "c58899919d9c1de6e7bb060d687e89a1e7113ac916a189014d9c9695bc063307"
+      },
+      "changed_exports": [
+        "EXTRA_ITEM_DATA"
+      ],
+      "reversed_body_sha256": "a9455907c8b77f84fc2b3e8434ef3c91b903b9a63d3d2d4eb89eddba7c972887",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-ui_ui_tab_shop.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-ui_ui_tab_shop.py.stdout",
+        "bytes": 2282333,
+        "sha256": "e64a1222fe9ac15f5d13070fe28c6d7510e035106c93a7611c04fb76c276fcd3",
+        "body_sha256": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-ui_ui_tab_shop.py.stdout",
+        "bytes": 2282333,
+        "sha256": "e64a1222fe9ac15f5d13070fe28c6d7510e035106c93a7611c04fb76c276fcd3",
+        "body_sha256": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-data_achievement_diary_catalog.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-data_achievement_diary_catalog.py.stdout",
+        "bytes": 533473,
+        "sha256": "8c365ea6ed137687749aabfb2884a227efd9f5666f20b60b76b5930ba9a8bc77",
+        "body_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-data_achievement_diary_catalog.py.stdout",
+        "bytes": 533473,
+        "sha256": "8c365ea6ed137687749aabfb2884a227efd9f5666f20b60b76b5930ba9a8bc77",
+        "body_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61"
+      },
+      "changed_exports": [],
+      "reversed_body_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-runtime_runtime_actions_carried.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-runtime_runtime_actions_carried.py.stdout",
+        "bytes": 9507810,
+        "sha256": "92851ad09407cec6bc926438f238a23293f6987684e83c011e52bc1779fb26e9",
+        "body_sha256": "d80cf82f807cff357b4655119717c28c0bd69e46698734a3c6c12401eedfa5f6"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-runtime_runtime_actions_carried.py.stdout",
+        "bytes": 9506714,
+        "sha256": "4eec9d1e6e3534547b6952c3f2881a5a19718c72bd23b38f433aa2f5b23e2644",
+        "body_sha256": "6c3c3a4e5431495f00a5c16dcd82fdc4985301d2a7f577e97e2b64c6bb7b445a"
+      },
+      "changed_exports": [
+        "ITEM_DEFINITIONS",
+        "ITEM_VALUES"
+      ],
+      "reversed_body_sha256": "d80cf82f807cff357b4655119717c28c0bd69e46698734a3c6c12401eedfa5f6",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-runtime_runtime_actions_activities.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-runtime_runtime_actions_activities.py.stdout",
+        "bytes": 8930531,
+        "sha256": "708cbb4cb237b2b34a313f26d80167c131138a9cce0a35f25e0f6ef848e989c4",
+        "body_sha256": "f24614aeb194bb68c3c71694dc57962f00a5f95b8c24c6308e365889eb850c55"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-runtime_runtime_actions_activities.py.stdout",
+        "bytes": 8929179,
+        "sha256": "4d0cda954406afd4aae69e80a027fbd090ba0714536cfd660fdbf2b6f7ecb520",
+        "body_sha256": "9027d3143c2a1038189fdee3a559198ecac0fa12fcb12986fe4e48799ee2806b"
+      },
+      "changed_exports": [
+        "ITEM_DEFINITIONS"
+      ],
+      "reversed_body_sha256": "f24614aeb194bb68c3c71694dc57962f00a5f95b8c24c6308e365889eb850c55",
+      "reversed_body_byte_equal": true
+    },
+    {
+      "file": "qt-__init__.py.stdout",
+      "baseline": {
+        "path": "/tmp/cut-gem-baseline-6438d422/qt-__init__.py.stdout",
+        "bytes": 8449838,
+        "sha256": "8426b0a445bf8134afd99391e4029d8fb32bd4b6c010d080fbe16117905ccfb0",
+        "body_sha256": "2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d"
+      },
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-__init__.py.stdout",
+        "bytes": 8509853,
+        "sha256": "895f632ae7d3db29a0446251429a77720401b8afd3df48140280db3f342d3a17",
+        "body_sha256": "235c9312d2f37887fbe74ae81d257ce1f98d9a55d679b9e8835f37f23a65cb0a"
+      },
+      "changed_exports": [
+        "GE_ITEM_CATALOG",
+        "ITEM_VALUES"
+      ],
+      "reversed_body_sha256": "2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d",
+      "reversed_body_byte_equal": true
+    }
+  ],
+  "qualified_delta": {
+    "definition_deltas": {
+      "Abyssal lurker pouch": {
+        "source": [
+          "NPC service input: Exchange Abyssal lurker pouch for 84 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:619"
+        ],
+        "source_item_id": [
+          null,
+          12037
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Abyssal parasite pouch": {
+        "source": [
+          "NPC service input: Exchange Abyssal parasite pouch for 75 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:502"
+        ],
+        "source_item_id": [
+          null,
+          12035
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Abyssal titan pouch": {
+        "source": [
+          "NPC service input: Exchange Abyssal titan pouch for 79 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:996"
+        ],
+        "source_item_id": [
+          null,
+          12796
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Adamant minotaur pouch": {
+        "source": [
+          "NPC service input: Exchange Adamant minotaur pouch for 101 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:814"
+        ],
+        "source_item_id": [
+          null,
+          12081
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Albino rat pouch": {
+        "source": [
+          "NPC service input: Exchange Albino rat pouch for 53 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:151"
+        ],
+        "source_item_id": [
+          null,
+          12067
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Arctic bear pouch": {
+        "source": [
+          "NPC service input: Exchange Arctic bear pouch for 10 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:736"
+        ],
+        "source_item_id": [
+          null,
+          12057
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Barker toad pouch": {
+        "source": [
+          "NPC service input: Exchange Barker toad pouch for 7 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:658"
+        ],
+        "source_item_id": [
+          null,
+          12123
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Beaver pouch": {
+        "source": [
+          "NPC service input: Exchange Beaver pouch for 51 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:229"
+        ],
+        "source_item_id": [
+          null,
+          12021
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Bloated leech pouch": {
+        "source": [
+          "NPC service input: Exchange Bloated leech pouch for 82 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:476"
+        ],
+        "source_item_id": [
+          null,
+          12061
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Bronze minotaur pouch": {
+        "source": [
+          "NPC service input: Exchange Bronze minotaur pouch for 72 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:294"
+        ],
+        "source_item_id": [
+          null,
+          12073
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Bull ant pouch": {
+        "source": [
+          "NPC service input: Exchange Bull ant pouch for 8 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:307"
+        ],
+        "source_item_id": [
+          null,
+          12087
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Bunyip pouch": {
+        "source": [
+          "NPC service input: Exchange Bunyip pouch for 77 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:697"
+        ],
+        "source_item_id": [
+          null,
+          12029
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Compost mound pouch": {
+        "source": [
+          "NPC service input: Exchange Compost mound pouch for 33 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:177"
+        ],
+        "source_item_id": [
+          null,
+          12091
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Desert wyrm pouch": {
+        "source": [
+          "NPC service input: Exchange Desert wyrm pouch for 32 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:112"
+        ],
+        "source_item_id": [
+          null,
+          12049
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Dreadfowl pouch": {
+        "source": [
+          "NPC service input: Exchange Dreadfowl pouch for 6 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:47"
+        ],
+        "source_item_id": [
+          null,
+          12043
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Evil turnip pouch": {
+        "source": [
+          "NPC service input: Exchange Evil turnip pouch for 73 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:333"
+        ],
+        "source_item_id": [
+          null,
+          12051
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Fire titan pouch": {
+        "source": [
+          "NPC service input: Exchange Fire titan pouch for 139 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:853"
+        ],
+        "source_item_id": [
+          null,
+          12802
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Forge regent pouch": {
+        "source": [
+          "NPC service input: Exchange Forge regent pouch for 99 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:801"
+        ],
+        "source_item_id": [
+          null,
+          12782
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Fruit bat pouch": {
+        "source": [
+          "NPC service input: Exchange Fruit bat pouch for 91 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:710"
+        ],
+        "source_item_id": [
+          null,
+          12033
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Geyser titan pouch": {
+        "source": [
+          "NPC service input: Exchange Geyser titan pouch for 156 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:970"
+        ],
+        "source_item_id": [
+          null,
+          12786
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Giant chinchompa pouch": {
+        "source": [
+          "NPC service input: Exchange Giant chinchompa pouch for 59 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:190"
+        ],
+        "source_item_id": [
+          null,
+          12800
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Giant ent pouch": {
+        "source": [
+          "NPC service input: Exchange Giant ent pouch for 87 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:840"
+        ],
+        "source_item_id": [
+          null,
+          12013
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Granite crab pouch": {
+        "source": [
+          "NPC service input: Exchange Granite crab pouch for 5 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:86"
+        ],
+        "source_item_id": [
+          null,
+          12009
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Granite lobster pouch": {
+        "source": [
+          "NPC service input: Exchange Granite lobster pouch for 117 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:775"
+        ],
+        "source_item_id": [
+          null,
+          12069
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Honey badger pouch": {
+        "source": [
+          "NPC service input: Exchange Honey badger pouch for 59 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:216"
+        ],
+        "source_item_id": [
+          null,
+          12065
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Hydra pouch": {
+        "source": [
+          "NPC service input: Exchange Hydra pouch for 90 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:892"
+        ],
+        "source_item_id": [
+          null,
+          12025
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Ibis pouch": {
+        "source": [
+          "NPC service input: Exchange Ibis pouch for 77 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:528"
+        ],
+        "source_item_id": [
+          null,
+          12531
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Ice titan pouch": {
+        "source": [
+          "NPC service input: Exchange Ice titan pouch for 139 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:866"
+        ],
+        "source_item_id": [
+          null,
+          12806
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Iron minotaur pouch": {
+        "source": [
+          "NPC service input: Exchange Iron minotaur pouch for 88 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:437"
+        ],
+        "source_item_id": [
+          null,
+          12075
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Iron titan pouch": {
+        "source": [
+          "NPC service input: Exchange Iron titan pouch for 139 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:1009"
+        ],
+        "source_item_id": [
+          null,
+          12822
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Karam. overlord pouch": {
+        "source": [
+          "NPC service input: Exchange Karam. overlord pouch for 101 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:593"
+        ],
+        "source_item_id": [
+          null,
+          12023
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Lava titan pouch": {
+        "source": [
+          "NPC service input: Exchange Lava titan pouch for 154 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:918"
+        ],
+        "source_item_id": [
+          null,
+          12788
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Macaw pouch": {
+        "source": [
+          "NPC service input: Exchange Macaw pouch for 55 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:320"
+        ],
+        "source_item_id": [
+          null,
+          12071
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Magpie pouch": {
+        "source": [
+          "NPC service input: Exchange Magpie pouch for 62 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:463"
+        ],
+        "source_item_id": [
+          null,
+          12041
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Mithril minotaur pouch": {
+        "source": [
+          "NPC service input: Exchange Mithril minotaur pouch for 107 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:671"
+        ],
+        "source_item_id": [
+          null,
+          12079
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Moss titan pouch": {
+        "source": [
+          "NPC service input: Exchange Moss titan pouch for 142 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:879"
+        ],
+        "source_item_id": [
+          null,
+          12804
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Obsidian golem pouch": {
+        "source": [
+          "NPC service input: Exchange Obsidian golem pouch for 137 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:762"
+        ],
+        "source_item_id": [
+          null,
+          12792
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Pack yak pouch": {
+        "source": [
+          "NPC service input: Exchange Pack yak pouch for 148 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:1022"
+        ],
+        "source_item_id": [
+          null,
+          12093
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Phoenix pouch": {
+        "source": [
+          "NPC service input: Exchange Phoenix pouch for 121 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:749"
+        ],
+        "source_item_id": [
+          null,
+          14623
+        ]
+      },
+      "Praying mantis pouch": {
+        "source": [
+          "NPC service input: Exchange Praying mantis pouch for 118 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:788"
+        ],
+        "source_item_id": [
+          null,
+          12011
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Pyrelord pouch": {
+        "source": [
+          "NPC service input: Exchange Pyrelord pouch for 78 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:450"
+        ],
+        "source_item_id": [
+          null,
+          12816
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Ravenous locust pouch": {
+        "source": [
+          "NPC service input: Exchange Ravenous locust pouch for 56 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:723"
+        ],
+        "source_item_id": [
+          null,
+          12820
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Rune minotaur pouch": {
+        "source": [
+          "NPC service input: Exchange Rune minotaur pouch for 1 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:944"
+        ],
+        "source_item_id": [
+          null,
+          12083
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Smoke devil pouch": {
+        "source": [
+          "NPC service input: Exchange Smoke devil pouch for 99 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:606"
+        ],
+        "source_item_id": [
+          null,
+          12085
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit cobra pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit cobra pouch for 82 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:632"
+        ],
+        "source_item_id": [
+          null,
+          12015
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit cockatrice pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit cockatrice pouch for 62 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:346"
+        ],
+        "source_item_id": [
+          null,
+          12095
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit coraxatrice pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit coraxatrice pouch for 50 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:411"
+        ],
+        "source_item_id": [
+          null,
+          12105
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit dagannoth pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit dagannoth pouch for 1 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:905"
+        ],
+        "source_item_id": [
+          null,
+          12017
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit graahk pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit graahk pouch for 108 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:554"
+        ],
+        "source_item_id": [
+          null,
+          12810
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit guthatrice pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit guthatrice pouch for 62 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:359"
+        ],
+        "source_item_id": [
+          null,
+          12097
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit jelly pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit jelly pouch for 106 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:515"
+        ],
+        "source_item_id": [
+          null,
+          12027
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit kalphite pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit kalphite pouch for 36 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:164"
+        ],
+        "source_item_id": [
+          null,
+          12063
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit kyatt pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit kyatt pouch for 108 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:567"
+        ],
+        "source_item_id": [
+          null,
+          12812
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit larupia pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit larupia pouch for 109 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:580"
+        ],
+        "source_item_id": [
+          null,
+          12784
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit mosquito pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit mosquito pouch for 1 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:99"
+        ],
+        "source_item_id": [
+          null,
+          12778
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit pengatrice pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit pengatrice pouch for 50 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:398"
+        ],
+        "source_item_id": [
+          null,
+          12103
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit saratrice pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit saratrice pouch for 50 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:372"
+        ],
+        "source_item_id": [
+          null,
+          12099
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit scorpion pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit scorpion pouch for 40 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:125"
+        ],
+        "source_item_id": [
+          null,
+          12055
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit spider pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit spider pouch for 6 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:60"
+        ],
+        "source_item_id": [
+          null,
+          12059
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit terrorbird pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit terrorbird pouch for 9 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:489"
+        ],
+        "source_item_id": [
+          null,
+          12007
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit tz-kih pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit tz-kih pouch for 45 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:138"
+        ],
+        "source_item_id": [
+          null,
+          12808
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit vulatrice pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit vulatrice pouch for 50 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:424"
+        ],
+        "source_item_id": [
+          null,
+          12107
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit wolf pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit wolf pouch for 5 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:34"
+        ],
+        "source_item_id": [
+          null,
+          12047
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Spirit zamatrice pouch": {
+        "source": [
+          "NPC service input: Exchange Spirit zamatrice pouch for 50 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:385"
+        ],
+        "source_item_id": [
+          null,
+          12101
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Steel minotaur pouch": {
+        "source": [
+          "NPC service input: Exchange Steel minotaur pouch for 99 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:541"
+        ],
+        "source_item_id": [
+          null,
+          12077
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Steel titan pouch": {
+        "source": [
+          "NPC service input: Exchange Steel titan pouch for 125 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:1035"
+        ],
+        "source_item_id": [
+          null,
+          12790
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Stranger plant pouch": {
+        "source": [
+          "NPC service input: Exchange Stranger plant pouch for 90 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:645"
+        ],
+        "source_item_id": [
+          null,
+          12045
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Swamp titan pouch": {
+        "source": [
+          "NPC service input: Exchange Swamp titan pouch for 105 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:931"
+        ],
+        "source_item_id": [
+          null,
+          12776
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Talon beast pouch": {
+        "source": [
+          "NPC service input: Exchange Talon beast pouch for 122 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:827"
+        ],
+        "source_item_id": [
+          null,
+          12794
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Thorny snail pouch": {
+        "source": [
+          "NPC service input: Exchange Thorny snail pouch for 7 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:73"
+        ],
+        "source_item_id": [
+          null,
+          12019
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Unicorn stallion pouch": {
+        "source": [
+          "NPC service input: Exchange Unicorn stallion pouch for 98 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:957"
+        ],
+        "source_item_id": [
+          null,
+          12039
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Vampire bat pouch": {
+        "source": [
+          "NPC service input: Exchange Vampire bat pouch for 57 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:203"
+        ],
+        "source_item_id": [
+          null,
+          12053
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Void ravager pouch": {
+        "source": [
+          "NPC service input: Exchange Void ravager pouch for 52 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:242"
+        ],
+        "source_item_id": [
+          null,
+          12818
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Void shifter pouch": {
+        "source": [
+          "NPC service input: Exchange Void shifter pouch for 52 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:255"
+        ],
+        "source_item_id": [
+          null,
+          12814
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Void spinner pouch": {
+        "source": [
+          "NPC service input: Exchange Void spinner pouch for 52 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:268"
+        ],
+        "source_item_id": [
+          null,
+          12780
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Void torcher pouch": {
+        "source": [
+          "NPC service input: Exchange Void torcher pouch for 52 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:281"
+        ],
+        "source_item_id": [
+          null,
+          12798
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "War tortoise pouch": {
+        "source": [
+          "NPC service input: Exchange War tortoise pouch for 1 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:684"
+        ],
+        "source_item_id": [
+          null,
+          12031
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      },
+      "Wolpertinger pouch": {
+        "source": [
+          "NPC service input: Exchange Wolpertinger pouch for 143 spirit shards",
+          "RuneScape Wiki Summoning pouches oldid=6438719:983"
+        ],
+        "source_item_id": [
+          null,
+          12089
+        ],
+        "tradeable": [
+          false,
+          true
+        ]
+      }
+    },
+    "aliases": {
+      "Vampire bat pouch": 2449,
+      "Spirit cockatrice pouch": 2624,
+      "Spirit coraxatrice pouch": 2624,
+      "Spirit guthatrice pouch": 2624,
+      "Spirit pengatrice pouch": 2624,
+      "Spirit saratrice pouch": 2624,
+      "Spirit vulatrice pouch": 2624,
+      "Spirit zamatrice pouch": 2624
+    },
+    "restored_raw_owner_names": [
+      "Abyssal lurker pouch",
+      "Abyssal parasite pouch",
+      "Abyssal titan pouch",
+      "Adamant minotaur pouch",
+      "Albino rat pouch",
+      "Arctic bear pouch",
+      "Barker toad pouch",
+      "Beaver pouch",
+      "Bloated leech pouch",
+      "Bronze minotaur pouch",
+      "Bull ant pouch",
+      "Bunyip pouch",
+      "Compost mound pouch",
+      "Desert wyrm pouch",
+      "Dreadfowl pouch",
+      "Evil turnip pouch",
+      "Fire titan pouch",
+      "Forge regent pouch",
+      "Fruit bat pouch",
+      "Geyser titan pouch",
+      "Giant chinchompa pouch",
+      "Giant ent pouch",
+      "Granite crab pouch",
+      "Granite lobster pouch",
+      "Honey badger pouch",
+      "Hydra pouch",
+      "Ibis pouch",
+      "Ice titan pouch",
+      "Iron minotaur pouch",
+      "Iron titan pouch",
+      "Karam. overlord pouch",
+      "Lava titan pouch",
+      "Macaw pouch",
+      "Magpie pouch",
+      "Mithril minotaur pouch",
+      "Moss titan pouch",
+      "Obsidian golem pouch",
+      "Pack yak pouch",
+      "Phoenix pouch",
+      "Praying mantis pouch",
+      "Pyrelord pouch",
+      "Ravenous locust pouch",
+      "Rune minotaur pouch",
+      "Smoke devil pouch",
+      "Spirit cobra pouch",
+      "Spirit cockatrice pouch",
+      "Spirit coraxatrice pouch",
+      "Spirit dagannoth pouch",
+      "Spirit graahk pouch",
+      "Spirit guthatrice pouch",
+      "Spirit jelly pouch",
+      "Spirit kalphite pouch",
+      "Spirit kyatt pouch",
+      "Spirit larupia pouch",
+      "Spirit mosquito pouch",
+      "Spirit pengatrice pouch",
+      "Spirit saratrice pouch",
+      "Spirit scorpion pouch",
+      "Spirit spider pouch",
+      "Spirit terrorbird pouch",
+      "Spirit tz-kih pouch",
+      "Spirit vulatrice pouch",
+      "Spirit wolf pouch",
+      "Spirit zamatrice pouch",
+      "Steel minotaur pouch",
+      "Steel titan pouch",
+      "Stranger plant pouch",
+      "Swamp titan pouch",
+      "Talon beast pouch",
+      "Thorny snail pouch",
+      "Unicorn stallion pouch",
+      "Vampire bat pouch",
+      "Void ravager pouch",
+      "Void shifter pouch",
+      "Void spinner pouch",
+      "Void torcher pouch",
+      "War tortoise pouch",
+      "Wolpertinger pouch"
+    ],
+    "removed_overlay_names": [
+      "Abyssal lurker pouch",
+      "Abyssal parasite pouch",
+      "Abyssal titan pouch",
+      "Adamant minotaur pouch",
+      "Albino rat pouch",
+      "Arctic bear pouch",
+      "Barker toad pouch",
+      "Beaver pouch",
+      "Bloated leech pouch",
+      "Bronze minotaur pouch",
+      "Bull ant pouch",
+      "Bunyip pouch",
+      "Compost mound pouch",
+      "Desert wyrm pouch",
+      "Dreadfowl pouch",
+      "Evil turnip pouch",
+      "Fire titan pouch",
+      "Forge regent pouch",
+      "Fruit bat pouch",
+      "Geyser titan pouch",
+      "Giant chinchompa pouch",
+      "Giant ent pouch",
+      "Granite crab pouch",
+      "Granite lobster pouch",
+      "Honey badger pouch",
+      "Hydra pouch",
+      "Ibis pouch",
+      "Ice titan pouch",
+      "Iron minotaur pouch",
+      "Iron titan pouch",
+      "Karam. overlord pouch",
+      "Lava titan pouch",
+      "Macaw pouch",
+      "Magpie pouch",
+      "Mithril minotaur pouch",
+      "Moss titan pouch",
+      "Obsidian golem pouch",
+      "Pack yak pouch",
+      "Phoenix pouch",
+      "Praying mantis pouch",
+      "Pyrelord pouch",
+      "Ravenous locust pouch",
+      "Rune minotaur pouch",
+      "Smoke devil pouch",
+      "Spirit cobra pouch",
+      "Spirit cockatrice pouch",
+      "Spirit coraxatrice pouch",
+      "Spirit dagannoth pouch",
+      "Spirit graahk pouch",
+      "Spirit guthatrice pouch",
+      "Spirit jelly pouch",
+      "Spirit kalphite pouch",
+      "Spirit kyatt pouch",
+      "Spirit larupia pouch",
+      "Spirit mosquito pouch",
+      "Spirit pengatrice pouch",
+      "Spirit saratrice pouch",
+      "Spirit scorpion pouch",
+      "Spirit spider pouch",
+      "Spirit terrorbird pouch",
+      "Spirit tz-kih pouch",
+      "Spirit vulatrice pouch",
+      "Spirit wolf pouch",
+      "Spirit zamatrice pouch",
+      "Steel minotaur pouch",
+      "Steel titan pouch",
+      "Stranger plant pouch",
+      "Swamp titan pouch",
+      "Talon beast pouch",
+      "Thorny snail pouch",
+      "Unicorn stallion pouch",
+      "Vampire bat pouch",
+      "Void ravager pouch",
+      "Void shifter pouch",
+      "Void spinner pouch",
+      "Void torcher pouch",
+      "War tortoise pouch",
+      "Wolpertinger pouch"
+    ],
+    "new_ge_rows": {
+      "Spirit wolf pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_wolf_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 599,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 599,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 359,
+        "item_id": "material_spirit_wolf_pouch",
+        "item_name": "Spirit wolf pouch",
+        "low_alchemy_value": 239,
+        "required_level": 1,
+        "source_item_id": 12047,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Dreadfowl pouch": {
+        "asset_path": "<repo>/summoningitems/dreadfowl_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 374,
+        "item_id": "material_dreadfowl_pouch",
+        "item_name": "Dreadfowl pouch",
+        "low_alchemy_value": 249,
+        "required_level": 1,
+        "source_item_id": 12043,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit spider pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_spider_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 374,
+        "item_id": "material_spirit_spider_pouch",
+        "item_name": "Spirit spider pouch",
+        "low_alchemy_value": 249,
+        "required_level": 1,
+        "source_item_id": 12059,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Thorny snail pouch": {
+        "asset_path": "<repo>/summoningitems/thorny_snail_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 649,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 649,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 389,
+        "item_id": "material_thorny_snail_pouch",
+        "item_name": "Thorny snail pouch",
+        "low_alchemy_value": 259,
+        "required_level": 1,
+        "source_item_id": 12019,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Granite crab pouch": {
+        "asset_path": "<repo>/summoningitems/granite_crab_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 599,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 599,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 359,
+        "item_id": "material_granite_crab_pouch",
+        "item_name": "Granite crab pouch",
+        "low_alchemy_value": 239,
+        "required_level": 1,
+        "source_item_id": 12009,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit mosquito pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_mosquito_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 449,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 449,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 269,
+        "item_id": "material_spirit_mosquito_pouch",
+        "item_name": "Spirit mosquito pouch",
+        "low_alchemy_value": 179,
+        "required_level": 1,
+        "source_item_id": 12778,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Desert wyrm pouch": {
+        "asset_path": "<repo>/summoningitems/desert_wyrm_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 1549,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 1549,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 929,
+        "item_id": "material_desert_wyrm_pouch",
+        "item_name": "Desert wyrm pouch",
+        "low_alchemy_value": 619,
+        "required_level": 1,
+        "source_item_id": 12049,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit scorpion pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_scorpion_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 1849,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 1849,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1109,
+        "item_id": "material_spirit_scorpion_pouch",
+        "item_name": "Spirit scorpion pouch",
+        "low_alchemy_value": 739,
+        "required_level": 1,
+        "source_item_id": 12055,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit tz-kih pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_tz_kih_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2024,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2024,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1214,
+        "item_id": "material_spirit_tz_kih_pouch",
+        "item_name": "Spirit tz-kih pouch",
+        "low_alchemy_value": 809,
+        "required_level": 1,
+        "source_item_id": 12808,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Albino rat pouch": {
+        "asset_path": "<repo>/summoningitems/albino_rat_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2299,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2299,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1379,
+        "item_id": "material_albino_rat_pouch",
+        "item_name": "Albino rat pouch",
+        "low_alchemy_value": 919,
+        "required_level": 1,
+        "source_item_id": 12067,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit kalphite pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_kalphite_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 1699,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 1699,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1019,
+        "item_id": "material_spirit_kalphite_pouch",
+        "item_name": "Spirit kalphite pouch",
+        "low_alchemy_value": 679,
+        "required_level": 1,
+        "source_item_id": 12063,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Compost mound pouch": {
+        "asset_path": "<repo>/summoningitems/compost_mound_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 1599,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 1599,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 959,
+        "item_id": "material_compost_mound_pouch",
+        "item_name": "Compost mound pouch",
+        "low_alchemy_value": 639,
+        "required_level": 1,
+        "source_item_id": 12091,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Giant chinchompa pouch": {
+        "asset_path": "<repo>/summoningitems/giant_chinchompa_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2524,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2524,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1514,
+        "item_id": "material_giant_chinchompa_pouch",
+        "item_name": "Giant chinchompa pouch",
+        "low_alchemy_value": 1009,
+        "required_level": 1,
+        "source_item_id": 12800,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Vampire bat pouch": {
+        "asset_path": "<repo>/summoningitems/vampire_bat_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2449,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2449,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1469,
+        "item_id": "material_vampire_bat_pouch",
+        "item_name": "Vampire bat pouch",
+        "low_alchemy_value": 979,
+        "required_level": 1,
+        "source_item_id": 12053,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Honey badger pouch": {
+        "asset_path": "<repo>/summoningitems/honey_badger_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2524,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2524,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1514,
+        "item_id": "material_honey_badger_pouch",
+        "item_name": "Honey badger pouch",
+        "low_alchemy_value": 1009,
+        "required_level": 1,
+        "source_item_id": 12065,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Beaver pouch": {
+        "asset_path": "<repo>/summoningitems/beaver_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2224,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2224,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1334,
+        "item_id": "material_beaver_pouch",
+        "item_name": "Beaver pouch",
+        "low_alchemy_value": 889,
+        "required_level": 1,
+        "source_item_id": 12021,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Void ravager pouch": {
+        "asset_path": "<repo>/summoningitems/void_ravager_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2274,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2274,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1364,
+        "item_id": "material_void_ravager_pouch",
+        "item_name": "Void ravager pouch",
+        "low_alchemy_value": 909,
+        "required_level": 1,
+        "source_item_id": 12818,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Void shifter pouch": {
+        "asset_path": "<repo>/summoningitems/void_shifter_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2274,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2274,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1364,
+        "item_id": "material_void_shifter_pouch",
+        "item_name": "Void shifter pouch",
+        "low_alchemy_value": 909,
+        "required_level": 1,
+        "source_item_id": 12814,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Void spinner pouch": {
+        "asset_path": "<repo>/summoningitems/void_spinner_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2274,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2274,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1364,
+        "item_id": "material_void_spinner_pouch",
+        "item_name": "Void spinner pouch",
+        "low_alchemy_value": 909,
+        "required_level": 1,
+        "source_item_id": 12780,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Void torcher pouch": {
+        "asset_path": "<repo>/summoningitems/void_torcher_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2274,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2274,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1364,
+        "item_id": "material_void_torcher_pouch",
+        "item_name": "Void torcher pouch",
+        "low_alchemy_value": 909,
+        "required_level": 1,
+        "source_item_id": 12798,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Bronze minotaur pouch": {
+        "asset_path": "<repo>/summoningitems/bronze_minotaur_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2974,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2974,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1784,
+        "item_id": "material_bronze_minotaur_pouch",
+        "item_name": "Bronze minotaur pouch",
+        "low_alchemy_value": 1189,
+        "required_level": 1,
+        "source_item_id": 12073,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Bull ant pouch": {
+        "asset_path": "<repo>/summoningitems/bull_ant_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 699,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 699,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 419,
+        "item_id": "material_bull_ant_pouch",
+        "item_name": "Bull ant pouch",
+        "low_alchemy_value": 279,
+        "required_level": 1,
+        "source_item_id": 12087,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Macaw pouch": {
+        "asset_path": "<repo>/summoningitems/macaw_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2374,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2374,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1424,
+        "item_id": "material_macaw_pouch",
+        "item_name": "Macaw pouch",
+        "low_alchemy_value": 949,
+        "required_level": 1,
+        "source_item_id": 12071,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Evil turnip pouch": {
+        "asset_path": "<repo>/summoningitems/evil_turnip_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3024,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3024,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1814,
+        "item_id": "material_evil_turnip_pouch",
+        "item_name": "Evil turnip pouch",
+        "low_alchemy_value": 1209,
+        "required_level": 1,
+        "source_item_id": 12051,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit cockatrice pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_cockatrice_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1574,
+        "item_id": "material_spirit_cockatrice_pouch",
+        "item_name": "Spirit cockatrice pouch",
+        "low_alchemy_value": 1049,
+        "required_level": 1,
+        "source_item_id": 12095,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit coraxatrice pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_coraxatrice_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1574,
+        "item_id": "material_spirit_coraxatrice_pouch",
+        "item_name": "Spirit coraxatrice pouch",
+        "low_alchemy_value": 1049,
+        "required_level": 1,
+        "source_item_id": 12105,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit guthatrice pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_guthatrice_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1574,
+        "item_id": "material_spirit_guthatrice_pouch",
+        "item_name": "Spirit guthatrice pouch",
+        "low_alchemy_value": 1049,
+        "required_level": 1,
+        "source_item_id": 12097,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit pengatrice pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_pengatrice_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1574,
+        "item_id": "material_spirit_pengatrice_pouch",
+        "item_name": "Spirit pengatrice pouch",
+        "low_alchemy_value": 1049,
+        "required_level": 1,
+        "source_item_id": 12103,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit saratrice pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_saratrice_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1574,
+        "item_id": "material_spirit_saratrice_pouch",
+        "item_name": "Spirit saratrice pouch",
+        "low_alchemy_value": 1049,
+        "required_level": 1,
+        "source_item_id": 12099,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit vulatrice pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_vulatrice_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1574,
+        "item_id": "material_spirit_vulatrice_pouch",
+        "item_name": "Spirit vulatrice pouch",
+        "low_alchemy_value": 1049,
+        "required_level": 1,
+        "source_item_id": 12107,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit zamatrice pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_zamatrice_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1574,
+        "item_id": "material_spirit_zamatrice_pouch",
+        "item_name": "Spirit zamatrice pouch",
+        "low_alchemy_value": 1049,
+        "required_level": 1,
+        "source_item_id": 12101,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Iron minotaur pouch": {
+        "asset_path": "<repo>/summoningitems/iron_minotaur_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3549,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3549,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2129,
+        "item_id": "material_iron_minotaur_pouch",
+        "item_name": "Iron minotaur pouch",
+        "low_alchemy_value": 1419,
+        "required_level": 1,
+        "source_item_id": 12075,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Pyrelord pouch": {
+        "asset_path": "<repo>/summoningitems/pyrelord_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3199,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3199,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1919,
+        "item_id": "material_pyrelord_pouch",
+        "item_name": "Pyrelord pouch",
+        "low_alchemy_value": 1279,
+        "required_level": 1,
+        "source_item_id": 12816,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Magpie pouch": {
+        "asset_path": "<repo>/summoningitems/magpie_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1574,
+        "item_id": "material_magpie_pouch",
+        "item_name": "Magpie pouch",
+        "low_alchemy_value": 1049,
+        "required_level": 1,
+        "source_item_id": 12041,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Bloated leech pouch": {
+        "asset_path": "<repo>/summoningitems/bloated_leech_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3349,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3349,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2009,
+        "item_id": "material_bloated_leech_pouch",
+        "item_name": "Bloated leech pouch",
+        "low_alchemy_value": 1339,
+        "required_level": 1,
+        "source_item_id": 12061,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit terrorbird pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_terrorbird_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 724,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 724,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 434,
+        "item_id": "material_spirit_terrorbird_pouch",
+        "item_name": "Spirit terrorbird pouch",
+        "low_alchemy_value": 289,
+        "required_level": 1,
+        "source_item_id": 12007,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Abyssal parasite pouch": {
+        "asset_path": "<repo>/summoningitems/abyssal_parasite_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3074,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3074,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1844,
+        "item_id": "material_abyssal_parasite_pouch",
+        "item_name": "Abyssal parasite pouch",
+        "low_alchemy_value": 1229,
+        "required_level": 1,
+        "source_item_id": 12035,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit jelly pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_jelly_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4199,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4199,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2519,
+        "item_id": "material_spirit_jelly_pouch",
+        "item_name": "Spirit jelly pouch",
+        "low_alchemy_value": 1679,
+        "required_level": 1,
+        "source_item_id": 12027,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Ibis pouch": {
+        "asset_path": "<repo>/summoningitems/ibis_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3149,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3149,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1889,
+        "item_id": "material_ibis_pouch",
+        "item_name": "Ibis pouch",
+        "low_alchemy_value": 1259,
+        "required_level": 1,
+        "source_item_id": 12531,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Steel minotaur pouch": {
+        "asset_path": "<repo>/summoningitems/steel_minotaur_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3949,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3949,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2369,
+        "item_id": "material_steel_minotaur_pouch",
+        "item_name": "Steel minotaur pouch",
+        "low_alchemy_value": 1579,
+        "required_level": 1,
+        "source_item_id": 12077,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit graahk pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_graahk_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4274,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4274,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2564,
+        "item_id": "material_spirit_graahk_pouch",
+        "item_name": "Spirit graahk pouch",
+        "low_alchemy_value": 1709,
+        "required_level": 1,
+        "source_item_id": 12810,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit kyatt pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_kyatt_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4249,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4249,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2549,
+        "item_id": "material_spirit_kyatt_pouch",
+        "item_name": "Spirit kyatt pouch",
+        "low_alchemy_value": 1699,
+        "required_level": 1,
+        "source_item_id": 12812,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit larupia pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_larupia_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4299,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4299,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2579,
+        "item_id": "material_spirit_larupia_pouch",
+        "item_name": "Spirit larupia pouch",
+        "low_alchemy_value": 1719,
+        "required_level": 1,
+        "source_item_id": 12784,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Karam. overlord pouch": {
+        "asset_path": "<repo>/summoningitems/karam_overlord_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4024,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4024,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2414,
+        "item_id": "material_karam_overlord_pouch",
+        "item_name": "Karam. overlord pouch",
+        "low_alchemy_value": 1609,
+        "required_level": 1,
+        "source_item_id": 12023,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Smoke devil pouch": {
+        "asset_path": "<repo>/summoningitems/smoke_devil_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3949,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3949,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2369,
+        "item_id": "material_smoke_devil_pouch",
+        "item_name": "Smoke devil pouch",
+        "low_alchemy_value": 1579,
+        "required_level": 1,
+        "source_item_id": 12085,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Abyssal lurker pouch": {
+        "asset_path": "<repo>/summoningitems/abyssal_lurker_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3399,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3399,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2039,
+        "item_id": "material_abyssal_lurker_pouch",
+        "item_name": "Abyssal lurker pouch",
+        "low_alchemy_value": 1359,
+        "required_level": 1,
+        "source_item_id": 12037,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit cobra pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_cobra_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3324,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3324,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1994,
+        "item_id": "material_spirit_cobra_pouch",
+        "item_name": "Spirit cobra pouch",
+        "low_alchemy_value": 1329,
+        "required_level": 1,
+        "source_item_id": 12015,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Stranger plant pouch": {
+        "asset_path": "<repo>/summoningitems/stranger_plant_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2174,
+        "item_id": "material_stranger_plant_pouch",
+        "item_name": "Stranger plant pouch",
+        "low_alchemy_value": 1449,
+        "required_level": 1,
+        "source_item_id": 12045,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Barker toad pouch": {
+        "asset_path": "<repo>/summoningitems/barker_toad_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 699,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 699,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 419,
+        "item_id": "material_barker_toad_pouch",
+        "item_name": "Barker toad pouch",
+        "low_alchemy_value": 279,
+        "required_level": 1,
+        "source_item_id": 12123,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Mithril minotaur pouch": {
+        "asset_path": "<repo>/summoningitems/mithril_minotaur_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4224,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4224,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2534,
+        "item_id": "material_mithril_minotaur_pouch",
+        "item_name": "Mithril minotaur pouch",
+        "low_alchemy_value": 1689,
+        "required_level": 1,
+        "source_item_id": 12079,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "War tortoise pouch": {
+        "asset_path": "<repo>/summoningitems/war_tortoise_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 449,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 449,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 269,
+        "item_id": "material_war_tortoise_pouch",
+        "item_name": "War tortoise pouch",
+        "low_alchemy_value": 179,
+        "required_level": 1,
+        "source_item_id": 12031,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Bunyip pouch": {
+        "asset_path": "<repo>/summoningitems/bunyip_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3174,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3174,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1904,
+        "item_id": "material_bunyip_pouch",
+        "item_name": "Bunyip pouch",
+        "low_alchemy_value": 1269,
+        "required_level": 1,
+        "source_item_id": 12029,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Fruit bat pouch": {
+        "asset_path": "<repo>/summoningitems/fruit_bat_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3674,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3674,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2204,
+        "item_id": "material_fruit_bat_pouch",
+        "item_name": "Fruit bat pouch",
+        "low_alchemy_value": 1469,
+        "required_level": 1,
+        "source_item_id": 12033,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Ravenous locust pouch": {
+        "asset_path": "<repo>/summoningitems/ravenous_locust_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 2399,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 2399,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1439,
+        "item_id": "material_ravenous_locust_pouch",
+        "item_name": "Ravenous locust pouch",
+        "low_alchemy_value": 959,
+        "required_level": 1,
+        "source_item_id": 12820,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Arctic bear pouch": {
+        "asset_path": "<repo>/summoningitems/arctic_bear_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 774,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 774,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 464,
+        "item_id": "material_arctic_bear_pouch",
+        "item_name": "Arctic bear pouch",
+        "low_alchemy_value": 309,
+        "required_level": 1,
+        "source_item_id": 12057,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Obsidian golem pouch": {
+        "asset_path": "<repo>/summoningitems/obsidian_golem_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5299,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5299,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3179,
+        "item_id": "material_obsidian_golem_pouch",
+        "item_name": "Obsidian golem pouch",
+        "low_alchemy_value": 2119,
+        "required_level": 1,
+        "source_item_id": 12792,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Granite lobster pouch": {
+        "asset_path": "<repo>/summoningitems/granite_lobster_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4574,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4574,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2744,
+        "item_id": "material_granite_lobster_pouch",
+        "item_name": "Granite lobster pouch",
+        "low_alchemy_value": 1829,
+        "required_level": 1,
+        "source_item_id": 12069,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Praying mantis pouch": {
+        "asset_path": "<repo>/summoningitems/praying_mantis_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2774,
+        "item_id": "material_praying_mantis_pouch",
+        "item_name": "Praying mantis pouch",
+        "low_alchemy_value": 1849,
+        "required_level": 1,
+        "source_item_id": 12011,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Adamant minotaur pouch": {
+        "asset_path": "<repo>/summoningitems/adamant_minotaur_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4024,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4024,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2414,
+        "item_id": "material_adamant_minotaur_pouch",
+        "item_name": "Adamant minotaur pouch",
+        "low_alchemy_value": 1609,
+        "required_level": 1,
+        "source_item_id": 12081,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Forge regent pouch": {
+        "asset_path": "<repo>/summoningitems/forge_regent_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3949,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3949,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2369,
+        "item_id": "material_forge_regent_pouch",
+        "item_name": "Forge regent pouch",
+        "low_alchemy_value": 1579,
+        "required_level": 1,
+        "source_item_id": 12782,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Talon beast pouch": {
+        "asset_path": "<repo>/summoningitems/talon_beast_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4774,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4774,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2864,
+        "item_id": "material_talon_beast_pouch",
+        "item_name": "Talon beast pouch",
+        "low_alchemy_value": 1909,
+        "required_level": 1,
+        "source_item_id": 12794,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Giant ent pouch": {
+        "asset_path": "<repo>/summoningitems/giant_ent_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3524,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3524,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2114,
+        "item_id": "material_giant_ent_pouch",
+        "item_name": "Giant ent pouch",
+        "low_alchemy_value": 1409,
+        "required_level": 1,
+        "source_item_id": 12013,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Fire titan pouch": {
+        "asset_path": "<repo>/summoningitems/fire_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5374,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5374,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3224,
+        "item_id": "material_fire_titan_pouch",
+        "item_name": "Fire titan pouch",
+        "low_alchemy_value": 2149,
+        "required_level": 1,
+        "source_item_id": 12802,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Ice titan pouch": {
+        "asset_path": "<repo>/summoningitems/ice_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5374,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5374,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3224,
+        "item_id": "material_ice_titan_pouch",
+        "item_name": "Ice titan pouch",
+        "low_alchemy_value": 2149,
+        "required_level": 1,
+        "source_item_id": 12806,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Moss titan pouch": {
+        "asset_path": "<repo>/summoningitems/moss_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5474,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5474,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3284,
+        "item_id": "material_moss_titan_pouch",
+        "item_name": "Moss titan pouch",
+        "low_alchemy_value": 2189,
+        "required_level": 1,
+        "source_item_id": 12804,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Hydra pouch": {
+        "asset_path": "<repo>/summoningitems/hydra_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3624,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3624,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2174,
+        "item_id": "material_hydra_pouch",
+        "item_name": "Hydra pouch",
+        "low_alchemy_value": 1449,
+        "required_level": 1,
+        "source_item_id": 12025,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Lava titan pouch": {
+        "asset_path": "<repo>/summoningitems/lava_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5899,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5899,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3539,
+        "item_id": "material_lava_titan_pouch",
+        "item_name": "Lava titan pouch",
+        "low_alchemy_value": 2359,
+        "required_level": 1,
+        "source_item_id": 12788,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Spirit dagannoth pouch": {
+        "asset_path": "<repo>/summoningitems/spirit_dagannoth_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 449,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 449,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 269,
+        "item_id": "material_spirit_dagannoth_pouch",
+        "item_name": "Spirit dagannoth pouch",
+        "low_alchemy_value": 179,
+        "required_level": 1,
+        "source_item_id": 12017,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Swamp titan pouch": {
+        "asset_path": "<repo>/summoningitems/swamp_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4174,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4174,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2504,
+        "item_id": "material_swamp_titan_pouch",
+        "item_name": "Swamp titan pouch",
+        "low_alchemy_value": 1669,
+        "required_level": 1,
+        "source_item_id": 12776,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Rune minotaur pouch": {
+        "asset_path": "<repo>/summoningitems/rune_minotaur_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 449,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 449,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 269,
+        "item_id": "material_rune_minotaur_pouch",
+        "item_name": "Rune minotaur pouch",
+        "low_alchemy_value": 179,
+        "required_level": 1,
+        "source_item_id": 12083,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Unicorn stallion pouch": {
+        "asset_path": "<repo>/summoningitems/unicorn_stallion_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3924,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3924,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2354,
+        "item_id": "material_unicorn_stallion_pouch",
+        "item_name": "Unicorn stallion pouch",
+        "low_alchemy_value": 1569,
+        "required_level": 1,
+        "source_item_id": 12039,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Geyser titan pouch": {
+        "asset_path": "<repo>/summoningitems/geyser_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5974,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5974,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3584,
+        "item_id": "material_geyser_titan_pouch",
+        "item_name": "Geyser titan pouch",
+        "low_alchemy_value": 2389,
+        "required_level": 1,
+        "source_item_id": 12786,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Wolpertinger pouch": {
+        "asset_path": "<repo>/summoningitems/wolpertinger_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5499,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5499,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3299,
+        "item_id": "material_wolpertinger_pouch",
+        "item_name": "Wolpertinger pouch",
+        "low_alchemy_value": 2199,
+        "required_level": 1,
+        "source_item_id": 12089,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Abyssal titan pouch": {
+        "asset_path": "<repo>/summoningitems/abyssal_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 3249,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 3249,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 1949,
+        "item_id": "material_abyssal_titan_pouch",
+        "item_name": "Abyssal titan pouch",
+        "low_alchemy_value": 1299,
+        "required_level": 1,
+        "source_item_id": 12796,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Iron titan pouch": {
+        "asset_path": "<repo>/summoningitems/iron_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5374,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5374,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3224,
+        "item_id": "material_iron_titan_pouch",
+        "item_name": "Iron titan pouch",
+        "low_alchemy_value": 2149,
+        "required_level": 1,
+        "source_item_id": 12822,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Pack yak pouch": {
+        "asset_path": "<repo>/summoningitems/pack_yak_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 5699,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 5699,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 3419,
+        "item_id": "material_pack_yak_pouch",
+        "item_name": "Pack yak pouch",
+        "low_alchemy_value": 2279,
+        "required_level": 1,
+        "source_item_id": 12093,
+        "source_role": "general",
+        "tradeable": true
+      },
+      "Steel titan pouch": {
+        "asset_path": "<repo>/summoningitems/steel_titan_pouch.png",
+        "buy_limit": 5000,
+        "buy_limit_source": {
+          "title": "Calculator:Grand Exchange buying limits",
+          "oldid": 6457777,
+          "timestamp": "2012-10-23T03:28:03Z"
+        },
+        "cache_value": 4874,
+        "category": "material",
+        "exchangeable": true,
+        "guide_price": 4874,
+        "guide_price_provenance": {},
+        "guide_price_source": "cache_value_fallback",
+        "high_alchemy_value": 2924,
+        "item_id": "material_steel_titan_pouch",
+        "item_name": "Steel titan pouch",
+        "low_alchemy_value": 1949,
+        "required_level": 1,
+        "source_item_id": 12790,
+        "source_role": "general",
+        "tradeable": true
+      }
+    },
+    "phoenix_ge_delta": {
+      "source_item_id": [
+        null,
+        14623
+      ]
+    },
+    "meerkats_and_ghast_unchanged": true
+  },
+  "discovery": [
+    {
+      "lane": "plain",
+      "baseline": {
+        "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/14/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/mbp/repair/discovery/baseline-plain.stdout.gz",
+        "bytes": 114564,
+        "sha256": "4fa5b7a2efe33697058e81a310643f284225186d41bbffb1b50bc4e5039d3f20"
+      },
+      "baseline_raw_sha256": "da52c1f1ad36b961d1958b87ca5d310803a08e8131dd587f147d3cbba53e1cfa",
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/plain-discovery.stdout",
+        "bytes": 572866,
+        "sha256": "c427c882ddfca032199045bdfe360cb8833d21ff8b33741e89f799e1eb9b3a84"
+      },
+      "before_count": 5562,
+      "after_count": 5566,
+      "added": {
+        "skills.test_summoning_market.SummoningMarketTest.test_aliases_preserve_real_cache_entries_and_support_an_absent_cache": 1,
+        "skills.test_summoning_market.SummoningMarketTest.test_bought_pouches_exchange_at_bogrog_undo_and_sell_through_real_market": 1,
+        "skills.test_summoning_market.SummoningMarketTest.test_exact_cache_aliases_supply_value_and_exchangeability_without_renaming": 1,
+        "skills.test_summoning_market.SummoningMarketTest.test_registered_pouches_keep_identity_and_the_period_market_boundary": 1
+      },
+      "removed": {}
+    },
+    {
+      "lane": "qt",
+      "baseline": {
+        "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/14/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/mbp/repair/discovery/baseline-qt.stdout.gz",
+        "bytes": 114564,
+        "sha256": "4fa5b7a2efe33697058e81a310643f284225186d41bbffb1b50bc4e5039d3f20"
+      },
+      "baseline_raw_sha256": "da52c1f1ad36b961d1958b87ca5d310803a08e8131dd587f147d3cbba53e1cfa",
+      "candidate": {
+        "path": "/tmp/pouch-verification-0f715ccf/qt-discovery.stdout",
+        "bytes": 572866,
+        "sha256": "c427c882ddfca032199045bdfe360cb8833d21ff8b33741e89f799e1eb9b3a84"
+      },
+      "before_count": 5562,
+      "after_count": 5566,
+      "added": {
+        "skills.test_summoning_market.SummoningMarketTest.test_aliases_preserve_real_cache_entries_and_support_an_absent_cache": 1,
+        "skills.test_summoning_market.SummoningMarketTest.test_bought_pouches_exchange_at_bogrog_undo_and_sell_through_real_market": 1,
+        "skills.test_summoning_market.SummoningMarketTest.test_exact_cache_aliases_supply_value_and_exchangeability_without_renaming": 1,
+        "skills.test_summoning_market.SummoningMarketTest.test_registered_pouches_keep_identity_and_the_period_market_boundary": 1
+      },
+      "removed": {}
+    }
+  ],
+  "original_failed_capture": {
+    "path": "/tmp/pouch-verification-0f715ccf/verification.json",
+    "bytes": 438,
+    "sha256": "a387078e2068a17eaab388261ae2d28274a1020943c80400daeda9c7785036c7"
+  },
+  "required_payloads": 23,
+  "changed_payloads": 9,
+  "byte_identical_payloads": 14,
+  "scope": "Historical source, semantic delta, generated-map preservation and discovery proof only. Focused parser reconciliation, full gates and native acceptance are separate."
+}

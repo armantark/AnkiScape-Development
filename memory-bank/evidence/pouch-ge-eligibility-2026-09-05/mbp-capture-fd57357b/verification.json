@@ -1,0 +1,11 @@
+{
+  "status": "FAIL",
+  "errors": [
+    "plain-focus: expected the complete 218-test selection to pass once each with no skips",
+    "qt-focus: expected the complete 218-test selection to pass once each with no skips"
+  ],
+  "finished_utc": "2026-09-06T00:15:38.785951+00:00",
+  "scope": "Capture integrity and focused tests only; semantic reversal and discovery comparison are pending",
+  "surface_count": 23,
+  "subprocess_count": 27
+}

@@ -32,6 +32,7 @@ from ..data.quest_data import (
     quest_unlock_rules_as_dict,
     quests_as_dict,
 )
+from ..data.summoning_data import SUMMONING_POUCHES as _SUMMONING_POUCHES
 from .constants_parts.paths import *
 
 from .constants_parts.activity_updates import *
@@ -198,7 +199,7 @@ for _spec in UTILITY_ACTIVITY_DATA.values():
 
 
 def _known_non_shop_item_names():
-    names = set()
+    names = {pouch.pouch_name for pouch in _SUMMONING_POUCHES}
     for mapping in (
         QUEST_REWARD_ITEM_DATA,
         WOODCUTTING_EXTRA_ITEM_DATA,

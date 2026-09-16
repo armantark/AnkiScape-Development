@@ -1,0 +1,22 @@
+{
+  "expected": {
+    "core/constants.py": "a354b29d81c197874b9ff6407b8f2024ffabd156504ce398c714302f30362fd0",
+    "data/item_values.py": "5815a838b702b22d2788f9ad258bd85b3abd20bc246df4aceb673feedda7f785",
+    "generated/grand_exchange_period_generated.py": "92a960aaf7474965bc9d664fce449d12ce4de39db0ad8cbd6c39b15fd6210252",
+    "tests/test_grand_exchange_data.py": "0b130085606b0a8963f30424ee759d8f99d8f31db744440723ced633e7920f53",
+    "tests/skills/test_summoning_market.py": "f29db0aec8342f6faf66f1350605ebc11047ae35ff40d9f44ec747ab3e403730",
+    "tools/module_surface.py": "a66948b912691279dc951ac9e5aa0c144b75a351c9b1bb46b88f67d85ebcf1e5",
+    "tests/test_module_surface.py": "ba48d8b3afbfd957a1298846b263eb9358e5ebf3415d93be1adf76262a65c25f",
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+  },
+  "actual": {
+    "core/constants.py": "a354b29d81c197874b9ff6407b8f2024ffabd156504ce398c714302f30362fd0",
+    "data/item_values.py": "5815a838b702b22d2788f9ad258bd85b3abd20bc246df4aceb673feedda7f785",
+    "generated/grand_exchange_period_generated.py": "92a960aaf7474965bc9d664fce449d12ce4de39db0ad8cbd6c39b15fd6210252",
+    "tests/test_grand_exchange_data.py": "0b130085606b0a8963f30424ee759d8f99d8f31db744440723ced633e7920f53",
+    "tests/skills/test_summoning_market.py": "f29db0aec8342f6faf66f1350605ebc11047ae35ff40d9f44ec747ab3e403730",
+    "tools/module_surface.py": "a66948b912691279dc951ac9e5aa0c144b75a351c9b1bb46b88f67d85ebcf1e5",
+    "tests/test_module_surface.py": "ba48d8b3afbfd957a1298846b263eb9358e5ebf3415d93be1adf76262a65c25f",
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+  }
+}

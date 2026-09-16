@@ -1,0 +1,13 @@
+{
+  "base_head": "ffb846d6631e4b73731f6573dd8d7c0e77e439db",
+  "branch": "goal/pouch-ge-eligibility-2026-09-05",
+  "status": "driver-reviewed gate correction; fresh runtime rerun required before acceptance",
+  "files": {
+    "core/constants.py": "a354b29d81c197874b9ff6407b8f2024ffabd156504ce398c714302f30362fd0",
+    "data/item_values.py": "5815a838b702b22d2788f9ad258bd85b3abd20bc246df4aceb673feedda7f785",
+    "generated/grand_exchange_period_generated.py": "92a960aaf7474965bc9d664fce449d12ce4de39db0ad8cbd6c39b15fd6210252",
+    "tests/test_grand_exchange_data.py": "0b130085606b0a8963f30424ee759d8f99d8f31db744440723ced633e7920f53",
+    "tests/skills/test_summoning_market.py": "f29db0aec8342f6faf66f1350605ebc11047ae35ff40d9f44ec747ab3e403730"
+  },
+  "product_diff_sha256": "8d5187dd90cb8ef131a424cc1bbcb33ba00717cbbae6415081a3e9ae9d9556ed"
+}

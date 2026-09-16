@@ -14,6 +14,7 @@ possibly-valuable drop just because we lack a price).
 from typing import Dict, FrozenSet, Optional
 
 from .shop_data import SHOP_DATA
+from .summoning_data import SUMMONING_POUCHES as _SUMMONING_POUCHES
 
 try:  # the generated full-cache table is authoritative when present
     from ..generated.item_values_generated import (
@@ -31,6 +32,18 @@ except ImportError:  # dump not generated in this checkout
 # stackable technical variant. The player-facing essence item occupies one
 # inventory slot per unit in the period game.
 _FORCED_UNSTACKABLE_ITEM_NAMES = frozenset({"Rune essence", "Pure essence"})
+
+# These exact pouch IDs use different names in the period cache and player storage.
+_POUCH_CACHE_NAMES_BY_ID = {
+    12053: "Vampyre bat pouch",
+    12095: "Sp. cockatrice pouch",
+    12105: "Sp. coraxatrice pouch",
+    12097: "Sp. guthatrice pouch",
+    12103: "Sp. pengatrice pouch",
+    12099: "Sp. saratrice pouch",
+    12107: "Sp. vulatrice pouch",
+    12101: "Sp. zamatrice pouch",
+}
 
 
 def _plural_alias(name: str) -> str:
@@ -66,6 +79,19 @@ def _add_plural_aliases(
             exchangeable.add(alias)
 
 
+def _add_pouch_aliases(values: Dict[str, int], exchangeable: set) -> None:
+    for pouch in _SUMMONING_POUCHES:
+        cache_name = _POUCH_CACHE_NAMES_BY_ID.get(pouch.pouch_item_id)
+        if (
+            cache_name is not None
+            and cache_name in ITEM_VALUES_GENERATED
+            and pouch.pouch_name not in ITEM_VALUES_GENERATED
+        ):
+            values[pouch.pouch_name] = ITEM_VALUES_GENERATED[cache_name]
+            if cache_name in exchangeable:
+                exchangeable.add(pouch.pouch_name)
+
+
 def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str]]":
     # Shop-derived tables are the fallback; the generated cache values override.
     values: Dict[str, int] = {}
@@ -90,6 +116,7 @@ def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str
             values.setdefault(f"{name.removesuffix(' (deg)')} 100", value)
     stackable |= set(STACKABLE_ITEM_NAMES_GENERATED)
     _add_plural_aliases(values, stackable, exchangeable)
+    _add_pouch_aliases(values, exchangeable)
     stackable.difference_update(_FORCED_UNSTACKABLE_ITEM_NAMES)
     return values, frozenset(stackable), frozenset(exchangeable)
 

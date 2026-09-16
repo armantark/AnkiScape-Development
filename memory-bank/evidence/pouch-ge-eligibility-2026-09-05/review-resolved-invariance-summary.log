@@ -1,0 +1,14 @@
+{
+  "baseline_sha256": "e1192daca05be4d307b91cac794adf7e00dbf4cf267c297d08879d2df9d6d9bd",
+  "path_normalization": "Exact old/new mirror prefix only; every relative asset path remains compared",
+  "registry_count": 3464,
+  "unchanged_non_pouch_definitions": 3384,
+  "changed_pouch_definitions": 78,
+  "flag_corrections": 77,
+  "restored_source_ids": 78,
+  "unchanged_shop_services": 84,
+  "unchanged_price_rows": 1437,
+  "buy_limit_rows": 1830,
+  "errors": []
+}
+Full delta evidence: /tmp/ankiscape-pouch-invariance-2026-09-05.json sha256=fed0fe119fa61ed3aea965bc60d643fc383373d755189fe16ef94a9a81871513
