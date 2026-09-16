@@ -2356,3 +2356,8 @@
 - 2026-09-15T23:20:00-07:00: `tools/module_surface.py` prints its `MODULE_SURFACE_ENV:` banner on stderr, not stdout. A terminal shows it merged with the digests and makes the line count look one too high against `FIRST_WAVE_DIGESTS`; redirect with `2>/dev/null` when counting lines.
 
 - 2026-09-16T13:22:44-07:00 — Searching for `bar_crawl_completed` with unquoted `--include=*.py` failed with `(eval):1: no matches found: --include=*.py`; quote shell globs in grep options.
+- 2026-09-16 tools/audit_item_reachability.py exits 1 whenever findings exist, so `&&` chains after it silently skip the next command; use `;` or capture rc explicitly.
+
+- 2026-09-16 16:27 PDT — The requested targeted reachability unittest command exceeded the Bash foreground 120s timeout and continued as background task `bq7d8k9g0`; wait for its completion instead of launching a duplicate test run.
+
+- 2026-09-16 16:37:11 PDT — While locating the extraction commit hook, `ls .git/hooks/` failed with `ls: .git/hooks/: Not a directory` because this is a linked worktree; use `git rev-parse --git-path hooks` instead.

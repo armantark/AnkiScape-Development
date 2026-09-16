@@ -87,6 +87,46 @@ QUEST_ACTION_PROOF_RULES = {
 # The reachability audit uses the same event bindings, but proves an event only
 # when the corresponding action or source is reachable in its fixed-point graph.
 QUEST_ACTION_PROOF_AUDIT_SOURCES = {
+    ("shop_vendor_action", "bar_crawl_blue_moon_inn_uncle_humphreys_gutrot"): (
+        "Shop vendor:bar_crawl_blue_moon_inn_uncle_humphreys_gutrot",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_blurberrys_bar_fire_toad_blast"): (
+        "Shop vendor:bar_crawl_blurberrys_bar_fire_toad_blast",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_dead_mans_chest_supergrog"): (
+        "Shop vendor:bar_crawl_dead_mans_chest_supergrog",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_dragon_inn_fire_brandy"): (
+        "Shop vendor:bar_crawl_dragon_inn_fire_brandy",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_flying_horse_inn_heart_stopper"): (
+        "Shop vendor:bar_crawl_flying_horse_inn_heart_stopper",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_foresters_arms_liverbane_ale"): (
+        "Shop vendor:bar_crawl_foresters_arms_liverbane_ale",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_jolly_boar_inn_olde_suspiciouse"): (
+        "Shop vendor:bar_crawl_jolly_boar_inn_olde_suspiciouse",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_karamja_wines_spirits_and_beers_ape_bite_liqueur"): (
+        "Shop vendor:bar_crawl_karamja_wines_spirits_and_beers_ape_bite_liqueur",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_rising_sun_hand_of_death_cocktail"): (
+        "Shop vendor:bar_crawl_rising_sun_hand_of_death_cocktail",
+        "",
+    ),
+    ("shop_vendor_action", "bar_crawl_rusty_anchor_black_skull_ale"): (
+        "Shop vendor:bar_crawl_rusty_anchor_black_skull_ale",
+        "",
+    ),
     ("shop_buy", "hamabs_crafting_emporium:3:4020"): (
         "shop:hamabs_crafting_emporium",
         "M'amulet mould",

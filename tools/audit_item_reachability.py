@@ -223,6 +223,7 @@ def _combat_drop_gate_reachable(
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic_pure.quest_action_proofs import quest_action_proofs_after_stage_actions_pure
 from ankiscape.tools import quest_action_proof_reachability
+from ankiscape.tools.reachability import shop_rows
 
 
 def _close_actions(
@@ -1751,43 +1752,30 @@ def build_reachability_report() -> dict[str, Any]:
             for item in decant_outputs:
                 producers[item].add(decant_key)
 
-    for service_id, service in shop_data.SHOP_SERVICES.items():
-        if (
-            service.get("visibility") != "visible"
-            or service.get("action_type") != "item_conversion"
-        ):
-            continue
-        required = _names(service.get("inputs"))
-        if int(service.get("price", 0) or 0) > 0:
-            required.add(str(service.get("currency_item_name", "Coins")))
-        outputs = _names(service.get("outputs"))
-        if not outputs:
-            continue
-        key = f"Shop service:{service_id}"
-        action = {
-            "id": key,
-            "required": required,
-            "alternatives": (),
-            "outputs": outputs,
-        }
-        if isinstance(service.get("access"), Mapping):
-            action["is_accessible"] = (
-                lambda completed, startable, reachable, progress, service=service: (
-                    shop_access_reachable(
-                        service,
-                        completed,
-                        startable,
-                        reachable,
-                        progress,
-                    )
-                )
-            )
-        actions.append(action)
-        for item in required:
-            consumers[item].add(key)
-        for item in outputs:
-            producers[item].add(key)
+    def shop_access_reachable(
+        shop: Mapping[str, Any],
+        completable_quests: set[str],
+        startable_quests: set[str],
+        reachable_items: set[str],
+        quest_progress: Mapping[str, int],
+    ) -> bool:
+        player_data = closure_player_data(
+            completable_quests,
+            startable_quests,
+            reachable_items,
+            quest_progress,
+        )
+        return shop_logic.shop_access_lock_reason_pure(player_data, shop) is None
 
+    for shop_actions, shop_consumers, shop_producers in (
+        shop_rows.build_shop_service_rows(shop_data.SHOP_SERVICES, _names, shop_access_reachable),
+        shop_rows.build_vendor_action_rows(shop_data.SHOP_VENDOR_ACTIONS, _names, shop_access_reachable),
+    ):
+        actions.extend(shop_actions)
+        for item, keys in shop_consumers.items():
+            consumers[item].update(keys)
+        for item, keys in shop_producers.items():
+            producers[item].update(keys)
     seen_charge_families: set[tuple[tuple[tuple[str, int], ...], str, str]] = set()
     for enemy_id, enemy in combat_data.COMBAT_ENEMY_DATA.items():
         finisher = enemy.get("finisher", {})
@@ -1855,21 +1843,6 @@ def build_reachability_report() -> dict[str, Any]:
     seed_item_counts: dict[str, int] = defaultdict(int)
     repeatable_seed_items: set[str] = set()
     conditional_seed_sources: list[dict[str, Any]] = []
-
-    def shop_access_reachable(
-        shop: Mapping[str, Any],
-        completable_quests: set[str],
-        startable_quests: set[str],
-        reachable_items: set[str],
-        quest_progress: Mapping[str, int],
-    ) -> bool:
-        player_data = closure_player_data(
-            completable_quests,
-            startable_quests,
-            reachable_items,
-            quest_progress,
-        )
-        return shop_logic.shop_access_lock_reason_pure(player_data, shop) is None
 
     for shop_id, shop in shop_data.SHOP_DATA.items():
         if shop.get("visibility") != "visible" or not shop.get("currency_implemented"):
