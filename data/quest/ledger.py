@@ -42,6 +42,7 @@ QUEST_OVERRIDE_ORDER = (
     'legacy_of_seergaze',
 )
 MINIQUEST_ORDER = (
+    'bar_crawl',
     'hunt_for_surok',
     'lair_of_tarn_razorlor',
 )

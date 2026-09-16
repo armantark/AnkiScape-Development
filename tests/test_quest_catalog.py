@@ -821,7 +821,7 @@ class TestQuestCatalog(unittest.TestCase):
             )
         ]
 
-        self.assertEqual(len(quests_with_stage_requirements), 196)
+        self.assertEqual(len(quests_with_stage_requirements), 197)
         self.assertGreaterEqual(len(quests_with_combat), 110)
         self.assertGreaterEqual(len(quests_with_item_requirements), 160)
         self.assertGreaterEqual(len(quests_with_narrative_actions), 190)

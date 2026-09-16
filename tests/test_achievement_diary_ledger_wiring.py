@@ -856,7 +856,7 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
             {
                 "current_agility": target.id,
                 "agility_level": 99,
-                "bar_crawl_completed": True,
+                "quests": {"bar_crawl": {"completed": True}},
                 "equipment": {"body": "Agile top"},
                 "agility_course_state": {
                     "target": target.id,
@@ -907,7 +907,7 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
                 {
                     "current_agility": target.id,
                     "agility_level": 99,
-                    "bar_crawl_completed": True,
+                    "quests": {"bar_crawl": {"completed": True}},
                     "equipment": {"body": "Agile top"},
                     "agility_course_state": {
                         "target": target.id,

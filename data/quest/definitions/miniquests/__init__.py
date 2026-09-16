@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from . import alfred_grimhands_barcrawl as _alfred_grimhands_barcrawl
+from .alfred_grimhands_barcrawl import *
 from . import hunt_for_surok as _hunt_for_surok
 from .hunt_for_surok import *
 from . import lair_of_tarn_razorlor as _lair_of_tarn_razorlor
 from .lair_of_tarn_razorlor import *
 
-_MODULES = (_hunt_for_surok, _lair_of_tarn_razorlor,)
+_MODULES = (_alfred_grimhands_barcrawl, _hunt_for_surok, _lair_of_tarn_razorlor,)
 _QUESTS_BY_ID = {module.QUEST.id: module.QUEST for module in _MODULES}
 _STAGE_REQUIREMENT_REPLACEMENTS_BY_QUEST = {
     quest_id: module._STAGE_REQUIREMENT_REPLACEMENTS_BY_ID

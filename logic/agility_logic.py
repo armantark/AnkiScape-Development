@@ -278,8 +278,6 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
 
 
 def _quest_complete(player_data: Mapping[str, Any], quest_id: str) -> bool:
-    if quest_id == "bar_crawl":
-        return bool(player_data.get("bar_crawl_completed", False))
     quests = player_data.get("quests")
     return bool(isinstance(quests, Mapping) and isinstance(quests.get(quest_id), Mapping) and quests[quest_id].get("completed"))
 

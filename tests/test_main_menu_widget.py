@@ -9234,7 +9234,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIsNone(dialog.findChild(QWidget, "questCard_lost_city"))
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
-        self.assertRegex(summary.text(), r"^Showing \d+/196$")
+        self.assertRegex(summary.text(), r"^Showing \d+/197$")
 
     def test_quests_tab_shows_stage_blockers_without_hiding_started_quests(self) -> None:
         pd = _make_player_data()
@@ -10294,18 +10294,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         search.setText("while_guthix_sleeps")
         QApplication.processEvents()
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_while_guthix_sleeps"))
-        self.assertEqual(summary.text(), "Showing 1/196")
+        self.assertEqual(summary.text(), "Showing 1/197")
 
         hide_locked = dialog.findChild(QCheckBox, "questHideLockedCheck")
         hide_locked.setChecked(True)
         QApplication.processEvents()
-        self.assertEqual(summary.text(), "Showing 0/196")
+        self.assertEqual(summary.text(), "Showing 0/197")
         self.assertIsNotNone(dialog.findChild(QLabel, "questEmptyFilterLabel"))
 
         hide_locked.setChecked(False)
         search.clear()
         QApplication.processEvents()
-        self.assertEqual(summary.text(), "Showing 196/196")
+        self.assertEqual(summary.text(), "Showing 197/197")
         dialog.deleteLater()
 
     def test_bank_claims_expose_eligible_wicked_hood_claim(self) -> None:

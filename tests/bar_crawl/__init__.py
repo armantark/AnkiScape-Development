@@ -1,0 +1,1 @@
+"""Bar Crawl miniquest tests."""

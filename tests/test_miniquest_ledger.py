@@ -1,4 +1,4 @@
-"""The miniquest category and its first two rows, driven through real reducers.
+"""The miniquest category and its registered rows, driven through real reducers.
 
 Authority: memory-bank/design-thread-queue.md section 4.14 item 1 and section
 3.23; memory-bank/source-audits/miniquest-ledger-2026-07-29.md.
@@ -37,7 +37,8 @@ from ankiscape.logic_pure.logic_pure import (
 
 HUNT_FOR_SUROK = "hunt_for_surok"
 LAIR_OF_TARN_RAZORLOR = "lair_of_tarn_razorlor"
-MINIQUEST_IDS = (HUNT_FOR_SUROK, LAIR_OF_TARN_RAZORLOR)
+BAR_CRAWL = "bar_crawl"
+MINIQUEST_IDS = (BAR_CRAWL, HUNT_FOR_SUROK, LAIR_OF_TARN_RAZORLOR)
 
 
 def _combat_ready_player():
@@ -97,7 +98,7 @@ def _resolve_encounter(test, player_data, quest_id, encounter_id):
 
 
 class TestMiniquestFlag(unittest.TestCase):
-    def test_only_the_two_settled_rows_carry_the_flag(self):
+    def test_only_the_settled_rows_carry_the_flag(self):
         flagged = tuple(quest.id for quest in QUESTS_BY_ID.values() if quest.miniquest)
         self.assertEqual(flagged, MINIQUEST_IDS)
 
