@@ -4,7 +4,7 @@
 
 AnkiScape is a Python Anki add-on that turns eligible card reviews into a lightweight, persistent pre-EOC RuneScape progression layer. Reviews can advance skills, combat, quests, items, achievements, shops, and world/economy clocks without replacing Anki's study flow.
 
-## Current Goal
+## Goal
 
 Reach a coherent “complete AnkiScape” rather than accumulating disconnected v1 slices. The canonical scope and work routing are:
 
@@ -22,11 +22,11 @@ Reach a coherent “complete AnkiScape” rather than accumulating disconnected 
 - Do not build a world map or standalone transportation network.
 - Do not expose inert “coming soon” targets or rewards; content is visible only when it works end to end, except authentic player-state locks on working content.
 
-## Current Foundation
+## Foundation
 
-- Nineteen complete skill surfaces, five partial Combat-trained skills, and one implemented partial Dungeoneering surface.
+- Complete skill surfaces, Combat-trained partial skills, and a partial Dungeoneering surface; `memory-bank/future-work-kanban.md` names the surfaces that are still missing or incomplete.
 - Unified Combat with XP routing for Attack, Strength, Defence, Constitution, Ranged, and Magic.
-- A 194-row pre-EOC quest catalog and stage-gate engine, treated as coverage scaffolding rather than full quest parity.
+- A pre-EOC quest catalog and stage-gate engine, treated as coverage scaffolding rather than full quest parity; `python3 tools/audit_quest_stage_gate_coverage.py` prints the census.
 - Utility/Activities, Bank Claims, NPC shops/economy, equipment, carried inventory, achievements, undo, source tooling, assets/provenance, and full pure/Qt test suites.
 
 ## Success Criteria

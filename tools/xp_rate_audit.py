@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic_pure import logic_pure  # noqa: E402
-from ankiscape.data.combat_data import COMBAT_BURST_TICKS  # noqa: E402
+from ankiscape.logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW  # noqa: E402
 from ankiscape.data import cooking_data  # noqa: E402
 from ankiscape.data import firemaking_data  # noqa: E402
 from ankiscape.data import fishing_data  # noqa: E402
@@ -128,20 +128,14 @@ def measure_firemaking(level):
 
 
 def combat_review_rate():
-    """Combat's R is a definition, not a measurement — and that is the whole problem.
+    """Combat's R follows from the cadence kernel, not from a measurement.
 
-    One review advances COMBAT_BURST_TICKS (50) game ticks. At 0.6s/tick that is
-    30 seconds, so 120 reviews buy one balancing-hour. Every other skill's R falls
-    out of dividing a sourced XP/hour by shipped XP/review, and lands near
-    1,000-1,475. Combat simply declares 120.
-
-    So a card spent on combat buys roughly ten times more game time than a card
-    spent on anything else. This needs no combat XP/hour source to prove: it is
-    pure tick-to-review conversion. (The engine itself is faithful — simulating
-    moss giants at 50 ticks/review yields ~37k XP/hr, an entirely plausible period
-    rate. The simulation is right; the exchange rate is wrong.)
+    One review advances LIVE_COMBAT_TICKS_PER_REVIEW game ticks of 0.6 s each,
+    so 3600 / (ticks * 0.6) reviews buy one balancing-hour. The kernel picks the
+    tick count so this matches the R the other skills measure; the spread the
+    print below reports is the residual disagreement.
     """
-    return 3600.0 / (COMBAT_BURST_TICKS * 0.6)
+    return 3600.0 / (LIVE_COMBAT_TICKS_PER_REVIEW * 0.6)
 
 
 MEASURERS = {
@@ -227,13 +221,10 @@ def audit(level):
         # is a symptom, not a reference point.
         clean = [r for r in all_R if r[0] not in ("Woodcutting", "Fishing", "Hunter")]
         c_lo, c_hi = min(r[2] for r in clean), max(r[2] for r in clean)
-        print(f"\nCOMBAT: {COMBAT_BURST_TICKS} ticks/review DEFINES R = {cr:,.0f}.")
+        print(f"\nCOMBAT: {LIVE_COMBAT_TICKS_PER_REVIEW} ticks/review sets R = {cr:,.0f}.")
         print(f"  Skills with NEITHER defect MEASURE R at {c_lo:,.0f}-{c_hi:,.0f}.")
-        print(f"  So one combat card buys {c_lo/cr:.1f}x-{c_hi/cr:.1f}x more game time "
-              f"than any other card.")
-        print(f"  The combat engine is faithful per unit of GAME TIME (moss giants at 50 "
-              f"ticks/review\n  yield ~37k xp/hr, a plausible period rate). It is the "
-              f"REVIEW conversion that is wrong.")
+        print(f"  So one combat card buys {c_lo/cr:.2f}x-{c_hi/cr:.2f}x the game time "
+              f"of one of those cards.")
 
     print("\n" + "=" * 96)
     print("DIRECT reads of R — deterministic artisan actions (no roll, no adapter, nothing")
