@@ -2370,3 +2370,12 @@
 - 2026-09-16T17:59:48-07:00 — Barcrawl commit refused: `slop-gate: code files above 1000 lines were grown: tools/generate_npc_shop_data.py: 1707 lines (was 1575)`. Extracted the cohesive service catalog to `tools/npc_shop_service_rows.py`, retaining vendor ownership in the generator; no hook bypass.
 
 - 2026-09-16T18:01:59-07:00 — Service-catalog extraction hit `slop-gate: code files were added to directories already at 40 files: tools: 152 code files (was 151)`. Placed the extracted catalog in `tools/npc_shop_generation/service_rows.py` instead of widening `tools`.
+
+- 2026-09-16T18:07:20-07:00 — Barcrawl offscreen setup: `cat .claude/rules/qt-offscreen-screenshots.md` returned `No such file or directory` in the assigned worktree; used the exact rule text supplied in the task without accessing the live canonical checkout.
+
+- 2026-09-16T18:08:06-07:00 — Menu harness lookup included nonexistent `ui/ui_main_menu.py`; `grep` exited 2 and stopped the chained reads. The constructor is in `ui/ui.py`.
+- 2026-09-16T18:09:02-07:00 — Barcrawl Qt test expected `Stage 1/3` immediately after `start_quest_pure`; the real card displays `Stage 0/3` until review progress. Corrected the behavioral assertion, not production code.
+
+- 2026-09-16T18:09:22-07:00 — Offscreen menu cleanup raised `RuntimeError: wrapped C/C++ object of type CapturingDialog has been deleted` after closing intermediate dialogs; disabled `WA_DeleteOnClose` in the capturing test dialog so teardown owns deletion.
+
+- 2026-09-16T18:11:24-07:00 — After removing the forbidden Scorpion Catcher cross-quest proof gate, `tests.bar_crawl.test_quest_route.TestBarCrawlQuest.test_outpost_scorpion_stage_cannot_bypass_the_crawl` fails at `self.assertFalse(ok)` with `AssertionError: True is not false`: it manually seeds an already-started quest and expects the removed stage gate. Left unchanged under the task's invariant-test prohibition; the quest-start prerequisite test passes.

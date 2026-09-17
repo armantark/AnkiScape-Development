@@ -162,8 +162,8 @@ class TestBarCrawlQuest(unittest.TestCase):
         }
         self.assertIn(quest.difficulty, orders["difficulty_order"])
         self.assertIn(quest.length, orders["length_order"])
-        self.assertEqual(quest.release_date, "2002-03-25")
-        self.assertIn("medium confidence", quest.source)
+        self.assertEqual(quest.release_date, "PLACEHOLDER(quests.bar_crawl.release_date)")
+        self.assertIn("Release date unrecovered", quest.source)
         self.assertEqual(quest.timeline, "PLACEHOLDER(quests.bar_crawl.timeline)")
         self.assertEqual(quest.requirements, ())
         self.assertEqual(quest.required_quests, ())

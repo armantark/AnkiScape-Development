@@ -191,8 +191,8 @@ BAR_CRAWL_CARD_SOURCE = "https://runescape.wiki/w/Barcrawl_card?oldid=5912137"
 BAR_CRAWL_GUARD_SOURCE = "https://runescape.wiki/w/Barbarian_guard?oldid=6221934"
 BAR_CRAWL_HARVEST_SOURCE = "memory-bank/source-audits/bar-crawl-harvest-2026-09-02.md"
 BAR_CRAWL_RELEASE_SOURCE = (
-    "Release date 2002-03-25: medium confidence; owner-supplied metadata harvest "
-    f"from a modern revision and the period Barcrawl card page ({BAR_CRAWL_CARD_SOURCE})"
+    "Release date unrecovered: the proposed metadata harvest produced no report; "
+    "see memory-bank/placeholder-values.md, quests.bar_crawl.release_date"
 )
 LAIR_OF_TARN_RAZORLOR_WIKI_SOURCE = (
     "https://runescape.wiki/w/Lair_of_Tarn_Razorlor_%28miniquest%29?oldid=6448364"

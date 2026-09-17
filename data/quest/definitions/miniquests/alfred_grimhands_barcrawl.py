@@ -92,7 +92,8 @@ QUEST = QuestDefinition(
             f"{BAR_CRAWL_RELEASE_SOURCE}"
         ),
         journal_stages=BAR_CRAWL_STAGES,
-        release_date="2002-03-25",
+        # PLACEHOLDER(quests.bar_crawl.release_date): needs a traceable release record.
+        release_date="PLACEHOLDER(quests.bar_crawl.release_date)",
         members=True,
         difficulty="Special",
         length="Medium",
