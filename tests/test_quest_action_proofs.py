@@ -889,7 +889,7 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 "logic/shop/services.py": 3,
                 "logic_pure/logic_pure_quest.py": 1,
                 "logic_pure/logic_pure_state.py": 5,
-                "logic_pure/quest_action_proofs.py": 24,
+                "logic_pure/quest_action_proofs.py": 25,
                 "runtime/runtime_actions_shared.py": 3,
             },
         )
