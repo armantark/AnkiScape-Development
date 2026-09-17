@@ -65,7 +65,7 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             ("Spria", "activityicons/spria_chathead.png"),
         )
 
-    def test_hidden_mazchna_pool_preserves_complete_master_specific_rows(self):
+    def test_enabled_mazchna_pool_preserves_complete_master_specific_rows(self):
         self.assertEqual(len(MAZCHNA_FAMILIES), 27)
         self.assertEqual(sum(family.weight for family in MAZCHNA_FAMILIES), 325)
         self.assertEqual(
@@ -99,20 +99,20 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             ),
             "Achtryn",
         )
-        self.assertFalse(MAZCHNA_MASTER.runtime_enabled)
+        self.assertTrue(MAZCHNA_MASTER.runtime_enabled)
 
-    def test_mazchna_readiness_is_derived_and_keeps_partial_pool_hidden(self):
+    def test_mazchna_readiness_is_derived_and_certifies_complete_pool(self):
         readiness = slayer_master_readiness_pure(
             MAZCHNA_MASTER.id, COMBAT_ENEMY_DATA
         )
 
-        self.assertFalse(readiness["certified"])
-        self.assertFalse(readiness["runtime_enabled"])
+        self.assertTrue(readiness["certified"])
+        self.assertTrue(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 27)
-        self.assertEqual(readiness["ready_family_count"], 26)
+        self.assertEqual(readiness["ready_family_count"], 27)
         self.assertEqual(
             set(readiness["blockers"]),
-            {"mogres:combat_target"},
+            set(),
         )
         self.assertNotIn("hobgoblins:slayer_xp", readiness["blockers"])
         self.assertEqual(
@@ -124,10 +124,13 @@ class SlayerAssignmentDataTest(unittest.TestCase):
                 },
                 MAZCHNA_MASTER.id,
             ),
-            (),
+            tuple(
+                family for family in MAZCHNA_FAMILIES
+                if family.id not in {"cyclopes", "mogres", "wall_beasts"}
+            ),
         )
 
-    def test_hidden_vannaka_pool_preserves_complete_master_specific_rows(self):
+    def test_enabled_vannaka_pool_preserves_complete_master_specific_rows(self):
         self.assertEqual(len(VANNAKA_FAMILIES), 35)
         self.assertEqual(sum(family.weight for family in VANNAKA_FAMILIES), 460)
         self.assertEqual(
@@ -145,29 +148,34 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             (60, 120),
         )
         self.assertEqual(VANNAKA_MASTER.required_combat_level, 40)
-        self.assertFalse(VANNAKA_MASTER.runtime_enabled)
+        self.assertTrue(VANNAKA_MASTER.runtime_enabled)
 
-    def test_vannaka_readiness_is_derived_and_keeps_partial_pool_hidden(self):
+    def test_vannaka_readiness_is_derived_and_certifies_complete_pool(self):
         readiness = slayer_master_readiness_pure(
             VANNAKA_MASTER.id, COMBAT_ENEMY_DATA
         )
 
-        self.assertFalse(readiness["certified"])
-        self.assertFalse(readiness["runtime_enabled"])
+        self.assertTrue(readiness["certified"])
+        self.assertTrue(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 35)
-        self.assertEqual(readiness["ready_family_count"], 34)
+        self.assertEqual(readiness["ready_family_count"], 35)
         self.assertEqual(
             set(readiness["blockers"]),
-            {
-                "mogres:combat_target",
-            },
+            set(),
         )
         self.assertEqual(
             eligible_slayer_families_pure(
                 {"slayer_level": 99, "combat_level": 126, "quests": {}},
                 VANNAKA_MASTER.id,
             ),
-            (),
+            tuple(
+                family for family in VANNAKA_FAMILIES
+                if family.id not in {
+                    "aberrant_spectres", "banshees", "basilisks", "cyclopes",
+                    "jungle_horrors", "killerwatts", "mogres", "molanisks",
+                    "otherworldly_beings", "sea_snakes", "shadow_warriors", "werewolves",
+                }
+            ),
         )
 
     def test_hidden_chaeldar_pool_preserves_complete_reconciled_rows(self):

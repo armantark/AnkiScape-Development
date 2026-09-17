@@ -11,26 +11,26 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "module_surface.py"
 
 FIRST_WAVE_DIGESTS = {
-    "core/constants.py": "ceeeb401bf29997444bedc26d9ed111237845161b154571aeab754df719fe2e2",
-    "data/quest_data.py": "97ee2e1a884f4b3426934b44793dcaf72b42212671aca3253c5c9a82d404b85f",
-    "data/combat_data.py": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77",
-    "data/slayer_data.py": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94",
-    "logic_pure/logic_pure_combat_engine.py": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850",
-    "tests/combat_roster/contract.py": "62e87b82a034f3ac9506ba7c91723e5824b8c7c7305c5577fca701802d834d69",
-    "tests/combat_roster/test_dragon_families.py": "a5d7588cf00d96b87d650077d41ace47b7462717fc1cdcedf4785eeddd12375e",
-    "tests/combat_roster/test_finisher_families.py": "b6af72cea193a28809ace2b1a769d77c65f47ce1a2b33325c8111cf4502544ce",
-    "tests/combat_roster/test_roster_contract.py": "ef57c4b7b1f998e58983dcd63fcbf965e3ee4cc08261aa1da7a0eb7a7f998e04",
-    "tests/combat_roster/test_slayer_families.py": "0e5b538c8b20032488f2f4a7687f54edd36ac259e32ed50d497c4fcee34156c9",
-    "logic/shop_logic.py": "c6cf56b88bab5b9151e805bbb44466a30b322c1a24af2f472b8465577984678c",
+    "core/constants.py": "ef9416a2651d6bfb463238d3e408d27a9e9fa394804b14a8bacc0283d8b9e152",
+    "data/quest_data.py": "98cf55a41c4502a1818bc834db063e9b8f41a7e3f1f14badcd008f8e02676a6a",
+    "data/combat_data.py": "c50b3baa6d135b56e2a0fc500f952e0e173c2873b820e60258799829837a8d0d",
+    "data/slayer_data.py": "efc18af3d79cab7d1664347bef7071b28354ed3cba3344f14f7d06d023f93f9c",
+    "logic_pure/logic_pure_combat_engine.py": "886cde5a31bb852ed696e8018c8954e707fff86c56dc0fc65633fd1b2f76f8c6",
+    "tests/combat_roster/contract.py": "5249a887c334bd4ee8267ed6c27a6d663de19e01001b2c13c494e8b7a424aa7b",
+    "tests/combat_roster/test_dragon_families.py": "0b8d1da74b5f39b217ddcd192d0b98a059e18a6f4e943f12c171d67d48a5c469",
+    "tests/combat_roster/test_finisher_families.py": "bb4ee0075ffa8640410c1652ae215f850d7d4e1fb68ab7cc0358e178c81b342a",
+    "tests/combat_roster/test_roster_contract.py": "c784877caf61c0fa6c1c294ad4f69f375d88913accacabba3d19c9d03dadf331",
+    "tests/combat_roster/test_slayer_families.py": "5f232558b881023d500a3cd8d58c1aec523357ad352699c9681d4854d0a70e6f",
+    "logic/shop_logic.py": "a8da050a08799e453b61e64ba16cefe90f049c5335a2142360931bf4bf5d105f",
     "ui/ui_tab_shop.py": "225495833df019eec919856eea981c85b114eec8327bd836bd791409ebde4c16",
     "data/achievement_diary_catalog.py": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
-    "runtime/runtime_actions_carried.py": "d91fdc997b4f44d1825438cfeb9f6f60b6db02f2f91ee41dde8e2f8894cfb8e8",
-    "runtime/runtime_actions_activities.py": "fbd91b2b2bcc8e94e9826a859d74e8634e535a6c76c834fb7903ba0899a18050"
+    "runtime/runtime_actions_carried.py": "9799791c81e727d7badb7dc0a9c780ca7f88af9699f710a6c2b695eeda9fa4d3",
+    "runtime/runtime_actions_activities.py": "3984fb9b35e6ae8d764f6d72ba997c2145ef606281f515e3ca5b6afcf2b46594"
 }
 QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "b0a6e20b73b866a6e7f4ce70c13cfc52c1c19ac57611e3a94e9f907adc22a0da"
 }
-ROOT_QT_DIGEST = "991fc2eb44ab06966832974851caaacbcc2cb2be306459675a019e463ce4690e"
+ROOT_QT_DIGEST = "a3de8a674962606fd366b632fe64688a5461c5e0ef0d28c593bcb655dd27b283"
 CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"
 
 
@@ -81,11 +81,11 @@ class ModuleSurfaceTest(unittest.TestCase):
                 "assert 'ankiscape.core.constants' not in sys.modules",
                 "leaf = sys.argv[1].rsplit('.', 1)[-1]",
                 "if leaf == 'activity_updates':",
-                "    assert len(module.UTILITY_ACTIVITY_DATA) == 218",
+                "    assert len(module.UTILITY_ACTIVITY_DATA) == 220",
                 "if leaf == 'activity_assets':",
                 "    owner = importlib.import_module('ankiscape.core.constants_parts.quest_items')",
                 "    assert module._QUEST_REWARD_ITEM_DATA is owner.QUEST_REWARD_ITEM_DATA",
-                "    assert len(module.UTILITY_ACTIVITY_DATA) == 218",
+                "    assert len(module.UTILITY_ACTIVITY_DATA) == 220",
                 "    assert 'Clue scroll (medium)' in module.TROUBLE_BREWING_ITEM_IMAGES",
                 "    assert not hasattr(module, 'EQUIPMENT_ITEM_DATA')",
                 "if leaf == 'equipment_sources':",

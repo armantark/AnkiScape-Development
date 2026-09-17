@@ -38,7 +38,8 @@ from ankiscape.logic_pure.logic_pure import (
 HUNT_FOR_SUROK = "hunt_for_surok"
 LAIR_OF_TARN_RAZORLOR = "lair_of_tarn_razorlor"
 BAR_CRAWL = "bar_crawl"
-MINIQUEST_IDS = (BAR_CRAWL, HUNT_FOR_SUROK, LAIR_OF_TARN_RAZORLOR)
+SKIPPY_AND_THE_MOGRES = "skippy_and_the_mogres"
+MINIQUEST_IDS = (BAR_CRAWL, HUNT_FOR_SUROK, LAIR_OF_TARN_RAZORLOR, SKIPPY_AND_THE_MOGRES)
 
 
 def _combat_ready_player():

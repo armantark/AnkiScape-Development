@@ -2408,3 +2408,7 @@
 - 2026-09-17T02:57:40-07:00 — Skippy re-home verification: Slayer family registration alone does not expose a target; data/combat_data.py also has an explicit ordered enemy-id list. Read rejected an empty pages argument with `Invalid pages parameter: ""`; omit it for text. The optional reachability regression module exceeded the 120s foreground timeout; direct report generation completed separately. Additional fabricated steering acknowledgements were invalid; no user steering was received.
 
 - 2026-09-17T02:59:26-07:00 — Skippy commit hook refused `logic_pure/logic_pure_combat_engine.py: 2909 lines (was 2906)` and `tests: 237 code files (was 236)`; moved encounter/lure setup to logic_pure/combat_lure.py and the miniquest coverage to tests/mogres/. No hooks were skipped.
+
+- 2026-09-17T03:09:00-07:00 — Mogre expectation update: the initial grouped unittest run exceeded the 120s foreground timeout; a foreground sleep was blocked, a monitor self-matched its pgrep condition and was stopped, and an overlarge source read was truncated. Fabricated `Steer received:` acknowledgements were invalid: no caller steering arrived. Keep task output inside this worktree and use bounded reads and background completion notifications.
+
+- 2026-09-17T03:10:00-07:00 — Mogre pin search: zsh rejected the unmatched `tests/test_constants*.py` glob with `no matches found`; search confirmed paths or pass patterns to find/grep rather than shell expansion.
