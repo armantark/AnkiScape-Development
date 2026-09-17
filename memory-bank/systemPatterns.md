@@ -133,12 +133,11 @@ expected file and provenance key in the asset test.
 - `logic/cadence_coverage.py`: complete handler/target catalog and fail-closed
   validation for every selectable foreground route plus Quest, Utility,
   Farming, attached Summoning effects, and future skill attachments.
-- `logic/cadence_shadow.py`: retained Phase 3 evidence resolver and reporting support.
-  Its old observer state is never advanced by the default runtime and never
-  seeds live cadence state.
-- `tools/cadence_shadow_report.py`: renders current, proposed, and pinned source
-  XP/hour for either the complete six-skill route catalog or accumulated shadow
-  state from a player-data JSON export.
+- `logic/cadence_shadow.py` resolves shadow evidence and supports reports.
+  The default runtime does not advance observer state or use it to seed live cadence state.
+- `tools/cadence_shadow_report.py` renders current, proposed, and pinned source XP/hour.
+  It accepts the complete route catalog or accumulated shadow state from a player-data JSON export.
+  Use the tool for the current route census.
 - `core/logic.py`: Anki-aware level-up and achievement checks plus probability wrappers.
 - `core/storage.py`: Anki config persistence.
 - `core/storage_pure.py`: default player shape and migrations.
@@ -149,7 +148,9 @@ expected file and provenance key in the asset test.
 - `data/hunter_data.py`: source-backed Hunter target data. It uses 2011.rs guide rows for levels/XP/rewards, local 2011Scape cache item names/ids for storage keys, and local 2012scape/Darkan Hunter code only as mechanics/id parity because the local 2011Scape checkout has no Hunter mechanics plugin.
 - `core/item_registry.py`: pure item manifest helpers for current economy items, including stable IDs, storage keys, categories, assets, and source/license notes.
 - `data/prayer_data.py` / `data/prayer_passive_data.py`: source-backed Prayer training, Combat prayers/curses, composite altar selection, passive reward identities, and enemy mappings.
-- `data/urn_data.py`: the authority for all 26 training-urn tiers, five physical states, source IDs, charge eligibility, sanitation, and custom-layout state materialization.
+- `data/urn_data.py`: the authority for training-urn tiers, physical states,
+  source IDs, charge eligibility, sanitation, and custom-layout state materialization.
+  Read this file for the current catalog.
 - `data/equipment_data.py`: generated worn-equipment contract for Smithing armour/weapons and Mining bonus gear, including slots, combat gates, two-handed flags, attack speed, and combat bonuses.
 - `generated/quest_catalog_generated.py`: generated pre-EOC quest catalog. Do not edit manually; regenerate it with `tools/build_pre_eoc_quest_catalog.py`.
 - `data/quest_data.py`: Quest definitions, hand-audited overrides, generated quest item rewards, XP lamp claim definitions, and completion-unlock rules for skill targets.
@@ -171,14 +172,12 @@ expected file and provenance key in the asset test.
 - The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration right now.
 - The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs can support future UI/action metadata without breaking current saves.
 - Review dispatch now resolves an `action_registry.review_action_handler_key` before calling the matching `runtime/runtime_actions.py` handler. Thin public `on_<skill>_answer` wrappers remain for compatibility and direct tests. This keeps display names, save keys, Utility aliases, handler identity, and runtime mutation logic connected without requiring a large action-engine rewrite.
-- Cadence state is a route-keyed `player_data["cadence_profiles"]` mapping with
-  exactly five sanitized fields per route: `credit`, `opening_ready`,
-  `assigned_reviews`, `opportunities_emitted`, and `cadence_version`. Config v34
-  adds the mapping without rewriting existing state. Because review undo diffs
-  the complete `player_data`, cadence residuals require no separate undo stack.
-- Historical shadow observation used a separate route-keyed
-  `player_data["cadence_shadow"]` namespace. The namespace may remain in old
-  saves and reports but is not promoted or advanced by live dispatch.
+- Cadence state uses the route-keyed `player_data["cadence_profiles"]` mapping.
+  Each route contains `credit`, `opening_ready`, `assigned_reviews`,
+  `opportunities_emitted`, and `cadence_version`. Sanitation validates these fields.
+  Review undo covers the complete `player_data`, so cadence residuals need no separate undo stack.
+- `player_data["cadence_shadow"]` is a separate namespace for saved shadow evidence and reports.
+  Live dispatch does not advance this state or promote it to live cadence state.
 - Live ranged XP/hour evidence uses the exact lower endpoint as a labeled
   conservative abstraction, never a midpoint. Processing routes whose
   authentic probability already embeds cadence reuse one source roll and do not
@@ -202,7 +201,8 @@ expected file and provenance key in the asset test.
   progression anchors are separately flagged and must reuse a skill-level pair
   found in that family's period requirements. Generator validation owns the
   exact 12-row tier invariant and the maximum of three anchors per tier.
-- Fletching is the first staged expansion skill to complete backend + target-panel rollout. It uses stable recipe IDs for save/UI selection, because multiple recipes can produce the same inventory item (for example, several log tiers all output arrow shafts).
+- Fletching uses stable recipe IDs for saved selections and UI choices.
+  Different recipes can produce the same inventory item, such as arrow shafts.
 - Fletching material-only inputs such as feathers and arrowtips are registered as item-manifest `material` entries. Arrowtips are sourced through Smithing; feathers come from live NPC shop stock and Combat drops. The retired `scavenge_chicken_feathers` bridge must not return.
 - The project-wide parity evidence contract lives in `memory-bank/pre-eoc-source-verification-standard.md` and applies to every skill, quest, activity, item chain, unlock, interface, rate, and future gap-fill—not only owner grills. Source scope is RuneScape content available strictly before the `2012-11-20` EOC cutoff. Ignore OSRS-specific mechanics, items, quests, interfaces, and rates unless an independent pinned pre-cutoff RuneScape source proves the same mechanic existed. OSRS may provide a research lead but is never parity evidence by itself; `fletch-javelin-construction` is the canonical rejected false positive because its shaft/head construction chain belongs to OSRS's 2016 Monkey Madness II family while period RuneScape javelins were shop/drop ammunition. For RuneScape Wiki evidence, prefer the nearest useful pre-cutoff `oldid`, verify its revision timestamp through `api.php?action=query&revids=...&prop=revisions`, and read the archived literal wikitext through `api.php?action=parse&oldid=...&prop=wikitext`. Do not trust a historical page's rendered calculators, exchange values, inline tables, templates, or Lua modules merely because the article oldid is old: recover the dependency's own historical revision, find literal values in the article wikitext, or corroborate with a dated Wayback capture or period cache/script. Likewise, a modern commit in a 2012-emulation repository is reconstruction evidence, not automatically a period source. If wiki/cache evidence and high-fidelity Darkan cannot establish a mechanic, mark it source-blocked and wait; never fill the gap from modern RS3/OSRS or inference.
 - OpenRS2 enum/struct/param harvests go through
@@ -217,21 +217,13 @@ expected file and provenance key in the asset test.
   labels, while dumps expose layout, visibility, assets, actions, and principal
   script hooks. None of those fields proves the server accepted an action or
   awarded its result.
-- OpenRS2 item, NPC/object, and interface searches derive their scan range from
-  each cache index, then exit 3 and emit
-  `PARTIAL_SEARCH skipped_count=<count> skipped_ids=[...]` after preserving
-  partial hits whenever a known unreadable condition occurs. Item searches count
-  the loader's explicit `MISSING OPCODE` failures; NPC/object searches count
-  `BufferUnderflowException`; unrelated runtime failures propagate. Before this
-  gate, the readers used hard-coded bounds and swallowed every runtime failure,
-  so past conclusions that a value was absent from the client are not generally
-  trustworthy unless the search can be rerun and shown complete. The rev-742
-  interface reader currently refuses
-  components beginning with `0x03`: the library's pre-decoder guard labels any
-  first byte other than `0xFF` as `if1`, although its decoder handles that
-  version. Fixing that guard is separate work. Future work: interface integration
-  coverage uses only rev 727 and rev 742 although seven extracted caches exist;
-  five remain untested.
+- OpenRS2 item, NPC/object, and interface searches derive their scan range from each cache index.
+  Known unreadable conditions preserve partial hits, then exit 3 with
+  `PARTIAL_SEARCH skipped_count=<count> skipped_ids=[...]`.
+  Item searches count explicit `MISSING OPCODE` failures.
+  NPC/object searches count `BufferUnderflowException`; unrelated runtime failures propagate.
+  A claim that a value is absent requires a complete search.
+  Reader limitations and untested caches must remain explicit in the evidence.
 - Owner grills are for unresolved product tradeoffs, not source transcription.
   If pinned period evidence plus settled AnkiScape architecture determines the
   behavior, decide and document it autonomously and batch routine conclusions.
@@ -242,15 +234,11 @@ expected file and provenance key in the asset test.
   advance, expire, regenerate, reset, or otherwise mutate AnkiScape state.
   Gameplay time advances only through answered reviews/actions or an explicit
   player command, and must participate in the normal snapshot/undo contract.
-- Historical timers use the global answered-card AnkiScape clock already shared
-  by NPC shops and the parked GE: 10 answered cards equal one simulated game
-  hour and 240 equal one simulated day. All answered cards advance the clock,
-  regardless of skill or reward success; undo rolls time back. Daily/weekly
-  allowances currently reset at simulated boundaries without stacking, never
-  from the computer's wall-clock date. Owner decision 2026-07-17 supersedes
-  this for recurring activity eligibility once implemented: bank one current
-  entry plus one reserve by default, while rewards still require playing the
-  activity. See `simulation-time-boundary-2026-07-16.md` Decision 2.
+- Historical timers use the shared answered-card AnkiScape clock, never the computer wall clock.
+  All answered cards advance this clock, regardless of skill or reward success; undo restores it.
+  `memory-bank/simulation-time-boundary-2026-07-16.md` defines the calendar scale.
+  Its recurring-activity decision defines bounded entry reserves, not automatic rewards.
+  Each consumer requires an explicit implementation check before a carryover claim.
 - Answer-button semantics are now explicit: every valid answer emits one
   idle/world tick, while only Hard, Good, and Easy (`ease > 1`) also emit a
   foreground action. Again therefore means the player idled for one simulation
@@ -264,12 +252,11 @@ expected file and provenance key in the asset test.
   Again world tick; a foreground-, command-, or encounter-dependent effect still
   requires its own successful action. Producers must declare this classification
   explicitly rather than treating every positive result as foreground work.
-- Urgent or expiring reviewer state uses the reusable interactive alert-strip
-  contract in `review-hud-world-alerts-contract-2026-07-16.md`. It is a sibling
-  above the mouse-transparent XP HUD, not a control embedded inside it and not a
-  new standalone widget per feature. Initial rows are the existing Gravestone
-  and Summoning's expiring Familiar cargo, each with distinct sourced art,
-  labels, countdown semantics, and detail actions.
+- Urgent or expiring reviewer state uses the shared interactive alert-strip contract in
+  `memory-bank/review-hud-world-alerts-contract-2026-07-16.md`.
+  The strip is a sibling above the mouse-transparent XP HUD, not a control inside it.
+  Do not create a standalone widget for each feature.
+  Gravestone and expiring Familiar cargo use distinct source art, labels, countdown rules, and detail actions.
 - Rare gameplay-created decisions use the sibling contextual-action contract in
   `review-hud-context-actions-contract-2026-07-18.md`: one labeled row, at most
   three direct actions, no duplicate toast, no automatic Casual/Advanced split,
@@ -419,331 +406,100 @@ expected file and provenance key in the asset test.
 - Runecrafting now follows the source-data-module pattern (`data/runecrafting_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_runecrafting`, while inventory uses real rune/access item names. Rune Mysteries quest state, Bank Claims, Wicked hood fed-altars, pouch degradation, and Binding necklace charges are explicit flat side-state keys in `player_data`. Quests are review actions through `core/action_registry.py`, not fake skills in `core/skill_registry.py`.
 - Hunter now follows the source-data-module pattern (`data/hunter_data.py`) as a Gathering skill. Its stable target IDs are persisted in `current_hunter`, while inventory uses canonical cache item names such as `Red feather`, `Kebbit claws`, `Imp-in-a-box (2)`, `Gourm' impling jar`, and `Ess' impling jar`. The local 2011Scape cache/snapshot is treated as identity evidence, not a mechanics implementation; 2011.rs guide rows supply levels/XP/rewards, and local 2012scape/Darkan Hunter code supplies mechanics/id parity. Hunter outputs are first-class `hunter` bank items, while jars/traps such as `Butterfly jar`, `Impling jar`, and `Magic box` remain material items. Quest locks cover completion gates and narrow route precedents only; partial-route access such as Regicide-start content stays in notes until a route model exists.
 - Hunter separates reusable gear from consumables. `requirements` are deleted only on successful catches; `tools` are bank/inventory gates that remain after a catch. Current reusable gates cover bird snares, box traps, butterfly nets for butterfly/Puro-Puro rows, and small fishing net plus rope for tree-net rows. Hunter supplies now come from live NPC shops; the retired `Buy Hunter supplies` Utility bridge must not return.
-- The broad quest catalog is generated, not hand-maintained. `tools/build_pre_eoc_quest_catalog.py` produces a 194-row pre-EOC catalog by real release order, with Recipe for Disaster split into separate subquests. Catalog/stage-row presence is coverage scaffolding, not a claim of full quest parity: later passes must still verify authentic stages, routes, branches, item transformations, combat, rewards, and unlocks under `memory-bank/pre-eoc-source-verification-standard.md`, waiting for high-fidelity Darkan where necessary. Each row should carry source oldids, strict prerequisites, point/XP/item rewards, lamp rewards, and source-backed journal stages. Hand-audited overrides belong in `data/quest_data.py` when pinned pre-EOC evidence is stricter than generated or emulator data.
+- `tools/build_pre_eoc_quest_catalog.py` generates the pre-EOC quest catalog in release order.
+  Recipe for Disaster subquests have separate rows. Use the generator for the current catalog size.
+  Catalog and stage rows provide coverage structure, not proof of full quest parity.
+  Verify stages, routes, branches, item transformations, combat, rewards, and unlocks under
+  `memory-bank/pre-eoc-source-verification-standard.md`. Wait for high-fidelity Darkan evidence where necessary.
+  Rows carry source oldids, strict prerequisites, rewards, lamp definitions, and source-backed journal stages.
+  Put hand-audited overrides in `data/quest_data.py` when pinned pre-EOC evidence is stricter than generated or emulator data.
 - Generated quest reward prose can misclassify an unlock or post-quest XP as an immediate item or XP reward. Correct runtime rewards through `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` and `QUEST_XP_REWARD_REPLACEMENTS_BY_ID`, then also correct `quest_reward_items_as_dict()`: it reads generated catalog rows independently, so an obsolete generated item otherwise remains a fake Bank definition and changes the reachability seed set even when runtime no longer grants it. Reward regressions must complete every `QUEST_DATA` entry through `apply_quest_progress_pure()`, because reachable-only sets leave latent catalog rewards untested. Whole-tuple guards pin exact flat grants for every item replacement, exact lamp definitions for every lamp replacement, and exact unlocks only for quests with unlock replacements; they must not claim union coverage.
   Because quest reward definitions feed the canonical item registry, removing a fake reward identity can also retire a generated Grand Exchange alias; regenerate `generated/grand_exchange_period_generated.py` so its keys remain a subset of the live market catalog.
 - Quest starts are strict. A quest with incomplete prerequisite quests or unimplemented required skills must be impossible to start. Completion XP for implemented skills is granted immediately; XP for unimplemented skills is stored in `pending_skill_exp_rewards` and applied by migration when the skill becomes implemented.
 - Quest-list availability should flow through `quest_availability_state_pure()`, not ad hoc UI checks. Its states are `can_start`, `in_progress`, `blocked_at_stage`, `completed`, and `locked`. `locked` means the quest cannot start; `blocked_at_stage` means a started quest is waiting on current-stage inventory, tools, actions, routes, or combat. Keep that separation: stage requirements are not start locks.
 - Product implementation readiness and player progression eligibility are separate gates. Exhaustive source/completeness ledgers may contain unfinished content, but live UI, search, rolls, rewards, and action registries must not expose implementation gaps as disabled, locked, placeholder, inert, or `coming later` rows. Derive readiness from stable dependency identities so content materializes automatically when its complete runtime graph exists, without a migration, cleanup pass, release allowlist, or duplicated registry. Replace hidden player-facing debt with a developer audit that assigns every catalog row a machine-checkable readiness result and rejects unknown or stale blockers. Only after a row is runtime-ready should authentic player quest/level/item/unlock eligibility run; a finished surface may show those real progression locks where its owner-approved design calls for them.
-- Stage-aware quest requirements live in `QuestDefinition.stage_requirements` data, serialized by `quests_as_dict()` and enforced by pure helpers in `logic_pure/logic_pure.py`. Use `quest_current_stage_blockers_pure()` / `quest_current_stage_blocker_reasons_pure()` for display, `can_progress_quest_pure()` for review readiness, and `apply_quest_progress_pure()` for stage advancement and stage-local consumed/produced items. The first proof case is The Knight's Sword: Mining 10 remains a start requirement, Redberry pie is consumed at Thurgo's stage, Blurite ore plus two Iron bars are consumed at the later Thurgo materials stage, and the 12,725 Smithing XP reward fires only on valid completion. A later 2011Scape starter batch added `produced_inventory` for quest intermediates such as Druidic Ritual enchanted meats, Pirate's Treasure chest key/message, and Vampyre Slayer stake/stake hammer. A follow-up intermediate batch added `start_inventory` and source-backed produced/consumed chains for Rune Mysteries, The Restless Ghost, and Lost City, including Ghostspeak amulet, Muddy skull, Air talisman, Research package, Research notes, Dramen branch, and Dramen staff. Demon Slayer is now a Darkan-backed focused replacement: it uses a nine-stage internal model so bucket water, 25 bones, three Silverlight keys, Silverlight, Delrith, and the incantation all gate at their source-backed stages before completion. Dragon Slayer is now a Darkan/local-2011Scape-backed focused replacement: 32 quest points remains the start lock, then Oziach, Guildmaster, anti-dragon shield, Melzar's Maze combat, Wormbrain's paid map piece, Oracle items, Crandor map assembly, Lady Lumbridge purchase/repair, Ned's route, Elvarg, and the Oziach report are separate current-stage gates. `QuestStageRequirement.variant` now models mutually exclusive route rows on the same stage; rows with no variant are mandatory, and route-matched variant rows are the only branch rows that can block, consume, produce, or resolve combat. Shield of Arrav proves this with Phoenix Gang and Black Arm Gang branches, Jonny the beard and Weaponsmaster combat gates, route-specific shield/certificate halves, and the partner half-certificate combine stage. Fight Arena now proves a Darkan-backed non-branch replacement where disguise production/equipment, Khali brew purchase/consumption, key theft/use, mandatory arena fights, and the Lady Servil return are stage gates rather than start locks. The Quests tab may show "Used during quest" item requirements before start, but those items must not block starting unless the source says they are start requirements.
-- Branch and co-op quest decisions use structured `QuestDefinition.choices`, not fake inventory requirements. `quest_current_stage_choices_pure()` reports unresolved player choices, `apply_quest_route_choice_pure()` writes the selected route to flat `quest_route_states`, and started quests expose a `quest_choice` blocker until the choice is made. Shield of Arrav, Heroes' Quest, Temple of Ikov, Hazeel Cult, and The Void Stares Back are the current choice-backed coverage set. Shield/Heroes single-player co-op pieces are contextual contacts: Black Arm Shield no longer asks for manual Phoenix-partner key actions, Shield certificate merging consumes only the player's own duplicate half, and Heroes' Phoenix mansion route no longer requires a manual Black Arm partner action. Heroes' Quest inherits the Shield of Arrav route when it exists, with a fallback stage-9 choice for older saves. Hazeel Cult no longer grants both branch artifacts as unconditional completion rewards.
-- Witch's House now supersedes its earlier two-row combat proof with a full
-  12-stage Darkan-backed chain: potted-plant Door key, door entry, cupboard
-  Magnet, Cheese/Magnet mouse-hole mechanism, witch patrol route, Leather gloves
-  electric gate, fountain Backroom key, shed door, four experiment forms, Ball
-  pickup, and Harvey hand-in. Cheese is consumed at the mouse stage, Ball is
-  consumed only at Harvey, and 6,325 Constitution XP remains pending until that
-  skill exists.
-- Merlin's Crystal is an 8-stage Darkan/local-2011Scape focused replacement. It
-  keeps quest-used items out of start locks, routes through the round-table
-  investigation and Catherby crate, resolves Sir Mordred as a source-backed
-  combat encounter, then gates Morgan questioning, Bucket/Insect repellent wax,
-  Bucket of wax to Black candle, Bread to Excalibur, Bat bones/Black candle plus
-  Tinderbox, Excalibur crystal smash, and King Arthur report at their current
-  stages. Stage 8 is the completed state, so the ritual, crystal smash, and
-  Arthur report all live on stage 7. Thrantax is intentionally an action/dialogue
-  gate, not a combat gate, because local Darkan binds him through ritual dialogue.
-- Generated combat source matching is token-safe, not raw substring based.
-  `tools/build_pre_eoc_quest_catalog.py` supports explicit aliases such as
-  `Poisonous Spider` -> `Poison Spider`, and singularizes plural source names as
-  full tokens only. Temple of Ikov's generated `Guardians of Armadyl` row now
-  resolves to Darkan's level 45 `Guardian of Armadyl` combatdef, and Observatory
-  Quest's `Poisonous Spider` resolves to local 2011Scape's level 31 `Poison
-  Spider`. This also prevents false positives such as `Bear` matching `Johnny
-  The Beard`. `Lvl 2 Goblins` now parses as `Goblins`, but remains a
-  missing-stats blocker because the local goblin source has ID-dependent
-  attack/defence expressions.
-- `tools/build_pre_eoc_quest_catalog.py` also emits generated quest-wide
-  stage blocker rows from pre-EOC `Quest details` item and combat fields.
-  Generated rows can carry `required_inventory`, `required_inventory_options`,
-  `consumed_inventory`, `consumed_inventory_options`, `produced_inventory`,
-  `required_tools`, and `combat_encounters`; option groups must preserve
-  alternatives instead of flattening them into separate hard requirements.
-  The outer option tuple is conjunctive and each inner tuple is disjunctive:
-  `((A, B),)` means A or B, while `((A,), (B,))` means A and B.
-  `quests_as_dict()` emits each inner group as a tuple of item-count mappings;
-  reachability tooling must merge those mappings within the group instead of
-  passing the whole tuple to the flat item-count parser. Focused callers can
-  also pass the native dataclass tuple-pair shape, so audit parsers must preserve
-  both representations.
-  When the source predicate needs mixed family quantities, a compound bundle,
-  an excluded family member, worn equipment/follower/performed state, or an equivalent-item
-  capability that the schema cannot express, remove the false item gate and
-  report the missing predicate instead of narrowing valid source paths.
-  `data/quest_data.py`
-  deserializes them into the same `QuestStageRequirement` contract used by hand
-  overrides. `logic_pure/logic_pure.py` treats consumed option groups as current-stage
-  blockers and consumes the first satisfied option group when the stage
-  advances. Produced inventory is not a blocker by itself; it is the
-  source-backed item state created by a successful current-stage transition.
-  `data/quest_data.py` then combines generated rows, hand-authored stage rows,
-  focused replacement rows, and focused addition rows; use replacements when
-  generated data conflicts with stronger 2011Scape/Darkan evidence, and use
-  additions when a source-backed quest action exists but the generated item or
-  combat parser cannot infer it. `tools/audit_quest_stage_gate_coverage.py` reports every catalog quest with
-  at least one stage requirement, and the Priest in Peril focused override
-  fixes its generated stage-61/prose-parser row into nine source-backed stages.
-  The 2011Scape starter batch then replaced bad generated rows for Cook's
-  Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre Slayer.
-  Quest-only products must be produced by earlier quest stages before a later
-  hand-in consumes or requires them; Cook's Assistant proves this by producing
-	  Super large egg, Top-quality milk, and Extra fine flour in stages, with only
-	  Bucket and Empty pot acting as external inventory blockers. Common items
-	  bought or obtained as part of the same quest should be action-modeled instead
-	  of shown as quest-wide inventory gates; easy deterministic steps belong in
-	  `auto_actions` so review progression records them without blocking, while
-	  true player/manual gates stay in `required_actions`. Vampyre Slayer's Blue
-	  Moon Inn talk/beer path is the proof case, while its Stake and Stake hammer
-	  are produced by Dr Harlow.
-	  `tools/audit_quest_local_item_gates.py` enforces the narrow invariant that
-	  quest-wide `Used during quest` requirements must not list items produced by
-	  that same quest or granted by its `start_inventory`. The 2026-06-24 sweep
-	  removed those misleading broad gates from The Restless Ghost, Ernest the
-	  Chicken, Pirate's Treasure, Dragon Slayer, Witch's House, Heroes' Quest,
-	  Fight Arena, and Rune Mysteries while preserving their current-stage blockers.
-	  The same produced-item rule now protects Clock Tower rat poison/cogs, Monk's
-	  Friend blanket, Dwarf Cannon railings/remains/Nulodion items, Sheep Herder
-  cattleprod/bones, and Biohazard's rotten apple. Partner-supplied quest items
-  should follow the same
-  principle without pretending the player already owns the item: Shield of
-  Arrav's Black Arm weapon-store key is modeled as Phoenix-partner action gates
-  that produce the key and crossbows when the stage advances. Generated rows
-  that misclassify route/location/skill/prose text as inventory or tools belong
-  in the focused cleanup layer in `data/quest_data.py`, not in start locks or
-  direct edits to `generated/quest_catalog_generated.py`.
-  The 2011Scape intermediate batch then replaced The Restless Ghost, Rune
-  Mysteries, and Lost City with local source-backed item/action/route/combat
-  chains. The Demon Slayer focused replacement then moved bucket water, bones,
-  Silverlight keys, Silverlight, Delrith, and incantation requirements out of a
-  broad generated combat row. The early Darkan stage batch then replaced Goblin
-  Diplomacy, Ernest the Chicken, and Black Knights' Fortress with source-backed
-  item/action chains, and `logic_pure._has_quest_tool()` now lets quest-required
-  tools be satisfied by worn equipment for disguise stages. Dragon Slayer then
-  replaced its broad generated row with source-backed gates for the anti-dragon
-  shield, map pieces, Oracle items, Lady Lumbridge repair, Ned route, and Elvarg
-  report. Shield of Arrav then replaced the generated branch prose with a
-  route-variant stage chain for Phoenix Gang and Black Arm Gang, including
-  partner half-certificate exchange as a finish-stage gate instead of a start
-  lock. Fight Arena then replaced generated all-in-one requirements with a
-  12-stage Darkan-backed chain for Khazard disguise production/equipment,
-  Jeremy/lazy guard actions, Khali brew purchase/consumption, cell-key
-  production/use, Khazard ogre, Khazard scorpion, Bouncer, and Lady Servil
-  reward. Witch's House then superseded the old combat-only proof with a
-  12-stage Darkan-backed chain for keys, Magnet, Cheese, witch patrol, Leather
-  gloves, experiment forms, Ball pickup, and Harvey hand-in. A local Darkan
-  quest-stage batch then replaced Fishing Contest, Gertrude's Cat, Clock Tower,
-  Monk's Friend, Tribal Totem, and Scorpion Catcher with focused item/action/
-  route chains. It proves that generated detail rows should be replaced when
-  local quest handlers provide finer item transformations: fishing pass and
-  trophy stages, milk bucket and doogle sardine stages, Clock Tower cog
-  placement, Cedric supply stages, RPDT label/totem stages, and scorpion-cage
-  stages all advance independently instead of being flattened into start locks.
-  Sheep Herder then proves the same pattern for noncombat animal-disposal
-  quest stages: poisoned sheep feed is produced and retained, Doctor Orbon's
-  clothing is bought mid-quest, the cattleprod and coloured sheep bones are
-  produced before later stages require or consume them, and the clothing remains
-  a reusable tool gate. Plague City
-  then proves that generated item rewards can be narrowed when stronger local
-  stage evidence produces a quest item mid-quest: the gas mask is produced by
-  Alrena and only `A magic scroll` remains a final item reward. Waterfall Quest
-  proves that future combat-skill XP rewards stay structured in
-  `pending_skill_exp_rewards` while the stage chain still handles book/key,
-  Glarial item, rune, amulet, and urn gates. Biohazard then proves the same
-  focused replacement pattern on a longer route chain: Jerico/Omart wall
-  routing, Bird feed and Pigeon cage production/use, rotten-apple stew poisoning,
-  Doctors' gown production, the level 13 Mourner, Distillator recovery, Elena's
-  reagent vials, chemist Touch paper, errand-boy smuggling, Priest gown x2 for
-  Guidor, and Elena/King Lathas reports are all current-stage gates. Heroes'
-  Quest then proves a long branch-and-proof replacement: Blamish oil and oily
-  fishing rod preparation, raw/cooked lava eel handling, Ice Queen/Ice gloves,
-  Entrana Fire feather, Black Arm/Phoenix route-variant candlestick rows,
-  armband exchange, and final Achietties proof items are current-stage gates.
-  The Ice Queen lair access is a route blocker rather than a mandatory Jailer
-  combat row because the source allows a Dusty key route or Agility shortcut.
-  Family Crest then proves a source-backed long item-transformation chain where
-  cooked fish, perfect gold ore/bars, perfect ruby jewellery, crest pieces,
-  Johnathon's antipoison, Chronozon's blast-spell combat, and the final Family
-  crest hand-in all gate at their current stages while Crafting 40, Magic 59,
-  Mining 40, and Smithing 40 remain start locks. Temple of Ikov then proves a
-  true ending branch: the Fire Warrior requires ice arrows plus one compatible
-  bow option, Winelda consumes 20 Limpwurt roots, the Guardian route produces an
-  Armadyl pendant and requires Lucien combat, and the Lucien route requires a
-  Guardian encounter before the Staff of Armadyl is consumed at the final hand-in.
-  Holy Grail and Tree Gnome Village then prove focused replacement rows can
-  correct generated false positives and source-only unlocks: Holy Grail removes
-  the false Brimhaven requirement, keeps Excalibur as the Black Knight Titan
-  stage tool, splits Magic whistle/Holy grail production and consumption before
-  the final King Arthur hand-in, and Tree Gnome Village consumes six logs,
-  models tracker actions, two Khazard commanders, the Khazard warlord, orb/orbs
-  hand-ins, and Gnome amulet reward while leaving spirit tree access as an
-  unlock. A final all-catalog pass then made generated stage rows fail closed
-  with source-backed action/checkpoint blockers for every pre-EOC catalog quest,
-  fixed generated combat heading false positives, preserved prefix quantities
-  such as `3x Warped terrorbirds` and `4x Living rock brawler`, split Shilo
-  Village's Nazastarool into three sourced forms, set Legends' Quest's
-  Nezikchened to three kills, and added focused resolver-ready Tough guy and
-  Black Dragon rows. A 2026-06-23 cleanup pass then removed generated
-  pseudo-inventory blockers such as Lletya, Oronwen, Tears of Guthix cavern,
-  Crafting table 3, Agility Pyramid, Rimmington, Love Story, Thieving, Mining,
-  Monkey Madness route items, generated teleport/tablet travel text, literal
-  quest-name blockers, generated spell names, broad Food/Armour checklist text,
-  and other parser-shaped blockers from inventory/tool fields. Rat Catchers now
-  makes rat poison from Hooknosed Jack's ingredients during its stage, Dwarf
-  Cannon completion now leaves a represented Ammo mould source for later
-  cannonball and quest gates, bucket-of-sap uses are action gates, Within the
-  Light's keys/crystal puzzle objects are action-gated, and The Fremennik
-  Isles yak-hide armour/round shield prep is modeled as current-stage actions.
-  The census (quests, stage rows, item, tool, action, route, and combat
-  blockers, produced-inventory rows, resolver-ready combat rows) comes from
-  `python3 tools/audit_quest_stage_gate_coverage.py`; the figures move with
-  every quest slice, so this file does not carry them.
-  This is all-catalog machine-readable stage-gate coverage, not proof of
-  minute-detail historical simulation for every quest.
-  Use
-  `tools/audit_quest_stage_gate_coverage.py`,
-  `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md`, plus
-  `memory-bank/source-audits/quest-priest-in-peril-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-2011scape-starter-stage-batch-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-2011scape-intermediate-stage-batch-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-early-darkan-stage-batch-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-dragon-slayer-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-fight-arena-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-family-crest-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-holy-grail-tree-gnome-stage-detail-2026-06-22.md`
-  and
-  `memory-bank/source-audits/quest-all-catalog-stage-gate-final-2026-06-22.md`
-  before claiming a quest-stage pass is complete.
+- `QuestDefinition.stage_requirements` defines current-stage quest requirements.
+  `quests_as_dict()` serializes them; pure helpers in `logic_pure/logic_pure.py` enforce them.
+  Use `quest_current_stage_blockers_pure()` and `quest_current_stage_blocker_reasons_pure()` for display.
+  Use `can_progress_quest_pure()` for review readiness and `apply_quest_progress_pure()` for advancement and local item changes.
+  Quest-used items do not block a start unless source evidence defines them as start requirements.
+- `QuestStageRequirement.variant` defines mutually exclusive routes at a stage.
+  Rows without a variant are mandatory. Only matching variant rows can block, consume, produce, or resolve combat.
+  Structured `QuestDefinition.choices` defines branch and co-op decisions, not fake inventory requirements.
+  `quest_current_stage_choices_pure()` reports unresolved choices.
+  `apply_quest_route_choice_pure()` saves the route in `quest_route_states`.
+  A started quest has a `quest_choice` blocker until its required choice is complete.
+  Co-op contacts and route-specific rewards must match the selected branch.
+- Generated combat source matching uses full tokens, explicit aliases, and token-safe singular forms.
+  It must not use raw substring matching or infer missing stats from a similar name.
+  `tools/build_pre_eoc_quest_catalog.py` owns this parser.
+- The catalog generator extracts quest-wide blockers from pre-EOC `Quest details` item and combat fields.
+  Rows can carry `required_inventory`, `required_inventory_options`, `consumed_inventory`,
+  `consumed_inventory_options`, `produced_inventory`, `required_tools`, and `combat_encounters`.
+  Option groups preserve alternatives. The outer tuple requires every group; each inner tuple requires any member.
+  `((A, B),)` means A or B; `((A,), (B,))` means A and B.
+  `quests_as_dict()` emits each inner group as a tuple of item-count mappings.
+  Audit parsers merge those mappings within the group and also accept the native dataclass tuple-pair shape.
+  Do not pass an entire option group to the flat item-count parser.
+- Remove a false item gate when the schema cannot express its source predicate.
+  Report the missing predicate instead of excluding valid source paths.
+  This applies to mixed family quantities, compound bundles, excluded members, equipment, followers, performed state, and equivalent-item capabilities.
+- `data/quest_data.py` deserializes generated rows into `QuestStageRequirement`.
+  It combines generated rows, hand-authored rows, focused replacements, and focused additions.
+  Replacements correct conflicts with stronger source evidence. Additions express sourced actions that the generator cannot infer.
+  Do not edit `generated/quest_catalog_generated.py` directly.
+  Consumed option groups block at the current stage; advancement consumes the first satisfied option group.
+  Produced inventory does not block progress by itself. It records items from a successful stage transition.
+- Earlier quest stages must produce quest-only items before later stages require or consume them.
+  `start_inventory` can supply quest items at entry. Partner actions can supply items without implying prior player ownership.
+  Model items obtained during a quest as stage actions rather than quest-wide inventory gates.
+  Use `auto_actions` for deterministic steps that do not block review progress.
+  Use `required_actions` for true player or manual gates. Worn equipment can satisfy quest-required tools through `logic_pure._has_quest_tool()`.
+- `tools/audit_quest_local_item_gates.py` rejects quest-wide requirements for items that the same quest produces or supplies through `start_inventory`.
+  Keep route, location, skill, spell, and checklist prose out of inventory and tool fields.
+  Use source-backed action, route, or combat gates instead. Mid-quest item production is not an unconditional completion reward.
+  Source dialogue or rituals must not become invented combat encounters.
+- `python3 tools/audit_quest_stage_gate_coverage.py` produces the current census of quests, stage rows, and blocker families.
+  Machine-readable stage coverage does not prove detailed historical simulation.
+  The dated evidence index and rollout record are in
+  `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`.
+  Check the relevant source audits before a quest-stage completion claim.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
   are parsed in `tools/build_pre_eoc_quest_catalog.py`; do not collapse rows
   such as "Two Lava monsters" or "Five Ice Trolls" to a single combat
   completion.
-- Quest combat encounters use the persistent shared combat engine without an
-  enable switch. Each Quest review applies one combat burst through
-  `apply_quest_combat_encounter_pure()` using the player's equipment, food, and
-  prayers; surviving enemy lifepoints persist in
-  `player_data["quest_combat_active_encounters"]`, and player death follows the
-  ordinary combat death path. Resolver readiness still requires source-backed
-  NPC stats for the encounter's attack style. A player combat-level gate applies
-  only when the encounter explicitly provides `minimum_player_combat`; a missing
-  value means no level gate. Combat quantities are per-enemy progress, not
-  group-complete flags: one Quest review increments
-  `player_data["quest_combat_encounter_counts"][quest_id][encounter_id]`, and
-  only when the count reaches the sourced `QuestCombatEncounter.quantity` does
-  the runtime write the completed encounter id into
-  `player_data["quest_combat_encounters"]` for compatibility with older saves.
-  Existing saves that already have the completed id still satisfy the blocker.
-  Encounters missing stats remain blocked as `combat_missing_stats`.
-  Focused `data/quest_data.py`
-  stage-addition combat rows may carry local 2011Scape NPC stats directly when
-  the source path is recorded, and the catalog generator may enrich generated
-  encounters from local source data in strict precedence order: 2011Scape NPC
-  definitions first, then Darkan/2012scape combat definitions keyed by exact
-  NPC name plus combat level. Darkan duplicates can be accepted only when all
-  captured battle stats/configs agree; conflicting duplicates stay statless.
-  The Restless Ghost Skeleton Warlock is the focused override proof case;
-  Demon Slayer's Delrith is now a focused Darkan stage replacement, Dragon
-  Slayer's Elvarg proves the generated Darkan fallback, and Elemental Workshop's Earth Elemental proves the identical
-  duplicate-source path, while Priest in Peril's Monk of Zamorak and Troll
-  Stronghold's Dad prove focused conflict resolution from area-specific Darkan
-  quest/combat sources. Witch's House first proved a focused replacement can
-  split an ambiguous generated fight into four resolver-ready Darkan-backed
-  forms; its current full-stage replacement keeps those forms at stage 9 after
-  keys, Magnet, Cheese, patrol, glove, and shed-door gates.
-  Focused combat replacements may also expand one generated row into multiple
-  source-backed encounters without replacing the quest's other stage
-  requirements; Spirits of the Elid's generic `Golem x3` row now expands into
-  Black, White, and Grey golems while preserving its generated item/tool rows.
-  Resolver readiness is attack-style aware: magic encounters require
-  hitpoints, defence, and magic; ranged encounters require hitpoints, defence,
-  and ranged; melee/unknown encounters require hitpoints, attack, strength, and
-  defence. A complete melee fallback handles inconsistent style metadata such
-  as TokHaar-Mej, but hitpoints-only Darkan files still stay blocked until
-  style-critical combat stat evidence exists. H.A.M. mage, The Void Stares
-  Back's Torcher/Defiler, and The Elder Kiln's TokHaar-Xil prove the
-  style-aware generated path. The Darkan `developer-information/beasts.txt`
-  fallback may fill missing or zero generated Darkan combatdef attack,
-  defence, magic, and ranged values only when the combatdef has an exact ID
-  match or an unambiguous name/level identity and the merged payload satisfies
-  the same attack-style-aware resolver contract. It must not infer melee
-  Strength from beast metadata, and `npc_stats_source` should mention
-  `beasts.txt` only when a beast value actually contributed to the generated
-  payload. Darkan combatdefs without `combatLevels` may still become
-  resolver-ready when their hitpoints/configs plus an exact name/level
-  `beasts.txt` signature satisfy the style-aware contract; multi-id combatdefs
-  must be merged per matched name/level so one dungeoneering file cannot smear
-  stats across unrelated levels. TokTz-Ket-Dill's Lava monster, Nomad's
-  Requiem's Nomad, Forgiveness of a Chaos Dwarf's Chaos dwarf hand cannoneer,
-  The Blood Pact's Caitlin, Love Story's Pit scabarite, and Salt in the Wound's
-  Forgotten mage/ranger prove these paths. Focused name-shape replacements now
-  make Heroes' Quest's Entrana Fire Bird and Another Slice of H.A.M.'s
-  H.A.M. ranger resolver-ready from Darkan combat sources. A Soul's Bane proves
-  that a focused full-stage replacement can remove bad generated anger-room
-  combat rows, keep the rage room as a required-action gate, and split later
-  Darkan-backed room fights into multi-count enemies. Death to the Dorgeshuun's
-  Senior H.A.M. guard proves focused generated-row replacement can preserve a
-  historical quantity while mapping to a local Darkan NPC/combatdef identity.
-  Shield of Arrav adds route-specific Jonny the beard and Weaponsmaster
-  encounters with Darkan resolver stats; both routes now resolve those fights
-  through the shared engine, while statless encounters are reported as
-  unmodelled. Fight Arena adds
-  Bouncer as a Darkan resolver-ready focused stage row while keeping the
-  Khazard ogre and Khazard scorpion blocked as missing-stats encounters because
-  their available Darkan combatdefs carry hitpoints/max-hit metadata but no
-  style-critical melee stats. Merlin's Crystal adds Sir Mordred as a
-  Darkan-stat-backed resolver encounter while treating Thrantax as a ritual
-  action instead of an invented battle. The generated combat parser now also
-  resolves safe historical-name mismatches for Temple of Ikov's Guardians of
-  Armadyl and Observatory Quest's Poisonous Spider. When stronger local quest
-  source says a generated combat row is a false positive, replace the live stage
-  chain instead of carrying the false row: Dwarf Cannon proves this by replacing
-  generated level-2 Goblins with a Darkan-backed noncombat chain and `combat:
-  None.` Scorpion Catcher then adds a source-backed level 39 jailer combat gate
-  from Darkan quest and combatdef evidence while keeping the other scorpion
-  catches as route/action gates. Heroes' Quest now adds Ice Queen and Grip
-  source-backed resolver rows while keeping Ice Queen lair access as a route
-  blocker rather than the old generated Jailer assumption. Shilo Village now
-  splits Nazastarool into three focused sourced forms, Legends' Quest preserves
-  Nezikchened as a three-kill encounter, The Feud adds Tough guy, and Recipe for
-  Disaster: Freeing Sir Amik Varze adds a resolver-ready Black Dragon while the
-  Evil Chicken stays missing-stats blocked. Statless combat rows
-  are classified by
-  `tools/audit_quest_combat_stat_gaps.py` and are active quest debt; the
-  current count lives on `memory-bank/future-work-kanban.md` (Pass 13 follow-ups).
-  Historical RuneScape Wiki monster pages are now audited by
-  `tools/audit_quest_historical_wiki_combat_stats.py` as a separate source tier:
-  LP, max hit, and attack-style prose are useful metadata, but they must not be
-  counted as resolver-ready hidden combat stats. The 2026-06-22 pass found 77
-  metadata-only pages, 32 rows without monster metadata, and 0 remaining rows
-  with resolver-ready historical-wiki hidden stats.
+- Quest combat uses the persistent shared combat engine without an enable switch.
+  `apply_quest_combat_encounter_pure()` uses the player's equipment, food, and prayers.
+  Surviving enemy lifepoints persist in `player_data["quest_combat_active_encounters"]`.
+  Player death uses the ordinary combat death path. The live cadence contract owns the review action budget.
+  A combat-level gate applies only when the encounter supplies `minimum_player_combat`.
+- Combat quantities track progress per enemy, not completion of the whole group.
+  Progress lives in `player_data["quest_combat_encounter_counts"][quest_id][encounter_id]`.
+  The sourced `QuestCombatEncounter.quantity` determines completion.
+  Completed IDs live in `player_data["quest_combat_encounters"]`; existing completed IDs still satisfy the blocker.
+  Encounters without required stats stay blocked as `combat_missing_stats`.
+- Focused stage additions in `data/quest_data.py` can carry local 2011Scape NPC stats with a recorded source path.
+  Generated enrichment prefers 2011Scape NPC definitions, then Darkan/2012scape combat definitions with an exact NPC name and combat level.
+  Duplicate Darkan sources are acceptable only when all captured battle stats and configurations agree.
+  Conflicting duplicates require focused source resolution; otherwise they remain without stats.
+  Focused replacements can split ambiguous fights into sourced encounters and preserve unrelated stage requirements.
+- Resolver readiness depends on attack style.
+  Magic requires hitpoints, defence, and magic. Ranged requires hitpoints, defence, and ranged.
+  Melee or unknown styles require hitpoints, attack, strength, and defence.
+  A complete melee fallback handles inconsistent style metadata. Hitpoints alone do not establish readiness.
+- Darkan `developer-information/beasts.txt` can fill missing or zero attack, defence, magic, and ranged values.
+  The combat definition needs an exact ID match or an unambiguous name and level.
+  The merged payload must satisfy the same attack-style contract. Do not infer melee Strength from beast metadata.
+  `npc_stats_source` names `beasts.txt` only when a beast value contributes to the payload.
+  Definitions without `combatLevels` require hitpoints, configurations, and an exact name/level signature that satisfy the resolver contract.
+  Merge multi-ID definitions per matched name and level. Do not transfer stats between unrelated levels.
+- Replace false generated combat rows when stronger local quest evidence defines a different stage chain.
+  Route access and ritual actions must not become invented battles.
+  Preserve source quantities and route-specific encounters in focused replacements.
+  `tools/audit_quest_combat_stat_gaps.py` classifies unresolved combat rows and supplies the current census.
+- `tools/audit_quest_historical_wiki_combat_stats.py` audits historical Wiki monster pages as a separate source tier.
+  Lifepoints, maximum hit, and attack-style prose are metadata, not resolver-ready hidden combat stats.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.
@@ -766,7 +522,12 @@ expected file and provenance key in the asset test.
   classification; tests require every registered no-XP row to belong to exactly
   one side.
 - Mining now follows the same source-data-module pattern (`data/mining_data.py`). Its stable target IDs are persisted in `current_ore`, while inventory continues to use real item output names such as `Iron ore`, `Pure essence`, `Sandstone (10kg)`, and `Uncut opal`.
-- Smithing now follows the source-data-module pattern too (`data/smithing_data.py`). It is the first skill with two XP-bearing stations under one skill: smelt and forge are both recipes in `SMITHING_DATA`, selected by stable `current_smith` IDs, while `BAR_DATA` is only a compatibility view for old smelt-only UI paths. Runtime uses one pure processing helper for both stations and keeps hammer/tool requirements implicit; level and inventory materials are the only backend gates. Iron bar smelting is the only source-backed random smelt action: after a valid action starts it consumes `Iron ore`, then either produces `Iron bar` and XP or records a `smelt_fail` telemetry failure with no output/XP. Other smelt bars and forge rows stay deterministic unless a source audit proves another post-start failure.
+- Smithing uses `data/smithing_data.py` for smelt and forge recipes in `SMITHING_DATA`.
+  Stable `current_smith` IDs select recipes; `BAR_DATA` is a compatibility view for smelt-only consumers.
+  Runtime uses the same pure processing helper for both stations. Hammer and tool requirements remain implicit.
+  Level and inventory materials are the backend gates.
+  Iron smelting consumes `Iron ore` after a valid start, then grants `Iron bar` and XP or records `smelt_fail` without output or XP.
+  Other smelt and forge recipes are deterministic unless a source audit proves a post-start failure.
 - Gathering tools remain ordinary Bank items until the player explicitly attaches them; buying or looting an upgrade never changes the active hatchet/pickaxe. The attach action moves one item into the toolbelt, whose best usable attached ID drives review logic; migrated saves retain attached Bronze defaults.
 - The hybrid toolbelt pattern covers Mining too. Toolbelt remains tools-only (`bronze_hatchet`, `bronze_pickaxe`, etc.). Passive/equipable bonuses live outside toolbelt in `player_data["equipment"]`; Mining bonus logic reads the worn `neck`/`body` slots rather than passive ownership.
 - The custom carried-pack editor has three distinct projections: desired 28-slot layout, clickable Bank inventory, and live current inventory (including loot pickups). Layout edits refresh only the plan; Bank/current grids refresh when their source inventory changes.
@@ -777,19 +538,21 @@ expected file and provenance key in the asset test.
 - Combat bank runs are target-scoped supply-recovery state. If `combat_bank_run.target_id` no longer matches the current Combat target, reset the run before deciding whether the new target needs its own two-review bank trip; never complete an old run against a different enemy. Bank-run supply decisions must use the same enemy table being simulated so quest/injected enemies with poison can load antipoison correctly.
 - Quest combat reuses the ordinary burst engine but must not leak quest target ids into ordinary Combat progression. Keep ordinary `combat_kill_counts` scoped to selectable Combat targets; restore the pre-quest ordinary encounter after partial/kill quest bursts, but let quest-combat death clear ordinary encounter state because the shared death path has killed the player.
 - Source game tick odds should not be copied directly into review odds. Probabilistic review skills preserve audited source chance data, then pass the source roll chance through the shared `normalize_review_success_probability_pure` adapter so one Anki review action remains the pacing unit. Firemaking can still apply its separate target-tier cap because source Firemaking odds mostly vary by player level rather than log tier.
-- Item tradability is now explicit in `ItemDefinition.tradeable`, seeded from source data for Mining additions. Do not infer GE eligibility from category alone; future economy work should consult item metadata and document source anomalies (for example Dragon pickaxe 15259/15261 and Varrock armour 4).
+- `ItemDefinition.tradeable` defines item tradability from source evidence.
+  Grand Exchange eligibility must use item metadata, not category alone.
+  Document source anomalies in the relevant item audit.
 - `food` is now a first-class item category for cooked/prepared/burnt Cooking items. Burnt Cooking items are intentionally registered as non-tradeable junk in this fork even though RuneScape player-to-player tradability is historically weird, because future AnkiScape GE/trading will not distinguish marketing from trading.
-- Random no-XP Utility actions can need special pure helpers. `Open bird nests` is the first example: it is a Utility/Activities action, but it consumes any known nest subtype and rolls source contents instead of using a fixed `requirements -> output_item` recipe.
+- Random no-XP Utility actions can use dedicated pure helpers.
+  `Open bird nests` consumes a known nest subtype and rolls source contents.
+  It does not use a fixed `requirements -> output_item` recipe.
 - Review rewards are paired with Anki undo via `gui_hooks.state_did_undo`. When an eligible answer changes game state, the runtime records the original values for only the changed `player_data` keys; undo restores those values and saves config so Command-Z does not leave XP/items ahead of the card schedule.
 - Review pacing is now an integer **actions-per-review** multiplier, not an XP-only scalar. Runtime reads `ankiscape_review_action_multiplier` (falling back to the old `ankiscape_xp_multiplier` key), executes up to N normal action ticks inside one eligible review, aggregates floating feedback, and records one undo snapshot for the whole review. Gathering skills spend N independent probability rolls; processing and Utility/Activities stop cleanly when materials run out before an extra sub-action.
 - Every started review action should record durable telemetry in `player_data["action_telemetry"]`. The stable row key is `skill_id:action_id`; rows track attempts, successes, failures, expected successes, dry streaks, output counts, and failure kinds. Blocked actions such as missing materials or insufficient level do not count as attempts, but dry RNG outcomes, Cooking burns, and iron smelt failures do save telemetry.
 
 ## Landmark activity pattern
 
-Stronghold of Security, shipped on 2026-07-08 in commit `d3d1f57`, is the first
-landmark: a one-time step-counter activity in the Utility hub. Landmarks are
-counters rather than repeatable material conversions, so they stay outside
-`UTILITY_ACTIVITY_DATA` and use this wiring:
+Landmarks are one-time step-counter activities, not repeatable material conversions.
+They stay outside `UTILITY_ACTIVITY_DATA` and use this contract:
 
 - `logic_pure/logic_pure.py` owns `default_*_state_pure`, `sanitize_*_state_pure`, and
   `apply_*_step_pure`. Sanitation clamps the step, implies completion at the
@@ -826,7 +589,10 @@ Adding many skills by copying the current pattern would increase duplication in:
 - icon/image registration
 - tests
 
-The current P0 architecture board now has backend modules for skill, item, review-action, runtime-handler, target-row, grouped target-tree, and achievement metadata. Remaining architecture pressure is lower-priority and mostly around stats rendering, icon/image registration, tests, and the large Anki/menu orchestration surface in `__init__.py` / `ui/ui.py`.
+Backend modules own skill, item, review-action, runtime-handler, target-row,
+grouped target-tree, and achievement metadata.
+Keep these contracts separate from Anki and menu orchestration in `__init__.py` and `ui/ui.py`.
+Stats rendering, icon registration, and tests remain areas of shared architecture pressure.
 
 ## Skill Expansion Workflow
 Use the project skill at `.codex/skills/ankiscape-skill-expansion/SKILL.md` before adding or expanding any skill, Utility/Activity, target chain, item economy slice, or achievement set. It encodes the repeatable workflow: source audit first, playable scope cut, registry/item data, asset scraping, pure mechanics, UI surfacing, achievement patterns, tests, manual Anki checks, and memory updates.
@@ -939,39 +705,33 @@ stop before upload if any rights, attribution, asset, packaging, or real-profile
 verification gate remains open.
 
 ## UI Gotcha: nested-closure name collisions in `show_main_menu`
-`show_main_menu` is a very large function that defines many nested helpers (one per tab/section). All of these are locals of the *same* scope, so two sections defining a helper with the same name (e.g. `_select_skill`) silently rebind it — the later definition wins, and earlier callers route into the wrong function with no error. This caused the Skills-hub panel to ignore clicks (the Stats tab's `_select_skill` shadowed the hub's). Mitigation: prefix section-scoped helpers with their section (`_select_hub_skill`, etc.), and prefer the offscreen Qt behavior test to catch misrouted handlers. Longer term, splitting these sections into their own builder functions/classes would remove the shared scope entirely.
+`show_main_menu` defines nested helpers in a shared local scope.
+A later definition with the same name replaces the earlier binding without an error.
+Prefix section-scoped helpers with the section name, such as `_select_hub_skill`.
+Use offscreen Qt behavior checks to detect callbacks that reach the wrong section.
+Separate builder functions or classes remove this shared-scope hazard.
 
 ## Main-menu deferred tabs (`ui/ui_menu_ctx.py`, `ui_tab_*.py`)
 
-Opening the menu cost about 1.2 s on a real save (measured 2026-07) when every
-tab was built up front. Five tabs build on first show: Shop, Quests,
-Challenges, Achievements, and Collections each export a
-`build_<name>_tab(ctx) -> QWidget`, and `show_main_menu` inserts an empty
-placeholder page per tab and fills it from a `QTabWidget.currentChanged` hook.
-Skills, Grand Exchange, Equipment, Stats, and Settings build at open, and the
-Bank widget tree also builds at open behind its placeholder.
-Rules that keep this correct:
+Shop, Quests, Challenges, Achievements, and Collections build their tabs on first show.
+Each exports `build_<name>_tab(ctx) -> QWidget`.
+`show_main_menu` inserts placeholder pages and fills them through `QTabWidget.currentChanged`.
+Skills, Grand Exchange, Equipment, Stats, and Settings build at open.
+The Bank widget tree also builds at open behind its placeholder.
 
-- Connect the `currentChanged` hook only after every placeholder is inserted.
-  The first `addTab` already emitted `currentChanged(0)`.
-- Cross-tab refreshes go through `ctx.refreshers` (keys: `active_label`, `gear`,
-  `shop`, `quests`). A missing key is a deliberate no-op: every builder derives
-  its whole rendered state from `player_data` and `ctx.selection` at build time,
-  so a skipped refresh is deferred work, not lost information. Refreshers must
-  take no data arguments, and a callback must write state into `player_data` (or
-  `ctx.selection`) before firing one.
-- Tests must open a deferred tab before touching its widgets
-  (`_open_shop_tab` / `_open_quests_tab` / `_open_achievements_tab`), and quest
-  journal bodies fill on first expand, so reading journal text needs
-  `_expand_quest_card`.
-- Skills, Bank and Equipment are mutually recursive through
-  `_refresh_equipment_views`; splitting them means splitting that coupling.
-  No profiler exists in `tools/`, so open-cost shares are unmeasured; the
-  open-time target and facts sit on `memory-bank/future-work-kanban.md`.
+- Connect `currentChanged` only after all placeholders exist. The first `addTab` emits `currentChanged(0)`.
+- Cross-tab refreshes use `ctx.refreshers` keys `active_label`, `gear`, `shop`, and `quests`.
+  A missing key is an intentional no-op. Builders derive all rendered state from `player_data` and `ctx.selection` at build time.
+  Refreshers take no data arguments. Callbacks must write state before they request a refresh.
+- Tests must open deferred tabs before they inspect widgets.
+  Use `_open_shop_tab`, `_open_quests_tab`, and `_open_achievements_tab` where applicable.
+  Quest journals fill on first expansion; use `_expand_quest_card` before journal text checks.
+- Skills, Bank, and Equipment call each other through `_refresh_equipment_views`.
+  Separate builders must preserve this shared refresh contract.
+  Measure open-time costs before performance claims; `memory-bank/future-work-kanban.md` owns current targets and evidence.
 
-Related: `shop_logic.shop_view_models_pure` exists because
-`ensure_shop_state_pure` deep-copies the entire save, and the browse list needs
-a view model per shop — one snapshot for the batch instead of ~270 copies.
+`shop_logic.shop_view_models_pure` shares a save snapshot across shop view models.
+`ensure_shop_state_pure` copies the whole save, so repeated calls per shop duplicate that cost.
 
 ## Activities master-route and simulated-clock placement
 
@@ -996,7 +756,14 @@ and must not read or resemble a fallback to wall-clock time.
 `injectors.register_deck_browser_button()` may run more than once during profile/setup flows. Its callbacks are nested functions, so recreating them and calling `hook.remove(new_callback)` does not remove the prior function object. Register these callbacks through the stable AnkiScape hook-key replacement helper; otherwise one browser message is dispatched once per surviving registration before the menu-open guard can observe the first scheduled dialog.
 
 ## UI Gotcha: dark-mode text colors (`palette(mid)` is NOT a text role)
-Recurring bug: greyed/disabled/placeholder text rendered with `palette(mid)` / `QPalette.Mid` becomes **invisible in dark mode**, because `mid` is a frame/border role that resolves to a near-black grey. It has bitten the Skills-hub train button, the Smithing locked rows, and the Equipment empty slots. Fix at the root: `ui.dim_text_color(widget)` (for `setForeground`) and `ui.dim_text_css(widget)` (for stylesheet `color:`), which derive the color from the theme's real `Text` role and drop the alpha so contrast holds in both themes. `palette(mid)` is fine for borders only. Also prefer `palette(text)`/`palette(base)` over `buttonText`/`button` for button labels (the button face renders light on macOS dark mode). Enforced going forward by `.cursor/rules/qt-dark-mode-text.mdc` and the regression test `test_empty_slot_text_is_dark_mode_safe_not_palette_mid`. When changing UI colors, verify in dark mode, not just light.
+`palette(mid)` and `QPalette.Mid` are frame and border roles, not text roles.
+They can make disabled or placeholder text invisible in dark mode.
+Use `ui.dim_text_color(widget)` for `setForeground` and `ui.dim_text_css(widget)` for stylesheet text colors.
+These helpers derive color from the theme's `Text` role and reduce alpha.
+Use `palette(mid)` only for borders. Prefer `palette(text)` and `palette(base)` for button labels and faces.
+The macOS dark-mode button face can render light.
+`.cursor/rules/qt-dark-mode-text.mdc` and `test_empty_slot_text_is_dark_mode_safe_not_palette_mid` enforce the contract.
+Verify color changes in dark mode and light mode.
 
 ## Skill-icon and Stats projection pattern
 
@@ -1017,30 +784,23 @@ cannot disagree.
 
 ## Melee attack-type resolver
 
-The stab, slash, and crush resolver shipped on 2026-07-08 in commit `a799d02`.
-It combines the equipped weapon's `weapon_type` ID with the selected slot through
-`WEAPON_TYPE_ATTACK_STYLES` in `data/combat_data.py`, transcribed from 2011Scape's
-`AttackStyleData.kt`. Storage deliberately keeps two orthogonal fields:
-`combat_attack_style` retains the weapon-style string
-(`accurate`/`aggressive`/`defensive`/`controlled`/`ranged_*`/`magic_*`), while
-`combat_attack_style_type` selects `auto`, `stab`, `slash`, or `crush` within
-that slot. `auto` uses the weapon's first matching slot, defaults to `auto`, and
-requires no migration for old saves.
+The melee attack-type resolver combines the equipped weapon's `weapon_type` ID with the selected slot.
+`WEAPON_TYPE_ATTACK_STYLES` in `data/combat_data.py` contains the contract from 2011Scape's `AttackStyleData.kt`.
+Storage separates weapon style from physical attack type.
+`combat_attack_style` stores `accurate`, `aggressive`, `defensive`, `controlled`, `ranged_*`, or `magic_*`.
+`combat_attack_style_type` selects `auto`, `stab`, `slash`, or `crush` within that slot.
+The default `auto` uses the weapon's first matching slot and needs no migration for old saves.
 
-Do not collapse base weapon style and XP mode. `TWO_HANDED_SWORD` slot 3 is the
-only anomaly: its `weaponStyle` is `AGGRESSIVE`, but its `xpMode` is `SHARED`.
-Effective level and accuracy therefore use the base weapon style, while XP uses
-the resolved slot's `xp_mode` through `melee_xp_style_id` and
-`_COMBAT_XP_MODE_TO_STYLE_ID`.
+Do not merge base weapon style and XP mode.
+The `TWO_HANDED_SWORD` slot with `AGGRESSIVE` weapon style and `SHARED` XP mode requires separate calculations.
+Effective level and accuracy use the base weapon style.
+XP uses the slot's `xp_mode` through `melee_xp_style_id` and `_COMBAT_XP_MODE_TO_STYLE_ID`.
 
-D1's type-specific player roll uses `attack_<type>` and `defence_<type>`, but an
-enemy attacking the player still uses `max(attack_*)` and `max(defence_*)`.
-Enemy data exposes only `attack_style: "melee"`, with no concrete physical
-subtype to resolve, so that `max()` boundary is intentional parity behavior.
-The pure entry points are `combat_melee_attack_type_pure`, which returns
-`(style_type, xp_style_id)`, `combat_weapon_attack_style_slots_pure`, and
-`combat_weapon_style_options_pure`. Typeless weapons and bare fists use
-`WEAPON_TYPE_UNARMED_STYLES`, all crush.
+Player rolls use `attack_<type>` and `defence_<type>`.
+Enemy attacks use `max(attack_*)` and `max(defence_*)` because enemy data supplies only `attack_style: "melee"`, not a physical subtype.
+`combat_melee_attack_type_pure` returns `(style_type, xp_style_id)`.
+`combat_weapon_attack_style_slots_pure` and `combat_weapon_style_options_pure` expose slot and selection data.
+Typeless weapons and bare fists use `WEAPON_TYPE_UNARMED_STYLES`, which contains crush styles.
 
 ## Combat selector restore timing
 
@@ -1054,77 +814,54 @@ activation.
 
 ## Promotion gate and landing lock
 
-The active remote procedure is
-`python3 tools/promotion_gate.py run <promotion-worktree> --remote-lanes`,
-followed by the unchanged
-`python3 tools/promotion_gate.py land <promotion-worktree>`. Remote mode runs
-only the plain and Qt test lanes, serially, through
-`/opt/homebrew/bin/python3 tools/run_remote_tests.py <exact-worktree> {plain,qt}`.
-Documentation, test-quality, reachability, worktree-layout, clean-tree, and diff
-checks still run locally in the promotion worktree. Omitting `--remote-lanes`
-keeps the original local lane commands. Use `--plain-only` only for a
-branch-side check when the merged-tree promotion seat will run the Qt lane;
-plain-only evidence cannot authorize a landing.
+`tools/promotion_gate.py` owns verification and landing. `tools/run_remote_tests.py` owns remote lane commands and acceptance thresholds.
+Read these tools for current command options and threshold values; do not copy changing limits into this document.
+Remote mode runs the plain and Qt lanes serially.
+Documentation, test-quality, reachability, worktree-layout, clean-tree, and diff checks run locally in the promotion worktree.
+Local test lanes remain supported. A plain-only branch check cannot authorize landing.
 
-The remote runner accepts a lane only when discovery is at least 4,506 tests and
-active coverage (`tests - skipped`) is at least 3,994 tests for plain or 4,503
-for Qt. Pin active coverage rather than an absolute skip count: adding a valid
-Qt-only test increases plain skips without reducing the plain lane's executed
-coverage. Dispatches started on the same machine share one fixed absolute lock
-path and hold its exclusive local flock through rsync and polling while the
-local dispatching process lives. Promotion gates may still register
-concurrently, but a second dispatch from that machine reports the lock path and
-waits before touching the shared mirror. The flock provides neither
-cross-machine nor remote-process-lifetime exclusion: interruption or timeout can
-leave the detached MacBook lane running after lock release. Run-specific IDs
-prevent that orphan from mixing its logs or report into later evidence, but a
-later dispatch can still fail spuriously and requires operator reconciliation
-before retry.
+Remote acceptance requires minimum discovery and active coverage (`tests - skipped`).
+Do not substitute an absolute skip limit for active coverage.
+Dispatches on the same machine share a fixed absolute lock path.
+An exclusive local flock covers rsync and polling while the local dispatch process lives.
+Another dispatch reports the lock path and waits before it touches the shared mirror.
+This lock does not provide cross-machine exclusion or protection after the local process exits.
 
-A successful gate atomically records the exact commit, every passed check, and
-a real `remote_lanes` boolean in the shared Git common directory; old evidence
-without that field parses as local evidence. Remote evidence is recorded, not a
-global landing requirement, because local mode remains supported. The gate
-requires a clean worktree so those checks measure that commit rather than
-uncommitted files. The reachability check reads all seven reachability pins from
-the gated tree, compares them with that tree's own JSON audit and expected exit
-code, and accepts only an exact match. A content addition must update those
-pinned assertions in the same commit. This supersedes the 2026-08-22 05:52
-papercut's interim rule to preserve the old grep-based informational behavior.
-Starting any rerun removes that commit's prior evidence, and a failed rerun
-writes none. The established `ankiscape_worktrees/gate-<short-sha>.log` and
-`ankiscape_worktrees/gateplain-<short-sha>.log` paths remain unchanged.
+An interruption or timeout can leave a detached remote lane active after lock release.
+Run-specific IDs isolate logs and reports, but a later dispatch can still fail because of shared remote state.
+Reconcile that state before a retry.
 
-The remote verification checkout is an rsync mirror of the working tree and has
-no `.git` directory. Tests that run there must build fixtures from the
-filesystem and must not shell out to Git. Gate registration, exact-commit
-checks, evidence, landing locks, and landing state remain authoritative in the
-canonical Git common directory. Gates for different commits may run together,
-and each active marker is protected by an OS file lock so a recycled PID cannot
-impersonate the gate process.
+A successful gate atomically records the exact commit, passed checks, and a `remote_lanes` boolean in the shared Git common directory.
+Evidence without that field parses as local evidence. Remote evidence is not a universal landing requirement.
+The worktree must be clean so checks measure the recorded commit.
+The reachability check compares the gated tree's pins with its own JSON audit and expected exit code.
+Only an exact match passes. Content additions must update the affected pins in the same commit.
 
-Land only with the command above, not a hand-written `git merge --ff-only`.
-Landing is serialized, requires full-gate evidence for the exact target commit,
-refuses while another tree is being gated, and refuses a target that is not
-descended from current `main`. An unlocked active-gate marker is stale
-regardless of the PID written inside it and is reported before removal.
+A rerun removes prior evidence for that commit. A failed rerun writes no evidence.
+Gate logs use `ankiscape_worktrees/gate-<short-sha>.log` and `ankiscape_worktrees/gateplain-<short-sha>.log`.
+The remote checkout is an rsync mirror without `.git`.
+Remote tests must use filesystem fixtures and must not invoke Git.
+
+The canonical Git common directory owns gate registration, commit checks, evidence, landing locks, and landing state.
+Gates for different commits can run together. An OS file lock protects each active marker against recycled PIDs.
+Use the promotion tool to land, not a manual `git merge --ff-only`.
+Landing is serialized and requires full-gate evidence for the exact target commit.
+It refuses another active gate or a target that does not descend from current `main`.
+An unlocked gate marker is stale regardless of its stored PID; report it before removal.
 - A global pseudo-item removal in `quest_reward_items_as_dict()` is safe only after every catalog quest that parsed the same name has a `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` entry; enumerate all catalog references first.
 
 ## Quest reward replacement dicts REPLACE, not extend
 
 `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID`, `QUEST_UNLOCK_REPLACEMENTS_BY_ID`, and
-`QUEST_XP_REWARD_REPLACEMENTS_BY_ID` in `data/quest_data.py` replace a quest's
-whole tuple; they do not extend it. Writing one corrected string deletes every
-generated entry the catalog supplied for that quest. Four separate agents made
-this mistake on one branch, and it cost three review rounds. The symptom is
-silent: the test suite stayed green because the unlock check used `issubset`.
+`QUEST_XP_REWARD_REPLACEMENTS_BY_ID` in `data/quest_data.py` replace a quest's whole tuple.
+They do not extend it. Each replacement must contain every valid entry, not just the corrected entry.
+Subset checks cannot detect lost entries; use whole-tuple guards.
 
-The check that catches it: load `QUEST_DATA` on canonical main and on the
-branch, then difference the reward, unlock, and experience sets for all 196
-quests. Any quest that loses an entry is a regression unless the loss is a
-deliberate, sourced rewrite. Access text belongs in `unlocks`, never in the item
-reward tuple; use a whole-tuple replacement only after verifying every genuine
-item reward on the pinned source.
+Load `QUEST_DATA` on canonical main and on the branch.
+Compare reward, unlock, and experience sets for every catalog quest; derive the census from `QUEST_DATA`.
+A lost entry is a regression unless source evidence requires its removal.
+Access text belongs in `unlocks`, not item rewards.
+Verify every genuine item reward against the pinned source before a whole-tuple replacement.
 
 
 ## Item registry ownership is first-write-wins
