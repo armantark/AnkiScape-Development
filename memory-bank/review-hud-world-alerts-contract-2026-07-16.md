@@ -136,3 +136,16 @@ and source.
 - Manual QA: create one grave and one cargo drop together, verify both icons above the
   review HUD, reclaim cargo, advance/undo the final expiry card, and confirm the grave
   alert follows its independent safe-review behavior.
+
+## Chronology moved from systemPatterns.md — 2026-09-16
+
+### Reviewer alert rollout
+
+Original line range: 267-272.
+
+- Urgent or expiring reviewer state uses the reusable interactive alert-strip
+  contract in `review-hud-world-alerts-contract-2026-07-16.md`. It is a sibling
+  above the mouse-transparent XP HUD, not a control embedded inside it and not a
+  new standalone widget per feature. Initial rows are the existing Gravestone
+  and Summoning's expiring Familiar cargo, each with distinct sourced art,
+  labels, countdown semantics, and detail actions.

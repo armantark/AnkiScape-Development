@@ -61,6 +61,19 @@ class DocumentationAuditTests(unittest.TestCase):
             [("dangling_test_selector", stale)],
         )
 
+    def test_rejects_dated_entries_in_active_context(self) -> None:
+        root = self._repo()
+        self._track(
+            root,
+            "memory-bank/activeContext.md",
+            "# Active Context\n\n## Current focus — 2026-09-16\n\nok\n\n## Closure — 2026-09-01\n\nold\n",
+        )
+
+        report = AUDIT_DOCS.audit_docs(root)
+
+        self.assertEqual([issue.kind for issue in report.issues], ["dated_entry_in_active_context"])
+        self.assertEqual(report.issues[0].line, 7)
+
     def test_reports_broken_links_and_unclosed_fences(self) -> None:
         root = self._repo()
         self._track(root, "README.md", "# Docs\n\n[Missing](docs/missing.md)\n\n```text\n")

@@ -112,3 +112,19 @@ own source-shaped accumulation rules.
   do not perform a mechanical global rename without migration and undo tests.
 - Add one dispatcher-level contract test proving Again advances world consumers but not
   foreground actions, then focused tests for each reclassified consumer.
+
+## Chronology moved from systemPatterns.md — 2026-09-16
+
+### Simulation clock and eligibility decision
+
+Original line range: 245-253.
+
+- Historical timers use the global answered-card AnkiScape clock already shared
+  by NPC shops and the parked GE: 10 answered cards equal one simulated game
+  hour and 240 equal one simulated day. All answered cards advance the clock,
+  regardless of skill or reward success; undo rolls time back. Daily/weekly
+  allowances currently reset at simulated boundaries without stacking, never
+  from the computer's wall-clock date. Owner decision 2026-07-17 supersedes
+  this for recurring activity eligibility once implemented: bank one current
+  entry plus one reserve by default, while rewards still require playing the
+  activity. See `simulation-time-boundary-2026-07-16.md` Decision 2.

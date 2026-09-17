@@ -219,6 +219,17 @@ def _audit_html(path: Path, root: Path, text: str, issues: list[DocIssue]) -> No
             issues.append(DocIssue("broken_html_target", _relative(path, root), line, target))
 
 
+ACTIVE_CONTEXT = Path("memory-bank") / "activeContext.md"
+DATED_HEADING_RE = re.compile(r"^## .*\d{4}-\d{2}-\d{2}")
+
+
+def _audit_active_context(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
+    """Dated entries belong to progress.md; activeContext.md keeps only the head."""
+    for line_number, line in enumerate(text.splitlines(), 1):
+        if DATED_HEADING_RE.match(line) and not line.startswith("## Current focus"):
+            issues.append(DocIssue("dated_entry_in_active_context", _relative(path, root), line_number, line))
+
+
 def audit_docs(root: Path) -> DocAuditReport:
     issues: list[DocIssue] = []
     markdown_files = 0
@@ -232,6 +243,8 @@ def audit_docs(root: Path) -> DocAuditReport:
             markdown_files += 1
             _audit_markdown(path, root, text, issues)
             _audit_test_selectors(path, root, text, test_selectors, issues)
+            if path.resolve() == (root / ACTIVE_CONTEXT).resolve():
+                _audit_active_context(path, root, text, issues)
         else:
             html_files += 1
             _audit_html(path, root, text, issues)

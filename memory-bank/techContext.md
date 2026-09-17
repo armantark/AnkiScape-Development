@@ -220,7 +220,7 @@ AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **20
 - **The OSRS wiki is NOT a 2011 source.** OSRS branched from a 2007 backup; treat OSRS data as 2007 baseline + OSRS-only additions, useful only as a cross-check for 2007/2011-unchanged content.
 - **Baseline implementation evidence:** the local `2011Scape/game` emulator source (Apache-2.0, client rev 667 = Oct 4 2011; upstream `github.com/2011Scape/game`) at `/Users/ArmanTarkhanian1/Downloads/game-main`. It is authoritative only for mechanics unchanged between that snapshot and the cutoff; later content and changed mechanics require pre-EOC 2012 evidence.
 - **Historical semantics:** literal wikitext from exact pre-cutoff RuneScape Wiki `oldid` revisions, backed by dated Wayback captures where page histories or transcluded dependencies are unavailable.
-- **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` require Java 25 and the locally cached Darkan core 2.0.5 jars.
+- **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` read the Java launcher from `JAVA_BIN` (default `/opt/homebrew/opt/openjdk@25/bin/java`) and the Darkan core jars from the local Gradle cache; the scripts pin the Darkan version (2.0.5 when verified on 2026-09-16).
 - **Darkan:** use the fidelity-revamped implementation as server-mechanics evidence only after reconciling it with pinned pre-EOC sources. A modern Darkan commit is a reconstruction, not automatically period proof. Wait when the necessary high-fidelity behavior or corroborating history does not yet exist.
 
 Seven tools read the Darkan thread's checkout at
@@ -237,23 +237,23 @@ an AnkiScape citation audit. `tools/generate_construction_data.py:101` and
 which no working-directory scan can observe; detect such a reader by matching
 full process argument strings.
 
-Current Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure/logic_pure.py` adapt them to Anki review cadence.
+Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure/logic_pure.py` adapt them to Anki review cadence.
 
-Current Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
+Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
 
 
-Current Crafting backend parity data lives in `data/crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content whose acquisition loop is not built yet. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
+Crafting backend parity data lives in `data/crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content whose acquisition loop is not built yet. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
 
-Current Smithing backend parity data lives in `data/smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits 9 ordinary smelt recipes, 158 anvil recipes, and the separate source-backed cannonball furnace process. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
+Smithing backend parity data lives in `data/smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits 9 ordinary smelt recipes, 158 anvil recipes, and the separate source-backed cannonball furnace process. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
 
-Current equipment backend data lives in generated `data/equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `data/smithing_data.py`, the external 2011Scape checkout's `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml` equipment blocks, and `data/mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and normalizes combat level/exp defaults so equipment gates use the real levels trained by unified Combat.
+Equipment backend data lives in generated `data/equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `data/smithing_data.py`, the external 2011Scape checkout's `/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml` equipment blocks, and `data/mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and normalizes combat level/exp defaults so equipment gates use the real levels trained by unified Combat.
 
-Feathers now enter through live NPC shop stock and Combat drops. The temporary
+Feathers enter through live NPC shop stock and Combat drops. The temporary
 `scavenge_chicken_feathers` Utility bridge documented in the dated
 `memory-bank/source-audits/feather-utility-2026-06-15.md` was retired during the
 shop-economy integration pass and must not be re-added.
 
-Current Firemaking data lives in `data/firemaking_data.py`, with the audit at
+Firemaking data lives in `data/firemaking_data.py`, with the audit at
 `memory-bank/source-audits/firemaking-2011scape-2026-06-16.md`. It stores 13
 local-2011Scape burnable targets, stable target IDs, input item IDs, source XP,
 `Ashes` output metadata, raw source low/high lighting odds, and explicit
@@ -261,7 +261,7 @@ deferred bonfire/fire-spirit notes. Runtime review behavior adapts the source
 lighting roll in `logic_pure/logic_pure.py`; storage config version 12 adds
 `firemaking_level`, `firemaking_exp`, and `current_firemaking`.
 
-Current Runecrafting data lives in `data/runecrafting_data.py`, with the audit at
+Runecrafting data lives in `data/runecrafting_data.py`, with the audit at
 `memory-bank/source-audits/runecrafting-2011scape-2026-06-17.md`. It stores
 standard rune, combination rune, tiara binding, pouch, and Wicked hood feed
 metadata from the local 2011Scape Runecrafting source. `data/quest_data.py` stores
@@ -367,8 +367,8 @@ lives in `logic_pure/logic_pure.py`; storage config version 15 adds
 - Explicit choices use the direct-command undo stack. Ignored safe-default or
   remembered choices resolve inside the next answered card's atomic snapshot,
   so review undo restores the pending decision and RNG state.
-- Storage config version 45 adds sanitized per-family remembered choices. The
-  first live family is The Pit's `Take XP / Gamble`; stable family IDs allow
+- Storage config version 45 adds sanitized per-family remembered choices,
+  introduced with The Pit's `Take XP / Gamble` family; stable family IDs allow
   later contract-owned surfaces without feature-specific Qt inference.
 
 ## Manual Testing Target

@@ -13,13 +13,13 @@ Anki already rewards consistency through memory gains, but that feedback is abst
 - Casual mode chooses sensible owned supplies/equipment; Advanced preserves target-local layouts and options.
 - Missing acquisition routes should emerge as ordinary material shortage, not special UI labels or invented locks.
 
-## Current Experience
+## Experience
 
-- Nineteen complete skill surfaces: Mining, Woodcutting, Farming, Fishing, Hunter, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Prayer, Magic, Construction, Thieving, Agility, Slayer, and Summoning.
+- Complete skill surfaces: Mining, Woodcutting, Farming, Fishing, Hunter, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Prayer, Magic, Construction, Thieving, Agility, Slayer, and Summoning.
 - Unified Combat trains the five partial skills Attack, Strength, Defence, Constitution, and Ranged through equipment/style choices, with real supplies, HP, food, Prayer/Magic configuration, death/recovery, drops, poison, potions, loadouts, and target-local carried inventory.
 - Dungeoneering is an implemented partial skill with trainable Frozen floors, Ring of Kinship tiers, a staged reward trader, and a working Coal bag.
 - Quests, Utility/Activities, Bank, Equipment, NPC Shops, Stats, Achievements, Settings, Bank Claims, HUD feedback, and review undo are live foundations.
-- The quest catalog contains 194 pre-EOC rows, but many still require quest-by-quest fidelity work.
+- The quest catalog holds every pre-EOC quest row, but many rows still require quest-by-quest fidelity work.
 
 ## Completion Direction
 

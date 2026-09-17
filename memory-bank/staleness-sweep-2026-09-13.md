@@ -48,3 +48,23 @@ The documentation audit (`tools/audit_docs.py`) passed after the edits.
    separately.
 5. `tools/xp_rate_audit.py` reports combat at the retired 50-tick constant
    (papercut 2026-09-13). Nominate: read `LIVE_COMBAT_TICKS_PER_REVIEW`.
+
+## Applied on 2026-09-16 after the owner accepted all five
+
+- Nomination 1: `tools/memory_bank/merge_memory_logs.py` moved 83 dated entries from
+  `activeContext.md` into `progress.md`, merged 41 entries whose bodies
+  differed under one heading (both bodies kept, the second marked as the
+  parallel record), and dropped 27 exact repeats (12 in `activeContext.md`,
+  15 in `progress.md`). `activeContext.md` fell from 6,234 lines to 42.
+  `tools/audit_docs.py` now rejects a dated `## ` heading in
+  `activeContext.md` other than the "Current focus" head.
+- Nomination 3: the "Current" and "now" headings and lines in
+  `projectbrief.md`, `productContext.md`, and `techContext.md` are durable
+  statements; the skill and quest counts point to the kanban and the census
+  tool.
+- Nomination 4: the Java and Darkan pins in `techContext.md` name the script
+  variables and the verification date.
+- Nomination 5: `tools/xp_rate_audit.py` reads `LIVE_COMBAT_TICKS_PER_REVIEW`
+  and reports combat at R = 1,000.
+- Nomination 2: recorded in the commit that moves the `systemPatterns.md`
+  chronology.
