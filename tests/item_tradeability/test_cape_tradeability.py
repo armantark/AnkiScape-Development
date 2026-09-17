@@ -96,18 +96,18 @@ class CapeTradeabilityRuntimeTest(unittest.TestCase):
         runtime_fixture._install_runtime_fakes()
 
     def test_buy_sell_collection_and_reload(self):
-        self._exercise_lifecycle(_JsonCollection())
+        self.assert_lifecycle(_JsonCollection())
 
     @unittest.skipIf(storage_fixture.Collection is None, "Anki runtime is not installed")
     def test_buy_sell_persist_in_real_anki_collection(self):
         with tempfile.TemporaryDirectory() as directory:
             collection = storage_fixture.Collection(str(Path(directory) / "collection.anki2"))
             try:
-                self._exercise_lifecycle(collection)
+                self.assert_lifecycle(collection)
             finally:
                 collection.close()
 
-    def _exercise_lifecycle(self, collection):
+    def assert_lifecycle(self, collection):
         sys.modules["aqt"].mw = runtime_fixture._DummyMW(collection)
         addon = runtime_fixture._load_addon_as_package("ankiscape_cape_tradeability_runtime")
         addon._state.player_data, addon._state.current_skill = addon.storage_load_player_data()
