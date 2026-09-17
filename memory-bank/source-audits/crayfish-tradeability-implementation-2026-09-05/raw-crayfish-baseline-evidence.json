@@ -1,0 +1,528 @@
+{
+  "status": "captured_baseline_and_candidate_agree_raw_and_burnt",
+  "captures": [
+    {
+      "path": "/tmp/cut-gem-baseline-6438d422/plain-core_constants.py.stdout",
+      "bytes": 16897417,
+      "sha256": "90bc427f383db2fac70328dd3a2040a551138b5a066bbc3e374c57a58a1eb20b",
+      "export": "ITEM_DEFINITIONS",
+      "selected_rows": {
+        "Raw crayfish": {
+          "asset_path": "<repo>/fishingitems/raw_crayfish.png",
+          "base_exp": 10.0,
+          "category": "fish",
+          "display_name": "Raw crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "fish_raw_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "Fishing",
+          "source_item_id": 13435,
+          "stackable": true,
+          "storage_key": "Raw crayfish",
+          "tradeable": true
+        },
+        "Burnt crayfish": {
+          "asset_path": "<repo>/cookingitems/burnt_crayfish.png",
+          "base_exp": 0.0,
+          "category": "food",
+          "display_name": "Burnt crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "food_burnt_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+          "source_item_id": 13437,
+          "stackable": true,
+          "storage_key": "Burnt crayfish",
+          "tradeable": false
+        },
+        "Crayfish": {
+          "asset_path": "<repo>/cookingitems/crayfish.png",
+          "base_exp": 0.0,
+          "category": "food",
+          "display_name": "Crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "food_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+          "source_item_id": 13433,
+          "stackable": true,
+          "storage_key": "Crayfish",
+          "tradeable": false
+        }
+      }
+    },
+    {
+      "path": "/tmp/cut-gem-baseline-6438d422/qt-core_constants.py.stdout",
+      "bytes": 16897417,
+      "sha256": "90bc427f383db2fac70328dd3a2040a551138b5a066bbc3e374c57a58a1eb20b",
+      "export": "ITEM_DEFINITIONS",
+      "selected_rows": {
+        "Raw crayfish": {
+          "asset_path": "<repo>/fishingitems/raw_crayfish.png",
+          "base_exp": 10.0,
+          "category": "fish",
+          "display_name": "Raw crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "fish_raw_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "Fishing",
+          "source_item_id": 13435,
+          "stackable": true,
+          "storage_key": "Raw crayfish",
+          "tradeable": true
+        },
+        "Burnt crayfish": {
+          "asset_path": "<repo>/cookingitems/burnt_crayfish.png",
+          "base_exp": 0.0,
+          "category": "food",
+          "display_name": "Burnt crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "food_burnt_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+          "source_item_id": 13437,
+          "stackable": true,
+          "storage_key": "Burnt crayfish",
+          "tradeable": false
+        },
+        "Crayfish": {
+          "asset_path": "<repo>/cookingitems/crayfish.png",
+          "base_exp": 0.0,
+          "category": "food",
+          "display_name": "Crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "food_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+          "source_item_id": 13433,
+          "stackable": true,
+          "storage_key": "Crayfish",
+          "tradeable": false
+        }
+      }
+    },
+    {
+      "path": "/tmp/cut-gem-baseline-6438d422/qt-__init__.py.stdout",
+      "bytes": 8449838,
+      "sha256": "8426b0a445bf8134afd99391e4029d8fb32bd4b6c010d080fbe16117905ccfb0",
+      "export": "GE_ITEM_CATALOG",
+      "raw_crayfish_normalized_row": {
+        "class": "builtins.dict",
+        "items": [
+          [
+            "asset_path",
+            "<repo>/fishingitems/raw_crayfish.png"
+          ],
+          [
+            "buy_limit",
+            20000
+          ],
+          [
+            "buy_limit_source",
+            {
+              "class": "builtins.dict",
+              "items": [
+                [
+                  "oldid",
+                  6457777
+                ],
+                [
+                  "timestamp",
+                  "2012-10-23T03:28:03Z"
+                ],
+                [
+                  "title",
+                  "Calculator:Grand Exchange buying limits"
+                ]
+              ],
+              "type": "mapping"
+            }
+          ],
+          [
+            "cache_value",
+            5
+          ],
+          [
+            "category",
+            "fish"
+          ],
+          [
+            "exchangeable",
+            true
+          ],
+          [
+            "guide_price",
+            58
+          ],
+          [
+            "guide_price_provenance",
+            {
+              "class": "builtins.dict",
+              "items": [
+                [
+                  "cache_value",
+                  5
+                ],
+                [
+                  "item_id",
+                  13435
+                ],
+                [
+                  "oldid",
+                  6571176
+                ],
+                [
+                  "page_item",
+                  "Raw crayfish"
+                ],
+                [
+                  "page_limit",
+                  20000
+                ],
+                [
+                  "page_title",
+                  "Exchange:Raw crayfish"
+                ],
+                [
+                  "price",
+                  58
+                ],
+                [
+                  "price_date",
+                  "05:06, November 18, 2012 (UTC)"
+                ],
+                [
+                  "timestamp",
+                  "2012-11-18T05:06:47Z"
+                ]
+              ],
+              "type": "mapping"
+            }
+          ],
+          [
+            "guide_price_source",
+            "period_grand_exchange_database"
+          ],
+          [
+            "high_alchemy_value",
+            3
+          ],
+          [
+            "item_id",
+            "fish_raw_crayfish"
+          ],
+          [
+            "item_name",
+            "Raw crayfish"
+          ],
+          [
+            "low_alchemy_value",
+            2
+          ],
+          [
+            "required_level",
+            1
+          ],
+          [
+            "source_item_id",
+            13435
+          ],
+          [
+            "source_role",
+            "raw_material"
+          ],
+          [
+            "tradeable",
+            true
+          ]
+        ],
+        "type": "mapping"
+      },
+      "burnt_crayfish_present": false,
+      "cooked_crayfish_present": false
+    },
+    {
+      "path": "/tmp/crayfish-verification-ka1h3fbf/plain-core_constants.py.stdout",
+      "bytes": 16897414,
+      "sha256": "15a84a09eddcb1aa1f555993611baacd7cb3a7ebe48e6832e8240d0520bbe200",
+      "export": "ITEM_DEFINITIONS",
+      "selected_rows": {
+        "Raw crayfish": {
+          "asset_path": "<repo>/fishingitems/raw_crayfish.png",
+          "base_exp": 10.0,
+          "category": "fish",
+          "display_name": "Raw crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "fish_raw_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "Fishing",
+          "source_item_id": 13435,
+          "stackable": true,
+          "storage_key": "Raw crayfish",
+          "tradeable": true
+        },
+        "Burnt crayfish": {
+          "asset_path": "<repo>/cookingitems/burnt_crayfish.png",
+          "base_exp": 0.0,
+          "category": "food",
+          "display_name": "Burnt crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "food_burnt_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+          "source_item_id": 13437,
+          "stackable": true,
+          "storage_key": "Burnt crayfish",
+          "tradeable": false
+        },
+        "Crayfish": {
+          "asset_path": "<repo>/cookingitems/crayfish.png",
+          "base_exp": 0.0,
+          "category": "food",
+          "display_name": "Crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "food_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+          "source_item_id": 13433,
+          "stackable": true,
+          "storage_key": "Crayfish",
+          "tradeable": true
+        }
+      }
+    },
+    {
+      "path": "/tmp/crayfish-verification-ka1h3fbf/qt-core_constants.py.stdout",
+      "bytes": 16897414,
+      "sha256": "15a84a09eddcb1aa1f555993611baacd7cb3a7ebe48e6832e8240d0520bbe200",
+      "export": "ITEM_DEFINITIONS",
+      "selected_rows": {
+        "Raw crayfish": {
+          "asset_path": "<repo>/fishingitems/raw_crayfish.png",
+          "base_exp": 10.0,
+          "category": "fish",
+          "display_name": "Raw crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "fish_raw_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "Fishing",
+          "source_item_id": 13435,
+          "stackable": true,
+          "storage_key": "Raw crayfish",
+          "tradeable": true
+        },
+        "Burnt crayfish": {
+          "asset_path": "<repo>/cookingitems/burnt_crayfish.png",
+          "base_exp": 0.0,
+          "category": "food",
+          "display_name": "Burnt crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "food_burnt_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+          "source_item_id": 13437,
+          "stackable": true,
+          "storage_key": "Burnt crayfish",
+          "tradeable": false
+        },
+        "Crayfish": {
+          "asset_path": "<repo>/cookingitems/crayfish.png",
+          "base_exp": 0.0,
+          "category": "food",
+          "display_name": "Crayfish",
+          "equipment_slot": null,
+          "equipment_tier": 0,
+          "equipment_type": null,
+          "id": "food_crayfish",
+          "license_note": "private-fork asset; provenance not audited",
+          "required_level": 1,
+          "source": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml",
+          "source_item_id": 13433,
+          "stackable": true,
+          "storage_key": "Crayfish",
+          "tradeable": true
+        }
+      }
+    },
+    {
+      "path": "/tmp/crayfish-verification-ka1h3fbf/qt-__init__.py.stdout",
+      "bytes": 8450803,
+      "sha256": "1b838137df4d13edf9f5af5f44cec79566ef294d483176fb301ce705492831da",
+      "export": "GE_ITEM_CATALOG",
+      "raw_crayfish_normalized_row": {
+        "class": "builtins.dict",
+        "items": [
+          [
+            "asset_path",
+            "<repo>/fishingitems/raw_crayfish.png"
+          ],
+          [
+            "buy_limit",
+            20000
+          ],
+          [
+            "buy_limit_source",
+            {
+              "class": "builtins.dict",
+              "items": [
+                [
+                  "oldid",
+                  6457777
+                ],
+                [
+                  "timestamp",
+                  "2012-10-23T03:28:03Z"
+                ],
+                [
+                  "title",
+                  "Calculator:Grand Exchange buying limits"
+                ]
+              ],
+              "type": "mapping"
+            }
+          ],
+          [
+            "cache_value",
+            5
+          ],
+          [
+            "category",
+            "fish"
+          ],
+          [
+            "exchangeable",
+            true
+          ],
+          [
+            "guide_price",
+            58
+          ],
+          [
+            "guide_price_provenance",
+            {
+              "class": "builtins.dict",
+              "items": [
+                [
+                  "cache_value",
+                  5
+                ],
+                [
+                  "item_id",
+                  13435
+                ],
+                [
+                  "oldid",
+                  6571176
+                ],
+                [
+                  "page_item",
+                  "Raw crayfish"
+                ],
+                [
+                  "page_limit",
+                  20000
+                ],
+                [
+                  "page_title",
+                  "Exchange:Raw crayfish"
+                ],
+                [
+                  "price",
+                  58
+                ],
+                [
+                  "price_date",
+                  "05:06, November 18, 2012 (UTC)"
+                ],
+                [
+                  "timestamp",
+                  "2012-11-18T05:06:47Z"
+                ]
+              ],
+              "type": "mapping"
+            }
+          ],
+          [
+            "guide_price_source",
+            "period_grand_exchange_database"
+          ],
+          [
+            "high_alchemy_value",
+            3
+          ],
+          [
+            "item_id",
+            "fish_raw_crayfish"
+          ],
+          [
+            "item_name",
+            "Raw crayfish"
+          ],
+          [
+            "low_alchemy_value",
+            2
+          ],
+          [
+            "required_level",
+            1
+          ],
+          [
+            "source_item_id",
+            13435
+          ],
+          [
+            "source_role",
+            "raw_material"
+          ],
+          [
+            "tradeable",
+            true
+          ]
+        ],
+        "type": "mapping"
+      },
+      "burnt_crayfish_present": false,
+      "cooked_crayfish_present": true
+    }
+  ],
+  "owner": {
+    "definition": "data/fishing_data.py:73",
+    "propagation": "data/fishing_data.py:_fish_as_dict includes fish.tradeable; core/item_registry.py:261-273 registers Fishing before extra items; add_definition at lines 136-140 retains the first storage key; extra items at lines 296-302 cannot replace it.",
+    "cooking_extra_flag": "The separate Cooking extra-item dictionary still reports Raw crayfish false; this is not the final registry owner.",
+    "raw_full_catalog_row_unchanged": true,
+    "burnt_exclusion_confirmed_in_both_captures": true
+  }
+}

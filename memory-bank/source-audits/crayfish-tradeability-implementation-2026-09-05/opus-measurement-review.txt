@@ -1,0 +1,44 @@
+Claude quota preflight: {"source":"ai-usage-widget/oauth_usage","freshness":"fresh","capturedAt":1788652595,"ageSeconds":10,"fiveHour":{"usedPercent":3.0,"remainingPercent":97.0,"resetsAt":1788667199},"weekly":{"usedPercent":6.0,"remainingPercent":94.0,"resetsAt":1789181999},"fableWeekly":{"usedPercent":7.0,"remainingPercent":93.0,"resetsAt":1789181999}}
+I read the full packet (1356 lines). Here is the bounded review.
+
+**Verdict: ACCEPT.** No correction to the diff or the proof is necessary. Below are the reasons and the limits you must state with the result.
+
+## 1. The proof strictly constrains the delta
+
+The script closes each escape route with a two-way equality, not a subset test:
+
+- Capture set: `tmp/review/crayfish-measurement-review.txt:684-685` fixes the candidate file set exactly, and the baseline set exactly plus the zero-byte plain root control. No extra or missing payload can pass.
+- Per module: `:703` asserts `changed == expected_exports.get(...)`. An unlisted export cannot move, and a listed export cannot stay static.
+- Reversal: each change is undone by one flag flip or one row removal, then `:716` compares the whole object, then `:721` compares the re-serialized body byte for byte with the baseline body. Byte equality after reversal leaves no room for a hidden co-change, key reorder, or format shift.
+- Catalog: `:661-664` requires added keys `== {'Crayfish'}`, no removals, the added row equal to `EXPECTED_ROW`, and every other row plus its order unchanged.
+- Unchanged payloads: `:723` compares the 14 quiet payloads as raw bytes.
+- Discovery: `:739-740` uses a `Counter` equality plus an order-preserving list equality, so exactly one test ID appeared, none vanished, and none moved. `:741` requires empty stderr.
+- Source binding: `:670-677` pins the capture script by sha and requires the 9 file hashes before, after, and the script's own `EXPECTED` literal to agree.
+
+The baseline came from the earlier cut-gem work, but that does not weaken the result. Any unrelated drift between the two trees would have broken the strict `changed ==` check or the byte-equal reversal.
+
+## 2. The repaired Raw crayfish expectation matches retained evidence
+
+Every asserted value appears in both captures:
+
+| Assertion | Baseline | Candidate |
+| --- | --- | --- |
+| `source_item_id` 13435 | `:265-267` | `:523-525` |
+| `guide_price` 58 | `:192-194` | `:450-452` |
+| `buy_limit` 20000 | `:156-157` | `:412-413` |
+| Burnt absent | `:279` | `:537` |
+
+The deleted `assertNotIn("Raw crayfish", GE_ITEM_CATALOG)` contradicted both captures, so the repair replaces a false expectation with true ones. The three pinned values differ from the cooked values (13433 / 45 / 10000), so a row swap still fails the test.
+
+## 3. Limits to state, not defects
+
+1. The capture script is absent from the packet. Only its sha and `EXPECTED` literal appear. The packet cannot show how the payloads were produced, nor that the 11 modules equal the repository's protected-surface set.
+2. No plain-lane root payload exists on either side. The baseline file is zero bytes (`:686-688`) and the candidate has none. The Raw crayfish row evidence is qt-lane only, although the focused test runs in both lanes.
+3. The generated map counts (prices 1437→1438, limits 1753→1754, provenance 1437→1438) rest on the parent AST proof, which is outside the packet. A generated entry for an item with no catalog row stays invisible here.
+4. `:748` exempts every focus row from the exit-code check. results.json therefore adds no focus evidence, which matches your claim that the rerun is pending.
+
+## 4. One operational note
+
+The repair edits `tests/test_grand_exchange_data.py`, whose sha `5a35f94c...` is one of the 9 pinned hashes (`:782`). The capture ran before the repair. A rerun of the capture script therefore fails at `:677` until you re-capture. Re-capture after the repair. Do not relax the pin.
+
+Review scope was script and result consistency only, as the packet directed. I ran no code and read no other file.

@@ -450,7 +450,7 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Uncooked curry": (2009, True),
     "Uncooked pizza": (2287, True),
     "Raw crayfish": (13435, False),
-    "Crayfish": (13433, False),
+    "Crayfish": (13433, True),
     "Burnt crayfish": (13437, False),
     "Raw tiger shark": (21520, False),
     "Tiger shark": (21521, False),

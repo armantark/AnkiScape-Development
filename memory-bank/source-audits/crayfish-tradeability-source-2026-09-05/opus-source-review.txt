@@ -1,0 +1,36 @@
+I completed the review. I read the standard, the audit, the manifest, and the raw evidence, and I cross-checked the claims against independent repository records.
+
+## Verdict: ACCEPT for source readiness
+
+The four proposed values for exact ordinary cooked Crayfish, item ID 13433, are supported under `memory-bank/pre-eoc-source-verification-standard.md`. I found no blocking finding. EOC means Evolution of Combat. GE means Grand Exchange.
+
+| Value | Primary source | Second layer | Result |
+| --- | --- | --- | --- |
+| tradeable = True | `item-oldid-5517594.wikitext:8` (unmarked, 2012-04-22) | `exchange-oldid-6570435.wikitext:4-8` live GE row dated 2012-11-18; `cache-742.stdout:2` `exchangeable=true` | supported |
+| guide price 45 | `exchange-oldid-6570435.wikitext:6` | none exists; same method as every other catalog row | supported |
+| value 5 | `exchange-oldid-6570435.wikitext:10` | `item-oldid-5517594.wikitext:12-13` high 3 / low 2; `current-generated-value-excerpt.txt:4` | supported |
+| buy limit 10000 | `exchange-oldid-6570435.wikitext:11` | `global-buy-limits-oldid-6457777.json` row `[[Exchange:Crayfish|Crayfish]]` → `10000` | supported |
+
+## What I tested independently
+
+Beta exclusion holds. `item-history-api-response.json` shows the pre-cutoff chain 6446586 ← 6446584 ← 5943011 ← 5838149 ← 5517594. The comment on 5838149 reads `Added {{beta}} template`. Both retained children carry `{{beta}}` on line 1, and no later comment removes it. Revision 5517594 is therefore the last unmarked revision before the cutoff, and its `tradeable = Yes` field is identical to the beta child's field.
+
+Custody holds, and I tested the risk the packet invites. Both stdout files are byte-identical, so I checked whether one cache was queried twice. The bindings name different data files: `cache-727-input-binding.json:15` gives dat2 `2b8837d0…`, and `cache-742-input-binding.json:15` gives `8302e5d8…`. A prior, unrelated repository record, `memory-bank/source-audits/bar-crawl-client-identity-2026-09-02.md:32` and `:37`, lists exactly those two hashes for builds 727 and 742. The two runs used different caches, and the member hashes predate this packet. Member counts also match the claim: 39 plus 40 equals the 79 files that `mbp/query/manifest.json` records.
+
+The multiplicity rule holds. The global limit table has three crayfish rows: `Exchange:Crayfish` at 10000, `Exchange:Crayfish cage`, and `Exchange:Raw crayfish`. Exactly one is the exact row.
+
+The conflict resolution is correct. `game-main-crayfish-excerpt.txt:4` marks 13433 false, and line 10 marks the note 13434 false as well, while the dated caches mark 13434 exchangeable. That pattern indicates a blanket default in the rev-667 snapshot, not a researched flag. The standard treats such an implementation flag as a lead, and the audit records the conflict at `audit.md:29` instead of a silent choice.
+
+Two points strengthen the packet beyond what it claims. First, the Exchange page carries a price date of 2012-11-18 and a prior price on 2012-11-16, which proves active GE trade two days before the cutoff and closes the seven-month gap from the April item revision. Second, `data/grand_exchange_data.py:90-91` derives low and high alchemy as 40 and 60 percent of value, and value 5 yields exactly the period infobox's 2 and 3.
+
+## Three non-blocking precision items
+
+1. `audit.md:11` cites "literal line 2741" and "line 2742" of the global limit page, but `global-buy-limits-oldid-6457777.json` is a single-line API response with no retained wikitext extraction. Smallest resolution: cite the literal row text, or extract a `.wikitext` file as the packet did for the other three pages.
+2. `audit.md:51` states that other `rs.darkan/core` versions were excluded. No query-run record shows that enumeration, and the jar hash `bfaf99f7…` appears only in `mbp/missing-binding-canary/manifest.json:35`. Smallest resolution: cite that file, or delete the exclusion sentence.
+3. `audit.md:19` calls 13434 "the noted form". The decoder emitted no certificate IDs, per `pending-dated-cache-proof.json:32-36`, so the cache does not bind 13434 to 13433. Smallest resolution: call it the stackable same-name item, or cite the game-main examine line. This affects no proposed value.
+
+## Limits of this review
+
+I used read-only tools, so I recomputed no SHA-256 value. My check is content-level plus cross-record consistency between `source-manifest.json`, `mbp/retention-verification.json`, and `mbp/query/manifest.json`. I could not read the four `.gz` files, so the script body and classpath remain unread by me. I judged source readiness only. Implementation, runtime verification, and promotion acceptance are unperformed and remain the parent's.
+
+I wrote no plan file, because the task forbids access outside this worktree and proposes no implementation.

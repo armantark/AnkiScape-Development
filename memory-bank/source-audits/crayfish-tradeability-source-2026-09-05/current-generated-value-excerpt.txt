@@ -1,0 +1,8 @@
+    'Crate': 1,
+    'Crate with zanik': 1,
+    'Crawling hand': 1000,
+    'Crayfish': 5,
+    'Crayfish cage': 20,
+    'Cream boots': 200,
+    'Cream hat': 160,
+    'Cream robe bottoms': 180,

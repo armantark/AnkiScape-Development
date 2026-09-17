@@ -1,0 +1,186 @@
+[
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-core_constants.py.stdout",
+    "valid": true,
+    "bytes": 16897414,
+    "file_sha256": "15a84a09eddcb1aa1f555993611baacd7cb3a7ebe48e6832e8240d0520bbe200",
+    "body_sha256": "e9743e12e1e139d1c9b864bc25e77e711e80931fbd26876b9d93a0b4c42c1175",
+    "footer_sha256": "e9743e12e1e139d1c9b864bc25e77e711e80931fbd26876b9d93a0b4c42c1175"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-data_quest_data.py.stdout",
+    "valid": true,
+    "bytes": 11137240,
+    "file_sha256": "3eb1d304475e198035ba767ec2e33e7e9f892dd62de47edab6565f4332899d95",
+    "body_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e",
+    "footer_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-data_combat_data.py.stdout",
+    "valid": true,
+    "bytes": 1665740,
+    "file_sha256": "9e282ee1308fc98a3df3307a313cf119f03eefb2f975fb2c271c400d0f0c613a",
+    "body_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77",
+    "footer_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-data_slayer_data.py.stdout",
+    "valid": true,
+    "bytes": 821288,
+    "file_sha256": "957fae47446ed8518154a44c426940fd4c661d352700cfb12437ae30b05d42b7",
+    "body_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94",
+    "footer_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-logic_pure_logic_pure_combat_engine.py.stdout",
+    "valid": true,
+    "bytes": 1334283,
+    "file_sha256": "635563a81165945ceab475eb324b9fdf39a47fe890ff22db50a9953a0002b6aa",
+    "body_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850",
+    "footer_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-tests_test_combat_enemy_roster.py.stdout",
+    "valid": true,
+    "bytes": 1033939,
+    "file_sha256": "aad6cf638c0eb7bc92e3450020bb8bbe826cb9b3ec4136432612ea2aa8edf4a9",
+    "body_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816",
+    "footer_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-logic_shop_logic.py.stdout",
+    "valid": true,
+    "bytes": 3748499,
+    "file_sha256": "abbeaadffb72bba71a6ee4fcbf6c7b942bff39150749d32d0797b0d709508dca",
+    "body_sha256": "950480ccf8cf8b16a65fb7fc69fb0b76b61d7a909857d13794ceeabd75b92161",
+    "footer_sha256": "950480ccf8cf8b16a65fb7fc69fb0b76b61d7a909857d13794ceeabd75b92161"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-ui_ui_tab_shop.py.stdout",
+    "valid": true,
+    "bytes": 2281014,
+    "file_sha256": "7f4d49ff91c87fe94b948b7de2c5e4e3ba13a03a3bd879ca8b48fa3a4a21db56",
+    "body_sha256": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056",
+    "footer_sha256": "3a4cb59b8b9881f1eb788a745e37044532ecd1bbb309d7c6cbcf0463a6572056"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-data_achievement_diary_catalog.py.stdout",
+    "valid": true,
+    "bytes": 533473,
+    "file_sha256": "8c365ea6ed137687749aabfb2884a227efd9f5666f20b60b76b5930ba9a8bc77",
+    "body_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
+    "footer_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-runtime_runtime_actions_carried.py.stdout",
+    "valid": true,
+    "bytes": 9507809,
+    "file_sha256": "4009f7d2add9ef897af6c0ff7306186274352164fe33afb5f4738b53ccba0fb3",
+    "body_sha256": "6b5ac7b3e72570c7a751b9a048579e3def68243bdd626a35bb21d5229115c5be",
+    "footer_sha256": "6b5ac7b3e72570c7a751b9a048579e3def68243bdd626a35bb21d5229115c5be"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/plain-runtime_runtime_actions_activities.py.stdout",
+    "valid": true,
+    "bytes": 8930530,
+    "file_sha256": "d012e74cfcf1e6a2dc89bb09366c2d3c9749e70a1bc4442699e48dfaa1395458",
+    "body_sha256": "b2646f7cd6fec1ae3b0ec594c680f9024b3af1af06df97cb99dd9137e6e241e5",
+    "footer_sha256": "b2646f7cd6fec1ae3b0ec594c680f9024b3af1af06df97cb99dd9137e6e241e5"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-core_constants.py.stdout",
+    "valid": true,
+    "bytes": 16897414,
+    "file_sha256": "15a84a09eddcb1aa1f555993611baacd7cb3a7ebe48e6832e8240d0520bbe200",
+    "body_sha256": "e9743e12e1e139d1c9b864bc25e77e711e80931fbd26876b9d93a0b4c42c1175",
+    "footer_sha256": "e9743e12e1e139d1c9b864bc25e77e711e80931fbd26876b9d93a0b4c42c1175"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-data_quest_data.py.stdout",
+    "valid": true,
+    "bytes": 11137240,
+    "file_sha256": "3eb1d304475e198035ba767ec2e33e7e9f892dd62de47edab6565f4332899d95",
+    "body_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e",
+    "footer_sha256": "ee950c1122dc8c4e93bf581239a606fa524bd1f04393ffb0dac7dde90b659e0e"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-data_combat_data.py.stdout",
+    "valid": true,
+    "bytes": 1665740,
+    "file_sha256": "9e282ee1308fc98a3df3307a313cf119f03eefb2f975fb2c271c400d0f0c613a",
+    "body_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77",
+    "footer_sha256": "9c5f1e4a5ac66333c79295a857a0fa65ddefed6dde46a68fe9f9ae0b29d01b77"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-data_slayer_data.py.stdout",
+    "valid": true,
+    "bytes": 821288,
+    "file_sha256": "957fae47446ed8518154a44c426940fd4c661d352700cfb12437ae30b05d42b7",
+    "body_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94",
+    "footer_sha256": "d7531550bd48ae4a1ec918b3a89dd3a39dadad06433f98102012f5d6d1093c94"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-logic_pure_logic_pure_combat_engine.py.stdout",
+    "valid": true,
+    "bytes": 1334283,
+    "file_sha256": "635563a81165945ceab475eb324b9fdf39a47fe890ff22db50a9953a0002b6aa",
+    "body_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850",
+    "footer_sha256": "145e6ffbceab33564764a43d4d48d20be30f95d3e085e01b135445f92e2fa850"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-tests_test_combat_enemy_roster.py.stdout",
+    "valid": true,
+    "bytes": 1033939,
+    "file_sha256": "aad6cf638c0eb7bc92e3450020bb8bbe826cb9b3ec4136432612ea2aa8edf4a9",
+    "body_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816",
+    "footer_sha256": "262b30960b6918d8a7427720a54b19c32f10dc38938d98dc983c6cae5af91816"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-logic_shop_logic.py.stdout",
+    "valid": true,
+    "bytes": 3748499,
+    "file_sha256": "abbeaadffb72bba71a6ee4fcbf6c7b942bff39150749d32d0797b0d709508dca",
+    "body_sha256": "950480ccf8cf8b16a65fb7fc69fb0b76b61d7a909857d13794ceeabd75b92161",
+    "footer_sha256": "950480ccf8cf8b16a65fb7fc69fb0b76b61d7a909857d13794ceeabd75b92161"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-ui_ui_tab_shop.py.stdout",
+    "valid": true,
+    "bytes": 2282333,
+    "file_sha256": "e64a1222fe9ac15f5d13070fe28c6d7510e035106c93a7611c04fb76c276fcd3",
+    "body_sha256": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db",
+    "footer_sha256": "2ddacc925cbf537db4587117312620d7d1546e9fad2ff9c0f167afea710d09db"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-data_achievement_diary_catalog.py.stdout",
+    "valid": true,
+    "bytes": 533473,
+    "file_sha256": "8c365ea6ed137687749aabfb2884a227efd9f5666f20b60b76b5930ba9a8bc77",
+    "body_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
+    "footer_sha256": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-runtime_runtime_actions_carried.py.stdout",
+    "valid": true,
+    "bytes": 9507809,
+    "file_sha256": "4009f7d2add9ef897af6c0ff7306186274352164fe33afb5f4738b53ccba0fb3",
+    "body_sha256": "6b5ac7b3e72570c7a751b9a048579e3def68243bdd626a35bb21d5229115c5be",
+    "footer_sha256": "6b5ac7b3e72570c7a751b9a048579e3def68243bdd626a35bb21d5229115c5be"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-runtime_runtime_actions_activities.py.stdout",
+    "valid": true,
+    "bytes": 8930530,
+    "file_sha256": "d012e74cfcf1e6a2dc89bb09366c2d3c9749e70a1bc4442699e48dfaa1395458",
+    "body_sha256": "b2646f7cd6fec1ae3b0ec594c680f9024b3af1af06df97cb99dd9137e6e241e5",
+    "footer_sha256": "b2646f7cd6fec1ae3b0ec594c680f9024b3af1af06df97cb99dd9137e6e241e5"
+  },
+  {
+    "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/crayfish-verification-ka1h3fbf/qt-__init__.py.stdout",
+    "valid": true,
+    "bytes": 8450803,
+    "file_sha256": "1b838137df4d13edf9f5af5f44cec79566ef294d483176fb301ce705492831da",
+    "body_sha256": "bf7cb864bb8ceae7ae6817246f08a60548f9e8fb31d3bd6aba620f8a1e668353",
+    "footer_sha256": "bf7cb864bb8ceae7ae6817246f08a60548f9e8fb31d3bd6aba620f8a1e668353"
+  }
+]

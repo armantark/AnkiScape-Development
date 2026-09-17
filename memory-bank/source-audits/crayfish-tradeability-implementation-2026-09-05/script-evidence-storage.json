@@ -1,0 +1,53 @@
+{
+  "status": "storage_only_correction_parent_review_pending",
+  "failed_commit": {
+    "exit_code": 1,
+    "session_id": 31044,
+    "rejection_file": "author-commit-hook-rejection.txt",
+    "bytes": 1294,
+    "sha256": "0cd55687c6c2752499b8ba5fc40f960cc9cddea3adab43690406fd25a0c61fa6"
+  },
+  "archives": [
+    {
+      "original_path": "mbp/scripts/ankiscape-crayfish-mbp-verification-2026-09-05.py",
+      "archived_path": "mbp/scripts/ankiscape-crayfish-mbp-verification-2026-09-05.py.gz",
+      "raw_bytes": 8925,
+      "raw_sha256": "d10ecda4df6594f53e7e798dccf74db517ef60c482cbc181a5c6109e3d886251",
+      "stored_bytes": 3422,
+      "stored_sha256": "798e4457bb1ece744e0a0f5d627f6be979709676799f15a34a65e98e648d5d53",
+      "decompressed_byte_equal": true,
+      "original_tmp_script_unchanged": true
+    },
+    {
+      "original_path": "mbp/scripts/ankiscape-crayfish-focused-recheck-2026-09-05.py",
+      "archived_path": "mbp/scripts/ankiscape-crayfish-focused-recheck-2026-09-05.py.gz",
+      "raw_bytes": 6491,
+      "raw_sha256": "5c9a684bfa19b26f7ade699299477bc0a996cd07516ed85c06ef27fabc055fda",
+      "stored_bytes": 2584,
+      "stored_sha256": "354c2dbf38b51f111d392c68b1c3d64e38a1806993ec971c6cdd9efb07beab82",
+      "decompressed_byte_equal": true,
+      "original_tmp_script_unchanged": true
+    },
+    {
+      "original_path": "mbp/scripts/ankiscape-crayfish-focused-recheck-driver-2026-09-05.py",
+      "archived_path": "mbp/scripts/ankiscape-crayfish-focused-recheck-driver-2026-09-05.py.gz",
+      "raw_bytes": 1722,
+      "raw_sha256": "3b3087f9ad342722a742fa87c91e94eafa72ed0ab98e7928a6576b7ef9d2aaec",
+      "stored_bytes": 823,
+      "stored_sha256": "b82e02264432daf0bfdbf02b1980e17a0a9a1c4ff6b83ac4ff3c6f40e6bf2021",
+      "decompressed_byte_equal": true,
+      "original_tmp_script_unchanged": true
+    },
+    {
+      "original_path": "mbp/scripts/ankiscape-crayfish-semantic-proof-2026-09-05.py",
+      "archived_path": "mbp/scripts/ankiscape-crayfish-semantic-proof-2026-09-05.py.gz",
+      "raw_bytes": 11979,
+      "raw_sha256": "e62455cfd4c8e79ef05824b86ede10605287ae8112a9014978c16e126ad5d08a",
+      "stored_bytes": 4155,
+      "stored_sha256": "157ae74682906b97f992a5b761e045f25bb5ec85866182c4f942a4e423780a18",
+      "decompressed_byte_equal": true,
+      "original_tmp_script_unchanged": true
+    }
+  ],
+  "scope": "Only retained evidence storage and documentation changed; original scripts and reports preserved; no hook or code changes."
+}

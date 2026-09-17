@@ -1,0 +1,15 @@
+{
+  "status": "FAIL",
+  "errors": [
+    "Baseline must contain 23 complete payloads with valid footers",
+    "plain-focus: subprocess did not exit successfully",
+    "plain-focus: expected exactly three named passing tests with no skips",
+    "qt-focus: subprocess did not exit successfully",
+    "qt-focus: expected exactly three named passing tests with no skips",
+    "Candidate and baseline must have the same 23 payload filenames"
+  ],
+  "finished_utc": "2026-09-05T23:37:51.803220+00:00",
+  "scope": "Capture integrity and focused tests only; semantic reversal and discovery comparison are pending",
+  "surface_count": 23,
+  "subprocess_count": 27
+}

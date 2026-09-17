@@ -1,0 +1,24 @@
+{
+  "status": "parent_approved_static_instrument_edit_runtime_verification_pending",
+  "files": {
+    "tests/test_module_surface.py": {
+      "before_sha256": "ba48d8b3afbfd957a1298846b263eb9358e5ebf3415d93be1adf76262a65c25f",
+      "after_sha256": "0928a419bdbb60e9bcf3877bdfd3ea3154b16e8496a8e9d2d6be530b4e5b5f99",
+      "replacement_count": 5,
+      "exact_reversal_recovers_before_bytes": true
+    },
+    "tests/test_grand_exchange_data.py": {
+      "before_sha256": "cd819e5a29dabbfa068f286cbb6535bc21fad9a9206ba3b74ceccd3c55ea00eb",
+      "after_sha256": "5a9815dd80a8a3daaeb2c5d80104bc888cada3c5fab454a6ea7a01815ad23265",
+      "replacement_count": 2,
+      "exact_reversal_recovers_before_bytes": true
+    }
+  },
+  "diff": {
+    "path": "/tmp/ankiscape-crayfish-approved-instrument-diff-2026-09-05.diff",
+    "bytes": 2885,
+    "sha256": "820368c89e71269f5691e23419745081e7715eb08a608adc63a01021f6fb56d4"
+  },
+  "proof": "mbp/semantic-proof.json",
+  "scope": "Exactly five digest constants and two generated-map count expectations; all other bytes in these two files preserved."
+}

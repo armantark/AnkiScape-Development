@@ -1,0 +1,10 @@
+slop-gate: cyclomatic complexity above 15 was introduced:
+  memory-bank/source-audits/crayfish-tradeability-implementation-2026-09-05/mbp/scripts/ankiscape-crayfish-focused-recheck-2026-09-05.py: main 18 (new)
+  memory-bank/source-audits/crayfish-tradeability-implementation-2026-09-05/mbp/scripts/ankiscape-crayfish-mbp-verification-2026-09-05.py: main 36 (new)
+  memory-bank/source-audits/crayfish-tradeability-implementation-2026-09-05/mbp/scripts/ankiscape-crayfish-semantic-proof-2026-09-05.py: main 31 (new)
+  -> Simplify the control flow (consolidate branches, use a table or early returns); do not split into trivial helpers to game the number.
+slop-gate: cognitive complexity above 15 was introduced:
+  memory-bank/source-audits/crayfish-tradeability-implementation-2026-09-05/mbp/scripts/ankiscape-crayfish-focused-recheck-2026-09-05.py: main 25 (new)
+  memory-bank/source-audits/crayfish-tradeability-implementation-2026-09-05/mbp/scripts/ankiscape-crayfish-mbp-verification-2026-09-05.py: main 40 (new)
+  memory-bank/source-audits/crayfish-tradeability-implementation-2026-09-05/mbp/scripts/ankiscape-crayfish-semantic-proof-2026-09-05.py: main 34 (new)
+  -> Flatten the nesting: invert conditions, return early, or lift the inner loop body to a named function that earns its name.

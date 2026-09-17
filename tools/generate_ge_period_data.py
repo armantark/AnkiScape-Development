@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Generate pre-EOC Grand Exchange prices and buy limits for registered items.
 
+Normal regeneration reads the committed source snapshot without network access.
+Use ``--harvest`` only to explicitly refresh that snapshot from the wiki.
+
 The period wiki stored each market row under ``Exchange:<item>`` and kept a
 complete buy-limit table. Network responses are checkpointed under
 ``tools/.cache/grand_exchange_period`` so interrupted harvests resume without
@@ -12,6 +15,7 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import re
@@ -27,6 +31,7 @@ from typing import Mapping, Sequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
+SOURCE_PATH = ROOT / "data" / "grand_exchange_period_source.json"
 CACHE_DIR = ROOT / "tools" / ".cache" / "grand_exchange_period"
 API = "https://runescape.wiki/api.php"
 CUTOFF = "2012-11-20T00:00:00Z"
@@ -301,15 +306,24 @@ def write_generated(output_path: Path, harvested: Mapping[str, object]) -> None:
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        raise SystemExit("usage: generate_ge_period_data.py <output-py>")
-    harvested = harvest()
-    output_path = Path(sys.argv[1])
-    write_generated(output_path, harvested)
+    parser = argparse.ArgumentParser(
+        description=__doc__, usage="%(prog)s <output-py> [--harvest]"
+    )
+    parser.add_argument("output", type=Path)
+    parser.add_argument("--harvest", action="store_true", help="refresh the committed source from the wiki")
+    args = parser.parse_args()
+    if args.harvest:
+        harvested = harvest()
+        SOURCE_PATH.write_text(
+            json.dumps(harvested, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    else:
+        harvested = json.loads(SOURCE_PATH.read_text(encoding="utf-8"))
+    write_generated(args.output, harvested)
     print(
         f"wrote {len(harvested['prices'])} prices and "
-        f"{len(harvested['buy_limits'])} buy limits for "
-        f"{harvested['registered_count']} registered items"
+        f"{len(harvested['buy_limits'])} buy limits"
     )
 
 

@@ -1,0 +1,19 @@
+{
+  "started_utc": "2026-09-05T23:57:34.165390+00:00",
+  "repo": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork",
+  "baseline": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cut-gem-baseline-6438d422",
+  "script_sha256": "d12adb12bfde0b88416af2d8d05a7fb302bc8ac747884323bb42d531bc0fdf74",
+  "selectors": [
+    "test_ranging_guild.RangingGuildDataAndAssetTests.test_activity_and_ticket_are_registered_with_normalized_art",
+    "test_ranging_guild.RangingGuildPureMechanicsTests.test_earned_tickets_can_be_traded_and_spent_on_guild_rewards",
+    "test_grand_exchange_data.GrandExchangeDataTest.test_only_audited_unresolved_identities_remain_buy_limit_blocked"
+  ],
+  "timeout_seconds_per_process": 300,
+  "candidate_commit": "7f3adcdeb6448b3127386ecc995c39f41a535368",
+  "baseline_compatibility": {
+    "baseline_commit": "6438d42256236992b10d921d4cca920293b55d93",
+    "candidate_parent_commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+    "author_static_git_diff_check": "All differing paths are under memory-bank; product, tools, and tests are identical",
+    "non_document_path_differences": []
+  }
+}

@@ -14,11 +14,17 @@ from ankiscape.core.constants import (
     UTILITY_ACTIVITY_DATA,
 )
 from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
+from ankiscape.data.grand_exchange_data import GE_ITEM_CATALOG
 from ankiscape.data.ranging_guild_data import (
     RANGING_GUILD_ACTIVITY_ID,
     RANGING_GUILD_BANDS,
     RANGING_GUILD_REWARDS,
     RANGING_GUILD_TICKET_ITEM,
+)
+from ankiscape.logic.grand_exchange_logic import (
+    advance_ge_market_tick_pure,
+    collect_ge_offer_pure,
+    place_ge_offer_pure,
 )
 from ankiscape.logic.ranging_guild_logic import (
     apply_ranging_guild_review_pure,
@@ -116,7 +122,7 @@ class RangingGuildDataAndAssetTests(unittest.TestCase):
         ticket = definitions[RANGING_GUILD_TICKET_ITEM]
         self.assertEqual(ticket.source_item_id, 1464)
         self.assertTrue(ticket.stackable)
-        self.assertFalse(ticket.tradeable)
+        self.assertTrue(ticket.tradeable)
         provenance = json.loads((ROOT / "assets_provenance.json").read_text())
         self.assertLessEqual(
             int(provenance["activityicons/ranging_guild.png"]["size"]),
@@ -187,6 +193,60 @@ class RangingGuildPureMechanicsTests(unittest.TestCase):
         replayed, ok, _ = claim_ranging_guild_tickets_pure(claimed)
         self.assertFalse(ok)
         self.assertEqual(replayed, claimed)
+
+    def test_earned_tickets_can_be_traded_and_spent_on_guild_rewards(self):
+        ticket_name = RANGING_GUILD_TICKET_ITEM
+        item_spec = GE_ITEM_CATALOG[ticket_name]
+        self.assertEqual(item_spec["source_item_id"], 1464)
+        self.assertEqual(item_spec["buy_limit"], 5_000)
+        self.assertEqual(item_spec["guide_price"], 25)
+        self.assertEqual(item_spec["guide_price_source"], "cache_value_fallback")
+
+        data, ok, result = enter_ranging_guild_pure(_player(coins=1_000))
+        self.assertTrue(ok, result)
+        for _ in range(10):
+            data, ok, result = apply_ranging_guild_review_pure(data, lambda: 0.999999)
+            self.assertTrue(ok, result)
+        data, ok, result = claim_ranging_guild_tickets_pure(data)
+        self.assertTrue(ok, result)
+        self.assertEqual(data["inventory"][ticket_name], 100)
+
+        for side, ticket_balance in (("sell", 99), ("buy", 100)):
+            with self.subTest(side=side):
+                data, result = place_ge_offer_pure(
+                    data,
+                    side=side,
+                    item_name=ticket_name,
+                    quantity=1,
+                    unit_price=25,
+                    item_spec=item_spec,
+                    confirmed=True,
+                )
+                self.assertTrue(result["ok"], result)
+                order_id = result["order"]["id"]
+                clock = data["shop_market_clock"]
+                clock["market_tick"] += 1
+                clock["answered_cards"] += 1
+                data, result = advance_ge_market_tick_pure(
+                    data,
+                    item_catalog=GE_ITEM_CATALOG,
+                    random_draw=lambda: 0.0,
+                )
+                self.assertEqual(len(result["fills"]), 1, result)
+                coins_before_collection = data["inventory"]["Coins"]
+                data, result = collect_ge_offer_pure(data, order_id)
+                self.assertTrue(result["ok"], result)
+                self.assertGreaterEqual(result["coins"], 1 if side == "sell" else 0)
+                self.assertEqual(data["inventory"]["Coins"], coins_before_collection + result["coins"])
+                self.assertEqual(result["items"], 1 if side == "buy" else 0)
+                self.assertEqual(data["inventory"][ticket_name], ticket_balance)
+                self.assertEqual(data["ge_player_orders"], [])
+
+        previous_coifs = data["inventory"].get("Coif", 0)
+        data, ok, result = purchase_ranging_guild_reward_pure(data, "coif")
+        self.assertTrue(ok, result)
+        self.assertEqual(data["inventory"][ticket_name], 88)
+        self.assertEqual(data["inventory"]["Coif"], previous_coifs + 1)
 
     def test_hati_paws_double_only_exact_activity_ranged_xp(self):
         data = _entered()

@@ -1,0 +1,12 @@
+- id: 13433
+  name: "Crayfish"
+  examine: "Some cooked crayfish. Eat it to heal."
+  tradeable: false
+  weight: 0.1
+  equipment: null
+- id: 13434
+  name: "Crayfish"
+  examine: "Swamp this note at any bank for the equivalent item"
+  tradeable: false
+  weight: 0.0
+  equipment: null

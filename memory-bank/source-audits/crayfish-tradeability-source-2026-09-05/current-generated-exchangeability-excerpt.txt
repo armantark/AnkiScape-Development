@@ -1,0 +1,8 @@
+    'Crafting potion (2)',
+    'Crafting potion (3)',
+    'Crafting potion (4)',
+    'Crayfish',
+    'Crayfish cage',
+    'Cream boots',
+    'Cream hat',
+    'Cream robe bottoms',

@@ -1,0 +1,56 @@
+{
+  "status": "parent_verified_exact_instrument_diff_author_commit_authorized_full_acceptance_pending",
+  "source_commit": "57da350b85e419d6824dbbc1a01ed95d5bac5600",
+  "files": {
+    "data/cooking_data.py": {
+      "bytes": 54711,
+      "sha256": "022ffb22ea1fb7b539fcc441329ec83ae2f92f2cc36c9527c47413c3f4b8fa2f",
+      "lines": 678
+    },
+    "generated/grand_exchange_period_generated.py": {
+      "bytes": 468317,
+      "sha256": "e1fba441493eab3cb643d7af0ff3409f7deddeffb517e92cdc6b265a9f67828f",
+      "lines": 4646
+    },
+    "tests/test_cooking_data.py": {
+      "bytes": 13338,
+      "sha256": "306d489cec6829948b91f1e7e2793239e3f99527cec8e82834166f0aeea6cbfb",
+      "lines": 255
+    },
+    "tests/test_grand_exchange_data.py": {
+      "bytes": 14200,
+      "sha256": "5a9815dd80a8a3daaeb2c5d80104bc888cada3c5fab454a6ea7a01815ad23265",
+      "lines": 355
+    },
+    "tests/item_tradeability/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lines": 0
+    },
+    "tests/item_tradeability/test_crayfish_tradeability.py": {
+      "bytes": 3906,
+      "sha256": "f52bc5cbcffe8877fa4176cf8f72123f7cd2fd65b72f9b39157559ac37a34334",
+      "lines": 75
+    },
+    "tests/test_module_surface.py": {
+      "bytes": 4764,
+      "sha256": "0928a419bdbb60e9bcf3877bdfd3ea3154b16e8496a8e9d2d6be530b4e5b5f99",
+      "lines": 103
+    },
+    "tools/module_surface.py": {
+      "bytes": 13411,
+      "sha256": "a66948b912691279dc951ac9e5aa0c144b75a351c9b1bb46b88f67d85ebcf1e5",
+      "lines": 378
+    },
+    "run_tests.py": {
+      "bytes": 5638,
+      "sha256": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33",
+      "lines": 173
+    }
+  },
+  "instrument_changes": "approved-instrument-edits.json",
+  "historical_capture": "mbp/failed-capture/source-hashes.json",
+  "corrected_pre_instrument_focus": "mbp/focused-recheck/source-hashes.json",
+  "capture_scope": "Historical captures and mbp/retention.json remain immutable snapshots. They do not claim to bind the final instrumented test files. Product files remain identical.",
+  "checks": "All nine files AST-parsed; exact seven instrument replacements reverse to their pre-edit bytes. No project runtime executed by author."
+}

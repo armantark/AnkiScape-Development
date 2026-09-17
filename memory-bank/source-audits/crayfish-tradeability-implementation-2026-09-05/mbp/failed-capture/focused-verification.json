@@ -1,0 +1,38 @@
+[
+  {
+    "lane": "plain",
+    "outcomes": [
+      [
+        "item_tradeability.test_crayfish_tradeability.CrayfishTradeabilityTest.test_cooked_crayfish_retains_custody_through_ge_round_trip",
+        "ok"
+      ],
+      [
+        "test_cooking_data.TestCookingData.test_extra_items_use_food_category_and_burnt_junk_tradeability",
+        "ok"
+      ],
+      [
+        "test_grand_exchange_data.GrandExchangeDataTest.test_live_catalog_uses_period_prices_and_limits_when_the_identity_is_exact",
+        "FAIL"
+      ]
+    ],
+    "valid": false
+  },
+  {
+    "lane": "qt",
+    "outcomes": [
+      [
+        "item_tradeability.test_crayfish_tradeability.CrayfishTradeabilityTest.test_cooked_crayfish_retains_custody_through_ge_round_trip",
+        "ok"
+      ],
+      [
+        "test_cooking_data.TestCookingData.test_extra_items_use_food_category_and_burnt_junk_tradeability",
+        "ok"
+      ],
+      [
+        "test_grand_exchange_data.GrandExchangeDataTest.test_live_catalog_uses_period_prices_and_limits_when_the_identity_is_exact",
+        "FAIL"
+      ]
+    ],
+    "valid": false
+  }
+]

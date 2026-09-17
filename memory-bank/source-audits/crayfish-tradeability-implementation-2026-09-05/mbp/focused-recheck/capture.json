@@ -1,0 +1,11 @@
+{
+  "started_utc": "2026-09-05T23:47:41.375285+00:00",
+  "repo": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork",
+  "script_sha256": "5c9a684bfa19b26f7ade699299477bc0a996cd07516ed85c06ef27fabc055fda",
+  "selectors": [
+    "test_cooking_data.TestCookingData.test_extra_items_use_food_category_and_burnt_junk_tradeability",
+    "test_grand_exchange_data.GrandExchangeDataTest.test_live_catalog_uses_period_prices_and_limits_when_the_identity_is_exact",
+    "item_tradeability.test_crayfish_tradeability.CrayfishTradeabilityTest.test_cooked_crayfish_retains_custody_through_ge_round_trip"
+  ],
+  "timeout_seconds_per_process": 300
+}

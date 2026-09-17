@@ -122,7 +122,7 @@ def ranging_guild_extra_items_as_dict() -> dict[str, dict[str, Any]]:
             "category": "material",
             "source_item_id": 1464,
             "stackable": True,
-            "tradeable": False,
+            "tradeable": True,
         },
         "Barb bolttips": {
             "category": "material",

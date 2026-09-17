@@ -1,4 +1,5 @@
 import subprocess
+import tempfile
 import sys
 import unittest
 from pathlib import Path
@@ -170,6 +171,30 @@ class GrandExchangeDataTest(unittest.TestCase):
             GE_ITEM_CATALOG["Logs"]["buy_limit_source"]["oldid"],
             6_457_777,
         )
+        crayfish = GE_ITEM_CATALOG["Crayfish"]
+        self.assertEqual(crayfish["source_item_id"], 13433)
+        self.assertEqual(crayfish["guide_price"], 45)
+        self.assertEqual(crayfish["cache_value"], 5)
+        self.assertEqual(crayfish["buy_limit"], 10_000)
+        self.assertEqual(crayfish["guide_price_source"], "period_grand_exchange_database")
+        self.assertEqual(
+            crayfish["guide_price_provenance"],
+            {
+                "price": 45,
+                "page_title": "Exchange:Crayfish",
+                "oldid": 6_570_435,
+                "timestamp": "2012-11-18T03:19:45Z",
+                "price_date": "03:19, November 18, 2012 (UTC)",
+                "page_item": "Crayfish",
+                "item_id": 13433,
+                "cache_value": 5,
+                "page_limit": 10_000,
+            },
+        )
+        self.assertEqual(GE_ITEM_CATALOG["Raw crayfish"]["source_item_id"], 13435)
+        self.assertEqual(GE_ITEM_CATALOG["Raw crayfish"]["guide_price"], 58)
+        self.assertEqual(GE_ITEM_CATALOG["Raw crayfish"]["buy_limit"], 20_000)
+        self.assertNotIn("Burnt crayfish", GE_ITEM_CATALOG)
 
     def test_black_and_white_equipment_families_reach_the_live_catalog(self):
         for item_name, source_item_id, guide_price in (
@@ -186,11 +211,29 @@ class GrandExchangeDataTest(unittest.TestCase):
                 self.assertEqual(row["guide_price"], guide_price)
                 self.assertEqual(row["buy_limit"], 100)
 
+    def test_offline_regeneration_preserves_all_committed_rows(self):
+        from tools.generate_ge_period_data import main
+
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "grand_exchange_period_generated.py"
+            with patch("sys.argv", ["generate_ge_period_data.py", str(output)]), patch(
+                "tools.generate_ge_period_data.harvest",
+                side_effect=AssertionError("normal regeneration must not harvest"),
+            ):
+                main()
+                first = output.read_bytes()
+                main()
+                self.assertEqual(output.read_bytes(), first)
+            self.assertEqual(
+                first,
+                (ROOT / "generated/grand_exchange_period_generated.py").read_bytes(),
+            )
+
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_441)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_834)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_442)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_836)
         self.assertNotIn("Steel spear (kp)", PERIOD_GE_GUIDE_PRICES)
         self.assertNotIn("Steel spear (kp)", PERIOD_GE_BUY_LIMITS)
         self.assertNotIn("Steel spear (kp)", GE_ITEM_CATALOG)

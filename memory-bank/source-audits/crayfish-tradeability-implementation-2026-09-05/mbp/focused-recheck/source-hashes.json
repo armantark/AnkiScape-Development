@@ -1,0 +1,20 @@
+{
+  "expected": {
+    "data/cooking_data.py": "022ffb22ea1fb7b539fcc441329ec83ae2f92f2cc36c9527c47413c3f4b8fa2f",
+    "generated/grand_exchange_period_generated.py": "e1fba441493eab3cb643d7af0ff3409f7deddeffb517e92cdc6b265a9f67828f",
+    "tests/test_cooking_data.py": "306d489cec6829948b91f1e7e2793239e3f99527cec8e82834166f0aeea6cbfb",
+    "tests/test_grand_exchange_data.py": "cd819e5a29dabbfa068f286cbb6535bc21fad9a9206ba3b74ceccd3c55ea00eb",
+    "tests/item_tradeability/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/item_tradeability/test_crayfish_tradeability.py": "f52bc5cbcffe8877fa4176cf8f72123f7cd2fd65b72f9b39157559ac37a34334",
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+  },
+  "actual": {
+    "data/cooking_data.py": "022ffb22ea1fb7b539fcc441329ec83ae2f92f2cc36c9527c47413c3f4b8fa2f",
+    "generated/grand_exchange_period_generated.py": "e1fba441493eab3cb643d7af0ff3409f7deddeffb517e92cdc6b265a9f67828f",
+    "tests/test_cooking_data.py": "306d489cec6829948b91f1e7e2793239e3f99527cec8e82834166f0aeea6cbfb",
+    "tests/test_grand_exchange_data.py": "cd819e5a29dabbfa068f286cbb6535bc21fad9a9206ba3b74ceccd3c55ea00eb",
+    "tests/item_tradeability/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/item_tradeability/test_crayfish_tradeability.py": "f52bc5cbcffe8877fa4176cf8f72123f7cd2fd65b72f9b39157559ac37a34334",
+    "run_tests.py": "4ce89f5dd8c70693977140fbc42bef571cdcada3d97e61671d0e873f0653bb33"
+  }
+}

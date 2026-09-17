@@ -1,0 +1,38 @@
+{
+  "started_at_utc": "2026-09-05T22:59:33.399804+00:00",
+  "scratch": "/tmp/ankiscape-crayfish-cache.X0RAoC",
+  "script_path": "/private/tmp/ankiscape-crayfish-inputs.Sxqk92/ankiscape-crayfish-mbp-source-query-2026-09-05.sh",
+  "script_sha256": "4f503df6aad5619c6c61ebf6f814a033beab6f3ea3a7c44c6ef2ce48501d9b32",
+  "status": "failed",
+  "scope_ids": [
+    13431,
+    13433,
+    13434,
+    13435
+  ],
+  "ordinary_cooked_item_id": 13433,
+  "not_emitted_by_decoder": [
+    "value",
+    "certificate IDs",
+    "noted flag"
+  ],
+  "qualification": "Client identity and flags only; no direct player-tradeability predicate is decoded.",
+  "input_bindings": [],
+  "queries": [],
+  "files": [
+    {
+      "path": "OpenRs2CacheItemSearch.java",
+      "bytes": 4096,
+      "sha256": "0265f583670dea0a3486652b1e19b30fad778e658fea82df39ce892b7cddb26b"
+    }
+  ],
+  "decoder": {
+    "java": "/opt/homebrew/opt/openjdk@25/bin/java",
+    "java_sha256": "9ef6c1a939343ac850811551a8b88d4b877630ab2c94ac38c541e25ccc8cf0a5",
+    "source_path": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork/tools/OpenRs2CacheItemSearch.java",
+    "source_sha256": "0265f583670dea0a3486652b1e19b30fad778e658fea82df39ce892b7cddb26b",
+    "selected_core": "/Users/armantarkhanian/.gradle/caches/modules-2/files-2.1/rs.darkan/core/2.0.5/5a13ad7bada8a9b1587bfa72fb013283102c6b7d/core-2.0.5.jar",
+    "selected_core_sha256": "bfaf99f7bb04a55418a9aeb07a01f2724034692637b435a87df4f3f4b029e3fe"
+  },
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/ankiscape-crayfish-inputs.Sxqk92/missing-canary-bindings/cache-727-input-binding.json'"
+}

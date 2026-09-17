@@ -1,0 +1,24 @@
+{
+  "PERIOD_GE_BUY_LIMIT_SOURCE": {
+    "before_count": 3,
+    "after_count": 3,
+    "changed_keys": []
+  },
+  "PERIOD_GE_GUIDE_PRICES": {
+    "before_count": 1437,
+    "after_count": 1437,
+    "changed_keys": []
+  },
+  "PERIOD_GE_BUY_LIMITS": {
+    "before_count": 1753,
+    "after_count": 1754,
+    "changed_keys": [
+      "Archery ticket"
+    ]
+  },
+  "PERIOD_GE_PRICE_PROVENANCE": {
+    "before_count": 1437,
+    "after_count": 1437,
+    "changed_keys": []
+  }
+}

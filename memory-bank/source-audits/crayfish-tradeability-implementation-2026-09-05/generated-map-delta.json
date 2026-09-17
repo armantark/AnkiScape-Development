@@ -1,0 +1,51 @@
+{
+  "writer": "tools/generate_ge_period_data.py:write_generated",
+  "writer_sha256": "39ef3b589f52c42ae8199335c8f0bd34ce04d8b9685c306bff939610cd7fd648",
+  "method": "Existing curated writer loaded with runpy; pkg_alias installs only a namespace; no production submodule imported or network function called.",
+  "maps": {
+    "PERIOD_GE_BUY_LIMIT_SOURCE": {
+      "before_count": 3,
+      "after_count": 3,
+      "added": {},
+      "removed": {},
+      "changed": {}
+    },
+    "PERIOD_GE_GUIDE_PRICES": {
+      "before_count": 1437,
+      "after_count": 1438,
+      "added": {
+        "Crayfish": 45
+      },
+      "removed": {},
+      "changed": {}
+    },
+    "PERIOD_GE_BUY_LIMITS": {
+      "before_count": 1753,
+      "after_count": 1754,
+      "added": {
+        "Crayfish": 10000
+      },
+      "removed": {},
+      "changed": {}
+    },
+    "PERIOD_GE_PRICE_PROVENANCE": {
+      "before_count": 1437,
+      "after_count": 1438,
+      "added": {
+        "Crayfish": {
+          "price": 45,
+          "page_title": "Exchange:Crayfish",
+          "oldid": 6570435,
+          "timestamp": "2012-11-18T03:19:45Z",
+          "price_date": "03:19, November 18, 2012 (UTC)",
+          "page_item": "Crayfish",
+          "item_id": 13433,
+          "cache_value": 5,
+          "page_limit": 10000
+        }
+      },
+      "removed": {},
+      "changed": {}
+    }
+  }
+}
