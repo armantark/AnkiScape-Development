@@ -1,5 +1,11 @@
 # Progress
 
+## Native verification exposed defects missed offscreen — 2026-09-17
+
+- The supplied native verification report from real Anki on a MacBook found three player-visible defects invisible to the passing offscreen suite: the miniquest title `Mogre` instead of `Skippy and the Mogres`, a stale quest journal after starting Alfred Grimhand's Barcrawl, and truncated main-menu navigation labels. The suite asserts on quest identifiers and data rather than these rendered states; this slice did not rerun it or repeat native verification.
+- The title is fixed and landed on main at `3797bb7f`. The stale journal and navigation truncation are recorded only in `goal-priority-matrix.md`, both `owner_gated`: owner approval for user-interface changes and a frontend-taste model are required. Neither defect was fixed here.
+- Code inspection at `49899700` confirms the missing card rebuild after quest activation and the one-time lazy journal fill. It does not confirm the proposed automatic Quests refresh on tab re-entry; the reported recovery after visiting Grand Exchange remains native evidence with an unverified trigger. Screenshot paths and exact code line citations are retained in the matrix, including the distinction between truncated tabs and the literal Grand Exchange search-placeholder ellipsis.
+
 ## Union Alpha trial — 2026-09-16, Barcrawl slice
 
 Thirteen union-alpha seats ran the Alfred Grimhand's Barcrawl slice end to end,
