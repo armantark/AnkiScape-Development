@@ -2528,6 +2528,7 @@ PERIOD_GE_BUY_LIMITS = {
     'Orange tree seed': 100,
     'Oranges (5)': 1000,
     'Ourg bones': 10000,
+    'Oyster': 500,
     'Oyster pearl': 500,
     'Oyster pearls': 500,
     'Pack yak pouch': 5000,

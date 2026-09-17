@@ -301,13 +301,15 @@ class MogreLureTransactionTest(unittest.TestCase):
             COMBAT_ENEMY_DATA,
             EQUIPMENT_DATA,
             ticks=50,
-            rng=_rng([0.0, 0.0]),
+            rng=_rng([0.0, 0.0, 120 / 128, 0.5]),
             allow_bank_run=False,
         )
         self.assertTrue(ok, result)
         self.assertEqual(result["kills"], 1)
         self.assertEqual(killed["combat_encounter"], {})
         self.assertEqual(killed["inventory"]["Fishing explosive"], 0)
+        self.assertEqual(result["drops"], {"Big bones": 1, "Oyster": 1})
+        self.assertEqual(killed["inventory"]["Oyster"], 1)
 
         blocked, ok, result = apply_combat_burst_pure(
             killed, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0])

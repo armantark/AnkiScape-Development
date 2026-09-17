@@ -336,6 +336,17 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertEqual(PERIOD_GE_BUY_LIMITS["Black dagger (p)"], 100)
         self.assertEqual(PERIOD_GE_BUY_LIMITS["Mithril dagger (p)"], 100)
 
+    def test_oyster_has_its_period_buy_limit_without_an_invented_price(self):
+        # Calculator:Grand Exchange buying limits oldid 6457777 lists the
+        # unopened shell separately from Oyster pearl and Oyster pearls.
+        row = GE_ITEM_CATALOG["Oyster"]
+        self.assertEqual(row["source_item_id"], 407)
+        self.assertTrue(row["tradeable"])
+        self.assertEqual(row["buy_limit"], 500)
+        self.assertEqual(row["buy_limit_source"]["oldid"], 6_457_777)
+        self.assertNotIn("Oyster", PERIOD_GE_GUIDE_PRICES)
+        self.assertEqual(row["guide_price_source"], "cache_value_fallback")
+
     def test_only_audited_unresolved_identities_remain_buy_limit_blocked(self):
         blocked = {
             name
