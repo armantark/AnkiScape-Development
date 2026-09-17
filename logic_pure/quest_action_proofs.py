@@ -80,7 +80,26 @@ def retract_shop_event_quest_action_proofs_pure(
         (event_type, event_id),
         ((), ()),
     )
-    updated = sorted(set(current) - set(emitted_proofs))
+    events = player_data.get("shop_events", ())
+    rolled_back = {str(event.get("event_id", ""))}
+    rolled_back.update(
+        str(retained.get("rolled_back_event_id", ""))
+        for retained in events
+        if retained.get("type") == "rollback"
+    )
+    retained_events = (
+        (
+            f"shop_{retained.get('type', '')}",
+            str(retained.get("row_id") or retained.get("service_id") or ""),
+        )
+        for retained in events
+        if str(retained.get("event_id", "")) not in rolled_back
+    )
+    supported = quest_action_proofs_for_reachable_events_pure(
+        set(current) - set(emitted_proofs), retained_events
+    )
+    # Rollback must not backfill proofs from older retained shop events.
+    updated = sorted(set(current) & set(supported))
     if updated == current:
         return False
     player_data["quest_action_proofs"] = updated

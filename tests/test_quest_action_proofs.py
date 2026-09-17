@@ -32,6 +32,7 @@ from ankiscape.logic_pure.quest_action_proofs import (
     quest_action_proofs_for_reachable_events_pure,
     record_quest_stage_action_proofs_pure,
     record_runtime_quest_action_proofs_pure,
+    retract_shop_event_quest_action_proofs_pure,
     sanitize_quest_action_proofs_pure,
 )
 from ankiscape.runtime.runtime_actions import handle_crafting_answer
@@ -58,6 +59,37 @@ class TestQuestActionProofStore(unittest.TestCase):
                 "unmapped_target",
             )
         )
+
+    def test_shop_retraction_preserves_non_shop_proofs_without_backfill(self):
+        event = {
+            "event_id": "shop_evt_2",
+            "type": "service",
+            "service_id": "thakkrad_cure_yak_hide",
+        }
+        player = {
+            "quest_action_proofs": [
+                THAKKRAD_CURED_YAK_HIDE_PROOF,
+                FREMENNIK_ISLES_YAK_HIDE_PROOF,
+                MOURNER_FOOD_STORES_PROOF,
+            ],
+            "shop_events": [
+                {
+                    "event_id": "shop_evt_1",
+                    "type": "buy",
+                    "row_id": "hamabs_crafting_emporium:3:4020",
+                },
+                event,
+            ],
+        }
+        before_events = copy.deepcopy(player["shop_events"])
+
+        self.assertTrue(retract_shop_event_quest_action_proofs_pure(player, event))
+
+        self.assertEqual(
+            player["quest_action_proofs"],
+            sorted((FREMENNIK_ISLES_YAK_HIDE_PROOF, MOURNER_FOOD_STORES_PROOF)),
+        )
+        self.assertEqual(player["shop_events"], before_events)
 
     def test_runtime_bindings_are_idempotent_and_support_genuine_sequences(self):
         player = {"quest_action_proofs": []}
@@ -344,6 +376,91 @@ class TestQuestActionProofIntegration(unittest.TestCase):
         self.assertIn(
             DO_NO_EVIL_MAMULET_MOULD_PROOF,
             bought["quest_action_proofs"],
+        )
+
+    def test_purchase_rollback_keeps_only_retained_support(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["inventory"]["Coins"] = 10_000
+        player["quests"]["monkey_madness"] = {
+            "started": True, "progress": 1, "completed": False,
+        }
+        first, first_buy = apply_shop_buy_pure(
+            player, "hamabs_crafting_emporium", "hamabs_crafting_emporium:3:4020",
+        )
+        self.assertTrue(first_buy["allowed"])
+        second, second_buy = apply_shop_buy_pure(
+            first, "hamabs_crafting_emporium", "hamabs_crafting_emporium:3:4020",
+        )
+        self.assertTrue(second_buy["allowed"])
+        before = copy.deepcopy(second)
+
+        retained, rollback = rollback_shop_event_pure(second, second_buy["event_id"])
+
+        self.assertTrue(rollback["allowed"])
+        self.assertEqual(second, before)
+        self.assertEqual(retained["inventory"]["M'amulet mould"], 1)
+        self.assertIn(DO_NO_EVIL_MAMULET_MOULD_PROOF, retained["quest_action_proofs"])
+        self.assertIn(
+            first_buy["event_id"],
+            {event["event_id"] for event in retained["shop_events"]},
+        )
+
+        restored, rollback = rollback_shop_event_pure(retained, first_buy["event_id"])
+
+        self.assertTrue(rollback["allowed"])
+        self.assertEqual(restored["inventory"]["M'amulet mould"], 0)
+        self.assertNotIn(DO_NO_EVIL_MAMULET_MOULD_PROOF, restored["quest_action_proofs"])
+        self.assertEqual(
+            {
+                event["rolled_back_event_id"]
+                for event in restored["shop_events"]
+                if event["type"] == "rollback"
+            },
+            {first_buy["event_id"], second_buy["event_id"]},
+        )
+
+    def test_service_rollback_keeps_crafting_proof_chain_reachable(self):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["the_fremennik_isles"] = {
+            "started": True, "progress": 5, "completed": False,
+        }
+        player["inventory"].update({"Yak-hide": 2, "Thread": 1, "Coins": 10})
+        player["crafting_level"] = 99
+        first, first_service = apply_shop_service_pure(player, "thakkrad_cure_yak_hide")
+        self.assertTrue(first_service["allowed"])
+        second, second_service = apply_shop_service_pure(first, "thakkrad_cure_yak_hide")
+        self.assertTrue(second_service["allowed"])
+        before = copy.deepcopy(second)
+
+        retained, rollback = rollback_shop_event_pure(second, second_service["event_id"])
+
+        self.assertTrue(rollback["allowed"])
+        self.assertEqual(second, before)
+        self.assertEqual(retained["inventory"]["Cured yak-hide"], 1)
+        self.assertEqual(retained["inventory"]["Yak-hide"], 1)
+        self.assertEqual(retained["inventory"]["Coins"], 5)
+        self.assertIn(THAKKRAD_CURED_YAK_HIDE_PROOF, retained["quest_action_proofs"])
+        before_blockers = quest_current_stage_blockers_pure(
+            retained, "the_fremennik_isles", QUEST_DATA
+        )
+        self.assertIn(
+            FREMENNIK_ISLES_YAK_HIDE_PROOF,
+            {row.get("action_id") for row in before_blockers},
+        )
+
+        retained["current_craft"] = "leather_yakhide_armour_10824"
+        calls = {"xp": [], "saves": 0, "errors": []}
+        self.assertTrue(handle_crafting_answer(_context(retained, calls, [0.0])))
+
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertIn(FREMENNIK_ISLES_YAK_HIDE_PROOF, retained["quest_action_proofs"])
+        after_blockers = quest_current_stage_blockers_pure(
+            retained, "the_fremennik_isles", QUEST_DATA
+        )
+        self.assertNotIn(
+            FREMENNIK_ISLES_YAK_HIDE_PROOF,
+            {row.get("action_id") for row in after_blockers},
         )
 
     def test_shop_purchase_rollback_retracts_its_proof(self):
