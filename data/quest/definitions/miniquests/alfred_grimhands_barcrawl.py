@@ -79,7 +79,10 @@ QUEST = QuestDefinition(
         stages=len(BAR_CRAWL_STAGES),
         point_reward=0,
         rewards=(),
-        start_point="Talk to a Barbarian guard at the Barbarian Outpost.",
+        start_point=(
+            "Talk to a Barbarian guard at the Barbarian Outpost. "
+            "Short if the Grand Tree quest is completed and the Lodestone Network is unlocked."
+        ),
         requirements=(),
         required_items=(),
         combat="None",
@@ -91,8 +94,8 @@ QUEST = QuestDefinition(
         journal_stages=BAR_CRAWL_STAGES,
         release_date="2002-03-25",
         members=True,
-        difficulty="none",
-        length="Medium (Short if the Grand Tree quest is completed and the Lodestone Network is unlocked)",
+        difficulty="Special",
+        length="Medium",
         # PLACEHOLDER(quests.bar_crawl.timeline): needs an explicit period timeline.
         timeline="PLACEHOLDER(quests.bar_crawl.timeline)",
         release_order=9999,

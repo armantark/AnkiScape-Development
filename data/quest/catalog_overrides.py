@@ -9,6 +9,8 @@ from .definitions import *
 from .stage_overrides import *
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
+    "horror_from_the_deep": (QuestPrerequisite(BAR_CRAWL_ID, "Alfred Grimhand's Barcrawl"),),
+    SCORPION_CATCHER_ID: (QuestPrerequisite(BAR_CRAWL_ID, "Alfred Grimhand's Barcrawl"),),
     "the_lost_tribe": (
         QuestPrerequisite(GOBLIN_DIPLOMACY_ID, "Goblin Diplomacy"),
         QuestPrerequisite(RUNE_MYSTERIES_ID, "Rune Mysteries"),

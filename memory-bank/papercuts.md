@@ -2362,3 +2362,11 @@
 
 - 2026-09-16 16:37:11 PDT — While locating the extraction commit hook, `ls .git/hooks/` failed with `ls: .git/hooks/: Not a directory` because this is a linked worktree; use `git rev-parse --git-path hooks` instead.
 - 2026-09-16T17:32:00-07:00: `kimi-k3` returns `API Error: 400 Invalid request Error (error type unknown, HTTP 400, model sent to the API: kimi-k3)` for every call, including a one-word prompt with no tools, while `union-alpha` and `gpt-6-astra` work normally in the same session. The [quota] line reads `kimi 0/14`, down from `0/95` the previous day, so the plan window appears to have changed under it. Probe with a one-word agent call before routing a review to K3; the gating review for the Barcrawl slice was rerouted to gpt-6-astra.
+
+- 2026-09-16T17:41:00-07:00 — While locating Barcrawl fixes, unquoted `--include=*.py` failed in zsh with `no matches found: --include=*.py`; the generated `data/shop_data.py` also has multi-megabyte lines that defeat line-limited reads. Quote search globs and inspect parsed catalog rows instead of dumping generated lines.
+
+- 2026-09-16T17:43:00-07:00 — Full shop regeneration into `tmp/bar-crawl-generated.py` changed unrelated pinned shop rows, removed currency `13727`, and altered player price tables; use the snapshot-preserving vendor-only mode for the Barcrawl correction.
+
+- 2026-09-16T17:59:48-07:00 — Barcrawl commit refused: `slop-gate: code files above 1000 lines were grown: tools/generate_npc_shop_data.py: 1707 lines (was 1575)`. Extracted the cohesive service catalog to `tools/npc_shop_service_rows.py`, retaining vendor ownership in the generator; no hook bypass.
+
+- 2026-09-16T18:01:59-07:00 — Service-catalog extraction hit `slop-gate: code files were added to directories already at 40 files: tools: 152 code files (was 151)`. Placed the extracted catalog in `tools/npc_shop_generation/service_rows.py` instead of widening `tools`.

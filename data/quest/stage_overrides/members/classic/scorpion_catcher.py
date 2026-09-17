@@ -76,6 +76,7 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
             "Catch the Barbarian Outpost scorpion.",
             f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
             required_tools=(("Scorpion cage", 1),),
+            required_actions=("Return the signed Barcrawl card to a Barbarian guard",),
             auto_actions=(
                 "Reach the Barbarian Outpost scorpion room",
                 "Catch the Barbarian Outpost Kharid scorpion",

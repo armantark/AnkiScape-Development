@@ -2497,3 +2497,7 @@ brief lands.
 Assumptions stated in the brief: a mid-fight weapon swap does not reset the
 enemy or the attack countdown; the Slayer dialog fires once per assignment on
 the review that lands the last kill.
+
+## 2026-09-16 — Barcrawl card loss: owner decision required
+
+The period restarts the crawl on card loss, but the loss detection, replacement timing, and progress handling remain SOURCE-BLOCKED in `memory-bank/source-audits/bar-crawl-harvest-2026-09-02.md`. We implement no recovery path rather than invent those mechanics. The softlock is not currently demonstrated to be reachable. An owner decision is needed before a recovery rule can be implemented. Card identity is settled separately: item 455, model 2430, client options Read and Drop, corroborated by the game-main item layer.

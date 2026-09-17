@@ -3,6 +3,16 @@ from __future__ import annotations
 from .dependencies import *
 from .sources import *
 
+_BAR_CRAWL_FRAGMENT = {
+        "Barcrawl card": {
+            "category": "tool",
+            "item_id": 455,
+            "model_id": 2430,
+            "client_options": ("Read", "Drop"),
+            "source": BAR_CRAWL_HARVEST_SOURCE,
+        },
+}
+
 _COINS_FRAGMENT = {
         "Coins": {"category": "material", "source": "RuneScape currency"},
 }
