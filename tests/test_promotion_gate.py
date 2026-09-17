@@ -863,6 +863,10 @@ class PromotionGateTest(unittest.TestCase):
         patterns = (
             PROJECT_ROOT / "memory-bank" / "systemPatterns.md"
         ).read_text(encoding="utf-8").lower()
+        chronology = (
+            PROJECT_ROOT / "memory-bank" / "source-audits"
+            / "systempatterns-chronology-2026-09-16.md"
+        ).read_text(encoding="utf-8").lower()
         papercuts = (
             PROJECT_ROOT / "memory-bank" / "papercuts.md"
         ).read_text(encoding="utf-8").lower()
@@ -877,13 +881,13 @@ class PromotionGateTest(unittest.TestCase):
         )
         self.assertIn(
             "supersedes",
-            patterns,
-            "systemPatterns.md must identify the superseded papercut",
+            chronology,
+            "the systemPatterns chronology must identify the superseded papercut",
         )
         self.assertIn(
             "2026-08-22 05:52",
-            patterns,
-            "systemPatterns.md must identify the superseded papercut by date",
+            chronology,
+            "the systemPatterns chronology must identify the superseded papercut by date",
         )
         superseded_paragraphs = [
             p for p in papercuts.split("\n\n") if "superseded" in p
