@@ -113,6 +113,15 @@ WATER_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/objs/watersource/WaterContainerData.kt"
 )
+NETTLE_TEA_SOURCE = "https://runescape.wiki/w/Nettle_tea?oldid=6241728"
+NETTLE_WATER_DARKAN_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/herblore/CraftablePotion.java:223"
+)
+NETTLE_TEA_DARKAN_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/cooking/Cooking.java:79"
+)
 _FLOUR_WATER_REQUIREMENTS: Mapping[str, int] = {"Pot of flour": 1, "Bucket of water": 1}
 _FLOUR_WATER_BYPRODUCTS: Mapping[str, int] = {"Empty pot": 1, "Bucket": 1}
 COOKING_PREP_BRIDGE_SOURCE = "AnkiScape no-XP Cooking prep bridge, item IDs audited from 2011Scape Items.kt/items.yml."
@@ -220,6 +229,7 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_spider_on_a_stick', 'RAW_SPIDER_ON_STICK', 'Cook a spider on a stick', 'meat', 'RAW_SPIDER_ON_STICK', 6293, 'Raw spider on stick', 'SPIDER_ON_STICK_6297', 6297, 'Spider on stick', 'BURNT_SPIDER', 6301, 'Burnt spider', 16, 80.0, *_SPIDER_ON_STICK_BURN, output_variant='primary', source=SPIDER_COOKING_SOURCE_PATH, runtime_source=SPIDER_COOKING_SOURCE_PATH),
     CookingTarget('cook_cod', 'COD', 'Cook raw cod', 'fish', 'RAW_COD', 341, 'Raw cod', 'COD', 339, 'Cod', 'BURNT_FISH_343', 343, 'Burnt fish', 18, 75.0, 88, 432, output_variant='primary'),
     CookingTarget('cook_pike', 'PIKE', 'Cook raw pike', 'fish', 'RAW_PIKE', 349, 'Raw pike', 'PIKE', 351, 'Pike', 'BURNT_FISH_343', 343, 'Burnt fish', 20, 80.0, 78, 412, output_variant='primary'),
+    CookingTarget('cook_nettle_tea', 'NETTLE_TEA', 'Boil nettle-water', 'drinks', 'NETTLE_WATER', 4237, 'Nettle-water', 'NETTLE_TEA', 4239, 'Nettle tea', '', 0, '', 20, 61.0, 0, 0, source=NETTLE_TEA_SOURCE, runtime_source=NETTLE_TEA_DARKAN_SOURCE, source_always_succeeds=True),
     CookingTarget('cook_salmon', 'SALMON', 'Cook raw salmon', 'fish', 'RAW_SALMON', 331, 'Raw salmon', 'SALMON', 329, 'Salmon', 'BURNT_FISH_343', 343, 'Burnt fish', 25, 90.0, 68, 392, output_variant='primary'),
     CookingTarget('cook_tuna', 'TUNA', 'Cook raw tuna', 'fish', 'RAW_TUNA', 359, 'Raw tuna', 'TUNA', 361, 'Tuna', 'BURNT_FISH_367', 367, 'Burnt fish', 30, 100.0, 58, 372, output_variant='primary', cooking_gauntlet_no_burn_level=63),
     CookingTarget('cook_lobster', 'LOBSTER', 'Cook raw lobster', 'fish', 'RAW_LOBSTER', 377, 'Raw lobster', 'LOBSTER', 379, 'Lobster', 'BURNT_LOBSTER', 381, 'Burnt lobster', 40, 120.0, 38, 332, output_variant='primary', cooking_gauntlet_no_burn_level=68),
@@ -357,6 +367,13 @@ COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
     ),
     CookingPrepActivity("make_pie_shell", "Make pie shell", {"Pastry dough": 1, "Pie dish": 1}, "Pie shell"),
     CookingPrepActivity("fill_bowl_of_water", "Fill bowl with water", {"Bowl": 1}, "Bowl of water", source=WATER_SOURCE_PATH),
+    CookingPrepActivity(
+        "prepare_nettle_water",
+        "Mix nettles into a bowl of water",
+        {"Bowl of water": 1, "Nettles": 1},
+        "Nettle-water",
+        source=NETTLE_WATER_DARKAN_SOURCE,
+    ),
     CookingPrepActivity("draw_bucket_of_water", "Draw bucket of water", {"Bucket": 1}, "Bucket of water", source=WATER_SOURCE_PATH),
     CookingPrepActivity("prepare_uncooked_egg", "Prepare uncooked egg", {"Egg": 1, "Bowl": 1}, "Uncooked egg"),
     CookingPrepActivity("chop_onion", "Chop onion", {"Onion": 1}, "Chopped onion"),
@@ -512,6 +529,9 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Raw karambwanji": (3150, False),
     "Karambwanji": (3151, False),
     "Ashes": (592, True),
+    "Nettle-water": (4237, False),
+    "Nettle tea": (4239, False),
+    "Nettles": (4241, False),
 }
 
 SOURCE_NONSTACKABLE_ITEMS = frozenset(
@@ -531,6 +551,9 @@ SOURCE_NONSTACKABLE_ITEMS = frozenset(
         "Ale yeast",
         "Onion",
         "Redberries",
+        "Nettle-water",
+        "Nettle tea",
+        "Nettles",
     }
 )
 

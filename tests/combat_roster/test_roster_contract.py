@@ -240,6 +240,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("jackal", "Jackal.png"),
             ("goat", "Desert Goat.png"),
             ("ogre", "Ogre.png"),
+            ("mogre", "Mogre icon.png"),
             ("icefiend", "Icefiend.png"),
             ("pyrefiend", "Pyrefiend.png"),
             ("jelly", "Jelly.png"),

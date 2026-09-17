@@ -37,6 +37,7 @@ NEW_COMBAT_ENEMIES = (
     "baby_red_dragon",
     "cave_horror",
     "ogre",
+    "mogre",
     "jackal",
     "goat",
     "icefiend",

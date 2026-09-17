@@ -7,7 +7,10 @@ from .hunt_for_surok import *
 from . import lair_of_tarn_razorlor as _lair_of_tarn_razorlor
 from .lair_of_tarn_razorlor import *
 
-_MODULES = (_alfred_grimhands_barcrawl, _hunt_for_surok, _lair_of_tarn_razorlor,)
+from . import skippy_and_the_mogres as _skippy_and_the_mogres
+from .skippy_and_the_mogres import *
+
+_MODULES = (_alfred_grimhands_barcrawl, _hunt_for_surok, _lair_of_tarn_razorlor, _skippy_and_the_mogres,)
 _QUESTS_BY_ID = {module.QUEST.id: module.QUEST for module in _MODULES}
 _STAGE_REQUIREMENT_REPLACEMENTS_BY_QUEST = {
     quest_id: module._STAGE_REQUIREMENT_REPLACEMENTS_BY_ID

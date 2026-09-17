@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .mogres import ENEMIES as _mogres_enemies
+
 from .skeletal_wyverns import (
     ENEMIES as _skeletal_wyverns_enemies,
 )
@@ -49,6 +51,7 @@ from .slayer_finishers import (
 
 ENEMIES = {}
 for _family_enemies in (
+    _mogres_enemies,
     _skeletal_wyverns_enemies,
     _slayer_caves_enemies,
     _slayer_coastal_enemies,
@@ -61,6 +64,7 @@ for _family_enemies in (
     ENEMIES.update(_family_enemies)
 
 del _family_enemies
+del _mogres_enemies
 del _skeletal_wyverns_enemies
 del _slayer_caves_enemies
 del _slayer_coastal_enemies

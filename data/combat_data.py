@@ -444,6 +444,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         'molanisk',
         'turoth',
         'ogre',
+        'mogre',
         'jackal',
         'goat',
         'icefiend',

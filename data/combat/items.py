@@ -7,6 +7,40 @@ from .mechanics import (
 )
 
 COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
+    "Mudskipper hat": {
+        "category": "equipment",
+        "source": (
+            "OpenRS2 revisions 727 and 742 item 6665; RuneScape Wiki "
+            "Mudskipper hat oldid=5826423"
+        ),
+        "source_item_id": 6665,
+        "stackable": False,
+        "tradeable": False,
+    },
+    "Flippers": {
+        "category": "equipment",
+        "source": (
+            "OpenRS2 revisions 727 and 742 item 6666; RuneScape Wiki "
+            "Flippers oldid=5826429"
+        ),
+        "source_item_id": 6666,
+        "stackable": False,
+        "tradeable": False,
+    },
+    # Oyster: Darkan drops/mogre.json item 407, 3 of 128 ordinary slots.
+    # The period Oyster page is a members-only shell whose period contents
+    # come only from breaking it open, so the row registers the unopened
+    # shell itself.
+    "Oyster": {
+        "category": "material",
+        "source": (
+            "OpenRS2 revisions 727 and 742 item 407; RuneScape Wiki "
+            "Oyster oldid=6381528"
+        ),
+        "source_item_id": 407,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Elemental shield": {"category": "equipment", "source_item_id": 2890, "source": f"{ITEM_ID_SOURCE_PATH}: item 2890; Skeletal Wyvern oldid=6569736"},
     "Mind shield": {"category": "equipment", "source_item_id": 9731, "source": f"{ITEM_ID_SOURCE_PATH}: item 9731; Skeletal Wyvern oldid=6569736"},
     "Body shield": {"category": "equipment", "source_item_id": 18691, "source": f"{ITEM_ID_SOURCE_PATH}: item 18691; Skeletal Wyvern oldid=6569736"},

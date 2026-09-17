@@ -48602,5 +48602,89 @@
     "size": 850,
     "source_wiki": "rs3",
     "timestamp": "2011-12-05T10:03:01Z"
+  },
+  "combatenemies/mogre.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mogre_icon.png",
+    "file_title": "Mogre icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20181101005139%21Mogre_icon.png?7a32c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b19af56ab585e6e34790db875448f962847adfdd",
+    "size": 791,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T04:39:41Z"
+  },
+  "combatitems/flippers.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Flippers.png",
+    "file_title": "Flippers.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034438%21Flippers.png?56d31",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "29dc7015e766d6b859028f49311c28d89f59b985",
+    "size": 610,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-21T04:53:57Z"
+  },
+  "combatitems/mudskipper_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mudskipper_hat.png",
+    "file_title": "Mudskipper hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502054657%21Mudskipper_hat.png?e8770",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "07dc5e95922fb8f83e3d1078f5d51c1d70d5b188",
+    "size": 431,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T09:07:28Z"
+  },
+  "combatitems/oyster.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Oyster.png",
+    "file_title": "Oyster.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502061750%21Oyster.png?28474",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "77d51f17ff5b7adae3015ac0322a00d157eb9b01",
+    "size": 1286,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-10T20:56:28Z"
+  },
+  "cookingitems/nettle_tea.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Nettle_tea.png",
+    "file_title": "Nettle tea.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071817%21Nettle_tea.png?b38bd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b18f6712ecd5bbacef90b6e61194a4766c45837c",
+    "size": 761,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T12:52:37Z"
+  },
+  "cookingitems/nettle_water.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Nettle-water.png",
+    "file_title": "Nettle-water.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071102%21Nettle-water.png?75327",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7cf019b8869d71492406aaa2a53a6f8abd11819b",
+    "size": 774,
+    "source_wiki": "rs3",
+    "timestamp": "2008-11-25T20:00:21Z"
+  },
+  "cookingitems/nettles.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Nettles.png",
+    "file_title": "Nettles.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064055%21Nettles.png?1dbca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b7b6c38cb505fd4efa765ceeaf9ef03a622ea02c",
+    "size": 499,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T12:52:53Z"
   }
 }

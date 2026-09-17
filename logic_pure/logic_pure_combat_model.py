@@ -4,6 +4,8 @@ from math import comb, floor, sqrt
 
 from typing import Iterable, Mapping, Optional
 
+from .combat_lure import combat_required_item_locked_reasons_pure
+
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 from ..logic.equipment_instance_logic import (
@@ -1308,9 +1310,8 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     if enemy is None:
         return ("unknown enemy",)
     encounter = player_data.get("combat_encounter", {}) or {}
-    if enemy.get("encounter_only") and not (
-        isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
-    ):
+    active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+    if enemy.get("encounter_only") and not active_encounter:
         return ("encounter only",)
     stats = enemy.get("stats", {})
     if not isinstance(stats, Mapping) or _positive_int(stats.get("hitpoints", 0), 0) <= 0:
@@ -1359,22 +1360,9 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
                     )
                 ),
             )
-    required_items = enemy.get("required_items", {}) or {}
-    if isinstance(required_items, Mapping):
-        inventory = player_data.get("inventory", {}) or {}
-        inventory = inventory if isinstance(inventory, Mapping) else {}
-        missing_required_items = [
-            str(item_name)
-            for item_name, raw_amount in required_items.items()
-            if isinstance(item_name, str)
-            and _non_negative_int(inventory.get(item_name, 0), 0)
-            < max(1, _positive_int(raw_amount, 1))
-        ]
-        if missing_required_items:
-            label = enemy.get("required_items_label")
-            if isinstance(label, str) and label:
-                return (label,)
-            return tuple(f"{item_name} x1" for item_name in missing_required_items)
+    required_item_locks = combat_required_item_locked_reasons_pure(player_data, enemy, active_encounter)
+    if required_item_locks:
+        return required_item_locks
     required_item_options = enemy.get("required_item_options", ()) or ()
     if isinstance(required_item_options, (tuple, list)):
         inventory = player_data.get("inventory", {}) or {}
@@ -1402,10 +1390,6 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
                 return ("Required item option missing",)
     start_equipment, start_equipment_active = _combat_start_equipment_state(
         player_data, enemy
-    )
-    active_encounter = (
-        isinstance(encounter, Mapping)
-        and encounter.get("target_id") == target_id
     )
     if (
         isinstance(start_equipment, Mapping)

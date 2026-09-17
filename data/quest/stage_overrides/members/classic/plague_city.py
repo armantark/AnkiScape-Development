@@ -243,7 +243,10 @@ _REWARD_ITEM_FRAGMENT_0 = {
         },
         "Hangover cure": {
             "category": "material",
-            "source": f"{DARKAN_PLAGUE_CITY_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            "source": f"{DARKAN_PLAGUE_CITY_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {HANGOVER_CURE_WIKI_SOURCE}",
+            "source_item_id": 1504,
+            "stackable": False,
+            "tradeable": False,
         },
         "Warrant": {
             "category": "material",

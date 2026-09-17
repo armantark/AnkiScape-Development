@@ -45,6 +45,7 @@ MINIQUEST_ORDER = (
     'bar_crawl',
     'hunt_for_surok',
     'lair_of_tarn_razorlor',
+    'skippy_and_the_mogres',
 )
 QUEST_OVERRIDES = tuple(_definitions._QUESTS_BY_ID[quest_id] for quest_id in QUEST_OVERRIDE_ORDER)
 QUEST_OVERRIDES_BY_ID = {quest.id: quest for quest in QUEST_OVERRIDES}

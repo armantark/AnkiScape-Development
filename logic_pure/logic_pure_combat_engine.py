@@ -1,6 +1,7 @@
 """logic_pure_combat_engine.py - split out of logic_pure.py; see that module's header."""
 
 from typing import Iterable, Mapping, Optional
+from .combat_lure import prepare_combat_lure_encounter_pure
 
 from ..logic.equipment_instance_logic import (
     advance_equipped_condition_pure,
@@ -1327,8 +1328,7 @@ def apply_combat_burst_pure(
             ),
         }
 
-    encounter = data.get("combat_encounter", {}) or {}
-    active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+    encounter, active_encounter, stop_after_first_kill = prepare_combat_lure_encounter_pure(data, enemy, target_id, stop_after_first_kill)
     magic_supplements_enabled = combat_class == "magic"
     spellbook_swap_paid = bool(
         magic_supplements_enabled

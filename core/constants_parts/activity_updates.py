@@ -115,6 +115,20 @@ UTILITY_ACTIVITY_DATA = {
         "group": "gathering",
         "source": "https://runescape.wiki/w/Swamp_toad?oldid=6088673",
     },
+    "pick_nettles": {
+        "display_name": "Pick nettles",
+        "requirements": {},
+        "output_item": "Nettles",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(COOKING_ITEMS_FOLDER, "nettles.png"),
+        "group": "gathering",
+        "source": (
+            "https://runescape.wiki/w/Nettles?oldid=6579371; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/world/Pickables.kt:24,60-66"
+        ),
+    },
     "gather_blue_dragon_scales": {
         "display_name": "Gather blue dragon scales",
         "requirements": {},
