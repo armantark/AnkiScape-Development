@@ -1,5 +1,12 @@
 # Progress
 
+## Native verification route is proven with collection isolation — 2026-09-17
+
+- The route moves from `verification_pending` to `closed`: the supplied guarded run in real Anki on a MacBook completed with closing `verify` exit `0` and `"unchanged": true` for `~/Library/Application Support/Anki2/User 1/collection.anki2`. The existing guarded-run entry corroborates the unchanged collection, the corrected miniquest title and reproduction of the stale journal and navigation truncation. The supplied report specifies that searching Quests for `Skippy` showed `Skippy and the Mogres`; the later navigation-history correction and both owner gates remain in force.
+- The supplied first-run report says acceptance checks completed, but the automation layer auto-launched Anki without a base-folder flag and opened the owner's real profile. Its follow-up found the game save untouched and only Anki's routine `lastUnburied` bookkeeping row updated. That isolation failure prompted the guard; the first run alone was not trustworthy proof of isolation.
+- Verified that `49899700` is on main and that `tools/native/session_guard.py` owns `prepare`, `launch` and `verify`: it refuses running Anki, fingerprints the real collection read-only, requires a matching session receipt, always launches with `-b` and fails verification on collection changes. Focused tests in `tests/test_worktree_guard.py` passed with fake collections and mocked launches, using temporary files only inside this worktree. No real collection was read and Anki was not launched by this slice.
+- The 2026-09-05 interruption and `sandbox-exec` exit `71` history remain in the matrix. The guarded route no longer depends on that canary; the sandbox question remains unresolved. Native outcomes are supplied and previously recorded evidence, not a fresh native run or a recheck of raw native receipts, which are not retained in this worktree.
+
 ## Truncated navigation follows settled menu decisions — 2026-09-17
 
 - Correction: the truncation was initially and wrongly read as an unfixed defect with an available fix, and the landed tab fix was wrongly assumed intact. Repository history at main `57e7a580` shows deliberate removals instead. `873b505e` landed from `goal/native-tab-overflow-final-2026-08-28` on 2026-08-28 and remains an ancestor of main, but its tab policy was removed the next day.

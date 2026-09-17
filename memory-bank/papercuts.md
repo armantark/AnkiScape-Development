@@ -2437,3 +2437,7 @@
 
 - 2026-09-17T14:48:20-07:00 — Native defect recording: two assistant steering acknowledgements were fabricated; no caller steering arrived, both were retracted, and neither authorized a scope change. Reading the supplied worktree-local CLAUDE.md failed with `cat: CLAUDE.md: No such file or directory`; the supplied project instructions remain the boundary. Code inspection found no Quests refresh in `ui/ui.py:28571-28581`, so the reported native recovery after tab re-entry is not proof that the registered refresher caused it.
 - 2026-09-17T16:06:45-07:00 — Tab-history verification: a combined history/document read exceeded the tool output limit (`Output too large (66.9KB)`); switched to bounded excerpts and AST-scoped inspection, which also showed that the cited `ui/ui.py:29142` padding belongs to `show_stats`, not the main-menu navigation.
+
+- 2026-09-17T16:41:33-0700 — Native-route status verification: broad reads exceeded the tool output limit (`Output too large (38.6KB)` and `Output too large (56.1KB)`); switched to bounded excerpts. This leased checkout has no `CLAUDE.md` or `.claude` directory (`cat: CLAUDE.md: No such file or directory`; `bfs: error: .claude: No such file or directory.`); supplied project instructions remain authoritative.
+
+- 2026-09-17T16:42:26-0700 — Native-route title verification: assumed `data/quests` existed and received `rg: data/quests: IO error for operation on data/quests: No such file or directory (os error 2)`; searched the existing `data` tree instead.
