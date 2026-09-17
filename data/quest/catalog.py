@@ -11,6 +11,7 @@ from .stage_requirements import *
 from .stage_additions import *
 from .stage_cleanups import *
 from .combat_replacements import *
+from .combat_relocation import relocate_combat_encounters as _relocate_combat_encounters
 
 _STAGE_COUNT_BY_LENGTH = {
     "Short": 3,
@@ -489,9 +490,7 @@ def _apply_stage_requirement_cleanups(
     quest_id: str,
     requirements: Tuple[QuestStageRequirement, ...],
 ) -> Tuple[QuestStageRequirement, ...]:
-    cleanups = QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID.get(quest_id)
-    if not cleanups:
-        return requirements  # Encounter relocation hooks below require a cleanup-table key.
+    cleanups = QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID.get(quest_id) or ()
     changed = False
     rows = []
     for requirement in requirements:
@@ -504,7 +503,7 @@ def _apply_stage_requirement_cleanups(
             updated = _apply_stage_requirement_cleanup(updated, cleanup)
         changed = changed or updated != requirement
         rows.append(updated)
-    return rum_deal_data.relocate_combat_encounters(quest_id, zogre_flesh_eaters_data.relocate_combat_encounters(quest_id, tuple(rows) if changed else requirements))
+    return _relocate_combat_encounters(quest_id, tuple(rows) if changed else requirements)
 
 
 def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object]) -> QuestDefinition:
