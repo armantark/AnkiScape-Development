@@ -27,7 +27,7 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Mapping, Sequence
+from typing import Mapping, NoReturn, Sequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -306,7 +306,13 @@ def write_generated(output_path: Path, harvested: Mapping[str, object]) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
+    class _Parser(argparse.ArgumentParser):
+        # Usage failures must stay the pinned one-line, exit-1 contract from
+        # the original hand-rolled check (tests/test_papercut_tools.py).
+        def error(self, _message: str) -> NoReturn:
+            raise SystemExit("usage: generate_ge_period_data.py <output-py>")
+
+    parser = _Parser(
         description=__doc__, usage="%(prog)s <output-py> [--harvest]"
     )
     parser.add_argument("output", type=Path)
