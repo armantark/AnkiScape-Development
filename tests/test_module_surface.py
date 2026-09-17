@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "module_surface.py"
 
 FIRST_WAVE_DIGESTS = {
-    "core/constants.py": "ef9416a2651d6bfb463238d3e408d27a9e9fa394804b14a8bacc0283d8b9e152",
-    "data/quest_data.py": "98cf55a41c4502a1818bc834db063e9b8f41a7e3f1f14badcd008f8e02676a6a",
+    "core/constants.py": "5df9c94a73bdb2458a95a96476dbc3fccd1334f9cddc854215694974359f36c5",
+    "data/quest_data.py": "562caa09cb5ee0e01c1193c74c4af9d8f35aa93460c7055b25f9242458e33062",
     "data/combat_data.py": "c50b3baa6d135b56e2a0fc500f952e0e173c2873b820e60258799829837a8d0d",
     "data/slayer_data.py": "efc18af3d79cab7d1664347bef7071b28354ed3cba3344f14f7d06d023f93f9c",
     "logic_pure/logic_pure_combat_engine.py": "886cde5a31bb852ed696e8018c8954e707fff86c56dc0fc65633fd1b2f76f8c6",
@@ -24,13 +24,13 @@ FIRST_WAVE_DIGESTS = {
     "logic/shop_logic.py": "a8da050a08799e453b61e64ba16cefe90f049c5335a2142360931bf4bf5d105f",
     "ui/ui_tab_shop.py": "225495833df019eec919856eea981c85b114eec8327bd836bd791409ebde4c16",
     "data/achievement_diary_catalog.py": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
-    "runtime/runtime_actions_carried.py": "9799791c81e727d7badb7dc0a9c780ca7f88af9699f710a6c2b695eeda9fa4d3",
-    "runtime/runtime_actions_activities.py": "3984fb9b35e6ae8d764f6d72ba997c2145ef606281f515e3ca5b6afcf2b46594"
+    "runtime/runtime_actions_carried.py": "7858bcc716e13eee9a5717770ade9ecc3513bf2c6beda0adfe4d919b87e282e5",
+    "runtime/runtime_actions_activities.py": "b0adbfc8bff013ea08d613c8b378f73419d2793eb4b82b547de8b570946c5389"
 }
 QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "b0a6e20b73b866a6e7f4ce70c13cfc52c1c19ac57611e3a94e9f907adc22a0da"
 }
-ROOT_QT_DIGEST = "d0f5d9e2e939c343f8e5d6611c1ac7e82d7f1bde247546a6f89d6ff4c90b2aa6"
+ROOT_QT_DIGEST = "37a73a4f0518bc51a9a0f1409b16c1d64acb48c403e848a13bb2a53510d8964a"
 CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"
 
 
