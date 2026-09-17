@@ -1,5 +1,11 @@
 # Progress
 
+## Guarded native verification found no reliable journal recovery — 2026-09-17
+
+- The supplied second guarded native run on current main, in real Anki on a MacBook, confirmed the landed `Skippy and the Mogres` miniquest title fix and reproduced both recorded defects: the stale Barcrawl journal and truncated main-menu navigation labels.
+- Leaving Quests for Stats and returning did not refresh the journal body; the pre-start description and unlock line remained. The first run's Grand Exchange recovery remains recorded, but the tab-switch workaround did not reproduce and no reliable recovery is known. The matrix now records this greater player impact; both defects remain `owner_gated`, with no user-interface or test changes.
+- The isolation guard's verify step returned exit 0 with the owner's real collection unchanged, per the supplied report. This collection-isolation check makes the second run trustworthy where the first was not. This slice checked the code and updated the records; it did not repeat the native run.
+
 ## Native verification exposed defects missed offscreen — 2026-09-17
 
 - The supplied native verification report from real Anki on a MacBook found three player-visible defects invisible to the passing offscreen suite: the miniquest title `Mogre` instead of `Skippy and the Mogres`, a stale quest journal after starting Alfred Grimhand's Barcrawl, and truncated main-menu navigation labels. The suite asserts on quest identifiers and data rather than these rendered states; this slice did not rerun it or repeat native verification.
