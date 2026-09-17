@@ -1,0 +1,538 @@
+{
+  "snapshot_binding": [
+    {
+      "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cut-gem-baseline-6438d422/qt-core_constants.py.stdout",
+      "surface_sha256": "d5a79ddfd6c50efa7df57cfbd9b0e615a39cf51a0635d315b6ebe9b814777b47",
+      "file_sha256": "90bc427f383db2fac70328dd3a2040a551138b5a066bbc3e374c57a58a1eb20b"
+    },
+    {
+      "path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cut-gem-baseline-6438d422/qt-__init__.py.stdout",
+      "surface_sha256": "2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d",
+      "file_sha256": "8426b0a445bf8134afd99391e4029d8fb32bd4b6c010d080fbe16117905ccfb0"
+    }
+  ],
+  "owner_maps": {
+    "AGILITY_EXTRA_ITEM_DATA": {
+      "Spotted cape": {
+        "class": "builtins.dict",
+        "items": [
+          [
+            "category",
+            "equipment"
+          ],
+          [
+            "source",
+            "Agility"
+          ],
+          [
+            "source_item_id",
+            null
+          ],
+          [
+            "stackable",
+            false
+          ],
+          [
+            "tradeable",
+            false
+          ]
+        ],
+        "type": "mapping"
+      },
+      "Spottier cape": {
+        "class": "builtins.dict",
+        "items": [
+          [
+            "category",
+            "equipment"
+          ],
+          [
+            "source",
+            "Agility"
+          ],
+          [
+            "source_item_id",
+            null
+          ],
+          [
+            "stackable",
+            false
+          ],
+          [
+            "tradeable",
+            false
+          ]
+        ],
+        "type": "mapping"
+      }
+    },
+    "BARBARIAN_ASSAULT_EXTRA_ITEM_DATA": {},
+    "BARROWS_EXTRA_ITEM_DATA": {},
+    "BONE_SOURCE_EXTRA_ITEM_DATA": {},
+    "BORK_EXTRA_ITEM_DATA": {},
+    "BRAWLING_GLOVES_EXTRA_ITEM_DATA": {},
+    "CASTLE_WARS_EXTRA_ITEM_DATA": {},
+    "CIRCUS_EXTRA_ITEM_DATA": {},
+    "COMBAT_EXTRA_ITEM_DATA": {},
+    "CONQUEST_EXTRA_ITEM_DATA": {},
+    "CONSTRUCTION_EXTRA_ITEM_DATA": {},
+    "COOKING_EXTRA_ITEM_DATA": {},
+    "COURT_CASES_EXTRA_ITEM_DATA": {},
+    "CRUCIBLE_EXTRA_ITEM_DATA": {},
+    "CRYSTAL_CHEST_EXTRA_ITEM_DATA": {},
+    "DAILY_CHALLENGE_EXTRA_ITEM_DATA": {},
+    "DOMINION_TOWER_EXTRA_ITEM_DATA": {},
+    "DUEL_ARENA_EXTRA_ITEM_DATA": {},
+    "DUNGEONEERING_EXTRA_ITEM_DATA": {},
+    "ENCHANTED_KEY_EXTRA_ITEM_DATA": {},
+    "EQUIPMENT_ITEM_DATA": {
+      "Spotted cape": {
+        "class": "builtins.dict",
+        "items": [
+          [
+            "attack_speed",
+            4
+          ],
+          [
+            "bonuses",
+            {
+              "class": "builtins.dict",
+              "items": [
+                [
+                  "attack_crush",
+                  0
+                ],
+                [
+                  "attack_magic",
+                  0
+                ],
+                [
+                  "attack_ranged",
+                  0
+                ],
+                [
+                  "attack_slash",
+                  0
+                ],
+                [
+                  "attack_stab",
+                  0
+                ],
+                [
+                  "defence_crush",
+                  1
+                ],
+                [
+                  "defence_magic",
+                  0
+                ],
+                [
+                  "defence_ranged",
+                  2
+                ],
+                [
+                  "defence_slash",
+                  1
+                ],
+                [
+                  "defence_stab",
+                  0
+                ],
+                [
+                  "magic_damage",
+                  0
+                ],
+                [
+                  "melee_strength",
+                  0
+                ],
+                [
+                  "prayer",
+                  0
+                ],
+                [
+                  "ranged_strength",
+                  0
+                ]
+              ],
+              "type": "mapping"
+            }
+          ],
+          [
+            "combat_skill",
+            null
+          ],
+          [
+            "equipment_type",
+            "agility_reward"
+          ],
+          [
+            "item_name",
+            "Spotted cape"
+          ],
+          [
+            "required_level",
+            1
+          ],
+          [
+            "skill_requirements",
+            {
+              "class": "builtins.tuple",
+              "items": [],
+              "type": "sequence"
+            }
+          ],
+          [
+            "slot",
+            "cape"
+          ],
+          [
+            "source",
+            "data/cfg/items.yml item 10069; Agility reward/effect"
+          ],
+          [
+            "source_item_id",
+            10069
+          ],
+          [
+            "source_status",
+            "items.yml equipment block"
+          ],
+          [
+            "two_handed",
+            false
+          ],
+          [
+            "weapon_type",
+            -1
+          ]
+        ],
+        "type": "mapping"
+      },
+      "Spottier cape": {
+        "class": "builtins.dict",
+        "items": [
+          [
+            "attack_speed",
+            4
+          ],
+          [
+            "bonuses",
+            {
+              "class": "builtins.dict",
+              "items": [
+                [
+                  "attack_crush",
+                  0
+                ],
+                [
+                  "attack_magic",
+                  0
+                ],
+                [
+                  "attack_ranged",
+                  0
+                ],
+                [
+                  "attack_slash",
+                  0
+                ],
+                [
+                  "attack_stab",
+                  0
+                ],
+                [
+                  "defence_crush",
+                  1
+                ],
+                [
+                  "defence_magic",
+                  0
+                ],
+                [
+                  "defence_ranged",
+                  2
+                ],
+                [
+                  "defence_slash",
+                  1
+                ],
+                [
+                  "defence_stab",
+                  0
+                ],
+                [
+                  "magic_damage",
+                  0
+                ],
+                [
+                  "melee_strength",
+                  0
+                ],
+                [
+                  "prayer",
+                  0
+                ],
+                [
+                  "ranged_strength",
+                  0
+                ]
+              ],
+              "type": "mapping"
+            }
+          ],
+          [
+            "combat_skill",
+            null
+          ],
+          [
+            "equipment_type",
+            "agility_reward"
+          ],
+          [
+            "item_name",
+            "Spottier cape"
+          ],
+          [
+            "required_level",
+            1
+          ],
+          [
+            "skill_requirements",
+            {
+              "class": "builtins.tuple",
+              "items": [],
+              "type": "sequence"
+            }
+          ],
+          [
+            "slot",
+            "cape"
+          ],
+          [
+            "source",
+            "data/cfg/items.yml item 10071; Agility reward/effect"
+          ],
+          [
+            "source_item_id",
+            10071
+          ],
+          [
+            "source_status",
+            "items.yml equipment block"
+          ],
+          [
+            "two_handed",
+            false
+          ],
+          [
+            "weapon_type",
+            -1
+          ]
+        ],
+        "type": "mapping"
+      }
+    },
+    "EXTRA_ITEM_DATA": {
+      "Spotted cape": {
+        "class": "builtins.dict",
+        "items": [
+          [
+            "category",
+            "equipment"
+          ],
+          [
+            "equipment_combat_skill",
+            null
+          ],
+          [
+            "equipment_required_level",
+            1
+          ],
+          [
+            "equipment_slot",
+            "cape"
+          ],
+          [
+            "equipment_type",
+            "agility_reward"
+          ],
+          [
+            "source",
+            "Agility"
+          ],
+          [
+            "source_item_id",
+            null
+          ],
+          [
+            "stackable",
+            false
+          ],
+          [
+            "tier",
+            1
+          ],
+          [
+            "tradeable",
+            false
+          ]
+        ],
+        "type": "mapping"
+      },
+      "Spottier cape": {
+        "class": "builtins.dict",
+        "items": [
+          [
+            "category",
+            "equipment"
+          ],
+          [
+            "equipment_combat_skill",
+            null
+          ],
+          [
+            "equipment_required_level",
+            1
+          ],
+          [
+            "equipment_slot",
+            "cape"
+          ],
+          [
+            "equipment_type",
+            "agility_reward"
+          ],
+          [
+            "source",
+            "Agility"
+          ],
+          [
+            "source_item_id",
+            null
+          ],
+          [
+            "stackable",
+            false
+          ],
+          [
+            "tier",
+            1
+          ],
+          [
+            "tradeable",
+            false
+          ]
+        ],
+        "type": "mapping"
+      }
+    },
+    "FIGHT_CAVES_EXTRA_ITEM_DATA": {},
+    "FIREMAKING_EXTRA_ITEM_DATA": {},
+    "FISHING_EXTRA_ITEM_DATA": {},
+    "FISH_FLINGERS_EXTRA_ITEM_DATA": {},
+    "FIST_OF_GUTHIX_EXTRA_ITEM_DATA": {},
+    "FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA": {},
+    "GNOME_BALL_EXTRA_ITEM_DATA": {},
+    "GNOME_RESTAURANT_EXTRA_ITEM_DATA": {},
+    "GOBLIN_RAIDS_EXTRA_ITEM_DATA": {},
+    "GREAT_ORB_PROJECT_EXTRA_ITEM_DATA": {},
+    "HERBLORE_EXTRA_ITEM_DATA": {},
+    "HUNTER_EXTRA_ITEM_DATA": {},
+    "MAGE_TRAINING_ARENA_EXTRA_ITEM_DATA": {},
+    "MAGIC_EXTRA_ITEM_DATA": {},
+    "MINING_EXTRA_ITEM_DATA": {},
+    "MOBILISING_ARMIES_EXTRA_ITEM_DATA": {},
+    "PEST_CONTROL_EXTRA_ITEM_DATA": {},
+    "PHOENIX_LAIR_EXTRA_ITEM_DATA": {},
+    "PRAYER_EXTRA_ITEM_DATA": {},
+    "PYRAMID_PLUNDER_EXTRA_ITEM_DATA": {},
+    "QUEST_REWARD_ITEM_DATA": {},
+    "RANGING_GUILD_EXTRA_ITEM_DATA": {},
+    "RUNECRAFTING_EXTRA_ITEM_DATA": {},
+    "SHADES_OF_MORTTON_EXTRA_ITEM_DATA": {},
+    "SHATTERED_HEART_EXTRA_ITEM_DATA": {},
+    "SHOP_EXTRA_ITEM_DATA": {},
+    "SHOP_ONLY_EXTRA_ITEM_DATA": {},
+    "SKELETAL_HORROR_EXTRA_ITEM_DATA": {},
+    "SMITHING_EXTRA_ITEM_DATA": {},
+    "SORCERESS_GARDEN_EXTRA_ITEM_DATA": {},
+    "STEALING_CREATION_EXTRA_ITEM_DATA": {},
+    "STRONGHOLD_OF_SECURITY_EXTRA_ITEM_DATA": {},
+    "STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA": {},
+    "SUMMONING_EXTRA_ITEM_DATA": {},
+    "TEMPLE_TREKKING_EXTRA_ITEM_DATA": {},
+    "THIEVING_EXTRA_ITEM_DATA": {},
+    "TREASURE_TRAILS_EXTRA_ITEM_DATA": {},
+    "TROLL_INVASION_EXTRA_ITEM_DATA": {},
+    "TROUBLE_BREWING_EXTRA_ITEM_DATA": {},
+    "VARROCK_MUSEUM_EXTRA_ITEM_DATA": {},
+    "VINESWEEPER_EXTRA_ITEM_DATA": {},
+    "WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA": {},
+    "WOODCUTTING_EXTRA_ITEM_DATA": {}
+  },
+  "definitions": [
+    {
+      "class": "ankiscape.core.item_registry.ItemDefinition",
+      "fields": {
+        "asset_path": "<repo>/agilityitems/spotted_cape.png",
+        "base_exp": 0.0,
+        "category": "equipment",
+        "display_name": "Spotted cape",
+        "equipment_slot": "cape",
+        "equipment_tier": 1,
+        "equipment_type": "agility_reward",
+        "id": "equipment_spotted_cape",
+        "license_note": "private-fork asset; provenance not audited",
+        "required_level": 1,
+        "source": "Agility",
+        "source_item_id": null,
+        "stackable": false,
+        "storage_key": "Spotted cape",
+        "tradeable": false
+      },
+      "type": "dataclass"
+    },
+    {
+      "class": "ankiscape.core.item_registry.ItemDefinition",
+      "fields": {
+        "asset_path": "<repo>/agilityitems/spottier_cape.png",
+        "base_exp": 0.0,
+        "category": "equipment",
+        "display_name": "Spottier cape",
+        "equipment_slot": "cape",
+        "equipment_tier": 1,
+        "equipment_type": "agility_reward",
+        "id": "equipment_spottier_cape",
+        "license_note": "private-fork asset; provenance not audited",
+        "required_level": 1,
+        "source": "Agility",
+        "source_item_id": null,
+        "stackable": false,
+        "storage_key": "Spottier cape",
+        "tradeable": false
+      },
+      "type": "dataclass"
+    }
+  ],
+  "catalog_membership": {
+    "Spotted cape": false,
+    "Spottier cape": false
+  },
+  "tree_binding": {
+    "captured_worktree_commit": "6438d42256236992b10d921d4cca920293b55d93",
+    "source_slice_commit": "cd6747a62f2295afd6afd77090bf4ec1d8f69dd9",
+    "compared_product_paths": [
+      "__init__.py",
+      "core",
+      "data",
+      "generated",
+      "logic",
+      "logic_pure",
+      "runtime",
+      "ui"
+    ],
+    "changed_product_paths": [],
+    "method": "Read-only extraction of retained complete MacBook snapshots; no new runtime query or mirror sync."
+  }
+}

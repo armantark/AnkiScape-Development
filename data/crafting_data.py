@@ -182,8 +182,8 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     # Gem cutting. Semiprecious source crush chances are documented but not modeled;
     # one successful review is one completed Crafting action.
     CraftingRecipe("cut_opal", "Opal", "gems", "chisel", 1, 15.0, _req(("Uncut opal", 1)), "Opal", source=GEM_SOURCE, source_enum="OPAL", notes="Source has crush chance; AnkiScape treats the review action as a successful cut."),
-    CraftingRecipe("cut_jade", "Jade", "gems", "chisel", 13, 20.0, _req(("Uncut jade", 1)), "Jade", source=GEM_SOURCE, source_enum="JADE", tradeable=False, notes="Source has crush chance; AnkiScape treats the review action as a successful cut."),
-    CraftingRecipe("cut_red_topaz", "Red topaz", "gems", "chisel", 16, 25.0, _req(("Uncut red topaz", 1)), "Red topaz", source=GEM_SOURCE, source_enum="TOPAZ", tradeable=False, notes="Source has crush chance; AnkiScape treats the review action as a successful cut."),
+    CraftingRecipe("cut_jade", "Jade", "gems", "chisel", 13, 20.0, _req(("Uncut jade", 1)), "Jade", source=GEM_SOURCE, source_enum="JADE", source_item_id=1611, notes="Source has crush chance; AnkiScape treats the review action as a successful cut."),
+    CraftingRecipe("cut_red_topaz", "Red topaz", "gems", "chisel", 16, 25.0, _req(("Uncut red topaz", 1)), "Red topaz", source=GEM_SOURCE, source_enum="TOPAZ", source_item_id=1613, notes="Source has crush chance; AnkiScape treats the review action as a successful cut."),
     CraftingRecipe("cut_sapphire", "Sapphire", "gems", "chisel", 20, 50.0, _req(("Uncut sapphire", 1)), "Sapphire", source=GEM_SOURCE, source_enum="SAPPHIRE"),
     CraftingRecipe("cut_emerald", "Emerald", "gems", "chisel", 27, 67.0, _req(("Uncut emerald", 1)), "Emerald", source=GEM_SOURCE, source_enum="EMERALD"),
     CraftingRecipe("cut_ruby", "Ruby", "gems", "chisel", 34, 85.0, _req(("Uncut ruby", 1)), "Ruby", source=GEM_SOURCE, source_enum="RUBY"),

@@ -1,0 +1,126 @@
+{
+  "candidate_test_sha256": "42165b1d09052c6a6001587f788c5c0062b71379587d4c6c94f3f77e09b3a4a7",
+  "local_source_directory": "/tmp/ankiscape-cape-repair-42165b1d",
+  "remote_candidate_directory": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cape-repair-42165b1d",
+  "remote_baseline_directory": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/cut-gem-baseline-6438d422",
+  "provenance": "The driver validated every recorded surface footer against its complete raw body and reversed only the authorized cape fields or catalog rows before comparing all 23 payloads. The author rehashed the supplied compact proof and source files, but did not recopy or independently replay the remote full bodies. Raw baseline and candidate payloads remain in the named immutable MacBook report directories; whole-surface-proof.json.gz retains every body digest, whole-file digest, and filename.",
+  "files": [
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/changed-names.json.gz",
+      "bytes": 368,
+      "sha256": "e7a7a1051078d169d6b1646cc04b9c0276c931d986c7a652ff737c139c582f55",
+      "decompressed_bytes": 2354,
+      "decompressed_sha256": "1f22da2b980d938bdc135fca571f7347b9737687ef28f591f9815a6a23bae7b1",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/discovery-comparison.json.gz",
+      "bytes": 274,
+      "sha256": "6f08f5b845a5121435e42180da587cbeb03d57247d23b469714082f0c8b76de7",
+      "decompressed_bytes": 1257,
+      "decompressed_sha256": "251dba851242ddcdbce81c6a74197c435b496ed97d329a0c3058656edeed407b",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/plain-discovery.stderr.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decompressed_bytes": 0,
+      "decompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/plain-discovery.stdout.gz",
+      "bytes": 114674,
+      "sha256": "f2848042d0950781d2d6fdb5da2ec2b10f143ee29e6ae5fa496d7b0673932452",
+      "decompressed_bytes": 572851,
+      "decompressed_sha256": "bfdd1440b76fac9ba64703db4b882b5adaa7b71b22d504e5076c9181c131fde3",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/plain-focus.stderr.gz",
+      "bytes": 761,
+      "sha256": "29b416afdee4db1f1602418d84e8ec7cc2dd74953410315874f4d3d68dcac7eb",
+      "decompressed_bytes": 3410,
+      "decompressed_sha256": "89e0fcbb69b7ba9f90774da82a3000e0edcefc94f1418923f09ba8c8e44f097a",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/plain-focus.stdout.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decompressed_bytes": 0,
+      "decompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/qt-discovery.stderr.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decompressed_bytes": 0,
+      "decompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/qt-discovery.stdout.gz",
+      "bytes": 114674,
+      "sha256": "f2848042d0950781d2d6fdb5da2ec2b10f143ee29e6ae5fa496d7b0673932452",
+      "decompressed_bytes": 572851,
+      "decompressed_sha256": "bfdd1440b76fac9ba64703db4b882b5adaa7b71b22d504e5076c9181c131fde3",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/qt-focus.stderr.gz",
+      "bytes": 720,
+      "sha256": "d229208774e142682491f511bd0dd9f02cbfc7bf5b4e138e33981816d2d30a9b",
+      "decompressed_bytes": 3361,
+      "decompressed_sha256": "f16ce2d1c847e23bd87243500e89bbc1da35e44af29a354f871f52c30f6fc6ec",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/qt-focus.stdout.gz",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "decompressed_bytes": 0,
+      "decompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/results.json.gz",
+      "bytes": 646,
+      "sha256": "05254c9c601e9f69323a49836cf3769d640c0e8689f3528506466974fa25dda0",
+      "decompressed_bytes": 7038,
+      "decompressed_sha256": "83d701e563540687010cefe8785d6fa1603fa4fb34f4f781d9cd05b9ed8ea200",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/source-hashes.json.gz",
+      "bytes": 439,
+      "sha256": "e4a78869cf2842a417402a284dd05e4f790bc01149f5cacd74e71978ee675b9d",
+      "decompressed_bytes": 752,
+      "decompressed_sha256": "d81de36379e9b1dd718b22ecc671ef1e6795d53aa6e7b7db673e3978b8d56648",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/repair-42165b1d/whole-surface-proof.json.gz",
+      "bytes": 2852,
+      "sha256": "bea2208cbd75e4854405aede20c05b6968ef25958d106ad03fd27ce4a0544c56",
+      "decompressed_bytes": 18630,
+      "decompressed_sha256": "62f44f2dc04fcef69281d24c04c71a92adb1741a6b8639a48f89b49faa910d70",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    }
+  ]
+}

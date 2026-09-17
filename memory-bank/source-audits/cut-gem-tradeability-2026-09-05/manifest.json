@@ -1,0 +1,189 @@
+{
+  "created_at_utc": "2026-09-05T20:57:53.266709+00:00",
+  "repository_baseline": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+  "scope": [
+    "Jade:1611",
+    "Red topaz:1613"
+  ],
+  "review_status": "Original five source-record findings were resolved. The later measured decoder replay and historical-version qualification are appended for driver review.",
+  "files": [
+    {
+      "path": "CutGemCacheQuery.java",
+      "bytes": 755,
+      "sha256": "3c6eaed21119e8559a5b1a9f2b21a3283834e045152585576f392cf6e77e3a41"
+    },
+    {
+      "path": "cache-727-decoder-replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "cache-727-decoder-replay.txt",
+      "bytes": 1139,
+      "sha256": "3d274f7f13229d618e7d7caeef0a7659e5959228c1a9f5ef811567867cff3e70"
+    },
+    {
+      "path": "cache-727-items-1611-1613.txt",
+      "bytes": 521,
+      "sha256": "9c624e9db884b400b79409ebddd98d18adea1bd3a95559f3364084cd2c62d270"
+    },
+    {
+      "path": "cache-742-decoder-replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "cache-742-decoder-replay.txt",
+      "bytes": 1139,
+      "sha256": "ac3999f947b486ea275acea6cb1ecaebe41b4678e0d1b67907361b8f23725bd8"
+    },
+    {
+      "path": "cache-742-items-1611-1613.txt",
+      "bytes": 521,
+      "sha256": "9c624e9db884b400b79409ebddd98d18adea1bd3a95559f3364084cd2c62d270"
+    },
+    {
+      "path": "cache-decoder-replay-provenance.json",
+      "bytes": 47504,
+      "sha256": "2d1a2ae86051622cc806edefabffc68dbc45b3902da6831091a5aaa02f733fa2"
+    },
+    {
+      "path": "cache-decoder-replay.json",
+      "bytes": 106246,
+      "sha256": "b780c7c107c680166f4dd91c744dabbd254b30c111c6152605663d2d4257a1d4"
+    },
+    {
+      "path": "cache-input-binding-check.py",
+      "bytes": 3891,
+      "sha256": "ba6355ea91282c194f296f6967c3dae594c4cb07535c1a88e31b58120142e2a4"
+    },
+    {
+      "path": "cache-input-binding.json",
+      "bytes": 42345,
+      "sha256": "dc35a73c44f334dc83e7687ed1f239f75ce20b476b3b071b2d4797c2b9872a11"
+    },
+    {
+      "path": "claims.json",
+      "bytes": 12749,
+      "sha256": "d811b8f5569124ce46bb7afed8928d7a1f4e36b0d61b8988f68bb4fcad0942c1"
+    },
+    {
+      "path": "evaluated-map-source-binding.json",
+      "bytes": 3256,
+      "sha256": "dba249588fa0917d76a9df76c0a1e298eb61e2d5a8a0d9de887337833c0f83b4"
+    },
+    {
+      "path": "evaluated-maps-3c401d0c.txt",
+      "bytes": 155,
+      "sha256": "11ec6a8cd683db146d443d7d02a71cf0f615fe11a565c38812ced8d39acc16c0"
+    },
+    {
+      "path": "global-buy-limit-revision.json.gz",
+      "bytes": 28841,
+      "sha256": "8143ea6de9ac68c57a5f20bbd396ed46877cacab0aa9424b07a3f2bb7a96a42e",
+      "uncompressed_bytes": 200141,
+      "uncompressed_sha256": "58e29b65573b61f0bc772f0764e2ea04fa65254f631976fbf39b5239215a4199"
+    },
+    {
+      "path": "jade-exchange.headers.gz",
+      "bytes": 517,
+      "sha256": "f1509b502a332e20d05caa8c193994314f5956d2a7f031486325120bfc40e3b9",
+      "uncompressed_bytes": 754,
+      "uncompressed_sha256": "ec8310c0a8ff3b15d44e7792a7bd604c13d640d7df0d3b18b235b418314852bd"
+    },
+    {
+      "path": "jade-exchange.json",
+      "bytes": 645,
+      "sha256": "8c9861b1ed431c060a32b49e82ea2ab311e68be6f9782304174c13c5f3cdefac"
+    },
+    {
+      "path": "jade-exchange.wikitext",
+      "bytes": 319,
+      "sha256": "c2758a8ac48e317ae300eb80ed21869c65d5878ec9fd1fca8603eb41231434cd"
+    },
+    {
+      "path": "jade-item.headers.gz",
+      "bytes": 518,
+      "sha256": "3334923e9264d46083f2567696148344d4787517fe72f6f9337d81bf7fa11124",
+      "uncompressed_bytes": 754,
+      "uncompressed_sha256": "0365003456b6fcaacc3bc24f7570533ac35980ff158b188c6e95d04dca9fef2d"
+    },
+    {
+      "path": "jade-item.json",
+      "bytes": 1826,
+      "sha256": "973996c9ab515445b6ce132ace38a114569fbca937f5e98bcbac85474dea5469"
+    },
+    {
+      "path": "jade-item.wikitext",
+      "bytes": 1483,
+      "sha256": "1e93a873031f4e6619fcec742ea62505e45cd892d25db8ffe30799a9fc066beb"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 8676,
+      "sha256": "4c42996e09eb6a7bda249d74925a08ba33bbf704b0a0383016939ecf371d1dac"
+    },
+    {
+      "path": "qualified-generated-rows.json",
+      "bytes": 1112,
+      "sha256": "48ad3cd31e5c0fb717a39f3cc90dd7eb2866074b2c5b9900ad3ab7d252eb43b1"
+    },
+    {
+      "path": "red-topaz-exchange.headers.gz",
+      "bytes": 516,
+      "sha256": "6e914fa70434eccfc6c6017a00ece2d68e3081f5b7de6f2f8c92b135f0d5250d",
+      "uncompressed_bytes": 754,
+      "uncompressed_sha256": "7210629f51735bf7bcbb3a80f9e1feea92d93fa076837ccbd4ac89ab3e3bee70"
+    },
+    {
+      "path": "red-topaz-exchange.json",
+      "bytes": 655,
+      "sha256": "2a08e1b8fabfee00155068c342e98d13f9fc8d1b5b3e6912883bf088e2711865"
+    },
+    {
+      "path": "red-topaz-exchange.wikitext",
+      "bytes": 324,
+      "sha256": "9b75e5df7a0a8a20adb6c134cec2f0e667a0447b6cbc1d6000450d1ba9e9637d"
+    },
+    {
+      "path": "red-topaz-item.headers.gz",
+      "bytes": 519,
+      "sha256": "9921d3b07dac629de0c406277d7cb75f34113f0beda947cfe360d3240cd3442e",
+      "uncompressed_bytes": 754,
+      "uncompressed_sha256": "b63f268c462b2e8870185da49cbb19c2384c7d7ed8bb92691cef1046ba02a5da"
+    },
+    {
+      "path": "red-topaz-item.json",
+      "bytes": 2587,
+      "sha256": "18bbffb151836bdb315206cfdab5a4f5e2892639144f827b4317790adc5199cc"
+    },
+    {
+      "path": "red-topaz-item.wikitext",
+      "bytes": 2241,
+      "sha256": "4678ded3c06eff544ddcf57ec218a0207b7c49fde8afe4300433ffd3a4b6d0d5"
+    },
+    {
+      "path": "rejected-multipage-request.headers.gz",
+      "bytes": 509,
+      "sha256": "3407385f08a227d238b97a919fc1b6f5672f0837e013248adaaec9652c7d0f39",
+      "uncompressed_bytes": 749,
+      "uncompressed_sha256": "058858accb3a7a9a31edfeaf50cd07597fc0bd4330260c7ec1632baf8c412bf6"
+    },
+    {
+      "path": "rejected-multipage-request.json",
+      "bytes": 594,
+      "sha256": "4869ab9940a9d36d0d6945ff88f14ef3a1d72bf7593e056c748751d7ecde5bd6"
+    },
+    {
+      "path": "requests.json",
+      "bytes": 2053,
+      "sha256": "13d5a370da8d374b4878b563e7b7ab799c451004e3e629b75da7cf58d41981b7"
+    },
+    {
+      "path": "source-bindings.json",
+      "bytes": 29448,
+      "sha256": "a0c33622bd9286c8222d7b8cb0f3395e98392b6f56e4804d8ef87243ec731b6e"
+    }
+  ],
+  "updated_at_utc": "2026-09-05T21:32:25.348713+00:00"
+}

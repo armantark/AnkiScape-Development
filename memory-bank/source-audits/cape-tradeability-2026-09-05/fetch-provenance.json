@@ -1,0 +1,9 @@
+{
+  "captured_at_utc": "2026-09-05T21:30:05.541109+00:00",
+  "curl_version": "curl 8.7.1 (x86_64-apple-darwin25.0) libcurl/8.7.1 (SecureTransport) LibreSSL/3.3.6 zlib/1.2.12 nghttp2/1.68.1",
+  "utility": "fetch_sources.py",
+  "utility_sha256": "54e25336ac6dd98c2e87856cc3a1c4c1b7f2aa2d2c0a7bdfc2875d2de31b4328",
+  "request_count": 8,
+  "request_policy": "Eight successful bounded requests for only the two cape families. Two Exchange revisions and six item revisions, including retained marked controls. HTTP retry limit 2; request metadata retains actual curl argv and timestamps.",
+  "qualification": "Exact response bytes and full slots are retained; no HTML rendering or template expansion supplied fields."
+}

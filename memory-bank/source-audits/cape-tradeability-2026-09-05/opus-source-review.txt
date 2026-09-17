@@ -1,0 +1,34 @@
+# Source-only verdict
+
+The evidence is sufficient. Both capes qualify as period-tradeable Grand Exchange items before `2012-11-20`. Four record defects remain. None changes the verdict. Each defect can mislead the driver, so the audit text must state them. I made no file change, because Write is disabled in this session.
+
+## What holds
+
+1. The two Exchange records are the cutoff-selected revisions, not hand-picked oldids. `memory-bank/source-audits/cape-tradeability-2026-09-05/requests.json:139` and `:196` record this argv:
+
+```text
+https://runescape.wiki/api.php?action=query&format=json&formatversion=2&prop=revisions&rvprop=ids%7Ctimestamp%7Ccontent&rvslots=main&titles=Exchange%3ASpotted+cape&rvlimit=1&rvstart=2012-11-19T23%3A59%3A59Z&rvdir=older
+```
+
+That is the same selection `_fetch_cutoff_revision` performs in `tools/generate_ge_period_data.py:182-213`. So prices `406`/`633`, values `400`/`800`, and limits `100`/`100` are exactly what the existing writer emits.
+
+2. No beta marker contaminates a load-bearing record. The two Exchange slots and the two unmarked item slots carry no `{{beta}}` line. The four marked controls `6308186`, `6308184`, `5828595`, and `5828618` are excluded and labelled `supplies_tradeability: false`.
+3. The revision chain is contiguous. `5828595` has `parentid` `5549170`. `5828618` has `parentid` `5728066`. Each marked June record links straight to its unmarked parent.
+4. Every field is literal. Each `raw_line` in `qualified-capes.json` matches the retained main slot. No template expansion supplies a value.
+5. Decoder selection is bound. Both replay outputs print `CLASS com.rs.cache.loaders.ItemDefinitions source=...core-2.0.5.jar`, and `cache-decoder-provenance.json` excludes `core-2.0.6.jar` by exact path and SHA-256.
+6. The two caches corroborate identity only. The audit refuses the client `exchangeable` flag as a tradeability proof.
+
+## Four corrections, all in `memory-bank/source-audits/cape-tradeability-source-2026-09-05.md`
+
+1. Name the identity join. No retained item-page revision contains an item ID. The Exchange main slot supplies the join: `|Item=Spotted cape` with `|ItemId=10069`, and `|Item=Spottier cape` with `|ItemId=10071`. Add one sentence to "Controlling period fields".
+2. Bound the two initial query outputs. `cache-727-items-10069-10071.txt` and `cache-742-items-10069-10071.txt` are byte-identical: both 471 bytes, SHA-256 `988da764705875b66031b1f7a10e7a421ed21cea8124196402699a8c32db8ad0`. Alone they bind to no cache and no decoder. Add one sentence to "Dated cache identity and decoder provenance" that points to the `INPUT_CACHE` and `CLASS` lines in the two replay files.
+3. Complete the static owner list. The audit omits `data/equipment_data.py:359` and `:374`. Both capes are `EQUIPMENT_ITEM_DATA` keys, and `_apply_equipment_metadata` at `core/constants.py:2722` runs over the merged map. That function writes `category`, `equipment_slot`, `equipment_type`, `equipment_required_level`, `equipment_combat_skill`, and `tier`, and never `tradeable` or `source_item_id`. I searched `data/`, `core/`, and `generated/`: no other extra-item map holds either name, so `AGILITY_EXTRA_ITEM_DATA` stays the only literal source of both fields. Add one sentence.
+4. Split the buy limit out of the provenance row. `_price_row` returns `price`, `page_title`, `oldid`, `timestamp`, `price_date`, `page_item`, `item_id`, `cache_value`, and `page_limit`. It never returns `buy_limit`. Both `qualified_generated_row` objects add `"buy_limit": 100`. That value belongs to `PERIOD_GE_BUY_LIMITS`, written by `write_generated` at `tools/generate_ge_period_data.py:278-300`. Add one sentence.
+
+## Gaps that need no correction
+
+- The earlier decoder is unrecorded. The audit states this at line 53 and claims no more.
+- `retained-cohort-rows.json:2` shows the pool11 archery-ticket origin, with `current_tradeable: false` and `disposition: unresolved_keep_current`. The audit already labels it a prior snapshot. Nobody can quote it as current state.
+- Static ownership and the runtime owner check stay a driver gate.
+
+Tell me if you want the four sentences applied to the audit file; that needs Write enabled.

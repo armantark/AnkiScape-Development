@@ -1,0 +1,68 @@
+{
+  "captured_at_utc": "2026-09-05T20:52:07.641144+00:00",
+  "baseline_commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+  "evaluated_candidate_commit": "3c401d0cf9349271f38aefca8582cb39afd2b645",
+  "baseline_worktree": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork",
+  "evaluated_candidate_local_worktree": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/3/ankiscape_fork",
+  "matching_source_trees": {
+    "core": {
+      "baseline_tree": "6281813ec7962b47d280d14bb2cd55a7443061d8",
+      "evaluated_candidate_tree": "6281813ec7962b47d280d14bb2cd55a7443061d8",
+      "identical": true
+    },
+    "data": {
+      "baseline_tree": "ce72be3eaf982a1bfcd5c949ad1d1ff9ec3a3ed0",
+      "evaluated_candidate_tree": "ce72be3eaf982a1bfcd5c949ad1d1ff9ec3a3ed0",
+      "identical": true
+    },
+    "generated": {
+      "baseline_tree": "3a449b2f2e4177c380b46f0794cfb42666391a04",
+      "evaluated_candidate_tree": "3a449b2f2e4177c380b46f0794cfb42666391a04",
+      "identical": true
+    },
+    "logic": {
+      "baseline_tree": "b57d606dd154147f8e76fc2e9d891b92c917468b",
+      "evaluated_candidate_tree": "b57d606dd154147f8e76fc2e9d891b92c917468b",
+      "identical": true
+    }
+  },
+  "both_local_worktrees_have_no_tracked_modifications_in_compared_sources": true,
+  "package_alias": {
+    "path": "pkg_alias.py",
+    "identical_blob": "1b019de47674b904d734e38c9bbd585bd0d345aa",
+    "sha256": "26566e93eebfefe8afc6e4d9ecf3c96349b73938d893a9bdbbac0d400589cdf9",
+    "reason": "Installs ankiscape as a synthetic package with this checkout path without executing root __init__.py."
+  },
+  "changed_production_python_paths": [
+    "__init__.py",
+    "runtime/dispatcher_state.py"
+  ],
+  "qualification": "Core, data, generated, and logic trees are byte-identical at the evaluated candidate and source baseline. The state-only root change is bypassed by pkg_alias; no data supplier changed. This is source binding for the driver-collected map read, not a rerun or a claim about all gameplay.",
+  "driver_runtime_evidence": {
+    "stdout_file": "evaluated-maps-3c401d0c.txt",
+    "original_local_capture": "/tmp/ankiscape-cut-gem-evaluated-maps-3c401d0c.txt",
+    "stdout_bytes": 155,
+    "stdout_sha256": "11ec6a8cd683db146d443d7d02a71cf0f615fe11a565c38812ced8d39acc16c0",
+    "cwd": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork",
+    "interpreter": "/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt/bin/python",
+    "environment": {
+      "QT_QPA_PLATFORM": "offscreen"
+    },
+    "python_command": "import pkg_alias,json; from ankiscape.core import constants as c; print(json.dumps({n:{k:k in getattr(c,n) for k in ('Jade','Red topaz')} for n in ('ORE_DATA','GEM_DATA','EXTRA_ITEM_DATA')},sort_keys=True))",
+    "result": {
+      "EXTRA_ITEM_DATA": {
+        "Jade": false,
+        "Red topaz": false
+      },
+      "GEM_DATA": {
+        "Jade": false,
+        "Red topaz": false
+      },
+      "ORE_DATA": {
+        "Jade": false,
+        "Red topaz": false
+      }
+    },
+    "operator": "Driver; source-audit agent did not access the MacBook or rerun this command."
+  }
+}

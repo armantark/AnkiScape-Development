@@ -1,0 +1,21 @@
+{
+  "baseline_commit": "cd6747a62f2295afd6afd77090bf4ec1d8f69dd9",
+  "method": "Remove only the two added names from the existing tradeable set and their two ID-map entries within AGILITY_EXTRA_ITEM_DATA in the edited AST; the entire remaining module AST equals the baseline.",
+  "path": "data/agility_data.py",
+  "before_sha256": "64e9be7e6ddabf12ce27f9aca0a250ad7880c83a04e07951c32056ec7c36236d",
+  "after_sha256": "5ed5b121f76e9aae4d0618a7997f9c5e737b332727330ac902d700844221241c",
+  "tradeable_names_added": [
+    "Spotted cape",
+    "Spottier cape"
+  ],
+  "source_ids_added": {
+    "Spotted cape": 10069,
+    "Spottier cape": 10071
+  },
+  "all_other_ast_unchanged": true,
+  "unchanged_equipment_files": {
+    "data/equipment_data.py": "f99cf328ef370b4b0d817bc613a78164f22d9539952d077dbcd1ca796567b757",
+    "logic/agility_travel.py": "f1068bd8c59f0097f88895b5398e0ee5bf7fb8a22dbe0479eb8a89836ce1a693",
+    "generated/item_values_generated.py": "b55fda2a8874fdcbeea823258520d449769b6867e30d5fbe31759715429a193d"
+  }
+}

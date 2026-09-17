@@ -1,0 +1,271 @@
+{
+  "all_existing_rows_unchanged": true,
+  "before_count": 1772,
+  "after_count": 1774,
+  "added": {
+    "Red topaz": {
+      "class": "builtins.dict",
+      "items": [
+        [
+          "asset_path",
+          "<repo>/crafteditems/red_topaz.png"
+        ],
+        [
+          "buy_limit",
+          1000
+        ],
+        [
+          "buy_limit_source",
+          {
+            "class": "builtins.dict",
+            "items": [
+              [
+                "oldid",
+                6457777
+              ],
+              [
+                "timestamp",
+                "2012-10-23T03:28:03Z"
+              ],
+              [
+                "title",
+                "Calculator:Grand Exchange buying limits"
+              ]
+            ],
+            "type": "mapping"
+          }
+        ],
+        [
+          "cache_value",
+          200
+        ],
+        [
+          "category",
+          "crafted"
+        ],
+        [
+          "exchangeable",
+          true
+        ],
+        [
+          "guide_price",
+          157
+        ],
+        [
+          "guide_price_provenance",
+          {
+            "class": "builtins.dict",
+            "items": [
+              [
+                "cache_value",
+                200
+              ],
+              [
+                "item_id",
+                1613
+              ],
+              [
+                "oldid",
+                6562932
+              ],
+              [
+                "page_item",
+                "Red topaz"
+              ],
+              [
+                "page_limit",
+                1000
+              ],
+              [
+                "page_title",
+                "Exchange:Red topaz"
+              ],
+              [
+                "price",
+                157
+              ],
+              [
+                "price_date",
+                "05:00, November 16, 2012 (UTC)"
+              ],
+              [
+                "timestamp",
+                "2012-11-16T05:00:40Z"
+              ]
+            ],
+            "type": "mapping"
+          }
+        ],
+        [
+          "guide_price_source",
+          "period_grand_exchange_database"
+        ],
+        [
+          "high_alchemy_value",
+          120
+        ],
+        [
+          "item_id",
+          "crafted_red_topaz"
+        ],
+        [
+          "item_name",
+          "Red topaz"
+        ],
+        [
+          "low_alchemy_value",
+          80
+        ],
+        [
+          "required_level",
+          16
+        ],
+        [
+          "source_item_id",
+          1613
+        ],
+        [
+          "source_role",
+          "processed_good"
+        ],
+        [
+          "tradeable",
+          true
+        ]
+      ],
+      "type": "mapping"
+    },
+    "Jade": {
+      "class": "builtins.dict",
+      "items": [
+        [
+          "asset_path",
+          "<repo>/crafteditems/jade.png"
+        ],
+        [
+          "buy_limit",
+          1000
+        ],
+        [
+          "buy_limit_source",
+          {
+            "class": "builtins.dict",
+            "items": [
+              [
+                "oldid",
+                6457777
+              ],
+              [
+                "timestamp",
+                "2012-10-23T03:28:03Z"
+              ],
+              [
+                "title",
+                "Calculator:Grand Exchange buying limits"
+              ]
+            ],
+            "type": "mapping"
+          }
+        ],
+        [
+          "cache_value",
+          150
+        ],
+        [
+          "category",
+          "crafted"
+        ],
+        [
+          "exchangeable",
+          true
+        ],
+        [
+          "guide_price",
+          89
+        ],
+        [
+          "guide_price_provenance",
+          {
+            "class": "builtins.dict",
+            "items": [
+              [
+                "cache_value",
+                150
+              ],
+              [
+                "item_id",
+                1611
+              ],
+              [
+                "oldid",
+                6570800
+              ],
+              [
+                "page_item",
+                "Jade"
+              ],
+              [
+                "page_limit",
+                1000
+              ],
+              [
+                "page_title",
+                "Exchange:Jade"
+              ],
+              [
+                "price",
+                89
+              ],
+              [
+                "price_date",
+                "04:16, November 18, 2012 (UTC)"
+              ],
+              [
+                "timestamp",
+                "2012-11-18T04:16:44Z"
+              ]
+            ],
+            "type": "mapping"
+          }
+        ],
+        [
+          "guide_price_source",
+          "period_grand_exchange_database"
+        ],
+        [
+          "high_alchemy_value",
+          90
+        ],
+        [
+          "item_id",
+          "crafted_jade"
+        ],
+        [
+          "item_name",
+          "Jade"
+        ],
+        [
+          "low_alchemy_value",
+          60
+        ],
+        [
+          "required_level",
+          13
+        ],
+        [
+          "source_item_id",
+          1611
+        ],
+        [
+          "source_role",
+          "processed_good"
+        ],
+        [
+          "tradeable",
+          true
+        ]
+      ],
+      "type": "mapping"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "qualification": "Historical failed focus run for test SHA 2419373b5f545e4804c5c0a6044637c9a418754a67e222aebf517ace256e459a at its original tests/test_cape_tradeability.py path; not a run of the revised package.",
+  "files": [
+    {
+      "source": "/tmp/ankiscape-cape-focus-2419373b/plain.stderr",
+      "retained": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/focus-2419373b/plain.stderr.gz",
+      "raw_bytes": 779466,
+      "raw_sha256": "568d928ec75c902ef0b7f5a0ca5888791d125ee1727fac1af9cef0d9c25229de",
+      "gzip_sha256": "417193df5c6a40d65cfb5eb068c002d44311aebef3864b4f3f5e0c24d5ec7a4f"
+    },
+    {
+      "source": "/tmp/ankiscape-cape-focus-2419373b/plain.stdout",
+      "retained": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/focus-2419373b/plain.stdout.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "/tmp/ankiscape-cape-focus-2419373b/qt.stderr",
+      "retained": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/focus-2419373b/qt.stderr.gz",
+      "raw_bytes": 1555648,
+      "raw_sha256": "816c9e0f44ab667649da2e4c12ad72a8dfeaa44d0effa271590a039287b60136",
+      "gzip_sha256": "4b69458028427bb1f3772ee6dfe1ec76d5d662704e225b3b08f2d9585a67e12d"
+    },
+    {
+      "source": "/tmp/ankiscape-cape-focus-2419373b/qt.stdout",
+      "retained": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/focus-2419373b/qt.stdout.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "/tmp/ankiscape-cape-focus-2419373b/results.json",
+      "retained": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/focus-2419373b/results.json.gz",
+      "raw_bytes": 535,
+      "raw_sha256": "b0a5bc459918ab40da1fff10fb647a99d278e50161e3c468ac95fb3c41583166",
+      "gzip_sha256": "1d1c4f479d3eded2a15f9887bd98323f33d830df4aafa715616f14599e16e6bb"
+    },
+    {
+      "source": "/tmp/ankiscape-cape-focus-2419373b/source-hashes.json",
+      "retained": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/focus-2419373b/source-hashes.json.gz",
+      "raw_bytes": 426,
+      "raw_sha256": "0e18ab4aa36154cfeec6cdb87495716f2c4a379cb3a28f008e042d799e145fdb",
+      "gzip_sha256": "c7c27ecf6f2e79935f55bc46a324c6fecb55fed826cffd315cc2cc5cd9e7b478"
+    }
+  ]
+}

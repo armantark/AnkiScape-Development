@@ -1,0 +1,390 @@
+[
+  {
+    "storage_key": "Spotted cape",
+    "source_item_id": 10069,
+    "source_owner": "Agility",
+    "qualification": "qualified_period_tradeable_and_grand_exchange",
+    "tradeable": true,
+    "item_source": {
+      "record": "spotted-cape-item-before-beta",
+      "revision": {
+        "title": "Spotted cape",
+        "pageid": 10322,
+        "revid": 5549170,
+        "parentid": 5547339,
+        "timestamp": "2012-05-01T08:02:49Z"
+      },
+      "literal_fields": {
+        "name": {
+          "line": 2,
+          "literal": "Spotted cape",
+          "raw_line": "|name = Spotted cape"
+        },
+        "tradeable": {
+          "line": 8,
+          "literal": "Yes",
+          "raw_line": "|tradeable = Yes"
+        },
+        "equipable": {
+          "line": 9,
+          "literal": "Yes",
+          "raw_line": "|equipable = Yes"
+        },
+        "stackable": {
+          "line": 10,
+          "literal": "No",
+          "raw_line": "|stackable = No"
+        },
+        "exchange": {
+          "line": 15,
+          "literal": "gemw",
+          "raw_line": "|exchange = gemw"
+        },
+        "high": {
+          "line": 11,
+          "literal": "240",
+          "raw_line": "|high = 240"
+        },
+        "low": {
+          "line": 12,
+          "literal": "160",
+          "raw_line": "|low = 160"
+        }
+      }
+    },
+    "marked_revision_controls": [
+      {
+        "record": "spotted-cape-item",
+        "revision": {
+          "title": "Spotted cape",
+          "pageid": 10322,
+          "revid": 6308186,
+          "parentid": 6212329,
+          "timestamp": "2012-09-27T22:29:04Z"
+        },
+        "marker_lines": [
+          1
+        ],
+        "tradeable": [
+          {
+            "line": 9,
+            "literal": "Yes",
+            "raw_line": "|tradeable = Yes"
+          }
+        ],
+        "supplies_tradeability": false
+      },
+      {
+        "record": "spotted-cape-item-june",
+        "revision": {
+          "title": "Spotted cape",
+          "pageid": 10322,
+          "revid": 5828595,
+          "parentid": 5549170,
+          "timestamp": "2012-06-25T20:04:05Z"
+        },
+        "marker_lines": [
+          1
+        ],
+        "tradeable": [
+          {
+            "line": 9,
+            "literal": "Yes",
+            "raw_line": "|tradeable = Yes"
+          }
+        ],
+        "supplies_tradeability": false
+      },
+      {
+        "record": "spotted-cape-item-before-beta",
+        "revision": {
+          "title": "Spotted cape",
+          "pageid": 10322,
+          "revid": 5549170,
+          "parentid": 5547339,
+          "timestamp": "2012-05-01T08:02:49Z"
+        },
+        "marker_lines": [],
+        "tradeable": [
+          {
+            "line": 8,
+            "literal": "Yes",
+            "raw_line": "|tradeable = Yes"
+          }
+        ],
+        "supplies_tradeability": true
+      }
+    ],
+    "exchange_source": {
+      "record": "spotted-cape-exchange",
+      "revision": {
+        "title": "Exchange:Spotted cape",
+        "pageid": 57902,
+        "revid": 6563180,
+        "parentid": 6553592,
+        "timestamp": "2012-11-16T05:35:25Z"
+      },
+      "literal_fields": {
+        "item": {
+          "line": 4,
+          "literal": "Spotted cape",
+          "raw_line": "|Item=Spotted cape"
+        },
+        "itemid": {
+          "line": 5,
+          "literal": "10069",
+          "raw_line": "|ItemId=10069"
+        },
+        "price": {
+          "line": 6,
+          "literal": "406",
+          "raw_line": "|Price=406"
+        },
+        "date": {
+          "line": 8,
+          "literal": "05:35, November 16, 2012 (UTC)",
+          "raw_line": "|Date=05:35, November 16, 2012 (UTC)"
+        },
+        "last": {
+          "line": 7,
+          "literal": "416",
+          "raw_line": "|Last=416"
+        },
+        "lastdate": {
+          "line": 9,
+          "literal": "01:23, November 14, 2012 (UTC)",
+          "raw_line": "|LastDate=01:23, November 14, 2012 (UTC)"
+        },
+        "value": {
+          "line": 10,
+          "literal": "400",
+          "raw_line": "|Value=400"
+        },
+        "limit": {
+          "line": 12,
+          "literal": "100",
+          "raw_line": "|Limit=100"
+        }
+      },
+      "has_beta_marker": false
+    },
+    "client_cache_identity": {
+      "revisions": [
+        727,
+        742
+      ],
+      "item_id": 10069,
+      "literal_name": "Spotted cape",
+      "stackable": false,
+      "exchangeable": true,
+      "qualification": "Client identity and GE flag, not player tradeability."
+    },
+    "qualified_generated_row": {
+      "price": 406,
+      "buy_limit": 100,
+      "page_title": "Exchange:Spotted cape",
+      "oldid": 6563180,
+      "timestamp": "2012-11-16T05:35:25Z",
+      "price_date": "05:35, November 16, 2012 (UTC)",
+      "page_item": "Spotted cape",
+      "item_id": 10069,
+      "cache_value": 400,
+      "page_limit": 100
+    },
+    "runtime_maps": "Not evaluated by this source author; driver verification remains required."
+  },
+  {
+    "storage_key": "Spottier cape",
+    "source_item_id": 10071,
+    "source_owner": "Agility",
+    "qualification": "qualified_period_tradeable_and_grand_exchange",
+    "tradeable": true,
+    "item_source": {
+      "record": "spottier-cape-item-before-beta",
+      "revision": {
+        "title": "Spottier cape",
+        "pageid": 10324,
+        "revid": 5728066,
+        "parentid": 5728064,
+        "timestamp": "2012-06-07T20:51:13Z"
+      },
+      "literal_fields": {
+        "name": {
+          "line": 3,
+          "literal": "Spottier cape",
+          "raw_line": "|name = Spottier cape"
+        },
+        "tradeable": {
+          "line": 9,
+          "literal": "Yes",
+          "raw_line": "|tradeable = Yes"
+        },
+        "equipable": {
+          "line": 10,
+          "literal": "Yes",
+          "raw_line": "|equipable = Yes"
+        },
+        "stackable": {
+          "line": 11,
+          "literal": "No",
+          "raw_line": "|stackable = No"
+        },
+        "exchange": {
+          "line": 16,
+          "literal": "gemw",
+          "raw_line": "|exchange = gemw"
+        },
+        "high": {
+          "line": 12,
+          "literal": "480",
+          "raw_line": "|high = 480"
+        },
+        "low": {
+          "line": 13,
+          "literal": "320",
+          "raw_line": "|low = 320"
+        }
+      }
+    },
+    "marked_revision_controls": [
+      {
+        "record": "spottier-cape-item",
+        "revision": {
+          "title": "Spottier cape",
+          "pageid": 10324,
+          "revid": 6308184,
+          "parentid": 6212334,
+          "timestamp": "2012-09-27T22:29:00Z"
+        },
+        "marker_lines": [
+          1
+        ],
+        "tradeable": [
+          {
+            "line": 10,
+            "literal": "Yes",
+            "raw_line": "|tradeable = Yes"
+          }
+        ],
+        "supplies_tradeability": false
+      },
+      {
+        "record": "spottier-cape-item-june",
+        "revision": {
+          "title": "Spottier cape",
+          "pageid": 10324,
+          "revid": 5828618,
+          "parentid": 5728066,
+          "timestamp": "2012-06-25T20:04:18Z"
+        },
+        "marker_lines": [
+          1
+        ],
+        "tradeable": [
+          {
+            "line": 10,
+            "literal": "Yes",
+            "raw_line": "|tradeable = Yes"
+          }
+        ],
+        "supplies_tradeability": false
+      },
+      {
+        "record": "spottier-cape-item-before-beta",
+        "revision": {
+          "title": "Spottier cape",
+          "pageid": 10324,
+          "revid": 5728066,
+          "parentid": 5728064,
+          "timestamp": "2012-06-07T20:51:13Z"
+        },
+        "marker_lines": [],
+        "tradeable": [
+          {
+            "line": 9,
+            "literal": "Yes",
+            "raw_line": "|tradeable = Yes"
+          }
+        ],
+        "supplies_tradeability": true
+      }
+    ],
+    "exchange_source": {
+      "record": "spottier-cape-exchange",
+      "revision": {
+        "title": "Exchange:Spottier cape",
+        "pageid": 57903,
+        "revid": 6571613,
+        "parentid": 6563181,
+        "timestamp": "2012-11-18T05:44:24Z"
+      },
+      "literal_fields": {
+        "item": {
+          "line": 4,
+          "literal": "Spottier cape",
+          "raw_line": "|Item=Spottier cape"
+        },
+        "itemid": {
+          "line": 5,
+          "literal": "10071",
+          "raw_line": "|ItemId=10071"
+        },
+        "price": {
+          "line": 6,
+          "literal": "633",
+          "raw_line": "|Price=633"
+        },
+        "date": {
+          "line": 8,
+          "literal": "05:44, November 18, 2012 (UTC)",
+          "raw_line": "|Date=05:44, November 18, 2012 (UTC)"
+        },
+        "last": {
+          "line": 7,
+          "literal": "659",
+          "raw_line": "|Last=659"
+        },
+        "lastdate": {
+          "line": 9,
+          "literal": "05:35, November 16, 2012 (UTC)",
+          "raw_line": "|LastDate=05:35, November 16, 2012 (UTC)"
+        },
+        "value": {
+          "line": 10,
+          "literal": "800",
+          "raw_line": "|Value=800"
+        },
+        "limit": {
+          "line": 12,
+          "literal": "100",
+          "raw_line": "|Limit=100"
+        }
+      },
+      "has_beta_marker": false
+    },
+    "client_cache_identity": {
+      "revisions": [
+        727,
+        742
+      ],
+      "item_id": 10071,
+      "literal_name": "Spottier cape",
+      "stackable": false,
+      "exchangeable": true,
+      "qualification": "Client identity and GE flag, not player tradeability."
+    },
+    "qualified_generated_row": {
+      "price": 633,
+      "buy_limit": 100,
+      "page_title": "Exchange:Spottier cape",
+      "oldid": 6571613,
+      "timestamp": "2012-11-18T05:44:24Z",
+      "price_date": "05:44, November 18, 2012 (UTC)",
+      "page_item": "Spottier cape",
+      "item_id": 10071,
+      "cache_value": 800,
+      "page_limit": 100
+    },
+    "runtime_maps": "Not evaluated by this source author; driver verification remains required."
+  }
+]

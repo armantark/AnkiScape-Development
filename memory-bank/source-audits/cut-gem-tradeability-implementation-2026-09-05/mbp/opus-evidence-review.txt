@@ -1,0 +1,60 @@
+I read all the named evidence files. Here is the review.
+
+## Findings
+
+**1. The comparison covers the whole pinned set.** `tmp/review/mbp/summary.json` records 11 plain modules and 12 Qt modules, all with `exit_code` 0. The 11 plain modules are exactly the keys of `FIRST_WAVE_DIGESTS` at `tests/test_module_surface.py:13-25`. The Qt set adds `__init__.py`. The plain root is absent, which agrees with the contract at `tests/test_module_surface.py:83-91`: without `aqt` that case skips. The driver recorded no plain root payload, so no expected failure was counted as a pass.
+
+**2. The recorded before-digests equal the current pins.** In `full-surface-comparison.json`, `plain-core_constants.py.stdout` has `before_sha256` `d5a79ddf…`, which is the `core/constants.py` pin. `qt-__init__.py.stdout` has `2625d3d2…`, which is `ROOT_QT_DIGEST`. `qt-ui_ui_tab_shop.py.stdout` has `2ddacc92…`, which is the Qt override. The payload hash and the pinned digest are the same quantity, so the after-values are valid replacements.
+
+**3. Only the two gems moved.** Across all 23 payloads the recursive comparison reports four field changes plus one list-length change:
+
+| path | before | after |
+| --- | --- | --- |
+| `CRAFTING_DATA.items[54][1].items[14][1]` | `null` | `1611` |
+| `CRAFTING_DATA.items[54][1].items[16][1]` | `false` | `true` |
+| `CRAFTING_DATA.items[57][1].items[14][1]` | `null` | `1613` |
+| `CRAFTING_DATA.items[57][1].items[16][1]` | `false` | `true` |
+| `ITEM_DEFINITIONS.items[55\|56].fields.source_item_id` | `null` | `1611` / `1613` |
+| `ITEM_DEFINITIONS.items[55\|56].fields.tradeable` | `false` | `true` |
+| `GE_ITEM_CATALOG.items` (Qt root only) | 1772 | 1774 |
+
+Eight payloads are byte-identical before and after. No public name was added or removed.
+
+**4. The catalog growth is qualified row by row.** `catalog-comparison.json` records `all_existing_rows_unchanged: true`, 1772 to 1774, and exactly two added rows, `Jade` and `Red topaz`, each with `source_item_id` 1611 / 1613 and `tradeable: true`. The length-only entry in the surface comparison is backed by a named-row comparison, not by a count.
+
+**5. The focused run is real but narrow.** `focused.stderr` shows five tests, all `ok`, in 1.336s. None is `ModuleSurfaceTest`, which is expected because the pins are not yet updated. It is not evidence that the surface test passes after the edit, and it is not a substitute for the full lanes or native testing.
+
+**6. Decoder replay: no contradiction, one bounded limit.** `cache-decoder-replay-provenance.json` lists both core 2.0.6 and core 2.0.5, selects 2.0.5 by path and SHA-256 `bfaf99f7…`, and names 2.0.6 in `excluded_decoder_jars`. Both replay stdout files print `source=…core-2.0.5.jar`, so the new run proves its own decoder by path and hash, not by package metadata, which is `null`. The same file states the selection "does not identify the decoder loaded by the original cut-gem queries", and `cut-gem-decoder-replay-review.json` plus `cut-gem-tradeability-source-2026-09-05.md:47-50,224-226` agree. I found no factual contradiction. Two surface oddities resolve on inspection:
+
+- Both revisions share one `original_stdout_sha256` `9c624e9d…` but have different replay hashes. The originals held only the two item rows, identical for 727 and 742; the replays add an `INPUT_CACHE` line and a `CLASS` line, and the cache paths differ. `replayed_item_rows_byte_equal_to_original` is true for both.
+- The wrapper classpath lists core 2.0.6 before core 2.0.5. If the original run used the wrapper order, it likely loaded 2.0.6. The item rows are byte-equal either way, and the provenance already refuses to claim which JAR the original loaded.
+
+**Gaps.** First, `ModuleSurfaceTest` has no post-edit result; the edit needs a run on both interpreters. Second, the Qt root pin rests on the Qt interpreter alone, which matches the contract but leaves one interpreter carrying that pin. Third, `exchangeable: true` is a client flag, and the provenance says it does not prove direct player tradeability; that inference is a product judgment outside this review.
+
+## Pin verdict
+
+The evidence justifies the update, and the instruments are not weakened. Eight payloads stay byte-identical, the changed payloads move only for the two named gems, and the `--digest-only` contract, the Qt override, and the plain-root skip all stay as they are.
+
+Exact replacements in `tests/test_module_surface.py`, and nothing else in that file:
+
+```
+core/constants.py
+  d5a79ddfd6c50efa7df57cfbd9b0e615a39cf51a0635d315b6ebe9b814777b47
+→ 7aa24ae8c8aa9df14933a27e002e7a468cae6c59bc2b57e6c64ddb4a8e94a5b3
+
+runtime/runtime_actions_carried.py
+  d80cf82f807cff357b4655119717c28c0bd69e46698734a3c6c12401eedfa5f6
+→ af0927c428164ac9689dc6dacc7d0a0ced0f1f92ffed922e213b78d86f65723d
+
+runtime/runtime_actions_activities.py
+  f24614aeb194bb68c3c71694dc57962f00a5f95b8c24c6308e365889eb850c55
+→ 407d10a90bb5c09b90c3892e6ec1b92f14c009689ff912c2dd1cb204a8f2bc7f
+
+ROOT_QT_DIGEST
+  2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d
+→ b87a575034fedaab6f943b8fa21a8836a2f21653381b4fa5aa91ae9535d271a4
+```
+
+`QT_DIGEST_OVERRIDES` needs no new entry, because for all three changed modules the Qt after-digest equals the plain after-digest. The `ui/ui_tab_shop.py` override `2ddacc92…` stays. The other eight pins stay.
+
+This review does not qualify the slice for promotion, and it does not authorize skipping the full lanes or native testing. I made no writes, and the plan file was not created because the Write tool is disabled in this session.

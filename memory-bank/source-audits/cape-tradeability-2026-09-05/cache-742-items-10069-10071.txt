@@ -1,0 +1,2 @@
+10069	Spotted cape	model=11398	recolors=null->null	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[null, Wear, null, null, drop]
+10071	Spottier cape	model=11398	recolors=[5532, 5008]->[6587, 16]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[null, Wear, null, null, drop]

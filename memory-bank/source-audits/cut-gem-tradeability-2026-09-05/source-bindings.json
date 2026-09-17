@@ -1,0 +1,275 @@
+{
+  "captured_at_utc": "2026-09-05T20:36:44.627740+00:00",
+  "repository_commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+  "files": [
+    {
+      "path": "data/crafting_data.py",
+      "git_blob": "50be5269a01e0938e4848ac9a7b9410822f70a32",
+      "sha256": "8a6b49f04c1fab31385007cf4341d02d2f9d361a5cf1a14bdaed17804fe702c0",
+      "excerpts": [
+        {
+          "start_line": 30,
+          "end_line": 49,
+          "text": "@dataclass(frozen=True)\nclass CraftingRecipe:\n    id: str\n    display_name: str\n    family: str\n    station: str\n    level: int\n    base_exp: float\n    requirements: Tuple[Tuple[str, int], ...]\n    output_item: str\n    output_qty: int = 1\n    source: str = CRAFTING_SOURCE_ROOT\n    source_enum: str = \"\"\n    tradeable: bool = True\n    category: str = \"crafted\"\n    notes: str = \"\"\n    source_item_id: Optional[int] = None\n    # Extra items returned alongside the output (e.g. the emptied bucket from\n    # molten glass smelting). Granted per action like the output, never gated.\n    byproducts: Tuple[Tuple[str, int], ...] = ()\n"
+        },
+        {
+          "start_line": 180,
+          "end_line": 188,
+          "text": "CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (\n    CraftingRecipe(\"chisel_limestone_brick\", \"Limestone brick\", \"stone\", \"chisel\", 12, 6.0, _req((\"Limestone\", 1)), \"Limestone brick\", source=LIMESTONE_BRICK_SOURCE, source_item_id=3420),\n    # Gem cutting. Semiprecious source crush chances are documented but not modeled;\n    # one successful review is one completed Crafting action.\n    CraftingRecipe(\"cut_opal\", \"Opal\", \"gems\", \"chisel\", 1, 15.0, _req((\"Uncut opal\", 1)), \"Opal\", source=GEM_SOURCE, source_enum=\"OPAL\", notes=\"Source has crush chance; AnkiScape treats the review action as a successful cut.\"),\n    CraftingRecipe(\"cut_jade\", \"Jade\", \"gems\", \"chisel\", 13, 20.0, _req((\"Uncut jade\", 1)), \"Jade\", source=GEM_SOURCE, source_enum=\"JADE\", tradeable=False, notes=\"Source has crush chance; AnkiScape treats the review action as a successful cut.\"),\n    CraftingRecipe(\"cut_red_topaz\", \"Red topaz\", \"gems\", \"chisel\", 16, 25.0, _req((\"Uncut red topaz\", 1)), \"Red topaz\", source=GEM_SOURCE, source_enum=\"TOPAZ\", tradeable=False, notes=\"Source has crush chance; AnkiScape treats the review action as a successful cut.\"),\n    CraftingRecipe(\"cut_sapphire\", \"Sapphire\", \"gems\", \"chisel\", 20, 50.0, _req((\"Uncut sapphire\", 1)), \"Sapphire\", source=GEM_SOURCE, source_enum=\"SAPPHIRE\"),\n    CraftingRecipe(\"cut_emerald\", \"Emerald\", \"gems\", \"chisel\", 27, 67.0, _req((\"Uncut emerald\", 1)), \"Emerald\", source=GEM_SOURCE, source_enum=\"EMERALD\"),\n"
+        },
+        {
+          "start_line": 434,
+          "end_line": 453,
+          "text": "def crafting_recipes_as_dict() -> Dict[str, Dict[str, object]]:\n    return {\n        recipe.id: {\n            \"display_name\": recipe.display_name,\n            \"family\": recipe.family,\n            \"station\": recipe.station,\n            \"level\": recipe.level,\n            \"exp\": recipe.base_exp,\n            \"requirements\": dict(recipe.requirements),\n            \"output_item\": recipe.output_item,\n            \"output_qty\": recipe.output_qty,\n            \"source\": recipe.source,\n            \"source_enum\": recipe.source_enum,\n            \"tradeable\": recipe.tradeable,\n            \"category\": recipe.category,\n            \"notes\": recipe.notes,\n            \"source_item_id\": recipe.source_item_id,\n            \"byproducts\": dict(recipe.byproducts),\n            \"required_items\": dict(recipe.required_items),\n            \"consume_thread_on_roll\": recipe.consume_thread_on_roll,\n"
+        }
+      ]
+    },
+    {
+      "path": "core/item_registry.py",
+      "git_blob": "8568615140fd4c460938d1a07191afe711549a47",
+      "sha256": "448f158ce1df5208b1ecd41c754745b9a87dce589a8aa1e27adc482b100ec175",
+      "excerpts": [
+        {
+          "start_line": 84,
+          "end_line": 107,
+          "text": "def _definition(\n    name: str,\n    category: ItemCategory,\n    source: str,\n    data: Mapping[str, Mapping[str, object]],\n    images: Mapping[str, str],\n) -> ItemDefinition:\n    spec = data.get(name, {})\n    return ItemDefinition(\n        id=slugify_item_id(category, name),\n        display_name=name,\n        storage_key=name,\n        category=category,\n        asset_path=images.get(name),\n        source=source,\n        license_note=\"private-fork asset; provenance not audited\",\n        source_item_id=_source_item_id(spec),\n        stackable=_bool_value(spec, \"stackable\", True),\n        required_level=_level_value(spec),\n        base_exp=_number_value(spec, \"exp\", 0.0),\n        tradeable=_bool_value(spec, \"tradeable\", True),\n        equipment_slot=str(spec[\"equipment_slot\"]) if isinstance(spec.get(\"equipment_slot\"), str) else None,\n        equipment_type=str(spec[\"equipment_type\"]) if isinstance(spec.get(\"equipment_type\"), str) else None,\n        equipment_tier=_level_value({\"level\": spec.get(\"tier\", 0)}),\n"
+        },
+        {
+          "start_line": 212,
+          "end_line": 223,
+          "text": "        add_definition(_definition(name, \"gem\", \"Mining gem drop\", gem_data, gem_images))\n    for name in bar_data:\n        add_definition(_definition(name, \"bar\", \"Smithing\", bar_data, bar_images))\n    for target_name, spec in crafting_data.items():\n        output_name = spec.get(\"output_item\", target_name)\n        if isinstance(output_name, str) and (\n            extra_item_data is None or extra_item_data.get(output_name, {}).get(\"category\") != \"equipment\"\n        ):\n            output_spec = dict(spec)\n            if extra_item_data is not None and isinstance(extra_item_data.get(output_name), Mapping):\n                output_spec.update(extra_item_data[output_name])\n            add_definition(_definition(output_name, \"crafted\", \"Crafting\", {output_name: output_spec}, crafted_item_images))\n"
+        }
+      ]
+    },
+    {
+      "path": "data/grand_exchange_data.py",
+      "git_blob": "35eec45eeff8359cf933ba24229bb02452a6e107",
+      "sha256": "a666231cc3741edf5a26cc9d6fbbc92ece3ef56001ed59d4218f4b1281baeec4",
+      "excerpts": [
+        {
+          "start_line": 38,
+          "end_line": 95,
+          "text": "    return \"general\"\n\n\ndef build_ge_item_catalog_pure(\n    item_definitions: Iterable[ItemDefinition],\n    *,\n    item_values: Mapping[str, int],\n    exchangeable_names: frozenset[str] | set[str],\n    period_guide_prices: Mapping[str, int] | None = None,\n    period_buy_limits: Mapping[str, int] | None = None,\n    period_price_provenance: Mapping[str, Mapping[str, object]] | None = None,\n    period_buy_limit_source: Mapping[str, object] | None = None,\n) -> dict[str, dict[str, object]]:\n    period_guide_prices = period_guide_prices or {}\n    period_buy_limits = period_buy_limits or {}\n    period_price_provenance = period_price_provenance or {}\n    period_buy_limit_source = period_buy_limit_source or {}\n    catalog: dict[str, dict[str, object]] = {}\n    for item in item_definitions:\n        item_name = item.storage_key\n        if (\n            item_name == \"Coins\"\n            or not item.tradeable\n            or item_name not in exchangeable_names\n        ):\n            continue\n        period_price = int(period_guide_prices.get(item_name, 0) or 0)\n        cache_value = int(item_values.get(item_name, 0) or 0)\n        guide_price = period_price if period_price > 0 else cache_value\n        if guide_price <= 0:\n            continue\n        buy_limit = int(period_buy_limits.get(item_name, 0) or 0)\n        catalog[item_name] = {\n            \"item_name\": item_name,\n            \"item_id\": item.id,\n            \"source_item_id\": item.source_item_id,\n            \"category\": item.category,\n            \"required_level\": item.required_level,\n            \"source_role\": _market_source_role(item.category),\n            \"asset_path\": item.asset_path,\n            \"tradeable\": True,\n            \"exchangeable\": True,\n            \"guide_price\": guide_price,\n            \"guide_price_source\": (\n                \"period_grand_exchange_database\"\n                if period_price > 0\n                else \"cache_value_fallback\"\n            ),\n            \"guide_price_provenance\": dict(\n                period_price_provenance.get(item_name, {})\n            ),\n            \"cache_value\": cache_value if cache_value > 0 else None,\n            \"low_alchemy_value\": int(cache_value * 0.4) if cache_value > 0 else None,\n            \"high_alchemy_value\": int(cache_value * 0.6) if cache_value > 0 else None,\n            \"buy_limit\": buy_limit if buy_limit > 0 else None,\n            \"buy_limit_source\": (\n                dict(period_buy_limit_source) if buy_limit > 0 else None\n            ),\n"
+        }
+      ]
+    },
+    {
+      "path": "tools/generate_ge_period_data.py",
+      "git_blob": "a66c29f7afa4b27dab6cb273b431c07d247c74b0",
+      "sha256": "39ef3b589f52c42ae8199335c8f0bd34ce04d8b9685c306bff939610cd7fd648",
+      "excerpts": [
+        {
+          "start_line": 182,
+          "end_line": 213,
+          "text": "\ndef _price_row(\n    item_name: str,\n    exchange_titles: Sequence[str],\n) -> tuple[str, dict[str, object] | None]:\n    revision = next(\n        (\n            candidate\n            for exchange_title in exchange_titles\n            if (candidate := _fetch_cutoff_revision(f\"Exchange:{exchange_title}\"))\n            is not None\n        ),\n        None,\n    )\n    if revision is None:\n        return item_name, None\n    fields = _parse_fields(str(revision[\"content\"]))\n    price = _parse_positive_int(fields.get(\"price\"))\n    if price is None:\n        return item_name, None\n    return item_name, {\n        \"price\": price,\n        \"page_title\": str(revision[\"title\"]),\n        \"oldid\": int(revision[\"revid\"]),\n        \"timestamp\": str(revision[\"timestamp\"]),\n        \"price_date\": str(fields.get(\"date\", \"\")),\n        \"page_item\": str(fields.get(\"item\", \"\")),\n        \"item_id\": _parse_positive_int(fields.get(\"itemid\")),\n        \"cache_value\": _parse_positive_int(fields.get(\"value\")),\n        \"page_limit\": _parse_positive_int(fields.get(\"limit\")),\n    }\n\n"
+        },
+        {
+          "start_line": 278,
+          "end_line": 301,
+          "text": "def write_generated(output_path: Path, harvested: Mapping[str, object]) -> None:\n    prices = harvested[\"prices\"]\n    buy_limits = harvested[\"buy_limits\"]\n    provenance = harvested[\"provenance\"]\n    lines = [\n        '\"\"\"Auto-generated pre-EOC Grand Exchange data. Do not edit.',\n        \"\",\n        \"Sources are cutoff RuneScape Wiki Exchange revisions and the complete\",\n        \"period buy-limit table. Regenerate with tools/generate_ge_period_data.py.\",\n        '\"\"\"',\n        \"\",\n        f\"PERIOD_GE_BUY_LIMIT_SOURCE = {_python_literal(harvested['buy_limit_source'])}\",\n        \"\",\n        \"PERIOD_GE_GUIDE_PRICES = {\",\n    ]\n    lines.extend(f\"    {name!r}: {prices[name]},\" for name in sorted(prices))\n    lines.extend([\"}\", \"\", \"PERIOD_GE_BUY_LIMITS = {\"])\n    lines.extend(f\"    {name!r}: {buy_limits[name]},\" for name in sorted(buy_limits))\n    lines.extend([\"}\", \"\", \"PERIOD_GE_PRICE_PROVENANCE = {\"])\n    for name in sorted(provenance):\n        lines.append(f\"    {name!r}: {_python_literal(provenance[name])},\")\n    lines.extend([\"}\", \"\"])\n    output_path.write_text(\"\\n\".join(lines), encoding=\"utf-8\")\n\n"
+        }
+      ]
+    },
+    {
+      "path": "tools/query_openrs2_cache.sh",
+      "git_blob": "24effafa8564333706de375867eb42c048ba1306",
+      "sha256": "934b5a2658403b0270987df90850d1b538716cf4066b2c82e4f1f111b5874c56",
+      "excerpts": [
+        {
+          "start_line": 1,
+          "end_line": 47,
+          "text": "#!/usr/bin/env bash\nset -euo pipefail\n\nif [[ $# -lt 2 ]]; then\n  echo \"usage: $0 <disk.zip|cache-dir> <item-name-term|--id> [term|id ...]\" >&2\n  exit 2\nfi\n\nsource_path=$1\nshift\nscript_dir=$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\njava_bin=${JAVA_BIN:-/opt/homebrew/opt/openjdk@25/bin/java}\ngradle_cache=${GRADLE_CACHE:-$HOME/.gradle/caches/modules-2/files-2.1}\n\nif [[ ! -x \"$java_bin\" ]]; then\n  echo \"Java 25 launcher not found at $java_bin; set JAVA_BIN.\" >&2\n  exit 1\nfi\nif [[ ! -d \"$gradle_cache/rs.darkan/core/2.0.5\" ]]; then\n  echo \"Darkan core 2.0.5 is not present under $gradle_cache.\" >&2\n  exit 1\nfi\n\ntemp_dir=\ncleanup() {\n  if [[ -n \"$temp_dir\" ]]; then\n    rm -rf \"$temp_dir\"\n  fi\n}\ntrap cleanup EXIT\n\nif [[ \"$source_path\" == *.zip ]]; then\n  temp_dir=$(mktemp -d \"${TMPDIR:-/tmp}/ankiscape-openrs2.XXXXXX\")\n  unzip -q \"$source_path\" -d \"$temp_dir\"\n  cache_dir=\"$temp_dir/cache\"\nelse\n  cache_dir=$source_path\nfi\n\nif [[ ! -f \"$cache_dir/main_file_cache.dat2\" ]]; then\n  echo \"No RuneScape disk cache found at $cache_dir.\" >&2\n  exit 1\nfi\n\nclasspath=$(find \"$gradle_cache\" -name '*.jar' -print | paste -sd: -)\nexec \"$java_bin\" --class-path \"$classpath\" \\\n  \"$script_dir/OpenRs2CacheItemSearch.java\" \"$cache_dir\" \"$@\"\n"
+        }
+      ]
+    },
+    {
+      "path": "tools/OpenRs2CacheItemSearch.java",
+      "git_blob": "feba8c57bd5558a6f56413e5617efb7d0df6cf1d",
+      "sha256": "0265f583670dea0a3486652b1e19b30fad778e658fea82df39ce892b7cddb26b",
+      "excerpts": [
+        {
+          "start_line": 1,
+          "end_line": 94,
+          "text": "import com.rs.cache.Cache;\nimport com.rs.cache.Index;\nimport com.rs.cache.IndexType;\nimport com.rs.cache.Store;\nimport com.rs.cache.loaders.ItemDefinitions;\n\nimport java.nio.BufferUnderflowException;\nimport java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.List;\nimport java.util.Locale;\nimport java.io.File;\n\nfinal class OpenRs2CacheItemSearch {\n    private OpenRs2CacheItemSearch() {}\n\n    public static void main(String[] args) throws Exception {\n        if (args.length < 2) {\n            System.err.println(\"usage: OpenRs2CacheItemSearch <cache-dir> <term> [term ...]\");\n            System.err.println(\"   or: OpenRs2CacheItemSearch <cache-dir> --id <id> [id ...]\");\n            System.exit(2);\n        }\n\n        String cacheDirectory = args[0].endsWith(File.separator) ? args[0] : args[0] + File.separator;\n        Store store = new Store(cacheDirectory, false);\n        Cache.STORE = store;\n        if (args[1].equals(\"--id\")) {\n            for (int i = 2; i < args.length; i++) {\n                printExactDefinition(store, Integer.parseInt(args[i]));\n            }\n            return;\n        }\n        String[] terms = Arrays.stream(args, 1, args.length)\n                .map(value -> value.toLowerCase(Locale.ROOT))\n                .toArray(String[]::new);\n\n        Index index = store.getIndex(IndexType.ITEMS);\n        int lastArchiveId = index.getLastArchiveId();\n        int maxId = lastArchiveId * 256 + index.getLastFileId(lastArchiveId) + 1;\n        List<Integer> skippedIds = new ArrayList<>();\n        for (int id = 0; id < maxId; id++) {\n            ItemDefinitions definition;\n            try {\n                definition = ItemDefinitions.getItemDefinitions(store, id);\n            } catch (RuntimeException error) {\n                boolean missingOpcode = error.getMessage() != null\n                        && error.getMessage().startsWith(\"MISSING OPCODE \");\n                boolean truncatedDefinition = error instanceof BufferUnderflowException;\n                boolean invalidParamType = error instanceof ClassCastException\n                        && (error.getStackTrace().length == 0\n                                || error.getStackTrace()[0].getClassName()\n                                        .equals(ItemDefinitions.class.getName()));\n                if (!missingOpcode && !truncatedDefinition && !invalidParamType) {\n                    throw error;\n                }\n                skippedIds.add(id);\n                continue;\n            }\n            if (definition == null || definition.name == null) {\n                continue;\n            }\n            String name = definition.name.toLowerCase(Locale.ROOT);\n            if (Arrays.stream(terms).noneMatch(name::contains)) {\n                continue;\n            }\n            System.out.printf(\"%d\\t%s\\t%s%n\", id, definition.name, Arrays.toString(definition.inventoryOptions));\n        }\n        if (!skippedIds.isEmpty()) {\n            System.err.printf(\n                    \"PARTIAL_SEARCH skipped_count=%d skipped_ids=%s%n\",\n                    skippedIds.size(), skippedIds\n            );\n            System.exit(3);\n        }\n    }\n\n    private static void printExactDefinition(Store store, int id) {\n        ItemDefinitions definition = ItemDefinitions.getItemDefinitions(store, id);\n        System.out.printf(\n                \"%d\\t%s\\tmodel=%d\\trecolors=%s->%s\\ttextures=%s->%s\\tsprite-recolors=%s\\tbonuses=%s\\tstackable=%s\\texchangeable=%s\\toptions=%s%n\",\n                id,\n                definition.name,\n                definition.modelId,\n                Arrays.toString(definition.originalModelColors),\n                Arrays.toString(definition.modifiedModelColors),\n                Arrays.toString(definition.originalTextureIds),\n                Arrays.toString(definition.modifiedTextureIds),\n                Arrays.toString(definition.spriteRecolorIndices),\n                Arrays.toString(definition.bonuses),\n                definition.isStackable(),\n                definition.canExchange(),\n                Arrays.toString(definition.inventoryOptions));\n    }\n}\n"
+        }
+      ]
+    }
+  ],
+  "darkan_identity_corroboration": {
+    "file": {
+      "path": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/skills/crafting/GemCutting.java",
+      "bytes": 5451,
+      "sha256": "a910a4ae7d25e45f483373e6e1682d80aebaec8041303eed5d78427c35b491d5"
+    },
+    "head": "6277992980582f7b3da3a48e722e96cfa5b0a57d",
+    "last_file_commit": "8c1f91120aac61f7b2ad66f7af508fa00ed50232",
+    "git_blob": "2c89ef147089b3e86c9d18ea012ca4594374f8a5",
+    "excerpt_start_line": 31,
+    "excerpt": "\tpublic enum Gem {\n\t\tOPAL(1625, 1609, 15.0, 1, 886),\n\n\t\tPEARL(407, 411, 15.0, 41, 886),\n\n\t\tJADE(1627, 1611, 20, 13, 886),\n\n\t\tRED_TOPAZ(1629, 1613, 25, 16, 887),\n\n\t\tSAPPHIRE(1623, 1607, 50, 20, 888),\n",
+    "qualification": "Current reconstruction corroborates uncut-to-cut IDs and XP/levels; it is not period proof of direct tradeability."
+  },
+  "baseline_generated_maps": {
+    "generated/item_values_generated.py": {
+      "sha256": "b55fda2a8874fdcbeea823258520d449769b6867e30d5fbe31759715429a193d",
+      "exact_key_ast_read": {
+        "ITEM_VALUES_GENERATED": {
+          "Jade": {
+            "present": true,
+            "value": 150
+          },
+          "Red topaz": {
+            "present": true,
+            "value": 200
+          }
+        },
+        "STACKABLE_ITEM_NAMES_GENERATED": {
+          "Jade": false,
+          "Red topaz": false
+        },
+        "EXCHANGEABLE_ITEM_NAMES_GENERATED": {
+          "Jade": true,
+          "Red topaz": true
+        }
+      }
+    },
+    "generated/grand_exchange_period_generated.py": {
+      "sha256": "55188e1db6cf4509742bd644ea946eb0992e4bfacaf2b06f84733c244c0ffa3c",
+      "exact_key_ast_read": {
+        "PERIOD_GE_GUIDE_PRICES": {
+          "Jade": {
+            "present": false,
+            "value": null
+          },
+          "Red topaz": {
+            "present": false,
+            "value": null
+          }
+        },
+        "PERIOD_GE_BUY_LIMITS": {
+          "Jade": {
+            "present": false,
+            "value": null
+          },
+          "Red topaz": {
+            "present": false,
+            "value": null
+          }
+        },
+        "PERIOD_GE_PRICE_PROVENANCE": {
+          "Jade": {
+            "present": false,
+            "value": null
+          },
+          "Red topaz": {
+            "present": false,
+            "value": null
+          }
+        }
+      },
+      "literal_global_buy_limit_source": {
+        "title": "Calculator:Grand Exchange buying limits",
+        "oldid": 6457777,
+        "timestamp": "2012-10-23T03:28:03Z"
+      }
+    }
+  },
+  "period_provenance_row_shape": {
+    "existing_sample_key": "Opal",
+    "keys_in_order": [
+      "price",
+      "page_title",
+      "oldid",
+      "timestamp",
+      "price_date",
+      "page_item",
+      "item_id",
+      "cache_value",
+      "page_limit"
+    ],
+    "literal_sample": {
+      "price": 55,
+      "page_title": "Exchange:Opal",
+      "oldid": 6571061,
+      "timestamp": "2012-11-18T04:50:44Z",
+      "price_date": "04:50, November 18, 2012 (UTC)",
+      "page_item": "Opal",
+      "item_id": 1609,
+      "cache_value": 100,
+      "page_limit": 1000
+    },
+    "source": "generated/grand_exchange_period_generated.py",
+    "writer": "tools/generate_ge_period_data.py:278"
+  },
+  "first_write_ownership_check": {
+    "status": "qualified_by_driver_evaluated_maps_and_identical_source_trees",
+    "repository_commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+    "source_path": "core/constants.py",
+    "source_sha256": "34f71097841a08b3d4e4053c8d1545f3af56ac574fb9fbd871ee68b8f240445e",
+    "syntax_only_map_reads": {
+      "ORE_DATA": {
+        "assignment_line": 1436,
+        "expression_kind": "Call",
+        "literal_keys": [],
+        "exact_literal_key_membership": {
+          "Jade": false,
+          "Red topaz": false
+        },
+        "final_mapping_evaluated": false,
+        "qualification": "Exact syntax only; absence of a literal key does not prove absence in imported or computed mappings.",
+        "source": "ORE_DATA = mining_targets_as_dict()"
+      },
+      "GEM_DATA": {
+        "assignment_line": 1464,
+        "expression_kind": "Dict",
+        "literal_keys": [
+          "Uncut sapphire",
+          "Uncut emerald",
+          "Uncut ruby",
+          "Uncut diamond"
+        ],
+        "exact_literal_key_membership": {
+          "Jade": false,
+          "Red topaz": false
+        },
+        "final_mapping_evaluated": false,
+        "qualification": "Exact syntax only; absence of a literal key does not prove absence in imported or computed mappings.",
+        "source": "GEM_DATA = {\n    \"Uncut sapphire\": {\"probability\": 1 / 4, \"exp\": 50},\n    \"Uncut emerald\": {\"probability\": 1 / 8, \"exp\": 67.5},\n    \"Uncut ruby\": {\"probability\": 1 / 16, \"exp\": 85},\n    \"Uncut diamond\": {\"probability\": 1 / 64, \"exp\": 107.5},\n}"
+      },
+      "EXTRA_ITEM_DATA": {
+        "assignment_line": 2754,
+        "expression_kind": "Call",
+        "literal_keys": [],
+        "exact_literal_key_membership": {
+          "Jade": false,
+          "Red topaz": false
+        },
+        "final_mapping_evaluated": false,
+        "qualification": "Exact syntax only; absence of a literal key does not prove absence in imported or computed mappings.",
+        "source": "EXTRA_ITEM_DATA = _apply_equipment_metadata({\n    **_QUEST_MERGED_EXTRA_ITEM_DATA,\n    **FARMING_ITEM_DATA,\n    **WOODCUTTING_EXTRA_ITEM_DATA,\n    **MINING_EXTRA_ITEM_DATA,\n    **SMITHING_EXTRA_ITEM_DATA,\n    **FIREMAKING_EXTRA_ITEM_DATA,\n    **FISHING_EXTRA_ITEM_DATA,\n    **COOKING_EXTRA_ITEM_DATA,\n    **CRAFTING_REQUIRED_ITEM_DATA,\n    **CRAFTING_SPECIAL_ITEM_DATA,\n    **RUNECRAFTING_EXTRA_ITEM_DATA,\n    **GREAT_ORB_PROJECT_EXTRA_ITEM_DATA,\n    **HERBLORE_EXTRA_ITEM_DATA,\n    **PRAYER_EXTRA_ITEM_DATA,\n    **BONE_SOURCE_EXTRA_ITEM_DATA,\n    **COMBAT_EXTRA_ITEM_DATA,\n    **BRAWLING_GLOVES_EXTRA_ITEM_DATA,\n    **FIST_OF_GUTHIX_EXTRA_ITEM_DATA,\n    **COURT_CASES_EXTRA_ITEM_DATA,\n    **CIRCUS_EXTRA_ITEM_DATA,\n    **TROUBLE_BREWING_EXTRA_ITEM_DATA,\n    **CASTLE_WARS_EXTRA_ITEM_DATA,\n    **PEST_CONTROL_EXTRA_ITEM_DATA,\n    **CONQUEST_EXTRA_ITEM_DATA,\n    **BARBARIAN_ASSAULT_EXTRA_ITEM_DATA,\n    **STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA,\n    **STRONGHOLD_OF_SECURITY_EXTRA_ITEM_DATA,\n    **SHADES_OF_MORTTON_EXTRA_ITEM_DATA,\n    **VARROCK_MUSEUM_EXTRA_ITEM_DATA,\n    **SORCERESS_GARDEN_EXTRA_ITEM_DATA,\n    **VINESWEEPER_EXTRA_ITEM_DATA,\n    **FIGHT_CAVES_EXTRA_ITEM_DATA,\n    **PHOENIX_LAIR_EXTRA_ITEM_DATA,\n    **SKELETAL_HORROR_EXTRA_ITEM_DATA,\n    **BORK_EXTRA_ITEM_DATA,\n    **TROLL_INVASION_EXTRA_ITEM_DATA,\n    **SHATTERED_HEART_EXTRA_ITEM_DATA,\n    **MAGE_TRAINING_ARENA_EXTRA_ITEM_DATA,\n    **RANGING_GUILD_EXTRA_ITEM_DATA,\n    **TEMPLE_TREKKING_EXTRA_ITEM_DATA,\n    **MOBILISING_ARMIES_EXTRA_ITEM_DATA,\n    **GNOME_RESTAURANT_EXTRA_ITEM_DATA,\n    **DOMINION_TOWER_EXTRA_ITEM_DATA,\n    **ENCHANTED_KEY_EXTRA_ITEM_DATA,\n    **STEALING_CREATION_EXTRA_ITEM_DATA,\n    **BARROWS_EXTRA_ITEM_DATA,\n    **FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA,\n    **PYRAMID_PLUNDER_EXTRA_ITEM_DATA,\n    **WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA,\n    **GNOME_BALL_EXTRA_ITEM_DATA,\n    **FISH_FLINGERS_EXTRA_ITEM_DATA,\n    **DUEL_ARENA_EXTRA_ITEM_DATA,\n    **CRUCIBLE_EXTRA_ITEM_DATA,\n    **GOBLIN_RAIDS_EXTRA_ITEM_DATA,\n    **DAILY_CHALLENGE_EXTRA_ITEM_DATA,\n    **TREASURE_TRAILS_EXTRA_ITEM_DATA,\n    **DUNGEONEERING_EXTRA_ITEM_DATA,\n    **CRYSTAL_CHEST_EXTRA_ITEM_DATA,\n    **HUNTER_EXTRA_ITEM_DATA,\n    **potion_items_as_dict(),\n    **SHOP_ONLY_EXTRA_ITEM_DATA,\n})"
+      }
+    },
+    "mining_supplier": {
+      "path": "data/mining_data.py",
+      "sha256": "456cabb84e16c7f296a4f512ce3408d80950949cbf455282de6b4798d49420d0",
+      "exact_string_constant_occurrences": {
+        "Jade": [],
+        "Red topaz": []
+      },
+      "qualification": "No exact selected-name string appears in this supplier; this is not an evaluated ORE_DATA read."
+    },
+    "first_write_guard": {
+      "path": "core/item_registry.py",
+      "sha256": "448f158ce1df5208b1ecd41c754745b9a87dce589a8aa1e27adc482b100ec175",
+      "line": 136,
+      "source": "def add_definition(item: ItemDefinition) -> None:\n        if item.storage_key in seen_storage_keys:\n            return\n        seen_storage_keys.add(item.storage_key)\n        definitions.append(item)"
+    },
+    "shop_exclusion_chain": {
+      "known_names_function_line": 2604,
+      "known_names_function": "def _known_non_shop_item_names():\n    names = set()\n    for mapping in (\n        QUEST_REWARD_ITEM_DATA,\n        WOODCUTTING_EXTRA_ITEM_DATA,\n        MINING_EXTRA_ITEM_DATA,\n        SMITHING_EXTRA_ITEM_DATA,\n        FIREMAKING_EXTRA_ITEM_DATA,\n        FISHING_EXTRA_ITEM_DATA,\n        HUNTER_EXTRA_ITEM_DATA,\n        COOKING_EXTRA_ITEM_DATA,\n        CRAFTING_REQUIRED_ITEM_DATA,\n        CRAFTING_SPECIAL_ITEM_DATA,\n        RUNECRAFTING_EXTRA_ITEM_DATA,\n        HERBLORE_EXTRA_ITEM_DATA,\n        COMBAT_EXTRA_ITEM_DATA,\n        CONSTRUCTION_EXTRA_ITEM_DATA,\n        FARMING_ITEM_DATA,\n        THIEVING_EXTRA_ITEM_DATA,\n        FISH_FLINGERS_EXTRA_ITEM_DATA,\n        GREAT_ORB_PROJECT_EXTRA_ITEM_DATA,\n        DUEL_ARENA_EXTRA_ITEM_DATA,\n        CRUCIBLE_EXTRA_ITEM_DATA,\n        GOBLIN_RAIDS_EXTRA_ITEM_DATA,\n        SHADES_OF_MORTTON_EXTRA_ITEM_DATA,\n    ):\n        names.update(mapping)\n    names.update(MINING_OUTPUT_ITEMS)\n    names.update(WOODCUTTING_LOG_ITEMS)\n    names.update(FIREMAKING_LOG_ITEMS)\n    names.update(FIREMAKING_OUTPUT_ITEMS)\n    names.update(BAR_DATA)\n    names.update(GEM_DATA)\n    names.update(FISHING_OUTPUT_ITEMS)\n    names.update(COOKING_OUTPUT_ITEMS)\n    names.update(RUNECRAFTING_OUTPUT_ITEMS)\n    names.update(RUNECRAFTING_ACCESS_ITEMS)\n    names.update(HERBLORE_OUTPUT_ITEMS)\n    names.update(HUNTER_OUTPUT_ITEMS)\n    for spec in CRAFTING_DATA.values():\n        if isinstance(spec.get(\"output_item\"), str):\n            names.add(spec[\"output_item\"])\n        names.update(spec.get(\"requirements\", {}))\n    for spec in FLETCHING_DATA.values():\n        if isinstance(spec.get(\"output_item\"), str):\n            names.add(spec[\"output_item\"])\n        names.update(spec.get(\"requirements\", {}))\n    for spec in HUNTER_DATA.values():\n        names.update(spec.get(\"requirements\", {}))\n    for spec in UTILITY_ACTIVITY_DATA.values():\n        if isinstance(spec.get(\"output_item\"), str):\n            names.add(spec[\"output_item\"])\n        outputs = spec.get(\"outputs\", {})\n        if isinstance(outputs, dict):\n            names.update(outputs)\n        names.update(spec.get(\"requirements\", {}))\n    return names - ({spec.get(\"output_item\") for spec in UTILITY_ACTIVITY_DATA.values() if spec.get(\"group\") == \"material_processing\"} & SHOP_EXTRA_ITEM_DATA.keys())",
+      "shop_filter_line": 2713,
+      "shop_filter": "SHOP_ONLY_EXTRA_ITEM_DATA = {\n    item_name: spec\n    for item_name, spec in SHOP_EXTRA_ITEM_DATA.items()\n    if item_name not in _KNOWN_NON_SHOP_ITEM_NAMES\n    and slugify_item_id(_extra_item_category(spec), item_name) not in _KNOWN_NON_SHOP_ITEM_IDS\n}"
+    },
+    "evaluated_map_evidence": "evaluated-map-source-binding.json",
+    "remaining_scope": "Source ownership for these two keys is qualified. Product behavior and later implementation validation are outside this source-only pass."
+  }
+}

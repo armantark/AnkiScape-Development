@@ -1,0 +1,15 @@
+{{ExchangeItem
+|View={{{View}}}
+|Icon=Jade (gem).png
+|Item=Jade
+|ItemId=1611
+|Price=89
+|Last=91
+|Date=04:16, November 18, 2012 (UTC)
+|LastDate=04:05, November 16, 2012 (UTC)
+|Value=150
+|Limit=1000
+|Category=Crafting materials
+}}<noinclude>
+*This template is used in [[Grand Exchange Market Watch/Crafting]]
+</noinclude>

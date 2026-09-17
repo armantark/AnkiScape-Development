@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Jade",
+    "captured_at_utc": "2026-09-05T20:31:51.957505+00:00",
+    "url": "https://runescape.wiki/api.php?action=query&format=json&formatversion=2&prop=revisions&titles=Jade&redirects=1&rvlimit=1&rvprop=ids%7Ctimestamp%7Ccontent&rvslots=main&rvstart=2012-11-19T23%3A59%3A59Z&rvdir=older",
+    "response": "jade-item.json",
+    "headers": "jade-item.headers.gz",
+    "curl_exit_code": 0,
+    "stderr": "",
+    "original_headers_filename": "jade-item.headers"
+  },
+  {
+    "title": "Red topaz",
+    "captured_at_utc": "2026-09-05T20:31:52.240586+00:00",
+    "url": "https://runescape.wiki/api.php?action=query&format=json&formatversion=2&prop=revisions&titles=Red+topaz&redirects=1&rvlimit=1&rvprop=ids%7Ctimestamp%7Ccontent&rvslots=main&rvstart=2012-11-19T23%3A59%3A59Z&rvdir=older",
+    "response": "red-topaz-item.json",
+    "headers": "red-topaz-item.headers.gz",
+    "curl_exit_code": 0,
+    "stderr": "",
+    "original_headers_filename": "red-topaz-item.headers"
+  },
+  {
+    "title": "Exchange:Jade",
+    "captured_at_utc": "2026-09-05T20:31:52.534734+00:00",
+    "url": "https://runescape.wiki/api.php?action=query&format=json&formatversion=2&prop=revisions&titles=Exchange%3AJade&redirects=1&rvlimit=1&rvprop=ids%7Ctimestamp%7Ccontent&rvslots=main&rvstart=2012-11-19T23%3A59%3A59Z&rvdir=older",
+    "response": "jade-exchange.json",
+    "headers": "jade-exchange.headers.gz",
+    "curl_exit_code": 0,
+    "stderr": "",
+    "original_headers_filename": "jade-exchange.headers"
+  },
+  {
+    "title": "Exchange:Red topaz",
+    "captured_at_utc": "2026-09-05T20:31:52.821610+00:00",
+    "url": "https://runescape.wiki/api.php?action=query&format=json&formatversion=2&prop=revisions&titles=Exchange%3ARed+topaz&redirects=1&rvlimit=1&rvprop=ids%7Ctimestamp%7Ccontent&rvslots=main&rvstart=2012-11-19T23%3A59%3A59Z&rvdir=older",
+    "response": "red-topaz-exchange.json",
+    "headers": "red-topaz-exchange.headers.gz",
+    "curl_exit_code": 0,
+    "stderr": "",
+    "original_headers_filename": "red-topaz-exchange.headers"
+  }
+]

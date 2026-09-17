@@ -1,0 +1,31 @@
+{
+  "source_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/.cache/grand_exchange_period/b69175d454166532c41ed3d7654f0e1d950edfd8153033bd56fff5c6fd58d0f5.json",
+  "source_bytes": 200141,
+  "source_sha256": "58e29b65573b61f0bc772f0764e2ea04fa65254f631976fbf39b5239215a4199",
+  "retained_gzip": "global-buy-limits-oldid-6457777.json.gz",
+  "gzip_sha256": "8143ea6de9ac68c57a5f20bbd396ed46877cacab0aa9424b07a3f2bb7a96a42e",
+  "gzip_bytes": 28841,
+  "title": "Calculator:Grand Exchange buying limits",
+  "revid": 6457777,
+  "timestamp": "2012-10-23T03:28:03Z",
+  "rows": {
+    "Spotted cape": {
+      "content_line": 8408,
+      "literal_lines": [
+        "|[[Exchange:Spotted cape|Spotted cape]]",
+        "|100",
+        "|-"
+      ],
+      "limit": 100
+    },
+    "Spottier cape": {
+      "content_line": 8414,
+      "literal_lines": [
+        "|[[Exchange:Spottier cape|Spottier cape]]",
+        "|100",
+        "|-"
+      ],
+      "limit": 100
+    }
+  }
+}

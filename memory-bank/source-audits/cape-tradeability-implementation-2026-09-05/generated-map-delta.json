@@ -1,0 +1,73 @@
+{
+  "baseline_commit": "cd6747a62f2295afd6afd77090bf4ec1d8f69dd9",
+  "method": "AST literal comparison of every generated map before and after the existing write_generated function; no product import or network call.",
+  "writer_path": "tools/generate_ge_period_data.py",
+  "writer_sha256": "39ef3b589f52c42ae8199335c8f0bd34ce04d8b9685c306bff939610cd7fd648",
+  "before_sha256": "55188e1db6cf4509742bd644ea946eb0992e4bfacaf2b06f84733c244c0ffa3c",
+  "after_sha256": "e77efa42d3b211d7b896985e60e454dd133da2d85a49f6786f99653de13f81fc",
+  "global_buy_limit_source_unchanged": true,
+  "maps": {
+    "PERIOD_GE_GUIDE_PRICES": {
+      "before_count": 1437,
+      "after_count": 1439,
+      "added": [
+        "Spotted cape",
+        "Spottier cape"
+      ],
+      "removed": [],
+      "changed_existing": [],
+      "added_rows": {
+        "Spotted cape": 406,
+        "Spottier cape": 633
+      }
+    },
+    "PERIOD_GE_BUY_LIMITS": {
+      "before_count": 1753,
+      "after_count": 1755,
+      "added": [
+        "Spotted cape",
+        "Spottier cape"
+      ],
+      "removed": [],
+      "changed_existing": [],
+      "added_rows": {
+        "Spotted cape": 100,
+        "Spottier cape": 100
+      }
+    },
+    "PERIOD_GE_PRICE_PROVENANCE": {
+      "before_count": 1437,
+      "after_count": 1439,
+      "added": [
+        "Spotted cape",
+        "Spottier cape"
+      ],
+      "removed": [],
+      "changed_existing": [],
+      "added_rows": {
+        "Spotted cape": {
+          "price": 406,
+          "page_title": "Exchange:Spotted cape",
+          "oldid": 6563180,
+          "timestamp": "2012-11-16T05:35:25Z",
+          "price_date": "05:35, November 16, 2012 (UTC)",
+          "page_item": "Spotted cape",
+          "item_id": 10069,
+          "cache_value": 400,
+          "page_limit": 100
+        },
+        "Spottier cape": {
+          "price": 633,
+          "page_title": "Exchange:Spottier cape",
+          "oldid": 6571613,
+          "timestamp": "2012-11-18T05:44:24Z",
+          "price_date": "05:44, November 18, 2012 (UTC)",
+          "page_item": "Spottier cape",
+          "item_id": 10071,
+          "cache_value": 800,
+          "page_limit": 100
+        }
+      }
+    }
+  }
+}

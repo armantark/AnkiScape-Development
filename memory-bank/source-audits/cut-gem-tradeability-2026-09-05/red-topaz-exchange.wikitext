@@ -1,0 +1,15 @@
+{{ExchangeItem
+|View={{{View}}}
+|Icon=Red topaz.png
+|Item=Red topaz
+|ItemId=1613
+|Price=157
+|Last=134
+|Date=05:00, November 16, 2012 (UTC)
+|LastDate=04:36, November 7, 2012 (UTC)
+|Value=200
+|Limit=1000
+|Category=Crafting materials
+}}<noinclude>
+*This template is used in [[Grand Exchange Market Watch/Crafting]]
+</noinclude>

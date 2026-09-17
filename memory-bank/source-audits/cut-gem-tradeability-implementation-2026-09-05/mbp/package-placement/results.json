@@ -1,0 +1,58 @@
+[
+  {
+    "lane": "plain",
+    "mode": "focus",
+    "argv": [
+      "/opt/homebrew/bin/python3",
+      "run_tests.py",
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest",
+      "test_main_menu_widget.MainMenuWidgetTest.test_magic_alchemy_picker_refreshes_target_readiness",
+      "test_shattered_heart.ShatteredHeartSkillingHookTests.test_one_action_can_award_both_rocks_and_replace_two_outputs",
+      "test_grand_exchange_data.GrandExchangeDataTest.test_generated_period_rows_are_registered_and_cutoff_safe",
+      "test_module_surface.ModuleSurfaceTest",
+      "--verbosity",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "lane": "plain",
+    "mode": "discovery",
+    "argv": [
+      "/opt/homebrew/bin/python3",
+      "run_tests.py",
+      "--list",
+      "--max-results",
+      "10000"
+    ],
+    "exit_code": 0
+  },
+  {
+    "lane": "qt",
+    "mode": "focus",
+    "argv": [
+      "/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt/bin/python",
+      "run_tests.py",
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest",
+      "test_main_menu_widget.MainMenuWidgetTest.test_magic_alchemy_picker_refreshes_target_readiness",
+      "test_shattered_heart.ShatteredHeartSkillingHookTests.test_one_action_can_award_both_rocks_and_replace_two_outputs",
+      "test_grand_exchange_data.GrandExchangeDataTest.test_generated_period_rows_are_registered_and_cutoff_safe",
+      "test_module_surface.ModuleSurfaceTest",
+      "--verbosity",
+      "2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "lane": "qt",
+    "mode": "discovery",
+    "argv": [
+      "/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt/bin/python",
+      "run_tests.py",
+      "--list",
+      "--max-results",
+      "10000"
+    ],
+    "exit_code": 0
+  }
+]

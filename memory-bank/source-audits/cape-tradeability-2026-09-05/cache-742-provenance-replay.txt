@@ -1,0 +1,5 @@
+INPUT_CACHE /Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache
+CLASS com.rs.cache.loaders.ItemDefinitions source=file:/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/rs.darkan/core/2.0.5/5a13ad7bada8a9b1587bfa72fb013283102c6b7d/core-2.0.5.jar implementation_version=null specification_version=null
+CLASS OpenRs2CacheItemSearch source=file:/Users/ArmanTarkhanian1/Library/Application%20Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/15/ankiscape_fork/tmp/review/cape-query-classes/ implementation_version=null specification_version=null
+10069	Spotted cape	model=11398	recolors=null->null	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[null, Wear, null, null, drop]
+10071	Spottier cape	model=11398	recolors=[5532, 5008]->[6587, 16]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[null, Wear, null, null, drop]

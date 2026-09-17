@@ -1,0 +1,75 @@
+{
+  "captured_at_utc": "2026-09-05T22:23:25.999871+00:00",
+  "baseline_commit": "6438d42256236992b10d921d4cca920293b55d93",
+  "reason": "Normal slop-gate rejected growth of capped test files and then growth of the capped tests directory. Restore all three existing files completely and place unchanged gem coverage in the cohesive item_tradeability package, shared with future item-tradeability slices. No exception, bypass, or failed-commit amendment is used.",
+  "restored_files": [
+    {
+      "path": "tests/test_grand_exchange_logic.py",
+      "bytes": 34483,
+      "lines": 996,
+      "sha256": "348707f0c2bc269cda94dae0f2aeaba7bbf59b551f3d7907bcbad45af0a20922",
+      "whole_file_byte_equal_to_baseline": true
+    },
+    {
+      "path": "tests/test_integration_smoke.py",
+      "bytes": 409543,
+      "lines": 9460,
+      "sha256": "dd9a2beece1e722336d5806203eaab2d29aeebd35ba58f7b92ca282b176ec5c1",
+      "whole_file_byte_equal_to_baseline": true
+    },
+    {
+      "path": "tests/test_main_menu_widget.py",
+      "bytes": 851795,
+      "lines": 19987,
+      "sha256": "17e6a73f7831ca17356b04e9f2141d9a004a5108f8b43c746d6d87b4c42fd983",
+      "whole_file_byte_equal_to_baseline": true
+    }
+  ],
+  "new_module": {
+    "path": "tests/item_tradeability/test_cut_gem_tradeability.py",
+    "bytes": 8097,
+    "lines": 158,
+    "sha256": "87f29877f68a68f1926d454221ab9a689f2fe87e100193cebadca78f98d531d4",
+    "selectors": [
+      "tests.item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_orders_stop_filling_at_the_period_buy_limit",
+      "tests.item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_review_output_can_be_traded_and_reloaded_without_item_loss",
+      "tests.item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_alchemy_picker_uses_existing_shop_price_gate"
+    ],
+    "moved_pure_and_review_method_asts_equal_after_only_fixture_qualification_and_lifecycle": true
+  },
+  "fixtures": {
+    "pure": "Module alias ge_support._player plus existing GE functions and catalog; no inherited cases.",
+    "review": "Module alias smoke_support exposes the existing fakes and loader. Register sys.modules clear/update cleanup before the loop; install fresh runtime fakes at the beginning of each subtest before assigning mw or loading the add-on, so each load has a pristine reviewer class and hooks.",
+    "qt": "Module alias widget_support, with a composed MainMenuWidgetTest(runTest) instance; honor QApplication setUpClass and register tearDown only after successful setup. The reused fixture has no addCleanup registrations, so no unrun-fixture doCleanups wrapper is added. Only the new Qt method uses the existing HAS_AQT skip."
+  },
+  "scope": "Product, generated rows, four authorized pins, census and Shattered Heart coverage are unchanged by placement. The original Rune platebody readiness test remains byte-identical.",
+  "pending": "Whole-branch full lanes, post-merge validation, and native acceptance.",
+  "independent_review": {
+    "file": "mbp/opus-test-placement-review.txt",
+    "sha256": "9e2ff34e63806fd9ccf38a40176bd23892ade433954e9a5ede6b353ffb9910b0",
+    "bytes": 5769,
+    "driver_reported_exit_code": 0,
+    "resolved_findings": [
+      "Remove the empty unrun-fixture doCleanups call; registered tearDown remains.",
+      "Install fresh runtime fakes within each gem subtest, before assigning mw or loading its add-on package.",
+      "Use one blank line between methods."
+    ],
+    "assertion_call_asts_unchanged_by_review_fix": true,
+    "runtime_discovery": "Final item_tradeability package placement verified on both MacBook interpreters: baseline5562 to candidate5565, exactly three new package IDs each once, no removed IDs, and all existing multiplicities preserved."
+  },
+  "runtime_verification": "mbp/package-placement/verification.json binds the final package run. Earlier mbp/repair records remain the historical root-placement run.",
+  "package_placement": {
+    "package_marker": "tests/item_tradeability/__init__.py",
+    "package_marker_bytes": 0,
+    "package_marker_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test_module_byte_identical_to_reviewed_root_placement": true,
+    "test_module_sha256": "87f29877f68a68f1926d454221ab9a689f2fe87e100193cebadca78f98d531d4",
+    "path_dependency_inspection": "The moved module has no __file__, ROOT or Path reference. Reused fixtures resolve their own paths in their unchanged defining modules; no parent-index adjustment is needed.",
+    "discovery_ids": [
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_orders_stop_filling_at_the_period_buy_limit",
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_review_output_can_be_traded_and_reloaded_without_item_loss",
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_alchemy_picker_uses_existing_shop_price_gate"
+    ],
+    "scope": "A shared item-tradeability domain package; no skill-category relocation and no broader test-suite refactor."
+  }
+}

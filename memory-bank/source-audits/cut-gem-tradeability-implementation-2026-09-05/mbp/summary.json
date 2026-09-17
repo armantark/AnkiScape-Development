@@ -1,0 +1,117 @@
+[
+  {
+    "interpreter": "plain",
+    "module": "core/constants.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "data/quest_data.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "data/combat_data.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "data/slayer_data.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "logic_pure/logic_pure_combat_engine.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "tests/test_combat_enemy_roster.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "logic/shop_logic.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "ui/ui_tab_shop.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "data/achievement_diary_catalog.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "runtime/runtime_actions_carried.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "plain",
+    "module": "runtime/runtime_actions_activities.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "core/constants.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "data/quest_data.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "data/combat_data.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "data/slayer_data.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "logic_pure/logic_pure_combat_engine.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "tests/test_combat_enemy_roster.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "logic/shop_logic.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "ui/ui_tab_shop.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "data/achievement_diary_catalog.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "runtime/runtime_actions_carried.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "runtime/runtime_actions_activities.py",
+    "exit_code": 0
+  },
+  {
+    "interpreter": "qt",
+    "module": "__init__.py",
+    "exit_code": 0
+  }
+]

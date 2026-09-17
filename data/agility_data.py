@@ -561,13 +561,18 @@ AGILITY_EXTRA_ITEM_DATA = {
         "source": "Agility",
         "stackable": item_name in {"Agility arena ticket", "Rogue kit"},
         "tradeable": (
-            item_name in {"Pyramid top", "Gnomeball", "Toy mouse", "Mith grapple"}
+            item_name in {
+                "Pyramid top", "Gnomeball", "Toy mouse", "Mith grapple",
+                "Spotted cape", "Spottier cape",
+            }
             or item_name in _AGILITY_CONSUMABLE_IDS
         ),
         "source_item_id": {
             "Agile top": 14936,
             "Agile legs": 14938,
             "Gnomeball": 751,
+            "Spotted cape": 10069,
+            "Spottier cape": 10071,
             **_AGILITY_CONSUMABLE_IDS,
         }.get(item_name),
     }

@@ -1,0 +1,2 @@
+1611	Jade	model=2586	recolors=[478, 931, 918, 127]->[15595, 17633, 17988, 15595]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[Craft, null, null, null, drop]
+1613	Red topaz	model=2586	recolors=[478, 931, 918, 127]->[127, 61376, 63411, 61376]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[Craft, null, null, null, drop]

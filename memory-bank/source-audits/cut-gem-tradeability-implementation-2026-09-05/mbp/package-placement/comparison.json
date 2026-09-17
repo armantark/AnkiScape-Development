@@ -1,0 +1,22 @@
+{
+  "plain": {
+    "baseline_count": 5562,
+    "candidate_count": 5565,
+    "added": {
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_alchemy_picker_uses_existing_shop_price_gate": 1,
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_orders_stop_filling_at_the_period_buy_limit": 1,
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_review_output_can_be_traded_and_reloaded_without_item_loss": 1
+    },
+    "removed": {}
+  },
+  "qt": {
+    "baseline_count": 5562,
+    "candidate_count": 5565,
+    "added": {
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_alchemy_picker_uses_existing_shop_price_gate": 1,
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_orders_stop_filling_at_the_period_buy_limit": 1,
+      "item_tradeability.test_cut_gem_tradeability.CutGemTradeabilityTest.test_cut_gem_review_output_can_be_traded_and_reloaded_without_item_loss": 1
+    },
+    "removed": {}
+  }
+}

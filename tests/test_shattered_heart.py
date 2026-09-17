@@ -298,16 +298,22 @@ class ShatteredHeartSkillingHookTests(unittest.TestCase):
         self.assertFalse(any(data["inventory"].get(name, 0) for name in SHATTERED_HEART_ROCK_ITEMS))
 
     def test_one_action_can_award_both_rocks_and_replace_two_outputs(self):
-        data = _player()
-        data["inventory"]["Logs"] = 2
-        updated, ok, info = apply_shattered_heart_skilling_hook_pure(
-            data, "woodcutting", lambda: 0.0, {"Logs": 2}
-        )
-        self.assertTrue(ok, info)
-        self.assertEqual(info["rocks"], SHATTERED_HEART_SKILLS_BY_ID["woodcutting"].rock_items)
-        self.assertEqual(info["chances"], (SHATTERED_HEART_ROCK_CHANCE, SHATTERED_HEART_ROCK_CHANCE * SHATTERED_HEART_SECOND_ROCK_MODIFIER))
-        self.assertEqual(info["replaced_outputs"], {"Logs": 2})
-        self.assertEqual(updated["inventory"]["Logs"], 0)
+        for skill_id, output, quantity in (
+            ("woodcutting", "Logs", 2),
+            ("crafting", "Jade", 1),
+            ("crafting", "Red topaz", 1),
+        ):
+            with self.subTest(output=output):
+                data = _player()
+                data["inventory"][output] = quantity
+                updated, ok, info = apply_shattered_heart_skilling_hook_pure(
+                    data, skill_id, lambda: 0.0, {output: quantity}
+                )
+                self.assertTrue(ok, info)
+                self.assertEqual(info["rocks"], SHATTERED_HEART_SKILLS_BY_ID[skill_id].rock_items)
+                self.assertEqual(info["chances"], (SHATTERED_HEART_ROCK_CHANCE, SHATTERED_HEART_ROCK_CHANCE * SHATTERED_HEART_SECOND_ROCK_MODIFIER))
+                self.assertEqual(info["replaced_outputs"], {output: quantity})
+                self.assertEqual(updated["inventory"][output], 0)
 
     def test_a_future_eligible_skill_cannot_replace_an_untradeable_output(self):
         data = _player()

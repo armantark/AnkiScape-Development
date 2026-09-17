@@ -1,0 +1,720 @@
+{
+  "captured_at_utc": "2026-09-05T20:43:16.357392+00:00",
+  "repository_root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork",
+  "repository_commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+  "actual_original_query_cwd": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork",
+  "original_query_started_at_utc": "2026-09-05T20:32:27.829519Z",
+  "query_sources": [
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork/tools/query_openrs2_cache.sh",
+      "repository_root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork",
+      "commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+      "git_blob": "24effafa8564333706de375867eb42c048ba1306",
+      "sha256": "934b5a2658403b0270987df90850d1b538716cf4066b2c82e4f1f111b5874c56",
+      "bytes": 1231,
+      "is_symlink": false,
+      "tracked": true
+    },
+    {
+      "path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork/tools/OpenRs2CacheItemSearch.java",
+      "repository_root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork",
+      "commit": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+      "git_blob": "feba8c57bd5558a6f56413e5617efb7d0df6cf1d",
+      "sha256": "0265f583670dea0a3486652b1e19b30fad778e658fea82df39ce892b7cddb26b",
+      "bytes": 4096,
+      "is_symlink": false,
+      "tracked": true
+    }
+  ],
+  "cache_inputs": [
+    {
+      "revision": 727,
+      "date": "2012-07-24",
+      "archive_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/runescape-727-2012-07-24-openrs2-309-disk.zip",
+      "archive_bytes": 440159517,
+      "archive_sha256": "ba79072542d1bda4d8140be38839b540133e79bc40c80665ef1772be178b29f8",
+      "query_cwd": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork",
+      "query_argv": [
+        "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork/tools/query_openrs2_cache.sh",
+        "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache",
+        "--id",
+        "1611",
+        "1613"
+      ],
+      "query_stdout_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-2026-09-05/cache-727-items-1611-1613.txt",
+      "query_stdout_sha256": "9c624e9db884b400b79409ebddd98d18adea1bd3a95559f3364084cd2c62d270",
+      "members": [
+        {
+          "zip_member": "cache/main_file_cache.dat2",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.dat2",
+          "bytes": 481506308,
+          "zip_member_sha256": "2b8837d046688f566afca03f416e10607438842df43682f59ed1e01fa92418fc",
+          "extracted_sha256": "2b8837d046688f566afca03f416e10607438842df43682f59ed1e01fa92418fc",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx0",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx0",
+          "bytes": 24510,
+          "zip_member_sha256": "0fb0f47a919fb01f663225c4857ad350eea28566531b74d00eb5be0d2557e114",
+          "extracted_sha256": "0fb0f47a919fb01f663225c4857ad350eea28566531b74d00eb5be0d2557e114",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx1",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx1",
+          "bytes": 21210,
+          "zip_member_sha256": "1621f52ba135101481851f9c8e89a73c48d56e4cb5d9b7eecbeaeaca2805987e",
+          "extracted_sha256": "1621f52ba135101481851f9c8e89a73c48d56e4cb5d9b7eecbeaeaca2805987e",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx2",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx2",
+          "bytes": 450,
+          "zip_member_sha256": "512b99814e110b10de9672f72559a121c722595fbb90270ef0803eb6b163fe1e",
+          "extracted_sha256": "512b99814e110b10de9672f72559a121c722595fbb90270ef0803eb6b163fe1e",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx3",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx3",
+          "bytes": 7926,
+          "zip_member_sha256": "de0f490299169cad12ca361e85fb68b298367d70eeab52bf6c5cf0c9e8ebf75a",
+          "extracted_sha256": "de0f490299169cad12ca361e85fb68b298367d70eeab52bf6c5cf0c9e8ebf75a",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx4",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx4",
+          "bytes": 61440,
+          "zip_member_sha256": "26db1587b907402690e76878f00ec7487902b86edffa7dc175916568e44194f2",
+          "extracted_sha256": "26db1587b907402690e76878f00ec7487902b86edffa7dc175916568e44194f2",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx5",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx5",
+          "bytes": 43608,
+          "zip_member_sha256": "ce4b2425c9921faa8e35b39f8d5a9a65ddb91ce67588332da1e268fa01707139",
+          "extracted_sha256": "ce4b2425c9921faa8e35b39f8d5a9a65ddb91ce67588332da1e268fa01707139",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx6",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx6",
+          "bytes": 6822,
+          "zip_member_sha256": "a1369f4f6ebaa7194374f5cfbc725bce3206212beff97e7f2a784cd690530564",
+          "extracted_sha256": "a1369f4f6ebaa7194374f5cfbc725bce3206212beff97e7f2a784cd690530564",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx7",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx7",
+          "bytes": 432414,
+          "zip_member_sha256": "d734f9eace4a61e66b619be2752672bde90e160e6b7391df843993d3458ebd63",
+          "extracted_sha256": "d734f9eace4a61e66b619be2752672bde90e160e6b7391df843993d3458ebd63",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx8",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx8",
+          "bytes": 72252,
+          "zip_member_sha256": "6237e88d4b0e6e1e4a6c13ac4428164cd759156666be0302ee03b053c4b7e54d",
+          "extracted_sha256": "6237e88d4b0e6e1e4a6c13ac4428164cd759156666be0302ee03b053c4b7e54d",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx9",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx9",
+          "bytes": 13890,
+          "zip_member_sha256": "094bb9e150d2e5c753815f3cc06c92ab9615aac429ffa06bf86e04d0117ef0ad",
+          "extracted_sha256": "094bb9e150d2e5c753815f3cc06c92ab9615aac429ffa06bf86e04d0117ef0ad",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx10",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx10",
+          "bytes": 12,
+          "zip_member_sha256": "9b1799e4f0883b23d355083f388a46df59bf7c35b0f7a4b28270eca21d8ce6e3",
+          "extracted_sha256": "9b1799e4f0883b23d355083f388a46df59bf7c35b0f7a4b28270eca21d8ce6e3",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx11",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx11",
+          "bytes": 3150,
+          "zip_member_sha256": "6683b7fe03168187f1dedb149236df78344fdc569fd800d16c2e73a416fefc48",
+          "extracted_sha256": "6683b7fe03168187f1dedb149236df78344fdc569fd800d16c2e73a416fefc48",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx12",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx12",
+          "bytes": 39396,
+          "zip_member_sha256": "b21915de6b1ea980a84d94fbc0f667a507ce8303a0b3f2b71abf6f09478b0665",
+          "extracted_sha256": "b21915de6b1ea980a84d94fbc0f667a507ce8303a0b3f2b71abf6f09478b0665",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx13",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx13",
+          "bytes": 33792,
+          "zip_member_sha256": "5ba84af4759d513b411778f40c9f65504972644c8020ef3eebac6682365f7e77",
+          "extracted_sha256": "5ba84af4759d513b411778f40c9f65504972644c8020ef3eebac6682365f7e77",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx14",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx14",
+          "bytes": 100950,
+          "zip_member_sha256": "6e24703bee5c282112361762e6972360747611069fdc1146091152a48fcac9ae",
+          "extracted_sha256": "6e24703bee5c282112361762e6972360747611069fdc1146091152a48fcac9ae",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx15",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx15",
+          "bytes": 10008,
+          "zip_member_sha256": "3a714ccfde8a9669c3bb2e262c3465555218d00b183fb761cf180841023e973c",
+          "extracted_sha256": "3a714ccfde8a9669c3bb2e262c3465555218d00b183fb761cf180841023e973c",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx16",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx16",
+          "bytes": 1734,
+          "zip_member_sha256": "f2482eece71e4b38b0657b29d1d1fc0c3678bc12ae213dfc5e98c689b6415d60",
+          "extracted_sha256": "f2482eece71e4b38b0657b29d1d1fc0c3678bc12ae213dfc5e98c689b6415d60",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx17",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx17",
+          "bytes": 144,
+          "zip_member_sha256": "266b92cfe7b64f20669d6955bdd2ede78833c888ccd2df0f93652bf108f0e3cd",
+          "extracted_sha256": "266b92cfe7b64f20669d6955bdd2ede78833c888ccd2df0f93652bf108f0e3cd",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx18",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx18",
+          "bytes": 738,
+          "zip_member_sha256": "5bf6d54c3a74476ed7125219496eaec938502bd8169bbc413fa29e4003faa51e",
+          "extracted_sha256": "5bf6d54c3a74476ed7125219496eaec938502bd8169bbc413fa29e4003faa51e",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx19",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx19",
+          "bytes": 582,
+          "zip_member_sha256": "8273d1c2d13e0aa6b653b6b307a8633df0cdab59de18ccd8341eb5d054bccba9",
+          "extracted_sha256": "8273d1c2d13e0aa6b653b6b307a8633df0cdab59de18ccd8341eb5d054bccba9",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx20",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx20",
+          "bytes": 810,
+          "zip_member_sha256": "4e9bdc9a9fc719928eacb0555a723ef7ed1a4bc45766ab1890eb4626ecfd2690",
+          "extracted_sha256": "4e9bdc9a9fc719928eacb0555a723ef7ed1a4bc45766ab1890eb4626ecfd2690",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx21",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx21",
+          "bytes": 78,
+          "zip_member_sha256": "fc986c12a4f650305199b998ad81fa58b217513f97f56be720051ba92dab6980",
+          "extracted_sha256": "fc986c12a4f650305199b998ad81fa58b217513f97f56be720051ba92dab6980",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx22",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx22",
+          "bytes": 72,
+          "zip_member_sha256": "68813c5f1347fce30e54b340f1c54988b947f39af0d44ead9641856539f6e965",
+          "extracted_sha256": "68813c5f1347fce30e54b340f1c54988b947f39af0d44ead9641856539f6e965",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx23",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx23",
+          "bytes": 570,
+          "zip_member_sha256": "61300ff06733df8baa457f989901c42ac2b690c45d1f6d4a93e5b831b4cc52f2",
+          "extracted_sha256": "61300ff06733df8baa457f989901c42ac2b690c45d1f6d4a93e5b831b4cc52f2",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx24",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx24",
+          "bytes": 12,
+          "zip_member_sha256": "98255f3f6365d3a0362e594afd2a8d0f2f2bee88b782c3158a89d78134269c2c",
+          "extracted_sha256": "98255f3f6365d3a0362e594afd2a8d0f2f2bee88b782c3158a89d78134269c2c",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx25",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx25",
+          "bytes": 12,
+          "zip_member_sha256": "433c2c3e8af5dc5059fe15fb90b0cc4afdc7b0220400f10173ae4110224a0cfb",
+          "extracted_sha256": "433c2c3e8af5dc5059fe15fb90b0cc4afdc7b0220400f10173ae4110224a0cfb",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx26",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx26",
+          "bytes": 6,
+          "zip_member_sha256": "148275a171b83125db94a0148ad239c741380c61539448b2d407bb4a2c7a7a43",
+          "extracted_sha256": "148275a171b83125db94a0148ad239c741380c61539448b2d407bb4a2c7a7a43",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx27",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx27",
+          "bytes": 12,
+          "zip_member_sha256": "0845a35b806f5881c63f88dcc41de6aecff23539d0d7ff9735bfc846812c6ab6",
+          "extracted_sha256": "0845a35b806f5881c63f88dcc41de6aecff23539d0d7ff9735bfc846812c6ab6",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx28",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx28",
+          "bytes": 54,
+          "zip_member_sha256": "52576c53f3f95dbea0d1692151d8ba407baf8ca120bdb1e286ebb9f26ff8c285",
+          "extracted_sha256": "52576c53f3f95dbea0d1692151d8ba407baf8ca120bdb1e286ebb9f26ff8c285",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx29",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx29",
+          "bytes": 6,
+          "zip_member_sha256": "7525134dc1054999cdd572dba1e1ea4aabe9810a84245c9be6e4cba5e1d7f55b",
+          "extracted_sha256": "7525134dc1054999cdd572dba1e1ea4aabe9810a84245c9be6e4cba5e1d7f55b",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx30",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx30",
+          "bytes": 216,
+          "zip_member_sha256": "3ab52fc40fdfe5eaa3001b214957a62fff63704a8c3bd8de23c4d15752a0b948",
+          "extracted_sha256": "3ab52fc40fdfe5eaa3001b214957a62fff63704a8c3bd8de23c4d15752a0b948",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx31",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx31",
+          "bytes": 24,
+          "zip_member_sha256": "841e230fe918e59260d5f0bdb1884113a963c73123bac27254fa77f4d835afbb",
+          "extracted_sha256": "841e230fe918e59260d5f0bdb1884113a963c73123bac27254fa77f4d835afbb",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx32",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx32",
+          "bytes": 51012,
+          "zip_member_sha256": "67f0c0e790d3da8a1df5091dc61200c2f4a82d5af25c92e679c525fbcc9e5f0e",
+          "extracted_sha256": "67f0c0e790d3da8a1df5091dc61200c2f4a82d5af25c92e679c525fbcc9e5f0e",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx33",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx33",
+          "bytes": 228,
+          "zip_member_sha256": "51cdc6610576862900e72740c096193c2e1ea8cecdc5d0d299a1f60e83e7fb0f",
+          "extracted_sha256": "51cdc6610576862900e72740c096193c2e1ea8cecdc5d0d299a1f60e83e7fb0f",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx34",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx34",
+          "bytes": 51012,
+          "zip_member_sha256": "d31373b6ecf3d04fd3835d9706dcae6206e682aee114f7eb2088511d3ac18cd2",
+          "extracted_sha256": "d31373b6ecf3d04fd3835d9706dcae6206e682aee114f7eb2088511d3ac18cd2",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx35",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx35",
+          "bytes": 96,
+          "zip_member_sha256": "dd731fbbd03733396f3a5f46a5957f467040ee89c4f0294fdea4c43b21ba46a2",
+          "extracted_sha256": "dd731fbbd03733396f3a5f46a5957f467040ee89c4f0294fdea4c43b21ba46a2",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx36",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx36",
+          "bytes": 0,
+          "zip_member_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "extracted_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx255",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/727-2012-07-24/cache/main_file_cache.idx255",
+          "bytes": 222,
+          "zip_member_sha256": "2821ddff78b51ba27fa51094bd7658ed81104a1853be4e465c85a7984e687c02",
+          "extracted_sha256": "2821ddff78b51ba27fa51094bd7658ed81104a1853be4e465c85a7984e687c02",
+          "equal": true
+        }
+      ],
+      "member_count": 39,
+      "total_uncompressed_bytes": 482485778,
+      "no_extra_or_missing_extracted_files": true
+    },
+    {
+      "revision": 742,
+      "date": "2012-11-07",
+      "archive_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/runescape-742-2012-11-07-openrs2-544-disk.zip",
+      "archive_bytes": 579120563,
+      "archive_sha256": "9f5fdba0d22cdc1b4ad86c984cc0ba4bcd4b3c22039f3290ba48f5083bc100b8",
+      "query_cwd": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork",
+      "query_argv": [
+        "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork/tools/query_openrs2_cache.sh",
+        "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache",
+        "--id",
+        "1611",
+        "1613"
+      ],
+      "query_stdout_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-2026-09-05/cache-742-items-1611-1613.txt",
+      "query_stdout_sha256": "9c624e9db884b400b79409ebddd98d18adea1bd3a95559f3364084cd2c62d270",
+      "members": [
+        {
+          "zip_member": "cache/main_file_cache.dat2",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.dat2",
+          "bytes": 625175407,
+          "zip_member_sha256": "8302e5d802add42424a2d68cec023948667d85c721fc39adf5ab9de0278c8d93",
+          "extracted_sha256": "8302e5d802add42424a2d68cec023948667d85c721fc39adf5ab9de0278c8d93",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx0",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx0",
+          "bytes": 25296,
+          "zip_member_sha256": "d3ff5156b5521ee4aefca3db2bbdd7c00429fabf95894e57453d1ba42fcdfa50",
+          "extracted_sha256": "d3ff5156b5521ee4aefca3db2bbdd7c00429fabf95894e57453d1ba42fcdfa50",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx1",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx1",
+          "bytes": 21822,
+          "zip_member_sha256": "8a81743fb6bb69adfe854c8484da7546bee500ec1a549dd6b8b6b26fc096930d",
+          "extracted_sha256": "8a81743fb6bb69adfe854c8484da7546bee500ec1a549dd6b8b6b26fc096930d",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx2",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx2",
+          "bytes": 450,
+          "zip_member_sha256": "442c1c672c2a09aa6a78dba4102604cedb03e65f1fa6c595f647aceccd819283",
+          "extracted_sha256": "442c1c672c2a09aa6a78dba4102604cedb03e65f1fa6c595f647aceccd819283",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx3",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx3",
+          "bytes": 8220,
+          "zip_member_sha256": "79fde7ccbf189dc6b86eb838b6a157c5cec1a3d0c42a39ae96e6761686ebc0b8",
+          "extracted_sha256": "79fde7ccbf189dc6b86eb838b6a157c5cec1a3d0c42a39ae96e6761686ebc0b8",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx4",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx4",
+          "bytes": 61440,
+          "zip_member_sha256": "5a5df991bc923c64027c7b9dd4f0a7e559546a8af90d6098133c1cc8a78f249d",
+          "extracted_sha256": "5a5df991bc923c64027c7b9dd4f0a7e559546a8af90d6098133c1cc8a78f249d",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx5",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx5",
+          "bytes": 50682,
+          "zip_member_sha256": "b78af85c9583d5a852ddde647fc74acd6d8c87c43989ba4883c0c58313069a6e",
+          "extracted_sha256": "b78af85c9583d5a852ddde647fc74acd6d8c87c43989ba4883c0c58313069a6e",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx6",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx6",
+          "bytes": 7008,
+          "zip_member_sha256": "e3c8dd0f5b8eab93e7dfed36bdfcf3d3a63c5ea16d4dc259a6d36be6ce357698",
+          "extracted_sha256": "e3c8dd0f5b8eab93e7dfed36bdfcf3d3a63c5ea16d4dc259a6d36be6ce357698",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx7",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx7",
+          "bytes": 473400,
+          "zip_member_sha256": "d96d0035500acf29821e4a9244e7fd9ed1c00b21a436d742738ccbaca48d6bc7",
+          "extracted_sha256": "d96d0035500acf29821e4a9244e7fd9ed1c00b21a436d742738ccbaca48d6bc7",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx8",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx8",
+          "bytes": 84804,
+          "zip_member_sha256": "6351d26c6db30ede54d25979b05727e858eaa6ba6b9d5bb989dfee9f12dc4d2f",
+          "extracted_sha256": "6351d26c6db30ede54d25979b05727e858eaa6ba6b9d5bb989dfee9f12dc4d2f",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx9",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx9",
+          "bytes": 15726,
+          "zip_member_sha256": "633210630648d80436448b25f9f9d03a9bd628b4afee54f0cd346fe225d64bc2",
+          "extracted_sha256": "633210630648d80436448b25f9f9d03a9bd628b4afee54f0cd346fe225d64bc2",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx10",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx10",
+          "bytes": 12,
+          "zip_member_sha256": "d62d33e734babb67bfb7a81c6482e916c470a65623e54bce117a559a26e5b476",
+          "extracted_sha256": "d62d33e734babb67bfb7a81c6482e916c470a65623e54bce117a559a26e5b476",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx11",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx11",
+          "bytes": 3252,
+          "zip_member_sha256": "c1c5f9b3ae915c8ff13372058eb47a9eae5f4beec7ca6d736a344859162d4d3e",
+          "extracted_sha256": "c1c5f9b3ae915c8ff13372058eb47a9eae5f4beec7ca6d736a344859162d4d3e",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx12",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx12",
+          "bytes": 41622,
+          "zip_member_sha256": "fbfdcd5b417665bb4b7e4fd342b3ae93d22b6da6e862e5021c8c6dd9ce51271c",
+          "extracted_sha256": "fbfdcd5b417665bb4b7e4fd342b3ae93d22b6da6e862e5021c8c6dd9ce51271c",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx13",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx13",
+          "bytes": 78732,
+          "zip_member_sha256": "89786905a8c0498997e36599a1858550bab9a3f8a9a815bcb3885079a1b3e695",
+          "extracted_sha256": "89786905a8c0498997e36599a1858550bab9a3f8a9a815bcb3885079a1b3e695",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx14",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx14",
+          "bytes": 122016,
+          "zip_member_sha256": "e72dbc9f0c16108e7ca2df824b11e9a82cc3a45c7a21a59c62d7b419c6e5108b",
+          "extracted_sha256": "e72dbc9f0c16108e7ca2df824b11e9a82cc3a45c7a21a59c62d7b419c6e5108b",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx15",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx15",
+          "bytes": 13836,
+          "zip_member_sha256": "09828335ac27888b712f475717434cbe17de6ef58c2957095e4fcfd9481b2d30",
+          "extracted_sha256": "09828335ac27888b712f475717434cbe17de6ef58c2957095e4fcfd9481b2d30",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx16",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx16",
+          "bytes": 1848,
+          "zip_member_sha256": "267659eec2f6389de6af3516ef8fc3c258df00e7f11dfb0473dd6e8af2f30046",
+          "extracted_sha256": "267659eec2f6389de6af3516ef8fc3c258df00e7f11dfb0473dd6e8af2f30046",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx17",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx17",
+          "bytes": 162,
+          "zip_member_sha256": "ccf9eb56c56932a9967b6f70dcad677206e0ac5b849dd5e99da6974aeceaefe5",
+          "extracted_sha256": "ccf9eb56c56932a9967b6f70dcad677206e0ac5b849dd5e99da6974aeceaefe5",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx18",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx18",
+          "bytes": 750,
+          "zip_member_sha256": "ddc68986f711c1a97db5fd59d9870447416c7d732643c4f5e9a24fe1a4397112",
+          "extracted_sha256": "ddc68986f711c1a97db5fd59d9870447416c7d732643c4f5e9a24fe1a4397112",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx19",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx19",
+          "bytes": 600,
+          "zip_member_sha256": "852a1c6f56eb50c9a41db5a8c009256b5705aed74e5776ef0b7acebe3fea2dc4",
+          "extracted_sha256": "852a1c6f56eb50c9a41db5a8c009256b5705aed74e5776ef0b7acebe3fea2dc4",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx20",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx20",
+          "bytes": 840,
+          "zip_member_sha256": "a5133a43e554b40ccec0225912cdabdfcea995991e9a72c6cf6c9ec690135531",
+          "extracted_sha256": "a5133a43e554b40ccec0225912cdabdfcea995991e9a72c6cf6c9ec690135531",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx21",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx21",
+          "bytes": 84,
+          "zip_member_sha256": "8eee2a99f9fd0dd9e1c41929b46e3e92283b8d179d65479aafbf14022a1cfa57",
+          "extracted_sha256": "8eee2a99f9fd0dd9e1c41929b46e3e92283b8d179d65479aafbf14022a1cfa57",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx22",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx22",
+          "bytes": 78,
+          "zip_member_sha256": "fa5e497d0c2b25b23e2e7b82fcdca2a345519b1e252ab32b8cc6b72540671df1",
+          "extracted_sha256": "fa5e497d0c2b25b23e2e7b82fcdca2a345519b1e252ab32b8cc6b72540671df1",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx23",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx23",
+          "bytes": 570,
+          "zip_member_sha256": "63d1af7f84bc05d624c91d76a6db57a04f657aedfd5d480a1cfb3437fe46073e",
+          "extracted_sha256": "63d1af7f84bc05d624c91d76a6db57a04f657aedfd5d480a1cfb3437fe46073e",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx24",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx24",
+          "bytes": 12,
+          "zip_member_sha256": "51eb213f9be0594413ab040318bb054ef47a8729cb7436ff33cb431c24408bf1",
+          "extracted_sha256": "51eb213f9be0594413ab040318bb054ef47a8729cb7436ff33cb431c24408bf1",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx25",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx25",
+          "bytes": 12,
+          "zip_member_sha256": "ef4b5f14741a702650af6bdd44f96fcf24d3e1c35798c9ad07a1ca1eef0fb9c9",
+          "extracted_sha256": "ef4b5f14741a702650af6bdd44f96fcf24d3e1c35798c9ad07a1ca1eef0fb9c9",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx26",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx26",
+          "bytes": 6,
+          "zip_member_sha256": "36b984b1eba13fe63405dd8b1f88af6ce098fe523f113226c397a62b184cb014",
+          "extracted_sha256": "36b984b1eba13fe63405dd8b1f88af6ce098fe523f113226c397a62b184cb014",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx27",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx27",
+          "bytes": 12,
+          "zip_member_sha256": "94a459fe67536f6300d41b85bac278ab9f7ccdafc86a05633acdad994f7bb198",
+          "extracted_sha256": "94a459fe67536f6300d41b85bac278ab9f7ccdafc86a05633acdad994f7bb198",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx28",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx28",
+          "bytes": 54,
+          "zip_member_sha256": "0ac63c843c74b4ccb331e428a2b144728877f36c32f3fa941831c4a98abaf921",
+          "extracted_sha256": "0ac63c843c74b4ccb331e428a2b144728877f36c32f3fa941831c4a98abaf921",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx29",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx29",
+          "bytes": 6,
+          "zip_member_sha256": "d5f087d59491ef15b3080283f22c18336664ff7deaa0af6ae8cb6cad2fb8ac66",
+          "extracted_sha256": "d5f087d59491ef15b3080283f22c18336664ff7deaa0af6ae8cb6cad2fb8ac66",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx30",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx30",
+          "bytes": 216,
+          "zip_member_sha256": "917cd546b3be91416372fd858f7ee93d8e8dbbd2fdd1f217517d11b40d301a56",
+          "extracted_sha256": "917cd546b3be91416372fd858f7ee93d8e8dbbd2fdd1f217517d11b40d301a56",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx31",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx31",
+          "bytes": 24,
+          "zip_member_sha256": "3f2a5570cf3ede789e59a17fd696813bf2f38a5a7dd7c073f5d9e3ac8282898a",
+          "extracted_sha256": "3f2a5570cf3ede789e59a17fd696813bf2f38a5a7dd7c073f5d9e3ac8282898a",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx32",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx32",
+          "bytes": 51012,
+          "zip_member_sha256": "5779a79ab78573874d00d53db1189a51f67eeaf5bb132f9421e3c2e78c9b2d19",
+          "extracted_sha256": "5779a79ab78573874d00d53db1189a51f67eeaf5bb132f9421e3c2e78c9b2d19",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx33",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx33",
+          "bytes": 228,
+          "zip_member_sha256": "9efda7ae09524b9db09c70393bc9f51dcf1bf3e69d9a437479e3267ce82d1b49",
+          "extracted_sha256": "9efda7ae09524b9db09c70393bc9f51dcf1bf3e69d9a437479e3267ce82d1b49",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx34",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx34",
+          "bytes": 51012,
+          "zip_member_sha256": "84af59fe2d39057e4f4492244e4af718c5aea0f5dff3690206d77a77a699b499",
+          "extracted_sha256": "84af59fe2d39057e4f4492244e4af718c5aea0f5dff3690206d77a77a699b499",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx35",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx35",
+          "bytes": 144,
+          "zip_member_sha256": "e072125123679032273398de1b9b8297ba3af20a0f8314be50af2e78d338c9c9",
+          "extracted_sha256": "e072125123679032273398de1b9b8297ba3af20a0f8314be50af2e78d338c9c9",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx36",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx36",
+          "bytes": 0,
+          "zip_member_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "extracted_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx37",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx37",
+          "bytes": 15648,
+          "zip_member_sha256": "3eae02da98027332e7665a8039fbf1c40f0fc4489b968b15ed665f28e6492496",
+          "extracted_sha256": "3eae02da98027332e7665a8039fbf1c40f0fc4489b968b15ed665f28e6492496",
+          "equal": true
+        },
+        {
+          "zip_member": "cache/main_file_cache.idx255",
+          "extracted_path": "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/extracted/742-2012-11-07/cache/main_file_cache.idx255",
+          "bytes": 228,
+          "zip_member_sha256": "efd8b9ee9bff13977ee8d1cf1ed69e57941e21d23c002420a6672b180a55a130",
+          "extracted_sha256": "efd8b9ee9bff13977ee8d1cf1ed69e57941e21d23c002420a6672b180a55a130",
+          "equal": true
+        }
+      ],
+      "member_count": 40,
+      "total_uncompressed_bytes": 626307271,
+      "no_extra_or_missing_extracted_files": true
+    }
+  ],
+  "qualification": "No earlier extracted-input byte comparison is claimed. This supplement compares every archive file with the actual extracted query inputs at supplement capture time. Original query output is unchanged and was not rerun.",
+  "darkan_decoder_dependency": {
+    "version": "2.0.5",
+    "root": "/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/rs.darkan/core/2.0.5",
+    "jars": [
+      {
+        "path": "/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/rs.darkan/core/2.0.5/5a13ad7bada8a9b1587bfa72fb013283102c6b7d/core-2.0.5.jar",
+        "bytes": 784105,
+        "sha256": "bfaf99f7bb04a55418a9aeb07a01f2724034692637b435a87df4f3f4b029e3fe"
+      }
+    ],
+    "qualification": "The AnkiScape Java query source imports Darkan classes from the Gradle dependency; the wrapper and Java source are tracked in AnkiScape."
+  }
+}

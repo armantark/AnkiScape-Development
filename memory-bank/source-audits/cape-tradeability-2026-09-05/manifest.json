@@ -1,0 +1,407 @@
+{
+  "captured_at_utc": "2026-09-05T21:31:05.481231+00:00",
+  "repository_root": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/15/ankiscape_fork",
+  "source_baseline": "1932b3c07b5dd8bdb598889f2f503607ac92b791",
+  "scope": [
+    "Spotted cape / 10069",
+    "Spottier cape / 10071"
+  ],
+  "qualification": "Source-only; no product imports, runtime tests, MacBook calls, native actions, or product edits. Current evaluated maps are a driver gate.",
+  "files": [
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/CapeCacheQuery.java",
+      "bytes": 753,
+      "sha256": "e8c9dead0b6cca2fba04bc41ef4b32261d9254cbdd5bcdebb5ed539a3f4ae90e"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-727-input-binding.json",
+      "bytes": 22727,
+      "sha256": "63beff9f4072a9e8ed6ca9357cae44f47dad2dec0c6948cdc3679ce621eb2d38"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-727-items-10069-10071.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-727-items-10069-10071.txt",
+      "bytes": 471,
+      "sha256": "988da764705875b66031b1f7a10e7a421ed21cea8124196402699a8c32db8ad0"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-727-provenance-replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-727-provenance-replay.txt",
+      "bytes": 1086,
+      "sha256": "a9218fb6aa0b4cb87a5e340a73043f003bfb4922e146da128eb78b4b6d042a04"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-727-query.json",
+      "bytes": 22535,
+      "sha256": "7c63c12e3b56043fcdc4b83bf0ed5c89a57843345b0abf556a2a8f3b8f3151e2"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-742-input-binding.json",
+      "bytes": 23297,
+      "sha256": "cef8ef9cd26bbab386f1c0fe58916faf71c925b2f7fca014604b8c4cd451856e"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-742-items-10069-10071.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-742-items-10069-10071.txt",
+      "bytes": 471,
+      "sha256": "988da764705875b66031b1f7a10e7a421ed21cea8124196402699a8c32db8ad0"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-742-provenance-replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-742-provenance-replay.txt",
+      "bytes": 1086,
+      "sha256": "cee2dabff58a8357a5dfedb418bd2892f367a92e86f23878565f702baa2f0f0c"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-742-query.json",
+      "bytes": 22535,
+      "sha256": "9ddf14366f58f0d03e9ac0144f6805deea2ab5d0b99c7b7d670ced099b736ad6"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-decoder-provenance.json",
+      "bytes": 47106,
+      "sha256": "3ae552ee056343fe3059db25d629ca97775161910463fc062f27c6701fb0f2c7"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/cache-provenance-replay.json",
+      "bytes": 68368,
+      "sha256": "f9487ccd4c94aa76ab6d2822f725c61d31ac617957d8fde5d65c864844f3bd49"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/capture_cache.py",
+      "bytes": 6780,
+      "sha256": "05b8226c0087da92828de1906abdfe8a268e17e7bf9c429c758717bbb01383e5"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/fetch-provenance.json",
+      "bytes": 714,
+      "sha256": "b29ef349b86377da3928e68718bc2f98f5af5764fc4ed31ed49e63caccf668a0"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/fetch_sources.py",
+      "bytes": 5389,
+      "sha256": "54e25336ac6dd98c2e87856cc3a1c4c1b7f2aa2d2c0a7bdfc2875d2de31b4328"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/global-buy-limit-provenance.json",
+      "bytes": 1005,
+      "sha256": "a9e5ebcdf98290f5499feb2eeca06eab79dce18feeeca9f5898e6b18ff404bd7"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/global-buy-limits-oldid-6457777.json.gz",
+      "bytes": 28841,
+      "sha256": "8143ea6de9ac68c57a5f20bbd396ed46877cacab0aa9424b07a3f2bb7a96a42e",
+      "decompressed_bytes": 200141,
+      "decompressed_sha256": "58e29b65573b61f0bc772f0764e2ea04fa65254f631976fbf39b5239215a4199",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/opus-source-review-resolution.md",
+      "bytes": 759,
+      "sha256": "dc36a2eddd26693c3bc5d3783842a413fed3a984bfa1480f26f10ff368bbe2c2"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/opus-source-review.txt",
+      "bytes": 4182,
+      "sha256": "675a292b7dfadc5101fd49cf14ba27a475e6780a124a55207e2fb9b8b3147057"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/papercuts.md",
+      "bytes": 1165,
+      "sha256": "0a12eb7deee500877769e82e7ae32f3f6e8afa3d012e8d8e3859a51804ebb3bb"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/plan.md",
+      "bytes": 1035,
+      "sha256": "2622f8e0a67d295a96b1baeb3b9d2d4f07bb3d36018a05dab9cf4700a8859403"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/qualified-capes.json",
+      "bytes": 10026,
+      "sha256": "85aa5f15041105c8e2e6282046de180da37641f27f88a669d796867cb1046ac8"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/replay_cache.py",
+      "bytes": 3291,
+      "sha256": "d93a29f3954eb27b8107069e045eaea496855487f8b867720ea263a64ee4c6d3"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/requests.json",
+      "bytes": 18377,
+      "sha256": "e3035e5a8b6b4e8c68adaf133a32572214e0c5247117ee137b84f9391cbcaf14"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/retained-cohort-rows.json",
+      "bytes": 1232,
+      "sha256": "f2de7cd374d1554aa6880f53c706fe1324967d7791c93f6329d5a998037cd41a"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-exchange.headers.gz",
+      "bytes": 518,
+      "sha256": "ca604c4f1d30a1e78de654e372533ef1eb0652b9d16e57bee70e936e575769e0",
+      "decompressed_bytes": 754,
+      "decompressed_sha256": "5cd50b4bb7acd61385d87521f5e02f9ac84aebcef9448b0b9ac4eb6cda7a25de",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-exchange.json.gz",
+      "bytes": 432,
+      "sha256": "c7212b4de88fb2fd4f27122970c42c7b7433e879c8a4f932c961d4f15c520b32",
+      "decompressed_bytes": 720,
+      "decompressed_sha256": "1084c93c007f2aa04c0d3036ff2e69ad7d828ef574028b61008aff3ad6482aab",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-exchange.wikitext.gz",
+      "bytes": 260,
+      "sha256": "97dcf2a299c8086e83bce81fa58e75e04fd3b7cea831e2dee273408778f330ea",
+      "decompressed_bytes": 385,
+      "decompressed_sha256": "b7b4aacb42242e6df18eb5139c6e0784da46ac81e4cee0d6d0a2dfb444b495bf",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item-before-beta.headers.gz",
+      "bytes": 518,
+      "sha256": "4f263956809fda85af86af6d6f0cb56df52f8224206522bdac2e1dd75a255e2e",
+      "decompressed_bytes": 754,
+      "decompressed_sha256": "f395aa5606cd64e7880729054b52da32c34104e54da6e475e6340945713d74f3",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item-before-beta.json.gz",
+      "bytes": 993,
+      "sha256": "69324ee8fda67915b7f1dcae54a02b8f5b2ce92cfc69b042c0f14910fe8b7bbb",
+      "decompressed_bytes": 1874,
+      "decompressed_sha256": "bf9033954f033fa0c9caa28dc93c8c73975ca478311ba0a7b8d0fa56e50571de",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item-before-beta.wikitext.gz",
+      "bytes": 833,
+      "sha256": "88e347125a76588a6cdabc13ed059da5e55b3cf23d243fcbb24fab258ac2d87e",
+      "decompressed_bytes": 1560,
+      "decompressed_sha256": "40e6dbf79dcb679a703de2bb1db6448b33e7e67bdcc36b13307c81037fce1b37",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item-june.headers.gz",
+      "bytes": 518,
+      "sha256": "f08dab2e430e8733f2c245c861d546f9acbb49b8232159735633ec4e208bcd71",
+      "decompressed_bytes": 754,
+      "decompressed_sha256": "0e2b5af96fac2ccca59c7bbb95bde3b8b2698c3d4175a78296d6cfbb054557b6",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item-june.json.gz",
+      "bytes": 1021,
+      "sha256": "192d93c5a13d5d1fec86a3166d69fec4eabd296d4d991a925cf20c08a025cc3d",
+      "decompressed_bytes": 1936,
+      "decompressed_sha256": "777368e5aa1ea2b1c5c62f894430afd86f492ff25aa13b26cdd4cbe3784d070a",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item-june.wikitext.gz",
+      "bytes": 838,
+      "sha256": "a1c6bff2bbbde698e4330d270d1b3c52f86f5db5735e27ea62efe9a923d70c0e",
+      "decompressed_bytes": 1575,
+      "decompressed_sha256": "17efa7a2f36ea0a632fb002f8dd42e760aa0d183e750fc648cbf9c77152c99aa",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item.headers.gz",
+      "bytes": 519,
+      "sha256": "d4a054cba280178fe0b8a8ec5181ca3c9ffd4dad89622d6a2e862a2d04eeb9c4",
+      "decompressed_bytes": 754,
+      "decompressed_sha256": "f6da96695b7feacdb0c5da7f7c4d9ebbcd1b9d864ee941a59de9fc8a893a1b05",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item.json.gz",
+      "bytes": 980,
+      "sha256": "e93d1c79cda33dae0de521994412c804b049f9a3c8663deeea9216acc4a81677",
+      "decompressed_bytes": 1838,
+      "decompressed_sha256": "3e82d3b143825caf3b455a0214171798cf5b7f8b152066654dabbcecbcd14ab5",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spotted-cape-item.wikitext.gz",
+      "bytes": 817,
+      "sha256": "526b2644e5a014450b9df3cee9fe1c0c24facea3ff6a19ffdfe1a491dbd16ddc",
+      "decompressed_bytes": 1525,
+      "decompressed_sha256": "c7685106e86c186bedc105f633bf48535ea0d2ea8799c4bc660f5c50922d72d2",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-exchange.headers.gz",
+      "bytes": 519,
+      "sha256": "76a20280011ab68a5cbc5ebbf278d192e0c7f1dfe8020b771b368b274e12d7e7",
+      "decompressed_bytes": 754,
+      "decompressed_sha256": "251dbf572a368444b5f7f0f20ea708e196014961af398fd9cb4989c01d36e8be",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-exchange.json.gz",
+      "bytes": 431,
+      "sha256": "75b8f0160ad6d69895fc57478ea592c545db3b179f527d48d94182447e92bb34",
+      "decompressed_bytes": 656,
+      "decompressed_sha256": "b1fe5adebfb687ec74cc0d01011929022c47f329d2d08ac9b2993eb5cd61809d",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-exchange.wikitext.gz",
+      "bytes": 254,
+      "sha256": "a57c14b78794bc91fb8edd2cdfeeae06c166fb2a56f1775df81b1c2871f3b4cc",
+      "decompressed_bytes": 321,
+      "decompressed_sha256": "d0b1a1f3eb6a4ccf0ff9c1327324dde2773e18ae0db11f9f3d4c0387b953f5b1",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item-before-beta.headers.gz",
+      "bytes": 519,
+      "sha256": "270c143b8559de965166869ece0d145ae5ffd2f8d05068bf8589071d43ff95b9",
+      "decompressed_bytes": 754,
+      "decompressed_sha256": "0919819ee66645332193087b7447fc80a4d7f1ef3c9518fb8fcae7424cfb56ff",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item-before-beta.json.gz",
+      "bytes": 1149,
+      "sha256": "abe9bb3c30a00dc49f3df43a006bec356d87d5986157b9b36963470e5e3eb564",
+      "decompressed_bytes": 2244,
+      "decompressed_sha256": "2f479ed7201a959979ff7d46eb8d28ad964de0f61f98091e65e86b312b9c4d6f",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item-before-beta.wikitext.gz",
+      "bytes": 985,
+      "sha256": "4bdd2d6b5fb9f74b1d5ece05df6955d6fa3a5837dbbc672a8331d97e6a060c12",
+      "decompressed_bytes": 1916,
+      "decompressed_sha256": "2dd0fb7ea0fe637149063c72ebdddebd0be4e0518083424272e52b3c889f134e",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item-june.headers.gz",
+      "bytes": 516,
+      "sha256": "18ec8ca4a34ec463e3747cffcf3e796c393db738e6af5ebf97da6baddf472912",
+      "decompressed_bytes": 754,
+      "decompressed_sha256": "27405588acb0ea6c213a1ef08dc842086963c6223ae5d66ce094af3bf6cb2fdf",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item-june.json.gz",
+      "bytes": 1176,
+      "sha256": "0f12cd02947c9827292488c216c3de1d6527fa057a709b699bcace1db37780cb",
+      "decompressed_bytes": 2316,
+      "decompressed_sha256": "ce302bc4dff108685b02ae23373b6f9c0bb68276e034ca19253674b844e6574a",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item-june.wikitext.gz",
+      "bytes": 990,
+      "sha256": "3431be168043fd451e99fd182e39761b50e52fec6233c40379876eeb27530bae",
+      "decompressed_bytes": 1941,
+      "decompressed_sha256": "36e20fdd9fda03a7819ccdf401df80d76a893ebbc60e18812f81c64b05b294a4",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item.headers.gz",
+      "bytes": 518,
+      "sha256": "4b3b0766af38e8e036d9f34e81c8baeb2e27799ce4aff87af6773fb71f76397e",
+      "decompressed_bytes": 754,
+      "decompressed_sha256": "367b07fd6143130b5aaf90a5a35885b89b3ab8cadd94c2efbccb49c16a516f77",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item.json.gz",
+      "bytes": 1081,
+      "sha256": "de6e057dee656eb72921ee0681d67e082a94af9efb460f5c9ad709775e145f1f",
+      "decompressed_bytes": 2103,
+      "decompressed_sha256": "e0d98c2f39edbd94a3f26940af6ad9a802c1469332cd73173c35768270e1f4c3",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/spottier-cape-item.wikitext.gz",
+      "bytes": 916,
+      "sha256": "ff1b1708ee58a911b0853cbd7dc377b4f468efdc461ec076b448e3fbb0f52e4e",
+      "decompressed_bytes": 1785,
+      "decompressed_sha256": "1d66ee7de24005ccb3bb004beecd3e527c9b43903325bd432c48120feb0a9f10",
+      "gzip_header_hex": "1f8b08000000000002ff",
+      "gzip_mtime": 0,
+      "gzip_has_original_filename": false
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-2026-09-05/static-source-bindings.json",
+      "bytes": 22693,
+      "sha256": "1ada675b8d80c46113e9b858f21fa70cfed92bdfd5923182182c8efa2d25b475"
+    },
+    {
+      "path": "memory-bank/source-audits/cape-tradeability-source-2026-09-05.md",
+      "bytes": 9406,
+      "sha256": "73fee6251a84e42f20c880286b7ae69f333a82209be5d91d935f296f58ce59b2"
+    }
+  ]
+}
