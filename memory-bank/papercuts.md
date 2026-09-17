@@ -2379,3 +2379,9 @@
 - 2026-09-16T18:09:22-07:00 — Offscreen menu cleanup raised `RuntimeError: wrapped C/C++ object of type CapturingDialog has been deleted` after closing intermediate dialogs; disabled `WA_DeleteOnClose` in the capturing test dialog so teardown owns deletion.
 
 - 2026-09-16T18:11:24-07:00 — After removing the forbidden Scorpion Catcher cross-quest proof gate, `tests.bar_crawl.test_quest_route.TestBarCrawlQuest.test_outpost_scorpion_stage_cannot_bypass_the_crawl` fails at `self.assertFalse(ok)` with `AssertionError: True is not false`: it manually seeds an already-started quest and expects the removed stage gate. Left unchanged under the task's invariant-test prohibition; the quest-start prerequisite test passes.
+
+- 2026-09-16T18:58:52-07:00 — Barcrawl regression fixture repair: direct `logic/*.py` definition searches missed re-exported shop helpers in `logic/shop/state.py` and `logic/shop/services.py`; `cat CLAUDE.md` returned `No such file or directory` in the assigned worktree, so used supplied project instructions. An erroneous `Steer received:` acknowledgement claimed steering that was never sent; corrected immediately and followed the original request only.
+
+- 2026-09-16T19:02:44-07:00 — Barcrawl regression verification: repeated Monitor calls were rejected with `exactly one of command or ws` because the payload included empty `ws`; rejected calls started no tests. Switched the Qt lane to Bash background execution. Further `Steer received:` messages were also erroneous: no caller steering was sent.
+
+- 2026-09-16T19:04:12-07:00 — Regression fixture commit rejected by `slop-gate: code files above 1000 lines were grown:` with `tests/test_logic.py: 12515 lines (was 12510)`; used the existing compact prerequisite-fixture style without growing the module or changing assertions.

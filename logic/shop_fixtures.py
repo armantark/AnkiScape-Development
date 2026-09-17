@@ -12,6 +12,7 @@ from .shop_logic import (
     default_shop_state_pure,
     preview_shop_buy_pure,
     search_shop_catalog_pure,
+    shop_access_lock_reason_pure,
     shop_history_rows_pure,
     shop_view_model_pure,
 )
@@ -38,7 +39,7 @@ def build_shop_frontend_fixtures() -> Dict[str, Any]:
     general_store = _first_general_store()
     non_coin_shop = _first_non_coin_shop()
     hidden_shop = _first_hidden_shop()
-    vendor_action_id = _first_id(SHOP_VENDOR_ACTIONS)
+    vendor_action_id = _first_ungated_vendor_action_id(player_data)
 
     after_buy, buy_result = apply_shop_buy_pure(player_data, live_shop["id"], live_row["id"], 2)
     after_sell, sell_result = apply_shop_sell_pure(after_buy, general_store["id"], "Beer", 1)
@@ -108,5 +109,8 @@ def _first_hidden_shop() -> Mapping[str, Any] | None:
     return None
 
 
-def _first_id(rows: Mapping[str, Any]) -> str:
-    return next(iter(rows))
+def _first_ungated_vendor_action_id(player_data: Mapping[str, Any]) -> str:
+    for action_id in sorted(SHOP_VENDOR_ACTIONS):
+        if shop_access_lock_reason_pure(player_data, SHOP_VENDOR_ACTIONS[action_id]) is None:
+            return action_id
+    raise AssertionError("generated shop catalog has no ungated vendor actions")

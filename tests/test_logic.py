@@ -4955,7 +4955,7 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["agility_level"] = 35
         player_data["prayer_level"] = 31
-
+        player_data["quests"]["bar_crawl"] = {"started": True, "progress": QUEST_DATA["bar_crawl"]["stages"], "completed": True}
         player_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], quest_id)
