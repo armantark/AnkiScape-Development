@@ -233,7 +233,7 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
         self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_442)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_836)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_837)
         self.assertNotIn("Steel spear (kp)", PERIOD_GE_GUIDE_PRICES)
         self.assertNotIn("Steel spear (kp)", PERIOD_GE_BUY_LIMITS)
         self.assertNotIn("Steel spear (kp)", GE_ITEM_CATALOG)
