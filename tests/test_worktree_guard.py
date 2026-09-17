@@ -1,5 +1,7 @@
 import io
 import json
+import shlex
+import sys
 import subprocess
 import tempfile
 import unittest
@@ -7,6 +9,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from tools.native import session_guard as native
 from tools.worktree_guard import (
     add_worktree,
     delete_preserved,
@@ -342,6 +345,116 @@ class PreservedRefTest(unittest.TestCase):
         # The listing also carries each ref's short object id.
         self.assertIn(landed[:7], output.getvalue())
         self.assertIn(unlanded[:7], output.getvalue())
+
+
+class NativeSessionGuardTest(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name).resolve()
+        self.repo = self.root / "repo"
+        self.repo.mkdir()
+        (self.repo / "__init__.py").write_text("ADDON = True\n", encoding="utf-8")
+        self.collection = self.root / "owner/collection.anki2"
+        self.collection.parent.mkdir()
+        self.collection.write_bytes(b"original collection")
+        self.enterContext(patch.object(native, "owner_collection", return_value=self.collection))
+        self.process = self.enterContext(patch.object(
+            native.subprocess, "run", return_value=Mock(returncode=1, stdout="", stderr=""),
+        ))
+        self.enterContext(patch.object(native.tempfile, "tempdir", str(self.root)))
+
+    def prepare_session(self):
+        with redirect_stdout(io.StringIO()) as output:
+            base = native.prepare(self.repo)
+        return base, json.loads(output.getvalue())
+
+    def test_prepare_copies_addon_and_records_collection_without_modifying_it(self):
+        before = native.measure(self.collection)
+        base, output = self.prepare_session()
+        copied = base / "addons21/ankiscape_fork/__init__.py"
+        self.assertEqual(copied.read_bytes(), b"ADDON = True\n")
+        self.assertFalse(copied.is_symlink())
+        receipt = json.loads((base / native.RECEIPT).read_text())
+        self.assertEqual(receipt["baseline"], before)
+        self.assertEqual(native.measure(self.collection), before)
+        self.assertEqual(output["path"], str(base))
+        self.assertIn(" -b ", output["anki_command"])
+        self.assertIn(" launch ", output["launch_command"])
+        self.assertEqual(shlex.split(output["launch_command"]), [
+            sys.executable, str(Path(native.__file__).resolve()), "launch", str(base),
+        ])
+        with patch.object(native, "prepare") as prepare:
+            self.assertEqual(native.main(["prepare"]), 0)
+        prepare.assert_called_once_with(Path(__file__).resolve().parents[1])
+
+    def test_prepare_refuses_running_anki_before_creating_a_session(self):
+        self.process.return_value = Mock(returncode=0, stdout="123\n", stderr="")
+        before = native.measure(self.collection)
+        with self.assertRaisesRegex(RuntimeError, "Anki is already running"):
+            native.prepare(self.repo)
+        self.assertEqual(list(self.root.glob("ankiscape-native-*")), [])
+        self.assertEqual(native.measure(self.collection), before)
+        self.process.assert_called_once_with(
+            ("/usr/bin/pgrep", "-ix", "anki"), text=True, capture_output=True,
+        )
+
+    def test_verify_detects_modified_collection_and_preserves_evidence(self):
+        base, _ = self.prepare_session()
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(native.main(["verify", str(base)]), 0)
+        self.assertTrue(json.loads(output.getvalue())["unchanged"])
+        self.collection.write_bytes(b"modified collection with more data")
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(native.main(["verify", str(base)]), 1)
+        report = json.loads(output.getvalue())
+        self.assertFalse(report["unchanged"])
+        self.assertIn("sha256", report["changes"])
+        self.assertIn("size", report["changes"])
+        self.assertTrue((base / native.RECEIPT).is_file())
+        self.assertTrue((base / "addons21/ankiscape_fork/__init__.py").is_file())
+
+    def test_verify_handles_absence_and_detects_creation_and_removal(self):
+        self.collection.unlink()
+        base, _ = self.prepare_session()
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(native.verify(base), 0)
+            self.collection.write_bytes(b"new collection")
+            self.assertEqual(native.verify(base), 1)
+        present, _ = self.prepare_session()
+        self.collection.unlink()
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(native.verify(present), 1)
+        self.assertEqual(json.loads(output.getvalue())["changes"]["exists"],
+                         {"before": True, "after": False})
+
+    def test_launch_refuses_unprepared_or_relocated_receipt(self):
+        with self.assertRaisesRegex(RuntimeError, "missing native-session-receipt.json"):
+            native.launch(self.root)
+        self.process.assert_not_called()
+        base, _ = self.prepare_session()
+        moved = base.rename(base.with_name("ankiscape-native-moved"))
+        self.process.reset_mock()
+        with self.assertRaisesRegex(ValueError, "receipt does not match"):
+            native.launch(moved)
+        self.process.assert_not_called()
+
+    def test_launch_rechecks_running_anki_and_always_passes_base(self):
+        base, _ = self.prepare_session()
+        self.process.reset_mock()
+        self.process.return_value = Mock(returncode=0, stdout="123\n", stderr="")
+        with self.assertRaisesRegex(RuntimeError, "Anki is already running"):
+            native.launch(base)
+        self.assertEqual(self.process.call_count, 1)
+        self.process.side_effect = [Mock(returncode=1), Mock(returncode=7)]
+        self.assertEqual(native.launch(base), 7)
+        self.process.assert_called_with((str(native.ANKI), "-b", str(base)), check=False)
+
+    def test_process_probe_failure_is_not_treated_as_anki_stopped(self):
+        self.process.return_value = Mock(returncode=2, stderr="probe denied")
+        with self.assertRaisesRegex(RuntimeError, "cannot check.*probe denied"):
+            native.prepare(self.repo)
+        self.assertEqual(list(self.root.glob("ankiscape-native-*")), [])
 
 
 if __name__ == "__main__":
