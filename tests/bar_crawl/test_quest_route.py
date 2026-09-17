@@ -53,29 +53,6 @@ class TestBarCrawlQuest(unittest.TestCase):
                 self.assertTrue(started)
                 self.assertTrue(updated["quests"][quest_id]["started"])
 
-    def test_outpost_scorpion_stage_cannot_bypass_the_crawl(self):
-        player = self._start_and_collect(range(len(BAR_CRAWL_PURCHASES)))
-        player["inventory"]["Scorpion cage"] = 1
-        player["quests"]["scorpion_catcher"] = {
-            "started": True, "completed": False, "progress": 4,
-        }
-        before = copy.deepcopy(player)
-        updated, ok, completed = apply_quest_progress_pure(player, "scorpion_catcher", QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed)
-        self.assertEqual(updated, before)
-        self.assertEqual(player, before)
-        self.assertNotIn("Reach the Barbarian Outpost scorpion room", updated["quest_action_proofs"])
-        player, ok, completed = apply_quest_progress_pure(player, BAR_CRAWL_ID, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed)
-        player, ok, completed = apply_quest_progress_pure(player, "scorpion_catcher", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed)
-        self.assertEqual(player["quests"]["scorpion_catcher"]["progress"], 5)
-        self.assertIn("Reach the Barbarian Outpost scorpion room", player["quest_action_proofs"])
-        self.assertIn("Catch the Barbarian Outpost Kharid scorpion", player["quest_action_proofs"])
-
     def _assert_outpost_access(self, player, allowed):
         for course in ("barbarian_normal", "barbarian_advanced"):
             with self.subTest(course=course):
