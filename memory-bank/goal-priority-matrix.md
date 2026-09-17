@@ -56,14 +56,14 @@ The [complete complexity inventory](source-audits/exposed-complexity-2026-09-05.
 | 0 | Native route; task `01a072ec-928c-73f0-99ea-d316edefd44b` | `verification_pending`; interrupted and unproven | Parent task read returned `notLoaded`, with latest turn `01a074bc-4bcd-7232-9b71-0b8d4fe6d097` interrupted. Prior commentary said the attached launch was approved and running, but no final proof exists. Parent read-only host check found `/tmp/ankiscape-native-empty-canary-status-2026-09-05.txt` absent and `pgrep -x Anki` returned no PID. No currently running Anki or native acceptance is established; do not infer a failure cause. |
 | 0 | Root instrument `1932b3c0`; constants `9f54377b`; genuine-quest source audit `a6aef40a` | `closed` at accepted main `518a651d` | Preserve the exact gate receipt. Constants implementation and this source audit are landed; the audit does not implement its proposed quest actions. |
 | 2 | Native fixture `goal/native-review-fixture-2026-09-05`, `f7f9d505df9ae830e3a6253047bac4a4aa797078`; [source][fixture] | `verification_pending`, parked behind cleanup | Author committed and clean; documentation/native-release evidence is finished. Earlier `68f628ca` passed full branch gate `36315` (all eight checks); the new docs-only head `f7f9d505` has not been re-gated. Advance only if needed for dispatcher native acceptance; otherwise keep behind the cleanup programme. |
-| 2 | Quest-combat relocation `goal/quest-combat-relocation-2026-09-05`, `c5585ac36a2879c469193ae18e3ca868da666753`; [source][relocation] | `verification_pending` | Author committed and clean; Opus delta review `79277` passed and the parent verified its retained gzip evidence. Approved path relocation followed `data: 104 code files (was 103)`. The final layout record binds 44 sources; the prior 43-source runtime proof remains historical. Full branch, composition and native acceptance remain pending behind priority cleanup. |
-| 2 | Retained shop proofs `66bcbc6fbc2482c87c78ef75ff5a440c83c5c85b`; Crayfish `734d6a9e7bc9dbbac39cb7845401f22bd7bc8b4e`; pouches `fd1cecf17ef12224fca8ef416e1d3f84412aebc8`; Archery `1b3a2911e869120347eaa9a4e3a6d3cd68cc346e` | `verification_pending` | Driver-reported full branch gates passed. Complete native and exact merged-tree acceptance before landing. Retained-proof repair does not settle the separate legacy-save migration decision. No fresh cohort census is claimed. |
-| 2 | Capes `98401b2fee2892304ac3e7f0f1d96b0ee4929fe2`, [source][cape]; cut gems `797bbf456c233948f800ada99948de2a243a7d3f`, [source][gems] | `verification_pending` | Both corrections are committed. Full branch, exact merged-tree and native acceptance remain pending. Earlier cut-gem states below are historical. |
+| 2 | Quest-combat relocation; re-homed and landed main `3d432b55` | `closed` | Rum Deal and Zogre Flesh Eaters corrections now live in `data/quest/combat_relocation.py`, applied from `data/quest/catalog.py`. The stale branch was not merged; its content was ported into main's split layout. The serialized quest catalogue hashes identically before and after, proving no observable value moved. |
+| 2 | Retained shop proofs, Crayfish, Archery, pouches; landed main `af4ca7cb` and `889d1cc7` | `closed` | Crayfish and Archery ticket are tradeable with sourced prices and limits. The retained-proof defect is fixed: rolling back one shop purchase no longer erases a proof another retained purchase still earns. Two of its three tests fail when the fix is reverted, proving they bite. |
+| 2 | Capes and cut gems; landed main `074b9cd2` | `closed` | Spotted cape, Spottier cape, cut Jade and Red topaz are tradeable with their period guide prices and buy limits. The cape lifecycle test was repaired to drive the shared state owner rather than an attribute the runtime stopped reading. |
 | 2 | Evil Tree refresh; source4 `4d3bd18b`, [completed diagnostic][evil] | `closed` | `SEEDED_INDIRECT_REFRESH_CORRECT`: the normal seeded answer path refreshes availability through combat recovery. `CONTROL_STALE_WITH_OMITTED_RECOVERY_STATE` used an incomplete fixture. No product defect was reproduced and no fix is required. Do not redispatch this diagnosis. |
 | 3 | Bar Crawl; source `source-audits/bar-crawl-harvest-2026-09-02.md`; landed main `3a14d435` | `closed` | The ten venue/drink deeds, the guard/card start, return-to-guard completion and Outpost access landed through the gate on 2026-09-16. Each purchase binds to one vendor and one product and is refused before the miniquest starts. Downstream prerequisites for Horror from the Deep and Scorpion Catcher are enforced through `required_quests`. Drink effects, damage, card loss and dialogue remain source-blocked; the card-loss policy is an owner decision in `design-thread-queue.md`. |
 | 3 | Genuine quest actions; landed `source-audits/genuine-quest-actions-2026-09-05/contract-and-plan.md` | Emerald `source_ready` with implementation dependencies; rod/shield `source_blocked` | Emerald requires recorded module prerequisites and acquisition before proof checks. Silvthrill item transition remains unresolved among `7620`, `7637`, `7638`; shield Woodcutting remains contradictory at `54` versus `56`. Do not implement those unresolved fields or emit deeds from ordinary jewellery. |
 | 3 | Ghosts Ahoy prerequisite; `goal/ghosts-ahoy-prerequisite-2026-09-05`, base `814b4d59`; [source][ghosts] | Prerequisite `dependency_blocked`; full quest `source_blocked` | Normal commit failed without a commit: builder cyclomatic `27 (was 26)`, cognitive `38 (was 37)`, and `2621 lines (was 2618)`. Preserve the candidate and require a separately approved generator split. Full/native/merged acceptance is pending. |
-| 3 | Skippy and the Mogres; preserved `9d56a45b`, owner §34.4 | `dependency_blocked`, behind cleanup | Constants is closed. After the cleanup programme and quest-data, combat-engine and roster prerequisites, reapply valid behavior through the new modules. Exclude `a82c6471`; never promote the old branch as-is. |
+| 3 | Skippy and the Mogres; re-homed and landed main `9b933084` | `closed` | The miniquest, the Mogre target with its consumed Fishing-explosive lure, and the nettle tea chain are live. The stale branch was not merged; every row was ported into main's split layout. Enabling Mazchna and Vannaka cleared the `mogres:combat_target` blocker they were both waiting on, taking them to 27/27 and 35/35 ready families. Oyster's period buy limit of 500 came from the retained oldid 6457777 table. |
 
 The historical roster `dangling_test_selector` failures at July-report lines 99 and 100 remain in the original audit receipt. Commit `d35a835b` preserves the complete original report as hashed deterministic gzip and replaces only its fenced historical transcript with an evidence link. The parent revised an operational file freeze; this was not an owner-approval boundary. The new result is retained under source4 `source-audits/roster-test-reconciliation-2026-09-05/evidence/historical-july-report/documentation-audit.json`. Earlier source, runtime and failed-audit evidence remains unchanged.
 
@@ -317,3 +317,40 @@ The completed cross-lineage Opus review returned six findings. The driver inspec
 6. The canonical diary vocabulary no longer lists `world_transport_actions` or `location_visit_actions`; direct parsing confirmed neither appears as a future-system assignment in the 320-row ledger.
 
 All six findings are resolved; none was rejected. This closes the independent documentation review, not the instrument-correct full verification or promotion gates.
+
+## Branch disposition after the 2026-09-17 landings
+
+Nine slices landed on main between `8283ad9d` and `9b933084`. Several `goal/*`
+refs still show commits main lacks, because their content was ported or
+cherry-picked rather than merged. A ref that is behind main is not outstanding
+work. Each is classified below so a later audit does not reopen it.
+
+Content landed, ref superseded, safe to leave or delete:
+
+| Branch | Where its content lives |
+| --- | --- |
+| `goal/cape-tradeability-2026-09-05` | main `074b9cd2` |
+| `goal/cut-gem-tradeability-2026-09-05` | main `074b9cd2` |
+| `goal/crayfish-tradeability-implementation-2026-09-05` | main `889d1cc7` |
+| `goal/archery-ticket-tradeability-2026-09-05` | main `889d1cc7` |
+| `goal/retained-shop-proofs-2026-09-05` | main `af4ca7cb` |
+| `goal/quest-combat-relocation-2026-09-05` | main `3d432b55` |
+| `goal/skippy-mogres-2026-09-01` | main `9b933084`, re-homed by hand |
+| `goal/matrix-reaudit-2026-09-16` | main `3a14d435` |
+| the four `*-tradeability-source-*` refs | source evidence only, already retained |
+
+Preserved or rejected, never to be merged as-is, unchanged by this session:
+`goal/secondaries-2026-08-11`, `goal/secondaries-reland-2026-08-25`,
+`goal/split-batch-2-2026-09-02`, `goal/split-init-dispatchers-2026-09-02`,
+`goal/dispatcher-seam-2026-09-02`, `goal/stage-satisfiability-2026-08-13`,
+`goal/diary-ledger-wiring-2026-09-01`, the three `remote-promotion-gate` refs,
+the two `full-main-tab-labels` refs, and `goal/native-tab-overflow`.
+
+Still genuinely open, with their blockers:
+
+| Unit | Blocked on |
+| --- | --- |
+| Native route and native fixture, rows 56 and 58 | Owner. A native reviewer pass cannot be performed by this seat. |
+| Genuine quest actions, row 64 | Emerald is source-ready with implementation dependencies; the rod and shield rows stay source-blocked on unresolved item ids and a contradictory Woodcutting level. |
+| Ghosts Ahoy prerequisite, row 65 | A separately approved generator split. The commit hook rejects the builder's current complexity. |
+| Frost dragon bone identity | Source-blocked. No period source maps items `18830` and `18832` one-to-one to their routes. |
