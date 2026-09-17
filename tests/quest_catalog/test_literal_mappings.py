@@ -1,9 +1,13 @@
 import ast
+import copy
 import unittest
 from pathlib import Path
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data import quest_data
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
+from ankiscape.core.storage_pure import default_player_data
+from ankiscape.logic_pure.logic_pure import quest_locked_reasons_pure, start_quest_pure
 
 
 _LITERAL_QUEST_ID_MAPPING_NAMES = (
@@ -45,6 +49,37 @@ def _literal_quest_id_mapping_keys(module, expected_names, string_constants):
 
 
 class TestLiteralQuestMappings(unittest.TestCase):
+    def test_ghosts_ahoy_requires_both_completed_prerequisites(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data.update(agility_level=25, cooking_level=20)
+        for completed_ids, reasons in (
+            ((), ("The Restless Ghost", "Priest in Peril")),
+            (("the_restless_ghost",), ("Priest in Peril",)),
+            (("priest_in_peril",), ("The Restless Ghost",)),
+            (("the_restless_ghost", "priest_in_peril"), ()),
+        ):
+            with self.subTest(completed=completed_ids):
+                player_data["quests"] = {
+                    quest_id: {
+                        "started": True,
+                        "progress": QUEST_DATA[quest_id]["stages"],
+                        "completed": quest_id in completed_ids,
+                    }
+                    for quest_id in ("the_restless_ghost", "priest_in_peril")
+                }
+                before = copy.deepcopy(player_data)
+                self.assertEqual(
+                    quest_locked_reasons_pure(player_data, "ghosts_ahoy", QUEST_DATA),
+                    reasons,
+                )
+                updated, started = start_quest_pure(player_data, "ghosts_ahoy", QUEST_DATA)
+                self.assertEqual(started, not reasons)
+                self.assertEqual(player_data, before)
+                if reasons:
+                    self.assertEqual(updated, before)
+                else:
+                    self.assertTrue(updated["quests"]["ghosts_ahoy"]["started"])
+
     def test_literal_quest_id_mappings_have_no_resolved_duplicate_keys(self):
         expected_keys_by_name = {
             name: set(getattr(quest_data, name))

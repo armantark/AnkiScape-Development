@@ -9,6 +9,11 @@ from .definitions import *
 from .stage_overrides import *
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
+    # Template:Questreq oldid=5981134; corroborated in the Ghosts Ahoy source harvest.
+    "ghosts_ahoy": (
+        QuestPrerequisite(THE_RESTLESS_GHOST_ID, "The Restless Ghost"),
+        QuestPrerequisite(PRIEST_IN_PERIL_ID, "Priest in Peril"),
+    ),
     "horror_from_the_deep": (QuestPrerequisite(BAR_CRAWL_ID, "Alfred Grimhand's Barcrawl"),),
     SCORPION_CATCHER_ID: (QuestPrerequisite(BAR_CRAWL_ID, "Alfred Grimhand's Barcrawl"),),
     "the_lost_tribe": (
