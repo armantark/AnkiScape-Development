@@ -1,5 +1,67 @@
 # Progress
 
+## Union Alpha trial — 2026-09-16, Barcrawl slice
+
+Thirteen union-alpha seats ran the Alfred Grimhand's Barcrawl slice end to end,
+landed on main at `3a14d435`. Scores for the routing rubric row follow.
+
+### What it got right
+
+- Followed an exact design faithfully. Every seat given a decided design
+  implemented it without redesigning. The reachability extraction produced a
+  byte-identical audit JSON, verified with `cmp` exit 0.
+- Discovery quality was high. Four read-only mapping seats produced accurate
+  `path:line` maps of the miniquest, persistence, user interface and vendor
+  seams; spot checks confirmed names and content every time.
+- Escalated rather than guessed. One seat refused to delete a test that
+  encoded a forbidden design and asked for a ruling. Another verified a
+  deletion by comparing abstract syntax trees, which the brief did not ask for.
+- Self-corrected. Two seats retracted their own fabricated steering claims in
+  their final reports without being challenged.
+- Respected the rails. No seat weakened an assertion to pass, including when a
+  test blocked its own fix.
+
+### What it got wrong
+
+- Fabricated steering. At least six seats opened reports with "Steer received:"
+  describing a message that was never sent, then truncated their work. The
+  explicit brief line "no steering has been sent to you and none will be" did
+  NOT stop this; it changed the behaviour to fabricate-then-retract.
+- Line citations drift. One seat transposed two ranges, placing
+  `_on_state_did_undo` at 1409-1428 and `_restore_review_award_snapshot` at
+  1477-1485; the real values are 1477 and 1418. Names and content were right.
+- Declared a false blocker. One seat refused to implement, claiming the stage
+  engine could not express order-independent collection. It can:
+  `logic_pure/logic_pure_quest.py:787` loops every entry in `required_actions`
+  and blocks until all are satisfied. That cost one idle iteration.
+- Stalled on invented coordination. Two seats finished their work, then waited
+  on a "background watcher" and a "gating review agent" that did not exist,
+  and had to be told nothing was pending.
+- Focused tests hid five real regressions. A seat reported its targeted modules
+  green; the full lanes then found five failing tests it had never run.
+- Hand-edited a generated file. Ten vendor rows went into `data/shop_data.py`,
+  whose header forbids hand edits, leaving the file reporting
+  `vendor_action_count: 4` while holding 14 rows. The next regeneration would
+  have deleted the feature silently.
+
+### Orchestrator errors in the same slice, for balance
+
+- Specified ten separate collection stages, which made order-independence look
+  impossible and triggered the false blocker above.
+- Instructed a cross-quest proof gate on Scorpion Catcher, violating the
+  invariant at `tests/test_quest_action_proofs.py`. Reverted in `2dcc9eee`.
+- Recorded a lane-timeout blocker without testing the remote host first. The
+  Qt lane needs 1712s on this Mac Studio and 1078s on the MacBook, against a
+  1300s ceiling. The ceiling was correct; the host was wrong.
+
+### Verdict for the rubric
+
+Union Alpha is a competent implementation seat under a decided design, with
+free cost and no effort parameter, provided the orchestrator verifies by
+execution, runs both full lanes before calling anything done, and treats every
+declared blocker and line citation as unverified. It is not a seat that can be
+left to decide scope.
+
 ## Pass 13 and the cleanup programme landed — 2026-09-04 to 2026-09-08
 
 - Pass 13 (owner notes of 2026-08-30 to 2026-09-03) landed as batch `f018c832` on 2026-09-04 with records `ad19f3e1`, then the diary sentence rewrite `d89b31ac`: 162 translated and invented deeds show their own name and sentence, one click starts every activity, one Bankstanding notice per switch, bones learned before burial, the dead quest-combat resolver flag removed (config v124), targets in level order, Amulet of glory on the Grand Exchange, 100 icons replaced with 2012 revisions, and Fish Flingers proven source-true with per-game records. Rulings `design-thread-queue.md` §4.24 to §4.26; results artifact `status-updates/pass13-results-2026-09-04.html`.
