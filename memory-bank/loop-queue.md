@@ -211,4 +211,9 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [x] Build the stored priority matrix from current queues and owner rulings.
    - [ ] Complete the first owner-ordered unit: dispatcher state-object
      restructure (§57/58), with all required verification and native review.
-   - [ ] Re-audit eligible work and preserved candidates after each promotion.
+   - [x] Re-audit eligible work and preserved candidates after each promotion.
+     Re-audited 2026-09-16 after three landings: documentation-gate repair
+     `c4ebd277`, Bar Crawl `3a14d435`, Union Alpha trial scores `a243a62a`.
+     Next eligible: cape and cut-gem tradeability, which need a rebase onto
+     current main, regenerated surface pins, and a repair to the cape test
+     that writes the retired `addon.player_data` attribute.
