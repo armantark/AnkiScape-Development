@@ -72,7 +72,7 @@ MOGRE_STAGE_REQUIREMENTS = (
 )
 QUEST = QuestDefinition(
     id=SKIPPY_AND_THE_MOGRES_ID,
-    display_name="Mogre",
+    display_name="Skippy and the Mogres",
     stages=len(MOGRE_STAGES),
     point_reward=0,
     rewards=(),

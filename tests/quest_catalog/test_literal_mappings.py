@@ -49,6 +49,21 @@ def _literal_quest_id_mapping_keys(module, expected_names, string_constants):
 
 
 class TestLiteralQuestMappings(unittest.TestCase):
+    def test_miniquests_preserve_their_player_facing_titles(self):
+        self.assertEqual(
+            {
+                quest_id: quest["display_name"]
+                for quest_id, quest in QUEST_DATA.items()
+                if quest["miniquest"]
+            },
+            {
+                "bar_crawl": "Alfred Grimhand's Barcrawl",
+                "hunt_for_surok": "The Hunt for Surok",
+                "lair_of_tarn_razorlor": "The Lair of Tarn Razorlor",
+                "skippy_and_the_mogres": "Skippy and the Mogres",
+            },
+        )
+
     def test_ghosts_ahoy_requires_both_completed_prerequisites(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data.update(agility_level=25, cooking_level=20)
