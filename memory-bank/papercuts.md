@@ -2441,3 +2441,7 @@
 - 2026-09-17T16:41:33-0700 — Native-route status verification: broad reads exceeded the tool output limit (`Output too large (38.6KB)` and `Output too large (56.1KB)`); switched to bounded excerpts. This leased checkout has no `CLAUDE.md` or `.claude` directory (`cat: CLAUDE.md: No such file or directory`; `bfs: error: .claude: No such file or directory.`); supplied project instructions remain authoritative.
 
 - 2026-09-17T16:42:26-0700 — Native-route title verification: assumed `data/quests` existed and received `rg: data/quests: IO error for operation on data/quests: No such file or directory (os error 2)`; searched the existing `data` tree instead.
+
+- 2026-09-17T17:18:16-07:00 — Native evidence retention: zsh rejected the optional search glob with `(eval):1: no matches found: memory-bank/native*`; switched to confirmed documentation paths. No evidence, collection, or application state was changed by the failed search.
+
+- 2026-09-17T17:18:32-07:00 — Native evidence provenance search exceeded the tool output limit (`Output too large (31.9KB)`) because matrix rows are long; switched to bounded per-match excerpts.

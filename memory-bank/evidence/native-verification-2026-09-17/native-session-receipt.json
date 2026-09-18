@@ -1,0 +1,11 @@
+{
+  "base": "/private/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-native-6vhhxrsk",
+  "repo": "/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork",
+  "collection": "/Users/armantarkhanian/Library/Application Support/Anki2/User 1/collection.anki2",
+  "baseline": {
+    "exists": true,
+    "sha256": "c913926adb106cfece8e618386fdd485b65bfd8bbe5d6cf8154f78c859aa73eb",
+    "size": 282624,
+    "mtime_ns": 1789663285065775420
+  }
+}

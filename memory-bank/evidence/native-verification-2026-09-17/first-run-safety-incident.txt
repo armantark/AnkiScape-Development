@@ -1,0 +1,2 @@
+2026-09-17 09:40 America/Los_Angeles: cua.getApp(/Applications/Anki.app) auto-launched /Applications/Anki.app/Contents/MacOS/Anki without -b, PID 52594. UI showed User 1 - Anki. Command-Q was initially blocked by an Anki update notification. Clicked No and Command-Q again. No collection content interaction or filesystem inspection was performed. This violates the requested isolation constraint; application startup/shutdown effects on the real profile cannot be ruled out.
+Keyboard quit attempts did not exit. Used Anki > Quit Anki.

@@ -1,5 +1,10 @@
 # Progress
 
+## Native verification evidence is retained in the repository — 2026-09-17
+
+- The supplied native evidence now lives in `memory-bank/evidence/native-verification-2026-09-17/`, not only in macOS temporary storage. The packet retains unchanged product screenshots, the acceptance report, the session baseline, closing guard output and exit status, quit state, and the first-run isolation incident. Its README records the defects, owner gates, supplied follow-up checks, provenance limits, and the incidental screenshots removed. No Anki launch or real-collection access occurred in this retention task.
+- Following the August packet, `manifest.txt` verifies every retained companion file. Its SHA-256 is `e76b6218d9afbf7cbaa3950b6646817f9dad5bb6258b83ffe69b63ba3da18f9a`; the unchanged `acceptance-report.md` SHA-256 is `d75f2e48f6e931c0feb39e0c143d87bb729e9e557e178bb0f7aacfa1ebac4092`. The new packet supersedes the earlier statement that raw native receipts are not retained in this worktree.
+
 ## Native verification route is proven with collection isolation — 2026-09-17
 
 - The route moves from `verification_pending` to `closed`: the supplied guarded run in real Anki on a MacBook completed with closing `verify` exit `0` and `"unchanged": true` for `~/Library/Application Support/Anki2/User 1/collection.anki2`. The existing guarded-run entry corroborates the unchanged collection, the corrected miniquest title and reproduction of the stale journal and navigation truncation. The supplied report specifies that searching Quests for `Skippy` showed `Skippy and the Mogres`; the later navigation-history correction and both owner gates remain in force.

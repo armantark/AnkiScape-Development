@@ -1,0 +1,1 @@
+{"path": "/private/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-native-6vhhxrsk", "collection": "/Users/armantarkhanian/Library/Application Support/Anki2/User 1/collection.anki2", "unchanged": true, "changes": {}}
