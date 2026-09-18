@@ -1,0 +1,6 @@
+test_generator_owns_drinks_and_preserves_the_pinned_shop_snapshot (bar_crawl.test_vendor_actions.TestBarCrawlVendorActions.test_generator_owns_drinks_and_preserves_the_pinned_shop_snapshot) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.564s
+
+OK

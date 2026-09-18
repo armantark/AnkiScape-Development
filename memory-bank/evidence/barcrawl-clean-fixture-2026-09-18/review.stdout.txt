@@ -1,0 +1,15 @@
+**ACCEPT.**
+
+The change is safe. Evidence:
+
+1. The temporary directory holds three files only: `items.yml`, the generated `shop_data.py`, and nothing else. The test creates the input file itself and reads both outputs inside the `with` block (lines 105-127). No path escapes the block.
+
+2. `rewrite_services_from_generated` (tools/generate_npc_shop_data.py:1177) uses the three path arguments only to read and write. It calls `runpy.run_path(str(existing_path))`, `load_2011_items(items_path)`, then `output_path.parent.mkdir(parents=True, exist_ok=True)` and `write_shop_data(...)`. The optional ledger and summary paths stay `None` in this test, so the `existing_ledger_path` branch never runs.
+
+3. The generated file content does not depend on the output location. `write_shop_data` (line 1048) builds the module text from the catalog dictionaries and module-level constants only. No path string, no value relative to `REPO_ROOT`, enters the output. This keeps the idempotence assertion at line 117 and the equality assertions at lines 119-127 valid.
+
+4. `_attach_item_names` (line 899) and `load_2011_items` (line 425) read the items file content only. Absolute paths under `/var/folders/...` read the same as paths under the repository.
+
+5. The first argument on line 110 is `shipped`, the repository file `data/shop_data.py`. It stays repository-relative on purpose, because the test compares against the shipped snapshot. The second call (line 114) reads the temporary output. So the only remaining repository dependency is the intended one.
+
+The removed `dir=root / "tmp"` created the sole dependency on a directory that the repository does not track, which caused the `FileNotFoundError`. `tempfile.TemporaryDirectory()` uses the system temporary directory, which always exists.

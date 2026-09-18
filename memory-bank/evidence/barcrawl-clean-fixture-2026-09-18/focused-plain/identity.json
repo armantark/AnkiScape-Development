@@ -1,0 +1,9 @@
+{
+  "lane": "plain",
+  "kind": "focused",
+  "pending": {
+    "run_id": "plain-1789748855-f0e0ff3e",
+    "log_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1789748855-f0e0ff3e.log",
+    "report_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1789748855-f0e0ff3e.report"
+  }
+}
