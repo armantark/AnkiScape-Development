@@ -1,0 +1,46 @@
+{
+  "status": "FAILED_SOURCE_GATE_NOT_ACCEPTED",
+  "checked_at": "2026-09-18T19:19:02.496428+00:00",
+  "session": 16559,
+  "exit_code": 2,
+  "source_commit": "a8137bab2566b45e52585c580794a84563241b7e",
+  "source_tree": "19d384a1ff98edef40c208db2e74ff09bc00aa08",
+  "plain": {
+    "run_id": "plain-1789757256-04017593",
+    "tests": 5693,
+    "seconds": 615.277,
+    "failures": 2,
+    "skipped": 1366,
+    "exit_code": 1
+  },
+  "qt": {
+    "run_id": "qt-1789757882-d7085085",
+    "tests": 5693,
+    "seconds": 1137.815,
+    "failures": 2,
+    "skipped": 5,
+    "exit_code": 1,
+    "raw_log_bytes": 165779,
+    "raw_log_sha256": "90d28094ad7804b5934d59b315cea48e58238cb935cad547058fe6e0d629dbb7"
+  },
+  "failed_checks": [
+    "plain lane",
+    "Qt lane"
+  ],
+  "passed_checks": [
+    "audit_docs",
+    "audit_test_quality",
+    "reachability",
+    "worktree_guard",
+    "worktree clean",
+    "diff check"
+  ],
+  "passing_receipt_exists": false,
+  "pending_remote_run_exists": false,
+  "full_log_raw_bytes": 5549,
+  "full_log_raw_sha256": "62c6c5d30303fde24caf9fa1634fe4e94095e8ee6df83b7d8d6d0a9f91526551",
+  "retained_files": {
+    "source-qt.log.gz": "65f4f267f8273d1ee5f5e329ca44a64a802676ae433cdb27148ca02e9020fa3d",
+    "full-source-gate.log.gz": "d377a6ea15e0abf882fbf394e4e6fea15bf0d0c0aa3eb9dca0afe4c7d55f1b1d"
+  }
+}
