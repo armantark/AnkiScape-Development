@@ -1,0 +1,50 @@
+## Verdict: REJECT
+
+Two blocking findings. The fixture work is good: I checked each named line, and the reachability argument holds. The clause coverage table claims two contract clauses that the listed cases cannot prove.
+
+### What I verified in source (read-only, no execution)
+
+Every reachability claim in the "Reachable fixture" section matches the code.
+
+1. `enemy_data = enemy_data or COMBAT_ENEMY_DATA` at `logic_pure/logic_pure_combat_engine.py:1227`, and the same fallback with target repair at `logic_pure/logic_pure_combat_model.py:1062-1069`. A one-entry truthy map does keep `dream_dummy`, because line 1068 picks the first key when the default target is absent.
+2. The empty enemy record `{}` is not `None`, so `combat_target_locked_reasons_pure` passes the `unknown enemy` and `encounter only` tests and returns `("missing source combat stats",)` at `logic_pure/logic_pure_combat_model.py:1281`. With `allow_bank_run=False`, the burst returns that lock at engine `:1308-1309`, before the enemy read at `:1310` and before the second max-LP read at `:1377`.
+3. The engine imports both `combat_max_lifepoints_pure` and `effective_magic_rune_cost_pure` into its own namespace (engine `:241`, `:298`), so a sentinel on the engine attribute does not catch the sanitation read inside the model module. The packet's warning about that is correct.
+4. `Slayer's staff` is a real key of `COMBAT_MAGIC_STAFF_DATA` (`data/combat/mechanics.py:769`) with empty `covered_runes`, so FB-1 produces a standard plus lunar effect pair and the gate returns `("Preset mixes spellbooks",)` at `logic_pure/logic_pure_combat_magic.py:64`, before the engine max-LP read at `:1251`.
+5. Dream stays unlocked with `magic_level` 99 and a completed `dream_mentor` quest (`logic_pure/logic_pure_combat_magic.py:24-28`), so sanitation does not clear the flag or the encounter at model `:1096-1103`. FB-2(b) keeps its encounter.
+6. Each direct case reaches its intended branch. DT-5 raises `KeyError` inside the debit loop at engine `:1262`, before the inventory write at `:1263`. DT-6 raises `TypeError` there after `int("2")` passes affordability. DT-7 raises `AttributeError` at `:1259`, before any write. DT-4 fails affordability, because `None or {}` gives an empty local map.
+7. Arithmetic checks out: `DREAM_COST` is `{"Astral rune": 2, "Cosmic rune": 1, "Body rune": 5}` (`data/magic_data.py:616`), constitution 10 gives maximum 100 (`logic_pure/logic_pure_combat_model.py:405`), so FB-4 gives 20 to 70 and 75 to 100, and DT-2 gives 0 to 50.
+
+These are source-derived expectations. No case was run, and I ran none.
+
+### Blocking finding 1: the debit loop order has no proof case
+
+The contract says both cost loops use the supplied mapping's iteration order (contract line 40). DT-1 asserts that `runes_used` keeps the supplied Body/Astral/Cosmic order, but that only proves the `dict(dream_cost)` copy at engine `:1267`. The loop order at `:1261` is invisible in a success case, because every debit completes and the final inventory is order-free.
+
+```
+for rune, amount in dream_cost.items():
+    inventory[rune] -= amount
+```
+
+The only observable is which key raises first. DT-5 supplies a one-key cost, so it fixes nothing. Fix: add one direct case with a cost mapping whose order differs from the inventory order, with two failing keys, and assert the exception names the first key of the cost mapping. Example: inventory holds valid `Astral rune`, and the cost mapping is `{"Cosmic rune": 0, "Astral rune": 2}` with `Cosmic rune` absent, so the `KeyError` must name `Cosmic rune`.
+
+### Blocking finding 2: FB-2(d) cannot prove the caller LP default
+
+The clause table row "LP default asymmetry" lists FB-2(d) as the caller half. That is not provable through the burst. `sanitize_combat_state_pure` always returns a `combat_lifepoints` value (`logic_pure/logic_pure_combat_model.py:1156`), and the engine merges it at `:1231`. The `max_lp_for_dream` default inside the gate at `:1255` is therefore dead through this entry point, so no full-burst case can distinguish it from the helper's `0` default.
+
+The packet half-admits this ("It is deliberately not the helper-default proof"), then still claims the clause. Fix: assign the caller default to the static extraction comparison, and relabel the row as DT-2 plus static. Keep FB-2(d) as the sanitation-default observation it actually is.
+
+### Findings that do not block
+
+- Test-pattern citation is wrong. `assertRaisesRegex` is at `tests/combat/test_magic_module.py:46`, not in the cited 69-88 range, and `wraps=` does not appear anywhere in that file. The `deepcopy`, `assertIs`, and `assertIsNone` patterns are present at 69-88. The order spy is a new pattern for that file, not an existing one. Say so.
+- `_non_negative_int` spans `logic_pure/logic_pure_state.py:50-57`, not 50-56.
+- The comparator section asks to "keep all current observations unchanged" and then to add an identity boolean to `recorded_entrypoint` (`tools/combat/compare_magic_module.py:290-312`). That addition changes every recorded route row. The change is safe, because it applies to both graphs and the pins cover product sources and assets, not the comparator. The two sentences still contradict each other; drop the "unchanged" wording.
+- `capture_direct` already records `inventory_identity` at `tools/combat/compare_magic_module.py:254`. The new boolean must follow that existing shape rather than invent a second style.
+
+### What the plan gets right
+
+- Isolation per guard in FB-2 is real. Each row varies one condition and keeps the others eligible, and the engine still performs its single max-LP read at `:1251` on all four.
+- Scope is correct. The three-argument helper signature matches the contract, the comparator stays pinned, and no new test framework appears.
+- The raw exception, no-write, and falsy-versus-truthy clauses are covered by DT-3 through DT-7 with the right identity assertions.
+- The result identity clause is covered, because `snapshot` deep-copies (`:226-238`) and the packet adds the pre-copy boolean plus the direct `assertIs`.
+
+After both blocking items are fixed, I expect ACCEPT. I ran nothing, so every expectation above stays a source reading, not measured behavior.

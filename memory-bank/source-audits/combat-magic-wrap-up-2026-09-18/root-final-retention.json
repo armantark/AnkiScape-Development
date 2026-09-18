@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-09-18T18:46:30.081177+00:00",
+  "manifest_sha256": "249e4df89e26cafd3bc659a86fc77e317d5d9b5bbcaee2ef9ed11bd0acb0aa68",
+  "manifest_files": 485,
+  "source_bindings": 6,
+  "source_inventory_files": 978,
+  "original_to_retained_map_sha256": "6f18b75886231fe67b793d8cac1d80405e4422a39d07d140978940853fa907cb",
+  "lossless_retention_files": 56,
+  "runtime_files": 46,
+  "lossless_encoded_files": 24,
+  "historical_source_snapshots": 16,
+  "encoded_map_sha256": "2a68c7eb7188270aee00d557d96aa395f2dff31ea801a48d2ffae11859c91708",
+  "source_commit": "a8137bab2566b45e52585c580794a84563241b7e",
+  "source_tree": "19d384a1ff98edef40c208db2e74ff09bc00aa08"
+}
