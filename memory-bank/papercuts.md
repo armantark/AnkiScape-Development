@@ -2445,3 +2445,4 @@
 - 2026-09-17T17:18:16-07:00 — Native evidence retention: zsh rejected the optional search glob with `(eval):1: no matches found: memory-bank/native*`; switched to confirmed documentation paths. No evidence, collection, or application state was changed by the failed search.
 
 - 2026-09-17T17:18:32-07:00 — Native evidence provenance search exceeded the tool output limit (`Output too large (31.9KB)`) because matrix rows are long; switched to bounded per-match excerpts.
+- 2026-09-17 23:35 PDT: `git commit` on a change that added `logic/review_bank_run_logic.py` sat in the slop-gate's complexipy pass (`complexipy /var/folders/.../slop-gate-*/head`) for over 15 minutes before it refused the commit; the earlier attempt on the same files without a new module answered in seconds.

@@ -23,6 +23,7 @@ from typing import Any, Callable, Collection, Mapping
 from ..core.action_registry import (
     review_action_display_names,
     review_action_handler_key,
+    review_handler_target_key,
 )
 from ..core.constants import (
     BIRD_NEST_OPEN_TABLES,
@@ -263,6 +264,25 @@ def review_event_log_drawer_view_pure(
     }
 
 
+def _text(player_data: Mapping[str, Any], key: str) -> str:
+    return str(player_data.get(key, "") or "")
+
+
+def _mapping(player_data: Mapping[str, Any], key: str) -> Mapping[str, Any]:
+    raw = player_data.get(key)
+    return raw if isinstance(raw, Mapping) else {}
+
+
+def _carried_request_pending(player_data: Mapping[str, Any], handler: str) -> bool:
+    """A carried request names one target; the runtime spends it only on that
+    target's next review, so the HUD reads it the same way."""
+    target = _text(player_data, review_handler_target_key(handler) or "")
+    return bool(target) and target in (
+        _text(player_data, "review_bank_run_requested_target"),
+        _text(player_data, "skilling_bank_run_requested"),
+    )
+
+
 def review_bank_run_button_view_pure(
     player_data: Mapping[str, Any], handler_key: Any, target_id: Any = None
 ) -> dict[str, Any]:
@@ -270,12 +290,7 @@ def review_bank_run_button_view_pure(
 
     handler = str(handler_key or "")
     target = str(target_id or "")
-    requested_target = str(
-        player_data.get("review_bank_run_requested_target", "") or ""
-    )
-    requested_handler = str(
-        player_data.get("review_bank_run_requested_handler", "") or ""
-    )
+    requested_target = _text(player_data, "review_bank_run_requested_target")
     if handler == "combat":
         active = bool(player_data.get("combat_bank_run"))
     elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
@@ -283,7 +298,7 @@ def review_bank_run_button_view_pure(
             requested_target and (not target or requested_target == target)
         )
     else:
-        active = bool(requested_handler)
+        active = bool(_text(player_data, "review_bank_run_requested_handler"))
     return {
         "visible": True,
         "text": REVIEW_BANK_RUN_LABEL,
@@ -297,41 +312,25 @@ def review_bank_run_travel_view_pure(
 ) -> dict[str, Any]:
     """Project the active review handler's bank run for the HUD strip."""
 
-    def _run(key: str) -> Mapping[str, Any]:
-        raw = player_data.get(key)
-        return raw if isinstance(raw, Mapping) else {}
-
     handler = str(handler_key or "")
-    requested_handler = str(
-        player_data.get("review_bank_run_requested_handler", "") or ""
-    )
-    requested_target = str(
-        player_data.get("review_bank_run_requested_target", "") or ""
-    )
-    requested_skilling = str(
-        player_data.get("skilling_bank_run_requested", "") or ""
-    )
-    combat_run = _run("combat_bank_run")
-    skilling_run = _run("skilling_bank_run")
-
+    requested_handler = _text(player_data, "review_bank_run_requested_handler")
+    skilling_run = _mapping(player_data, "skilling_bank_run")
     if handler == "combat":
-        kind = "combat"
+        combat_run = _mapping(player_data, "combat_bank_run")
         remaining = min(
             _non_negative_int(combat_run.get("reviews_remaining", 0)),
             COMBAT_BANK_RUN_REVIEWS,
         )
-        queued = remaining <= 0 and requested_handler == handler
+        queued = requested_handler == handler
     elif handler in REVIEW_CARRIED_BANK_RUN_HANDLER_KEYS:
-        kind = "carried"
         remaining = _non_negative_int(skilling_run.get("reviews_remaining", 0))
-        queued = remaining <= 0 and bool(requested_target or requested_skilling)
+        queued = _carried_request_pending(player_data, handler)
     elif handler and requested_handler == handler:
-        kind = "carried"
-        remaining = 0
-        queued = True
+        remaining, queued = 0, True
     else:
         return {"active": False, "queued": False}
 
+    kind = "combat" if handler == "combat" else "carried"
     if remaining <= 0:
         if not queued:
             return {"active": False, "queued": False}
@@ -347,17 +346,11 @@ def review_bank_run_travel_view_pure(
         }
 
     if kind == "combat":
-        label = "Banking supplies"
-        total = COMBAT_BANK_RUN_REVIEWS
+        label, total = "Banking supplies", COMBAT_BANK_RUN_REVIEWS
     else:
         label = bank_run_phase_label_pure(skilling_run)
-        total = max(
-            remaining,
-            _non_negative_int(skilling_run.get("reviews_total", 0)),
-        )
-
+        total = max(remaining, _non_negative_int(skilling_run.get("reviews_total", 0)))
     done = min(total - remaining, total)
-    percent = int(round(100.0 * done / total))
     return {
         "active": True,
         "queued": False,
@@ -365,7 +358,7 @@ def review_bank_run_travel_view_pure(
         "label": label,
         "total": total,
         "remaining": remaining,
-        "percent": percent,
+        "percent": int(round(100.0 * done / total)),
         "text": f"Bank run — {label} · {done}/{total} travel reviews",
     }
 

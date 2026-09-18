@@ -1,5 +1,13 @@
 # Progress
 
+## Reviewer HUD showed a bank run that never started — 2026-09-17
+
+- Owner report at 23:07 PDT: Fishing `catch_tuna_swordfish` showed the HUD title `Bank run` with `Bank run queued` while every review still paid `+80 XP · Fishing`. The saved data held `skilling_bank_run_requested = "catch_mackerel_cod_bass"`, `current_fishing = "catch_tuna_swordfish"`, `skilling_bank_run = {}`, `carried_inventory["catch_tuna_swordfish"] = {"Raw tuna": 17}`, Fishing level 42 (swordfish needs 50, so tuna at 80 XP is the only eligible catch).
+- Cause: a Grand Exchange fill or offer calls `_trigger_active_bank_run`, which records the active target in `skilling_bank_run_requested`. The carried overlay spends that request only on a review of the same target, but `review_bank_run_travel_view_pure` reported `queued` for any non-empty request. After a target switch the HUD showed a trip the runtime never ran.
+- Fix: the travel view resolves the handler's current target through `review_handler_target_key` in `core/action_registry.py` and reports `queued` only when the request names that target, matching the runtime and the strip button. The request stays per-target by design (`test_bank_request_survives_reviews_on_another_surface` guards a quest review from waiving a mining trip). Regression test `tests/runtime_actions/test_bank_run_request_target.py` covers the HUD and the overlay together; 326 core tests and 45 Qt tests pass.
+- The slop-gate refused a new `logic/review_bank_run_logic.py` module (`logic: 88 code files`, `tests: 237 code files`) and any growth of `ui/ui.py` (29,293 lines) or `__init__.py` fan-out, so the fix stays in `logic/review_strip_logic.py`, which shrank from 1,054 to 1,047 lines. One commit attempt ran complexipy for over 15 minutes before it reported.
+- Second-level, not changed: the XP notification names the skill, never the catch (`+80 XP · Fishing`), so a spread target reads as a nondescript fish. Changing that copy needs owner approval.
+
 ## Native verification evidence is retained in the repository — 2026-09-17
 
 - The supplied native evidence now lives in `memory-bank/evidence/native-verification-2026-09-17/`, not only in macOS temporary storage. The packet retains unchanged product screenshots, the acceptance report, the session baseline, closing guard output and exit status, quit state, and the first-run isolation incident. Its README records the defects, owner gates, supplied follow-up checks, provenance limits, and the incidental screenshots removed. No Anki launch or real-collection access occurred in this retention task.

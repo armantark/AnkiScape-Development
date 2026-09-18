@@ -10,7 +10,11 @@ from __future__ import annotations
 from typing import Optional, Tuple
 
 from .constants import ACTIVITY_SURFACE_ID, UTILITY_ACTIVITY_DATA
-from .skill_registry import implemented_review_skill_names, review_handler_key
+from .skill_registry import (
+    CURRENT_SKILLS,
+    implemented_review_skill_names,
+    review_handler_key,
+)
 from ..data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
 from ..data.evil_tree_data import EVIL_TREE_UTILITY_ID
 
@@ -81,6 +85,14 @@ def review_action_handler_key(identifier: str) -> Optional[str]:
     if is_quest_review_action(identifier):
         return QUEST_REVIEW_ACTION_ID
     return review_handler_key(identifier)
+
+
+def review_handler_target_key(handler_key: str) -> Optional[str]:
+    """The ``player_data`` key that names a review handler's active target."""
+    for skill in CURRENT_SKILLS:
+        if skill.review_handler_key == handler_key:
+            return skill.current_target_key
+    return None
 
 
 def is_review_action(identifier: str) -> bool:

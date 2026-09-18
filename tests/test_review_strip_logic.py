@@ -853,7 +853,7 @@ class BankRunTravelViewTest(unittest.TestCase):
 
     def test_queued_manual_request_is_not_a_false_one_review_route(self):
         data = _player()
-        data["review_bank_run_requested_target"] = "copper_ore"
+        data.update(current_ore="copper_ore", review_bank_run_requested_target="copper_ore")
 
         view = review_bank_run_travel_view_pure(data, "mining")
 
