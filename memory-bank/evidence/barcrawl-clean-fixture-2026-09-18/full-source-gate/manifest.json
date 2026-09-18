@@ -1,0 +1,17 @@
+{
+  "commit": "0bd11b878969a513c61c5080c5c32cf63741976a",
+  "session_id": 93068,
+  "exit_code": 0,
+  "files": {
+    "gate.log": {
+      "source_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/gate-0bd11b87.log",
+      "bytes": 8330,
+      "sha256": "0e2a31ed76e9f85bacc920b1f847b270fb12cb2a17c50cf1687ac058d17e583a"
+    },
+    "receipt.json": {
+      "source_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/0bd11b878969a513c61c5080c5c32cf63741976a.json",
+      "bytes": 458,
+      "sha256": "ef743c1e1f100d02c3d8347c8af228484dc4338195db9c7fdb1bb971009442c3"
+    }
+  }
+}

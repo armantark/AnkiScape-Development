@@ -99,7 +99,7 @@ class TestBarCrawlVendorActions(unittest.TestCase):
         for action in SHOP_VENDOR_ACTIONS.values():
             for row in action["inputs"] + action["outputs"]:
                 items[row["item_id"]] = (row["item_name"], row["tradeable"])
-        with tempfile.TemporaryDirectory(dir=root / "tmp") as directory:
+        with tempfile.TemporaryDirectory() as directory:
             directory = Path(directory)
             items_path = directory / "items.yml"
             items_path.write_text("".join(

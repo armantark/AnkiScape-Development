@@ -1,0 +1,150 @@
+{
+  "captured_at": "2026-09-18T16:25:50Z",
+  "updated_at": "2026-09-18T16:29:57Z",
+  "schema_version": 1,
+  "baseline_commit": "0d606cfd3e79fa660223a5b0a00974c9098a9447",
+  "branch": "goal/barcrawl-clean-fixture-2026-09-18",
+  "lease": "5c40836eda239ce5f5b782a177f0b247",
+  "evidence": [
+    {
+      "bytes": 10170,
+      "lines": 84,
+      "path": "baseline-gate.log",
+      "sha256": "81c6570e531aaeca29b6927290c3a1b360e69c5ddb447fd803aa9d2aae389014",
+      "source_path": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/gate-0d606cfd.log"
+    },
+    {
+      "bytes": 1612,
+      "lines": 22,
+      "path": "narrow-red.log",
+      "sha256": "1e618ee21c891a279338e1d5b7dcda85f4fa9db09d5da39dd3df63adc1fcb65b",
+      "source_path": "/tmp/ankiscape-barcrawl-red-2026-09-18.log"
+    },
+    {
+      "bytes": 251,
+      "lines": 0,
+      "path": "narrow-red.identity.json",
+      "sha256": "5312af73f668cc6de00a56f6d7eb16bcf78747f7237e69d6ca0661e7242d04fc",
+      "source_path": "/tmp/ankiscape-barcrawl-red-2026-09-18.identity.json"
+    },
+    {
+      "bytes": 367,
+      "lines": 7,
+      "path": "failed-green-wrapper-plain.log",
+      "sha256": "22a6675140a1c568864aca3f10ed59f7def5b8feccfaef3d4a078f2ceeb71915",
+      "source_path": "/tmp/ankiscape-barcrawl-green-plain-2026-09-18.log",
+      "status": "rejected_by_full_lane_completeness_guard"
+    },
+    {
+      "bytes": 251,
+      "lines": 0,
+      "path": "failed-green-wrapper-plain.identity.json",
+      "sha256": "3be3e12775bed9429ba8dce877160ebc2f8c2a743ad80b82a0a4067e4f38128b",
+      "source_path": "/tmp/ankiscape-barcrawl-green-plain-2026-09-18.identity.json",
+      "status": "rejected_by_full_lane_completeness_guard"
+    },
+    {
+      "bytes": 156,
+      "lines": 7,
+      "path": "focused-plain/accepted.json",
+      "sha256": "71d77219ff6b651f4979dc1dae81c187f82b686dc5cf26dfb9fa997d5dddafe3",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-plain-2026-09-18/accepted.json",
+      "status": "accepted"
+    },
+    {
+      "bytes": 136,
+      "lines": 6,
+      "path": "focused-plain/completion.json",
+      "sha256": "bd8009f7cb062a9ee19d320a15e02e6793554b9fbdfc7cd416999fe888976645",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-plain-2026-09-18/completion.json",
+      "status": "accepted"
+    },
+    {
+      "bytes": 420,
+      "lines": 7,
+      "path": "focused-plain/driver.log",
+      "sha256": "7c2ef16a4d2bc87e9e68210810a3b8b7a5204dfefcd63d4823dc5188164dfcbe",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-plain-2026-09-18.driver.log",
+      "status": "accepted"
+    },
+    {
+      "bytes": 325,
+      "lines": 9,
+      "path": "focused-plain/identity.json",
+      "sha256": "2e72194c7d15d3a4f65849354030b6e5e844de131a402e34ddfc2ffcc5e9443b",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-plain-2026-09-18/identity.json",
+      "status": "accepted"
+    },
+    {
+      "bytes": 294,
+      "lines": 6,
+      "path": "focused-plain/run.log",
+      "sha256": "095d92113a8bdab449eea23927984466eb79b322369073606f7a6dd07c308b6e",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-plain-2026-09-18/run.log",
+      "status": "accepted"
+    },
+    {
+      "bytes": 156,
+      "lines": 7,
+      "path": "focused-qt/accepted.json",
+      "sha256": "71d77219ff6b651f4979dc1dae81c187f82b686dc5cf26dfb9fa997d5dddafe3",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-qt-2026-09-18/accepted.json",
+      "status": "accepted"
+    },
+    {
+      "bytes": 136,
+      "lines": 6,
+      "path": "focused-qt/completion.json",
+      "sha256": "bd8009f7cb062a9ee19d320a15e02e6793554b9fbdfc7cd416999fe888976645",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-qt-2026-09-18/completion.json",
+      "status": "accepted"
+    },
+    {
+      "bytes": 420,
+      "lines": 7,
+      "path": "focused-qt/driver.log",
+      "sha256": "8793e1035d4d5e22cba46a5a0fcbadd3568cdcde8563490d7184834a90252e4d",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-qt-2026-09-18.driver.log",
+      "status": "accepted"
+    },
+    {
+      "bytes": 313,
+      "lines": 9,
+      "path": "focused-qt/identity.json",
+      "sha256": "9d7f46d02a7a62ccfb75e9681e0c23dc52f94f0c83e4b2f87f9ead0fe113f9ab",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-qt-2026-09-18/identity.json",
+      "status": "accepted"
+    },
+    {
+      "bytes": 294,
+      "lines": 6,
+      "path": "focused-qt/run.log",
+      "sha256": "88c177732413ec962af4fb566b1fd4944796eb77287637ea2126818a45e6dbd5",
+      "source_path": "/tmp/ankiscape-barcrawl-focused-qt-2026-09-18/run.log",
+      "status": "accepted"
+    },
+    {
+      "bytes": 359,
+      "lines": 1,
+      "path": "review.stderr.txt",
+      "sha256": "bb3f1c9457b62c9237c30030c0871832afd92e6ef835bbcdb3eb3fa9fab23f86",
+      "source_path": "/tmp/ankiscape-barcrawl-fixture-review-2026-09-18.stderr",
+      "status": "accepted_review_stream"
+    },
+    {
+      "bytes": 1788,
+      "lines": 15,
+      "path": "review.stdout.txt",
+      "sha256": "b97ba3021dda57f06bb81382e8a7aa9ae30cbea101d157fa206b9cd11cd11200",
+      "source_path": "/tmp/ankiscape-barcrawl-fixture-review-2026-09-18.txt",
+      "status": "accepted_review_stream"
+    }
+  ],
+  "source": {
+    "baseline_blob_sha1": "fb10db2680e35e1dfe389ec8b13e96ecd317698b",
+    "baseline_sha256": "80ec1920e274bbf0edc2d5143c4aa5446dae3bc50f3ae36ff54547fac67f3794",
+    "candidate_blob_sha1": "67318b5f0d2209fc1c836a67f9dac04adc0f0276",
+    "candidate_sha256": "80f8f96cba620c57d18db50a8ff87c03efa56cf8af1ed18a53047f0f6e8d2f8d",
+    "path": "tests/bar_crawl/test_vendor_actions.py"
+  }
+}

@@ -1,0 +1,69 @@
+=== gate for 0bd11b878969a513c61c5080c5c32cf63741976a in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/4/ankiscape_fork ===
+Fri Sep 18 09:37:08 2026
+=== PLAIN LANE ===
+...........s........................................................................................[1/1] missing shopitems/example.png: Archive SHA-1 mismatch after 4 attempts: expected c659ce46eefeaa39f7bac6304926e7b8f464aa64, last got a4b48a81cdab1e1a5dd37907d6c85ca1c61ddc7c.
+.......s.s.............................................................................sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss....sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss..........................................................................................................................ssssssssssssssss...s....................................................................................osrs: resolved 1/1 titles
+rs3 cross-wiki: resolved 1/1 titles
+Reused 0 resolved asset rows; queried 2 wiki-title lookups.
+............................................................................................................................................................................................................................ssssssssssss.........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................sssssssssss......................................................................................................................................................sssss..............................................................................................................................ss......................................................................................................................................................................................................................................................................sss..............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................s......................................................sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss................................................................................sssss...........s...................s...............................................................................................................................................................  PID TTY           TIME CMD
+----------------------------------------------------------------------
+Ran 5688 tests in 593.183s
+
+OK (skipped=1366)
+wrote 1442 prices and 1837 buy limits
+wrote 1442 prices and 1837 buy limits
+Deleted preserved ref: refs/preserved/preserved-test/landed-2026-09-02
+Created worktree: /private/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/tmpghl413vy/Anki2/ankiscape_worktrees/feature
+Returned pooled worktree: /private/tmp/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-1/1/ankiscape_fork
+Remote plain lane summary:
+Ran 5688 tests in 593.183s
+OK (skipped=1366)
+=== QT LANE (monolithic) ===
+This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+................................................................................................................................................................................................................................................................................This plugin does not support propagateSizeHints()
+...................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+.This plugin does not support propagateSizeHints()
+..............................................................................This plugin does not support propagateSizeHints()
+----------------------------------------------------------------------
+Ran 5688 tests in 1116.122s
+
+OK (skipped=5)
+wrote 1442 prices and 1837 buy limits
+wrote 1442 prices and 1837 buy limits
+Deleted preserved ref: refs/preserved/preserved-test/landed-2026-09-02
+Created worktree: /private/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/tmpelfd42p4/Anki2/ankiscape_worktrees/feature
+Returned pooled worktree: /private/tmp/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-1/1/ankiscape_fork
+Remote qt lane summary:
+Ran 5688 tests in 1116.122s
+OK (skipped=5)
+=== audit_docs ===
+Audited 755 Markdown and 448 HTML files.
+Documentation audit passed.
+=== audit_test_quality ===
+4829 tests across 280 files
+hard issues: 0
+structural clone candidates: 31 groups
+=== reachability ===
+1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+=== worktree_guard ===
+Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
+Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
+=== worktree clean ===
+clean
+=== diff check ===
+clean
+=== GATE DONE ===
+Fri Sep 18 10:06:25 2026
