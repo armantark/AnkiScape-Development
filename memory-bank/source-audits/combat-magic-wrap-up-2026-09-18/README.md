@@ -1,0 +1,7 @@
+# Combat Magic pause evidence
+
+Source candidate `a8137bab2566b45e52585c580794a84563241b7e` is preserved clean in pool worktree 8 and is not accepted for landing. Full source gate `16559` failed unchanged module-surface assertions after both focused lanes and complete differential comparisons had passed. Those bounded proofs remain valid for their scope; they do not override the full-suite failures.
+
+The [complete plain failure log](ankiscape-magic-source-plain-failure-2026-09-18.log.gz) and its [identity and byte hashes](ankiscape-magic-source-plain-failure-2026-09-18.log.json) retain the measured result. The [read-only diagnosis](source-gate-diagnosis.md) predicts defining-module metadata differences for three moved public functions, but complete runtime surface dumps must confirm that exact delta before a repair. No implementation or pin change was made after the owner requested the daily pause.
+
+The [root retention check](root-final-retention.json) binds the candidate's earlier focused/comparison evidence. Its full evidence packet remains on the preserved source branch. Keep historical failed checks as failures and preserve the old dirty P6 candidate. The full source gate is still finishing at this document checkpoint; its final result must be retained before pause completion.
