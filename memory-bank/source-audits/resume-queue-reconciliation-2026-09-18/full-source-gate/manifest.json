@@ -1,0 +1,16 @@
+{
+  "commit": "7b2486a84ce6aad446df03d8d177bbddd9c5d5d1",
+  "tree": "ee61ce2082665c6f6cf22c0e71c2d3e89c96f845",
+  "files": {
+    "receipt.json": {
+      "source": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/7b2486a84ce6aad446df03d8d177bbddd9c5d5d1.json",
+      "sha256": "ded2465913373069c3f9c92d65493d9365b98d260ad2e7a2cb9372cea9dd611c",
+      "bytes": 459
+    },
+    "gate.log": {
+      "source": "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/gate-7b2486a8.log",
+      "sha256": "50aaf169b8f95006ebca587464bdf155682f9026e4daa0fbea3a274679e9c4f7",
+      "bytes": 8331
+    }
+  }
+}
