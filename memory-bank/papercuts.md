@@ -2446,3 +2446,8 @@
 
 - 2026-09-17T17:18:32-07:00 — Native evidence provenance search exceeded the tool output limit (`Output too large (31.9KB)`) because matrix rows are long; switched to bounded per-match excerpts.
 - 2026-09-17 23:35 PDT: `git commit` on a change that added `logic/review_bank_run_logic.py` sat in the slop-gate's complexipy pass (`complexipy /var/folders/.../slop-gate-*/head`) for over 15 minutes before it refused the commit; the earlier attempt on the same files without a new module answered in seconds.
+
+- 2026-09-18 08:51 PDT: While the root reconciled the old integration checkout, an unbounded Git fast-forward diffstat printed 21,210 tokens and was truncated. Future reconciliation uses `--no-stat`.
+- 2026-09-18 08:51 PDT: The root looked for the unmerged `memory-bank/audits/native-review-fixture-2026-09-05.md` on main and received `No such file or directory`; `git show goal/native-review-fixture-2026-09-05:memory-bank/audits/native-review-fixture-2026-09-05.md` resolved it. No native launch or fixture execution occurred.
+- 2026-09-18 08:56 PDT: The documentation agent limited a matrix diff preview by lines, but inherited long rows still produced `Warning: truncated output (original token count: 10357)`. Review the added current text separately from the verbatim historical move; a line cap is not a byte cap.
+- 2026-09-18 09:00 PDT: The root inspected the complete historical matrix diff; it returned 33,890 tokens and truncated at 15,000 tokens. Inspect the concise current matrix and exact preservation checks separately. Baseline gate `76834` remains live; no pass is claimed.

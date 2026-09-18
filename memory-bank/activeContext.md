@@ -1,13 +1,15 @@
 # Active Context
 
-## Current focus — 2026-09-16
+## Current focus
 
-- This file holds the current focus, the decision boundaries, and the verification contract. Every dated entry lives in `memory-bank/progress.md` only, newest first; `tools/audit_docs.py` rejects a dated heading here. `tools/memory_bank/merge_memory_logs.py` performed the 2026-09-16 move.
-- Main is `8283ad9d`, clean. The live Anki install under `addons21/ankiscape_fork` is the canonical checkout; all work runs in pooled worktrees through `tools/worktree_guard.py`.
-- Pass 14 rulings are in `memory-bank/design-thread-queue.md` §4.27. The Codex brief `memory-bank/codex-briefs/pass14-owner-notes-handoff-2026-09-13.md` holds two slices, `encounter-no-lock` and `slayer-complete-dialog`. Both slices landed on main in `a6622434` and `641f6608` on 2026-09-16. The orchestrator thread is no longer blocked on Pass 14.
-- Open owner gates: the spot-check of the 162 rewritten diary deeds and the 91 stat-less quest encounters (Pass 13, §4.25); native programme acceptance for the 2026-09-05 to 2026-09-08 cleanup batch (`memory-bank/goal-priority-matrix.md`).
-- Parked: the papercut triage-and-fix pass (1,192 entries) until the Codex block resets; menu open time on `memory-bank/future-work-kanban.md` with a 300 ms target.
-- Landed since the 2026-08-31 sweep: Pass 13 batch `f018c832` and diary sentence rewrite `d89b31ac` (2026-09-04); the goal cleanup programme of 2026-09-05 to 2026-09-08: dispatcher shared state `4fd93b0b`, quest-data split `f00f510e`, shop split `0005e1cb`, roster reconciliation `6aeebc6c`, combat reward and enemy rolls `7e19aadf`, carried processing and player attack rolls `afae5ee6`, papercut queue recency `f943385e`, combined combat batch `6dacde54`, and the prayer-drain, bank-trip, and activity-selector integration `1bf2cfe2`.
+- This file holds current focus, decision boundaries and the verification contract. Dated entries belong in `memory-bank/progress.md` only.
+- The live install under `addons21/ankiscape_fork` is the canonical checkout. All assigned work uses pooled worktrees through `tools/worktree_guard.py`; only the root promotes verified merged trees.
+- The resumed goal prioritizes combat decomposition and the remaining exposed-function cleanup. `memory-bank/goal-priority-matrix.md` is the current queue; its source-audit link records the inspected base and acceptance evidence.
+- The first fresh slice is the bounded combat-magic responsibility extraction in P8, `goal/combat-magic-module-2026-09-18`. It is source preparation only. The preserved dirty P6 candidate is not committed, accepted or landed.
+- Pass 14's encounter and Slayer-completion slices are landed. That hold no longer blocks the orchestrator.
+- The guarded native route works and its retained packet has verified integrity. The required shared real-reviewer answer-path pass remains unproven, and the packet does not bind an exact loaded revision. No new native run is authorized by this record.
+- Open owner gates are the diary-deed spot-check feedback and the native journal/navigation UI decisions. Missing quest combat stats are source work, not a new gameplay-design question. Other exact source and dependency blockers remain in the matrix.
+- Papercut triage requires a separate assignment; old quota prose is not a live quota result. Menu-open performance remains on `memory-bank/future-work-kanban.md` under its owner target.
 
 Last staleness sweep: 2026-09-16
 

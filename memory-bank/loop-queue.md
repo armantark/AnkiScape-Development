@@ -197,23 +197,23 @@ Process one unblocked item per iteration. Move discovered design gaps to
    - [ ] Recover the Frost dragon bone ID-to-route mapping. No period source maps
      item `18830` and item `18832` one-to-one to the Asgarnian Ice Dungeon and
      Daemonheim routes. Preserve both IDs until a period source settles the pair.
-5. [x] The paused goal is resumed and its blocker is repaired.
-   The owner set a new goal on 2026-08-30. It makes an another-writer collision
-   on canonical `main` this seat's repair work rather than a stop condition.
-   Commit `324066da` adopts the verified asset-cutoff audit re-run, commit
-   `732643e7` lands the previous session's records, and
-   `memory-bank/GOAL-BLOCKED.md` is deleted.
-6. [x] The prior papercut branches are reconciled against main.
-   `63a3409c` and `b861cdec` are ancestors of main. The reachability-check
-   branch's original `8f1092db` was re-created as `aa173479` and merged through
-   `9d2b8d97`; none of these three remains eligible unmerged work.
+5. [x] Resume the paused goal and repair its former blocker.
+   The current goal and acceptance rules are in the priority matrix. The
+   earlier collision repair and blocker deletion remain dated progress history.
+6. [x] Reconcile the prior papercut branches against main.
+   Their changes are landed; do not redispatch them from stale branch state.
 7. [ ] Execute `memory-bank/goal-priority-matrix.md` under the resumed goal.
-   - [x] Build the stored priority matrix from current queues and owner rulings.
-   - [ ] Complete the first owner-ordered unit: dispatcher state-object
-     restructure (§57/58), with all required verification and native review.
-   - [x] Re-audit eligible work and preserved candidates after each promotion.
-     Re-audited 2026-09-16 after three landings: documentation-gate repair
-     `c4ebd277`, Bar Crawl `3a14d435`, Union Alpha trial scores `a243a62a`.
-     Next eligible: cape and cut-gem tradeability, which need a rebase onto
-     current main, regenerated surface pins, and a repair to the cape test
-     that writes the retired `addon.player_data` attribute.
+   - [x] Establish the priority matrix from queues and owner rulings.
+   - [x] Land the dispatcher shared-state restructure and the accepted cleanup batches.
+   - [ ] Complete the shared real-reviewer acceptance required by owner §55.
+     The guarded native route is proven. The retained menu/quest/exchange run
+     does not prove review answers, undo or an exact loaded revision.
+   - [ ] Complete the exposed-function cleanup within the fourteen-family scope.
+     Next slice: combat-magic responsibility extraction in P8 on
+     `goal/combat-magic-module-2026-09-18`, source preparation only. Preserve
+     the old dirty P6 candidate; it is not an accepted or landed implementation.
+   - [ ] Re-audit eligible work and preserved candidates after each promotion.
+     Cape and cut-gem tradeability are closed, as are Barcrawl, the other
+     accepted tradeability slices, Skippy/Mogres and the Ghosts Ahoy prerequisite.
+     The matrix retains the unfinished cleanup, native, source, dependency and
+     owner-gated units. Their blockers do not establish a whole-goal stop.

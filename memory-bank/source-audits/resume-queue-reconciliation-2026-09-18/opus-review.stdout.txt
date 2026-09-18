@@ -1,0 +1,48 @@
+## Verdict
+
+ACCEPT. The reconciliation is accurate on every check in the brief. One minor documentation defect remains. It does not block acceptance.
+
+## What I verified myself
+
+I re-read the six source citations in `memory-bank/source-audits/resume-queue-reconciliation-2026-09-18.md`. All six are exact at the inspected tree.
+
+| Claim in the audit | Result |
+| --- | --- |
+| Ghosts Ahoy prerequisite at `data/quest/catalog_overrides.py:13-16`, Barcrawl links at `17-18` | exact |
+| Carried helper call at `runtime/runtime_actions_carried_overlay.py:776`, Drop/save/rollback at `784-794` | exact, and the function ends at 794 as the span table states |
+| Dream inline at `logic_pure/logic_pure_combat_engine.py:1249-1269` | exact |
+| Rune loadout at `logic_pure/logic_pure_combat_supplies.py:1002-1074` | exact, the next function starts at 1077 |
+| `on_answer_card` starts at `__init__.py:5689` | exact |
+| `build_shop_tab` starts at `ui/ui_tab_shop.py:59` | exact |
+
+I also checked the two owner-ruling citations. `handoffs/design-to-impl-rulings-2026-08-13.md:2885-2893` holds the §47 simplification programme, and the paragraph ends at 2893. The §55 reviewer clause runs to 3377, and clause (2) starts on line 3372. Both citations are correct. The retained historical text gives §47 as `2885-2892`, so the new citation corrects it by one line.
+
+## The four review questions
+
+Statuses agree with retained evidence. The one status that looked unsupported is the pouch line in `goal-priority-matrix.md:31` and `:58`, because the 2026-09-17 blocker's live check names six tradeable items and omits pouches. The claim holds: the retained former matrix carries the same landed row at `progress.md:102`, and the pouch rows are live in the tree, for example `"Spirit wolf pouch": 5000` at `data/grand_exchange_period_source.json:1444`.
+
+Obligations survive. The three blocker items map to matrix rows 19, 23, 24, 25 and 26. All 21 `gap-backlog.json` identifiers survive in the current gap table. Every preserved ref in the former reconciliation table survives in the current preserved table, including the excluded Skippy override `a82c6471` and the excluded reachability-tool split.
+
+No stale whole-goal block is retained. The only copy is `memory-bank/source-audits/resume-queue-reconciliation-2026-09-18/GOAL-BLOCKED-2026-09-17.md`. The grind-loop stop condition at `memory-bank/codex-briefs/ankiscape-grind-loop-2026-08-03.md:83` keys on `memory-bank/GOAL-BLOCKED.md`, so the retained copy cannot stop the loop.
+
+Dated evidence stays attributed. The audit, the matrix and the progress entry each name the root as the source of the receipt, the manifest and the AST comparison. Gate `76834` is stated as running with no pass claimed.
+
+## Finding 1, minor: the retained snapshot has no end marker
+
+`memory-bank/progress.md:39-41` opens the retained former matrix, and line 43 starts it with a level-1 heading. Nothing marks where it stops. Its own subsections use level-2 headings, so `## Independent review resolution — 2026-09-05` at line 352 and `## Branch disposition after the 2026-09-17 landings` at line 365 read at the same level as retained text. A later reader cannot tell which sections are superseded snapshot and which are live progress history. The 2026-09-17 entry at lines 397-399 still lists the Ghosts Ahoy prerequisite as open, which the top entry supersedes.
+
+Smallest fix: insert one line directly after the snapshot's last retained line, before the next dated entry. For example:
+
+```text
+### End of the retained 2026-09-05 matrix snapshot. Dated entries below are current progress history.
+```
+
+The author knows whether the 2026-09-05 review-resolution section belongs to the snapshot, so the marker goes after the true last retained line.
+
+## Optional note
+
+`memory-bank/activeContext.md:14` reads `Last staleness sweep: 2026-09-16`, and this slice re-checked that file against source. Set it to `2026-09-18` or leave it. Leaving it is safe, because it understates rather than overstates freshness.
+
+## Limits of this review
+
+I used read-only file reads only. I did not run git, shell, tests or any network call. I did not re-verify the two SHA-256 values, the byte-for-byte retention of the blocker and the former matrix, the Git ancestry table, the pool 6 handoff or the native packet contents. Those stay on the root premises as supplied.
