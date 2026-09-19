@@ -13569,3 +13569,14 @@ expected failures and no skips. The focused closure set passes 609 tests, item
 reachability reports no Thieving/Phoenix orphan, compilation and diff checks are
 clean, and the result artifact is
 `memory-bank/status-updates/archive/2026-07/thieving-skill-results-2026-07-13.html`.
+
+
+## One-time papercut cleanup — 2026-09-19
+
+The owner paused the implementation goal and explicitly declined an automatic restart. This separate maintenance pass removes repeated asset-tool setup, exposes strict focused remote tests, preserves full failure diagnostics, resolves imported test-harness ancestry, and moves safe worktree ownership checks into the guard. Current guidance and the queue now agree with the pause.
+
+The source-bound inventory and review evidence are in `source-audits/papercut-cleanup-2026-09-18/`. It accounts for all frozen incident entries and distinguishes repaired causes, earlier repairs, operator errors, external limits, owner decisions and paused features. It does not claim that each historical entry was a unique code defect.
+
+The first full source candidate passed both runtime lanes but failed the documentation audit on a nested selector in the review notes. Its complete log is retained. Final review repairs and focused proof are recorded in `final-verification.md` within that evidence directory. These notes freeze before the exact final gate; canonical HEAD and its matching full promotion receipt establish the landing result. No push or scheduled restart is part of the task.
+
+The owner-facing architecture decisions, current-run and historical Union Alpha analysis, and ready-to-paste Fable grill prompt are in `handoffs/fable-grill-papercuts-2026-09-19.md`. Fable was not called. The external Claude-wrapper long-prompt defect was reproduced and avoided with a short scoped prompt; its source was not changed. Native acceptance and owner UI decisions remain open. The unmerged P8 Magic candidate and dirty P6 predecessor remain preserved.

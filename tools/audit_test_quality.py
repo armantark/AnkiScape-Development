@@ -572,15 +572,31 @@ def _test_module_index(tests_root: Path) -> dict[str, _TestModule]:
 
 
 def _module_binds_name(node: ast.AST, name: str) -> bool:
-    if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+    if isinstance(node, (
+        ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef,
+        ast.ExceptHandler, ast.MatchAs, ast.MatchStar,
+    )):
         return node.name == name
+    if isinstance(node, ast.MatchMapping):
+        return node.rest == name
     if isinstance(node, ast.Name):
         return node.id == name and isinstance(node.ctx, (ast.Store, ast.Del))
     if isinstance(node, ast.Import):
         return any((alias.asname or alias.name.partition(".")[0]) == name for alias in node.names)
     if isinstance(node, ast.ImportFrom):
         return any(alias.name == "*" or (alias.asname or alias.name) == name for alias in node.names)
-    return any(_module_binds_name(child, name) for child in ast.iter_child_nodes(node))
+    return False
+
+
+def _module_binding_nodes(node: ast.AST, name: str) -> list[ast.AST]:
+    if _module_binds_name(node, name):
+        return [node]
+    if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+        return []
+    return [
+        binding for child in ast.iter_child_nodes(node)
+        for binding in _module_binding_nodes(child, name)
+    ]
 
 
 def _import_module_name(
@@ -636,10 +652,10 @@ class _TestCaseResolver:
         self.resolved: dict[tuple[str, str], bool] = {}
         self.resolving: set[tuple[str, str]] = set()
 
-    def binding_node(self, module: str, name: str) -> ast.stmt | None:
+    def binding_node(self, module: str, name: str) -> ast.AST | None:
         if module not in self.modules:
             return None
-        bindings = [node for node in self.modules[module].tree.body if _module_binds_name(node, name)]
+        bindings = _module_binding_nodes(self.modules[module].tree, name)
         return bindings[0] if len(bindings) == 1 else None
 
     def imported_binding(self, module: str, name: str) -> tuple[str, str] | None:

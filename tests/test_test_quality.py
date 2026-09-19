@@ -294,6 +294,60 @@ class ReboundModuleTests(rebound_unittest.TestCase):
                 self.assertEqual(report.test_methods, count)
                 self.assertEqual(len(report.hard_issues), 1 - count)
 
+    def test_audit_follows_unique_try_imports_but_rejects_alternate_bindings(self):
+        cases = (
+            ("unique import", "harness", "    pass", "", 1),
+            ("alternate import", "harness", "    from ordinary import Base", "", 0),
+            ("rebound in handler", "harness", "    Base = object()", "", 0),
+            ("rebound after try", "harness", "    pass", "Base = object()\n", 0),
+            ("class scope", "harness", "    pass", "class Other:\n    Base = object()\n", 1),
+            ("function scope", "harness", "    pass", "def other():\n    Base = object()\n", 1),
+            ("ordinary import", "ordinary", "    pass", "", 0),
+            ("unknown import", "missing", "    pass", "", 0),
+        )
+        for label, module, handler, suffix, count in cases:
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                (root / "harness.py").write_text(
+                    "import unittest\nclass Base(unittest.TestCase):\n    pass\n",
+                    encoding="utf-8",
+                )
+                (root / "ordinary.py").write_text("class Base:\n    pass\n", encoding="utf-8")
+                (root / "test_consumer.py").write_text(
+                    f"try:\n    from {module} import Base\nexcept ImportError:\n"
+                    f"{handler}\n{suffix}class ConsumerTests(Base):\n"
+                    "    def test_consumer(self):\n        self.assertTrue(True)\n",
+                    encoding="utf-8",
+                )
+                report = audit_test_suite(root)
+
+                self.assertEqual(report.test_methods, count)
+                self.assertEqual(len(report.hard_issues), 1 - count)
+
+    def test_audit_rejects_exception_aliases_and_match_captures(self):
+        cases = (
+            ("handler alias", "try:\n    raise ImportError()\nexcept ImportError as Base:\n    pass\n"),
+            ("match capture", "match []:\n    case Base:\n        pass\n"),
+            ("match star", "match []:\n    case [*Base]:\n        pass\n"),
+            ("match mapping rest", "match {}:\n    case {**Base}:\n        pass\n"),
+        )
+        for label, rebinding in cases:
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                (root / "test_consumer.py").write_text(
+                    "from unittest import TestCase as Base\n"
+                    f"{rebinding}class ConsumerTests(Base):\n"
+                    "    def test_consumer(self):\n        self.assertTrue(True)\n",
+                    encoding="utf-8",
+                )
+                report = audit_test_suite(root)
+
+                self.assertEqual(report.test_methods, 0)
+                self.assertEqual(
+                    [(issue.kind, issue.name) for issue in report.hard_issues],
+                    [("undiscovered_test_method", "ConsumerTests.test_consumer")],
+                )
+
     def test_audit_does_not_confuse_local_unittest_with_the_stdlib(self):
         source = (
             "import unittest\nclass ConsumerTests(unittest.TestCase):\n"

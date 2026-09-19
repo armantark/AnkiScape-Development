@@ -197,6 +197,28 @@ class WorktreeReleaseSafetyTest(unittest.TestCase):
         self.assertTrue(all(call.args[1:4] == ("worktree", "list", "--porcelain")
                             for call in self.git.call_args_list))
 
+    def test_qualified_available_branch_checks_out_existing_short_name(self):
+        interpreter = self.canonical / ".venv-qt/bin/python"
+        interpreter.parent.mkdir(parents=True)
+        interpreter.write_text("")
+        self.pooled.mkdir(parents=True)
+
+        def git_result(repo, *args, **kwargs):
+            if args[0] == "show-ref":
+                return Mock(returncode=0 if args[-1] == "refs/heads/goal/available" else 1)
+            return self.git_result(repo, *args, **kwargs)
+
+        self.git.side_effect = git_result
+        self.pool.side_effect = None
+        self.pool.return_value = Mock(stdout=json.dumps(self.lease_row()))
+        with redirect_stdout(io.StringIO()) as output:
+            guard.lease_worktree(self.canonical, "refs/heads/goal/available", "owner", "main")
+        calls = [call.args[1:] for call in self.git.call_args_list]
+        self.assertIn(("show-ref", "--verify", "--quiet", "refs/heads/goal/available"), calls)
+        self.assertEqual([args for args in calls if args[0] == "checkout"],
+                         [("checkout", "goal/available")])
+        self.assertEqual(json.loads(output.getvalue())["branch"], "goal/available")
+
     def test_status_cli_pins_pool_root_and_forwards_json_without_mutation(self):
         # Exercise the real subprocess argv construction, replacing only execution.
         self.stack.close()

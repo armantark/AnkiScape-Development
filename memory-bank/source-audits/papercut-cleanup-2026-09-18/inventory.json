@@ -26,46 +26,77 @@
       "incident_lines": [
         356
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Potion batch resolves remote metadata before checking an already-present output.",
       "evidence": [
-        "tools/fetch_assets.py:333-361 calls resolve_image_info before output_path.exists; tools/fetch_potion_assets.py:69-105 loops through it."
+        "tools/fetch_assets.py:333-361 calls resolve_image_info before output_path.exists; tools/fetch_potion_assets.py:69-105 loops through it.",
+        "tests/test_fetch_assets.py",
+        "asset-tools-red.json",
+        "papercut-focused-plain-etl0vnbz.log.gz"
       ],
       "repair": "Prefer generic fetch_asset early skip for existing regular files when not force and not dry_run, with explicitly unknown optional source metadata; preserve dry-run resolution and forced behavior. Caller audit is required before implementation.",
       "architecture": "Fetch resolution and local materialization are coupled; the batch lacks a cheap skip route.",
       "source": "memory-bank/papercuts.md",
-      "audit_origin": "early"
+      "audit_origin": "early",
+      "closure": {
+        "evidence": [
+          "tests/test_fetch_assets.py",
+          "asset-tools-red.json",
+          "papercut-focused-plain-etl0vnbz.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "early_hunter_shared_asset_destination",
       "incident_lines": [
         656
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Hunter fetch manifest duplicates assets already mapped to shared owner folders.",
       "evidence": [
         "tools/fetch_hunter_assets.py:48-70 excludes only Logs.",
-        "core/constants_parts/skill_assets.py:209-234 maps Wimpy feather/Raw beast meat to shopitems, Long kebbit spike to fletcheditems, plus shared seeds."
+        "core/constants_parts/skill_assets.py:209-234 maps Wimpy feather/Raw beast meat to shopitems, Long kebbit spike to fletcheditems, plus shared seeds.",
+        "core/constants_parts/hunter_assets.py",
+        "tests/test_ui_asset_normalization.py",
+        "papercut-focused-qt-tfr14cg4.log.gz"
       ],
       "repair": "Move the existing shared mapping to a lightweight hunter_assets module, re-export it and exclude its keys from the Hunter fetch manifest. Preserve the mapping exactly.",
       "architecture": "Runtime and fetcher ownership are parallel registries that drift.",
       "source": "memory-bank/papercuts.md",
-      "audit_origin": "early"
+      "audit_origin": "early",
+      "closure": {
+        "evidence": [
+          "core/constants_parts/hunter_assets.py",
+          "tests/test_ui_asset_normalization.py",
+          "papercut-focused-qt-tfr14cg4.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "early_trim_invalid_input_green",
       "incident_lines": [
         419
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "An explicit PNG or nonexistent directory is silently treated as zero files and exits successfully.",
       "evidence": [
-        "tools/trim_icons.py:_iter_pngs returns [] for a non-directory; main unconditionally returns 0."
+        "tools/trim_icons.py:_iter_pngs returns [] for a non-directory; main unconditionally returns 0.",
+        "tests/test_ui_asset_normalization.py",
+        "papercut-focused-plain-etl0vnbz.log.gz"
       ],
       "repair": "Validate all explicit directory arguments before backend selection or processing; reject files/missing directories clearly.",
       "architecture": "A maintenance audit must distinguish valid empty scope from invalid scope.",
       "source": "memory-bank/papercuts.md",
-      "audit_origin": "early"
+      "audit_origin": "early",
+      "closure": {
+        "evidence": [
+          "tests/test_ui_asset_normalization.py",
+          "papercut-focused-plain-etl0vnbz.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "early_trim_backend_guidance",
@@ -73,15 +104,24 @@
         418,
         461
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Missing-backend guidance recommends bare uv run although the script has no dependency metadata.",
       "evidence": [
-        "tools/trim_icons.py has no PEP 723 dependencies; _select_backend recommends .venv-qt/bin/python or uv run."
+        "tools/trim_icons.py has no PEP 723 dependencies; _select_backend recommends .venv-qt/bin/python or uv run.",
+        "tools/trim_icons.py",
+        "papercut-focused-qt-tfr14cg4.log.gz"
       ],
       "repair": "Remove unsupported bare uv run suggestion; no dependency installation needed.",
       "architecture": "Error guidance is an executable contract.",
       "source": "memory-bank/papercuts.md",
-      "audit_origin": "early"
+      "audit_origin": "early",
+      "closure": {
+        "evidence": [
+          "tools/trim_icons.py",
+          "papercut-focused-qt-tfr14cg4.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "early_stale_dispatch_docs",
@@ -90,17 +130,26 @@
         727,
         728
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Core workflow prose retains a retired dispatch route and obsolete nested-worktree rejection, conflicting with current ownership rules.",
       "evidence": [
         "memory-bank/techContext.md:16-35 recommends Workflow agent() and canonical-main writes; :66-70 recommends workflow_manifest_guard.",
         "tools/worktree_guard.py:21-31 exempts descendants of canonical; lease_worktree uses treehouse.",
-        "memory-bank/activeContext.md:6 requires pooled assigned worktrees and root promotion."
+        "memory-bank/activeContext.md:6 requires pooled assigned worktrees and root promotion.",
+        "memory-bank/techContext.md",
+        "memory-bank/activeContext.md"
       ],
       "repair": "Reconcile current guidance to pooled worktrees and native delegation; preserve dated records. workflow_manifest_guard.py still exists, but its route is retired.",
       "architecture": "Authority replicated across core docs, briefs and templates lets one ruling diverge across agents.",
       "source": "memory-bank/papercuts.md",
-      "audit_origin": "early"
+      "audit_origin": "early",
+      "closure": {
+        "evidence": [
+          "memory-bank/techContext.md",
+          "memory-bank/activeContext.md"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "early_ge_generator_cli",
@@ -2682,17 +2731,26 @@
       "incident_lines": [
         1927
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "A clean pooled checkout can be detached and returned while its promotion gate runs.",
       "evidence": [
         "tools/worktree_guard.py:213-226 checks dirtiness only",
-        "tools/promotion/locking.py:166-193 registers gates under landing coordination;196-245 has destructive stale recovery"
+        "tools/promotion/locking.py:166-193 registers gates under landing coordination;196-245 has destructive stale recovery",
+        "guard-root-canaries.json",
+        "papercut-final-inert-vrqh4bmi.log.gz"
       ],
       "repair": "Repair release_worktree in tools/worktree_guard.py. Hold the shared coordination lock through validation/detach/return; refuse matching or unreadable markers even if unlocked. Never call stale recovery, signal, unlink markers or raise limits. Add inert failure canaries to existing worktree tests.",
       "architecture": "Resource ownership must be enforced at release. Read-only observation and stale recovery need separate APIs.",
       "source": "memory-bank/papercuts.md",
       "uncertainty": "Classification does not assert a fresh pass, current external availability, or closure of all historical subclaims.",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "guard-root-canaries.json",
+          "papercut-final-inert-vrqh4bmi.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "lease-duplicate-branch",
@@ -2701,16 +2759,27 @@
         1908,
         1909
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Lease acquisition precedes detection of an already checked-out branch.",
       "evidence": [
-        "tools/worktree_guard.py:160-202 allocates at166 before checkout at200;207-209 compensates after failure"
+        "tools/worktree_guard.py:160-202 allocates at166 before checkout at200;207-209 compensates after failure",
+        "guard-root-canaries.json",
+        "qualified-branch-canary.json",
+        "papercut-final-focused-qt-ebra1bxh.log.gz"
       ],
       "repair": "Preflight requested refs/heads branch against git worktree list --porcelain before treehouse allocation. Report holder/path and refuse without acquiring a lease.",
       "architecture": "Check branch ownership before acquiring another resource; preserve dirty and unmerged holders.",
       "source": "memory-bank/papercuts.md",
       "uncertainty": "Classification does not assert a fresh pass, current external availability, or closure of all historical subclaims.",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "guard-root-canaries.json",
+          "qualified-branch-canary.json",
+          "papercut-final-focused-qt-ebra1bxh.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "pool-status-discovery",
@@ -2721,18 +2790,27 @@
         2256,
         2312
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Raw treehouse status without the pinned root reports the wrong pool; safe inventory requires ad hoc probes.",
       "evidence": [
         "tools/worktree_guard.py:94-105 privately pins pool_root",
         "tools/worktree_guard.py:281-300 lacks status",
-        "tools/worktree_guard.py:116-127 audit reports layout, not lease inventory"
+        "tools/worktree_guard.py:116-127 audit reports layout, not lease inventory",
+        "guard-root-canaries.json",
+        "papercut-final-inert-vrqh4bmi.log.gz"
       ],
       "repair": "Add a read-only status command in tools/worktree_guard.py using its existing pinned root; report path/branch/lease identity. No automatic reclaim or cap change.",
       "architecture": "Separate inventory from cleanup policy. Multi-cause incident2256 is assigned once to its pool-cap cause.",
       "source": "memory-bank/papercuts.md",
       "uncertainty": "Classification does not assert a fresh pass, current external availability, or closure of all historical subclaims.",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "guard-root-canaries.json",
+          "papercut-final-inert-vrqh4bmi.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "all-surface-mismatches",
@@ -2740,68 +2818,108 @@
         1903,
         2354
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Surface tests abort after the first mismatch.",
       "evidence": [
-        "tests/test_module_surface.py:62-73 has nested loops and plain assertEqual without subTest"
+        "tests/test_module_surface.py:62-73 has nested loops and plain assertEqual without subTest",
+        "tests/test_module_surface.py",
+        "source-gate-8898f878.log.gz"
       ],
       "repair": "Add named per-environment/per-module subTest boundaries without changing any fingerprint or assertion; preserve invalid-output refusal.",
       "architecture": "Better diagnostic completeness must not weaken the surface contract.",
       "source": "memory-bank/papercuts.md",
       "uncertainty": "Classification does not assert a fresh pass, current external availability, or closure of all historical subclaims.",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "tests/test_module_surface.py",
+          "source-gate-8898f878.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "test-quality-imported-base",
       "incident_lines": [
         1948
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Static discovery rejects tests derived from an imported TestCase harness.",
       "evidence": [
         "tools/audit_test_quality.py:548-568 recognizes only same-file class ancestry or literal TestCase",
-        "tools/audit_test_quality.py:620 emits undiscovered_test_method"
+        "tools/audit_test_quality.py:620 emits undiscovered_test_method",
+        "quality-conditional-evidence.json",
+        "quality-conditional-metrics.json",
+        "papercut-final-focused-qt-ebra1bxh.log.gz"
       ],
       "repair": "Resolve bounded repository import/base ancestry statically, with cycle handling and negative non-TestCase canaries in tests/test_test_quality.py. Do not exempt all unknown bases.",
       "architecture": "Align static discovery with unittest. This multi-cause incident also records hook latency and pipeline-exit loss.",
       "source": "memory-bank/papercuts.md",
       "uncertainty": "Classification does not assert a fresh pass, current external availability, or closure of all historical subclaims.",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "quality-conditional-evidence.json",
+          "quality-conditional-metrics.json",
+          "papercut-final-focused-qt-ebra1bxh.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "remote-focused-interface",
       "incident_lines": [
         2459
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "The public runner exposes full lanes only, causing focused callers to monkeypatch private launch functions.",
       "evidence": [
         "tools/run_remote_tests.py:326-332 exposes no focused mode;364-367 always uses full completeness",
         "tools/combat/run_enemy_attack_rolls_remote.py:129-155 privately patches launch and validates10/zero skips",
         "tools/combat/run_player_attack_rolls_remote.py:147-185 repeats this for8",
-        "tools/carried/run_processing_reconciliation_remote.py:152-161 repeats this for34"
+        "tools/carried/run_processing_reconciliation_remote.py:152-161 repeats this for34",
+        "focused-runner-canaries.json",
+        "papercut-focused-plain-etl0vnbz.log.gz",
+        "papercut-focused-qt-tfr14cg4.log.gz"
       ],
       "repair": "Add an explicit focused mode/API with verified selectors, exact expected count and zero skips. Reuse lock/pending/report identity and no-relaunch semantics. Leave full validate_test_summary and minima unchanged.",
       "architecture": "One owned execution lifecycle should expose separate full/focused acceptance contracts.",
       "source": "memory-bank/papercuts.md",
       "uncertainty": "Classification does not assert a fresh pass, current external availability, or closure of all historical subclaims.",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "focused-runner-canaries.json",
+          "papercut-focused-plain-etl0vnbz.log.gz",
+          "papercut-focused-qt-tfr14cg4.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "gate-log-truncation",
       "incident_lines": [
         1836
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Promotion logs discard early failures by keeping only a final tail.",
       "evidence": [
-        "tools/promotion/lane_execution.py:104-112 prints selected output only;296,307 select20/30 non-progress lines"
+        "tools/promotion/lane_execution.py:104-112 prints selected output only;296,307 select20/30 non-progress lines",
+        "tests/test_promotion_gate.py",
+        "source-gate-8898f878.log.gz"
       ],
       "repair": "Retain complete stdout/stderr per check beside the gate log, with concise references and complete failure headings. Add inert multiple-failure canary; preserve validators and exit semantics.",
       "architecture": "Keep human summaries separate from lossless evidence.",
       "source": "memory-bank/papercuts.md",
       "uncertainty": "Classification does not assert a fresh pass, current external availability, or closure of all historical subclaims.",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "tests/test_promotion_gate.py",
+          "source-gate-8898f878.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "stale-current-guidance",
@@ -2812,19 +2930,30 @@
         2080,
         2082
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Current guidance can lag owner state or treat author notes as an owner gate.",
       "evidence": [
         "memory-bank/activeContext.md:7 says resumed",
         "memory-bank/loop-queue.md:200-205 still schedules resumed execution",
         "memory-bank/goal-priority-matrix.md:9 explicitly says manual pause",
-        "memory-bank/techContext.md:22 names retired Workflow agent;35 says direct canonical-main work"
+        "memory-bank/techContext.md:22 names retired Workflow agent;35 says direct canonical-main work",
+        "memory-bank/activeContext.md",
+        "memory-bank/loop-queue.md",
+        "memory-bank/techContext.md"
       ],
       "repair": "Root owns surgical activeContext/loop-queue/techContext corrections. Preserve dated history in progress.md and exact incident text; do not resume features.",
       "architecture": "One current obligation state, separate historical events, and approvals traced to the actual owner.",
       "source": "memory-bank/papercuts.md",
       "uncertainty": "Classification does not assert a fresh pass, current external availability, or closure of all historical subclaims.",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "memory-bank/activeContext.md",
+          "memory-bank/loop-queue.md",
+          "memory-bank/techContext.md"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "xp-audit-fixed",
@@ -4723,19 +4852,28 @@
       "incident_lines": [
         3
       ],
-      "disposition": "repair-now",
+      "disposition": "fixed-this-pass",
       "cause": "Raw treehouse status without the pinned root reports the wrong pool; safe inventory requires ad hoc probes.",
       "evidence": [
         "tools/worktree_guard.py:94-105 privately pins pool_root",
         "tools/worktree_guard.py:281-300 lacks status",
         "tools/worktree_guard.py:116-127 audit reports layout, not lease inventory",
-        "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/papercuts.md:3 (dated incident occurrences; not fresh runtime evidence)"
+        "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/papercuts.md:3 (dated incident occurrences; not fresh runtime evidence)",
+        "guard-root-canaries.json",
+        "papercut-final-inert-vrqh4bmi.log.gz"
       ],
       "repair": "Add a read-only status command in tools/worktree_guard.py using its existing pinned root; report path/branch/lease identity. No automatic reclaim or cap change.",
       "architecture": "Separate inventory from cleanup policy. Multi-cause incident2256 is assigned once to its pool-cap cause.",
       "source": "memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/papercuts.md",
       "parent_cause": "pool-status-discovery",
-      "audit_origin": "recent"
+      "audit_origin": "recent",
+      "closure": {
+        "evidence": [
+          "guard-root-canaries.json",
+          "papercut-final-inert-vrqh4bmi.log.gz"
+        ],
+        "acceptance": "The final exact-commit full-gate receipt remains required for landing. See final-verification.md."
+      }
     },
     {
       "id": "operator-path-and-selector-discovery--38",

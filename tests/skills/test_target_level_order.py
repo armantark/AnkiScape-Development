@@ -137,7 +137,7 @@ def _level_of(text: str) -> int:
 
 
 @unittest.skipUnless(_QT_READY, "aqt/PyQt6 not installed (use .venv-qt)")
-class TargetLevelOrderWidgetTest(MainMenuWidgetTest, unittest.TestCase):
+class TargetLevelOrderWidgetTest(MainMenuWidgetTest):
     """The renderers must apply sort_key: flat list and tree groups alike."""
 
     def test_mining_flat_list_renders_level_ordered(self):

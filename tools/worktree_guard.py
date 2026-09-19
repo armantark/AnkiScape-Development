@@ -164,7 +164,7 @@ def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str)
 
 def require_branch_available(repo: Path, branch: str) -> None:
     result = _git(repo, "worktree", "list", "--porcelain", capture=True)
-    branch_ref = "refs/heads/" + branch.removeprefix("refs/heads/")
+    branch_ref = "refs/heads/" + branch
     worktree = ""
     for line in result.stdout.splitlines():
         if line.startswith("worktree "):
@@ -181,6 +181,7 @@ def pool_status(repo: Path, *, as_json: bool = False) -> None:
 
 
 def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: str) -> None:
+    branch = branch.removeprefix("refs/heads/")
     audit(repo)
     canonical, _ = canonical_and_paths(repo)
     qt_environment = canonical / ".venv-qt"

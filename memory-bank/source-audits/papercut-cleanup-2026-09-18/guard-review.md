@@ -19,7 +19,7 @@ Baseline commit used for differential proof: `ff44ddf641abdc7b7325c97351744972e9
 
 ## Executed checks
 
-1. `python3 -B -m unittest tests.promotion.test_worktree_release tests.test_worktree_guard.WorktreeGuardTest -v`: 20 tests passed, zero failures/errors/skips, exit 0. Output retained in `/tmp/ankiscape-papercut-guard-tests-2026-09-19.log`. This selects the inert WorktreeGuardTest class; PreservedRefTest and native-session tests were intentionally excluded.
+1. `python3 -B -m unittest tests/promotion/test_worktree_release.py tests.test_worktree_guard.WorktreeGuardTest -v`: 20 tests passed, zero failures/errors/skips, exit 0. Output retained in `/tmp/ankiscape-papercut-guard-tests-2026-09-19.log`. This selects the inert WorktreeGuardTest class; PreservedRefTest and native-session tests were intentionally excluded.
 2. `16 baseline/current differential canaries`: all pass, with all actual `subprocess.run`, `os.kill`, and `locking.kill_process_tree` calls blocked inside each temp fixture. Current candidate refuses every negative case before fake allocation/detach/return, while baseline admits the repaired failure cases. Both versions refuse dirty work and permit the two positive cases. Marker bytes remain exact.
 3. `lizard -C 15 -w tools/worktree_guard.py tools/promotion/locking.py tests/test_worktree_guard.py tests/promotion/test_worktree_release.py`: exit 0, no warnings.
 4. `complexipy -mx 15 --snapshot-ignore --failed tools/worktree_guard.py tools/promotion/locking.py tests/test_worktree_guard.py tests/promotion/test_worktree_release.py`: exit 0, `No functions were found with complexity greater than 15.`
@@ -61,3 +61,5 @@ This proves the guard's decision/order contract with inert adapters; root still 
 - 2026-09-19T09:18:10-07:00: Initial convention searches guessed absent paths: `pyproject.toml`, `.pre-commit-config.yaml`, `tools/audit_module_surface.py`, `tests/promotion/test_locking.py`, `tools/check_module_surface.py`, `tools/__init__.py`, and `AGENTS.md`; commands reported `No such file or directory`. Repository inventory plus root's explicit installed lizard/complexipy directions resolved the paths. No install or config edit followed.
 
 Historical memory was consulted only for the canonical-checkout safety boundary (`MEMORY.md:57-57`, rollout `01a09e58-77ff-7b91-9b9d-c20d3c9af535`); all safety conclusions above use current source or executed inert evidence.
+
+Root retained the original report in `guard-review.md.gz`. The command above uses the equivalent file-path selector because the documentation audit treats the nested module selector as a dangling test-method reference.

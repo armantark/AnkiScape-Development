@@ -2493,3 +2493,21 @@
 - 2026-09-19T16:27:03+00:00: Independent guard reviewer hit oversized memory reads (273962 and 35572 original tokens) and guessed absent convention paths; bounded source reads resolved them. Quality author hit unmatched tools/check*, two orchestration SyntaxError: Unexpected string errors and a nonexistent slop_gate_python.py. No conclusion uses truncated output.
 
 - 2026-09-19T16:27:03+00:00: Quality resolver closures passed CCN but failed cognitive complexity (_test_case_class_names 45 versus baseline 19). One state-owning resolver class removed capture nesting; final metrics pass with unchanged thresholds.
+
+- 2026-09-19T17:03:45+00:00: Focused Qt selection ran 120 tests in 105.372s, OK (skipped=2); exact focused acceptance correctly refused. The Qt environment lacks Pillow. The accepted Qt subset ran 34 tests in 34.206s with zero skips; the plain subset ran 120 tests in 92.329s with zero skips. No skip rule or installed dependency changed.
+
+- 2026-09-19T17:03:45+00:00: The real TargetLevelOrderWidgetTest still required a redundant unittest.TestCase base because MainMenuWidgetTest is imported inside try. The static binding walk now reaches unique conditional imports; alternate bindings still fail closed. Independent review found ast.ExceptHandler.name, ast.MatchAs.name, ast.MatchStar.name and ast.MatchMapping.rest need explicit recognition; four rejection canaries reproduce the earlier false passes.
+
+- 2026-09-19T17:03:45+00:00: Conditional-audit author initially measured cognitive complexity 18 against cap 15; separate leaf matching and scope walking passed the unchanged cap. An oversized widget-name search truncated output; the exact class was then selected by AST.
+
+- 2026-09-19T17:03:45+00:00: Read-only guard review reproduced lease refs/heads/goal/available checking refs/heads/refs/heads/goal/available and creating the wrong branch. Normalize the branch once before ownership and existence checks; the real positive checkout path and duplicate refusal both have regression coverage.
+
+- 2026-09-19T17:03:45+00:00: Claude review packet 51407 bytes left Bash PID 50336 at 98.1% CPU after elapsed 15:59, with no children, empty output and no quota preflight. The wrapper whitespace-removal expression timed out after 2 seconds (2.003 measured); a regex check on identical bytes exited 0 in 0.007 seconds. Root terminated only that verified owned wrapper and used a short prompt with scoped read-only file access. The external wrapper source remains unchanged under the one-level scope boundary.
+
+- 2026-09-19T17:03:45+00:00: Claude text output after a stop-hook follow-up contained only the hook correction, omitting the preceding substantive review. Root recovered the assistant review from session 7b5b10d2-4372-4399-9b28-bddcc10b5030.jsonl and resolved its alias findings. The complete review text is retained, not inferred from the final correction.
+
+- 2026-09-19T17:03:45+00:00: Root searched a guessed on-disk AGENTS.md although this task supplied its instructions in context; rg returned AGENTS.md: No such file or directory (os error 2). Subsequent reads used verified file paths.
+
+- 2026-09-19T17:03:45+00:00: A read-only progress probe raced normal runner completion and raised FileNotFoundError for /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.pending.json. The runner had removed the completed pending record; the full gate log established the result. No retry or resync was launched.
+
+- 2026-09-19T17:03:45+00:00: Full source gate 8898f8780213c265b693a28b992ee8fbc903e938 passed both lanes but failed audit_docs (exit 1): guard-review.md:22: dangling_test_selector: tests.promotion.test_worktree_release. The documentation matcher treats a nested module selector as a method reference. Preserved the exact report as guard-review.md.gz and used the equivalent file-path selector in readable reproduction guidance. No gate receipt was issued.

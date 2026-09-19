@@ -1,0 +1,15 @@
+{
+  "packet_bytes": 51407,
+  "results": [
+    {
+      "check": "wrapper_empty_check",
+      "timeout_seconds": 2,
+      "elapsed": 2.003
+    },
+    {
+      "check": "regex_empty_check",
+      "exit": 0,
+      "elapsed": 0.007
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 # AnkiScape grind-loop queue
 
 Source: `memory-bank/codex-briefs/ankiscape-grind-loop-2026-08-03.md`.
-Process one unblocked item per iteration. Move discovered design gaps to
-`memory-bank/design-thread-queue.md`.
+The implementation goal is paused until the owner explicitly resumes it. No
+automatic restart is scheduled. On resumption, process one unblocked item per
+iteration and move design gaps to `memory-bank/design-thread-queue.md`.
 
 1. [x] Pass 6 item B.15 — skill-selector hybridization.
    Implement only `memory-bank/codex-briefs/pass6-b15-handoff-2026-08-03.md`.
@@ -202,18 +203,18 @@ Process one unblocked item per iteration. Move discovered design gaps to
    earlier collision repair and blocker deletion remain dated progress history.
 6. [x] Reconcile the prior papercut branches against main.
    Their changes are landed; do not redispatch them from stale branch state.
-7. [ ] Execute `memory-bank/goal-priority-matrix.md` under the resumed goal.
+7. [ ] Resume `memory-bank/goal-priority-matrix.md` only on owner instruction.
    - [x] Establish the priority matrix from queues and owner rulings.
    - [x] Land the dispatcher shared-state restructure and the accepted cleanup batches.
    - [ ] Complete the shared real-reviewer acceptance required by owner §55.
      The guarded native route is proven. The retained menu/quest/exchange run
      does not prove review answers, undo or an exact loaded revision.
    - [ ] Complete the exposed-function cleanup within the fourteen-family scope.
-     Next slice: combat-magic responsibility extraction in P8 on
-     `goal/combat-magic-module-2026-09-18`, source preparation only. Preserve
-     the old dirty P6 candidate; it is not an accepted or landed implementation.
+     The P8 candidate on `goal/combat-magic-module-2026-09-18` failed its
+     full source gate and remains unmerged. Preserve it and the old dirty P6
+     predecessor. Neither is part of the one-time maintenance cleanup.
    - [ ] Re-audit eligible work and preserved candidates after each promotion.
      Cape and cut-gem tradeability are closed, as are Barcrawl, the other
      accepted tradeability slices, Skippy/Mogres and the Ghosts Ahoy prerequisite.
      The matrix retains the unfinished cleanup, native, source, dependency and
-     owner-gated units. Their blockers do not establish a whole-goal stop.
+     owner-gated units. The owner pause is separate from these blockers.
