@@ -18,6 +18,63 @@ Current goal selection and branch disposition: `memory-bank/goal-priority-matrix
 (2026-09-05). Dispatcher state-object restructure is first under the owner's
 §57/58 rulings. Existing UI changes are excluded by this goal.
 
+### Upstream ideas from AnkiScape 3.0 — 2026-09-19
+
+Labels: `IMPLEMENT` for the first four, `PARKED` for the rest. Owner accepted
+this list on 2026-09-19 ("Alright fair enough"). Source: Wilson Yeh's
+`https://github.com/wilsonhyeh/ankiscape`, cloned at `1e99e017`-era HEAD on
+2026-09-19 (last upstream push 2026-09-19T21:03:08Z, 3.0.0 release prep).
+Upstream is a six-skill game with hosted accounts, sync, and hiscores; its
+gameplay is far behind this fork, its engineering around gameplay is not.
+
+Take, in value order:
+
+- Mobile catch-up from the review log. Upstream `evolved/catchup.py` scans
+  Anki's `revlog` for uncredited eligible reviews (including AnkiMobile and
+  AnkiDroid rows synced to desktop), awards them on the next profile load,
+  and keeps a persisted frontier id so the scan is incremental (fast path
+  chunk 2,000 rows; full reconciliation cap 20,000 rows, newest first). This
+  fork credits live desktop reviews only; `grep -rl revlog` over
+  `__init__.py core runtime logic ui` returns 0 files.
+- Game save outside Anki's tables. Upstream `evolved/journal.py` keeps an
+  add-on-owned SQLite at `<profile>/ankiscape-evolved/<game_uuid>/game.sqlite3`
+  (WAL, 25 ms interactive busy budget, fail fast to a recovery notice). This
+  fork stores the save in collection config under `ankiscape_player_data`,
+  the same key the original add-on uses, so both add-ons installed together
+  share one save. Upstream ships 3.0.0 under the same AnkiWeb listing
+  `1808450369`, which makes that collision likely for any player who tries
+  both. Moving the save off that key is the fix and is the same work.
+- Export and restore of the game save. Upstream has Settings -> Export/Restore
+  Game Backup. This fork has none (`grep -rn "def export\|def restore\|def
+  backup"` over runtime code finds only unrelated helpers).
+- Redo restores what undo retracted. This fork undoes review rewards and
+  does not restore them on redo (`grep -rli redo` returns 0 files).
+
+Check, then close or fix:
+
+- One dialog for a multi-level gain. Upstream fixed a nineteen-dialog burst
+  on 2026-09-19 (`fix(classic): summarise a multi-level gain in one dialog`).
+  Confirm `level_up_check` (`__init__.py:651`) and the core check behave the
+  same after a large XP change.
+
+Release hygiene to copy when the AnkiWeb gates open:
+
+- `docs/ASSET-RIGHTS.md`: cites Jagex Fan Content Policy v1.3 sections 6.1.3,
+  8.1, and 14.1 (checked 2026-09-10 upstream) and records that Wiki
+  permission does not license redistribution inside an add-on. This fork's
+  release record names the rights problem but has not read the policy against
+  the shipped art.
+- `docs/release/3.0.0/KNOWN-LIMITATIONS.md`, `ROLLBACK.md`, and
+  `RELEASE-SMOKE.md` (real-Anki journeys on the packaged `.ankiaddon`, never
+  a source symlink). This fork has the release record only.
+- A guide generated from the shipped rules data so tables cannot drift. This
+  fork's `help_topics/` (20 files) is hand-written.
+
+Do not take: hosted accounts, cloud sync, public hiscores (Supabase Free
+tier, pauses when idle, email and password flow, most of upstream's
+September went to its CI and server work); fresh-start-with-no-transfer and
+two-games-per-profile, which exist only to keep that leaderboard fair.
+
 ### Pass 14 follow-up — 2026-09-13
 
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
