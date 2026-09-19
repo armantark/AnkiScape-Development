@@ -18,6 +18,21 @@ Current goal selection and branch disposition: `memory-bank/goal-priority-matrix
 (2026-09-05). Dispatcher state-object restructure is first under the owner's
 §57/58 rulings. Existing UI changes are excluded by this goal.
 
+### README FAQ — 2026-09-19
+
+Label: `PARKED`. Owner will write it ("I'll do this later I guess. Probably
+could answer them myself"). Goes after "What you get", before "Roadmap".
+Verified answers for the non-mechanics questions: any ease above Again runs
+one action (`__init__.py:5691`, `successful_answer = ease > 1`); no runtime
+network calls and no note, card, or scheduler edits (grep over
+`__init__.py core runtime logic ui`); desktop only, phone reviews earn
+nothing; no reset action exists; Ironman is an account type that locks the
+Grand Exchange. Unverified: whether a save survives an Anki config sync
+conflict between two desktops. Mechanics questions to add in the same vein:
+what one action is per skill, how bank runs and carried inventory work, what
+happens on Undo, why 2012 and no Old School content, how combat picks a
+target, what `Actions per review` changes.
+
 ### Upstream ideas from AnkiScape 3.0 — 2026-09-19
 
 Labels: `IMPLEMENT` for the first four, `PARKED` for the rest. Owner accepted
