@@ -2487,3 +2487,9 @@
 - 2026-09-19T16:25:32+00:00: Normal commit hook rejected tests/promotion/test_worktree_release.py:151:9 with E306 expected 1 blank line before a nested definition, found 0. Inserted the required blank line; no hook bypass.
 
 - 2026-09-19T16:25:32+00:00: MacBook focused plain selection ran 121 tests in 91.055s, OK (skipped=1); exact focused acceptance correctly refused tests=121, skipped=1. The existing no-aqt probe skips when the plain interpreter cannot import aqt. Keep it in full lanes; the focused selection names the other module-surface methods explicitly, including the separate real-Qt root digest.
+
+- 2026-09-19T16:27:03+00:00: Staged diff checking found trailing whitespace in retained quality-regression-before.txt:1. The commit command still ran because the shell used a separator instead of a success dependency; 0e543a4d remained unaccepted on the maintenance branch. Compressed the raw evidence losslessly before source verification.
+
+- 2026-09-19T16:27:03+00:00: Independent guard reviewer hit oversized memory reads (273962 and 35572 original tokens) and guessed absent convention paths; bounded source reads resolved them. Quality author hit unmatched tools/check*, two orchestration SyntaxError: Unexpected string errors and a nonexistent slop_gate_python.py. No conclusion uses truncated output.
+
+- 2026-09-19T16:27:03+00:00: Quality resolver closures passed CCN but failed cognitive complexity (_test_case_class_names 45 versus baseline 19). One state-owning resolver class removed capture nesting; final metrics pass with unchanged thresholds.
