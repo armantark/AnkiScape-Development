@@ -61,16 +61,18 @@ def interpreter_cases():
 class ModuleSurfaceTest(unittest.TestCase):
     def test_first_wave_digests(self):
         for environment, interpreter, qt in interpreter_cases():
-            result = run_tool(interpreter, "--digest-only", *FIRST_WAVE_DIGESTS, qt=qt)
-            self.assertEqual(result.returncode, 0, f"{environment}: {result.stderr}")
-            expected = {
-                module: QT_DIGEST_OVERRIDES.get(module, digest) if qt else digest
-                for module, digest in FIRST_WAVE_DIGESTS.items()
-            }
-            lines = result.stdout.splitlines()
-            self.assertEqual(len(lines), len(expected))
-            for line, (module_path, digest) in zip(lines, expected.items()):
-                self.assertEqual(line, f"MODULE_SURFACE_SHA256: {module_path} {digest}")
+            with self.subTest(environment=environment):
+                result = run_tool(interpreter, "--digest-only", *FIRST_WAVE_DIGESTS, qt=qt)
+                self.assertEqual(result.returncode, 0, f"{environment}: {result.stderr}")
+                expected = {
+                    module: QT_DIGEST_OVERRIDES.get(module, digest) if qt else digest
+                    for module, digest in FIRST_WAVE_DIGESTS.items()
+                }
+                lines = result.stdout.splitlines()
+                self.assertEqual(len(lines), len(expected))
+                for line, (module_path, digest) in zip(lines, expected.items()):
+                    with self.subTest(module=module_path):
+                        self.assertEqual(line, f"MODULE_SURFACE_SHA256: {module_path} {digest}")
 
     def test_constants_parts_import_standalone(self):
         script = "\n".join(

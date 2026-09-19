@@ -8,6 +8,7 @@ import ast
 import json
 from collections import defaultdict
 from dataclasses import asdict, dataclass
+from functools import cached_property
 from pathlib import Path
 from typing import Iterable
 
@@ -545,27 +546,149 @@ def _vacuous_source_scan_issues(
     ),)
 
 
-def _test_case_class_names(tree: ast.Module) -> set[str]:
-    classes = {
-        node.name: node
-        for node in tree.body
-        if isinstance(node, ast.ClassDef)
-    }
-    test_cases: set[str] = set()
-    changed = True
-    while changed:
-        changed = False
-        for name, node in classes.items():
-            if name in test_cases:
-                continue
-            if any(
-                (isinstance(base, ast.Name) and (base.id == "TestCase" or base.id in test_cases))
-                or (isinstance(base, ast.Attribute) and base.attr == "TestCase")
-                for base in node.bases
-            ):
-                test_cases.add(name)
-                changed = True
-    return test_cases
+def _module_names(path: Path, tests_root: Path) -> tuple[str, ...]:
+    relative = path.relative_to(tests_root).with_suffix("")
+    parts = relative.parts[:-1] if relative.name == "__init__" else relative.parts
+    dotted = ".".join(parts)
+    return tuple(name for name in (dotted, f"tests.{dotted}" if dotted else "tests") if name)
+
+
+@dataclass(frozen=True)
+class _TestModule:
+    path: Path
+
+    @cached_property
+    def tree(self) -> ast.Module:
+        return ast.parse(self.path.read_text(encoding="utf-8"), filename=str(self.path))
+
+
+def _test_module_index(tests_root: Path) -> dict[str, _TestModule]:
+    modules: dict[str, _TestModule] = {}
+    for path in tests_root.rglob("*.py"):
+        module = _TestModule(path)
+        for name in _module_names(path, tests_root):
+            modules[name] = module
+    return modules
+
+
+def _module_binds_name(node: ast.AST, name: str) -> bool:
+    if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+        return node.name == name
+    if isinstance(node, ast.Name):
+        return node.id == name and isinstance(node.ctx, (ast.Store, ast.Del))
+    if isinstance(node, ast.Import):
+        return any((alias.asname or alias.name.partition(".")[0]) == name for alias in node.names)
+    if isinstance(node, ast.ImportFrom):
+        return any(alias.name == "*" or (alias.asname or alias.name) == name for alias in node.names)
+    return any(_module_binds_name(child, name) for child in ast.iter_child_nodes(node))
+
+
+def _import_module_name(
+    node: ast.ImportFrom,
+    current_module: str,
+    modules: dict[str, _TestModule],
+) -> str | None:
+    if not node.level:
+        return node.module
+    package = current_module.split(".")
+    if modules[current_module].path.name != "__init__.py":
+        package.pop()
+    if node.level > len(package):
+        return None
+    parts = package[: len(package) - node.level + 1]
+    if node.module:
+        parts.extend(node.module.split("."))
+    return ".".join(parts)
+
+
+_STDLIB_UNITTEST = "<stdlib unittest>"
+
+
+def _import_binding(
+    node: ast.Import | ast.ImportFrom,
+    name: str,
+    current_module: str,
+    modules: dict[str, _TestModule],
+) -> tuple[str, str] | None:
+    from_import = isinstance(node, ast.ImportFrom)
+    alias = next((
+        alias for alias in node.names
+        if (alias.asname or (alias.name if from_import else alias.name.partition(".")[0])) == name
+    ), None)
+    if alias is None:
+        return None
+    imported = _import_module_name(node, current_module, modules) if from_import else alias.name
+    bound_module = alias.name if alias.asname else alias.name.partition(".")[0]
+    if imported in {"unittest", "unittest.case"} and not {"unittest", imported}.intersection(modules):
+        member = alias.name if from_import else bound_module.partition(".")[2]
+        return (_STDLIB_UNITTEST, member)
+    if imported not in modules:
+        return None
+    if not from_import:
+        return (bound_module, "")
+    child = f"{imported}.{alias.name}"
+    return (child, "") if child in modules else (imported, alias.name)
+
+
+class _TestCaseResolver:
+    def __init__(self, modules: dict[str, _TestModule]) -> None:
+        self.modules = modules
+        self.resolved: dict[tuple[str, str], bool] = {}
+        self.resolving: set[tuple[str, str]] = set()
+
+    def binding_node(self, module: str, name: str) -> ast.stmt | None:
+        if module not in self.modules:
+            return None
+        bindings = [node for node in self.modules[module].tree.body if _module_binds_name(node, name)]
+        return bindings[0] if len(bindings) == 1 else None
+
+    def imported_binding(self, module: str, name: str) -> tuple[str, str] | None:
+        node = self.binding_node(module, name)
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            return _import_binding(node, name, module, self.modules)
+        return None
+
+    def base_binding(self, module: str, base: ast.expr) -> tuple[str, str] | None:
+        if isinstance(base, ast.Name):
+            return self.imported_binding(module, base.id) or (module, base.id)
+        if not isinstance(base, ast.Attribute):
+            return None
+        binding = self.base_binding(module, base.value)
+        if binding is None:
+            return None
+        owner, member = binding
+        if owner == _STDLIB_UNITTEST:
+            return (owner, f"{member}.{base.attr}" if member else base.attr)
+        if member:
+            return None
+        child = f"{owner}.{base.attr}"
+        return (child, "") if child in self.modules else (owner, base.attr)
+
+    def is_test_case(self, module: str, name: str) -> bool:
+        key = (module, name)
+        if module == _STDLIB_UNITTEST:
+            return name in {"TestCase", "case.TestCase"}
+        if key in self.resolved:
+            return self.resolved[key]
+        if key in self.resolving:
+            return False
+        self.resolving.add(key)
+        node = self.binding_node(module, name)
+        if isinstance(node, ast.ClassDef):
+            bindings = (self.base_binding(module, base) for base in node.bases)
+            result = any(self.is_test_case(*binding) for binding in bindings if binding is not None)
+        else:
+            binding = self.imported_binding(module, name)
+            result = binding is not None and self.is_test_case(*binding)
+        self.resolving.remove(key)
+        self.resolved[key] = result
+        return result
+
+    def class_names(self, current_module: str) -> set[str]:
+        return {
+            node.name for node in self.modules[current_module].tree.body
+            if isinstance(node, ast.ClassDef) and self.is_test_case(current_module, node.name)
+        }
 
 
 class _BlankConstants(ast.NodeTransformer):
@@ -589,9 +712,12 @@ def audit_test_suite(tests_root: Path) -> TestQualityReport:
     methods: list[tuple[Path, str, ast.FunctionDef | ast.AsyncFunctionDef]] = []
 
     files = tuple(_test_files(tests_root))
+    modules = _test_module_index(tests_root)
+    resolver = _TestCaseResolver(modules)
     for path in files:
-        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        test_case_classes = _test_case_class_names(tree)
+        module_name = _module_names(path, tests_root)[-1]
+        tree = modules[module_name].tree
+        test_case_classes = resolver.class_names(module_name)
         imported_names = _imported_names(tree)
         for node in tree.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):

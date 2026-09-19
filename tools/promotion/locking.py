@@ -115,12 +115,15 @@ def claim_landing_lock(
     worktree: Path,
     commit: str,
     wait: bool = False,
+    recover_stale: bool = True,
 ) -> HeldLock:
     path = landing_lock_path_for(repo)
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
         stream = open_locked_file(path, wait=wait)
     except BlockingIOError:
+        if not recover_stale:
+            raise GateError("Promotion landing lock held; stale recovery is disabled") from None
         try:
             existing = _read_record_path(path)
         except FileNotFoundError:

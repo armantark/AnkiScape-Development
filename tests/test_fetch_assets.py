@@ -1,11 +1,13 @@
 import hashlib
 import importlib.util
+import json
 import sys
 import tempfile
 import unittest
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -269,18 +271,92 @@ class TestFetchAssets(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             out_path = Path(tmp_dir) / "existing.png"
             out_path.write_bytes(b"keep me")
+            provenance_path = Path(tmp_dir) / "provenance.json"
+            provenance_path.write_bytes(b"keep the recorded provenance exactly")
             request = fetch_assets.AssetRequest(
                 item_name="Oak",
                 wiki_title="Oak logs.png",
                 output_path=out_path,
-                provenance_path=Path(tmp_dir) / "provenance.json",
+                provenance_path=provenance_path,
             )
-            client = FakeWikiClient({("osrs", "Oak logs.png")})
+            client = FakeWikiClient(set())
             outcome = fetch_assets.fetch_asset(request, client, dry_run=False)
 
             self.assertTrue(outcome.skipped_existing)
             self.assertEqual(out_path.read_bytes(), b"keep me")
+            self.assertEqual(
+                provenance_path.read_bytes(), b"keep the recorded provenance exactly"
+            )
+            self.assertEqual(client.queries, [])
             self.assertEqual(client.downloads, [])
+            self.assertEqual(
+                (outcome.source_wiki, outcome.image_url, outcome.file_page_url),
+                (None, None, None),
+            )
+
+    def test_output_directory_is_rejected_before_network(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output = Path(tmp_dir)
+            request = fetch_assets.AssetRequest(
+                "Oak", "Oak logs.png", output, output / "provenance.json"
+            )
+            client = FakeWikiClient(set())
+            with self.assertRaisesRegex(fetch_assets.AssetFetchError, "Output path is not a file"):
+                fetch_assets.fetch_asset(request, client)
+            self.assertEqual(client.queries, [])
+            self.assertEqual(client.downloads, [])
+            self.assertEqual(list(output.iterdir()), [])
+
+    def test_dry_run_resolves_existing_output_without_changing_it(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            out_path = Path(tmp_dir) / "existing.png"
+            out_path.write_bytes(b"keep me")
+            request = fetch_assets.AssetRequest(
+                "Oak", "Oak logs.png", out_path, Path(tmp_dir) / "provenance.json"
+            )
+            client = FakeWikiClient({("osrs", "Oak logs.png")})
+
+            outcome = fetch_assets.fetch_asset(request, client, dry_run=True)
+
+            self.assertTrue(outcome.skipped_existing)
+            self.assertEqual(outcome.source_wiki, "osrs")
+            self.assertEqual(client.queries, [("osrs", "Oak logs.png")])
+            self.assertEqual(client.downloads, [])
+            self.assertEqual(out_path.read_bytes(), b"keep me")
+            self.assertFalse(request.provenance_path.exists())
+
+    def test_force_replaces_existing_output_and_records_resolved_source(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            out_path = Path(tmp_dir) / "existing.png"
+            out_path.write_bytes(b"replace me")
+            request = fetch_assets.AssetRequest(
+                "Oak", "Oak logs.png", out_path, Path(tmp_dir) / "provenance.json"
+            )
+            client = FakeWikiClient({("osrs", "Oak logs.png")})
+            with patch.object(
+                fetch_assets,
+                "write_png",
+                side_effect=lambda content, output, _size: output.write_bytes(content),
+            ):
+                outcome = fetch_assets.fetch_asset(request, client, force=True)
+
+            self.assertFalse(outcome.skipped_existing)
+            self.assertEqual(client.queries, [("osrs", "Oak logs.png")])
+            self.assertEqual(client.downloads, [outcome.image_url])
+            self.assertEqual(out_path.read_bytes(), b"not-used-in-dry-run-tests")
+            provenance = json.loads(request.provenance_path.read_text())
+            self.assertEqual(provenance[str(out_path)]["source_wiki"], "osrs")
+
+    def test_hunter_manifest_leaves_shared_images_with_their_owning_fetcher(self):
+        from tools.fetch_hunter_assets import _manifest
+        from ankiscape.core.constants_parts.hunter_assets import HUNTER_SHARED_ITEM_IMAGES
+
+        manifest = _manifest()
+        names = [row[0] for row in manifest]
+        paths = [row[2] for row in manifest]
+        self.assertTrue(set(names).isdisjoint(HUNTER_SHARED_ITEM_IMAGES))
+        self.assertEqual(len(names), len(set(names)))
+        self.assertEqual(len(paths), len(set(paths)))
 
 
 if __name__ == "__main__":

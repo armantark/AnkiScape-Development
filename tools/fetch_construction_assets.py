@@ -113,13 +113,13 @@ def main() -> int:
             continue
         try:
             outcome = fetch_asset(request, client, size=64, sources=(RS3_WIKI, OSRS_WIKI))
-            print(f"{outcome.item_name}: {outcome.source_wiki} -> {outcome.output_path}")
+            print(f"{outcome.item_name}: {'existing' if outcome.skipped_existing else outcome.source_wiki} -> {outcome.output_path}")
         except AssetFetchError:
             page_image = _page_image_title(client, request.item_name)
             if page_image:
                 try:
                     outcome = fetch_asset(replace(request, wiki_title=page_image), client, size=64, sources=(RS3_WIKI, OSRS_WIKI))
-                    print(f"{outcome.item_name}: {outcome.source_wiki} page image -> {outcome.output_path}")
+                    print(f"{outcome.item_name}: {'existing' if outcome.skipped_existing else outcome.source_wiki} page image -> {outcome.output_path}")
                     continue
                 except AssetFetchError:
                     pass

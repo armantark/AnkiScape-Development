@@ -2467,3 +2467,23 @@
 - 2026-09-18T19:05:15.137007+00:00 Root interpreted “Pick it up tomorrow” as permission to schedule a restart. The owner clarified “that doesn't mean schedule a resume for tomorrow, I'll do it when/if I feel like it”. Automation `resume-ankiscape-tomorrow` was deleted through the app, result `deleteStatus: deleted`. Resumption is manual; no automatic restart remains.
 
 - 2026-09-18T13:12:54-07:00 — One-time papercut inventory: combined reads exceeded the output budget twice; individual bounded reads recovered the relevant source. Pool allocation returned `all 16 worktrees are in use or dirty (max_trees = 16)`; verified completed, clean, merged pool 4 and returned its exact lease before reuse. An unrelated `git -C ../.. rev-parse` probe returned `fatal: not a git repository (or any of the parent directories): .git`; no repository state changed.
+
+- 2026-09-18T13:17:03-07:00 — Papercut cleanup: a fresh audit-agent spawn returned `collab spawn failed: agent thread limit reached` because completed agents occupied available slots; reassigned two completed agents with self-contained read-only briefs. A documentation patch failed atomically with `apply_patch verification failed: Failed to find expected lines`; exact source context repaired the patch, with no partial edit.
+
+- 2026-09-18T13:27:50-07:00 — One-time cleanup probes: guessed test paths `tests/test_asset_fetcher.py`, `tests/test_hunter_assets.py`, `tests/test_trim_icons.py` and module paths `logic_pure/logic_pure_model.py`, `logic_pure/logic_pure_cape.py` returned `No such file or directory`; `rg --files` located the real files. A focused-runner patch had a stray unmatched context `returncode, final_output` and failed atomically. The first inert module-surface canary omitted its dynamic module from `sys.modules`, causing `ModuleNotFoundError: No module named 'canary_test_module_surface'`; registering the module before execution made both diagnostics canaries pass. These were operator/probe defects, not product defects.
+
+- 2026-09-19T16:15:12+00:00: Continuation reads combined skill/review output exceeded the 10000-token tool ceiling and truncated output; split subsequent reads by evidence need. No conclusion depends on omitted output.
+
+- 2026-09-19T16:15:12+00:00: Inspection assumed .pre-commit-config.yaml and expanded unmatched .git-hooks* under zsh, producing "No such file or directory" and "no matches found"; git config --get core.hooksPath located /Users/ArmanTarkhanian1/fleet/config/git/hooks/pre-commit.
+
+- 2026-09-19T16:15:12+00:00: Complexity preflight found new imported_binding CCN 22 and inventory audit CCN 22 against cap 15; assigned cohesive simplification. Existing _stream_remote_run cognitive complexity 20 is unchanged from baseline 7f736d5c.
+
+- 2026-09-19T16:15:12+00:00: Guard author reported initial grouped with statement SyntaxError at tests/promotion/test_worktree_release.py:162; corrected before tests. An incomplete fake-pool mutation probe yielded failures=1 errors=2; replaced with complete inert lease fixtures.
+
+- 2026-09-19T16:15:12+00:00: Root review found lease identity validation happened after detach and Path.glob could hide marker-directory errors; candidate now confirms exact lease first and explicitly enumerates markers.
+
+- 2026-09-19T16:22:00Z: Root guessed tools/docs_audit.py; Python returned [Errno 2] No such file or directory. rg --files tools found tools/audit_docs.py. Read the gate command rather than reconstructing its name.
+
+- 2026-09-19T16:25:32+00:00: Normal commit hook rejected tests/promotion/test_worktree_release.py:151:9 with E306 expected 1 blank line before a nested definition, found 0. Inserted the required blank line; no hook bypass.
+
+- 2026-09-19T16:25:32+00:00: MacBook focused plain selection ran 121 tests in 91.055s, OK (skipped=1); exact focused acceptance correctly refused tests=121, skipped=1. The existing no-aqt probe skips when the plain interpreter cannot import aqt. Keep it in full lanes; the focused selection names the other module-surface methods explicitly, including the separate real-Qt root digest.

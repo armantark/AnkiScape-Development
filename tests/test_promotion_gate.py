@@ -719,6 +719,10 @@ class PromotionGateTest(unittest.TestCase):
             if call.kwargs["heading"]
             in ("=== PLAIN LANE ===", "=== QT LANE (monolithic) ===")
         ]
+        diagnostics = ["FAIL: first regression", *(f"detail {index}" for index in range(60)),
+                       "ERROR: last regression", "FAILED (failures=1, errors=1)"]
+        for call in lane_calls:
+            self.assertEqual(call.kwargs["selector"]([".sEF", *diagnostics]), diagnostics)
         self.assertEqual(
             [call.kwargs["command"] for call in lane_calls],
             [

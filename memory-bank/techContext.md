@@ -13,18 +13,12 @@
   `Anki2/ankiscape_worktrees/` directory and must be created/audited through
   `python3 tools/worktree_guard.py`; otherwise Anki loads each enabled worktree
   as a separate add-on copy.
-- Do not dispatch AnkiScape implementation through the native Agent tool. It
-  creates a locked checkout at
-  `addons21/ankiscape_fork/.claude/worktrees/agent-<id>`, and
-  `tools/worktree_guard.py audit` rejects it with
-  `error: Anki would load linked/duplicate AnkiScape checkouts:`. The nested
-  paths are not direct `addons21` children and Anki would not import them, but
-  the guard is authoritative and must not be bypassed. Workflow `agent()` left
-  the worktree registry unchanged during and after a 2026-08-19 probe, so use
-  that route instead. Remove orphaned native-Agent directories
-  only after their owning agent has returned, never because `lsof +D <dir>`
-  shows no open handles; that test removed a live research agent's checkout on
-  2026-08-19 because agents hold no handles between tool calls.
+- Delegate through Codex's native subagent tools. Give each writer a pooled
+  worktree from `tools/worktree_guard.py lease` outside `addons21`.
+  The retired Workflows route must not be used. Return a lease only after its
+  owner has finished; an absence of open file handles does not prove that.
+  On 2026-08-19, a handle-only check caused a live research checkout to be
+  removed. Preserve dirty and unmerged worktrees.
 - Future AnkiWeb updates may recreate or update `addons21/1808450369`; treat that folder as upstream and manually diff/merge changes into `ankiscape_fork`.
 - Public release must use a new AnkiWeb listing rather than reusing
   `1808450369`, remove or replace the current hard-coded review link to that
@@ -32,11 +26,13 @@
   packaging supports it. The governing release record is
   `memory-bank/public-release-lineage-and-license-2026-07-17.md`.
 - The local working copy is a solo-project git repository on `main`.
-- Work directly in the canonical `main` checkout and commit there. Do not create
-  feature branches or linked worktrees unless the owner explicitly requests
-  isolation for that specific task.
-- Core tests run with `/opt/homebrew/bin/python3 run_tests.py`; the macOS system
-  Python is too old for the repository's type syntax.
+- The canonical checkout is the live add-on. Commit maintenance work in its
+  assigned worktree. The root uses `tools/promotion_gate.py` to verify the
+  candidate and promote the exact accepted tree to local main.
+- Product execution uses the MacBook Pro mirror through
+  `tools/run_remote_tests.py`. The root owns that mirror and reconciles any
+  pending run before sync. Local static inspection does not establish runtime
+  acceptance.
 - Tests use Python's built-in `unittest`, not pytest.
 - `run_tests.py` adds the repository root to `sys.path`; tests and direct probes import `pkg_alias` before package-relative `ankiscape.*` modules.
 - `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. Because the audit does not yet apply every runtime access gate, its output is not proof of player acquisition.
@@ -51,21 +47,19 @@
   2026-08-10 and 2026-08-11. Single outputs reached `355.5 KB`, `758.3 KB`, and
   `610.4 KB`. First use `rg --files` to list exact paths. Then search only those
   paths through `tools/repo_search.py`.
-- Give each writer one narrow unit. Do not give one writer a complete slice.
-- Run focused tests by discovered ID fragment, not guessed class attributes:
-  `/opt/homebrew/bin/python3 run_tests.py MainMenuWidgetTest.test_initial_panel_shows_a_gathering_skill`. Use
-  `--list` to confirm matches and `--verbosity 2` only for a small diagnosis;
-  full discovery defaults to compact output.
+- Run focused product tests through the same MacBook runner. For example,
+  `python3 tools/run_remote_tests.py "$PWD" plain --select tests/test_remote_test_host.py --expected-tests 19`.
+  Repeat `--select` for additional selections. The exact count and zero skips
+  are required; focused success never replaces full promotion checks.
+- Inspect the pinned worktree pool with `python3 tools/worktree_guard.py status --json`.
+  Return leases through the guard; it refuses gate markers and uncertain lease
+  identity before detaching a checkout.
 - Keep long test and audit output in separate logs with `python3
   tools/run_logged.py --label <lane> -- <complete command>`. The wrapper
   preserves the command's exit code, prints a bounded tail, and reports the
   full temporary-log path without relying on zsh's read-only `status` name.
-- Preflight workflow JSON with `python3 tools/workflow_manifest_guard.py
-  <manifest.json>` or add `--start` to launch it. The guard rejects the
-  recurring `mode: read-only`, zero budget, relative `cwd`, and permissive
-  object-schema mistakes before provider startup. Frozen reviewers must still
-  receive explicit untracked-file contents and enough budget for inherited
-  instructions; no manifest can force a model to honor a read boundary.
+- Delegation briefs must state the assigned files, allowed actions, evidence
+  and acceptance checks. A read-only brief must prohibit checkout writes.
 - Select the next slice with `python3 tools/memory_bank_queue_packet.py
   <repository-or-worktree-root> [<root> ...]`, not a whole-Memory-Bank read. The
   deterministic packet defaults to a 32,768-byte UTF-8 cap, retains repository

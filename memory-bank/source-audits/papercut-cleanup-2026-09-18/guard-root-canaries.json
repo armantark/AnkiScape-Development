@@ -1,0 +1,266 @@
+{
+  "baseline_commit": "ff44ddf641abdc7b7325c97351744972e9592b4d",
+  "case_count": 16,
+  "passed": true,
+  "results": [
+    {
+      "case": "duplicate_branch",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "pool:get",
+          "git:checkout"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "fresh_marker",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "stale_marker",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "malformed_marker",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "unreadable_marker",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "contended_coordination",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "dirty",
+      "baseline": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "wrong_lease",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "empty_lease",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "missing_lease",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "missing_lease_id",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "duplicate_lease",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "relative_status_path",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "dangling_marker_directory",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": true,
+        "fake_mutation_calls": [],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "missing_marker_directory",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      }
+    },
+    {
+      "case": "valid_return",
+      "baseline": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      },
+      "current": {
+        "refused": false,
+        "fake_mutation_calls": [
+          "git:checkout",
+          "pool:return"
+        ],
+        "marker_preserved": true
+      }
+    }
+  ]
+}

@@ -23,6 +23,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants_parts.hunter_assets import HUNTER_SHARED_ITEM_IMAGES  # noqa: E402
 from ankiscape.data.hunter_data import (  # noqa: E402
     HUNTER_HABITAT_VINE_ITEMS,
     hunter_item_names,
@@ -45,7 +46,7 @@ WIKI_TITLE_OVERRIDES = {
     "Imp-in-a-box (2)": "Imp-in-a-box (2).png",
 }
 
-SHARED_ITEM_ART = {"Logs"}
+SHARED_ITEM_ART = {"Logs", *HUNTER_SHARED_ITEM_IMAGES}
 
 
 def _slug(name: str) -> str:

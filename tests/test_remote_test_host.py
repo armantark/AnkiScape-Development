@@ -2,6 +2,7 @@ import contextlib
 import io
 import json
 import shutil
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -13,6 +14,64 @@ from tools import run_remote_tests
 
 
 class RemoteTestHostTests(unittest.TestCase):
+    def test_focused_arguments_refuse_incomplete_or_empty_selection_before_network(self):
+        root = str(Path(__file__).resolve().parents[1])
+        cases = (
+            ["--select", "test_remote_test_host"],
+            ["--expected-tests", "1"],
+            ["--select", "test_remote_test_host", "--expected-tests", "0"],
+            ["--select", "", "--expected-tests", "1"],
+        )
+        for arguments in cases:
+            with (
+                self.subTest(arguments=arguments),
+                patch.object(run_remote_tests, "_preflight") as preflight,
+                contextlib.redirect_stderr(io.StringIO()),
+                self.assertRaises(SystemExit) as result,
+            ):
+                run_remote_tests.main([root, "plain", *arguments])
+            self.assertEqual(result.exception.code, 2)
+            preflight.assert_not_called()
+
+    def test_focused_run_requires_exact_count_and_zero_skips_without_lowering_full_floor(self):
+        root = str(Path(__file__).resolve().parents[1])
+        cases = (
+            ("Ran 1 test in 0.1s\n\nOK\n", 0),
+            ("Ran 2 tests in 0.1s\n\nOK\n", 1),
+            ("Ran 1 test in 0.1s\n\nOK (skipped=1)\n", 1),
+            ("Ran 1 test in 0.1s\n", 1),
+        )
+        for output, expected in cases:
+            with (
+                self.subTest(output=output),
+                patch.object(run_remote_tests, "_preflight"),
+                patch.object(run_remote_tests, "_sync"),
+                patch.object(run_remote_tests, "_stream_remote_run", return_value=(0, output)) as run,
+                contextlib.redirect_stdout(io.StringIO()),
+                contextlib.redirect_stderr(io.StringIO()),
+            ):
+                result = run_remote_tests.main([
+                    root, "plain", "--select", "test_remote_test_host", "--expected-tests", "1",
+                ])
+            self.assertEqual(result, expected)
+            self.assertEqual(run.call_args.kwargs["selectors"], ["test_remote_test_host"])
+        summary = run_remote_tests.parse_unittest_summary(cases[0][0])
+        with self.assertRaisesRegex(RuntimeError, "expected at least 4506"):
+            run_remote_tests.validate_test_summary("plain", summary)
+
+    def test_focused_commands_quote_selectors_and_preserve_full_lane_commands(self):
+        selectors = ("tests/test_remote_test_host.py", "name with 'quotes'; $(false)")
+        for lane in ("plain", "qt"):
+            with self.subTest(lane=lane):
+                focused = shlex.split(run_remote_tests._remote_lane_command(lane, selectors=selectors))
+                self.assertEqual(focused[-5:], ["run_tests.py", "--quiet", "--", *selectors])
+                full = run_remote_tests._remote_lane_command(lane)
+                self.assertNotIn("--quiet", full)
+                if lane == "qt":
+                    self.assertTrue(full.endswith("-m unittest discover tests"))
+                else:
+                    self.assertTrue(full.endswith("run_tests.py"))
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

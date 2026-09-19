@@ -102,9 +102,9 @@ class FetchOutcome:
     item_name: str
     wiki_title: str
     output_path: str
-    source_wiki: str
-    image_url: str
-    file_page_url: str
+    source_wiki: Optional[str]
+    image_url: Optional[str]
+    file_page_url: Optional[str]
     skipped_existing: bool
     dry_run: bool
 
@@ -339,9 +339,22 @@ def fetch_asset(
     sources: Sequence[WikiSource] = DEFAULT_WIKI_SOURCES,
     preserve_source: bool = False,
 ) -> FetchOutcome:
-    image_info = resolve_image_info(request.wiki_title, client, sources)
     output_path = request.output_path if request.output_path.is_absolute() else REPO_ROOT / request.output_path
-    skipped_existing = output_path.exists() and not force
+    if output_path.exists() and not output_path.is_file():
+        raise AssetFetchError(f"Output path is not a file: {output_path}")
+    skipped_existing = output_path.is_file() and not force
+    if skipped_existing and not dry_run:
+        return FetchOutcome(
+            item_name=request.item_name,
+            wiki_title=request.wiki_title,
+            output_path=str(output_path),
+            source_wiki=None,
+            image_url=None,
+            file_page_url=None,
+            skipped_existing=True,
+            dry_run=False,
+        )
+    image_info = resolve_image_info(request.wiki_title, client, sources)
     if not dry_run and not skipped_existing:
         if preserve_source:
             image_bytes = _download_source_bytes(client, image_info)

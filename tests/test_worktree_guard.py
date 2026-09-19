@@ -124,6 +124,8 @@ class WorktreeGuardTest(unittest.TestCase):
         canonical = Path("/tmp/Anki2/addons21/ankiscape_fork")
         pooled = pool_root(canonical) / ".treehouse/ankiscape_fork-1/1/ankiscape_fork"
         with (
+            patch("tools.worktree_guard.locking.claim_landing_lock"),
+            patch("tools.worktree_guard.require_no_gate_markers"),
             patch(
                 "tools.worktree_guard.canonical_and_paths",
                 return_value=(canonical, (canonical,)),
@@ -138,8 +140,8 @@ class WorktreeGuardTest(unittest.TestCase):
                 release_worktree(canonical, pooled, "lease-1")
         self.assertIn("uncommitted work", str(context.exception))
         treehouse.assert_not_called()
-        # The status probe is the only git call: the detach never ran.
-        self.assertEqual(git.call_count, 1)
+        # Only the revision and status probes ran; there was no detach.
+        self.assertEqual(git.call_count, 2)
         self.assertEqual(git.call_args.args[1], "status")
 
     def test_release_rejects_path_outside_pool(self):
@@ -170,9 +172,15 @@ class WorktreeGuardTest(unittest.TestCase):
 
         def fake_treehouse(_canonical, *args):
             events.append(("treehouse", args))
+            if args == ("status", "--json"):
+                return Mock(stdout=json.dumps([{
+                    "path": str(pooled), "status": "leased", "lease_id": "lease-1",
+                }]))
             return Mock(stdout="")
 
         with (
+            patch("tools.worktree_guard.locking.claim_landing_lock"),
+            patch("tools.worktree_guard.require_no_gate_markers"),
             patch("tools.worktree_guard.audit"),
             patch(
                 "tools.worktree_guard.canonical_and_paths",
@@ -186,7 +194,9 @@ class WorktreeGuardTest(unittest.TestCase):
         self.assertEqual(
             events,
             [
+                ("git", "rev-parse"),
                 ("git", "status"),
+                ("treehouse", ("status", "--json")),
                 ("git", "checkout"),
                 (
                     "treehouse",
@@ -209,7 +219,7 @@ class WorktreeGuardTest(unittest.TestCase):
                     "tools.worktree_guard.canonical_and_paths",
                     return_value=(canonical, (canonical,)),
                 ),
-                patch("tools.worktree_guard._git") as git,
+                patch("tools.worktree_guard._git", return_value=Mock(stdout="")) as git,
                 patch(
                     "tools.worktree_guard._treehouse",
                     return_value=Mock(stdout=json.dumps(lease)),
@@ -219,7 +229,7 @@ class WorktreeGuardTest(unittest.TestCase):
                     lease_worktree(canonical, "goal/feature", None, "main")
 
             self.assertIn("outside the pool", str(context.exception))
-            git.assert_not_called()
+            git.assert_called_once_with(canonical, "worktree", "list", "--porcelain", capture=True)
             self.assertEqual(
                 treehouse.call_args_list[-1].args[1:],
                 ("return", "--force", "--if-lease-id", "lease-1", str(escaped)),
@@ -235,6 +245,8 @@ class WorktreeGuardTest(unittest.TestCase):
             lease = {"path": str(pooled), "lease_id": "lease-1"}
 
             def fake_git(_path, *args, **_kwargs):
+                if args[0] == "worktree":
+                    return Mock(stdout="")
                 if args[0] == "show-ref":
                     return Mock(returncode=1)
                 raise subprocess.CalledProcessError(1, ("git", *args))

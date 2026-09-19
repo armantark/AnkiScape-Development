@@ -1,0 +1,8 @@
+....................
+----------------------------------------------------------------------
+Ran 20 tests in 0.037s
+
+OK
+Returned pooled worktree: /private/var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/tmpyvx6l8hd/Anki2/ankiscape_worktrees/pool/slot/ankiscape_fork
+Created worktree: /private/var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/tmp81sd4lds/Anki2/ankiscape_worktrees/feature
+Returned pooled worktree: /private/tmp/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-1/1/ankiscape_fork

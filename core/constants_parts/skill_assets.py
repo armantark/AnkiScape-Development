@@ -12,6 +12,7 @@ from .equipment_sources import *
 from .equipment_sources import _BASE_EQUIPMENT_DATA
 from .registry_sources import *
 from .paths import *
+from .hunter_assets import HUNTER_SHARED_ITEM_IMAGES
 from .skill_catalog import *
 
 
@@ -206,20 +207,6 @@ for _item_name in set(FISHING_OUTPUT_ITEMS) | set(FISHING_EXTRA_ITEM_DATA):
 HUNTER_EXTRA_ITEM_DATA = hunter_extra_items_as_dict()
 HUNTER_EXTRA_ITEM_DATA.update(big_chinchompa_extra_items_as_dict())
 HUNTER_ITEM_IMAGES = {}
-HUNTER_SHARED_ITEM_IMAGES = {
-    "Marasamaw plant": os.path.join(SHOP_ITEMS_FOLDER, "marasamaw_plant.png"),
-    "Wimpy feather": os.path.join(SHOP_ITEMS_FOLDER, "wimpy_feather.png"),
-    "Raw beast meat": os.path.join(SHOP_ITEMS_FOLDER, "raw_beast_meat.png"),
-    "Polar kebbit fur": os.path.join(SHOP_ITEMS_FOLDER, "polar_kebbit_fur.png"),
-    "Long kebbit spike": os.path.join(
-        FLETCHED_ITEMS_FOLDER, "long_kebbit_spike.png"
-    ),
-    "Erzille seed": os.path.join(FARMING_ITEMS_FOLDER, "erzille_seed.png"),
-    "Argway seed": os.path.join(FARMING_ITEMS_FOLDER, "argway_seed.png"),
-    "Ugune seed": os.path.join(FARMING_ITEMS_FOLDER, "ugune_seed.png"),
-    "Shengo seed": os.path.join(FARMING_ITEMS_FOLDER, "shengo_seed.png"),
-    "Samaden seed": os.path.join(FARMING_ITEMS_FOLDER, "samaden_seed.png"),
-}
 for _item_name in set(hunter_item_names()) | set(HUNTER_OUTPUT_ITEMS) | set(HUNTER_EXTRA_ITEM_DATA):
     _path = HUNTER_SHARED_ITEM_IMAGES.get(
         _item_name,

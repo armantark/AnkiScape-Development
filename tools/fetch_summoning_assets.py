@@ -108,7 +108,7 @@ def main() -> int:
                 sources=(RS3_WIKI, OSRS_WIKI),
             )
             print(
-                f"{outcome.item_name}: {outcome.source_wiki} "
+                f"{outcome.item_name}: {'existing' if outcome.skipped_existing else outcome.source_wiki} "
                 f"-> {outcome.output_path}"
             )
         except AssetFetchError:
@@ -126,7 +126,7 @@ def main() -> int:
                     sources=(RS3_WIKI, OSRS_WIKI),
                 )
                 print(
-                    f"{outcome.item_name}: {outcome.source_wiki} page image "
+                    f"{outcome.item_name}: {'existing' if outcome.skipped_existing else outcome.source_wiki} page image "
                     f"-> {outcome.output_path}"
                 )
                 continue

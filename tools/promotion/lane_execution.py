@@ -48,8 +48,9 @@ REACHABILITY_PIN_METHOD = "test_report_matches_player_finishable_quest_baseline"
 ResultValidator = Callable[[int, list[str]], bool]
 
 
-def _tail_without_progress(lines: list[str], count: int) -> list[str]:
-    return [line for line in lines if not PROGRESS_LINE.fullmatch(line)][-count:]
+def _tail_without_progress(lines: list[str], count: int | None = None) -> list[str]:
+    filtered = [line for line in lines if not PROGRESS_LINE.fullmatch(line)]
+    return filtered[-count:] if count is not None else filtered
 
 
 def _run_bounded(
@@ -293,7 +294,7 @@ def _run_gate_checks(
             "plain lane",
             "=== PLAIN LANE ===",
             plain_command,
-            lambda lines: _tail_without_progress(lines, 20 if plain_only else 30),
+            _tail_without_progress,
             None,
             None,
             PLAIN_LANE_TIMEOUT,
@@ -304,7 +305,7 @@ def _run_gate_checks(
             "Qt lane",
             "=== QT LANE (monolithic) ===",
             qt_command,
-            lambda lines: _tail_without_progress(lines, 30),
+            _tail_without_progress,
             qt_environment,
             None,
             QT_LANE_TIMEOUT,

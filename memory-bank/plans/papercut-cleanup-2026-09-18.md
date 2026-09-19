@@ -62,3 +62,46 @@ grilling prompt. No Fable call is part of this request.
 - 2026-09-18: Main is clean. The existing goal is paused.
 - 2026-09-18: Root returned the completed, clean, merged Barcrawl lease.
   The cleanup uses pool 4, lease 337a792ec885efd93ec3fce660284b1a.
+
+- 2026-09-18: Root verified current worktree release can detach/return while a
+  promotion marker names that checkout. It also allocates before duplicate-branch
+  detection. The prior proposal is now authorized by this one-time cleanup.
+- Implementation ownership will use disjoint files in the root maintenance
+  worktree. Root is the only Git/index writer. Agents return patches and static
+  evidence; root commits after all writers stop. This avoids additional leases
+  while the release guard itself needs repair.
+
+- Root owns tools/run_remote_tests.py and tests/test_remote_test_host.py. Add
+  an explicit focused selection with an exact expected test count and zero
+  skips. Leave full-lane commands, floors, locking and durable-run recovery
+  unchanged. Synthetic tests must reject wrong counts, skips, missing summary
+  and incomplete arguments before a real focused run is accepted.
+
+- Asset author owns fetch_assets, fetch_hunter_assets, trim_icons and their
+  named tests, the Hunter shared-image mapping, and skipped-source labels in
+  seven related asset fetchers. Product paths and exports must stay identical.
+- Quality author owns audit_test_quality and its tests. Imported TestCase
+  ancestry must resolve from source; unknown classes must still fail closed.
+- Root owns module-surface failure reporting and promotion lane diagnostics.
+  All digest pins and failure conditions remain unchanged.
+- Root verified early inventory coverage: 796 incidents, each once. Root
+  verified middle coverage: 787 incidents, each once. Author classification
+  remains subject to root source review.
+- Focused-runner inert canaries rejected the baseline and passed the candidate.
+  Its complete local tooling suite passed 19 tests; the real MacBook focused
+  plain run passed 19 tests with zero skips.
+
+- The owner supplied a simplification principle: use lessons from traces so a
+  later task needs fewer steps and less supervision. Prefer shared tools and
+  correct defaults over additional caller instructions. This does not authorize
+  a goal restart, remote push, new skill, or weaker acceptance rule.
+- Root combined the three source audits into inventory.json. Its checker
+  verifies 2333 incident records across 17 frozen source files with no missing,
+  extra, or duplicate assignments. Multiple logs can record the same event.
+- Guard author owns worktree_guard.py, minimal locking.py additions, and
+  worktree/promotion guard tests. Root remains the sole Git/index writer.
+- 2026-09-19: Continuation reconciled the clean canonical main and paused goal.
+  Previous authors have stopped. A quality repair leaf owns only audit_test_quality
+  and its tests. A guard verification leaf has read-only access and owns only
+  /tmp/ankiscape-papercut-guard-verification-2026-09-19.md. Root owns all other
+  files, review resolution, remote execution, the index and promotion.

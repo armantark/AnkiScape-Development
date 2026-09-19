@@ -9,6 +9,11 @@ import subprocess
 from pathlib import Path
 from typing import Optional, Sequence
 
+if __package__:
+    from .promotion import locking
+else:
+    from promotion import locking
+
 
 def worktree_paths(porcelain: str) -> tuple[Path, ...]:
     return tuple(
@@ -157,12 +162,31 @@ def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str)
     print(f"Created worktree: {destination}")
 
 
+def require_branch_available(repo: Path, branch: str) -> None:
+    result = _git(repo, "worktree", "list", "--porcelain", capture=True)
+    branch_ref = "refs/heads/" + branch.removeprefix("refs/heads/")
+    worktree = ""
+    for line in result.stdout.splitlines():
+        if line.startswith("worktree "):
+            worktree = line.removeprefix("worktree ")
+        elif line == f"branch {branch_ref}":
+            raise RuntimeError(f"branch {branch_ref} is already checked out in {worktree}")
+
+
+def pool_status(repo: Path, *, as_json: bool = False) -> None:
+    canonical, _ = canonical_and_paths(repo)
+    options = ("--json",) if as_json else ()
+    result = _treehouse(canonical, "status", *options)
+    print(result.stdout, end="")
+
+
 def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: str) -> None:
     audit(repo)
     canonical, _ = canonical_and_paths(repo)
     qt_environment = canonical / ".venv-qt"
     if not (qt_environment / "bin/python").exists():
         raise RuntimeError(f"Qt test interpreter not found: {qt_environment / 'bin/python'}")
+    require_branch_available(canonical, branch)
     result = _treehouse(
         canonical,
         "get",
@@ -210,20 +234,81 @@ def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: 
     print(json.dumps({"path": str(destination), "lease_id": lease_id, "branch": branch}))
 
 
-def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
-    canonical, _ = canonical_and_paths(repo)
-    destination = path.resolve()
-    if not destination.is_relative_to(pool_root(canonical)):
-        raise RuntimeError(f"not a pooled worktree: {destination}")
+def require_no_gate_markers(repo: Path, destination: Path) -> None:
+    directory = locking.active_gate_dir_for(repo)
+    try:
+        paths = sorted(directory.iterdir())
+    except OSError as exc:
+        if isinstance(exc, FileNotFoundError) and not directory.is_symlink():
+            return
+        raise RuntimeError(f"promotion gate marker directory is unreadable: {directory}: {exc}") from exc
+    for path in paths:
+        if path.suffix != ".json":
+            continue
+        try:
+            record = locking._read_record_path(path)
+            target = Path(record.worktree)
+            if not target.is_absolute():
+                raise ValueError("worktree path is not absolute")
+        except (OSError, ValueError, locking.GateError) as exc:
+            raise RuntimeError(f"refusing return: unreadable promotion gate marker {path}: {exc}") from exc
+        if target.resolve() == destination:
+            raise RuntimeError(
+                f"refusing return: promotion gate marker {path} names {destination} "
+                f"(PID {record.pid}); preserve it for reconciliation"
+            )
+
+
+def require_clean_worktree(destination: Path) -> None:
     dirty = _git(destination, "status", "--porcelain", capture=True).stdout.strip()
     if dirty:
         raise RuntimeError(
             f"refusing to return a worktree with uncommitted work; commit it first:\n{dirty}"
         )
-    # Detach so the branch is not left checked out by an idle pooled worktree,
-    # which would block the same branch from being checked out anywhere else.
-    _git(destination, "checkout", "--detach", capture=True)
-    _treehouse(canonical, "return", "--force", "--if-lease-id", lease_id, str(destination))
+
+
+def require_matching_lease(canonical: Path, destination: Path, lease_id: str) -> None:
+    result = _treehouse(canonical, "status", "--json")
+    try:
+        rows = json.loads(result.stdout)
+    except ValueError as exc:
+        raise RuntimeError("refusing return: pool status is unreadable") from exc
+    if not isinstance(rows, list):
+        raise RuntimeError("refusing return: pool status is not a list")
+    matches = []
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get("path"), str):
+            raise RuntimeError("refusing return: pool status has an unreadable worktree row")
+        path = Path(row["path"])
+        if not path.is_absolute():
+            raise RuntimeError("refusing return: pool status worktree path is not absolute")
+        if path.resolve() == destination:
+            matches.append(row)
+    if not lease_id or len(matches) != 1 or matches[0].get("status") != "leased" or matches[0].get("lease_id") != lease_id:
+        raise RuntimeError(f"refusing return: pool status does not confirm lease {lease_id} for {destination}")
+
+
+def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
+    canonical, _ = canonical_and_paths(repo)
+    destination = path.resolve()
+    if not destination.is_relative_to(pool_root(canonical)):
+        raise RuntimeError(f"not a pooled worktree: {destination}")
+    coordination = locking.claim_landing_lock(
+        canonical,
+        operation="returning a pooled worktree",
+        worktree=destination,
+        commit=_git(destination, "rev-parse", "HEAD", capture=True).stdout.strip(),
+        recover_stale=False,
+    )
+    try:
+        require_no_gate_markers(canonical, destination)
+        require_clean_worktree(destination)
+        require_matching_lease(canonical, destination, lease_id)
+        # Keep gate registration excluded until the lease has been returned.
+        _git(destination, "checkout", "--detach", capture=True)
+        _treehouse(canonical, "return", "--force", "--if-lease-id", lease_id, str(destination))
+    finally:
+        coordination.release()
     audit(repo)
     print(f"Returned pooled worktree: {destination}")
 
@@ -283,6 +368,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("audit")
+    status_parser = subparsers.add_parser("status")
+    status_parser.add_argument("--json", action="store_true")
     add_parser = subparsers.add_parser("add")
     add_parser.add_argument("branch")
     add_parser.add_argument("--name")
@@ -305,6 +392,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     try:
         if args.command == "audit":
             audit(args.repo)
+        elif args.command == "status":
+            pool_status(args.repo, as_json=args.json)
         elif args.command == "add":
             add_worktree(args.repo, args.branch, args.name, args.start_point)
         elif args.command == "lease":

@@ -143,8 +143,8 @@ def _select_backend() -> Tuple[str, object, object]:
         return "Qt", _bbox_qt, _crop_qt
     except Exception as exc:  # pragma: no cover - no backend available
         raise SystemExit(
-            "Neither Pillow nor PyQt6 (aqt) is importable. Run with `.venv-qt/bin/python` "
-            "or `uv run`."
+            "Neither Pillow nor PyQt6 (aqt) is importable. Run "
+            "`.venv-qt/bin/python tools/trim_icons.py --dry-run`."
         ) from exc
 
 
@@ -196,9 +196,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--dry-run", action="store_true", help="Report changes without writing.")
     args = parser.parse_args(argv)
 
+    directories = [
+        name if os.path.isabs(name) else os.path.join(ADDON_ROOT, name)
+        for name in args.dirs
+    ]
+    invalid = [directory for directory in directories if not os.path.isdir(directory)]
+    if invalid:
+        parser.error(f"Not a directory: {', '.join(invalid)}")
+
     total = 0
-    for name in args.dirs:
-        directory = name if os.path.isabs(name) else os.path.join(ADDON_ROOT, name)
+    for directory in directories:
         trimmed, _skipped, _ignored = trim_directory(directory, dry_run=args.dry_run)
         total += trimmed
     print(f"Done. {total} sprite(s) {'would be ' if args.dry_run else ''}trimmed.")

@@ -196,7 +196,7 @@ def _sync(local_worktree: Path) -> None:
     )
 
 
-def _remote_lane_command(lane: str) -> str:
+def _remote_lane_command(lane: str, *, selectors: Sequence[str] = ()) -> str:
     environment = (
         "PATH=/opt/homebrew/bin:/usr/bin:/bin "
         f"ANKISCAPE_GAME_MAIN={shlex.quote(str(REMOTE_GAME_MAIN))} "
@@ -207,11 +207,12 @@ def _remote_lane_command(lane: str) -> str:
             environment
             + f"PYTHONPATH={shlex.quote(str(REMOTE_PLAIN_SITE))} "
             + "/opt/homebrew/bin/python3 run_tests.py"
+            + (" --quiet -- " + shlex.join(selectors) if selectors else "")
         )
     return (
         environment
         + f"QT_QPA_PLATFORM=offscreen {shlex.quote(str(REMOTE_VENV / 'bin/python'))} "
-        + "-m unittest discover tests"
+        + ("run_tests.py --quiet -- " + shlex.join(selectors) if selectors else "-m unittest discover tests")
     )
 
 
@@ -253,12 +254,14 @@ def _preflight(lane: str) -> None:
     )
 
 
-def _stream_remote_run(lane: str, *, timeout: float, poll_interval: float) -> tuple[int, str]:
+def _stream_remote_run(
+    lane: str, *, timeout: float, poll_interval: float, selectors: Sequence[str] = (),
+) -> tuple[int, str]:
     run_id = f"{lane}-{int(time.time())}-{uuid.uuid4().hex[:8]}"
     log_path = REMOTE_ROOT / "reports" / f"{run_id}.log"
     report_path = REMOTE_ROOT / "reports" / f"{run_id}.report"
     temporary_report = REMOTE_ROOT / "reports" / f"{run_id}.report.tmp"
-    lane_command = _remote_lane_command(lane)
+    lane_command = _remote_lane_command(lane, selectors=selectors)
     script = "\n".join(
         (
             f"cd {shlex.quote(str(REMOTE_REPO))}",
@@ -323,19 +326,47 @@ def _stream_remote_run(lane: str, *, timeout: float, poll_interval: float) -> tu
         time.sleep(poll_interval)
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("local_worktree", type=Path)
     parser.add_argument("lane", choices=("plain", "qt"))
     parser.add_argument("--timeout", type=float, default=1800.0)
     parser.add_argument("--poll-interval", type=float, default=5.0)
+    parser.add_argument(
+        "--select", action="append", default=[],
+        help="Focused test selector; repeat for each selection.",
+    )
+    parser.add_argument(
+        "--expected-tests", type=int,
+        help="Exact focused test count; no skipped tests are accepted.",
+    )
     args = parser.parse_args(argv)
 
-    local_worktree = args.local_worktree.expanduser().resolve()
-    if not (local_worktree / "run_tests.py").is_file():
-        parser.error(f"not an AnkiScape worktree: {local_worktree}")
+    args.local_worktree = args.local_worktree.expanduser().resolve()
+    if not (args.local_worktree / "run_tests.py").is_file():
+        parser.error(f"not an AnkiScape worktree: {args.local_worktree}")
     if args.timeout <= 0 or args.poll_interval <= 0:
         parser.error("--timeout and --poll-interval must be positive")
+    if bool(args.select) != (args.expected_tests is not None):
+        parser.error("--select and --expected-tests must be supplied together")
+    if args.expected_tests is not None and args.expected_tests <= 0:
+        parser.error("--expected-tests must be positive")
+    if any(not selector.strip() for selector in args.select):
+        parser.error("--select must not be empty")
+    return args
+
+
+def _validate_focused_summary(summary: TestSummary, expected_tests: int) -> None:
+    if summary.tests != expected_tests or summary.skipped:
+        raise RuntimeError(
+            f"remote focused lane false pass: tests={summary.tests}, "
+            f"skipped={summary.skipped}; expected exactly {expected_tests} tests and no skips"
+        )
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parse_args(argv)
+    local_worktree = args.local_worktree
 
     try:
         _preflight(args.lane)
@@ -358,13 +389,17 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.lane,
                     timeout=args.timeout,
                     poll_interval=args.poll_interval,
+                    selectors=args.select,
                 )
             finally:
                 fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_UN)
         if returncode != 0:
             raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
         summary = parse_unittest_summary(output)
-        validate_test_summary(args.lane, summary)
+        if args.select:
+            _validate_focused_summary(summary, args.expected_tests)
+        else:
+            validate_test_summary(args.lane, summary)
     except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         pending_path = _pending_path()
@@ -388,7 +423,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         return 1
 
-    print(f"Remote {args.lane} lane summary:")
+    scope = "focused " if args.select else ""
+    print(f"Remote {scope}{args.lane} lane summary:")
     print(summary.ran_line)
     print(summary.result_line)
     return 0

@@ -88,7 +88,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             print(
                 f"{outcome.item_name}: "
-                f"{outcome.source_wiki} -> {outcome.output_path}"
+                f"{'existing' if outcome.skipped_existing else outcome.source_wiki} -> {outcome.output_path}"
             )
         except AssetFetchError as exc:
             failures.append(f"{request.item_name}: {exc}")

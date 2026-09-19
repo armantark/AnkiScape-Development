@@ -1,0 +1,53 @@
+.EEEE
+======================================================================
+ERROR: test_focused_run_requires_exact_count_and_zero_skips_without_lowering_full_floor (remote_regressions.RemoteTestHostTests.test_focused_run_requires_exact_count_and_zero_skips_without_lowering_full_floor) (output='Ran 1 test in 0.1s\n\nOK\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/4/ankiscape_fork/tests/test_remote_test_host.py", line 53, in test_focused_run_requires_exact_count_and_zero_skips_without_lowering_full_floor
+    result = run_remote_tests.main([
+        root, "plain", "--select", "test_remote_test_host", "--expected-tests", "1",
+    ])
+  File "/var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/tmp0yahdh7z/runner.py", line 332, in main
+    args = parser.parse_args(argv)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2012, in parse_args
+    self.error(msg)
+    ~~~~~~~~~~^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2785, in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2772, in exit
+    _sys.exit(status)
+    ~~~~~~~~~^^^^^^^^
+SystemExit: 2
+
+======================================================================
+ERROR: test_focused_run_requires_exact_count_and_zero_skips_without_lowering_full_floor (remote_regressions.RemoteTestHostTests.test_focused_run_requires_exact_count_and_zero_skips_without_lowering_full_floor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/4/ankiscape_fork/tests/test_remote_test_host.py", line 56, in test_focused_run_requires_exact_count_and_zero_skips_without_lowering_full_floor
+    self.assertEqual(result, expected)
+                     ^^^^^^
+UnboundLocalError: cannot access local variable 'result' where it is not associated with a value
+
+======================================================================
+ERROR: test_focused_commands_quote_selectors_and_preserve_full_lane_commands (remote_regressions.RemoteTestHostTests.test_focused_commands_quote_selectors_and_preserve_full_lane_commands) (lane='plain')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/4/ankiscape_fork/tests/test_remote_test_host.py", line 66, in test_focused_commands_quote_selectors_and_preserve_full_lane_commands
+    focused = shlex.split(run_remote_tests._remote_lane_command(lane, selectors=selectors))
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: _remote_lane_command() got an unexpected keyword argument 'selectors'
+
+======================================================================
+ERROR: test_focused_commands_quote_selectors_and_preserve_full_lane_commands (remote_regressions.RemoteTestHostTests.test_focused_commands_quote_selectors_and_preserve_full_lane_commands) (lane='qt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/4/ankiscape_fork/tests/test_remote_test_host.py", line 66, in test_focused_commands_quote_selectors_and_preserve_full_lane_commands
+    focused = shlex.split(run_remote_tests._remote_lane_command(lane, selectors=selectors))
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: _remote_lane_command() got an unexpected keyword argument 'selectors'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+FAILED (errors=4)

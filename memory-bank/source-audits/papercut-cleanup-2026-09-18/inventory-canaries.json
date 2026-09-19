@@ -1,0 +1,11 @@
+{
+  "missing": [
+    "coverage mismatch: papercuts.md"
+  ],
+  "duplicate": [
+    "coverage mismatch: papercuts.md"
+  ],
+  "wrong_line": [
+    "coverage mismatch: papercuts.md"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "baseline": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 4,
+    "skips": 0,
+    "success": false
+  },
+  "candidate": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "success": true
+  }
+}
