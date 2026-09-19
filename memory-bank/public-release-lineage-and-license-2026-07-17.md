@@ -30,6 +30,17 @@ Expanded” is the current working example, not a locked final title. Do not
 replace, impersonate, or publish as an update to Wilson's existing AnkiWeb item
 `1808450369` unless he explicitly transfers that listing.
 
+## Upstream status update — 2026-09-19
+
+Wilson's repository now lives at `https://github.com/wilsonhyeh/ankiscape`
+(the old `wilson-taiwan/AnkiScape-Development` URL redirects there). It is
+actively developed: the GitHub API showed `pushed_at` 2026-09-19T21:03:08Z, and
+the five newest commits are all dated 2026-09-19, including a merged
+`docs/changelog-3.0.0-fixes` pull request. The outreach and attribution plan
+below assumed a dormant upstream; treat Wilson's current work as a parallel
+live project when wording the outreach, and re-check his license file before
+sending it.
+
 ## Lineage measurement snapshot
 
 The 2026-07-17 audit compared Wilson's final public GitHub commit
