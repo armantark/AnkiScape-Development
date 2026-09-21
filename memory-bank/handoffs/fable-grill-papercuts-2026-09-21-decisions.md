@@ -1,7 +1,7 @@
 # Grill decisions: remove recurring work from AnkiScape
 
 Date: 2026-09-21. Source questions: `fable-grill-papercuts-2026-09-19.md`.
-The owner answered Q1, Q2, Q3, Q5, Q6, Q7 and Q8. The owner delegated Q4 to the
+The owner answered Q1, Q2, Q3, Q5, Q6, Q7, Q8, Q9, Q10 and Q11. The owner delegated Q4 to the
 grill with one criterion: a working product that is maintainable and pleasant to
 read.
 
@@ -56,9 +56,13 @@ identity function and regenerate the pins.
 | 7 | The memory bank and the running thread disagree on goal status. | Same as 5. The owner is the only actor who pauses or resumes. | None. | Same as 5. | Same as 5. | Same as 5. |
 | 8 | Offscreen Qt tests do not settle native reviewer behaviour. The owner finds reviewer bugs in play and writes pass notes. | The implementing thread runs a native check in real Anki for each slice it lands, through Codex computer use: review five cards, check the HUD, one level-up, one bank run, one undo. The owner's play notes stay the backstop. | A per-landing checklist file: the owner declined new process; the check belongs to the slice. Nothing: the owner stays the test rig. | The owner as first tester of each slice. | Full lanes and the landing gate unchanged. | The slice record names the Anki revision loaded and what the check saw. |
 
+| 9 | The handoff competes with the gameplay queue for the running thread. | Steps 1 to 3 now, then back to gameplay. Step 4 waits until the next file split needs it. | All four first: delays visible work for changes the owner never sees. Gameplay first: every later slice keeps paying the recurring cost. | None; this is ordering. | Unchanged. | None. |
+| 10 | Slice results are written for agents, not the owner. | One plain sentence per landed slice, in the owner's words, appended to a running results artifact for the block. When the owner explicitly pauses the goal, the thread wraps up with a status artifact of what the run completed at gameplay level, plus any high-level architectural change that supported it. | Commit messages only, or thread messages only: nothing the owner can read in one place. | The owner reads git log or code to learn what the game gained. | The artifact rule: one plan artifact, one results artifact per block. | The artifact exists and each sentence names a gameplay change. |
+| 11 | The record demanded MacBook lanes for every step, stricter than the gate. | Step 1 lands as a docs-only commit with no gate. Step 2 lands through the gate on this Mac. Steps 3 and 4 land through the gate with the MacBook lanes. | MacBook lanes for all: two remote runs for changes that cannot alter gameplay. | Two remote runs. | Both full suites still run for every code change; the gate's own flag is the only tier. | Gate receipts for steps 2 to 4. |
+
 ## Ordered implementation handoff
 
-Each step is independent. Smallest and safest first.
+Each step is independent. Smallest and safest first. Steps 1 to 3 run now; step 4 waits for the next file split (decision 9).
 
 1. Decisions 5 and 7. Remove the paused status from the four current files and
    record the resume in `activeContext.md`. Create no blocker file.
@@ -92,14 +96,14 @@ The owner ran a design grill with Fable on 2026-09-21. The decisions are in /Use
 </context>
 
 <task>
-Implement the four steps under "Ordered implementation handoff", in order, one commit per step, on the working branch. Each step lists the proof it needs; produce that proof and record it in the commit message and in memory-bank/progress.md. Step 4 runs the digest against candidate a8137bab as evidence only. Do not merge, rebase or rework that candidate. After step 4, report the result and stop; merging or reworking the Magic candidate is an owner choice.
+Implement steps 1 to 3 under "Ordered implementation handoff", in order, one commit per step, on the working branch, then return to the gameplay queue. Step 4 waits until the next file split needs it; do not start it now. Each step lists the proof it needs; produce that proof and record it in the commit message and in memory-bank/progress.md. When step 4 later runs, it runs the digest against candidate a8137bab as evidence only; do not merge, rebase or rework that candidate, because that is an owner choice. For every landed slice, gameplay or handoff, append one plain sentence in the owner's words to the running results artifact under memory-bank/status-updates/, naming what the game gained; no test counts, no file names. When the owner explicitly pauses the goal, wrap up with a status artifact of what the run completed at gameplay level, plus any high-level architectural change that supported it, and open it in Zen.
 </task>
 
 <constraints>
-Work only in the canonical checkout or in a worktree leased through python3 tools/worktree_guard.py lease; never create a worktree under addons21 and never call treehouse directly. Never pass --no-verify, never amend, never push, never set any SLOP_GATE_ variable. Full plain and Qt lanes through tools/run_remote_tests.py remain the acceptance for every step; a focused run is not acceptance. Do not change any user interface. Do not loosen a pin, floor or validator to make a step pass; if a step cannot pass under the constraints, stop and report why.
+Work only in the canonical checkout or in a worktree leased through python3 tools/worktree_guard.py lease; never create a worktree under addons21 and never call treehouse directly. Never pass --no-verify, never amend, never push, never set any SLOP_GATE_ variable. Step 1 is docs-only and lands without the gate. Step 2 lands through tools/promotion_gate.py on this Mac. Steps 3 and 4 land through the gate with --remote-lanes. Both full suites run for every code change; a focused run is not acceptance. Do not change any user interface. Do not loosen a pin, floor or validator to make a step pass; if a step cannot pass under the constraints, stop and report why.
 </constraints>
 
 <completion_check>
-Before you report done, confirm each of the four steps has a commit hash, a full-lane receipt, and its proof recorded. Name any step you did not finish and why. Do not describe work you have not committed as done.
+Before you report done, confirm steps 1 to 3 each have a commit hash, a gate receipt where the step requires one, its proof recorded, and its sentence in the results artifact. Name any step you did not finish and why. Do not describe work you have not committed as done.
 </completion_check>
 ```
