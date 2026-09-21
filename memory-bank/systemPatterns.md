@@ -885,3 +885,7 @@ A runtime test that attaches the real `check_achievements` callback must wrap
 it with `DeferredAchievementDialogs().defer(check_achievements)`. A direct
 callback can pass without a `QApplication`, then open a guarded modal in the
 monolithic Qt lane after another test creates the application.
+
+## Module-surface identity omits the defining module (2026-09-21)
+
+A published object is identified by its published path and qualified name, not by the module that defines it, because nothing in the product pickles and re-exports keep old import paths working. Decision and proof: `handoffs/fable-grill-papercuts-2026-09-21-decisions.md`, decision 4.
