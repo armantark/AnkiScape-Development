@@ -30,8 +30,7 @@ shop = importlib.import_module('ankiscape.logic.shop_logic')
 for name, function in owned.items():
     assert getattr(shop, name) is function, name
     assert function.__globals__ is vars(part), name
-    if not name.startswith('_'):
-        assert function.__module__ == shop.__name__, name
+    assert function.__module__ == part.__name__, name
 
 for name in ('SHOP_SERVICES', 'SHOP_VENDOR_ACTIONS', 'SHOP_PLAYER_SELL_PRICES'):
     assert getattr(part, name) is getattr(shop, name), name

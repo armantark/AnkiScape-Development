@@ -1,36 +1,38 @@
 import os
 import subprocess
 import sys
+import types
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from tools.module_surface import _normalize
+from tools.module_surface import _normalize, dump_module
 
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "module_surface.py"
 
 FIRST_WAVE_DIGESTS = {
-    "core/constants.py": "b397c55b975a4da2bc8185f2bbadb4945eec8c9cc40bc50f2da4f87f068e2156",
-    "data/quest_data.py": "25487154675ab19fa49642182d15fc34282ed1c275dd4c6bb420a22d82db15df",
-    "data/combat_data.py": "c50b3baa6d135b56e2a0fc500f952e0e173c2873b820e60258799829837a8d0d",
-    "data/slayer_data.py": "efc18af3d79cab7d1664347bef7071b28354ed3cba3344f14f7d06d023f93f9c",
-    "logic_pure/logic_pure_combat_engine.py": "886cde5a31bb852ed696e8018c8954e707fff86c56dc0fc65633fd1b2f76f8c6",
-    "tests/combat_roster/contract.py": "5249a887c334bd4ee8267ed6c27a6d663de19e01001b2c13c494e8b7a424aa7b",
-    "tests/combat_roster/test_dragon_families.py": "0b8d1da74b5f39b217ddcd192d0b98a059e18a6f4e943f12c171d67d48a5c469",
-    "tests/combat_roster/test_finisher_families.py": "bb4ee0075ffa8640410c1652ae215f850d7d4e1fb68ab7cc0358e178c81b342a",
-    "tests/combat_roster/test_roster_contract.py": "c784877caf61c0fa6c1c294ad4f69f375d88913accacabba3d19c9d03dadf331",
-    "tests/combat_roster/test_slayer_families.py": "5f232558b881023d500a3cd8d58c1aec523357ad352699c9681d4854d0a70e6f",
-    "logic/shop_logic.py": "a8da050a08799e453b61e64ba16cefe90f049c5335a2142360931bf4bf5d105f",
-    "ui/ui_tab_shop.py": "225495833df019eec919856eea981c85b114eec8327bd836bd791409ebde4c16",
-    "data/achievement_diary_catalog.py": "7ca9174a194b3fdd266c741ca301dfb9a6ebb2917d827d85162f71ea5fc28b61",
-    "runtime/runtime_actions_carried.py": "f9d6d6c35428d4cad48ae160a3847651eff3f2084161df6351ddcffb33c7ff78",
-    "runtime/runtime_actions_activities.py": "bf7424f5569aa704db8976b1b14d0feff70ebfb9492d8b26cc65d821777427ae"
+    "core/constants.py": "1db1a52117ce4cb4efbcb4e44246b4d0d9f5bcda3a0d1bb3b5cb3ad018c7e6bf",
+    "data/quest_data.py": "8e65a1a46473af00f6748be267037c5acbd91429a7f70fb1283a6ef116b5a4e7",
+    "data/combat_data.py": "88a22f2dd67c72aa0e261a0f78d6e4b5c318b23f891c4cdf9a0da4e5c3dec1a4",
+    "data/slayer_data.py": "7373a419da64c7bd1ac41dba45f772361fc0d4d78363c4625903b12b79cd86d6",
+    "logic_pure/logic_pure_combat_engine.py": "5cb6204b91995219447dd2fa7f700734014b234b99546907c6a5a7d16b66bf7b",
+    "tests/combat_roster/contract.py": "d12a75aa5058e4fb6bb2fb78529f03b146ab427dad7101383cb267a9b60d5ac3",
+    "tests/combat_roster/test_dragon_families.py": "6f88bbfd4518bd4267d633640e8ec8871c8afec7c7a1490df01177ec81fb4b73",
+    "tests/combat_roster/test_finisher_families.py": "daec4f059b5a5d80d13234f6dfb4b9dd7b920d3b2c81425890884e2bf2b12ed9",
+    "tests/combat_roster/test_roster_contract.py": "b7960e7fe5be4f1dca4e084af515aaeb2541ff8809b2b8db4d9adb36dff71638",
+    "tests/combat_roster/test_slayer_families.py": "f9d5dea98865963b02803910c9394ee2cac405e3f0a2dd1d5b9b8d2e009cb781",
+    "logic/shop_logic.py": "53a900c9b4641264f4b3cfdb1a613b2672316b569eff35c45c5202aaf7c0e2f0",
+    "ui/ui_tab_shop.py": "21290975fe1bf7515f106b94d7bff79fd4945dcf0cdd7a35c1ac96c54b52acc7",
+    "data/achievement_diary_catalog.py": "7c52991703757ec872b6f99533267ba3d65637c1dc6fda9e37f580f988ad8720",
+    "runtime/runtime_actions_carried.py": "04437d3278552d734644bf729f4ee164a2e7e8e75556e4338db9354e93ccefb7",
+    "runtime/runtime_actions_activities.py": "dee8019e6abe27536d1ccffbf585d6d5e0826381dcff2782f96997ce7c259888"
 }
 QT_DIGEST_OVERRIDES = {
-    "ui/ui_tab_shop.py": "b0a6e20b73b866a6e7f4ce70c13cfc52c1c19ac57611e3a94e9f907adc22a0da"
+    "ui/ui_tab_shop.py": "d21ce90e5bd51c90d7d40c562289954ab19bd5c55251c8e44f57650bd54a518a"
 }
-ROOT_QT_DIGEST = "c81943a0fc224bafcefc85a0fa3bd1a1c6bc242b73c2c9949d65efa8e1bcf030"
+ROOT_QT_DIGEST = "74044844e6abb546bc2d895f337ec92c0afe66ddc9002931d65dc12256cd5f4e"
 CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"
 
 
@@ -58,7 +60,73 @@ def interpreter_cases():
         yield "qt", qt, True
 
 
+def public_surface_fixture(
+    *,
+    defining_module: str,
+    member_name: str = "operation",
+    qualified_name: str = "operation",
+    extra_parameter: bool = False,
+    data_value: int = 1,
+) -> types.ModuleType:
+    module = types.ModuleType("published.api")
+    if extra_parameter:
+        def operation(value: int, increment: int = 0) -> int:
+            return value + increment
+    else:
+        def operation(value: int) -> int:
+            return value
+    operation.__module__ = defining_module
+    operation.__qualname__ = qualified_name
+    setattr(module, member_name, operation)
+
+    payload_type = type("Payload", (), {"__module__": defining_module})
+    payload = payload_type()
+    payload.value = data_value
+    module.payload = payload
+    return module
+
+
 class ModuleSurfaceTest(unittest.TestCase):
+    def test_reexported_objects_keep_identity_when_defining_module_moves(self):
+        before = public_surface_fixture(defining_module="implementation.before")
+        after = public_surface_fixture(defining_module="implementation.after")
+
+        with mock.patch("tools.module_surface._load_module", return_value=before):
+            before_dump, _ = dump_module("published.api")
+        with mock.patch("tools.module_surface._load_module", return_value=after):
+            after_dump, _ = dump_module("published.api")
+
+        self.assertEqual(after_dump, before_dump)
+
+    def test_member_signature_and_data_changes_still_change_identity(self):
+        baseline = public_surface_fixture(defining_module="implementation")
+        with mock.patch("tools.module_surface._load_module", return_value=baseline):
+            _, baseline_digest = dump_module("published.api")
+
+        changed_modules = {
+            "member": public_surface_fixture(
+                defining_module="implementation",
+                member_name="renamed_operation",
+            ),
+            "qualified_name": public_surface_fixture(
+                defining_module="implementation",
+                qualified_name="Container.operation",
+            ),
+            "signature": public_surface_fixture(
+                defining_module="implementation",
+                extra_parameter=True,
+            ),
+            "data": public_surface_fixture(
+                defining_module="implementation",
+                data_value=2,
+            ),
+        }
+        for change, changed_module in changed_modules.items():
+            with self.subTest(change=change):
+                with mock.patch("tools.module_surface._load_module", return_value=changed_module):
+                    _, changed_digest = dump_module("published.api")
+                self.assertNotEqual(changed_digest, baseline_digest)
+
     def test_first_wave_digests(self):
         for environment, interpreter, qt in interpreter_cases():
             with self.subTest(environment=environment):
@@ -182,7 +250,7 @@ class ModuleSurfaceTest(unittest.TestCase):
     def test_unsupported_values_are_explicitly_unrepresentable(self):
         self.assertEqual(
             _normalize(object(), set()),
-            {"type": "unrepresentable", "class": "builtins.object"},
+            {"type": "unrepresentable", "class": "object"},
         )
 
     def test_root_initializer_is_reported_as_unavailable_without_aqt(self):

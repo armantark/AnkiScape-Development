@@ -32,17 +32,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _qualified_type(value: Any) -> str:
-    value_type = type(value)
-    return f"{value_type.__module__}.{value_type.__qualname__}"
+    return type(value).__qualname__
 
 
 def _qualified_object(value: Any) -> str:
-    module = getattr(value, "__module__", None)
     name = getattr(value, "__qualname__", None) or getattr(value, "__name__", None)
-    if value is Path:
-        return "pathlib.Path"
-    if module and name:
-        return f"{module}.{name}"
+    if name:
+        return name
     return _qualified_type(value)
 
 

@@ -2517,3 +2517,11 @@
 2026-09-21 14:01 grill decisions commit: 'git add memory-bank/... CLAUDE.md' failed because CLAUDE.md is gitignored in this repo, and the && chain skipped the commit silently; project CLAUDE.md edits here are local-only, stage it separately or not at all.
 
 - 2026-09-21: The required guard lease returned `all 16 worktrees are in use or dirty (max_trees = 16)`. Root verified P13 was clean and its head `7b2486a84ce6aad446df03d8d177bbddd9c5d5d1` was already on main, returned it through the guard, and acquired lease `0ee00aeed8071200a23cff3b749f7896` through the guard. No pool limit or dirty/unmerged worktree changed.
+
+- 2026-09-21T22:08:04+00:00: Step 4 focused remote selection included test_root_initializer_is_reported_as_unavailable_without_aqt, whose expected missing-aqt path skips. The lane correctly refused `tests=10, skipped=1; expected exactly 10 tests and no skips`. Select the nine executable cases for focused proof; keep the original full-suite test and all acceptance validators unchanged.
+
+- 2026-09-21T22:11:52+00:00: Step 4 inspection guessed `tools/promotion_gate_parts/*.py`; zsh returned `no matches found: tools/promotion_gate_parts/*.py`. The existing split is `tools/promotion/`; read the verified tracked path.
+
+- 2026-09-21T22:13:25+00:00: Step 4 normal commit refused after removing shop metadata rewrites: `slop-gate: new dead code was introduced`, unused imports at 90% confidence: advance_shop_market_clock_pure, default_shop_state_pure, migrate_shop_diary_transaction_counts_pure, preview_shop_service_pure, preview_shop_vendor_action_pure, sanitize_shop_state_pure in logic/shop_logic.py. The failed attempt created no commit; author is checking explicit public re-export syntax, without whitelist or validator changes.
+
+- 2026-09-21T22:16:12+00:00: The shop re-export hook refusal is resolved with six explicit same-name import aliases. Installed Vulture recognizes their public-export role; no whitelist, pin or validator changed. Final remote surface checks are required before the new commit attempt.

@@ -39,11 +39,11 @@ from ..data.potion_data import (
 from .shop.state import (
     MAX_SHOP_EVENT_HISTORY,
     _CANONICAL_SHOP_ROW_NAMES,
-    default_shop_state_pure,
-    sanitize_shop_state_pure,
+    default_shop_state_pure as default_shop_state_pure,
+    sanitize_shop_state_pure as sanitize_shop_state_pure,
     ensure_shop_state_pure,
-    migrate_shop_diary_transaction_counts_pure,
-    advance_shop_market_clock_pure,
+    migrate_shop_diary_transaction_counts_pure as migrate_shop_diary_transaction_counts_pure,
+    advance_shop_market_clock_pure as advance_shop_market_clock_pure,
     shop_access_lock_reason_pure,
     resolve_shop_id,
     _clean_int,
@@ -82,9 +82,9 @@ from .shop.state import (
 from .shop.services import (
     DECANTABLE_FOUR_DOSE_POTION_BASES,
     DECANTABLE_FLASK_POTION_BASES,
-    preview_shop_service_pure,
+    preview_shop_service_pure as preview_shop_service_pure,
     apply_shop_service_pure,
-    preview_shop_vendor_action_pure,
+    preview_shop_vendor_action_pure as preview_shop_vendor_action_pure,
     apply_shop_vendor_action_pure,
     _preview_service_like,
     _decant_potions_delta,
@@ -101,20 +101,6 @@ from .shop.services import (
     _apply_service_like,
     _service_requirement_rows,
 )
-
-
-# Preserve the public import surface; functions keep their own module globals.
-default_shop_state_pure.__module__ = __name__
-sanitize_shop_state_pure.__module__ = __name__
-ensure_shop_state_pure.__module__ = __name__
-migrate_shop_diary_transaction_counts_pure.__module__ = __name__
-advance_shop_market_clock_pure.__module__ = __name__
-shop_access_lock_reason_pure.__module__ = __name__
-resolve_shop_id.__module__ = __name__
-preview_shop_service_pure.__module__ = __name__
-apply_shop_service_pure.__module__ = __name__
-preview_shop_vendor_action_pure.__module__ = __name__
-apply_shop_vendor_action_pure.__module__ = __name__
 
 
 def shop_view_model_pure(player_data: Mapping[str, Any], shop_id: str) -> Dict[str, Any]:

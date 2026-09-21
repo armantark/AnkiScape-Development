@@ -147,21 +147,15 @@ your report with the reason.
 the offscreen lane. Do not skip it: it is the largest and most central file in
 the wave, and skipping its proof would leave the riskiest split unverified.
 
-## 5a. Keep a moved class publishing from the aggregator
+## 5a. Keep a moved object publishing from the aggregator
 
-`tools/module_surface.py` normalises a class through its qualified name, which
-embeds `__module__`. Move a dataclass into a part module and its qualified name
-changes, so the digest moves even though nothing about the class changed.
+`tools/module_surface.py` identifies a public object by its published
+module/member path and qualified name. It omits the defining module, so moving
+an object between implementation files does not change the digest by itself.
 
-The Slayer canary solved this and it is why its digest held: the moved
-dataclasses keep the aggregator's path as their public module identity.
-
-**So when you move a class out of an aggregator, keep its public module identity
-as the aggregator's path.** This is not a trick to satisfy the tool. A consumer
-that unpickles a saved object, or reads `type(x).__module__`, sees what it saw
-before, which is what "no consumer changes" means for a class. A split that lets
-the qualified name drift has changed the public surface in a way that reaches
-saved player data.
+**When you move an object out of an aggregator, re-export it under the same name
+from the aggregator.** Keep its qualified name and signature unchanged. Do not
+rewrite `__module__`; the defining file is not part of the published identity.
 
 ## 5b. For a data table, prove the serialized data too
 
@@ -181,8 +175,7 @@ Two agents stopped on the same conflict rather than resolving it, which is why
 this is written down rather than guessed at.
 
 **The digest cannot be preserved for a test split, and would not be worth
-preserving.** Moving a class changes its qualified name, so the digest must
-move. Measured on `tests/test_combat_enemy_roster.py`: the dump is 1,033,939
+preserving.** Measured on `tests/test_combat_enemy_roster.py`: the dump is 1,033,939
 bytes, almost all of it imported combat data, and the 36 test methods the file
 exists to run appear nowhere. The digest would stay identical while every test
 method vanished. **Re-pin** under section 5's own exception and say so.

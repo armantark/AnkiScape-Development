@@ -1,6 +1,6 @@
 # Historical September 18 checkpoint
 
-The owner resumed the implementation goal on 2026-09-21 in Codex task `01a072a4-e63c-7f50-b40c-1381515649f2`. The [September 21 decisions](handoffs/fable-grill-papercuts-2026-09-21-decisions.md) govern current work. Complete handoff steps 1 to 3, then return to gameplay. Step 4 waits for a file split that needs it.
+The owner resumed the implementation goal on 2026-09-21 in Codex task `01a072a4-e63c-7f50-b40c-1381515649f2`. The [September 21 decisions](handoffs/fable-grill-papercuts-2026-09-21-decisions.md) govern current work. Complete handoff steps 4, 1, 5, 6, 2, 3 in that order, then return to gameplay. Step 1 already landed before the new ordering decision.
 
 The record below describes the September 18 stopping point. At that time, the owner requested bounded wrap-up and manual resumption. Root deleted the mistakenly created heartbeat `resume-ankiscape-tomorrow`. No automatic restart exists.
 
@@ -12,7 +12,7 @@ Magic source commit `a8137bab2566b45e52585c580794a84563241b7e`, tree `19d384a1ff
 
 ## Current authority
 
-Preserve the Magic candidate and its evidence. The owner must choose whether to merge or rework it. Do not merge, rebase or rework candidate `a8137bab`. A later step 4 can run its digest as evidence only.
+Preserve the Magic candidate and its evidence. The owner must choose whether to merge or rework it. Do not merge, rebase or rework candidate `a8137bab`. Step 4 runs its digest as evidence only.
 
 The Dream transaction remains dependent on the unlanded Magic module. Its [accepted boundary](source-audits/combat-dream-boundary-2026-09-18/contract.md) remains recorded. Its [proposed proof](source-audits/combat-dream-boundary-2026-09-18/proof-preparation/README.md) is not accepted. It still needs debit-order coverage and correction of the claimed caller LP-default proof.
 

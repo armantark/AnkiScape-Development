@@ -2,9 +2,10 @@
 
 Source: `memory-bank/codex-briefs/ankiscape-grind-loop-2026-08-03.md`.
 The owner resumed the implementation goal on 2026-09-21. No automatic restart
-is scheduled. Complete [handoff steps 1 to 3](handoffs/fable-grill-papercuts-2026-09-21-decisions.md),
-then process one unblocked gameplay item per iteration. Move design gaps to
-`memory-bank/design-thread-queue.md`. Step 4 waits for a file split that needs it.
+is scheduled. Complete the [handoff](handoffs/fable-grill-papercuts-2026-09-21-decisions.md)
+in order 4, 1, 5, 6, 2, 3, then process one unblocked gameplay item per iteration.
+Step 1 already landed before that ordering decision. Move design gaps to
+`memory-bank/design-thread-queue.md`.
 The Magic candidate remains an owner choice; do not merge, rebase or rework it.
 
 1. [x] Pass 6 item B.15 — skill-selector hybridization.
