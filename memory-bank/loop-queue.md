@@ -1,9 +1,11 @@
 # AnkiScape grind-loop queue
 
 Source: `memory-bank/codex-briefs/ankiscape-grind-loop-2026-08-03.md`.
-The implementation goal is paused until the owner explicitly resumes it. No
-automatic restart is scheduled. On resumption, process one unblocked item per
-iteration and move design gaps to `memory-bank/design-thread-queue.md`.
+The owner resumed the implementation goal on 2026-09-21. No automatic restart
+is scheduled. Complete [handoff steps 1 to 3](handoffs/fable-grill-papercuts-2026-09-21-decisions.md),
+then process one unblocked gameplay item per iteration. Move design gaps to
+`memory-bank/design-thread-queue.md`. Step 4 waits for a file split that needs it.
+The Magic candidate remains an owner choice; do not merge, rebase or rework it.
 
 1. [x] Pass 6 item B.15 — skill-selector hybridization.
    Implement only `memory-bank/codex-briefs/pass6-b15-handoff-2026-08-03.md`.
@@ -203,7 +205,7 @@ iteration and move design gaps to `memory-bank/design-thread-queue.md`.
    earlier collision repair and blocker deletion remain dated progress history.
 6. [x] Reconcile the prior papercut branches against main.
    Their changes are landed; do not redispatch them from stale branch state.
-7. [ ] Resume `memory-bank/goal-priority-matrix.md` only on owner instruction.
+7. [ ] Continue `memory-bank/goal-priority-matrix.md` under the owner's September 21 resume instruction.
    - [x] Establish the priority matrix from queues and owner rulings.
    - [x] Land the dispatcher shared-state restructure and the accepted cleanup batches.
    - [ ] Complete the shared real-reviewer acceptance required by owner §55.

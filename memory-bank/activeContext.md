@@ -4,15 +4,15 @@
 
 - This file holds current focus, decision boundaries and the verification contract. Dated entries belong in `memory-bank/progress.md` only.
 - The live install under `addons21/ankiscape_fork` is the canonical checkout. All assigned work uses pooled worktrees through `tools/worktree_guard.py`; only the root promotes verified merged trees.
-- The implementation goal is paused until the owner resumes it. No scheduled restart exists. `pause-checkpoint-2026-09-18.md` records the stopping point; `goal-priority-matrix.md` holds the paused queue.
+- The owner resumed the implementation goal on 2026-09-21 in Codex task `01a072a4-e63c-7f50-b40c-1381515649f2`. The goal is active. No scheduled restart exists. The [September 21 decisions](handoffs/fable-grill-papercuts-2026-09-21-decisions.md) put handoff steps 1 to 3 first, then the gameplay queue. Step 4 waits for a file split that needs it.
 - The separate one-time papercut cleanup has regression evidence and a Fable design handoff in `handoffs/fable-grill-papercuts-2026-09-19.md`. The final canonical-HEAD promotion receipt establishes acceptance; the earlier failed documentation check is retained in `source-audits/papercut-cleanup-2026-09-18/final-verification.md`. This maintenance work does not resume the goal.
-- P8 `goal/combat-magic-module-2026-09-18` failed its full source gate and remains unmerged. Preserve it and the dirty P6 predecessor. Neither is part of this maintenance task.
+- P8 `goal/combat-magic-module-2026-09-18` failed its full source gate and remains unmerged. Preserve it and the dirty P6 predecessor. The owner must choose whether to merge or rework Magic. Do not merge, rebase or rework candidate `a8137bab`; a later step 4 can use it as evidence only.
 - Pass 14's encounter and Slayer-completion slices are landed. That hold no longer blocks the orchestrator.
 - The guarded native route works and its retained packet has verified integrity. The required shared real-reviewer answer-path pass remains unproven, and the packet does not bind an exact loaded revision. No new native run is authorized by this record.
 - Open owner gates are the diary-deed spot-check feedback and the native journal/navigation UI decisions. Missing quest combat stats are source work, not a new gameplay-design question. Other exact source and dependency blockers remain in the matrix.
 - Old quota prose is not a live quota result. Menu-open performance remains on `memory-bank/future-work-kanban.md` under its owner target.
 
-Last staleness sweep: 2026-09-19
+Last staleness sweep: 2026-09-21
 
 ## Decision Boundaries
 

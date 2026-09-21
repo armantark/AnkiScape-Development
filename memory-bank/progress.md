@@ -13580,3 +13580,12 @@ The source-bound inventory and review evidence are in `source-audits/papercut-cl
 The first full source candidate passed both runtime lanes but failed the documentation audit on a nested selector in the review notes. Its complete log is retained. Final review repairs and focused proof are recorded in `final-verification.md` within that evidence directory. These notes freeze before the exact final gate; canonical HEAD and its matching full promotion receipt establish the landing result. No push or scheduled restart is part of the task.
 
 The owner-facing architecture decisions, current-run and historical Union Alpha analysis, and ready-to-paste Fable grill prompt are in `handoffs/fable-grill-papercuts-2026-09-19.md`. Fable was not called. The external Claude-wrapper long-prompt defect was reproduced and avoided with a short scoped prompt; its source was not changed. Native acceptance and owner UI decisions remain open. The unmerged P8 Magic candidate and dirty P6 predecessor remain preserved.
+
+
+## 2026-09-21 — Fable handoff step 1: current goal status
+
+The owner resumed this implementation goal in Codex task `01a072a4-e63c-7f50-b40c-1381515649f2` on 2026-09-21. The four current status files now reflect that act. The September 18 checkpoint remains historical. The September 21 handoff steps 1 to 3 precede the gameplay queue; step 4 waits for a file split. Candidate `a8137bab` stays preserved for an owner choice, with no merge, rebase or rework.
+
+Proof: `rg -n -i '\bpaused\b' memory-bank/activeContext.md memory-bank/loop-queue.md memory-bank/goal-priority-matrix.md memory-bank/pause-checkpoint-2026-09-18.md` finds only `loop-queue.md:203`, a checked historical row. The existing progress-log prefix is byte-identical. No `GOAL-BLOCKED.md` exists. Exact output and the history hash are in `source-audits/fable-handoff-2026-09-21/step1-proof.json`. The owner explicitly exempts this docs-only step from the promotion gate.
+
+The running results artifact is `status-updates/goal-results-2026-09-21.html`. Each accepted step carries one plain sentence. The owner requested the Zen wrap-up when they explicitly pause the goal.
