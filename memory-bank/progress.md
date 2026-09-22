@@ -13604,3 +13604,11 @@ Acceptance remains pending: run the exact committed tree through `tools/promotio
 ## 2026-09-21 — Owner correction: MacBook native-check route
 
 The owner required native Anki checks through Codex on the connected MacBook before any Screen Sharing request. The project AGENTS.md carries one instruction; `.rulesync/rules/native-anki-verification.md` is its tracked source. The canonical and leased-checkout instruction files match. The native-check request reached MacBook task `01a0175d-defc-75b0-98b8-e54b4b1e0b30`; no native pass or handoff-step landing follows from delivery alone. This separate documentation correction changes no product code and does not alter the receipt for `dbd95a94208e6c570475491278dc8acab4d71ebf`.
+
+## 2026-09-21 — Step 4 acceptance evidence after MacBook routing correction
+
+The unchanged receipt for `dbd95a94208e6c570475491278dc8acab4d71ebf` proves both full remote suites and all eight promotion checks passed. It does not cover later documentation commits. The 29-line step 4 summary now identifies this producing commit explicitly and records the digest of every retained raw artifact, including the complete lane logs and native attempt. Source code, fixed checks and the Magic candidate remain unchanged.
+
+MacBook Codex verified its manifest and reached the shipped isolation guard. The sandbox prevented process inspection; automatic approval review rejected the unchanged outside-sandbox retry because the cross-task request was not trusted authorization in the destination task. The exact failure and rejection are retained out of tree. The owner has been asked to approve the disposable check after this rejection. No native base was prepared, Anki was not launched, and no gameplay observation or loaded revision is claimed. Screen Sharing is no longer the prerequisite.
+
+The latest connected turn is terminal, not a live wait. The resumed goal remains active while this first approval block is recorded. Step 4 is still unlanded; step 1 retains its earlier docs-only landing. Steps 5, 6, 2 and 3 have no new accepted commit. Receipt placement remains an owner choice under the one-commit/no-amend constraints. No results sentence is added for unlanded work, and no blocker file or scheduled restart is created.
