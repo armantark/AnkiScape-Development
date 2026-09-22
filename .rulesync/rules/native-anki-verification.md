@@ -9,4 +9,4 @@ cursor:
 ---
 # Native Anki verification
 
-For native Anki checks, message Codex on the connected MacBook through the task tools first; request Screen Sharing only if that route is unavailable.
+For native Anki checks, use a dedicated Codex task in `/Users/armantarkhanian/Documents/ankiscape-testing` on the connected MacBook, with the exact source revision, check requirements and isolation rules; never reuse an unrelated task. Use Screen Sharing only if that route is unavailable.

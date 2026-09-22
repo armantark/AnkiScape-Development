@@ -27,3 +27,4 @@ Native attempt: python3 '/Users/armantarkhanian/ankiscape-remote-test-host/ankis
 `step4-measurements/focused-qt-active.log` SHA256 `d1e898c7c494560bc1e9b1c41a78012a85f8d1c54e6d4ba9ec042a4aba4e54a7` ; `step4-measurements/measured-pins.json` SHA256 `39bbe240806408da6c9cb0ae7270215281b10f65840850a56ec65b9b88153bff`
 `step4-review.stderr` SHA256 `8f70600b4cb0d6af19d0feadf72567b2d260bf84b0bc893450bd020de9d8ff08` ; `step4-review.txt` SHA256 `b96ce36eb07a3efebeafc751eef56a763ff1e8007fa5c925c8d89029f1c806f1`
 `step4-root-verification-before-hook.json` SHA256 `471777445e6b626c2cb02536461528d967e052678eab02de6150a86666403d9b` ; `step4-root-verification.json` SHA256 `fe53742546f4b1872c04192775009c149cef1c529324e58d24be4998faef80da`
+`dedicated-native-task-brief.txt` SHA256 `57806d486403b83d3291f417fc998fae8e1686eff43b5f081192944b27862290`
