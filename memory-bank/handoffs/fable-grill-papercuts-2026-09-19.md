@@ -120,6 +120,8 @@ This file freezes before final promotion. The acceptance authority is the full-g
 
 ## Copy this prompt into Fable
 
+The prompt below is the historical September 19 grill brief. The [September 21 decisions](fable-grill-papercuts-2026-09-21-decisions.md) now control implementation.
+
 ```text
 <context>
 We are reviewing how to simplify AnkiScape after a one-time papercut cleanup. The implementation goal is paused. Do not resume it, schedule a restart, edit source, install tools, push, or create a pull request. This is a design grill with the owner.
@@ -143,3 +145,11 @@ Preserve full source and merged-tree verification, fixed thresholds, pinned beha
 During the grill, maintain a concise decision list in the conversation. For each settled choice, record the problem, selected approach, rejected alternative and reason, the caller step removed, affected contract and proof needed. Finish with an ordered implementation handoff and unresolved owner choices. Do not implement the handoff.
 </output>
 ```
+
+## September 21 follow-up: native verification isolation
+
+The dedicated MacBook task reached Anki through the disposable-profile guard. After the guarded process exited, another Anki process opened without that profile argument. The real collection changed only at config key `lastUnburied`; an exact pre-run backup proves notes, cards, review history and game data stayed unchanged. The trace does not prove which component caused the relaunch.
+
+The guard detects collection changes but does not confine later app launches. This is a verification architecture limit, not evidence of a gameplay defect. Anki is closed, native acceptance failed, and step 4 remains unlanded. The [step 4 summary](../source-audits/fable-handoff-2026-09-21/step4-summary.md) binds the trace, comparison and full remote gate receipt.
+
+For a further grill, decide the smallest way to confine every app launch to disposable state. A disposable OS account or VM is one proposal, not an approved change. Any experiment must first prove the boundary without access to valuable profile data. A successful experiment would still need the full native gameplay check before a slice can land.
