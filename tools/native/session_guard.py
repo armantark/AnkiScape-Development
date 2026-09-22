@@ -7,6 +7,8 @@ import argparse
 import hashlib
 import json
 import os
+import plistlib
+import runpy
 import shlex
 import shutil
 import subprocess
@@ -17,7 +19,9 @@ from typing import Optional, Sequence
 
 
 RECEIPT = "native-session-receipt.json"
-ANKI = Path("/Applications/Anki.app/Contents/MacOS/anki")
+ANKI_APP = Path("/Applications/Anki.app")
+TEST_APP = "AnkiScape Native Test.app"
+BOOTSTRAP = "ankiscape_native_bootstrap"
 
 
 def owner_collection() -> Path:
@@ -41,13 +45,18 @@ def measure(collection: Path) -> dict:
             "size": after.st_size, "mtime_ns": after.st_mtime_ns}
 
 
-def require_anki_stopped() -> None:
+def require_anki_stopped(*, exclude_self: bool = False) -> None:
     result = subprocess.run(
-        ("/usr/bin/pgrep", "-ix", "anki"), text=True, capture_output=True,
+        ("/usr/bin/pgrep", "-ix", "anki|anki-runtime"), text=True, capture_output=True,
     )
     if result.returncode == 0:
+        pids = [int(pid) for pid in result.stdout.split()]
+        if exclude_self:
+            pids = [pid for pid in pids if pid != os.getpid()]
+        if not pids:
+            return
         raise RuntimeError(
-            f"Anki is already running (PIDs: {result.stdout.split()}); "
+            f"Anki is already running (PIDs: {pids}); "
             "quit Anki before preparing or launching an isolated session"
         )
     if result.returncode != 1:
@@ -57,7 +66,7 @@ def require_anki_stopped() -> None:
 def copy_addon(repo: Path, destination: Path) -> None:
     def ignore(directory: str, names: list[str]) -> set[str]:
         ignored = set(shutil.ignore_patterns(
-            ".*", "__pycache__", "user_files", "tmp", "memory-bank",
+            ".*", "__pycache__", "user_files", "tmp", "memory-bank", "meta.json",
         )(directory, names))
         for name in set(names) - ignored:
             if (Path(directory) / name).is_symlink():
@@ -68,6 +77,7 @@ def copy_addon(repo: Path, destination: Path) -> None:
 
 
 def prepare(repo: Path) -> Path:
+    require_safe_environment()
     require_anki_stopped()
     repo = repo.resolve()
     if not (repo / "__init__.py").is_file():
@@ -76,25 +86,73 @@ def prepare(repo: Path) -> Path:
     baseline = measure(collection)
     base = Path(tempfile.mkdtemp(prefix="ankiscape-native-")).resolve()
     copy_addon(repo, base / "addons21" / "ankiscape_fork")
+    app = base / TEST_APP
+    shutil.copytree(ANKI_APP, app, symlinks=True)
+    plist_path = app / "Contents/Info.plist"
+    info = plistlib.loads(plist_path.read_bytes())
+    if info.get("MainModule") != "anki":
+        raise ValueError("Anki app does not use the supported MainModule=anki startup")
+    executable = info["CFBundleExecutable"]
+    if executable != "Anki":
+        raise ValueError("Anki app does not use the supported Anki executable")
+    info["CFBundleIdentifier"] = "net.ankiscape.native." + base.name
+    info["CFBundleName"] = "AnkiScape Native Test"
+    info["CFBundleDisplayName"] = "AnkiScape Native Test"
+    info["MainModule"] = BOOTSTRAP
+    for key in ("CFBundleDocumentTypes", "CFBundleURLTypes",
+                "UTExportedTypeDeclarations", "UTImportedTypeDeclarations"):
+        info.pop(key, None)
+    plist_path.write_bytes(plistlib.dumps(info))
     receipt = {"base": str(base), "repo": str(repo),
-               "collection": str(collection), "baseline": baseline}
-    (base / RECEIPT).write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+               "collection": str(collection), "baseline": baseline,
+               "source_sha256": source_digest(base / "addons21/ankiscape_fork")}
+    receipt_path = base / RECEIPT
+    receipt_path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+    module_root = app / "Contents/Resources/app"
+    shutil.copyfile(Path(__file__), module_root / "ankiscape_session_guard.py")
+    (module_root / (BOOTSTRAP + ".py")).write_text(
+        "from ankiscape_session_guard import bootstrap\n"
+        f"bootstrap(__file__, {str(base)!r}, {str(collection)!r}, "
+        f"{hashlib.sha256(receipt_path.read_bytes()).hexdigest()!r})\n",
+        encoding="utf-8",
+    )
+    launcher = app / "Contents/MacOS" / executable
+    runtime = launcher.with_name(executable + "-runtime")
+    launcher.rename(runtime)
+    # Briefcase reads this override before importing MainModule, so Python is too late.
+    launcher.write_text(
+        "#!/bin/sh\n"
+        'if [ "${BRIEFCASE_MAIN_MODULE+x}" = x ]; then\n'
+        '  echo "error: BRIEFCASE_MAIN_MODULE is forbidden for native tests" >&2\n'
+        '  exit 2\n'
+        'fi\n'
+        f"exec {shlex.quote(str(runtime))} \"$@\"\n",
+        encoding="utf-8",
+    )
+    launcher.chmod(0o755)
+    subprocess.run(("/usr/bin/codesign", "--force", "--deep", "--sign", "-", str(app)),
+                   check=True, capture_output=True, text=True)
+    subprocess.run(("/usr/bin/codesign", "--verify", "--deep", "--strict", str(app)),
+                   check=True, capture_output=True, text=True)
     command = (sys.executable, str(Path(__file__).resolve()), "launch", str(base))
     print(json.dumps({"path": str(base), "launch_command": shlex.join(command),
-                      "anki_command": shlex.join((str(ANKI), "-b", str(base)))}))
+                      "app_path": str(app), "bundle_id": info["CFBundleIdentifier"],
+                      "anki_command": shlex.join((str(launcher),))}))
     return base
 
 
-def read_receipt(base: Path) -> dict:
+def read_receipt(base: Path, *, collection: Optional[Path] = None,
+                 session_root: Optional[Path] = None) -> dict:
     base = base.resolve()
+    root = session_root if session_root is not None else Path(tempfile.gettempdir()).resolve()
     if not (base / RECEIPT).is_file():
         raise RuntimeError(f"not a prepared session (missing {RECEIPT}): {base}")
     receipt = json.loads((base / RECEIPT).read_text(encoding="utf-8"))
     if not isinstance(receipt, dict):
         raise ValueError(f"invalid session receipt: {base}")
     if (receipt.get("base") != str(base)
-            or receipt.get("collection") != str(owner_collection())
-            or not base.is_relative_to(Path(tempfile.gettempdir()).resolve())
+            or receipt.get("collection") != str(collection or owner_collection())
+            or not base.is_relative_to(root)
             or not base.name.startswith("ankiscape-native-")):
         raise ValueError(f"receipt does not match an isolated session: {base}")
     baseline = receipt.get("baseline")
@@ -106,13 +164,68 @@ def read_receipt(base: Path) -> dict:
     return receipt
 
 
+def require_safe_environment() -> None:
+    forbidden = sorted(key for key in os.environ if key.startswith("ANKI_")
+                       or key in {"BRIEFCASE_MAIN_MODULE", "PYTHONHOME", "PYTHONPATH"})
+    if forbidden:
+        raise RuntimeError(f"native-test startup overrides are forbidden: {forbidden}")
+
+
+def require_session_tree(base: Path) -> None:
+    # Framework symlinks inside the copied app are expected; data paths must be real.
+    for directory, directories, files in os.walk(base, followlinks=False):
+        if Path(directory) == base and TEST_APP in directories:
+            directories.remove(TEST_APP)
+        for name in directories + files:
+            path = Path(directory) / name
+            if path.is_symlink():
+                raise RuntimeError(f"session data contains a symlink: {path}")
+    if not (base / "addons21/ankiscape_fork/__init__.py").is_file():
+        raise RuntimeError(f"prepared add-on is missing: {base}")
+
+
+def source_digest(addon: Path) -> str:
+    digest = hashlib.sha256()
+    for path in sorted(addon.rglob("*")):
+        relative = path.relative_to(addon)
+        if any(part.startswith(".") or part in {"__pycache__", "user_files", "tmp", "meta.json"}
+               for part in relative.parts):
+            continue
+        if path.is_file():
+            digest.update(str(relative).encode("utf-8") + b"\0")
+            digest.update(hashlib.sha256(path.read_bytes()).digest())
+    return digest.hexdigest()
+
+
+def bootstrap(module: str, bound_base: str, collection: str, receipt_sha256: str) -> None:
+    try:
+        base = Path(bound_base)
+        expected_module = base / TEST_APP / "Contents/Resources/app" / (BOOTSTRAP + ".py")
+        if Path(module).resolve() != expected_module or base.resolve() != base:
+            raise RuntimeError("native-test app was relocated or redirected")
+        if sys.argv[1:]:
+            raise RuntimeError("native-test app does not accept startup arguments")
+        require_safe_environment()
+        require_session_tree(base)
+        if hashlib.sha256((base / RECEIPT).read_bytes()).hexdigest() != receipt_sha256:
+            raise RuntimeError("native-test receipt changed after preparation")
+        receipt = read_receipt(base, collection=Path(collection), session_root=base.parent)
+        if source_digest(base / "addons21/ankiscape_fork") != receipt["source_sha256"]:
+            raise RuntimeError("prepared add-on source changed after preparation")
+        require_anki_stopped(exclude_self=True)
+    except (RuntimeError, ValueError, OSError) as exc:
+        print(f"error: {exc}", file=sys.stderr, flush=True)
+        raise SystemExit(2) from None
+    sys.argv = [sys.argv[0], "-b", str(base)]
+    # Briefcase uses this call to give the application its real __main__ namespace.
+    runpy._run_module_as_main("anki", alter_argv=False)
+
+
 def launch(base: Path) -> int:
     base = base.resolve()
     read_receipt(base)
-    require_anki_stopped()
-    if not (base / "addons21/ankiscape_fork/__init__.py").is_file():
-        raise RuntimeError(f"prepared add-on is missing: {base}")
-    return subprocess.run((str(ANKI), "-b", str(base)), check=False).returncode
+    launcher = base / TEST_APP / "Contents/MacOS/Anki"
+    return subprocess.run((str(launcher),), check=False).returncode
 
 
 def verify(base: Path) -> int:

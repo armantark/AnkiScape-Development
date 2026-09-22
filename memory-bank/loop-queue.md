@@ -7,7 +7,7 @@ in order 4, 1, 5, 6, 2, 3, then process one unblocked gameplay item per iteratio
 Step 1 already landed before that ordering decision. Move design gaps to
 `memory-bank/design-thread-queue.md`.
 The Magic candidate remains an owner choice; do not merge, rebase or rework it.
-Execution is blocked on step 4's failed native isolation check. The [current context](activeContext.md) records the evidence and safe-retry boundary; no native task remains running.
+The owner authorized repair of step 4's native test launcher and resumed work on 2026-09-21. Complete that prerequisite repair and native acceptance, then continue this order. The [current context](activeContext.md) records the prior failure evidence.
 
 1. [x] Pass 6 item B.15 — skill-selector hybridization.
    Implement only `memory-bank/codex-briefs/pass6-b15-handoff-2026-08-03.md`.
