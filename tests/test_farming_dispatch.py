@@ -71,7 +71,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         self.assertEqual(order, ["shop", "ge", "farm"])
 
-    def test_ge_fill_triggers_one_bank_run(self):
+    def test_ge_fills_leave_the_active_skill_working(self):
         addon = _load_addon_as_package("ankiscape_ge_bank_run_dispatch")
         self._configure(addon)
         addon._state.player_data = {"inventory": {}}
@@ -81,22 +81,21 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         addon._state.exp_awarded = False
         addon.advance_ge_market_tick_pure = lambda data, **_kwargs: (
             dict(data),
-            {"fills": [{"side": "buy"}, {"side": "sell"}]},
+            {
+                "fills": [
+                    {"side": "buy", "completed_quantity": 76, "original_quantity": 100},
+                    {"side": "sell", "completed_quantity": 34, "original_quantity": 34},
+                ]
+            },
         )
         bank_runs = []
-
-        def request_bank_run(data):
-            bank_runs.append(copy.deepcopy(data))
-            updated = dict(data)
-            updated["ge_bank_run_requested"] = True
-            return updated, True, "", False
-
-        addon._request_active_bank_run_state = request_bank_run
+        addon._request_active_bank_run_state = lambda data: (
+            bank_runs.append(data) or (dict(data), True, "", False)
+        )
 
         addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "answered")
 
-        self.assertEqual(len(bank_runs), 1)
-        self.assertTrue(addon._state.player_data["ge_bank_run_requested"])
+        self.assertEqual(bank_runs, [])
 
     def test_summoning_world_tick_runs_on_again_before_farming_clock(self):
         addon = _load_addon_as_package("ankiscape_summoning_world_dispatch")

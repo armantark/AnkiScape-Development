@@ -5728,13 +5728,13 @@ def on_answer_card(self, ease, _old):
         except Exception:
             pass
         try:
-            ge_updated, ge_events = advance_ge_market_tick_pure(
+            # Fills wait in the offer's collection box; only the player's own
+            # place and collect actions cost a bank trip.
+            ge_updated, _ge_events = advance_ge_market_tick_pure(
                 _state.player_data,
                 item_catalog=GE_ITEM_CATALOG,
             )
             _state.player_data.update(ge_updated)
-            if ge_events.get("fills"):
-                _trigger_active_bank_run()
         except Exception:
             pass
         try:

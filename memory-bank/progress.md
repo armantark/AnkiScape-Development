@@ -1,5 +1,11 @@
 # Progress
 
+## Grand Exchange fills no longer send the player to the bank — 2026-09-22
+
+The owner reported repeated "Bank run — Running to the bank · arrived and restocked" entries while cooking raw chicken. Their save held one buy offer for 100 Lobster at 228 coins, 76 filled in parts at cards 8518, 8520, 8523, 8524, 8525, 8526 and 8529. Each partial fill called the root trip trigger, which took the next admitted cooking action; the trip collected nothing, because offer items reach the bank only through Collect.
+
+Market fills now trigger no trip. Placing an offer and collecting one still do. This narrows owner pass note 12 of `pass6-triage-2026-08-01.md` ("GE collection and buy/sell fills trigger a bank run"): the collection half stays, the fill half is removed. The owner delegated the choice on 2026-09-22 ("Do as you please"). To restore trips on finished offers instead, the root needs a restructure, because `__init__.py` and `logic/grand_exchange_logic.py` are both capped by slop-gate; see the papercut of the same date.
+
 ## Goal queue reconciled for resumed cleanup — 2026-09-18
 
 - The bounded source audit inspected clean main `0d606cfd3e79fa660223a5b0a00974c9098a9447`. No runtime tests, product imports, native actions or remote commands ran in this documentation slice. The source-audit record is `source-audits/resume-queue-reconciliation-2026-09-18.md`.
