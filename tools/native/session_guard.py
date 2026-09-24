@@ -230,6 +230,8 @@ def launch(base: Path) -> int:
 
 def verify(base: Path) -> int:
     receipt = read_receipt(base)
+    # A running Anki may still write the collection, so any result now could be premature.
+    require_anki_stopped()
     before = receipt["baseline"]
     after = measure(owner_collection())
     changes = {key: {"before": before.get(key), "after": after.get(key)}
