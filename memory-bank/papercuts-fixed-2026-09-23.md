@@ -3097,3 +3097,9 @@ Disposition: external limit (`external-blocker`). Evidence: the Darkan seat and 
 Disposition: external limit (`external-blocker`). Evidence: the MacBook load average and its other processes are outside this repository.
 
 - 2026-09-23T19:32-07:00 — Gate on 0108ff3f failed by timeout, not by a test: Qt 'TIMEOUT: exceeded 1300 seconds' / 'FAILED: exit 124 (TIMEOUT)' under MacBook load average 8.46/11.15/12.60 (steam_osx 99.2% CPU, four Chrome renderers at 69-73%, WindowServer 39.5%, plus a concurrent native check); never run a native check while a gate lane runs.
+
+## UI test modules were never discovered — 1 occurrence
+
+Disposition: fixed this pass (`fixed-this-pass`). Evidence: `tests/ui/` became the `tests/ui_flows/` package; both lanes now discover its 18 tests (`run_tests.py --list` 5737 → 5755).
+
+- 2026-09-24T00:22:17-0700 — `run_tests.py -- test_slayer_progress test_activity_one_click test_encounter_transitions` answered `No unambiguous unittest ID matched` because tests/ui has no __init__.py, so its 18 test methods are never discovered by either lane.
