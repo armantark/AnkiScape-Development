@@ -353,10 +353,10 @@ def _task_block(
 ) -> str:
     task_id = f"{family_id}_{identity_tier or tier_name}_{_slug(task['name'])}"
     conditions = list(conditions_override) if conditions_override is not None else CURATION_LEDGER.conditions_for(task_id, _conditions(task))
-    condition_src = ", ".join(_condition_src(condition) for condition in conditions)
+    condition_src = ", ".join(_condition_src(condition, task_id) for condition in conditions)
     conditions_line = f"({condition_src},)" if conditions else "()"
     access_gate_src = ", ".join(
-        _condition_src(condition) for condition in _access_gates(task)
+        _condition_src(condition, task_id) for condition in _access_gates(task)
     )
     access_gates_line = (
         f"                access_gates=({access_gate_src},),\n"

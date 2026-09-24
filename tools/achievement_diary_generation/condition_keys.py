@@ -219,10 +219,16 @@ def _resolve_save_path(kind: str, key: str) -> str:
         if not isinstance(node, dict):
             return f"{kind} key {key!r} walks through a non-mapping at {part!r}"
         if part not in node:
-            if index == len(parts) - 1:
-                return ""  # an absent per-key leaf is the zero case, not a typo
+            # Below the root an absent leaf is a per-key count not yet written,
+            # the zero case. The root has a fixed shape, so an absent top-level
+            # name is a typo that reads zero forever.
+            if 0 < index == len(parts) - 1:
+                return ""
             return f"{kind} key {key!r} has no {part!r} in a default save"
         node = node[part]
+    # The runtime reads any other counter value as zero forever.
+    if kind == "counter" and not isinstance(node, (int, float)):
+        return f"counter key {key!r} holds a {type(node).__name__}, not a count, in a default save"
     return ""
 
 

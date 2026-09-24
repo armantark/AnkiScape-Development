@@ -535,14 +535,14 @@ def _conditions(task: dict) -> list[tuple]:
     ]
 
 
-def _condition_src(condition: tuple) -> str:
+def _condition_src(condition: tuple, task_id: str) -> str:
     """Serialise one condition, refusing any key the runtime never writes."""
 
     kind, key, amount, label = condition[:4]
     expected = condition[4] if kind == "state_equals" and len(condition) > 4 else None
     error = resolve_condition_key(kind, key, expected)
     if error:
-        raise SystemExit(f"unresolvable diary condition ({label}): {error}")
+        raise SystemExit(f"unresolvable diary condition in {task_id} ({label}): {error}")
     if kind == "derived_value":
         ceiling = _import_attr(
             "ankiscape.logic.achievement_diary_derived", "DIARY_DERIVED_VALUE_CEILINGS"
@@ -557,15 +557,15 @@ def _condition_src(condition: tuple) -> str:
         return f"{head}, expected={expected!r})"
     if kind == "any_of":
         alternatives = condition[4] if len(condition) > 4 else ()
-        return f"{head}, ({_alternatives_src(label, alternatives)},))"
+        return f"{head}, ({_alternatives_src(label, alternatives, task_id)},))"
     return f"{head})"
 
 
-def _alternatives_src(label: str, alternatives: tuple) -> str:
+def _alternatives_src(label: str, alternatives: tuple, task_id: str) -> str:
     """Serialise an ``any_of`` body: one level of at least one alternative."""
 
     if not alternatives:
         raise SystemExit(f"any_of condition {label!r} carries no alternatives")
     if any(alternative[0] == "any_of" for alternative in alternatives):
         raise SystemExit(f"any_of condition {label!r} nests another any_of")
-    return ", ".join(_condition_src(alternative) for alternative in alternatives)
+    return ", ".join(_condition_src(alternative, task_id) for alternative in alternatives)
