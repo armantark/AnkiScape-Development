@@ -18,6 +18,7 @@ import re
 import sys
 import unittest
 from dataclasses import replace
+from functools import cached_property
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -607,7 +608,8 @@ def _equip_slot_row(equip_list: "QListWidget", slot_id: str) -> "QListWidgetItem
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class MainMenuWidgetTest(unittest.TestCase):
     app: "QApplication"
-    dialog: "QDialog"
+    # Most tests open their own dialog, so the default Mining dialog is built on first use.
+    dialog = cached_property(lambda self: self._open(_make_player_data(), current_skill="Mining"))
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -618,6 +620,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         from ankiscape.logic.combat_session import reset_wilderness_combat_confirmations
 
         reset_wilderness_combat_confirmations()
+        self._preexisting_windows = set(QApplication.topLevelWidgets())
         self._captured: list = []
         # Records recipe IDs the Smithing list persists via on_set_smith so tests
         # can assert selection wiring without real mouse events.
@@ -709,7 +712,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
         self._ui = ui
-        self.dialog = self._open(_make_player_data(), current_skill="Mining")
 
     def _open(self, player_data: dict, current_skill: str = "Mining", **extra) -> "QDialog":
         from ankiscape.data.construction_data import HOUSE_STYLE_DATA, ROOM_DATA, SERVANT_DATA
@@ -1311,11 +1313,9 @@ class MainMenuWidgetTest(unittest.TestCase):
     def tearDown(self) -> None:
         self._ui.QDialog = self._orig_dialog
         self._ui.get_config_bool = self._orig_cfg
-        for dialog in self._captured:
-            try:
-                dialog.deleteLater()
-            except RuntimeError:
-                pass
+        # Detached panels outlive their dialog, and every later app-wide restyle repolishes leaked windows.
+        for window in set(QApplication.topLevelWidgets()) - self._preexisting_windows:
+            window.deleteLater()
         QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
     def test_initial_panel_shows_a_gathering_skill(self) -> None:

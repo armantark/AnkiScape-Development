@@ -383,9 +383,9 @@ def _complete_tier(player, tier):
 class CatalogIntegrityTest(unittest.TestCase):
     def test_kudos_required_items_follow_player_finishable_quest_routes(self):
         from ankiscape.data.varrock_museum_data import QUEST_KUDOS
-        from tools.audit_item_reachability import build_reachability_report
+        from tests.reachability.live_report import live_reachability_report
 
-        routes = build_reachability_report()["routes"]
+        routes = live_reachability_report()["routes"]
         required_items = {
             str(row["required_item"])
             for row in QUEST_KUDOS

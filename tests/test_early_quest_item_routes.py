@@ -30,7 +30,7 @@ from tests.test_integration_smoke import (
 )
 from tests.quest_action_proof_helpers import quest_action_proofs_for_quest
 from tests.test_runtime_actions import _context
-from tools.audit_item_reachability import build_reachability_report
+from tests.reachability.live_report import live_reachability_report
 
 
 ROOT_ROUTES = {
@@ -81,7 +81,7 @@ def _answer_review(addon):
 class TestEarlyQuestItemReachability(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.report = build_reachability_report()
+        cls.report = live_reachability_report()
 
     def test_each_repaired_root_has_a_live_route(self):
         for item_name, route in ROOT_ROUTES.items():

@@ -20,6 +20,7 @@ from tools.audit_item_reachability import (
     _stage_satisfiability,
     build_reachability_report,
 )
+from tests.reachability.live_report import live_reachability_report
 
 
 class TestItemReachabilityAudit(unittest.TestCase):
@@ -524,7 +525,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
 
     def test_shield_of_arrav_reaches_all_stage_products(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         self.assertFalse(
             [
@@ -593,7 +594,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertNotIn("quest_point_gated", startable)
 
     def test_wicked_hood_claim_is_reachable_after_rune_mysteries(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         self.assertEqual(report["routes"].get("Wicked hood"), "claim:wicked_hood")
         self.assertFalse(
@@ -605,10 +606,9 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
 
     def test_lost_city_shamus_action_has_a_runtime_emitter(self):
-        report = build_reachability_report()
         missing_actions = {
             action
-            for row in report["blocked_quest_stage_products"]
+            for row in live_reachability_report()["blocked_quest_stage_products"]
             if row["quest_id"] == "lost_city"
             for action in row["missing_required_actions"]
         }
@@ -616,10 +616,9 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertNotIn("Find Shamus in the Lumbridge Swamp tree", missing_actions)
 
     def test_waterfall_quest_dialogue_and_tomb_actions_have_runtime_emitters(self):
-        report = build_reachability_report()
         missing_actions = {
             action
-            for row in report["blocked_quest_stage_products"]
+            for row in live_reachability_report()["blocked_quest_stage_products"]
             if row["quest_id"] == "waterfall_quest"
             for action in row["missing_required_actions"]
         }
@@ -631,19 +630,17 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
 
     def test_lost_tribe_has_no_blocked_stage_products(self):
-        report = build_reachability_report()
         blocked_quest_ids = {
             row["quest_id"]
-            for row in report["blocked_quest_stage_products"]
+            for row in live_reachability_report()["blocked_quest_stage_products"]
         }
 
         self.assertNotIn("the_lost_tribe", blocked_quest_ids)
 
     def test_gertrudes_cat_dialogue_actions_have_runtime_emitters(self):
-        report = build_reachability_report()
         missing_actions = {
             action
-            for row in report["blocked_quest_stage_products"]
+            for row in live_reachability_report()["blocked_quest_stage_products"]
             if row["quest_id"] == "gertrudes_cat"
             for action in row["missing_required_actions"]
         }
@@ -655,10 +652,9 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
 
     def test_a_souls_bane_rage_action_has_a_runtime_emitter(self):
-        report = build_reachability_report()
         missing_actions = {
             action
-            for row in report["blocked_quest_stage_products"]
+            for row in live_reachability_report()["blocked_quest_stage_products"]
             if row["quest_id"] == "a_souls_bane"
             for action in row["missing_required_actions"]
         }
@@ -666,10 +662,9 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertNotIn("Fill the rage meter with an anger weapon", missing_actions)
 
     def test_dealing_with_scabaras_bronze_action_has_a_runtime_emitter(self):
-        report = build_reachability_report()
         missing_actions = {
             action
-            for row in report["blocked_quest_stage_products"]
+            for row in live_reachability_report()["blocked_quest_stage_products"]
             if row["quest_id"] == "dealing_with_scabaras"
             for action in row["missing_required_actions"]
         }
@@ -680,7 +675,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
 
     def test_diamond_in_the_rough_claim_items_require_reachable_quest_and_level_gates(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         self.assertEqual(
             {
@@ -847,7 +842,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
 
     def test_utility_gate_probe_has_reachable_materials(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         self.assertEqual(
             report["routes"].get("Bullseye lantern (lit)"),
@@ -1171,7 +1166,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["routes"].get("open marker"), "combat:open")
 
     def test_warriors_guild_progression_unlocks_defender_drops(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         for defender in (
             "Bronze defender",
@@ -1330,7 +1325,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             registered_items,
             lambda _encounter: True,
         )
-        report = build_reachability_report()
+        report = live_reachability_report()
         locked_player = {"quests": {}}
         unlocked_player = {
             "quests": {
@@ -1366,7 +1361,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["routes"].get("Rune dust"), "Utility:grind_rune_shards")
 
     def test_unlock_target_alias_uses_the_canonical_runtime_gate(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         self.assertIsNone(report["routes"].get("Death talisman staff"))
         self.assertIn(
@@ -1394,7 +1389,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertIsNone(report["routes"].get("Unavailable Magic marker"))
 
     def test_report_matches_player_finishable_quest_baseline(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         self.assertEqual(report["action_count"], 1680)
         self.assertEqual(report["reachable_item_count"], 2350)
@@ -1461,7 +1456,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             QUEST_DATA,
             registered_items,
         )
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         # The stage actions are emitted now, so the branch is granted by
         # resolving Lost City stage 4 and Cinnamon's real grind resolves with it.
@@ -1475,7 +1470,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
 
     def test_report_is_deterministic_and_accounts_for_live_action_inputs(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
         self.assertEqual(report["schema_version"], 1)
         self.assertGreater(report["action_count"], 700)
         self.assertEqual(report["orphan_input_count"], len(report["orphan_inputs"]))
@@ -1793,7 +1788,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             self.assertNotIn(item_name, orphan_items)
 
     def test_habitat_vine_herb_chain_is_reachable(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         cases = (
             ("erzille", "Erzille"),
@@ -1870,7 +1865,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(row["newly_unblocked_action_count"], 0)
 
     def test_root_orphan_leverage_is_transitive_and_deterministically_ranked(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
         rows = report["root_orphan_leverage"]
         root_orphans = {
             row["item"]
