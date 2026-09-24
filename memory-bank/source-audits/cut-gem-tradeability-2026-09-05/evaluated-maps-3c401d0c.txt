@@ -1,1 +1,0 @@
-{"EXTRA_ITEM_DATA": {"Jade": false, "Red topaz": false}, "GEM_DATA": {"Jade": false, "Red topaz": false}, "ORE_DATA": {"Jade": false, "Red topaz": false}}

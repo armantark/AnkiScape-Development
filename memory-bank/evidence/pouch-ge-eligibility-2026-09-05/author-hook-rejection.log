@@ -1,9 +1,0 @@
-slop-gate: cognitive complexity above 15 was introduced:
-  data/item_values.py: _build_item_tables 24 (was 17)
-  -> Flatten the nesting: invert conditions, return early, or lift the inner loop body to a named function that earns its name.
-slop-gate: code files above 1000 lines were grown:
-  core/constants.py: 2994 lines (was 2991)
-  -> Split along module seams (a cohesive unit per file), not at an arbitrary line count.
-slop-gate: code files were added to directories already at 40 files:
-  tests: 238 code files (was 237)
-  -> Create a cohesive subdirectory instead of widening this directory.

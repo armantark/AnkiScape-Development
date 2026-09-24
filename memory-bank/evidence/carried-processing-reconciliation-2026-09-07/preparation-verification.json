@@ -1,9 +1,0 @@
-{
-  "scope_restoration": "Removing the one helper and replacing its call with the original reconciliation block restores the complete baseline overlay byte-for-byte.",
-  "baseline_overlay_sha256": "72dfdb810cc19a30337e1077dd31771dc30315a2e740e28e0f39944565a85484",
-  "candidate_overlay_sha256": "7cff89b7be42afbb15be7afcc023732ccefd820cd24a2c0c1a0c160fda7ecd57",
-  "whole_module_restoration_verified": true,
-  "source_files": 904,
-  "source_manifest_sha256": "30f83b86b72eedfcef5667ef798eaa16f81292a30c457338ce4140fb2f8856cb",
-  "runtime_executed": false
-}

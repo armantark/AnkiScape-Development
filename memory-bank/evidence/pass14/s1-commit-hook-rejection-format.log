@@ -1,3 +1,0 @@
-slop-gate: PEP 8 layout violations were introduced:
-  tests/test_combat_logic.py: E302 x2 (was 1)
-  -> Restore the spacing (two blank lines around top-level definitions, one between methods) and one statement per line. A line budget is never paid with stripped blank lines or joined statements; split the file at a seam instead.

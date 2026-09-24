@@ -1,7 +1,0 @@
-{
-  "status": "FAIL",
-  "errors": [
-    "Source hash mismatch; no runtime commands launched"
-  ],
-  "subprocess_count": 0
-}

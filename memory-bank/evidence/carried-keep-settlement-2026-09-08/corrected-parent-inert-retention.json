@@ -1,8 +1,0 @@
-{
-  "source": "/tmp/ankiscape-keep-corrected-parent-inert-2026-09-08.json",
-  "decoded_bytes": 1055,
-  "decoded_sha256": "229407573ef05194472b5e29644e3402f1d7b4aa5347c6324dc7ed9abc7ddff4",
-  "stored_sha256": "afea1c1494df9ac9a1c87c81b6fc7f4cecb1b2e8f5858d7311844a19f5886d71",
-  "harness_decoded_sha256": "82dd2dc6f8d0f5676a4f962ed6f20871e289c74db515113fee4b61842131a8c4",
-  "safety_decoded_sha256": "a166cf72d18dc49402e59b13ed3719ca24108e0076f92d09627f88bf508238e6"
-}

@@ -1,7 +1,0 @@
-		RAW_CHICKEN(2138, 2144, new int[] {2140}, 1, 34, 30),
-		RAW_SHRIMP(317, 7954, new int[] {315}, 1, 34, 30),
-		RAW_ANCHOVIES(321, 323, new int[] {319}, 1, 34, 30),
-		RAW_CRAYFISH(13435, 13437, new int[] {13433}, 1, 34, 30),
-		RAW_MEAT_GHOST(4287, 2146, new int[] {2142}, 1, 34, 30),
-		RAW_CHICKEN_GHOST(4289, 2146, new int[] {2142}, 1, 34, 30),
-		BREAD(2307, 2311, new int[] {2309}, 1, 37, 40),

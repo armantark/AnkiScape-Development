@@ -94,7 +94,7 @@ $ python3 -m py_compile combat_data.py tests/test_combat_enemy_roster.py
 passed
 ```
 
-The original historical unittest command and output are preserved verbatim in the [complete July report](roster-test-reconciliation-2026-09-05/evidence/historical-july-report/combat-enemy-roster-step1-data-report-2026-07-07.md.gz), from Git revision `8d74d3fa889720392440e379b1cba596c1a2a74f`. The [evidence binding](roster-test-reconciliation-2026-09-05/evidence/historical-july-report/binding.json) records its original blob and byte hashes. This transcript describes that historical test layout, not a command against the current split modules.
+The original historical unittest command and output are preserved verbatim in the [complete July report](roster-test-reconciliation-2026-09-05/SUMMARY.md), from Git revision `8d74d3fa889720392440e379b1cba596c1a2a74f`. The [evidence binding](roster-test-reconciliation-2026-09-05/evidence/historical-july-report/SUMMARY.md) records its original blob and byte hashes. This transcript describes that historical test layout, not a command against the current split modules.
 
 ```text
 $ python3 run_tests.py

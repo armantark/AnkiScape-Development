@@ -77,7 +77,7 @@ The previous priority-matrix text is retained verbatim under the dated resume en
 
 The root supplied the completed Opus process result: exit `0`, verdict `ACCEPT`, with one minor finding. The reviewer checked source citations, owner rulings, retained obligations, current status and attribution. Its stated limits exclude independent Git ancestry, hash and retention verification; the root owns those checks.
 
-The [review retention manifest](resume-queue-reconciliation-2026-09-18/review-retention.json) records both exact raw streams, source paths, byte lengths and SHA-256 hashes. No review bytes changed. The stdout is [the complete review](resume-queue-reconciliation-2026-09-18/opus-review.stdout.txt); stderr is [the retained stderr](resume-queue-reconciliation-2026-09-18/opus-review.stderr.txt).
+The [review retention manifest](resume-queue-reconciliation-2026-09-18/SUMMARY.md) records both exact raw streams, source paths, byte lengths and SHA-256 hashes. No review bytes changed. The stdout is [the complete review](resume-queue-reconciliation-2026-09-18/SUMMARY.md); stderr is [the retained stderr](resume-queue-reconciliation-2026-09-18/SUMMARY.md).
 
 The minor finding is resolved: a visible end marker follows the complete old matrix in progress. The original matrix remains a literal substring, unchanged. The root separately verified the blocker hash `4949d89e7886997295c307633a7ad4fe1572409aa0f72f691a5764950d007a55`, verbatim matrix retention and documentation-only scope. The author repeated both preservation checks after the marker change. `Last staleness sweep: 2026-09-16` stays unchanged because this is a bounded reconciliation.
 

@@ -1,7 +1,0 @@
-{
-  "status": "PASS",
-  "errors": [],
-  "finished_utc": "2026-09-05T23:47:51.168363+00:00",
-  "scope": "Focused tests and discovery capture only; discovery comparison and full gates are pending",
-  "subprocess_count": 4
-}
