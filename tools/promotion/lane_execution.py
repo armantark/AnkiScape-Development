@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import ast
+import fcntl
 import json
 import os
 import re
 import subprocess
 import sys
 import tempfile
-from collections.abc import Callable, Sequence
+import time
+from collections.abc import Callable, Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import asdict
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 from typing import TextIO
 
@@ -20,12 +24,18 @@ from .contract import (
     PLAIN_GATE_CHECKS,
     PLAIN_LANE_TIMEOUT,
     QT_LANE_TIMEOUT,
+    REMOTE_MIRROR_LOCK_TIMEOUT,
     GateError,
     GateEvidence,
 )
 from .locking import HeldLock, claim_landing_lock, register_gate
 from .promotion_process import kill_process_tree
 from .repository import commit_at, evidence_path_for, main_worktree, safe_log_root, _git
+
+if __package__ == "tools.promotion":
+    from .. import run_remote_tests
+else:  # direct execution from tools/
+    import run_remote_tests
 
 
 PROGRESS_LINE = re.compile(r"^[.sEF]+$")
@@ -48,6 +58,17 @@ REACHABILITY_PIN_METHOD = "test_report_matches_player_finishable_quest_baseline"
 ResultValidator = Callable[[int, list[str]], bool]
 
 
+GateCheck = tuple[
+    str,
+    str,
+    Sequence[str],
+    Callable[[list[str]], list[str]],
+    dict[str, str] | None,
+    ResultValidator | None,
+    float | None,
+]
+
+
 def _tail_without_progress(lines: list[str], count: int | None = None) -> list[str]:
     filtered = [line for line in lines if not PROGRESS_LINE.fullmatch(line)]
     return filtered[-count:] if count is not None else filtered
@@ -59,6 +80,7 @@ def _run_bounded(
     worktree: Path,
     environment: dict[str, str] | None,
     timeout: float | None,
+    pass_fds: Sequence[int] = (),
 ) -> tuple[subprocess.CompletedProcess[str], bool]:
     options = dict(
         cwd=worktree,
@@ -66,6 +88,7 @@ def _run_bounded(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env={**os.environ, **environment} if environment else None,
+        pass_fds=pass_fds,
     )
     try:
         process = subprocess.Popen(command, **options, start_new_session=True)
@@ -93,6 +116,7 @@ def _run_check(
     validator: ResultValidator | None = None,
     parse_stdout_only: bool = False,
     timeout: float | None = None,
+    pass_fds: Sequence[int] = (),
 ) -> int:
     print(heading, file=log)
     try:
@@ -101,6 +125,7 @@ def _run_check(
             worktree=worktree,
             environment=environment,
             timeout=timeout,
+            pass_fds=pass_fds,
         )
         stderr_lines = completed.stderr.splitlines()
         lines = (
@@ -254,6 +279,75 @@ def _run_reachability_check(log: TextIO, worktree: Path) -> int:
     )
 
 
+@contextmanager
+def _hold_remote_mirror(log: TextIO, heartbeat: Callable[[], None]) -> Iterator[int | None]:
+    """Hold the test-mirror lock across both remote lanes, or yield None at its bound.
+
+    Focused runs share this lock. Taking it before the lanes keeps their queue out of the
+    fixed lane limits, which then bound only each lane's own sync and execution.
+    """
+    lock_path = run_remote_tests.LOCAL_MIRROR_LOCK_PATH
+    print("=== remote mirror lock ===", file=log)
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a+", encoding="utf-8") as lock:
+        started = time.monotonic()
+        while True:
+            try:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if time.monotonic() - started >= REMOTE_MIRROR_LOCK_TIMEOUT:
+                    print(
+                        f"TIMEOUT: waited {REMOTE_MIRROR_LOCK_TIMEOUT:g} seconds for {lock_path}",
+                        file=log,
+                    )
+                    log.flush()
+                    yield None
+                    return
+                heartbeat()
+                time.sleep(1.0)
+        print(f"held after {time.monotonic() - started:.1f} seconds", file=log)
+        log.flush()
+        yield lock.fileno()
+
+
+def _run_check_sequence(
+    log: TextIO,
+    worktree: Path,
+    checks: Sequence[GateCheck],
+    *,
+    heartbeat: Callable[[], None],
+    passed: list[str],
+    failures: list[str],
+    mirror_lock: int | None = None,
+) -> None:
+    for label, heading, command, selector, environment, validator, timeout in checks:
+        heartbeat()
+        if mirror_lock is not None:
+            environment = {run_remote_tests.INHERITED_MIRROR_LOCK_FD: str(mirror_lock)}
+        returncode = _run_check(
+            log,
+            heading=heading,
+            command=command,
+            worktree=worktree,
+            selector=selector,
+            environment=environment,
+            validator=validator,
+            timeout=timeout,
+            pass_fds=() if mirror_lock is None else (mirror_lock,),
+        )
+        if returncode == 0:
+            passed.append(label)
+        else:
+            failures.append(f"{label} (exit {returncode})")
+        if label == "audit_test_quality":
+            returncode = _run_reachability_check(log, worktree)
+            if returncode == 0:
+                passed.append("reachability")
+            else:
+                failures.append(f"reachability (exit {returncode})")
+
+
 def _run_gate_checks(
     worktree: Path,
     *,
@@ -279,17 +373,7 @@ def _run_gate_checks(
             "run_tests.py",
         )
         qt_environment = {"QT_QPA_PLATFORM": "offscreen"}
-    checks: list[
-        tuple[
-            str,
-            str,
-            Sequence[str],
-            Callable[[list[str]], list[str]],
-            dict[str, str] | None,
-            ResultValidator | None,
-            float | None,
-        ]
-    ] = [
+    lane_checks: list[GateCheck] = [
         (
             "plain lane",
             "=== PLAIN LANE ===",
@@ -301,7 +385,7 @@ def _run_gate_checks(
         ),
     ]
     if not plain_only:
-        checks.append((
+        lane_checks.append((
             "Qt lane",
             "=== QT LANE (monolithic) ===",
             qt_command,
@@ -310,7 +394,7 @@ def _run_gate_checks(
             None,
             QT_LANE_TIMEOUT,
         ))
-    checks.extend((
+    audit_checks: tuple[GateCheck, ...] = (
         (
             "audit_docs",
             "=== audit_docs ===",
@@ -356,32 +440,22 @@ def _run_gate_checks(
             None,
             None,
         ),
-    ))
+    )
 
     passed: list[str] = []
     failures: list[str] = []
-    for label, heading, command, selector, environment, validator, timeout in checks:
-        heartbeat()
-        returncode = _run_check(
-            log,
-            heading=heading,
-            command=command,
-            worktree=worktree,
-            selector=selector,
-            environment=environment,
-            validator=validator,
-            timeout=timeout,
-        )
-        if returncode == 0:
-            passed.append(label)
-        else:
-            failures.append(f"{label} (exit {returncode})")
-        if label == "audit_test_quality":
-            returncode = _run_reachability_check(log, worktree)
-            if returncode == 0:
-                passed.append("reachability")
+    run = partial(
+        _run_check_sequence, log, worktree, heartbeat=heartbeat, passed=passed, failures=failures,
+    )
+    if remote_lanes:
+        with _hold_remote_mirror(log, heartbeat) as mirror_lock:
+            if mirror_lock is None:
+                failures.extend(f"{check[0]} (mirror lock wait timed out)" for check in lane_checks)
             else:
-                failures.append(f"reachability (exit {returncode})")
+                run(lane_checks, mirror_lock=mirror_lock)
+    else:
+        run(lane_checks)
+    run(audit_checks)
     return tuple(passed), tuple(failures)
 
 

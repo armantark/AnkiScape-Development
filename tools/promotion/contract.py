@@ -38,6 +38,10 @@ QT_LANE_TIMEOUT = 1300.0
 LONGEST_LANE_TIMEOUT = max(PLAIN_LANE_TIMEOUT, QT_LANE_TIMEOUT)
 
 
+# Covers another gate's whole lane pair plus the focused runs queued with it.
+REMOTE_MIRROR_LOCK_TIMEOUT = 3600.0
+
+
 class GateError(RuntimeError):
     """A promotion gate or landing precondition failed."""
 

@@ -1,6 +1,8 @@
 import contextlib
+import fcntl
 import io
 import json
+import os
 import shutil
 import shlex
 import subprocess
@@ -590,6 +592,37 @@ class RemoteTestHostTests(unittest.TestCase):
                         *([] if failure_at == "sync" else ["run"]),
                         run_remote_tests.fcntl.LOCK_UN,
                     ],
+                )
+
+    def test_inherited_mirror_lock_cannot_jump_the_queue(self):
+        worktree = Path(__file__).resolve().parents[1]
+        lock_path = run_remote_tests.LOCAL_MIRROR_LOCK_PATH
+        with (
+            lock_path.open("a+", encoding="utf-8") as focused_run,
+            lock_path.open("a+", encoding="utf-8") as unheld_lock,
+            (lock_path.parent / "other.lock").open("a+", encoding="utf-8") as other_file,
+        ):
+            fcntl.flock(focused_run.fileno(), fcntl.LOCK_EX)
+            for descriptor in (unheld_lock.fileno(), other_file.fileno()):
+                stderr = io.StringIO()
+                with (
+                    self.subTest(descriptor=descriptor),
+                    patch.dict(
+                        os.environ,
+                        {run_remote_tests.INHERITED_MIRROR_LOCK_FD: str(descriptor)},
+                    ),
+                    patch.object(run_remote_tests, "_preflight"),
+                    patch.object(run_remote_tests, "_sync") as sync,
+                    contextlib.redirect_stdout(io.StringIO()),
+                    contextlib.redirect_stderr(stderr),
+                ):
+                    result = run_remote_tests.main([str(worktree), "plain"])
+
+                self.assertEqual(result, 1)
+                sync.assert_not_called()
+                self.assertIn(
+                    f"inherited descriptor {descriptor} does not hold {lock_path}",
+                    stderr.getvalue(),
                 )
 
     def test_stream_reloads_log_after_completion_report_appears(self):
