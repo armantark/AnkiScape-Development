@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grilled designs: how much is built</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='9' width='3' height='6' rx='1' fill='%23008300'/%3E%3Crect x='6.5' y='5' width='3' height='10' rx='1' fill='%23008300'/%3E%3Crect x='12' y='1' width='3' height='14' rx='1' fill='%232a78d6'/%3E%3C/svg%3E">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f0efec;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #6f6d67;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --s-implemented: #008300; --s-partial: #2a78d6; --s-blocked: #eb6834; --s-deferred: #4a3aa7;
+  --s-not_started: #eda100; --s-unverified: #e87ba4; --s-rejected: #b5b3ab;
+  --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #242423;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #9a988f;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --s-implemented: #008300; --s-partial: #3987e5; --s-blocked: #d95926; --s-deferred: #9085e9;
+    --s-not_started: #c98500; --s-unverified: #d55181; --s-rejected: #5f5e5a;
+    --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --surface-2: #242423;
+  --ink: #ffffff; --ink-2: #c3c2b7; --muted: #9a988f;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --s-implemented: #008300; --s-partial: #3987e5; --s-blocked: #d95926; --s-deferred: #9085e9;
+  --s-not_started: #c98500; --s-unverified: #d55181; --s-rejected: #5f5e5a;
+  --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1180px; margin: 0 auto; padding: 32px 24px 64px; }
+.muted { color: var(--muted); }
+h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 6px; font-weight: 700; }
+h2 { font-size: 1.05rem; margin: 0 0 4px; font-weight: 650; }
+.note { color: var(--ink-2); font-size: 0.88rem; margin: 0 0 16px; }
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.meta { color: var(--ink-2); margin: 0; max-width: 70ch; }
+button.theme { font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--surface); border: 1px solid var(--ring); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+button.theme:hover { background: var(--surface-2); }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 20px 22px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+.hero { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
+@media (max-width: 700px) { .hero { grid-template-columns: 1fr; } }
+.big { font-size: 4.2rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.big small { font-size: 1.6rem; font-weight: 600; }
+.herotext { font-size: 1.05rem; margin: 6px 0 0; color: var(--ink-2); max-width: 36ch; }
+.meter { display: flex; gap: 2px; height: 14px; border-radius: 4px; overflow: hidden; background: var(--surface-2); margin: 4px 0 8px; }
+.meter div { height: 100%; }
+.meterkey { display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.85rem; color: var(--ink-2); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; margin-top: 18px; }
+.tile { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+.tv { font-size: 1.6rem; font-weight: 650; line-height: 1.1; }
+.tl { font-size: 0.85rem; color: var(--ink-2); display: flex; align-items: center; gap: 6px; }
+.key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; flex: none; margin-right: 6px; vertical-align: -1px; }
+.tl .key { margin-right: 0; }
+.s-implemented { background: var(--s-implemented); } .s-partial { background: var(--s-partial); }
+.s-blocked { background: var(--s-blocked); } .s-deferred { background: var(--s-deferred); }
+.s-not_started { background: var(--s-not_started); } .s-unverified { background: var(--s-unverified); }
+.s-rejected { background: var(--s-rejected); }
+dl.defs { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--grid); display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 0.85rem; }
+dl.defs dt { display: flex; align-items: center; font-weight: 600; white-space: nowrap; }
+dl.defs dd { margin: 0; color: var(--ink-2); }
+.hrow { display: grid; grid-template-columns: 200px 1fr; align-items: center; gap: 12px; padding: 5px 0; }
+.hlabel { font-size: 0.9rem; color: var(--ink-2); display: flex; align-items: center; }
+.htrack, .ftrack { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.hbar { height: 18px; border-radius: 0 4px 4px 0; min-width: 3px; cursor: default; }
+.hval { font-size: 0.85rem; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.85rem; color: var(--ink-2); margin: 8px 0 14px; }
+.lg { display: inline-flex; align-items: center; }
+.frow { display: grid; grid-template-columns: 170px 1fr 70px; align-items: center; gap: 12px; padding: 6px 0; }
+.flabel { font-size: 0.9rem; }
+.fopen { font-size: 0.85rem; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+.fstack { display: flex; gap: 2px; height: 20px; }
+.seg { height: 100%; min-width: 3px; }
+.seg:last-child { border-radius: 0 4px 4px 0; }
+@media (max-width: 600px) { .hrow, .frow { grid-template-columns: 1fr; gap: 4px; } .fopen { text-align: left; } }
+[data-tip]:hover, [data-tip]:focus-visible { filter: brightness(1.12); outline: 2px solid var(--ink); outline-offset: 1px; }
+.colswrap { overflow-x: auto; }
+.cols { width: 100%; min-width: 560px; height: auto; display: block; }
+.cols .grid { stroke: var(--grid); stroke-width: 1; } .cols .base { stroke: var(--axis); stroke-width: 1; }
+.cols .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.cols .col { fill: var(--s-implemented); pointer-events: none; }
+.cols .hit { fill: transparent; }
+.cols .hit:hover, .cols .hit:focus-visible { fill: var(--surface-2); outline: none; filter: none; }
+ol.topopen { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 12px; }
+ol.topopen li { display: flex; gap: 14px; align-items: flex-start; }
+.tnum { font-size: 1.7rem; font-weight: 650; min-width: 2.2ch; line-height: 1.1; }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 32px 0 12px; }
+.filters input, .filters select { font: inherit; font-size: 0.9rem; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 7px 10px; }
+.filters input { flex: 1 1 340px; }
+.count { font-size: 0.85rem; color: var(--ink-2); }
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; }
+table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.87rem; min-width: 1000px; }
+th { text-align: left; font-weight: 600; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--axis); position: sticky; top: 0; background: var(--surface); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sub { color: var(--ink-2); font-size: 0.82rem; margin-top: 2px; }
+.landed { white-space: nowrap; }
+.pill { display: inline-flex; align-items: center; white-space: nowrap; font-weight: 550; }
+td.ev { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 0.74rem; color: var(--ink-2); overflow-wrap: anywhere; }
+.src { color: var(--muted); margin-top: 4px; }
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--surface); color: var(--ink); border: 1px solid var(--ring); border-radius: 8px; padding: 8px 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.18); max-width: 340px; font-size: 0.82rem; display: none; }
+#tip .tvv { font-weight: 700; font-size: 0.95rem; }
+#tip .tll { color: var(--ink-2); }
+#tip .tdd { color: var(--ink-2); margin-top: 4px; }
+</style>
+</head>
+<body>
+<main>
+<div class="top">
+  <div>
+    <h1>Grilled designs: how much is built</h1>
+    <p class="meta">{{TOTAL}} designs you settled in grills, rulings and approved contracts between {{FIRST}} and {{LAST}}, each checked against the game on main (commit {{HEAD}}) and the project records.</p>
+  </div>
+  <button class="theme" id="theme" type="button">Switch to dark mode</button>
+</div>
+
+<section class="card">
+  <div class="hero">
+    <div>
+      <div class="big">{{PCT}}<small>%</small></div>
+    </div>
+    <div>
+      <p class="herotext" style="margin-top:0"><strong style="color:var(--ink)">{{BUILT}} of {{BUILDABLE}}</strong> designs that need building are fully live. {{PARTIAL}} more are partly live. {{REJECTED}} were ruled out and need no work.</p>
+      <div class="meter" role="img" aria-label="{{PCT}} percent built, plus partly built">
+        <div class="s-implemented" style="width:{{METER_BUILT}}%"></div>
+        <div class="s-partial" style="width:{{METER_PARTIAL}}%"></div>
+      </div>
+      <div class="meterkey"><span><span class="key s-implemented"></span>Built</span><span><span class="key s-partial"></span>Partly built</span><span><span class="key" style="background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--axis)"></span>Everything else</span></div>
+    </div>
+  </div>
+  <div class="tiles">{{TILES}}</div>
+</section>
+
+<div class="grid2">
+  <section class="card">
+    <h2>Where every design stands</h2>
+    <p class="note">Count of designs in each state. Hover or tab to a bar for its share.</p>
+    {{STATUS_BARS}}
+    <dl class="defs">{{DEFS}}</dl>
+  </section>
+  <section class="card">
+    <h2>Most open work</h2>
+    <p class="note">Families with the most designs that are partly built, blocked, deferred or not started.</p>
+    <ol class="topopen">{{TOP_OPEN}}</ol>
+    <h2 style="margin-top:22px">What the {{BLOCKED}} blocked designs wait for</h2>
+    {{BLOCKER_BARS}}
+    <p class="note" style="margin:6px 0 0">{{UNKNOWN_BLK}}</p>
+  </section>
+</div>
+
+<section class="card" style="margin-top:16px">
+  <h2>By family</h2>
+  <p class="note">Each bar is one family, split by state. Families are sorted by size. Hover or tab to a segment for its count.</p>
+  <div class="legend">{{LEGEND}}</div>
+  {{FAMILY_BARS}}
+</section>
+
+<section class="card" style="margin-top:16px">
+  <h2>Designs landing on main, by week</h2>
+  <p class="note">{{LANDED}} designs have a dated landing. The busiest week began {{PEAK}}, with {{PEAKN}}. {{NODATE}}Hover or tab to a week for the names.</p>
+  <div class="colswrap">{{WEEK_SVG}}</div>
+</section>
+
+<div class="filters" role="search">
+  <input id="q" type="search" placeholder="Search designs, remaining work or evidence" aria-label="Search designs">
+  <select id="fam" aria-label="Family"><option value="">All families</option>{{FAM_OPTS}}</select>
+  <select id="st" aria-label="State"><option value="">All states</option>{{ST_OPTS}}</select>
+  <span class="count" id="count" aria-live="polite"></span>
+</div>
+<div class="tablewrap">
+<table>
+  <thead><tr><th style="width:24%">Design</th><th style="width:10%">Family</th><th style="width:9%">Settled</th><th style="width:13%">State</th><th style="width:21%">What remains</th><th style="width:23%">Evidence</th></tr></thead>
+  <tbody id="rows">
+{{ROWS}}
+  </tbody>
+</table>
+</div>
+</main>
+<div id="tip" role="tooltip"><div class="tvv"></div><div class="tll"></div><div class="tdd"></div></div>
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById('theme');
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    return t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function label() { btn.textContent = isDark() ? 'Switch to light mode' : 'Switch to dark mode'; }
+  btn.addEventListener('click', function () { root.setAttribute('data-theme', isDark() ? 'light' : 'dark'); label(); });
+  label();
+
+  var tip = document.getElementById('tip'), parts = tip.children;
+  function show(el, x, y) {
+    var p = el.getAttribute('data-tip').split('|');
+    parts[0].textContent = p[0] || ''; parts[1].textContent = p[1] || ''; parts[2].textContent = p.slice(2).join('|');
+    parts[2].style.display = p[2] ? '' : 'none';
+    tip.style.display = 'block';
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var left = Math.min(x + 14, window.innerWidth - w - 8), top = y + 16;
+    if (top + h > window.innerHeight - 8) top = y - h - 12;
+    tip.style.left = Math.max(8, left) + 'px'; tip.style.top = Math.max(8, top) + 'px';
+  }
+  document.addEventListener('pointermove', function (e) {
+    var el = e.target.closest && e.target.closest('[data-tip]');
+    if (el) show(el, e.clientX, e.clientY); else tip.style.display = 'none';
+  });
+  document.addEventListener('focusin', function (e) {
+    var el = e.target.closest && e.target.closest('[data-tip]');
+    if (!el) { tip.style.display = 'none'; return; }
+    var r = el.getBoundingClientRect(); show(el, r.left + r.width / 2, r.bottom);
+  });
+  document.addEventListener('focusout', function () { tip.style.display = 'none'; });
+
+  var q = document.getElementById('q'), fam = document.getElementById('fam'), st = document.getElementById('st');
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#rows tr')), count = document.getElementById('count');
+  function apply() {
+    var term = q.value.trim().toLowerCase(), f = fam.value, s = st.value, n = 0;
+    rows.forEach(function (r) {
+      var ok = (!f || r.dataset.family === f) && (!s || r.dataset.status === s) && (!term || r.dataset.search.indexOf(term) !== -1);
+      r.hidden = !ok; if (ok) n++;
+    });
+    count.textContent = 'Showing ' + n + ' of ' + rows.length;
+  }
+  [q, fam, st].forEach(function (el) { el.addEventListener('input', apply); });
+  apply();
+})();
+</script>
+</body>
+</html>
