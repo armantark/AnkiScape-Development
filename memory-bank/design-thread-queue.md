@@ -1090,6 +1090,42 @@ reviewed papercut-triage slice `bf38b68b` cuts `papercuts.md` to its open
 entries and lands with the rotation in one promotion, and the orchestrator
 verifies the six-file total under 3,000 on that merged tree.
 
+### 3.38 Native acceptance route for runtime slices
+
+Raised 2026-09-24T03:17 by the orchestrator. Owner decision 8 requires a
+native check for each landed runtime slice. The route through the laptop Codex
+CLI over SSH (`mcp__cua_repl`) against a frozen copy failed four times:
+`36904277` (2026-09-23 18:25), `0108ff3f` (19:32) and `0f67a3f6` (2026-09-24
+03:02 and 03:17).
+
+- Run 1 stopped at item 3 with `Screenshot unavailable for
+  /var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-native-03nrl8ut/AnkiScape Native Test.app.`
+- Run 2 ran alongside the `0108ff3f` gate lane; its exact failure strings
+  were not recorded.
+- Run 3 had the screen free, no Darkan client and load 8.44, and still ended
+  with `Screenshot unavailable` for `ankiscape-native-kcvlz7a2`. This
+  falsifies the screen-contention and host-load hypotheses. The probe
+  `ssh 'screencapture -x /tmp/sshcap-test.png'` exited 0 (4036277 bytes): an
+  SSH-started session captures the full screen, and only the computer-use
+  per-app capture of the copied test app fails.
+- Run 4 observed through shell `screencapture` and proved the loaded paths
+  inside the disposable base
+  (`/private/var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-native-ob_llnbi/addons21/ankiscape_fork/__init__.py`
+  and `.../User 1/collection.anki2`), but computer-use input failed with
+  `cannotClickOffscreenElement`, `noWindowsAvailable`, timeouts and delayed
+  actions. 0 cards were reviewed.
+- Isolation worked on every run: guard verify exit 0, `unchanged: true`, no
+  Anki process left.
+
+Blocks: `promote/runtime-batch-2026-09-23` (head `236ae8f5`), whose gate at
+`0f67a3f6` is green for its first 11 merged slices. Non-runtime slices keep
+landing.
+
+Owner choice: (a) run the check in the MacBook Codex desktop task
+`01a0c67a-3e19-76c2-804c-65d993c9dddc`, the route of the 2026-09-21 pass;
+(b) approve landing on the green gate alone; or (c) approve another
+computer-use route.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
