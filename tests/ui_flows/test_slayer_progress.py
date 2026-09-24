@@ -36,7 +36,6 @@ class SlayerProgressWidgetTest(unittest.TestCase):
             "remaining": 4,
         }
         hud = self.menu._ui.ReviewHUD(None)
-        self.addCleanup(hud.close)
         hud.set_data(player, "Combat")
         QApplication.processEvents()
         self.assertEqual(hud.slayer_lbl.text(), "Slayer: 4 of 17 left")
