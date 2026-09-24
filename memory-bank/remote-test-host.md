@@ -55,9 +55,11 @@ lane through `nohup`, writes logs and completion reports under
 `/Users/armantarkhanian/ankiscape-remote-test-host/reports`, and polls those
 files. Dispatches started on this machine share the fixed mirror, so the runner
 holds an exclusive local flock at `~/Library/Caches/ankiscape-remote-test-host.lock`
-through rsync and polling while the local dispatching process lives. A concurrent
-gate started on this machine may register normally, then reports the lock path
-and waits before it can sync or run. The flock does not coordinate a dispatcher
+through rsync and polling while the local dispatching process lives. A promotion
+gate with `--remote-lanes` takes that lock itself before its lanes, waits at most
+3,600 seconds for it, logs the wait, and holds it across both lanes. Its lane runs
+inherit the held descriptor, so focused runs queue behind the gate and the fixed
+lane limits count only each lane's own sync and execution. The flock does not coordinate a dispatcher
 on another machine and cannot outlive the local process. If the local poller is
 interrupted or times out, its detached `nohup` MacBook lane can continue after
 the lock is released; a later dispatch can then sync or run while that orphan is

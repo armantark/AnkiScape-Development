@@ -13,6 +13,7 @@ from dataclasses import asdict
 from pathlib import Path
 from unittest.mock import patch
 
+from tools import run_remote_tests
 from tools.promotion.promotion_process import open_locked_file
 from tools.promotion_gate import (
     FULL_GATE_CHECKS,
@@ -702,6 +703,8 @@ class PromotionGateTest(unittest.TestCase):
     def test_remote_gate_uses_exact_serial_runner_commands(self):
         worktree = Path("/scratch/promotion")
         with (
+            tempfile.TemporaryDirectory() as temp_dir,
+            patch.object(run_remote_tests, "LOCAL_MIRROR_LOCK_PATH", Path(temp_dir) / "mirror.lock"),
             patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
             patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
             patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
@@ -740,9 +743,11 @@ class PromotionGateTest(unittest.TestCase):
                 ),
             ],
         )
+        mirror_lock = lane_calls[0].kwargs["pass_fds"]
+        self.assertEqual(len(mirror_lock), 1)
         self.assertEqual(
-            [call.kwargs["environment"] for call in lane_calls],
-            [None, None],
+            [(call.kwargs["environment"], call.kwargs["pass_fds"]) for call in lane_calls],
+            [({run_remote_tests.INHERITED_MIRROR_LOCK_FD: str(mirror_lock[0])}, mirror_lock)] * 2,
         )
         main_worktree.assert_not_called()
         self.assertEqual(passed, FULL_GATE_CHECKS)
@@ -751,6 +756,8 @@ class PromotionGateTest(unittest.TestCase):
     def test_remote_plain_only_gate_omits_qt_runner(self):
         worktree = Path("/scratch/promotion")
         with (
+            tempfile.TemporaryDirectory() as temp_dir,
+            patch.object(run_remote_tests, "LOCAL_MIRROR_LOCK_PATH", Path(temp_dir) / "mirror.lock"),
             patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
             patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
             patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
@@ -778,7 +785,10 @@ class PromotionGateTest(unittest.TestCase):
                 "plain",
             ),
         )
-        self.assertIsNone(lane_calls[0].kwargs["environment"])
+        self.assertEqual(
+            lane_calls[0].kwargs["environment"],
+            {run_remote_tests.INHERITED_MIRROR_LOCK_FD: str(lane_calls[0].kwargs["pass_fds"][0])},
+        )
         main_worktree.assert_not_called()
         self.assertEqual(passed, PLAIN_GATE_CHECKS)
         self.assertEqual(failures, ())

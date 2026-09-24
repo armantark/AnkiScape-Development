@@ -2,7 +2,8 @@
 """Sync an AnkiScape worktree to the MacBook test mirror and run one lane.
 
 Preparation checks prerequisites; sync includes pending-run reconciliation and mirror
-setup; execution includes launch, polling and final log retrieval. Lock wait is untimed.
+setup; execution includes launch, polling and final log retrieval. Lock wait is untimed,
+except that a promotion gate holds the lock itself and hands it to its lane runs.
 """
 
 from __future__ import annotations
@@ -35,6 +36,7 @@ RSYNC_SSH = "ssh -o BatchMode=yes -o ConnectTimeout=10"
 LOCAL_MIRROR_LOCK_PATH = (
     Path.home() / "Library" / "Caches" / "ankiscape-remote-test-host.lock"
 )
+INHERITED_MIRROR_LOCK_FD = "ANKISCAPE_INHERITED_MIRROR_LOCK_FD"
 MIN_TESTS = 4_506
 MIN_PLAIN_ACTIVE_TESTS = 3_994
 MIN_QT_ACTIVE_TESTS = 4_503
@@ -360,6 +362,42 @@ def _stream_remote_run(
         time.sleep(poll_interval)
 
 
+@contextmanager
+def _hold_mirror_lock() -> Iterator[None]:
+    inherited = os.environ.get(INHERITED_MIRROR_LOCK_FD)
+    if inherited is not None:
+        descriptor = int(inherited)
+        try:
+            if not os.path.samestat(os.fstat(descriptor), LOCAL_MIRROR_LOCK_PATH.stat()):
+                raise OSError("descriptor names a different file")
+            # Succeeds only on the description the parent gate already locked, so the
+            # variable cannot jump the queue; unlocking here would release the gate's hold.
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            raise RuntimeError(
+                f"inherited descriptor {descriptor} does not hold {LOCAL_MIRROR_LOCK_PATH}"
+            ) from exc
+        yield
+        return
+    LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with LOCAL_MIRROR_LOCK_PATH.open("a+", encoding="utf-8") as mirror_lock:
+        try:
+            fcntl.flock(
+                mirror_lock.fileno(),
+                fcntl.LOCK_EX | fcntl.LOCK_NB,
+            )
+        except BlockingIOError:
+            print(
+                f"Remote mirror busy; waiting for {LOCAL_MIRROR_LOCK_PATH}",
+                file=sys.stderr,
+            )
+            fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_UN)
+
+
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("local_worktree", type=Path)
@@ -406,31 +444,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         with _measure_phase(timings, "Remote preparation"):
             _preflight(args.lane)
-        LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with LOCAL_MIRROR_LOCK_PATH.open("a+", encoding="utf-8") as mirror_lock:
-            try:
-                fcntl.flock(
-                    mirror_lock.fileno(),
-                    fcntl.LOCK_EX | fcntl.LOCK_NB,
+        with _hold_mirror_lock():
+            with _measure_phase(timings, "Sync"):
+                _sync(local_worktree)
+            with _measure_phase(timings, "Test execution"):
+                returncode, output = _stream_remote_run(
+                    args.lane,
+                    timeout=args.timeout,
+                    poll_interval=args.poll_interval,
+                    selectors=args.select,
                 )
-            except BlockingIOError:
-                print(
-                    f"Remote mirror busy; waiting for {LOCAL_MIRROR_LOCK_PATH}",
-                    file=sys.stderr,
-                )
-                fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_EX)
-            try:
-                with _measure_phase(timings, "Sync"):
-                    _sync(local_worktree)
-                with _measure_phase(timings, "Test execution"):
-                    returncode, output = _stream_remote_run(
-                        args.lane,
-                        timeout=args.timeout,
-                        poll_interval=args.poll_interval,
-                        selectors=args.select,
-                    )
-            finally:
-                fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_UN)
         if returncode != 0:
             raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
         summary = parse_unittest_summary(output)
