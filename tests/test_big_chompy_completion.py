@@ -37,7 +37,7 @@ from tests.test_integration_smoke import (
     _install_runtime_fakes,
     _load_addon_as_package,
 )
-from tools.audit_item_reachability import build_reachability_report
+from tests.reachability.live_report import live_reachability_report
 
 
 QUEST_ID = "big_chompy_bird_hunting"
@@ -231,7 +231,7 @@ class TestBigChompyPureFlow(unittest.TestCase):
         self.assertEqual(player["inventory"]["Ogre bow"], 1)
 
     def test_reachability_closes_the_chompy_and_wild_pie_routes(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
 
         self.assertEqual(
             report["routes"].get("Raw chompy"),

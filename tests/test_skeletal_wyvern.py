@@ -30,7 +30,7 @@ from ankiscape.logic.achievement_diary_logic import task_progress_pure
 from ankiscape.logic.slayer_logic import slayer_target_ids_for_assignment_pure
 from ankiscape.logic_pure.logic_pure_combat_engine import apply_combat_burst_pure
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_combat_answer
-from tools.audit_item_reachability import build_reachability_report
+from tests.reachability.live_report import live_reachability_report
 
 
 PROTECTIVE_SHIELD_IDS = {
@@ -183,7 +183,7 @@ class SkeletalWyvernDataAndSurfaceTests(unittest.TestCase):
         )
 
     def test_reachability_starts_at_the_combat_drop_and_preserves_flask_gate(self):
-        report = build_reachability_report()
+        report = live_reachability_report()
         self.assertEqual(report["routes"]["Wyvern bones"], "combat:skeletal_wyvern")
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         self.assertNotIn("Wyvern bones", orphan_items)

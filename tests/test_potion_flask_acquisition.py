@@ -39,7 +39,7 @@ from ankiscape.core.target_metadata import (
     utility_activity_rows,
 )
 from tests.test_runtime_actions import _context
-from tools.audit_item_reachability import build_reachability_report
+from tests.reachability.live_report import live_reachability_report
 
 
 class TestPotionFlaskAcquisition(unittest.TestCase):
@@ -194,7 +194,7 @@ class TestPotionFlaskAcquisition(unittest.TestCase):
         self.assertTrue(os.path.exists(CRAFTED_ITEM_IMAGES["Robust glass"]))
         self.assertTrue(os.path.exists(CRAFTED_ITEM_IMAGES["Potion flask"]))
 
-        report = build_reachability_report()
+        report = live_reachability_report()
         gated_items = {"Red sandstone", "Robust glass", "Potion flask"}
         self.assertTrue(gated_items.isdisjoint(report["routes"]))
         self.assertTrue(
