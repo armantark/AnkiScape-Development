@@ -881,9 +881,16 @@ class PromotionGateTest(unittest.TestCase):
             PROJECT_ROOT / "memory-bank" / "source-audits"
             / "systempatterns-chronology-2026-09-16.md"
         ).read_text(encoding="utf-8").lower()
-        papercuts = (
-            PROJECT_ROOT / "memory-bank" / "papercuts.md"
-        ).read_text(encoding="utf-8").lower()
+        # Papercut triage moves addressed records verbatim into dated
+        # papercuts-fixed-*.md files, so the record may live in any of them.
+        memory_bank = PROJECT_ROOT / "memory-bank"
+        papercuts = "\n\n".join(
+            path.read_text(encoding="utf-8").lower()
+            for path in (
+                memory_bank / "papercuts.md",
+                *sorted(memory_bank.glob("papercuts-fixed-*.md")),
+            )
+        )
 
         pattern_paragraphs = [
             p for p in patterns.split("\n\n") if "reachabilit" in p
