@@ -11,6 +11,7 @@ from .contract import (
     REQUIRED_BONUS_KEYS,
     REQUIRED_ENEMY_KEYS,
     REQUIRED_STAT_KEYS,
+    _OPTIONAL_ENEMY_SECTION_CHECKS,
     _assert_slots_well_formed,
 )
 from ankiscape.logic_pure.logic_pure import combat_target_locked_reasons_pure
@@ -51,161 +52,9 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     {"melee", "magic", "ranged", "magic_melee"},
                 )
                 self.assertGreater(enemy["level"], 0)
-                if "max_hit" in enemy:
-                    self.assertIsInstance(enemy["max_hit"], int)
-                    self.assertGreater(enemy["max_hit"], 0)
-                if "poison_damage" in enemy:
-                    self.assertIsInstance(enemy["poison_damage"], int)
-                    self.assertGreater(enemy["poison_damage"], 0)
-                if "poison_immune" in enemy:
-                    self.assertIs(enemy["poison_immune"], True)
-                if "xp_multiplier" in enemy:
-                    self.assertIsInstance(enemy["xp_multiplier"], float)
-                    self.assertGreater(enemy["xp_multiplier"], 0.0)
-                if "protective_equipment" in enemy:
-                    protection = enemy["protective_equipment"]
-                    base_keys = {
-                        "warning",
-                        "unprotected_effect",
-                        "source_status",
-                    }
-                    if "alternatives" in protection:
-                        self.assertEqual(
-                            set(protection),
-                            base_keys
-                            | {"alternatives", "applies_to_player_classes"},
-                        )
-                        self.assertTrue(protection["alternatives"])
-                        for alternative in protection["alternatives"]:
-                            self.assertIn(
-                                alternative["slot"],
-                                {"head", "shield", "neck", "feet"},
-                            )
-                            self.assertTrue(alternative["items"])
-                        self.assertTrue(
-                            protection["applies_to_player_classes"]
-                        )
-                    else:
-                        self.assertEqual(
-                            set(protection),
-                            base_keys | {"slot", "items"},
-                        )
-                        self.assertIn(
-                            protection["slot"],
-                            {"head", "shield", "neck", "feet"},
-                        )
-                        self.assertTrue(protection["items"])
-                    self.assertTrue(protection["warning"])
-                    self.assertTrue(protection["unprotected_effect"])
-                    self.assertTrue(protection["source_status"])
-                if "start_equipment" in enemy:
-                    requirement = enemy["start_equipment"]
-                    self.assertEqual(
-                        set(requirement),
-                        {"slot", "items", "warning", "source_status"}
-                        | ({"persistent"} if "persistent" in requirement else set()),
-                    )
-                    if "persistent" in requirement:
-                        self.assertIs(requirement["persistent"], True)
-                    self.assertIn(requirement["slot"], {"head", "shield", "neck"})
-                    self.assertTrue(requirement["items"])
-                    self.assertTrue(requirement["warning"])
-                    self.assertTrue(requirement["source_status"])
-                if "weakening_equipment" in enemy:
-                    weakness = enemy["weakening_equipment"]
-                    self.assertEqual(
-                        set(weakness),
-                        {
-                            "slot",
-                            "items",
-                            "display_name",
-                            "enemy_accuracy_multiplier",
-                            "enemy_damage_multiplier",
-                            "source_status",
-                        },
-                    )
-                    self.assertIn(weakness["slot"], {"head", "shield", "neck"})
-                    self.assertTrue(weakness["items"])
-                    self.assertGreater(weakness["enemy_accuracy_multiplier"], 0.0)
-                    self.assertLess(weakness["enemy_accuracy_multiplier"], 1.0)
-                    self.assertGreater(weakness["enemy_damage_multiplier"], 0.0)
-                    self.assertLess(weakness["enemy_damage_multiplier"], 1.0)
-                    self.assertTrue(weakness["source_status"])
-                if "bite" in enemy:
-                    bite = enemy["bite"]
-                    self.assertGreater(bite["chance_numerator"], 0)
-                    self.assertGreaterEqual(
-                        bite["chance_denominator"], bite["chance_numerator"]
-                    )
-                    self.assertGreater(bite["max_heal"], 0)
-                    self.assertTrue(bite["stat_drain_skills"])
-                    self.assertTrue(bite["source_status"])
-                if "dragonfire" in enemy:
-                    dragonfire = enemy["dragonfire"]
-                    self.assertEqual(
-                        set(dragonfire),
-                        {
-                            "chance_numerator",
-                            "chance_denominator",
-                            "unprotected_max_hit",
-                            "partial_max_hit",
-                            "shield_items",
-                            "source",
-                            "source_status",
-                        },
-                    )
-                    self.assertGreater(dragonfire["chance_numerator"], 0)
-                    self.assertGreaterEqual(
-                        dragonfire["chance_denominator"],
-                        dragonfire["chance_numerator"],
-                    )
-                    self.assertGreater(dragonfire["unprotected_max_hit"], 0)
-                    self.assertGreater(dragonfire["partial_max_hit"], 0)
-                    self.assertTrue(dragonfire["shield_items"])
-                    self.assertTrue(dragonfire["source"])
-                    self.assertTrue(dragonfire["source_status"])
-                if "finisher" in enemy:
-                    finisher = enemy["finisher"]
-                    required_finisher_keys = {
-                        "item",
-                        "threshold_lifepoints",
-                        "consume",
-                        "action_label",
-                        "source_status",
-                    }
-                    self.assertTrue(required_finisher_keys <= set(finisher))
-                    self.assertTrue(
-                        {"quick_unlock_key", "must_be_worn"} & set(finisher)
-                    )
-                    self.assertTrue(finisher["item"])
-                    self.assertGreater(finisher["threshold_lifepoints"], 0)
-                    self.assertIsInstance(finisher["consume"], bool)
-                    self.assertTrue(finisher["action_label"])
-                    if "quick_unlock_key" in finisher:
-                        self.assertTrue(finisher["quick_unlock_key"])
-                    if "must_be_worn" in finisher:
-                        self.assertTrue(finisher["must_be_worn"])
-                    self.assertTrue(finisher["source_status"])
-                if "required_slayer_level" in enemy:
-                    self.assertIsInstance(enemy["required_slayer_level"], int)
-                    self.assertGreater(enemy["required_slayer_level"], 0)
-                if "environmental_hazard" in enemy:
-                    hazard = enemy["environmental_hazard"]
-                    self.assertEqual(
-                        set(hazard),
-                        {
-                            "display_name",
-                            "dose_items",
-                            "empty_item",
-                            "reviews_per_dose",
-                            "loadout_cap",
-                            "source_status",
-                        },
-                    )
-                    self.assertTrue(hazard["dose_items"])
-                    self.assertGreater(hazard["reviews_per_dose"], 0)
-                    self.assertGreater(hazard["loadout_cap"], 0)
-                    self.assertTrue(hazard["source_status"])
+                for section, check in _OPTIONAL_ENEMY_SECTION_CHECKS.items():
+                    if section in enemy:
+                        check(self, enemy[section])
                 self.assertGreater(enemy["stats"]["hitpoints"], 0)
 
     def test_new_slayer_family_assets_are_present_and_provenanced(self):
