@@ -9,16 +9,25 @@ ordinary 2011 crafting enum.
 
 from __future__ import annotations
 
+import argparse
 import json
+import os
 import pprint
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from tools.generation.source_digests import check_source_digests, save_source_digests
+
 OUTPUT = ROOT / "generated" / "summoning_data_generated.py"
-GAME_MAIN = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
+SOURCE_DIGESTS = ROOT / "generated" / "source_digests.json"
+OUTPUT_NAME = "generated/summoning_data_generated.py"
+GAME_MAIN = Path(os.environ.get("ANKISCAPE_GAME_MAIN", "/Users/ArmanTarkhanian1/Downloads/game-main"))
 SUMMONING_SOURCE = (
     GAME_MAIN
     / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/summoning"
@@ -617,6 +626,16 @@ def build_catalog() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--accept-source-change", action="store_true")
+    parser.add_argument("--digest-manifest", type=Path, default=SOURCE_DIGESTS)
+    args = parser.parse_args()
+    sources = [ITEMS_SOURCE, SUMMONING_SOURCE / "SummoningPouchData.kt", SUMMONING_SOURCE / "SummoningScrollData.kt"]
+    digests = check_source_digests(
+        args.digest_manifest, OUTPUT_NAME, sources, source_root=GAME_MAIN,
+        accept_source_change=args.accept_source_change,
+    )
     catalog, scroll_rows = build_catalog()
     header = f'''"""Generated pre-EOC surface Summoning catalog.
 
@@ -637,10 +656,11 @@ SUMMONING_CATALOG = '''
         + pprint.pformat(tuple(scroll_rows), width=100, sort_dicts=False)
         + "\n"
     )
-    OUTPUT.write_text(output, encoding="utf-8")
+    args.output.write_text(output, encoding="utf-8")
+    save_source_digests(args.digest_manifest, OUTPUT_NAME, digests)
     print(
         f"Wrote {len(catalog)} surface familiars and "
-        f"{len(scroll_rows)} surface scrolls to {OUTPUT}"
+        f"{len(scroll_rows)} surface scrolls to {args.output}"
     )
 
 

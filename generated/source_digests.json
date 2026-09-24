@@ -1,0 +1,16 @@
+{
+  "data/smithing_data.py": {
+    "data/cfg/items.yml": "4bc95333b282216b6d1a50dd60b4510aa0bbc837d5bc39b0d1b8e44d7390e4f0",
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt": "77b817e72cbaf384178fcbeada61cddc5502129b5bb8b45ba3c34b39bf15847b",
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/armor/dragon_sq_shield.plugin.kts": "c4815ea27e3a749368d3e46fa3898f688185c5a01dff2b1046e7e81f8cc90880",
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/smithing/data/BarProducts.kt": "1c065319957cd1b4509baedff75b333c07a8a4dbc6650d4e08841c09fe94bea3",
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/smithing/data/BarType.kt": "5477f12c472cd057c90f763e817f571e776c52c5de321902c7566637718daac8",
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/smithing/data/SmeltingData.kt": "172e1e229d502631b9c3cf9b8a2a7a104c9659d5f44929ac8cfedc88d26ae4f1",
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/smithing/data/SmithingType.kt": "1c7aaddaca388d2724c148bb59f3385381731fd691b584b84d8068a080624e2a"
+  },
+  "generated/summoning_data_generated.py": {
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt": "77b817e72cbaf384178fcbeada61cddc5502129b5bb8b45ba3c34b39bf15847b",
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/summoning/SummoningPouchData.kt": "265dcc02b9b32bccc4962f3c2da194ca48b3b27c7d668d16d72867cc43d52716",
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/summoning/SummoningScrollData.kt": "44bfea6df821eb8d20e9d533fd4179588420c7aaae321b93f4925660b33d6996"
+  }
+}
