@@ -224,6 +224,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic_pure.quest_action_proofs import quest_action_proofs_after_stage_actions_pure
 from ankiscape.tools import quest_action_proof_reachability
 from ankiscape.tools.reachability import shop_rows
+from ankiscape.tools.reachability.pins import read_reachability_pins
 
 
 def _close_actions(
@@ -2026,6 +2027,22 @@ def build_reachability_report() -> dict[str, Any]:
     }
 
 
+def _check_expectations(args: argparse.Namespace, parser: argparse.ArgumentParser) -> dict[str, int]:
+    counts = {
+        "--actions": ("action_count", args.actions),
+        "--reachable-items": ("reachable_item_count", args.reachable_items),
+        "--orphan-inputs": ("orphan_input_count", args.orphan_inputs),
+        "--blocked-actions": ("unresolved_action_count", args.blocked_actions),
+    }
+    given = {field: value for field, value in counts.values() if value is not None}
+    if not given:
+        return read_reachability_pins(ROOT)
+    missing = [option for option, (_field, value) in counts.items() if value is None]
+    if missing:
+        parser.error(f"--check with explicit counts requires {', '.join(missing)}")
+    return given
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true", help="Emit the full machine-readable report.")
@@ -2043,7 +2060,10 @@ def main() -> int:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Check the report against pinned audit counts.",
+        help=(
+            "Exit 1 unless the report matches the baseline pinned in "
+            "tests/test_item_reachability_audit.py, or all four explicit counts."
+        ),
     )
     parser.add_argument(
         "--actions",
@@ -2070,19 +2090,7 @@ def main() -> int:
         help="Expected report blocked action count for --check.",
     )
     args = parser.parse_args()
-    if args.check:
-        missing_pins = [
-            option
-            for option, value in (
-                ("--actions", args.actions),
-                ("--reachable-items", args.reachable_items),
-                ("--orphan-inputs", args.orphan_inputs),
-                ("--blocked-actions", args.blocked_actions),
-            )
-            if value is None
-        ]
-        if missing_pins:
-            parser.error(f"--check requires {', '.join(missing_pins)}")
+    expected_counts = _check_expectations(args, parser) if args.check else None
     report = build_reachability_report()
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
@@ -2109,29 +2117,16 @@ def main() -> int:
         )
         for row in report["orphan_inputs"]:
             print(f"- {row['item']}: {', '.join(row['consumers'][:4])}")
-    if args.check:
-        mismatches = [
-            (field, expected, observed)
-            for field, expected, observed in (
-                ("actions", args.actions, report["action_count"]),
-                (
-                    "reachable-items",
-                    args.reachable_items,
-                    report["reachable_item_count"],
-                ),
-                ("orphan-inputs", args.orphan_inputs, report["orphan_input_count"]),
-                (
-                    "blocked-actions",
-                    args.blocked_actions,
-                    report["unresolved_action_count"],
-                ),
-            )
-            if expected != observed
-        ]
-        for field, expected, observed in mismatches:
-            print(f"{field}: expected {expected}, observed {observed}", file=sys.stderr)
-        return int(bool(mismatches))
-    return 1 if report["orphan_input_count"] else 0
+    if expected_counts is None:
+        return 0
+    mismatches = [
+        (field, expected, report[field])
+        for field, expected in expected_counts.items()
+        if expected != report[field]
+    ]
+    for field, expected, observed in mismatches:
+        print(f"{field}: expected {expected}, observed {observed}", file=sys.stderr)
+    return int(bool(mismatches))
 
 
 if __name__ == "__main__":

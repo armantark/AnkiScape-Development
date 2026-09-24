@@ -277,7 +277,7 @@ Report the exact output of each:
 ```
 python3 tools/audit_docs.py
 python3 tools/audit_test_quality.py
-python3 tools/audit_item_reachability.py
+python3 tools/audit_item_reachability.py --check
 python3 tools/worktree_guard.py audit
 git diff --check
 ```

@@ -274,7 +274,7 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(completed.stderr.strip(), "usage: generate_ge_period_data.py <output-py>")
         self.assertNotIn("No module named 'pkg_alias'", completed.stderr)
 
-    def test_reachability_exit_code_does_not_depend_on_output_format(self):
+    def test_reachability_report_modes_exit_zero_with_or_without_orphans(self):
         from tools import audit_item_reachability
 
         for orphan_input_count in (0, 2):
@@ -287,7 +287,7 @@ class PapercutToolTests(unittest.TestCase):
                 "root_orphan_leverage": [],
             }
             results = {}
-            for args in ((), ("--summary",), ("--json",), ("--json", "--summary")):
+            for args in ((), ("--summary",), ("--json",), ("--json", "--summary"), ("--rank-roots", "1")):
                 output = io.StringIO()
                 with (
                     patch.object(sys, "argv", ["audit_item_reachability.py", *args]),
@@ -304,11 +304,48 @@ class PapercutToolTests(unittest.TestCase):
                 results[("--summary",)][1].strip(),
                 f"17 actions; 23 reachable items; {orphan_input_count} orphan inputs; 5 blocked actions",
             )
-            returncodes = {returncode for returncode, _output in results.values()}
-            self.assertEqual(len(returncodes), 1)
-            self.assertEqual(returncodes.pop(), int(bool(orphan_input_count)))
+            self.assertEqual({returncode for returncode, _output in results.values()}, {0})
 
-    def test_reachability_check_mode_requires_and_compares_all_pins(self):
+    def test_reachability_check_without_counts_compares_the_tree_pins(self):
+        from tools import audit_item_reachability
+
+        report = audit_item_reachability.build_reachability_report()
+        pin_source = (ROOT / "tests" / "test_item_reachability_audit.py").read_text(encoding="utf-8")
+        blocked = report["unresolved_action_count"]
+        pin = f'self.assertEqual(report["unresolved_action_count"], {blocked})'
+        self.assertEqual(pin_source.count(pin), 1)
+
+        def run_check(root):
+            errors = io.StringIO()
+            with (
+                patch.object(sys, "argv", ["audit_item_reachability.py", "--check", "--summary"]),
+                patch.object(audit_item_reachability, "ROOT", root),
+                patch.object(
+                    audit_item_reachability,
+                    "build_reachability_report",
+                    return_value=report,
+                ),
+                redirect_stdout(io.StringIO()),
+                redirect_stderr(errors),
+            ):
+                return audit_item_reachability.main(), errors.getvalue()
+
+        self.assertEqual(run_check(ROOT), (0, ""))
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            stale_root = Path(temp_dir)
+            (stale_root / "tests").mkdir()
+            (stale_root / "tests" / "test_item_reachability_audit.py").write_text(
+                pin_source.replace(pin, f'self.assertEqual(report["unresolved_action_count"], {blocked + 1})'),
+                encoding="utf-8",
+            )
+
+            self.assertEqual(
+                run_check(stale_root),
+                (1, f"unresolved_action_count: expected {blocked + 1}, observed {blocked}\n"),
+            )
+
+    def test_reachability_check_mode_requires_and_compares_all_explicit_counts(self):
         from tools import audit_item_reachability
 
         report = {
@@ -373,21 +410,21 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(
             errors.splitlines(),
             [
-                "actions: expected 16, observed 17",
-                "reachable-items: expected 24, observed 23",
-                "orphan-inputs: expected 1, observed 2",
-                "blocked-actions: expected 6, observed 5",
+                "action_count: expected 16, observed 17",
+                "reachable_item_count: expected 24, observed 23",
+                "orphan_input_count: expected 1, observed 2",
+                "unresolved_action_count: expected 6, observed 5",
             ],
         )
 
-        for field, expected, observed in (
-            ("actions", 16, 17),
-            ("reachable-items", 24, 23),
-            ("orphan-inputs", 1, 2),
-            ("blocked-actions", 6, 5),
+        for option, field, expected, observed in (
+            ("--actions", "action_count", 16, 17),
+            ("--reachable-items", "reachable_item_count", 24, 23),
+            ("--orphan-inputs", "orphan_input_count", 1, 2),
+            ("--blocked-actions", "unresolved_action_count", 6, 5),
         ):
             single_mismatch_args = list(matching_args)
-            pin_index = single_mismatch_args.index(f"--{field}") + 1
+            pin_index = single_mismatch_args.index(option) + 1
             single_mismatch_args[pin_index] = str(expected)
             with self.subTest(field=field):
                 returncode, output, errors = run_main(*single_mismatch_args)
@@ -412,7 +449,7 @@ class PapercutToolTests(unittest.TestCase):
 
         self.assertEqual(raised.exception.code, 2)
         self.assertIn(
-            "--check requires --reachable-items, --orphan-inputs, --blocked-actions",
+            "--check with explicit counts requires --reachable-items, --orphan-inputs, --blocked-actions",
             errors.getvalue(),
         )
 

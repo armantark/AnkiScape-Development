@@ -2914,3 +2914,23 @@ Disposition: owner decision (`design-decision`). Evidence: `.gitignore:22` ignor
 - 2026-09-19 14:42 PDT: README zip step. A registered git worktree lives inside the canonical checkout at `.claude/worktrees/agent-a0e9f6b63a21486d9` (55M, branch `worktree-agent-a0e9f6b63a21486d9`). `tools/worktree_guard.py audit` reports the layout safe because it only checks direct children of `addons21`. Not removed in this task; it is unmerged and may be dirty.
 2026-09-21 14:01 grill decisions commit: 'git add memory-bank/... CLAUDE.md' failed because CLAUDE.md is gitignored in this repo, and the && chain skipped the commit silently; project CLAUDE.md edits here are local-only, stage it separately or not at all.
 - 2026-09-22T22:31:53-0700 GE fill fix: the first shape (finished offers trigger the trip) was refused by slop-gate with 'on_answer_card 43 (was 42)', cognitive '51 (was 49)' and '__init__.py: 6047 lines (was 6041)'; grand_exchange_logic.py is 1682 lines with advance_ge_market_tick_pure at lizard CCN 18 and _fill_order_for_tick_pure at 19, so no branch fits there either. The owner delegated the choice ("Do as you please"); chosen shape: fills trigger no trip.
+
+
+## Reachability audit exit status — 37 lines
+
+Fix: the report modes of `tools/audit_item_reachability.py` (no flag, `--json`,
+`--summary`, `--rank-roots N`) exit 0 whenever the report builds. Only
+`--check` fails, and with no count flags it compares the report with the seven
+counts pinned in `tests/test_item_reachability_audit.py`. The standing and
+split slice contracts now prescribe `python3 tools/audit_item_reachability.py --check`.
+
+Before: every mode exited 1 while any orphan input existed, so the pinned
+`1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`
+baseline read as a failure and stopped `&&` chains.
+
+After: the bare command and `--check` both exit 0 on that baseline, and `--check`
+exits 1 with `unresolved_action_count: expected 250, observed 249` when one pin differs.
+
+Moved lines:
+
+2026-09-23T17:17:20-0700: Remote timing slice: required `python3 tools/audit_item_reachability.py` exited 1 on unchanged reachability data (`1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`); paused rather than modifying pins or unrelated game data.

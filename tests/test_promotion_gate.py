@@ -20,7 +20,6 @@ from tools.promotion_gate import (
     GateError,
     GateEvidence,
     LockRecord,
-    _read_reachability_pins,
     _run_gate_checks,
     _run_reachability_check,
     _run_check,
@@ -35,6 +34,7 @@ from tools.promotion_gate import (
     register_gate,
     run_gate,
 )
+from tools.reachability.pins import read_reachability_pins
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -66,7 +66,7 @@ def reachability_summary(pins: dict[str, int]) -> str:
 
 
 def pinned_summary(worktree: Path) -> str:
-    return reachability_summary(_read_reachability_pins(worktree))
+    return reachability_summary(read_reachability_pins(worktree))
 
 
 def synthetic_reachability_tree(
@@ -83,7 +83,7 @@ def synthetic_reachability_tree(
             '}\n'
         )
 
-    pins = _read_reachability_pins(worktree)
+    pins = read_reachability_pins(worktree)
     expected_pins = dict(pins)
     for field in SYNTHETIC_ACTION_FIELDS:
         expected_pins[field] += 1
@@ -836,7 +836,7 @@ class PromotionGateTest(unittest.TestCase):
             self.assertEqual(returncode, 1)
             self.assertEqual(
                 log,
-                f"=== reachability ===\n{expected_summary}\nFAILED: exit 1\n",
+                f"=== reachability ===\n{expected_summary}\nFAILED: exit 0\n",
             )
 
     def test_reachability_warning_on_stderr_does_not_corrupt_json(self):
@@ -916,6 +916,29 @@ class PromotionGateTest(unittest.TestCase):
             self.assertIn(summary, log)
             self.assertIn("RuntimeError: audit crashed", log)
             self.assertTrue(log.endswith("FAILED: exit 1\n"))
+
+    def test_reachability_audit_failing_after_a_matching_report_fails(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            worktree = Path(temp_dir).resolve()
+            (worktree / "tests").mkdir()
+            (worktree / "tools").mkdir()
+            shutil.copy2(
+                PROJECT_ROOT / "tests" / "test_item_reachability_audit.py",
+                worktree / "tests" / "test_item_reachability_audit.py",
+            )
+            pins = read_reachability_pins(worktree)
+            (worktree / "tools" / "audit_item_reachability.py").write_text(
+                f"import json\nprint(json.dumps({pins!r}))\nraise SystemExit(1)\n",
+                encoding="utf-8",
+            )
+
+            returncode, log = run_reachability_check(worktree)
+
+            self.assertEqual(returncode, 1)
+            self.assertEqual(
+                log,
+                f"=== reachability ===\n{reachability_summary(pins)}\nFAILED: exit 1\n",
+            )
 
     def test_reachability_audit_without_summary_fails(self):
         with tempfile.TemporaryDirectory() as temp_dir:
