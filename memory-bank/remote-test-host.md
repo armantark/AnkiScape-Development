@@ -15,6 +15,13 @@ Screen Recording and Accessibility approval on the laptop screen. For
 AnkiScape, this laptop is the pass-6 prober host; the original setup and role
 record remains in `memory-bank/pass5-triage-2026-07-31.md`.
 
+Per-slice native Anki checks run through that laptop Codex CLI over SSH with
+its computer-use tool, against a frozen copy of the tree under
+`/Users/armantarkhanian/ankiscape-native-mirror/<commit>/`. Never start one
+while a gate lane runs on the MacBook: one was part of the load when the Qt
+lane passed its 1300-second cap on 2026-09-23. Doorbell the Darkan restoration seat before
+and after each GUI run, because both seats share the one screen.
+
 Run the active full promotion procedure from the promotion worktree:
 
 ```bash
