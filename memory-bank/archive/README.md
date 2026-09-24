@@ -14,5 +14,12 @@ points; use the successor named below for live status or implementation work.
 | `2026-07/completed-handoffs/npc-shop-frontend-handoff-2026-07-06.md` | Frontend handoff shipped | NPC Shop source audit, runtime, UI, and tests |
 | `2026-07/completed-scratchpads/combat-hud-overhaul-requirements.md` | Checklist and deferred Stronghold item both shipped | Combat runtime/UI contracts and tests |
 
+## Monthly rotation
+
+| Archived record | Reason | Current successor |
+|---|---|---|
+| `progress-2026-05-to-08.md` | Progress sections dated before 2026-09-01 | `../progress.md` |
+| `kanban-shipped-2026.md` | Kanban cards shipped or closed before 2026-08-24 | `../future-work-kanban.md` |
+
 Archived status reports are indexed separately in
 `../status-updates/archive/README.md`.

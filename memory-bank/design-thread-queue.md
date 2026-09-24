@@ -1047,6 +1047,49 @@ or first replace King’s Ransom’s six generated checkpoints with source-backe
 stages. Until then, stage `1` keeps its missing specific action and the quest is
 not claimed finishable.
 
+### 3.36 Revisit the implementation goal text with the `define-goal` skill
+
+Raised 2026-09-23T18:42 by the orchestrator. The owner said: "we need to revisit
+the goal text with the `define-goal` skill later". The owner runs that session;
+no agent rewrites the goal text. Current text: `memory-bank/plans/goal-2026-09-05.md`
+and the owner's resume instruction in `memory-bank/activeContext.md`.
+
+Inputs for that session:
+
+1. The goal's completion rule counts only eligible units, so source-, owner- and
+   dependency-blocked rows and deferred data depth can remain open.
+2. The cleanup row does not say when a function counts as done: below all three
+   slop-gate limits (CCN 15, cognitive 15, Halstead 80) or only simpler. 43
+   non-UI functions exceed a limit on main `2021da75`, the largest
+   `apply_combat_burst_pure` at CCN 299.
+3. The estimate given to the owner: several days of continuous machine time,
+   bounded by one serial remote gate (~35 min) plus a native check (30-45 min)
+   per landing, and by Codex quota.
+
+Blocks nothing now: the gameplay queue in `memory-bank/goal-priority-matrix.md`
+continues under the current text. No recommendation is recorded, because the
+owner reserved this revision.
+
+### 3.37 Session-start line target after the Memory Bank rotation
+
+Raised 2026-09-23 by handoff step 6. Decision 13 requires the session-start
+files to total under 3,000 lines after rotation. Measured with `wc -l` on
+`activeContext.md`, `progress.md`, `future-work-kanban.md`,
+`goal-priority-matrix.md`, `loop-queue.md` and `papercuts.md`: 5,508 lines.
+`papercuts.md` alone has 2,617; the other five total 2,891. Decision 13 rotates
+only the progress log and the Kanban, and its problem row counts only those two
+files (13,591 and 2,259 lines). Every line in `papercuts.md` is an unaddressed
+papercut by the global rule, and the matrix leaves papercut triage unassigned,
+so the rotation did not move it.
+
+Owner choice: (a) decision 13's target excludes `papercuts.md`, which makes the
+other five files the measured set; (b) assign papercut triage, which moves
+fixed lines to a `papercuts-fixed` file until the total is under 3,000; or
+(c) another rule. Resolved 2026-09-23 by (b) in an orchestrator ruling: the
+reviewed papercut-triage slice `bf38b68b` cuts `papercuts.md` to its open
+entries and lands with the rotation in one promotion, and the orchestrator
+verifies the six-file total under 3,000 on that merged tree.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
