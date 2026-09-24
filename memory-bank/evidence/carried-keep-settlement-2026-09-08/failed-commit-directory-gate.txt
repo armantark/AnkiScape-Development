@@ -1,3 +1,0 @@
-slop-gate: code files were added to directories already at 40 files:
-  tests: 237 code files (was 236)
-  -> Create a cohesive subdirectory instead of widening this directory.

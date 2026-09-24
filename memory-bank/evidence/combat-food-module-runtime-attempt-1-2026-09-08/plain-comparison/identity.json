@@ -1,9 +1,0 @@
-{
-  "lane": "plain",
-  "kind": "comparison",
-  "pending": {
-    "run_id": "plain-1788894087-ac18d6d3",
-    "log_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1788894087-ac18d6d3.log",
-    "report_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/plain-1788894087-ac18d6d3.report"
-  }
-}

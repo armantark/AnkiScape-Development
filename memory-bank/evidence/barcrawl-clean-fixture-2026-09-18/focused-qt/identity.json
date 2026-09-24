@@ -1,9 +1,0 @@
-{
-  "lane": "qt",
-  "kind": "focused",
-  "pending": {
-    "run_id": "qt-1789748905-fc19d034",
-    "log_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1789748905-fc19d034.log",
-    "report_path": "/Users/armantarkhanian/ankiscape-remote-test-host/reports/qt-1789748905-fc19d034.report"
-  }
-}

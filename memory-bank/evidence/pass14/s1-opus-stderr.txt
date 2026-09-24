@@ -1,1 +1,0 @@
-Claude quota preflight: {"source":"ai-usage-widget/oauth_usage","freshness":"fresh","capturedAt":1789363534,"ageSeconds":0,"fiveHour":{"usedPercent":5.0,"remainingPercent":95.0,"resetsAt":1789378800},"weekly":{"usedPercent":7.0,"remainingPercent":93.0,"resetsAt":1789786800},"fableWeekly":{"usedPercent":13.0,"remainingPercent":87.0,"resetsAt":1789786800}}

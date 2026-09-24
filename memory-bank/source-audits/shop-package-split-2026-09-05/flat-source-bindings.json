@@ -1,7 +1,0 @@
-{
-  "logic/shop_logic.py": "8c6178724648dc410e2adf03a015fb193781ce834395486de52dd528de67b1b1",
-  "logic/shop_state.py": "b14efd904e72eca27e0c23c6914726fb8f7491d320d73c9070f672881fee8848",
-  "logic/shop_services.py": "3093b6e270334cc8fd49e06fc0b24e472e8c1bffd380c32a065800b619b58dfe",
-  "tests/shops/test_module_boundaries.py": "4d1c48d73a6db276c8ad671798b99251d2320540f27fc0f8631a2b00d8fa17cd",
-  "tests/test_quest_action_proofs.py": "5d50e2b4703fb4cdc03a11047372779c3cc84b5df155355244a4d9f175660116"
-}

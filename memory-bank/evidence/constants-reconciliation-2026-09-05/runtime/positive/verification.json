@@ -1,9 +1,0 @@
-{
-  "status": "PASS",
-  "errors": [],
-  "finished_utc": "2026-09-06T01:51:30.078382+00:00",
-  "surface_count": 23,
-  "subprocess_count": 35,
-  "ownership_canary_count": 6,
-  "scope": "Frozen-source named tests, complete measuring module, selective ownership canaries, exact discovery, and byte-identical surfaces only; independent review, full branch/repository gates, and exact merged-tree gate remain separate."
-}

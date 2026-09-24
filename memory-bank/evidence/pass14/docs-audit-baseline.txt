@@ -1,2 +1,0 @@
-Audited 712 Markdown and 446 HTML files.
-Documentation audit passed.

@@ -2,7 +2,7 @@
 
 Accepted source snapshot: `4fd93b0b481c4308f5654e813b5bd738714fdbd0`. Shop logic was then accepted at `0005e1cb42530706ab9ceb85e5be80ce3a0685f9`; all four shop-family source files are byte-identical to measured candidate `12850beed2aa644b0d051f6e1e4a90d9154a9b69`. Later main movement does not change the captured snapshot.
 
-The installed gate loaded CCN 15, cognitive complexity 15, and Halstead difficulty 80, with no environment overrides. Its source hash and loaded limits matched after measurement. Lizard 1.24.0, Complexipy 7.0.1, and Radon 6.0.1 supplied the measurements. Exact executable paths, hashes, source snapshots, move matches, and raw metric dictionaries are retained in [the evidence manifest](../evidence/exposed-complexity-2026-09-05/manifest.json).
+The installed gate loaded CCN 15, cognitive complexity 15, and Halstead difficulty 80, with no environment overrides. Its source hash and loaded limits matched after measurement. Lizard 1.24.0, Complexipy 7.0.1, and Radon 6.0.1 supplied the measurements. Exact executable paths, hashes, source snapshots, move matches, and raw metric dictionaries are retained in [the evidence manifest](../evidence/exposed-complexity-2026-09-05/SUMMARY.md).
 
 The measurement reads immutable Git blobs and calls the installed gate APIs. It does not import product code, run tests, change the gate, or establish behavior preservation. Raw measurements are retained before the gate suppresses inherited moves. A passing regression gate does not mean that every function is below its limit.
 

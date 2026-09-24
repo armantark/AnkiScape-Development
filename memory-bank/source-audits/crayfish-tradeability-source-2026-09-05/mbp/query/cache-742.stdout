@@ -1,4 +1,0 @@
-13431	Crayfish cage	model=40772	recolors=null->null	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[null, null, null, Add-to-toolbelt, drop]
-13433	Crayfish	model=40771	recolors=[5040, 5032, 5024]->[470, 458, 448]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[Eat, null, null, null, drop]
-13434	Crayfish	model=0	recolors=null->null	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=true	exchangeable=true	options=[null, null, null, null, drop]
-13435	Raw crayfish	model=40771	recolors=[5040, 5032, 5024]->[3875, 3865, 3870]	textures=null->null	sprite-recolors=null	bonuses=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]	stackable=false	exchangeable=true	options=[null, null, null, null, drop]

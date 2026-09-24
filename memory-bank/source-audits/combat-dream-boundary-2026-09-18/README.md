@@ -4,7 +4,7 @@ The root selected the three-input Dream transaction boundary. This is architectu
 
 ## Contract and evidence
 
-Use the [revised contract](contract.md) for the selected boundary. The [original contract](contract.before-review.md), [raw Opus review](opus-review.stdout.txt) and [review stderr](opus-review.stderr.txt) remain unchanged. The [manifest](manifest.json) binds each exact retained file to its source path, byte length and SHA-256 hash.
+Use the [revised contract](contract.md) for the selected boundary. The [original contract](contract.before-review.md), [raw Opus review](SUMMARY.md) and [review stderr](SUMMARY.md) remain unchanged. The [manifest](SUMMARY.md) binds each exact retained file to its source path, byte length and SHA-256 hash.
 
 The root checked the source block and corrected the review before it supplied the revised contract. The author of this packet copied and hashed the supplied files only. The source-complexity measurements in those files are attributed selection evidence, not measurements repeated by this documentation slice.
 

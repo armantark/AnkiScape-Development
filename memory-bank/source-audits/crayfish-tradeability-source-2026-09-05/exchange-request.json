@@ -1,4 +1,0 @@
-{
-  "url": "https://runescape.wiki/api.php?action=query&format=json&prop=revisions&titles=Exchange%3ACrayfish&rvlimit=1&rvprop=ids%7Ctimestamp%7Ccontent&rvslots=main&rvstart=2012-11-19T23%3A59%3A59Z&rvdir=older",
-  "fetched_at": "2026-09-05T22:46:15.177470+00:00"
-}

@@ -1,8 +1,0 @@
-{
-  "status": "PASS",
-  "errors": [],
-  "finished_utc": "2026-09-05T23:57:57.291866+00:00",
-  "scope": "Capture integrity and focused tests only; semantic reversal and discovery comparison are pending",
-  "surface_count": 23,
-  "subprocess_count": 27
-}

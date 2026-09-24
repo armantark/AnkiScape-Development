@@ -1,1 +1,0 @@
-Kimi quota preflight: {"source":"ai-usage-widget/kimi_code_usage","freshness":"fresh","capturedAt":1789374778,"ageSeconds":50,"fiveHour":{"usedPercent":17.0,"remainingPercent":83.0,"resetsAt":1789384297},"weekly":{"usedPercent":28.000000000000004,"remainingPercent":72.0,"resetsAt":1789535497}}

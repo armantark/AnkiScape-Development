@@ -1,2 +1,0 @@
-BLOCKED: Computer Use server error -10005: App quit while keyboard navigation was continuing from Crafting toward Cooking.
-Earlier pointer attempt on the visible Cooking row returned: Accessibility error: AXError.notImplemented

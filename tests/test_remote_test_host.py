@@ -142,6 +142,39 @@ class RemoteTestHostTests(unittest.TestCase):
         report_command = next(command for command in commands if ".report " in command)
         self.assertIn(report_command.split()[1], commands[0])
 
+    def test_interrupted_run_keeps_exact_identity_until_completion_in_both_lanes(self):
+        for lane in ("plain", "qt"):
+            with self.subTest(lane=lane):
+                launches = []
+                report = [""]
+
+                def execute(command, **_kwargs):
+                    remote = command[-1]
+                    if remote.startswith("nohup "):
+                        launches.append(remote)
+                        return subprocess.CompletedProcess(command, 255, "", "connection lost")
+                    return subprocess.CompletedProcess(command, 0, report[0], "")
+
+                with (
+                    patch.object(run_remote_tests.subprocess, "run", side_effect=execute),
+                    patch.object(run_remote_tests.time, "monotonic", side_effect=(0, 2)),
+                    contextlib.redirect_stderr(io.StringIO()),
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    with self.assertRaises(TimeoutError):
+                        run_remote_tests._stream_remote_run(lane, timeout=1, poll_interval=0.01)
+                    original = run_remote_tests._pending_path().read_bytes()
+                    pending = json.loads(original)
+                    with self.assertRaisesRegex(RuntimeError, "sync blocked"):
+                        run_remote_tests._reconcile_pending_run()
+                    self.assertEqual(run_remote_tests._pending_path().read_bytes(), original)
+                    self.assertEqual(len(launches), 1)
+                    self.assertIn(pending["report_path"], launches[0])
+                    report[0] = "23\n"
+                    run_remote_tests._reconcile_pending_run()
+                    self.assertFalse(run_remote_tests._pending_path().exists())
+                    self.assertEqual(len(launches), 1)
+
     def test_unresolved_run_blocks_next_sync_after_launch_poll_or_timeout_failure(self):
         worktree = Path(__file__).resolve().parents[1]
         for failure_at in ("launch", "poll", "timeout"):

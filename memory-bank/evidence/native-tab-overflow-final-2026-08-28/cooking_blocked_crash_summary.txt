@@ -1,7 +1,0 @@
-app=Anki version=26.5 pid=48896 captureTime=2026-08-28 18:57:01.3196 -0700
-exception=EXC_BAD_ACCESS signal=SIGSEGV
-termination=SIGNAL:Segmentation fault: 11
-faulting_thread=CrBrowserMain
-first_frame=QAccessibleCache::deleteInterface(unsigned int, QObject*)
-Computer Use result=Computer Use server error -10005: App quit
-The crash occurred after the first successful Down navigation from Smithing to Crafting and before the grouped Cooking target tree was reached.

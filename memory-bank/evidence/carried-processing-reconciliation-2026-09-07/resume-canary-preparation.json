@@ -1,7 +1,0 @@
-{
-  "probe_sha256": "a5b1a2be55a77059343a5c4b41d99f0bc8710dac91d4c82d20442419cc03ebe2",
-  "review_packet_bytes": 5962,
-  "review_packet_sha256": "e8daec6f22bb3e850a0ee7d1a797674f8d422d64cd76f7965ef8ccac1d9dbddd",
-  "driver_sha256": "42938234731951000cdf04dd3210c515c6e92b11814f5288573473c28b8f87e0",
-  "validation": "AST parsed only; canary not executed"
-}
