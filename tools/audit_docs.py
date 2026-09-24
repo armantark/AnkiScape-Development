@@ -129,6 +129,7 @@ def _defined_test_selectors(root: Path) -> frozenset[str]:
         return frozenset()
     for path in tests_root.rglob("test*.py"):
         module = ".".join(path.relative_to(root).with_suffix("").parts)
+        selectors.add(module)
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in tree.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test"):
