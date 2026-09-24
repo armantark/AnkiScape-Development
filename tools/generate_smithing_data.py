@@ -6,9 +6,19 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
+
+
+ADDON_ROOT = Path(__file__).resolve().parents[1]
+if str(ADDON_ROOT) not in sys.path:
+    sys.path.insert(0, str(ADDON_ROOT))
+from tools.generation.source_digests import check_source_digests, save_source_digests
+
+SOURCE_DIGESTS = ADDON_ROOT / "generated" / "source_digests.json"
+OUTPUT_NAME = "data/smithing_data.py"
 
 
 DEFAULT_GAME_ROOT = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
@@ -530,6 +540,8 @@ def generate(
     output_path: Path,
     *,
     provenance_root: Optional[Path] = None,
+    accept_source_change: bool = False,
+    digest_manifest: Path = SOURCE_DIGESTS,
 ) -> None:
     if provenance_root is None:
         provenance_root = game_root
@@ -551,13 +563,29 @@ def generate(
     )
     if game_root != provenance_root:
         rendered = rendered.replace(str(game_root), str(provenance_root))
+    sources = [game_root / path for path in (
+        ITEMS_KT_RELATIVE,
+        ITEMS_YML_RELATIVE,
+        SMITHING_RELATIVE / "BarType.kt",
+        SMITHING_RELATIVE / "SmithingType.kt",
+        SMITHING_RELATIVE / "SmeltingData.kt",
+        SMITHING_RELATIVE / "BarProducts.kt",
+        DRAGON_SQ_SHIELD_PLUGIN_RELATIVE,
+    )]
+    digests = check_source_digests(
+        digest_manifest, OUTPUT_NAME, sources, source_root=game_root,
+        accept_source_change=accept_source_change,
+    )
     output_path.write_text(rendered, encoding="utf-8")
+    save_source_digests(digest_manifest, OUTPUT_NAME, digests)
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--game-root", type=Path)
-    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "smithing_data.py")
+    parser.add_argument("--output", type=Path, default=ADDON_ROOT / "data" / "smithing_data.py")
+    parser.add_argument("--accept-source-change", action="store_true")
+    parser.add_argument("--digest-manifest", type=Path, default=SOURCE_DIGESTS)
     args = parser.parse_args(argv)
     if args.game_root is None:
         game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", DEFAULT_GAME_ROOT))
@@ -565,7 +593,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     else:
         game_root = args.game_root
         provenance_root = args.game_root
-    generate(game_root, args.output, provenance_root=provenance_root)
+    generate(
+        game_root, args.output, provenance_root=provenance_root,
+        accept_source_change=args.accept_source_change, digest_manifest=args.digest_manifest,
+    )
     print(f"Wrote {args.output}")
     return 0
 

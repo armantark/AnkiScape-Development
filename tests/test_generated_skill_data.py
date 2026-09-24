@@ -1,10 +1,14 @@
+import hashlib
 import importlib.util
+import json
 import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+
+from tools.generation.source_digests import check_source_digests, save_source_digests
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,6 +40,32 @@ def _equipment_item_block(data: str, item_name: str) -> str:
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 class TestGeneratedSkillData(unittest.TestCase):
+    def test_source_digest_manifest_refuses_changes_until_accepted(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "inputs" / "items.yml"
+            source.parent.mkdir()
+            source.write_bytes(b"original")
+            manifest = root / "source_digests.json"
+            output_name = "data/smithing_data.py"
+            other_name = "generated/summoning_data_generated.py"
+            save_source_digests(manifest, other_name, {"unchanged.kt": "pinned"})
+            original = check_source_digests(manifest, output_name, [source], source_root=root)
+            self.assertEqual(original, {"inputs/items.yml": hashlib.sha256(b"original").hexdigest()})
+            save_source_digests(manifest, output_name, original)
+
+            source.write_bytes(b"changed")
+            with self.assertRaisesRegex(ValueError, "inputs/items.yml; pass --accept-source-change"):
+                check_source_digests(manifest, output_name, [source], source_root=root)
+            self.assertEqual(json.loads(manifest.read_text(encoding="utf-8"))[output_name], original)
+            accepted = check_source_digests(
+                manifest, output_name, [source], source_root=root, accept_source_change=True,
+            )
+            save_source_digests(manifest, output_name, accepted)
+            records = json.loads(manifest.read_text(encoding="utf-8"))
+            self.assertNotEqual(records[output_name], original)
+            self.assertEqual(records[other_name], {"unchanged.kt": "pinned"})
+
     def test_explicit_game_root_wins_over_environment_for_generators(self):
         explicit_root = Path("/explicit/game-main")
         environment_root = Path("/environment/game-main")
@@ -64,7 +94,8 @@ class TestGeneratedSkillData(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             output_path = Path(temp_dir) / "smithing_data.py"
             generate_smithing_data.generate(
-                GAME_ROOT, output_path, provenance_root=PROVENANCE_ROOT
+                GAME_ROOT, output_path, provenance_root=PROVENANCE_ROOT,
+                digest_manifest=output_path.with_suffix(".json"),
             )
             generated = output_path.read_text(encoding="utf-8")
 
