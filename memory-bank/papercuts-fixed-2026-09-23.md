@@ -2934,3 +2934,166 @@ exits 1 with `unresolved_action_count: expected 250, observed 249` when one pin 
 Moved lines:
 
 2026-09-23T17:17:20-0700: Remote timing slice: required `python3 tools/audit_item_reachability.py` exited 1 on unchanged reachability data (`1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`); paused rather than modifying pins or unrelated game data.
+
+## The reachability report exited 1 on its pinned orphan baseline — 1 occurrence
+
+Disposition: fixed before this pass (`fixed-before`). Evidence: commit `5fc1d538` makes the report modes of `tools/audit_item_reachability.py` exit 0 and `--check` compare the seven pins in `tests/test_item_reachability_audit.py`.
+
+- 2026-09-23T17:25:32-0700 Running the reachability report without --check exited 1 on its pinned 163 orphan inputs; the same report with its unchanged test pins (--check, 1680/2350/163/249) exited 0.
+
+## The evidence digest manifests did not index every archived path — 1 occurrence
+
+Disposition: fixed before this pass (`fixed-before`). Evidence: commit `4147d0ae`: all 39 `memory-bank/evidence/*/SUMMARY.md` files cite `migration-index`, which lists every archived path.
+
+- 2026-09-23T19:19:27-07:00 — The 86 local digest manifests held 1,911 rows but only 1,907 unique paths, leaving 1,049 of the 2,956 archived deletions discoverable only through `migration-index.tsv`; each per-directory summary now cites the complete index SHA-256 so nested files and retired scripts remain traceable.
+
+## A full-path scan archived test inputs whose paths tests assemble from several strings — 2 occurrences
+
+Disposition: fixed before this pass (`fixed-before`). Evidence: commit `4147d0ae` keeps `memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/owner-snapshot.json` and `memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json` tracked; both exist in this tree.
+
+- 2026-09-23T17:57:47-0700 — Remote plain selection waited on `/Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock` and then failed `FileNotFoundError: [Errno 2] No such file or directory: '/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork/memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/owner-snapshot.json'`; the test composes that path across two strings, so full-path grep missed the required input, which was restored.
+- 2026-09-23T18:46:48-0700 — A literal full-path reader scan archived memory-bank/source-audits/cape-tradeability-implementation-2026-09-05/owner-snapshot.json and memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json despite tests assembling both paths across multiple string literals; restored both from HEAD and removed their index/manifest rows before the queued focused run could sync.
+
+## Archiving evidence broke local links to it — 1 occurrence
+
+Disposition: fixed before this pass (`fixed-before`). Evidence: commit `4147d0ae` repointed the links to the directory summaries; `python3 tools/audit_docs.py` passes on this tree.
+
+- 2026-09-23T18:27:13-0700 — Follow-up migration documentation audit found 20 broken local links to newly archived artifacts; repointed the link targets to their directory summaries before rerunning the unchanged audit.
+
+## The triage verdict file disagreed with its own grouping table — 1 occurrence
+
+Disposition: fixed before this pass (`fixed-before`). Evidence: commit `bf38b68b` landed the triage, which followed the grouping table as the line records.
+
+- 2026-09-23T19:43:52-0700 — Papercut triage: the phase-2 verdicts file disagreed with its own grouping table (per-line `fixed-before` for 2555 and `external-blocker` for 2539, but the table holds both in open classes), and the table's open Claude-review class also names 2068, which the inventory pass had already moved to `papercuts-fixed-2026-09-23.md`; the table was followed and 2068 left where it was.
+
+## Remote selectors matched too much or matched nothing — 2 occurrences
+
+Disposition: operator error (`operator-error`). Evidence: `run_tests.py:25-30` selects every test whose ID contains any selector as a case-insensitive fragment, so a broad fragment runs extra tests, and `run_tests.py:42-61` resolves a `.py` path to its module name plus a dot but no directory path; `tools/run_remote_tests.py:393-397` then rejects any run whose count differs from `--expected-tests`, by design. Anchoring each selector as the module name followed by a dot, or one `--select <file>.py` per module, limits the match and resolves both lines.
+
+- 2026-09-23T17:23:26-0700 Selecting remote generator tests by broad fragments also selected unrelated widget and smoke method IDs: Ran 75 tests, OK (skipped=6), rejected against expected 68; anchor selectors to the module name followed by a dot.
+- 2026-09-23T20:58:02-0700 Reachability-exit review fix: the remote runner rejected directory selector `--select tests/promotion/` with exact `No unambiguous unittest ID matched: tests/promotion/`, and an earlier try stopped on `error: previous remote lane has no completion report; sync blocked` for another agent's run `plain-1790221091-b0104622`; pass one `--select tests/promotion/<file>.py` per module and retry after the other run reports.
+
+## A capped test-ID listing was counted as the test count — 1 occurrence
+
+Disposition: operator error (`operator-error`). Evidence: `run_tests.py:147-156` prints at most `--max-results` IDs and exits 2 when it refuses, so a stdout line count is not a test count; the unittest loader's `countTestCases()` gives the count.
+
+- 2026-09-23T18:05:42-0700 — `run_tests.py --list test_main_menu_widget.` prints 200 IDs then refuses with `Refusing to print 842 IDs; narrow the selector or raise --max-results above 200.`; counting stdout lines produced a false expected count, so the remote Qt run completed `Ran 842 tests in 214.878s`, `OK`, then failed only its expected-count check (`tests=842, skipped=0; expected exactly 200 tests and no skips`).
+
+## zsh expanded or reserved a word the command used literally — 5 occurrences
+
+Disposition: operator error (`operator-error`). Evidence: each line names a zsh rule the operator's command broke (read-only `status`, special `path`, backtick substitution in double quotes, `=` expansion, unmatched-glob abort) and its correction; no repository code caused them.
+
+- 2026-09-23T17:24:13-0700 Running repository audits: zsh rejected the shell variable name 'status' as read-only after the docs audit; use 'rc' for exit codes.
+- 2026-09-23T17:25:44-0700 — Pre-delete shell hash loop assigned to zsh special `path`, replacing PATH; first iteration failed with `(eval):1: command not found: git`, `shasum` and `awk`. No source was deleted; use `artifact` as the field name.
+- 2026-09-23T17:48:27-0700 — An attempted papercut append used Markdown backticks inside shell double quotes, triggering zsh command substitutions and stripping exact error strings; use a literal quoted heredoc for log entries.
+- 2026-09-23T20:08-07:00 — A zsh `echo ======` separator inside a read command failed with `(eval):1: ===== not found` (zsh `=` expansion); quote separator strings.
+- 2026-09-23T20:10-07:00 — An `ls` with an unmatched glob (`5d7f30df*.json`) aborted the whole compound command with `no matches found`, hiding the receipts that did exist; use `find -name` for optional globs.
+
+## Probes read guessed or mis-selected paths — 6 occurrences
+
+Disposition: operator error (`operator-error`). Evidence: each named path is absent from this tree or was a directory where a file was meant; the lines record the real path found by search.
+
+- 2026-09-23T19:00:32-07:00 — While inspecting the archived manifests, `find ... -name '*vampyre*' | head -n 1` picked a directory instead of its `.sha256.tsv` file; `head` returned `Error reading .../manifests/memory-bank/evidence/combat-vampyre-bite-2026-09-07`. Select manifest files by suffix before reading them.
+- 2026-09-23T17:17:53-0700 Checking generator imports: tools/ has no __init__.py; `sed` failed with `sed: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-generator-source-digests-2026-09-23/tools/__init__.py: No such file or directory`; use its namespace-package/direct-script import patterns.
+- 2026-09-23T17:15:53-0700 — Evidence-retention inspection searched guessed nonexistent audit-test paths; rg exited 2 and prevented the chained memory-bank read, so inspected the existing files by their actual paths.
+- 2026-09-23T17:18:54-0700 — Comparing the dragonfire guard with tests used a guessed `tests/combat/test_dragonfire_damage.py` that does not exist; locate the actual test by filename search instead.
+- 2026-09-23T17:23:28-0700 — Three guessed canary paths left the shell probe with exit 1 after one existing destination; choose a real path from the tracked inventory before reattempting.
+- 2026-09-23T17:48:27-0700 — A test lookup assumed `tests/combat/test_dragonfire_damage.py` and `tests/combat/test_wyvern_breath.py`, but both returned `No such file or directory (os error 2)`; discover files before deriving fixture names.
+
+## Git history queries missed or misdated files added through merges — 2 occurrences
+
+Disposition: operator error (`operator-error`). Evidence: plain `git log --diff-filter=A` does not list merge-added files and `-m` can name a later merge; the lines record the mapping that combines both.
+
+- 2026-09-23T17:21:34-0700 — Batched `git log --diff-filter=A --name-only` omitted 107 tracked files added through merges; `git log -m --diff-filter=A` supplies their producing merge hashes without changing history.
+- 2026-09-23T17:23:59-0700 — Merge-aware `git log -m` picked a later merge for a file whose ordinary add already exists; retain ordinary A-first mapping, using -m only for missing paths.
+
+## File edits used a wrong anchor, an unchanged replacement or a replace that hit the label — 3 occurrences
+
+Disposition: operator error (`operator-error`). Evidence: each line names the operator's own Edit call or scripted replacement and its correction.
+
+- 2026-09-23T19:22:34-07:00 — A progress-entry insertion anchored on a blank line that did not exist after an earlier clause deletion, so Edit returned `String to replace not found in file`; read the narrow region and anchor on the actual adjacent paragraphs.
+- 2026-09-23T19:22:06-07:00 — An attempted progress-entry Edit passed identical old and new strings and returned `No changes to make: old_string and new_string are exactly the same.`; prepare the replacement before calling Edit.
+- 2026-09-23T17:30:10-0700 — Documentation audit found `broken_local_link: layout-and-binding-correction.patch`: redirecting identical link labels and URLs with `str.replace` changed the label, not the URL; reconstruct the ten mechanical edits from HEAD and replace only the matched URL span.
+
+## Ad hoc probe scripts had their own bugs — 3 occurrences
+
+Disposition: operator error (`operator-error`). Evidence: each error (`SyntaxError`, `TypeError`, `RuntimeError: Set changed size during iteration`) is in a throwaway probe, not repository code.
+
+- 2026-09-23T19:24:46-07:00 — A read-only final-count probe had an unmatched parenthesis and returned `SyntaxError: unmatched ')'`; separate the count expressions before recomputing final measurements.
+- 2026-09-23T17:18:15-0700 — Inventory probe printed its counts but failed in a trailing sample expression (`TypeError: 'generator' object is not subscriptable`); remove the unnecessary sample expression before the migration preflight.
+- 2026-09-23T17:44:45-0700 — A deleted-path grep pattern generator failed with `RuntimeError: Set changed size during iteration`, then fed an empty pattern list to grep and printed unrelated lines; construct the directory set from a snapshot before searching.
+
+## A broad diff exceeded the tool output cap — 1 occurrence
+
+Disposition: operator error (`operator-error`). Evidence: the output cap is known; targeted file and line probes avoid it.
+
+- 2026-09-23T17:48:27-0700 — A broad Markdown diff exceeded the tool output cap (`Output too large (33KB)`); use targeted file and line probes for migration proof.
+
+## Focused runs waited on the shared remote mirror lock — 5 occurrences
+
+Disposition: owner decision (`design-decision`). Evidence: `tools/run_remote_tests.py:416-418` waits on the mirror lock on purpose, so two slices never share one mirror.
+
+- 2026-09-23T19:15:02-07:00 — The focused remote documentation-test call waited on `/Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock` for more than 600 seconds and the tool moved it to the background; retain its log and await its actual result rather than treating a queued run as passed.
+- 2026-09-23T17:28:43-0700 Rechecking the final focused remote suite: the shared mirror lock reported 'Remote mirror busy; waiting for /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock'; another slice owns the lane, so this run waits.
+- 2026-09-23T17:46:48-0700 Rerunning focused plain tests after moving source digests into a manifest: the shared mirror again reported 'Remote mirror busy; waiting for /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock'; waiting for the existing lane owner rather than launching a concurrent run.
+- 2026-09-23T18:02:31-0700 Rerunning focused remote plain tests after review fixes: the shared mirror reported 'Remote mirror busy; waiting for /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock'; the queued run finished after the lock cleared.
+- 2026-09-23T18:41:49-0700 — Focused MacBook proof spent 600 seconds queued behind /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock; the Bash tool detached it while the competing remote runs finish, so acceptance still needs its final result.
+
+## The remote runner refused to sync over a run without a completion report — 1 occurrence
+
+Disposition: owner decision (`design-decision`). Evidence: `tools/run_remote_tests.py:185` raises `previous remote lane has no completion report; sync blocked` on purpose, so a new sync never overwrites an unreported run.
+
+- 2026-09-23T19:32:30-07:00 — The focused runner refused to sync while orphaned Qt run `qt-1790216520-05d98288` lacked a completion report; the orchestrator confirmed no worker remained and reconciled the pending record before the selected plain lane passed.
+
+
+## The evidence canary refused to overwrite an existing destination — 1 occurrence
+
+Disposition: owner decision (`design-decision`). Evidence: the canary stops on an existing destination on purpose.
+
+- 2026-09-23T17:20:14-0700 — First evidence canary stopped safely because the destination already existed under its producing commit; compare existing bytes and choose an empty canary rather than overwriting.
+
+## Authors read the contract's one-commit rule as conflicting with the uncommitted brief — 1 occurrence
+
+Disposition: owner decision (`design-decision`). Evidence: the orchestrator ruling on commit timing is restated in every dispatch.
+
+- 2026-09-23T17:13-07:00 — Three step 6 authors stopped because STANDING-SLICE-CONTRACT.md §2 "Produce one attributable commit on your own goal/* branch" read as conflicting with the brief "Leave every change UNCOMMITTED"; an orchestrator ruling settled it (the brief fixes commit timing only: one commit after cross-lineage review).
+
+## The slop-gate growth rail refused header lines in generated files — 1 occurrence
+
+Disposition: owner decision (`design-decision`). Evidence: the fixed file-growth rail moved the digests to `generated/source_digests.json` in commit `924ab075`.
+
+- 2026-09-23T17:42-07:00 — slop-gate refused the step 3 commit: `source_header 17 (new)`, `data/smithing_data.py: 3683 lines (was 3676)`, `generated/summoning_data_generated.py: 3585 lines (was 3582)`, `tests: 237 code files (was 236)`, `tools: 152 code files (was 151)`; the fixed file-growth rail forbids header lines in generated files, so the digest record moved to generated/source_digests.json.
+
+## The asset-cutoff audit rewrote its tracked checkpoint report — 1 occurrence
+
+Disposition: owner decision (`design-decision`). Evidence: `tools/audit_asset_cutoff.py:3-7` documents that the report is a checkpoint rewritten after every batch.
+
+- 2026-09-23T17:56-07:00 — `python3 tools/audit_asset_cutoff.py` is not read-only: it rewrote tracked memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json (389 insertions, 3389 deletions) in the canonical checkout and the slice worktree; restored with git checkout within 5 seconds. Acceptance uses the asset test modules in both lanes instead.
+
+## Harness background-task output paths vanished — 2 occurrences
+
+Disposition: external limit (`external-blocker`). Evidence: the missing `/private/tmp/claude-504/.../tasks/*.output` files belong to the Claude Code harness, outside this repository.
+
+- 2026-09-23T19:31:52-07:00 — The background runner output hint for `bisa2v9do.output` returned `File does not exist`; use a foreground run or persist the output explicitly instead of trusting the transient task path.
+- 2026-09-23T19:15:10-07:00 — The tool's background-task output hint `/private/tmp/claude-504/-Users-ArmanTarkhanian1-Library-Application-Support-Anki2-addons21-ankiscape_fork/3299e5f2-01ea-44ee-aec8-37e093b89045/tasks/bmqlgfal7.output` returned `File does not exist`; the explicit out-of-tree `focused-docs-r2-plain.log` remained readable for the queued run.
+
+## Authors exhausted their model context mid-slice — 3 occurrences
+
+Disposition: external limit (`external-blocker`). Evidence: the model context limit is outside this repository; the out-of-tree `migration-index.tsv` let each continuation resume.
+
+- 2026-09-23T19:21:33-07:00 — The evidence-archive author ran out of context after leaving 2,956 deletions and 86 summaries uncommitted; the out-of-tree `migration-index.tsv` and manifests let this review resume from the recorded state without rereading the archived raw files.
+- 2026-09-23T17:44:45-0700 — The previous evidence-migration author filled its context before verifying the 2,558 removals; the continuation had to reconcile 18 deleted scripts absent from the 2,540-row index.
+- 2026-09-23T17:41-07:00 — The step 5 author (gpt-6-sol xhigh) failed with "Prompt is too long" after deleting 2558 files; a fresh author continued from the worktree state.
+
+## A native check held the MacBook screen that another seat also drove — 2 occurrences
+
+Disposition: external limit (`external-blocker`). Evidence: the Darkan seat and the computer-use screenshot service are outside this repository.
+
+- 2026-09-23T18:23-07:00 — MacBook screen collision: the Darkan restoration seat (session 2012scape-with-bots-60) lost its DarkanLC459Native window three times with 'Computer Use server error -10005: noWindowsAvailable' while the AnkiScape native check for 36904277 held the screen; doorbell the Darkan seat before and after each AnkiScape GUI run on the MacBook.
+- 2026-09-23T18:25-07:00 — Native check of 3690427790d6f4bdd2d63c9c5fb97f5ddc11bccc through the laptop Codex CLI (mcp__cua_repl) blocked at item 3: 'Screenshot unavailable for /var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-native-03nrl8ut/AnkiScape Native Test.app.'; cleanup AX 'Computer Use server error -10005: timeoutReached'; guard verify exit 0 unchanged:true. Rerun with the screen free to separate screen contention from a CUA screenshot fault.
+
+## A gate lane timed out under MacBook load — 1 occurrence
+
+Disposition: external limit (`external-blocker`). Evidence: the MacBook load average and its other processes are outside this repository.
+
+- 2026-09-23T19:32-07:00 — Gate on 0108ff3f failed by timeout, not by a test: Qt 'TIMEOUT: exceeded 1300 seconds' / 'FAILED: exit 124 (TIMEOUT)' under MacBook load average 8.46/11.15/12.60 (steam_osx 99.2% CPU, four Chrome renderers at 69-73%, WindowServer 39.5%, plus a concurrent native check); never run a native check while a gate lane runs.
