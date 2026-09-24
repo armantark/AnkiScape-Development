@@ -56,6 +56,30 @@ def _import_attr(module_name: str, attribute: str):
     return getattr(importlib.import_module(module_name), attribute)
 
 
+def _parsed_sources(paths):
+    """Syntax trees of ``paths``, skipping any file that does not parse."""
+
+    for path in paths:
+        try:
+            yield ast.parse(path.read_text(encoding="utf-8", errors="ignore"))
+        except SyntaxError:
+            continue
+
+
+def _string_assignments(tree: ast.Module):
+    """``(name, literal)`` for every top-level ``NAME = "literal"`` in ``tree``."""
+
+    for node in tree.body:
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Constant):
+            continue
+        if isinstance(node.value.value, str):
+            yield from (
+                (target.id, node.value.value)
+                for target in node.targets
+                if isinstance(target, ast.Name)
+            )
+
+
 @functools.lru_cache(maxsize=1)
 def _module_level_strings() -> dict:
     """Every ``NAME = "literal"`` in the add-on, for resolving action-id names.
@@ -65,21 +89,14 @@ def _module_level_strings() -> dict:
     """
 
     found: dict[str, set] = {}
-    for path in ROOT.rglob("*.py"):
-        if any(part in {".git", "__pycache__", "tests"} for part in path.parts):
-            continue
-        try:
-            tree = ast.parse(path.read_text(encoding="utf-8", errors="ignore"))
-        except SyntaxError:
-            continue
-        for node in tree.body:
-            if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Constant):
-                continue
-            if not isinstance(node.value.value, str):
-                continue
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    found.setdefault(target.id, set()).add(node.value.value)
+    add_on_sources = (
+        path
+        for path in ROOT.rglob("*.py")
+        if not {".git", "__pycache__", "tests"}.intersection(path.parts)
+    )
+    for tree in _parsed_sources(add_on_sources):
+        for name, literal in _string_assignments(tree):
+            found.setdefault(name, set()).add(literal)
     return found
 
 
@@ -91,30 +108,31 @@ def _literal_strings(node: ast.AST) -> set:
     return set()
 
 
+def _ledger_write_calls(tree: ast.Module):
+    """Every ledger write in ``tree``; its skill id and action id are arguments 1 and 2."""
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and len(node.args) >= 3:
+            name = getattr(node.func, "id", None) or getattr(node.func, "attr", None)
+            if name in _LEDGER_WRITE_CALLS:
+                yield node
+
+
 @functools.lru_cache(maxsize=1)
 def _emitted_ledger_actions() -> dict:
     """``skill id -> action ids`` the runtime can actually record."""
 
-    emitted: dict[str, set] = {}
-    for skill_id, (module_name, attribute) in _SKILL_ACTION_REGISTRIES.items():
-        emitted[skill_id] = set(_import_attr(module_name, attribute))
-    for directory in _LEDGER_WRITE_SITES:
-        for path in (ROOT / directory).rglob("*.py"):
-            try:
-                tree = ast.parse(path.read_text(encoding="utf-8", errors="ignore"))
-            except SyntaxError:
-                continue
-            for node in ast.walk(tree):
-                if not isinstance(node, ast.Call) or len(node.args) < 3:
-                    continue
-                function = node.func
-                name = getattr(function, "id", None) or getattr(function, "attr", None)
-                if name not in _LEDGER_WRITE_CALLS:
-                    continue
-                for skill_id in _literal_strings(node.args[1]):
-                    emitted.setdefault(skill_id, set()).update(
-                        _literal_strings(node.args[2])
-                    )
+    emitted = {
+        skill_id: set(_import_attr(module_name, attribute))
+        for skill_id, (module_name, attribute) in _SKILL_ACTION_REGISTRIES.items()
+    }
+    write_site_sources = (
+        path for directory in _LEDGER_WRITE_SITES for path in (ROOT / directory).rglob("*.py")
+    )
+    for tree in _parsed_sources(write_site_sources):
+        for call in _ledger_write_calls(tree):
+            for skill_id in _literal_strings(call.args[1]):
+                emitted.setdefault(skill_id, set()).update(_literal_strings(call.args[2]))
     return emitted
 
 

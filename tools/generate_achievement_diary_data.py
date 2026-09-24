@@ -290,28 +290,35 @@ def _items_yml_blocks(items_yml: Path) -> dict:
     return blocks
 
 
+def _items_yml_equipment(item_name: str, blocks: dict) -> tuple:
+    """``(item id, slot, bonuses, source)`` for a reward item from its items.yml row."""
+
+    block = blocks.get(item_name)
+    if block is None:
+        raise SystemExit(f"no items.yml row for {item_name}")
+    item_id = int(re.search(r"- id:\s*(\d+)", block).group(1))
+    fields = dict(
+        (key, int(value))
+        for key, value in re.findall(r"^\s+([a-z_]+):\s*(-?\d+)\s*$", block, re.M)
+    )
+    slot = SOURCE_SLOT_IDS.get(fields.get("equip_slot", -1))
+    if slot is None:
+        raise SystemExit(f"unmapped slot for {item_name}")
+    bonuses = {key: fields.get(key, 0) for key in BONUS_FIELDS if fields.get(key)}
+    return item_id, slot, bonuses, "data/cfg/items.yml item %d; achievement diary tier reward" % item_id
+
+
 def _equipment_rows(items_yml: Path) -> str:
     blocks = _items_yml_blocks(items_yml)
     rows = []
     for meta in FAMILIES.values():
         for tier_index in range(1, 5):
             item_name = f"{meta['item']} {tier_index}"
-            if item_name in MORYTANIA_LEG_BONUSES:
-                item_id, slot, bonuses, source = MORYTANIA_LEG_BONUSES[item_name]
-            else:
-                block = blocks.get(item_name)
-                if block is None:
-                    raise SystemExit(f"no items.yml row for {item_name}")
-                item_id = int(re.search(r"- id:\s*(\d+)", block).group(1))
-                fields = dict(
-                    (key, int(value))
-                    for key, value in re.findall(r"^\s+([a-z_]+):\s*(-?\d+)\s*$", block, re.M)
-                )
-                slot = SOURCE_SLOT_IDS.get(fields.get("equip_slot", -1))
-                if slot is None:
-                    raise SystemExit(f"unmapped slot for {item_name}")
-                bonuses = {key: fields.get(key, 0) for key in BONUS_FIELDS if fields.get(key)}
-                source = "data/cfg/items.yml item %d; achievement diary tier reward" % item_id
+            item_id, slot, bonuses, source = (
+                MORYTANIA_LEG_BONUSES[item_name]
+                if item_name in MORYTANIA_LEG_BONUSES
+                else _items_yml_equipment(item_name, blocks)
+            )
             bonus_src = ", ".join(f"{key}={value}" for key, value in sorted(bonuses.items()))
             rows.append(
                 f"    {item_name!r}: EquipmentItem(\n"
@@ -534,158 +541,149 @@ def _source(record: dict, family_id: str) -> str:
     )
 
 
+def _regional_family_block(
+    family_id: str, meta: dict, record: dict, definitions: dict
+) -> tuple[str, int]:
+    """The ``DiaryFamily`` source of one regional family, and its task count."""
+
+    source = _source(record, family_id)
+    curated = _regional_roster(family_id, meta, record, definitions)
+    tier_blocks: list[str] = []
+    for index, tier_name in enumerate(meta["tiers"]):
+        darkan_ids = record["tiers"][tier_name]
+        task_blocks: list[str] = []
+        for source_id, original_tier in curated[tier_name]:
+            task_source = source
+            if original_tier != tier_name:
+                task_source += (
+                    f"; original period tier {original_tier}; curated into {tier_name}"
+                )
+            task_blocks.append(
+                _task_block(
+                    family_id, tier_name, definitions[str(source_id)], task_source,
+                    identity_tier=original_tier,
+                )
+            )
+        for anchor_index, (skill_id, level) in enumerate(
+            PROGRESSION_ANCHORS.get((family_id, tier_name), ()), start=1
+        ):
+            display = skill_id.replace("_", " ").title()
+            anchor = {
+                "id": 900000 + list(FAMILIES).index(family_id) * 100 + index * 10 + anchor_index,
+                "name": f"Reach Level {level} {display}",
+                "description": "An AnkiScape curation anchor, not a period task identity.",
+            }
+            anchor_source = (
+                f"AnkiScape progression anchor derived from Darkan "
+                f"{record.get('darkan_class', family_id)} and rev-727 cache enum 3483 "
+                "requirement rows; not a period task identity"
+            )
+            task_blocks.append(
+                _task_block(
+                    family_id, tier_name, anchor, anchor_source, curation_anchor=True,
+                    conditions_override=(
+                        ("skill_level", skill_id, level, f"Level {level} {display}"),
+                    ),
+                )
+            )
+        if len(task_blocks) != TASKS_PER_TIER:
+            raise SystemExit(
+                f"{family_id} {tier_name} generated {len(task_blocks)} tasks, expected 12"
+            )
+        label = tier_name.capitalize()
+        reward_item = f"{meta['item']} {index + 1}"
+        reward = TIER_REWARDS.get((family_id, tier_name), f"{label} {meta['name']} task rewards.")
+        lamp_placeholder_id = f"achievement_diaries.{family_id}.{tier_name}.lamp_minimum_level"
+        tier_blocks.append(
+            "        DiaryTier(\n"
+            f"            {family_id + '_' + tier_name!r},\n"
+            f"            {label!r},\n"
+            f"            {index + 1},\n"
+            f"            {reward_item!r},\n"
+            f"            {reward!r},\n"
+            "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
+            f"            # PLACEHOLDER({lamp_placeholder_id}): the exact period\n"
+            "            # lamp floor is not recorded in the repository. A period lamp\n"
+            "            # dialogue or cache interface script would settle this tier.\n"
+            f"            DiaryLamp({meta['lamp'][index]}, 1),\n"
+            f"            {'period tier: ' + str(len(darkan_ids)) + ' tasks; ' + source!r},\n"
+            f"            designed_task_count={TASKS_PER_TIER},\n"
+            "        ),"
+        )
+    family_block = (
+        "DiaryFamily(\n"
+        f"        {family_id!r},\n"
+        f"        {meta['name']!r},\n"
+        "        'regional',\n"
+        "        (\n" + "\n".join(tier_blocks) + "\n        ),\n"
+        f"        {meta['taskmasters'][0]!r},\n"
+        f"        {meta['taskmaster_chathead']!r},\n"
+        f"        {source!r},\n"
+        "    )"
+    )
+    return family_block, TASKS_PER_TIER * len(tier_blocks)
+
+
+def _special_family_block(
+    family_id: str, meta: dict, record: dict, definitions: dict
+) -> tuple[str, int]:
+    """The ``DiaryFamily`` source of one single-pool family, and its task count."""
+
+    source = _source(record, family_id)
+    tier_name = meta["tier"]
+    coin_reward = MISC_COIN_BASE if family_id == "miscellaneous" else 0
+    task_blocks = [
+        _task_block(
+            family_id, tier_name, definitions[str(source_id)], source,
+            coin_reward=coin_reward,
+        )
+        for source_id in record["tiers"][tier_name]
+    ]
+    designed_task_count = (
+        BURTHORPE_CUTOFF_TASKS if family_id == "burthorpe" else MISCELLANEOUS_CUTOFF_TASKS
+    )
+    family_block = (
+        "DiaryFamily(\n"
+        f"        {family_id!r},\n"
+        f"        {meta['name']!r},\n"
+        f"        {meta['kind']!r},\n"
+        "        (\n"
+        "        DiaryTier(\n"
+        f"            {family_id + '_' + tier_name!r},\n"
+        f"            {meta['tier_name']!r},\n"
+        "            1,\n"
+        "            '',\n"
+        f"            {meta['reward_summary']!r},\n"
+        "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
+        "            None,\n"
+        f"            {'period pool: ' + str(len(record['tiers'][tier_name])) + ' tasks; ' + source!r},\n"
+        f"            {meta['reward_bundle']!r},\n"
+        f"            designed_task_count={designed_task_count},\n"
+        "        ),\n"
+        "        ),\n"
+        f"        {meta['taskmaster']!r},\n"
+        f"        {meta['taskmaster_chathead']!r},\n"
+        f"        {source!r},\n"
+        "    )"
+    )
+    return family_block, len(task_blocks)
+
+
 def build(document: dict, items_yml: Path) -> dict[str, str]:
-    family_sources: dict[str, str] = {}
     CURATION_LEDGER.begin()
     families = document["families"]
     definitions = document["task_definitions"]
-    kept_total = 0
-
-    for family_id, meta in FAMILIES.items():
-        record = families[family_id]
-        source = _source(record, family_id)
-        curated = _regional_roster(family_id, meta, record, definitions)
-        tier_blocks: list[str] = []
-        for index, tier_name in enumerate(meta["tiers"]):
-            darkan_ids = record["tiers"][tier_name]
-            task_blocks: list[str] = []
-            for source_id, original_tier in curated[tier_name]:
-                task_source = source
-                if original_tier != tier_name:
-                    task_source += (
-                        f"; original period tier {original_tier}; curated into {tier_name}"
-                    )
-                task_blocks.append(
-                    _task_block(
-                        family_id,
-                        tier_name,
-                        definitions[str(source_id)],
-                        task_source,
-                        identity_tier=original_tier,
-                    )
-                )
-            for anchor_index, (skill_id, level) in enumerate(
-                PROGRESSION_ANCHORS.get((family_id, tier_name), ()), start=1
-            ):
-                display = skill_id.replace("_", " ").title()
-                anchor = {
-                    "id": 900000 + list(FAMILIES).index(family_id) * 100 + index * 10 + anchor_index,
-                    "name": f"Reach Level {level} {display}",
-                    "description": (
-                        "An AnkiScape curation anchor, not a period task identity."
-                    ),
-                }
-                anchor_source = (
-                    f"AnkiScape progression anchor derived from Darkan "
-                    f"{record.get('darkan_class', family_id)} and rev-727 cache enum 3483 "
-                    "requirement rows; not a period task identity"
-                )
-                task_blocks.append(
-                    _task_block(
-                        family_id,
-                        tier_name,
-                        anchor,
-                        anchor_source,
-                        curation_anchor=True,
-                        conditions_override=(
-                            ("skill_level", skill_id, level, f"Level {level} {display}"),
-                        ),
-                    )
-                )
-            if len(task_blocks) != TASKS_PER_TIER:
-                raise SystemExit(
-                    f"{family_id} {tier_name} generated {len(task_blocks)} tasks, expected 12"
-                )
-            kept_total += len(task_blocks)
-            label = tier_name.capitalize()
-            reward_item = f"{meta['item']} {index + 1}"
-            reward = TIER_REWARDS.get(
-                (family_id, tier_name), f"{label} {meta['name']} task rewards."
-            )
-            lamp_placeholder_id = (
-                f"achievement_diaries.{family_id}.{tier_name}.lamp_minimum_level"
-            )
-            tier_blocks.append(
-                "        DiaryTier(\n"
-                f"            {family_id + '_' + tier_name!r},\n"
-                f"            {label!r},\n"
-                f"            {index + 1},\n"
-                f"            {reward_item!r},\n"
-                f"            {reward!r},\n"
-                "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
-                f"            # PLACEHOLDER({lamp_placeholder_id}): the exact period\n"
-                "            # lamp floor is not recorded in the repository. A period lamp\n"
-                "            # dialogue or cache interface script would settle this tier.\n"
-                f"            DiaryLamp({meta['lamp'][index]}, 1),\n"
-                f"            {'period tier: ' + str(len(darkan_ids)) + ' tasks; ' + source!r},\n"
-                f"            designed_task_count={TASKS_PER_TIER},\n"
-                "        ),"
-            )
-        family_block = (
-            "DiaryFamily(\n"
-            f"        {family_id!r},\n"
-            f"        {meta['name']!r},\n"
-            "        'regional',\n"
-            "        (\n" + "\n".join(tier_blocks) + "\n        ),\n"
-            f"        {meta['taskmasters'][0]!r},\n"
-            f"        {meta['taskmaster_chathead']!r},\n"
-            f"        {source!r},\n"
-            "    )"
-        )
-        family_sources[family_id] = family_module_source(family_block)
-
-    for family_id, meta in SPECIAL_FAMILIES.items():
-        record = families[family_id]
-        source = _source(record, family_id)
-        tier_name = meta["tier"]
-        task_blocks = []
-        for source_id in record["tiers"][tier_name]:
-            task = definitions[str(source_id)]
-            coin_reward = MISC_COIN_BASE if family_id == "miscellaneous" else 0
-            task_blocks.append(
-                _task_block(
-                    family_id,
-                    tier_name,
-                    task,
-                    source,
-                    coin_reward=coin_reward,
-                )
-            )
-        kept_total += len(task_blocks)
-        designed_task_count = (
-            BURTHORPE_CUTOFF_TASKS
-            if family_id == "burthorpe"
-            else MISCELLANEOUS_CUTOFF_TASKS
-        )
-        family_block = (
-            "DiaryFamily(\n"
-            f"        {family_id!r},\n"
-            f"        {meta['name']!r},\n"
-            f"        {meta['kind']!r},\n"
-            "        (\n"
-            "        DiaryTier(\n"
-            f"            {family_id + '_' + tier_name!r},\n"
-            f"            {meta['tier_name']!r},\n"
-            "            1,\n"
-            "            '',\n"
-            f"            {meta['reward_summary']!r},\n"
-            "            (\n" + "\n".join(task_blocks) + "\n            ),\n"
-            "            None,\n"
-            f"            {'period pool: ' + str(len(record['tiers'][tier_name])) + ' tasks; ' + source!r},\n"
-            f"            {meta['reward_bundle']!r},\n"
-            f"            designed_task_count={designed_task_count},\n"
-            "        ),\n"
-            "        ),\n"
-            f"        {meta['taskmaster']!r},\n"
-            f"        {meta['taskmaster_chathead']!r},\n"
-            f"        {source!r},\n"
-            "    )"
-        )
-        family_sources[family_id] = family_module_source(family_block)
+    rendered = {
+        family_id: _regional_family_block(family_id, meta, families[family_id], definitions)
+        for family_id, meta in FAMILIES.items()
+    } | {
+        family_id: _special_family_block(family_id, meta, families[family_id], definitions)
+        for family_id, meta in SPECIAL_FAMILIES.items()
+    }
     CURATION_LEDGER.assert_complete()
     return catalog_outputs(
-        family_sources,
-        kept_total,
+        {family_id: family_module_source(block) for family_id, (block, _count) in rendered.items()},
+        sum(count for _block, count in rendered.values()),
         TOTAL_CUTOFF_TASKS,
         _equipment_rows(items_yml),
     )

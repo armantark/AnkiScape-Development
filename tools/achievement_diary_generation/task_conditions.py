@@ -539,7 +539,6 @@ def _condition_src(condition: tuple) -> str:
     """Serialise one condition, refusing any key the runtime never writes."""
 
     kind, key, amount, label = condition[:4]
-    alternatives = condition[4] if kind == "any_of" and len(condition) > 4 else ()
     expected = condition[4] if kind == "state_equals" and len(condition) > 4 else None
     error = resolve_condition_key(kind, key, expected)
     if error:
@@ -553,17 +552,20 @@ def _condition_src(condition: tuple) -> str:
                 f"derived_value {key!r} threshold {amount} is above the implemented"
                 f" ceiling {ceiling}, so the row could never complete"
             )
+    head = f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r}"
     if kind == "state_equals":
-        return (
-            f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r},"
-            f" expected={expected!r})"
-        )
-    if kind != "any_of":
-        return f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r})"
+        return f"{head}, expected={expected!r})"
+    if kind == "any_of":
+        alternatives = condition[4] if len(condition) > 4 else ()
+        return f"{head}, ({_alternatives_src(label, alternatives)},))"
+    return f"{head})"
+
+
+def _alternatives_src(label: str, alternatives: tuple) -> str:
+    """Serialise an ``any_of`` body: one level of at least one alternative."""
+
     if not alternatives:
         raise SystemExit(f"any_of condition {label!r} carries no alternatives")
-    for alternative in alternatives:
-        if alternative[0] == "any_of":
-            raise SystemExit(f"any_of condition {label!r} nests another any_of")
-    inner = ", ".join(_condition_src(alternative) for alternative in alternatives)
-    return f"DiaryCondition({kind!r}, {key!r}, {amount}, {label!r}, ({inner},))"
+    if any(alternative[0] == "any_of" for alternative in alternatives):
+        raise SystemExit(f"any_of condition {label!r} nests another any_of")
+    return ", ".join(_condition_src(alternative) for alternative in alternatives)
