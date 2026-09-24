@@ -52,7 +52,7 @@ Text carries no ellipses; the page shows every string in full.
 ## Steps
 
 1. **Split.** Assign every source file to exactly one of at most five classification agents, by source group. A large ledger (`design-thread-queue.md`, `gap-grill-decisions-2026-07-10.md`) gets an agent to itself; the rest group by family, with the `handoffs/` rulings and the newest decision records together. The 2026-09-23 split gave 20, 28, 24, 51 and 51 rows. Done when the union of the groups equals the source list.
-2. **Classify.** Dispatch the agents in parallel with [classifier-brief.md](classifier-brief.md), each writing `rows-<group>.jsonl` to a scratch folder outside the repo, such as `Anki2/ankiscape_worktrees/.orchestrator/design-progress-<date>/`. Done when every agent reports and every file parses.
+2. **Classify.** Dispatch the agents in parallel with [classifier-brief.md](classifier-brief.md), its `{repo}`, `{skill}`, `{sources}` and `{out}` filled per group, each writing `rows-<group>.jsonl` to a scratch folder outside the repo, such as `Anki2/ankiscape_worktrees/.orchestrator/design-progress-<date>/`. Done when every agent reports, every file parses, and every path a report lists as Unlisted is either classified or ruled out as a source.
 3. **Dedup and supersede.** Read the rows across groups and write `rows-final.jsonl`:
    - The same design found in two groups keeps one row.
    - A later ruling that replaces an earlier one keeps only the later row (the Grand Exchange slot-count supersession replaced the six-offer-slot row).
