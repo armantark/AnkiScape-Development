@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import ast
 import json
 import os
 import re
@@ -27,22 +26,13 @@ from .locking import HeldLock, claim_landing_lock, register_gate
 from .promotion_process import kill_process_tree
 from .repository import commit_at, evidence_path_for, main_worktree, safe_log_root, _git
 
+if __package__ == "promotion":  # direct execution from tools/
+    from reachability.pins import REACHABILITY_PIN_FIELDS, read_reachability_pins
+else:
+    from ..reachability.pins import REACHABILITY_PIN_FIELDS, read_reachability_pins
+
 
 PROGRESS_LINE = re.compile(r"^[.sEF]+$")
-
-
-REACHABILITY_PIN_FIELDS = (
-    "action_count",
-    "reachable_item_count",
-    "orphan_input_count",
-    "root_orphan_count",
-    "cascade_orphan_count",
-    "unresolved_action_count",
-    "seed_item_count",
-)
-
-
-REACHABILITY_PIN_METHOD = "test_report_matches_player_finishable_quest_baseline"
 
 
 ResultValidator = Callable[[int, list[str]], bool]
@@ -138,55 +128,6 @@ def _worktree_is_clean(returncode: int, lines: list[str]) -> bool:
     return returncode == 0 and not lines
 
 
-def _read_reachability_pins(worktree: Path) -> dict[str, int]:
-    path = worktree / "tests" / "test_item_reachability_audit.py"
-    try:
-        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    except (OSError, SyntaxError) as exc:
-        raise GateError(f"Cannot read reachability pins from {path}: {exc}") from exc
-
-    methods = [
-        node
-        for node in ast.walk(tree)
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and node.name == REACHABILITY_PIN_METHOD
-    ]
-    if len(methods) != 1:
-        raise GateError(
-            f"Expected one {REACHABILITY_PIN_METHOD} method in {path}; found {len(methods)}"
-        )
-
-    pins: dict[str, int] = {}
-    for node in ast.walk(methods[0]):
-        if (
-            not isinstance(node, ast.Call)
-            or not isinstance(node.func, ast.Attribute)
-            or node.func.attr != "assertEqual"
-            or len(node.args) < 2
-        ):
-            continue
-        actual, expected = node.args[:2]
-        if (
-            not isinstance(actual, ast.Subscript)
-            or not isinstance(actual.value, ast.Name)
-            or actual.value.id != "report"
-            or not isinstance(actual.slice, ast.Constant)
-            or actual.slice.value not in REACHABILITY_PIN_FIELDS
-            or not isinstance(expected, ast.Constant)
-            or type(expected.value) is not int
-        ):
-            continue
-        field = str(actual.slice.value)
-        if field in pins:
-            raise GateError(f"Reachability pin {field!r} appears more than once in {path}")
-        pins[field] = expected.value
-
-    missing = [field for field in REACHABILITY_PIN_FIELDS if field not in pins]
-    if missing:
-        raise GateError(f"Reachability pins missing from {path}: {', '.join(missing)}")
-    return pins
-
-
 def _read_reachability_report(lines: list[str]) -> dict[str, object] | None:
     try:
         report = json.loads("\n".join(lines))
@@ -220,9 +161,8 @@ def _reachability_result_matches_pins(
     pins: dict[str, int],
 ) -> bool:
     report = _read_reachability_report(lines)
-    expected_returncode = 1 if pins["orphan_input_count"] else 0
     return (
-        returncode == expected_returncode
+        returncode == 0
         and report is not None
         and all(
             type(report.get(field)) is int and report[field] == pins[field]
@@ -233,8 +173,8 @@ def _reachability_result_matches_pins(
 
 def _run_reachability_check(log: TextIO, worktree: Path) -> int:
     try:
-        pins = _read_reachability_pins(worktree)
-    except GateError as exc:
+        pins = read_reachability_pins(worktree)
+    except ValueError as exc:
         print("=== reachability ===", file=log)
         print(f"FAILED: {exc}", file=log)
         log.flush()
@@ -512,7 +452,6 @@ _tail_without_progress.__module__ = _PUBLIC_MODULE
 _run_bounded.__module__ = _PUBLIC_MODULE
 _run_check.__module__ = _PUBLIC_MODULE
 _worktree_is_clean.__module__ = _PUBLIC_MODULE
-_read_reachability_pins.__module__ = _PUBLIC_MODULE
 _read_reachability_report.__module__ = _PUBLIC_MODULE
 _reachability_log_lines.__module__ = _PUBLIC_MODULE
 _reachability_result_matches_pins.__module__ = _PUBLIC_MODULE
