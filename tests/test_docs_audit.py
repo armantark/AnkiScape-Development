@@ -47,18 +47,21 @@ class DocumentationAuditTests(unittest.TestCase):
             "    def test_replacement(self):\n"
             "        pass\n",
         )
+        self._track(root, "tests/promotion/test_example.py", "def test_promoted():\n    pass\n")
         stale = "tests.test_example.ExampleTest.test_replacement_old"
+        missing_module = "tests.promotion.test_missing"
         self._track(
             root,
             "memory-bank/source-audits/example.md",
-            "`python3 -m unittest tests.test_example.ExampleTest.test_replacement " + stale + "`\n",
+            "`python3 -m unittest tests.test_example.ExampleTest.test_replacement "
+            f"tests.promotion.test_example {stale} {missing_module}`\n",
         )
 
         report = AUDIT_DOCS.audit_docs(root)
 
         self.assertEqual(
             [(issue.kind, issue.detail) for issue in report.issues],
-            [("dangling_test_selector", stale)],
+            [("dangling_test_selector", stale), ("dangling_test_selector", missing_module)],
         )
 
     def test_rejects_dated_entries_in_active_context(self) -> None:
