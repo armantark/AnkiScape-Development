@@ -248,6 +248,16 @@ class NativeSessionGuardTest(unittest.TestCase):
         self.assertTrue((base / native.RECEIPT).is_file())
         self.assertTrue((base / "addons21/ankiscape_fork/__init__.py").is_file())
 
+    def test_verify_refuses_while_anki_runs(self):
+        base, _ = self.prepare_session()
+        self.process.return_value = Mock(returncode=0, stdout="123\n", stderr="")
+        with redirect_stdout(io.StringIO()) as output, redirect_stderr(io.StringIO()) as error:
+            with self.assertRaises(SystemExit) as exit_status:
+                native.main(["verify", str(base)])
+        self.assertEqual(exit_status.exception.code, 2)
+        self.assertEqual(output.getvalue(), "")
+        self.assertIn("Anki is already running (PIDs: [123])", error.getvalue())
+
     def test_verify_handles_absence_and_detects_creation_and_removal(self):
         self.collection.unlink()
         base, _ = self.prepare_session()
