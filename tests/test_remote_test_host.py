@@ -457,6 +457,51 @@ class RemoteTestHostTests(unittest.TestCase):
             f"Remote mirror busy; waiting for {lock_path}\n",
         )
 
+    def test_phase_summary_records_completed_and_incomplete_runs(self):
+        worktree = Path(__file__).resolve().parents[1]
+        complete = "Ran 4506 tests in 251.835s\n\nOK (skipped=512)\n"
+        for failure_at in (None, "preparation", "sync", "execution", "lane exit"):
+            with self.subTest(failure_at=failure_at):
+                stdout = io.StringIO()
+                stderr = io.StringIO()
+                with (
+                    patch.object(
+                        run_remote_tests, "_preflight",
+                        side_effect=RuntimeError("preparation failed") if failure_at == "preparation" else None,
+                    ),
+                    patch.object(
+                        run_remote_tests, "_sync",
+                        side_effect=RuntimeError("sync failed") if failure_at == "sync" else None,
+                    ),
+                    patch.object(
+                        run_remote_tests, "_stream_remote_run",
+                        side_effect=RuntimeError("execution failed") if failure_at == "execution" else None,
+                        return_value=(2 if failure_at == "lane exit" else 0, complete),
+                    ),
+                    patch.object(run_remote_tests.time, "perf_counter", side_effect=iter(range(0, 6))),
+                    contextlib.redirect_stdout(stdout),
+                    contextlib.redirect_stderr(stderr),
+                ):
+                    result = run_remote_tests.main([str(worktree), "plain"])
+                self.assertEqual(result, 0 if failure_at is None else 1)
+                expected = {
+                    None: ("finished", "finished", "finished"),
+                    "preparation": ("incomplete", None, None),
+                    "sync": ("finished", "incomplete", None),
+                    "execution": ("finished", "finished", "incomplete"),
+                    "lane exit": ("finished", "finished", "finished"),
+                }[failure_at]
+                expected_lines = [
+                    f"{phase}: {f'1.000s ({state})' if state else 'not started'}"
+                    for phase, state in zip(run_remote_tests.PHASE_NAMES, expected)
+                ]
+                self.assertEqual(
+                    stdout.getvalue().split("Remote phase timings:\n")[-1].splitlines(),
+                    expected_lines,
+                )
+                if failure_at is not None:
+                    self.assertIn("error:", stderr.getvalue())
+
     def test_remote_mirror_lock_wraps_sync_and_run_on_every_exit(self):
         worktree = Path(__file__).resolve().parents[1]
         complete = "Ran 4506 tests in 251.835s\n\nOK (skipped=512)\n"

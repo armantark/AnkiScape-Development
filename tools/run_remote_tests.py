@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Sync an AnkiScape worktree to the MacBook test mirror and run one lane."""
+"""Sync an AnkiScape worktree to the MacBook test mirror and run one lane.
+
+Preparation checks prerequisites; sync includes pending-run reconciliation and mirror
+setup; execution includes launch, polling and final log retrieval. Lock wait is untimed.
+"""
 
 from __future__ import annotations
 
@@ -13,9 +17,10 @@ import subprocess
 import sys
 import time
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
+from typing import Iterator, Sequence
 
 HOST = "armans-macbook-pro"
 REMOTE_HOME = Path("/Users/armantarkhanian")
@@ -34,6 +39,7 @@ MIN_TESTS = 4_506
 MIN_PLAIN_ACTIVE_TESTS = 3_994
 MIN_QT_ACTIVE_TESTS = 4_503
 NETWORK_ATTEMPTS = 3
+PHASE_NAMES = ("Remote preparation", "Sync", "Test execution")
 
 
 @dataclass(frozen=True)
@@ -42,6 +48,34 @@ class TestSummary:
     result_line: str
     tests: int
     skipped: int
+
+
+@dataclass(frozen=True)
+class PhaseTiming:
+    elapsed_seconds: float
+    finished: bool
+
+
+@contextmanager
+def _measure_phase(timings: dict[str, PhaseTiming], phase: str) -> Iterator[None]:
+    started = time.perf_counter()
+    finished = False
+    try:
+        yield
+        finished = True
+    finally:
+        timings[phase] = PhaseTiming(time.perf_counter() - started, finished)
+
+
+def _print_phase_timings(timings: dict[str, PhaseTiming]) -> None:
+    print("Remote phase timings:")
+    for phase in PHASE_NAMES:
+        timing = timings.get(phase)
+        if timing is None:
+            print(f"{phase}: not started")
+            continue
+        state = "finished" if timing.finished else "incomplete"
+        print(f"{phase}: {timing.elapsed_seconds:.3f}s ({state})")
 
 
 def parse_unittest_summary(output: str) -> TestSummary:
@@ -367,9 +401,11 @@ def _validate_focused_summary(summary: TestSummary, expected_tests: int) -> None
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
     local_worktree = args.local_worktree
+    timings: dict[str, PhaseTiming] = {}
 
     try:
-        _preflight(args.lane)
+        with _measure_phase(timings, "Remote preparation"):
+            _preflight(args.lane)
         LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
         with LOCAL_MIRROR_LOCK_PATH.open("a+", encoding="utf-8") as mirror_lock:
             try:
@@ -384,13 +420,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
                 fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_EX)
             try:
-                _sync(local_worktree)
-                returncode, output = _stream_remote_run(
-                    args.lane,
-                    timeout=args.timeout,
-                    poll_interval=args.poll_interval,
-                    selectors=args.select,
-                )
+                with _measure_phase(timings, "Sync"):
+                    _sync(local_worktree)
+                with _measure_phase(timings, "Test execution"):
+                    returncode, output = _stream_remote_run(
+                        args.lane,
+                        timeout=args.timeout,
+                        poll_interval=args.poll_interval,
+                        selectors=args.select,
+                    )
             finally:
                 fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_UN)
         if returncode != 0:
@@ -422,12 +460,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 file=sys.stderr,
             )
         return 1
-
-    scope = "focused " if args.select else ""
-    print(f"Remote {scope}{args.lane} lane summary:")
-    print(summary.ran_line)
-    print(summary.result_line)
-    return 0
+    else:
+        scope = "focused " if args.select else ""
+        print(f"Remote {scope}{args.lane} lane summary:")
+        print(summary.ran_line)
+        print(summary.result_line)
+        return 0
+    finally:
+        _print_phase_timings(timings)
 
 
 if __name__ == "__main__":
