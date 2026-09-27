@@ -40,9 +40,8 @@ def _active_player_data() -> dict:
 def render(output_path: Path, *, width: int = 1200, height: int = 760) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     MainMenuWidgetTest.setUpClass()
-    case = MainMenuWidgetTest(
-        methodName="test_shooting_star_panel_selects_configures_and_exchanges"
-    )
+    # The default runTest name needs no test method, so renaming a test cannot break this render.
+    case = MainMenuWidgetTest()
     case.setUp()
     app = QApplication.instance()
     if app is None:
@@ -50,13 +49,13 @@ def render(output_path: Path, *, width: int = 1200, height: int = 760) -> Path:
     app.setPalette(_dark_palette())
 
     dialog = case._open(_active_player_data())
-    case._open_activities(dialog)
+    case._open_activity_detail(dialog, "shooting_stars")
     dialog.show()
     dialog.resize(width, height)
     for _ in range(8):
         app.processEvents()
     star_panel = dialog.findChild(QWidget, "shootingStarPanel")
-    if star_panel is None:
+    if star_panel is None or not star_panel.isVisible():
         raise RuntimeError("Shooting Star panel was not rendered")
     for _ in range(4):
         app.processEvents()

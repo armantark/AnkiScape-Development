@@ -58,9 +58,8 @@ def _show_card(case: MainMenuWidgetTest, player: dict, width: int, height: int):
 def render(output_dir: Path, *, width: int = 1200, height: int = 760) -> tuple[Path, ...]:
     output_dir.mkdir(parents=True, exist_ok=True)
     MainMenuWidgetTest.setUpClass()
-    case = MainMenuWidgetTest(
-        methodName="test_circus_detail_arms_a_performance_and_exposes_advanced_routine"
-    )
+    # The default runTest name needs no test method, so renaming a test cannot break this render.
+    case = MainMenuWidgetTest()
     case.setUp()
     app = QApplication.instance()
     if app is None:

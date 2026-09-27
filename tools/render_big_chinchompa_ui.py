@@ -62,27 +62,24 @@ def render(
 ) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     MainMenuWidgetTest.setUpClass()
-    case = MainMenuWidgetTest(
-        methodName=(
-            "test_big_chinchompa_panel_selects_event_and_runs_reward_shop"
-        )
-    )
+    # The default runTest name needs no test method, so renaming a test cannot break this render.
+    case = MainMenuWidgetTest()
     case.setUp()
     app = QApplication.instance()
     if app is None:
         raise RuntimeError("QApplication was not created by the Qt test harness")
     app.setPalette(_dark_palette())
 
-    utility_dialog = case._open(_active_player_data())
-    case._open_utility(utility_dialog)
-    utility_dialog.show()
-    utility_dialog.resize(width, height)
+    activity_dialog = case._open(_active_player_data())
+    case._open_activity_detail(activity_dialog, "big_chinchompa")
+    activity_dialog.show()
+    activity_dialog.resize(width, height)
     for _ in range(8):
         app.processEvents()
-    utility_path = output_dir / "big-chinchompa-utility.png"
-    if not utility_dialog.grab().save(str(utility_path)):
-        raise RuntimeError(f"Could not save {utility_path}")
-    utility_dialog.close()
+    activity_path = output_dir / "big-chinchompa-activity.png"
+    if not activity_dialog.grab().save(str(activity_path)):
+        raise RuntimeError(f"Could not save {activity_path}")
+    activity_dialog.close()
 
     ticket = "Swamp lizard quota ticket"
     hunter_data = _make_player_data()
@@ -116,7 +113,7 @@ def render(
     hunter_dialog.close()
 
     case.tearDown()
-    return utility_path, hunter_path
+    return activity_path, hunter_path
 
 
 def main() -> int:

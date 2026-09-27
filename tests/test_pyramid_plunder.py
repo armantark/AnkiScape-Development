@@ -16,6 +16,7 @@ from ankiscape.data.pyramid_plunder_data import (
     pyramid_plunder_extra_items_as_dict,
 )
 from ankiscape.logic.pyramid_plunder_logic import (
+    PYRAMID_PLUNDER_STATE_VERSION,
     _room_bundle,
     _stackable_names,
     apply_pyramid_plunder_review_pure,
@@ -268,10 +269,22 @@ class PyramidPlunderPureTests(unittest.TestCase):
             migrated["activity_session"],
             {"active_id": PYRAMID_PLUNDER_ACTIVITY_ID},
         )
-        self.assertEqual(
-            sanitize_pyramid_plunder_state_pure(migrated),
-            sanitize_pyramid_plunder_state_pure(migrated),
-        )
+        expected = {
+            "pyramid_plunder": {
+                "version": PYRAMID_PLUNDER_STATE_VERSION,
+                "room": 3,
+                "max_room": 3,
+                "priority": "max_xp",
+                "xp": {"thieving": 0.0, "strength": 0.0, "runecrafting": 0.0},
+                "haul": {},
+            },
+            "pyramid_plunder_priority": "max_xp",
+            "pyramid_plunder_runs_completed": 0,
+            "pyramid_plunder_last_result": "Ready to enter",
+        }
+        # Load must persist the sanitized state, and a second pass must not move it.
+        self.assertEqual({key: migrated[key] for key in expected}, expected)
+        self.assertEqual(sanitize_pyramid_plunder_state_pure(migrated), expected)
 
     def test_assets_are_period_pinned_reachable_and_normalized(self):
         provenance = json.loads((ROOT / "assets_provenance.json").read_text())
