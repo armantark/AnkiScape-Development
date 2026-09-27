@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import sys
 import tempfile
 import types
@@ -144,6 +145,96 @@ class StorageRuntimeTest(unittest.TestCase):
                 )
             finally:
                 collection.close()
+
+    @unittest.skipIf(Collection is None, "Anki runtime is not installed")
+    def test_next_game_write_after_full_sync_download_puts_back_the_old_save(self):
+        """Pins the known defect: a full sync download loses the other device's save.
+
+        The fix waits on the owner's choice (design-thread queue section 3.39).
+        When it lands, the final assertion expects the downloaded 4500.0.
+
+        This replays aqt 25.09.4 opening a profile whose automatic sync needs a
+        full download: `loadProfile` fires `profile_did_open` (the legacy
+        `profileLoaded` runs `load_player_data`) and only then syncs
+        (`aqt/main.py` 568-569). `full_download` closes the collection, the
+        backend replaces the file, and aqt reopens the same `Collection` object
+        (`aqt/sync.py` 238-250), then fires `sync_did_finish` (`aqt/main.py`
+        1107). The player then changes a target, which writes the save.
+        """
+        from tests.test_integration_smoke import (
+            _DummyMW,
+            _install_runtime_fakes,
+            _load_addon_as_package,
+        )
+
+        original_modules = dict(sys.modules)
+        self.addCleanup(sys.modules.update, original_modules)
+        self.addCleanup(sys.modules.clear)
+
+        with tempfile.TemporaryDirectory() as directory:
+            server_path = Path(directory) / "ankiweb" / "collection.anki2"
+            local_path = Path(directory) / "desktop" / "collection.anki2"
+            server_path.parent.mkdir()
+            local_path.parent.mkdir()
+            server = Collection(str(server_path))
+            server.set_config(
+                "ankiscape_player_data", {"config_version": 1, "mining_exp": 4500.0}
+            )
+            server.close()
+            collection = Collection(str(local_path))
+            try:
+                collection.set_config(
+                    "ankiscape_player_data", {"config_version": 1, "mining_exp": 120.0}
+                )
+                _install_runtime_fakes()
+                aqt = sys.modules["aqt"]
+                aqt.mw = _DummyMW(collection)
+                gui_hooks = aqt.gui_hooks
+                for name in (
+                    "sync_will_start",
+                    "collection_will_temporarily_close",
+                    "collection_did_temporarily_close",
+                    "state_did_reset",
+                    "sync_did_finish",
+                ):
+                    setattr(gui_hooks, name, [])
+
+                def fire(hook, *args):
+                    for callback in list(hook):
+                        callback(*args)
+
+                addon = _load_addon_as_package("ankiscape_full_sync_download")
+
+                addon.load_player_data()
+                fire(gui_hooks.sync_will_start)
+                fire(gui_hooks.collection_will_temporarily_close, collection)
+                collection.close()
+                shutil.copyfile(server_path, local_path)
+                collection.reopen()
+                fire(gui_hooks.collection_did_temporarily_close, collection)
+                fire(gui_hooks.state_did_reset)
+                fire(gui_hooks.sync_did_finish)
+                fire(gui_hooks.state_did_reset)
+                self.assertEqual(
+                    collection.get_config("ankiscape_player_data")["mining_exp"],
+                    4500.0,
+                )
+
+                self.assertTrue(
+                    addon._set_value("current_hunter", "catch_carrion_jadinko")
+                )
+
+                saved = collection.get_config("ankiscape_player_data")
+                self.assertEqual(saved["current_hunter"], "catch_carrion_jadinko")
+                self.assertEqual(
+                    saved["mining_exp"],
+                    120.0,
+                    "the pre-download save in memory no longer overwrites the "
+                    "downloaded save; flip this to 4500.0",
+                )
+            finally:
+                if collection.db:
+                    collection.close()
 
 
 if __name__ == "__main__":

@@ -1126,6 +1126,83 @@ Owner choice: (a) run the check in the MacBook Codex desktop task
 (b) approve landing on the green gate alone; or (c) approve another
 computer-use route.
 
+### 3.39 A sync that brings another desktop's save is overwritten by the next game write
+
+Raised 2026-09-25 on branch `goal/sync-save-overwrite-2026-09-25`. First seen
+by the review-log catch-up spec (`memory-bank/specs/review-log-catch-up.md`
+section 11, commit `220527e0`). Player-visible defect: progress made on a
+second desktop is lost with no message.
+
+What the code does:
+
+- The game reads the save from collection config key `ankiscape_player_data`
+  into memory once, on the legacy `profileLoaded` hook (`__init__.py:457-460`,
+  registered at `__init__.py:5920-5936` through `core/hooks.py:52-57`). Every
+  game write puts the memory copy back (`__init__.py:452-454`,
+  `core/storage.py:51-54`). The add-on registers no sync or collection hook;
+  its only other Anki hooks are reviewer, overview, undo and
+  `profile_will_close` (HUD hide).
+- Anki 25.09.4 (`d52ca669`, the version in both test lanes): `loadProfile`
+  fires `profile_did_open`, which runs `profileLoaded`, and only then starts
+  the automatic sync (`aqt/main.py:568-569`). A full download closes the
+  collection, the backend replaces the file, and aqt reopens the same
+  `Collection` object (`aqt/sync.py:238-250`, `anki/collection.py:276-299`),
+  then fires `sync_did_finish` and `mw.reset()` (`aqt/main.py:1105-1108`).
+  `get_config` reads the backend each time, with no Python cache
+  (`anki/config.py:41-45`).
+- A normal sync is affected too (source reading, not tested): the side whose
+  collection changed last sends all of its config, and the other side deletes
+  its config table and writes the received one (`rslib/src/sync/collection/changes.rs:131-132, 214-240`,
+  `rslib/src/storage/config/mod.rs:79-95`, newer side from
+  `rslib/src/sync/collection/meta.rs:81`, tag `25.09.4`).
+
+Player scenario: play on desktop A and sync. Open desktop B. B loads its old
+save, then its automatic sync brings A's save into the collection. B's first
+answer writes B's old save over it, and B's next sync sends that to AnkiWeb and
+then to A. A new second desktop is the worst case: its empty collection gives
+a new level-1 save in memory, and the first answer after the first download
+replaces all progress. One desktop with AnkiMobile or AnkiDroid is safe,
+because those apps never change the key.
+
+Reproduction test: `tests/test_storage_runtime.py::StorageRuntimeTest::test_next_game_write_after_full_sync_download_puts_back_the_old_save`
+(Qt lane; the plain lane has no Anki and skips it). It replays the aqt order
+with real `Collection` objects and fires the aqt hooks, then changes the
+Hunter target through `_set_value`. On `d0904603` the saved Mining XP is the
+old desktop's 120.0, not the downloaded 4500.0. The test pins that defect so
+the Qt lane stays green; the fix changes its final expectation to 4500.0.
+
+Options:
+
+1. **Reload after sync (recommended).** Register `sync_did_finish` and
+   `collection_did_temporarily_close`; reload the save in place, empty both
+   game undo stacks (their snapshots hold the old save), and refresh open game
+   surfaces. No save-model change. Undo: remove two hook registrations.
+   Live-install risk: an open game dialog that holds the old dict could write
+   it back, so the reload must update the live dict in place and refresh or
+   close dialogs; aqt already closes all windows before a full download, but
+   not before a normal sync. It accepts Anki's own rule: the side that changed
+   last wins, and the other desktop's unsynced progress is lost, as it is for
+   Anki's own settings today.
+2. **Compare and refuse on write.** Keep a save revision in memory and read
+   the stored revision before each write; on a mismatch, refuse the write,
+   reload and tell the player. It also catches other writers (another add-on,
+   the original AnkiScape on the same key). Cost: a new save field, one extra
+   config read per answer, the player's current action is dropped, and it still
+   needs option 1's reload. Live-install risk: a false mismatch (for example
+   the legacy TEXT-row repair in `core/storage.py:21-35`) stops every save.
+   Undo: medium, because the revision field stays in synced saves.
+3. **Fold into the save relocation.** Move the save out of collection config
+   (matrix row "Upstream AnkiScape 3.0 ideas"). Anki sync then never touches
+   it, so this overwrite cannot happen; but cross-desktop progress needs its
+   own transport, and every existing save needs a migration. Highest undo
+   cost, and the defect stays live until the owner grill and the migration
+   land.
+
+Recommendation: option 1 now, as a small fix that does not depend on the
+relocation, and keep option 2's revision idea for the relocation grill.
+Blocks: the review-log catch-up scan after a sync (spec section 5.3), which
+needs the same reload first.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19
