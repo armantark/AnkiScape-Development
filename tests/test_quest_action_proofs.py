@@ -15,11 +15,13 @@ from ankiscape.core.storage_pure import (
     default_player_data,
     migrate_loaded_data,
 )
+from ankiscape.data.quest.stage_cleanups import QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID
 from ankiscape.data.quest_action_proof_data import (
     BIOHAZARD_CAULDRON_ACTION,
     DO_NO_EVIL_MAMULET_MOULD_PROOF,
     FREMENNIK_ISLES_YAK_HIDE_PROOF,
     MOURNER_FOOD_STORES_PROOF,
+    QUEST_ACTION_PROOF_RULES,
     THAKKRAD_CURED_YAK_HIDE_PROOF,
 )
 from ankiscape.logic.shop_logic import apply_shop_buy_pure, apply_shop_service_pure, rollback_shop_event_pure
@@ -816,6 +818,29 @@ def _retired_store_write_sites(path, root, source):
     return visitor.sites
 
 
+# Source-blocked stages that no runtime path can finish yet; each comment names
+# its record in memory-bank/source-audits/shared-quest-action-proofs-2026-08-31.md
+# (design-thread queue 3.31). Remove a triple in the change that wires its emitter.
+_UNEMITTED_CLEANUP_ACTIONS = frozenset({
+    # Audit: no Oronwen service action.
+    ("mournings_end_part_i", 3, "Have Oronwen repair the mourner trousers"),
+    # Audit: the furniture exists, but the clockwork-penguin action does not.
+    ("cold_war", 2, "Build the clockwork penguin on a crafting table 3"),
+    # Audit: the live round_shield target is the wrong mechanic.
+    ("the_fremennik_isles", 5, "Make a Fremennik round shield"),
+    # Audit: the live Telegrab target is Wine of Zamorak, not the Ancestral key.
+    ("spirits_of_the_elid", 2, "Cast Telegrab for the water channel puzzle"),
+    # Audit: the source uses a direct spell-on-NPC interaction, not generic combat.
+    ("enakhras_lament", 5, "Cast Crumble Undead during the boneguard fight"),
+    # Audit: no Silvthrill-rod enchant target.
+    ("in_aid_of_the_myreque", 6, "Enchant sapphire for the Myreque preparations"),
+    # Audit: no evergreen sap action.
+    ("the_eyes_of_glouphrie", 3, "Collect a bucket of sap from an evergreen tree"),
+    # Audit: no quest-specific emerald preparation target.
+    ("legacy_of_seergaze", 5, "Cast Enchant Level 2 Jewellery for the emerald preparations"),
+})
+
+
 class TestQuestActionProofWriterOwnership(unittest.TestCase):
     def test_retired_store_census_detects_assignments_and_mutation_methods(self):
         root = Path("/synthetic")
@@ -864,6 +889,28 @@ class TestQuestActionProofWriterOwnership(unittest.TestCase):
                 if auto_quest != required_quest
             },
             set(),
+        )
+
+    def test_every_cleanup_required_action_has_a_runtime_emitter(self):
+        # A cleanup names its required action as free text, and the stage gate
+        # accepts it only once a stage auto action or a proof rule records that
+        # exact string; without one the stage can never be finished.
+        emitted_actions = _quest_action_owners("auto_actions").keys() | {
+            proof
+            for _required_proofs, emitted_proofs in QUEST_ACTION_PROOF_RULES.values()
+            for proof in emitted_proofs
+        }
+
+        self.maxDiff = None
+        self.assertSetEqual(
+            {
+                (quest_id, cleanup.stage, action_id)
+                for quest_id, cleanups in QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID.items()
+                for cleanup in cleanups
+                for action_id in cleanup.add_required_actions
+                if action_id not in emitted_actions
+            },
+            _UNEMITTED_CLEANUP_ACTIONS,
         )
 
     def test_production_proof_writers_are_genuine_action_seams(self):
