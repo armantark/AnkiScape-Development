@@ -9,4 +9,4 @@ Complete digest index: `$(git rev-parse --git-common-dir)/ankiscape-promotion-ev
 
 Live inputs stay in the checkout:
 - `baseline-overlay.py.gz` — `tools/carried/compare_processing_reconciliation.py` reads it.
-- `final-source-manifest.json.gz` — `tools/carried/run_processing_reconciliation_remote.py` reads it.
+- `final-source-manifest.json.gz` — historical source binding for `tools/carried/compare_processing_reconciliation.py --manifest`; the retired remote driver is no longer needed.
