@@ -26,4 +26,5 @@
 <li data-step="tools-live-tree-sync">One-off checks no longer quietly pick up edits made after a test run was requested, and gameplay checks still run in the regular suites.</li>
 <li data-step="gate-judges-own-change">A finished change that updates the final check itself is now judged by its own updated check, so correct work no longer fails because the old check expected something different, and nobody has to remember to ask for it.</li>
 <li data-step="gate-stale-kill">Healthy long checks can wait their turn without another operation killing them as stale.</li>
+<li data-step="surface-digest-folder">A check that guards the game's start-up code now gives the same answer in any copy of the add-on folder, so a helper working in its own copy no longer sees a false failure.</li>
 </ul></main></body></html>

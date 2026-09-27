@@ -29,6 +29,12 @@ import typing
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# The root package's import name enters the digest through ``__name__``, so it
+# is fixed rather than taken from the checkout folder.  This is the canonical
+# checkout's name, which the pinned root digest was recorded under; the
+# ``ankiscape`` name is unavailable because pkg_alias binds it to an alias that
+# deliberately skips the root initializer.
+ROOT_PACKAGE_NAME = "ankiscape_fork"
 
 
 def _qualified_type(value: Any) -> str:
@@ -242,16 +248,15 @@ def _load_root_initializer() -> types.ModuleType:
     """Execute the root package when the caller has its runtime dependencies."""
 
     path = ROOT / "__init__.py"
-    package_name = ROOT.name
     spec = importlib.util.spec_from_file_location(
-        package_name,
+        ROOT_PACKAGE_NAME,
         path,
         submodule_search_locations=[str(ROOT)],
     )
     if spec is None or spec.loader is None:
         raise ImportError(f"cannot load package initializer from {path}")
     module = importlib.util.module_from_spec(spec)
-    sys.modules[package_name] = module
+    sys.modules[ROOT_PACKAGE_NAME] = module
     spec.loader.exec_module(module)
     return module
 
