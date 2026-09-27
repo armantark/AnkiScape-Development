@@ -2,6 +2,18 @@
 
 This log keeps the current month. Earlier months rotate into `memory-bank/archive/` on the first session of each month; May to August 2026 is in [the progress archive](archive/progress-2026-05-to-08.md).
 
+## A queued remote test run tests the tree as launched — 2026-09-25
+
+A focused or full run that waits for the MacBook mirror lock now tests the worktree as it stood when the run started, so stashing or editing while the run queues no longer changes what gets tested.
+
+Verified claim, on `main` `d0904603`: `tools/run_remote_tests.py` `main()` entered `_hold_mirror_lock()` (untimed blocking `fcntl.flock(..., LOCK_EX)`) and only then called `_sync(local_worktree)`, whose `_rsync_command` copies the live `f"{local_worktree}/"`. Fix: `main()` copies the worktree into a `tempfile.TemporaryDirectory(prefix="ankiscape-remote-sync-")` with the same `_rsync_command` exclusions inside the "Remote preparation" phase, before the preflight and the lock wait, and syncs that snapshot; the snapshot is removed when the run ends. Lane acceptance, floors, the mirror lock, the inherited lock of the promotion gate and the direct `_sync` callers are unchanged. A local snapshot of this 73 MB worktree measured 2.26 to 2.50 s.
+
+Proof on the MacBook: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_remote_test_host. --select test_remote_mirror_lock. --expected-tests 26` → `Ran 26 tests in 7.109s`, `OK`, exit 0; out-of-tree `focused-plain-runner.log` SHA-256 `0688322167ef7af7bb4677db81ad385cfdffa1915fa8fa1e4b7a57cd833c8731`. The regression test simulates contention: it patches `fcntl.flock` so the non-blocking attempt raises `BlockingIOError` and the blocking call edits, deletes and adds worktree files before returning; it proves the snapshot is taken before the lock wait, not behaviour under a real operating-system lock wait, so commit `13f2deb2`'s phrase "during a real lock wait" overstates it. Load-bearing check: with `_sync(Path(snapshot))` temporarily changed back to `_sync(local_worktree)`, `--select test_run_syncs_the_worktree_as_launched_not_as_edited_during_the_lock_wait --expected-tests 1` → `FAILED (failures=1)`, `AssertionError: {'run[31 chars]y': 'edited while queued\n', 'added.py': 'edit[14 chars]d\n'} != {'run[31 chars]y': 'launch\n', 'removed.py': 'launch\n'}`, exit 1; out-of-tree `mutation-live-tree-sync.log` SHA-256 `52d494c96f2a4e604e9742ad0161dadd456d417f2eeaba0e6bbb4b7e7372b704`; the change was restored before any other step.
+
+Audits: `python3 tools/audit_docs.py` → `Audited 871 Markdown and 452 HTML files.` / `Documentation audit passed.`, exit 0; `python3 tools/audit_test_quality.py` → `4880 tests across 284 files` / `hard issues: 0` / `structural clone candidates: 31 groups`, exit 0; `python3 tools/audit_item_reachability.py` → `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, exit 0. Raw logs: `$(git rev-parse --git-common-dir)/ankiscape-promotion-evidence/goal-runner-sync-snapshot-2026-09-25/`.
+
+The existing runner tests that call `main()` now use a small temporary worktree, so the suite does not copy the whole repository per call. Not changed, recorded for a later slice: `tools/pass14/checks.py` and `tools/carried/run_processing_reconciliation_remote.py` take the lock themselves and call `_sync(root)` on the live tree. No full lane was run; the orchestrator re-runs both lanes on the merged tree.
+
 ## Raw evidence archived and obsolete combat scripts retired — 2026-09-23
 
 Old run logs and machine output now live outside the add-on folder, making it much lighter without losing the proof.

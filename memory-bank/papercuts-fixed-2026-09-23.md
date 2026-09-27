@@ -3103,3 +3103,9 @@ Disposition: external limit (`external-blocker`). Evidence: the MacBook load ave
 Disposition: fixed this pass (`fixed-this-pass`). Evidence: `tests/ui/` became the `tests/ui_flows/` package; both lanes now discover its 18 tests (`run_tests.py --list` 5737 → 5755).
 
 - 2026-09-24T00:22:17-0700 — `run_tests.py -- test_slayer_progress test_activity_one_click test_encounter_transitions` answered `No unambiguous unittest ID matched` because tests/ui has no __init__.py, so its 18 test methods are never discovered by either lane.
+
+## A queued remote run tested the tree as it stood when the mirror lock freed — 1 occurrence
+
+Disposition: fixed this pass (`fixed-this-pass`). Evidence: `tools/run_remote_tests.py` `main()` now copies the worktree into a temporary snapshot before the preflight and the mirror-lock wait, and syncs that snapshot; `test_remote_test_host.RemoteTestHostTests.test_run_syncs_the_worktree_as_launched_not_as_edited_during_the_lock_wait` edits, deletes and adds files during the lock wait and requires the launch-time tree.
+
+- 2026-09-24T03:31:27-0700 — UI test discovery slice: I ran `git stash` / `git stash pop` to diff an audit against the base while a backgrounded `tools/run_remote_tests.py` was still waiting on `/Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock`; the lock was still held so no sync saw the stashed tree, but the pop left the rename unstaged (` D tests/ui/...`, `A  tests/ui_flows/...`) and a sync during that window would have tested the base tree; never stash while a remote run is pending.

@@ -16,6 +16,11 @@ from tools import run_remote_tests
 
 
 class RemoteTestHostTests(unittest.TestCase):
+    def _worktree(self) -> Path:
+        worktree = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        (worktree / "run_tests.py").write_text("launch\n", encoding="utf-8")
+        return worktree
+
     def test_focused_arguments_refuse_incomplete_or_empty_selection_before_network(self):
         root = str(Path(__file__).resolve().parents[1])
         cases = (
@@ -36,7 +41,7 @@ class RemoteTestHostTests(unittest.TestCase):
             preflight.assert_not_called()
 
     def test_focused_run_requires_exact_count_and_zero_skips_without_lowering_full_floor(self):
-        root = str(Path(__file__).resolve().parents[1])
+        root = str(self._worktree())
         cases = (
             ("Ran 1 test in 0.1s\n\nOK\n", 0),
             ("Ran 2 tests in 0.1s\n\nOK\n", 1),
@@ -220,7 +225,9 @@ class RemoteTestHostTests(unittest.TestCase):
                     with self.assertRaises(RuntimeError) as failure:
                         run_remote_tests._sync(worktree)
                     self.assertEqual(pending_path.read_bytes(), original)
-                    self.assertEqual(rsync.call_count, 1)
+                    self.assertEqual(
+                        [call.kwargs["label"] for call in rsync.call_args_list].count("worktree sync"), 1,
+                    )
                     self.assertEqual(len(launches), 1)
                     self.assertEqual(mutations, [
                         call.args[0][-1] for call in subprocess_run.call_args_list
@@ -451,7 +458,7 @@ class RemoteTestHostTests(unittest.TestCase):
         self.assertEqual(results[0]["resolved"], results[1]["resolved"])
 
     def test_remote_mirror_lock_reports_wait_before_blocking(self):
-        worktree = Path(__file__).resolve().parents[1]
+        worktree = self._worktree()
         complete = "Ran 4506 tests in 251.835s\n\nOK (skipped=512)\n"
         operations = []
 
@@ -492,8 +499,43 @@ class RemoteTestHostTests(unittest.TestCase):
             f"Remote mirror busy; waiting for {lock_path}\n",
         )
 
+    def test_run_syncs_the_worktree_as_launched_not_as_edited_during_the_lock_wait(self):
+        worktree = self._worktree()
+        (worktree / "kept.py").write_text("launch\n", encoding="utf-8")
+        (worktree / "removed.py").write_text("launch\n", encoding="utf-8")
+        synced: list[tuple[Path, dict[str, str]]] = []
+
+        def flock(_descriptor: int, operation: int) -> None:
+            if operation == run_remote_tests.fcntl.LOCK_EX | run_remote_tests.fcntl.LOCK_NB:
+                raise BlockingIOError
+            if operation == run_remote_tests.fcntl.LOCK_EX:
+                (worktree / "kept.py").write_text("edited while queued\n", encoding="utf-8")
+                (worktree / "removed.py").unlink()
+                (worktree / "added.py").write_text("edited while queued\n", encoding="utf-8")
+
+        def sync(local_worktree: Path) -> None:
+            synced.append((local_worktree, {
+                path.name: path.read_text(encoding="utf-8") for path in local_worktree.iterdir()
+            }))
+
+        with (
+            patch.object(run_remote_tests, "LOCAL_MIRROR_LOCK_PATH", self._worktree() / "mirror.lock"),
+            patch.object(run_remote_tests.fcntl, "flock", side_effect=flock),
+            patch.object(run_remote_tests, "_preflight"),
+            patch.object(run_remote_tests, "_sync", side_effect=sync),
+            patch.object(run_remote_tests, "_stream_remote_run", return_value=(0, "Ran 1 test in 0.1s\n\nOK\n")),
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            result = run_remote_tests.main([str(worktree), "plain", "--select", "x.", "--expected-tests", "1"])
+
+        self.assertEqual(result, 0)
+        [(snapshot, files)] = synced
+        self.assertEqual(files, {"run_tests.py": "launch\n", "kept.py": "launch\n", "removed.py": "launch\n"})
+        self.assertFalse(snapshot.exists())
+
     def test_phase_summary_records_completed_and_incomplete_runs(self):
-        worktree = Path(__file__).resolve().parents[1]
+        worktree = self._worktree()
         complete = "Ran 4506 tests in 251.835s\n\nOK (skipped=512)\n"
         for failure_at in (None, "preparation", "sync", "execution", "lane exit"):
             with self.subTest(failure_at=failure_at):
@@ -538,7 +580,7 @@ class RemoteTestHostTests(unittest.TestCase):
                     self.assertIn("error:", stderr.getvalue())
 
     def test_remote_mirror_lock_wraps_sync_and_run_on_every_exit(self):
-        worktree = Path(__file__).resolve().parents[1]
+        worktree = self._worktree()
         complete = "Ran 4506 tests in 251.835s\n\nOK (skipped=512)\n"
         for failure_at in (None, "sync", "run"):
             with (
@@ -552,7 +594,7 @@ class RemoteTestHostTests(unittest.TestCase):
 
                 def sync(local_worktree: Path) -> None:
                     events.append("sync")
-                    self.assertEqual(local_worktree, worktree)
+                    self.assertEqual((local_worktree / "run_tests.py").read_text(), "launch\n")
                     if failure_at == "sync":
                         raise RuntimeError("remote sync failed")
 
@@ -595,7 +637,7 @@ class RemoteTestHostTests(unittest.TestCase):
                 )
 
     def test_inherited_mirror_lock_cannot_jump_the_queue(self):
-        worktree = Path(__file__).resolve().parents[1]
+        worktree = self._worktree()
         lock_path = run_remote_tests.LOCAL_MIRROR_LOCK_PATH
         with (
             lock_path.open("a+", encoding="utf-8") as focused_run,

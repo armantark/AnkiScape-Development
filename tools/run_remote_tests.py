@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sync an AnkiScape worktree to the MacBook test mirror and run one lane.
 
-Preparation checks prerequisites; sync includes pending-run reconciliation and mirror
+Preparation snapshots the worktree and checks prerequisites; sync includes pending-run reconciliation and mirror
 setup; execution includes launch, polling and final log retrieval. Lock wait is untimed,
 except that a promotion gate holds the lock itself and hands it to its lane runs.
 """
@@ -16,6 +16,7 @@ import re
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from contextlib import contextmanager
@@ -442,18 +443,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     timings: dict[str, PhaseTiming] = {}
 
     try:
-        with _measure_phase(timings, "Remote preparation"):
-            _preflight(args.lane)
-        with _hold_mirror_lock():
-            with _measure_phase(timings, "Sync"):
-                _sync(local_worktree)
-            with _measure_phase(timings, "Test execution"):
-                returncode, output = _stream_remote_run(
-                    args.lane,
-                    timeout=args.timeout,
-                    poll_interval=args.poll_interval,
-                    selectors=args.select,
+        with tempfile.TemporaryDirectory(prefix="ankiscape-remote-sync-") as snapshot:
+            with _measure_phase(timings, "Remote preparation"):
+                # The mirror lock wait is untimed; syncing the live tree after it would test
+                # whatever the author stashed or edited while the run queued.
+                _run_with_retries(
+                    _rsync_command(local_worktree, f"{snapshot}/"), label="worktree snapshot"
                 )
+                _preflight(args.lane)
+            with _hold_mirror_lock():
+                with _measure_phase(timings, "Sync"):
+                    _sync(Path(snapshot))
+                with _measure_phase(timings, "Test execution"):
+                    returncode, output = _stream_remote_run(
+                        args.lane,
+                        timeout=args.timeout,
+                        poll_interval=args.poll_interval,
+                        selectors=args.select,
+                    )
         if returncode != 0:
             raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
         summary = parse_unittest_summary(output)
