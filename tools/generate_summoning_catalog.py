@@ -22,7 +22,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from tools.generation.source_digests import check_source_digests, save_source_digests
+from tools.generation.outputs import write_or_check
+from tools.generation.source_digests import check_source_digests, source_digest_manifest
 
 OUTPUT = ROOT / "generated" / "summoning_data_generated.py"
 SOURCE_DIGESTS = ROOT / "generated" / "source_digests.json"
@@ -625,11 +626,12 @@ def build_catalog() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     return catalog, scroll_rows
 
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=OUTPUT)
     parser.add_argument("--accept-source-change", action="store_true")
     parser.add_argument("--digest-manifest", type=Path, default=SOURCE_DIGESTS)
+    parser.add_argument("--check", action="store_true", help="compare with the existing files instead of writing")
     args = parser.parse_args()
     sources = [ITEMS_SOURCE, SUMMONING_SOURCE / "SummoningPouchData.kt", SUMMONING_SOURCE / "SummoningScrollData.kt"]
     digests = check_source_digests(
@@ -656,13 +658,12 @@ SUMMONING_CATALOG = '''
         + pprint.pformat(tuple(scroll_rows), width=100, sort_dicts=False)
         + "\n"
     )
-    args.output.write_text(output, encoding="utf-8")
-    save_source_digests(args.digest_manifest, OUTPUT_NAME, digests)
-    print(
-        f"Wrote {len(catalog)} surface familiars and "
-        f"{len(scroll_rows)} surface scrolls to {args.output}"
+    print(f"Built {len(catalog)} surface familiars and {len(scroll_rows)} surface scrolls")
+    return write_or_check(
+        {args.output: output, args.digest_manifest: source_digest_manifest(args.digest_manifest, OUTPUT_NAME, digests)},
+        check=args.check,
     )
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

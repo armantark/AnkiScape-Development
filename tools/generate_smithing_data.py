@@ -15,7 +15,8 @@ from typing import Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
 ADDON_ROOT = Path(__file__).resolve().parents[1]
 if str(ADDON_ROOT) not in sys.path:
     sys.path.insert(0, str(ADDON_ROOT))
-from tools.generation.source_digests import check_source_digests, save_source_digests
+from tools.generation.outputs import write_or_check
+from tools.generation.source_digests import check_source_digests, source_digest_manifest
 
 SOURCE_DIGESTS = ADDON_ROOT / "generated" / "source_digests.json"
 OUTPUT_NAME = "data/smithing_data.py"
@@ -542,7 +543,8 @@ def generate(
     provenance_root: Optional[Path] = None,
     accept_source_change: bool = False,
     digest_manifest: Path = SOURCE_DIGESTS,
-) -> None:
+    check: bool = False,
+) -> int:
     if provenance_root is None:
         provenance_root = game_root
     smithing_path = game_root / SMITHING_RELATIVE
@@ -576,8 +578,10 @@ def generate(
         digest_manifest, OUTPUT_NAME, sources, source_root=game_root,
         accept_source_change=accept_source_change,
     )
-    output_path.write_text(rendered, encoding="utf-8")
-    save_source_digests(digest_manifest, OUTPUT_NAME, digests)
+    return write_or_check(
+        {output_path: rendered, digest_manifest: source_digest_manifest(digest_manifest, OUTPUT_NAME, digests)},
+        check=check,
+    )
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -586,6 +590,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--output", type=Path, default=ADDON_ROOT / "data" / "smithing_data.py")
     parser.add_argument("--accept-source-change", action="store_true")
     parser.add_argument("--digest-manifest", type=Path, default=SOURCE_DIGESTS)
+    parser.add_argument("--check", action="store_true", help="compare with the existing files instead of writing")
     args = parser.parse_args(argv)
     if args.game_root is None:
         game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", DEFAULT_GAME_ROOT))
@@ -593,12 +598,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     else:
         game_root = args.game_root
         provenance_root = args.game_root
-    generate(
+    return generate(
         game_root, args.output, provenance_root=provenance_root,
         accept_source_change=args.accept_source_change, digest_manifest=args.digest_manifest,
+        check=args.check,
     )
-    print(f"Wrote {args.output}")
-    return 0
 
 
 if __name__ == "__main__":

@@ -30,9 +30,7 @@ def check_source_digests(
     return current
 
 
-def save_source_digests(manifest_path: Path, output_name: str, digests: dict[str, str]) -> None:
+def source_digest_manifest(manifest_path: Path, output_name: str, digests: dict[str, str]) -> str:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     manifest[output_name] = digests
-    content = json.dumps(manifest, indent=2, sort_keys=True) + "\n"
-    if not manifest_path.exists() or manifest_path.read_text(encoding="utf-8") != content:
-        manifest_path.write_text(content, encoding="utf-8")
+    return json.dumps(manifest, indent=2, sort_keys=True) + "\n"

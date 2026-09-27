@@ -8,7 +8,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.generation.source_digests import check_source_digests, save_source_digests
+from tools.generation.outputs import write_or_check
+from tools.generation.source_digests import check_source_digests, source_digest_manifest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,10 +50,10 @@ class TestGeneratedSkillData(unittest.TestCase):
             manifest = root / "source_digests.json"
             output_name = "data/smithing_data.py"
             other_name = "generated/summoning_data_generated.py"
-            save_source_digests(manifest, other_name, {"unchanged.kt": "pinned"})
+            manifest.write_text(source_digest_manifest(manifest, other_name, {"unchanged.kt": "pinned"}), encoding="utf-8")
             original = check_source_digests(manifest, output_name, [source], source_root=root)
             self.assertEqual(original, {"inputs/items.yml": hashlib.sha256(b"original").hexdigest()})
-            save_source_digests(manifest, output_name, original)
+            manifest.write_text(source_digest_manifest(manifest, output_name, original), encoding="utf-8")
 
             source.write_bytes(b"changed")
             with self.assertRaisesRegex(ValueError, "inputs/items.yml; pass --accept-source-change"):
@@ -61,10 +62,32 @@ class TestGeneratedSkillData(unittest.TestCase):
             accepted = check_source_digests(
                 manifest, output_name, [source], source_root=root, accept_source_change=True,
             )
-            save_source_digests(manifest, output_name, accepted)
+            manifest.write_text(source_digest_manifest(manifest, output_name, accepted), encoding="utf-8")
             records = json.loads(manifest.read_text(encoding="utf-8"))
             self.assertNotEqual(records[output_name], original)
             self.assertEqual(records[other_name], {"unchanged.kt": "pinned"})
+
+    def test_output_check_names_every_stale_file_without_writing_until_asked(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            same, edited, missing = root / "same.py", root / "edited.py", root / "family" / "missing.py"
+            same.write_bytes(b"A = 1\n")
+            edited.write_bytes(b"B = 2\r\n")
+            outputs = {same: "A = 1\n", edited: "B = 2\n", missing: "C = 3\n"}
+
+            with patch("builtins.print") as printed:
+                self.assertEqual(write_or_check(outputs, check=True), 1)
+            self.assertEqual(
+                [call.args[0] for call in printed.call_args_list],
+                [f"differs: {edited}", f"differs: {missing}", "OUTPUT_CHECK: 1 of 3 files unchanged"],
+            )
+            self.assertEqual(edited.read_bytes(), b"B = 2\r\n")
+            self.assertFalse(missing.exists())
+
+            with patch("builtins.print"):
+                self.assertEqual(write_or_check(outputs, check=False), 0)
+                self.assertEqual(write_or_check(outputs, check=True), 0)
+            self.assertEqual({path: path.read_bytes() for path in outputs}, {path: text.encode("utf-8") for path, text in outputs.items()})
 
     def test_explicit_game_root_wins_over_environment_for_generators(self):
         explicit_root = Path("/explicit/game-main")

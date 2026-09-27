@@ -49,6 +49,7 @@ from tools.achievement_diary_generation.task_conditions import (  # noqa: F401,E
     _requirement_conditions,
     _source_conditions,
 )
+from tools.generation.outputs import write_or_check  # noqa: E402
 
 
 SOURCE_SLOT_IDS = {
@@ -701,19 +702,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--out", type=Path, default=ROOT / "data" / "achievement_diary_catalog.py"
     )
+    parser.add_argument("--check", action="store_true", help="compare with the existing files instead of writing")
     args = parser.parse_args(argv)
     document = json.loads(args.harvest.read_text(encoding="utf-8"))
     outputs = build(document, args.items_yml)
-    for relative_path, source in outputs.items():
-        destination = (
-            args.out
-            if relative_path == "achievement_diary_catalog.py"
-            else args.out.parent / relative_path
-        )
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(source, encoding="utf-8")
-        print(f"wrote {destination}")
-    return 0
+    return write_or_check(
+        {
+            args.out if relative_path == "achievement_diary_catalog.py" else args.out.parent / relative_path: source
+            for relative_path, source in outputs.items()
+        },
+        check=args.check,
+    )
 
 
 if __name__ == "__main__":

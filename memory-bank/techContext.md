@@ -231,6 +231,16 @@ an AnkiScape citation audit. `tools/generate_construction_data.py:101` and
 which no working-directory scan can observe; detect such a reader by matching
 full process argument strings.
 
+Generator output identity is proved with `--check`, never a hand-built
+`find | shasum` manifest, whose hash changes with the working directory and path
+spelling. `tools/generate_smithing_data.py --check`,
+`tools/generate_summoning_catalog.py --check`, and
+`tools/generate_achievement_diary_data.py <harvest> --items-yml <items.yml> --check`
+regenerate in memory, compare bytes with every file a write would touch
+(including `generated/source_digests.json`), name each differing file, print
+`OUTPUT_CHECK: <n> of <m> files unchanged`, and exit 1 on any difference.
+Cite that line and exit code as the proof.
+
 Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure/logic_pure.py` adapt them to Anki review cadence.
 
 Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
