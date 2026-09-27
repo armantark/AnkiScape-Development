@@ -476,6 +476,11 @@ def run_gate(
             stderr=stderr,
             coordination=landing_lock,
         )
+
+        def heartbeat() -> None:
+            landing_lock.refresh()
+            gate_marker.refresh()
+
         prefix = "gateplain" if plain_only else "gate"
         short_commit = _git(worktree, "rev-parse", "--short", "HEAD").stdout.strip()
         log_path = safe_log_root(worktree) / f"{prefix}-{short_commit}.log"
@@ -489,7 +494,7 @@ def run_gate(
                 plain_only=plain_only,
                 remote_lanes=remote_lanes,
                 log=log,
-                heartbeat=gate_marker.refresh,
+                heartbeat=heartbeat,
             )
             ending_commit = commit_at(worktree)
             if ending_commit != commit:

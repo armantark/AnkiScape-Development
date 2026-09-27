@@ -4,11 +4,20 @@ import re
 import tempfile
 import threading
 import unittest
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
+from tests.test_promotion_gate import PromotionRepo
 from tools import run_remote_tests
-from tools.promotion_gate import _run_gate_checks
+from tools.promotion_gate import (
+    GateError,
+    _run_gate_checks,
+    active_gate_records,
+    claim_landing_lock,
+    landing_lock_path_for,
+    run_gate,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -92,6 +101,51 @@ class RemoteMirrorLockTimingTest(unittest.TestCase):
         self.assertIn("plain lane (mirror lock wait timed out)", failures)
         self.assertIn("TIMEOUT: waited 1 seconds for ", log)
         self.assertNotIn("=== PLAIN LANE ===", log)
+
+
+class WaitingGateLockTest(unittest.TestCase):
+    def test_waiting_gate_survives_competing_claim_after_1301_seconds(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = PromotionRepo(Path(temp_dir))
+            lock_path = Path(temp_dir) / "mirror.lock"
+            now = datetime.now().astimezone()
+            started = now
+
+            with lock_path.open("a+", encoding="utf-8") as mirror:
+                fcntl.flock(mirror.fileno(), fcntl.LOCK_EX)
+
+                def contend_after_heartbeat(_seconds):
+                    nonlocal now
+                    if now == started:
+                        now += timedelta(seconds=1301)
+                        return
+                    active = active_gate_records(repo.target)
+                    self.assertEqual([record.commit for record in active], [repo.target_commit])
+                    with self.assertRaisesRegex(GateError, "Promotion landing lock held: PID"):
+                        claimed = claim_landing_lock(
+                            repo.target, operation="landing", worktree=repo.target,
+                            commit=repo.target_commit,
+                        )
+                        claimed.release()
+                    mirror.close()
+
+                with (
+                    patch.object(run_remote_tests, "LOCAL_MIRROR_LOCK_PATH", lock_path),
+                    patch("tools.promotion.locking.datetime", wraps=datetime) as clock,
+                    patch("tools.promotion.lane_execution.time.sleep", side_effect=contend_after_heartbeat),
+                    patch("tools.promotion.lane_execution._run_check", return_value=0),
+                    patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
+                    patch(
+                        "tools.promotion.locking.kill_process_tree",
+                        side_effect=AssertionError("Healthy waiting gate was killed as stale"),
+                    ) as kill,
+                ):
+                    clock.now.side_effect = lambda: now
+                    run_gate(repo.target, plain_only=True, remote_lanes=True, stdout=io.StringIO())
+                    kill.assert_not_called()
+                self.assertTrue(mirror.closed)
+            self.assertFalse(landing_lock_path_for(repo.target).exists())
+            self.assertEqual(active_gate_records(repo.target), ())
 
 
 if __name__ == "__main__":

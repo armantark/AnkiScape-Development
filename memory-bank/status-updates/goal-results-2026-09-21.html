@@ -25,4 +25,5 @@
 <li data-step="runner-sync-snapshot">A test run that waits its turn now checks the game exactly as it was when the run started, so work done while it waits can no longer slip into the check or out of it.</li>
 <li data-step="tools-live-tree-sync">One-off checks no longer quietly pick up edits made after a test run was requested, and gameplay checks still run in the regular suites.</li>
 <li data-step="gate-judges-own-change">A finished change that updates the final check itself is now judged by its own updated check, so correct work no longer fails because the old check expected something different, and nobody has to remember to ask for it.</li>
+<li data-step="gate-stale-kill">Healthy long checks can wait their turn without another operation killing them as stale.</li>
 </ul></main></body></html>
