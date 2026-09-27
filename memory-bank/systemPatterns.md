@@ -816,6 +816,7 @@ activation.
 
 `tools/promotion_gate.py` owns verification and landing. `tools/run_remote_tests.py` owns remote lane commands and acceptance thresholds.
 Read these tools for current command options and threshold values; do not copy changing limits into this document.
+`run` compares the gate's own source files (`GATE_SOURCES` in `tools/promotion/cli.py`) with the candidate's copies and re-executes the candidate's `tools/promotion_gate.py` when they differ, so a candidate that changes what the gate expects is judged by its own gate code.
 Remote mode runs the plain and Qt lanes serially.
 Documentation, test-quality, reachability, worktree-layout, clean-tree, and diff checks run locally in the promotion worktree.
 Local test lanes remain supported. A plain-only branch check cannot authorize landing.

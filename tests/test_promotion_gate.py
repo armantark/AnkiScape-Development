@@ -52,6 +52,16 @@ def copy_reachability_tree(destination: Path) -> Path:
     return destination.resolve()
 
 
+def copy_running_gate(worktree: Path) -> Path:
+    """Give a candidate the running gate's code, so the gate judges it in-process."""
+    shutil.copytree(
+        PROJECT_ROOT / "tools",
+        worktree / "tools",
+        ignore=shutil.ignore_patterns("__pycache__"),
+    )
+    return worktree.resolve()
+
+
 def run_reachability_check(worktree: Path) -> tuple[int, str]:
     log = io.StringIO()
     returncode = _run_reachability_check(log, worktree)
@@ -606,14 +616,16 @@ class PromotionGateTest(unittest.TestCase):
                 land(repo.target)
 
     def test_remote_lanes_flag_reaches_run_gate(self):
-        with patch("tools.promotion.cli.run_gate") as gate:
-            result = promotion_main(
-                ["run", "/scratch/promotion", "--remote-lanes"]
-            )
+        with (
+            tempfile.TemporaryDirectory() as temp_dir,
+            patch("tools.promotion.cli.run_gate") as gate,
+        ):
+            worktree = copy_running_gate(Path(temp_dir))
+            result = promotion_main(["run", str(worktree), "--remote-lanes"])
 
         self.assertEqual(result, 0)
         gate.assert_called_once_with(
-            Path("/scratch/promotion"),
+            worktree,
             plain_only=False,
             remote_lanes=True,
         )
@@ -621,6 +633,7 @@ class PromotionGateTest(unittest.TestCase):
     def test_dirty_canonical_checkout_refuses_gate_before_any_lane(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = PromotionRepo(Path(temp_dir))
+            copy_running_gate(repo.target)
             (repo.main / "state.txt").write_text("dirty\n", encoding="utf-8")
             stderr = io.StringIO()
 

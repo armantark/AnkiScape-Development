@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import os
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -10,6 +12,18 @@ from .contract import GateError
 from .landing import land
 from .lane_execution import run_gate
 from .repository import _git
+
+# Everything the gate process itself imports, relative to tools/. Lanes and audits
+# already run from the candidate tree; these files decide how their results are judged.
+GATE_SOURCES = ("promotion_gate.py", "run_remote_tests.py", "promotion/*.py", "reachability/*.py")
+
+
+def _gate_sources(tools: Path) -> dict[str, bytes]:
+    return {
+        path.relative_to(tools).as_posix(): path.read_bytes()
+        for pattern in GATE_SOURCES
+        for path in tools.glob(pattern)
+    }
 
 
 def install_hook(repo: Path) -> Path:
@@ -44,7 +58,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     subparsers.add_parser("install-hook", help="install the repo-local landing freeze hook")
     land_parser = subparsers.add_parser("land", help="fast-forward main to a gated worktree")
     land_parser.add_argument("worktree", type=Path)
+    argv = sys.argv[1:] if argv is None else list(argv)
     args = parser.parse_args(argv)
+
+    if args.command == "run":
+        candidate_tools = args.worktree.resolve() / "tools"
+        if _gate_sources(candidate_tools) != _gate_sources(Path(__file__).resolve().parents[1]):
+            # A candidate that changes what the gate expects would be falsely rejected
+            # by the old gate code, so the candidate's own gate judges it.
+            candidate_gate = candidate_tools / "promotion_gate.py"
+            print(f"Candidate changes the gate; running {candidate_gate}", file=sys.stderr)
+            os.execv(sys.executable, (sys.executable, str(candidate_gate), *argv))
 
     try:
         if args.command == "run":
