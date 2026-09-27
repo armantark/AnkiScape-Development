@@ -239,17 +239,18 @@ def _remote_lane_command(lane: str, *, selectors: Sequence[str] = ()) -> str:
         f"ANKISCAPE_GAME_MAIN={shlex.quote(str(REMOTE_GAME_MAIN))} "
         f"ANKISCAPE_DARKAN_WORLD_SERVER={shlex.quote(str(REMOTE_DARKAN))} "
     )
+    run_tests = "run_tests.py" + (" --quiet -- " + shlex.join(selectors) if selectors else "")
     if lane == "plain":
         return (
             environment
             + f"PYTHONPATH={shlex.quote(str(REMOTE_PLAIN_SITE))} "
-            + "/opt/homebrew/bin/python3 run_tests.py"
-            + (" --quiet -- " + shlex.join(selectors) if selectors else "")
+            + "/opt/homebrew/bin/python3 "
+            + run_tests
         )
     return (
         environment
         + f"QT_QPA_PLATFORM=offscreen {shlex.quote(str(REMOTE_VENV / 'bin/python'))} "
-        + ("run_tests.py --quiet -- " + shlex.join(selectors) if selectors else "-m unittest discover tests")
+        + run_tests
     )
 
 

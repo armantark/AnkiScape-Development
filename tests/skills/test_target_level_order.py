@@ -117,8 +117,8 @@ class TargetLevelOrderTest(unittest.TestCase):
 
 
 try:
-    from tests.test_main_menu_widget import (  # noqa: E402  (sets up Qt)
-        MainMenuWidgetTest,
+    from tests import test_main_menu_widget as _main_menu  # noqa: E402  (sets up Qt)
+    from tests.test_main_menu_widget import (  # noqa: E402
         _find_list_with_user_role,
         _find_tree_with_user_role,
         _make_player_data,
@@ -137,13 +137,24 @@ def _level_of(text: str) -> int:
 
 
 @unittest.skipUnless(_QT_READY, "aqt/PyQt6 not installed (use .venv-qt)")
-class TargetLevelOrderWidgetTest(MainMenuWidgetTest):
+class TargetLevelOrderWidgetTest(unittest.TestCase):
     """The renderers must apply sort_key: flat list and tree groups alike."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        _main_menu.MainMenuWidgetTest.setUpClass()
+
+    def setUp(self) -> None:
+        self.menu = _main_menu.MainMenuWidgetTest(methodName="runTest")
+        self.menu.setUp()
+
+    def tearDown(self) -> None:
+        self.menu.tearDown()
 
     def test_mining_flat_list_renders_level_ordered(self):
         pd = _make_player_data()
         pd["mining_level"] = 99
-        dialog = self._open(pd, current_skill="Mining")
+        dialog = self.menu._open(pd, current_skill="Mining")
         dialog.show()
         QApplication_processEvents()
         ore_list = _find_list_with_user_role(dialog, "copper")
@@ -160,7 +171,7 @@ class TargetLevelOrderWidgetTest(MainMenuWidgetTest):
     def test_herblore_tree_groups_render_level_ordered(self):
         pd = _make_player_data()
         pd["herblore_level"] = 99
-        dialog = self._open(pd, current_skill="Herblore")
+        dialog = self.menu._open(pd, current_skill="Herblore")
         dialog.show()
         QApplication_processEvents()
         tree = _find_tree_with_user_role(dialog, "clean_guam")

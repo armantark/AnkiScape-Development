@@ -85,7 +85,7 @@ Core suite (Python's built-in `unittest`, no Qt, no Anki):
 Qt behavior suite through the checked-in offscreen environment:
 
 ```
-QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
+QT_QPA_PLATFORM=offscreen .venv-qt/bin/python run_tests.py
 ```
 
 See `README-tests.md` for layout and conventions.

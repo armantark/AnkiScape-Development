@@ -71,7 +71,7 @@ from ankiscape.runtime.runtime_actions import handle_cooking_answer
 
 # Reuse the existing RuntimeActionContext harness rather than keeping a second
 # copy of it in step with the real one.
-from test_runtime_actions import _context
+from tests.test_runtime_actions import _context
 
 
 CIRCUS_COSTUME_NAMES = tuple(

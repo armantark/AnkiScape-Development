@@ -35,7 +35,7 @@ from ankiscape.logic.dominion_tower_logic import (
 if _QT:
     from ankiscape.ui.dominion_tower_panel import DominionTowerPanel
 
-from test_dominion_tower import _geared, _player, _twenty_quests  # noqa: E402
+from tests.test_dominion_tower import _geared, _player, _twenty_quests  # noqa: E402
 
 
 def _command(player, rng):

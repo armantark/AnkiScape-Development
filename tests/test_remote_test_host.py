@@ -74,10 +74,7 @@ class RemoteTestHostTests(unittest.TestCase):
                 self.assertEqual(focused[-5:], ["run_tests.py", "--quiet", "--", *selectors])
                 full = run_remote_tests._remote_lane_command(lane)
                 self.assertNotIn("--quiet", full)
-                if lane == "qt":
-                    self.assertTrue(full.endswith("-m unittest discover tests"))
-                else:
-                    self.assertTrue(full.endswith("run_tests.py"))
+                self.assertTrue(full.endswith("run_tests.py"))
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()

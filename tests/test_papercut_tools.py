@@ -121,6 +121,64 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(selected_ids, ["test_combat.PapercutToolTests.test_focused_runner_resolves_a_test_file_path_to_only_its_module.<locals>.CombatTest.test_routes"])
         self.assertEqual(selected.countTestCases(), 1)
 
+    def test_focused_runner_matches_whole_dotted_names_before_fragments(self):
+        modules = (
+            "tests.test_achievement_diaries",
+            "tests.test_achievement_diaries_ui",
+            "tests.test_achievement_diaries_integration",
+            "tests.promotion.test_gate_lock_claim",
+        )
+        suite = unittest.TestSuite(
+            type("Case", (unittest.TestCase,), {"__module__": module, "test_it": lambda self: None})("test_it")
+            for module in modules
+        )
+        test_ids = [test.id() for test in suite]
+        expected_by_selector = {
+            "test_achievement_diaries": ["tests.test_achievement_diaries.Case.test_it"],
+            "tests.test_achievement_diaries": ["tests.test_achievement_diaries.Case.test_it"],
+            "test_achievement_diaries.": ["tests.test_achievement_diaries.Case.test_it"],
+            "tests.promotion.test_gate_lock_claim": ["tests.promotion.test_gate_lock_claim.Case.test_it"],
+            "promotion.test_gate_lock_claim": ["tests.promotion.test_gate_lock_claim.Case.test_it"],
+            "diaries_ui": ["tests.test_achievement_diaries_ui.Case.test_it"],
+        }
+        for selector, expected in expected_by_selector.items():
+            with self.subTest(selector=selector):
+                resolved, unresolved = resolve_selectors([selector], test_ids)
+                _selected, selected_ids = select_tests(suite, resolved)
+
+                self.assertEqual(unresolved, [])
+                self.assertEqual(selected_ids, expected)
+
+    def test_runner_refuses_a_test_id_discovered_twice(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            checkout = Path(temp_dir) / "duplicate-fixture"
+            tests_dir = checkout / "tests"
+            tests_dir.mkdir(parents=True)
+            shutil.copy2(ROOT / "run_tests.py", checkout / "run_tests.py")
+            shutil.copy2(ROOT / "tests/__init__.py", tests_dir / "__init__.py")
+            (tests_dir / "test_base.py").write_text(
+                "import unittest\n"
+                "\n"
+                "\n"
+                "class BaseCase(unittest.TestCase):\n"
+                "    def test_runs(self):\n"
+                "        self.assertTrue(True)\n",
+                encoding="utf-8",
+            )
+            (tests_dir / "test_reuse.py").write_text("from tests.test_base import BaseCase\n", encoding="utf-8")
+
+            completed = subprocess.run(
+                [sys.executable, str(checkout / "run_tests.py")],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(completed.returncode, 2, completed.stderr)
+        self.assertIn("Discovered 1 unittest IDs more than once:", completed.stderr)
+        self.assertIn("  tests.test_base.BaseCase.test_runs", completed.stderr)
+        self.assertNotIn("Ran ", completed.stderr)
+
     def test_repo_search_excludes_giant_generated_tables_and_bounds_results(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

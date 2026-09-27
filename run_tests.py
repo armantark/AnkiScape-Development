@@ -3,6 +3,7 @@ import difflib
 import os
 import sys
 import unittest
+from collections import Counter
 from collections.abc import Iterable
 
 
@@ -22,12 +23,18 @@ def select_tests(
     if not selectors:
         return unittest.TestSuite(tests), [test.id() for test in tests]
 
-    selected = [
-        test
-        for test in tests
-        if any(selector.casefold() in test.id().casefold() for selector in selectors)
-    ]
+    test_ids = [test.id() for test in tests]
+    chosen = {test_id for selector in selectors for test_id in matching_ids(selector, test_ids)}
+    selected = [test for test in tests if test.id() in chosen]
     return unittest.TestSuite(selected), [test.id() for test in selected]
+
+
+def matching_ids(selector: str, test_ids: list[str]) -> list[str]:
+    # Whole dotted names win, so `test_x` cannot also select a sibling module
+    # such as `test_x_ui`; a bare fragment still works when no name equals it.
+    wanted = f".{selector.casefold().strip('.')}."
+    whole = [test_id for test_id in test_ids if wanted in f".{test_id.casefold()}."]
+    return whole or [test_id for test_id in test_ids if selector.casefold() in test_id.casefold()]
 
 
 def selector_suggestions(selector: str, test_ids: list[str]) -> list[str]:
@@ -49,7 +56,7 @@ def resolve_selectors(selectors: list[str], test_ids: list[str]) -> tuple[list[s
     }
     component_names = {component.casefold(): component for component in components}
     for selector in selectors:
-        if any(selector.casefold() in test_id.casefold() for test_id in test_ids):
+        if matching_ids(selector, test_ids):
             resolved.append(selector)
             continue
         normalized_path = selector.replace("\\", "/")
@@ -60,6 +67,21 @@ def resolve_selectors(selectors: list[str], test_ids: list[str]) -> tuple[list[s
                 continue
         unresolved.append(selector)
     return resolved, unresolved
+
+
+def report_refusals(test_ids: list[str], unresolved: list[str]) -> bool:
+    duplicates = sorted(test_id for test_id, count in Counter(test_ids).items() if count > 1)
+    if duplicates:
+        print(f"Discovered {len(duplicates)} unittest IDs more than once:", file=sys.stderr)
+        for test_id in duplicates:
+            print(f"  {test_id}", file=sys.stderr)
+    if unresolved:
+        print(f"No unambiguous unittest ID matched: {', '.join(unresolved)}", file=sys.stderr)
+        for selector in unresolved:
+            suggestions = selector_suggestions(selector, test_ids)
+            if suggestions:
+                print(f"Closest matches for {selector!r}: {', '.join(suggestions)}", file=sys.stderr)
+    return bool(duplicates or unresolved)
 
 
 def test_result_exit_code(result: unittest.TestResult, *, focused: bool) -> int:
@@ -80,7 +102,10 @@ def main() -> int:
     parser.add_argument(
         "selectors",
         nargs="*",
-        help="case-insensitive fragments matched against discovered unittest IDs",
+        help=(
+            "case-insensitive dotted names matched as whole segments of discovered "
+            "unittest IDs, or as fragments when no whole segment matches"
+        ),
     )
     parser.add_argument(
         "--list",
@@ -128,15 +153,14 @@ def main() -> int:
 
     # Discover and run tests under tests/
     loader = unittest.TestLoader()
-    suite = loader.discover(start_dir=os.path.join(root, "tests"), pattern="test_*.py")
+    # Rooting discovery at the checkout gives each module one `tests.` name; a
+    # module imported under a second name would otherwise run its tests twice.
+    # A TestCase class imported into another test module is collected there
+    # again under the same ID, which the duplicate check refuses.
+    suite = loader.discover(start_dir=os.path.join(root, "tests"), pattern="test_*.py", top_level_dir=root)
     all_ids = [test.id() for test in iter_tests(suite)]
     selectors, unresolved = resolve_selectors(args.selectors, all_ids)
-    if unresolved:
-        print(f"No unambiguous unittest ID matched: {', '.join(unresolved)}", file=sys.stderr)
-        for selector in unresolved:
-            suggestions = selector_suggestions(selector, all_ids)
-            if suggestions:
-                print(f"Closest matches for {selector!r}: {', '.join(suggestions)}", file=sys.stderr)
+    if report_refusals(all_ids, unresolved):
         return 2
     suite, selected_ids = select_tests(suite, selectors)
 
