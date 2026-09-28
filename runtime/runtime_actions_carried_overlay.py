@@ -51,26 +51,27 @@ from .runtime_actions_context import RuntimeActionContext
 from .runtime_actions_shared import _admit_live_cadence
 
 
-def _try_pack_yak_winter_storage_overlay(
-    player_data: dict[str, Any],
+_WINTER_STORAGE_SCROLL = "Winter storage scroll"
+
+
+def _winter_storage_candidate(view: dict[str, int], item_name: Any) -> bool:
+    """Whether a Pack yak can bank this carried item: stackables only as a lone one."""
+    if not isinstance(item_name, str) or item_name == _WINTER_STORAGE_SCROLL:
+        return False
+    count = int(view.get(item_name, 0) or 0)
+    return count > 0 and (item_name not in _OVERLAY_STACKABLE_NAMES or count == 1)
+
+
+def _winter_storage_selection(
+    state: dict[str, Any],
     target_id: str,
     view: dict[str, int],
     churn: int,
     capacity: int,
     *,
     advanced: bool,
-    force_bank: bool,
-) -> tuple[dict[str, int], int, bool]:
-    """Use one carried Winter Storage scroll before an otherwise-due trip."""
-    state = player_data.get("summoning_state", {}) or {}
-    follower = state.get("active_follower", {}) or {}
-    if (
-        force_bank
-        or follower.get("kind") != "familiar"
-        or follower.get("entity_id") != "packyak"
-        or int(state.get("special_move_points_current", 0) or 0) < 12
-    ):
-        return view, churn, False
+) -> str | None:
+    """The highest-priority carried item to bank once the pack is full enough."""
     policy = (state.get("target_policies", {}) or {}).get(target_id, {}) or {}
     priority = policy.get("winter_storage_priority", ()) or ()
     if isinstance(priority, str):
@@ -87,38 +88,36 @@ def _try_pack_yak_winter_storage_overlay(
         else 0
     )
     if churn < max(1, capacity - threshold):
-        return view, churn, False
-    scroll_name = "Winter storage scroll"
-    if int(view.get(scroll_name, 0) or 0) <= 0:
-        return view, churn, False
-    selected = next(
-        (
-            item_name
-            for item_name in priority
-            if isinstance(item_name, str)
-            and item_name != scroll_name
-            and int(view.get(item_name, 0) or 0) > 0
-            and (
-                item_name not in _OVERLAY_STACKABLE_NAMES
-                or int(view.get(item_name, 0) or 0) == 1
-            )
-        ),
+        return None
+    if int(view.get(_WINTER_STORAGE_SCROLL, 0) or 0) <= 0:
+        return None
+    return next(
+        (item_name for item_name in priority if _winter_storage_candidate(view, item_name)),
         None,
     )
-    if selected is None:
-        return view, churn, False
 
+
+def _spend_winter_storage(
+    player_data: dict[str, Any],
+    state: dict[str, Any],
+    target_id: str,
+    view: dict[str, int],
+    selected: str,
+) -> dict[str, int]:
+    """Bank ``selected`` with one scroll and 12 special points; return the pack."""
     updated_view = dict(view)
     updated_view[selected] = int(updated_view.get(selected, 0) or 0) - 1
-    updated_view[scroll_name] = int(updated_view.get(scroll_name, 0) or 0) - 1
+    updated_view[_WINTER_STORAGE_SCROLL] = (
+        int(updated_view.get(_WINTER_STORAGE_SCROLL, 0) or 0) - 1
+    )
     updated_view = {
         item_name: amount
         for item_name, amount in updated_view.items()
         if amount > 0
     }
     inventory = dict(player_data.get("inventory", {}) or {})
-    inventory[scroll_name] = max(
-        0, int(inventory.get(scroll_name, 0) or 0) - 1
+    inventory[_WINTER_STORAGE_SCROLL] = max(
+        0, int(inventory.get(_WINTER_STORAGE_SCROLL, 0) or 0) - 1
     )
     player_data["inventory"] = inventory
     updated_state = dict(state)
@@ -140,7 +139,83 @@ def _try_pack_yak_winter_storage_overlay(
     player_data["summoning_exp"] = (
         float(player_data.get("summoning_exp", 0.0) or 0.0) + 4.8
     )
+    return updated_view
+
+
+def _try_pack_yak_winter_storage_overlay(
+    player_data: dict[str, Any],
+    target_id: str,
+    view: dict[str, int],
+    churn: int,
+    capacity: int,
+    *,
+    advanced: bool,
+    force_bank: bool,
+) -> tuple[dict[str, int], int, bool]:
+    """Use one carried Winter Storage scroll before an otherwise-due trip."""
+    state = player_data.get("summoning_state", {}) or {}
+    follower = state.get("active_follower", {}) or {}
+    if (
+        force_bank
+        or follower.get("kind") != "familiar"
+        or follower.get("entity_id") != "packyak"
+        or int(state.get("special_move_points_current", 0) or 0) < 12
+    ):
+        return view, churn, False
+    selected = _winter_storage_selection(
+        state, target_id, view, churn, capacity, advanced=advanced
+    )
+    if selected is None:
+        return view, churn, False
+    updated_view = _spend_winter_storage(player_data, state, target_id, view, selected)
     return updated_view, max(0, churn - 1), True
+
+
+def _fletching_material_options(target_id: str) -> set[str]:
+    options: set[str] = set()
+    spec = FLETCHING_DATA.get(target_id, {})
+    for alternatives in spec.get("material_options", {}).values():
+        if isinstance(alternatives, (list, tuple)):
+            options.update(option for option in alternatives if isinstance(option, str))
+    return options
+
+
+def _scope_processing_inventory(
+    bank: dict[str, Any],
+    pack: dict[str, int],
+    handler_key: str,
+    target_id: str,
+    requirements: dict[str, int],
+    carried_presence_requirements: dict[str, int],
+    consumable_requirements: dict[str, int],
+) -> tuple[dict[str, Any], set[str], set[str]]:
+    """The bank as a processing handler sees it, with carried inputs capped at the pack.
+
+    Skilling potions and Fletching material alternatives the pack does not
+    carry are hidden, so the handler cannot draw them from the bank; the two
+    hidden sets are returned for reconciliation to restore afterwards.
+    """
+    scoped = dict(bank)
+    for item_name in (*requirements, *carried_presence_requirements):
+        scoped[item_name] = min(int(bank.get(item_name, 0) or 0), int(pack.get(item_name, 0) or 0))
+    potion_items = (
+        set(skilling_potion_items_for_skill(handler_key))
+        if handler_key in {"crafting", "fletching"}
+        else set()
+    )
+    for item_name in potion_items:
+        scoped.pop(item_name, None)
+    # A carried potion is scoped after the hiding above, so it stays visible.
+    for item_name in consumable_requirements:
+        scoped[item_name] = min(int(bank.get(item_name, 0) or 0), int(pack.get(item_name, 0) or 0))
+    hidden_alternatives = (
+        _fletching_material_options(target_id) - requirements.keys()
+        if handler_key == "fletching"
+        else set()
+    )
+    for item_name in hidden_alternatives:
+        scoped.pop(item_name, None)
+    return scoped, potion_items - consumable_requirements.keys(), hidden_alternatives
 
 
 def _reconcile_processing_inventory(
@@ -684,33 +759,18 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         # reconcile: the real bank only loses what was actually consumed, and the
         # pack is decremented by the same amount. Every other item (outputs,
         # byproducts) passes through untouched, since it was never capped.
-        scoped_inventory = dict(bank)
-        for item_name, need in requirements.items():
-            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(new_view.get(item_name, 0) or 0))
         carried_presence_requirements = presence_requirements if advanced else {}
-        for item_name, need in carried_presence_requirements.items():
-            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(new_view.get(item_name, 0) or 0))
-        scoped_potion_items = set()
-        if handler_key in {"crafting", "fletching"}:
-            for item_name in skilling_potion_items_for_skill(handler_key):
-                scoped_potion_items.add(item_name)
-                scoped_inventory.pop(item_name, None)
-        for item_name, need in consumable_requirements.items():
-            scoped_inventory[item_name] = min(
-                int(bank.get(item_name, 0) or 0),
-                int(new_view.get(item_name, 0) or 0),
+        scoped_inventory, hidden_potions, hidden_alternatives = (
+            _scope_processing_inventory(
+                bank,
+                new_view,
+                handler_key,
+                target_id,
+                requirements,
+                carried_presence_requirements,
+                consumable_requirements,
             )
-        scoped_alternatives = set()
-        if handler_key == "fletching":
-            spec = FLETCHING_DATA.get(target_id, {})
-            for alternatives in spec.get("material_options", {}).values():
-                if not isinstance(alternatives, (list, tuple)):
-                    continue
-                for option in alternatives:
-                    if isinstance(option, str):
-                        scoped_alternatives.add(option)
-                        if option not in requirements:
-                            scoped_inventory.pop(option, None)
+        )
 
         # While the inventory is scoped it does NOT reflect the real bank, so the
         # handler must not persist it or evaluate anything against it. Suppress the
@@ -746,8 +806,8 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             after_scoped,
             new_view,
             (*requirements, *carried_presence_requirements, *consumable_requirements),
-            scoped_potion_items - consumable_requirements.keys(),
-            scoped_alternatives - requirements.keys(),
+            hidden_potions,
+            hidden_alternatives,
         )
         player_data["inventory"] = reconciled
         if result is not False:
