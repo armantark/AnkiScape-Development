@@ -1,9 +1,9 @@
 """How a combat burst stops and settles: the status tick that can end it before
-either side attacks, and the kill, death and empty-encounter settlement after
-it."""
+either side attacks, the kill, death and empty-encounter settlement after it,
+and the Wilderness ambush that can follow a burst the player survived."""
 
 from .logic_pure_combat_food import _combat_consume_auto_food
-from .logic_pure_combat_model import _combat_apply_pvm_death
+from .logic_pure_combat_model import _combat_apply_pvm_death, _combat_apply_wilderness_ambush
 from .logic_pure_combat_specials import _combat_death_prayer_damage
 from .logic_pure_combat_supplies import (
     _combat_advance_status_effects,
@@ -95,3 +95,27 @@ def _combat_settle_burst_outcome(
         data["combat_status_effects"] = {}
         return max_player_lp, death_burst, False
     return _combat_apply_pvm_death(data, max_player_lp, no_grave=no_grave), death_burst, False
+
+
+def _combat_settle_wilderness_ambush(
+    data,
+    enemy,
+    player_lp,
+    max_player_lp,
+    rng,
+    equipment_risk,
+    food_used,
+):
+    """Roll the enemy's Wilderness ambush. Returns the ambush record, the
+    player's lifepoints and whether the ambush killed them."""
+    ambush = _combat_apply_wilderness_ambush(
+        data, enemy, player_lp, max_player_lp, rng, equipment_risk
+    )
+    if not (ambush and ambush.get("triggered")):
+        return ambush, player_lp, False
+    food_event = ambush.get("food_used")
+    if food_event:
+        food_used.append(food_event)
+    if ambush.get("died"):
+        return ambush, max_player_lp, True
+    return ambush, _non_negative_int(ambush.get("lifepoints_after", player_lp), player_lp), False

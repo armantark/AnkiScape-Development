@@ -389,10 +389,8 @@ from .logic_pure_combat_model import (
     _combat_apply_magic_xp,
     _combat_apply_pvm_death,
     _combat_apply_triple_charm_reward,
-    _combat_apply_wilderness_ambush,
     _combat_apply_xp,
     _combat_attack_bonus_from_totals,
-    _combat_base_skill_level,
     _combat_cap_damage_for_finisher,
     _combat_coerce_pack_mode,
     _combat_consume_auto_food,
@@ -450,7 +448,6 @@ from .logic_pure_urns import (
 from .logic_pure_prayer import (
     CASTLE_WARS_HALO_DRAIN_PRAYERS,
     active_prayer_selection_pure,
-    curse_expected_ramp_pure,
     prayer_drain_and_effective_uptime_pure,
     prayer_effect_state_pure,
     prayer_uptime_fraction_pure,
@@ -497,7 +494,9 @@ from .logic_pure_combat_risk import _combat_preview_with_risk
 from .logic_pure_combat_outcome import (
     _combat_advance_status_tick,
     _combat_settle_burst_outcome,
+    _combat_settle_wilderness_ambush,
 )
+from .logic_pure_combat_curses import _combat_curse_drains, _combat_turmoil_boosts
 from .logic_pure_combat_live import (
     _combat_live_enemy_accuracy,
     _combat_live_player_rolls,
@@ -1306,15 +1305,6 @@ def apply_combat_burst_pure(
     if prayer_points_after <= 0 and selected_prayers and not live_cadence:
         data["combat_selected_prayers"] = []
 
-    # Curse ramps are reset for each fight. The burst EV uses the attacks a
-    # single full-health enemy is expected to survive, bounded by this review.
-    expected_attacks = (
-        0
-        if live_cadence
-        else max(1, int(max(1, _positive_int(ticks, COMBAT_BURST_TICKS)) / player_attack_speed))
-    )
-    sap_ramp = curse_expected_ramp_pure(expected_attacks, "sap")
-    leech_ramp = curse_expected_ramp_pure(expected_attacks, "leech")
     spell_effect = str(spell_spec.get("effect", "")) if combat_class == "magic" else ""
     spell_effect_value = float(spell_spec.get("effect_value", 0.0) or 0.0) if combat_class == "magic" else 0.0
     magic_effects_applied = (
@@ -1371,35 +1361,19 @@ def apply_combat_burst_pure(
             magic_effect_applied = True
     spell_enemy_attack_factor = enemy_attack_factor
     spell_enemy_defence_factor = enemy_defence_factor
-    for prayer_id in selected_prayers:
-        if prayer_id.startswith("sap_"):
-            enemy_attack_factor *= 1.0 - sap_ramp["enemy_drain"] * prayer_uptime
-            if prayer_id != "sap_spirit":
-                enemy_defence_factor *= 1.0 - sap_ramp["enemy_drain"] * prayer_uptime
-        elif prayer_id.startswith("leech_"):
-            if prayer_id in ("leech_attack", "leech_ranged", "leech_magic", "leech_strength"):
-                enemy_attack_factor *= 1.0 - leech_ramp["enemy_drain"] * prayer_uptime
-            if prayer_id == "leech_defence":
-                enemy_defence_factor *= 1.0 - leech_ramp["enemy_drain"] * prayer_uptime
-            self_effect = 1.0 + leech_ramp["self_boost"] * prayer_uptime
-            leech_effect_key = {
-                "leech_attack": "attack", "leech_strength": "strength",
-                "leech_defence": "defence", "leech_ranged": "ranged",
-                "leech_magic": "magic",
-            }.get(prayer_id)
-            if leech_effect_key:
-                prayer_effects[leech_effect_key] = max(float(prayer_effects.get(leech_effect_key, 1.0)), self_effect)
+    # Curse ramps are reset for each fight. The burst EV uses the attacks a
+    # single full-health enemy is expected to survive, bounded by this review.
+    expected_attacks = (
+        0
+        if live_cadence
+        else max(1, int(max(1, _positive_int(ticks, COMBAT_BURST_TICKS)) / player_attack_speed))
+    )
+    enemy_attack_factor, enemy_defence_factor = _combat_curse_drains(
+        selected_prayers, expected_attacks, prayer_uptime, prayer_effects,
+        enemy_attack_factor, enemy_defence_factor,
+    )
     if "turmoil" in selected_prayers:
-        enemy_stats = enemy.get("stats", {}) or {}
-        for key, enemy_key, base_bonus, enemy_bonus in (
-            ("attack", "attack", .15, .15),
-            ("defence", "defence", .15, .15),
-            ("strength", "strength", .23, .10),
-        ):
-            player_base = max(1, _combat_base_skill_level(data, "defense" if key == "defence" else key, 1))
-            enemy_level = _positive_int(enemy_stats.get(enemy_key, 1), 1)
-            turmoil_level = player_base * (1.0 + base_bonus * prayer_uptime) + enemy_bonus * enemy_level * prayer_uptime
-            prayer_effects[key] = max(float(prayer_effects.get(key, 1.0)), turmoil_level / player_base)
+        _combat_turmoil_boosts(data, enemy, prayer_uptime, prayer_effects)
 
     selected_ammo = None
     if combat_class == "ranged":
@@ -1907,26 +1881,10 @@ def apply_combat_burst_pure(
     )
     wilderness_ambush = None
     if not died and not fled:
-        wilderness_ambush = _combat_apply_wilderness_ambush(
-            data,
-            enemy,
-            player_lp,
-            max_player_lp,
-            rng,
-            wilderness_equipment_risk,
+        wilderness_ambush, player_lp, died = _combat_settle_wilderness_ambush(
+            data, enemy, player_lp, max_player_lp, rng,
+            wilderness_equipment_risk, food_used,
         )
-        if wilderness_ambush and wilderness_ambush.get("triggered"):
-            food_event = wilderness_ambush.get("food_used")
-            if food_event:
-                food_used.append(food_event)
-            if wilderness_ambush.get("died"):
-                died = True
-                player_lp = max_player_lp
-            else:
-                player_lp = _non_negative_int(
-                    wilderness_ambush.get("lifepoints_after", player_lp),
-                    player_lp,
-                )
     data["combat_lifepoints"] = player_lp
     result = {
         "reason": "combat_burst",
