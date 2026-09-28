@@ -5554,15 +5554,14 @@ def on_answer_card(self, ease, _old):
     _state.answer_shown = False  # Reset for the next card
     try:
         result = _old(self, ease)
-    except Exception:
-        # Only an error that leaves Anki on the answer side lets the same press retry.
-        if review_answered and self.state == "answer":
-            _state.card_turned = _state.answer_shown = True
-            _state.exp_awarded = review_answered = False
-            _roll_back_failed_action(before_state)
-        raise
     finally:
-        if review_answered:
+        # Anki leaves the answer side only once it accepts the answer. A raise or a
+        # reviewer_will_answer_card veto keeps it there, so the same press retries.
+        if review_answered and getattr(self, "state", None) == "answer":
+            _state.card_turned = _state.answer_shown = True
+            _state.exp_awarded = False
+            _roll_back_failed_action(before_state)
+        elif review_answered:
             _commit_review_answer(before_session, before_state)
     try:
         update_review_status_badge(

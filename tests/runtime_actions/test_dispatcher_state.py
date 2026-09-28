@@ -175,6 +175,49 @@ class DispatcherStateTest(unittest.TestCase):
         self.assertEqual(self.state.player_data, before)
         self.assertEqual(self.addon.random.getstate(), original_random)
 
+    def test_vetoed_answer_keeps_the_final_log_for_one_paid_retry(self):
+        self.state.player_data = {
+            "inventory": {"Logs": 1},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+        self.state.current_skill = "Firemaking"
+        self.addon.check_achievements = lambda _data: None
+        self.addon.save_player_data()
+        before = copy.deepcopy(self.state.player_data)
+        original_random = self.addon.random.getstate()
+        self.addCleanup(self.addon.random.setstate, original_random)
+        random_roll = self.addon.random.random
+
+        def successful_roll():
+            random_roll()
+            return 0.0
+
+        def accept(reviewer, _ease):
+            reviewer.state = "transition"
+            return "answered"
+
+        self.addon.random.random = successful_roll
+        self.addCleanup(setattr, self.addon.random, "random", random_roll)
+        # A reviewer_will_answer_card veto returns before Anki leaves the answer side.
+        reviewer = types.SimpleNamespace(state="answer")
+        self.addon.on_card_did_show(None)
+        self.addon.on_show_answer(None)
+        self.assertIsNone(self.addon.on_answer_card(reviewer, 4, lambda *_args: None))
+        self.assertEqual(self.state.player_data, before)
+        self.assertEqual(self.saved[-1], (before, "Firemaking"))
+        self.assertEqual(self.addon.random.getstate(), original_random)
+        self.assertEqual(self.state.review_undo_stack, [])
+
+        self.assertEqual(self.addon.on_answer_card(reviewer, 4, accept), "answered")
+        self.assertEqual(self.state.player_data["firemaking_exp"], 40.0)
+        self.assertEqual(self.state.player_data["inventory"].get("Logs", 0), 0)
+        self.assertEqual(self.state.player_data["inventory"]["Ashes"], 1)
+        self.assertEqual(self.saved[-1][0], self.state.player_data)
+        self.assertEqual(len(self.state.review_undo_stack), 1)
+
     def test_rejected_answer_out_of_logs_leaves_no_stale_bankstanding_notice(self):
         self.state.player_data = {
             "inventory": {},
