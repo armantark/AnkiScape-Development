@@ -52,6 +52,7 @@ from .runtime_actions_shared import _admit_live_cadence
 
 
 _WINTER_STORAGE_SCROLL = "Winter storage scroll"
+_THIEVING_ACT_KEYS = ("thieving_attempt_count", "thieving_stunned")
 
 
 def _winter_storage_candidate(view: dict[str, int], item_name: Any) -> bool:
@@ -169,6 +170,16 @@ def _try_pack_yak_winter_storage_overlay(
         return view, churn, False
     updated_view = _spend_winter_storage(player_data, state, target_id, view, selected)
     return updated_view, max(0, churn - 1), True
+
+
+def _winter_storage_rejected(
+    handler_key: str, player_data: dict[str, Any], before: dict[str, Any] | None
+) -> bool:
+    # Thieving also returns False after a real attempt or stun recovery to stop
+    # the review there; that does not reject the Winter Storage use before it.
+    if before is None or handler_key != "thieving":
+        return before is not None
+    return all(player_data.get(key) == before.get(key) for key in _THIEVING_ACT_KEYS)
 
 
 def _fletching_material_options(target_id: str) -> set[str]:
@@ -928,7 +939,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
 
     inv_before = dict(pack.bank)
     result = handler(cadence.action_ctx)
-    if result is False and winter_storage_before is not None:
+    if result is False and _winter_storage_rejected(handler_key, player_data, winter_storage_before):
         player_data.clear()
         player_data.update(winter_storage_before)
         cadence.restore_after_rejection()
