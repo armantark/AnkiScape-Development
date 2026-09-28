@@ -389,6 +389,68 @@ class DialogLifecycleTest(unittest.TestCase):
         self.assertEqual(captured["message"], "Your Combat level increased.")
         self.assertEqual(captured["transition"], "Level 3 → 4")
 
+    def test_xp_lamp_crossing_many_levels_shows_one_level_up_dialog(self) -> None:
+        from unittest.mock import patch
+
+        from tests.test_integration_smoke import (
+            _DummyCol,
+            _install_runtime_fakes,
+            _load_addon_as_package,
+        )
+
+        real_qt = sys.modules["aqt.qt"]
+        with patch.dict(sys.modules):
+            _install_runtime_fakes()
+            sys.modules["aqt.qt"] = real_qt
+            addon = _load_addon_as_package("ankiscape_lamp_level_up_dialog")
+            self.parent.col = _DummyCol()
+            self.parent.update_undo_actions = lambda: None
+            addon.mw = self.parent
+            addon.ui.mw = self.parent
+            for name in (
+                "save_player_data",
+                "check_achievements",
+                "_refresh_skill_availability",
+                "update_review_hud",
+                "_show_exp",
+            ):
+                setattr(addon, name, lambda *_args: None)
+            constants = sys.modules[f"{addon.__name__}.core.constants"]
+            storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+            player = storage.default_player_data(
+                constants.ORE_DATA,
+                constants.ITEM_DEFINITIONS,
+            )
+            player["quests"]["the_elder_kiln"] = {
+                "started": True,
+                "progress": constants.QUEST_DATA["the_elder_kiln"]["stages"],
+                "completed": True,
+            }
+            addon._state.player_data = player
+            transitions = []
+
+            class ClosingDialog(real_qt.QDialog):
+                def exec(dialog):
+                    transitions.append(
+                        dialog.findChild(real_qt.QLabel, "levelUpTransition").text()
+                    )
+                    QTimer.singleShot(0, dialog.accept)
+                    return super().exec()
+
+            addon.ui.QDialog = ClosingDialog
+            with allow_modal_dialogs():
+                self.assertTrue(
+                    addon.on_claim_reward("the_elder_kiln_xp_lamp_1", "attack")
+                )
+
+        self.assertEqual(player["attack_exp"], 100_000)
+        self.assertEqual(player["attack_level"], 49)
+        self.assertEqual(transitions, ["Level 1 → 49"])
+        self.assertEqual(
+            [event["text"] for event in player["review_event_log"]],
+            [f"Attack advanced to level {level}" for level in range(2, 50)],
+        )
+
     def test_slayer_completion_dialog_uses_the_level_up_surface(self) -> None:
         captured = {}
 

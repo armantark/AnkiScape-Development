@@ -71,7 +71,10 @@ Check, then close or fix:
 - One dialog for a multi-level gain. Upstream fixed a nineteen-dialog burst
   on 2026-09-19 (`fix(classic): summarise a multi-level gain in one dialog`).
   Confirm `level_up_check` (`__init__.py:651`) and the core check behave the
-  same after a large XP change.
+  same after a large XP change. Fixed 2026-09-25: the runtime check only
+  delegates to the core one, which showed one popup per level (the Elder Kiln
+  100,000 XP lamp on level-1 Attack showed 48); it now shows one popup naming
+  the old and new level and still logs every level.
 
 Release hygiene to copy when the AnkiWeb gates open:
 

@@ -41,21 +41,22 @@ def level_up_check(skill, player_data):
             exp_table_for_skill(skill),
         )
         if new_level > old_level:
+            player_data[level_key] = new_level
             for lvl in range(old_level + 1, new_level + 1):
-                player_data[level_key] = lvl
                 _record_review_event(
                     player_data,
                     "achievement",
                     f"{skill} advanced to level {lvl}",
                 )
-                # Respect user setting for popups
-                try:
-                    from aqt import mw  # type: ignore
-                    enabled = bool(mw.col.get_config("ankiscape_popups_enabled", True)) if getattr(mw, 'col', None) else True
-                except Exception:
-                    enabled = True
-                if enabled:
-                    show_level_up_dialog(skill, lvl - 1, lvl)
+            # One gain gets one popup: a quest reward or XP lamp can cross
+            # dozens of levels, and a modal per level buried the player.
+            try:
+                from aqt import mw  # type: ignore
+                enabled = bool(mw.col.get_config("ankiscape_popups_enabled", True)) if getattr(mw, 'col', None) else True
+            except Exception:
+                enabled = True
+            if enabled:
+                show_level_up_dialog(skill, old_level, new_level)
 
 
 def combat_level_up_check(old_level: int, player_data) -> int:

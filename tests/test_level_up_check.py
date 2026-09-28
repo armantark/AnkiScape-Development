@@ -1,12 +1,12 @@
 import unittest
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.logic import combat_level_up_check, level_up_check
 
 
 class LevelUpCheckTest(unittest.TestCase):
-    def test_multi_level_gain_reports_each_exact_transition(self) -> None:
+    def test_multi_level_gain_shows_one_popup_and_logs_each_level(self) -> None:
         player_data = {
             "mining_level": 1,
             "mining_exp": 1_200.0,
@@ -21,14 +21,10 @@ class LevelUpCheckTest(unittest.TestCase):
             level_up_check("Mining", player_data)
 
         self.assertEqual(player_data["mining_level"], 5)
+        show_dialog.assert_called_once_with("Mining", 1, 5)
         self.assertEqual(
-            show_dialog.call_args_list,
-            [
-                call("Mining", 1, 2),
-                call("Mining", 2, 3),
-                call("Mining", 3, 4),
-                call("Mining", 4, 5),
-            ],
+            [event["text"] for event in player_data["review_event_log"]],
+            [f"Mining advanced to level {level}" for level in range(2, 6)],
         )
 
     def test_combat_level_boundary_shows_one_popup_for_a_derived_increase(self) -> None:
