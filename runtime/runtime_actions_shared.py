@@ -914,3 +914,25 @@ def _refresh_combat_levels(ctx: RuntimeActionContext, xp_rewards: Any) -> None:
         if skill is None:
             continue
         ctx.level_up_check(skill.display_name, ctx.player_data)
+
+
+def _credit_review_xp_rewards(updated: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
+    xp_rewards = dict(result.get("xp_rewards") or {})
+    for exp_key, amount in xp_rewards.items():
+        updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
+    return xp_rewards
+
+
+def _award_skill_xp_rows(
+    ctx: RuntimeActionContext,
+    skill_xp: Any,
+    skill_rows: dict[str, tuple[str, str]],
+) -> float:
+    gained = 0.0
+    for skill_id, amount in skill_xp.items():
+        if skill_id not in skill_rows or float(amount or 0.0) <= 0:
+            continue
+        exp_key, display_name = skill_rows[skill_id]
+        gained += ctx.award_skill_exp(exp_key, float(amount))
+        ctx.level_up_check(display_name, ctx.player_data)
+    return gained

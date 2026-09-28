@@ -34,6 +34,8 @@ from ..logic.crucible_logic import apply_crucible_review_pure
 from ..data.stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
 from ..logic.stealing_creation_logic import apply_stealing_creation_review_pure
 from .runtime_actions_shared import (
+    _award_skill_xp_rows,
+    _credit_review_xp_rewards,
     _record_action,
     _refresh_combat_levels,
 )
@@ -105,14 +107,8 @@ def handle_trouble_brewing_answer(
         "firemaking": ("firemaking_exp", "Firemaking"),
         "woodcutting": ("woodcutting_exp", "Woodcutting"),
     }
-    total_gained = 0.0
     skill_xp = dict(result.get("skill_xp") or {})
-    for skill_id, amount in skill_xp.items():
-        if skill_id not in skill_rows or float(amount or 0.0) <= 0:
-            continue
-        exp_key, display_name = skill_rows[skill_id]
-        total_gained += ctx.award_skill_exp(exp_key, float(amount))
-        ctx.level_up_check(display_name, ctx.player_data)
+    total_gained = _award_skill_xp_rows(ctx, skill_xp, skill_rows)
     _record_action(
         ctx,
         "utility",
@@ -156,9 +152,7 @@ def handle_pest_control_answer(
             str(result.get("reason", "Enter Pest Control before training.")),
         )
         return False
-    xp_rewards = dict(result.get("xp_rewards") or {})
-    for exp_key, amount in xp_rewards.items():
-        updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
+    xp_rewards = _credit_review_xp_rewards(updated, result)
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     _record_action(
@@ -242,9 +236,7 @@ def handle_barbarian_assault_answer(
             str(result.get("reason", "Enter Barbarian Assault before training.")),
         )
         return False
-    xp_rewards = dict(result.get("xp_rewards") or {})
-    for exp_key, amount in xp_rewards.items():
-        updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
+    xp_rewards = _credit_review_xp_rewards(updated, result)
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     _record_action(
@@ -293,9 +285,7 @@ def handle_soul_wars_answer(
             str(result.get("reason", "Enter Soul Wars before training.")),
         )
         return False
-    xp_rewards = dict(result.get("xp_rewards") or {})
-    for exp_key, amount in xp_rewards.items():
-        updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
+    xp_rewards = _credit_review_xp_rewards(updated, result)
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     _record_action(
@@ -405,20 +395,25 @@ def handle_clan_wars_answer(
     return True
 
 
+def _troll_invasion_steps(ctx: RuntimeActionContext, productive: bool) -> int:
+    # Only repair work repeats with the review multiplier; a combat beat
+    # resolves once so it never spills into the next wave.
+    session = ctx.player_data.get("troll_invasion")
+    repair = isinstance(session, Mapping) and session.get("mode") == TROLL_INVASION_REPAIR_MODE
+    return max(1, int(ctx.review_action_multiplier)) if productive and repair else 1
+
+
 def handle_troll_invasion_answer(
     ctx: RuntimeActionContext,
     *,
     productive: bool = True,
 ) -> bool:
-    session = ctx.player_data.get("troll_invasion")
-    repair = isinstance(session, Mapping) and session.get("mode") == TROLL_INVASION_REPAIR_MODE
-    steps = max(1, int(ctx.review_action_multiplier)) if productive and repair else 1
     updated, ok, result = apply_troll_invasion_review_pure(
         ctx.player_data,
         ctx.random_random,
         equipment_data=EQUIPMENT_DATA,
         productive=productive,
-        steps=steps,
+        steps=_troll_invasion_steps(ctx, productive),
     )
     if not ok:
         ctx.deactivate_current_skill()
@@ -437,13 +432,7 @@ def handle_troll_invasion_answer(
         "crafting": ("crafting_exp", "Crafting"),
         "firemaking": ("firemaking_exp", "Firemaking"),
     }
-    awarded_skill_xp = 0.0
-    for skill_id, amount in skill_xp.items():
-        if skill_id not in skill_rows or float(amount or 0.0) <= 0:
-            continue
-        exp_key, display_name = skill_rows[skill_id]
-        awarded_skill_xp += ctx.award_skill_exp(exp_key, float(amount))
-        ctx.level_up_check(display_name, ctx.player_data)
+    awarded_skill_xp = _award_skill_xp_rows(ctx, skill_xp, skill_rows)
     died = bool(combat.get("died"))
     actions_resolved = max(0, int(result.get("actions_resolved", 1)))
     primary_xp = awarded_skill_xp + sum(
