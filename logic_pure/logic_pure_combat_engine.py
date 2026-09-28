@@ -368,7 +368,6 @@ from .logic_pure_combat_supplies import (
     _combat_refill_ranged_ammo_loadout,
     _combat_refill_stat_potions,
     _combat_regenerate_special_attack_energy,
-    _combat_should_auto_flee,
     _combat_trim_food_to_capacity,
     _combat_void_shifter_escape_ready,
     combat_dragonfire_protection_pure,
@@ -486,7 +485,6 @@ from .logic_pure_state import (
 
 
 from .logic_pure_combat_specials import (
-    _combat_death_prayer_damage,
     _combat_dragonfire_damage_lifepoints,
     _combat_enemy_poison_application,
     _combat_enemy_prayer_drain,
@@ -499,6 +497,10 @@ from .logic_pure_combat_hud import (
     _combat_hud_status,
 )
 from .logic_pure_combat_risk import _combat_preview_with_risk
+from .logic_pure_combat_outcome import (
+    _combat_advance_status_tick,
+    _combat_settle_burst_outcome,
+)
 
 
 def _combat_roll_damage_lifepoints(max_hit_old_hp, rng):
@@ -1594,30 +1596,16 @@ def apply_combat_burst_pure(
             )
             data["combat_prayer_points"] = prayer_points_after
             data["combat_prayer_drain_counter"] = prayer_counter
-        potion_event = _combat_consume_antipoison_if_needed(data)
-        if potion_event:
-            potions_used.append(potion_event)
-        status_result = _combat_advance_status_effects(data, 1, player_lp, max_player_lp)
-        player_lp = _non_negative_int(data.get("combat_lifepoints", player_lp), player_lp)
-        for effect_name, amount in (status_result.get("damage", {}) or {}).items():
-            status_damage[effect_name] = _non_negative_int(status_damage.get(effect_name, 0), 0) + _non_negative_int(amount, 0)
-        status_expired.extend(status_result.get("expired", ()) or ())
-        if status_result.get("died"):
+        player_lp, status_stop = _combat_advance_status_tick(
+            data, player_lp, max_player_lp, rng,
+            potions_used, food_used, status_damage, status_expired,
+        )
+        if status_stop == "died":
             died = True
             break
-        if status_result.get("damage"):
-            player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
-            if food_event:
-                food_used.append(food_event)
-
-        if status_result.get("damage") and _combat_void_shifter_escape_ready(
-            data, player_lp, max_player_lp
-        ):
+        if status_stop:
             fled = True
-            familiar_escape = True
-            break
-        if _combat_should_auto_flee(data, player_lp, max_player_lp):
-            fled = True
+            familiar_escape = status_stop == "void_shifter"
             break
 
         if tick >= next_player_attack and enemy_lp > 0:
@@ -2145,39 +2133,14 @@ def apply_combat_burst_pure(
     for exp_key, amount in xp_rewards.items():
         data[exp_key] = data.get(exp_key, 0.0) + amount
 
-    # Chaining means a single burst can defeat several enemies and still end in
-    # a partial survivor or a death, so kills, death, and the carried encounter
-    # are now independent rather than mutually exclusive branches.
-    if kills > 0:
-        kill_counts = dict(data.get("combat_kill_counts", {}) or {})
-        kill_counts[target_id] = _positive_int(kill_counts.get(target_id, 0), 0) + kills
-        data["combat_kill_counts"] = kill_counts
-
-    death_burst = 0
-    if died:
-        if "wrath" in selected_prayers or "retribution" in selected_prayers:
-            death_burst, automatic_finisher = _combat_death_prayer_damage(
-                data, selected_prayers, finisher, enemy_lp, rng
-            )
-            if automatic_finisher:
-                automatic_finishers += 1
-            enemy_lp -= death_burst
-            player_damage += death_burst
-        if safe_death:
-            data["combat_encounter"] = {}
-            data["combat_status_effects"] = {}
-            player_lp = max_player_lp
-        else:
-            player_lp = _combat_apply_pvm_death(
-                data,
-                max_player_lp,
-                no_grave=no_grave,
-            )
-    elif fled or enemy_lp <= 0 or (enemy_lp >= enemy_max_lp and not live_cadence):
-        # No partial progress to carry: the player fled, nothing was fought, or the
-        # burst ended right after a kill respawned a fresh full-LP enemy.
-        data["combat_encounter"] = {}
-    else:
+    player_lp, death_burst, carry_encounter = _combat_settle_burst_outcome(
+        data, target_id, kills, died, fled, player_lp, max_player_lp,
+        enemy_lp, enemy_max_lp, selected_prayers, finisher, rng,
+        live_cadence=live_cadence, safe_death=safe_death, no_grave=no_grave,
+    )
+    enemy_lp -= death_burst
+    player_damage += death_burst
+    if carry_encounter:
         next_encounter = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
         if live_cadence:
             next_encounter.update(
@@ -2314,7 +2277,7 @@ def apply_combat_burst_pure(
         "prayer_points_after": prayer_points_after,
         "prayers": selected_prayers,
         "prayer_uptime": prayer_uptime,
-        "death_prayer_damage": death_burst if died else 0,
+        "death_prayer_damage": death_burst,
         "player_accuracy": player_accuracy,
         "enemy_accuracy": enemy_accuracy,
         "combat_class": combat_class,
