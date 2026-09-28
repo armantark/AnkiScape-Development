@@ -1,9 +1,11 @@
-"""The enemy's side of a combat burst tick: how it regenerates, whether a
+"""The enemy's side of a combat burst tick: how it regenerates, which style a
+selected attack uses or whether it teleports the player away, whether a
 dragon breathes fire, what a breath or a special the player is not protected
 from costs, how prayers cut the hit, what Deflect and a vampyre bite do to the
 enemy afterwards, and when Redemption saves the player. The attack selection
-and the ordinary hit roll stay in the engine because tests patch them there;
-Vengeance stays with the burst's Magic code."""
+and the ordinary hit roll stay in the engine because tests patch them there,
+and so does the unequip special's gear transaction; Vengeance stays with the
+burst's Magic code."""
 
 from typing import Mapping
 
@@ -55,6 +57,26 @@ def _combat_regenerate_enemy(enemy_lp, enemy_max_lp, residual, numerator, denomi
         enemy_counts["enemy_healing"] += healing
         residual -= healing * denominator
     return enemy_lp, residual
+
+
+def _combat_prepare_enemy_attack(enemy, attack_spec, enemy_specials):
+    """The selected attack's kind, the enemy it attacks as, and the ticks it
+    delays the player's next attack. A teleport or an unequip special ends the
+    burst, so neither has an attacking enemy."""
+    attack_kind = str(attack_spec.get("kind", "attack"))
+    if attack_kind == "teleport":
+        delay = _non_negative_int(attack_spec.get("player_delay_ticks", 0), 0)
+        enemy_specials.append({"kind": "teleport", "delay_ticks": delay})
+        return attack_kind, None, delay
+    if attack_kind == "unequip":
+        return attack_kind, None, 0
+    attack_enemy = enemy
+    selected_style = attack_spec.get("style")
+    if selected_style in {"melee", "ranged", "magic", "magic_melee"}:
+        attack_enemy = dict(enemy)
+        attack_enemy["attack_style"] = selected_style
+        attack_enemy.pop("attack_style_by_player_class", None)
+    return attack_kind, attack_enemy, 0
 
 
 def _combat_enemy_breathes_dragonfire(data, enemy, elapsed_ticks, rng, potions_used):

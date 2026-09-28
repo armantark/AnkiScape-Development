@@ -354,7 +354,6 @@ from .logic_pure_combat_supplies import (
     _combat_consume_loaded_rune_cost,
     _combat_consume_magic_runes,
     _combat_consume_ranged_ammo,
-    _combat_custom_layout_view,
     _combat_locks_can_bank_run,
     _combat_progress_or_start_bank_run,
     _combat_ranged_strength_bonus,
@@ -427,8 +426,6 @@ from .logic_pure_combat_model import (
     _combat_weakening_equipment_state,
     _combat_weapon_is_magic,
     _combat_weapon_is_ranged,
-    apply_combat_preset_pure,
-    apply_combat_target_overrides_pure,
     combat_attack_style_for_equipment_pure,
     combat_finisher_state_pure,
     combat_magic_preset_locked_reasons_pure,
@@ -491,6 +488,7 @@ from .logic_pure_combat_outcome import (
     _combat_settle_wilderness_ambush,
 )
 from .logic_pure_combat_curses import _combat_curse_drains, _combat_turmoil_boosts
+from .logic_pure_combat_loadout import _combat_prepare_target_loadout
 from .logic_pure_combat_setup import (
     _combat_enemy_start_lifepoints,
     _combat_prayer_request,
@@ -506,6 +504,7 @@ from .logic_pure_combat_enemy_turn import (
     _combat_enemy_damage_after_prayers,
     _combat_enemy_regeneration,
     _combat_enemy_special_damage,
+    _combat_prepare_enemy_attack,
     _combat_rebound_enemy_hit,
     _combat_regenerate_enemy,
 )
@@ -1070,19 +1069,7 @@ def apply_combat_burst_pure(
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data, enemy_data))
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
-    carried = data.get("carried_inventory")
-    current_view = carried.get(target_id) if isinstance(carried, Mapping) else None
-    if not isinstance(current_view, Mapping) or not current_view:
-        repacked = _combat_custom_layout_view(data, target_id)
-        if repacked:
-            carried = dict(carried) if isinstance(carried, Mapping) else {}
-            carried[target_id] = repacked
-            data["carried_inventory"] = carried
-    pinned_preset = (data.get("combat_target_presets", {}) or {}).get(target_id)
-    if isinstance(pinned_preset, str):
-        data, _applied = apply_combat_preset_pure(data, pinned_preset, target_id)
-    else:
-        data = apply_combat_target_overrides_pure(data, target_id)
+    data = _combat_prepare_target_loadout(data, target_id)
     preset_reasons = combat_magic_preset_locked_reasons_pure(data)
     if preset_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": preset_reasons}
@@ -1588,27 +1575,17 @@ def apply_combat_burst_pure(
         if tick >= next_enemy_attack and enemy_lp > 0 and not retaliation_stopped:
             next_enemy_attack += enemy_attack_speed
             attack_spec = _combat_select_enemy_attack_pure(enemy, rng)
-            attack_kind = str(attack_spec.get("kind", "attack"))
-            if attack_kind == "teleport":
-                delay = _non_negative_int(
-                    attack_spec.get("player_delay_ticks", 0), 0
-                )
-                next_player_attack += delay
-                enemy_specials.append({"kind": "teleport", "delay_ticks": delay})
-                break
+            attack_kind, attack_enemy, player_delay = _combat_prepare_enemy_attack(
+                enemy, attack_spec, enemy_specials
+            )
+            next_player_attack += player_delay
             if attack_kind == "unequip":
                 data, unequip_event = _combat_apply_enemy_unequip_special(
                     data, target_id
                 )
                 enemy_specials.append(unequip_event)
+            if attack_enemy is None:
                 break
-
-            attack_enemy = enemy
-            selected_style = attack_spec.get("style")
-            if selected_style in {"melee", "ranged", "magic", "magic_melee"}:
-                attack_enemy = dict(enemy)
-                attack_enemy["attack_style"] = selected_style
-                attack_enemy.pop("attack_style_by_player_class", None)
             enemy_attack_roll, player_defence_roll, enemy_accuracy, enemy_max_hit = (
                 _combat_enemy_attack_rolls(
                     data, attack_enemy, combat_class, style_id, player_totals, enemy_totals,
