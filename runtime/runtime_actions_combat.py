@@ -528,6 +528,9 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             ticks=_combat_review_ticks(ctx),
             rng=ctx.random_random,
             live_cadence=ctx.cadence_live_enabled,
+            # A bank run ends the encounter, and an encounter-only enemy cannot
+            # be fought again after it, so its fight uses the carried supplies.
+            allow_bank_run=not enemy.get("encounter_only"),
         )
     if not ok:
         if using_finisher:

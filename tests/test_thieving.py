@@ -1,3 +1,4 @@
+import sys
 import unittest
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from ankiscape.logic.cadence_kernel import (
     advance_cadence_pure,
     default_cadence_profile_state_pure,
 )
-from ankiscape.core.constants import ORE_DATA
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.logic_pure.logic_pure import (
     apply_thieving_damage_pure,
     thieving_blackjack_threshold_pure,
@@ -27,7 +28,11 @@ from ankiscape.runtime.runtime_actions import (
     handle_thieving_answer,
     handle_utility_answer,
 )
-from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.storage_pure import (
+    CURRENT_CONFIG_VERSION,
+    default_player_data,
+    migrate_loaded_data,
+)
 from ankiscape.data.thieving_data import (
     HAM_LOOT,
     MASTER_FARMER_FELLSTALK_SOURCE,
@@ -522,25 +527,6 @@ class TestThievingRuntime(unittest.TestCase):
         self.assertEqual(calls["xp"], [10.0, 137.5, 137.5])
         self.assertEqual(calls["saves"], 4)
 
-    def test_failed_knockout_can_start_real_fight_back_encounter(self):
-        player_data = _blackjack_state(fight_back=True)
-        ctx, calls = _context(player_data, random_values=(0.999, 0.0))
-
-        self.assertFalse(handle_thieving_answer(ctx))  # lure
-        self.assertFalse(handle_thieving_answer(ctx))  # failed knockout
-
-        self.assertEqual(player_data["combat_lifepoints"], 100)
-        self.assertTrue(player_data["thieving_stunned"])
-        self.assertEqual(player_data["thieving_failure_count"], 1)
-        self.assertEqual(player_data["current_combat_target"], "menaphite_thug")
-        self.assertEqual(
-            player_data["combat_encounter"],
-            {"target_id": "menaphite_thug", "enemy_lifepoints": 600},
-        )
-        self.assertEqual(calls["deactivated"], 1)
-        self.assertIn("fight started", calls["activity"][-1])
-        self.assertNotIn("LP damage", calls["activity"][-1])
-
     def test_desert_phoenix_utility_is_quest_gated_and_awards_no_xp(self):
         player_data = {
             "current_utility": "grab_desert_phoenix_feather",
@@ -563,6 +549,75 @@ class TestThievingRuntime(unittest.TestCase):
         self.assertNotIn("thieving_exp", player_data)
         self.assertEqual(active_calls["xp"], [])
         self.assertEqual(active_calls["activity"], ["+1 Phoenix feather"])
+
+
+class TestThievingFightBackReview(unittest.TestCase):
+    def setUp(self):
+        from tests.test_integration_smoke import _install_runtime_fakes
+
+        self._orig_modules = dict(sys.modules)
+        _install_runtime_fakes()
+
+    def tearDown(self):
+        sys.modules.clear()
+        sys.modules.update(self._orig_modules)
+
+    def test_failed_knockout_with_fight_back_switches_reviews_into_the_thug_fight(self):
+        from tests.test_integration_smoke import (
+            _DummyCol,
+            _DummyMW,
+            _FakeReviewer,
+            _load_addon_as_package,
+        )
+
+        addon = _load_addon_as_package("ankiscape_thieving_fight_back_review")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._update_review_context_surface = lambda: None
+        addon._show_exp = lambda *_args: None
+        addon.show_error_message = lambda title, message: self.fail(f"{title}: {message}")
+        activity = []
+        addon._show_activity_gain = activity.append
+        addon._state.player_data = {
+            **default_player_data(ORE_DATA, ITEM_DEFINITIONS),
+            **_blackjack_state(fight_back=True),
+        }
+        # Auto-eat food waits in the bank while the pack is empty, the state
+        # that sends an ordinary Combat target on a supply trip first.
+        addon._state.player_data["inventory"]["Shark"] = 5
+        addon._state.current_skill = "Thieving"
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.999
+        self.addCleanup(setattr, addon.random, "random", original_random)
+
+        def answer_once():
+            addon._state.card_turned = True
+            addon._state.answer_shown = True
+            addon._state.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 3, lambda _self, _ease: "answered")
+
+        answer_once()  # lure
+        answer_once()  # failed knockout
+        player = addon._state.player_data
+
+        self.assertEqual(addon._state.current_skill, "Combat")
+        self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "Combat")
+        self.assertEqual(player["current_combat_target"], "menaphite_thug")
+        self.assertEqual(
+            player["combat_encounter"],
+            {"target_id": "menaphite_thug", "enemy_lifepoints": 600},
+        )
+        self.assertEqual(player["combat_lifepoints"], 100)
+        self.assertTrue(player["thieving_stunned"])
+        self.assertIn("Menaphite Thug fight started", activity[-1])
+
+        addon.random.random = lambda: 0.0
+        answer_once()  # the next review fights the thug instead of leaving it
+        encounter = addon._state.player_data["combat_encounter"]
+        self.assertEqual(addon._state.current_skill, "Combat")
+        self.assertEqual(encounter["target_id"], "menaphite_thug")
+        self.assertLess(encounter["enemy_lifepoints"], 600)
 
 
 class TestThievingStorage(unittest.TestCase):

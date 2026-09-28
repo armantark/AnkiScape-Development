@@ -456,12 +456,13 @@ def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, An
         failure_kind="trap" if wall_safe else "caught",
     )
     if fight_back:
+        # Selecting Combat clears any stale encounter, so the thug's is set after.
+        ctx.select_review_action("Combat")
         player_data["current_combat_target"] = "menaphite_thug"
         player_data["combat_encounter"] = {
             "target_id": "menaphite_thug",
             "enemy_lifepoints": 600,
         }
-        ctx.deactivate_current_skill()
         ctx.show_activity_gain("Caught — Menaphite Thug fight started")
     elif damage_result.get("died"):
         ctx.deactivate_current_skill()

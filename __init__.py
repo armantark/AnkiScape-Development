@@ -1142,9 +1142,6 @@ def _runtime_action_context() -> RuntimeActionContext:
             _state.pending_bankstanding_notice["show_dialog"] = False
         show_error_message(title, message)
 
-    def _deactivate_runtime_action(reason=None) -> None:
-        _switch_runtime_action(reason)
-
     def _switch_runtime_action(reason=None, *, caller_owns_notice=False) -> None:
         notice_owned = bool(caller_owns_notice or last_reason.get("caller_owns_notice"))
         _switch_to_bankstanding(reason or last_reason["text"], caller_owns_notice=notice_owned)
@@ -1158,7 +1155,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         player_data=_state.player_data,
         random_random=random.random,
         show_error_message=_show_runtime_error,
-        deactivate_current_skill=_deactivate_runtime_action,
+        deactivate_current_skill=_switch_runtime_action,
         award_skill_exp=_award_skill_exp,
         award_hidden_skill_exp=_award_hidden_skill_exp,
         level_up_check=level_up_check,
@@ -1170,6 +1167,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
         show_quest_exp_delta=_show_quest_exp_delta,
         switch_to_bankstanding=_switch_runtime_action,
+        select_review_action=_select_review_action,
         review_action_multiplier=_review_action_multiplier(),
         cadence_shadow_enabled=False,
         cadence_live_enabled=_cadence_kernel_enabled(),
