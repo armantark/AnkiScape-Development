@@ -40,11 +40,11 @@ from .runtime_actions_carried_requirements import (
     _bank_can_supply,
     _carried_target_view,
     _pack_can_supply,
+    _processing_consumable_requirements_for,
     _processing_presence_requirements_for,
     _processing_requirements_for,
     _repack_view_for_target,
     _set_carried_target_map,
-    _skilling_potion_requirement_for,
     _without_urn_substitutions,
 )
 from .runtime_actions_context import RuntimeActionContext
@@ -520,7 +520,7 @@ def _describe_target_pack(
             if is_processing else {}
         ),
         consumable_requirements=(
-            _skilling_potion_requirement_for(
+            _processing_consumable_requirements_for(
                 handler_key, player_data, target_id, carried_materials, advanced=advanced
             )
             if is_processing

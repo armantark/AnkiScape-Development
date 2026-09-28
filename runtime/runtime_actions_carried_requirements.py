@@ -166,7 +166,9 @@ def _add_owned_gilded_altar_marrentill(
         requirements["Clean marrentill"] = marrentill
 
 
-def _stocked_essence_requirement(spec: dict[str, Any], player_data: dict[str, Any]) -> dict[str, int]:
+def _runecrafting_materials_for(spec: dict[str, Any], player_data: dict[str, Any]) -> dict[str, int]:
+    if spec.get("kind") == "combination":
+        return {"Pure essence": 1, str(spec["component_rune"]): 1}
     essence_items = spec.get("essence_items")
     if not isinstance(essence_items, (list, tuple)) or not essence_items:
         return {}
@@ -183,9 +185,8 @@ def _processing_requirements_for(
     """The recipe inputs a processing target needs per action, ``{item: count}``.
 
     Read from each skill's own data table so this stays a thin lookup, not a
-    handler rewrite. Runecrafting has no fixed ``requirements`` dict (any of its
-    ``essence_items`` works); resolve it to the first stocked essence in the
-    target's source order, so the pack has something concrete to carry.
+    handler rewrite. Combination runes pair Pure essence with their component
+    rune; standard runes select the first stocked essence in source order.
     """
     if handler_key == "summoning":
         return _summoning_requirements_for(player_data, carried_inventory)
@@ -199,7 +200,7 @@ def _processing_requirements_for(
         return {}
     requirements = spec.get("requirements")
     if not isinstance(requirements, dict) or not requirements:
-        return _stocked_essence_requirement(spec, player_data)
+        return _runecrafting_materials_for(spec, player_data)
     if handler_key == "fletching":
         resolved = _fletching_materials_for(target, table, player_data, carried_inventory)
         if resolved is not None:
@@ -251,6 +252,26 @@ def _skilling_potion_requirement_for(
             player_data.get("inventory", {}) or {}, handler_key
         )
     return {item_name: 1} if item_name else {}
+
+
+def _processing_consumable_requirements_for(
+    handler_key: str,
+    player_data: dict[str, Any],
+    target_id: str,
+    carried_inventory: dict[str, Any],
+    *,
+    advanced: bool,
+) -> dict[str, int]:
+    """Reserve and scope one batch's consumables separately from material ratios."""
+    if handler_key == "runecrafting":
+        spec = RUNECRAFTING_DATA.get(target_id, {})
+        talisman = spec.get("consumed_talisman")
+        if talisman and not player_data.get("magic_imbue_active", False):
+            return {str(talisman): 1}
+        return {}
+    return _skilling_potion_requirement_for(
+        handler_key, player_data, target_id, carried_inventory, advanced=advanced
+    )
 
 
 def _agility_target_can_damage(target_id: str) -> bool:
