@@ -452,29 +452,43 @@ class DialogLifecycleTest(unittest.TestCase):
         )
 
     def test_slayer_completion_dialog_uses_the_level_up_surface(self) -> None:
-        captured = {}
+        from tests.ui_flows.qt_text_fit import text_fit_defects
 
-        def capture_and_close() -> None:
-            modal = QApplication.activeModalWidget()
-            captured["title"] = modal.windowTitle()
-            captured["message"] = modal.findChild(
-                self.ui.QLabel,
-                "slayerCompletionMessage",
-            ).text()
-            buttons = modal.findChildren(self.ui.QPushButton)
-            captured["buttons"] = [button.text() for button in buttons]
-            buttons[0].click()
+        for parent_size in ((1000, 700), (900, 560)):
+            with self.subTest(parent_size=parent_size):
+                self.parent.resize(*parent_size)
+                for _ in range(4):
+                    QApplication.processEvents()
+                captured = {}
 
-        QTimer.singleShot(0, capture_and_close)
-        with allow_modal_dialogs():
-            self.ui.show_slayer_completion_dialog(17, "bears")
+                def capture_and_close() -> None:
+                    modal = QApplication.activeModalWidget()
+                    modal.show()
+                    modal.resize(modal.minimumSize())
+                    for _ in range(4):
+                        QApplication.processEvents()
+                    captured["title"] = modal.windowTitle()
+                    captured["message"] = modal.findChild(
+                        self.ui.QLabel,
+                        "slayerCompletionMessage",
+                    ).text()
+                    captured["text_fit_defects"] = text_fit_defects(modal)
+                    buttons = modal.findChildren(self.ui.QPushButton)
+                    captured["buttons"] = [button.text() for button in buttons]
+                    buttons[0].click()
 
-        self.assertEqual(captured["title"], "Slayer assignment complete")
-        self.assertEqual(
-            captured["message"],
-            "You have defeated 17 bears. See a Slayer master for a new assignment.",
-        )
-        self.assertEqual(captured["buttons"], ["OK"])
+                QTimer.singleShot(0, capture_and_close)
+                with allow_modal_dialogs():
+                    self.ui.show_slayer_completion_dialog(17, "bears")
+
+                self.assertEqual(captured["title"], "Slayer assignment complete")
+                self.assertEqual(
+                    captured["message"],
+                    "You have defeated 17 bears. "
+                    "See a Slayer master for a new assignment.",
+                )
+                self.assertEqual(captured["buttons"], ["OK"])
+                self.assertEqual(captured["text_fit_defects"], [])
 
     def test_final_slayer_review_shows_the_dialog_after_anki_answers_and_keeps_combat(
         self,
