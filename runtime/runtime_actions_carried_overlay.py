@@ -371,6 +371,87 @@ def _initialize_due_bank_trip(
     return travel_profile, reviews_cost, route_phases, outbound_teleport_used
 
 
+def _settle_bank_run_requests(
+    player_data: dict[str, Any],
+    view: dict[str, int],
+    event: dict[str, Any],
+    *,
+    manual_bank_run: bool,
+    skilling_bank_run_requested: bool,
+) -> None:
+    """Spend the requests this trip answers; an arrival restores summoning and records the diary run."""
+    if manual_bank_run and (event.get("started") or event.get("completed")):
+        player_data.pop("review_bank_run_requested_target", None)
+    if skilling_bank_run_requested and event.get("active"):
+        player_data.pop("skilling_bank_run_requested", None)
+    if event.get("completed"):
+        player_data.update(restore_summoning_points_pure(player_data))
+        record_bank_run_diary_event_pure(player_data, True, view)
+
+
+def _spend_review_on_bank_trip(
+    ctx: RuntimeActionContext,
+    target_id: str,
+    bank_run: Any,
+    new_state: dict[str, Any],
+    new_view: dict[str, int],
+    new_churn: int,
+    event: dict[str, Any],
+    reviews_cost: int,
+) -> None:
+    """Save a review spent travelling to or from the bank and report the trip's progress."""
+    player_data = ctx.player_data
+    player_data["skilling_bank_run"] = new_state
+    _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
+    _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
+    total = int((new_state or bank_run or {}).get("reviews_total", reviews_cost) or reviews_cost)
+    remaining = int(event.get("reviews_remaining", 0) or 0)
+    route_label = bank_run_phase_label_pure(new_state or bank_run)
+    progress = max(1, total - remaining)
+    ctx.show_activity_gain(
+        f"Bank run — {route_label} · {min(progress, total)}/{total} travel reviews"
+        if not event.get("completed")
+        else f"Bank run — {route_label} · arrived and restocked"
+    )
+    run_bank_run_diary_callbacks_pure(
+        bool(event.get("completed")),
+        player_data,
+        ctx.refresh_carried_inventory,
+        ctx.check_achievements,
+    )
+    ctx.save_player_data()
+
+
+def _run_without_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
+    """Run a handler that carries no pack.
+
+    A bank run requested for the handler spends the review; one requested for
+    its target arrives before the handler runs.
+    """
+    player_data = ctx.player_data
+    if (
+        str(player_data.get("review_bank_run_requested_handler", "") or "")
+        == handler_key
+    ):
+        player_data.pop("review_bank_run_requested_handler", None)
+        player_data.update(restore_summoning_points_pure(player_data))
+        ctx.show_activity_gain("Bank run — arrived at the bank")
+        ctx.save_player_data()
+        return True
+    bank_target_key = _BANK_RUN_TARGET_KEYS.get(handler_key)
+    target_id = (
+        str(player_data.get(bank_target_key, ""))
+        if bank_target_key
+        else handler_key
+    )
+    if player_data.get("skilling_bank_run_requested") == target_id:
+        player_data.pop("skilling_bank_run_requested", None)
+        player_data.update(restore_summoning_points_pure(player_data))
+        ctx.show_activity_gain("Bank run — arrived and ready")
+        ctx.save_player_data()
+    return handler(ctx)
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
@@ -394,27 +475,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     player_data = ctx.player_data
     target_key = _OVERLAY_TARGET_KEYS.get(handler_key)
     if target_key is None:
-        if (
-            str(player_data.get("review_bank_run_requested_handler", "") or "")
-            == handler_key
-        ):
-            player_data.pop("review_bank_run_requested_handler", None)
-            player_data.update(restore_summoning_points_pure(player_data))
-            ctx.show_activity_gain("Bank run — arrived at the bank")
-            ctx.save_player_data()
-            return True
-        bank_target_key = _BANK_RUN_TARGET_KEYS.get(handler_key)
-        target_id = (
-            str(player_data.get(bank_target_key, ""))
-            if bank_target_key
-            else handler_key
-        )
-        if player_data.get("skilling_bank_run_requested") == target_id:
-            player_data.pop("skilling_bank_run_requested", None)
-            player_data.update(restore_summoning_points_pure(player_data))
-            ctx.show_activity_gain("Bank run — arrived and ready")
-            ctx.save_player_data()
-        return handler(ctx)
+        return _run_without_carried_overlay(ctx, handler_key, handler)
 
     target_id = str(player_data.get(target_key, ""))
     evil_tree_state = player_data.get("evil_tree")
@@ -698,14 +759,13 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             if outbound_teleport_used:
                 new_state["outbound_teleport_used"] = True
 
-    if manual_bank_run and (event.get("started") or event.get("completed")):
-        player_data.pop("review_bank_run_requested_target", None)
-    if skilling_bank_run_requested and event.get("active"):
-        player_data.pop("skilling_bank_run_requested", None)
-
-    if event.get("completed"):
-        player_data.update(restore_summoning_points_pure(player_data))
-        record_bank_run_diary_event_pure(player_data, True, view)
+    _settle_bank_run_requests(
+        player_data,
+        view,
+        event,
+        manual_bank_run=manual_bank_run,
+        skilling_bank_run_requested=skilling_bank_run_requested,
+    )
 
     if not act:
         restore_cadence_profiles_after_rejection()
@@ -720,25 +780,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
                 casual_layout,
                 consumable_requirements,
             )
-        player_data["skilling_bank_run"] = new_state
-        _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
-        _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
-        total = int((new_state or bank_run or {}).get("reviews_total", reviews_cost) or reviews_cost)
-        remaining = int(event.get("reviews_remaining", 0) or 0)
-        route_label = bank_run_phase_label_pure(new_state or bank_run)
-        progress = max(1, total - remaining)
-        ctx.show_activity_gain(
-            f"Bank run — {route_label} · {min(progress, total)}/{total} travel reviews"
-            if not event.get("completed")
-            else f"Bank run — {route_label} · arrived and restocked"
+        _spend_review_on_bank_trip(
+            ctx, target_id, bank_run, new_state, new_view, new_churn, event, reviews_cost
         )
-        run_bank_run_diary_callbacks_pure(
-            bool(event.get("completed")),
-            player_data,
-            ctx.refresh_carried_inventory,
-            ctx.check_achievements,
-        )
-        ctx.save_player_data()
         return True
 
     # Handlers that substitute carried items (urn runed -> active -> full) must
