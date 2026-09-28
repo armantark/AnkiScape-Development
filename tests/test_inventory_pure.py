@@ -267,6 +267,20 @@ class TestProcessingPackAndAdvancedLayout(unittest.TestCase):
         self.assertEqual(pack_processing_inputs_pure({}, {"Logs": 1}, 28, set()), {})
         self.assertEqual(pack_processing_inputs_pure({"Logs": 5}, {}, 28, set()), {})
 
+    def test_stackable_recipes_need_complete_batches_and_enough_slots(self):
+        cases = (
+            ("whole batches", {"Arrow shafts": 47, "Feather": 31}, 2,
+             {"Arrow shafts": 30, "Feather": 30}),
+            ("too few slots", {"Arrow shafts": 45, "Feather": 45}, 1, {}),
+            ("incomplete batch", {"Arrow shafts": 45, "Feather": 14}, 2, {}),
+            ("missing material", {"Arrow shafts": 45}, 2, {}),
+        )
+        for name, bank, capacity, expected in cases:
+            with self.subTest(name):
+                self.assertEqual(pack_processing_inputs_pure(
+                    bank, {"Arrow shafts": 15, "Feather": 15}, capacity,
+                    {"Arrow shafts", "Feather"}), expected)
+
     def test_apply_carried_layout_caps_by_bank_and_capacity(self):
         bank = {"Iron ore": 10, "Ammo mould": 1}
         layout = {"Ammo mould": 1, "Iron ore": 50}

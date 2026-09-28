@@ -277,9 +277,11 @@ def pack_processing_inputs_pure(
 
     # Never pack more trips than the bank can supply of the scarcest material.
     max_actions = min(_clean_int(bank.get(name), 0, minimum=0) // need for name, need in needs.items())
+    # For stackable-only recipes, every complete batch fits whenever one does.
+    step = max_actions if needs.keys() <= stackable_names else 1
     actions = 0
     while actions < max_actions and _processing_pack_slots(actions + 1, needs, stackable_names, bags) <= capacity:
-        actions += 1
+        actions += step
     if actions <= 0:
         return {}
     return {name: need * actions for name, need in needs.items()}

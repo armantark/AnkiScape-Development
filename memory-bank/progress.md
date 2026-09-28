@@ -1871,3 +1871,17 @@ Proof, evidence in `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ad
 - Audit outputs are in `docs.log`, `test-quality.log`, `reachability.log`, `worktree-guard.log` and `diff-check.log`.
 
 No UI, Dream transaction, Magic candidate, production code, existing test assertion, validator, pin, floor or git configuration changed. Full lanes, native UI acceptance, power-loss and two-desktop sync testing were not run.
+
+## 2026-09-26 — Large stackable supplies no longer stall bank packing
+
+When fletching headless arrows or anything using only stackable supplies, answering a card no longer freezes for a few seconds even with millions in the bank; you see the same quick response and end up with the same pack.
+- Settled rules: [carried inventory design](inventory-carry-model-design-2026-07-07.md) requires whole recipe batches within bank stock and slot limits; [computation budget](simulation-computation-budget-contract-2026-07-17.md) requires bounded review work.
+- Failure modes considered before code: partial batches, overdrawn stock, excess slots, lost bag capacity, changed mixed recipes, and a test that misses the real review refill.
+- The packer uses its existing complete-batch limit as the step for fully stackable recipes, after the existing slot check; mixed recipes keep their existing step. No saved fields, migration, UI, Magic candidate or Dream transaction changed.
+- The regression starts from a default save, empties a pack through the real Fletching handler, then refills through the review wrapper with 15,000,000 Arrow shafts and 15,000,000 Feathers. No production function is mocked. It checks the two-slot pack, consumption, output and a slot-check budget of 28.
+- Before the fix: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_stackable_processing_refill. --expected-tests 1` → `Ran 1 test in 0.744s` / `FAILED (failures=1)`; `AssertionError: 1000000 not less than or equal to 28` (`red-refill.log`, exit 1).
+- After the fix: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_stackable_processing_refill. --select test_inventory_pure. --select test_runtime_actions. --expected-tests 222` → `Ran 222 tests in 0.110s` / `OK`, no skips (`green-runtime.log`, exit 0).
+- Memory Bank readers after these edits: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 46` → `Ran 46 tests in 56.218s` / `OK` (`green-docs-2.log`, exit 0).
+- Required checks, all exit 0: `python3 tools/audit_docs.py` → `Documentation audit passed.`; `python3 tools/audit_test_quality.py` → `hard issues: 0`; `python3 tools/audit_item_reachability.py` → `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, equal to the baseline; `python3 tools/worktree_guard.py audit` → `Worktree layout safe`; `git diff --check` → empty (`audit-docs.log`, `test-quality.log`, `reachability.log`, `worktree-guard.log`, `diff-check.log`).
+- Evidence directory: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-stack-packing-stall-2026-09-26/`. No per-slice runner or checker was added.
+- All changes remain uncommitted for cross-lineage review. Full lanes and promotion belong to the orchestrator through `tools/promotion_gate.py --remote-lanes`; no source was fetched.
