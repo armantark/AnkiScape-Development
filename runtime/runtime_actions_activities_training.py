@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import NamedTuple
+
 from ..logic_pure.achievement_diary_events import (
     record_direct_diary_event_pure,
 )
@@ -635,6 +637,156 @@ def handle_ranging_guild_answer(
     return True
 
 
+class _AgilityEntryState(NamedTuple):
+    lap_counts: dict
+    pit_offer: bool
+    pit_origin: str
+    current_target: str
+    equipment: dict
+    inventory: dict
+    xp_charges: dict
+
+
+def _apply_agility_damage(
+    ctx: RuntimeActionContext,
+    result: dict,
+    target_id: str,
+    before: _AgilityEntryState,
+    damage: int,
+) -> tuple[dict, bool]:
+    player_data = ctx.player_data
+    wilderness_ambush = bool((result.get("wilderness_ambush") or {}).get("triggered"))
+    deferred_pit_accept = bool(
+        wilderness_ambush
+        and result.get("completed_lap")
+        and player_data.get("current_agility") == "the_pit"
+        and player_data.get("agility_pit_offer")
+    )
+    if deferred_pit_accept:
+        # The Wilderness ambush resolves before the lap reward. Restore the
+        # pre-entry carried state so a fatal hit cannot bank-protect hand
+        # equipment by auto-accepting The Pit one transaction too early.
+        player_data["current_agility"] = before.current_target
+        player_data["agility_pit_origin_course"] = before.pit_origin
+        player_data["equipment"] = before.equipment
+        player_data["inventory"] = before.inventory
+    damaged, damage_result = apply_thieving_damage_pure(
+        player_data,
+        damage,
+        source="agility_wilderness_pker" if wilderness_ambush else "agility_failure",
+        carried_target_id=target_id,
+    )
+    player_data.clear()
+    player_data.update(damaged)
+    result["damage_result"] = damage_result
+    if deferred_pit_accept and not damage_result.get("died"):
+        accepted, accept_result = apply_agility_command_pure(
+            player_data,
+            "accept_pit_offer",
+            {},
+        )
+        if accept_result.get("allowed"):
+            player_data.clear()
+            player_data.update(accepted)
+    return damage_result, wilderness_ambush
+
+
+def _forfeit_wilderness_lap_reward(
+    player_data: dict,
+    result: dict,
+    before: _AgilityEntryState,
+) -> None:
+    player_data["agility_lap_counts"] = before.lap_counts
+    player_data["agility_pit_offer"] = before.pit_offer
+    player_data["agility_pit_origin_course"] = before.pit_origin
+    player_data["current_agility"] = before.current_target
+    charges = dict(player_data.get("agility_effect_charges", {}) or {})
+    for modifier in result.get("xp_modifiers", ()) or ():
+        item_name = modifier.get("item") if isinstance(modifier, dict) else None
+        if not isinstance(item_name, str):
+            continue
+        if item_name in before.xp_charges:
+            charges[item_name] = before.xp_charges[item_name]
+        else:
+            charges.pop(item_name, None)
+    player_data["agility_effect_charges"] = charges
+    result.update({
+        "xp": 0.0,
+        "base_xp": 0.0,
+        "xp_modifiers": (),
+        "success": False,
+        "completed_lap": False,
+        "failure_kind": "wilderness_pker_death",
+        "reward_forfeited": True,
+    })
+    death_status = "Wilderness PKer ambush · died before the lap reward"
+    player_data["agility_status"] = death_status
+    result["status"] = death_status
+
+
+def _settle_fatal_agility_damage(
+    ctx: RuntimeActionContext,
+    result: dict,
+    target_id: str,
+    before: _AgilityEntryState,
+    wilderness_ambush: bool,
+) -> None:
+    player_data = ctx.player_data
+    grave = dict(player_data.get("combat_grave", {}) or {})
+    travel_profile = agility_travel_profile_pure(
+        "agility",
+        target_id,
+        int(player_data.get("agility_level", 1) or 1),
+        before.inventory,
+        before.equipment,
+    )
+    travel_reviews = max(
+        1, scheduled_travel_reviews_pure(travel_profile, ctx.random_random())
+    )
+    grave.update({
+        "target_id": target_id,
+        "travel_reviews": travel_reviews,
+        "reviews_remaining": travel_reviews + 1,
+    })
+    player_data["combat_grave"] = grave
+    ctx.deactivate_current_skill()
+    if wilderness_ambush and result.get("completed_lap"):
+        _forfeit_wilderness_lap_reward(player_data, result, before)
+
+
+def _resolve_agility_damage(
+    ctx: RuntimeActionContext,
+    result: dict,
+    target_id: str,
+    before: _AgilityEntryState,
+) -> str:
+    player_data = ctx.player_data
+    damage = int(result.get("damage", 0) or 0)
+    if damage <= 0:
+        return ""
+    damage_result, wilderness_ambush = _apply_agility_damage(
+        ctx, result, target_id, before, damage
+    )
+    if damage_result.get("died"):
+        _settle_fatal_agility_damage(ctx, result, target_id, before, wilderness_ambush)
+    elif (
+        not result.get("success")
+        and player_data.get("activity_auto_stop_on_danger", True)
+    ):
+        maximum_failure_damage = agility_maximum_failure_damage_pure(
+            player_data, target_id
+        )
+        lifepoints = int(player_data.get("combat_lifepoints", 0) or 0)
+        if maximum_failure_damage > 0 and lifepoints <= maximum_failure_damage:
+            ctx.deactivate_current_skill()
+            return (
+                f"Safety stop — {lifepoints} LP left; "
+                f"{AGILITY_TARGETS_BY_ID[target_id].display_name} can hit "
+                f"up to {maximum_failure_damage} LP on a failure"
+            )
+    return ""
+
+
 def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
@@ -652,13 +804,15 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    lap_counts_before = dict(sanitize_agility_state_pure(player_data)["agility_lap_counts"])
-    pit_offer_before = bool(player_data.get("agility_pit_offer", False))
-    pit_origin_before = str(player_data.get("agility_pit_origin_course", "") or "")
-    current_agility_before = str(player_data.get("current_agility", target_id) or target_id)
-    equipment_before = dict(player_data.get("equipment", {}) or {})
-    inventory_before = dict(player_data.get("inventory", {}) or {})
-    xp_charges_before = dict(player_data.get("agility_effect_charges", {}) or {})
+    before = _AgilityEntryState(
+        dict(sanitize_agility_state_pure(player_data)["agility_lap_counts"]),
+        bool(player_data.get("agility_pit_offer", False)),
+        str(player_data.get("agility_pit_origin_course", "") or ""),
+        str(player_data.get("current_agility", target_id) or target_id),
+        dict(player_data.get("equipment", {}) or {}),
+        dict(player_data.get("inventory", {}) or {}),
+        dict(player_data.get("agility_effect_charges", {}) or {}),
+    )
     updated, result = apply_agility_review_pure(
         player_data,
         tuple(ctx.random_random() for _ in range(4)),
@@ -668,103 +822,7 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     player_data.clear()
     player_data.update(updated)
 
-    damage = int(result.get("damage", 0) or 0)
-    safety_stop_message = ""
-    if damage > 0:
-        wilderness_ambush = bool((result.get("wilderness_ambush") or {}).get("triggered"))
-        deferred_pit_accept = bool(
-            wilderness_ambush
-            and result.get("completed_lap")
-            and player_data.get("current_agility") == "the_pit"
-            and player_data.get("agility_pit_offer")
-        )
-        if deferred_pit_accept:
-            # The Wilderness ambush resolves before the lap reward. Restore the
-            # pre-entry carried state so a fatal hit cannot bank-protect hand
-            # equipment by auto-accepting The Pit one transaction too early.
-            player_data["current_agility"] = current_agility_before
-            player_data["agility_pit_origin_course"] = pit_origin_before
-            player_data["equipment"] = equipment_before
-            player_data["inventory"] = inventory_before
-        damaged, damage_result = apply_thieving_damage_pure(
-            player_data,
-            damage,
-            source="agility_wilderness_pker" if wilderness_ambush else "agility_failure",
-            carried_target_id=target_id,
-        )
-        player_data.clear()
-        player_data.update(damaged)
-        result["damage_result"] = damage_result
-        if deferred_pit_accept and not damage_result.get("died"):
-            accepted, accept_result = apply_agility_command_pure(
-                player_data,
-                "accept_pit_offer",
-                {},
-            )
-            if accept_result.get("allowed"):
-                player_data.clear()
-                player_data.update(accepted)
-        if damage_result.get("died"):
-            grave = dict(player_data.get("combat_grave", {}) or {})
-            travel_profile = agility_travel_profile_pure(
-                "agility",
-                target_id,
-                int(player_data.get("agility_level", 1) or 1),
-                inventory_before,
-                equipment_before,
-            )
-            travel_reviews = max(
-                1, scheduled_travel_reviews_pure(travel_profile, ctx.random_random())
-            )
-            grave.update({
-                "target_id": target_id,
-                "travel_reviews": travel_reviews,
-                "reviews_remaining": travel_reviews + 1,
-            })
-            player_data["combat_grave"] = grave
-            ctx.deactivate_current_skill()
-            if wilderness_ambush and result.get("completed_lap"):
-                player_data["agility_lap_counts"] = lap_counts_before
-                player_data["agility_pit_offer"] = pit_offer_before
-                player_data["agility_pit_origin_course"] = pit_origin_before
-                player_data["current_agility"] = current_agility_before
-                charges = dict(player_data.get("agility_effect_charges", {}) or {})
-                for modifier in result.get("xp_modifiers", ()) or ():
-                    item_name = modifier.get("item") if isinstance(modifier, dict) else None
-                    if not isinstance(item_name, str):
-                        continue
-                    if item_name in xp_charges_before:
-                        charges[item_name] = xp_charges_before[item_name]
-                    else:
-                        charges.pop(item_name, None)
-                player_data["agility_effect_charges"] = charges
-                result.update({
-                    "xp": 0.0,
-                    "base_xp": 0.0,
-                    "xp_modifiers": (),
-                    "success": False,
-                    "completed_lap": False,
-                    "failure_kind": "wilderness_pker_death",
-                    "reward_forfeited": True,
-                })
-                death_status = "Wilderness PKer ambush · died before the lap reward"
-                player_data["agility_status"] = death_status
-                result["status"] = death_status
-        elif (
-            not result.get("success")
-            and player_data.get("activity_auto_stop_on_danger", True)
-        ):
-            maximum_failure_damage = agility_maximum_failure_damage_pure(
-                player_data, target_id
-            )
-            lifepoints = int(player_data.get("combat_lifepoints", 0) or 0)
-            if maximum_failure_damage > 0 and lifepoints <= maximum_failure_damage:
-                ctx.deactivate_current_skill()
-                safety_stop_message = (
-                    f"Safety stop — {lifepoints} LP left; "
-                    f"{AGILITY_TARGETS_BY_ID[target_id].display_name} can hit "
-                    f"up to {maximum_failure_damage} LP on a failure"
-                )
+    safety_stop_message = _resolve_agility_damage(ctx, result, target_id, before)
 
     outputs = {
         str(item): int(quantity)
