@@ -492,6 +492,12 @@ from .logic_pure_combat_specials import (
     _combat_enemy_prayer_drain,
     _combat_wyvern_breath_damage_event,
 )
+from .logic_pure_combat_hud import (
+    _combat_hud_enemy_bar,
+    _combat_hud_last_fight,
+    _combat_hud_player_bars,
+    _combat_hud_status,
+)
 from .logic_pure_combat_risk import _combat_preview_with_risk
 
 
@@ -2664,42 +2670,9 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
     skills the current attack style trains (the XP chips), and the running kill
     count. Kept pure so the Qt widget stays a thin renderer."""
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
-    max_lp = combat_max_lifepoints_pure(player_data)
-    current_lp = max(0, min(_non_negative_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
-    prayer_max = _positive_int(player_data.get("prayer_level", 1), 1)
-    prayer_current = min(
-        prayer_max * 10,
-        _non_negative_int(
-            player_data.get("combat_prayer_points", prayer_max * 10),
-            prayer_max * 10,
-        ),
-    ) // 10
-    summoning_max = _positive_int(player_data.get("summoning_level", 1), 1)
-    summoning_state = player_data.get("summoning_state", {}) or {}
-    summoning_current = min(
-        summoning_max,
-        _non_negative_int(
-            summoning_state.get("summoning_points_current", summoning_max)
-            if isinstance(summoning_state, Mapping)
-            else summoning_max,
-            summoning_max,
-        ),
-    )
-
+    player_bars = _combat_hud_player_bars(player_data)
     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
-    enemy = enemy_data.get(target_id) if isinstance(target_id, str) else None
-    if isinstance(enemy, Mapping):
-        enemy_name = str(enemy.get("display_name", target_id))
-        enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
-    else:
-        enemy_name = "Enemy"
-        enemy_max_lp = 0
-    encounter = player_data.get("combat_encounter", {}) or {}
-    carried = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id and enemy_max_lp > 0
-    if carried:
-        enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
-    else:
-        enemy_lp = enemy_max_lp
+    enemy_bar = _combat_hud_enemy_bar(player_data, target_id, enemy_data)
 
     style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, {})
@@ -2707,49 +2680,17 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
     # the XP chips name the skills actually trained, not what weapon_style implies.
     _melee_style_type, xp_style_id = combat_melee_attack_type_pure(player_data, equipment_data)
 
-    kills_total = _non_negative_int((player_data.get("combat_kill_counts", {}) or {}).get(target_id, 0), 0)
-    last = player_data.get("combat_last_result", {}) or {}
-    last = last if isinstance(last, Mapping) else {}
-    last_kills = _non_negative_int(last.get("kills", 0), 0)
-    if last.get("died"):
-        last_outcome = "died"
-    elif last.get("fled"):
-        last_outcome = "fled"
-    else:
-        last_outcome = ""
-
-    def _pct(value, ceiling):
-        return int((min(value, ceiling) / ceiling) * 100) if ceiling > 0 else 0
-
+    last_fight = _combat_hud_last_fight(player_data, target_id)
     finisher = combat_finisher_state_pure(player_data, target_id, enemy_data)
-    status = combat_status_summary_pure(player_data)
-    if finisher["ready"]:
-        finisher_status = (
-            f"Finisher ready: {finisher['action_label']}"
-            if finisher["available"]
-            else f"Finisher blocked: no loaded {finisher['item']}"
-        )
-        status = f"{status} · {finisher_status}" if status else finisher_status
+    status = _combat_hud_status(player_data, finisher)
     return {
         "combat_level": player_combat_level_pure(player_data),
-        "player_lifepoints": current_lp,
-        "player_max_lifepoints": max_lp,
-        "player_pct": _pct(current_lp, max_lp),
-        "prayer_points": prayer_current,
-        "prayer_max_points": prayer_max,
-        "summoning_points": summoning_current,
-        "summoning_max_points": summoning_max,
-        "enemy_name": enemy_name,
-        "enemy_lifepoints": enemy_lp,
-        "enemy_max_lifepoints": enemy_max_lp,
-        "enemy_pct": _pct(enemy_lp, enemy_max_lp),
-        "enemy_carried": bool(carried),
+        **player_bars,
+        **enemy_bar,
         "attack_style_id": style_id,
         "attack_style_name": str(style.get("display_name", style_id)),
         "trained_skills": combat_attack_style_trained_skills_pure(xp_style_id),
-        "kills_total": kills_total,
-        "last_kills": last_kills,
-        "last_outcome": last_outcome,
+        **last_fight,
         "status": status,
         "finisher": finisher,
     }
