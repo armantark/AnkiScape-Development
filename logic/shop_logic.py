@@ -71,6 +71,7 @@ from .shop.state import (
     _transaction_group_state,
     _compress_group_state,
     _apply_restock_to_group_state,
+    _set_stock_quantity,
     _row_view,
     _denied,
     _inventory_count,
@@ -369,7 +370,7 @@ def apply_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: st
     total_price = preview["total_price"]
     _add_inventory(data, currency_name, -total_price)
     _add_inventory(data, item_name, amount)
-    group_state["rows"][row["id"]]["current_quantity"] = max(0, before_row["current_quantity"] - amount)
+    _set_stock_quantity(group_state["rows"][row["id"]], max(0, before_row["current_quantity"] - amount))
     after_row = copy.deepcopy(group_state["rows"][row["id"]])
     data["shop_stock_state"][shop["shared_stock_group"]] = _compress_group_state(group_state)
     ambush = _apply_wilderness_ambush(data, shop, row, amount, rng or random.random)
@@ -429,7 +430,8 @@ def apply_shop_sell_pure(player_data: Mapping[str, Any], shop_id: str, item_name
             group_state["rows"][row_id] = _state_row_from_definition(stocked_row)
         else:
             group_state["rows"][row_id] = _temporary_stock_row(item_name, preview["unit_price"])
-    group_state["rows"][row_id]["current_quantity"] += amount
+    row_state = group_state["rows"][row_id]
+    _set_stock_quantity(row_state, row_state["current_quantity"] + amount)
     after_row = copy.deepcopy(group_state["rows"][row_id])
     _add_inventory(data, item_name, -amount)
     _add_inventory(data, currency_name, total_price)

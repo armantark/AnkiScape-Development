@@ -242,6 +242,7 @@ def _sanitize_stock_row(row_id: str, row_state: Mapping[str, Any]) -> Optional[D
         "current_quantity": current_quantity,
         "default_quantity": default_quantity,
         "restock_ticks": _clean_int(row_state.get("restock_ticks"), 50, minimum=1),
+        "restock_progress": _clean_int(row_state.get("restock_progress"), 0, minimum=0),
         "restock_amount": _clean_int(row_state.get("restock_amount"), 1, minimum=1),
         "buy_price": _clean_optional_int(row_state.get("buy_price")),
         "sell_price": _clean_optional_int(row_state.get("sell_price")),
@@ -362,6 +363,7 @@ def _state_row_from_definition(row: Mapping[str, Any]) -> Dict[str, Any]:
         "current_quantity": _clean_int(row.get("current_quantity", row.get("default_quantity", 0)), 0, minimum=0),
         "default_quantity": _clean_int(row.get("default_quantity"), 0, minimum=0),
         "restock_ticks": _clean_int(row.get("restock_ticks"), 50, minimum=1),
+        "restock_progress": 0,
         "restock_amount": _clean_int(row.get("restock_amount"), 1, minimum=1),
         "buy_price": _clean_optional_int(row.get("buy_price")),
         "sell_price": _clean_optional_int(row.get("sell_price")),
@@ -425,17 +427,27 @@ def _apply_restock_to_group_state(group_state: Dict[str, Any], market_tick: int)
         default = _clean_int(row.get("default_quantity"), 0, minimum=0)
         if current == default:
             continue
-        steps = elapsed // _clean_int(row.get("restock_ticks"), 50, minimum=1)
+        # Transactions checkpoint the group clock, but each row keeps its unfinished interval.
+        progress = elapsed + _clean_int(row.get("restock_progress"), 0, minimum=0)
+        steps, row["restock_progress"] = divmod(progress, _clean_int(row.get("restock_ticks"), 50, minimum=1))
         if steps <= 0:
             continue
         delta = steps * _clean_int(row.get("restock_amount"), 1, minimum=1)
         if current < default:
-            row["current_quantity"] = min(default, current + delta)
+            _set_stock_quantity(row, min(default, current + delta))
         else:
-            row["current_quantity"] = max(default, current - delta)
+            _set_stock_quantity(row, max(default, current - delta))
         if bool(row.get("temporary")) and row["current_quantity"] <= 0:
             group_state["rows"].pop(row_id, None)
     group_state["last_market_tick"] = market_tick
+
+
+def _set_stock_quantity(row: Dict[str, Any], quantity: int) -> None:
+    default = row["default_quantity"]
+    # Time earned toward the default from one side must not carry across it.
+    if (row["current_quantity"] - default) * (quantity - default) <= 0:
+        row["restock_progress"] = 0
+    row["current_quantity"] = quantity
 
 
 def _row_view(row: Mapping[str, Any], row_state: Mapping[str, Any], shop: Mapping[str, Any]) -> Dict[str, Any]:
@@ -517,6 +529,7 @@ def _temporary_stock_row(item_name: str, unit_price: int) -> Dict[str, Any]:
         "current_quantity": 0,
         "default_quantity": 0,
         "restock_ticks": 50,
+        "restock_progress": 0,
         "restock_amount": 1,
         "buy_price": max(1, _clean_int(SHOP_PLAYER_BUY_PRICES.get(item_name), unit_price, minimum=1)),
         "sell_price": unit_price,
