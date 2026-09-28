@@ -77,28 +77,34 @@ def _catalog_bool(row: Dict[str, object], key: str, default: bool = False) -> bo
     return bool(value)
 
 
+_CATALOG_ITEM_ENTRY_KEYS = frozenset({"item_name", "display_name", "quantity", "amount"})
+
+
+def _catalog_item_mapping_entry_pairs(entry: Mapping) -> Tuple[Tuple[str, int], ...]:
+    name = entry.get("item_name") or entry.get("display_name")
+    if isinstance(name, str) and name:
+        return ((name, _catalog_int({"value": entry.get("quantity", entry.get("amount", 1))}, "value", 1)),)
+    # An unnamed entry is itself a name-to-amount mapping, minus any stray entry keys.
+    return tuple(
+        (str(item_name), _catalog_int({"value": amount}, "value", 1))
+        for item_name, amount in entry.items()
+        if item_name not in _CATALOG_ITEM_ENTRY_KEYS
+    )
+
+
+def _catalog_item_entry_pairs(entry: object) -> Tuple[Tuple[str, int], ...]:
+    if isinstance(entry, Mapping):
+        return _catalog_item_mapping_entry_pairs(entry)
+    if isinstance(entry, (tuple, list)) and len(entry) >= 2 and isinstance(entry[0], str) and entry[0]:
+        return ((entry[0], _catalog_int({"value": entry[1]}, "value", 1)),)
+    return ()
+
+
 def _catalog_item_pairs(value: object) -> Tuple[Tuple[str, int], ...]:
     if isinstance(value, Mapping):
         return tuple((str(name), _catalog_int({"value": amount}, "value", 1)) for name, amount in value.items())
     if isinstance(value, (tuple, list)):
-        pairs = []
-        for item in value:
-            if isinstance(item, Mapping):
-                name = item.get("item_name") or item.get("display_name")
-                amount = item.get("quantity", item.get("amount", 1))
-                if not isinstance(name, str) or not name:
-                    for item_name, item_amount in item.items():
-                        if item_name in {"item_name", "display_name", "quantity", "amount"}:
-                            continue
-                        pairs.append((str(item_name), _catalog_int({"value": item_amount}, "value", 1)))
-                    continue
-            elif isinstance(item, (tuple, list)) and len(item) >= 2:
-                name, amount = item[0], item[1]
-            else:
-                continue
-            if isinstance(name, str) and name:
-                pairs.append((name, _catalog_int({"value": amount}, "value", 1)))
-        return tuple(pairs)
+        return tuple(pair for entry in value for pair in _catalog_item_entry_pairs(entry))
     return ()
 
 
@@ -201,47 +207,56 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
     return tuple(requirements)
 
 
-def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
-    display_name = str(row.get("display_name", row.get("id", "Quest")))
-    quest_id = str(row.get("id"))
-    length = str(row.get("length", "Medium"))
-    stages = _catalog_int(row, "stages", _generated_stage_count(length))
+def _catalog_rows_with(value: object, key: str) -> Tuple[Dict[str, object], ...]:
+    return tuple(entry for entry in (value or ()) if isinstance(entry, dict) and entry.get(key))
+
+
+def _catalog_required_quests(row: Dict[str, object], quest_id: str) -> Tuple[QuestPrerequisite, ...]:
     required_quests = tuple(
         QuestPrerequisite(str(req.get("quest_id")), str(req.get("display_name", req.get("quest_id"))))
-        for req in row.get("required_quests", ()) or ()
-        if isinstance(req, dict) and req.get("quest_id")
+        for req in _catalog_rows_with(row.get("required_quests", ()), "quest_id")
     )
+    return QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID.get(quest_id, required_quests)
+
+
+def _catalog_required_skills(row: Dict[str, object], quest_id: str) -> Tuple[QuestSkillRequirement, ...]:
     required_skills = tuple(
         QuestSkillRequirement(
             str(req.get("skill_id")),
             str(req.get("display_name", req.get("skill_id"))),
             _catalog_int(req, "level", 1),
         )
-        for req in row.get("required_skills", ()) or ()
-        if isinstance(req, dict) and req.get("skill_id")
+        for req in _catalog_rows_with(row.get("required_skills", ()), "skill_id")
     )
-    required_quests = QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID.get(quest_id, required_quests)
-    required_skills = QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID.get(quest_id, required_skills)
+    return QUEST_REQUIRED_SKILL_REPLACEMENTS_BY_ID.get(quest_id, required_skills)
+
+
+def _catalog_xp_rewards(row: Dict[str, object], quest_id: str) -> Tuple[QuestXpReward, ...]:
     xp_rewards = tuple(
         QuestXpReward(str(reward.get("skill_id")), float(reward.get("amount", 0) or 0))
-        for reward in row.get("xp_rewards", ()) or ()
-        if isinstance(reward, dict) and reward.get("skill_id")
+        for reward in _catalog_rows_with(row.get("xp_rewards", ()), "skill_id")
     )
-    xp_rewards = QUEST_XP_REWARD_REPLACEMENTS_BY_ID.get(quest_id, xp_rewards)
+    return QUEST_XP_REWARD_REPLACEMENTS_BY_ID.get(quest_id, xp_rewards)
+
+
+def _catalog_reward_items(rewards: object) -> Tuple[Tuple[str, int], ...]:
+    return tuple(
+        (_quest_reward_item_name(reward.get("item_name")), _catalog_int(reward, "quantity", 1))
+        for reward in _catalog_rows_with(rewards, "item_name")
+    )
+
+
+def _catalog_item_rewards(row: Dict[str, object], quest_id: str) -> Tuple[Tuple[str, int], ...]:
     item_rewards = QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID.get(quest_id)
     if item_rewards is None:
-        item_rewards = tuple(
-            (_quest_reward_item_name(reward.get("item_name")), _catalog_int(reward, "quantity", 1))
-            for reward in row.get("item_rewards", ()) or ()
-            if isinstance(reward, dict) and reward.get("item_name")
-        )
+        item_rewards = _catalog_reward_items(row.get("item_rewards", ()))
     item_reward_additions = QUEST_ITEM_REWARD_ADDITIONS_BY_ID.get(quest_id, ())
     if item_reward_additions:
-        item_rewards += tuple(
-            (_quest_reward_item_name(reward.get("item_name")), _catalog_int(reward, "quantity", 1))
-            for reward in item_reward_additions
-            if isinstance(reward, dict) and reward.get("item_name")
-        )
+        item_rewards += _catalog_reward_items(item_reward_additions)
+    return item_rewards
+
+
+def _catalog_lamp_rewards(row: Dict[str, object], quest_id: str) -> Tuple[QuestLampReward, ...]:
     lamp_rewards = tuple(
         QuestLampReward(
             str(reward.get("display_name", "XP lamp")),
@@ -252,10 +267,21 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
             str(reward.get("source_text", "")),
             _catalog_int(reward, "quantity", 1),
         )
-        for reward in row.get("lamp_rewards", ()) or ()
-        if isinstance(reward, dict) and reward.get("amount")
+        for reward in _catalog_rows_with(row.get("lamp_rewards", ()), "amount")
     )
-    lamp_rewards = QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID.get(quest_id, lamp_rewards)
+    return QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID.get(quest_id, lamp_rewards)
+
+
+def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
+    display_name = str(row.get("display_name", row.get("id", "Quest")))
+    quest_id = str(row.get("id"))
+    length = str(row.get("length", "Medium"))
+    stages = _catalog_int(row, "stages", _generated_stage_count(length))
+    required_quests = _catalog_required_quests(row, quest_id)
+    required_skills = _catalog_required_skills(row, quest_id)
+    xp_rewards = _catalog_xp_rewards(row, quest_id)
+    item_rewards = _catalog_item_rewards(row, quest_id)
+    lamp_rewards = _catalog_lamp_rewards(row, quest_id)
     unlocks = tuple(str(unlock) for unlock in (row.get("unlocks", ()) or ()))
     unlocks = QUEST_UNLOCK_REPLACEMENTS_BY_ID.get(quest_id, unlocks)
     return QuestDefinition(
