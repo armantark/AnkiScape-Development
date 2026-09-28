@@ -446,11 +446,8 @@ from .logic_pure_urns import (
 )
 
 from .logic_pure_prayer import (
-    CASTLE_WARS_HALO_DRAIN_PRAYERS,
-    active_prayer_selection_pure,
     prayer_drain_and_effective_uptime_pure,
     prayer_effect_state_pure,
-    prayer_uptime_fraction_pure,
 )
 
 from .logic_pure_magic import (
@@ -493,10 +490,16 @@ from .logic_pure_combat_hud import (
 from .logic_pure_combat_risk import _combat_preview_with_risk
 from .logic_pure_combat_outcome import (
     _combat_advance_status_tick,
+    _combat_bank_burst_rewards,
     _combat_settle_burst_outcome,
     _combat_settle_wilderness_ambush,
 )
 from .logic_pure_combat_curses import _combat_curse_drains, _combat_turmoil_boosts
+from .logic_pure_combat_setup import (
+    _combat_enemy_start_lifepoints,
+    _combat_prayer_request,
+    _combat_resume_attack_clocks,
+)
 from .logic_pure_combat_live import (
     _combat_live_enemy_accuracy,
     _combat_live_player_rolls,
@@ -1223,23 +1226,11 @@ def apply_combat_burst_pure(
             max_player_lp + COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
         ),
     )
-    enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
-    if active_encounter:
-        enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
-    else:
-        enemy_lp = enemy_max_lp
+    enemy_max_lp, enemy_lp, retaliation_stop_lifepoints, retaliation_stopped = (
+        _combat_enemy_start_lifepoints(enemy, encounter, active_encounter)
+    )
     enemy_regen_numerator, enemy_regen_denominator, enemy_regen_residual = (
         _combat_enemy_regeneration(enemy, encounter, active_encounter)
-    )
-    retaliation_stop_lifepoints = _non_negative_int(
-        enemy.get("retaliation_stop_lifepoints", 0), 0
-    )
-    retaliation_stopped = bool(
-        retaliation_stop_lifepoints > 0
-        and (
-            enemy_lp <= retaliation_stop_lifepoints
-            or (active_encounter and encounter.get("retaliation_stopped", False))
-        )
     )
 
     player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
@@ -1250,22 +1241,8 @@ def apply_combat_burst_pure(
     elif combat_class == "magic":
         player_attack_speed = max(1, _positive_int(spell_spec.get("attack_speed", 5), 5))
     enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
-    selected_prayers = tuple(active_prayer_selection_pure(data))
-    equipped_items = data.get("equipment")
-    halo_drain_multipliers = (
-        {
-            prayer_id: 2.0 / 3.0
-            for prayer_id in selected_prayers
-            if prayer_id in CASTLE_WARS_HALO_DRAIN_PRAYERS
-        }
-        if isinstance(equipped_items, Mapping)
-        and str(equipped_items.get("head", "")) == "Saradomin halo"
-        else {}
-    )
-    requested_prayer_uptime = (
-        float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0))
-        if live_cadence and selected_prayers
-        else prayer_uptime_fraction_pure(data)
+    selected_prayers, halo_drain_multipliers, requested_prayer_uptime = (
+        _combat_prayer_request(data, live_cadence)
     )
     total_ticks = (
         1
@@ -1375,20 +1352,14 @@ def apply_combat_burst_pure(
     if "turmoil" in selected_prayers:
         _combat_turmoil_boosts(data, enemy, prayer_uptime, prayer_effects)
 
-    selected_ammo = None
-    if combat_class == "ranged":
-        selected_ammo = _combat_selected_ranged_ammo(data, ranged_weapon_spec, target_id)
-        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
-            _combat_defence_bonus_from_totals(enemy_totals, "ranged") + 64
-        )
-    elif combat_class == "magic":
-        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
-            _combat_defence_bonus_from_totals(enemy_totals, "magic") + 64
-        )
-    else:
-        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
-            _combat_defence_bonus_from_totals(enemy_totals, style_type=melee_style_type) + 64
-        )
+    selected_ammo = (
+        _combat_selected_ranged_ammo(data, ranged_weapon_spec, target_id)
+        if combat_class == "ranged"
+        else None
+    )
+    enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
+        _combat_defence_bonus_from_totals(enemy_totals, combat_class, style_type=melee_style_type) + 64
+    )
     player_attack_roll, player_max_hit = _combat_player_attack_rolls(
         data, combat_class, style_id, melee_style_type, player_totals,
         prayer_effects, selected_ammo, spell_spec, spell_id,
@@ -1419,23 +1390,10 @@ def apply_combat_burst_pure(
         else None
     )
 
-    next_player_attack = (
-        _non_negative_int(encounter.get("player_attack_ticks_remaining", 0), 0)
-        if live_cadence and active_encounter
-        else 0
-    )
-    next_enemy_attack = (
-        _non_negative_int(
-            encounter.get("enemy_attack_ticks_remaining", enemy_attack_speed),
-            enemy_attack_speed,
+    next_player_attack, next_enemy_attack, curse_attack_count = (
+        _combat_resume_attack_clocks(
+            encounter, live_cadence and active_encounter, enemy_attack_speed
         )
-        if live_cadence and active_encounter
-        else enemy_attack_speed
-    )
-    curse_attack_count = (
-        _non_negative_int(encounter.get("curse_attack_count", 0), 0)
-        if live_cadence and active_encounter
-        else 0
     )
 
     player_damage = 0
@@ -1813,17 +1771,9 @@ def apply_combat_burst_pure(
             if potion_event:
                 potions_used.append(potion_event)
 
-    data, equipment_condition_events = advance_equipped_condition_pure(
-        data, ticks_elapsed, EQUIPMENT_CONDITION_DATA
+    data, equipment_condition_events = _combat_bank_burst_rewards(
+        data, ticks_elapsed, drops, xp_rewards
     )
-    inventory = data.get("inventory", {}) or {}
-    for item_name, amount in drops.items():
-        inventory[item_name] = inventory.get(item_name, 0) + amount
-    data["inventory"] = inventory
-
-    for exp_key, amount in xp_rewards.items():
-        data[exp_key] = data.get(exp_key, 0.0) + amount
-
     player_lp, death_burst, carry_encounter = _combat_settle_burst_outcome(
         data, target_id, kills, died, fled, player_lp, max_player_lp,
         enemy_lp, enemy_max_lp, selected_prayers, finisher, rng,

@@ -1,7 +1,10 @@
 """How a combat burst stops and settles: the status tick that can end it before
-either side attacks, the kill, death and empty-encounter settlement after it,
-and the Wilderness ambush that can follow a burst the player survived."""
+either side attacks, the equipment wear, drops and experience it banks, the
+kill, death and empty-encounter settlement after it, and the Wilderness ambush
+that can follow a burst the player survived."""
 
+from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
+from ..logic.equipment_instance_logic import advance_equipped_condition_pure
 from .logic_pure_combat_food import _combat_consume_auto_food
 from .logic_pure_combat_model import _combat_apply_pvm_death, _combat_apply_wilderness_ambush
 from .logic_pure_combat_specials import _combat_death_prayer_damage
@@ -46,6 +49,21 @@ def _combat_advance_status_tick(
     if _combat_should_auto_flee(data, player_lp, max_player_lp):
         return player_lp, "auto_flee"
     return player_lp, ""
+
+
+def _combat_bank_burst_rewards(data, ticks_elapsed, drops, xp_rewards):
+    """Wear the equipped items for the ticks the burst ran, then bank its drops
+    and experience. Returns the player data and the equipment wear events."""
+    data, condition_events = advance_equipped_condition_pure(
+        data, ticks_elapsed, EQUIPMENT_CONDITION_DATA
+    )
+    inventory = data.get("inventory", {}) or {}
+    for item_name, amount in drops.items():
+        inventory[item_name] = inventory.get(item_name, 0) + amount
+    data["inventory"] = inventory
+    for exp_key, amount in xp_rewards.items():
+        data[exp_key] = data.get(exp_key, 0.0) + amount
+    return data, condition_events
 
 
 def _combat_settle_burst_outcome(
