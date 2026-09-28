@@ -827,7 +827,7 @@ activation.
 Read these tools for current command options and threshold values; do not copy changing limits into this document.
 `run` compares the gate's own source files (`GATE_SOURCES` in `tools/promotion/cli.py`) with the candidate's copies and re-executes the candidate's `tools/promotion_gate.py` when they differ, so a candidate that changes what the gate expects is judged by its own gate code.
 Remote mode runs the plain and Qt lanes serially.
-Documentation, test-quality, reachability, worktree-layout, clean-tree, and diff checks run locally in the promotion worktree.
+Both lanes and the documentation, test-quality and reachability checks read one private snapshot of the recorded commit; remote sync uses that same snapshot. The snapshot's worktree-layout tool audits the original repository, as do the clean-tree, diff and final HEAD checks.
 Local test lanes remain supported. A plain-only branch check cannot authorize landing.
 
 Remote acceptance requires minimum discovery and active coverage (`tests - skipped`).
@@ -843,7 +843,7 @@ Reconcile that state before a retry.
 
 A successful gate atomically records the exact commit, passed checks, and a `remote_lanes` boolean in the shared Git common directory.
 Evidence without that field parses as local evidence. Remote evidence is not a universal landing requirement.
-The worktree must be clean so checks measure the recorded commit.
+The source worktree must be clean before a receipt is written. The snapshot is a private Git checkout of the recorded commit, so temporary source edits cannot change the files under test. It links the canonical `.venv-qt` for local Qt discovery; remote sync supplies the remote Qt environment.
 The reachability check compares the gated tree's pins with its own JSON audit, which must exit 0.
 Only an exact match passes. Content additions must update the affected pins in the same commit.
 

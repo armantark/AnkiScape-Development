@@ -30,6 +30,7 @@ from .contract import (
 from .locking import HeldLock, claim_landing_lock, register_gate
 from .promotion_process import kill_process_tree
 from .repository import commit_at, evidence_path_for, main_worktree, safe_log_root, _git
+from .snapshot import commit_snapshot
 
 if __package__ == "promotion":  # direct execution from tools/
     from reachability.pins import REACHABILITY_PIN_FIELDS, read_reachability_pins
@@ -293,6 +294,7 @@ def _run_gate_checks(
     *,
     plain_only: bool,
     remote_lanes: bool = False,
+    source_worktree: Path,
     log: TextIO,
     heartbeat: Callable[[], None] = lambda: None,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -306,7 +308,7 @@ def _run_gate_checks(
         qt_command = (*remote_runner, "qt")
         qt_environment = None
     else:
-        canonical = main_worktree(worktree)
+        canonical = main_worktree(source_worktree)
         plain_command = ("/opt/homebrew/bin/python3", "run_tests.py")
         qt_command = (
             str(canonical / ".venv-qt" / "bin" / "python"),
@@ -356,7 +358,7 @@ def _run_gate_checks(
         (
             "worktree_guard",
             "=== worktree_guard ===",
-            ("python3", "tools/worktree_guard.py", "audit"),
+            ("python3", "tools/worktree_guard.py", "--repo", str(source_worktree), "audit"),
             lambda lines: lines[-2:],
             None,
             None,
@@ -365,7 +367,7 @@ def _run_gate_checks(
         (
             "worktree clean",
             "=== worktree clean ===",
-            ("git", "status", "--porcelain", "--untracked-files=all"),
+            ("git", "-C", str(source_worktree), "status", "--porcelain", "--untracked-files=all"),
             lambda lines: lines or ["clean"],
             None,
             _worktree_is_clean,
@@ -374,7 +376,7 @@ def _run_gate_checks(
         (
             "diff check",
             "=== diff check ===",
-            ("git", "diff", "--check"),
+            ("git", "-C", str(source_worktree), "diff", "--check"),
             lambda lines: lines or ["clean"],
             None,
             None,
@@ -489,13 +491,15 @@ def run_gate(
             kind = "plain-lane gate" if plain_only else "gate"
             print(f"=== {kind} for {commit} in {worktree} ===", file=log)
             print(datetime.now().astimezone().ctime(), file=log)
-            passed_checks, failures = _run_gate_checks(
-                worktree,
-                plain_only=plain_only,
-                remote_lanes=remote_lanes,
-                log=log,
-                heartbeat=heartbeat,
-            )
+            with commit_snapshot(worktree, commit) as snapshot:
+                passed_checks, failures = _run_gate_checks(
+                    snapshot,
+                    source_worktree=worktree,
+                    plain_only=plain_only,
+                    remote_lanes=remote_lanes,
+                    log=log,
+                    heartbeat=heartbeat,
+                )
             ending_commit = commit_at(worktree)
             if ending_commit != commit:
                 failures = (*failures, f"HEAD moved from {commit} to {ending_commit}")

@@ -687,6 +687,7 @@ class PromotionGateTest(unittest.TestCase):
         ):
             passed, failures = _run_gate_checks(
                 Path("/scratch/promotion"),
+                source_worktree=Path("/scratch/promotion"),
                 plain_only=False,
                 log=io.StringIO(),
             )
@@ -724,6 +725,7 @@ class PromotionGateTest(unittest.TestCase):
         ):
             passed, failures = _run_gate_checks(
                 worktree,
+                source_worktree=worktree,
                 plain_only=False,
                 remote_lanes=True,
                 log=io.StringIO(),
@@ -777,6 +779,7 @@ class PromotionGateTest(unittest.TestCase):
         ):
             passed, failures = _run_gate_checks(
                 worktree,
+                source_worktree=worktree,
                 plain_only=True,
                 remote_lanes=True,
                 log=io.StringIO(),

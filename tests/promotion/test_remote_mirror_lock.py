@@ -73,7 +73,7 @@ class RemoteMirrorLockTimingTest(unittest.TestCase):
                 patch("tools.promotion.lane_execution.REMOTE_MIRROR_LOCK_TIMEOUT", lock_bound),
             ):
                 passed, failures = _run_gate_checks(
-                    worktree, plain_only=True, remote_lanes=True, log=log,
+                    worktree, source_worktree=worktree, plain_only=True, remote_lanes=True, log=log,
                 )
         return passed, failures, log.getvalue()
 
