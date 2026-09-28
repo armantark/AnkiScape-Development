@@ -507,7 +507,13 @@ from .logic_pure_combat_enemy_turn import (
     _combat_apply_vampyre_bite,
     _combat_enemy_breathes_dragonfire,
     _combat_enemy_damage_after_prayers,
+    _combat_enemy_regeneration,
+    _combat_regenerate_enemy,
     _combat_unprotected_special_damage,
+)
+from .logic_pure_combat_player_turn import (
+    _combat_land_player_hit,
+    _combat_soul_split_heal,
 )
 
 
@@ -527,6 +533,17 @@ def _combat_roll_damage_lifepoints(max_hit_old_hp, rng):
     except (TypeError, ValueError):
         roll = 0.0
     return 1 + int(max(0.0, min(roll, 0.999999999)) * spread)
+
+
+def _combat_roll_hit(accuracy, max_hit_old_hp, rng, blocked=False):
+    """Roll whether an attack lands, then its damage. A blocked attack still
+    spends its accuracy roll, so blocking never shifts the later draws."""
+    try:
+        landed = float(rng()) < accuracy
+    except (TypeError, ValueError):
+        landed = False
+    landed = landed and not blocked
+    return landed, _combat_roll_damage_lifepoints(max_hit_old_hp, rng) if landed else 0
 
 
 def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipment_data=None):
@@ -1212,26 +1229,8 @@ def apply_combat_burst_pure(
         enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
     else:
         enemy_lp = enemy_max_lp
-    regeneration = (
-        enemy.get("regeneration")
-        if isinstance(enemy.get("regeneration"), Mapping)
-        else None
-    )
-    enemy_regen_numerator = (
-        _positive_int(regeneration.get("lifepoints_per_tick_numerator", 0), 0)
-        if regeneration is not None
-        else 0
-    )
-    enemy_regen_denominator = (
-        _positive_int(regeneration.get("lifepoints_per_tick_denominator", 1), 1)
-        if regeneration is not None
-        else 1
-    )
-    enemy_regen_residual = (
-        _non_negative_int(encounter.get("regeneration_residual", 0), 0)
-        % enemy_regen_denominator
-        if active_encounter and enemy_regen_numerator > 0
-        else 0
+    enemy_regen_numerator, enemy_regen_denominator, enemy_regen_residual = (
+        _combat_enemy_regeneration(enemy, encounter, active_encounter)
     )
     retaliation_stop_lifepoints = _non_negative_int(
         enemy.get("retaliation_stop_lifepoints", 0), 0
@@ -1437,9 +1436,7 @@ def apply_combat_burst_pure(
     protective_equipment, protection_active = _combat_protective_equipment_state(
         data, enemy, combat_class
     )
-    start_equipment, start_equipment_active = _combat_start_equipment_state(
-        data, enemy
-    )
+    start_equipment_active = _combat_start_equipment_state(data, enemy)[1]
     unprotected_effect = (
         protective_equipment.get("unprotected_effect")
         if isinstance(protective_equipment, Mapping)
@@ -1500,7 +1497,7 @@ def apply_combat_burst_pure(
     drops = {}
     clue_refusal_reason = ""
     kills = 0
-    killed = False
+    stop_on_kill = live_cadence or stop_after_first_kill or not start_equipment_active
     died = False
     fled = False
     familiar_escape = False
@@ -1514,19 +1511,10 @@ def apply_combat_burst_pure(
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
-        if enemy_regen_numerator > 0:
-            if enemy_lp < enemy_max_lp:
-                enemy_regen_residual += enemy_regen_numerator
-                healing = min(
-                    enemy_max_lp - enemy_lp,
-                    enemy_regen_residual // enemy_regen_denominator,
-                )
-                if healing > 0:
-                    enemy_lp += healing
-                    enemy_counts["enemy_healing"] += healing
-                    enemy_regen_residual -= healing * enemy_regen_denominator
-            else:
-                enemy_regen_residual = 0
+        enemy_lp, enemy_regen_residual = _combat_regenerate_enemy(
+            enemy_lp, enemy_max_lp, enemy_regen_residual,
+            enemy_regen_numerator, enemy_regen_denominator, enemy_counts,
+        )
         tick_prayer_uptime = prayer_uptime
         if live_cadence:
             (
@@ -1584,7 +1572,6 @@ def apply_combat_burst_pure(
                         out_of_runes = True
                         break
                     data["combat_borrowed_power_spell"] = ""
-            landed = False
             live_player_accuracy, live_player_max_hit = (
                 _combat_live_player_rolls(
                     combat_class, player_attack_roll, player_max_hit,
@@ -1595,39 +1582,25 @@ def apply_combat_burst_pure(
                 if live_cadence
                 else (player_accuracy, player_max_hit)
             )
-            try:
-                landed = float(rng()) < live_player_accuracy
-            except (TypeError, ValueError):
-                landed = False
-            if enemy.get("protect_from_player_class") == combat_class:
-                landed = False
-            if landed:
-                player_hits_landed += 1
-            damage = _combat_roll_damage_lifepoints(live_player_max_hit, rng) if landed else 0
-            try:
-                damage = int(damage * max(0.0, float(player_damage_multiplier)))
-            except (TypeError, ValueError, OverflowError):
-                pass
+            landed, damage = _combat_roll_hit(
+                live_player_accuracy, live_player_max_hit, rng,
+                blocked=enemy.get("protect_from_player_class") == combat_class,
+            )
+            player_hits_landed += landed
             if live_cadence:
                 curse_attack_count += 1
-            damage, automatic_finisher = _combat_cap_damage_for_finisher(
-                data, finisher, enemy_lp, damage
+            damage, automatic_finisher, recoil = _combat_land_player_hit(
+                data, enemy, finisher, combat_class, damage,
+                player_damage_multiplier, enemy_lp, player_lp,
             )
-            if automatic_finisher:
-                automatic_finishers += 1
+            automatic_finishers += automatic_finisher
             if damage > 0:
                 enemy_lp -= damage
                 player_damage += damage
-                if combat_class == "melee":
-                    recoil = min(
-                        player_lp,
-                        _non_negative_int(enemy.get("melee_recoil_damage", 0), 0),
-                    )
-                    if recoil > 0:
-                        player_lp -= recoil
-                        melee_recoil_damage += recoil
-                        if player_lp <= 0:
-                            died = True
+                player_lp -= recoil
+                melee_recoil_damage += recoil
+                if recoil > 0 and player_lp <= 0:
+                    died = True
                 if combat_class == "magic" and landed:
                     if spell_effect == "blood_heal":
                         player_lp = min(max_player_lp, player_lp + int(damage * spell_effect_value))
@@ -1652,20 +1625,10 @@ def apply_combat_burst_pure(
                         spell_enemy_defence_factor = enemy_defence_factor
                         magic_effect_applied = True
                         magic_effects_applied.add(spell_effect)
-                soul_split_uptime = (
-                    tick_prayer_uptime if live_cadence else prayer_uptime
+                player_lp = _combat_soul_split_heal(
+                    player_lp, max_player_lp, damage, prayer_effects,
+                    prayer_uptime, tick_prayer_uptime,
                 )
-                soul_split_heal = int(
-                    damage
-                    * float(prayer_effects.get("soul_split", 0.0))
-                    * (
-                        soul_split_uptime / prayer_uptime
-                        if prayer_uptime > 0
-                        else 0.0
-                    )
-                )
-                if soul_split_heal > 0:
-                    player_lp = min(max_player_lp, player_lp + soul_split_heal)
             if combat_class == "magic":
                 _combat_apply_magic_xp(xp_rewards, spell_spec, damage, npc_xp_multiplier)
             elif damage > 0:
@@ -1674,7 +1637,6 @@ def apply_combat_burst_pure(
                 break
             if enemy_lp <= 0:
                 kills += 1
-                killed = True
                 data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
                     data, enemy, target_id, rng, drops, xp_rewards
                 )
@@ -1685,14 +1647,7 @@ def apply_combat_burst_pure(
                 # old `break` wasted up to half of a ~30s review window). A fresh
                 # enemy respawns at full LP and re-engages after its normal attack
                 # delay, so it gets no free instant hit on the kill tick.
-                if (
-                    live_cadence
-                    or stop_after_first_kill
-                    or (
-                        isinstance(start_equipment, Mapping)
-                        and not start_equipment_active
-                    )
-                ):
+                if stop_on_kill:
                     break
                 enemy_lp = enemy_max_lp
                 next_enemy_attack = tick + 1 + enemy_attack_speed
@@ -1783,7 +1738,6 @@ def apply_combat_burst_pure(
                     )
                     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
             else:
-                landed = False
                 live_enemy_accuracy = (
                     _combat_live_enemy_accuracy(
                         enemy_attack_roll, player_defence_roll,
@@ -1794,11 +1748,7 @@ def apply_combat_burst_pure(
                     if live_cadence
                     else enemy_accuracy
                 )
-                try:
-                    landed = float(rng()) < live_enemy_accuracy
-                except (TypeError, ValueError):
-                    landed = False
-                damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
+                _landed, damage = _combat_roll_hit(live_enemy_accuracy, enemy_max_hit, rng)
             raw_enemy_damage = damage
             prayer_scale = (
                 tick_prayer_uptime / prayer_uptime
@@ -1867,20 +1817,12 @@ def apply_combat_burst_pure(
                 break
             if enemy_lp <= 0:
                 kills += 1
-                killed = True
                 data, refused_clue, prayer_ticks = _combat_settle_kill_rewards(
                     data, enemy, target_id, rng, drops, xp_rewards
                 )
                 clue_refusal_reason = clue_refusal_reason or refused_clue
                 next_player_attack += prayer_ticks
-                if (
-                    live_cadence
-                    or stop_after_first_kill
-                    or (
-                        isinstance(start_equipment, Mapping)
-                        and not start_equipment_active
-                    )
-                ):
+                if stop_on_kill:
                     break
                 enemy_lp = enemy_max_lp
                 enemy_regen_residual = 0
@@ -2009,7 +1951,7 @@ def apply_combat_burst_pure(
         "enemy_retaliation_stopped": retaliation_stopped,
         "enemy_lifepoints": enemy_lp,
         "player_lifepoints": player_lp,
-        "killed": killed,
+        "killed": kills > 0,
         "kills": kills,
         "died": died,
         "fled": fled,

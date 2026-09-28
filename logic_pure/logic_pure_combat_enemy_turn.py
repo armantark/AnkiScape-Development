@@ -1,8 +1,9 @@
-"""The enemy's attack inside a combat burst tick: whether a dragon breathes
-fire, what a special the player is not protected from costs, how prayers cut
-the hit, what a vampyre bite takes back, and when Redemption saves the player.
-The attack selection and the ordinary hit roll stay in the burst because tests
-patch them on the engine module; Vengeance stays with the burst's Magic code."""
+"""The enemy's side of a combat burst tick: how it regenerates, whether a
+dragon breathes fire, what a special the player is not protected from costs,
+how prayers cut the hit, what a vampyre bite takes back, and when Redemption
+saves the player. The attack selection and the ordinary hit roll stay in the
+engine because tests patch them there; Vengeance stays with the burst's Magic
+code."""
 
 from typing import Mapping
 
@@ -17,6 +18,38 @@ from .logic_pure_combat_supplies import (
     _combat_consume_dragonfire_if_needed,
 )
 from .logic_pure_state import _non_negative_int, _positive_int
+
+
+def _combat_enemy_regeneration(enemy, encounter, active_encounter):
+    """The enemy's regeneration as lifepoints per tick over a denominator, and
+    the fractional remainder a carried encounter already banked."""
+    regeneration = enemy.get("regeneration")
+    if not isinstance(regeneration, Mapping):
+        return 0, 1, 0
+    numerator = _positive_int(regeneration.get("lifepoints_per_tick_numerator", 0), 0)
+    denominator = _positive_int(regeneration.get("lifepoints_per_tick_denominator", 1), 1)
+    residual = (
+        _non_negative_int(encounter.get("regeneration_residual", 0), 0) % denominator
+        if active_encounter and numerator > 0
+        else 0
+    )
+    return numerator, denominator, residual
+
+
+def _combat_regenerate_enemy(enemy_lp, enemy_max_lp, residual, numerator, denominator, enemy_counts):
+    """Heal a hurt enemy by one tick of regeneration, banking the fractional
+    remainder. Returns the enemy's lifepoints and the remainder."""
+    if numerator <= 0:
+        return enemy_lp, residual
+    if enemy_lp >= enemy_max_lp:
+        return enemy_lp, 0
+    residual += numerator
+    healing = min(enemy_max_lp - enemy_lp, residual // denominator)
+    if healing > 0:
+        enemy_lp += healing
+        enemy_counts["enemy_healing"] += healing
+        residual -= healing * denominator
+    return enemy_lp, residual
 
 
 def _combat_enemy_breathes_dragonfire(data, enemy, elapsed_ticks, rng, potions_used):
