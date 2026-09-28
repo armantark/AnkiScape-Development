@@ -1332,9 +1332,8 @@ def apply_quest_combat_encounter_pure(
 
     combat_player_data = _copy_player_data_with_nested(player_data)
     combat_player_data["current_combat_target"] = quest_target_id
-    # Quest battles are deliberate, story-gating fights: they resolve to a kill or
-    # a death rather than silently auto-fleeing out of the encounter (which would
-    # soft-lock quest progress). Auto-flee stays scoped to the regular combat loop.
+    # Quest battles must resolve to a kill or death, because auto-flee would
+    # soft-lock quest progress. Keep the override local to this battle.
     combat_player_data["combat_auto_flee"] = False
     if saved_lifepoints > 0:
         combat_player_data["combat_encounter"] = {
@@ -1358,6 +1357,7 @@ def apply_quest_combat_encounter_pure(
 
     data["current_combat_target"] = original_combat_target
     data["combat_encounter"] = {} if combat_result.get("died") else original_combat_encounter
+    data["combat_auto_flee"] = player_data.get("combat_auto_flee", True)
     if combat_result.get("killed"):
         kill_counts = dict(data.get("combat_kill_counts", {}) or {})
         kill_counts.pop(quest_target_id, None)
