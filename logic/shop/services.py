@@ -164,6 +164,26 @@ def _preview_service_like(player_data: Mapping[str, Any], service: Mapping[str, 
     }
 
 
+def _decant_potion_family(
+    data: Mapping[str, Any], base: str, target_dose: int
+) -> tuple[Dict[str, int], int, int]:
+    counts = {dose: _inventory_count(data, f"{base} ({dose})") for dose in range(1, 5)}
+    family_doses = sum(dose * count for dose, count in counts.items())
+    if not family_doses:
+        return {}, 0, 0
+    full_vials, remainder = divmod(family_doses, target_dose)
+    result_counts = {dose: 0 for dose in range(1, 5)}
+    result_counts[target_dose] = full_vials
+    if remainder:
+        result_counts[remainder] += 1
+    family_delta = {
+        f"{base} ({dose})": result_counts[dose] - counts[dose]
+        for dose in range(1, 5)
+        if result_counts[dose] != counts[dose]
+    }
+    return family_delta, family_doses, sum(counts.values()) - sum(result_counts.values())
+
+
 def _decant_potions_delta(
     data: Mapping[str, Any], target_dose: int
 ) -> tuple[Dict[str, int], list[str], int, int, int]:
@@ -172,26 +192,13 @@ def _decant_potions_delta(
     total_doses = 0
     vial_balance = 0
     for base in DECANTABLE_FOUR_DOSE_POTION_BASES:
-        counts = {dose: _inventory_count(data, f"{base} ({dose})") for dose in range(1, 5)}
-        family_doses = sum(dose * count for dose, count in counts.items())
-        if not family_doses:
-            continue
-        full_vials, remainder = divmod(family_doses, target_dose)
-        result_counts = {dose: 0 for dose in range(1, 5)}
-        result_counts[target_dose] = full_vials
-        if remainder:
-            result_counts[remainder] += 1
-        family_delta = {
-            f"{base} ({dose})": result_counts[dose] - counts[dose]
-            for dose in range(1, 5)
-            if result_counts[dose] != counts[dose]
-        }
+        family_delta, family_doses, freed_vials = _decant_potion_family(data, base, target_dose)
         if not family_delta:
             continue
         inventory_delta.update(family_delta)
         changed_families.append(base)
         total_doses += family_doses
-        vial_balance += sum(counts.values()) - sum(result_counts.values())
+        vial_balance += freed_vials
     if vial_balance:
         inventory_delta["Vial"] = vial_balance
     return (
@@ -451,6 +458,25 @@ def _preview_fill_potion_flasks(
     }
 
 
+def _decant_flask_family_to_vials(
+    data: Mapping[str, Any], base: str
+) -> tuple[Dict[str, int], int, int, int]:
+    counts = {
+        dose: _inventory_count(data, potion_flask_name(base, dose))
+        for dose in range(1, 5)
+    }
+    family_doses = sum(dose * count for dose, count in counts.items())
+    family_delta = {
+        potion_flask_name(base, dose): -count for dose, count in counts.items() if count
+    }
+    full_vials, remainder = divmod(family_doses, 4)
+    if full_vials:
+        family_delta[potion_dose_name(base, 4)] = full_vials
+    if remainder:
+        family_delta[potion_dose_name(base, remainder)] = 1
+    return family_delta, family_doses, sum(counts.values()), full_vials + bool(remainder)
+
+
 def _decant_flasks_to_vials_delta(
     data: Mapping[str, Any],
 ) -> tuple[Dict[str, int], list[str], int, int, int]:
@@ -460,27 +486,14 @@ def _decant_flasks_to_vials_delta(
     destroyed_flasks = 0
     created_vials = 0
     for base in DECANTABLE_FLASK_POTION_BASES:
-        counts = {
-            dose: _inventory_count(data, potion_flask_name(base, dose))
-            for dose in range(1, 5)
-        }
-        family_doses = sum(dose * count for dose, count in counts.items())
-        if family_doses <= 0:
+        family_delta, family_doses, family_flasks, family_vials = _decant_flask_family_to_vials(data, base)
+        if not family_delta:
             continue
-        for dose, count in counts.items():
-            if count:
-                inventory_delta[potion_flask_name(base, dose)] = -count
-        full_vials, remainder = divmod(family_doses, 4)
-        if full_vials:
-            inventory_delta[potion_dose_name(base, 4)] = full_vials
-        if remainder:
-            inventory_delta[potion_dose_name(base, remainder)] = (
-                inventory_delta.get(potion_dose_name(base, remainder), 0) + 1
-            )
+        inventory_delta.update(family_delta)
         changed_families.append(base)
         total_doses += family_doses
-        destroyed_flasks += sum(counts.values())
-        created_vials += full_vials + bool(remainder)
+        destroyed_flasks += family_flasks
+        created_vials += family_vials
     return (
         inventory_delta,
         changed_families,

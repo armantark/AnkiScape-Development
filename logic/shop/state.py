@@ -487,15 +487,18 @@ def _item_tradeable(item_name: str) -> bool:
     registry_spec = EXTRA_ITEM_DATA.get(item_name)
     if registry_spec is not None and registry_spec.get("tradeable") is False:
         return False
-    for shop in SHOP_DATA.values():
-        for row in shop.get("stock", []):
+    stock_rows = (row for shop in SHOP_DATA.values() for row in shop.get("stock", []))
+    service_rows = (
+        item
+        for collection in (SHOP_SERVICES, SHOP_VENDOR_ACTIONS)
+        for spec in collection.values()
+        for item in list(spec.get("inputs", [])) + list(spec.get("outputs", []))
+    )
+    # The first catalog row naming the item decides; an item no row names is tradeable.
+    for rows in (stock_rows, service_rows):
+        for row in rows:
             if row.get("item_name") == item_name:
                 return bool(row.get("tradeable", False))
-    for collection in (SHOP_SERVICES, SHOP_VENDOR_ACTIONS):
-        for spec in collection.values():
-            for item in list(spec.get("inputs", [])) + list(spec.get("outputs", [])):
-                if item.get("item_name") == item_name:
-                    return bool(item.get("tradeable", False))
     return True
 
 
