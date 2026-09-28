@@ -66,6 +66,10 @@ Take, in value order:
 - Redo restores what undo retracted. This fork undoes review rewards and
   does not restore them on redo (`grep -rli redo` returns 0 files).
 
+Specs (2026-09-25): [review-log catch-up](specs/review-log-catch-up.md),
+[export and restore](specs/save-export-restore.md), and
+[redo](specs/review-redo.md); each waits on its owner questions.
+
 Check, then close or fix:
 
 - One dialog for a multi-level gain. Upstream fixed a nineteen-dialog burst
