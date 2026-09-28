@@ -1,4 +1,4 @@
-"""Equipment panel gear moves refuse cleanly and stay in order with review Undo."""
+"""Gear, supply and bank moves refuse cleanly and stay in order with review Undo."""
 
 import copy
 from types import SimpleNamespace
@@ -33,10 +33,11 @@ class TestEquipmentChange(unittest.TestCase):
 
 
 class GearMoveAfterReviewUndoTest(unittest.TestCase):
-    """Review Undo restores only the save keys the review changed, so a gear move
-    made after the review must be its own Undo step, taken back first. Otherwise
-    review Undo puts the bank back while the slot or toolbelt keeps the moved
-    item, duplicating or deleting it."""
+    """Review Undo restores only the save keys the review changed, so a gear,
+    supply or bank move made after the review must be its own Undo step, taken
+    back first. Otherwise review Undo puts the bank back while the slot, toolbelt,
+    supply loadout or Death's Office keeps the moved item, duplicating or
+    deleting it."""
 
     setUp = undo_seam.DirectActionUndoSeamTest.setUp
     tearDown = undo_seam.DirectActionUndoSeamTest.tearDown
@@ -44,12 +45,11 @@ class GearMoveAfterReviewUndoTest(unittest.TestCase):
     def _undo_latest(self):
         self.addon._on_state_did_undo(SimpleNamespace(operation=self.collection.entries.pop()))
 
-    def assert_review_then_move_undoes_in_order(self, inventory, equipment, move):
+    def assert_review_then_move_undoes_in_order(self, move, **state):
         addon = self.addon
         addon._state.current_skill = "Mining"
         addon._state.player_data.update(
-            current_ore="copper", inventory=inventory, equipment=equipment,
-            toolbelt={"mining": ["bronze_pickaxe"]},
+            current_ore="copper", toolbelt={"mining": ["bronze_pickaxe"]}, **state
         )
         before_review = copy.deepcopy(addon._state.player_data)
         snapshot = addon._capture_player_data_snapshot(review_answer=True)
@@ -70,18 +70,50 @@ class GearMoveAfterReviewUndoTest(unittest.TestCase):
 
     def test_equip_after_a_review_is_undone_before_the_review(self):
         self.assert_review_then_move_undoes_in_order(
-            {"Bronze platebody": 1}, {}, lambda: self.addon.on_equip_item("Bronze platebody")
+            lambda: self.addon.on_equip_item("Bronze platebody"),
+            inventory={"Bronze platebody": 1}, equipment={},
         )
 
     def test_unequip_after_a_review_is_undone_before_the_review(self):
         self.assert_review_then_move_undoes_in_order(
-            {}, {"body": "Bronze platebody"}, lambda: self.addon.on_unequip_slot("body")
+            lambda: self.addon.on_unequip_slot("body"),
+            inventory={}, equipment={"body": "Bronze platebody"},
         )
 
     def test_tool_attach_after_a_review_is_undone_before_the_review(self):
         self.assert_review_then_move_undoes_in_order(
-            {"Iron pickaxe": 1}, {}, lambda: self.addon.on_attach_tool("Iron pickaxe")
+            lambda: self.addon.on_attach_tool("Iron pickaxe"),
+            inventory={"Iron pickaxe": 1}, equipment={},
         )
+
+    def test_supply_refill_after_a_review_is_undone_before_the_review(self):
+        self.assert_review_then_move_undoes_in_order(
+            self.addon.on_refill_combat_loadout,
+            inventory={"Shark": 30}, combat_auto_eat_food=["Shark"],
+        )
+
+    def test_pack_mode_change_after_a_review_is_undone_before_the_review(self):
+        self.assert_review_then_move_undoes_in_order(
+            lambda: self.addon.on_set_combat_pack_mode("max_safety"),
+            inventory={"Shark": 30}, combat_auto_eat_food=["Shark"],
+            combat_pack_mode="max_output", combat_supply_loadout={"food": {"Shark": 8}},
+        )
+
+    def test_supply_unload_after_a_review_is_undone_before_the_review(self):
+        self.assert_review_then_move_undoes_in_order(
+            self.addon.on_unload_combat_loadout,
+            inventory={}, combat_supply_loadout={"food": {"Shark": 20}},
+        )
+
+    def test_death_office_reclaim_after_a_review_is_undone_before_the_review(self):
+        self.assert_review_then_move_undoes_in_order(
+            self.addon.on_reclaim_death_office,
+            inventory={"Coins": 150},
+            death_office={"items": ["Bronze sword"], "source": "combat_stacked_grave"},
+        )
+
+    def test_bank_run_request_after_a_review_is_undone_before_the_review(self):
+        self.assert_review_then_move_undoes_in_order(self.addon.on_do_bank_run_now, inventory={})
 
     def test_a_refused_undo_entry_blames_anki_not_the_gear(self):
         addon = self.addon
@@ -100,6 +132,38 @@ class GearMoveAfterReviewUndoTest(unittest.TestCase):
                     equipment={"body": "Rune platebody"},
                 )
                 before = copy.deepcopy(addon._state.player_data)
+                errors.clear()
+
+                self.assertFalse(move())
+
+                self.assertEqual(
+                    errors, [(title, "Anki could not create an undo entry, so nothing changed.")]
+                )
+                self.assertEqual(addon._state.player_data, before)
+                self.assertEqual(self.saves, [])
+
+    def test_a_refused_undo_entry_leaves_supplies_and_death_office_alone(self):
+        addon = self.addon
+        errors = []
+        addon.show_error_message = lambda title, message: errors.append((title, message))
+        self.collection.accepts = False
+        addon._state.current_skill = "Mining"
+        addon._state.player_data.update(
+            current_ore="copper",
+            inventory={"Shark": 30, "Coins": 150},
+            combat_auto_eat_food=["Shark"],
+            combat_supply_loadout={"food": {"Lobster": 5}},
+            death_office={"items": ["Bronze sword"], "source": "combat_stacked_grave"},
+        )
+        before = copy.deepcopy(addon._state.player_data)
+        moves = (
+            ("Cannot refill supplies", addon.on_refill_combat_loadout),
+            ("Cannot clear inventory", addon.on_unload_combat_loadout),
+            ("Cannot reclaim gear", addon.on_reclaim_death_office),
+            ("Cannot make a bank run", addon.on_do_bank_run_now),
+        )
+        for title, move in moves:
+            with self.subTest(title):
                 errors.clear()
 
                 self.assertFalse(move())

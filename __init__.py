@@ -4719,42 +4719,46 @@ def _set_combat_prayer_config(key: str, value):
             return False
     if key == "apply_preset":
         new_data, ok = apply_combat_preset_pure(_state.player_data, str(value), _state.player_data.get("current_combat_target"))
-        if ok:
-            _save_combat_state_update(new_data)
-        return ok
+        return ok and _save_combat_state_update(new_data, "Cannot apply preset")
     if key == "save_preset":
         new_data, ok = save_combat_preset_pure(_state.player_data, str(value))
-        if ok:
-            _save_combat_state_update(new_data)
-        return ok
+        return ok and _save_combat_state_update(new_data, "Cannot save preset")
     _state.player_data.update(_apply_combat_prayer_config_pure(_state.player_data, key, value))
     save_player_data()
     return True
 
 
-def _save_combat_state_update(new_data, *, evaluate_achievements=False):
-    _state.player_data.update(new_data)
-    if evaluate_achievements:
-        check_achievements(_state.player_data)
-    save_player_data()
+def _save_combat_state_update(new_data, title, *, evaluate_achievements=False):
+    """Commit a combat change as its own Undo step, so review Undo cannot split it."""
+    if new_data == _state.player_data:
+        return True
+    after_apply = (lambda: check_achievements(_state.player_data)) if evaluate_achievements else None
+    if not commit_direct_action(lambda _current: (new_data, True), after_apply=after_apply):
+        show_error_message(title, "Anki could not create an undo entry, so nothing changed.")
+        return False
     _refresh_skill_availability()
     try:
         update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
+    return True
 
 
 def on_set_combat_auto_eat_threshold(threshold_percent):
-    _save_combat_state_update(set_combat_auto_eat_threshold_pure(_state.player_data, threshold_percent))
+    # The spin box reports every step, and an Undo step for each would bury the
+    # review's own Undo; the threshold moves no items, so it saves in place.
+    _state.player_data.update(set_combat_auto_eat_threshold_pure(_state.player_data, threshold_percent))
+    save_player_data()
+    try:
+        update_review_hud(_state.player_data, _state.current_skill)
+    except Exception:
+        pass
     return True
 
 
 def on_set_combat_pack_mode(mode):
-    new_data, _ok, _reason = set_combat_pack_mode_pure(
-        _state.player_data, mode, EQUIPMENT_DATA
-    )
-    _save_combat_state_update(new_data, evaluate_achievements=True)
-    return True
+    new_data, _ok, _reason = set_combat_pack_mode_pure(_state.player_data, mode, EQUIPMENT_DATA)
+    return _save_combat_state_update(new_data, "Cannot change pack mode", evaluate_achievements=True)
 
 
 def on_set_combat_auto_eat_food(food_name):
@@ -4762,8 +4766,7 @@ def on_set_combat_auto_eat_food(food_name):
     if not ok:
         show_error_message("Cannot configure food", reason or "Choose a supported combat food.")
         return False
-    _save_combat_state_update(new_data)
-    return True
+    return _save_combat_state_update(new_data, "Cannot configure food")
 
 
 def _request_active_bank_run_state(data):
@@ -4810,23 +4813,21 @@ def on_do_bank_run_now():
     if not ok:
         show_error_message("Cannot make a bank run", reason)
         return False
-    _save_combat_state_update(new_data)
-    if completes_immediately:
+    committed = _save_combat_state_update(new_data, "Cannot make a bank run")
+    if committed and completes_immediately:
         _show_activity_gain("Bank run — arrived and ready")
         _refresh_open_carried_inventory()
-    return True
+    return committed
 
 
 def on_refill_combat_loadout():
     new_data, _ok, _reason = refill_combat_supply_loadout_pure(_state.player_data, EQUIPMENT_DATA)
-    _save_combat_state_update(new_data)
-    return True
+    return _save_combat_state_update(new_data, "Cannot refill supplies")
 
 
 def on_unload_combat_loadout():
     new_data, _ok, _reason = unload_combat_supply_loadout_pure(_state.player_data)
-    _save_combat_state_update(new_data, evaluate_achievements=True)
-    return True
+    return _save_combat_state_update(new_data, "Cannot clear inventory", evaluate_achievements=True)
 
 
 def on_reclaim_death_office():
@@ -4834,8 +4835,7 @@ def on_reclaim_death_office():
     if not ok:
         show_error_message("Cannot reclaim gear", reason)
         return False
-    _save_combat_state_update(new_data, evaluate_achievements=True)
-    return True
+    return _save_combat_state_update(new_data, "Cannot reclaim gear", evaluate_achievements=True)
 
 
 def on_set_quest(quest_id):

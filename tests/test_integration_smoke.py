@@ -3992,7 +3992,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_death_office_reclaim_callback_consumes_coins_and_saves(self):
         addon = _load_addon_as_package("ankiscape_death_office_reclaim_integration")
-
+        addon.mw = _DummyMW(_DummyCol())
         calls = {"save": 0, "errors": [], "achievement_coins": []}
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon.check_achievements = lambda data: calls["achievement_coins"].append(data["inventory"]["Coins"])
@@ -4065,7 +4065,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
         addon = _load_addon_as_package("ankiscape_combat_loadout_callbacks")
-
+        addon.mw = _DummyMW(_DummyCol())
         calls = {
             "save": 0,
             "hud": 0,
