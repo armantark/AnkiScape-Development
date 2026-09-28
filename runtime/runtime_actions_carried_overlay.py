@@ -553,6 +553,38 @@ def _prime_first_trip(
     return view
 
 
+def _teleport_past_outbound_leg(
+    player_data: dict[str, Any], pack: _TargetPack, bank_run: Any, target_altar: str
+) -> tuple[Any, dict[str, int] | None]:
+    """Spend a pending Wicked hood altar teleport on this target's active trip.
+
+    The teleport removes the trip's outbound leg. Returns the trip that remains
+    and, when nothing remains, the pack restocked from the bank.
+    """
+    active_target_matches = (
+        isinstance(bank_run, dict)
+        and bank_run.get("target_id") in (None, pack.target_id)
+        and int(bank_run.get("reviews_remaining", 0) or 0) > 0
+    )
+    if not active_target_matches:
+        return bank_run, None
+    teleported_data, pending_teleport_used = consume_wicked_hood_route_teleport_pure(
+        player_data, target_altar
+    )
+    if not pending_teleport_used:
+        return bank_run, None
+    player_data.clear()
+    player_data.update(teleported_data)
+    bank_run, _outbound_removed = wicked_hood_skip_active_outbound_pure(bank_run)
+    player_data["skilling_bank_run"] = bank_run
+    if bank_run:
+        return bank_run, None
+    view = pack.repack()
+    _set_carried_target_map(player_data, "carried_inventory", pack.target_id, view)
+    _set_carried_target_map(player_data, "carried_churn", pack.target_id, 0)
+    return bank_run, view
+
+
 def _run_processing_tick(
     ctx: RuntimeActionContext,
     action_ctx: RuntimeActionContext,
@@ -646,6 +678,48 @@ def _run_processing_tick(
     return result
 
 
+class _CadenceAdmission:
+    """One review's live-cadence admission, undone if the review turns out ineligible."""
+
+    def __init__(self, ctx: RuntimeActionContext, handler_key: str, target_id: str) -> None:
+        self._ctx = ctx
+        self._handler_key = handler_key
+        self._target_id = target_id
+        self.action_ctx = ctx
+        self._admitted = False
+        self._profiles_present = "cadence_profiles" in ctx.player_data
+        self._profiles_before = copy.deepcopy(ctx.player_data.get("cadence_profiles"))
+        self._profiles_after_admission = None
+
+    def admit(self) -> bool:
+        """Admit the review once; Magic and Prayer never wait on live cadence."""
+        if self._admitted or self._handler_key in {"magic", "prayer"}:
+            return True
+        self.action_ctx, self._admitted = _admit_live_cadence(
+            self._ctx, self._handler_key, self._target_id
+        )
+        if self._admitted:
+            self._profiles_after_admission = copy.deepcopy(
+                self._ctx.player_data.get("cadence_profiles")
+            )
+        return self._admitted
+
+    def restore_after_rejection(self) -> None:
+        player_data = self._ctx.player_data
+        if not self._admitted:
+            return
+        if player_data.get("cadence_profiles") != self._profiles_after_admission:
+            # A handler may own a second scheduler under the same route key
+            # (Thieving stalls and wall safes). Once that scheduler advances,
+            # the review was a real action attempt rather than an eligibility
+            # rejection, so its cadence must survive an unsuccessful outcome.
+            return
+        if self._profiles_present:
+            player_data["cadence_profiles"] = copy.deepcopy(self._profiles_before)
+        else:
+            player_data.pop("cadence_profiles", None)
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
@@ -735,65 +809,15 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         if handler_key == "runecrafting"
         else ""
     )
-    active_target_matches = (
-        isinstance(bank_run, dict)
-        and bank_run.get("target_id") in (None, target_id)
-        and int(bank_run.get("reviews_remaining", 0) or 0) > 0
-    )
-    if target_altar and active_target_matches:
-        teleported_data, pending_teleport_used = consume_wicked_hood_route_teleport_pure(
-            player_data, target_altar
-        )
-        if pending_teleport_used:
-            player_data.clear()
-            player_data.update(teleported_data)
-            bank_run, _outbound_removed = wicked_hood_skip_active_outbound_pure(
-                bank_run
-            )
-            player_data["skilling_bank_run"] = bank_run
-            if not bank_run:
-                view = pack.repack()
-                churn = 0
-                force = False
-                _set_carried_target_map(
-                    player_data, "carried_inventory", target_id, view
-                )
-                _set_carried_target_map(
-                    player_data, "carried_churn", target_id, churn
-                )
+    if target_altar:
+        bank_run, restocked_view = _teleport_past_outbound_leg(player_data, pack, bank_run, target_altar)
+        if restocked_view is not None:
+            view, churn, force = restocked_view, 0, False
 
     active_run = isinstance(bank_run, dict) and int(bank_run.get("reviews_remaining", 0) or 0) > 0
-    action_ctx = ctx
-    cadence_admitted = False
-    cadence_profiles_present = "cadence_profiles" in player_data
-    cadence_profiles_before = copy.deepcopy(player_data.get("cadence_profiles"))
-    cadence_profiles_after_admission = None
-
-    def restore_cadence_profiles_after_rejection() -> None:
-        if not cadence_admitted:
-            return
-        if player_data.get("cadence_profiles") != cadence_profiles_after_admission:
-            # A handler may own a second scheduler under the same route key
-            # (Thieving stalls and wall safes). Once that scheduler advances,
-            # the review was a real action attempt rather than an eligibility
-            # rejection, so its cadence must survive an unsuccessful outcome.
-            return
-        if cadence_profiles_present:
-            player_data["cadence_profiles"] = copy.deepcopy(
-                cadence_profiles_before
-            )
-        else:
-            player_data.pop("cadence_profiles", None)
-
-    if keep and not active_run and handler_key not in {"magic", "prayer"}:
-        action_ctx, cadence_admitted = _admit_live_cadence(
-            ctx, handler_key, target_id
-        )
-        if not cadence_admitted:
-            return True
-        cadence_profiles_after_admission = copy.deepcopy(
-            player_data.get("cadence_profiles")
-        )
+    cadence = _CadenceAdmission(ctx, handler_key, target_id)
+    if keep and not active_run and not cadence.admit():
+        return True
     winter_storage_before = None
     if keep and not active_run and not bank_run_requested:
         winter_storage_before = copy.deepcopy(player_data)
@@ -875,7 +899,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     )
 
     if not act:
-        restore_cadence_profiles_after_rejection()
+        cadence.restore_after_rejection()
         if event.get("completed"):
             new_view = pack.repack()
         _spend_review_on_bank_trip(
@@ -886,35 +910,28 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     # Handlers that substitute carried items (urn runed -> active -> full) must
     # see the actual trip view, including a just-seeded first trip.
     _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
-    if not cadence_admitted and handler_key not in {"magic", "prayer"}:
-        action_ctx, cadence_admitted = _admit_live_cadence(
-            ctx, handler_key, target_id
-        )
-        if not cadence_admitted:
-            return True
-        cadence_profiles_after_admission = copy.deepcopy(
-            player_data.get("cadence_profiles")
-        )
+    if not cadence.admit():
+        return True
 
     if pack.is_processing and pack.requirements:
         return _run_processing_tick(
             ctx,
-            action_ctx,
+            cadence.action_ctx,
             handler,
             pack,
             new_state,
             new_view,
             new_churn,
             winter_storage_before=winter_storage_before,
-            restore_cadence=restore_cadence_profiles_after_rejection,
+            restore_cadence=cadence.restore_after_rejection,
         )
 
     inv_before = dict(pack.bank)
-    result = handler(action_ctx)
+    result = handler(cadence.action_ctx)
     if result is False and winter_storage_before is not None:
         player_data.clear()
         player_data.update(winter_storage_before)
-        restore_cadence_profiles_after_rejection()
+        cadence.restore_after_rejection()
         ctx.save_player_data()
         return False
     if result is not False:
@@ -952,5 +969,5 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             player_data["inventory"] = {name: count for name, count in drained.items() if count > 0}
         ctx.save_player_data()
     else:
-        restore_cadence_profiles_after_rejection()
+        cadence.restore_after_rejection()
     return result
