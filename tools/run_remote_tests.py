@@ -43,6 +43,57 @@ MIN_PLAIN_ACTIVE_TESTS = 3_994
 MIN_QT_ACTIVE_TESTS = 4_503
 NETWORK_ATTEMPTS = 3
 PHASE_NAMES = ("Remote preparation", "Sync", "Test execution")
+LANE_GROUP_LEADER = (
+    "import os, sys; os.setpgid(0, 0); os.execv('/bin/sh', ('/bin/sh', '-c', sys.argv[1]))"
+)
+# A lane owns its process group, every process with the lane's pid file (its stdin) or log
+# (its stdout and stderr) open for writing as a standard stream, and all their descendants.
+# Only lane work inherits those descriptors, so a test subprocess that started its own
+# session and outlived its parent still counts, while a reader of either file does not.
+# The leader never lets go of its streams, so a process at the leader's pid that holds
+# neither file reused that pid after the leader exited, and its group is not the lane's.
+# A subprocess that leaves the group, replaces all three streams and outlives its parent
+# cannot be seen: macOS shows no other process's environment to mark it with.
+# The probe holds both files itself, so lsof exits 0 only when its scan found them and must
+# list the probe; any failed scan fails the check instead of reading as a stopped lane.
+# lsof lives in /usr/sbin, outside the lanes' PATH.
+LANE_PROCESSES = """\
+exec 8<"$log_path" 9<"$pid_path" || exit 1
+lane_processes() {
+  holders=$(/usr/sbin/lsof -w -F pfa -- "$pid_path" "$log_path") || return 1
+  table=$(ps -A -o pid= -o ppid= -o pgid=) || return 1
+  printf '%s\\n%s\\n' "$table" "$holders" | awk -v group="$group" -v probe="$$" '
+    NF == 3 { parent[$1] = $2; if ($3 == group) grouped[$1] = 1 }
+    /^p/ { holder = substr($0, 2); listed[holder] = 1 }
+    /^f/ { descriptor = substr($0, 2) }
+    /^a[wu]/ && descriptor ~ /^[012]$/ { owned[holder] = 1 }
+    END {
+      if (!(probe in listed)) exit 1
+      if (!(group in parent) || (group in owned)) for (p in grouped) owned[p] = 1
+      do {
+        grown = 0
+        for (p in parent) if (!(p in owned) && (parent[p] in owned)) { owned[p] = 1; grown = 1 }
+      } while (grown)
+      for (p in owned) print p
+    }'
+}
+"""
+# xargs splits the pid list the same way whichever login shell runs the script.
+LANE_STOP = LANE_PROCESSES + """\
+for signal in TERM TERM TERM TERM TERM TERM TERM TERM TERM TERM KILL KILL KILL; do
+  processes=$(lane_processes) || exit 1
+  [ -z "$processes" ] && exit 0
+  echo "$processes" | xargs kill -"$signal" 2>/dev/null
+  sleep 1
+done
+processes=$(lane_processes) || exit 1
+[ -z "$processes" ]
+"""
+LANE_LIVENESS = LANE_PROCESSES + """\
+processes=$(lane_processes) || exit 1
+[ -n "$processes" ] || echo stopped
+"""
+LANE_STOP_TIMEOUT = 90.0
 
 
 @dataclass(frozen=True)
@@ -135,11 +186,17 @@ class SSHCommandError(RuntimeError):
         )
 
 
-def _ssh(remote_command: str, *, label: str, repeat_safe: bool = False) -> str:
+def _ssh(
+    remote_command: str, *, label: str, repeat_safe: bool = False, deadline: float | None = None,
+) -> str:
     for attempt in range(1, NETWORK_ATTEMPTS + 1):
-        result = subprocess.run(
-            (*SSH, remote_command), text=True, capture_output=True, check=False
-        )
+        try:
+            result = subprocess.run(
+                (*SSH, remote_command), text=True, capture_output=True, check=False,
+                timeout=None if deadline is None else max(deadline - time.monotonic(), 0.0),
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise RuntimeError(f"{label} did not finish before its deadline") from exc
         if result.returncode == 0:
             return result.stdout
         # SSH 255 can also follow remote execution: only repeat safe operations.
@@ -153,11 +210,12 @@ def _pending_path() -> Path:
     return LOCAL_MIRROR_LOCK_PATH.with_suffix(".pending.json")
 
 
-def _completion_report(report_path: str) -> int | None:
+def _completion_report(report_path: str, deadline: float | None = None) -> int | None:
     report = _ssh(
         f"cat {shlex.quote(report_path)} 2>/dev/null || true",
         label="remote lane report poll",
         repeat_safe=True,
+        deadline=deadline,
     ).strip()
     if not report:
         return None
@@ -170,32 +228,112 @@ def _completion_report(report_path: str) -> int | None:
     return returncode
 
 
-def _reconcile_pending_run() -> None:
+def _read_pending() -> dict[str, str] | None:
     pending_path = _pending_path()
-    if pending_path.exists():
-        try:
-            pending = json.loads(pending_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as exc:
-            raise RuntimeError(f"invalid pending run record; sync blocked: {pending_path}") from exc
-        if not isinstance(pending, dict) or any(
-            not isinstance(pending.get(field), str) or not pending[field].strip()
-            for field in ("run_id", "log_path", "report_path")
-        ):
-            raise RuntimeError(f"invalid pending run record; sync blocked: {pending_path}")
-        try:
-            returncode = _completion_report(pending["report_path"])
-            if returncode is None:
-                raise RuntimeError("previous remote lane has no completion report; sync blocked")
-        except RuntimeError as exc:
-            raise RuntimeError(
-                f"{exc}; pending record: {pending_path}; run: {pending['run_id']}; "
-                f"log: {pending['log_path']}; report: {pending['report_path']}"
-            ) from exc
+    if not pending_path.exists():
+        return None
+    try:
+        pending = json.loads(pending_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"invalid pending run record; sync blocked: {pending_path}") from exc
+    # A record written before lanes recorded their process group has no pid_path.
+    if not isinstance(pending, dict) or any(
+        not isinstance(pending.get(field), str) or not pending[field].strip()
+        for field in {"run_id", "log_path", "report_path"} | (pending.keys() & {"pid_path"})
+    ):
+        raise RuntimeError(f"invalid pending run record; sync blocked: {pending_path}")
+    return pending
+
+
+def _lane_process_group(pending: dict[str, str], deadline: float | None = None) -> int | None:
+    if "pid_path" not in pending:
+        return None
+    recorded = _ssh(
+        f"cat {shlex.quote(pending['pid_path'])} 2>/dev/null || true",
+        label="remote lane process group read",
+        repeat_safe=True,
+        deadline=deadline,
+    ).strip()
+    # Group 1 is launchd's, whose descendants are every process on the MacBook; 0 is none.
+    if not re.fullmatch(r"[0-9]+", recorded) or int(recorded) <= 1:
+        return None
+    return int(recorded)
+
+
+def _lane_script(pending: dict[str, str], group: int, action: str) -> str:
+    paths = " ".join(f"{field}={shlex.quote(pending[field])}" for field in ("pid_path", "log_path"))
+    return f"group={group} {paths}\n{action}"
+
+
+def _lane_confirmed_stopped(pending: dict[str, str], deadline: float) -> bool:
+    group = _lane_process_group(pending, deadline)
+    return group is not None and _ssh(
+        _lane_script(pending, group, LANE_LIVENESS),
+        label="remote lane liveness check",
+        repeat_safe=True,
+        deadline=deadline,
+    ).strip() == "stopped"
+
+
+def stop_pending_lane() -> str:
+    """Stop every process of the pending lane, confirm they are gone, then clear its record.
+
+    Only the mirror-lock holder that launched the pending lane may call this. A later run
+    never stops another run's lane; it refuses to sync until that lane finishes or dies.
+    The whole stop has a deadline, so a stalled host cannot keep the mirror lock held;
+    an unconfirmed stop keeps the record, which keeps later syncs blocked.
+    """
+    deadline = time.monotonic() + LANE_STOP_TIMEOUT
+    pending = _read_pending()
+    if pending is None:
+        return "No pending remote lane to stop"
+    group = _lane_process_group(pending, deadline)
+    if group is None:
+        raise RuntimeError(
+            f"remote run {pending['run_id']} recorded no process group; "
+            f"cannot confirm it stopped: {pending.get('pid_path')}"
+        )
+    _ssh(
+        _lane_script(pending, group, LANE_STOP),
+        label=f"remote run {pending['run_id']} stop",
+        repeat_safe=True,
+        deadline=deadline,
+    )
+    _pending_path().unlink()
+    return f"Stopped remote run {pending['run_id']}; log: {pending['log_path']}"
+
+
+def _reconcile_pending_run() -> None:
+    pending = _read_pending()
+    if pending is None:
+        return
+    pending_path = _pending_path()
+    try:
+        # A lane writes its report before its processes exit, and a detached helper can
+        # outlive it, so only a confirmed stop frees the mirror. A record without a process
+        # group predates that check and can only be judged by its report. The check holds
+        # the mirror lock, so a stalled host must not hold it past the deadline.
+        deadline = time.monotonic() + LANE_STOP_TIMEOUT
+        stopped = _lane_confirmed_stopped(pending, deadline)
+        returncode = _completion_report(pending["report_path"], deadline)
+        if not stopped and (returncode is None or "pid_path" in pending):
+            raise RuntimeError("previous remote lane is not confirmed stopped; sync blocked")
+    except RuntimeError as exc:
+        raise RuntimeError(
+            f"{exc}; pending record: {pending_path}; run: {pending['run_id']}; "
+            f"log: {pending['log_path']}; report: {pending['report_path']}"
+        ) from exc
+    if returncode is None:
+        print(
+            f"Previous remote run {pending['run_id']} stopped without a completion report; "
+            f"cleared its record; log: {pending['log_path']}", file=sys.stderr,
+        )
+    else:
         print(
             f"Previous remote run {pending['run_id']} completed with exit {returncode}; "
             f"log: {pending['log_path']}", file=sys.stderr,
         )
-        pending_path.unlink()
+    pending_path.unlink()
 
 
 def _rsync_command(local_worktree: Path, destination: str) -> tuple[str, ...]:
@@ -299,9 +437,11 @@ def _stream_remote_run(
     log_path = REMOTE_ROOT / "reports" / f"{run_id}.log"
     report_path = REMOTE_ROOT / "reports" / f"{run_id}.report"
     temporary_report = REMOTE_ROOT / "reports" / f"{run_id}.report.tmp"
+    pid_path = REMOTE_ROOT / "reports" / f"{run_id}.pid"
     lane_command = _remote_lane_command(lane, selectors=selectors)
     script = "\n".join(
         (
+            f"printf '%s\\n' \"$$\" > {shlex.quote(str(pid_path))}",
             f"cd {shlex.quote(str(REMOTE_REPO))}",
             "exit_code=$?",
             f'if [ "$exit_code" -eq 0 ]; then {lane_command}; exit_code=$?; fi',
@@ -309,11 +449,17 @@ def _stream_remote_run(
             f"mv {shlex.quote(str(temporary_report))} {shlex.quote(str(report_path))}",
         )
     )
+    # Its own process group, and the pid file as stdin, let a timeout find and stop the
+    # whole lane, test subprocesses in their own sessions included. `<>` creates the pid
+    # file before the lane writes its group into it.
     launch = (
-        f"nohup /bin/sh -c {shlex.quote(script)} </dev/null "
-        f"> {shlex.quote(str(log_path))} 2>&1 &"
+        f"nohup {shlex.quote(str(REMOTE_VENV / 'bin/python'))} -c {shlex.quote(LANE_GROUP_LEADER)} "
+        f"{shlex.quote(script)} <> {shlex.quote(str(pid_path))} > {shlex.quote(str(log_path))} 2>&1 &"
     )
-    pending = {"run_id": run_id, "log_path": str(log_path), "report_path": str(report_path)}
+    pending = {
+        "run_id": run_id, "log_path": str(log_path), "report_path": str(report_path),
+        "pid_path": str(pid_path),
+    }
     with _pending_path().open("x", encoding="utf-8") as pending_file:
         json.dump(pending, pending_file)
         pending_file.flush()
@@ -343,7 +489,8 @@ def _stream_remote_run(
 
         returncode = _completion_report(str(report_path))
         if returncode is not None:
-            _pending_path().unlink()
+            # The report precedes the lane's exit, and a detached helper can outlive it.
+            stop_pending_lane()
             final_output = _ssh(
                 f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
                 label="remote lane final log read",
@@ -357,10 +504,13 @@ def _stream_remote_run(
                 print(addition, end="", flush=True)
             return returncode, final_output
         if time.monotonic() - started >= timeout:
-            raise TimeoutError(
+            message = (
                 f"remote {lane} lane did not finish within {timeout:g} seconds; "
                 f"report path: {report_path}"
             )
+            print(f"{message}; stopping it", file=sys.stderr)
+            print(stop_pending_lane(), file=sys.stderr)
+            raise TimeoutError(message)
         time.sleep(poll_interval)
 
 
@@ -480,14 +630,18 @@ def main(argv: Sequence[str] | None = None) -> int:
                     f"Run: {pending['run_id']}; log: {pending['log_path']}; "
                     f"report: {pending['report_path']}", file=sys.stderr,
                 )
-                read_command = f"cat {shlex.quote(pending['report_path'])} {shlex.quote(pending['log_path'])}"
-                print(f"Read-only inspection: {shlex.join((*SSH, read_command))}", file=sys.stderr)
+                read_command = " ".join(
+                    shlex.quote(pending[field])
+                    for field in ("pid_path", "report_path", "log_path") if field in pending
+                )
+                print(f"Read-only inspection: {shlex.join((*SSH, f'cat {read_command}'))}", file=sys.stderr)
             except (OSError, ValueError, KeyError, TypeError):
                 print("Pending record is unreadable; preserve it for driver reconciliation of the exact run.", file=sys.stderr)
             print(
-                "Rerun the test runner to reconcile completion before sync. "
-                "If completion cannot be read, the driver must reconcile this exact run and confirm "
-                "no active worker or in-flight launch before manually clearing the pending record.",
+                "A later run clears this record once the lane's processes are confirmed gone; until "
+                "then sync stays blocked. If the run recorded no process group, the driver must "
+                "confirm no active worker or in-flight launch before manually clearing the pending "
+                "record.",
                 file=sys.stderr,
             )
         return 1

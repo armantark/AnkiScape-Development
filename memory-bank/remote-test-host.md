@@ -60,12 +60,25 @@ gate with `--remote-lanes` takes that lock itself before its lanes, waits at mos
 3,600 seconds for it, logs the wait, and holds it across both lanes. Its lane runs
 inherit the held descriptor, so focused runs queue behind the gate and the fixed
 lane limits count only each lane's own sync and execution. The flock does not coordinate a dispatcher
-on another machine and cannot outlive the local process. If the local poller is
-interrupted or times out, its detached `nohup` MacBook lane can continue after
-the lock is released; a later dispatch can then sync or run while that orphan is
-active and fail spuriously. Run-specific IDs keep logs and reports separate and
-prevent false evidence mixing, but an operator must reconcile an orphaned lane
-before retrying. A successful summary must report at least 4,506 discovered
+on another machine and cannot outlive the local process. Each lane runs in its own
+MacBook process group, recorded in `reports/<run>.pid`; that pid file is the lane's
+stdin and its log is the lane's stdout and stderr. The lane's processes are its group
+(not once a process that holds neither file has reused the exited leader's pid),
+every process with the pid file or log open for writing as a standard stream, and all
+their descendants, so a test subprocess started in its own session still counts after
+its parent dies, while a process that only reads either file does not. A scan that
+fails, including an `lsof` or `ps` that errors, keeps the lane counted as live. A runner whose lane reports, or that reaches its own
+`--timeout`, stops those processes, confirms they are gone and clears the pending
+record before it releases the lock, because a helper can outlive the report; a promotion gate whose lane limit kills the runner does the same while it
+still holds the lock, but only for a record that runner wrote: a record already
+present before the runner started is left alone. Each stop and each liveness check has a 90-second deadline;
+a stop the MacBook does not confirm in time is logged, keeps the record and releases
+the lock. A poller that dies any other way leaves its lane running: the next dispatch
+refuses to sync while any lane process lives, report or not, and clears the record
+with a logged reconciliation once its processes are confirmed gone. A record written
+before lanes recorded their process group clears once its lane has written its report. A subprocess that leaves the group, replaces all three standard streams and
+outlives its parent cannot be seen. Only a record with no readable process group still needs a
+driver to confirm no worker or in-flight launch before clearing it by hand. A successful summary must report at least 4,506 discovered
 tests and at least 3,994 active plain tests or 4,503 active Qt tests, where active
 tests equal `tests - skipped`. There is no absolute skip cap: legitimate Qt-only
 tests can increase plain skips while active plain coverage stays constant.

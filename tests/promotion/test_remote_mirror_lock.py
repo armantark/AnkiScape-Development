@@ -1,6 +1,10 @@
 import fcntl
 import io
+import json
+import os
 import re
+import subprocess
+import sys
 import tempfile
 import threading
 import unittest
@@ -36,6 +40,22 @@ raise SystemExit(runner.main(sys.argv[1:]))
 """
 
 
+REMOTE_RUNNER_WITH_LOCAL_HOST = """\
+import sys, time
+from pathlib import Path
+sys.path.insert(0, {project_root!r})
+from tools import run_remote_tests as runner
+host = Path({host_root!r})
+runner.LOCAL_MIRROR_LOCK_PATH = Path({lock_path!r})
+runner.SSH = ("/bin/sh", "-c")
+runner.REMOTE_ROOT, runner.REMOTE_REPO, runner.REMOTE_VENV = host, host / "ankiscape_fork", host / ".venv-qt"
+runner._preflight = lambda lane: time.sleep({work_seconds!r})
+runner._sync = lambda worktree: None
+runner._remote_lane_command = lambda lane, **options: "sleep 60"
+raise SystemExit(runner.main(sys.argv[1:]))
+"""
+
+
 class RemoteMirrorLockTimingTest(unittest.TestCase):
     """The real gate drives the real runner; only the runner's network steps are replaced."""
 
@@ -45,15 +65,18 @@ class RemoteMirrorLockTimingTest(unittest.TestCase):
         focused_run_seconds: float | None,
         work_seconds: float,
         lock_bound: float = 60.0,
+        runner: str = REMOTE_RUNNER_WITHOUT_NETWORK,
+        host_root: Path | None = None,
     ) -> tuple[tuple[str, ...], tuple[str, ...], str]:
         with tempfile.TemporaryDirectory() as temp_dir:
             worktree = Path(temp_dir) / "tree"
             (worktree / "tools").mkdir(parents=True)
             (worktree / "run_tests.py").write_text("", encoding="utf-8")
-            lock_path = Path(temp_dir) / "mirror.lock"
+            lock_path = (host_root or Path(temp_dir)) / "mirror.lock"
             (worktree / "tools" / "run_remote_tests.py").write_text(
-                REMOTE_RUNNER_WITHOUT_NETWORK.format(
+                runner.format(
                     project_root=str(PROJECT_ROOT),
+                    host_root=str(host_root),
                     lock_path=str(lock_path),
                     work_seconds=work_seconds,
                 ),
@@ -91,6 +114,55 @@ class RemoteMirrorLockTimingTest(unittest.TestCase):
         self.assertIn("plain lane (exit 124)", failures)
         self.assertIn("=== PLAIN LANE ===", log)
         self.assertIn("TIMEOUT: exceeded 2 seconds\nFAILED: exit 124 (TIMEOUT)", log)
+
+    def _local_host(self, host_dir: str) -> Path:
+        host = Path(host_dir)
+        (host / "reports").mkdir()
+        (host / "ankiscape_fork").mkdir()
+        (host / ".venv-qt" / "bin").mkdir(parents=True)
+        (host / ".venv-qt" / "bin" / "python").symlink_to(sys.executable)
+        return host
+
+    def test_lane_timeout_stops_the_killed_runner_s_detached_lane(self):
+        with tempfile.TemporaryDirectory() as host_dir:
+            host = self._local_host(host_dir)
+            with patch.object(run_remote_tests, "SSH", ("/bin/sh", "-c")):
+                passed, failures, log = self.run_plain_gate(
+                    focused_run_seconds=None, work_seconds=0.0,
+                    runner=REMOTE_RUNNER_WITH_LOCAL_HOST, host_root=host,
+                )
+            (pid_path,) = (host / "reports").glob("*.pid")
+            group = int(pid_path.read_text())
+
+        self.assertIn("plain lane (exit 124)", failures)
+        self.assertIn(f"FAILED: exit 124 (TIMEOUT)\nStopped remote run {pid_path.stem};", log)
+        with self.assertRaises(ProcessLookupError):
+            os.killpg(group, 0)
+
+    def test_runner_timed_out_before_launch_leaves_an_earlier_live_lane_running(self):
+        with tempfile.TemporaryDirectory() as host_dir:
+            host = self._local_host(host_dir)
+            pid_path = host / "reports" / "qt-earlier.pid"
+            with pid_path.open("w+") as lane_stdin:
+                earlier = subprocess.Popen(("sleep", "60"), start_new_session=True, stdin=lane_stdin)
+            self.addCleanup(earlier.kill)
+            pid_path.write_text(f"{earlier.pid}\n")
+            record = json.dumps({
+                "run_id": "qt-earlier", "log_path": str(host / "reports" / "qt-earlier.log"),
+                "report_path": str(host / "reports" / "qt-earlier.report"), "pid_path": str(pid_path),
+            })
+            pending_path = host / "mirror.pending.json"
+            pending_path.write_text(record)
+            with patch.object(run_remote_tests, "SSH", ("/bin/sh", "-c")):
+                passed, failures, log = self.run_plain_gate(
+                    focused_run_seconds=None, work_seconds=5.0,
+                    runner=REMOTE_RUNNER_WITH_LOCAL_HOST, host_root=host,
+                )
+            self.assertEqual(pending_path.read_text(), record)
+
+        self.assertIn("plain lane (exit 124)", failures)
+        self.assertIn("FAILED: exit 124 (TIMEOUT)\nThe timed-out runner left no remote lane of its own", log)
+        self.assertIsNone(earlier.poll())
 
     def test_endless_queue_fails_at_the_lock_bound_without_starting_the_lane(self):
         passed, failures, log = self.run_plain_gate(

@@ -252,6 +252,29 @@ def _hold_remote_mirror(log: TextIO, heartbeat: Callable[[], None]) -> Iterator[
         yield lock.fileno()
 
 
+def _pending_remote_record() -> str | None:
+    pending_path = run_remote_tests._pending_path()
+    return pending_path.read_text(encoding="utf-8") if pending_path.exists() else None
+
+
+def _stop_timed_out_remote_lane(log: TextIO, earlier_record: str | None) -> None:
+    """Stop the lane of a runner killed at its limit while the gate still holds the mirror.
+
+    The killed runner cannot stop its detached MacBook lane itself, and an orphan left
+    running would block every later sync. Under the held lock only that runner can have
+    written a record that differs from the one present before it started; an unchanged
+    record belongs to an earlier run whose lane this gate must not stop.
+    """
+    try:
+        if _pending_remote_record() in (None, earlier_record):
+            print("The timed-out runner left no remote lane of its own; nothing stopped", file=log)
+        else:
+            print(run_remote_tests.stop_pending_lane(), file=log)
+    except (OSError, RuntimeError) as exc:
+        print(f"FAILED: timed-out remote lane not stopped: {exc}", file=log)
+    log.flush()
+
+
 def _run_check_sequence(
     log: TextIO,
     worktree: Path,
@@ -264,8 +287,10 @@ def _run_check_sequence(
 ) -> None:
     for label, heading, command, selector, environment, validator, timeout in checks:
         heartbeat()
+        earlier_record = None
         if mirror_lock is not None:
             environment = {run_remote_tests.INHERITED_MIRROR_LOCK_FD: str(mirror_lock)}
+            earlier_record = _pending_remote_record()
         returncode = _run_check(
             log,
             heading=heading,
@@ -277,6 +302,8 @@ def _run_check_sequence(
             timeout=timeout,
             pass_fds=() if mirror_lock is None else (mirror_lock,),
         )
+        if mirror_lock is not None and returncode == 124:
+            _stop_timed_out_remote_lane(log, earlier_record)
         if returncode == 0:
             passed.append(label)
         else:

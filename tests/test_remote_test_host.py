@@ -1,6 +1,7 @@
 import contextlib
 import fcntl
 import io
+import itertools
 import json
 import os
 import shutil
@@ -8,7 +9,9 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
+from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import patch
 
@@ -129,7 +132,8 @@ class RemoteTestHostTests(unittest.TestCase):
             if remote.startswith("nohup "):
                 self.assertTrue(run_remote_tests._pending_path().is_file())
                 return subprocess.CompletedProcess(command, 255, "", "connection lost after launch")
-            return subprocess.CompletedProcess(command, 0, "2\n" if ".report " in remote else "test failed\n", "")
+            answer = "2\n" if ".report " in remote else "4242\n" if ".pid " in remote else "test failed\n"
+            return subprocess.CompletedProcess(command, 0, answer, "")
 
         with (
             patch.object(run_remote_tests.subprocess, "run", side_effect=execute),
@@ -142,6 +146,10 @@ class RemoteTestHostTests(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), "test failed\n")
         self.assertEqual(sum(command.startswith("nohup ") for command in commands), 1)
         self.assertFalse(any("rm -f" in command for command in commands))
+        # The report precedes the lane's exit, so the runner still stops what is left of it.
+        pid_read = next(command for command in commands if command.startswith("cat ") and ".pid " in command)
+        run = pid_read.split()[1].removesuffix(".pid")
+        self.assertIn(f"group=4242 pid_path={run}.pid log_path={run}.log\n{run_remote_tests.LANE_STOP}", commands)
         self.assertFalse(run_remote_tests._pending_path().exists())
         report_command = next(command for command in commands if ".report " in command)
         self.assertIn(report_command.split()[1], commands[0])
@@ -157,15 +165,17 @@ class RemoteTestHostTests(unittest.TestCase):
                     if remote.startswith("nohup "):
                         launches.append(remote)
                         return subprocess.CompletedProcess(command, 255, "", "connection lost")
+                    if remote.startswith("group="):
+                        return subprocess.CompletedProcess(command, 0, "stopped\n", "")
                     return subprocess.CompletedProcess(command, 0, report[0], "")
 
                 with (
                     patch.object(run_remote_tests.subprocess, "run", side_effect=execute),
-                    patch.object(run_remote_tests.time, "monotonic", side_effect=(0, 2)),
+                    patch.object(run_remote_tests.time, "monotonic", side_effect=itertools.count(0, 2)),
                     contextlib.redirect_stderr(io.StringIO()),
                     contextlib.redirect_stdout(io.StringIO()),
                 ):
-                    with self.assertRaises(TimeoutError):
+                    with self.assertRaisesRegex(RuntimeError, "recorded no process group"):
                         run_remote_tests._stream_remote_run(lane, timeout=1, poll_interval=0.01)
                     original = run_remote_tests._pending_path().read_bytes()
                     pending = json.loads(original)
@@ -201,7 +211,7 @@ class RemoteTestHostTests(unittest.TestCase):
                     patch.object(run_remote_tests, "_run_with_retries") as rsync,
                     patch.object(run_remote_tests.subprocess, "run", side_effect=execute) as subprocess_run,
                     patch.object(run_remote_tests.time, "sleep"),
-                    patch.object(run_remote_tests.time, "monotonic", side_effect=(0, 2)),
+                    patch.object(run_remote_tests.time, "monotonic", side_effect=itertools.count(0, 2)),
                     contextlib.redirect_stdout(io.StringIO()),
                     contextlib.redirect_stderr(io.StringIO()) as stderr,
                 ):
@@ -244,7 +254,7 @@ class RemoteTestHostTests(unittest.TestCase):
         pending_path = run_remote_tests._pending_path()
         pending = {
             "run_id": "qt-prior", "log_path": "/reports/qt-prior.log",
-            "report_path": "/reports/qt-prior.report",
+            "report_path": "/reports/qt-prior.report", "pid_path": "/reports/qt-prior.pid",
         }
         with (
             patch.object(run_remote_tests.subprocess, "run") as execute,
@@ -253,7 +263,7 @@ class RemoteTestHostTests(unittest.TestCase):
         ):
             malformed = [json.dumps(value) for value in (
                 None, [], {}, pending | {"run_id": ""},
-                pending | {"log_path": 17}, pending | {"report_path": " "},
+                pending | {"log_path": 17}, pending | {"report_path": " "}, pending | {"pid_path": ""},
             )] + ["{"]
             for record in malformed:
                 with self.subTest(record=record):
@@ -265,21 +275,227 @@ class RemoteTestHostTests(unittest.TestCase):
                     execute.assert_not_called()
                     rsync.assert_not_called()
             pending_path.write_text(json.dumps(pending))
-            for report in ("", "partial", "256"):
+            probes = {
+                run_remote_tests._lane_script(pending, group, run_remote_tests.LANE_LIVENESS)
+                for group in (256, 7)
+            }
+            # The pid file answers like the report; "7" is a valid report from a lane still live.
+            for report in ("", "partial", "256", "7\n"):
                 execute.return_value = subprocess.CompletedProcess((), 0, report, "")
                 with self.assertRaises(RuntimeError):
                     run_remote_tests._sync(Path("/source"))
                 self.assertTrue(pending_path.is_file())
                 rsync.assert_not_called()
+                # An unresolved run is only ever read: its files and the liveness probe, which
+                # test_orphaned_lane_blocks_sync_while_any_of_its_work_lives runs against live work.
                 self.assertTrue(all(
-                    call.args[0][-1].startswith("cat ") for call in execute.call_args_list
+                    call.args[0][-1].startswith("cat ") or call.args[0][-1] in probes
+                    for call in execute.call_args_list
                 ))
+            # A record from before lanes recorded their group can only be judged by its report.
+            pending_path.write_text(json.dumps({
+                field: value for field, value in pending.items() if field != "pid_path"
+            }))
+            execute.return_value = subprocess.CompletedProcess((), 0, "", "")
+            with self.assertRaisesRegex(RuntimeError, "not confirmed stopped; sync blocked"):
+                run_remote_tests._sync(Path("/source"))
+            rsync.assert_not_called()
             execute.return_value = subprocess.CompletedProcess((), 0, "1\n", "")
             run_remote_tests._sync(Path("/source"))
             rsync.assert_called_once()
             self.assertTrue(execute.call_args_list[-2].args[0][-1].startswith("mkdir "))
             self.assertTrue(execute.call_args_list[-1].args[0][-1].startswith("ln "))
         self.assertFalse(pending_path.exists())
+
+    @contextlib.contextmanager
+    def _local_host(self, lane_waits: bool = True) -> Iterator[Path]:
+        """Run the real launch, liveness and stop commands through zsh, the MacBook's login shell.
+
+        The lane starts a test-like subprocess in its own session, outside the lane's group and
+        without the lane's stdin, and records that subprocess's pid in `detached.child`.
+        """
+        with tempfile.TemporaryDirectory() as temp_dir:
+            host_root = Path(temp_dir)
+            (host_root / "reports").mkdir()
+            (host_root / "ankiscape_fork").mkdir()
+            (host_root / ".venv-qt" / "bin").mkdir(parents=True)
+            (host_root / ".venv-qt" / "bin" / "python").symlink_to(sys.executable)
+            detaching_lane = shlex.join((
+                sys.executable, "-c",
+                "import subprocess, sys; "
+                "child = subprocess.Popen(('sleep', '60'), start_new_session=True, stdin=subprocess.DEVNULL); "
+                "open(sys.argv[1], 'w').write(str(child.pid))" + ("; child.wait()" if lane_waits else ""),
+                str(host_root / "reports" / "detached.child"),
+            ))
+            with (
+                patch.object(run_remote_tests, "SSH", ("/bin/zsh", "-c")),
+                patch.object(run_remote_tests, "REMOTE_ROOT", host_root),
+                patch.object(run_remote_tests, "REMOTE_REPO", host_root / "ankiscape_fork"),
+                patch.object(run_remote_tests, "REMOTE_VENV", host_root / ".venv-qt"),
+                patch.object(run_remote_tests, "_remote_lane_command", return_value=detaching_lane),
+            ):
+                yield host_root / "reports"
+
+    def _orphan_record(self, reports: Path) -> str:
+        return json.dumps({
+            field: str(reports / f"qt-orphan.{suffix}")
+            for field, suffix in (("log_path", "log"), ("report_path", "report"), ("pid_path", "pid"))
+        } | {"run_id": "qt-orphan"})
+
+    def _leaderless_lane(self, reports: Path, **streams) -> int:
+        """Record an orphan lane whose leader exited and left one process in its group."""
+        subprocess.run(
+            ("/bin/sh", "-c", 'echo "$$" > "$0"; sleep 60 & echo "$!" > "$1"',
+             str(reports / "qt-orphan.pid"), str(reports / "work.pid")),
+            start_new_session=True, check=True, **streams,
+        )
+        work = int((reports / "work.pid").read_text())
+        self.addCleanup(subprocess.run, ("kill", "-9", str(work)), stderr=subprocess.DEVNULL)
+        run_remote_tests._pending_path().write_text(self._orphan_record(reports))
+        return work
+
+    def test_timed_out_run_stops_its_whole_lane_and_clears_its_record(self):
+        with (
+            self._local_host() as reports,
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()) as stderr,
+        ):
+            with self.assertRaises(TimeoutError):
+                run_remote_tests._stream_remote_run("plain", timeout=2.0, poll_interval=0.1)
+            (pid_path,) = reports.glob("*.pid")
+            group = int(pid_path.read_text())
+            detached = int((reports / "detached.child").read_text())
+            self.assertFalse(list(reports.glob("*.report")))
+        with self.assertRaises(ProcessLookupError):
+            os.killpg(group, 0)
+        with self.assertRaises(ProcessLookupError):
+            os.kill(detached, 0)
+        self.assertFalse(run_remote_tests._pending_path().exists())
+        self.assertIn(f"Stopped remote run {pid_path.stem}", stderr.getvalue())
+
+    def test_reported_lane_is_stopped_before_its_record_clears(self):
+        with (
+            self._local_host(lane_waits=False) as reports,
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            returncode, _output = run_remote_tests._stream_remote_run("plain", timeout=30.0, poll_interval=0.1)
+            detached = int((reports / "detached.child").read_text())
+        self.assertEqual(returncode, 0)
+        with self.assertRaises(ProcessLookupError):
+            os.kill(detached, 0)
+        self.assertFalse(run_remote_tests._pending_path().exists())
+
+    def test_orphaned_lane_blocks_sync_while_any_of_its_work_lives(self):
+        with self._local_host() as reports:
+            pid_path, log_path = reports / "qt-orphan.pid", reports / "qt-orphan.log"
+            pid_path.write_text("")
+            with pid_path.open("r+") as lane_stdin, log_path.open("w") as lane_log:
+                leader = subprocess.Popen(
+                    ("sleep", "60"), start_new_session=True, stdin=lane_stdin, stdout=lane_log,
+                )
+                # A helper in its own session that let go of the lane's stdin still logs there.
+                detached = subprocess.Popen(
+                    ("sleep", "60"), start_new_session=True, stdin=subprocess.DEVNULL, stdout=lane_log,
+                )
+            with pid_path.open() as inspected:
+                reader = subprocess.Popen(("sleep", "60"), start_new_session=True, stdin=inspected)
+            for process in (leader, detached, reader):
+                self.addCleanup(process.kill)
+            pid_path.write_text(f"{leader.pid}\n")
+            record = self._orphan_record(reports)
+            run_remote_tests._pending_path().write_text(record)
+            # First the recorded group lives; then, after the lane reported, only a descendant
+            # that left the group and outlived it. A blocked check changes nothing it probes.
+            for survivors in ((leader, detached), (detached,)):
+                host = {path.name: path.read_bytes() for path in reports.iterdir()}
+                with self.assertRaisesRegex(RuntimeError, "not confirmed stopped; sync blocked"):
+                    run_remote_tests._reconcile_pending_run()
+                self.assertEqual(run_remote_tests._pending_path().read_text(), record)
+                self.assertEqual({path.name: path.read_bytes() for path in reports.iterdir()}, host)
+                self.assertTrue(all(process.poll() is None for process in (*survivors, reader)))
+                survivors[0].kill()
+                survivors[0].wait()
+                (reports / "qt-orphan.report").write_text("0\n")
+            # Only the reader of the pid file is left, and it is not lane work.
+            with contextlib.redirect_stderr(io.StringIO()) as stderr:
+                run_remote_tests._reconcile_pending_run()
+            self.assertIsNone(reader.poll())
+        self.assertFalse(run_remote_tests._pending_path().exists())
+        self.assertIn("qt-orphan completed with exit 0", stderr.getvalue())
+
+    def test_failed_process_scan_keeps_a_live_lane_blocked_and_running(self):
+        with self._local_host() as reports, tempfile.TemporaryDirectory() as tools:
+            (reports / "qt-orphan.log").write_text("")
+            # The lane's only live process holds none of its files, so only ps can find it.
+            work = self._leaderless_lane(reports, stdin=subprocess.DEVNULL)
+            (reports / "qt-orphan.report").write_text("0\n")
+            record = run_remote_tests._pending_path().read_text()
+            broken_ps = Path(tools) / "ps"
+            broken_ps.write_text("#!/bin/sh\nexit 1\n")
+            broken_ps.chmod(0o755)
+            # -f keeps a startup file from restoring the real ps to PATH.
+            host_without_ps = ("/usr/bin/env", f"PATH={tools}:/usr/bin:/bin", "/bin/zsh", "-f", "-c")
+            with patch.object(run_remote_tests, "SSH", host_without_ps):
+                with self.assertRaisesRegex(RuntimeError, "liveness check failed with exit 1"):
+                    run_remote_tests._reconcile_pending_run()
+                with self.assertRaisesRegex(RuntimeError, "qt-orphan stop failed with exit 1"):
+                    run_remote_tests.stop_pending_lane()
+            self.assertEqual(run_remote_tests._pending_path().read_text(), record)
+            os.kill(work, 0)
+
+    def test_process_reusing_an_exited_leader_s_pid_is_not_lane_work(self):
+        with self._local_host() as reports:
+            (reports / "qt-orphan.log").write_text("")
+            stranger = subprocess.Popen(("sleep", "60"), start_new_session=True, stdin=subprocess.DEVNULL)
+            self.addCleanup(stranger.kill)
+            # The stranger leads its own group under the pid the lane's leader once had.
+            (reports / "qt-orphan.pid").write_text(f"{stranger.pid}\n")
+            record = self._orphan_record(reports)
+            for action in (run_remote_tests._reconcile_pending_run, run_remote_tests.stop_pending_lane):
+                run_remote_tests._pending_path().write_text(record)
+                with contextlib.redirect_stderr(io.StringIO()):
+                    action()
+                self.assertFalse(run_remote_tests._pending_path().exists())
+            self.assertIsNone(stranger.poll())
+
+    def test_stalled_host_cannot_hold_the_mirror_past_a_deadline(self):
+        record = self._orphan_record(Path("/reports"))
+        run_remote_tests._pending_path().write_text(record)
+        # The host answers the process-group read, then never finishes the next command, or
+        # reports the lane stopped and never answers the report read.
+        answers_group = 'case "$0" in cat*.pid\\ *) echo 4242;; *) exec sleep 60;; esac'
+        answers_liveness = 'case "$0" in cat*.pid\\ *) echo 4242;; group=*) echo stopped;; *) exec sleep 60;; esac'
+        for host, action, stalled in (
+            (answers_group, run_remote_tests.stop_pending_lane, "qt-orphan stop"),
+            (answers_group, run_remote_tests._reconcile_pending_run, "liveness check"),
+            (answers_liveness, run_remote_tests._reconcile_pending_run, "report poll"),
+        ):
+            started = time.monotonic()
+            with (
+                patch.object(run_remote_tests, "SSH", ("/bin/sh", "-c", host)),
+                patch.object(run_remote_tests, "LANE_STOP_TIMEOUT", 1.0),
+                self.assertRaisesRegex(RuntimeError, f"{stalled} did not finish before its deadline"),
+            ):
+                action()
+            self.assertLess(time.monotonic() - started, 5.0)
+            self.assertEqual(run_remote_tests._pending_path().read_text(), record)
+
+    def test_missing_or_unsafe_process_group_is_never_signalled_and_keeps_blocking(self):
+        record = json.dumps({
+            "run_id": "qt-prior", "log_path": "/reports/qt-prior.log",
+            "report_path": "/reports/qt-prior.report", "pid_path": "/reports/qt-prior.pid",
+        })
+        for recorded in ("", "0\n", "1\n", "-7\n", "12 34\n", "\u00b2\n"):
+            with self.subTest(recorded=recorded):
+                run_remote_tests._pending_path().write_text(record)
+                # Exactly the process-group read, then the report read: no signal is ever sent.
+                with patch.object(run_remote_tests, "_ssh", side_effect=(recorded,)):
+                    with self.assertRaisesRegex(RuntimeError, "recorded no process group"):
+                        run_remote_tests.stop_pending_lane()
+                with patch.object(run_remote_tests, "_ssh", side_effect=(recorded, "")):
+                    with self.assertRaisesRegex(RuntimeError, "sync blocked"):
+                        run_remote_tests._reconcile_pending_run()
+                self.assertEqual(run_remote_tests._pending_path().read_text(), record)
 
     def test_summary_parser_accepts_complete_unittest_output(self):
         summary = run_remote_tests.parse_unittest_summary(
@@ -669,7 +885,7 @@ class RemoteTestHostTests(unittest.TestCase):
         with patch.object(
             run_remote_tests,
             "_ssh",
-            side_effect=("", "....", "0\n", complete),
+            side_effect=("", "....", "0\n", "4242\n", "", complete),
         ), contextlib.redirect_stdout(io.StringIO()):
             returncode, output = run_remote_tests._stream_remote_run(
                 "qt", timeout=1.0, poll_interval=0.01
