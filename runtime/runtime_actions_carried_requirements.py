@@ -105,6 +105,76 @@ _PROCESSING_DATA_TABLES = {
 }
 
 
+def _summoning_requirements_for(
+    player_data: dict[str, Any],
+    carried_inventory: dict[str, Any] | None,
+) -> dict[str, int]:
+    target = str(
+        player_data.get("current_summoning", DEFAULT_SUMMONING_TARGET)
+    )
+    inventory = (
+        carried_inventory
+        if isinstance(carried_inventory, dict)
+        else player_data.get("inventory", {})
+    )
+    return summoning_action_requirements_pure(
+        player_data,
+        target,
+        inventory_override=inventory,
+    )
+
+
+def _fletching_materials_for(
+    target: Any,
+    table: dict[str, Any],
+    player_data: dict[str, Any],
+    carried_inventory: dict[str, Any] | None,
+) -> dict[str, int] | None:
+    """The materials a Fletching target consumes, preferring what is already carried."""
+    if carried_inventory:
+        resolved = fletching_material_requirements_pure(target, carried_inventory, table)
+        if resolved is not None:
+            return resolved
+    return fletching_material_requirements_pure(target, player_data.get("inventory", {}) or {}, table)
+
+
+def _deduct_coal_bag_coal(requirements: dict[str, int], player_data: dict[str, Any]) -> None:
+    """Coal already in the Coal bag needs no pack slot, so only the rest is carried."""
+    if "Coal" not in requirements:
+        return
+    remaining_coal = max(
+        0,
+        requirements["Coal"] - coal_bag_coal_pure(player_data),
+    )
+    if remaining_coal:
+        requirements["Coal"] = remaining_coal
+    else:
+        requirements.pop("Coal")
+
+
+def _add_owned_gilded_altar_marrentill(
+    requirements: dict[str, int],
+    spec: dict[str, Any],
+    player_data: dict[str, Any],
+    target: Any,
+) -> None:
+    """Lighting an owned gilded altar's burners takes carried marrentill unless this stint already lit them."""
+    if spec.get("method") != "gilded_altar" or player_data.get("prayer_gilded_mode", "hosted") != "owned":
+        return
+    marrentill = owned_gilded_altar_marrentill_required_pure(player_data, str(target))
+    if marrentill > 0:
+        requirements["Clean marrentill"] = marrentill
+
+
+def _stocked_essence_requirement(spec: dict[str, Any], player_data: dict[str, Any]) -> dict[str, int]:
+    essence_items = spec.get("essence_items")
+    if not isinstance(essence_items, (list, tuple)) or not essence_items:
+        return {}
+    inventory = player_data.get("inventory", {}) or {}
+    essence = next((item for item in essence_items if inventory.get(item, 0)), essence_items[0])
+    return {essence: 1}
+
+
 def _processing_requirements_for(
     handler_key: str,
     player_data: dict[str, Any],
@@ -118,19 +188,7 @@ def _processing_requirements_for(
     target's source order, so the pack has something concrete to carry.
     """
     if handler_key == "summoning":
-        target = str(
-            player_data.get("current_summoning", DEFAULT_SUMMONING_TARGET)
-        )
-        inventory = (
-            carried_inventory
-            if isinstance(carried_inventory, dict)
-            else player_data.get("inventory", {})
-        )
-        return summoning_action_requirements_pure(
-            player_data,
-            target,
-            inventory_override=inventory,
-        )
+        return _summoning_requirements_for(player_data, carried_inventory)
     table_info = _PROCESSING_DATA_TABLES.get(handler_key)
     if table_info is None:
         return {}
@@ -140,40 +198,18 @@ def _processing_requirements_for(
     if not isinstance(spec, dict):
         return {}
     requirements = spec.get("requirements")
-    if isinstance(requirements, dict) and requirements:
-        if handler_key == "fletching":
-            if carried_inventory:
-                resolved = fletching_material_requirements_pure(target, carried_inventory, table)
-                if resolved is not None:
-                    return resolved
-            resolved = fletching_material_requirements_pure(target, player_data.get("inventory", {}) or {}, table)
-            if resolved is not None:
-                return resolved
-        resolved = {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
-        if handler_key == "smithing" and "Coal" in resolved:
-            remaining_coal = max(
-                0,
-                resolved["Coal"] - coal_bag_coal_pure(player_data),
-            )
-            if remaining_coal:
-                resolved["Coal"] = remaining_coal
-            else:
-                resolved.pop("Coal")
-        if (
-            handler_key == "prayer"
-            and spec.get("method") == "gilded_altar"
-            and player_data.get("prayer_gilded_mode", "hosted") == "owned"
-        ):
-            marrentill = owned_gilded_altar_marrentill_required_pure(player_data, str(target))
-            if marrentill > 0:
-                resolved["Clean marrentill"] = marrentill
-        return resolved
-    essence_items = spec.get("essence_items")
-    if isinstance(essence_items, (list, tuple)) and essence_items:
-        inventory = player_data.get("inventory", {}) or {}
-        essence = next((item for item in essence_items if inventory.get(item, 0)), essence_items[0])
-        return {essence: 1}
-    return {}
+    if not isinstance(requirements, dict) or not requirements:
+        return _stocked_essence_requirement(spec, player_data)
+    if handler_key == "fletching":
+        resolved = _fletching_materials_for(target, table, player_data, carried_inventory)
+        if resolved is not None:
+            return resolved
+    resolved = {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
+    if handler_key == "smithing":
+        _deduct_coal_bag_coal(resolved, player_data)
+    elif handler_key == "prayer":
+        _add_owned_gilded_altar_marrentill(resolved, spec, player_data, target)
+    return resolved
 
 
 def _processing_presence_requirements_for(handler_key: str, player_data: dict[str, Any]) -> dict[str, int]:
@@ -236,6 +272,42 @@ def _agility_equipment_satisfies(equipped_items: set[str], item_name: str) -> bo
     )
 
 
+def _agility_unequipped_requirements(
+    player_data: dict[str, Any],
+    target: Any,
+) -> tuple[list[str], list[tuple[str, ...]]]:
+    """The target's required items and item alternatives that nothing worn already covers."""
+    equipment = player_data.get("equipment", {}) or {}
+    equipped_items = {
+        str(item)
+        for item in equipment.values()
+        if isinstance(item, str)
+    } if isinstance(equipment, dict) else set()
+    items = [
+        item_name
+        for item_name in target.required_items
+        if not _agility_equipment_satisfies(equipped_items, item_name)
+    ]
+    option_groups = [
+        item_options
+        for item_options in target.required_item_options
+        if not any(_agility_equipment_satisfies(equipped_items, item_name) for item_name in item_options)
+    ]
+    return items, option_groups
+
+
+def _agility_food_layout(player_data: dict[str, Any], bank: dict[str, Any]) -> dict[str, int]:
+    """The player's stocked auto-eat foods, each carried in full."""
+    food: dict[str, int] = {}
+    for item_name in player_data.get("combat_auto_eat_food", ()) or ():
+        if item_name not in COMBAT_FOOD_DATA:
+            continue
+        available = int(bank.get(item_name, 0) or 0)
+        if available > 0:
+            food[item_name] = available
+    return food
+
+
 def _agility_casual_layout_for(player_data: dict[str, Any], target_id: str) -> dict[str, int]:
     """Build Auto mode's ordered requirement-and-food pack for one target."""
 
@@ -243,19 +315,9 @@ def _agility_casual_layout_for(player_data: dict[str, Any], target_id: str) -> d
     if target is None:
         return {}
     bank = player_data.get("inventory", {}) or {}
-    equipment = player_data.get("equipment", {}) or {}
-    equipped_items = {
-        str(item)
-        for item in equipment.values()
-        if isinstance(item, str)
-    } if isinstance(equipment, dict) else set()
-    layout: dict[str, int] = {}
-    for item_name in target.required_items:
-        if not _agility_equipment_satisfies(equipped_items, item_name) and int(bank.get(item_name, 0) or 0) > 0:
-            layout[item_name] = 1
-    for item_options in target.required_item_options:
-        if any(_agility_equipment_satisfies(equipped_items, item_name) for item_name in item_options):
-            continue
+    items, option_groups = _agility_unequipped_requirements(player_data, target)
+    layout = {item_name: 1 for item_name in items if int(bank.get(item_name, 0) or 0) > 0}
+    for item_options in option_groups:
         stocked = next(
             (item_name for item_name in item_options if int(bank.get(item_name, 0) or 0) > 0),
             None,
@@ -263,12 +325,7 @@ def _agility_casual_layout_for(player_data: dict[str, Any], target_id: str) -> d
         if stocked is not None:
             layout[stocked] = 1
     if _agility_target_can_damage(target_id):
-        for item_name in player_data.get("combat_auto_eat_food", ()) or ():
-            if item_name not in COMBAT_FOOD_DATA:
-                continue
-            available = int(bank.get(item_name, 0) or 0)
-            if available > 0:
-                layout[item_name] = available
+        layout.update(_agility_food_layout(player_data, bank))
     return layout
 
 
@@ -280,23 +337,13 @@ def _agility_carried_requirement_gaps(
     target = AGILITY_TARGETS_BY_ID.get(target_id)
     if target is None:
         return ()
-    equipment = player_data.get("equipment", {}) or {}
-    equipped_items = {
-        str(item)
-        for item in equipment.values()
-        if isinstance(item, str)
-    } if isinstance(equipment, dict) else set()
-    missing = [
-        item_name
-        for item_name in target.required_items
-        if not _agility_equipment_satisfies(equipped_items, item_name)
-        and int(view.get(item_name, 0) or 0) <= 0
-    ]
-    for item_options in target.required_item_options:
-        if any(_agility_equipment_satisfies(equipped_items, item_name) for item_name in item_options):
-            continue
-        if not any(int(view.get(item_name, 0) or 0) > 0 for item_name in item_options):
-            missing.append(f"{item_options[0]} or another valid alternative")
+    items, option_groups = _agility_unequipped_requirements(player_data, target)
+    missing = [item_name for item_name in items if int(view.get(item_name, 0) or 0) <= 0]
+    missing.extend(
+        f"{item_options[0]} or another valid alternative"
+        for item_options in option_groups
+        if not any(int(view.get(item_name, 0) or 0) > 0 for item_name in item_options)
+    )
     return tuple(missing)
 
 
