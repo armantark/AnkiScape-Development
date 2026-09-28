@@ -35,7 +35,6 @@ from ..data.stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
 from ..logic.stealing_creation_logic import apply_stealing_creation_review_pure
 from .runtime_actions_shared import (
     _award_skill_xp_rows,
-    _credit_review_xp_rewards,
     _record_action,
     _refresh_combat_levels,
 )
@@ -152,7 +151,7 @@ def handle_pest_control_answer(
             str(result.get("reason", "Enter Pest Control before training.")),
         )
         return False
-    xp_rewards = _credit_review_xp_rewards(updated, result)
+    xp_rewards = dict(result.get("xp_rewards") or {})
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     _record_action(
@@ -236,7 +235,7 @@ def handle_barbarian_assault_answer(
             str(result.get("reason", "Enter Barbarian Assault before training.")),
         )
         return False
-    xp_rewards = _credit_review_xp_rewards(updated, result)
+    xp_rewards = dict(result.get("xp_rewards") or {})
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     _record_action(
@@ -285,7 +284,7 @@ def handle_soul_wars_answer(
             str(result.get("reason", "Enter Soul Wars before training.")),
         )
         return False
-    xp_rewards = _credit_review_xp_rewards(updated, result)
+    xp_rewards = dict(result.get("xp_rewards") or {})
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     _record_action(

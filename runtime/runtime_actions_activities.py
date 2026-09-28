@@ -447,7 +447,6 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
 
 from .runtime_actions_shared import (
     _award_action_xp_rewards,
-    _credit_review_xp_rewards,
     _record_action,
     _refresh_combat_levels,
     _switch_material_failure_to_bankstanding,
@@ -670,7 +669,7 @@ def handle_castle_wars_answer(
             str(result.get("reason", "Enter Castle Wars before training.")),
         )
         return False
-    xp_rewards = _credit_review_xp_rewards(updated, result)
+    xp_rewards = dict(result.get("xp_rewards") or {})
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     record_direct_diary_event_pure(

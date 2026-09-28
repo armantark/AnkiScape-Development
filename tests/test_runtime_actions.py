@@ -677,7 +677,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["soul_wars"]["review"], 1)
         self.assertEqual(player_data["soul_wars"]["activity"], 2)
 
-    def test_castle_wars_runtime_applies_combat_xp_and_again_can_idle(self):
+    def test_castle_wars_runtime_keeps_settled_combat_xp_and_again_can_idle(self):
         from ankiscape.logic.castle_wars_logic import enter_castle_wars_pure
 
         player_data, ok, info = enter_castle_wars_pure(
@@ -698,7 +698,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(ok, info)
         advanced = dict(player_data["castle_wars"])
         advanced["review"] = 1
-        expected = dict(player_data)
+        expected = dict(player_data, attack_exp=12.0)
         expected["castle_wars"] = advanced
         with patch(
             "ankiscape.runtime.runtime_actions_activities.apply_castle_wars_review_pure",

@@ -916,13 +916,6 @@ def _refresh_combat_levels(ctx: RuntimeActionContext, xp_rewards: Any) -> None:
         ctx.level_up_check(skill.display_name, ctx.player_data)
 
 
-def _credit_review_xp_rewards(updated: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
-    xp_rewards = dict(result.get("xp_rewards") or {})
-    for exp_key, amount in xp_rewards.items():
-        updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
-    return xp_rewards
-
-
 def _award_skill_xp_rows(
     ctx: RuntimeActionContext,
     skill_xp: Any,
