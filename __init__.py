@@ -230,6 +230,8 @@ from .core.injectors import register_deck_browser_button as _register_deck_brows
 from .core.injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .core.activity_feedback import combine_activity_feedback as _combine_activity_feedback
 from .core.combat_prayer_config import apply_combat_prayer_config_pure as _apply_combat_prayer_config_pure
+from .core.equipment_change import equip_item_save_pure as _equip_item_save_pure
+from .core.equipment_change import unequip_slot_save_pure as _unequip_slot_save_pure
 from .core.skill_availability import skill_availability_fingerprint as _skill_availability_fingerprint
 from .core.storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
 from .core.action_registry import (
@@ -5033,50 +5035,31 @@ def on_attach_tool(item_name):
     return True
 
 
+def _commit_equipment_change(item_name, apply_change):
+    if item_name in FAMILY_GAUNTLET_ITEMS:
+        return commit_direct_action(apply_change)
+    updated, changed = apply_change(_state.player_data)
+    if changed:
+        weapon_changed = (_state.player_data.get("equipment", {}) or {}).get(
+            "weapon"
+        ) != (updated.get("equipment", {}) or {}).get("weapon")
+        if weapon_changed:
+            _save_combat_state_update(updated, evaluate_achievements=True)
+        else:
+            _state.player_data.clear()
+            _state.player_data.update(updated)
+            save_player_data()
+    return changed
+
+
 def on_equip_item(item_name):
     ok, reason = can_equip_item_pure(item_name, EQUIPMENT_DATA, _state.player_data)
     if not ok:
         show_error_message("Cannot equip item", reason)
         return False
-
-    def _apply(current):
-        before_equipment = dict(current.get("equipment", {}) or {})
-        new_inventory, new_equipment, equipped = equip_item_pure(
-            item_name,
-            current.get("inventory", {}) or {},
-            current.get("equipment", {}) or {},
-            EQUIPMENT_DATA,
-        )
-        if not equipped:
-            return dict(current), False
-        updated = dict(current)
-        updated["inventory"] = new_inventory
-        updated["equipment"] = new_equipment
-        updated.update(
-            sync_equipment_instances_pure(
-                updated, before_equipment, EQUIPMENT_CONDITION_DATA
-            )
-        )
-        if before_equipment.get("weapon") != new_equipment.get("weapon"):
-            updated, _ok, _reason = reconcile_combat_method_pure(
-                current, updated, EQUIPMENT_DATA
-            )
-        return updated, equipped
-
-    if item_name in FAMILY_GAUNTLET_ITEMS:
-        equipped = commit_direct_action(_apply)
-    else:
-        updated, equipped = _apply(_state.player_data)
-        if equipped:
-            weapon_changed = (_state.player_data.get("equipment", {}) or {}).get(
-                "weapon"
-            ) != (updated.get("equipment", {}) or {}).get("weapon")
-            if weapon_changed:
-                _save_combat_state_update(updated, evaluate_achievements=True)
-            else:
-                _state.player_data.clear()
-                _state.player_data.update(updated)
-                save_player_data()
+    equipped = _commit_equipment_change(
+        item_name, lambda current: _equip_item_save_pure(current, item_name)
+    )
     if not equipped:
         show_error_message(
             "Cannot equip item",
@@ -5087,44 +5070,9 @@ def on_equip_item(item_name):
 
 def on_unequip_slot(slot):
     item_name = (_state.player_data.get("equipment", {}) or {}).get(slot)
-
-    def _apply(current):
-        before_equipment = dict(current.get("equipment", {}) or {})
-        new_inventory, new_equipment, unequipped = unequip_item_pure(
-            slot,
-            current.get("inventory", {}) or {},
-            current.get("equipment", {}) or {},
-        )
-        if not unequipped:
-            return dict(current), False
-        updated = dict(current)
-        updated["inventory"] = new_inventory
-        updated["equipment"] = new_equipment
-        updated.update(
-            sync_equipment_instances_pure(
-                updated, before_equipment, EQUIPMENT_CONDITION_DATA
-            )
-        )
-        if before_equipment.get("weapon") != new_equipment.get("weapon"):
-            updated, _ok, _reason = reconcile_combat_method_pure(
-                current, updated, EQUIPMENT_DATA
-            )
-        return updated, unequipped
-
-    if item_name in FAMILY_GAUNTLET_ITEMS:
-        unequipped = commit_direct_action(_apply)
-    else:
-        updated, unequipped = _apply(_state.player_data)
-        if unequipped:
-            weapon_changed = (_state.player_data.get("equipment", {}) or {}).get(
-                "weapon"
-            ) != (updated.get("equipment", {}) or {}).get("weapon")
-            if weapon_changed:
-                _save_combat_state_update(updated, evaluate_achievements=True)
-            else:
-                _state.player_data.clear()
-                _state.player_data.update(updated)
-                save_player_data()
+    unequipped = _commit_equipment_change(
+        item_name, lambda current: _unequip_slot_save_pure(current, slot)
+    )
     if not unequipped:
         show_error_message(
             "Cannot unequip item",
