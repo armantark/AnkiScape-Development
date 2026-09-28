@@ -2469,7 +2469,7 @@ def migrate_loaded_data(
     for key, value in default_urn_state_pure().items():
         data.setdefault(key, value)
     # Always repair invalid/dangling urn pointers and progress. This is a load
-    # invariant, not a schema migration; valid partial urns remain valid in bank.
+    # invariant, not a schema migration; recoverable partial urns remain valid.
     data.update(sanitize_urn_state_pure(data))
     data.update(sanitize_farming_state_pure(data))
     data.update(sanitize_agility_state_pure(data))

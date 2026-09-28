@@ -30,6 +30,13 @@ from ankiscape.runtime.runtime_actions import (
     _try_pack_yak_winter_storage_overlay,
 )
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.logic_pure.logic_pure_combat_engine import (
+    advance_combat_grave_review_pure,
+    combat_death_office_reclaim_cost_pure,
+    reclaim_death_office_items_pure,
+    start_combat_grave_walk_pure,
+)
+from ankiscape.logic_pure.logic_pure_combat_model import _combat_apply_pvm_death
 from tools.fetch_prayer_assets import asset_manifest
 from ankiscape.data.urn_data import (
     URN_PHYSICAL_ITEM_NAMES,
@@ -263,6 +270,98 @@ class UrnPureLifecycleTest(unittest.TestCase):
         )
         self.assertEqual(invalid["active_urn_cooking"], "")
         self.assertEqual(invalid["urn_progress_cooking"], 0.0)
+
+
+class UrnRecoveryTest(unittest.TestCase):
+    def _partial_urn_in_grave(self):
+        tier = URN_TIERS_BY_ID["prayer_impious_urn"]
+        player, info = charge_training_urn_pure(
+            {
+                "config_version": CURRENT_CONFIG_VERSION,
+                "inventory": {tier.item_r: 2},
+                "carried_inventory": {"imp": {tier.item_r: 1}},
+                "current_combat_target": "imp",
+            },
+            "prayer", "Impious ashes", 1, 50.0, "imp",
+        )
+        self.assertTrue(info["charged"])
+        self.assertEqual(player["urn_progress_prayer"], 50.0)
+        _combat_apply_pvm_death(player, 100)
+        self.assertEqual(player["inventory"][tier.item_active], 0)
+        self.assertEqual(player["combat_grave"]["items"], [tier.item_active])
+        return player
+
+    def test_waiting_reload_and_recovery_preserve_partial_urn_charging(self):
+        tier = URN_TIERS_BY_ID["prayer_impious_urn"]
+        for holder in ("combat_grave", "death_office"):
+            with self.subTest(holder=holder):
+                player = self._partial_urn_in_grave()
+                if holder == "death_office":
+                    _combat_apply_pvm_death(player, 100)
+                self.assertEqual(player[holder]["items"], [tier.item_active])
+
+                player["carried_inventory"] = {"imp": {tier.item_r: 1}}
+                player, info = charge_training_urn_pure(
+                    player, "prayer", "Impious ashes", 1, 10.0, "imp",
+                )
+                self.assertFalse(info["charged"])
+                self.assertEqual(player["urn_progress_prayer"], 50.0)
+                self.assertEqual(player["inventory"][tier.item_r], 1)
+
+                saved = json.loads(json.dumps(player))
+                waiting = migrate_loaded_data(saved, ORE_DATA, ITEM_DEFINITIONS)
+                self.assertEqual(waiting["urn_progress_prayer"], 50.0)
+                self.assertEqual(waiting["active_urn_prayer"], tier.id)
+                if holder == "combat_grave":
+                    waiting, started = start_combat_grave_walk_pure(waiting)
+                    self.assertTrue(started)
+                    recovered = advance_combat_grave_review_pure(waiting)
+                else:
+                    waiting["inventory"]["Coins"] = combat_death_office_reclaim_cost_pure(waiting)
+                    recovered, reclaimed, reason = reclaim_death_office_items_pure(waiting)
+                    self.assertTrue(reclaimed, reason)
+                    self.assertEqual(recovered["inventory"]["Coins"], 0)
+                self.assertEqual(recovered[holder], {})
+                self.assertEqual(recovered["inventory"][tier.item_active], 1)
+                recovered["carried_inventory"] = {"imp": {tier.item_active: 1}}
+                continued, info = charge_training_urn_pure(
+                    recovered, "prayer", "Impious ashes", 1, 10.0, "imp",
+                )
+                self.assertTrue(info["charged"])
+                self.assertEqual(continued["urn_progress_prayer"], 60.0)
+                self.assertEqual(continued["active_urn_prayer"], tier.id)
+                self.assertEqual(continued["inventory"][tier.item_active], 1)
+
+    def test_expired_grave_clears_progress_despite_stale_carried_layout(self):
+        tier = URN_TIERS_BY_ID["prayer_impious_urn"]
+        player = self._partial_urn_in_grave()
+        for _ in range(player["combat_grave"]["reviews_remaining"]):
+            player = advance_combat_grave_review_pure(player)
+        self.assertEqual(player["combat_grave"], {})
+        player["carried_inventory"] = {"imp": {tier.item_active: 1}}
+        player["carried_layout"] = {"imp": {tier.item_active: 1}}
+        loaded = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(loaded["active_urn_prayer"], "")
+        self.assertEqual(loaded["urn_progress_prayer"], 0.0)
+        continued, info = charge_training_urn_pure(
+            loaded, "prayer", "Impious ashes", 1, 10.0, "imp",
+        )
+        self.assertFalse(info["charged"])
+        self.assertEqual(continued["inventory"][tier.item_active], 0)
+
+    def test_invalid_recovery_holders_do_not_preserve_partial_urn(self):
+        tier = URN_TIERS_BY_ID["prayer_impious_urn"]
+        for holder in ("combat_grave", "death_office"):
+            for state in (None, [], {"items": None}, {"items": tier.item_active},
+                          {"items": [tier.item_r]}, {"items": [tier.item_full]}):
+                with self.subTest(holder=holder, state=state):
+                    sanitized = sanitize_urn_state_pure({
+                        holder: state,
+                        "active_urn_prayer": tier.id,
+                        "urn_progress_prayer": 50.0,
+                    })
+                    self.assertEqual(sanitized["active_urn_prayer"], "")
+                    self.assertEqual(sanitized["urn_progress_prayer"], 0.0)
 
 
 class UrnRuntimeOverlayTest(unittest.TestCase):

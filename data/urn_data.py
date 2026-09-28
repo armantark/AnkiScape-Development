@@ -276,21 +276,31 @@ def _finite_non_negative_float(value: object) -> float:
     return max(0.0, number) if isfinite(number) else 0.0
 
 
+def _owns_partial_urn(player_data: Mapping[str, object], item_name: str) -> bool:
+    inventory = player_data.get("inventory", {})
+    if isinstance(inventory, Mapping) and _non_negative_int(inventory.get(item_name, 0)) > 0:
+        return True
+    for state_key in ("combat_grave", "death_office"):
+        state = player_data.get(state_key, {})
+        items = state.get("items", ()) if isinstance(state, Mapping) else ()
+        if isinstance(items, (list, tuple)) and item_name in items:
+            return True
+    return False
+
+
 def sanitize_urn_state_pure(player_data: Mapping[str, object]) -> dict:
     """Return valid flat urn pointers/progress and passive counters.
 
-    A partial urn remains valid while its active item exists anywhere in the flat
-    bank. Carried presence is an action-time rule, not a load-time ownership rule.
+    A partial urn remains valid in the bank, grave, or Death's Office.
+    Carried presence is an action-time rule, not a load-time ownership rule.
     """
     sanitized = default_urn_state_pure()
-    inventory = player_data.get("inventory", {}) if isinstance(player_data, Mapping) else {}
-    inventory = inventory if isinstance(inventory, Mapping) else {}
     for skill_id in URN_SKILLS:
         active_key = f"active_urn_{skill_id}"
         progress_key = f"urn_progress_{skill_id}"
         tier_id = str(player_data.get(active_key, "") or "")
         tier = URN_TIERS_BY_ID.get(tier_id)
-        if tier is None or tier.skill_id != skill_id or _non_negative_int(inventory.get(tier.item_active, 0)) <= 0:
+        if tier is None or tier.skill_id != skill_id or not _owns_partial_urn(player_data, tier.item_active):
             continue
         sanitized[active_key] = tier.id
         sanitized[progress_key] = min(tier.capacity_base_xp, _finite_non_negative_float(player_data.get(progress_key, 0.0)))
