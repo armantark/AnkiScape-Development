@@ -6,39 +6,58 @@ from ankiscape.core.injectors import (
     build_overview_js,
     build_deck_browser_js,
 )
+from tests.js_dom.fixture import DomTestCase, ICON
 
-ICON = "data:image/png;base64,TEST"
 
-class TestJSInjectionContractExtra(unittest.TestCase):
+class TestJSInjectionContractExtra(DomTestCase):
     def test_reviewer_removes_the_old_floating_menu_button(self):
-        js = build_reviewer_js("hud-right", ICON)
-        self.assertIn("document.getElementById('ankiscape-float')", js)
-        self.assertIn("removeChild(el)", js)
-        self.assertNotIn("ankiscape-btn", js)
-        self.assertNotIn(ICON, js)
+        self.load_body('<div id="ankiscape-float"><a id="ankiscape-btn"><img></a></div>')
+        self.js(build_reviewer_js("hud-right", ICON))
+        self.assertEqual(self.js("document.querySelectorAll('#ankiscape-float, #ankiscape-btn, img').length"), 0)
+        self.assertEqual(self.js("commands"), [])
 
     def test_overview_pointer_events_and_hover(self):
-        js = build_overview_js("left", ICON)
-        self.assertIn("wrap.style.pointerEvents = 'none'", js)
-        self.assertIn("btn.style.pointerEvents = 'auto'", js)
-        self.assertIn("mouseenter", js)
-        self.assertIn("mouseleave", js)
+        self.assert_pointer_and_hover(build_overview_js("left", ICON))
 
     def test_deck_browser_pointer_events_present(self):
-        js = build_deck_browser_js(True, "right", ICON)
-        # Floating wrapper should not capture events
-        self.assertIn("wrap.style.pointerEvents = 'none'", js)
-        # The created anchor/button should handle them
-        self.assertIn("a.style.pointerEvents = 'auto'", js)
-        # Hover handlers exist
-        self.assertIn("mouseenter", js)
-        self.assertIn("mouseleave", js)
+        self.assert_pointer_and_hover(build_deck_browser_js(True, "right", ICON))
 
     def test_reviewer_position_no_longer_changes_the_removal_contract(self):
-        self.assertEqual(
-            build_reviewer_js("hud-right", ICON),
-            build_reviewer_js("bogus", ICON),
+        self.assertEqual(build_reviewer_js("hud-right", ICON), build_reviewer_js("bogus", ICON))
+        for position in ("hud-right", "bogus"):
+            with self.subTest(position=position):
+                self.load_body('<main id="card">Answer</main><div id="ankiscape-float"></div>')
+                self.js(build_reviewer_js(position, ICON))
+                self.assertEqual(self.js("document.querySelectorAll('#ankiscape-float').length"), 0)
+                self.js(build_reviewer_js(position, ICON))
+                self.assertEqual(self.js("document.getElementById('card').textContent"), "Answer")
+                self.assertEqual(self.js("commands"), [])
+
+    def test_deck_browser_inserts_at_each_supported_anchor(self):
+        anchors = (
+            '<nav><a>Get Shared</a><button id="last">Import</button><span id="tail"></span></nav>',
+            '<nav><a>Decks</a><button id="last">Sync</button><span id="tail"></span></nav>',
+            '<nav class="links"><span id="last"></span></nav>',
+            '<nav id="links"><span id="last"></span></nav>',
         )
+        for body in anchors:
+            with self.subTest(body=body):
+                self.load_body(body)
+                js = build_deck_browser_js(True, "left", ICON)
+                self.js(js)
+                self.js(js)
+                self.assertEqual(self.js("document.getElementById('last').nextElementSibling.id"), "ankiscape-btn")
+                self.assertEqual(self.js("document.querySelectorAll('#ankiscape-float').length"), 0)
+                self.assert_menu_click()
+
+    def test_deck_browser_without_an_anchor_respects_disabled_floating(self):
+        self.js(build_deck_browser_js(False, "right", ICON))
+        self.assertEqual(self.js("document.querySelectorAll('#ankiscape-float, #ankiscape-btn').length"), 0)
+        self.assertEqual(self.js("commands"), [])
+        self.js(build_deck_browser_js(True, "right", ICON))
+        self.assertEqual(self.js("document.querySelectorAll('#ankiscape-float').length"), 1)
+        self.assert_menu_click()
+
 
 if __name__ == "__main__":
     unittest.main()

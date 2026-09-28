@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 
 _MODAL_PATCHERS = []
+_QT_APP = None
 # The allow depth lives on QDialog itself, not in this module: pytest can
 # import the test package twice, and both copies must see one counter.
 _ALLOW_ATTR = "_ankiscape_modal_allow_depth"
@@ -25,12 +26,16 @@ def _guard_modal(name, original, owner):
 
 
 def install_offscreen_modal_guard() -> None:
+    global _QT_APP
     if os.environ.get("QT_QPA_PLATFORM") != "offscreen" or _MODAL_PATCHERS:
         return
     try:
-        from aqt.qt import QDialog, QMessageBox  # type: ignore
+        from aqt.qt import QApplication, QDialog, QMessageBox  # type: ignore
     except ImportError:
         return
+
+    # Chromium needs argv[0], including when another widget test runs first.
+    _QT_APP = QApplication.instance() or QApplication(["ankiscape-tests"])
 
     for owner, name in (
         (QDialog, "exec"),
