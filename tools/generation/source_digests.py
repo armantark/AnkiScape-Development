@@ -4,22 +4,24 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
-from typing import Sequence
+from tempfile import NamedTemporaryFile
+from typing import Mapping
 
 
 def check_source_digests(
     manifest_path: Path,
     output_name: str,
-    source_paths: Sequence[Path],
+    source_bytes: Mapping[Path, bytes],
     *,
     source_root: Path,
     accept_source_change: bool = False,
 ) -> dict[str, str]:
     root = source_root.resolve()
     current = {
-        path.resolve().relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in source_paths
+        path.resolve().relative_to(root).as_posix(): hashlib.sha256(content).hexdigest()
+        for path, content in source_bytes.items()
     }
     if not manifest_path.exists():
         return current
@@ -34,3 +36,23 @@ def source_digest_manifest(manifest_path: Path, output_name: str, digests: dict[
     manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     manifest[output_name] = digests
     return json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+
+
+def save_source_digests(manifest_path: Path, output_name: str, digests: dict[str, str]) -> None:
+    # Imported here so --check, which never publishes, still loads where fcntl does not exist.
+    import fcntl
+
+    manifest_path = manifest_path.resolve()
+    # The lock inode must survive replacement of the manifest.
+    with manifest_path.with_suffix(manifest_path.suffix + ".lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        content = source_digest_manifest(manifest_path, output_name, digests).encode("utf-8")
+        if manifest_path.exists() and manifest_path.read_bytes() == content:
+            return
+        with NamedTemporaryFile(dir=manifest_path.parent, prefix=f".{manifest_path.name}.", delete=False) as temporary:
+            try:
+                temporary.write(content)
+                temporary.flush()
+                os.replace(temporary.name, manifest_path)
+            finally:
+                Path(temporary.name).unlink(missing_ok=True)

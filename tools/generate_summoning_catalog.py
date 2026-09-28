@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from tools.generation.outputs import write_or_check
-from tools.generation.source_digests import check_source_digests, source_digest_manifest
+from tools.generation.source_digests import check_source_digests, save_source_digests, source_digest_manifest
 
 OUTPUT = ROOT / "generated" / "summoning_data_generated.py"
 SOURCE_DIGESTS = ROOT / "generated" / "source_digests.json"
@@ -97,8 +97,7 @@ def top_level_parts(value: str) -> list[str]:
     return parts
 
 
-def enum_entries(path: Path) -> list[tuple[str, list[str]]]:
-    text = path.read_text(encoding="utf-8")
+def enum_entries(text: str) -> list[tuple[str, list[str]]]:
     start = text.index("{", text.index("enum class")) + 1
     end = text.index("\n    ;", start)
     body = text[start:end]
@@ -125,12 +124,12 @@ def enum_entries(path: Path) -> list[tuple[str, list[str]]]:
     return entries
 
 
-def item_constants() -> dict[str, int]:
+def item_constants(text: str) -> dict[str, int]:
     return {
         name: int(item_id)
         for name, item_id in re.findall(
             r"(?m)^\s*const val ([A-Z][A-Z0-9_]*) = (\d+)$",
-            ITEMS_SOURCE.read_text(encoding="utf-8"),
+            text,
         )
     }
 
@@ -397,10 +396,10 @@ def parse_familiar_rows(wikitext: str) -> list[dict[str, object]]:
 
 def parse_emulator_pouches(
     constants: dict[str, int],
+    text: str,
 ) -> dict[str, dict[str, object]]:
     rows: dict[str, dict[str, object]] = {}
-    path = SUMMONING_SOURCE / "SummoningPouchData.kt"
-    for enum_name, parts in enum_entries(path):
+    for enum_name, parts in enum_entries(text):
         pouch_constant = item_token(parts[5])
         rows[normalized(enum_name)] = {
             "enum": enum_name,
@@ -422,11 +421,11 @@ def parse_emulator_pouches(
 
 def parse_emulator_scrolls(
     constants: dict[str, int],
+    text: str,
 ) -> tuple[list[dict[str, object]], dict[int, dict[str, object]]]:
     rows: list[dict[str, object]] = []
     by_pouch_id: dict[int, dict[str, object]] = {}
-    path = SUMMONING_SOURCE / "SummoningScrollData.kt"
-    for enum_name, parts in enum_entries(path):
+    for enum_name, parts in enum_entries(text):
         row = {
             "enum": enum_name,
             "scroll_item_id": constants[item_token(parts[1])],
@@ -459,13 +458,13 @@ def closest_by_name(
     )
 
 
-def build_catalog() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
-    constants = item_constants()
+def build_catalog(sources: dict[Path, str]) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    constants = item_constants(sources[ITEMS_SOURCE])
     pouch_rows = parse_pouch_rows(fetch_wikitext(POUCH_OLDID))
     scroll_rows = parse_scroll_rows(fetch_wikitext(SCROLL_OLDID))
     familiar_rows = parse_familiar_rows(fetch_wikitext(FAMILIAR_OLDID))
-    emulator_pouches = parse_emulator_pouches(constants)
-    _, scroll_by_pouch = parse_emulator_scrolls(constants)
+    emulator_pouches = parse_emulator_pouches(constants, sources[SUMMONING_SOURCE / "SummoningPouchData.kt"])
+    _, scroll_by_pouch = parse_emulator_scrolls(constants, sources[SUMMONING_SOURCE / "SummoningScrollData.kt"])
 
     familiar_by_key = {familiar_key(str(row["name"])): row for row in familiar_rows}
     scroll_by_name = {
@@ -634,11 +633,14 @@ def main() -> int:
     parser.add_argument("--check", action="store_true", help="compare with the existing files instead of writing")
     args = parser.parse_args()
     sources = [ITEMS_SOURCE, SUMMONING_SOURCE / "SummoningPouchData.kt", SUMMONING_SOURCE / "SummoningScrollData.kt"]
+    source_bytes = {path: path.read_bytes() for path in sources}
     digests = check_source_digests(
-        args.digest_manifest, OUTPUT_NAME, sources, source_root=GAME_MAIN,
+        args.digest_manifest, OUTPUT_NAME, source_bytes, source_root=GAME_MAIN,
         accept_source_change=args.accept_source_change,
     )
-    catalog, scroll_rows = build_catalog()
+    texts = {path: content.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+             for path, content in source_bytes.items()}
+    catalog, scroll_rows = build_catalog(texts)
     header = f'''"""Generated pre-EOC surface Summoning catalog.
 
 Sources are pinned RuneScape Wiki oldids {POUCH_OLDID}, {SCROLL_OLDID}, and
@@ -659,10 +661,14 @@ SUMMONING_CATALOG = '''
         + "\n"
     )
     print(f"Built {len(catalog)} surface familiars and {len(scroll_rows)} surface scrolls")
-    return write_or_check(
-        {args.output: output, args.digest_manifest: source_digest_manifest(args.digest_manifest, OUTPUT_NAME, digests)},
-        check=args.check,
-    )
+    if args.check:
+        return write_or_check(
+            {args.output: output, args.digest_manifest: source_digest_manifest(args.digest_manifest, OUTPUT_NAME, digests)},
+            check=True,
+        )
+    write_or_check({args.output: output}, check=False)
+    save_source_digests(args.digest_manifest, OUTPUT_NAME, digests)
+    return 0
 
 
 if __name__ == "__main__":

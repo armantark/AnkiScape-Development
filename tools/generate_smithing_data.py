@@ -16,7 +16,7 @@ ADDON_ROOT = Path(__file__).resolve().parents[1]
 if str(ADDON_ROOT) not in sys.path:
     sys.path.insert(0, str(ADDON_ROOT))
 from tools.generation.outputs import write_or_check
-from tools.generation.source_digests import check_source_digests, source_digest_manifest
+from tools.generation.source_digests import check_source_digests, save_source_digests, source_digest_manifest
 
 SOURCE_DIGESTS = ADDON_ROOT / "generated" / "source_digests.json"
 OUTPUT_NAME = "data/smithing_data.py"
@@ -59,10 +59,6 @@ class SourceRecipe:
     bars_required: int = 0
     produced_amount: int = 1
     required_items: Tuple[Tuple[str, int], ...] = ()
-
-
-def _read(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
 
 
 def _slug(value: str) -> str:
@@ -118,14 +114,14 @@ def _named_args(raw: str) -> Dict[str, str]:
     return values
 
 
-def _parse_items_constants(path: Path) -> Dict[str, int]:
+def _parse_items_constants(text: str) -> Dict[str, int]:
     constants: Dict[str, int] = {}
-    for name, value in re.findall(r"const val ([A-Z0-9_]+) = (\d+)", _read(path)):
+    for name, value in re.findall(r"const val ([A-Z0-9_]+) = (\d+)", text):
         constants[name] = int(value)
     return constants
 
 
-def _parse_items_yml(path: Path) -> Dict[int, ItemMeta]:
+def _parse_items_yml(text: str) -> Dict[int, ItemMeta]:
     items: Dict[int, ItemMeta] = {}
     current_id: Optional[int] = None
     current_name: Optional[str] = None
@@ -139,7 +135,7 @@ def _parse_items_yml(path: Path) -> Dict[int, ItemMeta]:
         current_name = None
         current_tradeable = True
 
-    for raw_line in _read(path).splitlines():
+    for raw_line in text.splitlines():
         line = raw_line.strip()
         if line.startswith("- id:"):
             flush()
@@ -173,9 +169,9 @@ def _item_tradeable(item_id: int, items: Mapping[int, ItemMeta]) -> bool:
     return items.get(item_id, ItemMeta(item_id, f"item_{item_id}", True)).tradeable
 
 
-def _parse_bar_types(path: Path, item_constants: Mapping[str, int]) -> Dict[str, Dict[str, object]]:
+def _parse_bar_types(text: str, item_constants: Mapping[str, int]) -> Dict[str, Dict[str, object]]:
     bars: Dict[str, Dict[str, object]] = {}
-    for name, args in _enum_entries(_read(path)):
+    for name, args in _enum_entries(text):
         values = _named_args(args)
         bars[name] = {
             "item_id": _resolve_item_id(values["item"], item_constants),
@@ -185,9 +181,9 @@ def _parse_bar_types(path: Path, item_constants: Mapping[str, int]) -> Dict[str,
     return bars
 
 
-def _parse_smithing_types(path: Path) -> Dict[str, Dict[str, int]]:
+def _parse_smithing_types(text: str) -> Dict[str, Dict[str, int]]:
     types: Dict[str, Dict[str, int]] = {}
-    for name, args in _enum_entries(_read(path)):
+    for name, args in _enum_entries(text):
         values = _named_args(args)
         types[name] = {
             "bars_required": int(values["barRequirement"]),
@@ -198,11 +194,12 @@ def _parse_smithing_types(path: Path) -> Dict[str, Dict[str, int]]:
 
 def _parse_smelting(
     path: Path,
+    text: str,
     item_constants: Mapping[str, int],
     items: Mapping[int, ItemMeta],
 ) -> Tuple[SourceRecipe, ...]:
     recipes: List[SourceRecipe] = []
-    for enum_name, args in _enum_entries(_read(path)):
+    for enum_name, args in _enum_entries(text):
         values = _named_args(args)
         product_id = _resolve_item_id(values["product"], item_constants)
         primary_id = _resolve_item_id(values["primaryOre"], item_constants)
@@ -234,13 +231,14 @@ def _parse_smelting(
 
 def _parse_products(
     path: Path,
+    text: str,
     bar_types: Mapping[str, Mapping[str, object]],
     smithing_types: Mapping[str, Mapping[str, int]],
     item_constants: Mapping[str, int],
     items: Mapping[int, ItemMeta],
 ) -> Tuple[SourceRecipe, ...]:
     recipes: List[SourceRecipe] = []
-    for enum_name, args in _enum_entries(_read(path)):
+    for enum_name, args in _enum_entries(text):
         values = _named_args(args)
         if values:
             bar_type = values["barType"].split(".")[-1]
@@ -548,12 +546,29 @@ def generate(
     if provenance_root is None:
         provenance_root = game_root
     smithing_path = game_root / SMITHING_RELATIVE
-    item_constants = _parse_items_constants(game_root / ITEMS_KT_RELATIVE)
-    items = _parse_items_yml(game_root / ITEMS_YML_RELATIVE)
-    bar_types = _parse_bar_types(smithing_path / "BarType.kt", item_constants)
-    smithing_types = _parse_smithing_types(smithing_path / "SmithingType.kt")
-    smelting = _parse_smelting(smithing_path / "SmeltingData.kt", item_constants, items)
-    products = _parse_products(smithing_path / "BarProducts.kt", bar_types, smithing_types, item_constants, items)
+    sources = [game_root / path for path in (
+        ITEMS_KT_RELATIVE,
+        ITEMS_YML_RELATIVE,
+        SMITHING_RELATIVE / "BarType.kt",
+        SMITHING_RELATIVE / "SmithingType.kt",
+        SMITHING_RELATIVE / "SmeltingData.kt",
+        SMITHING_RELATIVE / "BarProducts.kt",
+        DRAGON_SQ_SHIELD_PLUGIN_RELATIVE,
+    )]
+    source_bytes = {path: path.read_bytes() for path in sources}
+    digests = check_source_digests(
+        digest_manifest, OUTPUT_NAME, source_bytes, source_root=game_root,
+        accept_source_change=accept_source_change,
+    )
+    texts = {path: content.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+             for path, content in source_bytes.items()}
+    item_constants = _parse_items_constants(texts[game_root / ITEMS_KT_RELATIVE])
+    items = _parse_items_yml(texts[game_root / ITEMS_YML_RELATIVE])
+    bar_types = _parse_bar_types(texts[smithing_path / "BarType.kt"], item_constants)
+    smithing_types = _parse_smithing_types(texts[smithing_path / "SmithingType.kt"])
+    smelting = _parse_smelting(smithing_path / "SmeltingData.kt", texts[smithing_path / "SmeltingData.kt"], item_constants, items)
+    products = _parse_products(smithing_path / "BarProducts.kt", texts[smithing_path / "BarProducts.kt"],
+                               bar_types, smithing_types, item_constants, items)
     dragon_sq_shield_repair = _dragon_sq_shield_repair_recipe(
         game_root / DRAGON_SQ_SHIELD_PLUGIN_RELATIVE,
         item_constants,
@@ -565,23 +580,14 @@ def generate(
     )
     if game_root != provenance_root:
         rendered = rendered.replace(str(game_root), str(provenance_root))
-    sources = [game_root / path for path in (
-        ITEMS_KT_RELATIVE,
-        ITEMS_YML_RELATIVE,
-        SMITHING_RELATIVE / "BarType.kt",
-        SMITHING_RELATIVE / "SmithingType.kt",
-        SMITHING_RELATIVE / "SmeltingData.kt",
-        SMITHING_RELATIVE / "BarProducts.kt",
-        DRAGON_SQ_SHIELD_PLUGIN_RELATIVE,
-    )]
-    digests = check_source_digests(
-        digest_manifest, OUTPUT_NAME, sources, source_root=game_root,
-        accept_source_change=accept_source_change,
-    )
-    return write_or_check(
-        {output_path: rendered, digest_manifest: source_digest_manifest(digest_manifest, OUTPUT_NAME, digests)},
-        check=check,
-    )
+    if check:
+        return write_or_check(
+            {output_path: rendered, digest_manifest: source_digest_manifest(digest_manifest, OUTPUT_NAME, digests)},
+            check=True,
+        )
+    write_or_check({output_path: rendered}, check=False)
+    save_source_digests(digest_manifest, OUTPUT_NAME, digests)
+    return 0
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
