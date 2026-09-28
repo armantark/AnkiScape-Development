@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Callable, Dict, List, Mapping, Optional
 
 from ...data.shop_data import (
     SHOP_DATA,
@@ -43,77 +43,14 @@ def default_shop_state_pure() -> Dict[str, Any]:
 
 
 def sanitize_shop_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
-    defaults = default_shop_state_pure()
     data = dict(raw or {})
-
-    clock = data.get("shop_market_clock")
-    clean_clock = dict(defaults["shop_market_clock"])
-    if isinstance(clock, Mapping):
-        clean_clock["version"] = _clean_int(clock.get("version"), 1, minimum=1)
-        clean_clock["answered_cards"] = _clean_int(clock.get("answered_cards"), 0, minimum=0)
-        clean_clock["market_tick"] = _clean_int(clock.get("market_tick"), 0, minimum=0)
-
-    clean_stock: Dict[str, Any] = {}
-    raw_stock = data.get("shop_stock_state")
-    if isinstance(raw_stock, Mapping):
-        for group_id, group_state in raw_stock.items():
-            if not isinstance(group_id, str) or not isinstance(group_state, Mapping):
-                continue
-            clean_rows: Dict[str, Any] = {}
-            raw_rows = group_state.get("rows")
-            if isinstance(raw_rows, Mapping):
-                for row_id, row_state in raw_rows.items():
-                    if not isinstance(row_id, str) or not isinstance(row_state, Mapping):
-                        continue
-                    current_quantity = _clean_int(row_state.get("current_quantity"), 0, minimum=0)
-                    default_quantity = _clean_int(row_state.get("default_quantity"), 0, minimum=0)
-                    temporary = bool(row_state.get("temporary"))
-                    if current_quantity == default_quantity and not temporary:
-                        continue
-                    clean_rows[row_id] = {
-                        "item_id": _clean_int(row_state.get("item_id"), -1, minimum=-1),
-                        "item_name": _canonical_saved_shop_item_name(
-                            str(row_state.get("item_name", "")), row_id, temporary
-                        ),
-                        "current_quantity": current_quantity,
-                        "default_quantity": default_quantity,
-                        "restock_ticks": _clean_int(row_state.get("restock_ticks"), 50, minimum=1),
-                        "restock_amount": _clean_int(row_state.get("restock_amount"), 1, minimum=1),
-                        "buy_price": _clean_optional_int(row_state.get("buy_price")),
-                        "sell_price": _clean_optional_int(row_state.get("sell_price")),
-                        "tradeable": bool(row_state.get("tradeable", True)),
-                        "temporary": temporary,
-                    }
-            if clean_rows:
-                clean_stock[group_id] = {
-                    "shop_id": str(group_state.get("shop_id", "")),
-                    "last_market_tick": _clean_int(group_state.get("last_market_tick"), clean_clock["market_tick"], minimum=0),
-                    "rows": clean_rows,
-                }
-
-    raw_events = data.get("shop_events")
-    clean_events = (
-        [
-            _migrate_saved_shop_event_item_names(event)
-            for event in raw_events
-            if isinstance(event, Mapping)
-        ]
-        if isinstance(raw_events, list)
-        else []
-    )
-    raw_transaction_counts = data.get("shop_transaction_counts")
-    clean_transaction_counts = {}
-    if isinstance(raw_transaction_counts, Mapping):
-        for key, value in raw_transaction_counts.items():
-            count = _clean_int(value, 0, minimum=0)
-            if key in SHOP_DIARY_TRANSACTION_KEYS and count > 0:
-                clean_transaction_counts[key] = count
+    clean_clock = _sanitize_market_clock(data.get("shop_market_clock"))
     return {
         "shop_data_version": SHOP_DATA_VERSION,
         "shop_market_clock": clean_clock,
-        "shop_stock_state": clean_stock,
-        "shop_events": clean_events[-MAX_SHOP_EVENT_HISTORY:],
-        "shop_transaction_counts": clean_transaction_counts,
+        "shop_stock_state": _sanitize_stock_state(data.get("shop_stock_state"), clean_clock["market_tick"]),
+        "shop_events": _sanitize_shop_events(data.get("shop_events")),
+        "shop_transaction_counts": _sanitize_transaction_counts(data.get("shop_transaction_counts")),
         "shop_next_event_id": _clean_int(data.get("shop_next_event_id"), 1, minimum=1),
         "wilderness_shop_slots": _clean_int(data.get("wilderness_shop_slots"), 0, minimum=0),
     }
@@ -176,48 +113,10 @@ def shop_access_lock_reason_pure(player_data: Mapping[str, Any], shop: Mapping[s
         return None
     kind = rule.get("kind")
     label = str(rule.get("label", "access requirement"))
-    if kind == "quest":
-        quests = player_data.get("quests", {}) or {}
-        state = quests.get(str(rule.get("quest_id", "")), {}) or {}
-        required_stage = rule.get("stage", "completed")
-        if str(required_stage) == "started":
-            if bool(state.get("started")) or bool(state.get("completed")):
-                return None
-            return f"Requires starting {label}"
-        try:
-            required_progress = int(required_stage)
-        except (TypeError, ValueError):
-            required_progress = 0
-        if required_progress > 0:
-            try:
-                progress = int(state.get("progress", 0) or 0)
-            except (TypeError, ValueError):
-                progress = 0
-            if bool(state.get("completed")) or (
-                bool(state.get("started")) and progress >= required_progress
-            ):
-                return None
-            return f"Requires {label} stage {required_progress}"
-        if bool(state.get("completed")):
-            return None
-        return f"Requires {label}"
-    if kind == "quest_points":
-        required = int(rule.get("quest_points", 0) or 0)
-        if int(player_data.get("quest_points", 0) or 0) >= required:
-            return None
-        return f"Requires {label}"
-    if kind == "skill":
-        skill = str(rule.get("skill", ""))
-        required = int(rule.get("level", 1) or 1)
-        if int(player_data.get(f"{skill}_level", 1) or 1) >= required:
-            return None
-        return f"Requires {label}"
-    if kind == "skill_total":
-        total = sum(int(player_data.get(f"{skill}_level", 1) or 1) for skill in rule.get("skills", ()))
-        if total >= int(rule.get("total", 0) or 0):
-            return None
-        return f"Requires {label}"
-    return None
+    lock_reason = _ACCESS_LOCK_REASONS.get(kind)
+    if lock_reason is None:
+        return None
+    return lock_reason(player_data, rule, label)
 
 
 def resolve_shop_id(shop_id: str) -> str:
@@ -290,6 +189,132 @@ def _migrate_saved_shop_event_item_names(raw: Mapping[str, Any]) -> Dict[str, An
         inverse["inventory_delta"] = _migrate_item_delta_names(inverse.get("inventory_delta"))
         inverse["stock_set"] = _migrate_saved_stock_set_names(inverse.get("stock_set"))
     return event
+
+
+def _sanitize_market_clock(raw_clock: Any) -> Dict[str, int]:
+    clean_clock = dict(default_shop_state_pure()["shop_market_clock"])
+    if isinstance(raw_clock, Mapping):
+        clean_clock["version"] = _clean_int(raw_clock.get("version"), 1, minimum=1)
+        clean_clock["answered_cards"] = _clean_int(raw_clock.get("answered_cards"), 0, minimum=0)
+        clean_clock["market_tick"] = _clean_int(raw_clock.get("market_tick"), 0, minimum=0)
+    return clean_clock
+
+
+def _sanitize_stock_state(raw_stock: Any, market_tick: int) -> Dict[str, Any]:
+    clean_stock: Dict[str, Any] = {}
+    if not isinstance(raw_stock, Mapping):
+        return clean_stock
+    for group_id, group_state in raw_stock.items():
+        if not isinstance(group_id, str) or not isinstance(group_state, Mapping):
+            continue
+        clean_rows = _sanitize_stock_rows(group_state.get("rows"))
+        if clean_rows:
+            clean_stock[group_id] = {
+                "shop_id": str(group_state.get("shop_id", "")),
+                "last_market_tick": _clean_int(group_state.get("last_market_tick"), market_tick, minimum=0),
+                "rows": clean_rows,
+            }
+    return clean_stock
+
+
+def _sanitize_stock_rows(raw_rows: Any) -> Dict[str, Any]:
+    clean_rows: Dict[str, Any] = {}
+    if not isinstance(raw_rows, Mapping):
+        return clean_rows
+    for row_id, row_state in raw_rows.items():
+        if not isinstance(row_id, str) or not isinstance(row_state, Mapping):
+            continue
+        clean_row = _sanitize_stock_row(row_id, row_state)
+        if clean_row is not None:
+            clean_rows[row_id] = clean_row
+    return clean_rows
+
+
+def _sanitize_stock_row(row_id: str, row_state: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    current_quantity = _clean_int(row_state.get("current_quantity"), 0, minimum=0)
+    default_quantity = _clean_int(row_state.get("default_quantity"), 0, minimum=0)
+    temporary = bool(row_state.get("temporary"))
+    if current_quantity == default_quantity and not temporary:
+        return None
+    return {
+        "item_id": _clean_int(row_state.get("item_id"), -1, minimum=-1),
+        "item_name": _canonical_saved_shop_item_name(str(row_state.get("item_name", "")), row_id, temporary),
+        "current_quantity": current_quantity,
+        "default_quantity": default_quantity,
+        "restock_ticks": _clean_int(row_state.get("restock_ticks"), 50, minimum=1),
+        "restock_amount": _clean_int(row_state.get("restock_amount"), 1, minimum=1),
+        "buy_price": _clean_optional_int(row_state.get("buy_price")),
+        "sell_price": _clean_optional_int(row_state.get("sell_price")),
+        "tradeable": bool(row_state.get("tradeable", True)),
+        "temporary": temporary,
+    }
+
+
+def _sanitize_shop_events(raw_events: Any) -> List[Dict[str, Any]]:
+    if not isinstance(raw_events, list):
+        return []
+    events = [_migrate_saved_shop_event_item_names(event) for event in raw_events if isinstance(event, Mapping)]
+    return events[-MAX_SHOP_EVENT_HISTORY:]
+
+
+def _sanitize_transaction_counts(raw_counts: Any) -> Dict[str, int]:
+    clean_counts: Dict[str, int] = {}
+    if not isinstance(raw_counts, Mapping):
+        return clean_counts
+    for key, value in raw_counts.items():
+        count = _clean_int(value, 0, minimum=0)
+        if key in SHOP_DIARY_TRANSACTION_KEYS and count > 0:
+            clean_counts[key] = count
+    return clean_counts
+
+
+def _quest_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str, Any], label: str) -> Optional[str]:
+    quests = player_data.get("quests", {}) or {}
+    state = quests.get(str(rule.get("quest_id", "")), {}) or {}
+    required_stage = rule.get("stage", "completed")
+    if str(required_stage) == "started":
+        if bool(state.get("started")) or bool(state.get("completed")):
+            return None
+        return f"Requires starting {label}"
+    required_progress = _clean_int(required_stage, 0)
+    if required_progress > 0:
+        progress = _clean_int(state.get("progress", 0) or 0, 0)
+        if bool(state.get("completed")) or (bool(state.get("started")) and progress >= required_progress):
+            return None
+        return f"Requires {label} stage {required_progress}"
+    if bool(state.get("completed")):
+        return None
+    return f"Requires {label}"
+
+
+def _quest_points_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str, Any], label: str) -> Optional[str]:
+    required = int(rule.get("quest_points", 0) or 0)
+    if int(player_data.get("quest_points", 0) or 0) >= required:
+        return None
+    return f"Requires {label}"
+
+
+def _skill_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str, Any], label: str) -> Optional[str]:
+    skill = str(rule.get("skill", ""))
+    required = int(rule.get("level", 1) or 1)
+    if int(player_data.get(f"{skill}_level", 1) or 1) >= required:
+        return None
+    return f"Requires {label}"
+
+
+def _skill_total_access_lock_reason(player_data: Mapping[str, Any], rule: Mapping[str, Any], label: str) -> Optional[str]:
+    total = sum(int(player_data.get(f"{skill}_level", 1) or 1) for skill in rule.get("skills", ()))
+    if total >= int(rule.get("total", 0) or 0):
+        return None
+    return f"Requires {label}"
+
+
+_ACCESS_LOCK_REASONS: Dict[str, Callable[[Mapping[str, Any], Mapping[str, Any], str], Optional[str]]] = {
+    "quest": _quest_access_lock_reason,
+    "quest_points": _quest_points_access_lock_reason,
+    "skill": _skill_access_lock_reason,
+    "skill_total": _skill_total_access_lock_reason,
+}
 
 
 def _shop_or_none(shop_id: str) -> Optional[Dict[str, Any]]:
