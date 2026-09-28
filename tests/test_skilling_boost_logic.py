@@ -167,6 +167,39 @@ class SkillingBoostLogicTest(unittest.TestCase):
             player["carried_inventory"][target].get("Crafting potion (1)"), 1
         )
 
+    def test_pack_without_its_potion_restocks_it_from_the_bank_before_crafting(self):
+        target = "form_clay_ring_unfired"
+        player = {
+            "crafting_level": 1,
+            "crafting_exp": 0.0,
+            "current_craft": target,
+            "inventory": {
+                "Soft clay": 6,
+                "Ring mould": 1,
+                "Crafting potion (3)": 1,
+            },
+            "skilling_potion_targets": {"crafting": {target: True}},
+            "carried_inventory": {target: {"Soft clay": 6}},
+            "carried_layout": {},
+            "carried_churn": {},
+            "carried_advanced_targets": {},
+            "carried_primed_targets": {target: True},
+            "skilling_bank_run": {},
+            "equipment": {},
+        }
+        ctx, _messages = _context(player)
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                ctx, "crafting", handle_crafting_answer
+            )
+        )
+        self.assertEqual(player["inventory"].get("Clay ring (unfired)"), 1)
+        self.assertEqual(player["inventory"].get("Crafting potion (2)"), 1)
+        self.assertEqual(
+            player["carried_inventory"][target].get("Crafting potion (2)"), 1
+        )
+
     def test_missing_materials_do_not_waste_a_configured_potion_dose(self):
         target = "form_clay_ring_unfired"
         player = {

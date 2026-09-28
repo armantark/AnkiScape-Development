@@ -206,6 +206,35 @@ def _fold_keep_gains_and_write_carried(
     return overflow_items
 
 
+def _processing_refill_due(
+    view: dict[str, int],
+    bank: dict[str, Any],
+    requirements: dict[str, int],
+    consumable_requirements: dict[str, int],
+    presence_requirements: dict[str, int],
+    *,
+    advanced: bool,
+) -> bool:
+    """Whether a short processing pack must bank because the bank can refill it."""
+    refill_requirements = dict(requirements)
+    for item_name, need in consumable_requirements.items():
+        refill_requirements[item_name] = max(
+            refill_requirements.get(item_name, 0), need
+        )
+    # Presence-only gates stay out of per-action packing: in default mode they
+    # remain available from the bank. An advanced layout explicitly carries
+    # them, however, so an emptied presence slot must trigger the normal refill
+    # when the bank can restore the saved layout.
+    if advanced:
+        for item_name, need in presence_requirements.items():
+            refill_requirements[item_name] = max(refill_requirements.get(item_name, 0), need)
+    return bool(
+        refill_requirements
+        and not _pack_can_supply(view, refill_requirements)
+        and _bank_can_supply(bank, refill_requirements)
+    )
+
+
 def _initialize_due_bank_trip(
     ctx: RuntimeActionContext,
     handler_key: str,
@@ -410,22 +439,16 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             )
             return False
 
-    # Presence-only gates stay out of per-action packing: in default mode they
-    # remain available from the bank. An advanced layout explicitly carries
-    # them, however, so an emptied presence slot must trigger the normal refill
-    # when the bank can restore the saved layout.
-    refill_requirements = dict(requirements)
-    for item_name, need in consumable_requirements.items():
-        refill_requirements[item_name] = max(
-            refill_requirements.get(item_name, 0), need
+    force = bank_run_requested or (
+        is_processing
+        and _processing_refill_due(
+            view,
+            bank,
+            requirements,
+            consumable_requirements,
+            presence_requirements,
+            advanced=advanced,
         )
-    if advanced:
-        for item_name, need in presence_requirements.items():
-            refill_requirements[item_name] = max(refill_requirements.get(item_name, 0), need)
-    force = bank_run_requested or bool(
-        is_processing and refill_requirements
-        and not _pack_can_supply(view, refill_requirements)
-        and _bank_can_supply(bank, refill_requirements)
     )
     desired_agility_view = (
         _repack_view_for_target(
