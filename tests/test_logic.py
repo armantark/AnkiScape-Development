@@ -12266,13 +12266,13 @@ class TestLogic(unittest.TestCase):
         player_data["equipment"]["weapon"] = "Omni-talisman staff"
         self.assertEqual(
             runecrafting_altar_access_source_pure(
-                player_data, "air", RUNECRAFTING_DATA
+                player_data, "air"
             ),
             "staff",
         )
         self.assertEqual(
             runecrafting_altar_access_source_pure(
-                player_data, "law", RUNECRAFTING_DATA
+                player_data, "law"
             ),
             "",
         )

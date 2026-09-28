@@ -152,8 +152,6 @@ from .logic_pure_smithing import (  # noqa: F401  (re-export)
 )
 
 from .logic_pure_runecrafting import (  # noqa: F401  (re-export)
-    _altar_access_item_names,
-    _altar_for_target,
     _available_essence_count,
     _consume_essence_ordered,
     _degrade_used_pouches,

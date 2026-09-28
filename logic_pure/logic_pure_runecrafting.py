@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Iterable, Mapping, Optional
 
 from ..data.runecrafting_data import (
+    ALTARS_BY_ID,
     OMNI_TALISMAN_STAFF_ITEM,
     RUNECRAFTING_STAFF_ITEM,
 )
@@ -123,14 +124,6 @@ from .logic_pure_state import (
 )
 
 
-def _altar_for_target(target, runecrafting_data):
-    altar_id = target.get("altar_id")
-    for candidate in runecrafting_data.values():
-        if candidate.get("kind") == "standard" and candidate.get("altar_id") == altar_id:
-            return candidate
-    return None
-
-
 def runecrafting_unlocked_pure(player_data):
     return quest_completed_pure(player_data, "rune_mysteries")
 
@@ -139,28 +132,13 @@ def _fed_altars(player_data):
     return set(wicked_hood_fed_altars_pure(player_data))
 
 
-def _altar_access_item_names(altar_id, runecrafting_data):
-    talisman = None
-    tiara = None
-    for target in runecrafting_data.values():
-        if target.get("kind") == "tiara" and target.get("altar_id") == altar_id:
-            talisman = target.get("talisman_item")
-            tiara = target.get("output_item")
-            break
-    if talisman is None:
-        standard = _altar_for_target({"altar_id": altar_id}, runecrafting_data)
-        if standard:
-            rune_item = str(standard.get("output_item", "")).replace(" rune", "")
-            talisman = f"{rune_item} talisman" if rune_item else None
-            tiara = f"{rune_item} tiara" if rune_item else None
-    return talisman, tiara
-
-
-def runecrafting_altar_access_source_pure(player_data, altar_id, runecrafting_data):
+def runecrafting_altar_access_source_pure(player_data, altar_id):
+    altar = ALTARS_BY_ID[altar_id]
+    if altar.talisman_item is None and altar.tiara_item is None:
+        return "open"
     inventory = player_data.get("inventory", {}) or {}
     equipment = player_data.get("equipment", {}) or {}
-    talisman_item, tiara_item = _altar_access_item_names(altar_id, runecrafting_data)
-    if tiara_item and equipment.get("head") == tiara_item:
+    if equipment.get("head") == altar.tiara_item:
         return "tiara"
     if equipment.get("weapon") == f"{str(altar_id).title()} talisman staff":
         return "staff"
@@ -168,14 +146,14 @@ def runecrafting_altar_access_source_pure(player_data, altar_id, runecrafting_da
         return "staff"
     if altar_id in _fed_altars(player_data) and wicked_hood_operable_pure(player_data):
         return "hood"
-    if talisman_item and inventory.get(talisman_item, 0) > 0:
+    if inventory.get(altar.talisman_item, 0) > 0:
         return "talisman"
     return ""
 
 
-def runecrafting_standard_base_capacity_pure(player_data, target, runecrafting_data):
-    source = runecrafting_altar_access_source_pure(player_data, target.get("altar_id"), runecrafting_data)
-    if source in {"tiara", "hood", "staff"}:
+def runecrafting_standard_base_capacity_pure(player_data, target):
+    source = runecrafting_altar_access_source_pure(player_data, target.get("altar_id"))
+    if source in {"open", "tiara", "hood", "staff"}:
         return 28
     if source == "talisman":
         return 27
@@ -347,12 +325,12 @@ def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, 
     inventory = player_data.get("inventory", {}) or {}
     kind = target.get("kind")
     if kind == "standard":
-        if runecrafting_standard_base_capacity_pure(player_data, target, runecrafting_data) <= 0:
+        if runecrafting_standard_base_capacity_pure(player_data, target) <= 0:
             reasons.append("altar access")
         if _available_essence_count(inventory, tuple(target.get("essence_items", ()))) <= 0:
             reasons.append("essence")
     elif kind == "combination":
-        if runecrafting_altar_access_source_pure(player_data, target.get("altar_id"), runecrafting_data) == "":
+        if runecrafting_altar_access_source_pure(player_data, target.get("altar_id")) == "":
             reasons.append("altar access")
         required_items = ["Pure essence", target.get("component_rune")]
         if not bool(player_data.get("magic_imbue_active", False)):
@@ -435,7 +413,7 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
     roll_iter = iter(rolls or ())
 
     if kind == "standard":
-        base_capacity = runecrafting_standard_base_capacity_pure(data, target, runecrafting_data)
+        base_capacity = runecrafting_standard_base_capacity_pure(data, target)
         capacity = base_capacity + runecrafting_pouch_capacity_pure(data, pouch_data)
         essence_items = tuple(target.get("essence_items", ()))
         essence_item = next((item for item in essence_items if _positive_int(inventory.get(item, 0), 0) > 0), "")

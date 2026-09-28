@@ -16,6 +16,22 @@ Audits: `python3 tools/audit_docs.py` → `Audited 871 Markdown and 452 HTML fil
 
 The existing runner tests that call `main()` now use a small temporary worktree, so the suite does not copy the whole repository per call. Not changed, recorded for a later slice: `tools/pass14/checks.py` and `tools/carried/run_processing_reconciliation_remote.py` take the lock themselves and call `_sync(root)` on the live tree. No full lane was run; the orchestrator re-runs both lanes on the merged tree.
 
+## Astral runes open with Lunar Diplomacy instead of an item that does not exist — 2026-09-27
+
+A player who had finished Rune Mysteries and Lunar Diplomacy, had Runecrafting 40 and carried Pure essence saw Astral runes locked for "altar access". The access check built an "Astral talisman" and "Astral tiara" from the rune name, and no such items exist in the game, so only an Omni-talisman staff or an Omni-fed Wicked hood opened the row. The altar record `AltarDefinition("astral", "Astral altar", None, None, "Astral rune")` in `data/runecrafting_data.py` gives the Astral altar no talisman and no tiara, and `quest-unlock-audit-2026-06-17.md` gates it by Lunar Diplomacy alone.
+
+The access check now reads each altar's talisman and tiara from `ALTARS_BY_ID`. An altar with neither is not item-gated and gives the same 28-essence base as a tiara, a hood or a talisman staff, because no key takes a slot. Every other altar keeps its access items. Lunar Diplomacy still locks the row through the existing quest gate. The name-derived fallback and its unused runecrafting-data parameter are removed.
+
+Red (base code, final test): `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_astral_access --expected-tests 2` → `AssertionError: Tuples differ: ('altar access',) != ()` and `AssertionError: Tuples differ: ('Lunar Diplomacy', 'altar access') != ('Lunar Diplomacy',)`, `Ran 2 tests in 0.002s`, `FAILED (failures=2)`, exit 1. Green: the same command → `Ran 2 tests in 0.002s`, `OK`, exit 0. Neighbours: `--select test_logic. --select test_great_orb_project. --select test_wicked_hood_logic. --select test_runtime_actions. --select test_undo_seam_wickedhood. --select test_astral_access. --expected-tests 467` → `Ran 467 tests in 2.592s`, `OK`; `--select test_target_metadata. --expected-tests 58` → `Ran 58 tests in 0.308s`, `OK`. Logs are in `$(git rev-parse --git-common-dir)/ankiscape-promotion-evidence/goal-astral-talisman-requirement-2026-09-27/`.
+
+Memory Bank readers: `--select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 46` → `Ran 46 tests in 60.340s`, `OK`.
+
+Audits: `python3 tools/audit_docs.py` → `Audited 871 Markdown and 452 HTML files.` / `Documentation audit passed.`, exit 0. `python3 tools/audit_test_quality.py` → `4886 tests across 286 files` / `hard issues: 0` / `structural clone candidates: 31 groups`, exit 0. `python3 tools/audit_item_reachability.py` → first line `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, equal to the baseline on main, exit 0. `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`, exit 0. `git diff --check` → no output, exit 0.
+
+Plain lane, the last remote run after all code and test edits: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain` → `Ran 5763 tests in 407.091s`, `OK (skipped=1373)`, exit 0. The full Qt lane was not run, because the orchestrator re-runs both lanes on the merged tree as the promotion gate. Only this result paragraph was written after that run.
+
+Not fixed: Astral runes still give one rune per essence at every level. Whether they double at level 82 is a separate open owner question (S6, GB:10), and this change does not touch it.
+
 ## Raw evidence archived and obsolete combat scripts retired — 2026-09-23
 
 Old run logs and machine output now live outside the add-on folder, making it much lighter without losing the proof.
