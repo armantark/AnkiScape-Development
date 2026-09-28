@@ -2,15 +2,18 @@
 
 Source: `memory-bank/codex-briefs/ankiscape-grind-loop-2026-08-03.md`.
 The owner resumed the implementation goal on 2026-09-21. No automatic restart
-is scheduled. The [handoff](handoffs/fable-grill-papercuts-2026-09-21-decisions.md)
-landed step 1 `f7c0c7a9`, step 4 `3d0cae26`, step 2 `4f345789` and steps 3
-and 5 `a45c92d8`; step 6, the Memory Bank rotation, completes when it lands with
-the papercut triage `bf38b68b`. Then process one unblocked
+is scheduled. All six steps of the
+[handoff](handoffs/fable-grill-papercuts-2026-09-21-decisions.md) are on main:
+step 1 `f7c0c7a9`, step 4 `3d0cae26`, step 2 `4f345789`, steps 3 and 5
+`a45c92d8`, and step 6, the Memory Bank rotation, with the papercut triage
+`bf38b68b` in docs batch `db75276f`. Process one unblocked
 gameplay item per iteration from the priority matrix. Move design gaps to
 `memory-bank/design-thread-queue.md`.
 The Magic candidate remains an owner choice; do not merge, rebase or rework it.
-Each landed slice gets a native check through the laptop Codex CLI over SSH
-([route](remote-test-host.md)); never run one while a gate lane runs.
+The laptop Codex CLI over SSH ([route](remote-test-host.md)) failed four native
+checks and reviewed 0 cards, so accepted runtime slices wait off main until the
+owner chooses a route in [design-thread queue §3.38](design-thread-queue.md);
+never run a native check while a gate lane runs.
 
 1. [x] Pass 6 item B.15 — skill-selector hybridization.
    Implement only `memory-bank/codex-briefs/pass6-b15-handoff-2026-08-03.md`.

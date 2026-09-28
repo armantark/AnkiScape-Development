@@ -413,6 +413,13 @@ had different counters and rewards in the period game.
 
 ### 3.15 Does the reviewer badge list only favourited Distractions?
 
+**Status (2026-09-26): superseded.** The owner-ratified pass-5 grill decision 3
+of 2026-07-31 (`pass5-triage-2026-07-31.md`) set the D&D notification default
+set to empty with favourites opt-in: uninvited live events disappear from the
+badge until favourited. `b59c8381` ("fix: make D&D notifications strictly
+opt-in") implements it, so Option A's "a favourite never removes a line" no
+longer describes the game. The Distractions-only rider (§4.14 item 3) stands.
+
 Raised 2026-07-28 while building the always-visible strip from section 4.8.
 
 Section 4.8 gives the badge one permanent seat and says its popover lists
@@ -933,6 +940,12 @@ an open design fork; it does not choose or implement a repair.
 
 ### 3.33 Six Dealing with Scabaras stages use a generated stub as their only action record
 
+**Status (2026-09-26): stubs replaced.** `16ff8f2c` (2026-08-26) gave stages
+`2` to `7` sourced actions, now in `data/quest/stage_cleanups.py`. Stage 6's
+Skeletons fight stays source-blocked on missing combat stats:
+`test_dealing_with_scabaras_real_stage_emitters_complete_and_reward_once` in
+`tests/test_logic.py` asserts `This fight is not modelled yet (combat stats missing): Skeletons`.
+
 Raised 2026-08-22 after a complete scan of the generated quest-action fallback
 found a distinct unresolved shape. This is an unsettled design question, not
 pending implementation work.
@@ -1089,6 +1102,12 @@ fixed lines to a `papercuts-fixed` file until the total is under 3,000; or
 reviewed papercut-triage slice `bf38b68b` cuts `papercuts.md` to its open
 entries and lands with the rotation in one promotion, and the orchestrator
 verifies the six-file total under 3,000 on that merged tree.
+
+Landed: the rotation and the triage reached main in docs batch `db75276f`
+(2026-09-24). The six files met 2,990 lines on step 6's own merged tree, then
+later progress sections raised them to 3,045 at `db75276f` and 3,141 at
+`d0904603`. That is later growth for the monthly rotation rule, not a failed
+acceptance.
 
 ### 3.38 Native acceptance route for runtime slices
 
@@ -1514,6 +1533,11 @@ semantics clauses and the v88 migration read, not player-visible content.
   still holds. Both facts are pinned by
   `tests/test_miniquest_ledger.py::TestLairOfTarnRazorlor`; the ledger's own
   sourcing lives in `source-audits/miniquest-ledger-2026-07-29.md`.
+- **Superseded gate (2026-07-30):** §4.15 item 3 ratified Haunted Mine as the
+  Tarn gate per the pinned source, with the Lair optional for the fight.
+  `4e0871ba` implements it, and
+  `test_the_dominion_tower_class_h_gate_now_resolves` in the same test class
+  pins that the Lair is not required.
 
 ### 3.24 Dominion Tower — a defeat's Dominion Factor cost is nowhere in the record — implemented recommendation, owner review pending
 
@@ -2038,6 +2062,20 @@ forks, so the implemented recommendation is not authority to close them.
 **Deciding answer: YES.** The five UNBLOCKED entries above are settled work that
 is not implemented. The autonomous goal is not finished on this tree.
 
+**Status (2026-09-26):** later landings supersede most of the deciding answer;
+the counts stay as audited. Of the five UNBLOCKED bullets, four are no longer
+open work. §3.34: `tools/audit_docs.py` fails on `dangling_test_selector` in
+source audits (`3fd9f4e0`), and the audit passes. Jungle Potion: every stage
+searches until turn-in and the production exemption is gone (`02c77af9`).
+Kinship: the packet exists as
+`darkan-party-simulation-analysis-packet-2026-08-24.md` (`0a53c576`), analysis
+only, awaiting owner approval. §5.3: the Biohazard test now asserts
+`Combat Training Camp` is not in inventory (`23909dd0`); the rest of §5.3 stays
+as recorded. §3.27 is the unblocked remainder: the gathering callers still pass
+caller-filtered `primary_outputs` to the hook. In the blocked lists, §3.35
+Vengeance parity was closed as COMPLETE in `d563fe59` (2026-08-26) and is not
+an open owner fork, and §3.33's Scabaras stubs were replaced by `16ff8f2c`.
+
 ### 4.20 Model fallback after an Ox Alpha outage — ruled directly by the owner
 
 The owner ruled this directly on 2026-08-24 at 22:54 PDT, not through the
@@ -2163,11 +2201,22 @@ unique commit 544d54e2 is an audit-document correction, and main commit
 6fd075df carries a fuller correction of the same document.
 
 Classification: this is unblocked work that remains, not complete.
+
+**Status (2026-09-26): superseded by §5.11.** The re-land
+`goal/secondaries-reland-2026-08-25` must not be merged; only the Rune shard
+chain was unblocked, and it landed at `270bbe79`. Both branches stay preserved
+as rejected or superseded attempts (priority matrix, preserved branches).
+
 ### 5.11 Herblore secondaries are blocked except the Rune shard chain — 2026-08-26
 
 The Herblore secondaries slice is source-blocked except for the Rune essence to
 Rune shards to Rune dust chain. The unblocked chain is being re-landed
 separately.
+
+**Status (2026-09-26): Rune shard chain landed.** `270bbe79` adds the sourced
+Rune shards action, and `tests/test_rune_shards.py` drives a fresh player to
+Rune dust through the real kernels. Do not re-land it; the other items stay
+source-blocked.
 
 - Branch `goal/secondaries-reland-2026-08-25` stops at commit c1bbc460. It is
   not merged and must not be merged in its current form.
@@ -2365,14 +2414,18 @@ The gate refuses to land a tree whose parent main has moved. This is normal
 promotion work, not a repair. This incident record does not alter the five
 commits.
 
-### 5.20 Snake hide is an unmodelled root-orphan input — defect awaiting work — 2026-08-26
+### 5.20 Snake hide is an unmodelled root-orphan input — raised 2026-08-26, closed 2026-08-30
 
-Snake hide is an unmodelled root-orphan input, which causes Snakeskin equipment
-to be correctly-but-wrongly reported as uncertified.
+Snake hide was an unmodelled root-orphan input, which caused Snakeskin
+equipment to be correctly-but-wrongly reported as uncertified. The 2026-08-26
+instruction was: add a sourced acquisition route for Snake hide, and do not
+suppress the audit result.
 
-**Status: AWAITING WORK.** Add a sourced acquisition route for Snake hide. Do
-not suppress the audit result: it is correct for the incomplete acquisition
-model.
+**Status: COMPLETE.** `1b9fb31b` ("feat(combat): make ordinary Snake hide
+obtainable") gives the Bush snake a sourced Snake hide drop in
+`data/combat/animals/animals.py`, with its hidden 1-5 weighting registered as
+`PLACEHOLDER(combat.bush_snake_hide_quantity_distribution)`.
+`tests/test_integration_smoke.py` drives the kill, the tanning and Undo.
 
 ### 4.21 Pass 12 grill — rulings of 2026-08-26
 
@@ -2414,7 +2467,14 @@ diagnosis and slice geography live in
    chooser becomes a shared icon-grid select-then-confirm dialog. Delegated by
    the owner ("up to you") and unvetoed.
 
-### 5.21 Diary curation ledger — the 320-row trigger authoring — AWAITING WORK
+### 5.21 Diary curation ledger — the 320-row trigger authoring — wired, Gate 2 passed
+
+**Status (2026-09-26): wired.** Gate 2 passed on 2026-08-31 by reviewed
+spec-conformance (§4.22 ruling 3), and main carries the ledger wiring and deed
+text (`a0e22ade`, `e4223bec`, `61638b58`; priority matrix "Diary ledger
+wiring"). The 2026-09-26 queue audit parsed 320 rows: 42 active, 123
+translated, 39 invented and 116 dormant, each dormant row on a planned system
+(§4.23). Owner corrections are ledger patches plus regeneration.
 
 Owner ruling of 2026-08-26 23:20: the full curation ledger moves to the
 grinding queue; Pass 12 keeps only the honest-stop cut (S1-lite in the Pass
