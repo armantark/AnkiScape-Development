@@ -228,6 +228,8 @@ from .core.injectors import inject_reviewer_floating_button as _inject_reviewer_
 from .core.injectors import inject_overview_floating_button as _inject_overview_floating_button
 from .core.injectors import register_deck_browser_button as _register_deck_browser_button
 from .core.injectors import force_deck_browser_refresh as _force_deck_browser_refresh
+from .core.activity_feedback import combine_activity_feedback as _combine_activity_feedback
+from .core.combat_prayer_config import apply_combat_prayer_config_pure as _apply_combat_prayer_config_pure
 from .core.storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
 from .core.action_registry import (
     ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
@@ -572,39 +574,6 @@ def _show_activity_gain(text: str) -> None:
             mw.exp_popup.show_text(message)
     except Exception:
         pass
-
-
-def _combine_activity_feedback(messages) -> str:
-    plus_totals = {}
-    opened_nests = 0
-    for message in messages:
-        text = str(message)
-        if text.startswith("+"):
-            parts = text[1:].split(" ", 1)
-            if len(parts) == 2:
-                try:
-                    amount = int(parts[0])
-                except ValueError:
-                    amount = 0
-                if amount > 0:
-                    item = parts[1]
-                    plus_totals[item] = plus_totals.get(item, 0) + amount
-                    continue
-        if text.startswith("Opened ") and " bird nest" in text:
-            parts = text.split(" ", 2)
-            if len(parts) >= 2:
-                try:
-                    opened_nests += int(parts[1])
-                    continue
-                except ValueError:
-                    pass
-
-    if plus_totals and len(plus_totals) == 1 and opened_nests == 0:
-        item, amount = next(iter(plus_totals.items()))
-        return f"+{amount} {item}"
-    if opened_nests > 0 and not plus_totals:
-        return f"Opened {opened_nests} bird nest{'s' if opened_nests != 1 else ''}"
-    return messages[-1] if messages else ""
 
 
 def _begin_review_feedback_context() -> None:
@@ -4888,45 +4857,7 @@ def _set_combat_prayer_config(key: str, value):
         if ok:
             _save_combat_state_update(new_data)
         return ok
-    if key == "pin_target_preset":
-        target_id = str(_state.player_data.get("current_combat_target", ""))
-        pins = dict(_state.player_data.get("combat_target_presets", {}) or {})
-        if bool(value):
-            pins[target_id] = str(_state.player_data.get("combat_active_preset", "Default"))
-        else:
-            pins.pop(target_id, None)
-        _state.player_data["combat_target_presets"] = pins
-        save_player_data()
-        return True
-    if key == "target_override":
-        field, enabled = value
-        target_id = str(_state.player_data.get("current_combat_target", ""))
-        overrides = dict(_state.player_data.get("combat_target_overrides", {}) or {})
-        target_overrides = dict(overrides.get(target_id, {}) or {})
-        if enabled:
-            current = _state.player_data.get(str(field))
-            target_overrides[str(field)] = list(current) if isinstance(current, list) else current
-        else:
-            target_overrides.pop(str(field), None)
-        if target_overrides:
-            overrides[target_id] = target_overrides
-        else:
-            overrides.pop(target_id, None)
-        _state.player_data["combat_target_overrides"] = overrides
-        save_player_data()
-        return True
-    _state.player_data[key] = value
-    if key == "combat_prayer_book" and value == "curses":
-        temple = ((_state.player_data.get("quests", {}) or {}).get("the_temple_at_senntisten") or {})
-        if not temple.get("completed"):
-            _state.player_data[key] = "standard"
-    _state.player_data["combat_selected_prayers"] = list(
-        sanitize_prayer_selection_pure(_state.player_data, _state.player_data.get("combat_selected_prayers", ()))
-    )
-    target_id = str(_state.player_data.get("current_combat_target", ""))
-    overrides = _state.player_data.get("combat_target_overrides", {}) or {}
-    if isinstance(overrides.get(target_id), dict) and key in overrides[target_id]:
-        overrides[target_id][key] = list(_state.player_data[key]) if isinstance(_state.player_data[key], list) else _state.player_data[key]
+    _state.player_data.update(_apply_combat_prayer_config_pure(_state.player_data, key, value))
     save_player_data()
     return True
 

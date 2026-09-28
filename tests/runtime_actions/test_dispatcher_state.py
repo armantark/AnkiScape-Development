@@ -352,6 +352,46 @@ class DispatcherStateTest(unittest.TestCase):
         target = str(self.state.player_data.get("current_combat_target", ""))
         self.assertEqual(self.saved[-1][0]["combat_target_presets"][target], "Default")
 
+    def test_prayer_settings_keep_target_overrides_and_quest_gates_in_the_save(self):
+        from ankiscape.core.storage_pure import default_player_data
+
+        self.state.player_data = default_player_data(self.addon.ORE_DATA, ITEM_DEFINITIONS)
+        self.state.current_skill = "Combat"
+        target = str(self.state.player_data.get("current_combat_target", ""))
+        set_prayer_config = self.addon._set_combat_prayer_config
+
+        self.assertTrue(set_prayer_config("target_override", ("combat_prayer_uptime", True)))
+        self.assertTrue(set_prayer_config("combat_prayer_uptime", "70"))
+        self.assertEqual(self.saved[-1][0]["combat_target_overrides"][target]["combat_prayer_uptime"], "70")
+        self.assertTrue(set_prayer_config("apply_preset", "Default"))
+        self.assertEqual(self.saved[-1][0]["combat_prayer_uptime"], "70")
+
+        self.assertTrue(set_prayer_config("combat_prayer_book", "curses"))
+        self.assertEqual(self.saved[-1][0]["combat_prayer_book"], "standard")
+        self.state.player_data["quests"] = {"the_temple_at_senntisten": {"completed": True}}
+        self.assertTrue(set_prayer_config("combat_prayer_book", "curses"))
+        self.assertEqual(self.saved[-1][0]["combat_prayer_book"], "curses")
+
+    def test_no_xp_review_combines_repeated_activity_results_into_one_popup(self):
+        popup_texts = []
+        self.addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": True}))
+        self.addon.mw.exp_popup = types.SimpleNamespace(show_text=popup_texts.append)
+        self.state.player_data = {"inventory": {}, "review_event_log": []}
+        self.state.current_skill = "Utilities"
+        reviews = (
+            (("+2 Soft clay", "+3 Soft clay"), "+5 Soft clay"),
+            (("Opened 1 bird nest", "Opened 2 bird nests"), "Opened 3 bird nests"),
+            (("+2 Soft clay", "Opened 1 bird nest"), "Opened 1 bird nest"),
+        )
+
+        for messages, _popup in reviews:
+            self.addon._begin_review_feedback_context()
+            for message in messages:
+                self.addon._show_activity_gain(message)
+            self.addon._finish_review_feedback_context()
+
+        self.assertEqual(popup_texts, [popup for _messages, popup in reviews])
+
     def test_near_death_confirmation_runs_after_the_review_and_saves_leaving(self):
         from enum import IntFlag
 
