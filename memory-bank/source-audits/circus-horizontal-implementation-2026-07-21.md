@@ -107,9 +107,12 @@ real native card after the fixes.
 ## Native Anki persistence finding
 
 The real Anki 25.09.4 pass found a legacy `ankiscape_player_data` config row
-stored as SQLite TEXT. Anki could read that row but failed when it tried to
-update or remove it through the current BLOB-only config API. The offscreen
-test doubles did not reproduce this database type boundary.
+stored as SQLite TEXT. Anki failed when it tried to update or remove that row
+through the current BLOB-only config API. The offscreen test doubles did not
+reproduce this database type boundary. Correction, 2026-09-26: Anki 25.09.4
+cannot read that row either; `get_config` returns its default for a TEXT row in
+the same session and after reopening, so the facade's readable TEXT primary is
+not real Anki behavior.
 
 `storage.py` now detects only Anki's `DBError` plus `InvalidColumnType`
 signature. It first writes a recovery BLOB, deletes the malformed canonical row

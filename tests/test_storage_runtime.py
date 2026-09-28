@@ -237,5 +237,120 @@ class StorageRuntimeTest(unittest.TestCase):
                     collection.close()
 
 
+@unittest.skipIf(Collection is None, "Anki runtime is not installed")
+class InterruptedLegacyRepairTest(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.path = str(Path(directory.name) / "collection.anki2")
+        self.collection = Collection(self.path)
+        self.addCleanup(lambda: self.collection.close())
+        self.collection.db.execute(
+            "INSERT OR REPLACE INTO config "
+            "(key, usn, mtime_secs, val) VALUES (?, ?, ?, ?)",
+            "ankiscape_player_data", 0, 0,
+            json.dumps({"config_version": 72, "mining_exp": 7}),
+        )
+        self.storage = _load_storage_module(self.collection)
+        self.player_data = {"config_version": 72, "mining_exp": 99}
+
+    def _reopen(self):
+        self.collection.close()
+        self.collection = Collection(self.path)
+        self.storage = _load_storage_module(self.collection)
+
+    def test_real_interrupted_before_delete_preserves_both_copies(self):
+        with patch.object(self.collection.db, "execute", side_effect=RuntimeError("interrupted")):
+            with self.assertRaisesRegex(RuntimeError, "interrupted"):
+                self.storage.save_player_data(self.player_data, "Mining")
+
+        self._reopen()
+        primary = self.collection.db.scalar(
+            "SELECT val FROM config WHERE key = ?", "ankiscape_player_data"
+        )
+        self.assertEqual(json.loads(primary)["mining_exp"], 7)
+        self.assertEqual(self.collection.get_config("ankiscape_player_data_recovery")["mining_exp"], 99)
+        loaded, skill = self.storage.load_player_data()
+        self.assertEqual(loaded["mining_exp"], 99)
+        self.storage.save_player_data(loaded, skill)
+        self._reopen()
+        self.assertEqual(self.storage.load_player_data()[0]["mining_exp"], 99)
+        self.assertIsNone(self.collection.get_config("ankiscape_player_data_recovery"))
+
+    def test_interrupted_after_delete_loads_recovery_copy(self):
+        execute = self.collection.db.execute
+
+        def delete_then_interrupt(*args):
+            execute(*args)
+            raise RuntimeError("interrupted")
+
+        with patch.object(self.collection.db, "execute", side_effect=delete_then_interrupt):
+            with self.assertRaisesRegex(RuntimeError, "interrupted"):
+                self.storage.save_player_data(self.player_data, "Mining")
+
+        self._reopen()
+        self.assertIsNone(self.collection.get_config("ankiscape_player_data"))
+        self.assertEqual(self.storage.load_player_data()[0]["mining_exp"], 99)
+
+    def test_later_save_preserves_newest_durable_copy_until_cleanup_succeeds(self):
+        with patch.object(self.collection, "remove_config", side_effect=RuntimeError("interrupted")):
+            with self.assertRaisesRegex(RuntimeError, "interrupted"):
+                self.storage.save_player_data(self.player_data, "Mining")
+            self.player_data["mining_exp"] = 100
+            with self.assertRaisesRegex(RuntimeError, "interrupted"):
+                self.storage.save_player_data(self.player_data, "Mining")
+
+        self._reopen()
+        self.assertEqual(self.storage.load_player_data()[0]["mining_exp"], 100)
+        self.player_data["mining_exp"] = 101
+        with patch.object(self.collection, "set_config", side_effect=RuntimeError("interrupted")):
+            with self.assertRaisesRegex(RuntimeError, "interrupted"):
+                self.storage.save_player_data(self.player_data, "Mining")
+
+        self._reopen()
+        loaded, skill = self.storage.load_player_data()
+        self.assertEqual(loaded["mining_exp"], 100)
+        self.storage.save_player_data(loaded, skill)
+        self._reopen()
+        self.assertEqual(self.storage.load_player_data()[0]["mining_exp"], 100)
+        self.assertIsNone(self.collection.get_config("ankiscape_player_data_recovery"))
+
+    def test_failed_recovery_write_preserves_existing_save(self):
+        set_config = self.collection.set_config
+
+        def fail_recovery(key, value):
+            if key == "ankiscape_player_data_recovery":
+                raise RuntimeError("recovery write failed")
+            return set_config(key, value)
+
+        with patch.object(self.collection, "set_config", side_effect=fail_recovery):
+            with self.assertRaisesRegex(RuntimeError, "recovery write failed"):
+                self.storage.save_player_data(self.player_data, "Mining")
+
+        self._reopen()
+        primary = self.collection.db.scalar(
+            "SELECT val FROM config WHERE key = ?", "ankiscape_player_data"
+        )
+        self.assertEqual(json.loads(primary)["mining_exp"], 7)
+        self.assertIsNone(self.collection.get_config("ankiscape_player_data_recovery"))
+
+    def test_existing_repaired_primary_is_newer_than_leftover_recovery(self):
+        self.collection.db.execute(
+            "DELETE FROM config WHERE key = ?", "ankiscape_player_data"
+        )
+        self.collection.set_config("ankiscape_player_data_recovery", self.player_data)
+        self.collection.set_config(
+            "ankiscape_player_data", {"config_version": 72, "mining_exp": 100}
+        )
+
+        self._reopen()
+        loaded, skill = self.storage.load_player_data()
+        self.assertEqual(loaded["mining_exp"], 100)
+        self.storage.save_player_data(loaded, skill)
+        self._reopen()
+        self.assertEqual(self.storage.load_player_data()[0]["mining_exp"], 100)
+        self.assertIsNone(self.collection.get_config("ankiscape_player_data_recovery"))
+
+
 if __name__ == "__main__":
     unittest.main()
