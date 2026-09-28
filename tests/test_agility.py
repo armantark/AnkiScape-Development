@@ -457,6 +457,64 @@ class TestAgilityPureEngine(unittest.TestCase):
         self.assertTrue(result["completed_lap"])
         self.assertEqual(player["agility_lap_counts"]["total"], 1)
 
+    def test_failed_barbarian_advanced_log_forfeits_only_that_lap_bonus(self):
+        player = {
+            "current_agility": "barbarian_advanced",
+            "agility_level": 90,
+            "quests": {"bar_crawl": {"completed": True}},
+        }
+        success_rolls = (0.99, 0.99, 0.99, 0.99)
+        player, result = apply_agility_review_pure(player, success_rolls)
+        self.assertEqual(result["action_id"], "rope_swing")
+        self.assertTrue(result["success"])
+        player, result = apply_agility_review_pure(player, (0.0, 0.99, 0.99, 0.99))
+        self.assertEqual(result["action_id"], "log_balance")
+        self.assertFalse(result["success"])
+        self.assertEqual(result["xp"], 0.0)
+        failed_state = player["agility_course_state"]
+        self.assertEqual(failed_state["stage"], 1)
+        self.assertFalse(failed_state["lap_xp_valid"])
+        stages = AGILITY_TARGETS_BY_ID["barbarian_advanced"].stages
+        for stage in stages[1:]:
+            player, result = apply_agility_review_pure(player, success_rolls)
+            self.assertEqual(result["action_id"], stage.id)
+            self.assertTrue(result["success"])
+        self.assertEqual(result["action_id"], "roof_slide")
+        self.assertEqual(result["xp"], 15.0)
+        self.assertTrue(result["completed_lap"])
+        self.assertEqual(player["agility_lap_counts"]["total"], 1)
+        self.assertEqual(player["agility_lap_counts"]["barbarian_advanced_flawless"], 0)
+        for stage in stages:
+            player, result = apply_agility_review_pure(player, success_rolls)
+            self.assertEqual(result["action_id"], stage.id)
+            self.assertTrue(result["success"])
+        self.assertEqual(result["xp"], 630.0)
+        self.assertEqual(player["agility_lap_counts"]["total"], 2)
+        self.assertEqual(player["agility_lap_counts"]["barbarian_advanced_flawless"], 1)
+
+    def test_other_course_failures_keep_lap_bonus(self):
+        cases = (("barbarian_normal", 1, 90), ("barbarian_advanced", 0, 90), ("gnome_advanced", 4, 85))
+        for target_id, failure_stage, level in cases:
+            with self.subTest(target=target_id, failure_stage=failure_stage):
+                player = {
+                    "current_agility": target_id,
+                    "agility_level": level,
+                    "quests": {"bar_crawl": {"completed": True}},
+                }
+                target = AGILITY_TARGETS_BY_ID[target_id]
+                success_rolls = (0.99, 0.99, 0.99, 0.99)
+                for _ in range(failure_stage):
+                    player, _ = apply_agility_review_pure(player, success_rolls)
+                player, result = apply_agility_review_pure(player, (0.0, 0.99, 0.99, 0.99))
+                self.assertFalse(result["success"])
+                self.assertTrue(player["agility_course_state"]["lap_xp_valid"])
+                for _ in target.stages[player["agility_course_state"]["stage"]:]:
+                    player, result = apply_agility_review_pure(player, success_rolls)
+                    self.assertTrue(result["success"])
+                self.assertTrue(result["completed_lap"])
+                self.assertAlmostEqual(result["xp"], target.stages[-1].xp + target.completion_bonus)
+                self.assertEqual(player["agility_lap_counts"]["flawless"], 0)
+
     def test_failure_setback_is_stateful_and_zero_xp(self):
         player = {
             **default_agility_state_pure(),

@@ -76,6 +76,14 @@ PIT_INVITATION_COURSE_IDS = frozenset(
         "dorgesh_kaan",
     }
 )
+# source-audits/agility-fail-consequences-2026-07-15.md:86-92: only this
+# failure forfeits the lap's completion bonus; obstacle XP still pays.
+_LAP_BONUS_FORFEIT_STAGES = frozenset({("barbarian_advanced", "log_balance")})
+_FAILURE_POSITION_UPDATES = {
+    "lower_floor": {"stage": 0, "checkpoint": "lower_floor"},
+    "checkpoint": {"stage": 0, "checkpoint": "start"},
+    "invalidate_item": {"requested_item_valid": False, "stage": 8},
+}
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0, maximum: int = 2_147_483_647) -> int:
@@ -529,7 +537,7 @@ def _standard_course_review(
         if stage.output_item and stage.output_qty > 0:
             result["outputs"][stage.output_item] = stage.output_qty
         if next_stage >= len(target.stages):
-            result["xp"] += target.completion_bonus
+            result["xp"] += target.completion_bonus if state["lap_xp_valid"] else 0.0
             result["completed_lap"] = True
             _finish_lap(data, target, state, reward_roll)
             state.update({"stage": 0, "checkpoint": "start", "flawless": True, "lap_xp_valid": True, "requested_item_valid": True})
@@ -543,21 +551,12 @@ def _standard_course_review(
             state["status"] = f"{stage.label} · success · {next_stage}/{len(target.stages)}"
     else:
         state["flawless"] = False
+        state["lap_xp_valid"] = state["lap_xp_valid"] and (target.id, stage.id) not in _LAP_BONUS_FORFEIT_STAGES
         result["failure_kind"] = stage.position_result
         result["damage"] = _failure_damage(stage, target.id, _int(data.get("combat_lifepoints"), 1000, minimum=1, maximum=10000))
-        if stage.position_result == "cross":
+        if stage.position_result in {"cross", "end_partial"}:
             state["stage"] = min(stage_index + 1, len(target.stages) - 1)
-        elif stage.position_result == "end_partial":
-            state["stage"] = min(stage_index + 1, len(target.stages) - 1)
-        elif stage.position_result == "lower_floor":
-            state["stage"] = 0
-            state["checkpoint"] = "lower_floor"
-        elif stage.position_result == "checkpoint":
-            state["stage"] = 0
-            state["checkpoint"] = "start"
-        elif stage.position_result == "invalidate_item":
-            state["requested_item_valid"] = False
-            state["stage"] = 8
+        state.update(_FAILURE_POSITION_UPDATES.get(stage.position_result, {}))
         state["status"] = f"{stage.label} · failed · {state['stage']}/{len(target.stages)}"
     data["agility_course_state"] = state
     data["agility_status"] = state["status"]
