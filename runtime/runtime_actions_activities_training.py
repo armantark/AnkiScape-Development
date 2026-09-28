@@ -783,6 +783,104 @@ def _resolve_agility_damage(
     return ""
 
 
+def _agility_entry_state(player_data: dict, target_id: str) -> _AgilityEntryState:
+    return _AgilityEntryState(
+        dict(sanitize_agility_state_pure(player_data)["agility_lap_counts"]),
+        bool(player_data.get("agility_pit_offer", False)),
+        str(player_data.get("agility_pit_origin_course", "") or ""),
+        str(player_data.get("current_agility", target_id) or target_id),
+        dict(player_data.get("equipment", {}) or {}),
+        dict(player_data.get("inventory", {}) or {}),
+        dict(player_data.get("agility_effect_charges", {}) or {}),
+    )
+
+
+def _bank_agility_outputs(player_data: dict, result: dict) -> dict:
+    outputs = {
+        str(item): int(quantity)
+        for item, quantity in (result.get("outputs") or {}).items()
+        if int(quantity) > 0
+    }
+    if outputs:
+        inventory = dict(player_data.get("inventory", {}) or {})
+        for item, quantity in outputs.items():
+            inventory[item] = int(inventory.get(item, 0) or 0) + quantity
+        player_data["inventory"] = inventory
+    return outputs
+
+
+def _award_agility_xp(ctx: RuntimeActionContext, result: dict) -> tuple[float, float]:
+    base_xp = float(result.get("xp", 0.0) or 0.0)
+    gained = 0.0
+    if base_xp > 0:
+        gained = ctx.award_skill_exp("agility_exp", base_xp)
+        ctx.level_up_check("Agility", ctx.player_data)
+    cross_rewards = tuple(
+        {"skill_id": str(skill_id), "amount": float(amount)}
+        for skill_id, amount in (result.get("cross_skill_rewards") or ())
+        if float(amount) > 0
+    )
+    if cross_rewards:
+        _award_action_xp_rewards(ctx, cross_rewards, str(cross_rewards[0]["skill_id"]))
+    return base_xp, gained
+
+
+def _record_agility_result(
+    ctx: RuntimeActionContext,
+    result: dict,
+    target_id: str,
+    outputs: dict,
+    base_xp: float,
+) -> None:
+    achievement_outputs = dict(outputs)
+    tickets = int(result.get("tickets", 0) or 0)
+    if tickets > 0:
+        achievement_outputs["Agility arena ticket"] = tickets
+    action_id = str(result.get("action_id", target_id))
+    record_direct_diary_event_pure(
+        ctx.player_data,
+        True,
+        "agility_result",
+        action_id=action_id,
+        target_id=str(result.get("target_id", target_id)),
+        completed_lap=bool(result.get("completed_lap")),
+    )
+    _record_action(
+        ctx,
+        "agility",
+        action_id,
+        bool(result.get("success")),
+        expected_success_chance=result.get("expected_success_chance"),
+        output_items=outputs,
+        achievement_output_items=achievement_outputs,
+        failure_kind=result.get("failure_kind"),
+        primary_xp=base_xp,
+    )
+
+
+def _show_agility_feedback(
+    ctx: RuntimeActionContext,
+    result: dict,
+    gained: float,
+    safety_stop_message: str,
+) -> None:
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", ctx.player_data.get("agility_status", "Agility action complete"))))
+    damage_result = result.get("damage_result") or {}
+    if damage_result.get("died"):
+        cause = "Wilderness PKer ambush" if (result.get("wilderness_ambush") or {}).get("triggered") else "Agility failure"
+        ctx.show_activity_gain(
+            f"☠ YOU DIED — {cause}; carried pack and gear moved to grave. "
+            "Training stopped — click the Gravestone banner to walk back."
+        )
+    elif damage_result.get("food_used"):
+        food = damage_result["food_used"]
+        ctx.show_activity_gain(f"Auto-ate {food['item']} (+{food['healed_by']} LP)")
+    if safety_stop_message:
+        ctx.show_activity_gain(safety_stop_message)
+
+
 def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
@@ -800,15 +898,7 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    before = _AgilityEntryState(
-        dict(sanitize_agility_state_pure(player_data)["agility_lap_counts"]),
-        bool(player_data.get("agility_pit_offer", False)),
-        str(player_data.get("agility_pit_origin_course", "") or ""),
-        str(player_data.get("current_agility", target_id) or target_id),
-        dict(player_data.get("equipment", {}) or {}),
-        dict(player_data.get("inventory", {}) or {}),
-        dict(player_data.get("agility_effect_charges", {}) or {}),
-    )
+    before = _agility_entry_state(player_data, target_id)
     updated, result = apply_agility_review_pure(
         player_data,
         tuple(ctx.random_random() for _ in range(4)),
@@ -819,70 +909,13 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     player_data.update(updated)
 
     safety_stop_message = _resolve_agility_damage(ctx, result, target_id, before)
-
-    outputs = {
-        str(item): int(quantity)
-        for item, quantity in (result.get("outputs") or {}).items()
-        if int(quantity) > 0
-    }
-    if outputs:
-        inventory = dict(player_data.get("inventory", {}) or {})
-        for item, quantity in outputs.items():
-            inventory[item] = int(inventory.get(item, 0) or 0) + quantity
-        player_data["inventory"] = inventory
-
-    base_xp = float(result.get("xp", 0.0) or 0.0)
-    gained = ctx.award_skill_exp("agility_exp", base_xp) if base_xp > 0 else 0.0
-    if base_xp > 0:
-        ctx.level_up_check("Agility", player_data)
-    cross_rewards = tuple(
-        {"skill_id": str(skill_id), "amount": float(amount)}
-        for skill_id, amount in (result.get("cross_skill_rewards") or ())
-        if float(amount) > 0
-    )
-    if cross_rewards:
-        _award_action_xp_rewards(ctx, cross_rewards, str(cross_rewards[0]["skill_id"]))
-    achievement_outputs = dict(outputs)
-    tickets = int(result.get("tickets", 0) or 0)
-    if tickets > 0:
-        achievement_outputs["Agility arena ticket"] = tickets
-    record_direct_diary_event_pure(
-        player_data,
-        True,
-        "agility_result",
-        action_id=str(result.get("action_id", target_id)),
-        target_id=str(result.get("target_id", target_id)),
-        completed_lap=bool(result.get("completed_lap")),
-    )
-    _record_action(
-        ctx,
-        "agility",
-        str(result.get("action_id", target_id)),
-        bool(result.get("success")),
-        expected_success_chance=result.get("expected_success_chance"),
-        output_items=outputs,
-        achievement_output_items=achievement_outputs,
-        failure_kind=result.get("failure_kind"),
-        primary_xp=base_xp,
-    )
+    outputs = _bank_agility_outputs(player_data, result)
+    base_xp, gained = _award_agility_xp(ctx, result)
+    _record_agility_result(ctx, result, target_id, outputs, base_xp)
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
-    if gained > 0:
-        ctx.show_exp(gained)
-    ctx.show_activity_gain(str(result.get("status", player_data.get("agility_status", "Agility action complete"))))
-    damage_result = result.get("damage_result") or {}
-    if damage_result.get("died"):
-        cause = "Wilderness PKer ambush" if (result.get("wilderness_ambush") or {}).get("triggered") else "Agility failure"
-        ctx.show_activity_gain(
-            f"☠ YOU DIED — {cause}; carried pack and gear moved to grave. "
-            "Training stopped — click the Gravestone banner to walk back."
-        )
-    elif damage_result.get("food_used"):
-        food = damage_result["food_used"]
-        ctx.show_activity_gain(f"Auto-ate {food['item']} (+{food['healed_by']} LP)")
-    if safety_stop_message:
-        ctx.show_activity_gain(safety_stop_message)
+    _show_agility_feedback(ctx, result, gained, safety_stop_message)
     return True
 
 
