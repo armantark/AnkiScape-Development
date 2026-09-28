@@ -1,18 +1,23 @@
 """The enemy's side of a combat burst tick: how it regenerates, whether a
-dragon breathes fire, what a special the player is not protected from costs,
-how prayers cut the hit, what a vampyre bite takes back, and when Redemption
-saves the player. The attack selection and the ordinary hit roll stay in the
-engine because tests patch them there; Vengeance stays with the burst's Magic
-code."""
+dragon breathes fire, what a breath or a special the player is not protected
+from costs, how prayers cut the hit, what Deflect and a vampyre bite do to the
+enemy afterwards, and when Redemption saves the player. The attack selection
+and the ordinary hit roll stay in the engine because tests patch them there;
+Vengeance stays with the burst's Magic code."""
 
 from typing import Mapping
 
 from .logic_pure_combat_model import (
     _combat_apply_unprotected_stat_drains,
+    _combat_cap_damage_for_finisher,
     _combat_enemy_protection_class,
     _combat_unprotected_damage_lifepoints,
 )
-from .logic_pure_combat_specials import _combat_enemy_prayer_drain
+from .logic_pure_combat_specials import (
+    _combat_dragonfire_damage_lifepoints,
+    _combat_enemy_prayer_drain,
+    _combat_wyvern_breath_damage_event,
+)
 from .logic_pure_combat_supplies import (
     _combat_advance_dragonfire_effects,
     _combat_consume_dragonfire_if_needed,
@@ -98,6 +103,44 @@ def _combat_unprotected_special_damage(
     return damage, bool(attack_drains)
 
 
+def _combat_enemy_special_damage(
+    data, enemy, attack_kind, dragonfire_attack, protective_equipment, protection_active,
+    unprotected_effect, prayer_effects, tick_prayer_uptime, max_player_lp, rng,
+    enemy_counts, enemy_specials, stat_drains,
+):
+    """Damage from an enemy attack that is not an ordinary hit: a wyvern's
+    breath, dragonfire, or a special the player's missing protective equipment
+    lets through. Returns the damage (None for an ordinary hit), whether the
+    attack ignores protection prayers, the ticks it delays the player's next
+    attack, and whether it drained one of the player's stats."""
+    breath_spec = enemy.get("wyvern_breath")
+    if attack_kind == "wyvern_breath" and isinstance(breath_spec, Mapping):
+        damage, breath_event = _combat_wyvern_breath_damage_event(
+            data, breath_spec, protective_equipment, protection_active, max_player_lp, rng,
+        )
+        if not protection_active:
+            enemy_counts["unprotected_attacks"] += 1
+        enemy_specials.append(breath_event)
+        return damage, True, breath_event["delay_ticks"], False
+    if dragonfire_attack:
+        enemy_counts["dragonfire_attacks"] += 1
+        magic_protected = (
+            tick_prayer_uptime > 0 and float(prayer_effects.get("protect_magic", 0.0)) > 0.0
+        )
+        damage = _combat_dragonfire_damage_lifepoints(data, enemy, magic_protected, rng)
+        return damage, True, 0, False
+    if isinstance(unprotected_effect, Mapping) and not bool(
+        unprotected_effect.get("additive_to_attack")
+    ):
+        damage, attack_drained = _combat_unprotected_special_damage(
+            data, unprotected_effect, prayer_effects,
+            tick_prayer_uptime, max_player_lp, rng, stat_drains,
+        )
+        enemy_counts["unprotected_attacks"] += 1
+        return damage, False, 0, attack_drained
+    return None, False, 0, False
+
+
 def _combat_enemy_damage_after_prayers(
     data,
     enemy,
@@ -146,6 +189,31 @@ def _combat_enemy_damage_after_prayers(
         )
         enemy_counts["unprotected_attacks"] += 1
     return min(player_lp, damage), prayer_points
+
+
+def _combat_rebound_enemy_hit(
+    data, enemy, finisher, raw_damage, damage, prayer_effects, prayer_scale,
+    enemy_lp, enemy_max_lp, rng, enemy_counts, stat_drains,
+):
+    """What the enemy's landed hit does to the enemy: Deflect reflects its share
+    of the raw hit, capped for the finisher, then a vampyre still standing rolls
+    its bite. Returns the enemy's lifepoints, the damage reflected, and whether
+    a loaded finisher was spent."""
+    reflected, automatic_finisher = _combat_cap_damage_for_finisher(
+        data,
+        finisher,
+        enemy_lp,
+        int(raw_damage * float(prayer_effects.get("deflect", 0.0)) * prayer_scale),
+    )
+    # The finisher cap never returns a negative amount, so a miss reflects 0.
+    enemy_lp -= reflected
+    bite_spec = enemy.get("bite")
+    if isinstance(bite_spec, Mapping) and enemy_lp > 0:
+        enemy_lp = _combat_apply_vampyre_bite(
+            data, bite_spec, damage, enemy_lp, enemy_max_lp, rng,
+            enemy_counts, stat_drains,
+        )
+    return enemy_lp, reflected, automatic_finisher
 
 
 def _combat_apply_vampyre_bite(

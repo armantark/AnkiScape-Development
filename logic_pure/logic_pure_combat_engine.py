@@ -476,11 +476,7 @@ from .logic_pure_state import (
 )
 
 
-from .logic_pure_combat_specials import (
-    _combat_dragonfire_damage_lifepoints,
-    _combat_enemy_poison_application,
-    _combat_wyvern_breath_damage_event,
-)
+from .logic_pure_combat_specials import _combat_enemy_poison_application
 from .logic_pure_combat_hud import (
     _combat_hud_enemy_bar,
     _combat_hud_last_fight,
@@ -506,12 +502,12 @@ from .logic_pure_combat_live import (
 )
 from .logic_pure_combat_enemy_turn import (
     _combat_apply_redemption,
-    _combat_apply_vampyre_bite,
     _combat_enemy_breathes_dragonfire,
     _combat_enemy_damage_after_prayers,
     _combat_enemy_regeneration,
+    _combat_enemy_special_damage,
+    _combat_rebound_enemy_hit,
     _combat_regenerate_enemy,
-    _combat_unprotected_special_damage,
 )
 from .logic_pure_combat_player_turn import (
     _combat_land_player_hit,
@@ -1424,7 +1420,6 @@ def apply_combat_burst_pure(
     }
     melee_recoil_damage = 0
     dragonfire_effect_tick = 0
-    bite_spec = enemy.get("bite") if isinstance(enemy.get("bite"), Mapping) else None
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
     clue_refusal_reason = ""
@@ -1625,51 +1620,20 @@ def apply_combat_burst_pure(
                 data, enemy, tick - dragonfire_effect_tick, rng, potions_used
             )
             dragonfire_effect_tick = tick
-            wyvern_breath_spec = (
-                enemy.get("wyvern_breath")
-                if attack_kind == "wyvern_breath"
-                and isinstance(enemy.get("wyvern_breath"), Mapping)
-                else None
+            damage, ignores_protection, player_delay, attack_drained = _combat_enemy_special_damage(
+                data, enemy, attack_kind, dragonfire_attack, protective_equipment,
+                protection_active, unprotected_effect, prayer_effects,
+                tick_prayer_uptime, max_player_lp, rng, enemy_counts,
+                enemy_specials, stat_drains,
             )
-            if wyvern_breath_spec is not None:
-                damage, breath_event = _combat_wyvern_breath_damage_event(
-                    data, wyvern_breath_spec, protective_equipment,
-                    protection_active, max_player_lp, rng,
+            next_player_attack += player_delay
+            if attack_drained:
+                player_attack_roll, player_max_hit = _combat_player_attack_rolls(
+                    data, combat_class, style_id, melee_style_type, player_totals,
+                    prayer_effects, selected_ammo, spell_spec, spell_id,
                 )
-                if not protection_active:
-                    enemy_counts["unprotected_attacks"] += 1
-                next_player_attack += breath_event["delay_ticks"]
-                enemy_specials.append(breath_event)
-            elif dragonfire_attack:
-                enemy_counts["dragonfire_attacks"] += 1
-                damage = _combat_dragonfire_damage_lifepoints(
-                    data,
-                    enemy,
-                    bool(
-                        tick_prayer_uptime > 0
-                        and float(
-                            prayer_effects.get("protect_magic", 0.0)
-                        )
-                        > 0.0
-                    ),
-                    rng,
-                )
-            elif (
-                isinstance(unprotected_effect, Mapping)
-                and not bool(unprotected_effect.get("additive_to_attack"))
-            ):
-                damage, attack_drained = _combat_unprotected_special_damage(
-                    data, unprotected_effect, prayer_effects,
-                    tick_prayer_uptime, max_player_lp, rng, stat_drains,
-                )
-                enemy_counts["unprotected_attacks"] += 1
-                if attack_drained:
-                    player_attack_roll, player_max_hit = _combat_player_attack_rolls(
-                        data, combat_class, style_id, melee_style_type, player_totals,
-                        prayer_effects, selected_ammo, spell_spec, spell_id,
-                    )
-                    player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
-            else:
+                player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
+            if damage is None:
                 live_enemy_accuracy = (
                     _combat_live_enemy_accuracy(
                         enemy_attack_roll, player_defence_roll,
@@ -1689,8 +1653,7 @@ def apply_combat_burst_pure(
             )
             damage, prayer_points_after = _combat_enemy_damage_after_prayers(
                 data, enemy, attack_enemy, combat_class, raw_enemy_damage,
-                dragonfire_attack or wyvern_breath_spec is not None,
-                unprotected_effect, prayer_effects, prayer_scale, player_lp,
+                ignores_protection, unprotected_effect, prayer_effects, prayer_scale, player_lp,
                 max_player_lp, prayer_points_after, rng, enemy_counts,
             )
             if dragonfire_attack:
@@ -1714,26 +1677,13 @@ def apply_combat_burst_pure(
                         enemy_lp -= reflected_vengeance
                         player_damage += reflected_vengeance
                     vengeance_pending = False
-                reflected, automatic_finisher = _combat_cap_damage_for_finisher(
-                    data,
-                    finisher,
-                    enemy_lp,
-                    int(
-                        raw_enemy_damage
-                        * float(prayer_effects.get("deflect", 0.0))
-                        * prayer_scale
-                    ),
+                enemy_lp, reflected, automatic_finisher = _combat_rebound_enemy_hit(
+                    data, enemy, finisher, raw_enemy_damage, damage,
+                    prayer_effects, prayer_scale, enemy_lp, enemy_max_lp, rng,
+                    enemy_counts, stat_drains,
                 )
-                if automatic_finisher:
-                    automatic_finishers += 1
-                if reflected > 0:
-                    enemy_lp -= reflected
-                    player_damage += reflected
-                if isinstance(bite_spec, Mapping) and enemy_lp > 0:
-                    enemy_lp = _combat_apply_vampyre_bite(
-                        data, bite_spec, damage, enemy_lp, enemy_max_lp, rng,
-                        enemy_counts, stat_drains,
-                    )
+                automatic_finishers += automatic_finisher
+                player_damage += reflected
             player_lp, prayer_points_after, prayer_counter = _combat_apply_redemption(
                 data, player_lp, max_player_lp, prayer_effects,
                 tick_prayer_uptime, prayer_points_after, prayer_counter,
