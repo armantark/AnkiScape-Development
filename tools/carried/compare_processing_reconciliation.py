@@ -130,7 +130,7 @@ def run_fixture(module, config):
         "_admit_live_cadence": admission,
         "_processing_requirements_for": lambda *_args: requirements,
         "_processing_presence_requirements_for": lambda *_args: presence,
-        "_skilling_potion_requirement_for": lambda *_args, **_kw: consumables,
+        "_processing_consumable_requirements_for": lambda *_args, **_kw: consumables,
         "skilling_potion_items_for_skill": lambda _skill: ("Potion", "Hidden potion", "Absent potion"),
         "FLETCHING_DATA": {"probe": {"material_options": {"Input": ["Input", "Alt", "Absent alt"]}}},
     }
