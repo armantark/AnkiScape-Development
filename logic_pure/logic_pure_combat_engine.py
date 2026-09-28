@@ -389,7 +389,6 @@ from .logic_pure_combat_model import (
     _combat_apply_magic_xp,
     _combat_apply_pvm_death,
     _combat_apply_triple_charm_reward,
-    _combat_apply_unprotected_stat_drains,
     _combat_apply_wilderness_ambush,
     _combat_apply_xp,
     _combat_attack_bonus_from_totals,
@@ -427,7 +426,6 @@ from .logic_pure_combat_model import (
     _combat_selected_magic_spell,
     _combat_selected_ranged_ammo,
     _combat_start_equipment_state,
-    _combat_unprotected_damage_lifepoints,
     _combat_weakening_equipment_state,
     _combat_weapon_is_magic,
     _combat_weapon_is_ranged,
@@ -487,7 +485,6 @@ from .logic_pure_state import (
 from .logic_pure_combat_specials import (
     _combat_dragonfire_damage_lifepoints,
     _combat_enemy_poison_application,
-    _combat_enemy_prayer_drain,
     _combat_wyvern_breath_damage_event,
 )
 from .logic_pure_combat_hud import (
@@ -500,6 +497,17 @@ from .logic_pure_combat_risk import _combat_preview_with_risk
 from .logic_pure_combat_outcome import (
     _combat_advance_status_tick,
     _combat_settle_burst_outcome,
+)
+from .logic_pure_combat_live import (
+    _combat_live_enemy_accuracy,
+    _combat_live_player_rolls,
+)
+from .logic_pure_combat_enemy_turn import (
+    _combat_apply_redemption,
+    _combat_apply_vampyre_bite,
+    _combat_enemy_breathes_dragonfire,
+    _combat_enemy_damage_after_prayers,
+    _combat_unprotected_special_damage,
 )
 
 
@@ -1027,46 +1035,6 @@ def _combat_apply_enemy_unequip_special(data, target_id):
     return data, {"kind": "unequip", "item": removed_item, "slot": removed_slot}
 
 
-def _combat_apply_vampyre_bite(data, bite_spec, damage, enemy_lp, enemy_max_lp, rng):
-    bite_numerator = _positive_int(bite_spec.get("chance_numerator", 1), 1)
-    bite_denominator = _positive_int(bite_spec.get("chance_denominator", 1), 1)
-    try:
-        bite_triggered = float(rng()) < bite_numerator / bite_denominator
-    except (TypeError, ValueError):
-        bite_triggered = False
-    if not bite_triggered:
-        return False, {}, 0
-    bite_skills = tuple(
-        skill_id
-        for skill_id in (bite_spec.get("stat_drain_skills", ()) or ())
-        if isinstance(skill_id, str)
-    )
-    bite_drains = {}
-    if bite_skills:
-        try:
-            skill_roll = max(0.0, min(float(rng()), 0.999999999999))
-        except (TypeError, ValueError):
-            skill_roll = 0.0
-        drained_skill = bite_skills[int(skill_roll * len(bite_skills))]
-        bite_drains = _combat_apply_unprotected_stat_drains(
-            data,
-            {
-                "stat_drain": {
-                    "kind": "flat_to_floor",
-                    "amount": _positive_int(bite_spec.get("stat_drain_amount", 1), 1),
-                    "floor": _positive_int(bite_spec.get("stat_drain_floor", 1), 1),
-                    "skills": (drained_skill,),
-                },
-            },
-        )
-    bite_healing = min(
-        max(0, damage),
-        _positive_int(bite_spec.get("max_heal", 1), 1),
-        max(0, enemy_max_lp - enemy_lp),
-    )
-    return True, bite_drains, bite_healing
-
-
 def apply_combat_burst_pure(
     player_data,
     enemy_data=None,
@@ -1499,28 +1467,6 @@ def apply_combat_burst_pure(
         else 0
     )
 
-    def _live_curse_adjustments(tick_uptime):
-        enemy_drain = 0.0
-        self_boost = 0.0
-        if any(prayer_id.startswith("sap_") for prayer_id in selected_prayers):
-            enemy_drain = max(
-                enemy_drain,
-                curse_expected_ramp_pure(curse_attack_count, "sap")["enemy_drain"],
-            )
-        if any(prayer_id.startswith("leech_") for prayer_id in selected_prayers):
-            ramp = curse_expected_ramp_pure(curse_attack_count, "leech")
-            enemy_drain = max(enemy_drain, ramp["enemy_drain"])
-            self_boost = max(self_boost, ramp["self_boost"])
-        return enemy_drain * tick_uptime, self_boost * tick_uptime
-
-    def _live_prayer_factor(effect_key, tick_uptime):
-        fallback_key = "ranged" if effect_key.startswith("ranged_") else effect_key
-        full = float(prayer_effects.get(effect_key, prayer_effects.get(fallback_key, 1.0)))
-        if prayer_uptime <= 0:
-            return 1.0
-        ratio = max(0.0, min(float(tick_uptime) / prayer_uptime, 1.0))
-        return 1.0 + (full - 1.0) * ratio
-
     player_damage = 0
     player_hits_landed = 0
     enemy_damage = 0
@@ -1535,17 +1481,19 @@ def apply_combat_burst_pure(
     status_damage = {}
     status_applied = {}
     status_expired = []
-    unprotected_attacks = 0
     stat_drains = {}
     enemy_specials = []
     automatic_finishers = 0
-    enemy_healing = 0
-    vampyre_bites = 0
-    vampyre_bite_healing = 0
-    dragonfire_attacks = 0
-    dragonfire_damage = 0
+    enemy_counts = {
+        "enemy_healing": 0,
+        "vampyre_bites": 0,
+        "vampyre_bite_healing": 0,
+        "dragonfire_attacks": 0,
+        "dragonfire_damage": 0,
+        "enemy_prayer_drain": 0,
+        "unprotected_attacks": 0,
+    }
     melee_recoil_damage = 0
-    enemy_prayer_drain = 0
     dragonfire_effect_tick = 0
     bite_spec = enemy.get("bite") if isinstance(enemy.get("bite"), Mapping) else None
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
@@ -1575,7 +1523,7 @@ def apply_combat_burst_pure(
                 )
                 if healing > 0:
                     enemy_lp += healing
-                    enemy_healing += healing
+                    enemy_counts["enemy_healing"] += healing
                     enemy_regen_residual -= healing * enemy_regen_denominator
             else:
                 enemy_regen_residual = 0
@@ -1637,71 +1585,16 @@ def apply_combat_burst_pure(
                         break
                     data["combat_borrowed_power_spell"] = ""
             landed = False
-            live_enemy_drain, live_self_boost = (
-                _live_curse_adjustments(tick_prayer_uptime)
+            live_player_accuracy, live_player_max_hit = (
+                _combat_live_player_rolls(
+                    combat_class, player_attack_roll, player_max_hit,
+                    enemy_defence_roll, enemy_defence_factor,
+                    spell_enemy_defence_factor, prayer_effects, prayer_uptime,
+                    tick_prayer_uptime, selected_prayers, curse_attack_count,
+                )
                 if live_cadence
-                else (0.0, 0.0)
+                else (player_accuracy, player_max_hit)
             )
-            live_player_accuracy = player_accuracy
-            live_player_max_hit = player_max_hit
-            if live_cadence:
-                attack_effect_key = {
-                    "ranged": "ranged_attack",
-                    "magic": "magic",
-                }.get(combat_class, "attack")
-                strength_effect_key = {
-                    "ranged": "ranged_strength",
-                    "magic": "magic",
-                }.get(combat_class, "strength")
-                full_attack_factor = max(
-                    0.000001,
-                    float(
-                        prayer_effects.get(
-                            attack_effect_key,
-                            prayer_effects.get(
-                                "ranged" if combat_class == "ranged" else attack_effect_key,
-                                1.0,
-                            ),
-                        )
-                    ),
-                )
-                full_strength_factor = max(
-                    0.000001,
-                    float(
-                        prayer_effects.get(
-                            strength_effect_key,
-                            prayer_effects.get(
-                                "ranged" if combat_class == "ranged" else strength_effect_key,
-                                1.0,
-                            ),
-                        )
-                    ),
-                )
-                current_attack_factor = _live_prayer_factor(
-                    attack_effect_key, tick_prayer_uptime
-                )
-                current_strength_factor = _live_prayer_factor(
-                    strength_effect_key, tick_prayer_uptime
-                )
-                current_enemy_defence_factor = max(
-                    0.01,
-                    spell_enemy_defence_factor * (1.0 - live_enemy_drain),
-                )
-                live_player_accuracy = _combat_accuracy(
-                    player_attack_roll / full_attack_factor * current_attack_factor,
-                    enemy_defence_roll
-                    / max(enemy_defence_factor, 0.000001)
-                    * current_enemy_defence_factor,
-                )
-                live_player_max_hit = max(
-                    0,
-                    int(
-                        player_max_hit
-                        / full_strength_factor
-                        * current_strength_factor
-                        * (1.0 + live_self_boost)
-                    ),
-                )
             try:
                 landed = float(rng()) < live_player_accuracy
             except (TypeError, ValueError):
@@ -1841,33 +1734,10 @@ def apply_combat_burst_pure(
                     weakening_active,
                 )
             )
-            _combat_advance_dragonfire_effects(
-                data, tick - dragonfire_effect_tick
+            dragonfire_attack = _combat_enemy_breathes_dragonfire(
+                data, enemy, tick - dragonfire_effect_tick, rng, potions_used
             )
             dragonfire_effect_tick = tick
-            dragonfire_potion_event = _combat_consume_dragonfire_if_needed(
-                data, enemy
-            )
-            if dragonfire_potion_event:
-                potions_used.append(dragonfire_potion_event)
-            dragonfire_spec = (
-                enemy.get("dragonfire")
-                if isinstance(enemy.get("dragonfire"), Mapping)
-                else None
-            )
-            dragonfire_attack = False
-            if dragonfire_spec is not None:
-                try:
-                    dragonfire_attack = float(rng()) < (
-                        _positive_int(
-                            dragonfire_spec.get("chance_numerator", 1), 1
-                        )
-                        / _positive_int(
-                            dragonfire_spec.get("chance_denominator", 1), 1
-                        )
-                    )
-                except (TypeError, ValueError):
-                    dragonfire_attack = False
             wyvern_breath_spec = (
                 enemy.get("wyvern_breath")
                 if attack_kind == "wyvern_breath"
@@ -1880,11 +1750,11 @@ def apply_combat_burst_pure(
                     protection_active, max_player_lp, rng,
                 )
                 if not protection_active:
-                    unprotected_attacks += 1
+                    enemy_counts["unprotected_attacks"] += 1
                 next_player_attack += breath_event["delay_ticks"]
                 enemy_specials.append(breath_event)
             elif dragonfire_attack:
-                dragonfire_attacks += 1
+                enemy_counts["dragonfire_attacks"] += 1
                 damage = _combat_dragonfire_damage_lifepoints(
                     data,
                     enemy,
@@ -1901,26 +1771,12 @@ def apply_combat_burst_pure(
                 isinstance(unprotected_effect, Mapping)
                 and not bool(unprotected_effect.get("additive_to_attack"))
             ):
-                damage = _combat_unprotected_damage_lifepoints(unprotected_effect, max_player_lp)
-                unprotected_attacks += 1
-                stat_drain_prayer = unprotected_effect.get(
-                    "stat_drain_protection_prayer"
+                damage, attack_drained = _combat_unprotected_special_damage(
+                    data, unprotected_effect, prayer_effects,
+                    tick_prayer_uptime, max_player_lp, rng, stat_drains,
                 )
-                stat_drain_blocked = (
-                    isinstance(stat_drain_prayer, str)
-                    and tick_prayer_uptime > 0
-                    and float(prayer_effects.get(stat_drain_prayer, 0.0)) > 0.0
-                )
-                attack_drains = (
-                    {}
-                    if stat_drain_blocked
-                    else _combat_apply_unprotected_stat_drains(
-                        data, unprotected_effect, rng
-                    )
-                )
-                for skill_id, amount in attack_drains.items():
-                    stat_drains[skill_id] = _non_negative_int(stat_drains.get(skill_id, 0), 0) + amount
-                if attack_drains:
+                enemy_counts["unprotected_attacks"] += 1
+                if attack_drained:
                     player_attack_roll, player_max_hit = _combat_player_attack_rolls(
                         data, combat_class, style_id, melee_style_type, player_totals,
                         prayer_effects, selected_ammo, spell_spec, spell_id,
@@ -1928,85 +1784,35 @@ def apply_combat_burst_pure(
                     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
             else:
                 landed = False
-                live_enemy_accuracy = enemy_accuracy
-                if live_cadence:
-                    live_enemy_drain, _live_self_boost = (
-                        _live_curse_adjustments(tick_prayer_uptime)
+                live_enemy_accuracy = (
+                    _combat_live_enemy_accuracy(
+                        enemy_attack_roll, player_defence_roll,
+                        enemy_attack_factor, spell_enemy_attack_factor,
+                        prayer_effects, prayer_uptime, tick_prayer_uptime,
+                        selected_prayers, curse_attack_count,
                     )
-                    full_defence_factor = max(
-                        0.000001, float(prayer_effects.get("defence", 1.0))
-                    )
-                    current_defence_factor = _live_prayer_factor(
-                        "defence", tick_prayer_uptime
-                    )
-                    current_enemy_attack_factor = max(
-                        0.01,
-                        spell_enemy_attack_factor * (1.0 - live_enemy_drain),
-                    )
-                    live_enemy_accuracy = _combat_accuracy(
-                        enemy_attack_roll
-                        / max(enemy_attack_factor, 0.000001)
-                        * current_enemy_attack_factor,
-                        player_defence_roll
-                        / full_defence_factor
-                        * current_defence_factor,
-                    )
+                    if live_cadence
+                    else enemy_accuracy
+                )
                 try:
                     landed = float(rng()) < live_enemy_accuracy
                 except (TypeError, ValueError):
                     landed = False
                 damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
             raw_enemy_damage = damage
-            prayer_drain = _combat_enemy_prayer_drain(
-                enemy, raw_enemy_damage, prayer_points_after
+            prayer_scale = (
+                tick_prayer_uptime / prayer_uptime
+                if live_cadence and prayer_uptime > 0
+                else 1.0
             )
-            if prayer_drain is not None:
-                prayer_points_after -= prayer_drain
-                enemy_prayer_drain += prayer_drain
-                data["combat_prayer_points"] = prayer_points_after
-            if (
-                not dragonfire_attack
-                and wyvern_breath_spec is None
-                and (
-                    not isinstance(unprotected_effect, Mapping)
-                    or bool(
-                        unprotected_effect.get(
-                            "protection_prayer_applies"
-                        )
-                    )
-                )
-            ):
-                protection_class = _combat_enemy_protection_class(
-                    attack_enemy, combat_class
-                )
-                protection_key = {
-                    "magic": "protect_magic",
-                    "ranged": "protect_ranged",
-                }.get(protection_class, "protect_melee")
-                protection_scale = (
-                    tick_prayer_uptime / prayer_uptime
-                    if live_cadence and prayer_uptime > 0
-                    else 1.0
-                )
-                damage = int(
-                    damage
-                    * (
-                        1.0
-                        - float(prayer_effects.get(protection_key, 0.0))
-                        * protection_scale
-                    )
-                )
-            if (
-                isinstance(unprotected_effect, Mapping)
-                and bool(unprotected_effect.get("additive_to_attack"))
-            ):
-                damage += _combat_unprotected_damage_lifepoints(
-                    unprotected_effect, max_player_lp, rng
-                )
-                unprotected_attacks += 1
-            damage = min(player_lp, damage)
+            damage, prayer_points_after = _combat_enemy_damage_after_prayers(
+                data, enemy, attack_enemy, combat_class, raw_enemy_damage,
+                dragonfire_attack or wyvern_breath_spec is not None,
+                unprotected_effect, prayer_effects, prayer_scale, player_lp,
+                max_player_lp, prayer_points_after, rng, enemy_counts,
+            )
             if dragonfire_attack:
-                dragonfire_damage += damage
+                enemy_counts["dragonfire_damage"] += damage
             if damage > 0:
                 player_lp -= damage
                 enemy_damage += damage
@@ -2026,11 +1832,6 @@ def apply_combat_burst_pure(
                         enemy_lp -= reflected_vengeance
                         player_damage += reflected_vengeance
                     vengeance_pending = False
-                deflect_scale = (
-                    tick_prayer_uptime / prayer_uptime
-                    if live_cadence and prayer_uptime > 0
-                    else 1.0
-                )
                 reflected, automatic_finisher = _combat_cap_damage_for_finisher(
                     data,
                     finisher,
@@ -2038,7 +1839,7 @@ def apply_combat_burst_pure(
                     int(
                         raw_enemy_damage
                         * float(prayer_effects.get("deflect", 0.0))
-                        * deflect_scale
+                        * prayer_scale
                     ),
                 )
                 if automatic_finisher:
@@ -2047,40 +1848,14 @@ def apply_combat_burst_pure(
                     enemy_lp -= reflected
                     player_damage += reflected
                 if isinstance(bite_spec, Mapping) and enemy_lp > 0:
-                    bite_triggered, bite_drains, bite_healing = _combat_apply_vampyre_bite(
-                        data, bite_spec, damage, enemy_lp, enemy_max_lp, rng
+                    enemy_lp = _combat_apply_vampyre_bite(
+                        data, bite_spec, damage, enemy_lp, enemy_max_lp, rng,
+                        enemy_counts, stat_drains,
                     )
-                    if bite_triggered:
-                        vampyre_bites += 1
-                        for skill_id, amount in bite_drains.items():
-                            stat_drains[skill_id] = (
-                                _non_negative_int(stat_drains.get(skill_id, 0), 0) + amount
-                            )
-                        if bite_healing > 0:
-                            enemy_lp += bite_healing
-                            enemy_healing += bite_healing
-                            vampyre_bite_healing += bite_healing
-            if (
-                0 < player_lp < max_player_lp * .10
-                and tick_prayer_uptime > 0
-                and float(prayer_effects.get("redemption", 0.0)) > 0
-            ):
-                # RuneScape Wiki Redemption oldid=6292830: heal 250% of Prayer
-                # level below 10% LP, then consume every remaining prayer point.
-                player_lp = min(
-                    max_player_lp,
-                    player_lp
-                    + int(
-                        _positive_int(data.get("prayer_level", 1), 1)
-                        * 2.5
-                        * tick_prayer_uptime
-                    ),
-                )
-                data["combat_prayer_points"] = 0
-                prayer_points_after = 0
-                data["combat_prayer_drain_counter"] = 0.0
-                prayer_counter = 0.0
-                data["combat_selected_prayers"] = []
+            player_lp, prayer_points_after, prayer_counter = _combat_apply_redemption(
+                data, player_lp, max_player_lp, prayer_effects,
+                tick_prayer_uptime, prayer_points_after, prayer_counter,
+            )
             if player_lp <= 0:
                 died = True
                 break
@@ -2220,13 +1995,13 @@ def apply_combat_burst_pure(
         "player_damage": player_damage,
         "player_hits_landed": player_hits_landed,
         "enemy_damage": enemy_damage,
-        "enemy_healing": enemy_healing,
-        "vampyre_bites": vampyre_bites,
-        "vampyre_bite_healing": vampyre_bite_healing,
-        "dragonfire_attacks": dragonfire_attacks,
-        "dragonfire_damage": dragonfire_damage,
+        "enemy_healing": enemy_counts["enemy_healing"],
+        "vampyre_bites": enemy_counts["vampyre_bites"],
+        "vampyre_bite_healing": enemy_counts["vampyre_bite_healing"],
+        "dragonfire_attacks": enemy_counts["dragonfire_attacks"],
+        "dragonfire_damage": enemy_counts["dragonfire_damage"],
         "melee_recoil_damage": melee_recoil_damage,
-        "enemy_prayer_drain": enemy_prayer_drain,
+        "enemy_prayer_drain": enemy_counts["enemy_prayer_drain"],
         "safe_death": bool(died and safe_death),
         "dragonfire_protection": combat_dragonfire_protection_pure(
             data, enemy
@@ -2254,7 +2029,7 @@ def apply_combat_burst_pure(
         "status_damage": dict(status_damage),
         "status_applied": dict(status_applied),
         "status_expired": tuple(dict.fromkeys(status_expired)),
-        "unprotected_attacks": unprotected_attacks,
+        "unprotected_attacks": enemy_counts["unprotected_attacks"],
         "stat_drains": dict(stat_drains),
         "enemy_specials": tuple(enemy_specials),
         "finisher_ready": bool(
