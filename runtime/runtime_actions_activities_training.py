@@ -167,6 +167,47 @@ def _handle_mage_arena_attunement_answer(
     return True
 
 
+def _report_livid_farm_refusal(ctx: RuntimeActionContext, result: dict) -> None:
+    locked = tuple(result.get("locked_reasons", ()))
+    missing = dict(result.get("missing_runes", {}) or {})
+    if locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Livid Farm locked",
+            "Livid Farm requires " + ", ".join(map(str, locked)) + ".",
+        )
+    elif missing:
+        missing_text = ", ".join(
+            f"{amount} {rune_name}"
+            for rune_name, amount in missing.items()
+        )
+        _switch_material_failure_to_bankstanding(
+            ctx,
+            f"The next atomic review needs {missing_text}. Nothing was consumed.",
+        )
+
+
+def _livid_farm_gain_message(result: dict) -> str:
+    cycles = int(result.get("cycles", 0) or 0)
+    points = int(result.get("points", 0) or 0)
+    parts = [
+        f"Livid Farm · {cycles} cycle{'s' if cycles != 1 else ''}",
+        f"+{points:,} Produce",
+    ]
+    distractions = tuple(result.get("distractions", ()))
+    named_rows = (
+        ("distraction: ", [row for row in distractions if row.get("completed")]),
+        ("skipped unfunded ", [row for row in distractions if not row.get("completed")]),
+        ("unlocked ", tuple(result.get("new_unlocks", ()))),
+    )
+    parts.extend(
+        label + ", ".join(str(row.get("display_name", "")) for row in rows)
+        for label, rows in named_rows
+        if rows
+    )
+    return " · ".join(parts)
+
+
 def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
     updated, ok, result = apply_livid_farm_reviews_pure(
         ctx.player_data,
@@ -174,23 +215,7 @@ def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
         rng=ctx.random_random,
     )
     if not ok:
-        locked = tuple(result.get("locked_reasons", ()))
-        missing = dict(result.get("missing_runes", {}) or {})
-        if locked:
-            ctx.deactivate_current_skill()
-            ctx.show_error_message(
-                "Livid Farm locked",
-                "Livid Farm requires " + ", ".join(map(str, locked)) + ".",
-            )
-        elif missing:
-            missing_text = ", ".join(
-                f"{amount} {rune_name}"
-                for rune_name, amount in missing.items()
-            )
-            _switch_material_failure_to_bankstanding(
-                ctx,
-                f"The next atomic review needs {missing_text}. Nothing was consumed.",
-            )
+        _report_livid_farm_refusal(ctx, result)
         return False
 
     ctx.player_data.clear()
@@ -212,36 +237,7 @@ def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
     ctx.check_achievements(ctx.player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
-    cycles = int(result.get("cycles", 0) or 0)
-    points = int(result.get("points", 0) or 0)
-    parts = [
-        f"Livid Farm · {cycles} cycle{'s' if cycles != 1 else ''}",
-        f"+{points:,} Produce",
-    ]
-    distractions = tuple(result.get("distractions", ()))
-    completed_distractions = [
-        row for row in distractions if row.get("completed")
-    ]
-    skipped_distractions = [
-        row for row in distractions if not row.get("completed")
-    ]
-    if completed_distractions:
-        parts.append(
-            "distraction: "
-            + ", ".join(str(row.get("display_name", "")) for row in completed_distractions)
-        )
-    if skipped_distractions:
-        parts.append(
-            "skipped unfunded "
-            + ", ".join(str(row.get("display_name", "")) for row in skipped_distractions)
-        )
-    unlocks = tuple(result.get("new_unlocks", ()))
-    if unlocks:
-        parts.append(
-            "unlocked "
-            + ", ".join(str(row.get("display_name", "")) for row in unlocks)
-        )
-    ctx.show_activity_gain(" · ".join(parts))
+    ctx.show_activity_gain(_livid_farm_gain_message(result))
     return True
 
 

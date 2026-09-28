@@ -773,6 +773,45 @@ from .runtime_actions_activities_training import (  # noqa: F401  (re-export)
 )
 
 
+def _report_temple_trekking_unavailable(ctx: RuntimeActionContext, result: dict) -> None:
+    state = ctx.player_data.get("temple_trekking")
+    if not (
+        _activity_session_is_current(ctx, TEMPLE_TREKKING_ACTIVITY_ID)
+        and isinstance(state, Mapping)
+        and state.get("session")
+    ):
+        _switch_material_failure_to_bankstanding(ctx)
+    ctx.show_error_message(
+        "Temple Trekking unavailable",
+        str(result.get("reason", "Start or resume a trek before training.")),
+    )
+
+
+def _record_temple_trekking_advance(
+    ctx: RuntimeActionContext,
+    result: dict,
+    combat: dict,
+    xp_rewards: dict,
+) -> None:
+    player_died = bool(result.get("player_died") or combat.get("died"))
+    companion_died = bool(result.get("companion_died"))
+    outputs = (
+        {str(result["token_item"]): 1}
+        if result.get("completed") and result.get("token_item")
+        else None
+    )
+    _record_action(
+        ctx,
+        "utility",
+        TEMPLE_TREKKING_ACTIVITY_ID,
+        not player_died and not companion_died,
+        expected_success_chance=1.0,
+        failure_kind="dangerous_death" if player_died else "escort_failure" if companion_died else None,
+        output_items=outputs,
+        primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),
+    )
+
+
 def handle_temple_trekking_answer(
     ctx: RuntimeActionContext,
     *,
@@ -785,17 +824,7 @@ def handle_temple_trekking_answer(
         productive=productive,
     )
     if not ok:
-        state = ctx.player_data.get("temple_trekking")
-        if not (
-            _activity_session_is_current(ctx, TEMPLE_TREKKING_ACTIVITY_ID)
-            and isinstance(state, Mapping)
-            and state.get("session")
-        ):
-            _switch_material_failure_to_bankstanding(ctx)
-        ctx.show_error_message(
-            "Temple Trekking unavailable",
-            str(result.get("reason", "Start or resume a trek before training.")),
-        )
+        _report_temple_trekking_unavailable(ctx, result)
         return False
     if not productive and not result.get("advanced"):
         return True
@@ -804,23 +833,7 @@ def handle_temple_trekking_answer(
     combat = dict(result.get("combat") or {})
     xp_rewards = dict(combat.get("xp_rewards") or {})
     if result.get("advanced"):
-        player_died = bool(result.get("player_died") or combat.get("died"))
-        companion_died = bool(result.get("companion_died"))
-        outputs = (
-            {str(result["token_item"]): 1}
-            if result.get("completed") and result.get("token_item")
-            else None
-        )
-        _record_action(
-            ctx,
-            "utility",
-            TEMPLE_TREKKING_ACTIVITY_ID,
-            not player_died and not companion_died,
-            expected_success_chance=1.0,
-            failure_kind="dangerous_death" if player_died else "escort_failure" if companion_died else None,
-            output_items=outputs,
-            primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),
-        )
+        _record_temple_trekking_advance(ctx, result, combat, xp_rewards)
     _refresh_combat_levels(ctx, xp_rewards)
     ctx.check_achievements(ctx.player_data)
     ctx.save_player_data()
