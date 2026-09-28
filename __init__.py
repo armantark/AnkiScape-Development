@@ -5442,136 +5442,125 @@ def _active_review_carried_target():
     return str(target_id) if target_id else None
 
 
-def on_answer_card(self, ease, _old):
-    review_answered = _state.card_turned and _state.answer_shown
-    successful_answer = ease > 1
-    before_session = _state.player_data.get("activity_session")
-    before_state = (
-        _capture_player_data_snapshot(review_answer=True) if review_answered else None
-    )
-    context_xp = (
-        _resolve_ignored_review_context_for_answer() if review_answered else 0.0
-    )
-    had_farm_step = bool(_state.player_data.get("farm_queue"))
-    farm_preempted = False
-    if review_answered:
-        runtime_actions.advance_shared_review_state_for_review(
-            _runtime_action_context()
+def _advance_clocks_for_answer(successful_answer) -> None:
+    runtime_actions.advance_shared_review_state_for_review(_runtime_action_context())
+    _state.player_data.update(advance_livid_farm_wish_effects_pure(_state.player_data, 1))
+    try:
+        _state.player_data.update(advance_shop_market_clock_pure(_state.player_data))
+        _state.player_data.update(advance_wicked_hood_review_day_pure(_state.player_data))
+    except Exception:
+        pass
+    try:
+        challenge_updated, _events = advance_daily_challenges_day_pure(
+            _state.player_data, random.random
         )
+        _state.player_data.update(challenge_updated)
+    except Exception:
+        pass
+    try:
+        miscellania_updated, _events = advance_managing_miscellania_world_clock_pure(
+            _state.player_data
+        )
+        _state.player_data.update(miscellania_updated)
+    except Exception:
+        pass
+    try:
+        # Fills wait in the offer's collection box; only the player's own
+        # place and collect actions cost a bank trip.
+        ge_updated, _events = advance_ge_market_tick_pure(
+            _state.player_data, item_catalog=GE_ITEM_CATALOG
+        )
+        _state.player_data.update(ge_updated)
+    except Exception:
+        pass
+    try:
+        summoning_updated, _events = advance_summoning_world_tick_pure(
+            _state.player_data,
+            successful_answer=successful_answer,
+            active_carried_target=_active_review_carried_target(),
+        )
+        _state.player_data.update(summoning_updated)
+    except Exception:
+        pass
+
+
+def _advance_effects_for_answer(successful_answer) -> None:
+    live_combat = (
+        _cadence_kernel_enabled()
+        and review_action_handler_key(_state.current_skill) == "combat"
+    )
+    if successful_answer and not live_combat:
         _state.player_data.update(
-            advance_livid_farm_wish_effects_pure(
-                _state.player_data,
-                1,
-            )
+            advance_temporary_effects_pure(_state.player_data, _review_action_multiplier())
         )
-        try:
-            _state.player_data.update(advance_shop_market_clock_pure(_state.player_data))
-            _state.player_data.update(advance_wicked_hood_review_day_pure(_state.player_data))
-        except Exception:
-            pass
-        try:
-            challenge_updated, _challenge_events = (
-                advance_daily_challenges_day_pure(_state.player_data, random.random)
-            )
-            _state.player_data.update(challenge_updated)
-        except Exception:
-            pass
-        try:
-            miscellania_updated, _miscellania_events = (
-                advance_managing_miscellania_world_clock_pure(_state.player_data)
-            )
-            _state.player_data.update(miscellania_updated)
-        except Exception:
-            pass
-        try:
-            # Fills wait in the offer's collection box; only the player's own
-            # place and collect actions cost a bank trip.
-            ge_updated, _ge_events = advance_ge_market_tick_pure(
-                _state.player_data,
-                item_catalog=GE_ITEM_CATALOG,
-            )
-            _state.player_data.update(ge_updated)
-        except Exception:
-            pass
-        try:
-            summoning_updated, _summoning_events = (
-                advance_summoning_world_tick_pure(
-                    _state.player_data,
-                    successful_answer=successful_answer,
-                    active_carried_target=_active_review_carried_target(),
-                )
-            )
-            _state.player_data.update(summoning_updated)
-        except Exception:
-            pass
-        live_combat = (
-            _cadence_kernel_enabled()
-            and review_action_handler_key(_state.current_skill) == "combat"
-        )
-        if successful_answer and not live_combat:
-            _state.player_data.update(
-                advance_temporary_effects_pure(
-                    _state.player_data,
-                    _review_action_multiplier(),
-                )
-            )
-        elif (
-            not successful_answer
-            and _cadence_kernel_enabled()
-            and review_action_handler_key(_state.current_skill) == "combat"
-        ):
-            encounter = _state.player_data.get("combat_encounter", {}) or {}
-            if isinstance(encounter, dict) and encounter.get("target_id"):
-                _state.player_data["combat_encounter"] = {
-                    **encounter,
-                    "disengaged": True,
-                }
-        if successful_answer and had_farm_step:
-            _begin_review_feedback_context()
-            try:
-                farm_preempted = runtime_actions.handle_farming_review_answer(
-                    _runtime_action_context()
-                )
-            finally:
-                _finish_review_feedback_context()
-        else:
-            runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
-    if successful_answer and review_answered and not _state.exp_awarded and farm_preempted:
+    elif not successful_answer and live_combat:
+        encounter = _state.player_data.get("combat_encounter", {}) or {}
+        if isinstance(encounter, dict) and encounter.get("target_id"):
+            _state.player_data["combat_encounter"] = {**encounter, "disengaged": True}
+
+
+def _advance_farming_for_answer(answers_farm_step) -> bool:
+    """Return whether the Farming step consumed this answer."""
+    if not answers_farm_step:
+        runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
+        return False
+    _begin_review_feedback_context()
+    try:
+        return runtime_actions.handle_farming_review_answer(_runtime_action_context())
+    finally:
+        _finish_review_feedback_context()
+
+
+def _dispatch_review_answer(successful_answer, farm_preempted, context_xp, before_state) -> None:
+    awards_review = successful_answer and not _state.exp_awarded
+    if awards_review and farm_preempted:
         if context_xp > 0:
             _show_exp(context_xp)
-            context_xp = 0.0
         _advance_world_events_after_review()
         _state.exp_awarded = True
-    elif successful_answer and review_answered and not _state.exp_awarded and is_review_action(_state.current_skill):
+    elif awards_review and is_review_action(_state.current_skill):
         _state.review_feedback_initial_xp = context_xp
-        context_xp = 0.0
         on_good_answer(before_state, defer_commit=True)
         _state.exp_awarded = True
-    elif review_answered and before_state is not None:
+    else:
         handler_key = review_action_handler_key(_state.current_skill)
         handler = runtime_actions.unproductive_activity_answer_handler(_state.player_data, handler_key)
         if handler is not None:
             handler(_runtime_action_context(), productive=False)
         if context_xp > 0:
             _show_exp(context_xp)
-            context_xp = 0.0
         _advance_world_events_after_review()
-    if context_xp > 0:
-        _show_exp(context_xp)
+
+
+def _commit_review_answer(before_session, before_state) -> None:
+    if _activity_session_cleared(before_session):
+        _switch_to_bankstanding(_activity_session_end_reason(before_session))
+    _save_player_data_if_anki_ready()
+    _remember_review_award_snapshot(before_state)
+    _show_pending_bankstanding_dialog()
+    _show_pending_review_dialogs()
+
+
+def on_answer_card(self, ease, _old):
+    review_answered = _state.card_turned and _state.answer_shown
+    successful_answer = ease > 1
+    before_session = _state.player_data.get("activity_session")
+    before_state = None
+    if review_answered:
+        before_state = _capture_player_data_snapshot(review_answer=True)
+        context_xp = _resolve_ignored_review_context_for_answer()
+        had_farm_step = bool(_state.player_data.get("farm_queue"))
+        _advance_clocks_for_answer(successful_answer)
+        _advance_effects_for_answer(successful_answer)
+        farm_preempted = _advance_farming_for_answer(successful_answer and had_farm_step)
+        _dispatch_review_answer(successful_answer, farm_preempted, context_xp, before_state)
     _state.card_turned = False
     _state.answer_shown = False  # Reset for the next card
     try:
         result = _old(self, ease)
     finally:
-        if review_answered and before_state is not None:
-            if _activity_session_cleared(before_session):
-                _switch_to_bankstanding(
-                    _activity_session_end_reason(before_session),
-                )
-            _save_player_data_if_anki_ready()
-            _remember_review_award_snapshot(before_state)
-            _show_pending_bankstanding_dialog()
-            _show_pending_review_dialogs()
+        if review_answered:
+            _commit_review_answer(before_session, before_state)
     try:
         update_review_status_badge(
             _state.player_data, _open_activities_sheet, _open_farming_sheet
