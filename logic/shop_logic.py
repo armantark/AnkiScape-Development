@@ -176,7 +176,23 @@ def search_shop_catalog_pure(
     limit: int = 50,
 ) -> Dict[str, Any]:
     normalized = query.strip().lower()
-    data = ensure_shop_state_pure(player_data)
+    results = _search_stock_rows(
+        ensure_shop_state_pure(player_data),
+        normalized,
+        include_locked=include_locked,
+        include_hidden=include_hidden,
+    )
+    results.extend(_search_services(normalized))
+    return {"query": query, "results": results[: max(0, limit)]}
+
+
+def _search_stock_rows(
+    data: Mapping[str, Any],
+    normalized: str,
+    *,
+    include_locked: bool,
+    include_hidden: bool,
+) -> list[Dict[str, Any]]:
     results = []
     for shop in SHOP_DATA.values():
         if shop["visibility"] == "hidden" and not include_hidden:
@@ -203,6 +219,11 @@ def search_shop_catalog_pure(
                     "lock_reason": row["lock_reason"],
                 }
             )
+    return results
+
+
+def _search_services(normalized: str) -> list[Dict[str, Any]]:
+    results = []
     for service in list(SHOP_SERVICES.values()) + list(SHOP_VENDOR_ACTIONS.values()):
         haystack = " ".join(
             [service["display_name"], service.get("provider", "")]
@@ -223,7 +244,7 @@ def search_shop_catalog_pure(
                 "lock_reason": service.get("lock_reason", ""),
             }
         )
-    return {"query": query, "results": results[: max(0, limit)]}
+    return results
 
 
 def preview_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: str, quantity: int = 1) -> Dict[str, Any]:
@@ -303,6 +324,24 @@ def _apply_wilderness_ambush(data: Dict[str, Any], shop: Mapping[str, Any], row:
         "died": died,
         "restore": restore,
     }
+
+
+def _undo_wilderness_ambush(data: Dict[str, Any], ambush: Any) -> None:
+    if not isinstance(ambush, Mapping):
+        return
+    # Undo the slot accounting; restore combat/death state if it triggered.
+    slots_before = _clean_int(ambush.get("slots_before"), 0, minimum=0)
+    data["wilderness_shop_slots"] = slots_before
+    restore = ambush.get("restore")
+    if not (ambush.get("triggered") and isinstance(restore, Mapping)):
+        return
+    for key in _WILDERNESS_RESTORE_KEYS:
+        if key not in restore:
+            continue
+        if restore[key] is None:
+            data.pop(key, None)  # the key did not exist pre-ambush
+        else:
+            data[key] = copy.deepcopy(restore[key])
 
 
 def apply_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: str, quantity: int = 1, rng=None) -> tuple[Dict[str, Any], Dict[str, Any]]:
@@ -429,43 +468,9 @@ def rollback_shop_event_pure(player_data: Mapping[str, Any], event_id: Optional[
     if event is None:
         return data, _denied("unknown_shop_event")
     inverse = event.get("inverse", {})
-    inventory_delta = inverse.get("inventory_delta", {})
-    if isinstance(inventory_delta, Mapping):
-        for item_name, delta in inventory_delta.items():
-            if isinstance(item_name, str):
-                _add_inventory(data, item_name, _clean_int(delta, 0))
-    stock_set = inverse.get("stock_set", {})
-    if isinstance(stock_set, Mapping):
-        for group_id, rows in stock_set.items():
-            if not isinstance(group_id, str) or not isinstance(rows, Mapping):
-                continue
-            group_state = copy.deepcopy(data.get("shop_stock_state", {}).get(group_id, {"shop_id": "", "last_market_tick": data["shop_market_clock"]["market_tick"], "rows": {}}))
-            group_state.setdefault("rows", {})
-            for row_id, before_row in rows.items():
-                if not isinstance(row_id, str):
-                    continue
-                if before_row is None:
-                    group_state["rows"].pop(row_id, None)
-                elif isinstance(before_row, Mapping):
-                    group_state["rows"][row_id] = copy.deepcopy(dict(before_row))
-            compressed = _compress_group_state(group_state)
-            if compressed["rows"]:
-                data["shop_stock_state"][group_id] = compressed
-            else:
-                data["shop_stock_state"].pop(group_id, None)
-    ambush = event.get("wilderness_ambush")
-    if isinstance(ambush, Mapping):
-        # Undo the slot accounting; restore combat/death state if it triggered.
-        slots_before = _clean_int(ambush.get("slots_before"), 0, minimum=0)
-        data["wilderness_shop_slots"] = slots_before
-        restore = ambush.get("restore")
-        if ambush.get("triggered") and isinstance(restore, Mapping):
-            for key in _WILDERNESS_RESTORE_KEYS:
-                if key in restore:
-                    if restore[key] is None:
-                        data.pop(key, None)  # the key did not exist pre-ambush
-                    else:
-                        data[key] = copy.deepcopy(restore[key])
+    _rollback_inventory_delta(data, inverse.get("inventory_delta", {}))
+    _rollback_stock_set(data, inverse.get("stock_set", {}))
+    _undo_wilderness_ambush(data, event.get("wilderness_ambush"))
     retract_shop_event_quest_action_proofs_pure(data, event)
     _adjust_diary_transaction_count(data, event, -1)
     rollback_event = {
@@ -477,6 +482,39 @@ def rollback_shop_event_pure(player_data: Mapping[str, Any], event_id: Optional[
     }
     _append_event(data, rollback_event)
     return data, {"allowed": True, "event_id": rollback_event["event_id"], "rolled_back_event_id": event["event_id"]}
+
+
+def _rollback_inventory_delta(data: Dict[str, Any], inventory_delta: Any) -> None:
+    if not isinstance(inventory_delta, Mapping):
+        return
+    for item_name, delta in inventory_delta.items():
+        if isinstance(item_name, str):
+            _add_inventory(data, item_name, _clean_int(delta, 0))
+
+
+def _rollback_stock_set(data: Dict[str, Any], stock_set: Any) -> None:
+    if not isinstance(stock_set, Mapping):
+        return
+    for group_id, rows in stock_set.items():
+        if isinstance(group_id, str) and isinstance(rows, Mapping):
+            _restore_stock_group_rows(data, group_id, rows)
+
+
+def _restore_stock_group_rows(data: Dict[str, Any], group_id: str, before_rows: Mapping[Any, Any]) -> None:
+    group_state = copy.deepcopy(data.get("shop_stock_state", {}).get(group_id, {"shop_id": "", "last_market_tick": data["shop_market_clock"]["market_tick"], "rows": {}}))
+    group_state.setdefault("rows", {})
+    for row_id, before_row in before_rows.items():
+        if not isinstance(row_id, str):
+            continue
+        if before_row is None:
+            group_state["rows"].pop(row_id, None)
+        elif isinstance(before_row, Mapping):
+            group_state["rows"][row_id] = copy.deepcopy(dict(before_row))
+    compressed = _compress_group_state(group_state)
+    if compressed["rows"]:
+        data["shop_stock_state"][group_id] = compressed
+    else:
+        data["shop_stock_state"].pop(group_id, None)
 
 
 def shop_history_rows_pure(player_data: Mapping[str, Any], shop_id: Optional[str] = None, limit: int = 20) -> list[Dict[str, Any]]:
@@ -574,17 +612,9 @@ def _preview_sell_from_state(
     if not _item_tradeable(item_name):
         return _denied("item_not_tradeable", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
 
-    row_id = f"{shop['id']}:temporary:{_item_slug(item_name)}"
-    if stocked_row is not None:
-        row_id = stocked_row["id"]
-    elif row_id not in group_state.get("rows", {}):
-        # Shop.java: general stock is MAX_SHOP_ITEMS(40) minus the main stock;
-        # a sale needing a new slot fails when the pool is full.
-        temporary_rows = sum(
-            1 for state in group_state.get("rows", {}).values() if bool(state.get("temporary"))
-        )
-        if temporary_rows >= max(0, 40 - len(shop["stock"])):
-            return _denied("shop_full", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
+    row_id = _sell_row_id(shop, group_state, stocked_row, item_name)
+    if row_id is None:
+        return _denied("shop_full", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
     # Darkan getSellPrice depends only on the item, never the shop.
     unit_price = _sell_price_for_item(item_name)
     if unit_price is None:
@@ -605,3 +635,25 @@ def _preview_sell_from_state(
         "temporary_stock": row_id not in group_state.get("rows", {}),
         "owned_quantity": owned_quantity,
     }
+
+
+def _sell_row_id(
+    shop: Mapping[str, Any],
+    group_state: Mapping[str, Any],
+    stocked_row: Optional[Mapping[str, Any]],
+    item_name: str,
+) -> Optional[str]:
+    """Stock row a sale lands in, or None when it needs a slot the shop lacks."""
+    if stocked_row is not None:
+        return stocked_row["id"]
+    row_id = f"{shop['id']}:temporary:{_item_slug(item_name)}"
+    if row_id in group_state.get("rows", {}):
+        return row_id
+    # Shop.java: general stock is MAX_SHOP_ITEMS(40) minus the main stock;
+    # a sale needing a new slot fails when the pool is full.
+    temporary_rows = sum(
+        1 for state in group_state.get("rows", {}).values() if bool(state.get("temporary"))
+    )
+    if temporary_rows >= max(0, 40 - len(shop["stock"])):
+        return None
+    return row_id
