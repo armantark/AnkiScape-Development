@@ -518,6 +518,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             player_data,
             COMBAT_ENEMY_DATA,
             rng=ctx.random_random,
+            equipment_data=EQUIPMENT_DATA,
         )
     else:
         new_data, ok, result = apply_combat_burst_pure(

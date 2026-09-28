@@ -2738,7 +2738,7 @@ def _combat_apply_triple_charm_reward(data, drops):
     }
 
 
-def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
+def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None, *, equipment_data=None):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     rng = rng or (lambda: 0.0)
     data = _copy_player_data_with_nested(player_data)
@@ -2746,7 +2746,7 @@ def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     enemy = enemy_data.get(target_id) if isinstance(enemy_data, Mapping) else None
     locked_reasons = combat_target_locked_reasons_pure(
-        data, target_id, enemy_data
+        data, target_id, enemy_data, equipment_data=equipment_data
     )
     if locked_reasons:
         return player_data, False, {

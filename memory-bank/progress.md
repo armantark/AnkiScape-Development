@@ -1791,3 +1791,20 @@ Proof, evidence in `$(git rev-parse --git-common-dir)/ankiscape-promotion-eviden
 - After: the same runner with `--select` for `test_quest_auto_flee.`, `test_logic.`, `test_runtime_actions.` and the seven other modules that drive quest combat, `--expected-tests 526` → `Ran 526 tests in 10.382s` / `OK`, no skips (`opus-focused-final.log`).
 - Memory Bank readers: `--select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 46` → `Ran 46 tests in 58.641s` / `OK` (`opus-memory-bank-readers.log`).
 - `audit_docs.py` → `Audited 871 Markdown and 452 HTML files.` / `Documentation audit passed.`; `audit_test_quality.py` → `4887 tests across 286 files`, `hard issues: 0`, `structural clone candidates: 31 groups`; `audit_item_reachability.py` (and `--check`) → `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, exit 0; `worktree_guard.py audit` exit 0; `git diff --check` and `slop_gate.py` on a temporary index exit 0 with no output.
+
+## 2026-09-26 — Ranged manual finishing blows
+
+Ranged fighters can now finish a weakened Rockslug with the equipped bow and loaded Bag of salt, without losing arrows or the kill.
+
+Cause and fix: `runtime/runtime_actions_combat.py` passed equipment metadata to its first requirement check but omitted it from the manual finisher. `logic_pure/logic_pure_combat_model.py` now accepts keyword-only `equipment_data` and forwards it to the same requirement check. The runtime supplies `EQUIPMENT_DATA`; positional callers and saved data remain compatible. No migration or gameplay rule changed.
+
+Intent is settled in `memory-bank/source-audits/slayer-finishing-blows-2026-07-15.md` (Review-native mapping), the neighbouring burst call, and existing finisher tests. No sources were fetched. Failure risks listed before the fix: lost equipment context, bypassed restrictions, incorrect supply/kill settlement, a test that bypasses the runtime, and saved-data or unrelated combat changes.
+
+- Before the fix: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_ranged_finisher. --expected-tests 1` exited 1: `Ran 1 test in 0.001s`, `FAILED (failures=1)`, `AssertionError: False is not true : [('Finisher unavailable', 'Combat locked.')]`. Readiness, availability, and the equipment-aware runtime gate passed first.
+- After the fix: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_ranged_finisher. --select test_combat_logic. --select test_runtime_actions. --select test_direct_action_undo_seam. --expected-tests 531` exited 0: `Ran 531 tests in 19.239s`, `OK`, no skips.
+- The new runtime regression uses Rockslug at 1 LP, Slayer 20, Shortbow, 2 Bronze arrows and 1 Bag of salt. It verifies one kill and save, salt consumption, preserved arrows and player LP, a cleared encounter, and the next attack action. Existing tests retain missing-item, threshold, Slayer-gate, automatic-finisher, charged-tool and undo coverage.
+- `python3 tools/audit_test_quality.py` exited 0: `4885 tests across 286 files`; `hard issues: 0`; `structural clone candidates: 31 groups`. Both `python3 tools/audit_item_reachability.py` and its `--check` form exited 0 with first line `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`.
+
+Raw logs and diffs: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-ranged-finishing-blow-2026-09-26/`. No new summary file or per-slice checker was added. Resolved tool friction is recorded verbatim in `memory-bank/papercuts-fixed-2026-09-23.md`.
+
+The changes remain uncommitted for the cross-lineage review. No UI, storage, Magic candidate `a8137bab`, Dream transaction, or live-checkout working file changed. Full lanes and the merged-tree promotion gate remain with the orchestrator; this slice used only selected tests through the remote runner.
