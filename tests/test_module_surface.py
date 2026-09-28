@@ -17,7 +17,7 @@ FIRST_WAVE_DIGESTS = {
     "data/quest_data.py": "8e65a1a46473af00f6748be267037c5acbd91429a7f70fb1283a6ef116b5a4e7",
     "data/combat_data.py": "88a22f2dd67c72aa0e261a0f78d6e4b5c318b23f891c4cdf9a0da4e5c3dec1a4",
     "data/slayer_data.py": "7373a419da64c7bd1ac41dba45f772361fc0d4d78363c4625903b12b79cd86d6",
-    "logic_pure/logic_pure_combat_engine.py": "5cb6204b91995219447dd2fa7f700734014b234b99546907c6a5a7d16b66bf7b",
+    "logic_pure/logic_pure_combat_engine.py": "51c1b2bd97e6397bfc8c17c70823316b6b5e14f5393dcf96894d99cdffd320e7",
     "tests/combat_roster/contract.py": "d12a75aa5058e4fb6bb2fb78529f03b146ab427dad7101383cb267a9b60d5ac3",
     "tests/combat_roster/test_dragon_families.py": "6f88bbfd4518bd4267d633640e8ec8871c8afec7c7a1490df01177ec81fb4b73",
     "tests/combat_roster/test_finisher_families.py": "daec4f059b5a5d80d13234f6dfb4b9dd7b920d3b2c81425890884e2bf2b12ed9",
@@ -26,13 +26,13 @@ FIRST_WAVE_DIGESTS = {
     "logic/shop_logic.py": "53a900c9b4641264f4b3cfdb1a613b2672316b569eff35c45c5202aaf7c0e2f0",
     "ui/ui_tab_shop.py": "21290975fe1bf7515f106b94d7bff79fd4945dcf0cdd7a35c1ac96c54b52acc7",
     "data/achievement_diary_catalog.py": "7c52991703757ec872b6f99533267ba3d65637c1dc6fda9e37f580f988ad8720",
-    "runtime/runtime_actions_carried.py": "04437d3278552d734644bf729f4ee164a2e7e8e75556e4338db9354e93ccefb7",
-    "runtime/runtime_actions_activities.py": "dee8019e6abe27536d1ccffbf585d6d5e0826381dcff2782f96997ce7c259888"
+    "runtime/runtime_actions_carried.py": "ad029dddf9d8f22cd9fa20c388a4c3b63690ce57a670f475ba6f0f20333e8144",
+    "runtime/runtime_actions_activities.py": "73d63863a5bacb316635d7dd058403845baba87fb25109873c860513bb95824d"
 }
 QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "d21ce90e5bd51c90d7d40c562289954ab19bd5c55251c8e44f57650bd54a518a"
 }
-ROOT_QT_DIGEST = "74044844e6abb546bc2d895f337ec92c0afe66ddc9002931d65dc12256cd5f4e"
+ROOT_QT_DIGEST = "a76c7e6d3086cb5ad57c65ff78bc9281a9dc40ee7de4839bd34db9345549da13"
 CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"
 
 
