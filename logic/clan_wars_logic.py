@@ -261,6 +261,9 @@ def _enemy_for(opponent: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
             "attack_speed": 4,
             "drops": {"guaranteed": (), "tables": ()},
             "xp_multiplier": 1.0,
+            # The owner's Q4.3 ruling: a red-portal death keeps nothing but the
+            # Protect Item save, and rejects the period's unskulled allowance.
+            "pvp_death_kept_items": 0,
             "source": CLAN_WARS_SOURCE
             + "; disclosed bounded simulated opponent",
         }

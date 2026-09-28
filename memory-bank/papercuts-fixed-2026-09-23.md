@@ -10657,3 +10657,21 @@ Disposition: operator error (`operator-error`). Evidence: each line names the op
 Disposition: fixed this pass (`fixed-this-pass`). Evidence: new stock rows now start with `restock_progress` 0 and the fixture buys `Empty pot`, the catalog name; the focused remote plain run of `test_shop_restock`, `test_shop_logic` and six shop neighbours returned `Ran 97 tests in 9.912s` / `OK` with the existing tests unchanged.
 
 - 2026-09-26T15:49:19-07:00 Shop-restock verification: the 55-test remote plain run returned "FAILED (failures=1, errors=1)"; the new temporary-stock test raised "StopIteration" for absent item "Pot", and test_tzhaar_onyx_purchase_spends_tokkul_is_buy_only_and_undoes failed unchanged-save equality because sanitization added "restock_progress": 0 to a newly created row.
+
+## Red-portal slice reads and quoting — 7 occurrences
+
+Disposition: operator error (`operator-error`). Evidence: each line records the narrower read or quoting that replaced the failed one.
+
+- 2026-09-26T15:35:43-0700 — Red-portal death inspection: a batched read returned "Warning: truncated output (original token count: 25544)"; narrowed the reads to bounded source ranges and redirected broad search results to the branch evidence directory.
+- 2026-09-26T15:37:18-0700 — Red-portal inspection: another combined read returned "Warning: truncated output (original token count: 8533)"; broad matches now go to the branch evidence directory and bounded result tails.
+- 2026-09-26T15:37:18-0700 — Red-portal inspection: a combined skill and source read returned "Warning: truncated output (original token count: 3825)"; capped subsequent inspection output at 25 summary lines per saved search.
+- 2026-09-26T15:39:41-0700 — Red-portal static-check lookup: zsh rejected the unexpanded tools glob with "zsh:1: no matches found: tools/slop*", then tail reported the absent complexity-rules.txt log; use rg --files for optional tool discovery.
+- 2026-09-26T15:40:34-0700 — Red-portal audit read: 16 lines from the test-quality log exceeded a 1200-token tool budget ("Warning: truncated output (original token count: 1583)"); read only its three summary lines and retain the complete clone list in the raw log.
+- 2026-09-26T15:42:24-0700 — Red-portal documentation-reader search: an empty grep log was redirected to /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape-fork-do-not-create.log by mistake; immediately moved that self-created file to /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-red-portal-deaths-2026-09-26/papercuts-fixed-readers.log.
+- 2026-09-26T15:44:26-0700 — Red-portal proof append: nested JavaScript template quoting failed before any tool ran with "SyntaxError: Unexpected identifier 'tools'"; build the document as ordinary string data and pass it through a quoted Python heredoc.
+
+## Red-portal fix changed pinned module surfaces — 1 occurrence
+
+Disposition: fixed this pass (`fixed-this-pass`). Evidence: Clan Wars now declares its kept-item allowance on its rival instead of through a new combat-engine argument, and `test_first_wave_digests` passes against the unchanged pins.
+
+- 2026-09-26T15:50:39-0700 — Red-portal focused neighbours: /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain (selectors in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-red-portal-deaths-2026-09-26/plain-neighbours.command.txt) returned "Ran 462 tests in 29.183s" / "FAILED (failures=6, skipped=1)" / "error: remote plain lane failed with exit 1"; test_first_wave_digests rejected logic_pure/logic_pure_combat_engine.py, runtime/runtime_actions_carried.py and runtime/runtime_actions_activities.py in plain and Qt. Exact hashes are in the 2026-09-26 progress section and raw log. Fixed pins were left untouched; implementation stopped.

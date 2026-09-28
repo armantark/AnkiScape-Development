@@ -14,7 +14,7 @@ from .logic_pure_combat_supplies import (
     _combat_should_auto_flee,
     _combat_void_shifter_escape_ready,
 )
-from .logic_pure_state import _non_negative_int, _positive_int
+from .logic_pure_state import COMBAT_PVP_DEATH_KEPT_ITEMS, _non_negative_int, _positive_int
 
 
 def _combat_advance_status_tick(
@@ -83,6 +83,7 @@ def _combat_settle_burst_outcome(
     live_cadence,
     safe_death,
     no_grave,
+    enemy,
 ):
     """Record the burst's kills, then settle a death or drop an encounter that
     has nothing to carry. Returns the player's lifepoints, the death-prayer
@@ -112,7 +113,11 @@ def _combat_settle_burst_outcome(
         data["combat_encounter"] = {}
         data["combat_status_effects"] = {}
         return max_player_lp, death_burst, False
-    return _combat_apply_pvm_death(data, max_player_lp, no_grave=no_grave), death_burst, False
+    kept_items = enemy.get("pvp_death_kept_items", COMBAT_PVP_DEATH_KEPT_ITEMS)
+    player_lp = _combat_apply_pvm_death(
+        data, max_player_lp, no_grave=no_grave, kept_items=kept_items
+    )
+    return player_lp, death_burst, False
 
 
 def _combat_settle_wilderness_ambush(

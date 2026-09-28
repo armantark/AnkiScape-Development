@@ -472,33 +472,24 @@ class ClanWarsRedPortalItemLossTest(unittest.TestCase):
     otherwise always writes a gravestone and pushes an older grave into Death's
     Office, which would hand every item back and silently reverse the decision.
     The grave and Death's Office assertions here fail if that safety net is
-    restored. What the death *keeps* is a separate, sourced question:
-    `sendPVPItemsOnDeath` keeps three items unskulled, four with Protect Item.
+    restored. Q4.3 keeps nothing except the one item saved by Protect Item.
     """
 
-    def test_a_red_portal_death_keeps_three_and_leaves_no_grave_or_death_office(self):
+    def test_a_red_portal_death_loses_every_item_without_recovery(self):
         result, played = _play_match(
             _armoured_player(), CLAN_WARS_RED_MODE, RED_DEATH_SEED
         )
         self.assertEqual(played["clan_wars_deaths"], 1)
         self.assertEqual(played["combat_grave"], {})
         self.assertEqual(played["death_office"], {})
-        # Three kept, and the rest are gone rather than merely unrecoverable.
-        self.assertEqual(
-            played["equipment"],
-            {
-                "weapon": "Mithril scimitar",
-                "body": "Mithril platebody",
-                "legs": "Mithril platelegs",
-            },
-        )
+        self.assertEqual(played["equipment"], {})
         self.assertEqual(played["inventory"].get("Lobster", 0), 0)
-        self.assertEqual(result["destroyed_items"], 4)
-        self.assertEqual(played["clan_wars_items_destroyed"], 4)
+        self.assertEqual(result["destroyed_items"], 7)
+        self.assertEqual(played["clan_wars_items_destroyed"], 7)
         self.assertEqual(result["outcome"], "loss")
         self.assertIn("nothing was recoverable", result["message"])
 
-    def test_protect_item_keeps_a_fourth_item_and_still_leaves_no_grave(self):
+    def test_protect_item_keeps_only_the_most_valuable_item_without_recovery(self):
         result, played = _play_match(
             _armoured_player(protect_item=True),
             CLAN_WARS_RED_MODE,
@@ -507,14 +498,25 @@ class ClanWarsRedPortalItemLossTest(unittest.TestCase):
         self.assertEqual(played["clan_wars_deaths"], 1)
         self.assertEqual(
             played["equipment"],
-            {
-                "weapon": "Mithril scimitar",
-                "body": "Mithril platebody",
-                "legs": "Mithril platelegs",
-            },
+            {"body": "Mithril platebody"},
         )
-        self.assertEqual(played["inventory"].get("Lobster", 0), 1)
-        self.assertEqual(result["destroyed_items"], 3)
+        self.assertEqual(played["inventory"].get("Lobster", 0), 0)
+        self.assertEqual(result["destroyed_items"], 6)
+        self.assertEqual(played["clan_wars_items_destroyed"], 6)
+        self.assertEqual(played["combat_grave"], {})
+        self.assertEqual(played["death_office"], {})
+
+    def test_protect_item_saves_one_carried_unit_and_leaves_bank_items_alone(self):
+        player = _armoured_player(protect_item=True)
+        player["inventory"].update({"Rune platebody": 3, "Coins": 1000})
+        player["carried_inventory"]["chicken"]["Rune platebody"] = 2
+        result, played = _play_match(player, CLAN_WARS_RED_MODE, RED_DEATH_SEED)
+        self.assertEqual(played["clan_wars_deaths"], 1)
+        self.assertEqual(played["equipment"], {})
+        self.assertEqual(played["inventory"]["Rune platebody"], 2)
+        self.assertEqual(played["inventory"]["Coins"], 1000)
+        self.assertEqual(played["inventory"].get("Lobster", 0), 0)
+        self.assertEqual(result["destroyed_items"], 8)
         self.assertEqual(played["combat_grave"], {})
         self.assertEqual(played["death_office"], {})
 
@@ -535,7 +537,7 @@ class ClanWarsRedPortalItemLossTest(unittest.TestCase):
         played["combat_lifepoints"] = combat_max_lifepoints_pure(played)
         _result, twice = _play_match(played, CLAN_WARS_RED_MODE, RED_DEATH_SEED)
         self.assertEqual(twice["clan_wars_deaths"], 2)
-        self.assertEqual(twice["clan_wars_items_destroyed"], 8)
+        self.assertEqual(twice["clan_wars_items_destroyed"], 14)
         self.assertEqual(twice["combat_grave"], {})
         self.assertEqual(twice["death_office"], {})
 

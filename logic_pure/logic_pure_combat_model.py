@@ -754,6 +754,7 @@ def _combat_apply_pvm_death(
     grave_source="combat_death",
     carried_target_id=None,
     no_grave=False,
+    kept_items=COMBAT_PVP_DEATH_KEPT_ITEMS,
 ):
     _combat_apply_follower_death(data)
     original_equipment = dict(data.get("equipment", {}) or {})
@@ -762,12 +763,11 @@ def _combat_apply_pvm_death(
     protected_carried: dict[str, int] = {}
     protect_item = prayer_effect_state_pure(data).get("protect_item")
     if no_grave:
-        # The gravestone-free death is the player-versus-player one, where
-        # `sendPVPItemsOnDeath` hands the rest to the killer. It keeps three
-        # items unskulled, and one more while Protect Item is active. Which three
-        # is the player's choice in the period; AnkiScape has no inventory
-        # arrangement to express it, so it keeps the most valuable ones.
-        keep = COMBAT_PVP_DEATH_KEPT_ITEMS + (1 if protect_item else 0)
+        # The gravestone-free death is the player-versus-player one. It keeps
+        # the caller's `kept_items`, and one more while Protect Item is active.
+        # AnkiScape has no inventory arrangement for the period's own pick, so
+        # it keeps the most valuable ones.
+        keep = kept_items + (1 if protect_item else 0)
         candidates = [
             (
                 _non_negative_int(ITEM_VALUES.get(item_name, 0), 0),

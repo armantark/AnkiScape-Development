@@ -1704,7 +1704,7 @@ def apply_combat_burst_pure(
     player_lp, death_burst, carry_encounter = _combat_settle_burst_outcome(
         data, target_id, kills, died, fled, player_lp, max_player_lp,
         enemy_lp, enemy_max_lp, selected_prayers, finisher, rng,
-        live_cadence=live_cadence, safe_death=safe_death, no_grave=no_grave,
+        live_cadence=live_cadence, safe_death=safe_death, no_grave=no_grave, enemy=enemy,
     )
     enemy_lp -= death_burst
     player_damage += death_burst
