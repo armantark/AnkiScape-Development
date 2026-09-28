@@ -283,6 +283,13 @@ CASTLE_WARS_HALO_DRAIN_PRAYERS = frozenset(
 )
 
 
+def _castle_wars_halo_drain_multipliers(data, selected):
+    equipment = data.get("equipment")
+    if not isinstance(equipment, Mapping) or str(equipment.get("head", "")) != "Saradomin halo":
+        return {}
+    return {prayer_id: 2.0 / 3.0 for prayer_id in selected if prayer_id in CASTLE_WARS_HALO_DRAIN_PRAYERS}
+
+
 def prayer_drain_for_ticks_pure(
     points,
     counter,

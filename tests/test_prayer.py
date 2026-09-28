@@ -2,7 +2,15 @@ import os
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, PRAYER_DATA, PRAYER_ITEM_IMAGES, UTILITY_ACTIVITY_DATA
+from ankiscape.core.constants import (
+    COMBAT_ENEMY_DATA,
+    EQUIPMENT_DATA,
+    ITEM_DEFINITIONS,
+    ORE_DATA,
+    PRAYER_DATA,
+    PRAYER_ITEM_IMAGES,
+    UTILITY_ACTIVITY_DATA,
+)
 from ankiscape.logic_pure.logic_pure import (
     apply_combat_burst_pure,
     apply_combat_preset_pure,
@@ -10,6 +18,7 @@ from ankiscape.logic_pure.logic_pure import (
     apply_prayer_action_pure,
     apply_prayer_selection_pure,
     apply_utility_activity_pure,
+    combat_target_preview_pure,
     curse_expected_ramp_pure,
     effective_gilded_altar_multiplier_pure,
     owned_gilded_altar_access_reasons_pure,
@@ -496,6 +505,107 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
         self.assertGreaterEqual(unprotected_result["enemy_damage"], protected_result["enemy_damage"])
         self.assertEqual(protected_result["enemy_damage"], 0)
         self.assertLess(protected["combat_prayer_points"], 990)
+
+    def test_target_preview_shows_the_prayer_boosted_hit_combat_lands(self):
+        base = {
+            "current_combat_target": "hill_giant",
+            "attack_level": 60,
+            "strength_level": 60,
+            "ranged_level": 60,
+            "defense_level": 60,
+            "constitution_level": 60,
+            "prayer_level": 60,
+            "combat_lifepoints": 600,
+            "combat_prayer_points": 600,
+            "combat_prayer_uptime": "100",
+            "combat_prayer_book": "standard",
+            "inventory": {},
+        }
+        setups = {
+            "melee": {
+                "combat_selected_prayers": ["ultimate_strength", "incredible_reflexes"],
+                "equipment": {"weapon": "Bronze sword"},
+            },
+            "ranged": {
+                "combat_selected_prayers": ["eagle_eye"],
+                "equipment": {"weapon": "Shortbow"},
+                "combat_supply_loadout": {"ammo": {"Bronze arrows": 100}},
+            },
+        }
+        for combat_class, setup in setups.items():
+            with self.subTest(combat_class=combat_class):
+                state = dict(base, **setup)
+                preview = combat_target_preview_pure(state, "hill_giant", COMBAT_ENEMY_DATA, EQUIPMENT_DATA)
+                # The first draw lands the hit and the second is the top damage
+                # roll, which deals one LP below the max hit (1..max-1).
+                draws = iter((0.0, 0.999999999))
+                _after, ok, result = apply_combat_burst_pure(
+                    state, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=lambda: next(draws, 0.5)
+                )
+                self.assertTrue(ok)
+                self.assertEqual(result["prayer_uptime"], 1.0)
+                self.assertEqual(result["player_accuracy"], preview["accuracy"])
+                self.assertEqual(result["player_damage"], preview["player_max_hit"] - 1)
+
+    def test_target_preview_follows_the_target_prayer_setup_and_burst_drain(self):
+        melee_prayers = ["ultimate_strength", "incredible_reflexes"]
+        base = {
+            "current_combat_target": "hill_giant",
+            "attack_level": 60,
+            "strength_level": 60,
+            "defense_level": 60,
+            "constitution_level": 60,
+            "prayer_level": 60,
+            "combat_lifepoints": 600,
+            "combat_prayer_points": 600,
+            "combat_prayer_uptime": "100",
+            "combat_prayer_book": "standard",
+            "combat_selected_prayers": melee_prayers,
+            "equipment": {"weapon": "Bronze sword"},
+            "inventory": {},
+        }
+        scenarios = {
+            "override turns prayer off": (
+                {"combat_target_overrides": {"hill_giant": {"combat_prayer_uptime": "off"}}}, 0.0,
+            ),
+            "override turns prayer on": (
+                {
+                    "combat_prayer_uptime": "off",
+                    "combat_target_overrides": {"hill_giant": {"combat_prayer_uptime": "100"}},
+                },
+                1.0,
+            ),
+            "pinned preset prays": (
+                {
+                    "combat_selected_prayers": [],
+                    "combat_prayer_uptime": "off",
+                    "combat_presets": {
+                        "Giant": {"combat_selected_prayers": melee_prayers, "combat_prayer_uptime": "100"},
+                    },
+                    "combat_target_presets": {"hill_giant": "Giant"},
+                },
+                1.0,
+            ),
+            # One point one drain step from empty lasts a single tick of the burst.
+            "prayer nearly drained": ({"combat_prayer_points": 1, "combat_prayer_drain_counter": 59}, 0.02),
+            # Combat drinks the loaded potions before it drains prayer and rolls.
+            "loaded potions are drunk first": (
+                {
+                    "combat_prayer_points": 1,
+                    "combat_prayer_drain_counter": 59,
+                    "combat_supply_loadout": {"stat_potions": {"Prayer potion (4)": 1, "Attack potion (4)": 1}},
+                },
+                1.0,
+            ),
+        }
+        for name, (setup, burst_uptime) in scenarios.items():
+            with self.subTest(name):
+                state = dict(base, **setup)
+                preview = combat_target_preview_pure(state, "hill_giant", COMBAT_ENEMY_DATA, EQUIPMENT_DATA)
+                _after, ok, result = apply_combat_burst_pure(state, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, rng=lambda: .5)
+                self.assertTrue(ok)
+                self.assertAlmostEqual(result["prayer_uptime"], burst_uptime)
+                self.assertEqual(preview["accuracy"], result["player_accuracy"])
 
     def test_rows_gate_missing_materials_and_all_asset_paths_exist(self):
         rows = prayer_target_rows({"prayer_level": 99, "inventory": {}}, PRAYER_DATA, PRAYER_ITEM_IMAGES, "bury_bones")

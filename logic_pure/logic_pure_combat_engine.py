@@ -488,7 +488,7 @@ from .logic_pure_combat_outcome import (
     _combat_settle_wilderness_ambush,
 )
 from .logic_pure_combat_curses import _combat_curse_drains, _combat_turmoil_boosts
-from .logic_pure_combat_loadout import _combat_prepare_target_loadout
+from .logic_pure_combat_loadout import _combat_prepare_target_loadout, _combat_target_loadout
 from .logic_pure_combat_setup import (
     _combat_enemy_start_lifepoints,
     _combat_prayer_request,
@@ -563,34 +563,14 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         else None
     )
     spell_id, spell_spec = _combat_selected_magic_spell(player_data)
+    weapon_name = ammo_name = None
     if combat_class == "ranged":
         weapon_name, _weapon_equipment, weapon_spec = _combat_ranged_weapon_spec(player_data, equipment_data)
         ammo_name = _combat_selected_ranged_ammo(player_data, weapon_spec, target_id)
-        player_attack_roll = _combat_effective_player_ranged_level(player_data, style_id) * (
-            _combat_attack_bonus_from_totals(player_totals, "ranged") + 64
-        )
-    elif combat_class == "magic":
-        weapon_name = None
-        ammo_name = None
+    if combat_class == "magic":
         player_attack_roll = _combat_effective_player_magic_level(player_data) * (
             _combat_attack_bonus_from_totals(player_totals, "magic") + 64
         )
-    else:
-        weapon_name = None
-        ammo_name = None
-        player_attack_roll = _combat_effective_player_attack_level(player_data, style_id) * (
-            _combat_attack_bonus_from_totals(player_totals, style_type=melee_style_type) + 64
-        )
-    enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
-        _combat_defence_bonus_from_totals(enemy_totals, combat_class, style_type=melee_style_type) + 64
-    )
-    accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
-    if combat_class == "ranged":
-        player_max_hit = _combat_ranged_max_hit_old_hp(
-            _combat_effective_player_ranged_level(player_data, style_id),
-            _combat_ranged_strength_bonus(player_totals, ammo_name),
-        )
-    elif combat_class == "magic":
         player_max_hit = _combat_magic_max_hit_old_hp(
             spell_spec,
             player_totals,
@@ -598,10 +578,30 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
             spell_id,
         )
     else:
-        player_max_hit = _combat_melee_max_hit_old_hp(
-            _combat_effective_player_strength_level(player_data, style_id),
-            _equipment_bonus_value(player_totals, "melee_strength"),
+        # Combat drinks loaded potions, then rolls with this target's prayer
+        # setup drained across one ordinary review burst, so the preview
+        # projects that same hit. Magic keeps its own projection above until
+        # the owner's Magic decision.
+        loadout = _combat_target_loadout(player_data, target_id)
+        _combat_auto_drink_potions(loadout, combat_class)
+        selected_prayers, halo_drain_multipliers, requested_uptime = _combat_prayer_request(loadout, False)
+        _points, _counter, prayer_uptime = prayer_drain_and_effective_uptime_pure(
+            _non_negative_int(loadout.get("combat_prayer_points", 0), 0),
+            loadout.get("combat_prayer_drain_counter", 0.0),
+            selected_prayers,
+            _equipment_bonus_value(player_totals, "prayer"),
+            COMBAT_BURST_TICKS,
+            requested_uptime,
+            halo_drain_multipliers,
         )
+        player_attack_roll, player_max_hit = _combat_player_attack_rolls(
+            loadout, combat_class, style_id, melee_style_type, player_totals,
+            prayer_effect_state_pure(loadout, prayer_uptime), ammo_name, spell_spec, spell_id,
+        )
+    enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
+        _combat_defence_bonus_from_totals(enemy_totals, combat_class, style_type=melee_style_type) + 64
+    )
+    accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
     if enemy.get("warriors_guild_gate"):
         player_max_hit *= warriors_guild_cyclops_damage_multiplier_pure(
             player_data

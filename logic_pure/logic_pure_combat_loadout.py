@@ -20,9 +20,11 @@ def _combat_prepare_target_loadout(data, target_id):
             carried = dict(carried) if isinstance(carried, Mapping) else {}
             carried[target_id] = repacked
             data["carried_inventory"] = carried
+    return _combat_target_loadout(data, target_id)
+
+
+def _combat_target_loadout(data, target_id):
     pinned_preset = (data.get("combat_target_presets", {}) or {}).get(target_id)
     if isinstance(pinned_preset, str):
-        data, _applied = apply_combat_preset_pure(data, pinned_preset, target_id)
-    else:
-        data = apply_combat_target_overrides_pure(data, target_id)
-    return data
+        return apply_combat_preset_pure(data, pinned_preset, target_id)[0]
+    return apply_combat_target_overrides_pure(data, target_id)

@@ -2,11 +2,9 @@
 lifepoints and whether it still fights back, the prayers the player asked for,
 and where a carried live fight resumes its attack clocks."""
 
-from typing import Mapping
-
 from ..data.prayer_data import PRAYER_UPTIME_POLICIES
 from .logic_pure_prayer import (
-    CASTLE_WARS_HALO_DRAIN_PRAYERS,
+    _castle_wars_halo_drain_multipliers,
     active_prayer_selection_pure,
     prayer_uptime_fraction_pure,
 )
@@ -39,17 +37,7 @@ def _combat_prayer_request(data, live_cadence):
     covers, and the uptime the player asked for. A live burst reads the uptime
     policy directly because each tick then drains and reports its own uptime."""
     selected_prayers = tuple(active_prayer_selection_pure(data))
-    equipped_items = data.get("equipment")
-    halo_drain_multipliers = (
-        {
-            prayer_id: 2.0 / 3.0
-            for prayer_id in selected_prayers
-            if prayer_id in CASTLE_WARS_HALO_DRAIN_PRAYERS
-        }
-        if isinstance(equipped_items, Mapping)
-        and str(equipped_items.get("head", "")) == "Saradomin halo"
-        else {}
-    )
+    halo_drain_multipliers = _castle_wars_halo_drain_multipliers(data, selected_prayers)
     requested_uptime = (
         float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0))
         if live_cadence and selected_prayers
