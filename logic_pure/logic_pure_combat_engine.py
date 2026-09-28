@@ -372,18 +372,14 @@ from .logic_pure_combat_supplies import (
     _combat_trim_food_to_capacity,
     _combat_void_shifter_escape_ready,
     combat_dragonfire_protection_pure,
-    combat_poison_damage_for_ticks_pure,
-    combat_poison_immunity_ticks_pure,
-    combat_poison_ticks_for_initial_damage_pure,
     combat_status_summary_pure,
 )
 
-from .logic_pure_combat_food import _combat_preview_food_available
+from .logic_pure_combat_food import _combat_preview_food_available  # noqa: F401  (re-export)
 
 from .logic_pure_combat_model import (
     COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
     COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
-    COMBAT_POISON_NPC_ATTACK_CHANCE,
     COMBAT_REST_FULL_HEAL_REVIEWS,
     NATURAL_COMBAT_RECOVERY_LIFEPOINTS,
     SAFE_COMBAT_RECOVERY_LIFEPOINTS,
@@ -398,7 +394,6 @@ from .logic_pure_combat_model import (
     _combat_apply_wilderness_ambush,
     _combat_apply_xp,
     _combat_attack_bonus_from_totals,
-    _combat_banked_hazard_count,
     _combat_base_skill_level,
     _combat_cap_damage_for_finisher,
     _combat_coerce_pack_mode,
@@ -418,7 +413,6 @@ from .logic_pure_combat_model import (
     _combat_enemy_protection_class,
     _combat_environmental_hazard_spec,
     _combat_finisher_spec,
-    _combat_loaded_hazard_count,
     _combat_magic_max_hit_old_hp,
     _combat_melee_max_hit_old_hp,
     _combat_npc_xp_multiplier,
@@ -441,7 +435,6 @@ from .logic_pure_combat_model import (
     apply_combat_preset_pure,
     apply_combat_target_overrides_pure,
     combat_attack_style_for_equipment_pure,
-    combat_enemy_current_lifepoints_pure,
     combat_finisher_state_pure,
     combat_magic_preset_locked_reasons_pure,
     combat_max_lifepoints_pure,
@@ -499,6 +492,7 @@ from .logic_pure_combat_specials import (
     _combat_enemy_prayer_drain,
     _combat_wyvern_breath_damage_event,
 )
+from .logic_pure_combat_risk import _combat_preview_with_risk
 
 
 def _combat_roll_damage_lifepoints(max_hit_old_hp, rng):
@@ -582,168 +576,23 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         player_max_hit *= warriors_guild_cyclops_damage_multiplier_pure(
             player_data
         )
-    enemy_max_hit = _combat_enemy_max_hit_old_hp(
+    return _combat_preview_with_risk(
+        player_data,
+        target_id,
         enemy,
-        _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
-        _equipment_bonus_value(enemy_totals, "melee_strength"),
+        enemy_data,
         enemy_totals,
-    )
-    weakening_equipment, weakening_active = _combat_weakening_equipment_state(
-        player_data, enemy
-    )
-    if weakening_active:
-        enemy_max_hit *= max(
-            0.0,
-            float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
-        )
-    protective_equipment, protection_active = _combat_protective_equipment_state(
-        player_data, enemy, combat_class
-    )
-    unprotected_effect = (
-        protective_equipment.get("unprotected_effect")
-        if isinstance(protective_equipment, Mapping) and not protection_active
-        else None
-    )
-    max_lp = combat_max_lifepoints_pure(player_data)
-    current_lp = max(0, min(_positive_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
-    enemy_max_lp_hit = (
-        _combat_unprotected_damage_lifepoints(unprotected_effect, max_lp)
-        + (
-            int(enemy_max_hit * 10)
-            if isinstance(unprotected_effect, Mapping)
-            and bool(unprotected_effect.get("additive_to_attack"))
-            else 0
-        )
-        if isinstance(unprotected_effect, Mapping)
-        else int(enemy_max_hit * 10)
-    )
-    dragonfire_state = combat_dragonfire_protection_pure(player_data, enemy)
-    if dragonfire_state:
-        dragonfire_spec = enemy.get("dragonfire", {})
-        dragonfire_state = {
-            **dragonfire_state,
-            "chance_numerator": _positive_int(
-                dragonfire_spec.get("chance_numerator", 1), 1
-            ),
-            "chance_denominator": _positive_int(
-                dragonfire_spec.get("chance_denominator", 1), 1
-            ),
-        }
-        enemy_max_lp_hit = max(
-            enemy_max_lp_hit,
-            _non_negative_int(dragonfire_state.get("max_hit", 0), 0),
-        )
-    encounter = player_data.get("combat_encounter", {}) or {}
-    active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
-    has_food = _combat_preview_food_available(player_data, active_encounter)
-    if enemy_max_lp_hit <= 0 or current_lp > enemy_max_lp_hit * 3:
-        risk = "Safe"
-    elif has_food:
-        risk = "Food advised"
-    else:
-        risk = "Death possible"
-    wilderness_spec = (
-        enemy.get("wilderness_risk")
-        if isinstance(enemy.get("wilderness_risk"), Mapping)
-        else None
-    )
-    wilderness_risk = {}
-    if wilderness_spec is not None:
-        wilderness_risk = {
-            **combat_wilderness_equipment_risk_pure(player_data, enemy),
-            "ambush_chance": max(
-                0.0,
-                min(
-                    1.0,
-                    float(wilderness_spec.get("ambush_chance", 0.0) or 0.0),
-                ),
-            ),
-            "max_hit": _positive_int(wilderness_spec.get("max_hit", 1), 1),
-            "source_status": str(
-                wilderness_spec.get("source_status", "") or ""
-            ),
-        }
-        risk = "Wilderness risk"
-    poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
-    poison_immunity_ticks = combat_poison_immunity_ticks_pure(player_data)
-    poison_lifepoints = 0
-    if poison_damage > 0 and poison_immunity_ticks <= 0:
-        poison_lifepoints = combat_poison_damage_for_ticks_pure(
-            combat_poison_ticks_for_initial_damage_pure(poison_damage)
-        )
-        if risk == "Safe":
-            risk = "Food advised"
-    state = (
-        "Wilderness risk"
-        if wilderness_spec is not None
-        else "Fighting"
-        if active_encounter
-        else "Ready"
-    )
-    protection_warning = (
-        str(protective_equipment.get("warning", ""))
-        if isinstance(protective_equipment, Mapping) and not protection_active
-        else ""
-    )
-    finisher_state = combat_finisher_state_pure(
-        player_data, target_id, enemy_data
-    )
-    hazard = _combat_environmental_hazard_spec(enemy)
-    hazard_state = (
+        combat_class,
+        accuracy,
         {
-            "display_name": str(
-                hazard.get("display_name", "Environmental hazard")
-            ),
-            "loaded": _combat_loaded_hazard_count(player_data, hazard),
-            "banked": _combat_banked_hazard_count(player_data, hazard),
-            "reviews_per_dose": _positive_int(
-                hazard.get("reviews_per_dose", 1), 1
-            ),
-            "source_status": str(hazard.get("source_status", "") or ""),
-        }
-        if hazard is not None
-        else {}
+            "player_max_hit": int(player_max_hit * 10),
+            "ammo": ammo_name or "",
+            "spell_id": spell_id if combat_class == "magic" else "",
+            "spell": spell_spec.get("display_name", "") if combat_class == "magic" and isinstance(spell_spec, Mapping) else "",
+            "runes": dict(spell_spec.get("rune_cost", {}) or {}) if combat_class == "magic" and isinstance(spell_spec, Mapping) else {},
+            "weapon": weapon_name or "",
+        },
     )
-    return {
-        "state": state,
-        "risk_band": risk,
-        "reasons": tuple(),
-        "accuracy": accuracy,
-        "enemy_max_hit": enemy_max_lp_hit,
-        "player_lifepoints": current_lp,
-        "player_max_lifepoints": max_lp,
-        "enemy_lifepoints": combat_enemy_current_lifepoints_pure(player_data, target_id, enemy_data),
-        "enemy_max_lifepoints": _positive_int(enemy.get("stats", {}).get("hitpoints", 0), 0),
-        "player_max_hit": int(player_max_hit * 10),
-        "ammo": ammo_name or "",
-        "spell_id": spell_id if combat_class == "magic" else "",
-        "spell": spell_spec.get("display_name", "") if combat_class == "magic" and isinstance(spell_spec, Mapping) else "",
-        "runes": dict(spell_spec.get("rune_cost", {}) or {}) if combat_class == "magic" and isinstance(spell_spec, Mapping) else {},
-        "weapon": weapon_name or "",
-        "poison_damage": poison_lifepoints,
-        "poison_chance": COMBAT_POISON_NPC_ATTACK_CHANCE if poison_damage > 0 and poison_immunity_ticks <= 0 else 0.0,
-        "poison_immunity_ticks": poison_immunity_ticks,
-        "protection_warning": protection_warning,
-        "weakening_equipment": {
-            "display_name": str(
-                weakening_equipment.get("display_name", "Weakening equipment")
-            ),
-            "active": weakening_active,
-            "enemy_accuracy_multiplier": float(
-                weakening_equipment.get("enemy_accuracy_multiplier", 1.0)
-            ),
-            "enemy_damage_multiplier": float(
-                weakening_equipment.get("enemy_damage_multiplier", 1.0)
-            ),
-        }
-        if isinstance(weakening_equipment, Mapping)
-        else {},
-        "finisher": finisher_state,
-        "environmental_hazard": hazard_state,
-        "dragonfire": dragonfire_state,
-        "wilderness_risk": wilderness_risk,
-        "source": enemy.get("source", ""),
-    }
 
 
 def combat_enemy_pressure_attack_pure(
