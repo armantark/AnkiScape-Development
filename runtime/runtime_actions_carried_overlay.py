@@ -13,10 +13,7 @@ from ..data.evil_tree_data import EVIL_TREE_ELIGIBLE_BLESSING_TARGETS
 from ..data.potion_data import skilling_potion_items_for_skill
 from ..data.urn_data import URN_STATE_ITEM_NAMES
 from ..logic import inventory_pure
-from ..logic_pure.achievement_diary_events import (
-    record_bank_run_diary_event_pure,
-    run_bank_run_diary_callbacks_pure,
-)
+from ..logic_pure.achievement_diary_events import run_bank_run_diary_callbacks_pure
 from ..logic.agility_travel import (
     AgilityTravelProfile,
     agility_travel_profile_pure,
@@ -28,13 +25,13 @@ from ..logic.wicked_hood_logic import (
     bank_run_phase_label_pure,
     consume_wicked_hood_route_teleport_pure,
     runecrafting_route_phases_pure,
-    wicked_hood_skip_active_outbound_pure,
 )
 from .runtime_actions_carried_requirements import (
     _BANK_RUN_TARGET_KEYS,
     _OVERLAY_STACKABLE_NAMES,
     _OVERLAY_TARGET_KEYS,
     _PROCESSING_HANDLER_KEYS,
+    _TargetPack,
     _agility_carried_requirement_gaps,
     _agility_casual_layout_for,
     _bank_can_supply,
@@ -43,9 +40,13 @@ from .runtime_actions_carried_requirements import (
     _processing_consumable_requirements_for,
     _processing_presence_requirements_for,
     _processing_requirements_for,
-    _repack_view_for_target,
     _set_carried_target_map,
     _without_urn_substitutions,
+)
+from .runtime_actions_carried_arrival import (
+    _settle_bank_run_requests,
+    _settle_teleport_arrival,
+    _teleport_past_outbound_leg,
 )
 from .runtime_actions_context import RuntimeActionContext
 from .runtime_actions_shared import _admit_live_cadence
@@ -382,24 +383,6 @@ def _initialize_due_bank_trip(
     return travel_profile, reviews_cost, route_phases, outbound_teleport_used
 
 
-def _settle_bank_run_requests(
-    player_data: dict[str, Any],
-    view: dict[str, int],
-    event: dict[str, Any],
-    *,
-    manual_bank_run: bool,
-    skilling_bank_run_requested: bool,
-) -> None:
-    """Spend the requests this trip answers; an arrival restores summoning and records the diary run."""
-    if manual_bank_run and (event.get("started") or event.get("completed")):
-        player_data.pop("review_bank_run_requested_target", None)
-    if skilling_bank_run_requested and event.get("active"):
-        player_data.pop("skilling_bank_run_requested", None)
-    if event.get("completed"):
-        player_data.update(restore_summoning_points_pure(player_data))
-        record_bank_run_diary_event_pure(player_data, True, view)
-
-
 def _spend_review_on_bank_trip(
     ctx: RuntimeActionContext,
     target_id: str,
@@ -461,36 +444,6 @@ def _run_without_carried_overlay(ctx: RuntimeActionContext, handler_key: str, ha
         ctx.show_activity_gain("Bank run — arrived and ready")
         ctx.save_player_data()
     return handler(ctx)
-
-
-@dataclasses.dataclass(frozen=True)
-class _TargetPack:
-    """One target's carried pack for this review: its kind, room, layouts and recipe."""
-
-    handler_key: str
-    target_id: str
-    is_processing: bool
-    advanced: bool
-    layout: dict[str, int]
-    bank: dict[str, Any]
-    capacity: int
-    casual_layout: dict[str, int]
-    requirements: dict[str, int]
-    presence_requirements: dict[str, int]
-    consumable_requirements: dict[str, int]
-
-    def repack(self) -> dict[str, int]:
-        """The pack a bank visit restocks from the bank."""
-        return _repack_view_for_target(
-            self.is_processing,
-            self.advanced,
-            self.layout,
-            self.bank,
-            self.requirements,
-            self.capacity,
-            self.casual_layout,
-            self.consumable_requirements,
-        )
 
 
 def _describe_target_pack(
@@ -562,38 +515,6 @@ def _prime_first_trip(
         view = pack.repack()
         _set_carried_target_map(player_data, "carried_inventory", target_id, view)
     return view
-
-
-def _teleport_past_outbound_leg(
-    player_data: dict[str, Any], pack: _TargetPack, bank_run: Any, target_altar: str
-) -> tuple[Any, dict[str, int] | None]:
-    """Spend a pending Wicked hood altar teleport on this target's active trip.
-
-    The teleport removes the trip's outbound leg. Returns the trip that remains
-    and, when nothing remains, the pack restocked from the bank.
-    """
-    active_target_matches = (
-        isinstance(bank_run, dict)
-        and bank_run.get("target_id") in (None, pack.target_id)
-        and int(bank_run.get("reviews_remaining", 0) or 0) > 0
-    )
-    if not active_target_matches:
-        return bank_run, None
-    teleported_data, pending_teleport_used = consume_wicked_hood_route_teleport_pure(
-        player_data, target_altar
-    )
-    if not pending_teleport_used:
-        return bank_run, None
-    player_data.clear()
-    player_data.update(teleported_data)
-    bank_run, _outbound_removed = wicked_hood_skip_active_outbound_pure(bank_run)
-    player_data["skilling_bank_run"] = bank_run
-    if bank_run:
-        return bank_run, None
-    view = pack.repack()
-    _set_carried_target_map(player_data, "carried_inventory", pack.target_id, view)
-    _set_carried_target_map(player_data, "carried_churn", pack.target_id, 0)
-    return bank_run, view
 
 
 def _run_processing_tick(
@@ -825,6 +746,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     if target_altar:
         bank_run, restocked_view = _teleport_past_outbound_leg(player_data, pack, bank_run, target_altar)
         if restocked_view is not None:
+            pack = _settle_teleport_arrival(
+                ctx, pack, view,
+                manual_bank_run=manual_bank_run, skilling_bank_run_requested=skilling_bank_run_requested,
+            )
+            bank_run_requested = False
             view, churn, force = restocked_view, 0, False
 
     active_run = isinstance(bank_run, dict) and int(bank_run.get("reviews_remaining", 0) or 0) > 0

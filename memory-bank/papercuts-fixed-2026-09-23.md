@@ -10675,3 +10675,646 @@ Disposition: operator error (`operator-error`). Evidence: each line records the 
 Disposition: fixed this pass (`fixed-this-pass`). Evidence: Clan Wars now declares its kept-item allowance on its rival instead of through a new combat-engine argument, and `test_first_wave_digests` passes against the unchanged pins.
 
 - 2026-09-26T15:50:39-0700 — Red-portal focused neighbours: /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain (selectors in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-red-portal-deaths-2026-09-26/plain-neighbours.command.txt) returned "Ran 462 tests in 29.183s" / "FAILED (failures=6, skipped=1)" / "error: remote plain lane failed with exit 1"; test_first_wave_digests rejected logic_pure/logic_pure_combat_engine.py, runtime/runtime_actions_carried.py and runtime/runtime_actions_activities.py in plain and Qt. Exact hashes are in the 2026-09-26 progress section and raw log. Fixed pins were left untouched; implementation stopped.
+
+## Potion batch resolves remote metadata before checking an already-present output — 1 occurrence
+
+
+
+## Hunter fetch manifest duplicates assets already mapped to shared owner folders — 1 occurrence
+
+
+
+## An explicit PNG or nonexistent directory is silently treated as zero files and exits successfully — 1 occurrence
+
+
+
+## Missing-backend guidance recommends bare uv run although the script has no dependency metadata — 2 occurrences
+
+
+
+## Core workflow prose retains a retired dispatch route and obsolete nested-worktree rejection, conflicting with current ownership rules — 3 occurrences
+
+
+
+## Generator direct invocation/help previously entered imports or harvesting unexpectedly — 3 occurrences
+
+
+
+## Ranging Guild hand edits were absent from generator source — 1 occurrence
+
+
+
+## Potion fetches used current revisions — 1 occurrence
+
+
+
+## A guessed Common vine identity and blanket cutoff broke unrelated asset rows — 2 occurrences
+
+
+
+## Service rewards and case-sensitive file titles broke activity fetches — 2 occurrences
+
+
+
+## Renderer selected target without emitting its click signal — 1 occurrence
+
+
+
+## Renderer requires exact visible category/skill labels — 2 occurrences
+
+
+
+## Process-global QApplication state allowed tests to open real modal dialogs under discovery — 10 occurrences
+
+
+
+## HUD fakes left real Qt child constructors reachable and mishandled module identity — 6 occurrences
+
+
+
+## Ad hoc Qt shards used incompatible QApplication/import lifecycle assumptions — 6 occurrences
+
+
+
+## Linked worktrees lacked the ignored Qt runtime path — 14 occurrences
+
+
+
+## Absolute runner invocation left relative test paths tied to caller cwd — 19 occurrences
+
+
+
+## Expected reachability findings stopped success-only closure chains — 10 occurrences
+
+
+
+## Foreground caps, contention and lost handles made full-suite completion ambiguous — 23 occurrences
+
+
+
+## Qt font aliases and offscreen notices add noise; rewriting stylesheet inputs would hide actual behavior — 10 occurrences
+
+
+
+## Whole-memory queue reads exhausted context — 2 occurrences
+
+
+
+## Remote mirrors lacked dependencies and inherited workstation-only source paths — 5 occurrences
+
+
+
+## Advisory owner-marker API raced and blocked legitimate callers — 5 occurrences
+
+
+
+## Multiple writers, edits during verification or moving baselines invalidated checkout/evidence ownership — 20 occurrences
+
+
+
+## Labels, summaries, partial inventories or moving baselines were mistaken for exact source/evidence contracts — 47 occurrences
+
+
+
+## Screenshots included unrelated desktop content or used an incorrect shared crop boundary — 3 occurrences
+
+
+
+## Development edits or fixtures violated the owning contract and were caught by existing gates; a historical first-attempt failure does not prove a present defect — 74 occurrences
+
+
+
+## Permission boundaries rejected commands, or no open handles was mistaken for proof that a live agent worktree was disposable — 6 occurrences
+
+
+
+## Provider auth/quotas, remote availability, accessibility or harness capability prevented an external operation — 37 occurrences
+
+
+
+## Retired Workflows rejected schema/CLI input or exhausted inherited-context/output budgets before a verdict — 69 occurrences
+
+
+
+## Browser sessions, hosting authentication, external image tooling or source availability blocked a non-product action — 22 occurrences
+
+
+
+## Unsupported flags, wrong executable/CLI contract or argument splitting rejected the invocation — 15 occurrences
+
+
+
+## Guessed/ambiguous unittest owners or skipped scopes produced false evidence — 62 occurrences
+
+
+
+## Raw broad searches, optional shell globs or stale paths flooded/aborted inspection — 186 occurrences
+
+
+
+## Ad hoc shell/string construction used reserved names, unsafe quoting, bad redirection or reconstructed paths — 58 occurrences
+
+
+
+## Patches inferred stale/repeated context or combined unrelated document anchors — 29 occurrences
+
+
+
+## Ad hoc probes imported package internals outside the stable alias/bootstrap or failed to register a temporary dataclass module — 10 occurrences
+
+
+
+## Wrappers omitted stderr or redirected stdout onto the same log owned by the gate — 3 occurrences
+
+
+
+## Raw evidence or document edits introduced whitespace that the existing diff gate correctly rejects — 4 occurrences
+
+
+
+## One-off command/API assumptions or observation mistakes produced incorrect local conclusions — 11 occurrences
+
+
+
+## Full shop regeneration used a moving external restoration rather than the slice pinned snapshot — 1 occurrence
+
+
+
+## A model succeeded on bounded calls but stalled inside an autonomous pipeline; prompt/schema/runtime confounds were not isolated — 2 occurrences
+
+
+
+## Unsupported historical runner option or wrong test/runtime selection caused command failure or skipped proof — 2 occurrences
+
+
+
+## Runner exact file selectors expanded scope and fuzzy matching could substitute a different test — 3 occurrences
+
+
+
+## Absolute run_tests.py invocation preserved caller cwd and broke relative provenance paths — 1 occurrence
+
+
+
+## A historical runner lacked the quiet option — 1 occurrence
+
+
+
+## A post-cutoff asset could pass promotion because provenance was not checked — 1 occurrence
+
+
+
+## Equipment generation accepts a mutable external source by design; the incident identifies an input-provenance policy decision, not a proved present product defect — 1 occurrence
+
+
+
+## The independent EQUIPMENT_DATA count pin correctly rejected an author change that added a generated row without updating the expected contract — 1 occurrence
+
+
+
+## The full suite previously issued live wiki lookups while checking source-art registry state — 1 occurrence
+
+
+
+## Qt probes need a real aqt environment and a realized widget before geometry observations are meaningful — 3 occurrences
+
+
+
+## Independent slices created the same test module and Git reported an add/add conflict — 1 occurrence
+
+
+
+## The reachability audit has a designed nonzero result when orphan inputs exist; summary-only or exit-only handling produced false red/green conclusions — 33 occurrences
+
+
+
+## Gate registration used nonblocking coordination and could falsely refuse one concurrent gate — 1 occurrence
+
+
+
+## The reachability model omitted required skills when deciding quest startability and therefore credited unreachable content — 1 occurrence
+
+
+
+## Shell quoting, zsh special-variable, glob, pipe, and short-circuit mistakes — 111 occurrences
+
+
+
+## The command used the wrong checkout cwd, guessed a module/path/test name, or bypassed the package-aware harness — 145 occurrences
+
+
+
+## Provider server errors, quota limits, remote execution, or agent-task lifecycle behavior — 59 occurrences
+
+
+
+## Generated one-line data was line-printed or edited with a generic/non-unique replacement — 37 occurrences
+
+
+
+## A test/probe supplied the wrong fixture state, data shape, deterministic input, or assertion ordering — 97 occurrences
+
+
+
+## A scripted edit, mutation probe, or restore sequence used an ambiguous target or did not fail fast — 44 occurrences
+
+
+
+## A diagnostic used an unbounded/ambiguous search, sampled the wrong process, or interpreted a partial output as a measurement — 123 occurrences
+
+
+
+## A historical source lookup, archive response, or source-title identity did not provide stable evidence — 20 occurrences
+
+
+
+## A brief, ledger, active-context entry, queue, or status report stated a stale or unsupported fact — 13 occurrences
+
+
+
+## A change crossed a CCN/file-size/test-quality gate or relied on a test shape the quality audit rejects — 6 occurrences
+
+
+
+## An external agent service, remote host, provider quota, or task-notification lifecycle failed — 14 occurrences
+
+
+
+## A test/probe used a synthetic repository, incomplete route model, wrong UI lane, or missed a coupled test contract — 8 occurrences
+
+
+
+## An ad-hoc invocation treated the checkout as a physical ankiscape package or passed a filesystem path where unittest requires a dotted selector — 6 occurrences
+
+
+
+## Qt verification needs a linked environment, a detached timeout strategy, and an agreed host font/discovery contract — 3 occurrences
+
+
+
+## A full lane ran against a changing tree or overlapped the required sequential lane — 2 occurrences
+
+
+
+## Sibling branches edited the same shared test file and a promotion merge conflicted — 1 occurrence
+
+
+
+## A script used the wrong interpreter, unsupported flag/argument shape, invalid worktree leaf, or malformed literal — 8 occurrences
+
+
+
+## A scan was too broad and produced false positives or exceeded the foreground budget — 2 occurrences
+
+
+
+## The Codex CLI, Sky accessibility/screenshot service, PinchTab renderer, or GLM workers did not provide the requested surface or persisted output — 8 occurrences
+
+
+
+## A resumed worktree or scratch/evidence file was guessed rather than inspected from its exact existing path — 9 occurrences
+
+
+
+## A slice score treated the audit earliest-blocked-stage report as a full descendant-count report — 1 occurrence
+
+
+
+## An exact-base task used the moving main default rather than its pinned commit — 1 occurrence
+
+
+
+## A clean pooled checkout can be detached and returned while its promotion gate runs — 1 occurrence
+
+
+
+## Lease acquisition precedes detection of an already checked-out branch — 3 occurrences
+
+
+
+## Raw treehouse status without the pinned root reports the wrong pool; safe inventory requires ad hoc probes — 5 occurrences
+
+
+
+## Surface tests abort after the first mismatch — 2 occurrences
+
+
+
+## Static discovery rejects tests derived from an imported TestCase harness — 1 occurrence
+
+
+
+## The public runner exposes full lanes only, causing focused callers to monkeypatch private launch functions — 1 occurrence
+
+
+
+## Promotion logs discard early failures by keeping only a final tail — 1 occurrence
+
+
+
+## Current guidance can lag owner state or treat author notes as an owner gate — 5 occurrences
+
+
+
+## The XP tool formerly used the retired combat burst constant — 1 occurrence
+
+
+
+## The test assumed ignored root/tmp existed in a fresh mirror — 1 occurrence
+
+
+
+## A0.2-second timeout raced interpreter startup — 6 occurrences
+
+
+
+## MediaWiki filemissing rows were parsed as revisions — 1 occurrence
+
+
+
+## Temporary generated evidence made the tree dirty — 1 occurrence
+
+
+
+## Top-level native tool placement crossed the file cap and was initially mistaken for a policy block — 3 occurrences
+
+
+
+## Argparse migration changed the pinned no-argument CLI contract — 1 occurrence
+
+
+
+## Full shop regeneration changed unrelated rows for a vendor-only change — 1 occurrence
+
+
+
+## Existing size, complexity, layout, import and directory ratchets refused growth or malformed new code — 59 occurrences
+
+
+
+## Complete surface fingerprints bind data content, object qualification and interpreter-specific output as well as API structure — 5 occurrences
+
+
+
+## Generators and nominally pure facades can depend on assembled runtime/catalog state, creating bootstrap and import-order friction — 5 occurrences
+
+
+
+## A bare generator destination follows process cwd and can create an unintended file — 1 occurrence
+
+
+
+## Test harness imports and patch lifetimes can duplicate guards, expose imported TestCases or restore patched native methods incorrectly — 3 occurrences
+
+
+
+## Unittest discovery bypassed the package's modal guard bootstrap — 2 occurrences
+
+
+
+## Provider limits, tool ownership/schema, lost handles or application/host conditions interrupted operations; they do not establish product defects — 44 occurrences
+
+
+
+## Large prompt preprocessing spun in the external Claude shell wrapper before any provider child — 3 occurrences
+
+
+
+## A remote source-image route returned bytes whose SHA1 differed from the API revision — 2 occurrences
+
+
+
+## Chosen local/mirror interpreters lacked a required dependency or launcher, or font setup caused delay — 7 occurrences
+
+
+
+## Native/UI observations are constrained by pending owner acceptance and may not prove the proposed causal explanation — 5 occurrences
+
+
+
+## An operator misread authorization, invoked unsupported delegation behavior, bypassed a hook, or inferred scope not given by the owner — 11 occurrences
+
+
+
+## Shell expansion, quoting, reserved variables, wrong command syntax or discarded exit status corrupted an intended invocation — 57 occurrences
+
+
+
+## Line-limited or broad reads included huge generated literals, histories or evidence payloads and lost useful output to truncation — 60 occurrences
+
+
+
+## One-off probes assumed nonexistent exports, wrong AST/data shapes, import roots or fixture semantics — 79 occurrences
+
+
+
+## Tests/probes seeded the wrong lifecycle state, uncontrolled randomness or guessed behavioral output, or failed to witness the intended route — 45 occurrences
+
+
+
+## Text edits, extraction scripts or documentation updates used ambiguous anchors, omitted dependencies, malformed whitespace or stale copied identifiers — 35 occurrences
+
+
+
+## Commands ran against the wrong revision/workdir, mutated active proof state, used unbounded lifecycle control, or interpreted a wrapper status as a completed result — 57 occurrences
+
+
+
+## Evidence readers assumed uniform encoding/schema, guessed roots, rebound stale hashes or treated byte-exact historical captures as editable prose — 20 occurrences
+
+
+
+## A finding-report exit1 was mistaken for an execution failure, or && suppressed later checks — 8 occurrences
+
+
+
+## Guessed paths/test names, unmatched optional globs or wrong worktree aliases failed before meaningful work — 105 occurrences
+
+
+
+## Registry precedence and the activity icon field caused missing Ogre-arrow and Fish-food icons — 4 occurrences
+
+
+
+## Layout audit permits nested canonical descendants and does not report safe-but-unexpected harness worktrees — 1 occurrence
+
+
+
+## A historical report says the external fleet hook drops generated files from all checks, beyond a size exemption — 1 occurrence
+
+
+
+## Worktree pool at its 16-tree cap — 4 occurrences
+
+
+
+## Guessed paths, unquoted zsh globs, bad quoting, looking for AGENTS.md on disk — 11 occurrences
+
+
+
+## Oversized output or unbounded listing — 3 occurrences
+
+
+
+## Focused test selection includes a test that skips — 3 occurrences
+
+
+
+## Complexity cap on the audit tooling — 3 occurrences
+
+
+
+## Vulture flags shop re-exports as unused — 2 occurrences
+
+
+
+## Native computer-use and process-inspection limits — 6 occurrences
+
+
+
+## MacBook Codex task tooling — 6 occurrences
+
+
+
+## One-off lines, fixed-before — 12 occurrences
+
+
+
+## One-off lines, operator-error — 3 occurrences
+
+
+
+## One-off lines, external-blocker — 2 occurrences
+
+
+
+## One-off lines, design-decision — 3 occurrences
+
+
+
+
+## Reachability audit exit status — 37 lines
+
+
+
+
+
+
+## The reachability report exited 1 on its pinned orphan baseline — 1 occurrence
+
+
+
+## The evidence digest manifests did not index every archived path — 1 occurrence
+
+
+
+## A full-path scan archived test inputs whose paths tests assemble from several strings — 2 occurrences
+
+
+
+## Archiving evidence broke local links to it — 1 occurrence
+
+
+
+## The triage verdict file disagreed with its own grouping table — 1 occurrence
+
+
+
+## Remote selectors matched too much or matched nothing — 2 occurrences
+
+
+
+## A capped test-ID listing was counted as the test count — 1 occurrence
+
+
+
+## zsh expanded or reserved a word the command used literally — 5 occurrences
+
+
+
+## Probes read guessed or mis-selected paths — 6 occurrences
+
+
+
+## Git history queries missed or misdated files added through merges — 2 occurrences
+
+
+
+## File edits used a wrong anchor, an unchanged replacement or a replace that hit the label — 3 occurrences
+
+
+
+## Ad hoc probe scripts had their own bugs — 3 occurrences
+
+
+
+## A broad diff exceeded the tool output cap — 1 occurrence
+
+
+
+## Focused runs waited on the shared remote mirror lock — 5 occurrences
+
+
+
+## The remote runner refused to sync over a run without a completion report — 1 occurrence
+
+
+
+
+## The evidence canary refused to overwrite an existing destination — 1 occurrence
+
+
+
+## Authors read the contract's one-commit rule as conflicting with the uncommitted brief — 1 occurrence
+
+
+
+## The slop-gate growth rail refused header lines in generated files — 1 occurrence
+
+
+
+## The asset-cutoff audit rewrote its tracked checkpoint report — 1 occurrence
+
+
+
+## Harness background-task output paths vanished — 2 occurrences
+
+
+
+## Authors exhausted their model context mid-slice — 3 occurrences
+
+
+
+## A native check held the MacBook screen that another seat also drove — 2 occurrences
+
+
+
+## A gate lane timed out under MacBook load — 1 occurrence
+
+
+
+## UI test modules were never discovered — 1 occurrence
+
+
+
+## Teleport arrival settlement slice friction — 16 occurrences
+
+Disposition: fixed this pass (`fixed-this-pass`). Evidence: each line records its own workaround; the complexity refusal closed when the teleport arrival moved into the private `_settle_teleport_arrival` helper, leaving `run_answer_with_carried_overlay` at CCN 79 and cognitive 87, and the slop gate exited 0.
+
+- 2026-09-26 14:17:15 PDT While locating teleport tests, zsh rejected the unmatched glob tests/*teleport*: zsh:1: no matches found: tests/*teleport*; continued with rg file discovery.
+
+- 2026-09-26 14:17:52 PDT While locating the Runecrafting handler, rg reported: rg: runtime/runtime_actions_runecrafting.py: No such file or directory (os error 2); continued by searching runtime for the handler definition.
+- 2026-09-26 14:19:42 PDT While reading the test runner, sed reported: sed: tools/run_tests.py: No such file or directory; the authorized runner remains tools/run_remote_tests.py.
+- 2026-09-26 14:19:42 PDT While locating cadence data, zsh rejected the unmatched glob data/cadence*: zsh:1: no matches found: data/cadence*; switched to directory-scoped rg with quoted --glob filters.
+- 2026-09-26 14:19:42 PDT While locating the complexity gate, sed reported: sed: tools/slop_gate.py: No such file or directory; stopped guessing tool paths and used tracked-file discovery.
+- 2026-09-26 14:21:45 PDT While locating Runecrafting eligibility, rg reported: rg: logic/runecrafting_logic.py: No such file or directory (os error 2); logic_pure/logic_pure_runecrafting.py supplied the quest gate and the regression fixture now completes Rune Mysteries.
+- 2026-09-26 14:23:23 PDT While locating cadence declarations, rg reported: rg: data/action_cadence_declarations.py: No such file or directory (os error 2); read the existing logic/cadence_live.py resolver instead.
+- 2026-09-26 14:23:23 PDT Teleport arrival regression fixture assumed Runecrafting could cadence-wait; the remote baseline returned AssertionError: 28 != 56 because the live resolver uses passthrough. The new test now checks actual same-review crafting with live cadence enabled and still requires arrival settlement.
+- 2026-09-26 14:27:47 PDT While checking the remote-runner queue, a ps argument search matched full agent prompts and produced truncated output; discarded that incidental process capture and kept the runner log as the queue signal.
+- 2026-09-26 14:33:33 PDT A read-only process inventory raced a process exit: subprocess.CalledProcessError: Command '['ps', '-p', '81750', '-o', 'args=']' returned non-zero exit status 1; stopped the optional inventory and used the owned remote-runner session only.
+- 2026-09-26 14:56:32 PDT Teleport arrival candidate run returned Ran 5 tests in 0.037s / FAILED (failures=4): fixture RNG 0.0 produced Air rune: 82 plus Strange rock (Runecrafting 1): 1 and Strange rock (Runecrafting 2): 1, and the default save retained an empty skilling_bank_run_requested field. Kept the assertions, seeded RNG 0.99, removed the inactive request from the fixture, restored the original overlay and re-proved the final fixture red before reapplying the same fix.
+- 2026-09-26 14:56:32 PDT Reading the failed arrival log by line range included one whole default-player dictionary on a single assertion line and truncated tool output; retained the full raw log and limited later reads to bounded summary lines.
+- 2026-09-26 15:10:59 PDT The arrival regression indexed a cleared churn entry after the existing sparse-map writer removed it: KeyError: 'craft_air_runes' in test_teleport_arrival_settles_before_runecrafting_and_spends_requests, Ran 584 tests in 81.275s / FAILED (errors=3). The assertion still requires zero churn and now reads an absent entry as zero, matching the runtime reader; production code is unchanged.
+- 2026-09-26 15:20:48 PDT While locating the diary reward catalog, zsh reported: zsh:1: no matches found: data/achievement_diary_tasks*; rg --files data/achievement_diaries located the existing miscellaneous.py and burthorpe.py records.
+- 2026-09-26 15:26:31 PDT The results-copy model invented "a teleport home" for the Wicked hood altar teleport; rejected the unsupported destination and requested a corrected sentence.
+- 2026-09-26 15:25:00 PDT Teleport arrival candidate is blocked by the fixed slop gate: runtime/runtime_actions_carried_overlay.py: run_answer_with_carried_overlay 80 (was 79); slop-gate: cyclomatic complexity above 15 was introduced:. Exact output: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-teleport-arrival-settlement-2026-09-26/slop-gate-final.txt. Stopped implementation and left the candidate uncommitted under the dispatch stop rule.

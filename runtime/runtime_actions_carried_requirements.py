@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 from typing import Any
 
 from ..core.constants import (
@@ -465,3 +467,33 @@ def _repack_view_for_target(
             packed[item_name] = packed.get(item_name, 0) + amount
         return packed
     return {}
+
+
+@dataclasses.dataclass(frozen=True)
+class _TargetPack:
+    """One target's carried pack for this review: its kind, room, layouts and recipe."""
+
+    handler_key: str
+    target_id: str
+    is_processing: bool
+    advanced: bool
+    layout: dict[str, int]
+    bank: dict[str, Any]
+    capacity: int
+    casual_layout: dict[str, int]
+    requirements: dict[str, int]
+    presence_requirements: dict[str, int]
+    consumable_requirements: dict[str, int]
+
+    def repack(self) -> dict[str, int]:
+        """The pack a bank visit restocks from the bank."""
+        return _repack_view_for_target(
+            self.is_processing,
+            self.advanced,
+            self.layout,
+            self.bank,
+            self.requirements,
+            self.capacity,
+            self.casual_layout,
+            self.consumable_requirements,
+        )
