@@ -1833,12 +1833,13 @@ Standing arrangement now agreed: ring once per quest with just the quest name be
 dispatch, and they answer claim or no claim. Dossier discovery is a file read, not a
 question.
 
-Their loop makes **no implementation claim on any AnkiScape-side unit**.
-`loop-state.json` records `quest_implementation_lane = "ankiscape_external"`, and their
-matrix-order restoration work never conflicts with our stage mirrors. One quest unit is
-explicitly handed to this side: `quests-swept-away`, status `STUB`, with a frozen
-contract. It is the only row in their quest ledger that mentions AnkiScape at all, which
-I verified.
+The reported `loop-state.json` value `quest_implementation_lane = "ankiscape_external"`
+was not owner approval to assign Darkan's quest implementation to AnkiScape.
+The owner ruling of 2026-09-25 confirms that Darkan implements quests and miniquests,
+including achievement task hooks; only source harvesting is split ([current rules](../shared-source-harvest-ledger.md)).
+The one exception, AnkiScape's `skippy_and_the_mogres` waiver, is used: that miniquest landed on main at `9b933084`, and `data/quest/ledger.py:48` lists it.
+At this earlier check, `quests-swept-away`, status `STUB`, with a frozen contract,
+was the only quest-ledger row that mentioned AnkiScape; that observation grants no exclusive implementation ownership.
 
 ### 23.3 Section 22.2 framed the coins conflict wrongly, and is corrected here
 

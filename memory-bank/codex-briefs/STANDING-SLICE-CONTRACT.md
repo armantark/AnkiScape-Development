@@ -95,12 +95,15 @@ this Anki install for real study.
   unrecovered, and register it so the placeholder audit can see it. An
   unmarked reconstruction is invisible to that audit and is a defect.
 - Never invent a mechanic and describe it as settled.
-- Dual-eligible units (a unit either thread may implement, such as a cutoff
-  quest or miniquest — `skippy_and_the_mogres` first among them): doorbell the
-  other thread to claim the unit BEFORE any harvest or implementation. The
-  first recorded claim owns the unit and its harvesting. Never re-harvest a
-  subject the other thread has pinned; read its pinned record instead. Owner
-  ruling of 2026-08-31, `design-thread-queue.md` §4.22 ruling 2.
+- Source harvesting for any subject (quest, skill, item, NPC, region,
+  minigame, system): check the canonical ledger and the other thread's claims,
+  doorbell the other thread, and record a claim BEFORE any harvest. The first
+  recorded claim owns that subject's harvesting only. Never re-harvest a
+  subject the other thread has pinned; read its pinned record instead. The
+  Darkan repository implements its quests and miniquests; AnkiScape's one
+  waiver, `skippy_and_the_mogres`, is used: that miniquest landed at
+  `9b933084`. Owner rulings of 2026-08-31 (`design-thread-queue.md` §4.22 ruling 2)
+  and 2026-09-25 (`shared-source-harvest-ledger.md` section 3).
 - Record any contract conflict or owner-only decision in
   `memory-bank/design-thread-queue.md` and continue with independent work.
 

@@ -16971,3 +16971,12 @@ Disposition: fixed this pass (`fixed-this-pass`). Evidence: `tools/memory_bank/m
 - 2026-09-26T14:23:27-07:00 — Generator digest race hook lookup: a guessed hook location failed with "zsh:1: no matches found: /Users/ArmanTarkhanian1/.codex/hooks/slop-gate*"; git config --get core.hooksPath identifies /Users/ArmanTarkhanian1/fleet/config/git/hooks.
 - 2026-09-26T14:23:27-07:00 — Generator digest race results copy: the first copy pass said "Smithing and Summoning now read from the same captured source", which falsely suggests the two generators share one source set; the corrected pass says "each read from their own captured source".
 - 2026-09-26T14:29:31-07:00 — Generator digest race verification setup: a zero-match rg query exited 1 and short-circuited the following diff checks; the diff checks were rerun separately and exited 0.
+
+## Quota-ledger shell search and copy correction, 2026-09-26
+
+Disposition: resolved in this slice. The shell search succeeded without the special variable. The accepted copy distinguishes agent reviews from owner decisions.
+
+- 2026-09-26T09:32:50-0700 — Quota-ledger reader search exited 127 with `(eval):1: command not found: rg` and `(eval):1: command not found: head` because a zsh loop used the special `path` variable and replaced PATH; a fresh shell restored the search, and ordinary loop variables must not use `path`.
+- 2026-09-26T09:33:01-0700 — Quota-ledger copy pass returned `The notes now show you which work still needs your review and which game decisions are waiting on you.`, which wrongly assigned the agents' cross-lineage review to the owner; rejected and requested a correction with review ownership explicit.
+- 2026-09-26T09:37:18-0700 — Quota-ledger papercut move removed the final newline from `memory-bank/papercuts.md`; `python3 tools/audit_docs.py` reported `memory-bank/papercuts.md:83: missing_final_newline: file must end with a newline` and `Documentation audit found 1 issue(s).`; restored the newline without changing the audit.
+- 2026-09-26T09:39:51-07:00 — Quota-ledger whitespace check reported `memory-bank/papercuts-fixed-2026-09-23.md:3114: new blank line at EOF.`; the papercut move now writes the line records with exactly one final newline, and neither validator changed.
