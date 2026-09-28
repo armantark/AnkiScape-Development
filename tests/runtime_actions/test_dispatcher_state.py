@@ -118,6 +118,133 @@ class DispatcherStateTest(unittest.TestCase):
         self.assertEqual(self.addon.random.getstate(), original_random)
         self.assertEqual(self.saved[-1], (before, "Firemaking"))
 
+    def test_rejected_answer_keeps_the_final_log_for_one_paid_retry(self):
+        self.state.player_data = {
+            "inventory": {"Logs": 1},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+        self.state.current_skill = "Firemaking"
+        popups = []
+        # A burn that completes an achievement queues its popup until the
+        # answer is accepted, as the deferred achievement check does in Qt.
+        self.addon.check_achievements = lambda _data: self.state.pending_review_dialogs.append(
+            lambda: popups.append("achievement")
+        )
+        self.addon.show_error_message = lambda _title, message: self.fail(message)
+        self.addon.save_player_data()
+        before = copy.deepcopy(self.state.player_data)
+        original_random = self.addon.random.getstate()
+        self.addCleanup(self.addon.random.setstate, original_random)
+        random_roll = self.addon.random.random
+
+        def successful_roll():
+            random_roll()
+            return 0.0
+
+        def reject(_reviewer, _ease):
+            raise RuntimeError("Anki rejected the answer")
+
+        self.addon.random.random = successful_roll
+        self.addCleanup(setattr, self.addon.random, "random", random_roll)
+        self.addon.on_card_did_show(None)
+        self.addon.on_show_answer(None)
+
+        with self.assertRaisesRegex(RuntimeError, "rejected"):
+            self.addon.on_answer_card(types.SimpleNamespace(state="answer"), 4, reject)
+        self.assertEqual(self.state.player_data, before)
+        self.assertEqual(self.saved[-1], (before, "Firemaking"))
+        self.assertEqual(self.addon.random.getstate(), original_random)
+        self.assertEqual(self.state.review_undo_stack, [])
+        self.assertEqual(self.state.pending_review_dialogs, [])
+
+        # Anki leaves the card on its answer side, so the same press retries.
+        self.assertEqual(
+            self.addon.on_answer_card(_FakeReviewer(), 4, lambda *_args: "answered"),
+            "answered",
+        )
+        self.assertEqual(self.state.player_data["firemaking_exp"], 40.0)
+        self.assertEqual(self.state.player_data["inventory"].get("Logs", 0), 0)
+        self.assertEqual(self.state.player_data["inventory"]["Ashes"], 1)
+        self.assertEqual(self.saved[-1][0], self.state.player_data)
+        self.assertEqual(popups, ["achievement"])
+        self.assertEqual(len(self.state.review_undo_stack), 1)
+        self.addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+        self.assertEqual(self.state.player_data, before)
+        self.assertEqual(self.addon.random.getstate(), original_random)
+
+    def test_rejected_answer_out_of_logs_leaves_no_stale_bankstanding_notice(self):
+        self.state.player_data = {
+            "inventory": {},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+        self.state.current_skill = "Firemaking"
+        self.addon.check_achievements = lambda _data: None
+        notices = []
+        self.addon.ui.show_bankstanding_dialog = notices.append
+        self.addCleanup(self.addon.random.setstate, self.addon.random.getstate())
+        random_roll = self.addon.random.random
+        self.addon.random.random = lambda: random_roll() * 0.0
+        self.addCleanup(setattr, self.addon.random, "random", random_roll)
+
+        def reject(_reviewer, _ease):
+            raise RuntimeError("Anki rejected the answer")
+
+        self.addon.on_card_did_show(None)
+        self.addon.on_show_answer(None)
+        with self.assertRaisesRegex(RuntimeError, "rejected"):
+            self.addon.on_answer_card(types.SimpleNamespace(state="answer"), 4, reject)
+        self.assertEqual(self.state.current_skill, "Firemaking")
+        self.assertEqual(self.addon.mw.col.get_config("ankiscape_current_skill"), "Firemaking")
+
+        # The player fetches a log, then presses the same answer again.
+        self.addon.commit_direct_action(
+            lambda current: ({**current, "inventory": {"Logs": 1}}, True)
+        )
+        self.addon.on_answer_card(_FakeReviewer(), 4, lambda *_args: "answered")
+        self.assertEqual(self.state.player_data["inventory"].get("Logs", 0), 0)
+        self.assertEqual(self.state.player_data["firemaking_exp"], 40.0)
+        self.assertEqual(notices, [])
+
+    def test_answer_failing_after_anki_leaves_the_answer_side_is_not_re_armed(self):
+        self.state.player_data = {
+            "inventory": {"Logs": 1},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+        self.state.current_skill = "Firemaking"
+        self.addon.check_achievements = lambda _data: None
+        self.addCleanup(self.addon.random.setstate, self.addon.random.getstate())
+        random_roll = self.addon.random.random
+        self.addon.random.random = lambda: random_roll() * 0.0
+        self.addCleanup(setattr, self.addon.random, "random", random_roll)
+
+        def launch_fails(reviewer, _ease):
+            # Anki's reviewer moves to "transition" before it starts the answer op.
+            reviewer.state = "transition"
+            raise RuntimeError("answer op failed after the transition")
+
+        reviewer = types.SimpleNamespace(state="answer")
+        self.addon.on_card_did_show(None)
+        self.addon.on_show_answer(None)
+        with self.assertRaisesRegex(RuntimeError, "after the transition"):
+            self.addon.on_answer_card(reviewer, 4, launch_fails)
+        after_failure = copy.deepcopy(self.state.player_data)
+        undo_depth = len(self.state.review_undo_stack)
+        self.assertEqual(after_failure["inventory"].get("Logs", 0), 0)
+
+        # Anki ignores presses outside its answer side, so they must not pay.
+        self.addon.on_answer_card(reviewer, 4, lambda *_args: None)
+        self.assertEqual(self.state.player_data, after_failure)
+        self.assertEqual(len(self.state.review_undo_stack), undo_depth)
+
     def test_direct_selection_and_undo_publish_the_shared_skill_and_save(self):
         self.state.player_data = {"inventory": {}, "current_utility": "bankstanding"}
         self.state.current_skill = "Utilities"
@@ -242,6 +369,119 @@ class DispatcherStateTest(unittest.TestCase):
                 self.addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
                 self.assertEqual(self.state.player_data, before)
                 self.assertEqual(self.saved[-1][0], before)
+
+    def test_failed_reward_book_keeps_the_book_for_a_retry_and_a_harmless_undo(self):
+        from tests import test_troll_invasion
+
+        book_name = "Troll Invasion reward book"
+        record_save = self.addon.storage_save_player_data
+        failed_saves = []
+
+        def fail_level_up(_skill, _data):
+            raise RuntimeError("level-up dialog failed")
+
+        def fail_one_save(data, skill):
+            if not failed_saves:
+                failed_saves.append(skill)
+                raise RuntimeError("database is locked")
+            record_save(data, skill)
+
+        self.addon.check_achievements = lambda _data: None
+        for name, fault in (
+            ("level_up_check", fail_level_up),
+            ("storage_save_player_data", fail_one_save),
+        ):
+            with self.subTest(fault=name):
+                self.addon.mw = _DummyMW(_DummyCol({"ankiscape_floating_xp_enabled": False}))
+                book = test_troll_invasion._player(troll_invasion_reward_fractions=[1.0])
+                book["inventory"][book_name] = 1
+                menu = self._menu(book)
+                self.addon.save_player_data()
+                untouched = copy.deepcopy(book)
+                # An earlier action proves the failed attempt's undo entry
+                # cannot reach past itself and take back unrelated work.
+                self.addon.commit_direct_action(
+                    lambda current: ({**current, "world_population_profile": "busy"}, True)
+                )
+                before = copy.deepcopy(self.state.player_data)
+                random_before = self.addon.random.getstate()
+                refreshes = self.addon.mw.undo_updates
+                original = getattr(self.addon, name)
+                setattr(self.addon, name, fault)
+                with self.assertRaises(RuntimeError):
+                    menu["on_troll_invasion_command"]("redeem_book", {"skill_id": "agility"})
+                setattr(self.addon, name, original)
+                self.assertEqual(self.state.player_data, before)
+                self.assertEqual(self.saved[-1][0], before)
+                self.assertEqual(self.addon.random.getstate(), random_before)
+                # The failed attempt's Anki entry stays, so the Undo menu must show it.
+                self.assertGreater(self.addon.mw.undo_updates, refreshes)
+
+                result = menu["on_troll_invasion_command"]("redeem_book", {"skill_id": "agility"})
+                self.assertTrue(result["ok"], result)
+                self.assertEqual(
+                    self.state.player_data["agility_exp"],
+                    before["agility_exp"] + result["awarded_xp"],
+                )
+                self.assertEqual(self.state.player_data["inventory"].get(book_name, 0), 0)
+                self.assertEqual(self.saved[-1][0], self.state.player_data)
+                self.assertEqual(
+                    len(self.state.direct_action_undo_stack),
+                    len(self.addon.mw.col.custom_undo_entries),
+                )
+                for _entry in ("retry", "failed attempt"):
+                    self.addon._on_state_did_undo(
+                        types.SimpleNamespace(operation="AnkiScape direct action")
+                    )
+                    self.assertEqual(self.state.player_data, before)
+                    self.assertEqual(self.saved[-1][0], before)
+                self.addon._on_state_did_undo(
+                    types.SimpleNamespace(operation="AnkiScape direct action")
+                )
+                self.assertEqual(self.state.player_data, untouched)
+                self.assertEqual(self.state.direct_action_undo_stack, [])
+
+    def test_reward_whose_skill_key_stays_locked_keeps_the_stored_book(self):
+        from tests import test_troll_invasion
+
+        class DBError(Exception):
+            pass
+
+        book_name = "Troll Invasion reward book"
+        collection = self.addon.mw.col
+        locked = []
+
+        def json_config(key, value):
+            if locked and key == "ankiscape_current_skill":
+                raise DBError("database is locked")
+            collection._store[key] = copy.deepcopy(value)
+
+        collection.set_config = json_config
+        storage = sys.modules[f"{self.addon.__name__}.core.storage"]
+        storage.mw = self.addon.mw
+        self.addon.storage_save_player_data = storage.save_player_data
+        self.addon.check_achievements = lambda _data: None
+        book = test_troll_invasion._player(troll_invasion_reward_fractions=[1.0])
+        book["inventory"][book_name] = 1
+        menu = self._menu(book)
+        self.addon.save_player_data()
+        before = copy.deepcopy(self.state.player_data)
+        # The profile row saves, then the skill row keeps failing.
+        locked.append(True)
+        for _attempt in ("first press", "retry while locked"):
+            with self.assertRaises(DBError):
+                menu["on_troll_invasion_command"]("redeem_book", {"skill_id": "agility"})
+            self.assertEqual(self.state.player_data, before)
+            self.assertEqual(collection.get_config("ankiscape_player_data"), before)
+
+        locked.clear()
+        result = menu["on_troll_invasion_command"]("redeem_book", {"skill_id": "agility"})
+        self.assertTrue(result["ok"], result)
+        stored = collection.get_config("ankiscape_player_data")
+        self.assertEqual(stored["inventory"].get(book_name, 0), 0)
+        self.assertEqual(stored["agility_exp"], before["agility_exp"] + result["awarded_xp"])
+        self.addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(collection.get_config("ankiscape_player_data"), before)
 
     def test_selection_dialogs_persist_the_shared_targets_and_skill(self):
         self.state.player_data = {"inventory": {"Soft clay": 2}, "crafting_level": 99}

@@ -450,9 +450,6 @@ def show_review_popup():
     ui.show_review_popup()
 
 
-# Classes moved to ui.py
-
-
 def save_player_data():
     _state.player_data.update(reconcile_bank_layout_for_player_pure(_state.player_data))
     storage_save_player_data(_state.player_data, _state.current_skill)
@@ -462,8 +459,6 @@ def load_player_data():
     _state.player_data, _state.current_skill = storage_load_player_data()
     _state.current_skill = _normalize_legacy_utility_skill(_state.current_skill)
     ui.update_menu_visibility(_state.current_skill)
-
-## Removed legacy get_exp_to_next_level stub; use logic_pure.get_exp_to_next_level in tests/pure logic.
 
 # UI functions
 
@@ -844,7 +839,8 @@ def commit_direct_action(
     `apply_change` receives the live save and returns `(updated, ok)`. Returning
     `ok=False` refuses the action: nothing is written and the random state is put
     back, so a refusal the player never saw cannot advance the sequence. Optional
-    `after_apply` work runs after the undo entry exists but before the save commit.
+    `after_apply` work runs after the undo entry exists but before the save commit;
+    a raise there or in the save restores the snapshot, and that entry's Undo is a no-op.
 
     This is the seam. Before it existed the snapshot, custom-undo-entry, bounded
     stack and commit lived inline in `resolve_review_context_action`, which meant
@@ -858,11 +854,7 @@ def commit_direct_action(
     Returns True when the change was committed.
     """
 
-    before = {
-        "player_data": copy.deepcopy(_state.player_data),
-        "random_state": random.getstate(),
-        "current_skill": _state.current_skill,
-    }
+    before = _capture_player_data_snapshot()
     updated, ok = apply_change(_state.player_data)
     if not ok:
         random.setstate(before["random_state"])
@@ -888,28 +880,33 @@ def commit_direct_action(
     _state.direct_action_undo_stack.append(before)
     if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
         del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    _state.player_data.clear()
-    _state.player_data.update(updated)
-    if switch_to_bankstanding:
-        _switch_to_bankstanding(
-            bankstanding_reason,
-            automatic=bool(bankstanding_automatic),
-        )
-    elif selected_skill is not None:
-        _select_review_action(selected_skill)
-    if after_apply is not None:
-        after_apply()
-    save_player_data()
+    try:
+        _state.player_data.clear()
+        _state.player_data.update(updated)
+        if switch_to_bankstanding:
+            _switch_to_bankstanding(
+                bankstanding_reason,
+                automatic=bool(bankstanding_automatic),
+            )
+        elif selected_skill is not None:
+            _select_review_action(selected_skill)
+        if after_apply is not None:
+            after_apply()
+        save_player_data()
+    except Exception:
+        _roll_back_failed_action(before)
+        raise
+    finally:
+        try:
+            mw.update_undo_actions()
+        except (AttributeError, RuntimeError):
+            pass
     if switch_to_bankstanding:
         try:
             update_review_event_log_drawer(_state.player_data)
         except Exception:
             pass
         _show_pending_bankstanding_dialog()
-    try:
-        mw.update_undo_actions()
-    except (AttributeError, RuntimeError):
-        pass
     return True
 
 
@@ -1198,7 +1195,16 @@ def _capture_player_data_snapshot(*, review_answer=False):
         "player_data": before_player_data,
         "current_skill": _state.current_skill,
         "random_state": random.getstate(),
+        "pending_dialogs": len(_state.pending_review_dialogs),
+        "pending_notice": _state.pending_bankstanding_notice,
     }
+
+
+def _roll_back_failed_action(before) -> None:
+    """Put the save and the queued notices back as they were before the action."""
+    del _state.pending_review_dialogs[before["pending_dialogs"]:]
+    _state.pending_bankstanding_notice = before["pending_notice"]
+    _restore_direct_action_snapshot(before)
 
 
 def _remember_review_award_snapshot(before_state) -> None:
@@ -1291,15 +1297,15 @@ def _restore_direct_action_snapshot(snapshot) -> None:
     _state.player_data.clear()
     _state.player_data.update(copy.deepcopy(snapshot["player_data"]))
     _state.current_skill = snapshot.get("current_skill", _state.current_skill)
+    random_state = snapshot.get("random_state")
+    if random_state is not None:
+        random.setstate(random_state)
+    save_player_data()
     try:
         mw.col.set_config("ankiscape_current_skill", _state.current_skill)
     except (AttributeError, RuntimeError):
         pass
     ui.update_menu_visibility(_state.current_skill)
-    random_state = snapshot.get("random_state")
-    if random_state is not None:
-        random.setstate(random_state)
-    save_player_data()
     try:
         update_review_hud(_state.player_data, _state.current_skill)
         update_review_status_badge(
@@ -1497,11 +1503,6 @@ def save_skill(skill, dialog):
         if dialog:
             dialog.accept()
 
-## menu visibility now handled by ui.update_menu_visibility
-
-## show_achievement_dialog provided by ui.py
-
-## show_level_up_dialog provided by ui.py
 
 def show_craft_selection():
     selected = ui.show_craft_selection_dialog(
@@ -5420,9 +5421,6 @@ def on_good_answer(before_state=None, *, defer_commit=False):
     _state.exp_awarded = True
 
 
-## Removed roll_gem wrapper; mining uses apply_mining_pure directly.
-
-
 def _active_review_carried_target():
     handler_key = review_action_handler_key(_state.current_skill)
     if handler_key == "combat":
@@ -5558,6 +5556,13 @@ def on_answer_card(self, ease, _old):
     _state.answer_shown = False  # Reset for the next card
     try:
         result = _old(self, ease)
+    except Exception:
+        # Only an error that leaves Anki on the answer side lets the same press retry.
+        if review_answered and self.state == "answer":
+            _state.card_turned = _state.answer_shown = True
+            _state.exp_awarded = review_answered = False
+            _roll_back_failed_action(before_state)
+        raise
     finally:
         if review_answered:
             _commit_review_answer(before_session, before_state)
@@ -5588,9 +5593,6 @@ def on_show_answer(reviewer):
     _state.answer_shown = True
 
 
-## show_error_message now provided by ui.show_error_message
-
-
 def can_smith_any():
     return any(
         not smithing_target_locked_reasons_pure(
@@ -5613,8 +5615,6 @@ def create_soft_clay():
     if ok:
         _state.player_data["inventory"] = new_inv
     return ok
-
-# Removed legacy safe_deduct_from_inventory; use utils.safe_deduct_from_inventory where needed.
 
 # Initialization and hooks
 def initialize_exp_popup():
