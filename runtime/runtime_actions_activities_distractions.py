@@ -55,40 +55,21 @@ from .runtime_actions_shared import (
 from .runtime_actions_context import RuntimeActionContext
 
 
-def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
-    player_data = ctx.player_data
-    woodcutting_level = int(player_data.get("woodcutting_level", 1) or 1)
-    has_hatchet = best_woodcutting_axe_pure(
-        woodcutting_level,
-        player_data.get("inventory", {}),
-        player_data.get("toolbelt", {}),
-        WOODCUTTING_AXE_DATA,
-    ) is not None
-    state = player_data.get("evil_tree")
+def _evil_tree_reward_rolls(ctx: RuntimeActionContext) -> tuple[float, ...]:
+    """Only the felling answer draws, so nurture and root answers leave the RNG untouched."""
+    state = ctx.player_data.get("evil_tree")
     session = state.get("session") if isinstance(state, dict) else None
-    reward_rolls = (
-        tuple(ctx.random_random() for _ in range(4))
-        if isinstance(session, dict) and session.get("phase") == "fell"
-        else ()
-    )
-    updated, ok, result = apply_evil_tree_review_pure(
-        player_data,
-        has_usable_hatchet=has_hatchet,
-        reward_rolls=reward_rolls,
-    )
-    if not ok:
-        ctx.show_error_message(
-            "Evil Tree unavailable",
-            str(result.get("reason", "This Evil Tree can no longer be trained.")),
-        )
-        ctx.deactivate_current_skill()
-        return False
+    if isinstance(session, dict) and session.get("phase") == "fell":
+        return tuple(ctx.random_random() for _ in range(4))
+    return ()
 
-    player_data.clear()
-    player_data.update(updated)
-    phase = str(result.get("phase", ""))
-    xp = result.get("xp", {}) or {}
-    outputs = result.get("outputs", {}) or {}
+
+def _record_evil_tree_phase(
+    ctx: RuntimeActionContext,
+    phase: str,
+    xp: dict,
+    outputs: dict,
+) -> None:
     if phase == "nurture":
         _record_action(
             ctx,
@@ -127,31 +108,62 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
             primary_xp=float(xp.get("Firemaking", 0.0) or 0.0),
         )
 
-    for skill_name in xp:
-        ctx.level_up_check(str(skill_name), player_data)
-    ctx.check_achievements(player_data)
-    ctx.save_player_data()
 
+def _evil_tree_gain_message(result: dict, phase: str, xp: dict, outputs: dict) -> str:
     xp_text = " · ".join(
         f"+{float(amount):,.6g} {skill_name} XP"
         for skill_name, amount in xp.items()
     )
     if result.get("completed") and result.get("partial"):
-        message = f"Nurtured {result['tier_name']} · {xp_text} · nurture-only visit complete"
-    elif result.get("completed"):
+        return f"Nurtured {result['tier_name']} · {xp_text} · nurture-only visit complete"
+    if result.get("completed"):
         reward_text = ", ".join(
             f"{int(amount):,} {item_name}"
             for item_name, amount in outputs.items()
         )
-        message = (
+        return (
             f"Felled {result['tier_name']} · {xp_text} · {reward_text} · "
             f"blessing {int(result.get('blessing_reviews', 0))} reviews"
         )
-    elif phase == "nurture":
-        message = f"Nurtured {result['tier_name']} · {xp_text} · next: chop roots"
-    else:
-        message = f"Prepared {result['tier_name']} · {xp_text} · next: fell and burn"
-    ctx.show_activity_gain(message)
+    if phase == "nurture":
+        return f"Nurtured {result['tier_name']} · {xp_text} · next: chop roots"
+    return f"Prepared {result['tier_name']} · {xp_text} · next: fell and burn"
+
+
+def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    woodcutting_level = int(player_data.get("woodcutting_level", 1) or 1)
+    has_hatchet = best_woodcutting_axe_pure(
+        woodcutting_level,
+        player_data.get("inventory", {}),
+        player_data.get("toolbelt", {}),
+        WOODCUTTING_AXE_DATA,
+    ) is not None
+    updated, ok, result = apply_evil_tree_review_pure(
+        player_data,
+        has_usable_hatchet=has_hatchet,
+        reward_rolls=_evil_tree_reward_rolls(ctx),
+    )
+    if not ok:
+        ctx.show_error_message(
+            "Evil Tree unavailable",
+            str(result.get("reason", "This Evil Tree can no longer be trained.")),
+        )
+        ctx.deactivate_current_skill()
+        return False
+
+    player_data.clear()
+    player_data.update(updated)
+    phase = str(result.get("phase", ""))
+    xp = result.get("xp", {}) or {}
+    outputs = result.get("outputs", {}) or {}
+    _record_evil_tree_phase(ctx, phase, xp, outputs)
+
+    for skill_name in xp:
+        ctx.level_up_check(str(skill_name), player_data)
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.show_activity_gain(_evil_tree_gain_message(result, phase, xp, outputs))
 
     if result.get("completed"):
         _switch_material_failure_to_bankstanding(ctx)
@@ -205,6 +217,66 @@ def _handle_big_chinchompa_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _end_unminable_star_visit(
+    ctx: RuntimeActionContext,
+    result: dict,
+    mining_xp: float,
+) -> None:
+    _record_action(
+        ctx,
+        "mining",
+        SHOOTING_STAR_ACTIVITY_ID,
+        False,
+        expected_success_chance=1.0,
+        failure_kind="unminable_layer",
+        primary_xp=mining_xp,
+    )
+    if mining_xp > 0:
+        gained = ctx.award_skill_exp("mining_exp", mining_xp)
+        ctx.level_up_check("Mining", ctx.player_data)
+        ctx.check_achievements(ctx.player_data)
+        ctx.show_exp(gained)
+    ctx.deactivate_current_skill(
+        str(result.get("event_log_text", "Star unminable at your level"))
+    )
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+
+
+def _announce_star_mining(
+    ctx: RuntimeActionContext,
+    result: dict,
+    mining_xp: float,
+    dust_added: int,
+    gem: str,
+) -> None:
+    if result.get("tag_only"):
+        ctx.show_activity_gain(
+            f"First-finder tag · +{mining_xp:,.6g} Mining XP · "
+            "bring a pickaxe to mine stardust"
+        )
+        ctx.deactivate_current_skill()
+        return
+    parts = [
+        f"Mined size {int(result.get('mined_size', 0))} stardust",
+        f"+{mining_xp:,.6g} Mining XP",
+    ]
+    if result.get("tag_xp"):
+        parts.append("first-finder tag")
+    if dust_added:
+        parts.append(
+            f"{int(result.get('dust_total', 0))}/200 stardust"
+        )
+    elif result.get("dust_cap_reached"):
+        parts.append("stardust cap reached; XP continues")
+    if gem:
+        parts.append(f"+1 {gem}")
+    if result.get("sprite_released"):
+        parts.append("Star sprite released")
+        ctx.deactivate_current_skill()
+    ctx.show_activity_gain(" · ".join(parts))
+
+
 def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
     mining_level = int(ctx.player_data.get("mining_level", 1) or 1)
     pickaxe = best_mining_pickaxe_pure(
@@ -238,34 +310,13 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    if result.get("unminable"):
-        ctx.player_data.clear()
-        ctx.player_data.update(updated)
-        mining_xp = float(result.get("mining_xp", 0.0) or 0.0)
-        _record_action(
-            ctx,
-            "mining",
-            SHOOTING_STAR_ACTIVITY_ID,
-            False,
-            expected_success_chance=1.0,
-            failure_kind="unminable_layer",
-            primary_xp=mining_xp,
-        )
-        if mining_xp > 0:
-            gained = ctx.award_skill_exp("mining_exp", mining_xp)
-            ctx.level_up_check("Mining", ctx.player_data)
-            ctx.check_achievements(ctx.player_data)
-            ctx.show_exp(gained)
-        ctx.deactivate_current_skill(
-            str(result.get("event_log_text", "Star unminable at your level"))
-        )
-        ctx.save_player_data()
-        ctx.refresh_skill_availability()
-        return True
-
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     mining_xp = float(result.get("mining_xp", 0.0) or 0.0)
+    if result.get("unminable"):
+        _end_unminable_star_visit(ctx, result, mining_xp)
+        return True
+
     outputs: dict[str, int] = {}
     dust_added = int(result.get("dust_added", 0) or 0)
     if dust_added > 0:
@@ -289,32 +340,7 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
     ctx.refresh_skill_availability()
     if gained > 0:
         ctx.show_exp(gained)
-
-    if result.get("tag_only"):
-        ctx.show_activity_gain(
-            f"First-finder tag · +{mining_xp:,.6g} Mining XP · "
-            "bring a pickaxe to mine stardust"
-        )
-        ctx.deactivate_current_skill()
-    else:
-        parts = [
-            f"Mined size {int(result.get('mined_size', 0))} stardust",
-            f"+{mining_xp:,.6g} Mining XP",
-        ]
-        if result.get("tag_xp"):
-            parts.append("first-finder tag")
-        if dust_added:
-            parts.append(
-                f"{int(result.get('dust_total', 0))}/200 stardust"
-            )
-        elif result.get("dust_cap_reached"):
-            parts.append("stardust cap reached; XP continues")
-        if gem:
-            parts.append(f"+1 {gem}")
-        if result.get("sprite_released"):
-            parts.append("Star sprite released")
-            ctx.deactivate_current_skill()
-        ctx.show_activity_gain(" · ".join(parts))
+    _announce_star_mining(ctx, result, mining_xp, dust_added, gem)
     return True
 
 
