@@ -649,25 +649,27 @@ def _run_processing_tick(
         refresh_skill_availability=lambda: deferred_availability_refresh.append(True),
     )
     player_data["inventory"] = scoped_inventory
-    result = handler(scoped_ctx)
+    try:
+        result = handler(scoped_ctx)
+    finally:
+        # Settle even when the handler raises, so the capped inventory never
+        # outlives the handler to be saved over the real bank by a later save.
+        reconciled, new_view = _reconcile_processing_inventory(
+            bank,
+            scoped_inventory,
+            player_data.get("inventory", {}) or {},
+            _carried_target_view(player_data, pack.target_id),
+            (*pack.requirements, *carried_presence_requirements, *pack.consumable_requirements),
+            hidden_potions,
+            hidden_alternatives,
+        )
+        player_data["inventory"] = reconciled
     if result is False and winter_storage_before is not None:
         player_data.clear()
         player_data.update(winter_storage_before)
         restore_cadence()
         ctx.save_player_data()
         return False
-    after_scoped = player_data.get("inventory", {}) or {}
-    new_view = _carried_target_view(player_data, pack.target_id)
-    reconciled, new_view = _reconcile_processing_inventory(
-        bank,
-        scoped_inventory,
-        after_scoped,
-        new_view,
-        (*pack.requirements, *carried_presence_requirements, *pack.consumable_requirements),
-        hidden_potions,
-        hidden_alternatives,
-    )
-    player_data["inventory"] = reconciled
     if result is not False:
         player_data["skilling_bank_run"] = new_state
         churn_delta = inventory_pure.carried_action_churn_pure(

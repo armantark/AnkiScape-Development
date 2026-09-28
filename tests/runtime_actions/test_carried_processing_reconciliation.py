@@ -7,7 +7,10 @@ import pkg_alias  # noqa: F401
 from ankiscape.runtime import runtime_actions_carried_overlay as overlay
 from ankiscape.runtime.runtime_actions_carried_overlay import (
     _reconcile_processing_inventory,
+    run_answer_with_carried_overlay,
 )
+from ankiscape.runtime.runtime_actions_production import handle_firemaking_answer
+from tests.test_runtime_actions import _context
 from tools.carried import compare_processing_reconciliation as scenarios
 
 
@@ -67,6 +70,24 @@ class TestProcessingInventoryReconciliation(unittest.TestCase):
         )
         self.assertEqual(bank, {"Ore": 0, "Input": 20})
         self.assertEqual(carried, {"Input": 3})
+
+    def test_a_raising_handler_leaves_the_real_bank_not_the_capped_pack(self):
+        player_data = {
+            "inventory": {"Logs": 100},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+        ctx = _context(player_data, random_values=[0.0] * 8)
+
+        def failing_award(_exp_key, _base_exp):
+            raise RuntimeError("xp callback failed")
+
+        ctx.award_skill_exp = failing_award
+        with self.assertRaisesRegex(RuntimeError, "xp callback failed"):
+            run_answer_with_carried_overlay(ctx, "firemaking", handle_firemaking_answer)
+        self.assertEqual(player_data["inventory"], {"Logs": 99, "Ashes": 1})
 
 
 class TestProcessingHandlerReconciliation(unittest.TestCase):
