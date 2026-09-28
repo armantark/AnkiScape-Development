@@ -77,6 +77,20 @@ class DocumentationAuditTests(unittest.TestCase):
         self.assertEqual([issue.kind for issue in report.issues], ["dated_entry_in_active_context"])
         self.assertEqual(report.issues[0].line, 7)
 
+    def test_rejects_papercut_lines_without_the_bullet(self) -> None:
+        root = self._repo()
+        self._track(
+            root,
+            "memory-bank/papercuts.md",
+            "# Papercuts\n\n- 2026-09-24T10:00:00-07:00 — ok\n2026-09-24T11:00:00-07:00: bare\n",
+        )
+
+        report = AUDIT_DOCS.audit_docs(root)
+
+        self.assertEqual(
+            [(issue.kind, issue.line) for issue in report.issues], [("papercut_without_bullet", 4)]
+        )
+
     def test_reports_broken_links_and_unclosed_fences(self) -> None:
         root = self._repo()
         self._track(root, "README.md", "# Docs\n\n[Missing](docs/missing.md)\n\n```text\n")

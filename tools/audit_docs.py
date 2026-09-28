@@ -231,6 +231,16 @@ def _audit_active_context(path: Path, root: Path, text: str, issues: list[DocIss
             issues.append(DocIssue("dated_entry_in_active_context", _relative(path, root), line_number, line))
 
 
+PAPERCUTS = Path("memory-bank") / "papercuts.md"
+
+
+def _audit_papercuts(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
+    """Every papercut is one `- ` line, so moves and no-loss checks compare lines exactly."""
+    for line_number, line in enumerate(text.splitlines(), 1):
+        if line and not line.startswith(("#", "- ")):
+            issues.append(DocIssue("papercut_without_bullet", _relative(path, root), line_number, line))
+
+
 def audit_docs(root: Path) -> DocAuditReport:
     issues: list[DocIssue] = []
     markdown_files = 0
@@ -246,6 +256,8 @@ def audit_docs(root: Path) -> DocAuditReport:
             _audit_test_selectors(path, root, text, test_selectors, issues)
             if path.resolve() == (root / ACTIVE_CONTEXT).resolve():
                 _audit_active_context(path, root, text, issues)
+            if path.resolve() == (root / PAPERCUTS).resolve():
+                _audit_papercuts(path, root, text, issues)
         else:
             html_files += 1
             _audit_html(path, root, text, issues)
