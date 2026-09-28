@@ -479,9 +479,7 @@ def _auto_drink_skilling_potion_if_needed(
         }
         view = dict(carried.get(target_id, {}))
         if int(view.get(item_name, 0) or 0) > 0:
-            view[item_name] = int(view[item_name]) - 1
-            if view[item_name] <= 0:
-                view.pop(item_name, None)
+            # The carried overlay subtracts consumption; retain only the replacement here.
             leaves = str(CONSUMABLE_DATA[item_name].get("leaves", ""))
             if leaves:
                 view[leaves] = int(view.get(leaves, 0) or 0) + 1

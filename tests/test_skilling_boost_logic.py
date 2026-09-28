@@ -20,6 +20,7 @@ from ankiscape.logic_pure.logic_pure import (
 from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
     handle_crafting_answer,
+    handle_fletching_answer,
     run_answer_with_carried_overlay,
 )
 
@@ -166,6 +167,41 @@ class SkillingBoostLogicTest(unittest.TestCase):
         self.assertEqual(
             player["carried_inventory"][target].get("Crafting potion (1)"), 1
         )
+
+    def test_auto_drink_preserves_spare_carried_bottles(self):
+        cases = (
+            ("crafting", "current_craft", "form_clay_ring_unfired", 1,
+             {"Soft clay": 6, "Ring mould": 1}, "Clay ring (unfired)", handle_crafting_answer),
+            ("fletching", "current_fletch", "shortbow_u", 2,
+             {"Logs": 6}, "Shortbow (u)", handle_fletching_answer),
+        )
+        for skill, target_key, target, level, materials, output, handler in cases:
+            for doses in (3, 1):
+                with self.subTest(skill=skill, doses=doses):
+                    potion = f"{skill.title()} potion ({doses})"
+                    leaves = f"{skill.title()} potion (2)" if doses == 3 else "Vial"
+                    packed = {**materials, potion: 2}
+                    player = {
+                        f"{skill}_level": level,
+                        target_key: target,
+                        "inventory": dict(packed),
+                        "skilling_potion_targets": {skill: {target: True}},
+                        "carried_inventory": {target: dict(packed)},
+                        "carried_layout": {target: dict(packed)},
+                        "carried_advanced_targets": {target: True},
+                        "carried_primed_targets": {target: True},
+                    }
+                    ctx, _messages = _context(player)
+
+                    self.assertTrue(run_answer_with_carried_overlay(ctx, skill, handler))
+
+                    self.assertEqual(player["inventory"].get(output), 1)
+                    self.assertEqual(skilling_effective_level_pure(player, skill), level + 3)
+                    self.assertEqual(player["inventory"].get(potion), 1)
+                    self.assertEqual(player["inventory"].get(leaves), 1)
+                    carried = player["carried_inventory"][target]
+                    self.assertEqual(carried.get(potion, 0), 1)
+                    self.assertEqual(carried.get(leaves), 1)
 
     def test_pack_without_its_potion_restocks_it_from_the_bank_before_crafting(self):
         target = "form_clay_ring_unfired"
