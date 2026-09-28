@@ -230,6 +230,7 @@ from .core.injectors import register_deck_browser_button as _register_deck_brows
 from .core.injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .core.activity_feedback import combine_activity_feedback as _combine_activity_feedback
 from .core.combat_prayer_config import apply_combat_prayer_config_pure as _apply_combat_prayer_config_pure
+from .core.skill_availability import skill_availability_fingerprint as _skill_availability_fingerprint
 from .core.storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
 from .core.action_registry import (
     ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
@@ -673,150 +674,11 @@ def _finish_review_feedback_context() -> None:
         _state.review_feedback_flushing = False
 
 
-def _catalog_requirement_item_names(*catalogs) -> set[str]:
-    names = set()
-    for catalog in catalogs:
-        for spec in catalog.values():
-            if not isinstance(spec, Mapping):
-                continue
-            for key in ("requirements", "required_items", "tools"):
-                values = spec.get(key, {})
-                if isinstance(values, Mapping):
-                    names.update(str(name) for name in values)
-            material_options = spec.get("material_options", {})
-            if isinstance(material_options, Mapping):
-                for name, alternatives in material_options.items():
-                    names.add(str(name))
-                    if isinstance(alternatives, (tuple, list, set)):
-                        names.update(str(alternative) for alternative in alternatives)
-    return names
-
-
-_SKILL_AVAILABILITY_INVENTORY_NAMES = _catalog_requirement_item_names(
-    SMITHING_DATA,
-    CRAFTING_DATA,
-    FLETCHING_DATA,
-    FIREMAKING_DATA,
-    HUNTER_DATA,
-    COOKING_DATA,
-)
-_SKILL_AVAILABILITY_LEVEL_KEYS = {
-    "smithing_level",
-    "crafting_level",
-    "fletching_level",
-    "firemaking_level",
-    "hunter_level",
-    "cooking_level",
-    "runecrafting_level",
-}
-for _hunter_spec in HUNTER_DATA.values():
-    _requirements = _hunter_spec.get("skill_requirements", {})
-    if isinstance(_requirements, Mapping):
-        _SKILL_AVAILABILITY_LEVEL_KEYS.update(
-            f"{skill_id}_level" for skill_id in _requirements
-        )
-_SKILL_AVAILABILITY_QUEST_IDS = {"rune_mysteries"}
-_SKILL_AVAILABILITY_ABILITY_IDS = set()
-for _unlock_rule in QUEST_UNLOCK_RULES:
-    if not isinstance(_unlock_rule, Mapping):
-        continue
-    if _unlock_rule.get("skill_id") not in {
-        "crafting",
-        "fletching",
-        "firemaking",
-        "hunter",
-        "cooking",
-        "runecrafting",
-    }:
-        continue
-    for _requirement in _unlock_rule.get("requirements", ()) or ():
-        if not isinstance(_requirement, Mapping):
-            continue
-        _quest_id = _requirement.get("quest_id")
-        _ability_id = _requirement.get("ability_id")
-        if isinstance(_quest_id, str) and _quest_id:
-            _SKILL_AVAILABILITY_QUEST_IDS.add(_quest_id)
-        if isinstance(_ability_id, str) and _ability_id:
-            _SKILL_AVAILABILITY_ABILITY_IDS.add(_ability_id)
-for _runecrafting_spec in RUNECRAFTING_DATA.values():
-    for _key in (
-        "component_rune",
-        "consumed_talisman",
-        "input_item",
-        "talisman_item",
-    ):
-        _item_name = _runecrafting_spec.get(_key)
-        if isinstance(_item_name, str) and _item_name:
-            _SKILL_AVAILABILITY_INVENTORY_NAMES.add(_item_name)
-    _SKILL_AVAILABILITY_INVENTORY_NAMES.update(
-        str(item_name)
-        for item_name in _runecrafting_spec.get("essence_items", ()) or ()
-    )
-_SKILL_AVAILABILITY_INVENTORY_NAMES.update(
-    {"Pure essence", "Tiara", "Wicked hood"}
-)
-_SKILL_AVAILABILITY_INVENTORY_NAMES = tuple(
-    sorted(_SKILL_AVAILABILITY_INVENTORY_NAMES)
-)
-_SKILL_AVAILABILITY_LEVEL_KEYS = tuple(sorted(_SKILL_AVAILABILITY_LEVEL_KEYS))
-_SKILL_AVAILABILITY_QUEST_IDS = tuple(sorted(_SKILL_AVAILABILITY_QUEST_IDS))
-_SKILL_AVAILABILITY_ABILITY_IDS = tuple(sorted(_SKILL_AVAILABILITY_ABILITY_IDS))
-
-
-def _freeze_skill_availability_value(value):
-    if isinstance(value, Mapping):
-        return tuple(
-            sorted(
-                (str(key), _freeze_skill_availability_value(item))
-                for key, item in value.items()
-            )
-        )
-    if isinstance(value, (tuple, list, set)):
-        return tuple(_freeze_skill_availability_value(item) for item in value)
-    return value
-
-
-def _skill_availability_fingerprint():
-    inventory = _state.player_data.get("inventory", {}) or {}
-    quests = _state.player_data.get("quests", {}) or {}
-    abilities = _state.player_data.get("unlocked_abilities", ()) or ()
-    current_runecrafting = str(_state.player_data.get("current_runecrafting", "") or "")
-    carried = _state.player_data.get("carried_inventory", {}) or {}
-    carried_view = carried.get(current_runecrafting, {}) if isinstance(carried, Mapping) else {}
-    equipment = _state.player_data.get("equipment", {}) or {}
-    return (
-        tuple((key, _state.player_data.get(key, 1)) for key in _SKILL_AVAILABILITY_LEVEL_KEYS),
-        _freeze_skill_availability_value(_state.player_data.get("skilling_current_levels", {})),
-        tuple((name, inventory.get(name, 0)) for name in _SKILL_AVAILABILITY_INVENTORY_NAMES),
-        tuple(
-            (
-                quest_id,
-                bool((quests.get(quest_id, {}) or {}).get("started")),
-                bool((quests.get(quest_id, {}) or {}).get("completed")),
-            )
-            for quest_id in _SKILL_AVAILABILITY_QUEST_IDS
-        ),
-        tuple(
-            (ability_id, ability_id in abilities)
-            for ability_id in _SKILL_AVAILABILITY_ABILITY_IDS
-        ),
-        bool(_state.player_data.get("magic_imbue_active", False)),
-        equipment.get("head") if isinstance(equipment, Mapping) else None,
-        _freeze_skill_availability_value(_state.player_data.get("wicked_hood", {})),
-        current_runecrafting,
-        (
-            carried_view.get("Wicked hood", 0)
-            if isinstance(carried_view, Mapping)
-            else 0
-        ),
-    )
-
-
 def _refresh_skill_availability() -> None:
     """Refresh menu availability only when one of its real inputs changed."""
 
     try:
-        fingerprint = _skill_availability_fingerprint()
+        fingerprint = _skill_availability_fingerprint(_state.player_data)
         if fingerprint == _state.skill_availability_cache_fingerprint:
             return
         values = (
@@ -1050,38 +912,63 @@ def commit_direct_action(
     return True
 
 
+def _resolve_star_notice_choice(option_id: str) -> bool:
+    def _apply_star_notice(current):
+        updated, ok, _result = apply_shooting_star_notice_action_pure(
+            current,
+            option_id,
+        )
+        return updated, ok
+
+    committed = commit_direct_action(
+        _apply_star_notice,
+        selected_skill=(
+            ACTIVITY_REVIEW_ACTION_DISPLAY_NAME
+            if option_id == "mine"
+            else None
+        ),
+    )
+    if not committed:
+        _update_review_context_surface()
+        return False
+    try:
+        update_review_hud(_state.player_data, _state.current_skill)
+        update_review_status_badge(
+            _state.player_data, _open_activities_sheet, _open_farming_sheet
+        )
+    except Exception:
+        pass
+    _update_review_context_surface()
+    return True
+
+
+def _review_choice_outcome(family_id: str, option_id: str):
+    """Return `(updated, allowed, result)` for a Phoenix egg or Pit reward choice."""
+
+    if family_id == PHOENIX_EGG_CONTEXT_ID:
+        return resolve_phoenix_egg_choice_pure(
+            _state.player_data,
+            option_id,
+            remember_choice=True,
+        )
+    action_id = (
+        "gamble_pit_reward" if option_id == "gamble" else "claim_pit_reward"
+    )
+    roll = random.random() if option_id == "gamble" else 0.5
+    updated, result = apply_agility_command_pure(
+        _state.player_data,
+        action_id,
+        {"remember_choice": True},
+        roll=roll,
+    )
+    return updated, bool(result.get("allowed")), result
+
+
 def resolve_review_context_action(family_id: str, option_id: str) -> bool:
     """Resolve one explicit reviewer-context choice as a direct undoable action."""
 
     if family_id == SHOOTING_STAR_NOTICE_CONTEXT_ID:
-        def _apply_star_notice(current):
-            updated, ok, _result = apply_shooting_star_notice_action_pure(
-                current,
-                option_id,
-            )
-            return updated, ok
-
-        committed = commit_direct_action(
-            _apply_star_notice,
-            selected_skill=(
-                ACTIVITY_REVIEW_ACTION_DISPLAY_NAME
-                if option_id == "mine"
-                else None
-            ),
-        )
-        if not committed:
-            _update_review_context_surface()
-            return False
-        try:
-            update_review_hud(_state.player_data, _state.current_skill)
-            update_review_status_badge(
-                _state.player_data, _open_activities_sheet, _open_farming_sheet
-            )
-        except Exception:
-            pass
-        _update_review_context_surface()
-        return True
-
+        return _resolve_star_notice_choice(option_id)
     valid = (
         family_id == PIT_REWARD_CONTEXT_ID
         and option_id in {"take_xp", "gamble"}
@@ -1095,24 +982,7 @@ def resolve_review_context_action(family_id: str, option_id: str) -> bool:
         "player_data": copy.deepcopy(_state.player_data),
         "random_state": random.getstate(),
     }
-    if family_id == PHOENIX_EGG_CONTEXT_ID:
-        updated, allowed, result = resolve_phoenix_egg_choice_pure(
-            _state.player_data,
-            option_id,
-            remember_choice=True,
-        )
-    else:
-        action_id = (
-            "gamble_pit_reward" if option_id == "gamble" else "claim_pit_reward"
-        )
-        roll = random.random() if option_id == "gamble" else 0.5
-        updated, result = apply_agility_command_pure(
-            _state.player_data,
-            action_id,
-            {"remember_choice": True},
-            roll=roll,
-        )
-        allowed = bool(result.get("allowed"))
+    updated, allowed, result = _review_choice_outcome(family_id, option_id)
     if not allowed:
         random.setstate(before["random_state"])
         _update_review_context_surface()
@@ -5531,6 +5401,44 @@ def _advance_world_events_after_review() -> None:
     _state.player_data.update(goblin_updated)
 
 
+def _review_action_ticks(handler_key) -> int:
+    single_tick = (
+        handler_key in {"thieving", "agility", "dungeoneering"}
+        or (
+            handler_key == "utility"
+            and _state.player_data.get("current_utility")
+            in SINGLE_TICK_UTILITY_IDS
+        )
+        or (handler_key == "quest" and _cadence_kernel_enabled())
+    )
+    return 1 if single_tick else _review_action_multiplier()
+
+
+def _run_review_action_ticks(review_ctx, handler_key, handler) -> None:
+    review_progressed = False
+    action_ticks = _review_action_ticks(handler_key)
+    reviewed_skill = _state.current_skill
+    for tick_index in range(action_ticks):
+        if tick_index > 0 and not _can_start_current_action():
+            break
+        before_tick_session = dict(
+            _state.player_data.get("activity_session") or {}
+        )
+        result = runtime_actions.run_answer_with_carried_overlay(
+            review_ctx, handler_key, handler
+        )
+        if result is not False:
+            review_progressed = True
+        if (
+            result is False
+            or _state.current_skill != reviewed_skill
+            or _activity_session_cleared(before_tick_session)
+        ):
+            break
+    if review_progressed and handler_key not in ("quest", "thieving", "agility"):
+        _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
+
+
 def on_good_answer(before_state=None, *, defer_commit=False):
     if _state.exp_awarded:
         return
@@ -5540,7 +5448,6 @@ def on_good_answer(before_state=None, *, defer_commit=False):
         if before_state is None:
             before_state = _capture_player_data_snapshot()
         handler_key = review_action_handler_key(_state.current_skill)
-        review_progressed = False
         review_ctx = _runtime_action_context()
         review_ctx.save_player_data = lambda: None
         _begin_review_feedback_context()
@@ -5548,41 +5455,11 @@ def on_good_answer(before_state=None, *, defer_commit=False):
             if has_farm_step:
                 # A consumed or execution-time-invalid Farming step owns this
                 # successful review and is never multiplied by skill bonuses.
-                review_progressed = runtime_actions.handle_farming_queue_answer(review_ctx)
+                runtime_actions.handle_farming_queue_answer(review_ctx)
             elif handler_key == "combat":
-                review_progressed = handler(review_ctx) is not False
+                handler(review_ctx)
             else:
-                action_ticks = (
-                    1
-                    if handler_key in {"thieving", "agility", "dungeoneering"}
-                    or (
-                        handler_key == "utility"
-                        and _state.player_data.get("current_utility")
-                        in SINGLE_TICK_UTILITY_IDS
-                    )
-                    or (handler_key == "quest" and _cadence_kernel_enabled())
-                    else _review_action_multiplier()
-                )
-                reviewed_skill = _state.current_skill
-                for tick_index in range(action_ticks):
-                    if tick_index > 0 and not _can_start_current_action():
-                        break
-                    before_tick_session = dict(
-                        _state.player_data.get("activity_session") or {}
-                    )
-                    result = runtime_actions.run_answer_with_carried_overlay(
-                        review_ctx, handler_key, handler
-                    )
-                    if result is not False:
-                        review_progressed = True
-                    if (
-                        result is False
-                        or _state.current_skill != reviewed_skill
-                        or _activity_session_cleared(before_tick_session)
-                    ):
-                        break
-                if review_progressed and handler_key not in ("quest", "thieving", "agility"):
-                    _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
+                _run_review_action_ticks(review_ctx, handler_key, handler)
         finally:
             _finish_review_feedback_context()
             # The background clock and active action form one persisted review
