@@ -10,6 +10,8 @@ from ankiscape.logic.tzhaar_fight_pit_logic import (
     sanitize_tzhaar_fight_pit_state_pure,
     set_tzhaar_fight_pit_policy_pure,
 )
+from ankiscape.runtime.runtime_actions_activities import handle_tzhaar_fight_pit_answer
+from tests.test_runtime_actions import _context
 
 
 def player(**changes):
@@ -186,6 +188,15 @@ class FightPitPureTest(unittest.TestCase):
                 break
         self.assertEqual(result.get("outcome"), "win")
         self.assertGreater(result.get("tokkul", 0), 0)
+
+    def test_runtime_loss_is_recorded_as_a_safe_death_failure(self):
+        entered, _, _ = enter_tzhaar_fight_pit_pure(player(combat_lifepoints=1))
+        self.assertTrue(handle_tzhaar_fight_pit_answer(_context(entered, random_values=[0.0] * 200)))
+        self.assertEqual(entered["tzhaar_fight_pit_losses"], 1)
+        record = entered["action_telemetry"]["actions"]["utility:tzhaar_fight_pit"]
+        self.assertEqual(record["successes"], 0)
+        self.assertEqual(record["failures"], 1)
+        self.assertEqual(record["failure_kinds"], {"safe_death": 1})
 
 
 if __name__ == "__main__":

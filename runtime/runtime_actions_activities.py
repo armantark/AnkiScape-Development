@@ -740,13 +740,14 @@ def handle_tzhaar_fight_pit_answer(ctx: RuntimeActionContext) -> bool:
     ctx.player_data.update(updated)
     combat = dict(result.get("combat") or {})
     xp_rewards = dict(combat.get("xp_rewards") or {})
+    lost = result.get("outcome") == "loss"
     _record_action(
         ctx,
         "utility",
         TZHAAR_FIGHT_PIT_ACTIVITY_ID,
-        True,
+        not lost,
         expected_success_chance=1.0,
-        failure_kind="safe_death" if result.get("outcome") == "loss" else None,
+        failure_kind="safe_death" if lost else None,
         primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),
     )
     _refresh_combat_levels(ctx, xp_rewards)
