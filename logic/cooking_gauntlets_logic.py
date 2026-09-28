@@ -4,10 +4,18 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+from ..core.constants import COOKING_DATA
 from ..data.cooking_gauntlets_data import (
     FAMILY_GAUNTLET_ENCHANTMENTS,
     FAMILY_GAUNTLET_ITEMS,
 )
+from ..logic_pure.logic_pure_production import (
+    calculate_cooking_success_probability_pure,
+    cooking_source_roll_chance_pure,
+)
+from .cadence_kernel import EMBEDDED_PROBABILITY
+from .cadence_live import resolve_live_cadence_route_pure
+from .cape_logic import effective_roll_level_pure
 
 
 COOKING_GAUNTLETS = "Cooking gauntlets"
@@ -129,6 +137,36 @@ def set_cooking_equipment_choice_pure(
 def cooking_gauntlets_worn_pure(player_data: Mapping[str, object]) -> bool:
     equipment = player_data.get("equipment", {}) or {}
     return isinstance(equipment, Mapping) and equipment.get("hands") == COOKING_GAUNTLETS
+
+
+def cooking_gauntlets_beneficial_pure(
+    player_data: Mapping[str, object],
+    target_id: str,
+    *,
+    cadence_live_enabled: bool,
+) -> bool:
+    """Whether the target's policy wants gauntlets: the saved Cooking choice,
+    or Casual only when they raise the success chance of the active roll."""
+    spec = COOKING_DATA[target_id]
+    if not spec.get("cooking_gauntlet_no_burn_level"):
+        return False
+    if cooking_equipment_choice_pure(player_data, target_id) == "cooking":
+        return True
+    embedded = cadence_live_enabled and (
+        resolve_live_cadence_route_pure("cooking", target_id, player_data).mode
+        == EMBEDDED_PROBABILITY
+    )
+    success_chance = (
+        cooking_source_roll_chance_pure
+        if embedded
+        else calculate_cooking_success_probability_pure
+    )
+    level = effective_roll_level_pure(
+        player_data, "cooking", player_data.get("cooking_level", 1)
+    )
+    return success_chance(level, spec, has_cooking_gauntlets=True) > success_chance(
+        level, spec
+    )
 
 
 def reconcile_cooking_equipment_pure(

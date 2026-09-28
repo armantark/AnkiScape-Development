@@ -1,6 +1,8 @@
+import sys
 import unittest
 
 import pkg_alias  # noqa: F401
+from tests.test_runtime_actions import _context
 
 from ankiscape.core.constants import COOKING_DATA, EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
@@ -17,6 +19,134 @@ from ankiscape.logic_pure.logic_pure import (
     apply_cooking_action_pure,
     cooking_source_roll_chance_pure,
 )
+from ankiscape.runtime.runtime_actions import (
+    handle_cooking_answer,
+    run_answer_with_carried_overlay,
+)
+
+
+def _gloved_cook(target="cook_lobster", level=99):
+    return {
+        "inventory": {**COOKING_DATA[target]["requirements"], "Cooking gauntlets": 1},
+        "equipment": {"hands": "Brawling gloves (cooking)"},
+        "cooking_level": level,
+        "cooking_exp": 0,
+        "current_cooking": target,
+        "completed_achievements": [],
+    }
+
+
+class CookingGauntletRuntimeTests(unittest.TestCase):
+
+    def _review(self, player, *, live=True, roll=0.0):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        ctx = _context(player, calls, random_values=[roll])
+        ctx.cadence_live_enabled = live
+        self.assertTrue(run_answer_with_carried_overlay(ctx, "cooking", handle_cooking_answer))
+        self.assertEqual(calls["errors"], [])
+        return calls
+
+    def test_auto_retains_brawling_xp_when_lobster_cannot_burn(self):
+        for choice in ("none", "auto"):
+            with self.subTest(choice=choice):
+                player = _gloved_cook()
+                player["cooking_equipment_choices"] = {"cook_lobster": choice}
+                calls = self._review(player, roll=0.999)
+                self.assertEqual(calls["xp"], [180.0])
+                self.assertEqual(player["cooking_exp"], 180.0)
+                self.assertEqual(player["equipment"]["hands"], "Brawling gloves (cooking)")
+                self.assertEqual(player["inventory"]["Lobster"], 1)
+                self.assertEqual(player["inventory"]["Cooking gauntlets"], 1)
+                self.assertEqual(player["cooking_equipment_swap"], {})
+
+    def test_auto_retains_gloves_when_gauntlets_do_not_reduce_burns(self):
+        for target, level, live in (("cook_shark", 93, True), ("cook_shark", 93, False), ("cook_bass", 99, False)):
+            with self.subTest(target=target, live=live):
+                player = _gloved_cook(target, level)
+                self._review(player, live=live)
+                self.assertEqual(player["equipment"]["hands"], "Brawling gloves (cooking)")
+                self.assertEqual(player["cooking_exp"], COOKING_DATA[target]["exp"] * 1.5)
+                self.assertEqual(player["cooking_equipment_swap"], {})
+
+    def test_auto_prevents_burns_using_the_active_probability_mode(self):
+        for target, level, live in (("cook_shark", 94, True), ("cook_shark", 94, False), ("cook_lobster", 99, False)):
+            with self.subTest(target=target, live=live):
+                player = _gloved_cook(target, level)
+                self._review(player, live=live, roll=0.999)
+                self.assertEqual(player["equipment"]["hands"], "Cooking gauntlets")
+                self.assertEqual(player["cooking_exp"], COOKING_DATA[target]["exp"])
+                self.assertEqual(player["inventory"][COOKING_DATA[target]["output_item"]], 1)
+
+    def test_explicit_cooking_policy_still_equips_without_a_burn_benefit(self):
+        player = _gloved_cook()
+        player["cooking_equipment_choices"] = {"cook_lobster": "cooking"}
+        self._review(player)
+        self.assertEqual(player["equipment"]["hands"], "Cooking gauntlets")
+        self.assertEqual(player["cooking_exp"], 120.0)
+
+    def test_auto_restores_displaced_gloves_when_the_next_target_cannot_burn(self):
+        player = _gloved_cook("cook_shark", 99)
+        player["inventory"]["Raw lobster"] = 1
+        self._review(player, roll=0.999)
+        self.assertEqual(player["equipment"]["hands"], "Cooking gauntlets")
+        player["current_cooking"] = "cook_lobster"
+        calls = self._review(player, roll=0.999)
+        self.assertEqual(calls["xp"], [180.0])
+        self.assertEqual(player["equipment"]["hands"], "Brawling gloves (cooking)")
+        self.assertEqual(player["inventory"]["Cooking gauntlets"], 1)
+        self.assertEqual(player["cooking_equipment_swap"], {})
+
+    def test_auto_preserves_manually_worn_gauntlets_without_a_burn_benefit(self):
+        player = _gloved_cook()
+        player["equipment"]["hands"] = "Cooking gauntlets"
+        player["inventory"]["Cooking gauntlets"] = 0
+        self._review(player)
+        self.assertEqual(player["equipment"]["hands"], "Cooking gauntlets")
+        self.assertEqual(player["inventory"]["Cooking gauntlets"], 0)
+        self.assertEqual(player["cooking_equipment_swap"], {})
+
+
+class CookingGauntletDirectActionTests(unittest.TestCase):
+    """Picking a target or its policy reconciles gloves before any review."""
+
+    def setUp(self):
+        from tests.test_integration_smoke import (
+            _DummyCol,
+            _DummyMW,
+            _install_runtime_fakes,
+            _load_addon_as_package,
+        )
+
+        self._orig_modules = dict(sys.modules)
+        _install_runtime_fakes()
+        self.addon = _load_addon_as_package("ankiscape_cooking_glove_direct_actions")
+        self.menu = {}
+        self.addon.ui.show_main_menu = lambda *_args, **kwargs: self.menu.update(kwargs)
+        self.addon.mw = _DummyMW(_DummyCol())
+        self.addon.save_player_data = lambda: None
+        self.addon.update_review_hud = lambda *_args: None
+        self.addon._refresh_skill_availability = lambda: None
+        self.addon._state.current_skill = "Cooking"
+
+    def tearDown(self):
+        sys.modules.clear()
+        sys.modules.update(self._orig_modules)
+
+    def _hands_after(self, target, level, command, *args):
+        self.addon._state.player_data = _gloved_cook(target, level)
+        self.addon._on_main_menu()
+        self.assertTrue(self.menu[command](target, *args))
+        return self.addon._state.player_data["equipment"]["hands"]
+
+    def test_auto_keeps_gloves_when_gauntlets_cannot_reduce_burns(self):
+        for command, args in (("on_set_cooking", ()), ("on_set_cooking_equipment_choice", ("auto",))):
+            with self.subTest(command=command):
+                hands = self._hands_after("cook_lobster", 99, command, *args)
+                self.assertEqual(hands, "Brawling gloves (cooking)")
+                self.assertEqual(self.addon._state.player_data["cooking_equipment_swap"], {})
+
+    def test_auto_equips_gauntlets_when_they_reduce_burns(self):
+        self.assertEqual(self._hands_after("cook_shark", 94, "on_set_cooking"), "Cooking gauntlets")
 
 
 class CookingGauntletDataTests(unittest.TestCase):

@@ -1739,6 +1739,8 @@ def _on_main_menu(
                 pass
         return committed
 
+    from .logic.cooking_gauntlets_logic import cooking_gauntlets_beneficial_pure
+
     def _set_cooking_target(target_id: str) -> bool:
         if target_id not in COOKING_DATA:
             return False
@@ -1749,8 +1751,8 @@ def _on_main_menu(
             updated = reconcile_cooking_equipment_pure(
                 updated,
                 target_id,
-                beneficial=bool(
-                    COOKING_DATA[target_id].get("cooking_gauntlet_no_burn_level")
+                beneficial=cooking_gauntlets_beneficial_pure(
+                    updated, target_id, cadence_live_enabled=_cadence_kernel_enabled()
                 ),
             )
             return updated, True
@@ -1778,10 +1780,8 @@ def _on_main_menu(
                 updated = reconcile_cooking_equipment_pure(
                     updated,
                     target_id,
-                    beneficial=bool(
-                        COOKING_DATA[target_id].get(
-                            "cooking_gauntlet_no_burn_level"
-                        )
+                    beneficial=cooking_gauntlets_beneficial_pure(
+                        updated, target_id, cadence_live_enabled=_cadence_kernel_enabled()
                     ),
                 )
             return updated, ok

@@ -158,6 +158,7 @@ from ..logic_pure.logic_pure import (
     STRONGHOLD_TOTAL_STEPS,
 )
 from ..logic.cooking_gauntlets_logic import (
+    cooking_gauntlets_beneficial_pure,
     cooking_gauntlets_worn_pure,
     reconcile_cooking_equipment_pure,
 )
@@ -1029,7 +1030,9 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
     reconciled = reconcile_cooking_equipment_pure(
         player_data,
         target,
-        beneficial=bool(spec.get("cooking_gauntlet_no_burn_level")),
+        beneficial=cooking_gauntlets_beneficial_pure(
+            player_data, target, cadence_live_enabled=ctx.cadence_live_enabled
+        ),
     )
     player_data.clear()
     player_data.update(reconciled)
@@ -1041,18 +1044,13 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         == EMBEDDED_PROBABILITY
     )
     success_level = effective_roll_level_pure(player_data, "cooking", player_level)
-    expected_success = (
-        cooking_source_roll_chance_pure(
-            success_level,
-            spec,
-            has_cooking_gauntlets=has_cooking_gauntlets,
-        )
+    success_chance = (
+        cooking_source_roll_chance_pure
         if embedded_probability
-        else calculate_cooking_success_probability_pure(
-            success_level,
-            spec,
-            has_cooking_gauntlets=has_cooking_gauntlets,
-        )
+        else calculate_cooking_success_probability_pure
+    )
+    expected_success = success_chance(
+        success_level, spec, has_cooking_gauntlets=has_cooking_gauntlets
     )
     roll = ctx.random_random()
     source_success = cooking_source_roll_chance_pure(
