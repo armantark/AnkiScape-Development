@@ -8,7 +8,7 @@ from typing import TextIO
 
 from .contract import FULL_GATE_CHECKS, GateError, GateEvidence
 from .locking import active_gate_records, claim_landing_lock
-from .repository import _git, commit_at, evidence_path_for, main_worktree
+from .repository import _git, commit_at, evidence_path_for, main_worktree, tracked_changes
 
 
 def _load_landing_evidence(worktree: Path, commit: str) -> GateEvidence:
@@ -90,6 +90,14 @@ def land(
                 f"of current main {main_commit}"
             )
 
+        # A fast-forward keeps edits to files the candidate does not touch, so
+        # the live add-on would run bytes the gate never tested.
+        canonical_changes = tracked_changes(main_path)
+        if canonical_changes:
+            raise GateError(
+                "Landing refused: canonical checkout has uncommitted tracked changes:\n"
+                + "\n".join(canonical_changes)
+            )
         merge = _git(
             main_path,
             "merge",
@@ -108,6 +116,13 @@ def land(
             raise GateError(f"Landing failed for {target_commit}: {detail}")
         if merge.stdout:
             print(merge.stdout.rstrip(), file=stdout)
+        canonical_changes = tracked_changes(main_path)
+        if canonical_changes:
+            raise GateError(
+                f"Landing of {target_commit} moved main, but canonical checkout {main_path} "
+                "gained uncommitted tracked changes during the merge:\n"
+                + "\n".join(canonical_changes)
+            )
         print(f"Landed {target_commit} from {worktree} onto main in {main_path}", file=stdout)
         return target_commit
     finally:

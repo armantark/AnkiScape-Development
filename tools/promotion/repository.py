@@ -29,6 +29,10 @@ def commit_at(worktree: Path) -> str:
     return _git(worktree, "rev-parse", "HEAD").stdout.strip()
 
 
+def tracked_changes(repo: Path) -> list[str]:
+    return _git(repo, "status", "--porcelain", "--untracked-files=no").stdout.splitlines()
+
+
 def git_common_dir(repo: Path) -> Path:
     raw = _git(repo, "rev-parse", "--git-common-dir").stdout.strip()
     path = Path(raw)
@@ -74,6 +78,7 @@ def safe_log_root(repo: Path) -> Path:
 _PUBLIC_MODULE = f"{__package__.rsplit('.', 1)[0]}.promotion_gate"
 _git.__module__ = _PUBLIC_MODULE
 commit_at.__module__ = _PUBLIC_MODULE
+tracked_changes.__module__ = _PUBLIC_MODULE
 git_common_dir.__module__ = _PUBLIC_MODULE
 evidence_path_for.__module__ = _PUBLIC_MODULE
 _worktree_rows.__module__ = _PUBLIC_MODULE

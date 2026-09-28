@@ -856,7 +856,7 @@ The canonical Git common directory owns gate registration, commit checks, eviden
 Gates for different commits can run together. An OS file lock protects each active marker against recycled PIDs.
 Use the promotion tool to land, not a manual `git merge --ff-only`.
 Landing is serialized and requires full-gate evidence for the exact target commit.
-It refuses another active gate or a target that does not descend from current `main`.
+It refuses another active gate, a target that does not descend from current `main`, or a canonical checkout with uncommitted tracked changes before or after the fast-forward; untracked files do not block it.
 An unlocked gate marker is stale regardless of its stored PID; report it before removal.
 - A global pseudo-item removal in `quest_reward_items_as_dict()` is safe only after every catalog quest that parsed the same name has a `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` entry; enumerate all catalog references first.
 
