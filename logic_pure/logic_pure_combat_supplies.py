@@ -11,6 +11,7 @@ except ImportError:  # values not generated in this checkout
     STACKABLE_ITEM_NAMES = frozenset()
 
 from ..data.potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
+from ..data.prayer_data import PRAYER_UPTIME_POLICIES
 
 from ..data.prayer_passive_data import (
     BONECRUSHER_ITEM_NAME,
@@ -1629,7 +1630,8 @@ def _combat_auto_drink_potions(data, combat_class):
         base = _combat_base_skill_level(data, skill_id, 1)
         if skill_id == "prayer":
             prayer_max = base * 10
-            if not active_prayer_selection_pure(data) or _non_negative_int(data.get("combat_prayer_points", prayer_max), prayer_max) >= prayer_max:
+            prayer_operating = active_prayer_selection_pure(data) and PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0) > 0
+            if not prayer_operating or _non_negative_int(data.get("combat_prayer_points", prayer_max), prayer_max) >= prayer_max:
                 continue
         elif _combat_effective_skill_level(data, skill_id, base) > base:
             continue  # a boost is already active on this stat
@@ -1639,8 +1641,6 @@ def _combat_auto_drink_potions(data, combat_class):
         base_name, skills, strategy, dose, is_flask = _COMBAT_STAT_POTION_BY_DOSE[item_name]
         # Consume one dose: the vial/flask drops to the next-lower dose (dropped at 0/empty).
         stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) - 1
-        if stat_potions[item_name] <= 0:
-            stat_potions.pop(item_name, None)
         if dose > 1:
             lower = potion_flask_name(base_name, dose - 1) if is_flask else potion_dose_name(base_name, dose - 1)
             stat_potions[lower] = _non_negative_int(stat_potions.get(lower, 0), 0) + 1

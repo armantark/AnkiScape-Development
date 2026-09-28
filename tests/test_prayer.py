@@ -307,6 +307,73 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(after["combat_selected_prayers"], ["protect_item", "steel_skin"])
         self.assertEqual(after["combat_prayer_uptime"], "100")
 
+    def test_prayer_off_preserves_potion_until_prayers_resume(self):
+        for live_cadence in (False, True):
+            with self.subTest(live_cadence=live_cadence):
+                state = {
+                    "current_combat_target": "chicken",
+                    "constitution_level": 99,
+                    "combat_lifepoints": 990,
+                    "prayer_level": 46,
+                    "combat_prayer_points": 459,
+                    "combat_prayer_book": "standard",
+                    "combat_selected_prayers": ["thick_skin"],
+                    "combat_prayer_uptime": "off",
+                    "combat_supply_loadout": {"stat_potions": {"Prayer potion (4)": 1}},
+                    "inventory": {},
+                }
+                after, ok, result = apply_combat_burst_pure(
+                    state, ticks=1, rng=lambda: .5, live_cadence=live_cadence
+                )
+                self.assertTrue(ok)
+                self.assertEqual(result["prayer_uptime"], 0.0)
+                self.assertEqual(after["combat_supply_loadout"]["stat_potions"], {"Prayer potion (4)": 1})
+                self.assertEqual(after["combat_prayer_points"], 459)
+                self.assertEqual(after["combat_selected_prayers"], ["thick_skin"])
+                self.assertEqual(after["combat_prayer_uptime"], "off")
+                self.assertEqual(result["potions_used"], ())
+
+                after["combat_prayer_uptime"] = "100"
+                resumed, ok, result = apply_combat_burst_pure(
+                    after, ticks=1, rng=lambda: .5, live_cadence=live_cadence
+                )
+                self.assertTrue(ok)
+                self.assertEqual(resumed["combat_supply_loadout"]["stat_potions"], {"Prayer potion (3)": 1})
+                self.assertEqual(result["prayer_points_before"], 460)
+                self.assertGreater(result["prayer_uptime"], 0.0)
+
+    def test_prayer_potions_restore_empty_points_only_when_configured_to_operate(self):
+        for uptime, enabled, selected, points, expected_dose in (
+            ("40", True, ["thick_skin"], 0, "Prayer potion (3)"),
+            ("70", True, ["thick_skin"], 0, "Prayer potion (3)"),
+            ("100", True, ["thick_skin"], 0, "Prayer potion (3)"),
+            ("off", True, ["thick_skin"], 0, "Prayer potion (4)"),
+            ("100", False, ["thick_skin"], 459, "Prayer potion (4)"),
+            ("100", True, [], 459, "Prayer potion (4)"),
+            ("100", True, ["thick_skin"], 460, "Prayer potion (4)"),
+        ):
+            for live_cadence in (False, True):
+                with self.subTest(uptime=uptime, enabled=enabled, selected=selected, points=points, live_cadence=live_cadence):
+                    state = {
+                        "current_combat_target": "chicken",
+                        "constitution_level": 99,
+                        "combat_lifepoints": 990,
+                        "prayer_level": 46,
+                        "combat_prayer_points": points,
+                        "combat_prayer_book": "standard",
+                        "combat_selected_prayers": selected,
+                        "combat_prayer_uptime": uptime,
+                        "combat_prayers_enabled": enabled,
+                        "combat_supply_loadout": {"stat_potions": {"Prayer potion (4)": 1, "Strength potion (4)": 1}},
+                        "inventory": {},
+                    }
+                    after, ok, result = apply_combat_burst_pure(
+                        state, ticks=1, rng=lambda: .5, live_cadence=live_cadence
+                    )
+                    self.assertTrue(ok)
+                    self.assertEqual(after["combat_supply_loadout"]["stat_potions"], {expected_dose: 1, "Strength potion (3)": 1})
+                    self.assertEqual(result["prayer_points_before"], 180 if expected_dose == "Prayer potion (3)" else points)
+
     def test_sap_and_leech_ramps_use_proc_steps_and_five_stack_cap(self):
         self.assertEqual(curse_expected_ramp_pure(100, "sap")["enemy_drain"], .20)
         leech = curse_expected_ramp_pure(100, "leech")
