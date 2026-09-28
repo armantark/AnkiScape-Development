@@ -276,7 +276,8 @@ from .logic_pure_state import (
 def _consumable_heal(data, amount):
     max_lp = combat_max_lifepoints_pure(data)
     current = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
-    healed = min(max_lp, current + max(0, int(amount)))
+    # The maximum caps the heal, never existing overheal (combat grill decision 98).
+    healed = max(current, min(max_lp, current + max(0, int(amount))))
     data["combat_lifepoints"] = healed
     return healed - current
 
