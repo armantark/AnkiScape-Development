@@ -272,7 +272,6 @@ from .logic.cooking_gauntlets_logic import (
     reconcile_cooking_equipment_pure,
     set_cooking_equipment_choice_pure,
 )
-from .data.cooking_gauntlets_data import FAMILY_GAUNTLET_ITEMS
 from .logic.brawling_gloves_logic import set_brawling_wilderness_target_pure
 from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
 from .core.review_context import (
@@ -5016,40 +5015,50 @@ def on_mining_answer():
 
 
 def on_attach_tool(item_name):
-    new_inventory, new_toolbelt, attached = attach_tool_to_toolbelt_pure(
-        item_name,
-        _state.player_data.get("inventory", {}) or {},
-        _state.player_data.get("toolbelt", {}) or {},
-        MINING_PICKAXE_DATA,
-        WOODCUTTING_AXE_DATA,
-    )
-    if not attached:
-        show_error_message(
-            "Cannot attach tool",
-            f"You need an unattached {item_name} in your Bank.",
+    def _attach(current):
+        inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
+            item_name,
+            current.get("inventory", {}) or {},
+            current.get("toolbelt", {}) or {},
+            MINING_PICKAXE_DATA,
+            WOODCUTTING_AXE_DATA,
         )
+        return {**current, "inventory": inventory, "toolbelt": toolbelt}, attached
+
+    return _commit_equipment_change(
+        _attach,
+        "Cannot attach tool",
+        f"You need an unattached {item_name} in your Bank.",
+    )
+
+
+def _commit_equipment_change(apply_change, title, refusal):
+    """Commit one gear move as its own Undo step; a refused undo entry writes
+    nothing, so it must not be reported as the move's own refusal."""
+    weapon = (_state.player_data.get("equipment", {}) or {}).get("weapon")
+    refused = False
+
+    def _change(current):
+        nonlocal refused
+        updated, changed = apply_change(current)
+        refused = not changed
+        return updated, changed
+
+    def _after_apply():
+        if weapon != (_state.player_data.get("equipment", {}) or {}).get("weapon"):
+            check_achievements(_state.player_data)
+
+    if not commit_direct_action(_change, after_apply=_after_apply):
+        reason = refusal if refused else "Anki could not create an undo entry, so nothing changed."
+        show_error_message(title, reason)
         return False
-    _state.player_data["inventory"] = new_inventory
-    _state.player_data["toolbelt"] = new_toolbelt
-    save_player_data()
+    if weapon != (_state.player_data.get("equipment", {}) or {}).get("weapon"):
+        _refresh_skill_availability()
+        try:
+            update_review_hud(_state.player_data, _state.current_skill)
+        except Exception:
+            pass
     return True
-
-
-def _commit_equipment_change(item_name, apply_change):
-    if item_name in FAMILY_GAUNTLET_ITEMS:
-        return commit_direct_action(apply_change)
-    updated, changed = apply_change(_state.player_data)
-    if changed:
-        weapon_changed = (_state.player_data.get("equipment", {}) or {}).get(
-            "weapon"
-        ) != (updated.get("equipment", {}) or {}).get("weapon")
-        if weapon_changed:
-            _save_combat_state_update(updated, evaluate_achievements=True)
-        else:
-            _state.player_data.clear()
-            _state.player_data.update(updated)
-            save_player_data()
-    return changed
 
 
 def on_equip_item(item_name):
@@ -5057,28 +5066,19 @@ def on_equip_item(item_name):
     if not ok:
         show_error_message("Cannot equip item", reason)
         return False
-    equipped = _commit_equipment_change(
-        item_name, lambda current: _equip_item_save_pure(current, item_name)
+    return _commit_equipment_change(
+        lambda current: _equip_item_save_pure(current, item_name),
+        "Cannot equip item",
+        f"You need {item_name} in your bank to equip it.",
     )
-    if not equipped:
-        show_error_message(
-            "Cannot equip item",
-            f"You need {item_name} in your bank to equip it.",
-        )
-    return equipped
 
 
 def on_unequip_slot(slot):
-    item_name = (_state.player_data.get("equipment", {}) or {}).get(slot)
-    unequipped = _commit_equipment_change(
-        item_name, lambda current: _unequip_slot_save_pure(current, slot)
+    return _commit_equipment_change(
+        lambda current: _unequip_slot_save_pure(current, slot),
+        "Cannot unequip item",
+        "That equipment slot is already empty.",
     )
-    if not unequipped:
-        show_error_message(
-            "Cannot unequip item",
-            "That equipment slot is already empty.",
-        )
-    return unequipped
 
 
 def on_discard_item(item_name, quantity):

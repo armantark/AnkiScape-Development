@@ -952,7 +952,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_equipment_callbacks_equip_and_unequip_items(self):
         addon = _load_addon_as_package("ankiscape_equipment_callbacks")
-
+        addon.mw = _DummyMW(_DummyCol())
         calls = {"save": 0, "errors": []}
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon.show_error_message = lambda title, message: calls["errors"].append((title, message))
@@ -977,6 +977,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_equipment_callbacks_move_degradable_instance_with_the_item(self):
         addon = _load_addon_as_package("ankiscape_equipment_instance_callbacks")
+        addon.mw = _DummyMW(_DummyCol())
         addon.save_player_data = lambda: None
         addon._state.player_data = {
             "inventory": {"Combat hood 100": 1},
@@ -993,7 +994,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             },
             "equipment_instance_next_id": 2,
         }
-
         self.assertTrue(addon.on_equip_item("Combat hood 100"))
         self.assertEqual(
             addon._state.player_data["equipment_instances"]["equipment-1"]["location"],
@@ -4016,7 +4016,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_equipping_a_melee_weapon_returns_loaded_magic_runes_to_bank(self):
         addon = _load_addon_as_package("ankiscape_combat_weapon_loadout")
-
+        addon.mw = _DummyMW(_DummyCol())
         calls = {"save": 0, "hud": 0, "refresh": 0}
         addon.save_player_data = lambda: calls.__setitem__(
             "save", calls["save"] + 1
