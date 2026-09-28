@@ -147,6 +147,62 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         )
         self.assertEqual(follower["summoning_point_drain_residual"], 0)
 
+    def test_outside_bunyip_cannot_heal_in_daemonheim_and_resumes_after_exit(self):
+        addon = _load_addon_as_package("ankiscape_bunyip_daemonheim_dispatch")
+        self._configure(addon)
+        summoning = sys.modules[f"{addon.__name__}.logic.summoning_logic"]
+        dungeon = sys.modules[f"{addon.__name__}.logic.dungeoneering_logic"]
+        data = {
+            "summoning_level": 68,
+            "constitution_level": 10,
+            "combat_lifepoints": 50,
+            "inventory": {"Bunyip pouch": 1},
+            "summoning_state": summoning.default_summoning_state_pure(),
+        }
+        data["summoning_state"]["summoning_points_current"] = 68
+        data, summoned, _ = summoning.summon_familiar_pure(data, "bunyip")
+        self.assertTrue(summoned)
+        lifetime = data["summoning_state"]["active_follower"]["remaining_reviews"]
+        points = data["summoning_state"]["summoning_points_current"]
+        data, entered, _ = dungeon.apply_dungeoneering_command_pure(
+            data, "enter", {"floor": 1}
+        )
+        self.assertTrue(entered)
+        addon._state.player_data = data
+        addon._state.current_skill = "Dungeoneering"
+
+        for _ in range(5):
+            addon._state.card_turned = True
+            addon._state.answer_shown = True
+            addon._state.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "answered")
+
+        data = addon._state.player_data
+        self.assertTrue(data["dungeoneering"]["active"])
+        self.assertEqual(data["dungeoneering"]["floor"], 1)
+        self.assertEqual(data["combat_lifepoints"], 50)
+        follower = data["summoning_state"]["active_follower"]
+        self.assertEqual(follower["entity_id"], "bunyip")
+        self.assertEqual(follower["remaining_reviews"], lifetime - 5)
+        self.assertLess(data["summoning_state"]["summoning_points_current"], points)
+
+        data, abandoned, _ = dungeon.apply_dungeoneering_command_pure(data, "abandon")
+        self.assertTrue(abandoned)
+        self.assertFalse(data["dungeoneering"]["active"])
+        addon._state.player_data = data
+        addon._state.current_skill = "None"
+        for _ in range(5):
+            addon._state.card_turned = True
+            addon._state.answer_shown = True
+            addon._state.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "answered")
+
+        data = addon._state.player_data
+        self.assertEqual(data["combat_lifepoints"], 70)
+        self.assertEqual(
+            data["summoning_state"]["active_follower"]["remaining_reviews"], lifetime - 10
+        )
+
     def test_ge_fill_undo_and_reanswer_replay_the_same_market_transaction(self):
         addon = _load_addon_as_package("ankiscape_ge_review_dispatch")
         self._configure(addon)

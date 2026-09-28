@@ -965,6 +965,32 @@ def apply_familiarisation_segment_pure(
     }
 
 
+def _advance_bunyip_heal(
+    updated: dict[str, Any], follower: dict[str, Any]
+) -> int:
+    # An ordinary familiar stays summoned through a Frozen floor, but its heal
+    # must not reach Daemonheim, where survival rests on floor supplies alone.
+    dungeon = updated.get("dungeoneering")
+    in_floor = isinstance(dungeon, Mapping) and bool(dungeon.get("active"))
+    if follower.get("entity_id") != "bunyip" or in_floor:
+        return 0
+    heal_steps, follower["bunyip_heal_residual"] = divmod(
+        _clean_int(follower.get("bunyip_heal_residual"), 0, minimum=0)
+        + ANSWER_EFFECT_TICKS,
+        BUNYIP_HEAL_TICKS,
+    )
+    maximum = max(
+        10, _clean_int(updated.get("constitution_level"), 10, minimum=1) * 10
+    )
+    before = _clean_int(
+        updated.get("combat_lifepoints"), maximum, minimum=0, maximum=maximum
+    )
+    updated["combat_lifepoints"] = min(
+        maximum, before + heal_steps * BUNYIP_HEAL_LIFEPOINTS
+    )
+    return updated["combat_lifepoints"] - before
+
+
 def advance_summoning_world_tick_pure(
     player_data: Mapping[str, Any],
     *,
@@ -1054,33 +1080,7 @@ def advance_summoning_world_tick_pure(
     follower = state["active_follower"]
     if follower.get("kind") == "familiar":
         follower = dict(follower)
-        if follower.get("entity_id") == "bunyip":
-            heal_steps, follower["bunyip_heal_residual"] = divmod(
-                _clean_int(
-                    follower.get("bunyip_heal_residual"), 0, minimum=0
-                )
-                + ANSWER_EFFECT_TICKS,
-                BUNYIP_HEAL_TICKS,
-            )
-            maximum = max(
-                10,
-                _clean_int(
-                    updated.get("constitution_level"), 10, minimum=1
-                )
-                * 10,
-            )
-            before = _clean_int(
-                updated.get("combat_lifepoints"),
-                maximum,
-                minimum=0,
-                maximum=maximum,
-            )
-            after = min(
-                maximum,
-                before + heal_steps * BUNYIP_HEAL_LIFEPOINTS,
-            )
-            updated["combat_lifepoints"] = after
-            result["passive_healing"] = after - before
+        result["passive_healing"] = _advance_bunyip_heal(updated, follower)
         follower["remaining_reviews"] = max(
             0, _clean_int(follower.get("remaining_reviews"), 0) - 1
         )
