@@ -452,6 +452,200 @@ def _run_without_carried_overlay(ctx: RuntimeActionContext, handler_key: str, ha
     return handler(ctx)
 
 
+@dataclasses.dataclass(frozen=True)
+class _TargetPack:
+    """One target's carried pack for this review: its kind, room, layouts and recipe."""
+
+    handler_key: str
+    target_id: str
+    is_processing: bool
+    advanced: bool
+    layout: dict[str, int]
+    bank: dict[str, Any]
+    capacity: int
+    casual_layout: dict[str, int]
+    requirements: dict[str, int]
+    presence_requirements: dict[str, int]
+    consumable_requirements: dict[str, int]
+
+    def repack(self) -> dict[str, int]:
+        """The pack a bank visit restocks from the bank."""
+        return _repack_view_for_target(
+            self.is_processing,
+            self.advanced,
+            self.layout,
+            self.bank,
+            self.requirements,
+            self.capacity,
+            self.casual_layout,
+            self.consumable_requirements,
+        )
+
+
+def _describe_target_pack(
+    player_data: dict[str, Any], handler_key: str, target_id: str, view: dict[str, int]
+) -> _TargetPack:
+    """Describe the pack from its saved ``view``, before this review primes or restocks it."""
+    target_spec = TREE_DATA.get(target_id, {}) if handler_key == "woodcutting" else {}
+    is_processing = (
+        handler_key in _PROCESSING_HANDLER_KEYS
+        or target_spec.get("action_type") == "processing"
+    )
+    advanced = inventory_pure.carried_advanced_for(player_data, target_id)
+    layout = (player_data.get("carried_layout") or {}).get(target_id, {})
+    bank = player_data.get("inventory", {}) or {}
+    # A carried bag raises the bank-run threshold for its material (fewer trips).
+    owned_bags = {
+        bag for bag in inventory_pure.BAG_DEFINITIONS
+        if int(bank.get(bag, 0) or 0) > 0
+    }
+    carried_materials = view if view else layout if advanced else {}
+    return _TargetPack(
+        handler_key=handler_key,
+        target_id=target_id,
+        is_processing=is_processing,
+        advanced=advanced,
+        layout=layout,
+        bank=bank,
+        capacity=inventory_pure.effective_carried_capacity(view, owned_bags),
+        casual_layout=(
+            _agility_casual_layout_for(player_data, target_id) if handler_key == "agility" else {}
+        ),
+        requirements=(
+            _processing_requirements_for(handler_key, player_data, carried_materials)
+            if is_processing else {}
+        ),
+        presence_requirements=(
+            _processing_presence_requirements_for(handler_key, player_data)
+            if is_processing else {}
+        ),
+        consumable_requirements=(
+            _skilling_potion_requirement_for(
+                handler_key, player_data, target_id, carried_materials, advanced=advanced
+            )
+            if is_processing
+            else {}
+        ),
+    )
+
+
+def _prime_first_trip(
+    player_data: dict[str, Any], pack: _TargetPack, view: dict[str, int]
+) -> dict[str, int]:
+    """Load the pack for its first trip to this target and return the view to use.
+
+    First-ever engagement with a processing target seeds the pack for free —
+    you already "have inventory" the moment you arrive, same as gathering
+    starting empty; the review cost is only for *refilling after depletion*,
+    never for the initial load (owner: no free banking, but this isn't a trip).
+    """
+    target_id = pack.target_id
+    primed = target_id in (player_data.get("carried_primed_targets") or {})
+    if (pack.is_processing and pack.requirements or pack.handler_key == "agility") and not primed:
+        view = pack.repack()
+        _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
+        _set_carried_target_map(player_data, "carried_inventory", target_id, view)
+    elif pack.handler_key == "hunter" and pack.advanced and pack.layout and not view:
+        # Hunter is gathering, but target-carried passives still need the saved
+        # Custom pack on the first trip rather than waiting for a bank-run cycle.
+        view = pack.repack()
+        _set_carried_target_map(player_data, "carried_inventory", target_id, view)
+    return view
+
+
+def _run_processing_tick(
+    ctx: RuntimeActionContext,
+    action_ctx: RuntimeActionContext,
+    handler,
+    pack: _TargetPack,
+    new_state: dict[str, Any],
+    new_view: dict[str, int],
+    new_churn: int,
+    *,
+    winter_storage_before: dict[str, Any] | None,
+    restore_cadence,
+) -> bool:
+    """Run a processing handler against the bank capped at what the pack holds.
+
+    Scope the handler's input access to what the pack holds, run it, then
+    reconcile: the real bank only loses what was actually consumed, and the
+    pack is decremented by the same amount. Every other item (outputs,
+    byproducts) passes through untouched, since it was never capped.
+    """
+    player_data = ctx.player_data
+    bank = pack.bank
+    carried_presence_requirements = pack.presence_requirements if pack.advanced else {}
+    scoped_inventory, hidden_potions, hidden_alternatives = (
+        _scope_processing_inventory(
+            bank,
+            new_view,
+            pack.handler_key,
+            pack.target_id,
+            pack.requirements,
+            carried_presence_requirements,
+            pack.consumable_requirements,
+        )
+    )
+
+    # While the inventory is scoped it does NOT reflect the real bank, so the
+    # handler must not persist it or evaluate anything against it. Suppress the
+    # handler's save, achievement check, and skill-availability refreshes for the
+    # duration and fire them once afterwards against the reconciled bank.
+    # Without this a save inside the handler writes the capped bank to disk,
+    # achievements gated on a bank quantity see only what fits in the pack, and
+    # the skill-availability UI is computed from the pack rather than the bank.
+    # `deactivate_current_skill` is deliberately left live: it must still fire
+    # when materials genuinely run out, and the bank-run gate already prevents
+    # the handler from ever seeing an under-supplied pack.
+    deferred_achievement_check = []
+    deferred_availability_refresh = []
+    scoped_ctx = dataclasses.replace(
+        action_ctx,
+        save_player_data=lambda: None,
+        check_achievements=lambda _data: deferred_achievement_check.append(True),
+        refresh_skill_availability=lambda: deferred_availability_refresh.append(True),
+    )
+    player_data["inventory"] = scoped_inventory
+    result = handler(scoped_ctx)
+    if result is False and winter_storage_before is not None:
+        player_data.clear()
+        player_data.update(winter_storage_before)
+        restore_cadence()
+        ctx.save_player_data()
+        return False
+    after_scoped = player_data.get("inventory", {}) or {}
+    new_view = _carried_target_view(player_data, pack.target_id)
+    reconciled, new_view = _reconcile_processing_inventory(
+        bank,
+        scoped_inventory,
+        after_scoped,
+        new_view,
+        (*pack.requirements, *carried_presence_requirements, *pack.consumable_requirements),
+        hidden_potions,
+        hidden_alternatives,
+    )
+    player_data["inventory"] = reconciled
+    if result is not False:
+        player_data["skilling_bank_run"] = new_state
+        churn_delta = inventory_pure.carried_action_churn_pure(
+            _without_urn_substitutions(bank),
+            _without_urn_substitutions(reconciled),
+            _OVERLAY_STACKABLE_NAMES,
+        )
+        _set_carried_target_map(player_data, "carried_inventory", pack.target_id, new_view)
+        _set_carried_target_map(player_data, "carried_churn", pack.target_id, new_churn + churn_delta)
+    # Always run against the true bank, even on a failed tick, so a suppressed
+    # save can never leave the capped inventory as the last thing written.
+    if deferred_achievement_check:
+        ctx.check_achievements(player_data)
+    if deferred_availability_refresh:
+        ctx.refresh_skill_availability()
+    if result is False:
+        restore_cadence()
+    ctx.save_player_data()
+    return result
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
@@ -489,16 +683,12 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         )
         > 0
     )
-    target_spec = TREE_DATA.get(target_id, {}) if handler_key == "woodcutting" else {}
-    is_processing = (
-        handler_key in _PROCESSING_HANDLER_KEYS
-        or target_spec.get("action_type") == "processing"
-    )
+    view = dict((player_data.get("carried_inventory") or {}).get(target_id, {}))
+    pack = _describe_target_pack(player_data, handler_key, target_id, view)
     is_agility = handler_key == "agility"
     # Keep/Drop is a gathering-only choice; processing always draws from (and
     # refills) its pack — there is no "drop the product" for a recipe's inputs.
-    keep = True if is_processing else inventory_pure.carried_keep_for(player_data, target_id)
-    view = dict((player_data.get("carried_inventory") or {}).get(target_id, {}))
+    keep = True if pack.is_processing else inventory_pure.carried_keep_for(player_data, target_id)
     churn = (player_data.get("carried_churn") or {}).get(target_id, 0)
     bank_run = player_data.get("skilling_bank_run", {})
     manual_bank_run = (
@@ -508,63 +698,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     requested_target = player_data.get("skilling_bank_run_requested")
     skilling_bank_run_requested = requested_target == target_id
     bank_run_requested = manual_bank_run or skilling_bank_run_requested
-    advanced = inventory_pure.carried_advanced_for(player_data, target_id)
-    layout = (player_data.get("carried_layout") or {}).get(target_id, {})
-    bank = player_data.get("inventory", {}) or {}
-    casual_layout = _agility_casual_layout_for(player_data, target_id) if is_agility else {}
-    # A carried bag raises the bank-run threshold for its material (fewer trips).
-    owned_bags = {
-        bag for bag in inventory_pure.BAG_DEFINITIONS
-        if int(bank.get(bag, 0) or 0) > 0
-    }
-    capacity = inventory_pure.effective_carried_capacity(view, owned_bags)
+    capacity = pack.capacity
+    view = _prime_first_trip(player_data, pack, view)
 
-    carried_materials = view if view else layout if advanced else {}
-    requirements = (
-        _processing_requirements_for(handler_key, player_data, carried_materials)
-        if is_processing else {}
-    )
-    presence_requirements = (
-        _processing_presence_requirements_for(handler_key, player_data)
-        if is_processing else {}
-    )
-    consumable_requirements = (
-        _skilling_potion_requirement_for(
-            handler_key,
-            player_data,
-            target_id,
-            view if view else layout if advanced else {},
-            advanced=advanced,
-        )
-        if is_processing
-        else {}
-    )
-
-    # First-ever engagement with a processing target seeds the pack for free —
-    # you already "have inventory" the moment you arrive, same as gathering
-    # starting empty; the review cost is only for *refilling after depletion*,
-    # never for the initial load (owner: no free banking, but this isn't a trip).
-    primed = target_id in (player_data.get("carried_primed_targets") or {})
-    if (is_processing and requirements or is_agility) and not primed:
-        view = _repack_view_for_target(
-            is_processing,
-            advanced,
-            layout,
-            bank,
-            requirements,
-            capacity,
-            casual_layout,
-            consumable_requirements,
-        )
-        _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
-        _set_carried_target_map(player_data, "carried_inventory", target_id, view)
-    elif handler_key == "hunter" and advanced and layout and not view:
-        # Hunter is gathering, but target-carried passives still need the saved
-        # Custom pack on the first trip rather than waiting for a bank-run cycle.
-        view = _repack_view_for_target(False, True, layout, bank, {}, capacity)
-        _set_carried_target_map(player_data, "carried_inventory", target_id, view)
-
-    if is_agility and advanced:
+    if is_agility and pack.advanced:
         missing = _agility_carried_requirement_gaps(player_data, target_id, view)
         if missing:
             ctx.deactivate_current_skill()
@@ -576,32 +713,20 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             return False
 
     force = bank_run_requested or (
-        is_processing
+        pack.is_processing
         and _processing_refill_due(
             view,
-            bank,
-            requirements,
-            consumable_requirements,
-            presence_requirements,
-            advanced=advanced,
+            pack.bank,
+            pack.requirements,
+            pack.consumable_requirements,
+            pack.presence_requirements,
+            advanced=pack.advanced,
         )
     )
-    desired_agility_view = (
-        _repack_view_for_target(
-            False,
-            advanced,
-            layout,
-            bank,
-            {},
-            capacity,
-            casual_layout,
-        )
-        if is_agility
-        else {}
-    )
+    desired_agility_view = pack.repack() if is_agility else {}
     if desired_agility_view:
         force = force or any(
-            int(view.get(item_name, 0) or 0) <= 0 and int(bank.get(item_name, 0) or 0) > 0
+            int(view.get(item_name, 0) or 0) <= 0 and int(pack.bank.get(item_name, 0) or 0) > 0
             for item_name in desired_agility_view
         )
 
@@ -627,16 +752,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             )
             player_data["skilling_bank_run"] = bank_run
             if not bank_run:
-                view = _repack_view_for_target(
-                    is_processing,
-                    advanced,
-                    layout,
-                    bank,
-                    requirements,
-                    capacity,
-                    casual_layout,
-                    consumable_requirements,
-                )
+                view = pack.repack()
                 churn = 0
                 force = False
                 _set_carried_target_map(
@@ -687,11 +803,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             view,
             int(churn or 0),
             capacity,
-            advanced=advanced,
+            advanced=pack.advanced,
             force_bank=force,
         )
         if winter_storage_used:
-            bank = player_data.get("inventory", {}) or {}
+            pack = dataclasses.replace(pack, bank=player_data.get("inventory", {}) or {})
             _set_carried_target_map(
                 player_data, "carried_inventory", target_id, view
             )
@@ -726,16 +842,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         new_state, new_view, new_churn = {}, {}, 0
         event = {"active": True, "started": True, "completed": True, "reviews_remaining": 0, "waived": True}
         act = True
-        new_view = _repack_view_for_target(
-            is_processing,
-            advanced,
-            layout,
-            bank,
-            requirements,
-            capacity,
-            casual_layout,
-            consumable_requirements,
-        )
+        new_view = pack.repack()
     else:
         gate_churn = min(int(churn or 0), capacity - 1) if evil_tree_overflow and not active_run else churn
         new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
@@ -770,16 +877,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     if not act:
         restore_cadence_profiles_after_rejection()
         if event.get("completed"):
-            new_view = _repack_view_for_target(
-                is_processing,
-                advanced,
-                layout,
-                bank,
-                requirements,
-                capacity,
-                casual_layout,
-                consumable_requirements,
-            )
+            new_view = pack.repack()
         _spend_review_on_bank_trip(
             ctx, target_id, bank_run, new_state, new_view, new_churn, event, reviews_cost
         )
@@ -798,83 +896,20 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             player_data.get("cadence_profiles")
         )
 
-    if is_processing and requirements:
-        # Scope the handler's input access to what the pack holds, run it, then
-        # reconcile: the real bank only loses what was actually consumed, and the
-        # pack is decremented by the same amount. Every other item (outputs,
-        # byproducts) passes through untouched, since it was never capped.
-        carried_presence_requirements = presence_requirements if advanced else {}
-        scoped_inventory, hidden_potions, hidden_alternatives = (
-            _scope_processing_inventory(
-                bank,
-                new_view,
-                handler_key,
-                target_id,
-                requirements,
-                carried_presence_requirements,
-                consumable_requirements,
-            )
-        )
-
-        # While the inventory is scoped it does NOT reflect the real bank, so the
-        # handler must not persist it or evaluate anything against it. Suppress the
-        # handler's save, achievement check, and skill-availability refreshes for the
-        # duration and fire them once afterwards against the reconciled bank.
-        # Without this a save inside the handler writes the capped bank to disk,
-        # achievements gated on a bank quantity see only what fits in the pack, and
-        # the skill-availability UI is computed from the pack rather than the bank.
-        # `deactivate_current_skill` is deliberately left live: it must still fire
-        # when materials genuinely run out, and the bank-run gate above already
-        # prevents the handler from ever seeing an under-supplied pack.
-        deferred_achievement_check = []
-        deferred_availability_refresh = []
-        scoped_ctx = dataclasses.replace(
+    if pack.is_processing and pack.requirements:
+        return _run_processing_tick(
+            ctx,
             action_ctx,
-            save_player_data=lambda: None,
-            check_achievements=lambda _data: deferred_achievement_check.append(True),
-            refresh_skill_availability=lambda: deferred_availability_refresh.append(True),
-        )
-        player_data["inventory"] = scoped_inventory
-        result = handler(scoped_ctx)
-        if result is False and winter_storage_before is not None:
-            player_data.clear()
-            player_data.update(winter_storage_before)
-            restore_cadence_profiles_after_rejection()
-            ctx.save_player_data()
-            return False
-        after_scoped = player_data.get("inventory", {}) or {}
-        new_view = _carried_target_view(player_data, target_id)
-        reconciled, new_view = _reconcile_processing_inventory(
-            bank,
-            scoped_inventory,
-            after_scoped,
+            handler,
+            pack,
+            new_state,
             new_view,
-            (*requirements, *carried_presence_requirements, *consumable_requirements),
-            hidden_potions,
-            hidden_alternatives,
+            new_churn,
+            winter_storage_before=winter_storage_before,
+            restore_cadence=restore_cadence_profiles_after_rejection,
         )
-        player_data["inventory"] = reconciled
-        if result is not False:
-            player_data["skilling_bank_run"] = new_state
-            churn_delta = inventory_pure.carried_action_churn_pure(
-                _without_urn_substitutions(bank),
-                _without_urn_substitutions(reconciled),
-                _OVERLAY_STACKABLE_NAMES,
-            )
-            _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
-            _set_carried_target_map(player_data, "carried_churn", target_id, new_churn + churn_delta)
-        # Always run against the true bank, even on a failed tick, so a suppressed
-        # save can never leave the capped inventory as the last thing written.
-        if deferred_achievement_check:
-            ctx.check_achievements(player_data)
-        if deferred_availability_refresh:
-            ctx.refresh_skill_availability()
-        if result is False:
-            restore_cadence_profiles_after_rejection()
-        ctx.save_player_data()
-        return result
 
-    inv_before = dict(bank)
+    inv_before = dict(pack.bank)
     result = handler(action_ctx)
     if result is False and winter_storage_before is not None:
         player_data.clear()
