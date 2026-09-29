@@ -22,6 +22,456 @@ Not done: no other audit-listed function, Magic or Dream code, bank-run eligibil
 
 All raw evidence is outside the worktree at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-finisher-refill-2026-09-29/`.
 
+## Death settlement isolates gravestone-free item retention — 2026-09-29
+
+The player keeps exactly the same gear and carried items after death. Queue-audit item 7 extracts the ranking of kept items on a gravestone-free death from `_combat_apply_pvm_death` into `_combat_no_grave_protected_items`. The caller still owns follower loss, Protect Item evaluation, equipment discharge, carried-pack loss, grave creation and stacking, combat reset and equipment-instance synchronization, in their original order. The same module globals supply item values and integer cleaning. No grave reward values, Magic, Dream, UI, save fields or messages changed. All other module statements and functions, including the concurrently owned `combat_target_locked_reasons_pure`, are AST-identical to base main `9af03d13` (`scope-check.log`). The source file shrinks from 2859 to 2858 lines; no code file was added.
+
+Branch: `goal/pvm-death-settlement-2026-09-29`. Worktree: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-pvm-death-settlement-2026-09-29`. Raw logs and disposable differential harnesses: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-pvm-death-settlement-2026-09-29/`.
+
+Lizard: `_combat_apply_pvm_death` NLOC 120, CCN 35 before; NLOC 97, CCN 28 after. `_combat_no_grave_protected_items` NLOC 20, CCN 8. Complexipy cognitive complexity: caller 50 → 37; helper 8. Radon Halstead difficulty: caller 5.909090909090909 → 5.5; helper 1.0. The helper stays below all three fixed caps. The slop gate ran with an isolated index and returned `slop-gate exit 0`; the real index remains untouched (`lizard-before.log`, `lizard-after.log`, `metrics-summary.log`, `slop-gate.log`). The caller's remaining over-limit responsibilities are separate cleanup work.
+
+No red run was required: this is behavior-preserving cleanup. Existing tests already exercise the moved ranking through real deaths, including Protect Item on/off, highest-value worn versus carried items, per-unit stack retention and red-portal loss without grave recovery. No test or pinned baseline was changed or added.
+
+Focused before and after, with the same selection and no skips:
+
+```
+/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_combat_logic. --select test_clan_wars. --select test_equipment_instance_logic. --select test_urns. --expected-tests 358
+```
+
+Before: `Ran 358 tests in 0.266s` / `OK`, exit 0 (`focused-before.log`). After: `Ran 358 tests in 0.265s` / `OK`, exit 0 (`focused-after.log`). Both listing logs give `Matching tests: 358. Refusing to print the last 158; narrow the selector or pass --max-results 358.`
+
+Neighbours and fixed module-surface pins: the following command returned `Ran 379 tests in 96.434s` / `OK`, exit 0, with no skips (`neighbours-final.log`):
+
+```
+/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_storage_pure. --select test_prayer. --select test_integration_smoke. --select test_encounter_lifecycle. --select test_direct_action_undo_seam. --select test_first_wave_digests --select test_constants_parts_import_standalone --select test_constants_export_order --select test_reexported_objects_keep_identity_when_defining_module_moves --select test_member_signature_and_data_changes_still_change_identity --select test_public_normalization_preserves_sequence_order_and_sorts_unordered_values --select test_unsupported_values_are_explicitly_unrepresentable --expected-tests 379
+```
+
+The rejected neighbour run is not a green gate: it reported `Ran 380 tests in 95.534s` / `OK (skipped=1)` and the fixed runner returned `error: remote focused lane false pass: tests=380, skipped=1; expected exactly 380 tests and no skips` (`neighbours.log`). The skipped root-initializer check needs `aqt`; the skip-free selection excludes both root-initializer tests and keeps the fixed first-wave module-surface pins.
+
+The disposable differential executes the real base function compiled from main `9af03d13` beside the working function, with real dependencies and no system-under-test stubs. It compares exact result/state bytes, dictionary key order, container aliases, top-level mutation traces, exception types/text/arguments and RNG calls/state. Generated cases include malformed fields and caller arguments; a separate condition matrix covers real Bronze gauntlets with worn, carried, grave and Death's Office gear. The condition matrix reports `Condition differential: cases=480; differences=0; exception_cases=0; random_draws=0` (`condition-differential.log`). Disposable wrong-return and wrong-exception canaries are detected without changing the worktree (`condition-differential.log`, `exception-canary.log`). The main generated differential reports `Differential: cases=43858; differences=0; exception_cases=2467; random_draws=0`; its groups are `{'structured': 270, 'single_field': 2148, 'arguments': 1440, 'generated': 40000}` and its exception types are `{'TypeError': 1742, 'ValueError': 311, 'OverflowError': 414}` (`differential.log`). Together the two matrices report `Combined differential: cases=44338; differences=0; exception_cases=2467; random_draws=0` (`differential-summary.log`).
+
+Reproduce the differential against the same base and working source:
+
+```
+/opt/homebrew/bin/python3 "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-pvm-death-settlement-2026-09-29/differential.py" "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-pvm-death-settlement-2026-09-29"
+/opt/homebrew/bin/python3 "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-pvm-death-settlement-2026-09-29/condition-differential.py" "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-pvm-death-settlement-2026-09-29"
+```
+
+Final full plain lane, the last remote run, once after all code and test edits: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain` → `Ran 5062 tests in 440.531s` / `OK (skipped=549)`, exit 0 (`plain-lane-final.log`). Only measured verification results and tool-incident records were updated after the run started; the tested code and tests did not change. The full Qt lane remains assigned to the orchestrator's merged-tree promotion gate.
+
+Memory Bank readers, before this entry: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 46` → `Ran 46 tests in 61.237s` / `OK`, exit 0 (`memory-bank-readers.log`). The full Qt lane is not run on this branch: the promotion-gate exception assigns both merged-tree lanes to the orchestrator.
+
+The item-reachability first line equals the recorded baseline on main `9af03d13` (`reachability-baseline.log`). Exact local audit output follows; the last line of each block records the command exit status. The diff check itself prints nothing.
+
+<details>
+<summary>Exact local audit output</summary>
+
+`python3 tools/audit_docs.py` (`audit-docs.log`):
+
+```text
+Audited 877 Markdown and 452 HTML files.
+Documentation audit passed.
+audit_docs exit 0
+```
+
+`python3 tools/audit_test_quality.py` (`audit-test-quality.log`):
+
+```text
+5027 tests across 304 files
+hard issues: 0
+structural clone candidates: 31 groups
+- tests/test_write_through_barbarian_assault.py:228:BarbarianAssaultWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_castle_wars.py:189:CastleWarsWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_fight_caves.py:170:FightCavesWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_great_orb_project.py:223:GreatOrbProjectWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_pest_control.py:239:PestControlWriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_phoenix_lair.py:182:PhoenixLairWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_probe.py:169:WriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_shades_of_mortton.py:192:ShadesOfMorttonWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_soul_wars.py:226:SoulWarsWriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_stealing_creation.py:253:StealingCreationWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_tzhaar_fight_pit.py:187:FightPitWriteThroughTest.test_the_probe_itself_catches_a_write_through
+- tests/test_single_valued_route_steps.py:252:TestSingleValuedRoutesAreRecordedSteps.test_kenniths_concerns_shrine_tunnels_are_recorded | tests/test_single_valued_route_steps.py:258:TestSingleValuedRoutesAreRecordedSteps.test_lost_city_entrana_travel_is_recorded | tests/test_single_valued_route_steps.py:264:TestSingleValuedRoutesAreRecordedSteps.test_merlins_crystal_crate_delivery_is_recorded | tests/test_single_valued_route_steps.py:298:TestSingleValuedRoutesAreRecordedSteps.test_gertrudes_cat_lumber_yard_route_is_recorded | tests/test_single_valued_route_steps.py:304:TestSingleValuedRoutesAreRecordedSteps.test_tribal_totem_rpdt_route_is_recorded | tests/test_single_valued_route_steps.py:330:TestSingleValuedRoutesAreRecordedSteps.test_plague_city_sewer_route_is_recorded | tests/test_single_valued_route_steps.py:336:TestSingleValuedRoutesAreRecordedSteps.test_waterfall_quest_golrie_route_is_recorded | tests/test_single_valued_route_steps.py:351:TestSingleValuedRoutesAreRecordedSteps.test_witchs_house_patrol_avoidance_is_recorded | tests/test_single_valued_route_steps.py:357:TestSingleValuedRoutesAreRecordedSteps.test_myths_of_the_white_lands_ice_cave_route_is_recorded
+- tests/test_logic.py:857:TestLogic.test_blue_dragon_scale_trip_gathers_the_seven_ordinary_spawns | tests/test_logic.py:868:TestLogic.test_potato_cactus_trip_gathers_only_the_three_first_level_spawns | tests/test_logic.py:879:TestLogic.test_black_mushroom_pickup_gathers_one_ground_spawn_without_xp | tests/test_logic.py:890:TestLogic.test_doogle_leaves_trip_gathers_the_two_quest_spawns_without_xp
+- tests/test_main_menu_widget.py:9644:MainMenuWidgetTest.test_quests_tab_allows_merlins_crystal_mordred_combat_gate_selection | tests/test_main_menu_widget.py:9692:MainMenuWidgetTest.test_quests_tab_allows_beast_fallback_ranged_combat_gate_selection | tests/test_main_menu_widget.py:9802:MainMenuWidgetTest.test_quests_tab_allows_witchs_house_form_combat_gate_selection | tests/test_main_menu_widget.py:9855:MainMenuWidgetTest.test_quests_tab_shows_split_golem_combat_gates
+- tests/test_item_reachability_audit.py:608:TestItemReachabilityAudit.test_lost_city_shamus_action_has_a_runtime_emitter | tests/test_item_reachability_audit.py:654:TestItemReachabilityAudit.test_a_souls_bane_rage_action_has_a_runtime_emitter | tests/test_item_reachability_audit.py:664:TestItemReachabilityAudit.test_dealing_with_scabaras_bronze_action_has_a_runtime_emitter
+- tests/test_single_valued_route_steps.py:270:TestSingleValuedRoutesAreRecordedSteps.test_heroes_quest_travel_steps_are_recorded | tests/test_single_valued_route_steps.py:310:TestSingleValuedRoutesAreRecordedSteps.test_scorpion_catcher_room_routes_are_recorded | tests/test_single_valued_route_steps.py:320:TestSingleValuedRoutesAreRecordedSteps.test_sheep_herder_enclosure_routes_are_recorded
+- tests/test_single_valued_route_steps.py:280:TestSingleValuedRoutesAreRecordedSteps.test_family_crest_dungeon_routes_are_recorded | tests/test_single_valued_route_steps.py:289:TestSingleValuedRoutesAreRecordedSteps.test_temple_of_ikov_travel_steps_are_recorded | tests/test_single_valued_route_steps.py:342:TestSingleValuedRoutesAreRecordedSteps.test_tree_gnome_village_battlefield_routes_are_recorded
+- tests/combat_roster/test_dragon_families.py:95:CombatEnemyRosterDataTest.test_bronze_dragon_preserves_cutoff_metal_dragon_contract | tests/combat_roster/test_dragon_families.py:139:CombatEnemyRosterDataTest.test_iron_dragon_preserves_cutoff_metal_dragon_contract
+- tests/test_achievement_diaries.py:802:NewConditionDegradationTest.test_combat_kill_degrades_on_absent_or_wrong_typed_state | tests/test_achievement_diaries.py:812:NewConditionDegradationTest.test_shop_transaction_degrades_on_absent_or_wrong_typed_state
+- tests/test_achievement_diaries.py:853:NewConditionDegradationTest.test_ledger_action_family_degrades_on_absent_or_wrong_typed_state | tests/test_achievement_diaries.py:861:NewConditionDegradationTest.test_equipped_item_degrades_on_absent_or_wrong_typed_state
+- tests/test_achievement_diaries.py:900:StageOneRealPathTest.test_vial_deeds_completes_through_aemads_shop | tests/test_achievement_diaries.py:1143:StageTwoRealPathTest.test_grand_candle_completes_through_the_candle_maker_shop
+- tests/test_cadence_live.py:98:TestCadenceLiveCoverage.test_big_chinchompa_declares_grouped_jar_and_world_boundary | tests/test_cadence_live.py:150:TestCadenceLiveCoverage.test_barbarian_assault_declares_one_duty_or_persistent_queen_beat
+- tests/test_combat_logic.py:2609:CombatLogicTest.test_citizen_quantity_range_and_tertiary_drop_rolls | tests/test_combat_logic.py:3568:CombatLogicTest.test_black_knight_drop_rolls_nested_seed_table_and_charms
+- tests/test_dialog_lifecycle.py:344:DialogLifecycleTest.test_level_up_dialog_names_the_exact_level_transition | tests/test_dialog_lifecycle.py:368:DialogLifecycleTest.test_combat_level_popup_uses_the_shared_level_up_dialog
+- tests/test_dominion_tower.py:430:DominionTowerFactorTest.test_climber_pays_a_hundred_times_the_arena_level_total | tests/test_dominion_tower.py:434:DominionTowerFactorTest.test_endurance_pays_a_tenth_of_that
+- tests/test_dominion_tower.py:876:DominionTowerRunTest.test_freestyle_refuses_a_boss_that_was_never_beaten | tests/test_dominion_tower.py:887:DominionTowerRunTest.test_special_mode_waits_for_climber_exposure
+- tests/test_item_reachability_audit.py:618:TestItemReachabilityAudit.test_waterfall_quest_dialogue_and_tomb_actions_have_runtime_emitters | tests/test_item_reachability_audit.py:640:TestItemReachabilityAudit.test_gertrudes_cat_dialogue_actions_have_runtime_emitters
+- tests/test_logic.py:2857:TestLogic.test_polar_kebbit_tracking_preserves_noose_wand_and_awards_sourced_outputs | tests/test_logic.py:2953:TestLogic.test_razor_backed_kebbit_tracking_preserves_noose_wand_and_awards_chain_inputs
+- tests/test_main_menu_widget.py:9335:MainMenuWidgetTest.test_quests_tab_shows_demon_slayer_item_stage_blocker | tests/test_main_menu_widget.py:9350:MainMenuWidgetTest.test_quests_tab_shows_ernest_machine_part_stage_blocker
+- tests/test_main_menu_widget.py:9385:MainMenuWidgetTest.test_quests_tab_shows_fishing_contest_current_stage_blocker | tests/test_main_menu_widget.py:9628:MainMenuWidgetTest.test_quests_tab_shows_merlins_crystal_wax_stage_blocker
+- tests/test_papercut_tools.py:78:PapercutToolTests.test_focused_runner_refuses_a_fuzzy_module_substitution | tests/test_papercut_tools.py:89:PapercutToolTests.test_focused_runner_refuses_ambiguous_fuzzy_methods
+- tests/test_phoenix_lair.py:344:PhoenixLairPersistenceAndRuntimeTests.test_runtime_routes_only_selected_active_phoenix_lair_reviews | tests/test_skeletal_horror.py:390:SkeletalHorrorPersistenceRuntimeAndAssetTests.test_runtime_routes_selected_active_reviews_and_persists
+- tests/test_promotion_gate.py:844:PromotionGateTest.test_reachability_content_addition_with_updated_pins_passes | tests/test_promotion_gate.py:856:PromotionGateTest.test_reachability_content_addition_without_updated_pins_fails
+- tests/test_single_valued_route_steps.py:422:TestSingleValuedRoutesAreRecordedSteps.test_enlightened_journey_reach_auguste_is_a_recorded_step | tests/test_single_valued_route_steps.py:452:TestSingleValuedRoutesAreRecordedSteps.test_in_pyre_need_phoenix_lair_is_a_recorded_step
+- tests/test_single_valued_route_steps.py:441:TestSingleValuedRoutesAreRecordedSteps.test_cabin_fever_charter_route_is_a_recorded_step | tests/test_single_valued_route_steps.py:458:TestSingleValuedRoutesAreRecordedSteps.test_back_to_my_roots_karamja_route_is_a_recorded_step
+- tests/test_write_through_big_chinchompa.py:200:BigChinchompaWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_pet.py:204:PetWriteThroughTest.test_the_probe_itself_catches_a_write_through
+- tests/test_write_through_castle_wars.py:197:CastleWarsWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one | tests/test_write_through_tzhaar_fight_pit.py:195:FightPitWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one
+- tests/test_write_through_fight_caves.py:178:FightCavesWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one | tests/test_write_through_phoenix_lair.py:190:PhoenixLairWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one
+- tests/test_write_through_pest_control.py:247:PestControlWriteThroughProbeTest.test_frozen_save_is_equal_to_the_plain_one | tests/test_write_through_soul_wars.py:234:SoulWarsWriteThroughProbeTest.test_frozen_save_is_equal_to_the_plain_one
+- tests/test_write_through_pest_control.py:352:PestControlWriteThroughProbeTest.test_assault_with_the_real_combat_engine_never_writes_through | tests/test_write_through_pest_control.py:381:PestControlWriteThroughProbeTest.test_defend_review_never_writes_through
+- tests/test_write_through_shades_of_mortton.py:200:ShadesOfMorttonWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one | tests/test_write_through_stealing_creation.py:261:StealingCreationWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one
+audit_test_quality exit 0
+```
+
+`python3 tools/audit_item_reachability.py` (`audit-item-reachability.log`):
+
+```text
+1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+- Agility mix (1): Item action:consume:Agility mix (1)
+- Agility mix (2): Item action:consume:Agility mix (2)
+- Antifire flask (1): Item action:consume:Antifire flask (1)
+- Antifire flask (2): Item action:consume:Antifire flask (2)
+- Antifire flask (3): Item action:consume:Antifire flask (3), Shop service:teplin_decant_flasks_to_vials:Antifire
+- Antifire flask (4): Item action:consume:Antifire flask (4)
+- Antifire flask (5): Item action:consume:Antifire flask (5)
+- Antifire flask (6): Item action:consume:Antifire flask (6)
+- Astral rune shards: Utility:grind_astral_rune_shards
+- Attack flask (1): Item action:consume:Attack flask (1)
+- Attack flask (2): Item action:consume:Attack flask (2)
+- Attack flask (3): Item action:consume:Attack flask (3), Shop service:teplin_decant_flasks_to_vials:Attack potion
+- Attack flask (4): Item action:consume:Attack flask (4)
+- Attack flask (5): Item action:consume:Attack flask (5)
+- Attack flask (6): Item action:consume:Attack flask (6)
+- Blood talisman: Runecrafting:bind_blood_talisman_staff, Runecrafting:bind_blood_tiara
+- Caviar: Fishing:catch_leaping_fish, Herblore:finished_agility_mix, Herblore:finished_antifire_mix, Herblore:finished_antip_supermix
+- Chain link mould: Crafting:silver_silvthrill_chain
+- Combat flask (1): Item action:consume:Combat flask (1)
+- Combat flask (2): Item action:consume:Combat flask (2)
+- Combat flask (3): Item action:consume:Combat flask (3), Shop service:teplin_decant_flasks_to_vials:Combat potion
+- Combat flask (4): Item action:consume:Combat flask (4)
+- Combat flask (5): Item action:consume:Combat flask (5)
+- Combat flask (6): Item action:consume:Combat flask (6)
+- Conductor mould: Crafting:silver_conductor
+- Crab meat: Utility:grind_crab_meat
+- Crafting flask (1): Item action:consume:Crafting flask (1)
+- Crafting flask (2): Item action:consume:Crafting flask (2)
+- Crafting flask (3): Item action:consume:Crafting flask (3), Shop service:teplin_decant_flasks_to_vials:Crafting potion
+- Crafting flask (4): Item action:consume:Crafting flask (4)
+- Crafting flask (5): Item action:consume:Crafting flask (5)
+- Crafting flask (6): Item action:consume:Crafting flask (6)
+- Cured yak-hide: Crafting:leather_yakhide_armour, Crafting:leather_yakhide_armour_10824
+- Cursed magic logs: Firemaking:cursed_magic_logs
+- Defence flask (1): Item action:consume:Defence flask (1)
+- Defence flask (2): Item action:consume:Defence flask (2)
+- Defence flask (3): Item action:consume:Defence flask (3), Shop service:teplin_decant_flasks_to_vials:Defence potion
+- Defence flask (4): Item action:consume:Defence flask (4)
+- Defence flask (5): Item action:consume:Defence flask (5)
+- Defence flask (6): Item action:consume:Defence flask (6)
+- Demonic sigil mould: Crafting:silver_demonic_sigil
+- Diamond root: Utility:grind_diamond_root
+- Dried thistle: Utility:grind_dried_thistle
+- Emerald lantern (lit): Utility:extinguish_emerald_lantern
+- Emerald lantern (unlit): Utility:light_emerald_lantern
+- Emerald lens: Crafting:combine_bullseye_emerald_lantern
+- Fish offcuts: Fishing:catch_leaping_fish
+- Fletching flask (1): Item action:consume:Fletching flask (1)
+- Fletching flask (2): Item action:consume:Fletching flask (2)
+- Fletching flask (3): Item action:consume:Fletching flask (3), Shop service:teplin_decant_flasks_to_vials:Fletching potion
+- Fletching flask (4): Item action:consume:Fletching flask (4)
+- Fletching flask (5): Item action:consume:Fletching flask (5)
+- Fletching flask (6): Item action:consume:Fletching flask (6)
+- Fletching potion (1): Item action:consume:Fletching potion (1)
+- Fletching potion (2): Item action:consume:Fletching potion (2)
+- Fletching potion (3): Item action:consume:Fletching potion (3), Shop service:bob_barter_decant_four:Fletching potion, Shop service:teplin_fill_potion_flasks:Fletching potion
+- Fletching potion (4): Item action:consume:Fletching potion (4)
+- Fresh crab claw: Crafting:chisel_crab_claw
+- Fresh crab shell: Crafting:chisel_crab_helmet
+- Gorak claws: Utility:grind_gorak_claws
+- Inferno adze: Farming:clear:magic, Farming:clear:maple, Farming:clear:oak, Farming:clear:willow
+- Jade vine seed: Farming:jade_vine
+- Kelp: Utility:grind_kelp
+- Leaping salmon: Cooking:gut_leaping_salmon
+- Leaping sturgeon: Cooking:gut_leaping_sturgeon
+- Leaping trout: Cooking:gut_leaping_trout
+- Magic essence (2): Herblore:finished_magic_essence_mix
+- Magic flask (1): Item action:consume:Magic flask (1)
+- Magic flask (2): Item action:consume:Magic flask (2)
+- Magic flask (3): Item action:consume:Magic flask (3), Shop service:teplin_decant_flasks_to_vials:Magic potion
+- Magic flask (4): Item action:consume:Magic flask (4)
+- Magic flask (5): Item action:consume:Magic flask (5)
+- Magic flask (6): Item action:consume:Magic flask (6)
+- Mining helmet (lit): Utility:extinguish_mining_helmet
+- Mining helmet (unlit): Utility:light_mining_helmet
+- Mushroom spore: Farming:bittercap
+- Orb of armadyl: Crafting:combine_armadyl_battlestaff
+- Phoenix feather: Herblore:finished_super_antifire
+- Potion flask: Shop service:teplin_fill_potion_flasks:Antifire, Shop service:teplin_fill_potion_flasks:Attack potion, Shop service:teplin_fill_potion_flasks:Combat potion, Shop service:teplin_fill_potion_flasks:Crafting potion
+- Prayer flask (1): Item action:consume:Prayer flask (1)
+- Prayer flask (2): Item action:consume:Prayer flask (2)
+- Prayer flask (3): Item action:consume:Prayer flask (3), Shop service:teplin_decant_flasks_to_vials:Prayer potion
+- Prayer flask (4): Item action:consume:Prayer flask (4)
+- Prayer flask (5): Item action:consume:Prayer flask (5)
+- Prayer flask (6): Item action:consume:Prayer flask (6)
+- Ranging flask (1): Item action:consume:Ranging flask (1)
+- Ranging flask (2): Item action:consume:Ranging flask (2)
+- Ranging flask (3): Item action:consume:Ranging flask (3), Shop service:teplin_decant_flasks_to_vials:Ranging potion
+- Ranging flask (4): Item action:consume:Ranging flask (4)
+- Ranging flask (5): Item action:consume:Ranging flask (5)
+- Ranging flask (6): Item action:consume:Ranging flask (6)
+- Raw monkfish: Cooking:cook_monkfish
+- Raw spider on stick: Cooking:cook_spider_on_a_stick
+- Red sandstone: Utility:make_robust_glass
+- Relicym's balm (2): Herblore:finished_relicyms_mix
+- Robust glass: Crafting:glass_potion_flask
+- Rod clay mould: Crafting:silver_silvthrill_rod
+- Roe: Fishing:catch_leaping_fish, Herblore:finished_relicyms_mix, Herblore:finished_restore_mix
+- Shaikahan bonemeal: Prayer:ectofuntus_shaikahan_bones
+- Shaikahan bones: Utility:grind_prayer_shaikahan_bones
+- Shards of armadyl: Utility:grind_shards_of_armadyl
+- Shield right half: Smithing:repair_dragon_sq_shield
+- Shrunk ogleroot: Herblore:finished_shrink_me_quick
+- Skewer stick: Utility:skewer_spider_on_a_stick
+- Spider carcass: Utility:skewer_spider_on_a_stick
+- Spirit roots: Crafting:spin_spirit_roots_to_crossbow_string
+- Strength flask (1): Item action:consume:Strength flask (1)
+- Strength flask (2): Item action:consume:Strength flask (2)
+- Strength flask (3): Item action:consume:Strength flask (3), Shop service:teplin_decant_flasks_to_vials:Strength potion
+- Strength flask (4): Item action:consume:Strength flask (4)
+- Strength flask (5): Item action:consume:Strength flask (5)
+- Strength flask (6): Item action:consume:Strength flask (6)
+- Summoning flask (1): Item action:consume:Summoning flask (1)
+- Summoning flask (2): Item action:consume:Summoning flask (2)
+- Summoning flask (3): Item action:consume:Summoning flask (3), Shop service:teplin_decant_flasks_to_vials:Summoning potion
+- Summoning flask (4): Item action:consume:Summoning flask (4)
+- Summoning flask (5): Item action:consume:Summoning flask (5)
+- Summoning flask (6): Item action:consume:Summoning flask (6)
+- Super antifire (1): Item action:consume:Super antifire (1)
+- Super antifire (2): Item action:consume:Super antifire (2)
+- Super antifire (3): Item action:consume:Super antifire (3), Shop service:bob_barter_decant_four:Super antifire, Shop service:teplin_fill_potion_flasks:Super antifire
+- Super antifire (4): Item action:consume:Super antifire (4)
+- Super antifire flask (1): Item action:consume:Super antifire flask (1)
+- Super antifire flask (2): Item action:consume:Super antifire flask (2)
+- Super antifire flask (3): Item action:consume:Super antifire flask (3), Shop service:teplin_decant_flasks_to_vials:Super antifire
+- Super antifire flask (4): Item action:consume:Super antifire flask (4)
+- Super antifire flask (5): Item action:consume:Super antifire flask (5)
+- Super antifire flask (6): Item action:consume:Super antifire flask (6)
+- Super attack flask (1): Item action:consume:Super attack flask (1)
+- Super attack flask (2): Item action:consume:Super attack flask (2)
+- Super attack flask (3): Item action:consume:Super attack flask (3), Shop service:teplin_decant_flasks_to_vials:Super attack
+- Super attack flask (4): Item action:consume:Super attack flask (4)
+- Super attack flask (5): Item action:consume:Super attack flask (5)
+- Super attack flask (6): Item action:consume:Super attack flask (6)
+- Super defence flask (1): Item action:consume:Super defence flask (1)
+- Super defence flask (2): Item action:consume:Super defence flask (2)
+- Super defence flask (3): Item action:consume:Super defence flask (3), Shop service:teplin_decant_flasks_to_vials:Super defence
+- Super defence flask (4): Item action:consume:Super defence flask (4)
+- Super defence flask (5): Item action:consume:Super defence flask (5)
+- Super defence flask (6): Item action:consume:Super defence flask (6)
+- Super prayer flask (1): Item action:consume:Super prayer flask (1)
+- Super prayer flask (2): Item action:consume:Super prayer flask (2)
+- Super prayer flask (3): Item action:consume:Super prayer flask (3), Shop service:teplin_decant_flasks_to_vials:Super prayer
+- Super prayer flask (4): Item action:consume:Super prayer flask (4)
+- Super prayer flask (5): Item action:consume:Super prayer flask (5)
+- Super prayer flask (6): Item action:consume:Super prayer flask (6)
+- Super restore flask (1): Item action:consume:Super restore flask (1)
+- Super restore flask (2): Item action:consume:Super restore flask (2)
+- Super restore flask (3): Item action:consume:Super restore flask (3), Shop service:teplin_decant_flasks_to_vials:Super restore
+- Super restore flask (4): Item action:consume:Super restore flask (4)
+- Super restore flask (5): Item action:consume:Super restore flask (5)
+- Super restore flask (6): Item action:consume:Super restore flask (6)
+- Super strength flask (1): Item action:consume:Super strength flask (1)
+- Super strength flask (2): Item action:consume:Super strength flask (2)
+- Super strength flask (3): Item action:consume:Super strength flask (3), Shop service:teplin_decant_flasks_to_vials:Super strength
+- Super strength flask (4): Item action:consume:Super strength flask (4)
+- Super strength flask (5): Item action:consume:Super strength flask (5)
+- Super strength flask (6): Item action:consume:Super strength flask (6)
+- Suqah tooth: Utility:grind_suqah_tooth
+- Tchiki monkey nuts: Utility:grind_tchiki_monkey_nuts
+- White lily seed: Farming:white_lily
+- White tree sapling: Farming:white_tree
+- Wimpy feather: Herblore:finished_fletching_potion
+audit_item_reachability exit 0
+```
+
+`python3 tools/audit_item_reachability.py --check` (`audit-item-reachability-check.log`):
+
+```text
+1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+- Agility mix (1): Item action:consume:Agility mix (1)
+- Agility mix (2): Item action:consume:Agility mix (2)
+- Antifire flask (1): Item action:consume:Antifire flask (1)
+- Antifire flask (2): Item action:consume:Antifire flask (2)
+- Antifire flask (3): Item action:consume:Antifire flask (3), Shop service:teplin_decant_flasks_to_vials:Antifire
+- Antifire flask (4): Item action:consume:Antifire flask (4)
+- Antifire flask (5): Item action:consume:Antifire flask (5)
+- Antifire flask (6): Item action:consume:Antifire flask (6)
+- Astral rune shards: Utility:grind_astral_rune_shards
+- Attack flask (1): Item action:consume:Attack flask (1)
+- Attack flask (2): Item action:consume:Attack flask (2)
+- Attack flask (3): Item action:consume:Attack flask (3), Shop service:teplin_decant_flasks_to_vials:Attack potion
+- Attack flask (4): Item action:consume:Attack flask (4)
+- Attack flask (5): Item action:consume:Attack flask (5)
+- Attack flask (6): Item action:consume:Attack flask (6)
+- Blood talisman: Runecrafting:bind_blood_talisman_staff, Runecrafting:bind_blood_tiara
+- Caviar: Fishing:catch_leaping_fish, Herblore:finished_agility_mix, Herblore:finished_antifire_mix, Herblore:finished_antip_supermix
+- Chain link mould: Crafting:silver_silvthrill_chain
+- Combat flask (1): Item action:consume:Combat flask (1)
+- Combat flask (2): Item action:consume:Combat flask (2)
+- Combat flask (3): Item action:consume:Combat flask (3), Shop service:teplin_decant_flasks_to_vials:Combat potion
+- Combat flask (4): Item action:consume:Combat flask (4)
+- Combat flask (5): Item action:consume:Combat flask (5)
+- Combat flask (6): Item action:consume:Combat flask (6)
+- Conductor mould: Crafting:silver_conductor
+- Crab meat: Utility:grind_crab_meat
+- Crafting flask (1): Item action:consume:Crafting flask (1)
+- Crafting flask (2): Item action:consume:Crafting flask (2)
+- Crafting flask (3): Item action:consume:Crafting flask (3), Shop service:teplin_decant_flasks_to_vials:Crafting potion
+- Crafting flask (4): Item action:consume:Crafting flask (4)
+- Crafting flask (5): Item action:consume:Crafting flask (5)
+- Crafting flask (6): Item action:consume:Crafting flask (6)
+- Cured yak-hide: Crafting:leather_yakhide_armour, Crafting:leather_yakhide_armour_10824
+- Cursed magic logs: Firemaking:cursed_magic_logs
+- Defence flask (1): Item action:consume:Defence flask (1)
+- Defence flask (2): Item action:consume:Defence flask (2)
+- Defence flask (3): Item action:consume:Defence flask (3), Shop service:teplin_decant_flasks_to_vials:Defence potion
+- Defence flask (4): Item action:consume:Defence flask (4)
+- Defence flask (5): Item action:consume:Defence flask (5)
+- Defence flask (6): Item action:consume:Defence flask (6)
+- Demonic sigil mould: Crafting:silver_demonic_sigil
+- Diamond root: Utility:grind_diamond_root
+- Dried thistle: Utility:grind_dried_thistle
+- Emerald lantern (lit): Utility:extinguish_emerald_lantern
+- Emerald lantern (unlit): Utility:light_emerald_lantern
+- Emerald lens: Crafting:combine_bullseye_emerald_lantern
+- Fish offcuts: Fishing:catch_leaping_fish
+- Fletching flask (1): Item action:consume:Fletching flask (1)
+- Fletching flask (2): Item action:consume:Fletching flask (2)
+- Fletching flask (3): Item action:consume:Fletching flask (3), Shop service:teplin_decant_flasks_to_vials:Fletching potion
+- Fletching flask (4): Item action:consume:Fletching flask (4)
+- Fletching flask (5): Item action:consume:Fletching flask (5)
+- Fletching flask (6): Item action:consume:Fletching flask (6)
+- Fletching potion (1): Item action:consume:Fletching potion (1)
+- Fletching potion (2): Item action:consume:Fletching potion (2)
+- Fletching potion (3): Item action:consume:Fletching potion (3), Shop service:bob_barter_decant_four:Fletching potion, Shop service:teplin_fill_potion_flasks:Fletching potion
+- Fletching potion (4): Item action:consume:Fletching potion (4)
+- Fresh crab claw: Crafting:chisel_crab_claw
+- Fresh crab shell: Crafting:chisel_crab_helmet
+- Gorak claws: Utility:grind_gorak_claws
+- Inferno adze: Farming:clear:magic, Farming:clear:maple, Farming:clear:oak, Farming:clear:willow
+- Jade vine seed: Farming:jade_vine
+- Kelp: Utility:grind_kelp
+- Leaping salmon: Cooking:gut_leaping_salmon
+- Leaping sturgeon: Cooking:gut_leaping_sturgeon
+- Leaping trout: Cooking:gut_leaping_trout
+- Magic essence (2): Herblore:finished_magic_essence_mix
+- Magic flask (1): Item action:consume:Magic flask (1)
+- Magic flask (2): Item action:consume:Magic flask (2)
+- Magic flask (3): Item action:consume:Magic flask (3), Shop service:teplin_decant_flasks_to_vials:Magic potion
+- Magic flask (4): Item action:consume:Magic flask (4)
+- Magic flask (5): Item action:consume:Magic flask (5)
+- Magic flask (6): Item action:consume:Magic flask (6)
+- Mining helmet (lit): Utility:extinguish_mining_helmet
+- Mining helmet (unlit): Utility:light_mining_helmet
+- Mushroom spore: Farming:bittercap
+- Orb of armadyl: Crafting:combine_armadyl_battlestaff
+- Phoenix feather: Herblore:finished_super_antifire
+- Potion flask: Shop service:teplin_fill_potion_flasks:Antifire, Shop service:teplin_fill_potion_flasks:Attack potion, Shop service:teplin_fill_potion_flasks:Combat potion, Shop service:teplin_fill_potion_flasks:Crafting potion
+- Prayer flask (1): Item action:consume:Prayer flask (1)
+- Prayer flask (2): Item action:consume:Prayer flask (2)
+- Prayer flask (3): Item action:consume:Prayer flask (3), Shop service:teplin_decant_flasks_to_vials:Prayer potion
+- Prayer flask (4): Item action:consume:Prayer flask (4)
+- Prayer flask (5): Item action:consume:Prayer flask (5)
+- Prayer flask (6): Item action:consume:Prayer flask (6)
+- Ranging flask (1): Item action:consume:Ranging flask (1)
+- Ranging flask (2): Item action:consume:Ranging flask (2)
+- Ranging flask (3): Item action:consume:Ranging flask (3), Shop service:teplin_decant_flasks_to_vials:Ranging potion
+- Ranging flask (4): Item action:consume:Ranging flask (4)
+- Ranging flask (5): Item action:consume:Ranging flask (5)
+- Ranging flask (6): Item action:consume:Ranging flask (6)
+- Raw monkfish: Cooking:cook_monkfish
+- Raw spider on stick: Cooking:cook_spider_on_a_stick
+- Red sandstone: Utility:make_robust_glass
+- Relicym's balm (2): Herblore:finished_relicyms_mix
+- Robust glass: Crafting:glass_potion_flask
+- Rod clay mould: Crafting:silver_silvthrill_rod
+- Roe: Fishing:catch_leaping_fish, Herblore:finished_relicyms_mix, Herblore:finished_restore_mix
+- Shaikahan bonemeal: Prayer:ectofuntus_shaikahan_bones
+- Shaikahan bones: Utility:grind_prayer_shaikahan_bones
+- Shards of armadyl: Utility:grind_shards_of_armadyl
+- Shield right half: Smithing:repair_dragon_sq_shield
+- Shrunk ogleroot: Herblore:finished_shrink_me_quick
+- Skewer stick: Utility:skewer_spider_on_a_stick
+- Spider carcass: Utility:skewer_spider_on_a_stick
+- Spirit roots: Crafting:spin_spirit_roots_to_crossbow_string
+- Strength flask (1): Item action:consume:Strength flask (1)
+- Strength flask (2): Item action:consume:Strength flask (2)
+- Strength flask (3): Item action:consume:Strength flask (3), Shop service:teplin_decant_flasks_to_vials:Strength potion
+- Strength flask (4): Item action:consume:Strength flask (4)
+- Strength flask (5): Item action:consume:Strength flask (5)
+- Strength flask (6): Item action:consume:Strength flask (6)
+- Summoning flask (1): Item action:consume:Summoning flask (1)
+- Summoning flask (2): Item action:consume:Summoning flask (2)
+- Summoning flask (3): Item action:consume:Summoning flask (3), Shop service:teplin_decant_flasks_to_vials:Summoning potion
+- Summoning flask (4): Item action:consume:Summoning flask (4)
+- Summoning flask (5): Item action:consume:Summoning flask (5)
+- Summoning flask (6): Item action:consume:Summoning flask (6)
+- Super antifire (1): Item action:consume:Super antifire (1)
+- Super antifire (2): Item action:consume:Super antifire (2)
+- Super antifire (3): Item action:consume:Super antifire (3), Shop service:bob_barter_decant_four:Super antifire, Shop service:teplin_fill_potion_flasks:Super antifire
+- Super antifire (4): Item action:consume:Super antifire (4)
+- Super antifire flask (1): Item action:consume:Super antifire flask (1)
+- Super antifire flask (2): Item action:consume:Super antifire flask (2)
+- Super antifire flask (3): Item action:consume:Super antifire flask (3), Shop service:teplin_decant_flasks_to_vials:Super antifire
+- Super antifire flask (4): Item action:consume:Super antifire flask (4)
+- Super antifire flask (5): Item action:consume:Super antifire flask (5)
+- Super antifire flask (6): Item action:consume:Super antifire flask (6)
+- Super attack flask (1): Item action:consume:Super attack flask (1)
+- Super attack flask (2): Item action:consume:Super attack flask (2)
+- Super attack flask (3): Item action:consume:Super attack flask (3), Shop service:teplin_decant_flasks_to_vials:Super attack
+- Super attack flask (4): Item action:consume:Super attack flask (4)
+- Super attack flask (5): Item action:consume:Super attack flask (5)
+- Super attack flask (6): Item action:consume:Super attack flask (6)
+- Super defence flask (1): Item action:consume:Super defence flask (1)
+- Super defence flask (2): Item action:consume:Super defence flask (2)
+- Super defence flask (3): Item action:consume:Super defence flask (3), Shop service:teplin_decant_flasks_to_vials:Super defence
+- Super defence flask (4): Item action:consume:Super defence flask (4)
+- Super defence flask (5): Item action:consume:Super defence flask (5)
+- Super defence flask (6): Item action:consume:Super defence flask (6)
+- Super prayer flask (1): Item action:consume:Super prayer flask (1)
+- Super prayer flask (2): Item action:consume:Super prayer flask (2)
+- Super prayer flask (3): Item action:consume:Super prayer flask (3), Shop service:teplin_decant_flasks_to_vials:Super prayer
+- Super prayer flask (4): Item action:consume:Super prayer flask (4)
+- Super prayer flask (5): Item action:consume:Super prayer flask (5)
+- Super prayer flask (6): Item action:consume:Super prayer flask (6)
+- Super restore flask (1): Item action:consume:Super restore flask (1)
+- Super restore flask (2): Item action:consume:Super restore flask (2)
+- Super restore flask (3): Item action:consume:Super restore flask (3), Shop service:teplin_decant_flasks_to_vials:Super restore
+- Super restore flask (4): Item action:consume:Super restore flask (4)
+- Super restore flask (5): Item action:consume:Super restore flask (5)
+- Super restore flask (6): Item action:consume:Super restore flask (6)
+- Super strength flask (1): Item action:consume:Super strength flask (1)
+- Super strength flask (2): Item action:consume:Super strength flask (2)
+- Super strength flask (3): Item action:consume:Super strength flask (3), Shop service:teplin_decant_flasks_to_vials:Super strength
+- Super strength flask (4): Item action:consume:Super strength flask (4)
+- Super strength flask (5): Item action:consume:Super strength flask (5)
+- Super strength flask (6): Item action:consume:Super strength flask (6)
+- Suqah tooth: Utility:grind_suqah_tooth
+- Tchiki monkey nuts: Utility:grind_tchiki_monkey_nuts
+- White lily seed: Farming:white_lily
+- White tree sapling: Farming:white_tree
+- Wimpy feather: Herblore:finished_fletching_potion
+audit_item_reachability --check exit 0
+```
+
+`python3 tools/worktree_guard.py audit` (`worktree-audit.log`):
+
+```text
+Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
+Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
+worktree_guard audit exit 0
+```
+
+`git diff --check` (`diff-check.log`):
+
+```text
+git diff --check exit 0 (no output)
+```
+
+</details>
+
+Not done: the owner-gated grave reward values in design thread §3.40, Magic and Dream, other exposed combat responsibilities and the concurrently owned target-lock function remain untouched. No owner question or second-level code defect was found. No player-visible change means no play-checklist line or visual test is needed. This slice is uncommitted and was not pushed; the orchestrator owns cross-lineage review and promotion.
+
 ## The game batch is on main and waits for one in-game check — 2026-09-28
 
 The owner answered [design-thread queue §3.38](design-thread-queue.md) on 2026-09-27 at 19:34 PDT with a fourth option, "Land now, one check later": game-code slices land in one batch after the full two-lane promotion gate (plain and Qt) passes; then the owner or the MacBook Codex desktop task `01a0c67a-3e19-76c2-804c-65d993c9dddc` does one in-game check of the whole batch, and each defect found becomes a fix slice. The answer released only batch `promote/game-2026-09-27b`: the 18 slices of `promote/runtime-batch-2026-09-23` plus the later game slices. Every other runtime slice keeps the per-slice check of owner decision 8 and does not land on the failed route.

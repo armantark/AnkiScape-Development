@@ -748,6 +748,34 @@ def _combat_apply_follower_death(data):
     data.update(follower_updated)
 
 
+def _combat_no_grave_protected_items(original_equipment, carried_counts, kept_items, protect_item):
+    protected_slots: set[str] = set()
+    protected_carried: dict[str, int] = {}
+    # The gravestone-free death is the player-versus-player one. It keeps
+    # the caller's `kept_items`, and one more while Protect Item is active.
+    # AnkiScape has no inventory arrangement for the period's own pick, so
+    # it keeps the most valuable ones.
+    keep = kept_items + (1 if protect_item else 0)
+    candidates = [
+        (_non_negative_int(ITEM_VALUES.get(item_name, 0), 0), str(item_name), "equipment", str(slot))
+        for slot, item_name in original_equipment.items()
+        if isinstance(item_name, str)
+    ]
+    # Carried units are counted one at a time so the kept total is a count of
+    # items rather than of stacks.
+    candidates.extend(
+        (_non_negative_int(ITEM_VALUES.get(item_name, 0), 0), str(item_name), "carried", str(item_name))
+        for item_name, count in carried_counts.items()
+        for _unit in range(max(0, count))
+    )
+    for _value, _item_name, location, key in sorted(candidates, reverse=True)[:keep]:
+        if location == "equipment":
+            protected_slots.add(key)
+        else:
+            protected_carried[key] = protected_carried.get(key, 0) + 1
+    return protected_slots, protected_carried
+
+
 def _combat_apply_pvm_death(
     data,
     max_player_lifepoints,
@@ -763,38 +791,9 @@ def _combat_apply_pvm_death(
     protected_carried: dict[str, int] = {}
     protect_item = prayer_effect_state_pure(data).get("protect_item")
     if no_grave:
-        # The gravestone-free death is the player-versus-player one. It keeps
-        # the caller's `kept_items`, and one more while Protect Item is active.
-        # AnkiScape has no inventory arrangement for the period's own pick, so
-        # it keeps the most valuable ones.
-        keep = kept_items + (1 if protect_item else 0)
-        candidates = [
-            (
-                _non_negative_int(ITEM_VALUES.get(item_name, 0), 0),
-                str(item_name),
-                "equipment",
-                str(slot),
-            )
-            for slot, item_name in original_equipment.items()
-            if isinstance(item_name, str)
-        ]
-        # Carried units are counted one at a time so the kept total is a count of
-        # items rather than of stacks.
-        candidates.extend(
-            (
-                _non_negative_int(ITEM_VALUES.get(item_name, 0), 0),
-                str(item_name),
-                "carried",
-                str(item_name),
-            )
-            for item_name, count in carried_counts.items()
-            for _unit in range(max(0, count))
+        protected_slots, protected_carried = _combat_no_grave_protected_items(
+            original_equipment, carried_counts, kept_items, protect_item
         )
-        for _value, _item_name, location, key in sorted(candidates, reverse=True)[:keep]:
-            if location == "equipment":
-                protected_slots.add(key)
-            else:
-                protected_carried[key] = protected_carried.get(key, 0) + 1
     elif protect_item and original_equipment:
         protected_slots = {
             max(
