@@ -562,7 +562,11 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--expected-tests", type=int,
-        help="Exact focused test count; no skipped tests are accepted.",
+        help=(
+            "Exact focused test count; no skipped tests are accepted. Take it from the "
+            "'Matching tests: N' line of `python3 run_tests.py --list <selectors>`, given the "
+            "same selectors bare, without --select."
+        ),
     )
     args = parser.parse_args(argv)
 

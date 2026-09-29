@@ -30,6 +30,22 @@ Audits: `python3 tools/audit_docs.py` → `Audited 875 Markdown and 452 HTML fil
 
 Not fixed: the main tab strip does not fit the dialog width. At 1200x760 the last tab shows as "Sett" beside the scroll arrow, and at 900x560 the tabs after "Quests" are cut off; this is an existing interface that this slice may not change.
 
+## The test listing states the focused-run count — 2026-09-28
+
+A slice author can now read the exact `--expected-tests` value for a focused MacBook run from one line, instead of counting `run_tests.py --list` output by hand with `grep`. `python3 run_tests.py --list <selectors>` prints the matching IDs unchanged on stdout, then a last line on stderr, `Matching tests: N`. When the IDs are cut at `--max-results`, that line reads `Matching tests: N. Refusing to print the last M; narrow the selector or pass --max-results N.` and the exit stays 2. The count goes to stderr, after a stdout flush, so stdout stays a clean ID list for pipes and the line is still last in merged output.
+
+What the count means: `tools/run_remote_tests.py` `_validate_focused_summary` compares `--expected-tests` with the unittest `Ran N` count, which includes skipped tests, and separately refuses any skip. The remote lane runs `run_tests.py --quiet -- <selectors>` with the same discovery and selection, so on the same tree N equals the remote `Ran` count. The listing cannot see skips, so a selection that holds a Qt-only test on the plain lane, an `@unittest.skip`, a platform guard, or a runtime `self.skipTest` still fails the remote run with `skipped=K`. The `--list` help, the `--expected-tests` help, and `STANDING-SLICE-CONTRACT.md` section 6 ("Focused-run count") say this.
+
+Red (MacBook, fix absent): `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select PapercutToolTests.test_list_ends_with_the_matching_test_count_even_when_cut --expected-tests 1` → `AssertionError: Lists differ` (`Second list contains 1 additional elements.` / `First extra element 3:` / `'Matching tests: 3'`), `Ran 1 test in 0.116s`, `FAILED (failures=1)`, `error: remote plain lane failed with exit 1`.
+
+Green (MacBook): the count came from the new line, `python3 run_tests.py --list test_papercut_tools. test_remote_test_host. test_remote_mirror_lock. test_promotion_gate. test_memory_bank_queue_packet.` → `Matching tests: 105`; `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_papercut_tools. --select test_remote_test_host. --select test_remote_mirror_lock. --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 105` → `Ran 105 tests in 97.416s`, `OK`, exit 0.
+
+Full plain lane (promotion-gate exception: the orchestrator re-runs both lanes on the merged tree; the full Qt lane was not run): `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain` → `Ran 5054 tests in 452.005s`, `OK (skipped=549)`, exit 0. On the same tree, `python3 run_tests.py --list --max-results 1` ends `Matching tests: 5054. Refusing to print the last 5053; narrow the selector or pass --max-results 5054.` (exit 2), the same 5054.
+
+Audits, all exit 0: `python3 tools/audit_docs.py` → `Audited 875 Markdown and 452 HTML files.` / `Documentation audit passed.`; `python3 tools/audit_test_quality.py` → `5019 tests across 302 files` / `hard issues: 0` / `structural clone candidates: 31 groups`; `python3 tools/audit_item_reachability.py` → `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, equal to main's baseline first line; `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`; `git diff --check` → no output.
+
+Not fixed: the 2026-09-23T22:54:37 papercut, where a local listing gave 758 IDs and the MacBook ran 760, has no recorded cause; this slice does not explain it. The listing does not report which matches will skip in a lane.
+
 ## Clipped Slayer text now fails the test lanes — 2026-09-27
 
 The Slayer completion dialog and the "Slayer: 4 of 17 left" line in the review HUD are now checked for clipped, escaping or overlapping text in every offscreen Qt run, at the default 1000x700 parent and at a 900x560 laptop parent. Before, only `tools/pass14/screenshots.py` held these checks, and no test runner called it, so clipped Slayer text passed every gate (triage T6, decision 12 "a new check becomes a test"). The player sees no change.

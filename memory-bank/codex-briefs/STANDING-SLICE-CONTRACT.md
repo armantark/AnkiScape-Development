@@ -168,6 +168,16 @@ and would have caught the above with an `UnboundLocalError` on the mutated line.
 That is not the full plain lane and it is not the Qt lane; it is the cheap
 neighbour check.
 
+**Focused-run count.** Take the `--expected-tests` value of
+`tools/run_remote_tests.py` from the last line of
+`python3 run_tests.py --list <selectors>`, with the same selectors given bare
+instead of as `--select`: `Matching tests: N`. The line appears even when the ID
+list is cut at `--max-results`. N counts every discovered match, skipped tests
+too, so on the same tree it equals the remote `Ran` count. The remote run also
+refuses any skip, which the listing cannot see, so drop from the selection
+every test that skips in the chosen lane: Qt-only tests on the plain lane, and
+any `@unittest.skip`, platform guard, or runtime `self.skipTest`.
+
 **Promotion-gate exception.** When your brief states that the orchestrator will
 re-run both lanes on the merged tree as the promotion gate, and tells you to run
 the plain lane only, do that and say so in your report. The binding run is the

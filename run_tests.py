@@ -110,7 +110,12 @@ def main() -> int:
     parser.add_argument(
         "--list",
         action="store_true",
-        help="list matching test IDs without running them",
+        help=(
+            "list matching test IDs without running them, then a last 'Matching tests: N' "
+            "line; N counts every discovered match, skipped ones too, so on the same tree "
+            "it equals the Ran count that run_remote_tests.py --expected-tests checks for "
+            "the same selectors, and that run passes only when none of the N skip in its lane"
+        ),
     )
     parser.add_argument(
         "--max-results",
@@ -171,13 +176,17 @@ def main() -> int:
     if args.list:
         for test_id in selected_ids[:args.max_results]:
             print(test_id)
-        if len(selected_ids) > args.max_results:
+        # The count goes to stderr so stdout stays a clean ID list; flushing keeps it last in merged output.
+        sys.stdout.flush()
+        unprinted = len(selected_ids) - args.max_results
+        if unprinted > 0:
             print(
-                f"Refusing to print {len(selected_ids)} IDs; narrow the selector "
-                f"or raise --max-results above {args.max_results}.",
+                f"Matching tests: {len(selected_ids)}. Refusing to print the last {unprinted}; "
+                f"narrow the selector or pass --max-results {len(selected_ids)}.",
                 file=sys.stderr,
             )
             return 2
+        print(f"Matching tests: {len(selected_ids)}", file=sys.stderr)
         return 0
 
     verbosity = 0 if args.quiet else args.verbosity

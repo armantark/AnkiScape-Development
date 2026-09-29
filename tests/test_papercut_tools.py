@@ -531,6 +531,56 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(len(completed.stdout.splitlines()), 1)
         self.assertIn("Refusing to print", completed.stderr)
 
+    def test_list_ends_with_the_matching_test_count_even_when_cut(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            checkout = Path(temp_dir) / "count-fixture"
+            tests_dir = checkout / "tests"
+            tests_dir.mkdir(parents=True)
+            shutil.copy2(ROOT / "run_tests.py", checkout / "run_tests.py")
+            shutil.copy2(ROOT / "tests/__init__.py", tests_dir / "__init__.py")
+            (tests_dir / "test_count_probe.py").write_text(
+                "import unittest\n"
+                "\n"
+                "\n"
+                "class CountProbe(unittest.TestCase):\n"
+                "    def test_a(self):\n"
+                "        self.assertTrue(True)\n"
+                "\n"
+                "    @unittest.skip('skipped tests still count')\n"
+                "    def test_b(self):\n"
+                "        self.assertTrue(True)\n"
+                "\n"
+                "    def test_c(self):\n"
+                "        self.assertTrue(True)\n",
+                encoding="utf-8",
+            )
+
+            def list_output(*extra):
+                # Merged streams prove the count line lands after the IDs even when stdout is a pipe.
+                return subprocess.run(
+                    [sys.executable, str(checkout / "run_tests.py"), "CountProbe", "--list", *extra],
+                    check=False,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                )
+
+            complete = list_output()
+            cut = list_output("--max-results", "2")
+
+        ids = [f"tests.test_count_probe.CountProbe.test_{name}" for name in "abc"]
+        self.assertEqual(complete.returncode, 0, complete.stdout)
+        self.assertEqual(complete.stdout.splitlines(), [*ids, "Matching tests: 3"])
+        self.assertEqual(cut.returncode, 2, cut.stdout)
+        self.assertEqual(
+            cut.stdout.splitlines(),
+            [
+                *ids[:2],
+                "Matching tests: 3. Refusing to print the last 1; narrow the selector "
+                "or pass --max-results 3.",
+            ],
+        )
+
     def test_quiet_runner_keeps_the_final_summary_without_test_names(self):
         completed = subprocess.run(
             [
