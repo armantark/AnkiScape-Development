@@ -4054,3 +4054,133 @@ OK (skipped=549)
 ```
 
 No full Qt lane ran. The orchestrator owns cross-lineage review and both merged-tree promotion lanes. The slice remains uncommitted and unpushed.
+
+## 2026-09-29 — New papercuts checked against their retained causes
+
+The tool user can see which new reports need work without reading repeated reports of the same cause. This records-only slice is on `goal/papercut-triage-2026-09-29`, based on main `98eb13f2`. No code, tests, UI, saved data or source baseline changed. No commit or push was made.
+
+Worktree: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-papercut-triage-2026-09-29`.
+
+Evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-papercut-triage-2026-09-29/`. The saved `post-d61b22ec-history.log` contains the requested `git log -p d61b22ec..main -- memory-bank/papercuts.md`; `prior-triage-archive-diff.log` records the earlier method. `classifications.json` and `classifications.tsv` give a disposition and reason for every new entry, including each retained entry for a compound duplicate. `revise_triage.py` records the precise duplicate test, restores entries from main, and updates `plan.json`; the initial move evidence is preserved under `round1/`.
+
+Counts measured from main and the worktree: **open before 112; fixed 0; duplicate 20; open after 92**. Main held 32 entries added after `d61b22ec`: 20 duplicates and 12 that stay open. The older 80 entries all stay open and unchanged. This run also recorded two instances of friction, at `2026-09-29T15:42:27-0700` and `2026-09-29T15:43:29-0700`; both duplicate retained causes and both are archived. The archive holds 22 new entries in total: 20 from main and 2 from this run. The open log has 92 entries in 94 physical lines. The physical line count includes the title and its blank line; it is not the entry count.
+
+The duplicate test is specific: fixing the named retained entry as written must also fix the candidate entry; a shared tool or broad theme is insufficient. The remaining duplicate entries are verbatim in the newest existing archive, [papercuts-fixed-2026-09-28.md](papercuts-fixed-2026-09-28.md). The move tool has no reverse operation, so the three retained entries were restored by exact main text and original main position, with conservation checked before either log was replaced. No entry that stays open was edited or reordered. Archive notes name every retained cause. In particular:
+
+- The `2026-09-29T13:34:00-07:00` startup entry names both output overflow and the guessed absent `AGENTS.md`; its note retains both causes.
+- The `2026-09-29T13:37:31-07:00` metrics/listing entry names both the whole-module complexipy exit and the test-list cap.
+- The `2026-09-29T14:12:20-0700` metric entry stays open as the file-versus-directory keeper. The `2026-09-29 14:12 PDT` entry duplicates that exact cause and stays archived. The keeper's separate exit-1 part retains the `2026-09-26T09:52:24-07:00` reference. Fixing default stdout/report placement would not fix this output-path type error.
+- The three new root-surface selection reports retain both the root sentinel skip and plain selections with Qt-only checks. No skip rule or test-count refusal was weakened.
+- The `2026-09-28T10:30:37-0700` overlay sequence and `2026-09-29T14:18:53-07:00` Bush Snake fixture omission both stay open. Fletching/Custom potion fixtures do not cover a live-cadence admission followed by Winter Storage rollback; no overlay fixture fixes a combat target's missing Woodcutting prerequisite.
+- The `2026-09-29T11:01:26-0700` read-only `status` failure duplicates the earlier new entry `2026-09-29T10:50:00-0700`. That earlier entry stays open; it is not collapsed into the older writable `path`/`PATH` collision.
+
+**Fixed-entry evidence:** none. No new entry met the rule that its repeatable cause no longer exists on main, so no entry was marked fixed. Successful reruns and repairs to a single disposable probe were not treated as permanent tooling fixes. Main's `28b48067` now reports `Matching tests: N`, but `run_tests.py:177-190` still caps the printed inventory and returns 2 above the cap. Its new count summary does not close the new inventory-cap reports. Main's `f72b1723` added the promotion papercut check, but the older `2026-09-28T09:51:12-0700` entry is outside this slice's requested range and was left unchanged.
+
+### New entries that stay open
+
+| Entry | Cause retained, not fixed |
+| --- | --- |
+| `2026-09-28T10:30:37-0700` | The overlay probe needs live-cadence admission that writes a profile followed by Winter Storage rollback. Fletching material alternatives and Custom potion layouts do not supply this sequence. |
+| `2026-09-29T10:49:00-0700` | A local full-suite mutation proof exceeds the foreground cap and is not the remote-only focused proof the author contract requires. This is not a shared-lock wait. |
+| `2026-09-29T10:50:00-0700` | zsh refuses assignment to its read-only `status` parameter. No author-command guard prevents the collision. |
+| `2026-09-29T10:53:08-0700` | An rsync scratch tree loses asset fidelity and compares `/tmp` with macOS-resolved `/private/tmp`. Import-root instructions do not prevent either failure. |
+| `2026-09-29T10:36:47-0700` | A leading-dash search pattern needs an option terminator. This is not glob expansion or an empty search result; the existing search wrapper also omits the terminator at `tools/repo_search.py:84-98`. |
+| `2026-09-29T11:37:47-0700` | A resumed command audits the canonical checkout because the shell resets its working directory. No required worktree identity check precedes each command. |
+| `2026-09-29T11:41:10-0700` | The Slayer Rewards placeholder remains at `ui/ui.py:8508-8512`; production unlock-key references do not grant the automatic-finisher reward. This records slice has no approval to change that UI or gameplay. |
+| `2026-09-29T14:12:20-0700` | The complexipy output name is a file, not a directory. Fixing stdout redirection or default report/cache placement does not fix the assumed path type. The exit-1 part also retains `2026-09-26T09:52:24-07:00`. |
+| `2026-09-29T14:18:53-07:00` | The target-lock generator omits Bush Snake's `woodcutting_level`, so it never reaches the quest-state read. No overlay fixture change fixes this prerequisite. |
+| `2026-09-29 14:39 PDT` | The tool schema rejects the unsupported `W_placeholder` argument. The schema works, but the authoring error remains distinct. |
+| `2026-09-29 14:48 PDT` | The long disposable comparator has no intermediate persisted case count or checkpoint. Waiting on a process is not progress evidence. |
+| `2026-09-29 14:59 PDT` | Markdown backticks passed through a shell wrapper break parsing. Moving one command into a file does not prevent later wrappers from doing this. |
+
+### Proposed next tooling slices — not implemented
+
+1. **Focused test inventory before a remote run.** Retained entries: `2026-09-26T19:57:18-0700` (list cap), `2026-09-26T19:34:22-0700` (root sentinel), `2026-09-26T13:35:32-0700` (Qt-only tests in a plain selection), and `2026-09-24T05:30:40-0700` (runtime skips hidden by quiet output). New duplicates: `2026-09-29T10:55:41-0700`, `2026-09-29T13:37:31-07:00`, `2026-09-29T13:55:37-07:00`, `2026-09-29T14:14:35-0700`, `2026-09-29T14:21:29-0700`, and `2026-09-29 14:21 PDT`. Smallest change: extend existing test discovery with a successful count-only inventory mode and class/test skip metadata, rather than counting printed IDs; name actual skipped IDs in focused-run failures. Keep the exact-count and zero-skip gate unchanged. Mark runtime skip status unknown at collection time; do not promise a skip-free run from static metadata alone.
+2. **One safe author-command entry point.** Retained entries: `2026-09-29T11:37:47-0700` (wrong checkout), `2026-09-29T10:50:00-0700` (read-only `status`), `2026-09-26T16:03:16-0700` (`path` replaces `PATH`), `2026-09-26T13:24:03-0700` (zsh word splitting), and `2026-09-29 14:59 PDT` (Markdown shell parsing). Smallest change: a bounded tooling wrapper accepts a verified absolute safe-worktree path and command arguments, rejects the canonical checkout, and uses `subprocess` with an explicit `cwd`. Read document-bearing command inputs from files, not interpolated shell text. Prove rejection on a disposable checkout before any live use.
+3. **Bounded search through the existing tool.** Retained entries: `2026-09-26T21:26:06Z` (guessed paths/globs), `2026-09-26T15:35:38-07:00` (output overflow), `2026-09-29T10:36:47-0700` (leading-dash pattern), and `2026-09-26T19:19:30-07:00` (optional no-match search chained to required work). New repeats include `2026-09-29T10:39:11-0700`, `2026-09-29T11:28:25-0700`, `2026-09-29T13:34:00-07:00`, `2026-09-29T14:14:00-0700`, `2026-09-29 14:09 PDT`, `2026-09-29 14:10 PDT`, and `2026-09-29 14:18 PDT`. Smallest change: insert the pattern terminator in `tools/repo_search.py`, and use its existing bounded text search and `--names` discovery in the author-command entry point. Do not add a second search engine or silently choose a guessed path; keep no-match searches separate from required commands.
+4. **Function metrics with an explicit output file.** Separate retained causes: `2026-09-24T05:32:54-0700` (redirected stdout while default report/cache are written elsewhere), `2026-09-29T14:12:20-0700` (a named output file was mistaken for a directory), `2026-09-26T09:52:24-07:00` (unchanged functions exceed a module limit), `2026-09-25T15:10:23-0700` (wrong radon subcommand), and `2026-09-26T15:39:57-07:00` (wrong radon JSON shape). New duplicates: `2026-09-29T13:37:31-07:00` and `2026-09-29 14:12 PDT`. A shared command can address these distinct causes without making them duplicates. Smallest change: one evidence-only measurement command accepts a verified module and function, uses the installed tools' documented formats, and writes a named JSON file outside the tree. Keep metric-limit violations explicit; do not treat a JSON report as a passing gate.
+5. **Load-bearing carried-overlay probe fixtures.** Separate retained entries: `2026-09-25T15:07:10-0700` (Fletching material alternatives and Custom potion layouts) and `2026-09-28T10:30:37-0700` (live-cadence admission that writes a profile followed by Winter Storage rollback). Smallest change: add a specific fixture and named load-bearing mutation for each missing behavior to the existing reproducible overlay evidence probe. A fixture for one behavior does not close the other entry. The `2026-09-29T14:18:53-07:00` Bush Snake prerequisite omission is a separate combat-target probe issue, not part of this overlay slice. Do not build a general probe framework or change gameplay.
+
+The remote queue delay, scratch-tree fidelity, unsupported tool argument, and comparator checkpoint reports stay open. This slice did not change those systems. The automatic-finisher reward needs a separate owner-approved gameplay/UI slice; it is not a tooling repair. There is no new owner question for this records slice.
+
+### Verification and scope
+
+No red test was required: only Markdown records changed. The documentation-only author lane override applies. The full plain lane and the full Qt lane were not run; the orchestrator owns both merged-tree promotion lanes. The focused Memory Bank reader run covers every module returned by `grep -rl 'papercuts' tests/`: `test_promotion_gate.`, `test_memory_bank_queue_packet.`, `test_papercut_gate_check.`, `test_move_papercuts.`, and `test_docs_audit.`. A separate search for readers of `progress.md` and the changed archive found only modules already in this selection.
+
+Collect-only command: `/opt/homebrew/bin/python3 "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-papercut-triage-2026-09-29/run_tests.py" --list --max-results 500 test_promotion_gate. test_memory_bank_queue_packet. test_papercut_gate_check. test_move_papercuts. test_docs_audit.` (`reader-inventory.log`):
+
+```text
+Matching tests: 65
+Reader inventory exit: 0
+```
+
+Remote reader command: `/opt/homebrew/bin/python3 "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-papercut-triage-2026-09-29/tools/run_remote_tests.py" "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-papercut-triage-2026-09-29" plain --select test_promotion_gate. --select test_memory_bank_queue_packet. --select test_papercut_gate_check. --select test_move_papercuts. --select test_docs_audit. --expected-tests 65`. Raw output from the corrected records is saved in `readers.log`; exact completion lines are appended below after the rerun. Initial evidence is preserved under `round1/`.
+
+Reverse movement: `tools/memory_bank/move_papercuts.py` supports only open-to-archive moves and checks. `python3 "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-papercut-triage-2026-09-29/revise_triage.py"` restores exact main entries and proves conservation before writing (`restoration-check.log`):
+
+```text
+Restored 3 main entries byte-identically at main's original positions; 22 duplicate entries remain archived.
+```
+
+Final checks use `python3 tools/memory_bank/move_papercuts.py check HEAD`, `check HEAD~0`, and `check main`, `python3 tools/audit_docs.py`, `python3 tools/audit_test_quality.py`, `python3 tools/audit_item_reachability.py --check`, `python3 tools/worktree_guard.py audit`, and `git diff --check`, each run with this worktree as the explicit working directory. `HEAD`, `HEAD~0`, and `main` all name `98eb13f2`; the move checker compares the current working logs with that base, not with a parent that omits new entries. Exact result lines and report-time entry conservation are appended after these checks.
+
+### Saved completion lines for the 2026-09-29 records triage
+
+Remote readers completed with no skipped tests (`readers.log`, `reader-results.log`):
+
+```text
+Ran 65 tests in 61.662s
+OK
+Remote readers exit: 0
+```
+
+Local check results (`audit-results.log` and the corresponding raw logs):
+
+```text
+[papercuts-head]
+No papercut line lost since HEAD; no open papercut is also fixed.
+papercuts-head: exit 0
+[papercuts-head-zero]
+No papercut line lost since HEAD~0; no open papercut is also fixed.
+papercuts-head-zero: exit 0
+[papercuts-main]
+No papercut line lost since main; no open papercut is also fixed.
+papercuts-main: exit 0
+[audit-docs]
+Audited 877 Markdown and 452 HTML files.
+Documentation audit passed.
+audit-docs: exit 0
+[audit-test-quality]
+5028 tests across 304 files
+hard issues: 0
+structural clone candidates: 31 groups
+audit-test-quality: exit 0
+[audit-item-reachability]
+1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+Reachability first-line parity with main 98eb13f2 records: OK
+audit-item-reachability: exit 0
+[worktree-guard]
+Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
+Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
+worktree-guard: exit 0
+[diff-check]
+diff-check: exit 0; no output
+```
+
+Entry counts and exact slice scope (`completion-check.log`), measured after the move:
+
+```text
+Base: 98eb13f2ee9503c425da6586ad780174c7497509; HEAD~0 and main are identical.
+Triage counts: open before=112; fixed=0; duplicate=20; open after=92.
+Added since d61b22ec: 32; fixed=0; duplicate=20; remain open=12.
+Triage friction: 2 new entries, both archived as duplicates; total moved=22.
+Open log: 92 entries; 94 physical lines including title and blank line.
+Conservation: all 80 older open entries and all 92 retained entries unchanged and ordered; all 22 archive additions verbatim.
+Slice scope: exactly three Markdown files changed; index unchanged; no code, test, UI, commit or push changes.
+Git status:
+ M memory-bank/papercuts-fixed-2026-09-28.md
+ M memory-bank/papercuts.md
+ M memory-bank/progress.md
+```
+
+Only this saved-result appendix followed the reader run. Final local audits and the conservation/scope check were repeated after the appendix; no product or test file changed. The full plain and Qt lanes remain unrun under the records-only author exception. The branch remains uncommitted and unpushed.

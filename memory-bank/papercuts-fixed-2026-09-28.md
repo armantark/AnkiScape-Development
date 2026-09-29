@@ -442,3 +442,80 @@ Disposition: duplicate (`duplicate`). Kept open: the `papercuts.md` entry `2026-
 Disposition: duplicate (`duplicate`). Kept open: the `papercuts.md` entry `2026-09-26T09:44:58-0700` ("Combat burst sixth cleanup: the final documentation"), which records the same cause: an appended Memory Bank record ends with a blank line that `git diff --check` then rejects.
 
 - 2026-09-23T18:04:00-07:00: Final `git diff --check` rejected the appended progress entry with "memory-bank/progress.md:13697: new blank line at EOF." Removed the extra blank line without changing the proof text, then reran the fixed check.
+
+## 2026-09-29 — Unbounded reads exceed the tool output budget — 4 duplicates
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T15:35:38-07:00`. Broad grep output, a raw lane-progress line, and combined record reads all exceed the output budget. Existing bounded search and the unittest-summary parser are available, but no command preflight makes the caller use them.
+
+- 2026-09-29T10:49:39-0700 — Combat-state sanitizer cleanup: a repository-wide evidence grep for prior slop-gate commands produced 39.6KB and was truncated; inspect one known evidence directory or bound the search before reading results.
+- 2026-09-29T11:28:25-0700 — Combat respawn-reset review follow-up: the first label search across Python, JSON, and Markdown produced 2.4 MB of results and was persisted out of view; limit UI-label searches to the rendering module and exact terms before widening.
+- 2026-09-29T14:09:53-07:00 — Combat bank-run full-lane report: printing the last 22 log lines included an unbounded dot-progress line and returned `Warning: truncated output (original token count: 1041)`; use the existing `parse_unittest_summary` structured result for report output instead of raw log tails. The complete log is preserved.
+- 2026-09-29T15:42:27-0700 — Papercut triage records slice: combined contract/tool/history reads returned 122.5KB and combined progress/test reads returned 32.2KB as persisted output instead of inline content; use one file or bounded sections per read and save broad history to the evidence directory.
+
+## 2026-09-29 — Startup reads are too broad and guess an absent rules file — 1 duplicate
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T15:35:38-07:00`; papercuts.md entry `2026-09-26T21:26:06Z`. This compound entry records both output-budget overflow and a guessed nonexistent AGENTS.md path. The two named open entries retain both causes; neither is treated as fixed.
+
+- 2026-09-29T13:34:00-07:00 — Combat bank-run cleanup resume: broad startup reads returned truncated output (25895 and 32454 tokens); root AGENTS.md is absent (`cat: AGENTS.md: No such file or directory`). Use bounded reads and the supplied task rules.
+
+## 2026-09-29 — Paths and optional globs are used before discovery — 5 duplicates
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T21:26:06Z`. The retained Winter Storage entry records both guessed split-module/test paths and unmatched optional shell globs. The listed failures are the same causes, not literal mistyping of a verified absolute path. tools/repo_search.py --names already offers bounded filename discovery; the failure remains when the caller bypasses it.
+
+- 2026-09-29T10:39:11-0700 — Root-menu cleanup: a guessed convention lookup failed with `sed: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-root-menu-dispatch-2026-09-29/runtime/runtime_actions_farm_trekking.py: No such file or directory`; inspect the directory listing before choosing the split-module path.
+- 2026-09-29 14:09 PDT: PvM death cleanup coverage search stopped with `(eval):1: no matches found: tests/test*death*`; use `rg` over `tests` instead of optional shell globs.
+- 2026-09-29 14:10 PDT: Cleanup convention lookup guessed nonexistent `logic_pure/combat_attack_type.py`; use the actual file listing before reading a helper path.
+- 2026-09-29 14:18 PDT: Adjacent-suite path lookup used `tests/test_encounter_lifecycle.py`, which does not exist; `rg --files tests` locates `tests/combat/test_encounter_lifecycle.py`. Resolve test paths from the file listing before content searches.
+- 2026-09-29T15:43:29-0700 — Papercut triage records slice: an unlock-key grep included the guessed path `data/default_player_data.py` and emitted `No such file or directory`; the subsequent repository file search located all references without that nonexistent path. Use filename discovery before choosing a data-module path.
+
+## 2026-09-29 — Root surface selections contain tests that skip — 3 duplicates
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T19:34:22-0700`; papercuts.md entry `2026-09-26T13:35:32-0700`. The first retained entry records the root sentinel that always skips in a focused lane; the second also retains plain selections containing Qt-only checks. Completion or cancellation of the slice-owned waiting runner does not remove either selection cause. No no-skip gate was weakened.
+
+- 2026-09-29T10:55:41-0700 — Root-menu neighbor proof: selecting all of test_module_surface in the plain focused lane produced `Ran 315 tests in 152.978s` / `OK (skipped=1)` but the runner correctly refused `error: remote focused lane false pass: tests=315, skipped=1; expected exactly 315 tests and no skips`; the plain root-import test skips without aqt, so select the Qt-backed root and first-wave pin tests explicitly for a skip-free focused proof, keeping the full module in the final plain lane.
+- 2026-09-29T13:55:37-07:00 — Combat bank-run neighbour selection: `test_module_surface.` includes two environment-dependent Qt/root checks but focused runs require zero skips; cancelled only slice-owned runner PID 83352 while its log contained only the mirror-lock wait. Inventory the seven applicable checks explicitly; Qt/root checks stay in the merged-tree Qt gate.
+- 2026-09-29 14:21 PDT: PvM cleanup neighbour selection included `test_root_initializer_is_reported_as_unavailable_without_aqt`, which calls `self.skipTest("root initializer requires aqt; use the offscreen Qt interpreter")`; the fixed runner rejected `Ran 380 tests in 95.534s` / `OK (skipped=1)` with `error: remote focused lane false pass: tests=380, skipped=1; expected exactly 380 tests and no skips`. Exclude both root-initializer tests from this plain focused selection; keep the fixed first-wave module-surface pins.
+
+## 2026-09-29 — zsh refuses assignment to its read-only status parameter — 1 duplicate
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-29T10:50:00-0700`. The earlier new entry remains open: assigning status fails before the command wrapper can preserve its exit. This is distinct from overwriting the writable special path array, so the status entry is not collapsed into that older cause.
+
+- 2026-09-29T11:01:26-0700 — Combat respawn-reset slice: a combined audit wrapper assigned zsh’s read-only `status` parameter after `git diff --check`, ending with `(eval):1: read-only variable: status`; use a neutral name such as `rc` when preserving command exits in zsh.
+
+## 2026-09-29 — Shared mirror-lock waits outlive foreground commands — 2 duplicates
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-24T00:53:15-0700`. The shared runner waits on the same untimed mirror lock. A successful eventual run proves serialization, not removal of the caller-facing foreground timeout or queue delay.
+
+- 2026-09-29T11:21:17-0700 — Combat-state sanitizer cleanup: the remote 46-test Memory Bank reader run waited beyond the Bash 600-second cap and moved to background task `bbkhfttzc`; when the shared mirror lock can exceed the cap, launch the foreground-equivalent runner with `run_in_background` and wait for its completion notification.
+- 2026-09-29T13:50:33-0700 — Combat respawn-reset line-neutral verification: after the shared gate logged `gate exit 0`, the neighbour run logged `Remote mirror busy; waiting for /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock`; the runner waited and completed with `Ran 306 tests in 0.072s` / `OK` (`line-neutral-neighbours.log`).
+
+## 2026-09-29 — Whole-module metric exit and capped test inventory — 1 duplicate
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T09:52:24-07:00`; papercuts.md entry `2026-09-26T19:57:18-0700`. This compound entry records two independent causes: unchanged over-limit functions make complexipy exit 1, and --list refuses inventories above --max-results. Main now prints Matching tests: N even when refusing the long list, but still refuses that inventory with exit 2 (run_tests.py:177-190).
+
+- 2026-09-29T13:37:31-07:00 — Combat bank-run metrics: complexipy whole-module measurement exited 1 despite `-i` because existing functions exceed its default limit; measure the new helper alone without changing limits. Neighbour listing refused `349 IDs` at its default `--max-results 200`; request 400 for the inventory.
+
+## 2026-09-29 — Broad test listings still hit the print cap — 2 duplicates
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T19:57:18-0700`. Commit 28b48067 added a count summary, not an uncapped inventory or a successful count-only mode. The exact refusal remains at run_tests.py:182-188; these entries request the missing IDs or rerun with a larger cap.
+
+- 2026-09-29T14:14:35-0700 — Target-lock neighbor listing returned exit 2 with `Matching tests: 373. Refusing to print the last 173; narrow the selector or pass --max-results 373.` Use an explicit high `--max-results` for broad module selections.
+- 2026-09-29T14:21:29-0700 — Finisher-refill baseline listing: `python3 run_tests.py --list test_combat_logic. test_ranged_finisher. test_finisher_families.` exited 2 with `Matching tests: 299. Refusing to print the last 99; narrow the selector or pass --max-results 299.`; reran the collect-only listing with `--max-results 500` before starting the remote baseline.
+
+## 2026-09-29 — complexipy output path is a file, not a new directory — 1 duplicate
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-29T14:12:20-0700`, which names the same mistaken file-versus-directory expectation for complexipy --output. Fixing that expectation also fixes this entry. The keeper is compound; its separate exit-1 part remains represented by papercuts.md entry `2026-09-26T09:52:24-07:00`. Redirecting stdout or relocating the default report/cache in `2026-09-24T05:32:54-0700` would not fix this output-path type error.
+
+- 2026-09-29 14:12 PDT: Installed `complexipy --output` writes the named file, not a directory containing `complexipy-results.json`; reading the presumed child raised `NotADirectoryError: [Errno 20] Not a directory`, so read the named output file directly.
+
+## 2026-09-29 — An optional no-match search stops a required command — 1 duplicate
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T19:19:30-07:00`. rg and the older process grep both legitimately exit 1 when no match exists. Chaining the required listing or reader search with && then prevents it from running.
+
+- 2026-09-29T14:14:00-0700 — Target-lock neighbor discovery: `rg` found no skip guards and returned 1, so an `&&` chain never ran the test listing. Keep exploratory searches separate from commands whose execution is required.
+
+## 2026-09-29 — Record appends leave an extra blank line at EOF — 1 duplicate
+
+Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T09:44:58-0700`. Normalizing one append repaired that record, but the recurring append-formatting cause is still covered by the older open entry.
+
+- 2026-09-29T14:33:57-07:00 — Target-lock completion record: the final audit-output append left an extra blank line, and `git diff --check` returned `memory-bank/progress.md:2989: new blank line at EOF.` Finish generated record appends with exactly one terminal newline.
