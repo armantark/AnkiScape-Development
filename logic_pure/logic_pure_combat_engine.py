@@ -492,7 +492,10 @@ from .logic_pure_combat_loadout import _combat_prepare_target_loadout, _combat_t
 from .logic_pure_combat_setup import (
     _combat_enemy_start_lifepoints,
     _combat_prayer_request,
+    _combat_prayer_tick,
     _combat_resume_attack_clocks,
+    _combat_start_prayer,
+    _combat_switch_off_spent_prayers,
 )
 from .logic_pure_combat_live import (
     _combat_live_enemy_accuracy,
@@ -1227,6 +1230,7 @@ def apply_combat_burst_pure(
     selected_prayers, halo_drain_multipliers, requested_prayer_uptime = (
         _combat_prayer_request(data, live_cadence)
     )
+    prayer_bonus = _equipment_bonus_value(player_totals, "prayer")
     total_ticks = (
         1
         + (
@@ -1240,30 +1244,16 @@ def apply_combat_burst_pure(
         if borrowed_manual_cast
         else max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
     )
-    prayer_points_before = _non_negative_int(data.get("combat_prayer_points", 0), 0)
-    prayer_counter_before = data.get("combat_prayer_drain_counter", 0.0)
-    prayer_points_after, prayer_counter, prayer_uptime = (
-        (
-            prayer_points_before,
-            prayer_counter_before,
-            requested_prayer_uptime,
-        )
-        if live_cadence
-        else prayer_drain_and_effective_uptime_pure(
-            prayer_points_before,
-            prayer_counter_before,
-            selected_prayers,
-            _equipment_bonus_value(player_totals, "prayer"),
-            total_ticks,
-            requested_prayer_uptime,
-            halo_drain_multipliers,
-        )
+    (
+        prayer_points_before,
+        prayer_points_after,
+        prayer_counter,
+        prayer_uptime,
+        prayer_effects,
+    ) = _combat_start_prayer(
+        data, selected_prayers, prayer_bonus, total_ticks,
+        requested_prayer_uptime, halo_drain_multipliers, live_cadence,
     )
-    data["combat_prayer_points"] = prayer_points_after
-    data["combat_prayer_drain_counter"] = prayer_counter
-    prayer_effects = prayer_effect_state_pure(data, prayer_uptime)
-    if prayer_points_after <= 0 and selected_prayers and not live_cadence:
-        data["combat_selected_prayers"] = []
 
     spell_effect = str(spell_spec.get("effect", "")) if combat_class == "magic" else ""
     spell_effect_value = float(spell_spec.get("effect_value", 0.0) or 0.0) if combat_class == "magic" else 0.0
@@ -1429,23 +1419,13 @@ def apply_combat_burst_pure(
             enemy_lp, enemy_max_lp, enemy_regen_residual,
             enemy_regen_numerator, enemy_regen_denominator, enemy_counts,
         )
-        tick_prayer_uptime = prayer_uptime
-        if live_cadence:
-            (
-                prayer_points_after,
-                prayer_counter,
-                tick_prayer_uptime,
-            ) = prayer_drain_and_effective_uptime_pure(
-                prayer_points_after,
-                prayer_counter,
-                selected_prayers,
-                _equipment_bonus_value(player_totals, "prayer"),
-                1,
-                requested_prayer_uptime,
-                halo_drain_multipliers,
+        prayer_points_after, prayer_counter, tick_prayer_uptime, prayer_scale = (
+            _combat_prayer_tick(
+                data, live_cadence, prayer_points_after, prayer_counter,
+                prayer_uptime, selected_prayers, prayer_bonus,
+                requested_prayer_uptime, halo_drain_multipliers,
             )
-            data["combat_prayer_points"] = prayer_points_after
-            data["combat_prayer_drain_counter"] = prayer_counter
+        )
         player_lp, status_stop = _combat_advance_status_tick(
             data, player_lp, max_player_lp, rng,
             potions_used, food_used, status_damage, status_expired,
@@ -1623,11 +1603,6 @@ def apply_combat_burst_pure(
                 )
                 _landed, damage = _combat_roll_hit(live_enemy_accuracy, enemy_max_hit, rng)
             raw_enemy_damage = damage
-            prayer_scale = (
-                tick_prayer_uptime / prayer_uptime
-                if live_cadence and prayer_uptime > 0
-                else 1.0
-            )
             damage, prayer_points_after = _combat_enemy_damage_after_prayers(
                 data, enemy, attack_enemy, combat_class, raw_enemy_damage,
                 ignores_protection, unprotected_effect, prayer_effects, prayer_scale, player_lp,
@@ -1739,8 +1714,8 @@ def apply_combat_burst_pure(
             next_encounter["vengeance_cast_paid"] = True
         data["combat_encounter"] = next_encounter
 
-    if live_cadence and prayer_points_after <= 0 and selected_prayers:
-        data["combat_selected_prayers"] = []
+    if live_cadence:
+        _combat_switch_off_spent_prayers(data, prayer_points_after, selected_prayers)
 
     _combat_advance_dragonfire_effects(
         data, ticks_elapsed - dragonfire_effect_tick
