@@ -1095,27 +1095,27 @@ def _record_combat_observed_drops_pure(data, target_id, drops):
     data["combat_observed_drops"] = observed
 
 
+def _sanitize_combat_attack_fields(player_data, enemy_data, style_data, defaults):
+    target = player_data.get("current_combat_target", defaults["current_combat_target"])
+    target = target if target in enemy_data else defaults["current_combat_target"]
+    if target not in enemy_data and enemy_data:
+        target = next(iter(enemy_data))
+    style = player_data.get("combat_attack_style", defaults["combat_attack_style"])
+    style = style if style in style_data else defaults["combat_attack_style"]
+    style_type = player_data.get("combat_attack_style_type", defaults["combat_attack_style_type"])
+    style_type = style_type if style_type in _COMBAT_MELEE_STYLE_TYPES else defaults["combat_attack_style_type"]
+    spell = player_data.get("current_combat_spell", defaults["current_combat_spell"])
+    spell = spell if spell in COMBAT_MAGIC_SPELL_DATA else defaults["current_combat_spell"]
+    borrowed_spell = str(player_data.get("combat_borrowed_power_spell", "") or "")
+    borrowed_spell = borrowed_spell if borrowed_spell in BORROWED_POWER_COMBAT_SPELLS else ""
+    return target, style, style_type, spell, borrowed_spell
+
+
 def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     style_data = style_data or COMBAT_ATTACK_STYLE_DATA
     defaults = default_combat_state_pure()
-    target = player_data.get("current_combat_target", defaults["current_combat_target"])
-    if target not in enemy_data:
-        target = defaults["current_combat_target"]
-    if target not in enemy_data and enemy_data:
-        target = next(iter(enemy_data))
-    style = player_data.get("combat_attack_style", defaults["combat_attack_style"])
-    if style not in style_data:
-        style = defaults["combat_attack_style"]
-    style_type = player_data.get("combat_attack_style_type", defaults["combat_attack_style_type"])
-    if style_type not in _COMBAT_MELEE_STYLE_TYPES:
-        style_type = defaults["combat_attack_style_type"]
-    spell = player_data.get("current_combat_spell", defaults["current_combat_spell"])
-    if spell not in COMBAT_MAGIC_SPELL_DATA:
-        spell = defaults["current_combat_spell"]
-    borrowed_spell = str(player_data.get("combat_borrowed_power_spell", "") or "")
-    if borrowed_spell not in BORROWED_POWER_COMBAT_SPELLS:
-        borrowed_spell = ""
+    target, style, style_type, spell, borrowed_spell = _sanitize_combat_attack_fields(player_data, enemy_data, style_data, defaults)
     max_lp = combat_max_lifepoints_pure(player_data)
     current_lp = _non_negative_int(player_data.get("combat_lifepoints", max_lp), max_lp)
     auto_food_raw = player_data.get("combat_auto_eat_food", defaults["combat_auto_eat_food"])
