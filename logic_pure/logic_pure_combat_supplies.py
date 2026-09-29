@@ -732,15 +732,29 @@ def combat_near_death_without_food_pure(data, max_lifepoints=None):
     return _combat_banked_auto_food_count(data) <= 0
 
 
+def _combat_target_supply_bank_run_needed(data, enemy):
+    finisher = _combat_finisher_spec(enemy)
+    if finisher is not None:
+        item_name = str(finisher.get("item", "") or "")
+        if (
+            not finisher.get("must_be_worn")
+            and _combat_loaded_finisher_count(data, item_name, finisher) <= 0
+            and _combat_banked_finisher_count(data, enemy) > 0
+        ):
+            return True
+    hazard = _combat_environmental_hazard_spec(enemy)
+    return (
+        hazard is not None
+        and _combat_loaded_hazard_count(data, hazard) <= 0
+        and _combat_banked_hazard_count(data, hazard) > 0
+    )
+
+
 def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
-    # One 28-slot inventory: supplies (food/potions/ammo/runes) and loot share it,
-    # so a bank run is forced when together they fill it. As food is eaten the
-    # freed slots become loot room, exactly like a real inventory.
-    #
-    # Guard: only *loot* is deposited by a bank run, so with nothing to deposit a
-    # full inventory cannot be relieved by banking. Requiring loot here means an
-    # over-budget supply loadout can never softlock combat into a permanent
-    # bank-run loop (it would refill the same supplies and re-trigger forever).
+    # Supplies and loot share one 28-slot inventory. Eating food frees loot room.
+    # Only loot is deposited, so a full supply-only pack cannot be relieved by
+    # banking. Require loot to prevent refilling the same over-budget loadout
+    # forever.
     carried_slots, loot_slots = _combat_carried_slot_counts(data, target_id)
     if loot_slots > 0 and _combat_supply_slots_used(data) + carried_slots >= CARRIED_CAPACITY:
         return True
@@ -763,21 +777,7 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
         <= 0
     ):
         return True
-    finisher = _combat_finisher_spec(enemy)
-    if finisher is not None:
-        item_name = str(finisher.get("item", "") or "")
-        if (
-            not finisher.get("must_be_worn")
-            and _combat_loaded_finisher_count(data, item_name, finisher) <= 0
-            and _combat_banked_finisher_count(data, enemy) > 0
-        ):
-            return True
-    hazard = _combat_environmental_hazard_spec(enemy)
-    if (
-        hazard is not None
-        and _combat_loaded_hazard_count(data, hazard) <= 0
-        and _combat_banked_hazard_count(data, hazard) > 0
-    ):
+    if _combat_target_supply_bank_run_needed(data, enemy):
         return True
     target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
     effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))

@@ -2661,3 +2661,53 @@ Plain lane, the last remote run, after all code and test edits: `/opt/homebrew/b
 Final audits after the line-neutral result record: `python3 tools/audit_docs.py` → `Audited 875 Markdown and 452 HTML files.` / `Documentation audit passed.` (`line-neutral-docs.log`); `python3 tools/audit_test_quality.py` → `5019 tests across 302 files` / `hard issues: 0` / `structural clone candidates: 31 groups` (`line-neutral-test-quality.log`); `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees` (`line-neutral-worktree-guard.log`); `git diff --check` exits 0 with no findings (`line-neutral-diff-check.log`).
 
 Checklist: no play-checklist line. Only automatic finishers reach the fixed chained-respawn branch; the manual Use Bag of salt route dispatches `apply_combat_finisher_pure` (runtime/runtime_actions_combat.py:515-529), which settles the kill and clears the encounter. The automatic-finisher unlock `slayer_quick_finishers_unlocked` (Deliver killing blows quicker) is sold by no menu: the Slayer Rewards tab renders only a placeholder (ui/ui.py:8508-8515). Recorded as an open papercut, a second-level defect left unchanged; the owner can check this fix once that unlock is reachable.
+
+
+## 2026-09-29 — Combat bank-run eligibility cleanup (queue audit item 9)
+
+Branch: `goal/combat-bank-run-2026-09-29`; base `279be965ff731cfe25dc10d7e7c5c4bc0bf6440d`. Worktree: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-bank-run-2026-09-29`. Status: completed; focused, neighbour and final full plain verification passed. Leave all changes uncommitted for the orchestrator's cross-lineage review and promotion.
+
+Supply trips retain the current rules, result values, state mutation order, messages, saved fields and random draw order/count. The tool user gains a separate predicate for the target-required finisher and environmental-hazard supplies. The inherited extraction is a sound start and is retained. The adjacent inventory-capacity comment is shorter so the code file stays at HEAD's 1725 lines. There is no player-visible change; no play-checklist entry or UI check is needed.
+
+Behavior proof: inlining `_combat_target_supply_bank_run_needed` reproduces the baseline `_combat_bank_run_needed` AST exactly; every other module AST node is unchanged. The helper preserves finisher-before-hazard evaluation and all original short-circuit conditions. This introduces no state write, message or random draw (`resume-ast-equivalence.log`). Magic and Dream code, all other audited functions, tests and pinned baselines are unchanged. No new test or intentionally failing red test was added for this cleanup; existing kernel flows and exact structural equivalence are the proof.
+
+Lizard (`/Users/ArmanTarkhanian1/.local/bin/lizard --csv`): before `_combat_bank_run_needed` CCN **30**, NLOC **51**; after CCN **23**, NLOC **37** (`resume-lizard-before.log`, `resume-lizard-after-final.log`). New `_combat_target_supply_bank_run_needed`: CCN **8**, NLOC **16**, cognitive complexity **6**, Halstead difficulty **3.7058823529411766**, within unchanged limits **15 / 15 / 80** (`resume-helper-limits.json`). The existing eligibility function's cognitive complexity drops from **25** to **19**; whole-module complexipy returns exit **1** both before and after for existing over-limit functions. The isolated new-helper measurement exits **0** without changing any limit; all other function scores are unchanged (`resume-complexity-ratchet.json`, raw cognitive logs). This slice reduces one responsibility, not all remaining eligibility complexity.
+
+Shared MacBook gate: the initial `grep '^gate exit'` at `2026-09-29T20:32:55Z` had no match. A bounded polling process slept **290 seconds** between checks and found `2026-09-29T20:49:35.789608+00:00 grep exit 0: gate exit 0`, within **75 minutes**. All fresh remote commands started after this match (`resume-gate-wait.log`). Each remote command in this slice runs sequentially.
+
+Fresh before and after commands are identical (9 existing focused tests):
+
+```
+/opt/homebrew/bin/python3 tools/run_remote_tests.py '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-bank-run-2026-09-29' plain --select test_active_encounter_starts_bank_run_for_banked_food_when_loadout_is_empty --select test_combat_bank_run_uses_supplied_enemy_data_for_antipoison --select test_desert_lizard_bank_run_loads_finishers_and_preserves_water_doses --select test_safe_recovery_magic_bank_run_completes_uncovered_rune_refill --select test_safe_recovery_ranged_bank_run_completes_ammo_refill --select test_a_full_supply_loadout_with_no_loot_never_forces_a_bank_run --select test_a_stale_carried_view_does_not_occupy_phantom_loot_slots --select test_pack_yak_winter_storage_only_commits_when_it_avoids_bank_run --select test_supplies_and_loot_share_one_28_slot_budget --expected-tests 9
+```
+
+Before: exact HEAD code bytes; exit **0**, `Ran 9 tests in 0.002s` / `OK`, no skips (`resume-focused-before.log`). After: final proposed code bytes; exit **0**, `Ran 9 tests in 0.002s` / `OK`, no skips (`resume-focused-after.log`). The earlier author's `focused-before.log` had a baseline pass; `focused-after.log` stopped at the mirror wait. The earlier logs are preserved and do not substitute for fresh verification.
+
+Neighbour modules and Memory Bank readers, including all seven applicable module-surface checks:
+
+```
+/opt/homebrew/bin/python3 tools/run_remote_tests.py '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-bank-run-2026-09-29' plain --select test_combat_logic. --select test_promotion_gate. --select test_memory_bank_queue_packet. --select test_constants_export_order --select test_constants_parts_import_standalone --select test_first_wave_digests --select test_member_signature_and_data_changes_still_change_identity --select test_public_normalization_preserves_sequence_order_and_sorts_unordered_values --select test_reexported_objects_keep_identity_when_defining_module_moves --select test_unsupported_values_are_explicitly_unrepresentable --expected-tests 347
+```
+
+Exit **0**, `Ran 347 tests in 74.713s` / `OK`, no skips (`resume-neighbours-applicable.log`). An initial selection of the whole `test_module_surface` module included two environment-dependent Qt/root checks even though focused runs require zero skips. Only the slice-owned runner PID **83352** was terminated while waiting for the mirror lock, before any test executed; its exact command, lock-only log, and exit **-15** are retained (`resume-neighbour-selection-correction.log`, `resume-neighbours.log`). The corrected inventory includes all seven applicable surface checks; tests and pins are unmodified. The two Qt/root checks remain in the full lanes and the orchestrator's merged-tree Qt gate.
+
+Fixed audits, all exit **0**, with exact result lines below (full output retained in the named raw logs):
+
+- `python3 tools/audit_docs.py`: `Audited 875 Markdown and 452 HTML files.` / `Documentation audit passed.` (`resume-audit-docs.log`; re-run after this record in `resume-audit-docs-final.log`).
+- `python3 tools/audit_test_quality.py`: `5018 tests across 302 files` / `hard issues: 0` / `structural clone candidates: 31 groups` (`resume-audit-test-quality.log`).
+- `python3 tools/audit_item_reachability.py`: first line `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, byte-identical to the HEAD progress-record baseline (`resume-reachability-baseline.log`, `resume-audit-item-reachability.log`). Also `python3 tools/audit_item_reachability.py --check` exits **0** with the same first line (`resume-audit-item-reachability-check.log`).
+- `python3 tools/worktree_guard.py audit`: `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees` (`resume-worktree-guard.log`).
+- `git diff --check`: no output, exit **0** (`resume-diff-check.log`; final check after the last record).
+- Changed-code file line counts: `wc -l logic_pure/logic_pure_combat_supplies.py` = **1725**; `git show HEAD:logic_pure/logic_pure_combat_supplies.py | wc -l` = **1725**. No over-1000-line file grows.
+
+Full plain lane, exactly once as the last remote run, after all implementation and selection changes:
+
+```
+/opt/homebrew/bin/python3 tools/run_remote_tests.py '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-bank-run-2026-09-29' plain
+```
+
+Result: exit **0**, `Ran 5053 tests in 430.794s` / `OK (skipped=549)` (`resume-full-plain-final.log`), **4504 active tests**. This was the full plain lane's only run and the slice's last remote run. The full Qt lane is left to the orchestrator's merged-tree promotion gate under the author-rules promotion exception. No further remote run will follow this full plain lane.
+
+Files changed: `logic_pure/logic_pure_combat_supplies.py` extracts the target-supply predicate and shortens its adjacent comment; `memory-bank/progress.md` records this slice and exact evidence; `memory-bank/papercuts.md` records startup/tool and selector friction. No owner question or second-level defect was identified. No canonical working-tree file, UI file, test, audit or pinned baseline was changed. No commit, push, amend, rebase, stash, worktree creation/deletion, git-config edit or SLOP_GATE_ setting was made.
+
+Raw evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-bank-run-2026-09-29/`. Report-time Lizard measurements re-read HEAD and the final code (`resume-report-lizard-before.log`, `resume-report-lizard-after.log`). Final `git status --short`, line counts and diff checks are saved in `resume-final-report-verification.log`; only the three files listed above may appear.
