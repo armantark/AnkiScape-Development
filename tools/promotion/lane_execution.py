@@ -220,6 +220,26 @@ def _run_reachability_check(log: TextIO, worktree: Path) -> int:
     )
 
 
+def _run_papercut_check(log: TextIO, worktree: Path) -> int:
+    # The snapshot clones the source repository, so origin/main is the main a landing
+    # must descend from. Its merge base with the gated commit is that main for any tree
+    # that can land, and for one that has not merged main yet it keeps main's later
+    # papercuts from reading as this tree's losses.
+    base = _git(worktree, "merge-base", "HEAD", "refs/remotes/origin/main", check=False)
+    if base.returncode != 0:
+        print("=== papercuts ===", file=log)
+        print(f"FAILED: no merge base with main: {base.stderr.strip()}", file=log)
+        log.flush()
+        return 1
+    return _run_check(
+        log,
+        heading="=== papercuts ===",
+        command=("python3", "tools/memory_bank/move_papercuts.py", "check", base.stdout.strip()),
+        worktree=worktree,
+        selector=lambda lines: lines,
+    )
+
+
 @contextmanager
 def _hold_remote_mirror(log: TextIO, heartbeat: Callable[[], None]) -> Iterator[int | None]:
     """Hold the test-mirror lock across both remote lanes, or yield None at its bound.
@@ -425,6 +445,11 @@ def _run_gate_checks(
     else:
         run(lane_checks)
     run(audit_checks)
+    returncode = _run_papercut_check(log, worktree)
+    if returncode == 0:
+        passed.append("papercuts")
+    else:
+        failures.append(f"papercuts (exit {returncode})")
     return tuple(passed), tuple(failures)
 
 

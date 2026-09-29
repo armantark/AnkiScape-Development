@@ -828,6 +828,7 @@ Read these tools for current command options and threshold values; do not copy c
 `run` compares the gate's own source files (`GATE_SOURCES` in `tools/promotion/cli.py`) with the candidate's copies and re-executes the candidate's `tools/promotion_gate.py` when they differ, so a candidate that changes what the gate expects is judged by its own gate code.
 Remote mode runs the plain and Qt lanes serially.
 Both lanes and the documentation, test-quality and reachability checks read one private snapshot of the recorded commit; remote sync uses that same snapshot. The snapshot's worktree-layout tool audits the original repository, as do the clean-tree, diff and final HEAD checks.
+The papercut check runs `tools/memory_bank/move_papercuts.py check` in that snapshot against the commit's merge base with `main`, so a merged tree that lost a papercut line or holds an entry both open and fixed fails with the tool's own lines.
 Local test lanes remain supported. A plain-only branch check cannot authorize landing.
 
 Remote acceptance requires minimum discovery and active coverage (`tests - skipped`).

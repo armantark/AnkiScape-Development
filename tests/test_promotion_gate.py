@@ -684,6 +684,7 @@ class PromotionGateTest(unittest.TestCase):
             patch("tools.promotion.lane_execution.main_worktree", return_value=canonical),
             patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
             patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution._run_papercut_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 Path("/scratch/promotion"),
@@ -722,6 +723,7 @@ class PromotionGateTest(unittest.TestCase):
             patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
             patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
             patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution._run_papercut_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 worktree,
@@ -776,6 +778,7 @@ class PromotionGateTest(unittest.TestCase):
             patch("tools.promotion.lane_execution.main_worktree") as main_worktree,
             patch("tools.promotion.lane_execution._run_check", return_value=0) as run_check,
             patch("tools.promotion.lane_execution._run_reachability_check", return_value=0),
+            patch("tools.promotion.lane_execution._run_papercut_check", return_value=0),
         ):
             passed, failures = _run_gate_checks(
                 worktree,

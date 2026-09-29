@@ -23,6 +23,7 @@ PLAIN_GATE_CHECKS = (
     "worktree_guard",
     "worktree clean",
     "diff check",
+    "papercuts",
 )
 
 
