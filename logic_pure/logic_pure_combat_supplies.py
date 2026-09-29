@@ -452,6 +452,38 @@ def _combat_custom_layout_view(data, target_id):
     )
 
 
+def _combat_select_charged_finisher(inventory, finisher, charge_items):
+    selected_item = ""
+    for charged_item, _charges in charge_items:
+        available = _non_negative_int(inventory.get(charged_item, 0), 0)
+        if available <= 0:
+            continue
+        inventory[charged_item] = available - 1
+        selected_item = charged_item
+        break
+    empty_item = str(finisher.get("empty_item", "") or "")
+    reload_item = str(finisher.get("reload_item", "") or "")
+    if (
+        not selected_item
+        and empty_item
+        and reload_item
+        and _non_negative_int(inventory.get(empty_item, 0), 0) > 0
+        and _non_negative_int(inventory.get(reload_item, 0), 0) > 0
+    ):
+        inventory[empty_item] = _non_negative_int(inventory.get(empty_item, 0), 0) - 1
+        inventory[reload_item] = _non_negative_int(inventory.get(reload_item, 0), 0) - 1
+        reload_charges = _positive_int(finisher.get("reload_charges", 0), 0)
+        selected_item = next(
+            (
+                charged_item
+                for charged_item, charges in charge_items
+                if charges == reload_charges
+            ),
+            "",
+        )
+    return selected_item, reload_item
+
+
 def _combat_refill_finisher_loadout(data, enemy):
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     inventory = dict(data.get("inventory", {}) or {})
@@ -467,45 +499,10 @@ def _combat_refill_finisher_loadout(data, enemy):
         data["inventory"] = inventory
         data["combat_supply_loadout"] = loadout
         return
-    item_name = (
-        str(finisher.get("item", "") or "")
-        if finisher is not None
-        else ""
-    )
+    item_name = str(finisher.get("item", "") or "") if finisher is not None else ""
     charge_items = _combat_finisher_charge_items(finisher)
     if charge_items:
-        selected_item = ""
-        for charged_item, _charges in charge_items:
-            available = _non_negative_int(inventory.get(charged_item, 0), 0)
-            if available <= 0:
-                continue
-            inventory[charged_item] = available - 1
-            selected_item = charged_item
-            break
-        empty_item = str(finisher.get("empty_item", "") or "")
-        reload_item = str(finisher.get("reload_item", "") or "")
-        if (
-            not selected_item
-            and empty_item
-            and reload_item
-            and _non_negative_int(inventory.get(empty_item, 0), 0) > 0
-            and _non_negative_int(inventory.get(reload_item, 0), 0) > 0
-        ):
-            inventory[empty_item] = _non_negative_int(
-                inventory.get(empty_item, 0), 0
-            ) - 1
-            inventory[reload_item] = _non_negative_int(
-                inventory.get(reload_item, 0), 0
-            ) - 1
-            reload_charges = _positive_int(finisher.get("reload_charges", 0), 0)
-            selected_item = next(
-                (
-                    charged_item
-                    for charged_item, charges in charge_items
-                    if charges == reload_charges
-                ),
-                "",
-            )
+        selected_item, reload_item = _combat_select_charged_finisher(inventory, finisher, charge_items)
         if selected_item:
             finishers[selected_item] = 1
         loadout["finishers"] = finishers
