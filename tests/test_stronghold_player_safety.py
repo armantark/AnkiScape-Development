@@ -1,3 +1,5 @@
+import sys
+import types
 import unittest
 import os
 
@@ -349,6 +351,87 @@ class StrongholdPlayerSafetyPureTest(unittest.TestCase):
             updated["combat_encounter"]["target_id"],
             COCKROACH_SOLDIER_TARGET_ID,
         )
+
+
+class StrongholdSoldierFightReviewTest(unittest.TestCase):
+    def setUp(self):
+        from tests.test_integration_smoke import _install_runtime_fakes
+
+        self._orig_modules = dict(sys.modules)
+        _install_runtime_fakes()
+
+    def tearDown(self):
+        sys.modules.clear()
+        sys.modules.update(self._orig_modules)
+
+    def _press_fight_button_from_activities(self):
+        from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.core.storage_pure import default_player_data
+        from tests.test_integration_smoke import (
+            _DummyCol,
+            _DummyMW,
+            _load_addon_as_package,
+        )
+
+        addon = _load_addon_as_package("ankiscape_stronghold_soldier_fight_review")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._update_review_context_surface = lambda: None
+        addon._show_exp = lambda *_args: None
+        addon._show_activity_gain = lambda _message: None
+        addon.show_error_message = lambda title, message: self.fail(f"{title}: {message}")
+        menu = {}
+        addon.ui.show_main_menu = lambda *_args, **kwargs: menu.update(kwargs)
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for _ in range(2):
+            player, ok, result = apply_stronghold_player_safety_review_pure(player)
+            self.assertTrue(ok, result)
+        addon._state.player_data = player
+        addon._state.current_skill = "Activities"
+        addon._on_main_menu()
+
+        # The panel's button runs the command, then saves the skill it names.
+        result = menu["on_stronghold_player_safety_command"]("start_soldier_fight", {})
+        self.assertTrue(result["ok"], result)
+        menu["on_save_skill"](result["switch_skill"])
+        return addon
+
+    def test_fight_button_from_another_skill_switches_reviews_into_the_soldier_fight(self):
+        from tests.test_integration_smoke import _FakeReviewer
+
+        addon = self._press_fight_button_from_activities()
+        player = addon._state.player_data
+
+        self.assertEqual(addon._state.current_skill, "Combat")
+        self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "Combat")
+        self.assertEqual(player["current_combat_target"], COCKROACH_SOLDIER_TARGET_ID)
+        self.assertEqual(
+            player["combat_encounter"],
+            {"target_id": COCKROACH_SOLDIER_TARGET_ID, "enemy_lifepoints": 960},
+        )
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        self.addCleanup(setattr, addon.random, "random", original_random)
+        addon._state.card_turned = True
+        addon._state.answer_shown = True
+        addon._state.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 3, lambda _self, _ease: "answered")
+
+        encounter = addon._state.player_data["combat_encounter"]
+        self.assertEqual(addon._state.current_skill, "Combat")
+        self.assertEqual(encounter["target_id"], COCKROACH_SOLDIER_TARGET_ID)
+        self.assertLess(encounter["enemy_lifepoints"], 960)
+
+    def test_undoing_the_fight_button_returns_to_the_earlier_skill(self):
+        addon = self._press_fight_button_from_activities()
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+
+        self.assertEqual(addon._state.current_skill, "Activities")
+        self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "Activities")
+        self.assertEqual(addon._state.player_data["combat_encounter"], {})
 
 
 if __name__ == "__main__":

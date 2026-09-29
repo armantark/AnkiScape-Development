@@ -812,10 +812,10 @@ def _update_review_context_surface() -> None:
         pass
 
 
-def _select_review_action(skill):
+def _select_review_action(skill, *, keep_encounter=False):
     selected_skill = _normalize_legacy_utility_skill(skill)
     changed = selected_skill != _state.current_skill
-    if changed or not is_combat_review_action(selected_skill):
+    if not keep_encounter and (changed or not is_combat_review_action(selected_skill)):
         _state.player_data["combat_encounter"] = {}
     _state.current_skill = selected_skill
     try:
@@ -3452,19 +3452,19 @@ def _on_main_menu(
         exp_before = _implemented_exp_keys_snapshot()
 
         info = {}
-        pure_ok = False
 
         def _change(current):
-            nonlocal info, pure_ok
+            nonlocal info
             updated, ok, info = apply_stronghold_player_safety_command_pure(
                 current,
                 str(action_id),
                 payload,
             )
-            pure_ok = ok
             return updated, ok
 
         def _after_apply():
+            # A command starts a fight only when none is open, so keep the new one.
+            _select_review_action(info.get("switch_skill", _state.current_skill), keep_encounter=True)
             xp = info.get("xp")
             if isinstance(xp, dict):
                 for skill_id in xp:
@@ -3484,10 +3484,10 @@ def _on_main_menu(
                 pass
 
         if not commit_direct_action(_change, after_apply=_after_apply):
-            if not pure_ok:
+            if "reason" in info:
                 return {
                     "ok": False,
-                    "message": str(info.get("reason", "Stronghold action failed.")),
+                    "message": str(info["reason"]),
                     **info,
                 }
             return {
