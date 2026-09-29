@@ -52,7 +52,9 @@ def render(output_path: Path, *, width: int = 1200, height: int = 760) -> Path:
 
     dialog = case._open(_active_player_data())
     tree = case._open_activities(dialog)
-    tree.setCurrentItem(_utility_row(tree, "penguin_hide_and_seek"))
+    row = _utility_row(tree, "penguin_hide_and_seek")
+    tree.setCurrentItem(row)
+    tree.itemActivated.emit(row, 0)
     dialog.show()
     dialog.resize(width, height)
     for _ in range(10):

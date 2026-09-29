@@ -11,7 +11,7 @@ from pathlib import Path
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from aqt.qt import QApplication, QPushButton  # type: ignore
+from aqt.qt import QApplication  # type: ignore
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.castle_wars_data import CASTLE_WARS_BALLISTA_PARTS
@@ -19,7 +19,12 @@ from ankiscape.logic.castle_wars_logic import (
     apply_castle_wars_command_pure,
     apply_castle_wars_review_pure,
 )
-from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
+from tests.test_main_menu_widget import (
+    MainMenuWidgetTest,
+    _make_player_data,
+    _open_reward_target,
+    _utility_row,
+)
 from tools.render_fishing_trawler_ui import _dark_palette
 
 
@@ -77,18 +82,12 @@ def render(output_dir: Path, *, width: int = 1200, height: int = 760) -> tuple[P
     ready_path = output_dir / "castle-wars-ready.png"
     if not ready_card.grab().save(str(ready_path)):
         raise RuntimeError(f"Could not save {ready_path}")
-    ready_card.findChild(QPushButton, "castleWarsShopButton").click()
-    for _ in range(4):
-        app.processEvents()
-    shop_dialog = case._captured[-1]
-    shop_dialog.show()
-    shop_dialog.adjustSize()
+    _open_reward_target(ready_card, "castle_wars")
     for _ in range(4):
         app.processEvents()
     shop_path = output_dir / "castle-wars-shop.png"
-    if not shop_dialog.grab().save(str(shop_path)):
+    if not ready_card.grab().save(str(shop_path)):
         raise RuntimeError(f"Could not save {shop_path}")
-    shop_dialog.close()
     ready_card.close()
 
     active = _player()
