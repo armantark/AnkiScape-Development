@@ -1738,54 +1738,15 @@ def _on_main_menu(
                 pass
         return committed
 
-    from .logic.cooking_gauntlets_logic import cooking_gauntlets_beneficial_pure
+    from functools import partial
+    import sys
 
-    def _set_cooking_target(target_id: str) -> bool:
-        if target_id not in COOKING_DATA:
-            return False
+    from .core.menu_cooking import set_cooking_equipment_choice, set_cooking_target
 
-        def _change(current):
-            updated = dict(current)
-            updated["current_cooking"] = target_id
-            updated = reconcile_cooking_equipment_pure(
-                updated,
-                target_id,
-                beneficial=cooking_gauntlets_beneficial_pure(
-                    updated, target_id, cadence_live_enabled=_cadence_kernel_enabled()
-                ),
-            )
-            return updated, True
-
-        committed = commit_direct_action(_change)
-        if committed:
-            _refresh_skill_availability()
-            try:
-                update_review_hud(_state.player_data, _state.current_skill)
-            except Exception:
-                pass
-        return committed
-
-    def _set_cooking_equipment_choice(
-        target_id: str, choice: str
-    ) -> bool:
-        if target_id not in COOKING_DATA:
-            return False
-
-        def _change(current):
-            updated, ok = set_cooking_equipment_choice_pure(
-                current, target_id, choice
-            )
-            if ok and updated.get("current_cooking") == target_id:
-                updated = reconcile_cooking_equipment_pure(
-                    updated,
-                    target_id,
-                    beneficial=cooking_gauntlets_beneficial_pure(
-                        updated, target_id, cadence_live_enabled=_cadence_kernel_enabled()
-                    ),
-                )
-            return updated, ok
-
-        return commit_direct_action(_change)
+    _set_cooking_target = partial(set_cooking_target, sys.modules[__name__])
+    _set_cooking_equipment_choice = partial(
+        set_cooking_equipment_choice, sys.modules[__name__]
+    )
 
     def _set_brawling_wilderness_target(
         skill_id: str, target_id: str, enabled: bool

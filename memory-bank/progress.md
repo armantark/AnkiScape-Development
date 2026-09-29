@@ -2553,3 +2553,91 @@ Final plain lane (the last remote run after all code and test edits): `/opt/home
 Audits after the final record edit: `python3 tools/audit_docs.py` → `Audited 875 Markdown and 452 HTML files.` / `Documentation audit passed.`; `python3 tools/audit_test_quality.py` → `5019 tests across 302 files` / `hard issues: 0` / `structural clone candidates: 31 groups`; `python3 tools/audit_item_reachability.py --check` exits 0 with first line `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, equal to the baseline; `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`; `git diff --check` → `git diff --check: OK`.
 
 Raw evidence in `<git-common-dir>/ankiscape-promotion-evidence/goal-carried-overlay-fifth-2026-09-28/`: `probe-before.txt`, `probe-after.txt`, `mutations.json`, `mutation-summary.txt`, `local-M3.log`, `local-M6.log`, `local-M9.log`, `local-newtest-M9.log`, `before/` and `after/` metrics, `remote-before.log`, `remote-after.log`, `remote-mb.log`, `remote-plain-lane-rerun.log`, `surface-before.txt`, `surface-after.txt`, `slop-gate.txt`, `audit-docs-final.log`, `audit-test-quality-final.log`, `audit-item-reachability-final.log`, `worktree-guard-final.log`, `git-diff-check-final.log`, `code.diff`.
+
+## 2026-09-29: Cooking menu actions outside the root dispatcher
+
+Branch `goal/root-menu-dispatch-2026-09-29`, base `279be965`. The tool user can change cooking target selection and its equipment policy in `core/menu_cooking.py` without reading the complete `_on_main_menu` closure. There is no player-visible change. Both actions retain the same validations, undo transaction, equipment reconciliation, state mutation order, return values and HUD refresh behavior. No messages, menu entries, RNG calls or save fields changed.
+
+Selection: `test_cooking_gauntlets.`. Its `CookingGauntletDirectActionTests` invokes `_on_main_menu`, captures the real `ui.show_main_menu` callbacks, and drives both target and equipment-policy changes. The same module also covers the cooking equipment rules. No test or pin was added or changed. This group was selected for that existing real-menu coverage. The module receives the live add-on module, not a snapshot of its state or services. The root keeps its four existing cooking logic imports directly from `logic.cooking_gauntlets_logic`, as on main `279be965`; the new module imports only `cooking_gauntlets_beneficial_pure`, which its own actions use. The Family Crest conversion and recovery handlers stay in the root.
+
+Before-change command, run from this worktree on the MacBook: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_cooking_gauntlets. --expected-tests 20`. Exact result: `Ran 20 tests in 0.509s` / `OK` (`focused-before.log`). This is a behavior-preserving cleanup, so there is no manufactured red test. After the move, the identical command exited 0 with `Ran 20 tests in 0.445s` / `OK` (`focused-after.log`): the same count and no skips before or after.
+
+Measurements use `/Users/ArmanTarkhanian1/.local/bin/lizard --csv`, `complexipy --output-format json --output <evidence-file> -q -i` and `radon hal -f -j`, matching `/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py`. `_on_main_menu`: Lizard CCN **1 → 1**, NLOC **256 → 260**; cognitive complexity **982 → 969**; Halstead difficulty **7.092485549132948 → 7.097345132743363**. Lizard excludes nested function bodies from its enclosing-function NLOC; the binding statements explain the NLOC increase, while the root file shrinks from **5783 to 5744 lines**. The new module has **50 lines** after the review change. Before creation, `core` had **21 code files**, using the gate's suffix set; it has **22** afterward, below **40**.
+
+Extracted functions, measured after the move: `set_cooking_target` CCN **4**, NLOC **12**, cognitive **4**, Halstead **0.5**; `set_cooking_equipment_choice` CCN **2**, NLOC **5**, cognitive **4**, Halstead **1.5**. Their nested `_change` functions have CCN/NLOC **1/11** and **3/13**. The original nested action functions had CCN/NLOC **4/12** and **2/7**. The new functions stay within CCN **15**, cognitive **15** and Halstead **80**. The fixed slop gate exited **0** using a separate evidence-only index after the review change (`review-slop-gate.log`); the real index is unchanged. The body ASTs compare equal after removing only the explicit `addon.` namespace qualifications. Raw measurements and comparison results are in `lizard-before.csv`, `lizard-after.csv`, `cognitive-before`, `cognitive-after`, `cognitive-helper`, `halstead-before.json`, `halstead-after.json`, `size-before.log`, `measurements.log` and `slop-gate.log`.
+
+Not changed: the remaining root-menu operations, Magic, Dream, screens, labels, menu entries, tests, module-surface pins and other baselines. No second-level game defect or owner question was found. No visual check is needed because the slice changes no visible output. The full Qt lane and cross-lineage review belong to the orchestrator's merged-tree promotion gate. No commit or push was made.
+
+Raw evidence for this section: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-root-menu-dispatch-2026-09-29/`.
+
+Local checks (all exited 0; complete raw outputs, including the unchanged clone and orphan inventories, are in the named evidence logs):
+
+`python3 tools/audit_docs.py` (`audit-docs.log`):
+
+```text
+Audited 875 Markdown and 452 HTML files.
+Documentation audit passed.
+```
+
+`python3 tools/audit_test_quality.py` (`audit-test-quality.log`):
+
+```text
+5018 tests across 302 files
+hard issues: 0
+structural clone candidates: 31 groups
+```
+
+`python3 tools/audit_item_reachability.py` (`audit-item-reachability.log`):
+
+```text
+1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+```
+
+`python3 tools/audit_item_reachability.py --check --summary` (`audit-item-reachability-check.log`):
+
+```text
+1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+```
+
+`python3 tools/worktree_guard.py audit` (`worktree-guard.log`):
+
+```text
+Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
+Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
+```
+
+`git diff --check` (`diff-check.log`):
+
+```text
+git diff --check: exit 0; no output
+```
+
+The reachability first line equals the baseline already recorded at `279be965` (`reachability-baseline-parity.log`). `scope-parity.log` confirms that all other root AST and the remaining menu body, including the menu keyword bindings and reserved branches, are unchanged except the cooking export import source. `real-index-check.log` records that the real Git index is unchanged. The lookup friction is recorded in `memory-bank/papercuts.md`; it did not change game code.
+
+Rejected neighbor selection, not a green gate: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_integration_smoke. --select test_direct_action_undo_seam. --select test_module_surface. --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 315` exited 1. The exact lines in `neighbours-and-readers.log` are `Ran 315 tests in 152.978s` / `OK (skipped=1)` / `error: remote focused lane false pass: tests=315, skipped=1; expected exactly 315 tests and no skips`. The fixed runner correctly rejects focused skips. The plain-only root-import test skips without `aqt`; the corrected selection names the first-wave and Qt-backed root surface-pin tests explicitly. No test or baseline changed, and the complete module remains in the final plain lane. This does not change the before/after cooking selection.
+
+Corrected neighbor and Memory Bank proof: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_integration_smoke. --select test_direct_action_undo_seam. --select test_module_surface.ModuleSurfaceTest.test_first_wave_digests --select test_module_surface.ModuleSurfaceTest.test_root_initializer_digest_under_qt --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 308` exited 0 with `Ran 308 tests in 170.248s` / `OK` and no skips (`neighbours-and-readers-no-skips.log`). Both fixed surface-pin tests executed, including the root initializer under the offscreen Qt interpreter. The neighboring menu/undo tests and both required Memory Bank reader modules passed. No pin was edited or regenerated.
+
+Documentation was checked again after the refusal record and papercut correction: `python3 tools/audit_docs.py` exited 0 with `Audited 875 Markdown and 452 HTML files.` / `Documentation audit passed.` (`audit-docs-updated.log`). All implementation and audit-record edits are complete; the final remote command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, with no selectors. Its exact result is recorded below when the run finishes. This was the full plain lane for the initial author pass; no full Qt lane ran here.
+
+Initial author-pass plain lane, the last remote run before review: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain` exited 0 with `Ran 5053 tests in 466.625s` / `OK (skipped=549)` (`plain-final.log`). It ran once after the initial implementation and audit-record edits; only the initial completion record followed before the review request. The full Qt lane was not run, as required by the author-side promotion exception; the orchestrator owns both merged-tree lanes and cross-lineage review.
+
+Report-time remeasurement confirms the recorded Lizard and cognitive values without a code change (`lizard-final.csv`, `cognitive-final-root`, `cognitive-final-helper`, `halstead-final-helper.json`). The slice remains uncommitted and unpushed, with only `__init__.py`, `core/menu_cooking.py`, `memory-bank/progress.md` and `memory-bank/papercuts.md` changed.
+
+### Review follow-up: direct cooking imports
+
+The root imports `apply_family_gauntlet_conversion_pure`, `recover_family_gauntlets_pure`, `reconcile_cooking_equipment_pure` and `set_cooking_equipment_choice_pure` directly from `logic.cooking_gauntlets_logic`, exactly as on main `279be965`. `core/menu_cooking.py` imports only the `cooking_gauntlets_beneficial_pure` function its own actions use. All root bytes outside `_on_main_menu`, including the import block, match main (`review-root-boundary.log`); no action body, menu binding, message or pin changed.
+
+Review measurements: root file **5744 lines**; `_on_main_menu` cognitive complexity **969**, Lizard CCN **1**, NLOC **260**; helper module **50 lines**. The cognitive and root-file measurements are unchanged by the import correction, and the helper loses the unused exports (`review-measurements.log`, `review-lizard.csv`, `review-cognitive-root.json`, `review-cognitive-helper.json`). The fixed slop gate accepts the direct imports: `slop-gate exit 0` (`review-slop-gate.log`), using the separate evidence-only index without changing the real index.
+
+Review local checks, all exited 0: `python3 tools/audit_docs.py` → `Audited 875 Markdown and 452 HTML files.` / `Documentation audit passed.` (`review-audit-docs.log`); `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees` (`review-worktree-guard.log`); `git diff --check` → `git diff --check: exit 0; no output` (`review-diff-check.log`). The following review test results supersede the initial author-pass results for the final source bytes.
+
+Review focused command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_cooking_gauntlets. --expected-tests 20` exited 0 with `Ran 20 tests in 0.555s` / `OK`, with no skips (`review-focused.log`). This is the same selection and count as the unchanged baseline and initial extraction proof.
+
+The remaining fixed local audits were also rerun on the reviewed source: `python3 tools/audit_test_quality.py` exited 0 with `5018 tests across 302 files` / `hard issues: 0` / `structural clone candidates: 31 groups` (`review-audit-test-quality.log`); `python3 tools/audit_item_reachability.py --check --summary` exited 0 with `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, equal to the pinned baseline (`review-audit-reachability.log`).
+
+Review neighbor/pin command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_integration_smoke. --select test_direct_action_undo_seam. --select test_module_surface.ModuleSurfaceTest.test_first_wave_digests --select test_module_surface.ModuleSurfaceTest.test_root_initializer_digest_under_qt --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 308` exited 0 with `Ran 308 tests in 162.414s` / `OK`, with no skips (`review-neighbours-and-pins.log`). Both fixed surface-pin tests passed; no pin was changed. All review edits and pre-lane records are complete. The final review remote run is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, without selectors, run once for this review follow-up; its result follows below.
+
+Final review plain lane: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain` exited 0 with `Ran 5053 tests in 442.512s` / `OK (skipped=549)` (`review-plain-final.log`). This was the single full plain run for the review follow-up and the last remote run, after all review source edits and pre-lane records. Only this completion record and local checks followed. No full Qt lane ran here.
+
+Report-time measurements confirm the root file has **5744 lines** and `_on_main_menu` has cognitive complexity **969** (`review-final-measurements.log`, `review-final-lizard.csv`, `review-final-cognitive-root.json`). The direct imports remain restored, all pins are unchanged, and no commit or push was made. Final local audit and worktree/index outputs are saved in `review-final-audit-docs.log`, `review-final-worktree-guard.log` and `review-completion.log` in the same evidence folder.
