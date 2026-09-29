@@ -3338,6 +3338,46 @@ Raw logs, probe scripts and scope proof are saved outside the worktree under `/U
 
 `python3 tools/audit_docs.py`:
 
+## 2026-09-29 — Combat Winter Storage loot selection
+
+The player keeps the same supplies and fight state when Pack yak Winter Storage cannot avoid a bank run. This behavior-preserving cleanup moves only the priority-based loot selection out of `_combat_try_pack_yak_winter_storage`, including Custom-layout protection and the single-item-stack rule. Candidate staging, the bank-run check, rollback, XP, event bytes, and the final clear/update transaction remain in their original order. No gameplay, UI, save, message, Magic, or Dream behavior changed. The bank-run eligibility and finisher-refill functions are untouched.
+
+Branch `goal/winter-storage-combat-2026-09-29`, base `9af03d13`; worktree `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-winter-storage-combat-2026-09-29`. Raw evidence and the reproducible differential/measurement scripts are in `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-winter-storage-combat-2026-09-29/`. The slice is uncommitted; the real Git index is unchanged.
+
+No deliberate red test was written for this cleanup. Existing focused selection, before: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-winter-storage-combat-2026-09-29" plain --select test_combat_logic. --expected-tests 294` → `Ran 294 tests in 0.058s / OK` (`focused-before.log`). The same selection after: `Ran 294 tests in 0.059s / OK` (`focused-after.log`). The selection and count are identical, with no skips.
+
+The moved selection responsibility had only a direct success check. Added four real-function behavior tests before changing production code: Custom supplies and multi-item stacks stay carried; string/single-stack priorities choose the correct loot; rejected selection leaves all supplies and fight aliases intact; capacity/food-triggered rollback preserves every original field and alias. Before on the unchanged function: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-winter-storage-combat-2026-09-29" plain --select test_winter_storage. --expected-tests 4` → `Ran 4 tests in 0.001s / OK` (`gap-tests-before-corrected.log`); after, the same command → `Ran 4 tests in 0.001s / OK` (`gap-tests-after.log`). These are not helper-structure assertions and use no stubbed storage or bank predicate. The first fixture run was rejected (`gap-tests-before.log`): `Ran 4 tests in 0.001s` / `FAILED (failures=1)`, `AssertionError: True is not false`. The capacity fixture omitted ownership of its carried loot from inventory; correcting the fixture made it pass before any production edit. No existing test or pin was changed.
+
+Neighbors, fixed module-surface pins, and Memory Bank readers: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-winter-storage-combat-2026-09-29" plain --select test_summoning_logic. --select test_urns. --select test_cadence_live. --select test_integration_smoke. --select test_module_surface.ModuleSurfaceTest.test_first_wave_digests --select test_module_surface.ModuleSurfaceTest.test_root_initializer_digest_under_qt --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 334` → `Ran 334 tests in 130.405s / OK` (`neighbours-and-readers.log`). No skip or pin change.
+
+Real-function differential: `Cases: 16091 Differences: 0 Random draws: 0` / `Differential: OK` (`differential-final.log`). It executes the saved `9af03d13` module and the new module with real dependencies, over directed boundary cases and generated pack, yak, Custom layout, loadout, event-log, and fight states. It compares returns and exception strings, byte serialization of the complete player and retained aliases, candidate mutation order, real dependency call order and argument bytes, complete event/message data, and RNG calls/state. Every storage false-return path and every bank-run rollback trigger executed; a failed or throwing action must retain the complete original player bytes. `differential-sensitivity.log` proves the probe detects in-memory changes to RNG draws, mutation order, rollback results, baseline protection, stack protection, scroll consumption, and XP/event bytes. No mutation touched the worktree.
+
+Measurements (`scope-and-metrics.log`, raw Lizard/Complexipy/Radon reports):
+
+```text
+Scope: all module AST outside Winter Storage and its new helper is identical to 9af03d13.
+Winter Storage body with the loot helper inlined: AST identical to 9af03d13.
+File lines: before 1725; after 1725
+Lizard before: _combat_try_pack_yak_winter_storage CCN 32; NLOC 113
+Complexipy before: exit 1 (legacy hotspots remain above the default limit)
+Cognitive before: _combat_try_pack_yak_winter_storage 27
+Halstead before: _combat_try_pack_yak_winter_storage difficulty 7.548387096774194
+Lizard after: _combat_winter_storage_loot CCN 9; NLOC 22
+Lizard after: _combat_try_pack_yak_winter_storage CCN 24; NLOC 89
+Complexipy after: exit 1 (legacy hotspots remain above the default limit)
+Cognitive after: _combat_winter_storage_loot 8
+Cognitive after: _combat_try_pack_yak_winter_storage 19
+Halstead after: _combat_winter_storage_loot difficulty 3.9375
+Halstead after: _combat_try_pack_yak_winter_storage difficulty 5.0625
+New helper: CCN <= 15; cognitive <= 15; Halstead difficulty <= 80: OK
+```
+
+The legacy entry point still exceeds the complexity limits; this slice extracts one coherent responsibility rather than splitting the entire function. Its new helper is below each fixed limit. The source file stays at its baseline line count, and the AST scope check confirms all other module statements/functions are identical to `9af03d13`.
+
+Fixed local audit result lines (complete raw output, including existing clone candidates and orphan-input rows, is saved in the named evidence logs):
+
+`python3 tools/audit_docs.py` (`audit-docs-final.log`):
+
 ```text
 Audited 877 Markdown and 452 HTML files.
 Documentation audit passed.
@@ -3568,6 +3608,13 @@ Exit: 0
 
 `python3 tools/audit_item_reachability.py --check --summary` (`audit-item-reachability-check.log`):
 
+5031 tests across 305 files
+hard issues: 0
+structural clone candidates: 31 groups
+```
+
+`python3 tools/audit_item_reachability.py` (`audit-item-reachability.log`) has the exact first line below; `python3 tools/audit_item_reachability.py --check --summary` (`audit-item-reachability-check.log`) gives the same line and exits 0. It equals the pinned baseline in main's records (`reachability-baseline-parity.log`).
+
 ```text
 1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
 ```
@@ -3579,6 +3626,7 @@ Exit: 0
 ```
 
 `python3 tools/worktree_guard.py audit`:
+
 
 ```text
 Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
@@ -3659,3 +3707,7 @@ OK (skipped=549)
 ```
 
 Raw result: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-preview-2026-09-29/full-plain-last.log`. Only evidence records changed after the run; implementation and test bytes are unchanged. The final coverage probe initially imported `combat_data` in isolation, so it saw 199 targets and raised `AssertionError` at `set(counts) == set(COMBAT_ENEMY_DATA)`. The omitted IDs were `frost_dragon`, `jogre`, `shaikahan`, `zogre`. With the normal game constants and combat engine imports used by the differential, the catalog has 203 targets and coverage is exact. This tool-only gotcha is recorded in `memory-bank/papercuts.md`, `catalog-import-probe.log` and `verification-friction.log`; it is not a gameplay defect.
+
+Lookup, fixture, metric-tool, and probe friction is recorded verbatim in `memory-bank/papercuts.md`. No owner question or second-level game defect was found. No UI file or play-checklist line was changed because gameplay and visible output are unchanged. No full Qt lane, commit, or push ran here; the orchestrator owns cross-lineage review and both merged-tree promotion lanes. All source/test edits and pre-lane records are complete. The final remote command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-winter-storage-combat-2026-09-29" plain`, run once without selectors; its result is appended below after completion.
+
+Final plain lane, the last remote run after all source, test, and pre-lane record edits: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-winter-storage-combat-2026-09-29" plain` → `Ran 5066 tests in 472.101s / OK (skipped=549)` (`plain-final.log`). The full plain lane ran once; only this completion record and local verification followed. No full Qt lane ran; the orchestrator owns both merged-tree promotion lanes and the cross-lineage review. No commit or push was made.

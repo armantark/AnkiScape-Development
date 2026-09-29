@@ -790,6 +790,30 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
     return False
 
 
+def _combat_winter_storage_loot(data, target_id, carried, priority, scroll_name):
+    depositable = dict(carried)
+    for item_name, baseline in _combat_custom_layout_view(data, target_id).items():
+        remaining = _non_negative_int(depositable.get(item_name, 0), 0) - _non_negative_int(baseline, 0)
+        if remaining > 0:
+            depositable[item_name] = remaining
+        else:
+            depositable.pop(item_name, None)
+    return next(
+        (
+            item_name
+            for item_name in priority
+            if isinstance(item_name, str)
+            and item_name != scroll_name
+            and _non_negative_int(depositable.get(item_name, 0), 0) > 0
+            and (
+                item_name not in STACKABLE_ITEM_NAMES
+                or _non_negative_int(carried.get(item_name, 0), 0) == 1
+            )
+        ),
+        None,
+    )
+
+
 def _combat_try_pack_yak_winter_storage(
     data,
     target_id,
@@ -805,9 +829,7 @@ def _combat_try_pack_yak_winter_storage(
         not isinstance(state, Mapping)
         or follower.get("kind") != "familiar"
         or follower.get("entity_id") != "packyak"
-        or _non_negative_int(
-            state.get("special_move_points_current", 0), 0
-        ) < 12
+        or _non_negative_int(state.get("special_move_points_current", 0), 0) < 12
     ):
         return False
     policy = (state.get("target_policies", {}) or {}).get(target_id, {}) or {}
@@ -827,29 +849,7 @@ def _combat_try_pack_yak_winter_storage(
     scroll_name = "Winter storage scroll"
     if _non_negative_int(carried.get(scroll_name, 0), 0) <= 0:
         return False
-    depositable = dict(carried)
-    for item_name, baseline in _combat_custom_layout_view(data, target_id).items():
-        remaining = _non_negative_int(
-            depositable.get(item_name, 0), 0
-        ) - _non_negative_int(baseline, 0)
-        if remaining > 0:
-            depositable[item_name] = remaining
-        else:
-            depositable.pop(item_name, None)
-    selected = next(
-        (
-            item_name
-            for item_name in priority
-            if isinstance(item_name, str)
-            and item_name != scroll_name
-            and _non_negative_int(depositable.get(item_name, 0), 0) > 0
-            and (
-                item_name not in STACKABLE_ITEM_NAMES
-                or _non_negative_int(carried.get(item_name, 0), 0) == 1
-            )
-        ),
-        None,
-    )
+    selected = _combat_winter_storage_loot(data, target_id, carried, priority, scroll_name)
     if selected is None:
         return False
     candidate = _copy_player_data_with_nested(data)
