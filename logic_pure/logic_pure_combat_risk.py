@@ -2,6 +2,7 @@
 
 from typing import Mapping
 
+from ..data.combat_data import COMBAT_ENEMY_DATA
 from .logic_pure_combat_food import _combat_preview_food_available
 from .logic_pure_combat_model import (
     COMBAT_POISON_NPC_ATTACK_CHANCE,
@@ -15,6 +16,7 @@ from .logic_pure_combat_model import (
     combat_enemy_current_lifepoints_pure,
     combat_finisher_state_pure,
     combat_max_lifepoints_pure,
+    combat_target_locked_reasons_pure,
     combat_wilderness_equipment_risk_pure,
 )
 from .logic_pure_combat_supplies import (
@@ -25,6 +27,18 @@ from .logic_pure_combat_supplies import (
 )
 from .logic_pure_equipment import _equipment_bonus_value
 from .logic_pure_state import _non_negative_int, _positive_int
+
+
+def _combat_preview_target_context(player_data, target_id, enemy_data, equipment_data):
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    enemy = enemy_data.get(target_id)
+    if enemy is None:
+        return enemy_data, enemy, equipment_data, ("unknown enemy",)
+    equipment_data = equipment_data or {}
+    reasons = combat_target_locked_reasons_pure(
+        player_data, target_id, enemy_data, equipment_data=equipment_data
+    )
+    return enemy_data, enemy, equipment_data, reasons
 
 
 def _combat_preview_incoming_damage(player_data, enemy, enemy_totals, combat_class):

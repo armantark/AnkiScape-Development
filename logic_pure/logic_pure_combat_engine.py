@@ -480,7 +480,10 @@ from .logic_pure_combat_hud import (
     _combat_hud_player_bars,
     _combat_hud_status,
 )
-from .logic_pure_combat_risk import _combat_preview_with_risk
+from .logic_pure_combat_risk import (
+    _combat_preview_target_context,
+    _combat_preview_with_risk,
+)
 from .logic_pure_combat_outcome import (
     _combat_advance_status_tick,
     _combat_bank_burst_rewards,
@@ -547,12 +550,9 @@ def _combat_roll_hit(accuracy, max_hit_old_hp, rng, blocked=False):
 
 
 def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipment_data=None):
-    enemy_data = enemy_data or COMBAT_ENEMY_DATA
-    enemy = enemy_data.get(target_id)
-    if enemy is None:
-        return {"state": "blocked", "risk_band": "Blocked", "reasons": ("unknown enemy",)}
-    equipment_data = equipment_data or {}
-    reasons = combat_target_locked_reasons_pure(player_data, target_id, enemy_data, equipment_data=equipment_data)
+    enemy_data, enemy, equipment_data, reasons = _combat_preview_target_context(
+        player_data, target_id, enemy_data, equipment_data
+    )
     if reasons:
         return {"state": "blocked", "risk_band": "Blocked", "reasons": reasons}
     player_totals = equipment_stat_totals_pure(player_data.get("equipment", {}) or {}, equipment_data)

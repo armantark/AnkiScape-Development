@@ -3258,6 +3258,86 @@ All commands below exited 0. Their exact stdout is retained here and in the name
 
 `python3 tools/audit_docs.py` (`audit-docs.log`):
 
+
+## 2026-09-29 — Combat preview entry checks are safe to change without changing the pre-fight answer
+
+Branch `goal/combat-preview-2026-09-29`; base `9af03d13bf8d132da4c62653d2dac540b0c514e5`; worktree `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-preview-2026-09-29`. The changes remain uncommitted. No push.
+
+The player sees the same max hit, hit chance, risk band, lock reason and encounter state. Target catalog resolution and entry locks now have one private helper in the existing combat-preview risk module. Attack projection and risk assembly remain byte-identical after the entry check. Magic, Dream, saved fields, existing interfaces and `apply_combat_burst_pure` were not changed. The large engine file does not grow. No play-checklist line is needed because this slice changes no player-visible behavior.
+
+Cleanup baseline, not a red test: the existing focused selection ran on the MacBook before implementation. The same selection passed after implementation with the same count and no skips.
+
+```sh
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-preview-2026-09-29" && /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_combat_logic --select test_prayer --select test_warriors_guild --select test_preview_food --expected-tests 343
+```
+
+Before (`focused-before.log`):
+
+```text
+Ran 343 tests in 0.144s
+OK
+```
+
+After (`focused-after.log`):
+
+```text
+Ran 343 tests in 0.154s
+OK
+```
+
+Entry-preview behavior lacked direct coverage for unknown targets and the first blocked requirement. The new nested tests exercise the real preview: unknown targets return before reading player state; Slayer and skill entry locks retain reason order and leave player state unchanged. The neighbour run also covers the existing engine surface pins, Magic tests and both Memory Bank reader modules. No pin, test baseline or audit was changed.
+
+```sh
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-preview-2026-09-29" && /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_preview_target --select test_promotion_gate --select test_memory_bank_queue_packet --select test_magic --select test_first_wave_digests --expected-tests 89
+```
+
+Neighbour and reader result (`neighbour-after.log`):
+
+```text
+Ran 89 tests in 78.095s
+OK
+```
+
+The installed Lizard executable measures CCN and NLOC. Cognitive complexity and Halstead difficulty use the exact `cognitive_by_function` and `halstead_by_function` implementations in `/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py`, including complexipy `--output-format json --output <temporary directory> -q -i`. The limits are CCN 15, cognitive 15 and Halstead difficulty 80. Saved measurements follow.
+
+`measure-before.log`:
+
+```text
+phase=before; base=9af03d13bf8d132da4c62653d2dac540b0c514e5
+limits: CCN=15; cognitive=15; Halstead difficulty=80
+logic_pure/logic_pure_combat_engine.py:combat_target_preview_pure: NLOC=76; CCN=18; cognitive=18; Halstead difficulty=4.0
+logic_pure/logic_pure_combat_engine.py: base lines=2186; before lines=2186; delta=0
+logic_pure/logic_pure_combat_risk.py: base lines=218; before lines=218; delta=0
+```
+
+`measure-after.log`:
+
+```text
+phase=after; base=9af03d13bf8d132da4c62653d2dac540b0c514e5
+limits: CCN=15; cognitive=15; Halstead difficulty=80
+logic_pure/logic_pure_combat_risk.py:_combat_preview_target_context: NLOC=10; CCN=4; cognitive=3; Halstead difficulty=1.0
+logic_pure/logic_pure_combat_engine.py:combat_target_preview_pure: NLOC=73; CCN=15; cognitive=15; Halstead difficulty=3.5185185185185186
+logic_pure/logic_pure_combat_engine.py: base lines=2186; after lines=2186; delta=0
+logic_pure/logic_pure_combat_risk.py: base lines=218; after lines=232; delta=14
+```
+
+The differential executes the real base function extracted from the HEAD source and the real worktree function against the same unchanged dependencies. It uses seed 20260929, 145 player/loadout profiles per target, all 203 real target rows, equipped-item records from the real equipment catalog, and full/default-catalog envelope checks for every target. It also checks unknown and custom blocked targets. Plain output and input bytes use pickle protocol 5, preserving types, key order and exact float values. A second pass compares ordered mapping reads and unchanged input/RNG state. Output and extra-read canaries prove that the harness detects a difference. The value-focused corpus raises no exceptions.
+
+```text
+DIFFERENTIAL: cases=30253; catalog targets=203; differences=0; ordered-read comparisons=30253; byte output/input and RNG comparisons=all cases
+```
+
+An additional malformed-state corpus also reports zero differences. It preserves the existing `TypeError: 'NoneType' object is not iterable` for an unsanitized active fight with `combat_auto_eat_food=None`; it does not count those matching exceptions as preview values. The exact reproduction is target `menaphite_thug`, state `profile-40`, `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-preview-2026-09-29/logic_pure/logic_pure_combat_food.py:69`. Replacing only the None selection with `[]` returns `Fighting`. This malformed-input exception is already pinned by `tests.combat.test_preview_food.PreviewFoodAvailabilityTest.test_missing_empty_and_none_food_selections_remain_distinct`; it is preserved behavior, not a newly found defect. Evidence: `generated-exception-probe.log`, `differential-with-malformed.py` and `differential-with-malformed.log`. No owner question remains.
+
+No full Qt lane ran on this branch. The orchestrator runs both lanes on the merged tree as the promotion gate. The full plain lane is the final remote run, after the implementation, tests and records above; its exact result is appended below when the run finishes.
+
+Raw logs, probe scripts and scope proof are saved outside the worktree under `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-preview-2026-09-29/`. `scope.log` proves every other existing definition is source byte-identical, including `apply_combat_burst_pure`. `memory-bank/papercuts.md` records selector-output truncation, probe catalog-copy overhead and the malformed food-selection input. No other issue was fixed.
+
+<details>
+<summary>Exact local audit output and exit statuses</summary>
+
+`python3 tools/audit_docs.py`:
+
 ```text
 Audited 877 Markdown and 452 HTML files.
 Documentation audit passed.
@@ -3267,6 +3347,15 @@ Documentation audit passed.
 
 ```text
 5027 tests across 304 files
+
+
+Exit: 0
+```
+
+`python3 tools/audit_test_quality.py`:
+
+```text
+5029 tests across 305 files
 hard issues: 0
 structural clone candidates: 31 groups
 - tests/test_write_through_barbarian_assault.py:228:BarbarianAssaultWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_castle_wars.py:189:CastleWarsWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_fight_caves.py:170:FightCavesWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_great_orb_project.py:223:GreatOrbProjectWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_pest_control.py:239:PestControlWriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_phoenix_lair.py:182:PhoenixLairWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_probe.py:169:WriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_shades_of_mortton.py:192:ShadesOfMorttonWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_soul_wars.py:226:SoulWarsWriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_stealing_creation.py:253:StealingCreationWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_tzhaar_fight_pit.py:187:FightPitWriteThroughTest.test_the_probe_itself_catches_a_write_through
@@ -3303,6 +3392,12 @@ structural clone candidates: 31 groups
 ```
 
 `python3 tools/audit_item_reachability.py` (`audit-item-reachability.log`):
+
+
+Exit: 0
+```
+
+`python3 tools/audit_item_reachability.py and python3 tools/audit_item_reachability.py --check (byte-identical output)`:
 
 ```text
 1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
@@ -3479,6 +3574,12 @@ structural clone candidates: 31 groups
 
 `python3 tools/worktree_guard.py audit` (`worktree-guard.log`):
 
+
+Exit: 0
+```
+
+`python3 tools/worktree_guard.py audit`:
+
 ```text
 Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
 Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
@@ -3528,3 +3629,33 @@ git diff --check: exit 0; no output
 ```
 
 The completion-record whitespace check caught `memory-bank/progress.md:2989: new blank line at EOF.` (`final-diff-check-eof-failure.log`). The record now ends with one newline; product source and test results are unchanged. This friction is also recorded in `memory-bank/papercuts.md`.
+
+
+Exit: 0
+```
+
+`git diff --check (empty output; exit status below)`:
+
+```text
+Exit: 0
+```
+
+```text
+Reachability first line matches base 9af03d13 memory-bank/progress.md: 1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+Bare and --check reachability audits: byte-identical output; exit 0.
+```
+
+</details>
+
+Final remote plain lane (one full plain run; no later remote run):
+
+```sh
+cd "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-preview-2026-09-29" && /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain
+```
+
+```text
+Ran 5064 tests in 446.551s
+OK (skipped=549)
+```
+
+Raw result: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-preview-2026-09-29/full-plain-last.log`. Only evidence records changed after the run; implementation and test bytes are unchanged. The final coverage probe initially imported `combat_data` in isolation, so it saw 199 targets and raised `AssertionError` at `set(counts) == set(COMBAT_ENEMY_DATA)`. The omitted IDs were `frost_dragon`, `jogre`, `shaikahan`, `zogre`. With the normal game constants and combat engine imports used by the differential, the catalog has 203 targets and coverage is exact. This tool-only gotcha is recorded in `memory-bank/papercuts.md`, `catalog-import-probe.log` and `verification-friction.log`; it is not a gameplay defect.
