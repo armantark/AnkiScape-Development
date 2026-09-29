@@ -219,6 +219,11 @@ State plainly what you did not do and why. A gate you stopped at is a success
 state. A claim you cannot support is a defect, and reporting a lane as green
 when you did not run it is the worst outcome available to you.
 
+A slice that changes what the player sees adds one line to
+`memory-bank/play-checklist.md`: where to go, what to do, and what the player
+must see, in the group for that part of the game. The owner tries these lines
+while studying instead of in a separate test session.
+
 ## 8. Fixed rails
 
 Tests, audits, and pinned baselines are measuring instruments. A slice that
