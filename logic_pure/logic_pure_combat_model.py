@@ -1339,27 +1339,11 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
         )
         if missing_skill_requirements:
             return missing_skill_requirements
-    quest_gate = str(enemy.get("quest_gate", enemy.get("required_quest", "")) or "")
-    if quest_gate:
-        quests = player_data.get("quests", {}) or {}
-        quest_state = quests.get(quest_gate, {}) if isinstance(quests, Mapping) else {}
-        gate_state = str(enemy.get("quest_gate_state", "completed") or "completed")
-        if isinstance(quest_state, Mapping):
-            quest_accessible = bool(quest_state.get("completed"))
-            if gate_state == "started":
-                quest_accessible = quest_accessible or bool(quest_state.get("started"))
-        else:
-            quest_accessible = bool(quest_state)
-        if not quest_accessible:
-            verb = "Start" if gate_state == "started" else "Complete"
-            return (
-                str(
-                    enemy.get(
-                        "quest_gate_label",
-                        f"{verb} {quest_gate.replace('_', ' ').title()}",
-                    )
-                ),
-            )
+    from .logic_pure_combat_target_locks import _combat_quest_locked_reasons
+
+    quest_locks = _combat_quest_locked_reasons(player_data, enemy)
+    if quest_locks:
+        return quest_locks
     required_item_locks = combat_required_item_locked_reasons_pure(player_data, enemy, active_encounter)
     if required_item_locks:
         return required_item_locks

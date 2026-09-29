@@ -2711,3 +2711,350 @@ Result: exit **0**, `Ran 5053 tests in 430.794s` / `OK (skipped=549)` (`resume-f
 Files changed: `logic_pure/logic_pure_combat_supplies.py` extracts the target-supply predicate and shortens its adjacent comment; `memory-bank/progress.md` records this slice and exact evidence; `memory-bank/papercuts.md` records startup/tool and selector friction. No owner question or second-level defect was identified. No canonical working-tree file, UI file, test, audit or pinned baseline was changed. No commit, push, amend, rebase, stash, worktree creation/deletion, git-config edit or SLOP_GATE_ setting was made.
 
 Raw evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-bank-run-2026-09-29/`. Report-time Lizard measurements re-read HEAD and the final code (`resume-report-lizard-before.log`, `resume-report-lizard-after.log`). Final `git status --short`, line counts and diff checks are saved in `resume-final-report-verification.log`; only the three files listed above may appear.
+
+
+## 2026-09-29 — Combat target quest-lock cleanup
+
+The player sees the same combat access decisions and lock messages. Future quest-target work can change one bounded quest-access group without reading all target lock groups. This is a behavior-preserving cleanup on `goal/target-lock-reasons-2026-09-29`, based on main `9af03d13`.
+
+Worktree: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-target-lock-reasons-2026-09-29`.
+
+The quest-gate group moved from `combat_target_locked_reasons_pure` to `_combat_quest_locked_reasons` in `logic_pure/logic_pure_combat_target_locks.py`. The import stays inside the original function, so its module-level surface and every byte outside that function remain unchanged. The helper keeps the same reads, including the eager `required_quest` fallback read, the short-circuited started/completed reads, and label conversion. A no-quest early return keeps the new helper below the fixed cognitive limit. No other gate, Magic, Dream, PvM death settlement, UI, saved field, test or pinned baseline changed.
+
+Raw evidence and the reproducible differential script are saved outside the worktree at:
+
+`/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-target-lock-reasons-2026-09-29`.
+
+### Focused proof before and after
+
+No intentional red test was required for this cleanup. Existing real-kernel tests cover started and completed quest gates, default and explicit labels, and quest locks ahead of equipment and kill settlement. No structure-only test was added. The baseline and final runs use exactly the same selection.
+
+Before extraction: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_bone_source_data. --select test_bone_sources. --select mogres.test_miniquest_and_target. --select combat_roster.test_roster_contract. --expected-tests 28` exited 0 (`focused-before.log`).
+
+```text
+Ran 28 tests in 0.023s
+OK
+```
+
+After extraction: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_bone_source_data. --select test_bone_sources. --select mogres.test_miniquest_and_target. --select combat_roster.test_roster_contract. --expected-tests 28` exited 0 (`focused-after.log`).
+
+```text
+Ran 28 tests in 0.036s
+OK
+```
+
+Neighboring combat modules, both required Memory Bank readers, and fixed module-surface pins: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_combat_logic. --select test_warriors_guild. --select test_stronghold_player_safety. --select runtime_actions.test_ranged_finisher. --select test_promotion_gate. --select test_memory_bank_queue_packet. --select test_module_surface.ModuleSurfaceTest.test_first_wave_digests --select test_module_surface.ModuleSurfaceTest.test_root_initializer_digest_under_qt --expected-tests 373` exited 0 (`neighbours-and-readers.log`). No tests skipped and no pin was changed.
+
+```text
+Ran 373 tests in 76.924s
+OK
+```
+
+### Measured complexity and equivalence
+
+`/Users/ArmanTarkhanian1/.local/bin/lizard --csv logic_pure/logic_pure_combat_model.py` measured the baseline. The final command also names `logic_pure/logic_pure_combat_target_locks.py`. Raw rows are in `lizard-before.csv` and `lizard-after.csv`; the complete measurement summary is in `measurements.log`.
+
+```text
+before: combat_target_locked_reasons_pure CCN 76, NLOC 185
+after: combat_target_locked_reasons_pure CCN 67, NLOC 168
+after: _combat_quest_locked_reasons CCN 11, NLOC 24
+Combat-model lines: before 2859, after 2843
+Helper lines: 29
+logic_pure code-file count before: 37
+logic_pure code-file count after: 38
+Helper cognitive complexity: 13
+Helper Halstead difficulty: 1.9090909090909092
+Reachability first-line parity with 9af03d13 records: OK
+```
+
+The new helper passes the fixed CCN 15, cognitive complexity 15 and Halstead difficulty 80 limits. The fixed slop gate also passed using a separate evidence-only index (`slop-gate.log`); the real index was not staged.
+
+Differential command: `python3 "/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-target-lock-reasons-2026-09-29/differential.py" "$PWD"`. It compiles the real old function from `9af03d13` and calls it and the actual new function with the same real dependencies. It compares returned tuple type, UTF-8 reason bytes and order, ordered mapping reads, and unchanged player state. Each target receives deterministic quest-state cases plus seeded generated states; additional cases exercise default enemy data and dormant quest schema forms. The generator derives skill requirements from the roster so every quest-gated target reaches its quest-state read.
+
+```text
+Boundary parity: all combat-model bytes outside combat_target_locked_reasons_pure identical to 9af03d13
+Roster: 203 real combat targets; seed 20260929; 1072 generated states per target; default-roster and dormant-schema cases included
+Differential: 221600 cases; 0 differences; 0 matched exception cases; 12973859 ordered mapping reads compared
+Quest-gated target coverage: 19 of 19 targets reached the quest-state read
+Quest-state reads by target: {"aberrant_spectre": 515, "brine_rat": 625, "bush_snake": 866, "cave_horror": 505, "chicken": 108, "elf_warrior": 1091, "elf_warrior_level_108": 1091, "jungle_horror": 1091, "killerwatt": 746, "mogre": 745, "molanisk": 764, "mutated_zygomite_level_74": 518, "mutated_zygomite_level_86": 495, "otherworldly_being": 1091, "sea_snake_hatchling": 1091, "sea_snake_young": 746, "shadow_warrior": 1091, "shaikahan": 1091, "vampyre": 1091, "zogre": 1091}
+Differential equivalence: OK (returned tuple type, UTF-8 reason bytes/order, ordered mapping reads, unchanged player state)
+```
+
+The initial evidence-only probe stopped on `AssertionError: ['bush_snake']` because its generator omitted Woodcutting; that invalid proof was retained as `differential-initial.log`, corrected without changing product code, and rerun. Measurement and selector friction are recorded in `memory-bank/papercuts.md`.
+
+### Fixed local audits
+
+All commands below exited 0. Their exact stdout is retained here and in the named raw logs. The reachability first line equals the recorded baseline at `9af03d13`; no count was re-pinned.
+
+`python3 tools/audit_docs.py` (`audit-docs.log`):
+
+```text
+Audited 877 Markdown and 452 HTML files.
+Documentation audit passed.
+```
+
+`python3 tools/audit_test_quality.py` (`audit-test-quality.log`):
+
+```text
+5027 tests across 304 files
+hard issues: 0
+structural clone candidates: 31 groups
+- tests/test_write_through_barbarian_assault.py:228:BarbarianAssaultWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_castle_wars.py:189:CastleWarsWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_fight_caves.py:170:FightCavesWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_great_orb_project.py:223:GreatOrbProjectWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_pest_control.py:239:PestControlWriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_phoenix_lair.py:182:PhoenixLairWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_probe.py:169:WriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_shades_of_mortton.py:192:ShadesOfMorttonWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_soul_wars.py:226:SoulWarsWriteThroughProbeTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_stealing_creation.py:253:StealingCreationWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_tzhaar_fight_pit.py:187:FightPitWriteThroughTest.test_the_probe_itself_catches_a_write_through
+- tests/test_single_valued_route_steps.py:252:TestSingleValuedRoutesAreRecordedSteps.test_kenniths_concerns_shrine_tunnels_are_recorded | tests/test_single_valued_route_steps.py:258:TestSingleValuedRoutesAreRecordedSteps.test_lost_city_entrana_travel_is_recorded | tests/test_single_valued_route_steps.py:264:TestSingleValuedRoutesAreRecordedSteps.test_merlins_crystal_crate_delivery_is_recorded | tests/test_single_valued_route_steps.py:298:TestSingleValuedRoutesAreRecordedSteps.test_gertrudes_cat_lumber_yard_route_is_recorded | tests/test_single_valued_route_steps.py:304:TestSingleValuedRoutesAreRecordedSteps.test_tribal_totem_rpdt_route_is_recorded | tests/test_single_valued_route_steps.py:330:TestSingleValuedRoutesAreRecordedSteps.test_plague_city_sewer_route_is_recorded | tests/test_single_valued_route_steps.py:336:TestSingleValuedRoutesAreRecordedSteps.test_waterfall_quest_golrie_route_is_recorded | tests/test_single_valued_route_steps.py:351:TestSingleValuedRoutesAreRecordedSteps.test_witchs_house_patrol_avoidance_is_recorded | tests/test_single_valued_route_steps.py:357:TestSingleValuedRoutesAreRecordedSteps.test_myths_of_the_white_lands_ice_cave_route_is_recorded
+- tests/test_logic.py:857:TestLogic.test_blue_dragon_scale_trip_gathers_the_seven_ordinary_spawns | tests/test_logic.py:868:TestLogic.test_potato_cactus_trip_gathers_only_the_three_first_level_spawns | tests/test_logic.py:879:TestLogic.test_black_mushroom_pickup_gathers_one_ground_spawn_without_xp | tests/test_logic.py:890:TestLogic.test_doogle_leaves_trip_gathers_the_two_quest_spawns_without_xp
+- tests/test_main_menu_widget.py:9644:MainMenuWidgetTest.test_quests_tab_allows_merlins_crystal_mordred_combat_gate_selection | tests/test_main_menu_widget.py:9692:MainMenuWidgetTest.test_quests_tab_allows_beast_fallback_ranged_combat_gate_selection | tests/test_main_menu_widget.py:9802:MainMenuWidgetTest.test_quests_tab_allows_witchs_house_form_combat_gate_selection | tests/test_main_menu_widget.py:9855:MainMenuWidgetTest.test_quests_tab_shows_split_golem_combat_gates
+- tests/test_item_reachability_audit.py:608:TestItemReachabilityAudit.test_lost_city_shamus_action_has_a_runtime_emitter | tests/test_item_reachability_audit.py:654:TestItemReachabilityAudit.test_a_souls_bane_rage_action_has_a_runtime_emitter | tests/test_item_reachability_audit.py:664:TestItemReachabilityAudit.test_dealing_with_scabaras_bronze_action_has_a_runtime_emitter
+- tests/test_single_valued_route_steps.py:270:TestSingleValuedRoutesAreRecordedSteps.test_heroes_quest_travel_steps_are_recorded | tests/test_single_valued_route_steps.py:310:TestSingleValuedRoutesAreRecordedSteps.test_scorpion_catcher_room_routes_are_recorded | tests/test_single_valued_route_steps.py:320:TestSingleValuedRoutesAreRecordedSteps.test_sheep_herder_enclosure_routes_are_recorded
+- tests/test_single_valued_route_steps.py:280:TestSingleValuedRoutesAreRecordedSteps.test_family_crest_dungeon_routes_are_recorded | tests/test_single_valued_route_steps.py:289:TestSingleValuedRoutesAreRecordedSteps.test_temple_of_ikov_travel_steps_are_recorded | tests/test_single_valued_route_steps.py:342:TestSingleValuedRoutesAreRecordedSteps.test_tree_gnome_village_battlefield_routes_are_recorded
+- tests/combat_roster/test_dragon_families.py:95:CombatEnemyRosterDataTest.test_bronze_dragon_preserves_cutoff_metal_dragon_contract | tests/combat_roster/test_dragon_families.py:139:CombatEnemyRosterDataTest.test_iron_dragon_preserves_cutoff_metal_dragon_contract
+- tests/test_achievement_diaries.py:802:NewConditionDegradationTest.test_combat_kill_degrades_on_absent_or_wrong_typed_state | tests/test_achievement_diaries.py:812:NewConditionDegradationTest.test_shop_transaction_degrades_on_absent_or_wrong_typed_state
+- tests/test_achievement_diaries.py:853:NewConditionDegradationTest.test_ledger_action_family_degrades_on_absent_or_wrong_typed_state | tests/test_achievement_diaries.py:861:NewConditionDegradationTest.test_equipped_item_degrades_on_absent_or_wrong_typed_state
+- tests/test_achievement_diaries.py:900:StageOneRealPathTest.test_vial_deeds_completes_through_aemads_shop | tests/test_achievement_diaries.py:1143:StageTwoRealPathTest.test_grand_candle_completes_through_the_candle_maker_shop
+- tests/test_cadence_live.py:98:TestCadenceLiveCoverage.test_big_chinchompa_declares_grouped_jar_and_world_boundary | tests/test_cadence_live.py:150:TestCadenceLiveCoverage.test_barbarian_assault_declares_one_duty_or_persistent_queen_beat
+- tests/test_combat_logic.py:2609:CombatLogicTest.test_citizen_quantity_range_and_tertiary_drop_rolls | tests/test_combat_logic.py:3568:CombatLogicTest.test_black_knight_drop_rolls_nested_seed_table_and_charms
+- tests/test_dialog_lifecycle.py:344:DialogLifecycleTest.test_level_up_dialog_names_the_exact_level_transition | tests/test_dialog_lifecycle.py:368:DialogLifecycleTest.test_combat_level_popup_uses_the_shared_level_up_dialog
+- tests/test_dominion_tower.py:430:DominionTowerFactorTest.test_climber_pays_a_hundred_times_the_arena_level_total | tests/test_dominion_tower.py:434:DominionTowerFactorTest.test_endurance_pays_a_tenth_of_that
+- tests/test_dominion_tower.py:876:DominionTowerRunTest.test_freestyle_refuses_a_boss_that_was_never_beaten | tests/test_dominion_tower.py:887:DominionTowerRunTest.test_special_mode_waits_for_climber_exposure
+- tests/test_item_reachability_audit.py:618:TestItemReachabilityAudit.test_waterfall_quest_dialogue_and_tomb_actions_have_runtime_emitters | tests/test_item_reachability_audit.py:640:TestItemReachabilityAudit.test_gertrudes_cat_dialogue_actions_have_runtime_emitters
+- tests/test_logic.py:2857:TestLogic.test_polar_kebbit_tracking_preserves_noose_wand_and_awards_sourced_outputs | tests/test_logic.py:2953:TestLogic.test_razor_backed_kebbit_tracking_preserves_noose_wand_and_awards_chain_inputs
+- tests/test_main_menu_widget.py:9335:MainMenuWidgetTest.test_quests_tab_shows_demon_slayer_item_stage_blocker | tests/test_main_menu_widget.py:9350:MainMenuWidgetTest.test_quests_tab_shows_ernest_machine_part_stage_blocker
+- tests/test_main_menu_widget.py:9385:MainMenuWidgetTest.test_quests_tab_shows_fishing_contest_current_stage_blocker | tests/test_main_menu_widget.py:9628:MainMenuWidgetTest.test_quests_tab_shows_merlins_crystal_wax_stage_blocker
+- tests/test_papercut_tools.py:78:PapercutToolTests.test_focused_runner_refuses_a_fuzzy_module_substitution | tests/test_papercut_tools.py:89:PapercutToolTests.test_focused_runner_refuses_ambiguous_fuzzy_methods
+- tests/test_phoenix_lair.py:344:PhoenixLairPersistenceAndRuntimeTests.test_runtime_routes_only_selected_active_phoenix_lair_reviews | tests/test_skeletal_horror.py:390:SkeletalHorrorPersistenceRuntimeAndAssetTests.test_runtime_routes_selected_active_reviews_and_persists
+- tests/test_promotion_gate.py:844:PromotionGateTest.test_reachability_content_addition_with_updated_pins_passes | tests/test_promotion_gate.py:856:PromotionGateTest.test_reachability_content_addition_without_updated_pins_fails
+- tests/test_single_valued_route_steps.py:422:TestSingleValuedRoutesAreRecordedSteps.test_enlightened_journey_reach_auguste_is_a_recorded_step | tests/test_single_valued_route_steps.py:452:TestSingleValuedRoutesAreRecordedSteps.test_in_pyre_need_phoenix_lair_is_a_recorded_step
+- tests/test_single_valued_route_steps.py:441:TestSingleValuedRoutesAreRecordedSteps.test_cabin_fever_charter_route_is_a_recorded_step | tests/test_single_valued_route_steps.py:458:TestSingleValuedRoutesAreRecordedSteps.test_back_to_my_roots_karamja_route_is_a_recorded_step
+- tests/test_write_through_big_chinchompa.py:200:BigChinchompaWriteThroughTest.test_the_probe_itself_catches_a_write_through | tests/test_write_through_pet.py:204:PetWriteThroughTest.test_the_probe_itself_catches_a_write_through
+- tests/test_write_through_castle_wars.py:197:CastleWarsWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one | tests/test_write_through_tzhaar_fight_pit.py:195:FightPitWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one
+- tests/test_write_through_fight_caves.py:178:FightCavesWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one | tests/test_write_through_phoenix_lair.py:190:PhoenixLairWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one
+- tests/test_write_through_pest_control.py:247:PestControlWriteThroughProbeTest.test_frozen_save_is_equal_to_the_plain_one | tests/test_write_through_soul_wars.py:234:SoulWarsWriteThroughProbeTest.test_frozen_save_is_equal_to_the_plain_one
+- tests/test_write_through_pest_control.py:352:PestControlWriteThroughProbeTest.test_assault_with_the_real_combat_engine_never_writes_through | tests/test_write_through_pest_control.py:381:PestControlWriteThroughProbeTest.test_defend_review_never_writes_through
+- tests/test_write_through_shades_of_mortton.py:200:ShadesOfMorttonWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one | tests/test_write_through_stealing_creation.py:261:StealingCreationWriteThroughTest.test_frozen_save_is_equal_to_the_plain_one
+```
+
+`python3 tools/audit_item_reachability.py` (`audit-item-reachability.log`):
+
+```text
+1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+- Agility mix (1): Item action:consume:Agility mix (1)
+- Agility mix (2): Item action:consume:Agility mix (2)
+- Antifire flask (1): Item action:consume:Antifire flask (1)
+- Antifire flask (2): Item action:consume:Antifire flask (2)
+- Antifire flask (3): Item action:consume:Antifire flask (3), Shop service:teplin_decant_flasks_to_vials:Antifire
+- Antifire flask (4): Item action:consume:Antifire flask (4)
+- Antifire flask (5): Item action:consume:Antifire flask (5)
+- Antifire flask (6): Item action:consume:Antifire flask (6)
+- Astral rune shards: Utility:grind_astral_rune_shards
+- Attack flask (1): Item action:consume:Attack flask (1)
+- Attack flask (2): Item action:consume:Attack flask (2)
+- Attack flask (3): Item action:consume:Attack flask (3), Shop service:teplin_decant_flasks_to_vials:Attack potion
+- Attack flask (4): Item action:consume:Attack flask (4)
+- Attack flask (5): Item action:consume:Attack flask (5)
+- Attack flask (6): Item action:consume:Attack flask (6)
+- Blood talisman: Runecrafting:bind_blood_talisman_staff, Runecrafting:bind_blood_tiara
+- Caviar: Fishing:catch_leaping_fish, Herblore:finished_agility_mix, Herblore:finished_antifire_mix, Herblore:finished_antip_supermix
+- Chain link mould: Crafting:silver_silvthrill_chain
+- Combat flask (1): Item action:consume:Combat flask (1)
+- Combat flask (2): Item action:consume:Combat flask (2)
+- Combat flask (3): Item action:consume:Combat flask (3), Shop service:teplin_decant_flasks_to_vials:Combat potion
+- Combat flask (4): Item action:consume:Combat flask (4)
+- Combat flask (5): Item action:consume:Combat flask (5)
+- Combat flask (6): Item action:consume:Combat flask (6)
+- Conductor mould: Crafting:silver_conductor
+- Crab meat: Utility:grind_crab_meat
+- Crafting flask (1): Item action:consume:Crafting flask (1)
+- Crafting flask (2): Item action:consume:Crafting flask (2)
+- Crafting flask (3): Item action:consume:Crafting flask (3), Shop service:teplin_decant_flasks_to_vials:Crafting potion
+- Crafting flask (4): Item action:consume:Crafting flask (4)
+- Crafting flask (5): Item action:consume:Crafting flask (5)
+- Crafting flask (6): Item action:consume:Crafting flask (6)
+- Cured yak-hide: Crafting:leather_yakhide_armour, Crafting:leather_yakhide_armour_10824
+- Cursed magic logs: Firemaking:cursed_magic_logs
+- Defence flask (1): Item action:consume:Defence flask (1)
+- Defence flask (2): Item action:consume:Defence flask (2)
+- Defence flask (3): Item action:consume:Defence flask (3), Shop service:teplin_decant_flasks_to_vials:Defence potion
+- Defence flask (4): Item action:consume:Defence flask (4)
+- Defence flask (5): Item action:consume:Defence flask (5)
+- Defence flask (6): Item action:consume:Defence flask (6)
+- Demonic sigil mould: Crafting:silver_demonic_sigil
+- Diamond root: Utility:grind_diamond_root
+- Dried thistle: Utility:grind_dried_thistle
+- Emerald lantern (lit): Utility:extinguish_emerald_lantern
+- Emerald lantern (unlit): Utility:light_emerald_lantern
+- Emerald lens: Crafting:combine_bullseye_emerald_lantern
+- Fish offcuts: Fishing:catch_leaping_fish
+- Fletching flask (1): Item action:consume:Fletching flask (1)
+- Fletching flask (2): Item action:consume:Fletching flask (2)
+- Fletching flask (3): Item action:consume:Fletching flask (3), Shop service:teplin_decant_flasks_to_vials:Fletching potion
+- Fletching flask (4): Item action:consume:Fletching flask (4)
+- Fletching flask (5): Item action:consume:Fletching flask (5)
+- Fletching flask (6): Item action:consume:Fletching flask (6)
+- Fletching potion (1): Item action:consume:Fletching potion (1)
+- Fletching potion (2): Item action:consume:Fletching potion (2)
+- Fletching potion (3): Item action:consume:Fletching potion (3), Shop service:bob_barter_decant_four:Fletching potion, Shop service:teplin_fill_potion_flasks:Fletching potion
+- Fletching potion (4): Item action:consume:Fletching potion (4)
+- Fresh crab claw: Crafting:chisel_crab_claw
+- Fresh crab shell: Crafting:chisel_crab_helmet
+- Gorak claws: Utility:grind_gorak_claws
+- Inferno adze: Farming:clear:magic, Farming:clear:maple, Farming:clear:oak, Farming:clear:willow
+- Jade vine seed: Farming:jade_vine
+- Kelp: Utility:grind_kelp
+- Leaping salmon: Cooking:gut_leaping_salmon
+- Leaping sturgeon: Cooking:gut_leaping_sturgeon
+- Leaping trout: Cooking:gut_leaping_trout
+- Magic essence (2): Herblore:finished_magic_essence_mix
+- Magic flask (1): Item action:consume:Magic flask (1)
+- Magic flask (2): Item action:consume:Magic flask (2)
+- Magic flask (3): Item action:consume:Magic flask (3), Shop service:teplin_decant_flasks_to_vials:Magic potion
+- Magic flask (4): Item action:consume:Magic flask (4)
+- Magic flask (5): Item action:consume:Magic flask (5)
+- Magic flask (6): Item action:consume:Magic flask (6)
+- Mining helmet (lit): Utility:extinguish_mining_helmet
+- Mining helmet (unlit): Utility:light_mining_helmet
+- Mushroom spore: Farming:bittercap
+- Orb of armadyl: Crafting:combine_armadyl_battlestaff
+- Phoenix feather: Herblore:finished_super_antifire
+- Potion flask: Shop service:teplin_fill_potion_flasks:Antifire, Shop service:teplin_fill_potion_flasks:Attack potion, Shop service:teplin_fill_potion_flasks:Combat potion, Shop service:teplin_fill_potion_flasks:Crafting potion
+- Prayer flask (1): Item action:consume:Prayer flask (1)
+- Prayer flask (2): Item action:consume:Prayer flask (2)
+- Prayer flask (3): Item action:consume:Prayer flask (3), Shop service:teplin_decant_flasks_to_vials:Prayer potion
+- Prayer flask (4): Item action:consume:Prayer flask (4)
+- Prayer flask (5): Item action:consume:Prayer flask (5)
+- Prayer flask (6): Item action:consume:Prayer flask (6)
+- Ranging flask (1): Item action:consume:Ranging flask (1)
+- Ranging flask (2): Item action:consume:Ranging flask (2)
+- Ranging flask (3): Item action:consume:Ranging flask (3), Shop service:teplin_decant_flasks_to_vials:Ranging potion
+- Ranging flask (4): Item action:consume:Ranging flask (4)
+- Ranging flask (5): Item action:consume:Ranging flask (5)
+- Ranging flask (6): Item action:consume:Ranging flask (6)
+- Raw monkfish: Cooking:cook_monkfish
+- Raw spider on stick: Cooking:cook_spider_on_a_stick
+- Red sandstone: Utility:make_robust_glass
+- Relicym's balm (2): Herblore:finished_relicyms_mix
+- Robust glass: Crafting:glass_potion_flask
+- Rod clay mould: Crafting:silver_silvthrill_rod
+- Roe: Fishing:catch_leaping_fish, Herblore:finished_relicyms_mix, Herblore:finished_restore_mix
+- Shaikahan bonemeal: Prayer:ectofuntus_shaikahan_bones
+- Shaikahan bones: Utility:grind_prayer_shaikahan_bones
+- Shards of armadyl: Utility:grind_shards_of_armadyl
+- Shield right half: Smithing:repair_dragon_sq_shield
+- Shrunk ogleroot: Herblore:finished_shrink_me_quick
+- Skewer stick: Utility:skewer_spider_on_a_stick
+- Spider carcass: Utility:skewer_spider_on_a_stick
+- Spirit roots: Crafting:spin_spirit_roots_to_crossbow_string
+- Strength flask (1): Item action:consume:Strength flask (1)
+- Strength flask (2): Item action:consume:Strength flask (2)
+- Strength flask (3): Item action:consume:Strength flask (3), Shop service:teplin_decant_flasks_to_vials:Strength potion
+- Strength flask (4): Item action:consume:Strength flask (4)
+- Strength flask (5): Item action:consume:Strength flask (5)
+- Strength flask (6): Item action:consume:Strength flask (6)
+- Summoning flask (1): Item action:consume:Summoning flask (1)
+- Summoning flask (2): Item action:consume:Summoning flask (2)
+- Summoning flask (3): Item action:consume:Summoning flask (3), Shop service:teplin_decant_flasks_to_vials:Summoning potion
+- Summoning flask (4): Item action:consume:Summoning flask (4)
+- Summoning flask (5): Item action:consume:Summoning flask (5)
+- Summoning flask (6): Item action:consume:Summoning flask (6)
+- Super antifire (1): Item action:consume:Super antifire (1)
+- Super antifire (2): Item action:consume:Super antifire (2)
+- Super antifire (3): Item action:consume:Super antifire (3), Shop service:bob_barter_decant_four:Super antifire, Shop service:teplin_fill_potion_flasks:Super antifire
+- Super antifire (4): Item action:consume:Super antifire (4)
+- Super antifire flask (1): Item action:consume:Super antifire flask (1)
+- Super antifire flask (2): Item action:consume:Super antifire flask (2)
+- Super antifire flask (3): Item action:consume:Super antifire flask (3), Shop service:teplin_decant_flasks_to_vials:Super antifire
+- Super antifire flask (4): Item action:consume:Super antifire flask (4)
+- Super antifire flask (5): Item action:consume:Super antifire flask (5)
+- Super antifire flask (6): Item action:consume:Super antifire flask (6)
+- Super attack flask (1): Item action:consume:Super attack flask (1)
+- Super attack flask (2): Item action:consume:Super attack flask (2)
+- Super attack flask (3): Item action:consume:Super attack flask (3), Shop service:teplin_decant_flasks_to_vials:Super attack
+- Super attack flask (4): Item action:consume:Super attack flask (4)
+- Super attack flask (5): Item action:consume:Super attack flask (5)
+- Super attack flask (6): Item action:consume:Super attack flask (6)
+- Super defence flask (1): Item action:consume:Super defence flask (1)
+- Super defence flask (2): Item action:consume:Super defence flask (2)
+- Super defence flask (3): Item action:consume:Super defence flask (3), Shop service:teplin_decant_flasks_to_vials:Super defence
+- Super defence flask (4): Item action:consume:Super defence flask (4)
+- Super defence flask (5): Item action:consume:Super defence flask (5)
+- Super defence flask (6): Item action:consume:Super defence flask (6)
+- Super prayer flask (1): Item action:consume:Super prayer flask (1)
+- Super prayer flask (2): Item action:consume:Super prayer flask (2)
+- Super prayer flask (3): Item action:consume:Super prayer flask (3), Shop service:teplin_decant_flasks_to_vials:Super prayer
+- Super prayer flask (4): Item action:consume:Super prayer flask (4)
+- Super prayer flask (5): Item action:consume:Super prayer flask (5)
+- Super prayer flask (6): Item action:consume:Super prayer flask (6)
+- Super restore flask (1): Item action:consume:Super restore flask (1)
+- Super restore flask (2): Item action:consume:Super restore flask (2)
+- Super restore flask (3): Item action:consume:Super restore flask (3), Shop service:teplin_decant_flasks_to_vials:Super restore
+- Super restore flask (4): Item action:consume:Super restore flask (4)
+- Super restore flask (5): Item action:consume:Super restore flask (5)
+- Super restore flask (6): Item action:consume:Super restore flask (6)
+- Super strength flask (1): Item action:consume:Super strength flask (1)
+- Super strength flask (2): Item action:consume:Super strength flask (2)
+- Super strength flask (3): Item action:consume:Super strength flask (3), Shop service:teplin_decant_flasks_to_vials:Super strength
+- Super strength flask (4): Item action:consume:Super strength flask (4)
+- Super strength flask (5): Item action:consume:Super strength flask (5)
+- Super strength flask (6): Item action:consume:Super strength flask (6)
+- Suqah tooth: Utility:grind_suqah_tooth
+- Tchiki monkey nuts: Utility:grind_tchiki_monkey_nuts
+- White lily seed: Farming:white_lily
+- White tree sapling: Farming:white_tree
+- Wimpy feather: Herblore:finished_fletching_potion
+```
+
+`python3 tools/audit_item_reachability.py --check --summary` (`audit-item-reachability-check.log`):
+
+```text
+1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions
+```
+
+`python3 tools/worktree_guard.py audit` (`worktree-guard.log`):
+
+```text
+Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
+Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
+```
+
+`git diff --check` (`diff-check.log`):
+
+```text
+git diff --check: exit 0; no output
+```
+
+### Final lane and scope
+
+Implementation and pre-lane records are complete. The final remote command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, without selectors, run once after all implementation edits. Its result is appended below after completion. No full Qt lane runs here under the author-side promotion exception; the orchestrator owns both merged-tree promotion lanes and the cross-lineage review.
+
+The slice is uncommitted and unpushed. The remaining target-lock groups and their legacy complexity are intentionally unchanged. There is no owner question or second-level defect from this slice. No play-checklist line or visual check is needed because no player-visible behavior or screen changed.
+
+Final full plain lane: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain` completed successfully (`plain-final.log`). This was the single full plain run and the last remote run, after all implementation edits and pre-lane records. Only this completion record and local report checks followed. No full Qt lane ran.
+
+```text
+Ran 5062 tests in 453.720s
+OK (skipped=549)
+```
+
+Report-time verification (`lizard-report-before.csv`, `lizard-report-after.csv`, `cognitive-report-helper.json`, `halstead-report-helper.json`, `differential-report.log`, `report-source-status.log`) confirms the same measurements and reruns the entire differential without a source change. The current source blob identities are recorded in `report-source-status.log`. `real-index-check.log` confirms the real index is unchanged. The branch still has only the four slice files dirty: the combat model, the new quest-lock helper, `memory-bank/progress.md` and `memory-bank/papercuts.md`. No commit or push was made.
+
+Final local checks after the full plain completion record, all exited 0. Their exact output follows.
+
+`python3 tools/audit_docs.py` (`final-audit-docs.log`):
+
+```text
+Audited 877 Markdown and 452 HTML files.
+Documentation audit passed.
+```
+
+`python3 tools/worktree_guard.py audit` (`final-worktree-guard.log`):
+
+```text
+Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
+Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
+```
+
+`git diff --check` (`final-diff-check.log`):
+
+```text
+git diff --check: exit 0; no output
+```
+
+The completion-record whitespace check caught `memory-bank/progress.md:2989: new blank line at EOF.` (`final-diff-check-eof-failure.log`). The record now ends with one newline; product source and test results are unchanged. This friction is also recorded in `memory-bank/papercuts.md`.
