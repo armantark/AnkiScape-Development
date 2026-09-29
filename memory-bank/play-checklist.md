@@ -24,7 +24,7 @@ you are in the game, with the date the change reached main.
 - [ ] Above your max life points from a Tiger shark, eat a kebab or a beer: the extra life points stay. (2026-09-28)
 - [ ] A summoned Bunyip does not heal you inside Daemonheim, and heals you again once you leave. (2026-09-28)
 - [ ] A death in the red Clan Wars portal costs everything except the one item Protect Item saves. (2026-09-28)
-- [ ] Stronghold of Player Safety: from another skill, press "Fight Cockroach soldier"; the next review fights the soldier on Combat. Undo returns you to your skill. (after the next batch)
+- [ ] Stronghold of Player Safety: from another skill, press "Fight Cockroach soldier"; the next review fights the soldier on Combat. Undo returns you to your skill. (2026-09-29)
 
 ## Minigames
 
