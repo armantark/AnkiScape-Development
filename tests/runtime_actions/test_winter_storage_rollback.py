@@ -1,12 +1,14 @@
-"""Winter Storage must not undo the Thieving action that follows it."""
+"""A failed review gives back its Winter Storage use, but not a real Thieving action."""
 
 import copy
 import dataclasses
 import unittest
 
 import pkg_alias  # noqa: F401
+from ankiscape.logic.cadence_kernel import default_cadence_profile_state_pure
 from ankiscape.runtime.runtime_actions import (
     handle_thieving_answer,
+    handle_woodcutting_answer,
     run_answer_with_carried_overlay,
 )
 from tests.test_thieving import _context
@@ -144,5 +146,32 @@ class TestWinterStorageRollback(unittest.TestCase):
         ctx, calls = _context(player)
         self.assertFalse(run_answer_with_carried_overlay(ctx, "thieving", handle_thieving_answer))
         self.assertTrue(calls["errors"])
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(player, before)
+
+    def test_rejected_gathering_review_gives_back_its_live_cadence_admission(self):
+        player = _player("maple")
+        del player["current_thieving"]
+        carried = {"Maple logs": 27, "Winter storage scroll": 1}
+        player.update(
+            current_tree="maple",
+            woodcutting_level=99,
+            toolbelt={"woodcutting": []},
+            equipment={},
+            inventory=dict(carried),
+            carried_inventory={"maple": dict(carried)},
+            cadence_profiles={
+                "woodcutting:maple": default_cadence_profile_state_pure(opening_ready=True)
+            },
+        )
+        player["summoning_state"]["target_policies"]["maple"]["winter_storage_priority"] = [
+            "Maple logs"
+        ]
+        before = copy.deepcopy(player)
+        ctx, calls = _context(player)
+        ctx = dataclasses.replace(ctx, cadence_live_enabled=True)
+        self.assertFalse(
+            run_answer_with_carried_overlay(ctx, "woodcutting", handle_woodcutting_answer)
+        )
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(player, before)

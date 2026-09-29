@@ -612,6 +612,72 @@ def _run_processing_tick(
     return result
 
 
+def _run_keep_drop_tick(
+    ctx: RuntimeActionContext,
+    action_ctx: RuntimeActionContext,
+    handler,
+    pack: _TargetPack,
+    new_state: dict[str, Any],
+    new_churn: int,
+    *,
+    keep: bool,
+    evil_tree_overflow: bool,
+    winter_storage_before: dict[str, Any] | None,
+    restore_cadence,
+) -> bool:
+    """Run a handler against the real bank and settle what it gained.
+
+    Keep folds the gains into the pack and accrues churn; Drop destroys them.
+    A review the handler rejects gives back the Winter Storage use made for it.
+    """
+    player_data = ctx.player_data
+    inv_before = dict(pack.bank)
+    result = handler(action_ctx)
+    if result is False and _winter_storage_rejected(pack.handler_key, player_data, winter_storage_before):
+        player_data.clear()
+        player_data.update(winter_storage_before)
+        restore_cadence()
+        ctx.save_player_data()
+        return False
+    if result is False:
+        restore_cadence()
+        return result
+    player_data["skilling_bank_run"] = new_state
+    inv_after = player_data.get("inventory", {}) or {}
+    post_handler_view = _carried_target_view(player_data, pack.target_id)
+    gains = {
+        item_name: amount
+        for item_name, amount in inventory_pure.inventory_delta_gains(inv_before, inv_after).items()
+        if item_name not in URN_STATE_ITEM_NAMES
+    }
+    if keep:
+        # Keep accrues churn and folds ordinary products into the post-handler
+        # pack. Urn substitutions already happened in that pack and are not
+        # products, Drop targets, or churn.
+        churn_delta = inventory_pure.carried_action_churn_pure(
+            _without_urn_substitutions(inv_before),
+            _without_urn_substitutions(inv_after),
+            _OVERLAY_STACKABLE_NAMES,
+        )
+        overflow_items = _fold_keep_gains_and_write_carried(
+            player_data, pack.target_id, post_handler_view, gains,
+            new_churn, churn_delta, pack.capacity, evil_tree_overflow,
+        )
+        if overflow_items:
+            ctx.show_activity_gain(
+                "Evil Tree blessing: full-pack gains sent directly to the Bank"
+            )
+    elif gains:
+        # Drop is power-gathering: ordinary gains are destroyed, while an urn's
+        # carried runed/active/full substitution remains a physical carried item.
+        drained = dict(inv_after)
+        for item_name, gained in gains.items():
+            drained[item_name] = max(0, int(drained.get(item_name, 0) or 0) - int(gained))
+        player_data["inventory"] = {name: count for name, count in drained.items() if count > 0}
+    ctx.save_player_data()
+    return result
+
+
 class _CadenceAdmission:
     """One review's live-cadence admission, undone if the review turns out ineligible."""
 
@@ -865,48 +931,15 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             restore_cadence=cadence.restore_after_rejection,
         )
 
-    inv_before = dict(pack.bank)
-    result = handler(cadence.action_ctx)
-    if result is False and _winter_storage_rejected(handler_key, player_data, winter_storage_before):
-        player_data.clear()
-        player_data.update(winter_storage_before)
-        cadence.restore_after_rejection()
-        ctx.save_player_data()
-        return False
-    if result is not False:
-        player_data["skilling_bank_run"] = new_state
-        inv_after = player_data.get("inventory", {}) or {}
-        post_handler_view = _carried_target_view(player_data, target_id)
-        gains = {
-            item_name: amount
-            for item_name, amount in inventory_pure.inventory_delta_gains(inv_before, inv_after).items()
-            if item_name not in URN_STATE_ITEM_NAMES
-        }
-        if keep:
-            # Keep accrues churn and folds ordinary products into the post-handler
-            # pack. Urn substitutions already happened in that pack and are not
-            # products, Drop targets, or churn.
-            churn_delta = inventory_pure.carried_action_churn_pure(
-                _without_urn_substitutions(inv_before),
-                _without_urn_substitutions(inv_after),
-                _OVERLAY_STACKABLE_NAMES,
-            )
-            overflow_items = _fold_keep_gains_and_write_carried(
-                player_data, target_id, post_handler_view, gains,
-                new_churn, churn_delta, capacity, evil_tree_overflow,
-            )
-            if overflow_items:
-                ctx.show_activity_gain(
-                    "Evil Tree blessing: full-pack gains sent directly to the Bank"
-                )
-        elif gains:
-            # Drop is power-gathering: ordinary gains are destroyed, while an urn's
-            # carried runed/active/full substitution remains a physical carried item.
-            drained = dict(inv_after)
-            for item_name, gained in gains.items():
-                drained[item_name] = max(0, int(drained.get(item_name, 0) or 0) - int(gained))
-            player_data["inventory"] = {name: count for name, count in drained.items() if count > 0}
-        ctx.save_player_data()
-    else:
-        cadence.restore_after_rejection()
-    return result
+    return _run_keep_drop_tick(
+        ctx,
+        cadence.action_ctx,
+        handler,
+        pack,
+        new_state,
+        new_churn,
+        keep=keep,
+        evil_tree_overflow=evil_tree_overflow,
+        winter_storage_before=winter_storage_before,
+        restore_cadence=cadence.restore_after_rejection,
+    )
