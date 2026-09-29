@@ -2,6 +2,18 @@
 
 This log keeps the current month. Earlier months rotate into `memory-bank/archive/` on the first session of each month; May to August 2026 is in [the progress archive](archive/progress-2026-05-to-08.md).
 
+## The game batch is on main and waits for one in-game check — 2026-09-28
+
+The owner answered [design-thread queue §3.38](design-thread-queue.md) on 2026-09-27 at 19:34 PDT with a fourth option, "Land now, one check later": game-code slices land in one batch after the full two-lane promotion gate (plain and Qt) passes; then the owner or the MacBook Codex desktop task `01a0c67a-3e19-76c2-804c-65d993c9dddc` does one in-game check of the whole batch, and each defect found becomes a fix slice. The answer released only batch `promote/game-2026-09-27b`: the 18 slices of `promote/runtime-batch-2026-09-23` plus the later game slices. Every other runtime slice keeps the per-slice check of owner decision 8 and does not land on the failed route.
+
+The batch landed on main at `279be965` on 2026-09-28 at 00:10 PDT, a fast-forward of 70 commits from `53839d26` (receipt `279be965ff731cfe25dc10d7e7c5c4bc0bf6440d.json`, 8 checks). Gate log `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/gate-279be965.log`: plain `Ran 5053 tests in 443.588s`, `OK (skipped=549)`; Qt `Ran 5053 tests in 649.694s`, `OK (skipped=5)`; `Documentation audit passed.` The batch rewrote the 18 runtime-batch slices, so their old hashes are not ancestors of main; each has a landed commit with the same subject. Remaining: the one in-game check of the whole batch at `279be965`.
+
+The owner also said on 2026-09-27 at 23:22 PDT about the grave reward values: "I'm going to need to go over this later in a design thread. Just keep it noted somewhere." It is [design-thread queue §3.40](design-thread-queue.md), with two parts: the lamp, bag and book value lists do not record which copy holds which value, and `nonempty_urn_count_pure` counts Bank urns and ignores urns in a grave. `goal/grave-reward-values-2026-09-27` stays uncommitted until the owner answers.
+
+Records changed: `design-thread-queue.md` (§3.38 answer, landing and remaining step; new §3.40), `goal-priority-matrix.md` (row "Shared real-reviewer acceptance" disposition and landing, with the runtime branch's earlier gate kept as history; a 2026-09-28 state in the exposed-function cleanup row; the preserved-branch notes), `activeContext.md` (native route and open owner gates), `loop-queue.md`, `remote-test-host.md` (its papercut moved to `papercuts-fixed-2026-09-23.md`) and this entry.
+
+Checks on this records change: `python3 tools/audit_docs.py` → `Audited 875 Markdown and 452 HTML files.` / `Documentation audit passed.`; `git diff --check` exit 0; `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 46` → `Ran 46 tests in 59.450s`, `OK`, exit 0 (before this paragraph was written).
+
 ## Clipped Slayer text now fails the test lanes — 2026-09-27
 
 The Slayer completion dialog and the "Slayer: 4 of 17 left" line in the review HUD are now checked for clipped, escaping or overlapping text in every offscreen Qt run, at the default 1000x700 parent and at a 900x560 laptop parent. Before, only `tools/pass14/screenshots.py` held these checks, and no test runner called it, so clipped Slayer text passed every gate (triage T6, decision 12 "a new check becomes a test"). The player sees no change.

@@ -1109,7 +1109,7 @@ later progress sections raised them to 3,045 at `db75276f` and 3,141 at
 `d0904603`. That is later growth for the monthly rotation rule, not a failed
 acceptance.
 
-### 3.38 Native acceptance route for runtime slices
+### 3.38 Native acceptance route for runtime slices — answered 2026-09-27
 
 Raised 2026-09-24T03:17 by the orchestrator. Owner decision 8 requires a
 native check for each landed runtime slice. The route through the laptop Codex
@@ -1136,14 +1136,39 @@ CLI over SSH (`mcp__cua_repl`) against a frozen copy failed four times:
 - Isolation worked on every run: guard verify exit 0, `unchanged: true`, no
   Anki process left.
 
-Blocks: `promote/runtime-batch-2026-09-23` (head `236ae8f5`), whose gate at
-`0f67a3f6` is green for its first 11 merged slices. Non-runtime slices keep
+Blocked until the answer below: `promote/runtime-batch-2026-09-23` (head
+`236ae8f5`), whose gate at `0f67a3f6` was green for its first 11 merged slices
+(history; that gate does not accept the landed batch). Non-runtime slices kept
 landing.
 
 Owner choice: (a) run the check in the MacBook Codex desktop task
 `01a0c67a-3e19-76c2-804c-65d993c9dddc`, the route of the 2026-09-21 pass;
 (b) approve landing on the green gate alone; or (c) approve another
 computer-use route.
+
+Answered 2026-09-27 at 19:34 PDT by the owner, with a fourth option: "Land
+now, one check later". The finished game-code slices land in one batch after
+the full two-lane promotion gate (plain and Qt) passes. Then the owner or the
+MacBook Codex desktop task `01a0c67a-3e19-76c2-804c-65d993c9dddc` does one
+in-game check of the whole batch, and each defect that check finds becomes a
+fix slice. The answer released only batch `promote/game-2026-09-27b`: the 18
+slices of `promote/runtime-batch-2026-09-23` plus the later game slices. For
+that batch only, this replaces the per-slice native check of owner decision 8.
+Every other runtime slice keeps decision 8 and stays blocked on the failed
+per-slice route.
+
+Landed: `promote/game-2026-09-27b` reached main at `279be965` on 2026-09-28 at
+00:10 PDT, a fast-forward of 70 commits from `53839d26` (receipt
+`279be965ff731cfe25dc10d7e7c5c4bc0bf6440d.json`, 8 checks). Gate log
+`/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/gate-279be965.log`:
+plain `Ran 5053 tests in 443.588s`, `OK (skipped=549)`; Qt `Ran 5053 tests in
+649.694s`, `OK (skipped=5)`; `Documentation audit passed.` The batch rewrote
+the 18 runtime-batch slices, so their old hashes are not ancestors of main;
+each one has a landed commit with the same subject.
+
+Remaining step: the one in-game check of the whole landed batch at `279be965`
+by the owner or task `01a0c67a-3e19-76c2-804c-65d993c9dddc`. Never run it while
+a gate lane runs, and doorbell the Darkan restoration seat before and after it.
 
 ### 3.39 A sync that brings another desktop's save is overwritten by the next game write
 
@@ -1221,6 +1246,60 @@ Recommendation: option 1 now, as a small fix that does not depend on the
 relocation, and keep option 2's revision idea for the relocation grill.
 Blocks: the review-log catch-up scan after a sync (spec section 5.3), which
 needs the same reload first.
+
+### 3.40 Rewards that wait in a grave: per-copy values and the urn cap
+
+Raised 2026-09-27 by the orchestrator on branch
+`goal/grave-reward-values-2026-09-27` (worktree
+`/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-grave-reward-values-2026-09-27`;
+its reward-value change is uncommitted on top of `3764e0d0`). The owner said on
+2026-09-27 at 23:22 PDT: "I'm going to need to go over this later in a design
+thread. Just keep it noted somewhere." The question has two parts.
+
+**(a) A lamp, bag or book can pay another copy's value.** A Daily Challenge XP
+lamp, a Challenge Mystery Bag and a Troll Invasion reward book each keep their
+values in one list per item (`daily_challenge_lamp_xp`,
+`daily_challenge_bag_values`, `troll_invasion_reward_fractions`). The list does
+not record which copy is in the Bank and which waits in a grave
+(`combat_grave.items`) or in Death's Office (`death_office.items`).
+
+The branch keeps a waiting copy's value through a reload, so a reclaimed item
+pays in full. The mixed case then pays the wrong value. With a 1,234 XP lamp in
+a grave and a 100 XP lamp earned into the Bank, a Bank rub pays 1,234 and a
+grave expiry deletes the 100. The book case is the same: the Bank book pays
+fraction 1.0 (792.0 Mining XP), not 0.15 (118.8). The red probe
+`test_reward_values_mixed_holders.py` is in
+`/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-grave-reward-values-2026-09-27/`
+with its log `red-mixed-holders.log`: `Ran 4 tests in 0.033s`,
+`FAILED (failures=4)`, with `AssertionError: 1234.0 != 100.0`,
+`AssertionError: Lists differ: [1234] != [100]`,
+`AssertionError: {'mining_exp': 792.0} != {'mining_exp': 118.8}` and
+`AssertionError: Lists differ: [1.0] != [0.15]`. The branch's `progress.md`
+section of 2026-09-27 records the full proof. On main, the next load drops a
+waiting copy's value, so the mixed case cannot happen there.
+
+**(b) Urns in a grave do not count toward the urn cap.**
+`nonempty_urn_count_pure` (`logic_pure/logic_pure_urns.py:93`) counts only
+Bank urns toward the cap of 10 nonempty urns per skill
+(`MAX_NONEMPTY_URNS_PER_SKILL`, `data/urn_data.py:31`) and ignores urns in a
+grave, so a new urn can start while urns of that skill wait there. First
+recorded by the partial-urn slice on main (`progress.md`, section "2026-09-26 —
+A partial urn keeps its charge while it waits in a grave").
+
+Options the orchestrator offered for part (a):
+
+1. **A per-copy record with its holder**, as `equipment_instances` does for
+   equipment. This adds a save field; old saves default to Bank copies.
+2. **Keep the save and enforce one order** (Bank, grave, Death's Office) at
+   every move: claim, use, discard, shop sale, death, grave expiry and reclaim.
+   The load sanitizer cannot restore the order, because the save does not
+   record which value belongs to which holder.
+3. **Ship the single-copy fix now** and fix the mixed case later.
+4. **Drop the fix.**
+
+Recommendation: none recorded; the owner will decide both parts in a design
+thread. Blocks: `goal/grave-reward-values-2026-09-27`, which stays uncommitted
+until the owner answers.
 
 ## 4. Answered decisions
 

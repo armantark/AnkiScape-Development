@@ -11,9 +11,14 @@ gameplay item per iteration from the priority matrix. Move design gaps to
 `memory-bank/design-thread-queue.md`.
 The Magic candidate remains an owner choice; do not merge, rebase or rework it.
 The laptop Codex CLI over SSH ([route](remote-test-host.md)) failed four native
-checks and reviewed 0 cards, so accepted runtime slices wait off main until the
-owner chooses a route in [design-thread queue §3.38](design-thread-queue.md);
-never run a native check while a gate lane runs.
+checks and reviewed 0 cards. The owner's answer to
+[design-thread queue §3.38](design-thread-queue.md), "Land now, one check
+later", released only batch `promote/game-2026-09-27b`, which landed on main at
+`279be965` on 2026-09-28 after its full two-lane gate passed. The one remaining
+step is one in-game check of the whole batch by the owner or the MacBook Codex
+desktop task `01a0c67a-3e19-76c2-804c-65d993c9dddc`; each defect found becomes
+a fix slice. Every other runtime slice keeps the per-slice check and does not
+land on the failed route. Never run a native check while a gate lane runs.
 
 1. [x] Pass 6 item B.15 — skill-selector hybridization.
    Implement only `memory-bank/codex-briefs/pass6-b15-handoff-2026-08-03.md`.

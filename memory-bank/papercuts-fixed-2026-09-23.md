@@ -16980,3 +16980,9 @@ Disposition: resolved in this slice. The shell search succeeded without the spec
 - 2026-09-26T09:33:01-0700 — Quota-ledger copy pass returned `The notes now show you which work still needs your review and which game decisions are waiting on you.`, which wrongly assigned the agents' cross-lineage review to the owner; rejected and requested a correction with review ownership explicit.
 - 2026-09-26T09:37:18-0700 — Quota-ledger papercut move removed the final newline from `memory-bank/papercuts.md`; `python3 tools/audit_docs.py` reported `memory-bank/papercuts.md:83: missing_final_newline: file must end with a newline` and `Documentation audit found 1 issue(s).`; restored the newline without changing the audit.
 - 2026-09-26T09:39:51-07:00 — Quota-ledger whitespace check reported `memory-bank/papercuts-fixed-2026-09-23.md:3114: new blank line at EOF.`; the papercut move now writes the line records with exactly one final newline, and neither validator changed.
+
+## Remote-test-host native route note, 2026-09-28
+
+Disposition: resolved in the native-route records slice. `memory-bank/remote-test-host.md` now says the per-slice route failed four times, that no runtime slice lands on it, and that the owner's §3.38 answer replaced it for batch `promote/game-2026-09-27b` only.
+
+- 2026-09-27T01:46-07:00 — PRE-EXISTING (Grok 4.7 review nit): `memory-bank/remote-test-host.md` line 18 still presents the laptop Codex CLI over SSH as the per-slice native route, although that route failed four times and design-thread-queue.md §3.38 holds the owner decision; align it when that note is next edited.
