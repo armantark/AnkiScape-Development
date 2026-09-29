@@ -118,6 +118,31 @@ class EncounterLifecycleTest(unittest.TestCase):
             _combat.COMBAT_ENEMY_DATA["chicken"]["stats"]["hitpoints"],
         )
 
+    def test_a_salted_rockslug_respawns_fighting_back(self):
+        # At 1 LP the slug has stopped fighting back; the player's first hit
+        # spends the Bag of salt to kill it, and the burst chains into the next
+        # spawn, which must fight back like any fresh slug.
+        fought, ok, result = _combat.apply_combat_burst_pure(
+            _combat._player(
+                current_combat_target="rockslug",
+                slayer_level=99,
+                slayer_quick_finishers_unlocked=True,
+                combat_encounter={"target_id": "rockslug", "enemy_lifepoints": 1},
+                combat_supply_loadout={"finishers": {"Bag of salt": 1}},
+            ),
+            _combat.COMBAT_ENEMY_DATA,
+            _combat.EQUIPMENT_DATA,
+            ticks=6,
+            rng=lambda: 0.0,
+        )
+
+        self.assertTrue(ok, result)
+        self.assertEqual((result["kills"], result["automatic_finishers"]), (1, 1))
+        self.assertFalse(result["enemy_retaliation_stopped"], fought["combat_encounter"])
+        self.assertNotIn("retaliation_stopped", fought["combat_encounter"])
+        self.assertEqual(result["enemy_damage"], 1)
+        self.assertEqual(fought["combat_lifepoints"], 99)
+
     def test_auto_flee_returns_to_a_fresh_enemy(self):
         fled, ok, result = _combat.apply_combat_burst_pure(
             _combat._player(

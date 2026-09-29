@@ -1543,7 +1543,7 @@ def apply_combat_burst_pure(
                 # delay, so it gets no free instant hit on the kill tick.
                 if stop_on_kill:
                     break
-                enemy_lp = enemy_max_lp
+                enemy_lp, enemy_regen_residual, retaliation_stopped = enemy_max_lp, 0, False
                 next_enemy_attack = tick + 1 + enemy_attack_speed
                 continue
 
