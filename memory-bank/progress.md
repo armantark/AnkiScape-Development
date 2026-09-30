@@ -3628,184 +3628,6 @@ Exit: 0
 `python3 tools/worktree_guard.py audit`:
 
 
-## 2026-09-29 — Shaikahan bones through the normal review route
-
-Author branch: `goal/shaikahan-route-2026-09-29`, based on `9af03d13bf8d132da4c62653d2dac540b0c514e5`. Worktree: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-shaikahan-route-2026-09-29`. Raw evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-shaikahan-route-2026-09-29/`.
-
-Player outcome: earn Druidic Ritual and Jungle Potion, obtain Trio supplies from live producers, defeat the stage-3 Monkey and Jogre, complete Trio, then prepare and equip a karambwan-poisoned Steel spear and obtain Shaikahan bones from a full-health kill. No interface change, generic item grant, seeded quest completion or seeded enemy life points is part of this slice. The focused test calls the application's actual `on_answer_card` entry point with real cadence, runtime handlers, carried packs, production and combat; only Anki's host, storage and feedback surfaces are faked. Its fixture starts a skilled player with an empty inventory and earns even the shopping coins through Thieving.
-
-### Source verification and placeholder decision
-
-The route analysis was checked against main's Trio, Jungle Potion and Druidic Ritual definitions, Tiadeche's started-quest shop gate, Shaikahan's completed-quest and continuous-weapon gates, the quest resolver's explicit-zero acceptance, the retained Monkey JSON and its history. Main's measured audit is `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions` (`base-reachability.log`), and the ranked root list matches the supplied analysis. The projected post-binding counts are not acceptance evidence and will not be pinned until the complete route passes.
-
-The retained Monkey file matches snapshot `f5f2782af855b3af8240b6f3ec91f9af12eb9f0c` exactly for the named combat fields. Its present-path history is `08d5e57eba76483a63f7191c4c5ccefb67a454c9`, `32fc12f9ad2bdd9d04c81e1f879062f4a8f6e96d`, `f5f2782af855b3af8240b6f3ec91f9af12eb9f0c`; the blame output traces the values across the earlier path (`source-verification.log`). This is retained original Darkan material, not a restoration contract or independent period proof. The orchestrator-supplied `2026-09-29T14:08-07:00` doorbell and this AnkiScape claim are recorded in `shared-source-harvest-ledger.md`. No new source was fetched or harvested.
-
-Decision: register `quests.tai_bwo_wannai_trio.monkey_combat` and mark the retained combat block at the values. Applied rule, `pre-eoc-source-verification-standard.md`, Corroboration gate: "Finding a value first does not close it. Cross-corroborate against at least one independent layer". Applied breadth-phase rule: "A **placeholder** may now stand in for a value that would need an intense dig, so the mechanic around it can ship complete." Conditions: "**It is marked at the value.** The code carries `# PLACEHOLDER(<id>): <what would settle it>` on or above the line."; "**It is listed in `memory-bank/placeholder-values.md`**"; "**Nothing describes it as period-accurate**, in code, comments, docs or UI." The register's definition is "A placeholder is a value the period game had and we could not recover without an intense dig." The existing Monkey content is attested; the uncorroborated combat values are not. Both directions of the placeholder register test must pass.
-
-### Proof plan and limits
-
-The first MacBook run is the single end-to-end test on the unchanged base implementation, selected as `test_review_route_earns_trio_and_shaikahan_bone_with_both_gates`; its count was listed as one. Local fixture preparation reaches the exact Monkey-stat blocker. After the logged red proof, only the Monkey source binding and combat block will change. Reachability and combat-gap pins will be updated to measured outputs only after the route is green. The neighbouring quest/runtime/bone/audit tests and both Memory Bank reader modules follow. The full plain lane will run once after all implementation edits as the last remote run. No full Qt lane is run in the author worktree: the orchestrator owns both merged-tree lanes and the cross-lineage review. No commit or push is made. The shared combat model and supplies files are read-only for this slice.
-
-### Red proof and implementation
-
-MacBook red command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_review_route_earns_trio_and_shaikahan_bone_with_both_gates --expected-tests 1`. The unchanged gameplay implementation failed with `Ran 1 test in 1.997s` / `FAILED (failures=1)` / `error: remote plain lane failed with exit 1` (`red.log`). Exact blocker: `Quest blocked: Tai Bwo Wannai Trio is blocked: This fight is not modelled yet (combat stats missing): Monkey level 3. Questing has been switched off until this is resolved.` The logged route earned Druidic Ritual and Jungle Potion, obtained the supplies from live producers and proved the pre-completion Shaikahan gate before reaching that blocker.
-
-The Monkey now binds its retained source through `data/quest/sources.py` and uses 60 LP, five explicitly present zero combat levels, maximum hit 24, attack range -1, melee and passive aggression. These remain unverified retained Darkan values, marked with `PLACEHOLDER(quests.tai_bwo_wannai_trio.monkey_combat)` and listed in `placeholder-values.md`; no field is described as period-verified. No combat-engine change was required. The adjacent Trio action-emitter test now resolves both Monkey and Jogre instead of seeding the Monkey proof.
-
-Local route proof: `python3 -B run_tests.py test_review_route_earns_trio_and_shaikahan_bone_with_both_gates` → `Ran 1 test in 4.866s` / `OK` (`local-green-final.log`). The route used 358 real reviews and placed exactly one Shaikahan bone in the carried pack. Both prerequisite completions were earned, both Trio encounters ran, and no quest completion or enemy life points were seeded. The wrong-weapon runtime gate rejects the encounter before the combat kernel; the test checks its exact feedback, the absent Shaikahan encounter and no bone, rather than treating the preceding Jogre result as a new fight. After poisoning and equipping the spear, the first actual Shaikahan review proves full-health initialization by accounting for damage, remaining LP and enemy healing against the source-defined full LP.
-
-The Combat play-checklist has one route line dated `(after the next batch)`. The focused MacBook green proof is pending; no reachability or combat-gap pin has changed yet. Local placeholder and Trio action-emitter checks: `python3 -B run_tests.py test_placeholder_register. test_tai_bwo_wannai_trio_real_stage_emitters_complete_and_reward_once` → `Ran 4 tests in 0.286s` / `OK` (`local-placeholder-trio.log`).
-
-### Measured audits before pin updates
-
-`python3 tools/audit_item_reachability.py` reports `1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions` (`reachability.log`). The detailed measurement (`reachability-pins.log`) is `root_orphan_count: 30`, `cascade_orphan_count: 131`, `seed_item_count: 1238`, `completable_quest_count: 57`, `blocked_quest_stage_products: 135`. Trio is no longer blocked. The newly reachable routes are `Karambwanji: Cooking:cook_karambwanji`, `Rune spear (kp): quest:tai_bwo_wannai_trio`, `Shaikahan bones: combat:shaikahan`, `Shaikahan bonemeal: Utility:grind_prayer_shaikahan_bones`. These are measured outputs after the local full-route proof, not the analysis projection.
-
-`python3 tools/audit_quest_combat_stat_gaps.py` reports `statless_combat_encounters: 90`; classifications are `darkan_hitpoints_only_metadata: 49`, `darkan_identical_available: 1`, `darkan_missing_resolver_stats: 14`, `darkan_same_name_wrong_level: 6`, `no_local_source_match: 6`, `parser_or_variant_level: 14` (`combat-gaps.log`). The Monkey is absent from the remaining gap list. This closes resolver readiness, not historical corroboration.
-
-`python3 tools/audit_test_quality.py` → `5028 tests across 304 files` / `hard issues: 0` / `structural clone candidates: 31 groups`, exit 0 (`test-quality.log`). `python3 tools/audit_docs.py` → `Audited 877 Markdown and 452 HTML files.` / `Documentation audit passed.`, exit 0 (`docs.log`). `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`, exit 0 (`worktree-guard.log`). `git diff --check` → `git diff --check: exit 0; no output` (`diff-check.log`).
-
-The neighbouring selection and required Memory Bank readers were re-listed with `python3 -B run_tests.py --list --max-results 2000 test_bone_sources. test_logic. test_runtime_actions. test_quest_catalog. test_quest_combat_stat_gap_audit. test_item_reachability_audit. test_placeholder_register. test_promotion_gate. test_memory_bank_queue_packet.` → `Matching tests: 568` (`neighbours-count-final.log`). The complete plain listing is `Matching tests: 5063` (`plain-count.log`); only the eventual lane result can establish its executed count and skips.
-
-Local gameplay neighbours, while the MacBook green proof waited: `python3 -B run_tests.py test_bone_sources. test_logic. test_runtime_actions. test_quest_catalog.` → `Ran 467 tests in 6.567s` / `OK`, exit 0 (`local-gameplay-neighbours.log`). This is a development check, not a substitute for the MacBook neighbour and final-lane runs.
-
-### MacBook green proof and measured pins
-
-MacBook green command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_review_route_earns_trio_and_shaikahan_bone_with_both_gates --expected-tests 1` → `Ran 1 test in 1.909s` / `OK`, exit 0, no skips (`green.log`). The log includes `Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews`, both earned prerequisite completions, both real Trio encounters and both gate checkpoints. The base red run and this complete green route establish the gameplay change before any audit expectation changed.
-
-After that proof passed, only the changed measured expectations were updated: reachable items 2354, orphan inputs 161, root orphans 30, cascade orphans 131, blocked actions 245, seed items 1238, completable quests 57, blocked quest-stage product rows 135; action count remains 1680. Combat gaps are 90, with `darkan_missing_resolver_stats` 14 and every other classification unchanged. The audit implementation and its semantics remain untouched. This is the owner-authorized reachability change from main's `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, not a loosened instrument.
-
-The sequential MacBook neighbouring command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_bone_sources. --select test_logic. --select test_runtime_actions. --select test_quest_catalog. --select test_quest_combat_stat_gap_audit. --select test_item_reachability_audit. --select test_placeholder_register. --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 568`. Its post-pin listing is saved in `neighbours-count-post-pins.log`; its result will be recorded after the command finishes.
-
-### Neighbours, readers and pre-lane completion
-
-The MacBook neighbouring command above passed with `Ran 568 tests in 162.392s` / `OK`, exit 0 and no skips (`neighbours-and-readers.log`). It exercised the bone route, quest logic, runtime actions, quest catalog, both measured audits, both placeholder-register directions and both required Memory Bank reader modules.
-
-`python3 tools/audit_item_reachability.py --check --summary` exited 0 with `1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions` (`reachability-check.log`). The local audit tests `python3 -B run_tests.py test_item_reachability_audit. test_quest_combat_stat_gap_audit.` passed with `Ran 52 tests in 199.254s` / `OK`, exit 0 (`local-audit-tests.log`). The code-growth comparison against `git show HEAD:<file>` is `tests/test_item_reachability_audit.py: HEAD 1899 lines; worktree 1899 lines; delta 0` and `tests/test_logic.py: HEAD 12510 lines; worktree 12506 lines; delta -4`, ending `Over-limit code growth: OK` (`code-growth.log`). No over-limit code file grew. The papercut-preservation check `python3 tools/memory_bank/move_papercuts.py check HEAD` reports `No papercut line lost since HEAD; no open papercut is also fixed.` (`papercut-check.log`).
-
-Not done: independent November 2012 corroboration of the Monkey values remains the registered placeholder's closure condition; no new source was fetched or harvested. No other quest or bone family was implemented. No user-interface file, shared combat model or shared combat supplies file changed. No Darkan file or canonical working-tree file was edited. No commit or push was made. No owner-only question or second-level defect was found. The after-batch play check remains for the owner; the author does not claim an in-game visual check.
-
-All implementation and pin edits are complete. The final remote command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, without selectors, run once after all edits as the last remote run. Its exact completion lines will be appended below. The full Qt lane is not run here; the orchestrator owns both merged-tree promotion lanes and the cross-lineage review.
-
-### Fixed export instruments caught an aggregate-source leak
-
-The first full plain command, `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, did not pass: `Ran 5063 tests in 461.547s` / `FAILED (failures=10, skipped=549)` / `error: remote plain lane failed with exit 1` (`plain-final.log`). The complete route still ran and logged one bone in the carried pack after 358 reviews. The failure was an extra aggregate export: `AssertionError: Lists differ: ['TAI_BWO_WANNAI_TRIO_MONKEY_NPC_SOURCE'] != []` in `tests.quest_catalog.test_split_contract.TestQuestSplitContract.test_public_exports_preserve_names_and_original_order`. Fixed surface checks also failed for `core/constants.py`, `data/quest_data.py`, `runtime/runtime_actions_carried.py`, `runtime/runtime_actions_activities.py` in plain and Qt environments, and the root `__init__.py` Qt digest. The subsequent causality probe below separates the intended data changes from the export-name defect. The exact expected and observed digest strings remain in `plain-final.log`.
-
-The source binding is now imported directly by the Trio definition and is not included in the aggregate source exports. The facade's original export names and order, all split-contract assertions, all module-surface pins and all digest tools remain unchanged. This changes no gameplay value or gate. Local fixed-export and route checks: `python3 -B run_tests.py test_public_exports_preserve_names_and_original_order test_review_route_earns_trio_and_shaikahan_bone_with_both_gates` → `Ran 2 tests in 6.142s` / `OK` (`local-export-route.log`).
-
-The expanded MacBook selection adds the split-contract module and the two fixed module-surface tests to the same route, neighbours, audit checks and Memory Bank readers. Its listed count is `Matching tests: 573` (`export-neighbours-count.log`). Command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_bone_sources. --select test_logic. --select test_runtime_actions. --select test_quest_catalog. --select test_quest_combat_stat_gap_audit. --select test_item_reachability_audit. --select test_placeholder_register. --select test_split_contract. --select test_module_surface.ModuleSurfaceTest.test_first_wave_digests --select test_module_surface.ModuleSurfaceTest.test_root_initializer_digest_under_qt --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 573`; result follows after completion. The earlier failed full run preceded the export correction; the required final plain run follows these last implementation edits and is again the last remote command.
-
-### Fixed data-digest conflict: implementation stopped pending permission
-
-The corrected expanded MacBook command above failed with `Ran 573 tests in 183.106s` / `FAILED (failures=9)` / `error: remote plain lane failed with exit 1`, no skips (`export-neighbours-and-readers.log`). The original export-order assertion now passes. The route still logs `Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews`, both prerequisite completions, both Trio encounters and both gates. The remaining failures are the four first-wave digests in each of the plain and Qt environments and the root Qt digest. No gameplay, neighbour, audit, placeholder or Memory Bank reader failure is reported.
-
-The digest tool intentionally includes complete public data values: `tools/module_surface.py` normalizes every mapping item, dataclass field and sequence element, and includes their values in each module dump. A disposable subprocess probe removed only the Monkey's `npc_stats`, `npc_configs` and `npc_stats_source` arguments in memory before importing each facade; it changed no file. For all four plain facades, the resulting digest exactly matches the unchanged fixed pin, with no public names added or removed. `surface-data-causality.log` records every current, reconstructed-base and fixed digest. Changed values are only `QUESTS`, `QUESTS_BY_ID`, `QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID` in the quest facade, `QUESTS_BY_ID` and `QUEST_DATA` in constants, and `QUEST_DATA` in the two runtime facades. This is causal evidence about the fixed gate, not a green gameplay run or a proposed compatibility shim.
-
-The author rule is “Tests, audits and pinned baselines are fixed instruments: never weaken or edit them to pass.” The brief permits measured reachability and combat-gap expectation updates after the real route proof, not module-surface pin updates. The requested Monkey data necessarily changes these value-inclusive hashes. I have stopped implementation, left all surface pins and digest tools unchanged, and recorded the conflict in `memory-bank/design-thread-queue.md`. The single unblock is permission for the orchestrator to update the measured Monkey-data surface pins. No other agent was contacted.
-
-The final complete plain command follows after all implementation edits, with no selectors, as the last remote run. A failure of the known fixed-data gate will be reported as a failure, not hidden behind the focused gameplay proof. No full Qt lane is run by this author under the promotion-gate exception.
-
-### Final author result: gameplay proved; promotion blocked by fixed data pins
-
-The last remote command was `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, with no selectors, after the final implementation edits. It completed with `Ran 5063 tests in 467.417s` / `FAILED (failures=9, skipped=549)` / `error: remote plain lane failed with exit 1` / `Final plain runner exit: 1` (`plain-after-export-final.log`). These are the same fixed-data surface failures isolated above: the four first-wave digests in both environments and the root Qt digest. The original export-order check passes. The route again logs `Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews`, both earned prerequisite completions, both real Trio encounters and both negative gates. No other failure is reported. This lane is not green, and the slice is not ready for promotion. No later remote command was run.
-
-Final local measurements: `python3 tools/audit_item_reachability.py --check --summary` → `1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions`, exit 0 (`final-reachability-check.log`). `python3 tools/audit_test_quality.py` → `5028 tests across 304 files` / `hard issues: 0` / `structural clone candidates: 31 groups`, exit 0 (`final-test-quality.log`). `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`, exit 0 (`final-worktree-guard.log`). `python3 tools/memory_bank/move_papercuts.py check HEAD` → `No papercut line lost since HEAD; no open papercut is also fixed.`, exit 0 (`final-papercut-check.log`). Documentation preflight after recording the conflict: `Audited 877 Markdown and 452 HTML files.` / `Documentation audit passed.`, exit 0 (`conflict-docs.log`). The completion-record documentation preflight is saved in `final-docs.log`.
-
-The saved scope check (`final-scope-status.log`) shows only this slice's files, an empty index, HEAD `9af03d13bf8d132da4c62653d2dac540b0c514e5`, and no difference in either protected combat file or any fixed export/surface instrument. The required `wc -l` against `git show HEAD:<file> | wc -l` records `tests/test_item_reachability_audit.py` at 1899 / 1899 lines and `tests/test_logic.py` at 12510 / 12506 lines. No over-limit code file grew. `git diff --check` reports `git diff --check: exit 0` (`final-diff-check.log`). Only completion records were written after the final remote snapshot; no implementation or test changed.
-
-Remaining owner decision: permission for the orchestrator to update the measured Monkey-data surface pins, as recorded in `design-thread-queue.md`. Independent period corroboration remains the registered placeholder's closure condition, not an invented claim of accuracy. No full Qt lane was run by this author under the promotion-gate exception; both merged-tree lanes and cross-lineage review remain the orchestrator's work. No commit, push, UI edit, canonical game-file edit, Darkan edit, protected combat-file edit, source fetch or source harvest was made. The owner-facing play check remains dated `(after the next batch)`.
-
-### Orchestrator ruling: reviewed, intended data-surface re-pin
-
-The orchestrator resolved the fixed-pin conflict: “this is a reviewed, intended surface change. The standing rule allows a re-pin in exactly that case”. The cited precedent is `6e843b86d7cac4fe5db1e1dc9efc07474dd81ad5`, which regenerated the intended ranged-finishing-blow, thieving-fight-back and undo-equip-duplicate surfaces with the repository's `tools/module_surface.py --digest-only`, under `/opt/homebrew/bin/python3` and `.venv-qt/bin/python` with `QT_QPA_PLATFORM=offscreen`. Its commit modifies only pins, and its ranged-finisher progress record describes the reviewed signature change (`repin-precedent.log`). No checking tool or test logic may change. I removed only this slice's now-resolved entry from `design-thread-queue.md`.
-
-Before re-pinning, a new isolated subprocess probe removed only the Monkey's `npc_stats`, `npc_configs` and `npc_stats_source` arguments in memory. It covered all nine failing surfaces: the four first-wave entries under both interpreters and the root under Qt. Every reconstructed-base digest exactly equals its original pin, with no public names added or removed. The present-field digests equal fresh repository-tool `--digest-only` outputs; the four shared values also agree between interpreters. The probe changes no product file and stores its result in `repin-nine-surface-causality.log` and the generated values in `repin-generated-values.json`. Exact result: `PASS: all nine failing hashes return to their pins when only the Monkey fields are removed in memory; all present-field hashes equal repository-tool regeneration. No product files or pins were changed by this probe.`
-
-Only those generated values were applied programmatically to the four authorized `FIRST_WAVE_DIGESTS` entries and `ROOT_QT_DIGEST`. An AST comparison accepts only those five literal changes; all other pins, test logic and file length remain unchanged. `repin-pin-diff.log` records each old/new pair and ends `PASS: exactly five authorized generated pin values changed; all other pins, test logic and file length are unchanged.` No hash was hand-edited.
-
-The requested whole-module selection is `--select test_module_surface. --expected-tests 9`, listed in `repin-surface-count.log`. The unchanged module includes `test_root_initializer_is_reported_as_unavailable_without_aqt`, which always launches the bare `/opt/homebrew/bin/python3`; the historical progress record notes its `aqt` absence causes one skip in both runner lanes. I will run the exact requested selection in each lane and report its real result and any runner false-pass refusal, not alter that checking test. A separate selection of the eight runnable methods can provide the required skip-free proof without weakening the whole-module results. The focused route and these sequential surface runs precede the final full plain lane; no full Qt lane is run.
-
-
-### Re-pin verification: requested whole-module results
-
-The focused MacBook route remains green after the generated re-pin. Command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_review_route_earns_trio_and_shaikahan_bone_with_both_gates --expected-tests 1`. Results in `repin-route-green.log`:
-
-```text
-Ran 1 test in 1.910s
-OK
-Route: Druidic Ritual completion earned through reviews
-Route: Jungle Potion completion earned through ordered searches and cleaning
-Route: supplies obtained from shops, Farming, Herblore, Utilities and full-health combat
-Gate: no Shaikahan bone before Trio completion
-Route: Trio completion earned through both real encounters, including Monkey
-Gate: wrong weapon blocks the encounter and grants no bone
-Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews
-```
-
-The exact requested plain whole-module command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_module_surface. --expected-tests 9`. Results in `repin-surface-whole-plain.log`:
-
-```text
-Ran 9 tests in 22.092s
-OK (skipped=1)
-error: remote focused lane false pass: tests=9, skipped=1; expected exactly 9 tests and no skips
-Whole-module plain runner exit: 1
-```
-
-The exact requested qt whole-module command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" qt --select test_module_surface. --expected-tests 9`. Results in `repin-surface-whole-qt.log`:
-
-```text
-Ran 9 tests in 22.283s
-OK (skipped=1)
-error: remote focused lane false pass: tests=9, skipped=1; expected exactly 9 tests and no skips
-Whole-module qt runner exit: 1
-```
-
-Neither whole-module runner passed: each exit is 1 because the unchanged bare-interpreter availability test skips. No digest assertion failed. The skip-free selection excludes only `test_root_initializer_is_reported_as_unavailable_without_aqt`; `repin-runnable-surface-count.log` measures `Matching tests: 8`, and `repin-runnable-surface-selectors.json` stores all eight exact selectors. Those plain and Qt runs remain sequential; no test or runner is changed. Their results precede the final full plain lane.
-
-The generated pin diff in `repin-pin-diff.log` is:
-
-```text
-core/constants.py
-old: 1db1a52117ce4cb4efbcb4e44246b4d0d9f5bcda3a0d1bb3b5cb3ad018c7e6bf
-new: 6340cbd7072dd70be082c33632e163be0dc57c00cb6683052f93075dd11dbd47
-data/quest_data.py
-old: 8e65a1a46473af00f6748be267037c5acbd91429a7f70fb1283a6ef116b5a4e7
-new: d1e134733b893b69462ef7022123029f4548c68fca219bed559a24b46de0f49e
-runtime/runtime_actions_carried.py
-old: ad029dddf9d8f22cd9fa20c388a4c3b63690ce57a670f475ba6f0f20333e8144
-new: cb2f433223a0d04de7fc192d28943b7de330a362aead9bc48861ce3d22364d5a
-runtime/runtime_actions_activities.py
-old: 73d63863a5bacb316635d7dd058403845baba87fb25109873c860513bb95824d
-new: 3171f8e9df9c4fa1d9ebbb33394c61865aa475574c173a4772922f44301d6223
-ROOT_QT_DIGEST (__init__.py)
-old: a76c7e6d3086cb5ad57c65ff78bc9281a9dc40ee7de4839bd34db9345549da13
-new: 1af448f8643e587c89ee14b1f6efa42d6215157224a7efb20b04447113577950
-PASS: exactly five authorized generated pin values changed; all other pins, test logic and file length are unchanged.
-```
-
-The latest scope proof is `repin-final-scope-status.log`: the index is empty, only this slice's files are dirty, the resolved queue entry has no diff, both protected combat files and the checking tool are unchanged, and every byte of the surface test apart from the five generated literals equals HEAD. It records `tests/test_item_reachability_audit.py: HEAD 1899 lines; worktree 1899 lines; delta 0`, `tests/test_logic.py: HEAD 12510 lines; worktree 12506 lines; delta -4`, `Over-limit code growth: OK` and `git diff --check: exit 0`. No commit or push was made.
-
-
-### Re-pin local audit results
-
-`/opt/homebrew/bin/python3 tools/audit_item_reachability.py --check --summary` (`repin-final-reachability.log`):
-
-```text
-1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions
-
-reachability exit: 0
-```
-
-`/opt/homebrew/bin/python3 tools/audit_test_quality.py` (`repin-final-test-quality.log`):
-
-```text
-5028 tests across 304 files
-hard issues: 0
-structural clone candidates: 31 groups
-test-quality exit: 0
-```
-
-`/opt/homebrew/bin/python3 tools/worktree_guard.py audit` (`repin-final-worktree-guard.log`):
-
 ```text
 Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
 Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
@@ -3835,21 +3657,6 @@ Report-time verification (`lizard-report-before.csv`, `lizard-report-after.csv`,
 Final local checks after the full plain completion record, all exited 0. Their exact output follows.
 
 `python3 tools/audit_docs.py` (`final-audit-docs.log`):
-
-
-worktree-guard exit: 0
-```
-
-`/opt/homebrew/bin/python3 tools/memory_bank/move_papercuts.py check HEAD` (`repin-final-papercut-check.log`):
-
-```text
-No papercut line lost since HEAD; no open papercut is also fixed.
-
-papercut-check exit: 0
-```
-
-
-Documentation preflight `/opt/homebrew/bin/python3 tools/audit_docs.py` (`repin-docs-before-final-lane.log`) exited 0:
 
 ```text
 Audited 877 Markdown and 452 HTML files.
@@ -3999,51 +3806,6 @@ Audit exit 0
 ```
 
 `python3 tools/audit_test_quality.py` (`audit-test-quality.log`):
-
-
-### Re-pin skip-free surface proof and final plain lane
-
-The eight exact selectors in `repin-runnable-surface-selectors.json`, each supplied with `--select`, passed in the plain lane with `--expected-tests 8` (`repin-surface-runnable-plain.log`):
-
-```text
-Ran 8 tests in 20.762s
-OK
-Runnable surface plain runner exit: 0
-```
-
-The eight exact selectors in `repin-runnable-surface-selectors.json`, each supplied with `--select`, passed in the qt lane with `--expected-tests 8` (`repin-surface-runnable-qt.log`):
-
-```text
-Ran 8 tests in 19.783s
-OK
-Runnable surface qt runner exit: 0
-```
-
-Both skip-free runners exited 0 with no skips. The requested nine-test results remain recorded above as runner refusals, not passes. All implementation and generated pin edits are complete. The next remote command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, with no selectors, run once as the last remote run. No full Qt lane is run by this author; the orchestrator owns both merged-tree promotion lanes and cross-lineage review. Only completion records may be written afterward.
-
-
-### Final re-pin author result
-
-The final complete plain lane was `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, without selectors, after all implementation and generated pin edits, once as the last remote run. No later remote command was run. Results in `repin-plain-final.log`:
-
-```text
-Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews
-Ran 5063 tests in 461.002s
-OK (skipped=549)
-Final plain runner exit: 0
-```
-
-Final local measurements after the last remote run:
-
-`/opt/homebrew/bin/python3 tools/audit_item_reachability.py --check --summary` (`repin-completion-reachability.log`):
-
-```text
-1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions
-
-reachability exit: 0
-```
-
-`/opt/homebrew/bin/python3 tools/audit_test_quality.py` (`repin-completion-test-quality.log`):
 
 ```text
 5028 tests across 304 files
@@ -4262,11 +4024,6 @@ Audit exit 0
 
 `python3 tools/worktree_guard.py audit` (`worktree-guard.log`):
 
-test-quality exit: 0
-```
-
-`/opt/homebrew/bin/python3 tools/worktree_guard.py audit` (`repin-completion-worktree-guard.log`):
-
 ```text
 Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
 Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
@@ -4428,6 +4185,264 @@ Git status:
 
 Only this saved-result appendix followed the reader run. Final local audits and the conservation/scope check were repeated after the appendix; no product or test file changed. The full plain and Qt lanes remain unrun under the records-only author exception. The branch remains uncommitted and unpushed.
 
+## 2026-09-29 — Shaikahan bones through the normal review route
+
+Author branch: `goal/shaikahan-route-2026-09-29`, based on `9af03d13bf8d132da4c62653d2dac540b0c514e5`. Worktree: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-shaikahan-route-2026-09-29`. Raw evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-shaikahan-route-2026-09-29/`.
+
+Player outcome: earn Druidic Ritual and Jungle Potion, obtain Trio supplies from live producers, defeat the stage-3 Monkey and Jogre, complete Trio, then prepare and equip a karambwan-poisoned Steel spear and obtain Shaikahan bones from a full-health kill. No interface change, generic item grant, seeded quest completion or seeded enemy life points is part of this slice. The focused test calls the application's actual `on_answer_card` entry point with real cadence, runtime handlers, carried packs, production and combat; only Anki's host, storage and feedback surfaces are faked. Its fixture starts a skilled player with an empty inventory and earns even the shopping coins through Thieving.
+
+### Source verification and placeholder decision
+
+The route analysis was checked against main's Trio, Jungle Potion and Druidic Ritual definitions, Tiadeche's started-quest shop gate, Shaikahan's completed-quest and continuous-weapon gates, the quest resolver's explicit-zero acceptance, the retained Monkey JSON and its history. Main's measured audit is `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions` (`base-reachability.log`), and the ranked root list matches the supplied analysis. The projected post-binding counts are not acceptance evidence and will not be pinned until the complete route passes.
+
+The retained Monkey file matches snapshot `f5f2782af855b3af8240b6f3ec91f9af12eb9f0c` exactly for the named combat fields. Its present-path history is `08d5e57eba76483a63f7191c4c5ccefb67a454c9`, `32fc12f9ad2bdd9d04c81e1f879062f4a8f6e96d`, `f5f2782af855b3af8240b6f3ec91f9af12eb9f0c`; the blame output traces the values across the earlier path (`source-verification.log`). This is retained original Darkan material, not a restoration contract or independent period proof. The orchestrator-supplied `2026-09-29T14:08-07:00` doorbell and this AnkiScape claim are recorded in `shared-source-harvest-ledger.md`. No new source was fetched or harvested.
+
+Decision: register `quests.tai_bwo_wannai_trio.monkey_combat` and mark the retained combat block at the values. Applied rule, `pre-eoc-source-verification-standard.md`, Corroboration gate: "Finding a value first does not close it. Cross-corroborate against at least one independent layer". Applied breadth-phase rule: "A **placeholder** may now stand in for a value that would need an intense dig, so the mechanic around it can ship complete." Conditions: "**It is marked at the value.** The code carries `# PLACEHOLDER(<id>): <what would settle it>` on or above the line."; "**It is listed in `memory-bank/placeholder-values.md`**"; "**Nothing describes it as period-accurate**, in code, comments, docs or UI." The register's definition is "A placeholder is a value the period game had and we could not recover without an intense dig." The existing Monkey content is attested; the uncorroborated combat values are not. Both directions of the placeholder register test must pass.
+
+### Proof plan and limits
+
+The first MacBook run is the single end-to-end test on the unchanged base implementation, selected as `test_review_route_earns_trio_and_shaikahan_bone_with_both_gates`; its count was listed as one. Local fixture preparation reaches the exact Monkey-stat blocker. After the logged red proof, only the Monkey source binding and combat block will change. Reachability and combat-gap pins will be updated to measured outputs only after the route is green. The neighbouring quest/runtime/bone/audit tests and both Memory Bank reader modules follow. The full plain lane will run once after all implementation edits as the last remote run. No full Qt lane is run in the author worktree: the orchestrator owns both merged-tree lanes and the cross-lineage review. No commit or push is made. The shared combat model and supplies files are read-only for this slice.
+
+### Red proof and implementation
+
+MacBook red command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_review_route_earns_trio_and_shaikahan_bone_with_both_gates --expected-tests 1`. The unchanged gameplay implementation failed with `Ran 1 test in 1.997s` / `FAILED (failures=1)` / `error: remote plain lane failed with exit 1` (`red.log`). Exact blocker: `Quest blocked: Tai Bwo Wannai Trio is blocked: This fight is not modelled yet (combat stats missing): Monkey level 3. Questing has been switched off until this is resolved.` The logged route earned Druidic Ritual and Jungle Potion, obtained the supplies from live producers and proved the pre-completion Shaikahan gate before reaching that blocker.
+
+The Monkey now binds its retained source through `data/quest/sources.py` and uses 60 LP, five explicitly present zero combat levels, maximum hit 24, attack range -1, melee and passive aggression. These remain unverified retained Darkan values, marked with `PLACEHOLDER(quests.tai_bwo_wannai_trio.monkey_combat)` and listed in `placeholder-values.md`; no field is described as period-verified. No combat-engine change was required. The adjacent Trio action-emitter test now resolves both Monkey and Jogre instead of seeding the Monkey proof.
+
+Local route proof: `python3 -B run_tests.py test_review_route_earns_trio_and_shaikahan_bone_with_both_gates` → `Ran 1 test in 4.866s` / `OK` (`local-green-final.log`). The route used 358 real reviews and placed exactly one Shaikahan bone in the carried pack. Both prerequisite completions were earned, both Trio encounters ran, and no quest completion or enemy life points were seeded. The wrong-weapon runtime gate rejects the encounter before the combat kernel; the test checks its exact feedback, the absent Shaikahan encounter and no bone, rather than treating the preceding Jogre result as a new fight. After poisoning and equipping the spear, the first actual Shaikahan review proves full-health initialization by accounting for damage, remaining LP and enemy healing against the source-defined full LP.
+
+The Combat play-checklist has one route line dated `(after the next batch)`. The focused MacBook green proof is pending; no reachability or combat-gap pin has changed yet. Local placeholder and Trio action-emitter checks: `python3 -B run_tests.py test_placeholder_register. test_tai_bwo_wannai_trio_real_stage_emitters_complete_and_reward_once` → `Ran 4 tests in 0.286s` / `OK` (`local-placeholder-trio.log`).
+
+### Measured audits before pin updates
+
+`python3 tools/audit_item_reachability.py` reports `1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions` (`reachability.log`). The detailed measurement (`reachability-pins.log`) is `root_orphan_count: 30`, `cascade_orphan_count: 131`, `seed_item_count: 1238`, `completable_quest_count: 57`, `blocked_quest_stage_products: 135`. Trio is no longer blocked. The newly reachable routes are `Karambwanji: Cooking:cook_karambwanji`, `Rune spear (kp): quest:tai_bwo_wannai_trio`, `Shaikahan bones: combat:shaikahan`, `Shaikahan bonemeal: Utility:grind_prayer_shaikahan_bones`. These are measured outputs after the local full-route proof, not the analysis projection.
+
+`python3 tools/audit_quest_combat_stat_gaps.py` reports `statless_combat_encounters: 90`; classifications are `darkan_hitpoints_only_metadata: 49`, `darkan_identical_available: 1`, `darkan_missing_resolver_stats: 14`, `darkan_same_name_wrong_level: 6`, `no_local_source_match: 6`, `parser_or_variant_level: 14` (`combat-gaps.log`). The Monkey is absent from the remaining gap list. This closes resolver readiness, not historical corroboration.
+
+`python3 tools/audit_test_quality.py` → `5028 tests across 304 files` / `hard issues: 0` / `structural clone candidates: 31 groups`, exit 0 (`test-quality.log`). `python3 tools/audit_docs.py` → `Audited 877 Markdown and 452 HTML files.` / `Documentation audit passed.`, exit 0 (`docs.log`). `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`, exit 0 (`worktree-guard.log`). `git diff --check` → `git diff --check: exit 0; no output` (`diff-check.log`).
+
+The neighbouring selection and required Memory Bank readers were re-listed with `python3 -B run_tests.py --list --max-results 2000 test_bone_sources. test_logic. test_runtime_actions. test_quest_catalog. test_quest_combat_stat_gap_audit. test_item_reachability_audit. test_placeholder_register. test_promotion_gate. test_memory_bank_queue_packet.` → `Matching tests: 568` (`neighbours-count-final.log`). The complete plain listing is `Matching tests: 5063` (`plain-count.log`); only the eventual lane result can establish its executed count and skips.
+
+Local gameplay neighbours, while the MacBook green proof waited: `python3 -B run_tests.py test_bone_sources. test_logic. test_runtime_actions. test_quest_catalog.` → `Ran 467 tests in 6.567s` / `OK`, exit 0 (`local-gameplay-neighbours.log`). This is a development check, not a substitute for the MacBook neighbour and final-lane runs.
+
+### MacBook green proof and measured pins
+
+MacBook green command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_review_route_earns_trio_and_shaikahan_bone_with_both_gates --expected-tests 1` → `Ran 1 test in 1.909s` / `OK`, exit 0, no skips (`green.log`). The log includes `Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews`, both earned prerequisite completions, both real Trio encounters and both gate checkpoints. The base red run and this complete green route establish the gameplay change before any audit expectation changed.
+
+After that proof passed, only the changed measured expectations were updated: reachable items 2354, orphan inputs 161, root orphans 30, cascade orphans 131, blocked actions 245, seed items 1238, completable quests 57, blocked quest-stage product rows 135; action count remains 1680. Combat gaps are 90, with `darkan_missing_resolver_stats` 14 and every other classification unchanged. The audit implementation and its semantics remain untouched. This is the owner-authorized reachability change from main's `1680 actions; 2350 reachable items; 163 orphan inputs; 249 blocked actions`, not a loosened instrument.
+
+The sequential MacBook neighbouring command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_bone_sources. --select test_logic. --select test_runtime_actions. --select test_quest_catalog. --select test_quest_combat_stat_gap_audit. --select test_item_reachability_audit. --select test_placeholder_register. --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 568`. Its post-pin listing is saved in `neighbours-count-post-pins.log`; its result will be recorded after the command finishes.
+
+### Neighbours, readers and pre-lane completion
+
+The MacBook neighbouring command above passed with `Ran 568 tests in 162.392s` / `OK`, exit 0 and no skips (`neighbours-and-readers.log`). It exercised the bone route, quest logic, runtime actions, quest catalog, both measured audits, both placeholder-register directions and both required Memory Bank reader modules.
+
+`python3 tools/audit_item_reachability.py --check --summary` exited 0 with `1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions` (`reachability-check.log`). The local audit tests `python3 -B run_tests.py test_item_reachability_audit. test_quest_combat_stat_gap_audit.` passed with `Ran 52 tests in 199.254s` / `OK`, exit 0 (`local-audit-tests.log`). The code-growth comparison against `git show HEAD:<file>` is `tests/test_item_reachability_audit.py: HEAD 1899 lines; worktree 1899 lines; delta 0` and `tests/test_logic.py: HEAD 12510 lines; worktree 12506 lines; delta -4`, ending `Over-limit code growth: OK` (`code-growth.log`). No over-limit code file grew. The papercut-preservation check `python3 tools/memory_bank/move_papercuts.py check HEAD` reports `No papercut line lost since HEAD; no open papercut is also fixed.` (`papercut-check.log`).
+
+Not done: independent November 2012 corroboration of the Monkey values remains the registered placeholder's closure condition; no new source was fetched or harvested. No other quest or bone family was implemented. No user-interface file, shared combat model or shared combat supplies file changed. No Darkan file or canonical working-tree file was edited. No commit or push was made. No owner-only question or second-level defect was found. The after-batch play check remains for the owner; the author does not claim an in-game visual check.
+
+All implementation and pin edits are complete. The final remote command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, without selectors, run once after all edits as the last remote run. Its exact completion lines will be appended below. The full Qt lane is not run here; the orchestrator owns both merged-tree promotion lanes and the cross-lineage review.
+
+### Fixed export instruments caught an aggregate-source leak
+
+The first full plain command, `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, did not pass: `Ran 5063 tests in 461.547s` / `FAILED (failures=10, skipped=549)` / `error: remote plain lane failed with exit 1` (`plain-final.log`). The complete route still ran and logged one bone in the carried pack after 358 reviews. The failure was an extra aggregate export: `AssertionError: Lists differ: ['TAI_BWO_WANNAI_TRIO_MONKEY_NPC_SOURCE'] != []` in `tests.quest_catalog.test_split_contract.TestQuestSplitContract.test_public_exports_preserve_names_and_original_order`. Fixed surface checks also failed for `core/constants.py`, `data/quest_data.py`, `runtime/runtime_actions_carried.py`, `runtime/runtime_actions_activities.py` in plain and Qt environments, and the root `__init__.py` Qt digest. The subsequent causality probe below separates the intended data changes from the export-name defect. The exact expected and observed digest strings remain in `plain-final.log`.
+
+The source binding is now imported directly by the Trio definition and is not included in the aggregate source exports. The facade's original export names and order, all split-contract assertions, all module-surface pins and all digest tools remain unchanged. This changes no gameplay value or gate. Local fixed-export and route checks: `python3 -B run_tests.py test_public_exports_preserve_names_and_original_order test_review_route_earns_trio_and_shaikahan_bone_with_both_gates` → `Ran 2 tests in 6.142s` / `OK` (`local-export-route.log`).
+
+The expanded MacBook selection adds the split-contract module and the two fixed module-surface tests to the same route, neighbours, audit checks and Memory Bank readers. Its listed count is `Matching tests: 573` (`export-neighbours-count.log`). Command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_bone_sources. --select test_logic. --select test_runtime_actions. --select test_quest_catalog. --select test_quest_combat_stat_gap_audit. --select test_item_reachability_audit. --select test_placeholder_register. --select test_split_contract. --select test_module_surface.ModuleSurfaceTest.test_first_wave_digests --select test_module_surface.ModuleSurfaceTest.test_root_initializer_digest_under_qt --select test_promotion_gate. --select test_memory_bank_queue_packet. --expected-tests 573`; result follows after completion. The earlier failed full run preceded the export correction; the required final plain run follows these last implementation edits and is again the last remote command.
+
+### Fixed data-digest conflict: implementation stopped pending permission
+
+The corrected expanded MacBook command above failed with `Ran 573 tests in 183.106s` / `FAILED (failures=9)` / `error: remote plain lane failed with exit 1`, no skips (`export-neighbours-and-readers.log`). The original export-order assertion now passes. The route still logs `Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews`, both prerequisite completions, both Trio encounters and both gates. The remaining failures are the four first-wave digests in each of the plain and Qt environments and the root Qt digest. No gameplay, neighbour, audit, placeholder or Memory Bank reader failure is reported.
+
+The digest tool intentionally includes complete public data values: `tools/module_surface.py` normalizes every mapping item, dataclass field and sequence element, and includes their values in each module dump. A disposable subprocess probe removed only the Monkey's `npc_stats`, `npc_configs` and `npc_stats_source` arguments in memory before importing each facade; it changed no file. For all four plain facades, the resulting digest exactly matches the unchanged fixed pin, with no public names added or removed. `surface-data-causality.log` records every current, reconstructed-base and fixed digest. Changed values are only `QUESTS`, `QUESTS_BY_ID`, `QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID` in the quest facade, `QUESTS_BY_ID` and `QUEST_DATA` in constants, and `QUEST_DATA` in the two runtime facades. This is causal evidence about the fixed gate, not a green gameplay run or a proposed compatibility shim.
+
+The author rule is “Tests, audits and pinned baselines are fixed instruments: never weaken or edit them to pass.” The brief permits measured reachability and combat-gap expectation updates after the real route proof, not module-surface pin updates. The requested Monkey data necessarily changes these value-inclusive hashes. I have stopped implementation, left all surface pins and digest tools unchanged, and recorded the conflict in `memory-bank/design-thread-queue.md`. The single unblock is permission for the orchestrator to update the measured Monkey-data surface pins. No other agent was contacted.
+
+The final complete plain command follows after all implementation edits, with no selectors, as the last remote run. A failure of the known fixed-data gate will be reported as a failure, not hidden behind the focused gameplay proof. No full Qt lane is run by this author under the promotion-gate exception.
+
+### Final author result: gameplay proved; promotion blocked by fixed data pins
+
+The last remote command was `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, with no selectors, after the final implementation edits. It completed with `Ran 5063 tests in 467.417s` / `FAILED (failures=9, skipped=549)` / `error: remote plain lane failed with exit 1` / `Final plain runner exit: 1` (`plain-after-export-final.log`). These are the same fixed-data surface failures isolated above: the four first-wave digests in both environments and the root Qt digest. The original export-order check passes. The route again logs `Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews`, both earned prerequisite completions, both real Trio encounters and both negative gates. No other failure is reported. This lane is not green, and the slice is not ready for promotion. No later remote command was run.
+
+Final local measurements: `python3 tools/audit_item_reachability.py --check --summary` → `1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions`, exit 0 (`final-reachability-check.log`). `python3 tools/audit_test_quality.py` → `5028 tests across 304 files` / `hard issues: 0` / `structural clone candidates: 31 groups`, exit 0 (`final-test-quality.log`). `python3 tools/worktree_guard.py audit` → `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork` / `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`, exit 0 (`final-worktree-guard.log`). `python3 tools/memory_bank/move_papercuts.py check HEAD` → `No papercut line lost since HEAD; no open papercut is also fixed.`, exit 0 (`final-papercut-check.log`). Documentation preflight after recording the conflict: `Audited 877 Markdown and 452 HTML files.` / `Documentation audit passed.`, exit 0 (`conflict-docs.log`). The completion-record documentation preflight is saved in `final-docs.log`.
+
+The saved scope check (`final-scope-status.log`) shows only this slice's files, an empty index, HEAD `9af03d13bf8d132da4c62653d2dac540b0c514e5`, and no difference in either protected combat file or any fixed export/surface instrument. The required `wc -l` against `git show HEAD:<file> | wc -l` records `tests/test_item_reachability_audit.py` at 1899 / 1899 lines and `tests/test_logic.py` at 12510 / 12506 lines. No over-limit code file grew. `git diff --check` reports `git diff --check: exit 0` (`final-diff-check.log`). Only completion records were written after the final remote snapshot; no implementation or test changed.
+
+Remaining owner decision: permission for the orchestrator to update the measured Monkey-data surface pins, as recorded in `design-thread-queue.md`. Independent period corroboration remains the registered placeholder's closure condition, not an invented claim of accuracy. No full Qt lane was run by this author under the promotion-gate exception; both merged-tree lanes and cross-lineage review remain the orchestrator's work. No commit, push, UI edit, canonical game-file edit, Darkan edit, protected combat-file edit, source fetch or source harvest was made. The owner-facing play check remains dated `(after the next batch)`.
+
+### Orchestrator ruling: reviewed, intended data-surface re-pin
+
+The orchestrator resolved the fixed-pin conflict: “this is a reviewed, intended surface change. The standing rule allows a re-pin in exactly that case”. The cited precedent is `6e843b86d7cac4fe5db1e1dc9efc07474dd81ad5`, which regenerated the intended ranged-finishing-blow, thieving-fight-back and undo-equip-duplicate surfaces with the repository's `tools/module_surface.py --digest-only`, under `/opt/homebrew/bin/python3` and `.venv-qt/bin/python` with `QT_QPA_PLATFORM=offscreen`. Its commit modifies only pins, and its ranged-finisher progress record describes the reviewed signature change (`repin-precedent.log`). No checking tool or test logic may change. I removed only this slice's now-resolved entry from `design-thread-queue.md`.
+
+Before re-pinning, a new isolated subprocess probe removed only the Monkey's `npc_stats`, `npc_configs` and `npc_stats_source` arguments in memory. It covered all nine failing surfaces: the four first-wave entries under both interpreters and the root under Qt. Every reconstructed-base digest exactly equals its original pin, with no public names added or removed. The present-field digests equal fresh repository-tool `--digest-only` outputs; the four shared values also agree between interpreters. The probe changes no product file and stores its result in `repin-nine-surface-causality.log` and the generated values in `repin-generated-values.json`. Exact result: `PASS: all nine failing hashes return to their pins when only the Monkey fields are removed in memory; all present-field hashes equal repository-tool regeneration. No product files or pins were changed by this probe.`
+
+Only those generated values were applied programmatically to the four authorized `FIRST_WAVE_DIGESTS` entries and `ROOT_QT_DIGEST`. An AST comparison accepts only those five literal changes; all other pins, test logic and file length remain unchanged. `repin-pin-diff.log` records each old/new pair and ends `PASS: exactly five authorized generated pin values changed; all other pins, test logic and file length are unchanged.` No hash was hand-edited.
+
+The requested whole-module selection is `--select test_module_surface. --expected-tests 9`, listed in `repin-surface-count.log`. The unchanged module includes `test_root_initializer_is_reported_as_unavailable_without_aqt`, which always launches the bare `/opt/homebrew/bin/python3`; the historical progress record notes its `aqt` absence causes one skip in both runner lanes. I will run the exact requested selection in each lane and report its real result and any runner false-pass refusal, not alter that checking test. A separate selection of the eight runnable methods can provide the required skip-free proof without weakening the whole-module results. The focused route and these sequential surface runs precede the final full plain lane; no full Qt lane is run.
+
+
+### Re-pin verification: requested whole-module results
+
+The focused MacBook route remains green after the generated re-pin. Command: `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_review_route_earns_trio_and_shaikahan_bone_with_both_gates --expected-tests 1`. Results in `repin-route-green.log`:
+
+```text
+Ran 1 test in 1.910s
+OK
+Route: Druidic Ritual completion earned through reviews
+Route: Jungle Potion completion earned through ordered searches and cleaning
+Route: supplies obtained from shops, Farming, Herblore, Utilities and full-health combat
+Gate: no Shaikahan bone before Trio completion
+Route: Trio completion earned through both real encounters, including Monkey
+Gate: wrong weapon blocks the encounter and grants no bone
+Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews
+```
+
+The exact requested plain whole-module command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --select test_module_surface. --expected-tests 9`. Results in `repin-surface-whole-plain.log`:
+
+```text
+Ran 9 tests in 22.092s
+OK (skipped=1)
+error: remote focused lane false pass: tests=9, skipped=1; expected exactly 9 tests and no skips
+Whole-module plain runner exit: 1
+```
+
+The exact requested qt whole-module command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" qt --select test_module_surface. --expected-tests 9`. Results in `repin-surface-whole-qt.log`:
+
+```text
+Ran 9 tests in 22.283s
+OK (skipped=1)
+error: remote focused lane false pass: tests=9, skipped=1; expected exactly 9 tests and no skips
+Whole-module qt runner exit: 1
+```
+
+Neither whole-module runner passed: each exit is 1 because the unchanged bare-interpreter availability test skips. No digest assertion failed. The skip-free selection excludes only `test_root_initializer_is_reported_as_unavailable_without_aqt`; `repin-runnable-surface-count.log` measures `Matching tests: 8`, and `repin-runnable-surface-selectors.json` stores all eight exact selectors. Those plain and Qt runs remain sequential; no test or runner is changed. Their results precede the final full plain lane.
+
+The generated pin diff in `repin-pin-diff.log` is:
+
+```text
+core/constants.py
+old: 1db1a52117ce4cb4efbcb4e44246b4d0d9f5bcda3a0d1bb3b5cb3ad018c7e6bf
+new: 6340cbd7072dd70be082c33632e163be0dc57c00cb6683052f93075dd11dbd47
+data/quest_data.py
+old: 8e65a1a46473af00f6748be267037c5acbd91429a7f70fb1283a6ef116b5a4e7
+new: d1e134733b893b69462ef7022123029f4548c68fca219bed559a24b46de0f49e
+runtime/runtime_actions_carried.py
+old: ad029dddf9d8f22cd9fa20c388a4c3b63690ce57a670f475ba6f0f20333e8144
+new: cb2f433223a0d04de7fc192d28943b7de330a362aead9bc48861ce3d22364d5a
+runtime/runtime_actions_activities.py
+old: 73d63863a5bacb316635d7dd058403845baba87fb25109873c860513bb95824d
+new: 3171f8e9df9c4fa1d9ebbb33394c61865aa475574c173a4772922f44301d6223
+ROOT_QT_DIGEST (__init__.py)
+old: a76c7e6d3086cb5ad57c65ff78bc9281a9dc40ee7de4839bd34db9345549da13
+new: 1af448f8643e587c89ee14b1f6efa42d6215157224a7efb20b04447113577950
+PASS: exactly five authorized generated pin values changed; all other pins, test logic and file length are unchanged.
+```
+
+The latest scope proof is `repin-final-scope-status.log`: the index is empty, only this slice's files are dirty, the resolved queue entry has no diff, both protected combat files and the checking tool are unchanged, and every byte of the surface test apart from the five generated literals equals HEAD. It records `tests/test_item_reachability_audit.py: HEAD 1899 lines; worktree 1899 lines; delta 0`, `tests/test_logic.py: HEAD 12510 lines; worktree 12506 lines; delta -4`, `Over-limit code growth: OK` and `git diff --check: exit 0`. No commit or push was made.
+
+
+### Re-pin local audit results
+
+`/opt/homebrew/bin/python3 tools/audit_item_reachability.py --check --summary` (`repin-final-reachability.log`):
+
+```text
+1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions
+
+reachability exit: 0
+```
+
+`/opt/homebrew/bin/python3 tools/audit_test_quality.py` (`repin-final-test-quality.log`):
+
+```text
+5028 tests across 304 files
+hard issues: 0
+structural clone candidates: 31 groups
+test-quality exit: 0
+```
+
+`/opt/homebrew/bin/python3 tools/worktree_guard.py audit` (`repin-final-worktree-guard.log`):
+
+```text
+Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
+Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
+
+worktree-guard exit: 0
+```
+
+`/opt/homebrew/bin/python3 tools/memory_bank/move_papercuts.py check HEAD` (`repin-final-papercut-check.log`):
+
+```text
+No papercut line lost since HEAD; no open papercut is also fixed.
+
+papercut-check exit: 0
+```
+
+
+Documentation preflight `/opt/homebrew/bin/python3 tools/audit_docs.py` (`repin-docs-before-final-lane.log`) exited 0:
+
+```text
+Audited 877 Markdown and 452 HTML files.
+Documentation audit passed.
+```
+
+
+### Re-pin skip-free surface proof and final plain lane
+
+The eight exact selectors in `repin-runnable-surface-selectors.json`, each supplied with `--select`, passed in the plain lane with `--expected-tests 8` (`repin-surface-runnable-plain.log`):
+
+```text
+Ran 8 tests in 20.762s
+OK
+Runnable surface plain runner exit: 0
+```
+
+The eight exact selectors in `repin-runnable-surface-selectors.json`, each supplied with `--select`, passed in the qt lane with `--expected-tests 8` (`repin-surface-runnable-qt.log`):
+
+```text
+Ran 8 tests in 19.783s
+OK
+Runnable surface qt runner exit: 0
+```
+
+Both skip-free runners exited 0 with no skips. The requested nine-test results remain recorded above as runner refusals, not passes. All implementation and generated pin edits are complete. The next remote command is `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, with no selectors, run once as the last remote run. No full Qt lane is run by this author; the orchestrator owns both merged-tree promotion lanes and cross-lineage review. Only completion records may be written afterward.
+
+
+### Final re-pin author result
+
+The final complete plain lane was `/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain`, without selectors, after all implementation and generated pin edits, once as the last remote run. No later remote command was run. Results in `repin-plain-final.log`:
+
+```text
+Route complete: full-health Shaikahan killed; one bone in pack; 358 real reviews
+Ran 5063 tests in 461.002s
+OK (skipped=549)
+Final plain runner exit: 0
+```
+
+Final local measurements after the last remote run:
+
+`/opt/homebrew/bin/python3 tools/audit_item_reachability.py --check --summary` (`repin-completion-reachability.log`):
+
+```text
+1680 actions; 2354 reachable items; 161 orphan inputs; 245 blocked actions
+
+reachability exit: 0
+```
+
+`/opt/homebrew/bin/python3 tools/audit_test_quality.py` (`repin-completion-test-quality.log`):
+
+```text
+5028 tests across 304 files
+hard issues: 0
+structural clone candidates: 31 groups
+test-quality exit: 0
+```
+
+`/opt/homebrew/bin/python3 tools/worktree_guard.py audit` (`repin-completion-worktree-guard.log`):
+
+```text
+Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork
+Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees
 
 worktree-guard exit: 0
 ```
