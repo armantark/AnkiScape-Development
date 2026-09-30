@@ -11330,20 +11330,16 @@ class TestLogic(unittest.TestCase):
             ("Catch karambwanji for Tiadeche",),
         )
 
-        # The source-backed Monkey encounter has no combat stats to resolve yet;
-        # isolate action emission while the Jogre still runs through the real resolver.
-        player_data["quest_combat_encounters"] = {
-            "tai_bwo_wannai_trio": ["tai_bwo_wannai_trio_monkey"]
-        }
-        player_data, ok, result = apply_quest_combat_encounter_pure(
-            player_data,
-            "tai_bwo_wannai_trio",
-            QUEST_DATA,
-            "tai_bwo_wannai_trio_jogre",
-        )
-        self.assertTrue(ok)
-        self.assertEqual(result["encounter_id"], "tai_bwo_wannai_trio_jogre")
-        self.assertEqual(result["remaining_quantity"], 0)
+        for encounter_id in ("tai_bwo_wannai_trio_monkey", "tai_bwo_wannai_trio_jogre"):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "tai_bwo_wannai_trio",
+                QUEST_DATA,
+                encounter_id,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(result["encounter_id"], encounter_id)
+            self.assertEqual(result["remaining_quantity"], 0)
 
         player_data, ok, completed_now = apply_quest_progress_pure(
             player_data,

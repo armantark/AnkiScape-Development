@@ -3,6 +3,7 @@ from __future__ import annotations
 from ...dependencies import *
 from ...ids import *
 from ...sources import *
+from ...sources import TAI_BWO_WANNAI_TRIO_MONKEY_NPC_SOURCE
 from ...item_names import *
 from ...contract import *
 from ...choices import *
@@ -72,6 +73,22 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
                     3,
                     "https://runescape.wiki/w/Tai_Bwo_Wannai_Trio?oldid=6529797",
                     "Quest details require killing a level 3 monkey.",
+                    # PLACEHOLDER(quests.tai_bwo_wannai_trio.monkey_combat): period combat data would settle these unverified retained Darkan values.
+                    npc_stats=(
+                        ("hitpoints", 60),
+                        ("attack", 0),
+                        ("strength", 0),
+                        ("defence", 0),
+                        ("magic", 0),
+                        ("ranged", 0),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 24),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=TAI_BWO_WANNAI_TRIO_MONKEY_NPC_SOURCE,
                 ),
                 _combat(
                     TAI_BWO_WANNAI_TRIO_ID,

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import random
+import sys
 import unittest
+from itertools import cycle
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import (
@@ -20,6 +24,16 @@ from ankiscape.logic_pure.logic_pure import (
     equip_item_pure,
 )
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.data.shop_data import SHOP_DATA
+from ankiscape.logic.farming_logic import add_farm_queue_step_pure
+from ankiscape.logic.shop_logic import apply_shop_buy_pure, apply_shop_service_pure
+from tests.test_integration_smoke import (
+    _DummyCol,
+    _DummyMW,
+    _FakeReviewer,
+    _install_runtime_fakes,
+    _load_addon_as_package,
+)
 
 
 def _runtime_context(player_data: dict, roll: float, activity_messages: list[str]):
@@ -410,6 +424,199 @@ class BoneAcquisitionToEctofuntusTests(unittest.TestCase):
                     expected_outputs,
                 )
                 self.assertEqual(activity_messages[-1], expected_message)
+
+
+class ShaikahanPlayerRouteTests(unittest.TestCase):
+    def setUp(self):
+        self._original_modules = dict(sys.modules)
+        _install_runtime_fakes()
+        self.addon = _load_addon_as_package("ankiscape_shaikahan_route")
+        self.addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": True}))
+        self.messages = []
+        self.addon.save_player_data = lambda: None
+        self.addon._refresh_skill_availability = lambda: None
+        self.addon.update_review_hud = lambda *_args: None
+        self.addon.update_review_status_badge = lambda *_args: None
+        self.addon._show_exp = lambda _xp: None
+        self.addon._show_activity_gain = self.messages.append
+        self.addon.show_error_message = lambda title, message: self.messages.append(
+            f"{title}: {message}"
+        )
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for skill in (
+            "agility", "attack", "constitution", "cooking", "defense",
+            "farming", "fishing", "herblore", "strength", "thieving",
+        ):
+            player[f"{skill}_level"] = 99
+            player[f"{skill}_exp"] = 13034431.0
+        player["combat_lifepoints"] = 990
+        self.addon._state.player_data = player
+        self.reviews = 0
+
+    def tearDown(self):
+        sys.modules.clear()
+        sys.modules.update(self._original_modules)
+
+    @property
+    def player(self):
+        return self.addon._state.player_data
+
+    def _review(self, skill, target_key, target, rng=lambda: 0.5):
+        self.player[target_key] = target
+        self.addon._state.current_skill = skill
+        self.addon._state.card_turned = True
+        self.addon._state.answer_shown = True
+        self.addon._state.exp_awarded = False
+        with patch.object(self.addon.random, "random", rng):
+            self.assertEqual(
+                self.addon.on_answer_card(
+                    _FakeReviewer(), 3, lambda _self, _ease: "answered"
+                ),
+                "answered",
+            )
+        self.reviews += 1
+        self.assertFalse(self.player.get("combat_grave"), self.messages[-5:])
+
+    def _collect(self, item, quantity, skill, target_key, target, rng):
+        for _ in range(2000):
+            if self.player["inventory"].get(item, 0) >= quantity:
+                return
+            self._review(skill, target_key, target, rng)
+        self.fail(f"{target} did not produce {quantity} {item}: {self.messages[-5:]}")
+
+    def _buy(self, shop_id, item, quantity=1):
+        row = next(row for row in SHOP_DATA[shop_id]["stock"] if row["item_name"] == item)
+        updated, result = apply_shop_buy_pure(self.player, shop_id, row["id"], quantity)
+        self.assertTrue(result["allowed"], result)
+        self.assertEqual(result["quantity"], quantity)
+        self.player.update(updated)
+
+    def _farm_step(self, kind, **details):
+        updated, step_id, message = add_farm_queue_step_pure(
+            self.player, kind, "falador_herb", **details
+        )
+        self.assertIsNotNone(step_id, message)
+        self.player.update(updated)
+        self._review("Utilities", "current_utility", "bankstanding", lambda: 0.99)
+        self.assertFalse(self.player["farm_queue"])
+
+    def _finish_quest(self, quest_id):
+        self.assertTrue(self.addon.on_set_quest(quest_id), self.messages[-5:])
+        for _ in range(100):
+            if self.player["quests"][quest_id]["completed"]:
+                return
+            self._review("Quests", "current_quest", quest_id)
+            self.assertNotIn("Quest blocked:", " ".join(self.messages[-1:]))
+        self.fail(f"{quest_id} did not complete: {self.messages[-5:]}")
+
+    def test_review_route_earns_trio_and_shaikahan_bone_with_both_gates(self):
+        self.assertFalse(any(q["completed"] for q in self.player["quests"].values()))
+        self.assertFalse(any(self.player["inventory"].values()))
+        self._collect("Coins", 6000, "Thieving", "current_thieving", "pickpocket_paladin", lambda: 0.0)
+        for shop_id, item, quantity in (
+            ("alkharid_general_store", "Chisel", 1),
+            ("gerrants_fishy_business", "Fishing rod", 1),
+            ("arnolds_eclectic_supplies", "Small fishing net", 1),
+            ("aemads_adventuring_supplies", "Knife", 1),
+            ("aemads_adventuring_supplies", "Tinderbox", 1),
+            ("aemads_adventuring_supplies", "Vial of water", 2),
+            ("frincos_fabulous_herb_shop", "Pestle and mortar", 1),
+            ("karamja_wines_spirits_and_beers", "Karamjan rum", 1),
+            ("arheins_shop", "Seaweed", 1),
+            ("trader_stans_trading_post", "Banana", 1),
+            ("alices_farming_shop", "Rake", 1),
+            ("alices_farming_shop", "Seed dibber", 1),
+            ("alices_farming_shop", "Spade", 1),
+            ("smithing_smiths_shop", "Iron scimitar", 1),
+            ("alfonso_waiter_shop", "Lobster", 10),
+        ):
+            self._buy(shop_id, item, quantity)
+        self._finish_quest("druidic_ritual")
+        print("Route: Druidic Ritual completion earned through reviews")
+
+        quest_id = "jungle_potion"
+        self.assertTrue(self.addon.on_set_quest(quest_id))
+        for target, grimy, clean in (
+            ("clean_snake_weed", "Grimy snake weed", "Clean snake weed"),
+            ("clean_ardrigal", "Grimy ardrigal", "Clean ardrigal"),
+            ("clean_sito_foil", "Grimy sito foil", "Clean sito foil"),
+            ("clean_volencia_moss", "Grimy volencia moss", "Clean volencia moss"),
+            ("clean_rogues_purse", "Grimy rogue's purse", "Clean rogue's purse"),
+        ):
+            self._review("Quests", "current_quest", quest_id)
+            self.assertEqual(self.player["inventory"][grimy], 1)
+            self._collect(clean, 1, "Herblore", "current_herblore", target, lambda: 0.5)
+            self._review("Quests", "current_quest", quest_id)
+        self.assertTrue(self.player["quests"][quest_id]["completed"])
+        print("Route: Jungle Potion completion earned through ordered searches and cleaning")
+
+        farmer_rng = random.Random(20260929).random
+        self._collect("Toadflax seed", 1, "Thieving", "current_thieving", "pickpocket_master_farmer", farmer_rng)
+        self._farm_step("plant", crop_id="toadflax")
+        for _ in range(100):
+            if self.player["farm_patches"]["falador_herb"]["stage"] == 4:
+                break
+            self._review("Utilities", "current_utility", "bankstanding")
+        self._farm_step("harvest")
+        self.assertGreaterEqual(self.player["inventory"].get("Grimy toadflax", 0), 2)
+        for target, output in (
+            ("clean_toadflax", "Clean toadflax"),
+            ("unf_toadflax", "Toadflax potion (unf)"),
+        ):
+            self._collect(output, 2, "Herblore", "current_herblore", target, lambda: 0.5)
+        self._collect("Swamp toad", 2, "Utilities", "current_utility", "gather_swamp_toads", lambda: 0.5)
+        self._collect("Toad's legs", 2, "Utilities", "current_utility", "remove_swamp_toad_legs", lambda: 0.5)
+        self._collect("Agility potion (3)", 2, "Herblore", "current_herblore", "finished_agility_potion", lambda: 0.5)
+        updated, result = apply_shop_service_pure(self.player, "bob_barter_decant_four", 4)
+        self.assertTrue(result["allowed"], result)
+        self.player.update(updated)
+        self.assertEqual(self.player["inventory"]["Agility potion (4)"], 1)
+        self.assertTrue(self.addon.on_equip_item("Iron scimitar"))
+        combat_rolls = cycle((0.09, 0.5, 0.5, 0.5))
+        self._collect("Steel spear", 2, "Combat", "current_combat_target", "hobgoblin_unarmed", lambda: next(combat_rolls))
+        self._collect("Jogre bones", 1, "Combat", "current_combat_target", "jogre", lambda: 0.5)
+        print("Route: supplies obtained from shops, Farming, Herblore, Utilities and full-health combat")
+
+        quest_id = "tai_bwo_wannai_trio"
+        self.assertTrue(self.addon.on_set_quest(quest_id))
+        self._buy("tiadeches_karambwan_stall", "Raw karambwan", 2)
+        self._review("Combat", "current_combat_target", "shaikahan")
+        self.assertIn("Complete Tai Bwo Wannai Trio", " ".join(self.messages[-2:]))
+        self.assertNotEqual(self.player["combat_encounter"].get("target_id"), "shaikahan")
+        self.assertEqual(self.player["inventory"].get("Shaikahan bones", 0), 0)
+        print("Gate: no Shaikahan bone before Trio completion")
+
+        self._finish_quest(quest_id)
+        self.assertEqual(
+            set(self.player["quest_combat_encounters"][quest_id]),
+            {"tai_bwo_wannai_trio_monkey", "tai_bwo_wannai_trio_jogre"},
+        )
+        print("Route: Trio completion earned through both real encounters, including Monkey")
+        self._review("Combat", "current_combat_target", "shaikahan")
+        self.assertIn("Equip a karambwan-poisoned spear", " ".join(self.messages[-2:]))
+        self.assertNotEqual(self.player["combat_encounter"].get("target_id"), "shaikahan")
+        self.assertEqual(self.player["inventory"].get("Shaikahan bones", 0), 0)
+        self.assertEqual(self.player["equipment"]["weapon"], "Iron scimitar")
+        print("Gate: wrong weapon blocks the encounter and grants no bone")
+
+        self._buy("tiadeches_karambwan_stall", "Raw karambwan", 1)
+        self._review("Utilities", "current_utility", "grind_raw_karambwan")
+        self._review("Utilities", "current_utility", "poison_steel_spear_with_karambwan")
+        self.assertEqual(self.player["inventory"]["Steel spear (kp)"], 1)
+        self.assertTrue(self.addon.on_equip_item("Steel spear (kp)"))
+        self._review("Combat", "current_combat_target", "shaikahan")
+        result = self.player["combat_last_result"]
+        self.assertEqual(result["target_id"], "shaikahan")
+        self.assertEqual(
+            result["player_damage"] + result["enemy_lifepoints"] - result["enemy_healing"],
+            COMBAT_ENEMY_DATA["shaikahan"]["stats"]["hitpoints"],
+        )
+        self._collect("Shaikahan bones", 1, "Combat", "current_combat_target", "shaikahan", lambda: 0.5)
+        self.assertEqual(self.player["inventory"]["Shaikahan bones"], 1)
+        self.assertEqual(self.player["carried_inventory"]["shaikahan"]["Shaikahan bones"], 1)
+        self.assertEqual(self.player["combat_kill_counts"]["shaikahan"], 1)
+        self.assertEqual(self.player["equipment"]["weapon"], "Steel spear (kp)")
+        print(f"Route complete: full-health Shaikahan killed; one bone in pack; {self.reviews} real reviews")
 
 
 if __name__ == "__main__":
