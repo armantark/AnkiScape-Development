@@ -17,7 +17,7 @@ you are in the game, with the date the change reached main.
 
 ## Combat
 
-- [ ] Earn Druidic Ritual and Jungle Potion, get Tai Bwo Wannai Trio supplies from shops and skills, and finish Trio through its Monkey and Jogre fights. Prepare and equip a karambwan-poisoned Steel spear, fight The Shaikahan, and see one Shaikahan bone enter your pack; before Trio completion or with the wrong weapon, no bone is awarded. (after the next batch)
+- [ ] Earn Druidic Ritual and Jungle Potion, get Tai Bwo Wannai Trio supplies from shops and skills, and finish Trio through its Monkey and Jogre fights. Prepare and equip a karambwan-poisoned Steel spear, fight The Shaikahan, and see one Shaikahan bone enter your pack; before Trio completion or with the wrong weapon, no bone is awarded. (2026-09-29)
 - [ ] Pick a monster: its max hit and hit chance include the Strength, Attack or Ranged prayer you will have up in that fight. (2026-09-28)
 - [ ] With Prayer set to Off, your carried Prayer potions stay full. (2026-09-28)
 - [ ] After a quest fight, an ordinary fight still pulls you out when you run low with no food. (2026-09-28)
