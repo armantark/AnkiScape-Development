@@ -541,3 +541,37 @@ The MacBook fault tests prove that write and serialization faults warn without c
 
 - 2026-09-29 17:25 PDT — Focused tooling review found that optional skip-report writes and fetch/decode faults changed authoritative runner outcomes, and new inventory/report branches worsened functions beyond the installed slop-gate limits. Review probes named `FileNotFoundError`, malformed JSON `[` and JSON `null`; add fault-path behavior proof and measure the installed gate functions before handoff.
 - 2026-09-29 17:40 PDT — Skip-report serialization fault proof used `self.skipTest(object())`, but unittest `_Outcome.testPartExecutor` catches `SkipTest` and calls `_addSkip(self.result, test_case, str(e))`, so the reason is serializable. Inject the serializer dependency fault in the disposable process rather than assume a non-string skip reason reaches the report.
+
+## 2026-09-29 — Function metrics: Default cognitive report and cache placement
+
+Disposition: fixed. The tool calls slop-gate measurement functions on a disposable full-file snapshot with a disposable cwd. Reports and .complexipy_cache stay outside every worktree and are removed; only the caller-named evidence JSON persists. Evidence: goal-function-metrics-tooling-2026-09-29/papercut-verification.log, agreement.log and the focused behavior logs in the common Git promotion-evidence directory.
+
+- 2026-09-24T05:32:54-0700 — Carried Pack yak slice: `complexipy runtime/runtime_actions_carried_overlay.py --output-format json -q -i > file` left the redirect target empty and wrote `complexipy-results.json` plus `.complexipy_cache/` into the worktree root again; the JSON goes to a file, never stdout, so move it to the evidence directory and delete the cache.
+
+## 2026-09-29 — Function metrics: Output filenames are not report directories
+
+Disposition: fixed. The tool accepts --output as one file, rejects directories and worktree paths (including resolved symlinks), and writes the final JSON directly to that file. slop-gate manages its own existing temporary report directory, so callers never guess complexipy output shape. Evidence: goal-function-metrics-tooling-2026-09-29/papercut-verification.log, agreement.log and the focused behavior logs in the common Git promotion-evidence directory.
+
+- 2026-09-29T14:12:20-0700 — Target-lock cleanup: complexipy emitted a single JSON file at the extensionless `--output cognitive-helper` path and exited 1; reading `cognitive-helper/complexipy-results.json` then failed with `Not a directory`. Use an explicit `.json` output filename for a single-format measurement.
+- 2026-09-29 15:02:02 PDT — Winter Storage complexity evidence: with a nonexistent --output path, installed complexipy wrote a JSON file rather than a report directory; reading `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-winter-storage-combat-2026-09-29/cognitive-before/complexipy-results.json` failed with `NotADirectoryError: [Errno 20] Not a directory`. Read the actual output file; no gate configuration changed.
+
+## 2026-09-29 — Function metrics: Named limits, not unchanged module hotspots
+
+Disposition: fixed. The tool uses the gate instruments rather than chaining whole-file CLI censuses. Collection and limit verdicts are separate: only selected functions can produce limit exit 1, with metric/value/limit on stderr and violations in JSON. Invalid requests or unavailable measurements exit 2 without publishing a report. Lizard discovery matches the fleet hook PATH, including ~/.local/bin. Agreement on real urn functions proves the unchanged cognitive-34 hotspot does not fail a safe selection. Evidence: goal-function-metrics-tooling-2026-09-29/papercut-verification.log, agreement.log and the focused behavior logs in the common Git promotion-evidence directory.
+
+- 2026-09-26T09:52:24-07:00 — A whole-file `complexipy data/urn_data.py` census exited 1 because unchanged `urn_action_event_pure` has cognitive complexity 34; compare the unchanged HEAD census before judging the new helper, whose cognitive complexity is 8.
+- 2026-09-29 15:03:15 PDT — Winter Storage measurement harness treated complexipy exit 1 as an execution error, although it writes the JSON report and legacy hotspots exceed its default limit. The measurement attempt raised `subprocess.CalledProcessError` with `returned non-zero exit status 1`; retain the exit status and check the new helper limits explicitly.
+- 2026-09-29 15:57 PDT: Post-extraction metric collection chained Lizard with `&&`; existing over-limit functions make Lizard exit 1, so the CSV and Halstead commands did not run and `lizard-after.csv: No such file or directory` followed. Collect each instrument with an explicit accepted exit set and save its exit separately rather than treating threshold warnings as a collection failure.
+
+## 2026-09-29 — Function metrics: Halstead is radon hal, not hc
+
+Disposition: fixed. The tool reuses slop-gate.halstead_by_function, which invokes radon hal -f -j and measures difficulty, not volume. There is no caller-written radon subcommand. Evidence: goal-function-metrics-tooling-2026-09-29/papercut-verification.log, agreement.log and the focused behavior logs in the common Git promotion-evidence directory.
+
+- 2026-09-25T15:10:23-0700 — Combat burst player-attack cleanup: `radon hc -f -j logic_pure/<module>.py > <evidence>/halstead-after.json` printed `radon: error: argument {cc,raw,mi,hal}: invalid choice: 'hc' (choose from cc, raw, mi, hal)` to stderr and left an empty JSON file, so the metric summary then failed with `json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)`; radon 6.0.1 reports per-function Halstead difficulty with `radon hal -f -j`.
+
+## 2026-09-29 — Function metrics: Radon function reports are mappings
+
+Disposition: fixed. The same gate measurement function consumes functions.items() and returns per-function difficulty; callers read the tool JSON instead of interpreting radon function pairs. Evidence: goal-function-metrics-tooling-2026-09-29/papercut-verification.log, agreement.log and the focused behavior logs in the common Git promotion-evidence directory.
+
+- 2026-09-26T15:39:57-07:00 — Barbarian lap-bonus metrics: reading `radon hal --json` as function pairs raised `ValueError: too many values to unpack (expected 2)`; its `functions` value is a mapping, so read `.items()`.
+- 2026-09-29 15:03:33 PDT — Winter Storage metric reader assumed radon functions was a list of pairs; installed radon emits a name-keyed mapping. ValueError: too many values to unpack (expected 2), saved in measurement-radon-shape-error.log. Inspect external JSON shapes before iterating.

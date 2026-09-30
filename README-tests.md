@@ -5,6 +5,18 @@
 - Discovery recurses into subdirectories that carry an `__init__.py`
   (for example `tests/combat/`).
 
+## Function-metrics prerequisites
+
+`tests/maintenance/` uses the installed authority at `~/fleet/config/git/hooks/slop_gate.py`; do not copy the hook into this repository. Install the pinned metric executables in `~/.local/bin` before running the suite:
+
+```sh
+uv tool install lizard==1.24.0
+uv tool install complexipy==7.0.1
+uv tool install radon==6.0.1
+```
+
+Each maintenance test checks these prerequisites and fails with the missing paths and a pointer to this file; measurements are neither stubbed nor skipped.
+
 ## How to run
 
 Use the helper at repo root:
