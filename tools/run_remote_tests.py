@@ -430,6 +430,50 @@ def _preflight(lane: str) -> None:
     )
 
 
+def _lane_command_with_skip_report(lane: str, selectors: Sequence[str], report_path: Path) -> str:
+    command = _remote_lane_command(lane, selectors=selectors)
+    if selectors:
+        return f"ANKISCAPE_TEST_SKIP_REPORT={shlex.quote(str(report_path))} " + command
+    return command
+
+
+def _read_skip_report(report_path: Path) -> list[list[str]]:
+    output = _ssh(
+        f"cat {shlex.quote(str(report_path))} 2>/dev/null || true",
+        label="remote skipped-test report", repeat_safe=True,
+    )
+    records = json.loads(output)
+    if not isinstance(records, list):
+        raise ValueError("skipped-test report must be a list")
+    for record in records:
+        if not isinstance(record, list) or len(record) != 2:
+            raise ValueError("skipped-test report entries must be ID/reason pairs")
+        if not all(isinstance(value, str) for value in record):
+            raise ValueError("skipped-test report IDs and reasons must be strings")
+    return records
+
+
+def _print_skipped_tests(
+    report_path: Path, selectors: Sequence[str], returncode: int, output: str,
+) -> None:
+    if not selectors:
+        return
+    if returncode == 0:
+        try:
+            summary = parse_unittest_summary(output)
+        except ValueError:
+            # Main owns incomplete-summary refusals; no skip outcome is known here.
+            return
+        if not summary.skipped:
+            return
+    try:
+        for test_id, reason in _read_skip_report(report_path):
+            print(f"Skipped test: {test_id}: {reason}", file=sys.stderr)
+    except Exception as exc:
+        # An optional report cannot overrule the exit code or focused-summary gate.
+        print(f"warning: skipped-test diagnostics unavailable: {exc}", file=sys.stderr)
+
+
 def _stream_remote_run(
     lane: str, *, timeout: float, poll_interval: float, selectors: Sequence[str] = (),
 ) -> tuple[int, str]:
@@ -438,7 +482,8 @@ def _stream_remote_run(
     report_path = REMOTE_ROOT / "reports" / f"{run_id}.report"
     temporary_report = REMOTE_ROOT / "reports" / f"{run_id}.report.tmp"
     pid_path = REMOTE_ROOT / "reports" / f"{run_id}.pid"
-    lane_command = _remote_lane_command(lane, selectors=selectors)
+    skip_report_path = REMOTE_ROOT / "reports" / f"{run_id}.skips.json"
+    lane_command = _lane_command_with_skip_report(lane, selectors, skip_report_path)
     script = "\n".join(
         (
             f"printf '%s\\n' \"$$\" > {shlex.quote(str(pid_path))}",
@@ -502,6 +547,7 @@ def _stream_remote_run(
                 addition = final_output
             if addition:
                 print(addition, end="", flush=True)
+            _print_skipped_tests(skip_report_path, selectors, returncode, final_output)
             return returncode, final_output
         if time.monotonic() - started >= timeout:
             message = (
@@ -564,8 +610,8 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--expected-tests", type=int,
         help=(
             "Exact focused test count; no skipped tests are accepted. Take it from the "
-            "'Matching tests: N' line of `python3 run_tests.py --list <selectors>`, given the "
-            "same selectors bare, without --select."
+            "'Matching tests: N' line of `python3 run_tests.py --count <selectors>`, given the "
+            "same selectors bare, without --select. --list also reports N but caps printed IDs."
         ),
     )
     args = parser.parse_args(argv)

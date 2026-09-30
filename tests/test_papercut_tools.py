@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -580,6 +581,92 @@ class PapercutToolTests(unittest.TestCase):
                 "or pass --max-results 3.",
             ],
         )
+
+    def test_count_inventory_ignores_id_cap_and_counts_overlapping_selectors_once(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            checkout = Path(temp_dir)
+            tests_dir = checkout / "tests"
+            tests_dir.mkdir()
+            shutil.copy2(ROOT / "run_tests.py", checkout / "run_tests.py")
+            shutil.copy2(ROOT / "tests/__init__.py", tests_dir / "__init__.py")
+            (tests_dir / "test_inventory.py").write_text(
+                "import unittest\n"
+                "class Inventory(unittest.TestCase):\n"
+                "    def must_not_run(self):\n"
+                "        raise AssertionError('inventory executed a test')\n"
+                "for index in range(201):\n"
+                "    setattr(Inventory, f'test_{index:03}', Inventory.must_not_run)\n",
+                encoding="utf-8",
+            )
+            completed = subprocess.run(
+                [sys.executable, str(checkout / "run_tests.py"), "--count", "Inventory", "test_000"],
+                check=False, capture_output=True, text=True,
+            )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(completed.stdout, "Matching tests: 201\n")
+        self.assertIn("Runtime skips: unknown until tests run", completed.stderr)
+        self.assertNotIn("Ran ", completed.stderr)
+
+    def test_count_inventory_reports_class_and_method_skips_without_predicting_runtime(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            checkout = Path(temp_dir)
+            tests_dir = checkout / "tests"
+            tests_dir.mkdir()
+            shutil.copy2(ROOT / "run_tests.py", checkout / "run_tests.py")
+            shutil.copy2(ROOT / "tests/__init__.py", tests_dir / "__init__.py")
+            (tests_dir / "test_inventory.py").write_text(
+                "import unittest\n"
+                "@unittest.skip('aqt/PyQt6 not installed (use .venv-qt)')\n"
+                "class QtOnly(unittest.TestCase):\n"
+                "    @unittest.skip('method reason overridden by class')\n"
+                "    def test_widget(self):\n"
+                "        raise AssertionError('inventory executed a test')\n"
+                "class Plain(unittest.TestCase):\n"
+                "    @unittest.skip('platform guard')\n"
+                "    def test_platform(self):\n"
+                "        raise AssertionError('inventory executed a test')\n"
+                "    def test_runtime(self):\n"
+                "        self.skipTest('scenario ended before the forfeit could be tested')\n",
+                encoding="utf-8",
+            )
+            completed = subprocess.run(
+                [sys.executable, str(checkout / "run_tests.py"), "--count"],
+                check=False, capture_output=True, text=True,
+            )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(completed.stdout, "Matching tests: 3\n")
+        self.assertEqual(completed.stderr.splitlines(), [
+            "Static skip: tests.test_inventory.Plain.test_platform: platform guard",
+            "Static skip: tests.test_inventory.QtOnly.test_widget: aqt/PyQt6 not installed (use .venv-qt)",
+            "Runtime skips: unknown until tests run; metadata applies to this interpreter only.",
+        ])
+
+    def test_optional_report_write_and_serialization_faults_leave_the_result_authoritative(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            checkout = Path(temp_dir)
+            tests_dir = checkout / "tests"
+            tests_dir.mkdir()
+            shutil.copy2(ROOT / "run_tests.py", checkout / "run_tests.py")
+            shutil.copy2(ROOT / "tests/__init__.py", tests_dir / "__init__.py")
+            for serialization_fault in (False, True):
+                with self.subTest(serialization_fault=serialization_fault):
+                    source = "import unittest\nclass Probe(unittest.TestCase):\n    def test_active(self):\n        pass\n"
+                    if serialization_fault:
+                        source += "from unittest.mock import patch\npatch('json.dump', side_effect=TypeError('serialization probe')).start()\n"
+                    (tests_dir / "test_probe.py").write_text(source, encoding="utf-8")
+                    destination = checkout / "report.json" if serialization_fault else checkout / "missing" / "report.json"
+                    completed = subprocess.run(
+                        [sys.executable, str(checkout / "run_tests.py"), "--quiet"],
+                        env={**os.environ, "ANKISCAPE_TEST_SKIP_REPORT": str(destination)},
+                        check=False, capture_output=True, text=True,
+                    )
+                    self.assertEqual(completed.returncode, 0, completed.stderr)
+                    self.assertEqual(completed.stdout, "")
+                    self.assertIn("OK", completed.stderr)
+                    self.assertIn("warning: skipped-test report could not be written:", completed.stderr)
+                    self.assertNotIn("Traceback", completed.stderr)
 
     def test_quiet_runner_keeps_the_final_summary_without_test_names(self):
         completed = subprocess.run(

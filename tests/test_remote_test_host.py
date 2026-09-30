@@ -69,6 +69,92 @@ class RemoteTestHostTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "expected at least 4506"):
             run_remote_tests.validate_test_summary("plain", summary)
 
+    def test_focused_failure_names_actual_skips_without_changing_stdout(self):
+        root = Path(__file__).resolve().parents[1]
+        with self._local_host(lane_waits=False) as reports:
+            checkout = reports.parent / "ankiscape_fork"
+            tests_dir = checkout / "tests"
+            tests_dir.mkdir()
+            shutil.copy2(root / "run_tests.py", checkout / "run_tests.py")
+            shutil.copy2(root / "tests/__init__.py", tests_dir / "__init__.py")
+            (tests_dir / "test_skip_probe.py").write_text(
+                "import unittest\n"
+                "class SkipProbe(unittest.TestCase):\n"
+                "    def test_active(self):\n"
+                "        pass\n"
+                "    @unittest.skip('aqt/PyQt6 not installed (use .venv-qt)')\n"
+                "    def test_qt(self):\n"
+                "        pass\n"
+                "    def test_runtime(self):\n"
+                "        self.skipTest('scenario ended before the forfeit could be tested')\n",
+                encoding="utf-8",
+            )
+            command = shlex.join((sys.executable, "run_tests.py", "--quiet", "--", "SkipProbe"))
+            with (
+                patch.object(run_remote_tests, "_remote_lane_command", return_value=command),
+                patch.object(run_remote_tests, "_preflight"),
+                patch.object(run_remote_tests, "_sync"),
+                contextlib.redirect_stdout(io.StringIO()) as stdout,
+                contextlib.redirect_stderr(io.StringIO()) as stderr,
+            ):
+                result = run_remote_tests.main([
+                    str(checkout), "plain", "--select", "SkipProbe", "--expected-tests", "3",
+                    "--poll-interval", "0.01",
+                ])
+
+        self.assertEqual(result, 1)
+        self.assertIn("OK (skipped=2)", stdout.getvalue())
+        self.assertNotIn("test_qt", stdout.getvalue())
+        self.assertNotIn("test_runtime", stdout.getvalue())
+        self.assertIn(
+            "Skipped test: tests.test_skip_probe.SkipProbe.test_qt: "
+            "aqt/PyQt6 not installed (use .venv-qt)", stderr.getvalue(),
+        )
+        self.assertIn(
+            "Skipped test: tests.test_skip_probe.SkipProbe.test_runtime: "
+            "scenario ended before the forfeit could be tested", stderr.getvalue(),
+        )
+        self.assertIn(
+            "remote focused lane false pass: tests=3, skipped=2; expected exactly 3 tests and no skips",
+            stderr.getvalue(),
+        )
+
+    def test_optional_report_faults_do_not_change_focused_outcomes(self):
+        root = str(self._worktree())
+        reads = []
+
+        def ssh(_command, *, label, **_kwargs):
+            if label == "remote skipped-test report":
+                reads.append(label)
+                if isinstance(fault, Exception):
+                    raise fault
+                return fault
+            return output if "log" in label else ""
+
+        for fault in (RuntimeError("fetch failed"), "[", "null", '[["test", 42]]'):
+            for skipped in (0, 1):
+                reads.clear()
+                output = "Ran 2 tests in 0.1s\n\n" + ("OK (skipped=1)\n" if skipped else "OK\n")
+                with (
+                    self.subTest(fault=str(fault), skipped=skipped),
+                    patch.object(run_remote_tests, "_preflight"),
+                    patch.object(run_remote_tests, "_sync"),
+                    patch.object(run_remote_tests, "_ssh", side_effect=ssh),
+                    patch.object(run_remote_tests, "_completion_report", return_value=0),
+                    patch.object(run_remote_tests, "stop_pending_lane", side_effect=lambda: run_remote_tests._pending_path().unlink()),
+                    contextlib.redirect_stdout(io.StringIO()) as stdout,
+                    contextlib.redirect_stderr(io.StringIO()) as stderr,
+                ):
+                    result = run_remote_tests.main([
+                        root, "plain", "--select", "probe", "--expected-tests", "2",
+                    ])
+                    self.assertEqual(result, skipped, stderr.getvalue())
+                    self.assertIn(output, stdout.getvalue())
+                    self.assertEqual(len(reads), skipped)
+                    if skipped:
+                        self.assertIn("warning: skipped-test diagnostics unavailable:", stderr.getvalue())
+                        self.assertIn("remote focused lane false pass: tests=2, skipped=1;", stderr.getvalue())
+
     def test_focused_commands_quote_selectors_and_preserve_full_lane_commands(self):
         selectors = ("tests/test_remote_test_host.py", "name with 'quotes'; $(false)")
         for lane in ("plain", "qt"):

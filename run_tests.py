@@ -1,5 +1,6 @@
 import argparse
 import difflib
+import json
 import os
 import sys
 import unittest
@@ -92,6 +93,31 @@ def test_result_exit_code(result: unittest.TestResult, *, focused: bool) -> int:
     return 0
 
 
+def print_count_inventory(suite: unittest.TestSuite, count: int) -> None:
+    print(f"Matching tests: {count}", flush=True)
+    for test in iter_tests(suite):
+        method = getattr(test, test._testMethodName)
+        skipped = type(test) if getattr(type(test), "__unittest_skip__", False) else method
+        if getattr(skipped, "__unittest_skip__", False):
+            print(f"Static skip: {test.id()}: {skipped.__unittest_skip_why__}", file=sys.stderr)
+    print(
+        "Runtime skips: unknown until tests run; metadata applies to this interpreter only.",
+        file=sys.stderr,
+    )
+
+
+def write_skip_report(result: unittest.TestResult) -> None:
+    skip_report = os.environ.get("ANKISCAPE_TEST_SKIP_REPORT")
+    if not skip_report:
+        return
+    # Optional diagnostics must not change the unittest result or stdout contracts.
+    try:
+        with open(skip_report, "w", encoding="utf-8") as report:
+            json.dump([(test.id(), reason) for test, reason in result.skipped], report)
+    except Exception as exc:
+        print(f"warning: skipped-test report could not be written: {exc}", file=sys.stderr)
+
+
 def main() -> int:
     root = os.path.dirname(os.path.abspath(__file__))
     os.chdir(root)
@@ -107,7 +133,17 @@ def main() -> int:
             "unittest IDs, or as fragments when no whole segment matches"
         ),
     )
-    parser.add_argument(
+    inventory = parser.add_mutually_exclusive_group()
+    inventory.add_argument(
+        "--count",
+        action="store_true",
+        help=(
+            "print only 'Matching tests: N' to stdout without running tests or applying "
+            "the ID cap; report class/method skip metadata for this interpreter to stderr; "
+            "runtime skips remain unknown"
+        ),
+    )
+    inventory.add_argument(
         "--list",
         action="store_true",
         help=(
@@ -173,6 +209,10 @@ def main() -> int:
         print(f"No discovered unittest ID matched: {', '.join(args.selectors)}", file=sys.stderr)
         return 2
 
+    if args.count:
+        print_count_inventory(suite, len(selected_ids))
+        return 0
+
     if args.list:
         for test_id in selected_ids[:args.max_results]:
             print(test_id)
@@ -192,6 +232,7 @@ def main() -> int:
     verbosity = 0 if args.quiet else args.verbosity
     runner = unittest.TextTestRunner(verbosity=verbosity, failfast=args.failfast)
     result = runner.run(suite)
+    write_skip_report(result)
     returncode = test_result_exit_code(result, focused=bool(args.selectors))
     if returncode == 2:
         print(

@@ -22,6 +22,27 @@ does not also select `test_combat_logic`; a selector that is no whole name
 falls back to a case-insensitive fragment of the ID. Preview a selection with
 `run_tests.py --list <selector>`.
 
+For the exact focused remote count without printing every ID, use collect-only inventory:
+
+```
+/opt/homebrew/bin/python3 run_tests.py --count test_combat_logic test_prayer test_warriors_guild test_preview_food
+```
+
+`--count` prints `Matching tests: N` to stdout, includes skipped tests, deduplicates
+matching selectors, and is not limited by `--max-results`. It reports class and
+method skip reasons to stderr for the interpreter doing discovery. Runtime skips
+remain unknown until execution; use the same tree and the intended lane's
+interpreter when collecting. `--list` keeps its existing ID-only stdout and exits
+2 when the ID cap cuts the list.
+
+Pass N to `tools/run_remote_tests.py` as `--expected-tests`, with each bare
+inventory selector repeated as `--select`. The runner still requires exactly N
+executed tests and zero skips. A focused failure names each actual skipped ID and
+reason on stderr, including runtime `self.skipTest` calls, without changing the
+quiet test output on stdout. Skip-report write, fetch, or decode faults produce
+stderr warnings and do not change the test outcome. Successful zero-skip focused
+runs do not fetch a report.
+
 Run the full real Qt suite separately through the checked-in environment:
 
 ```
