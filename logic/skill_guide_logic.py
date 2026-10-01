@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Mapping, Optional, Sequence
 
+from ..core.skill_guide_locks import guide_slayer_family_lock_reasons_pure, guide_target_lock_reasons_pure
 from ..logic_pure.logic_pure_state import quest_completed_pure
 
 
@@ -80,6 +81,7 @@ def _fish_rows(
     name: str,
     fish_rows: Sequence[object],
     listed_fish: set[str],
+    lock_reasons: tuple[str, ...] = (),
 ) -> list[SkillGuideRow]:
     """One row per fish: a spot's lowest level does not unlock every fish it holds."""
 
@@ -96,12 +98,17 @@ def _fish_rows(
                 name=name if single else "Catch " + fish_id.removeprefix("raw_").replace("_", " "),
                 level=_positive_level(_field(fish, "level")) or 1,
                 icon_key=str(_field(fish, "output_item", name)),
+                lock_reasons=lock_reasons,
             )
         )
     return rows
 
 
-def _action_rows(target_table: object) -> tuple[SkillGuideRow, ...]:
+def _action_rows(
+    target_table: object,
+    skill_id: str = "",
+    player_data: Optional[Mapping[str, object]] = None,
+) -> tuple[SkillGuideRow, ...]:
     if not isinstance(target_table, Mapping):
         return ()
 
@@ -122,9 +129,14 @@ def _action_rows(target_table: object) -> tuple[SkillGuideRow, ...]:
             )
             or target_id
         )
+        lock_reasons = (
+            guide_target_lock_reasons_pure(player_data, skill_id, str(target_key))
+            if player_data is not None
+            else ()
+        )
         fish_rows = _field(spec, "fish", ())
         if isinstance(fish_rows, (tuple, list)) and fish_rows:
-            rows.extend(_fish_rows(target_id, name, fish_rows, listed_fish))
+            rows.extend(_fish_rows(target_id, name, fish_rows, listed_fish, lock_reasons))
             continue
         rows.append(
             SkillGuideRow(
@@ -132,6 +144,7 @@ def _action_rows(target_table: object) -> tuple[SkillGuideRow, ...]:
                 name=name,
                 level=level,
                 icon_key=_target_icon_key(spec, name),
+                lock_reasons=lock_reasons,
             )
         )
     return tuple(sorted(rows, key=lambda row: (row.level, row.name.casefold(), row.row_id)))
@@ -180,7 +193,10 @@ def _equipment_rows(
     return tuple(sorted(rows, key=lambda row: (row.level, row.name.casefold(), row.row_id)))
 
 
-def _slayer_monster_rows(slayer_families: object) -> tuple[SkillGuideRow, ...]:
+def _slayer_monster_rows(
+    slayer_families: object,
+    player_data: Optional[Mapping[str, object]] = None,
+) -> tuple[SkillGuideRow, ...]:
     if not isinstance(slayer_families, Mapping):
         return ()
 
@@ -199,6 +215,11 @@ def _slayer_monster_rows(slayer_families: object) -> tuple[SkillGuideRow, ...]:
                 name=name,
                 level=level or 1,
                 icon_key=icon_key,
+                lock_reasons=(
+                    guide_slayer_family_lock_reasons_pure(player_data, family)
+                    if player_data is not None
+                    else ()
+                ),
             )
         )
     return tuple(sorted(rows, key=lambda row: (row.level, row.name.casefold(), row.row_id)))
@@ -451,16 +472,21 @@ def skill_guide_sections_pure(
     equipment_data: Mapping[str, Mapping[str, object]],
     *,
     slayer_families: object = None,
+    player_data: Optional[Mapping[str, object]] = None,
 ) -> tuple[SkillGuideSection, ...]:
-    """Project settled guide families without copying source metadata."""
+    """Project settled guide families without copying source metadata.
+
+    With `player_data`, a row also carries the quest, material, tool and region
+    locks the skill's target list shows for it.
+    """
 
     sections = []
-    action_rows = _action_rows(target_table)
+    action_rows = _action_rows(target_table, _skill_id(skill), player_data)
     if action_rows:
         sections.append(SkillGuideSection("actions", "Actions", action_rows))
 
     if _skill_id(skill) == "slayer":
-        monster_rows = _slayer_monster_rows(slayer_families)
+        monster_rows = _slayer_monster_rows(slayer_families, player_data)
         if monster_rows:
             sections.append(
                 SkillGuideSection("monsters", "Monsters", monster_rows)

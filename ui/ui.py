@@ -24404,10 +24404,10 @@ def show_main_menu(
             )
             if skill_id == "farming"
             else skill_guide_sections_pure(
-                skill_name,
-                _SKILL_TARGET_TABLES.get(skill_id),
+                skill_name, _SKILL_TARGET_TABLES.get(skill_id),
                 EQUIPMENT_ITEM_DATA,
                 slayer_families=SLAYER_FAMILIES_BY_ID,
+                player_data=player_data,
             )
         )
         first_anchor = None
