@@ -1,24 +1,11 @@
-"""Stable equipment catalog policies not encoded by acquisition data."""
+"""Equipment generator selections that the acquisition data does not encode."""
 
 from __future__ import annotations
 
-from typing import Protocol
-
-
-class SourceItemLike(Protocol):
-    item_id: int
-
-
-DROP_ONLY_EXCLUDED_ITEM_IDS = frozenset({
-    6665,
-    6666,
-    13850,
-    13851,
-    13852,
-    13855,
-    13856,
-    13857,
-})
+# Drop-derived rows the live catalog does not carry: the six skill Brawling
+# gloves already come from data/brawling_gloves_data.py, and Mudskipper hat
+# (6665) and Flippers (6666) have no equipment row in data/equipment_data.py.
+DROP_ONLY_EXCLUDED_ITEM_IDS = frozenset({6665, 6666, 13850, 13851, 13852, 13855, 13856, 13857})
 
 LEGACY_EQUIPMENT_ITEMS: tuple[
     tuple[str, int, str | None, int, bool, str, str], ...
@@ -94,13 +81,3 @@ SOURCE_PROVENANCE_OVERRIDES = {
     ),
 }
 
-
-def drop_is_excluded(source_item: SourceItemLike | None) -> bool:
-    return source_item is None or source_item.item_id in DROP_ONLY_EXCLUDED_ITEM_IDS
-
-
-def source_provenance(item_id: int, default_source: str) -> tuple[str, str]:
-    return SOURCE_PROVENANCE_OVERRIDES.get(
-        item_id,
-        (default_source, "items.yml equipment block"),
-    )

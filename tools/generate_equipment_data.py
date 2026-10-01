@@ -12,6 +12,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Dict, Mapping, Optional, Sequence, Tuple
 
+
 DEFAULT_GAME_ROOT = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
 ITEMS_YML_RELATIVE = Path("data/cfg/items.yml")
 ADDON_ROOT = Path(__file__).resolve().parents[1]
@@ -19,12 +20,11 @@ if str(ADDON_ROOT) not in sys.path:
     sys.path.insert(0, str(ADDON_ROOT))
 
 from tools.generation.equipment_policy import (
+    DROP_ONLY_EXCLUDED_ITEM_IDS,
     LEGACY_EQUIPMENT_ITEMS,
     LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES,
-    drop_is_excluded,
-    source_provenance,
+    SOURCE_PROVENANCE_OVERRIDES,
 )
-from tools.generation.outputs import write_or_check
 
 SlotId = str
 BonusValue = int | float | bool | str
@@ -582,6 +582,10 @@ def _smithing_recipe_equipment_items(
     return tuple(generated)
 
 
+def _drop_is_excluded(source_item: Optional[SourceItem]) -> bool:
+    return source_item is None or source_item.item_id in DROP_ONLY_EXCLUDED_ITEM_IDS
+
+
 def _resolve_source_item_by_name(
     item_name: object,
     items_by_name: Mapping[str, SourceItem],
@@ -664,7 +668,7 @@ def _drop_equipment_items(
             if not guaranteed_drop:
                 continue
             source_item = _resolve_source_item_by_name(guaranteed_drop[0], items_by_name)
-            if drop_is_excluded(source_item):
+            if _drop_is_excluded(source_item):
                 continue
             equipment_item = _equipment_item_from_source_item(source_item, f"COMBAT_ENEMY_DATA guaranteed drop; {enemy_name}")
             if equipment_item is not None:
@@ -686,7 +690,7 @@ def _drop_equipment_items(
                     source_item = _resolve_source_item_by_name(
                         slot.get("item"), items_by_name
                     )
-                if drop_is_excluded(source_item):
+                if _drop_is_excluded(source_item):
                     continue
                 equipment_item = _equipment_item_from_source_item(
                     source_item,
@@ -739,9 +743,9 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
         block = source_item.equipment if source_item is not None else None
         if not _has_mappable_equipment_slot(block):
             continue
-        source, source_status = source_provenance(
+        source, source_status = SOURCE_PROVENANCE_OVERRIDES.get(
             item_id,
-            f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}; {source_note}",
+            (f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}; {source_note}", "items.yml equipment block"),
         )
         generated.append(
             GeneratedEquipmentItem(
@@ -1350,8 +1354,7 @@ def generate(
     output_path: Path,
     *,
     provenance_root: Optional[Path] = None,
-    check: bool = False,
-) -> int:
+) -> None:
     if provenance_root is None:
         provenance_root = game_root
     addon_root = output_path.resolve().parent
@@ -1382,7 +1385,7 @@ def generate(
     rendered = _render_module(equipment_items)
     if game_root != provenance_root:
         rendered = rendered.replace(str(game_root), str(provenance_root))
-    return write_or_check({output_path: rendered}, check=check)
+    output_path.write_text(rendered, encoding="utf-8")
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -1394,7 +1397,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="external 2011Scape checkout root; reads <root>/data/cfg/items.yml",
     )
     parser.add_argument("--output", type=Path, default=ADDON_ROOT / "data" / "equipment_data.py")
-    parser.add_argument("--check", action="store_true", help="report output drift without writing")
     args = parser.parse_args(argv)
     if args.game_root is None:
         game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", DEFAULT_GAME_ROOT))
@@ -1402,15 +1404,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     else:
         game_root = args.game_root
         provenance_root = args.game_root
-    result = generate(
-        game_root,
-        args.output,
-        provenance_root=provenance_root,
-        check=args.check,
-    )
-    if not args.check:
-        print(f"Wrote {args.output}")
-    return result
+    generate(game_root, args.output, provenance_root=provenance_root)
+    print(f"Wrote {args.output}")
+    return 0
 
 
 if __name__ == "__main__":
