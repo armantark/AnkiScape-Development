@@ -482,7 +482,7 @@ from ..logic.slayer_logic import (
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
-from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_resolvable_combat_blockers_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_resolvable_combat_blockers_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
@@ -2525,19 +2525,25 @@ if HAS_QT:
 
             self.chips_lbl = QLabel("")
             self.chips_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
-            bottom_row = QHBoxLayout()
-            bottom_row.setContentsMargins(0, 0, 0, 0)
-            bottom_row.setSpacing(6)
-            bottom_row.addWidget(self.chips_lbl, 1)
-            self.action_column = QHBoxLayout()
-            self.action_column.setContentsMargins(0, 0, 0, 0)
-            bottom_row.addLayout(self.action_column)
-            info.addLayout(bottom_row)
             self.slayer_lbl = QLabel("")
             self.slayer_lbl.setObjectName("slayerAssignmentProgress")
             self.slayer_lbl.setStyleSheet(self.chips_lbl.styleSheet())
             self.slayer_lbl.setVisible(False)
-            info.addWidget(self.slayer_lbl)
+            # Slayer progress stacks under the chips beside the Bank run
+            # button: a row of its own overflows the fixed-height card.
+            chips_column = QVBoxLayout()
+            chips_column.setContentsMargins(0, 0, 0, 0)
+            chips_column.setSpacing(1)
+            chips_column.addWidget(self.chips_lbl)
+            chips_column.addWidget(self.slayer_lbl)
+            bottom_row = QHBoxLayout()
+            bottom_row.setContentsMargins(0, 0, 0, 0)
+            bottom_row.setSpacing(6)
+            bottom_row.addLayout(chips_column, 1)
+            self.action_column = QHBoxLayout()
+            self.action_column.setContentsMargins(0, 0, 0, 0)
+            bottom_row.addLayout(self.action_column)
+            info.addLayout(bottom_row)
 
             root.addLayout(info, 1)
 
@@ -2631,6 +2637,23 @@ if HAS_QT:
             self.slayer_lbl.setText(text)
             self.slayer_lbl.setVisible(bool(text))
             self._info_layout.setSpacing(2 if text else 4)
+
+        def _set_combat_chips(self, state: dict, player_data: dict) -> None:
+            """Kills and trained skills, or, while the enemy is held and neither
+            count can move, the finisher prompt in amber over both chip lines."""
+            notice = state["finisher_notice"]
+            if notice:
+                self.chips_lbl.setText(notice)
+                self.chips_lbl.setStyleSheet(self.world_notice_lbl.styleSheet())
+                # Its two wrapped lines need the spacing a Slayer line gets.
+                self._info_layout.setSpacing(2)
+            else:
+                trains = " • ".join(state["trained_skills"])
+                self.chips_lbl.setText(f"Kills: {state['kills_total']} · Trains {trains}")
+                self.chips_lbl.setStyleSheet(self.slayer_lbl.styleSheet())
+                self._set_slayer_progress(slayer_assignment_progress_pure(player_data))
+            self.chips_lbl.setWordWrap(bool(notice))
+            self.chips_lbl.setVisible(True)
 
         def set_data(self, player_data: dict, skill: str) -> None:
             """Update HUD content from player data and currently active skill."""
@@ -2884,12 +2907,7 @@ if HAS_QT:
                 self.enemy_progress.setVisible(True)
                 self.enemy_progress.setValue(state["enemy_pct"])
 
-                # Chip line: which skills this attack style trains, plus kills so far
-                trains = " • ".join(state["trained_skills"])
-                kills = state["kills_total"]
-                self.chips_lbl.setText(f"Kills: {kills} · Trains {trains}")
-                self.chips_lbl.setVisible(True)
-                self._set_slayer_progress(slayer_assignment_progress_pure(player_data))
+                self._set_combat_chips(state, player_data)
 
                 self.adjustSize()
                 self._reposition()
@@ -7630,10 +7648,8 @@ def show_main_menu(
         layout.addWidget(action_row)
 
         def _refresh_combat_action() -> None:
-            target_id = str(
-                player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
-            )
-            state = combat_finisher_state_pure(player_data, target_id)
+            hud = combat_hud_state_pure(player_data)
+            state = hud["finisher"]
             action_combo.blockSignals(True)
             action_combo.clear()
             action_combo.addItem("Attack", "attack")
@@ -7641,26 +7657,7 @@ def show_main_menu(
                 action_combo.addItem(state["action_label"], "finisher")
                 finisher_item = action_combo.model().item(1)
                 finisher_item.setEnabled(bool(state["available"]))
-                if state["available"]:
-                    if state.get("charged"):
-                        finisher_item.setToolTip(
-                            "Spends one Fungicide spray charge and preserves the "
-                            "remaining dose. A loaded Fungicide canister automatically "
-                            "refills an empty spray."
-                        )
-                    else:
-                        verb = "Consumes one" if state["consumable"] else "Uses the reusable"
-                        finisher_item.setToolTip(
-                            f"{verb} {state['item']} and finishes the enemy."
-                        )
-                elif state["ready"]:
-                    finisher_item.setToolTip(
-                        f"No {state['item']} is loaded in the combat pack."
-                    )
-                else:
-                    finisher_item.setToolTip(
-                        f"Available at 1–{state['threshold_lifepoints']} enemy LP."
-                    )
+                finisher_item.setToolTip(hud["finisher_tooltip"])
                 if (
                     player_data.get("combat_action") == "finisher"
                     and state["available"]

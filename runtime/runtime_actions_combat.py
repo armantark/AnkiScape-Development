@@ -62,6 +62,7 @@ from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
+    combat_hud_state_pure,
     apply_cooking_action_pure,
     apply_crafting_pure,
     apply_firemaking_action_pure,
@@ -447,6 +448,35 @@ def _apply_slayer_kill_credit(
     return new_data, slayer_result
 
 
+def _mark_finisher_hold(player_data, encounter_before, result) -> str:
+    """The event-log line for an enemy left in finisher range when the finisher
+    will not fire by itself, once per encounter: the HUD's amber line keeps
+    saying it on later reviews. The mark rides on the encounter record, which
+    every review rebuilds and a kill, death, flee, bank run or action change
+    replaces, so it is carried forward here until the enemy dies."""
+    encounter = player_data.get("combat_encounter")
+    if not encounter:
+        return ""
+    if (encounter_before or {}).get("finisher_hold_logged") and not result.get("kills"):
+        encounter["finisher_hold_logged"] = True
+        return ""
+    hud = combat_hud_state_pure(player_data)
+    finisher = hud["finisher"]
+    if not finisher["ready"] or (finisher["available"] and finisher["automatic"]):
+        return ""
+    encounter["finisher_hold_logged"] = True
+    return (
+        f"{result.get('display_name') or 'enemy'} at "
+        f"{finisher['enemy_lifepoints']} LP · {hud['finisher_notice']}"
+    )
+
+
+def _log_finisher_hold(ctx, notice) -> None:
+    # Logged after the review's damage line, but marked before the save.
+    if notice:
+        ctx.show_activity_gain(notice)
+
+
 def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
@@ -512,6 +542,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     )
 
     active_prayer_selection = tuple(active_prayer_selection_pure(player_data))
+    encounter_before = player_data.get("combat_encounter")
     using_finisher = player_data.get("combat_action") == "finisher"
     if using_finisher:
         new_data, ok, result = apply_combat_finisher_pure(
@@ -618,6 +649,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     player_data.update(
         repair_combat_supply_loadout_class_pure(player_data, EQUIPMENT_DATA)
     )
+    finisher_hold = _mark_finisher_hold(player_data, encounter_before, result)
     drops = result.get("drops", {}) if isinstance(result, dict) else {}
     if not isinstance(drops, dict):
         drops = {}
@@ -859,6 +891,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
             f"{healing_phrase}{dragonfire_suffix}"
         )
+    _log_finisher_hold(ctx, finisher_hold)
     clue_refusal_reason = str(result.get("clue_refusal_reason", ""))
     if clue_refusal_reason:
         ctx.show_activity_gain(clue_refusal_reason)
