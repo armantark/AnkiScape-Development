@@ -34,9 +34,10 @@ selects or reserves its geometry. Translucent drawers may cover the card while
 open, but their upward stack shrinks to remain reachable inside the main window.
 A badge popover closes when no placement avoids the measured card rectangle.
 
-- `ReviewStrip` owns three stable left-to-right seats: separate D&D and Farming
-  badges and `ReviewHUD`; the bank-run button sits inside the HUD. Hidden or
-  empty content does not resize or reorder those seats.
+- `ReviewStrip` owns the D&D badge, Farming badge, `ReviewHUD`, Shooting Star
+  notice, and main-menu button seats; the bank-run button sits inside the HUD.
+  `_sync_review_strip_layout()` selects and sizes the visible seats for the
+  available width.
 - `logic/review_strip_logic.py` decides strip, Event-log, badge, and bank-action
   views. `logic/grand_exchange_logic.py` owns GE row visibility, text, tone, and
   action. `ui/ui.py` renders those projections without re-deriving them.
@@ -136,7 +137,7 @@ expected file and provenance key in the asset test.
 - `runtime/runtime_actions.py`: Anki-free runtime review-action handlers and handler-keyed can-start checks for the complete skill surfaces, unified Combat, Quests, Utilities, and Activities. It mutates `player_data` through a callback/context contract supplied by `__init__.py`.
 - `core/constants.py`: compatibility exports plus quest/diary assembly that remains in the facade because later projections depend on those names and their execution order; domain-grouped imports and activity, skill, asset, and quest-item projections live under `core/constants_parts/`.
   The facade pins its historical `__all__` order in `core/constants_parts/public_exports.py`; the module-surface digest sorts public names and therefore cannot detect this ordering contract.
-- `logic_pure/logic_pure.py`: pure helpers for XP/level math, probabilities, crafting, Utilities/Activities, mining, woodcutting, fishing, hunter, smithing, quests, claims, and runecrafting operations.
+- `logic_pure/logic_pure.py`: a re-export facade; the pure helpers live in the `logic_pure/logic_pure_*.py` domain modules (gathering, production, quest, claims, runecrafting, combat, and others).
 - `logic/cadence_kernel.py`: pure foreground-action cadence contracts. It declares
   `R = 1000`, exact integer residual scheduling, four admission modes, overflow
   validation, and resource/actor lock shapes.
@@ -167,7 +168,7 @@ expected file and provenance key in the asset test.
   Read this file for the current catalog.
 - `data/equipment_data.py`: generated worn-equipment contract for Smithing armour/weapons and Mining bonus gear, including slots, combat gates, two-handed flags, attack speed, and combat bonuses.
 - `generated/quest_catalog_generated.py`: generated pre-EOC quest catalog. Do not edit manually; regenerate it with `tools/build_pre_eoc_quest_catalog.py`.
-- `data/quest_data.py`: Quest definitions, hand-audited overrides, generated quest item rewards, XP lamp claim definitions, and completion-unlock rules for skill targets.
+- `data/quest_data.py`: a re-export facade over the `data/quest/` package, which holds quest definitions (`definitions/`), hand-audited overrides (`catalog_overrides.py`, `stage_overrides/`), generated quest item rewards, XP lamp claim definitions, and completion-unlock rules for skill targets (`ledger.py`).
 - `ui/ui.py`: Qt dialogs, HUD, menu, stats, bank, achievements, and settings.
 - `core/hooks.py`: centralized hook registration and dry-run planning.
 - `core/injectors.py`: floating widget and reviewer injection helpers; the retired Deck Browser content path has no separate module.
@@ -181,7 +182,7 @@ expected file and provenance key in the asset test.
 ## Existing Skill Patterns
 - Gathering skills use success probabilities and selected resource data.
 - Processing skills consume inventory and produce output items.
-- All skills use the shared `EXP_TABLE` and per-skill `*_level` / `*_exp` fields.
+- Skills get their XP curve from `exp_table_for_skill()`: Dungeoneering uses `DUNGEONEERING_EXP_TABLE`, every other skill `EXP_TABLE`. Each skill keeps per-skill `*_level` / `*_exp` fields.
 - Inventory is a single dictionary shared across ores, logs, gems, bars, and crafted items.
 - The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration right now.
 - The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs can support future UI/action metadata without breaking current saves.
@@ -207,7 +208,7 @@ expected file and provenance key in the asset test.
 - Saved Advanced layouts describe logical urn slots. `materialize_urn_layout_pure()` follows each slot through runed, active, and full physical names before either skilling or Combat repacks it, prioritizing the active charge-bearing object and then teleportable full urns.
 - Direct inventory actions that award XP but do not answer a card use a bounded custom Anki undo stack. Full-urn teleport persists immediately and never consumes or creates the single review-action snapshot; multiple direct teleports undo in LIFO order independently of review undo.
 - Owned gilded-altar state is stint-scoped. Starting a new stint consumes one clean marrentill per installed burner, freezes the 250/300/350% multiplier, and does not re-charge herbs until target/mode selection ends that stint.
-- Skills-hub target lists now consume `target_metadata.TargetRowMetadata` rows. The Qt layer uses one shared `QListWidget` renderer for Mining, Woodcutting, Fletching, Firemaking, Fishing, and the flat list cases, plus one shared grouped `QTreeWidget` renderer for Smithing, Crafting, Cooking, Runecrafting, and Hunter. The pure row metadata owns labels, tooltips, icon paths, group ids, sort keys, current state, enabled state, and lock reasons; Qt only renders rows, persists group expansion where applicable, and guards disabled-row clicks.
+- Skills-hub target lists now consume `target_metadata.TargetRowMetadata` rows. `_build_target_selector()` picks the shared flat `QListWidget` renderer when a skill has fewer than 25 rows or no row has a group, and the shared grouped `QTreeWidget` renderer otherwise. The pure row metadata owns labels, tooltips, icon paths, group ids, sort keys, current state, enabled state, and lock reasons; Qt only renders rows, persists group expansion where applicable, and guards disabled-row clicks.
 - Achievement definitions now live behind `core/achievement_metadata.py`. `constants.ACHIEVEMENTS` stays as a legacy export for `core/logic.py`, old tests, and any add-on code that reads the dict shape, while UI code consumes row/progress helpers instead of reconstructing grouped achievement state.
 - Generated Achievement Diary curation preserves source identity rather than
   rewriting it. A task moved within its family keeps its original-tier durable
@@ -283,11 +284,12 @@ expected file and provenance key in the asset test.
   familiar policy may fill an empty slot but must not silently replace the live
   entity during navigation. BoB packing shares the target's existing
   Casual/Advanced inventory mode rather than adding an independent mode switch.
-- Compatible restore trips coalesce rather than charging duplicate reviews. Summoning's
-  `Visiting altar+obelisk` foreground detour consumes the next successful answer,
-  replaces the selected target action, and restores ordinary Prayer and Summoning
-  points together. An existing combat Bank-run altar stop adds the obelisk restore at
-  no further review cost. It cannot fire on Again, run on wall-clock time, restore
+- Compatible restore trips coalesce rather than charging duplicate reviews. The Summoning
+  contract specifies a `Visiting altar+obelisk` foreground detour that consumes the
+  next successful answer, replaces the selected target action, and restores ordinary
+  Prayer and Summoning points together, and an existing combat Bank-run altar stop
+  that adds the obelisk restore at no further review cost. The runtime implements only
+  the `Visit obelisk` direct command, which restores Summoning points alone. It cannot fire on Again, run on wall-clock time, restore
   special-move points without source support, or grant the target's ordinary output.
 - Enabled automation may also insert an owned-resource Bank detour. Summoning pouch
   depletion converts the next successful answer into a refill/resummon transaction
@@ -373,10 +375,9 @@ expected file and provenance key in the asset test.
   toolkit and period Activity-compass sprites. Activities gives its primary target
   picker guaranteed height beneath a bounded, separately labeled event-status
   region; Utilities never renders those event cards.
-- The Activities picker paginates by semantic group instead of scrolling all
-  groups at once. Previous/next navigation preserves the selected activity,
-  page height is measured from the current rows, and group labels are plain
-  headings rather than false expandable-tree affordances.
+- The Activities middle column has separate routes for the master tree,
+  Minigames, and D&D (`_ACTIVITY_SELECTION_GROUPS`). Master-tree groups are tree
+  parents; Minigames and D&D render flat lists.
 - Activity group icons are semantic, not decorative fallbacks:
   `distractions_and_diversions` uses the yellow compass and `minigames` uses
   the red compass. The green compass is reserved for Achievement Diaries.
@@ -426,14 +427,14 @@ expected file and provenance key in the asset test.
   Verify stages, routes, branches, item transformations, combat, rewards, and unlocks under
   `memory-bank/pre-eoc-source-verification-standard.md`. Wait for high-fidelity Darkan evidence where necessary.
   Rows carry source oldids, strict prerequisites, rewards, lamp definitions, and source-backed journal stages.
-  Put hand-audited overrides in `data/quest_data.py` when pinned pre-EOC evidence is stricter than generated or emulator data.
+  Put hand-audited overrides in `data/quest/catalog_overrides.py` or `data/quest/stage_overrides/` when pinned pre-EOC evidence is stricter than generated or emulator data.
 - Generated quest reward prose can misclassify an unlock or post-quest XP as an immediate item or XP reward. Correct runtime rewards through `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` and `QUEST_XP_REWARD_REPLACEMENTS_BY_ID`, then also correct `quest_reward_items_as_dict()`: it reads generated catalog rows independently, so an obsolete generated item otherwise remains a fake Bank definition and changes the reachability seed set even when runtime no longer grants it. Reward regressions must complete every `QUEST_DATA` entry through `apply_quest_progress_pure()`, because reachable-only sets leave latent catalog rewards untested. Whole-tuple guards pin exact flat grants for every item replacement, exact lamp definitions for every lamp replacement, and exact unlocks only for quests with unlock replacements; they must not claim union coverage.
   Because quest reward definitions feed the canonical item registry, removing a fake reward identity can also retire a generated Grand Exchange alias; regenerate `generated/grand_exchange_period_generated.py` so its keys remain a subset of the live market catalog.
 - Quest starts are strict. A quest with incomplete prerequisite quests or unimplemented required skills must be impossible to start. Completion XP for implemented skills is granted immediately; XP for unimplemented skills is stored in `pending_skill_exp_rewards` and applied by migration when the skill becomes implemented.
 - Quest-list availability should flow through `quest_availability_state_pure()`, not ad hoc UI checks. Its states are `can_start`, `in_progress`, `blocked_at_stage`, `completed`, and `locked`. `locked` means the quest cannot start; `blocked_at_stage` means a started quest is waiting on current-stage inventory, tools, actions, routes, or combat. Keep that separation: stage requirements are not start locks.
 - Product implementation readiness and player progression eligibility are separate gates. Exhaustive source/completeness ledgers may contain unfinished content, but live UI, search, rolls, rewards, and action registries must not expose implementation gaps as disabled, locked, placeholder, inert, or `coming later` rows. Derive readiness from stable dependency identities so content materializes automatically when its complete runtime graph exists, without a migration, cleanup pass, release allowlist, or duplicated registry. Replace hidden player-facing debt with a developer audit that assigns every catalog row a machine-checkable readiness result and rejects unknown or stale blockers. Only after a row is runtime-ready should authentic player quest/level/item/unlock eligibility run; a finished surface may show those real progression locks where its owner-approved design calls for them.
 - `QuestDefinition.stage_requirements` defines current-stage quest requirements.
-  `quests_as_dict()` serializes them; pure helpers in `logic_pure/logic_pure.py` enforce them.
+  `quests_as_dict()` serializes them; pure helpers in `logic_pure/logic_pure_quest.py` enforce them.
   Use `quest_current_stage_blockers_pure()` and `quest_current_stage_blocker_reasons_pure()` for display.
   Use `can_progress_quest_pure()` for review readiness and `apply_quest_progress_pure()` for advancement and local item changes.
   Quest-used items do not block a start unless source evidence defines them as start requirements.
@@ -458,7 +459,7 @@ expected file and provenance key in the asset test.
 - Remove a false item gate when the schema cannot express its source predicate.
   Report the missing predicate instead of excluding valid source paths.
   This applies to mixed family quantities, compound bundles, excluded members, equipment, followers, performed state, and equivalent-item capabilities.
-- `data/quest_data.py` deserializes generated rows into `QuestStageRequirement`.
+- `data/quest/catalog.py` deserializes generated rows into `QuestStageRequirement`.
   It combines generated rows, hand-authored rows, focused replacements, and focused additions.
   Replacements correct conflicts with stronger source evidence. Additions express sourced actions that the generator cannot infer.
   Do not edit `generated/quest_catalog_generated.py` directly.
@@ -493,7 +494,7 @@ expected file and provenance key in the asset test.
   The sourced `QuestCombatEncounter.quantity` determines completion.
   Completed IDs live in `player_data["quest_combat_encounters"]`; existing completed IDs still satisfy the blocker.
   Encounters without required stats stay blocked as `combat_missing_stats`.
-- Focused stage additions in `data/quest_data.py` can carry local 2011Scape NPC stats with a recorded source path.
+- Focused stage additions in `data/quest/stage_additions.py` can carry local 2011Scape NPC stats with a recorded source path.
   Generated enrichment prefers 2011Scape NPC definitions, then Darkan/2012scape combat definitions with an exact NPC name and combat level.
   Duplicate Darkan sources are acceptable only when all captured battle stats and configurations agree.
   Conflicting duplicates require focused source resolution; otherwise they remain without stats.
@@ -546,7 +547,7 @@ expected file and provenance key in the asset test.
 - The hybrid toolbelt pattern covers Mining too. Toolbelt remains tools-only (`bronze_hatchet`, `bronze_pickaxe`, etc.). Passive/equipable bonuses live outside toolbelt in `player_data["equipment"]`; Mining bonus logic reads the worn `neck`/`body` slots rather than passive ownership.
 - The custom carried-pack editor has three distinct projections: desired 28-slot layout, clickable Bank inventory, and live current inventory (including loot pickups). Layout edits refresh only the plan; Bank/current grids refresh when their source inventory changes.
 - Reusable tools are not automatically visible just because the source action has one. Fishing deliberately keeps rods, nets, cages, pots, vessels, and harpoons implicit in labels, tooltips, gating, and assets. Visible progression remains limited to Woodcutting hatchets and Mining pickaxes unless a future design explicitly promotes another tool family.
-- Equipment has backend and Qt surfaces. `data/equipment_data.py` is generated from checked-in Smithing data plus local 2011Scape `items.yml`; storage keeps a flat `equipment` mapping (slot -> item name); pure helpers own gate/swap/stat-total rules; runtime callbacks feed a dedicated Equipment tab with right-click Equip/Unequip. Attack, Strength, Defence, Constitution, Ranged, and Magic levels are trainable partial skills through unified Combat even though they do not yet own complete review surfaces.
+- Equipment has backend and Qt surfaces. `data/equipment_data.py` is generated from checked-in Smithing data plus local 2011Scape `items.yml`; storage keeps a flat `equipment` mapping (slot -> item name); pure helpers own gate/swap/stat-total rules; runtime callbacks feed a dedicated Equipment tab with right-click Equip/Unequip. Attack, Strength, Defence, Constitution, and Ranged are partial skills trained through unified Combat; Magic has its own complete review surface.
 - `tools/audit_item_reachability.py` builds a deterministic route graph from registered seeds and transformations, including quest `start_inventory`, stage `produced_inventory`, and final rewards. Use `--rank-roots N` to prioritize source work by simulated transitive gain. The instrument does not yet reproduce every runtime access gate and can credit inaccessible combat drops or shop stock, so it measures declared route closure rather than player acquisition. Never silence an orphan by inventing a recipe or free seed. Its report modes exit 0 whenever the report builds, because known orphans are a pinned baseline, not a failure; only `--check` fails, when the report differs from the pins in `tests/test_item_reachability_audit.py`.
 - Combat death/reclaim state stays flat and review-transaction friendly. `combat_grave.items` is the active five-safe-review recovery list, while `death_office.items` holds gear collapsed out of the active grave path, such as a second Combat death before recovery. Death's Office reclaim consumes Coins and returns gear to inventory through a pure helper plus Bank-tab callback, so Anki undo can still roll the whole review transaction back by restoring `player_data`.
 - Combat bank runs are target-scoped supply-recovery state. If `combat_bank_run.target_id` no longer matches the current Combat target, reset the run before deciding whether the new target needs its own two-review bank trip; never complete an old run against a different enemy. Bank-run supply decisions must use the same enemy table being simulated so quest/injected enemies with poison can load antipoison correctly.
@@ -565,10 +566,12 @@ expected file and provenance key in the asset test.
 
 ## Landmark activity pattern
 
-Landmarks are one-time step-counter activities, not repeatable material conversions.
-They stay outside `UTILITY_ACTIVITY_DATA` and use this contract:
+Step-counter landmarks such as the Stronghold of Security and Knight Waves are
+one-time activities, not repeatable material conversions. They stay outside
+`UTILITY_ACTIVITY_DATA`; the source-backed Stronghold of Player Safety is the
+exception, a `landmarks`-group entry in it. Step-counter landmarks use this contract:
 
-- `logic_pure/logic_pure.py` owns `default_*_state_pure`, `sanitize_*_state_pure`, and
+- `logic_pure/logic_pure_landmarks.py` owns `default_*_state_pure`, `sanitize_*_state_pure`, and
   `apply_*_step_pure`. Sanitation clamps the step, implies completion at the
   maximum, and repairs garbage to 0. The step helper advances once and reports
   `advanced` and `just_completed`; `grant_*_reward_pure` guards on a claim field
@@ -591,8 +594,9 @@ They stay outside `UTILITY_ACTIVITY_DATA` and use this contract:
 
 Generate reward equipment through `tools/generate_equipment_data.py`; do not
 hand-edit `data/equipment_data.py`. Stronghold's reward identities are Fancy boots
-9005 and Fighting boots 9006. Landmarks are add-on-original content, not
-parity-locked.
+9005 and Fighting boots 9006. Step-counter landmarks are add-on-original content, not
+parity-locked; Stronghold of Player Safety carries period source pins in
+`data/stronghold_player_safety_data.py`.
 
 ## Architectural Pressure
 Adding many skills by copying the current pattern would increase duplication in:
@@ -614,7 +618,7 @@ Use the project skill at `.codex/skills/ankiscape-skill-expansion/SKILL.md` befo
 ## Compatibility Pattern
 Persisted Anki config is the stable boundary. Schema changes should go through `core/storage_pure.py` migrations and keep existing user data intact.
 
-Source-complete data can be broader than a live catalog. Herblore keeps Daemonheim rows in explicit `DUNGEONEERING_*` tuples so item identities and historical transcription survive, while its ordinary exported targets filter them out until a session-scoped Dungeoneering product contract exists. When a live target is removed this way, migrate the saved selection to the skill default but preserve inventory keys and quantities.
+Source-complete data can be broader than a live catalog. Herblore keeps Daemonheim rows in explicit `DUNGEONEERING_*` tuples so item identities and historical transcription survive, while its ordinary exported targets filter them out. Supported dungeon Herblore chains run against the Dungeoneering session inventory instead. When a live target is removed this way, migrate the saved selection to the skill default but preserve inventory keys and quantities.
 
 Anki's add-on directory is a runtime import boundary, not a harmless place for
 parallel checkouts. Every enabled direct child of `addons21` with an
@@ -811,7 +815,7 @@ Effective level and accuracy use the base weapon style.
 XP uses the slot's `xp_mode` through `melee_xp_style_id` and `_COMBAT_XP_MODE_TO_STYLE_ID`.
 
 Player rolls use `attack_<type>` and `defence_<type>`.
-Enemy attacks use `max(attack_*)` and `max(defence_*)` because enemy data supplies only `attack_style: "melee"`, not a physical subtype.
+Untyped melee enemy attacks use `max(attack_*)` and `max(defence_*)` because enemy data supplies only `attack_style: "melee"`, not a physical subtype; ranged, magic, and `magic_melee` attacks use their own resolver paths.
 `combat_melee_attack_type_pure` returns `(style_type, xp_style_id)`.
 `combat_weapon_attack_style_slots_pure` and `combat_weapon_style_options_pure` expose slot and selection data.
 Typeless weapons and bare fists use `WEAPON_TYPE_UNARMED_STYLES`, which contains crush styles.
@@ -869,7 +873,7 @@ An unlocked gate marker is stale regardless of its stored PID; report it before 
 ## Quest reward replacement dicts REPLACE, not extend
 
 `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID`, `QUEST_UNLOCK_REPLACEMENTS_BY_ID`, and
-`QUEST_XP_REWARD_REPLACEMENTS_BY_ID` in `data/quest_data.py` replace a quest's whole tuple.
+`QUEST_XP_REWARD_REPLACEMENTS_BY_ID` in `data/quest/catalog_overrides.py` replace a quest's whole tuple.
 They do not extend it. Each replacement must contain every valid entry, not just the corrected entry.
 Subset checks cannot detect lost entries; use whole-tuple guards.
 
