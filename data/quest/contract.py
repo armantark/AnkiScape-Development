@@ -94,7 +94,7 @@ class QuestLampReward:
 class QuestDefinition:
     id: str
     display_name: str
-    stage_count: int
+    stages: int  # a count; the per-stage requirement rows are stage_requirements
     point_reward: int
     rewards: Tuple[Tuple[str, int], ...]
     start_point: str
