@@ -48,7 +48,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_parser.add_argument(
         "--plain-only",
         action="store_true",
-        help="skip the offscreen Qt lane for a branch-side promotion check",
+        help=(
+            "skip the offscreen Qt lane for branch-side verification; the receipt "
+            "cannot authorize landing, including documentation-only landing"
+        ),
     )
     run_parser.add_argument(
         "--remote-lanes",

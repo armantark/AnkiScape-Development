@@ -29,8 +29,9 @@ been switched off until this is resolved."
 
 ## Constraints every slice meets
 
-- slop-gate refuses a commit that grows any code file already above 1000
-  lines (`ui/ui.py` 29293, `ui/ui_tab_shop.py` 1831, `__init__.py` 5744,
+- slop-gate refuses a commit that grows any code file, including tests, already
+  above 1000 lines (`ui/ui.py` 29293, `ui/ui_tab_shop.py` 1831,
+  `__init__.py` 5744,
   `logic_pure/logic_pure_quest.py` 1581, `runtime/runtime_actions_production.py`
   1446, `logic_pure/logic_pure_combat_model.py` 2815,
   `tools/generate_equipment_data.py` 1460 at 2026-09-30). Hold such a file at
@@ -40,6 +41,10 @@ been switched off until this is resolved."
   `python3 tools/maintenance/function_metrics.py` measures a function exactly
   as the hook does. It refuses a new code file in a directory that already
   holds 40 (`logic/` 87, `data/` 104, `tools/` 137, `logic_pure/` 39 of 40).
+  The file list is illustrative, not exhaustive, and a named test pin does not
+  authorize growth. Update an oversized pin file without net growth; put added
+  coverage in the slice's existing focused test module or a cohesive test
+  subpackage.
 - Never set `SLOP_GATE_*`, never `--no-verify`.
 - A slice that changes what the player sees gets an offscreen Qt check per
   `.claude/rules/qt-offscreen-screenshots.md` at 560 px tall, with
