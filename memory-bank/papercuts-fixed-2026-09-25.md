@@ -10,13 +10,13 @@ Disposition: fixed before this triage (`fixed-before`). Evidence: `4b5e4485` mov
 
 ## A short selector also picks up sibling modules — 1 occurrence
 
-Disposition: operator error (`operator-error`). Evidence: `run_tests.py:82-85` documents selectors as case-insensitive fragments, and `--list` (`run_tests.py:87-90`) previews matches. The selector design itself stays open with line 60 in `papercuts.md`.
+Disposition: operator error (`operator-error`). Evidence: `run_tests.py:81-84` documents selectors as case-insensitive fragments, and `--list` (`run_tests.py:86-89`) previews matches. The selector design itself stays open with line 60 in `papercuts.md`.
 
 - 2026-09-24T04:08:35-0700 — Diary counter-key check, focused run: `run_tests.py` selectors are case-insensitive substrings of the test id, so the bare module name `test_achievement_diaries` also selects `test_achievement_diaries_integration` and the Qt-only `test_achievement_diaries_ui` (16 tests), which the no-skip remote plain run would refuse; the selector needs the trailing dot, `test_achievement_diaries.`.
 
 ## Remote focused runs are only checked on the remote host, after the lock wait — 6 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `tools/run_remote_tests.py:622-623` rejects `--select` without `--expected-tests` on purpose (`0e543a4d`, 2026-09-19), and `memory-bank/techContext.md:50-53` documents the paired form; `tests/test_remote_test_host.py:25-28` pins the refusal. The late selector check stays open with line 43 in `papercuts.md`.
+Disposition: operator error (`operator-error`). Evidence: `tools/run_remote_tests.py:422-423` rejects `--select` without `--expected-tests` on purpose (`0e543a4d`, 2026-09-19), and `memory-bank/techContext.md:50-53` documents the paired form; `tests/test_remote_test_host.py:22-25` pins the refusal. The late selector check stays open with line 43 in `papercuts.md`.
 
 - 2026-09-23T19:33:26-07:00 — Commit-stage remote selection first exited 2 with `run_remote_tests.py: error: --select and --expected-tests must be supplied together`; include the measured test count for every selected run.
 - 2026-09-23T19:04:45-07:00 — A selected remote documentation-test run exited 2 with `run_remote_tests.py: error: --select and --expected-tests must be supplied together`; count selected tests before invoking the runner.
@@ -62,7 +62,7 @@ Disposition: fixed before this triage (`fixed-before`). Evidence: `fc14c8f9` (20
 
 ## zsh expansion rules (no word-splitting, nomatch, `=`) — 6 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: zsh leaves unquoted parameters unsplit (SH_WORD_SPLIT off), aborts on an unmatched glob (NOMATCH) and expands a leading `=` (EQUALS), all documented defaults; `tools/run_remote_tests.py:604-605` documents one `--select` per selector.
+Disposition: operator error (`operator-error`). Evidence: zsh leaves unquoted parameters unsplit (SH_WORD_SPLIT off), aborts on an unmatched glob (NOMATCH) and expands a leading `=` (EQUALS), all documented defaults; `tools/run_remote_tests.py:408-409` documents one `--select` per selector.
 
 - 2026-09-23T21:18:56-07:00 — Papercut follow-up: an optional `ls memory-bank/evidence/*.md` glob aborted with `(eval):1: no matches found: memory-bank/evidence/*.md` because the summaries sit one directory deeper; use `find -name SUMMARY.md` for optional globs.
 - 2026-09-23T23:37:31-0700 — Qt-lane speed slice: a zsh loop passed `$s` holding several selectors as one argument (zsh does not word-split unquoted parameters), so `run_tests.py --list` matched nothing and printed 2 lines instead of the count.
@@ -73,7 +73,7 @@ Disposition: operator error (`operator-error`). Evidence: zsh leaves unquoted pa
 
 ## Slop-gate size limits — 3 occurrences
 
-Disposition: design decision (`design-decision`). Evidence: owner ruling §34 in `memory-bank/handoffs/design-to-impl-rulings-2026-08-13.md:2364-2371` makes the slop gate a fixed instrument; `/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py:64` sets `FILE_LINES_MAX` to 1000.
+Disposition: design decision (`design-decision`). Evidence: owner ruling §34 in `memory-bank/handoffs/design-to-impl-rulings-2026-08-13.md:2363-2370` makes the slop gate a fixed instrument; `/Users/ArmanTarkhanian1/fleet/config/git/hooks/slop_gate.py:64` sets `FILE_LINES_MAX` to 1000.
 
 - 2026-09-24T01:21:39-0700 — First commit attempt of the gate lock-wait slice was refused by slop-gate: `tools/promotion/lane_execution.py: _run_gate_checks 30 (was 15)` cognitive complexity and `tests/test_promotion_gate.py: 1026 lines (was 935)`; the review had not run the slop gate, so the loop moved to `_run_check_sequence` and the timing tests to `tests/promotion/test_remote_mirror_lock.py`, then the focused MacBook run was repeated.
 - 2026-09-24T01:52:04-0700 — Qt-lane speed commit: the global slop gate refused the first commit with `tests/test_item_reachability_audit.py: 1905 lines (was 1904)`, `tests/test_main_menu_widget.py: 19893 lines (was 19883)` and `tests: 237 code files (was 236)`, a check the review stage never ran; moved the shared report into tests/reachability/ and rewrote both edits so neither file grows.
@@ -95,14 +95,14 @@ Disposition: operator error (`operator-error`). Evidence: each failure was in an
 
 ## Tests written from a guessed expectation — 2 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `logic_pure/logic_pure_quest.py:733` emits `Needs {item} x{amount}` and `tests/test_logic.py:8547` now pins it; `core/constants_parts/skill_assets.py:207-208` merges Big Chinchompa into the Hunter aggregate openly, and `tests/test_skill_and_item_registry.py:2391` tests the owning manifest.
+Disposition: operator error (`operator-error`). Evidence: `logic_pure/logic_pure_quest.py:731` emits `Needs {item} x{amount}` and `tests/test_logic.py:8568` now pins it; `core/constants_parts/skill_assets.py:207-208` merges Big Chinchompa into the Hunter aggregate openly, and `tests/test_skill_and_item_registry.py:2391` tests the owning manifest.
 
 - 2026-08-22 17:10 PDT — The Black Knights kernel regression expected `Needs Cabbage`, but consumed-inventory blockers retain the explicit unit as `Needs Cabbage x1`; copy exact blocker text from the kernel when pinning stage gates.
 - 2026-08-25 10:04 PDT — The first focused regression compared against `HUNTER_EXTRA_ITEM_DATA`, but that aggregate also contains seven Big Chinchompa rows and failed with them as unexpected; test `hunter_extra_items_as_dict()` for the owning manifest, then verify those rows in the final registry.
 
 ## Raw SSH work on the MacBook outside the runner — 3 occurrences
 
-Disposition: external blocker (`external-blocker`) for lines 52 and 55, operator error (`operator-error`) for line 56. Evidence: the runner's rsync touches only the mirror (`tools/run_remote_tests.py:338-351`) and uses no GNU `timeout`; `memory-bank/techContext.md:32-34` and `memory-bank/remote-test-host.md:61-67` route MacBook work through `tools/run_remote_tests.py` and its flock.
+Disposition: external blocker (`external-blocker`) for lines 52 and 55, operator error (`operator-error`) for line 56. Evidence: the runner's rsync touches only the mirror (`tools/run_remote_tests.py:200-213`) and uses no GNU `timeout`; `memory-bank/techContext.md:32-34` and `memory-bank/remote-test-host.md:56-62` route MacBook work through `tools/run_remote_tests.py` and its flock.
 
 - 2026-09-24T00:21:36-0700 — Private MacBook scratch copies /Users/armantarkhanian/ankiscape-remote-test-host/qt-speed-scratch and qt-speed-profile vanished between 23:50 and 00:21 while idle, so a test-id comparison silently ran in the wrong directory after `cd` failed; re-synced and repeated it.
 - 2026-09-23T22:08:02-0700 — Qt-lane speed slice: `timeout` is not on the MacBook test host PATH, so a guarded SSH profiling command failed with `zsh:1: command not found: timeout`.
@@ -110,14 +110,14 @@ Disposition: external blocker (`external-blocker`) for lines 52 and 55, operator
 
 ## 600 s tool cap against long remote waits — 2 occurrences
 
-Disposition: operator error (`operator-error`) for line 26, design decision (`design-decision`) for line 65. Evidence: `memory-bank/codex-briefs/STANDING-SLICE-CONTRACT.md:143-146` says the full Qt lane sits above the tool cap and to run it detached; `tools/run_remote_tests.py:5` and `:383-394` make the mirror-lock wait untimed on purpose.
+Disposition: operator error (`operator-error`) for line 26, design decision (`design-decision`) for line 65. Evidence: `memory-bank/codex-briefs/STANDING-SLICE-CONTRACT.md:140-143` says the full Qt lane sits above the tool cap and to run it detached; `tools/run_remote_tests.py:5` and `:383-394` make the mirror-lock wait untimed on purpose.
 
 - 2026-08-27 07:38 PDT — The full offscreen Qt lane was first launched as a harness-owned background command capped at 600000 ms even though the standing contract records a 600-760 second runtime; stop it before restart and use detached `nohup` for the uncapped run.
 - 2026-09-23T22:43:07-0700 — Diary-generator review rerun: focused MacBook plain lane sat behind `Remote mirror busy; waiting for /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock` for over 10 minutes while two other slices' runners (started 22:11 and 22:22, pending run `plain-1790227311-e697fe2c`) held the mirror; a 600-second Bash wait timed out and was moved to the background.
 
 ## Computer use cannot drive the native Anki app — 2 occurrences
 
-Disposition: external blocker (`external-blocker`). Evidence: `memory-bank/design-thread-queue.md:1120-1135` (§3.38) records that shell `screencapture -x` works while computer-use capture and input fail. The owner has not yet chosen a native-acceptance route from the three options in §3.38 (`memory-bank/design-thread-queue.md:1144-1147`).
+Disposition: external blocker (`external-blocker`). Evidence: `memory-bank/design-thread-queue.md:1101-1116` (§3.38) records that shell `screencapture -x` works while computer-use capture and input fail. The owner has not yet chosen a native-acceptance route from the three options in §3.38 (`memory-bank/design-thread-queue.md:1124-1127`).
 
 - 2026-09-24T03:03-07:00 — Third native check of 0f67a3f6 stopped with 'Screenshot unavailable for /var/folders/g8/swv_4sld1_zg_r_w52b6xg7c0000gn/T/ankiscape-native-kcvlz7a2/AnkiScape Native Test.app.' with the screen free, no Darkan client and load 8.44 (guard verify exit 0, unchanged:true); ssh 'screencapture -x /tmp/sshcap-test.png' exited 0 (4036277 bytes), so only the computer-use per-app capture of the copied test app fails.
 - 2026-09-24T03:17-07:00 — Fourth native check of 0f67a3f6, observing through shell screencapture, proved the loaded paths in the disposable base but reviewed 0 cards: computer-use input failed with 'cannotClickOffscreenElement', 'noWindowsAvailable', timeouts and delayed actions. The SSH Codex CLI route cannot drive the copied app; owner decision in design-thread-queue.md §3.38.
@@ -190,7 +190,7 @@ Disposition: fixed before this triage (`fixed-before`). Evidence: `c15cb07d` cal
 
 ## Retiring scripts without a coverage map — 1 occurrence
 
-Disposition: fixed before this triage (`fixed-before`). Evidence: `4147d0ae` mapped all 18 retired scripts to named tests before removing them (`memory-bank/archive/progress-2026-09.md:684-703`).
+Disposition: fixed before this triage (`fixed-before`). Evidence: `4147d0ae` mapped all 18 retired scripts to named tests before removing them (`memory-bank/progress.md:21-40`).
 
 - 2026-09-23T18:13:32-0700 — The 18 proposed `tools/combat/check_*` and `tools/combat/run_*_remote.py` removals had no migration-index rows or named tests covering their source-guard and resume checks; restoring them preserves the checks rather than mislabeling gameplay tests as operational coverage.
 
@@ -226,6 +226,6 @@ Disposition: fixed before this triage (`fixed-before`). Evidence: `13ae5bc4` cut
 
 ## A resumed workflow agent became a second writer — 1 occurrence
 
-Disposition: operator error (`operator-error`). Evidence: the one-owner rule for shared resources, and the orchestration rule at `memory-bank/archive/progress-2026-09.md:1753` adopted after this incident.
+Disposition: operator error (`operator-error`). Evidence: the one-owner rule for shared resources, and the orchestration rule at `memory-bank/progress.md:1090` adopted after this incident.
 
 - 2026-09-24T00:53-07:00 — A SendMessage to the finished qt-lane-speed author a1df31f9e79c0091a resumed it while the workflow's review and fix stage worked in the same worktree, so two writers edited goal-qt-lane-speed-2026-09-23 (a duplicate data-step 6 results item and duplicate papercut lines); never message a workflow agent after its stage returned.
