@@ -58,7 +58,7 @@ from .ui import (
 
 def build_shop_tab(ctx) -> "QWidget":
     """Return the Shop page."""
-    from .ui_tab_shop_widgets import ROW_SIDE_PADDING, ShopResultChip, WrappedRowDelegate
+    from .ui_tab_shop_widgets import ROW_SIDE_PADDING, ShopResultChip, WrappedRowDelegate, is_openable, mark_locked, restore_current
 
     player_data = ctx.player_data
     dialog = ctx.dialog
@@ -1606,14 +1606,11 @@ def build_shop_tab(ctx) -> "QWidget":
                         service_row = source.get(str(result.get("id", "")), {})
                         _set_list_item_icon(item, _service_icon_item_name(service_row))
                     if result.get("visibility") == "visible_locked" or result.get("lock_reason"):
-                        item.setForeground(dim_text_color(shop_selector))
+                        mark_locked(item, dim_text_color(shop_selector))
                     shop_selector.addItem(item)
                     if result.get("kind") == "stock" and result.get("shop_id") == current_shop_id and selected_item is None:
                         selected_item = item
-                if selected_item is not None:
-                    shop_selector.blockSignals(True)
-                    shop_selector.setCurrentItem(selected_item)
-                    shop_selector.blockSignals(False)
+                restore_current(shop_selector, selected_item)
                 return
             empty = QListWidgetItem("No visible shop stock, service, or vendor action matches this search.")
             empty.setFlags(Qt.ItemFlag.NoItemFlags)
@@ -1633,12 +1630,10 @@ def build_shop_tab(ctx) -> "QWidget":
             )
             _set_list_item_icon(item, icon_name)
             if entry["locked"]:
-                item.setForeground(dim_text_color(shop_selector))
+                mark_locked(item, dim_text_color(shop_selector))
             shop_selector.addItem(item)
             if entry["shop_id"] == current_shop_id:
-                shop_selector.blockSignals(True)
-                shop_selector.setCurrentItem(item)
-                shop_selector.blockSignals(False)
+                restore_current(shop_selector, item)
         # Service/vendor providers browse as their own entries after the shops;
         # the backend ties services to NPC providers, not shops.
         providers: dict = {}
@@ -1715,7 +1710,10 @@ def build_shop_tab(ctx) -> "QWidget":
         _render_shop_detail()
 
     def _on_shop_selector_clicked(item: QListWidgetItem) -> None:
-        payload = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        # Qt still emits clicks on a disabled row.
+        if not is_openable(item):
+            return
+        payload = item.data(Qt.ItemDataRole.UserRole)
         if not isinstance(payload, dict):
             return
         kind = payload.get("kind")

@@ -72,7 +72,7 @@ except Exception:
 
 from . import completion_dialogs
 from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
-from .ui_flow_layout import FlowLayout
+from .ui_flow_layout import FlowLayout as WidgetFlowLayout
 from ..core.action_registry import review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
@@ -615,19 +615,6 @@ from ..core.review_context import (
 )
 
 from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
-from ..logic.shop_logic import (
-    apply_shop_buy_pure,
-    apply_shop_sell_pure,
-    apply_shop_service_pure,
-    apply_shop_vendor_action_pure,
-    preview_shop_buy_pure,
-    preview_shop_sell_pure,
-    preview_shop_service_pure,
-    preview_shop_vendor_action_pure,
-    search_shop_catalog_pure,
-    shop_history_rows_pure,
-    shop_view_model_pure,
-)
 
 from ..core.constants import ITEM_DEFINITIONS, TREASURE_TRAILS_ACTIVITY_ID
 from ..core.item_registry import ItemDefinition, item_definitions_by_storage_key
@@ -1702,6 +1689,8 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
+    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, stacked_pair, vertical_scroll, wrapped_label
+
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
 
@@ -1724,7 +1713,7 @@ if HAS_QT:
             root.setContentsMargins(0, 0, 0, 0)
             root.setSpacing(6)
 
-            search_row = QHBoxLayout()
+            search_row = LeadRowLayout()
             search_row.setContentsMargins(0, 0, 0, 0)
             search_row.setSpacing(8)
 
@@ -1737,7 +1726,8 @@ if HAS_QT:
                 " border-radius: 8px; color: palette(text); background: palette(base); }"
             )
             self.search_input.installEventFilter(self)
-            search_row.addWidget(self.search_input, 1)
+            self.search_input.setMinimumWidth(self.search_input.fontMetrics().horizontalAdvance(placeholder) + 56)
+            search_row.addWidget(self.search_input)
 
             self.summary_label = QLabel("")
             self.summary_label.setObjectName(f"{search_object_name}Summary")
@@ -1747,7 +1737,7 @@ if HAS_QT:
 
             self.filter_row = QWidget()
             # Filters wrap onto more lines rather than squeezing at 720 px.
-            self.filter_layout = FlowLayout(self.filter_row, h_spacing=8, v_spacing=6)
+            self.filter_layout = WidgetFlowLayout(self.filter_row, h_spacing=8, v_spacing=6)
             self.filter_row.setVisible(False)
             root.addWidget(self.filter_row)
 
@@ -6075,7 +6065,7 @@ def show_main_menu(
             bulk_layout = QVBoxLayout(bulk)
             bulk_layout.setContentsMargins(8, 2, 8, 2)
             bulk_layout.setSpacing(4)
-            preset_row = QHBoxLayout()
+            preset_row = LeadRowLayout(lead=1)
             presets = projection.get("presets", {})
             preset_combo = QComboBox()
             preset_combo.setObjectName("farmingPresetCombo")
@@ -6141,23 +6131,23 @@ def show_main_menu(
                 preset_menu.addAction("Delete", _delete_preset)
             preset_menu_button.setMenu(preset_menu)
             preset_row.addWidget(QLabel("Preset"))
-            preset_row.addWidget(preset_combo, 1)
+            preset_row.addWidget(preset_combo)
             preset_row.addWidget(modified)
             preset_row.addWidget(apply_preset)
             preset_row.addWidget(preset_menu_button)
             bulk_layout.addLayout(preset_row)
-            run_row = QHBoxLayout()
+            run_row = LeadRowLayout(lead=1)
             full_run = projection.get("full_run", {})
             full_run_button = QPushButton("Queue full run")
             full_run_button.setObjectName("farmingQueueFullRunButton")
             full_run_button.setEnabled(bool(full_run.get("enabled")) and on_farming_action is not None)
             full_run_button.setToolTip(str(full_run.get("locked_reason", "")))
             full_run_button.clicked.connect(lambda _=False: _run_action("queue_full_run", {}))
-            preview = QLabel(str(full_run.get("preview", "")))
+            preview = wrapped_label(str(full_run.get("preview", "")))
             preview.setObjectName("farmingFullRunPreviewLabel")
             preview.setStyleSheet(f"color: {dim_text_css(preview)};")
             run_row.addWidget(full_run_button)
-            run_row.addWidget(preview, 1)
+            run_row.addWidget(preview)
             juju = projection.get("juju_potion", {})
             juju_button = QPushButton(str(juju.get("label", "No Juju farming potion")))
             juju_button.setObjectName("farmingActivateJujuButton")
@@ -6212,7 +6202,7 @@ def show_main_menu(
                 group_layout.setSpacing(4)
                 toggle = QToolButton()
                 toggle.setObjectName(f"farmingLocationToggle::{location_id}")
-                toggle.setText(f"{location['display_name']} · {location['summary']}")
+                toggle.setText(f"{location['display_name']}\n{location['summary']}")
                 toggle.setCheckable(True)
                 toggle.setChecked(location_id in farming_ui_state["expanded_locations"])
                 toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
@@ -6231,8 +6221,8 @@ def show_main_menu(
                     card_layout = QVBoxLayout(card)
                     card_layout.setContentsMargins(7, 5, 7, 5)
                     card_layout.setSpacing(4)
-                    top = QHBoxLayout()
                     patch_icon_path = FARMING_PATCH_STATE_IMAGES.get(patch["status"])
+                    top = LeadRowLayout(lead=int(bool(patch_icon_path)))
                     if patch_icon_path:
                         patch_icon = QLabel()
                         patch_icon.setObjectName(f"farmingPatchVisual::{patch_id}")
@@ -6257,7 +6247,7 @@ def show_main_menu(
                     expand.setCheckable(True)
                     expand.setChecked(patch_id in farming_ui_state["expanded_patches"])
                     expand.setArrowType(Qt.ArrowType.DownArrow if expand.isChecked() else Qt.ArrowType.RightArrow)
-                    top.addWidget(patch_summary, 1)
+                    top.addWidget(patch_summary)
                     top.addWidget(expand)
                     card_layout.addLayout(top)
                     plan = patch["plan"]
@@ -6438,7 +6428,7 @@ def show_main_menu(
                         compost_combo.addItem(option["label"], option["id"])
                     compost_combo.setCurrentIndex(max(0, compost_combo.findData(plan["compost_tier"])))
                     protection_action = patch["protection"].get("action")
-                    protect_check = QCheckBox("Gardener on full run")
+                    protect_check = WrappingCheckBox("Gardener on full run")
                     protect_check.setObjectName(f"farmingPatchProtectionCheck::{patch_id}")
                     protect_check.setChecked(bool(plan["protection_intent"]))
                     protect_check.setEnabled(
@@ -6449,7 +6439,7 @@ def show_main_menu(
                         if plan["protection_available"]
                         else "The planned crop has no gardener-protection payment."
                     )
-                    water_check = QCheckBox("Water when planted")
+                    water_check = WrappingCheckBox("Water when planted")
                     water_check.setObjectName(f"farmingPatchWaterCheck::{patch_id}")
                     water_check.setChecked(bool(plan["watering_intent"]))
                     water_check.setEnabled(
@@ -6460,7 +6450,7 @@ def show_main_menu(
                         if plan["watering_available"]
                         else "This patch type cannot be watered."
                     )
-                    cure_check = QCheckBox("Auto-cure in full run")
+                    cure_check = WrappingCheckBox("Auto-cure in full run")
                     cure_check.setObjectName(f"farmingPatchCureCheck::{patch_id}")
                     cure_check.setChecked(bool(plan["cure_intent"]))
                     cure_check.setEnabled(bool(plan["crop_id"]) and on_farming_action is not None)
@@ -6654,15 +6644,15 @@ def show_main_menu(
                     bin_id = bin_view["bin_id"]
                     bin_card = QtFrame()
                     bin_card.setObjectName(f"farmingCompostBinCard::{bin_id}")
-                    bin_layout = QHBoxLayout(bin_card)
-                    bin_layout.setContentsMargins(7, 4, 7, 4)
                     bin_icon_path = FARMING_COMPOST_STATE_IMAGES.get(bin_view["status"])
+                    bin_layout = LeadRowLayout(bin_card, lead=int(bool(bin_icon_path)))
+                    bin_layout.setContentsMargins(7, 4, 7, 4)
                     if bin_icon_path:
                         bin_icon = QLabel()
                         bin_icon.setObjectName(f"farmingCompostBinVisual::{bin_id}")
                         bin_icon.setPixmap(QIcon(bin_icon_path).pixmap(24, 24))
                         bin_layout.addWidget(bin_icon)
-                    bin_layout.addWidget(QLabel(f"Compost bin · {bin_view['status_label']}"), 1)
+                    bin_layout.addWidget(wrapped_label(f"Compost bin · {bin_view['status_label']}"))
                     input_combo = QComboBox()
                     input_combo.setObjectName(f"farmingCompostBinInputCombo::{bin_id}")
                     first_enabled_index = -1
@@ -6712,8 +6702,8 @@ def show_main_menu(
             queue_panel.setObjectName("farmingQueuePanel")
             queue_layout = QVBoxLayout(queue_panel)
             queue_layout.setContentsMargins(7, 5, 7, 5)
-            queue_header = QHBoxLayout()
-            queue_header.addWidget(QLabel(f"Queue · {int(projection.get('queued_count', 0))} steps · each successful review completes one"), 1)
+            queue_header = LeadRowLayout()
+            queue_header.addWidget(wrapped_label(f"Queue · {int(projection.get('queued_count', 0))} steps · each successful review completes one"))
             clear = QPushButton("Clear queue")
             clear.setObjectName("farmingQueueClearButton")
             clear.setEnabled(bool(projection.get("queue")) and on_farming_action is not None)
@@ -6729,7 +6719,7 @@ def show_main_menu(
                 queue_list.addItem(item)
             refs["queue_list"] = queue_list
             queue_layout.addWidget(queue_list)
-            controls = QHBoxLayout()
+            controls = FlowLayout()
             up = QPushButton("Up")
             up.setObjectName("farmingQueueMoveUpButton")
             down = QPushButton("Down")
@@ -6755,7 +6745,6 @@ def show_main_menu(
             controls.addWidget(up)
             controls.addWidget(down)
             controls.addWidget(remove)
-            controls.addStretch(1)
             queue_layout.addLayout(controls)
             _sync_queue_buttons()
             sheet_layout.addWidget(queue_panel)
@@ -7376,7 +7365,7 @@ def show_main_menu(
             checkbox.toggled.connect(_apply)
 
         safety_view = agility_safety_option_view_pure(player_data)
-        danger_auto_stop = QCheckBox(str(safety_view["label"]))
+        danger_auto_stop = WrappingCheckBox(str(safety_view["label"]))
         danger_auto_stop.setObjectName("activityDangerAutoStopCheckBox")
         danger_auto_stop.setChecked(bool(safety_view["checked"]))
         danger_auto_stop.setToolTip(str(safety_view["tooltip"]))
@@ -7385,7 +7374,7 @@ def show_main_menu(
         _bind_boolean_command(danger_auto_stop, "set_activity_auto_stop")
         layout.addWidget(danger_auto_stop)
 
-        pit_auto_accept = QCheckBox(
+        pit_auto_accept = WrappingCheckBox(
             "Automatically accept Talent Scout invitations"
         )
         pit_auto_accept.setObjectName("agilityPitAutoAcceptCheckBox")
@@ -21693,7 +21682,7 @@ def show_main_menu(
         container_layout.addWidget(tree, 1)
         return container
 
-    def _build_dungeoneering_panel() -> QWidget:
+    def _build_dungeoneering_panel() -> QScrollArea:
         panel = QtFrame()
         panel.setObjectName("dungeoneeringPanel")
         panel.setStyleSheet(
@@ -21705,7 +21694,7 @@ def show_main_menu(
         layout.setSpacing(6)
 
         top = QWidget()
-        top_layout = QHBoxLayout(top)
+        top_layout = LeadRowLayout(top, lead=1)
         top_layout.setContentsMargins(0, 0, 0, 0)
         top_layout.setSpacing(8)
         icon = QLabel()
@@ -21729,7 +21718,6 @@ def show_main_menu(
         )
         top_layout.addWidget(icon)
         top_layout.addWidget(title)
-        top_layout.addStretch(1)
         top_layout.addWidget(status)
         layout.addWidget(top)
 
@@ -21740,10 +21728,9 @@ def show_main_menu(
         layout.addWidget(summary)
 
         controls = QWidget()
-        controls_layout = QGridLayout(controls)
+        controls_layout = FlowLayout(controls, fill=True)
         controls_layout.setContentsMargins(0, 0, 0, 0)
-        controls_layout.setHorizontalSpacing(6)
-        controls_layout.setVerticalSpacing(4)
+        controls_layout.setSpacing(6)
         floor_combo = QComboBox()
         floor_combo.setObjectName("dungeoneeringFloorCombo")
         floor_combo.setAccessibleName("Dungeoneering floor")
@@ -21775,7 +21762,7 @@ def show_main_menu(
         bind_loadout_combo.setAccessibleName("Dungeoneering bind loadout")
         for loadout_index in range(3):
             bind_loadout_combo.addItem(f"Loadout {loadout_index + 1}", loadout_index)
-        for column, (label_text, widget) in enumerate(
+        for label_text, widget in (
             (
                 ("Floor", floor_combo),
                 ("Size", size_label),
@@ -21785,15 +21772,9 @@ def show_main_menu(
                 ("Binds", bind_loadout_combo),
             )
         ):
-            label = QLabel(label_text)
-            label.setStyleSheet(f"color: {dim_text_css(label)}; font-size: 10px;")
-            controls_layout.addWidget(label, 0, column)
-            controls_layout.addWidget(widget, 1, column)
-        controls_layout.setColumnStretch(0, 1)
-        controls_layout.setColumnStretch(2, 1)
-        controls_layout.setColumnStretch(3, 2)
-        controls_layout.setColumnStretch(4, 2)
-        controls_layout.setColumnStretch(5, 1)
+            controls_layout.addWidget(
+                stacked_pair(label_text, widget, f"color: {dim_text_css(widget)}; font-size: 10px;")
+            )
         layout.addWidget(controls)
 
         token_summary = QLabel()
@@ -21805,7 +21786,7 @@ def show_main_menu(
 
         kinship_row = QWidget()
         kinship_row.setObjectName("dungeoneeringKinshipRow")
-        kinship_layout = QHBoxLayout(kinship_row)
+        kinship_layout = LeadRowLayout(kinship_row, lead=1)
         kinship_layout.setContentsMargins(0, 0, 0, 0)
         kinship_layout.setSpacing(6)
         kinship_icon = QLabel()
@@ -21829,7 +21810,7 @@ def show_main_menu(
         kinship_upgrade = QPushButton()
         kinship_upgrade.setObjectName("dungeoneeringKinshipUpgradeButton")
         kinship_layout.addWidget(kinship_icon)
-        kinship_layout.addWidget(kinship_combo, 1)
+        kinship_layout.addWidget(kinship_combo)
         kinship_layout.addWidget(kinship_upgrade)
         layout.addWidget(kinship_row)
 
@@ -21843,7 +21824,7 @@ def show_main_menu(
 
         reward_row = QWidget()
         reward_row.setObjectName("dungeoneeringRewardTraderRow")
-        reward_layout = QHBoxLayout(reward_row)
+        reward_layout = LeadRowLayout(reward_row, lead=1)
         reward_layout.setContentsMargins(0, 0, 0, 0)
         reward_layout.setSpacing(6)
         reward_icon = QLabel()
@@ -21867,7 +21848,7 @@ def show_main_menu(
         reward_buy = QPushButton("Buy")
         reward_buy.setObjectName("dungeoneeringRewardBuyButton")
         reward_layout.addWidget(reward_icon)
-        reward_layout.addWidget(reward_combo, 1)
+        reward_layout.addWidget(reward_combo)
         reward_layout.addWidget(reward_buy)
         layout.addWidget(reward_row)
 
@@ -21881,7 +21862,7 @@ def show_main_menu(
 
         coal_bag_row = QWidget()
         coal_bag_row.setObjectName("dungeoneeringCoalBagRow")
-        coal_bag_layout = QHBoxLayout(coal_bag_row)
+        coal_bag_layout = LeadRowLayout(coal_bag_row, lead=0)
         coal_bag_layout.setContentsMargins(0, 0, 0, 0)
         coal_bag_layout.setSpacing(6)
         coal_bag_summary = QLabel()
@@ -21892,14 +21873,14 @@ def show_main_menu(
         coal_bag_fill_carried.setObjectName(
             "dungeoneeringCoalBagFillCarriedButton"
         )
-        coal_bag_layout.addWidget(coal_bag_summary, 1)
+        coal_bag_layout.addWidget(coal_bag_summary)
         coal_bag_layout.addWidget(coal_bag_fill_bank)
         coal_bag_layout.addWidget(coal_bag_fill_carried)
         layout.addWidget(coal_bag_row)
 
         bind_config_row = QWidget()
         bind_config_row.setObjectName("dungeoneeringBindConfigRow")
-        bind_config_layout = QHBoxLayout(bind_config_row)
+        bind_config_layout = LeadRowLayout(bind_config_row, lead=1)
         bind_config_layout.setContentsMargins(0, 0, 0, 0)
         bind_config_layout.setSpacing(6)
         bind_config_label = QLabel("Loadout item")
@@ -21912,12 +21893,12 @@ def show_main_menu(
         bind_item_button = QPushButton()
         bind_item_button.setObjectName("dungeoneeringBindItemButton")
         bind_config_layout.addWidget(bind_config_label)
-        bind_config_layout.addWidget(bind_item_combo, 1)
+        bind_config_layout.addWidget(bind_item_combo)
         bind_config_layout.addWidget(bind_item_button)
         layout.addWidget(bind_config_row)
 
         route_row = QWidget()
-        route_layout = QHBoxLayout(route_row)
+        route_layout = LeadRowLayout(route_row, lead=1)
         route_layout.setContentsMargins(0, 0, 0, 0)
         route_layout.setSpacing(6)
         route_label = QLabel("Revealed frontier")
@@ -21926,7 +21907,7 @@ def show_main_menu(
         route_combo.setObjectName("dungeoneeringRouteCombo")
         route_combo.setAccessibleName("Revealed Dungeoneering frontier door")
         route_layout.addWidget(route_label)
-        route_layout.addWidget(route_combo, 1)
+        route_layout.addWidget(route_combo)
         layout.addWidget(route_row)
 
         projection = QLabel()
@@ -21953,7 +21934,7 @@ def show_main_menu(
 
         smuggler_row = QWidget()
         smuggler_row.setObjectName("dungeoneeringSmugglerRow")
-        smuggler_layout = QHBoxLayout(smuggler_row)
+        smuggler_layout = LeadRowLayout(smuggler_row, lead=1)
         smuggler_layout.setContentsMargins(0, 0, 0, 0)
         smuggler_layout.setSpacing(6)
         smuggler_label = QLabel("Smuggler")
@@ -21966,14 +21947,14 @@ def show_main_menu(
         smuggler_sell = QPushButton("Sell")
         smuggler_sell.setObjectName("dungeoneeringSmugglerSellButton")
         smuggler_layout.addWidget(smuggler_label)
-        smuggler_layout.addWidget(smuggler_combo, 1)
+        smuggler_layout.addWidget(smuggler_combo)
         smuggler_layout.addWidget(smuggler_buy)
         smuggler_layout.addWidget(smuggler_sell)
         layout.addWidget(smuggler_row)
 
         bind_row = QWidget()
         bind_row.setObjectName("dungeoneeringBindOfferRow")
-        bind_layout = QHBoxLayout(bind_row)
+        bind_layout = LeadRowLayout(bind_row, lead=0)
         bind_layout.setContentsMargins(0, 0, 0, 0)
         bind_layout.setSpacing(6)
         bind_offer_label = QLabel()
@@ -21984,7 +21965,7 @@ def show_main_menu(
         replace_button.setObjectName("dungeoneeringReplaceBindButton")
         skip_button = QPushButton("Skip")
         skip_button.setObjectName("dungeoneeringSkipBindButton")
-        bind_layout.addWidget(bind_offer_label, 1)
+        bind_layout.addWidget(bind_offer_label)
         bind_layout.addWidget(bind_button)
         bind_layout.addWidget(replace_button)
         bind_layout.addWidget(skip_button)
@@ -22477,8 +22458,11 @@ def show_main_menu(
             )
         )
         _refresh()
+        # Wrapped rows make the sheet taller than the 560 px dialog leaves it.
         panel._ankiscape_refresh_dungeoneering = _refresh
-        return panel
+        scroll = vertical_scroll(panel)
+        scroll._ankiscape_refresh_dungeoneering = _refresh
+        return scroll
 
     _REHOMED_REWARD_WIDGET_NAMES = (
         "bigChinchompaRewardShop",
@@ -22784,7 +22768,7 @@ def show_main_menu(
             else name
         )
         header = QWidget()
-        hl = QHBoxLayout(header)
+        hl = LeadRowLayout(header)
         hl.setContentsMargins(0, 0, 0, 0)
         hl.setSpacing(8)
         if is_utility:
@@ -22799,7 +22783,6 @@ def show_main_menu(
             title = QLabel(name)
         title.setStyleSheet("font-size: 14px; font-weight: 700; color: palette(text);")
         hl.addWidget(title)
-        hl.addStretch(1)
 
         details_toggle = QToolButton()
         details_toggle.setObjectName("targetDetailsToggle")
@@ -22957,7 +22940,7 @@ def show_main_menu(
             skill_id = state["skill"].casefold()
             has_options = False
             if skill_id in {"crafting", "fletching"}:
-                potion_toggle = QCheckBox(
+                potion_toggle = WrappingCheckBox(
                     f"Use {state['skill']} potion (+3) when needed"
                 )
                 potion_toggle.setObjectName(
@@ -23218,7 +23201,7 @@ def show_main_menu(
         builder = _TARGET_BUILDERS.get(name)
         if builder is not None:
             if name not in {"Farming", _ACTIVITIES_HUB_NAME}:
-                prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
+                prompt_lbl = wrapped_label(_TARGET_PROMPTS.get(name, "Select a target"))
                 prompt_lbl.setStyleSheet("color: palette(text);")
                 panel_layout.addWidget(prompt_lbl)
             # An attached hatchet/pickaxe can be above the current skill level.
@@ -24403,10 +24386,10 @@ def show_main_menu(
             )
             if skill_id == "farming"
             else skill_guide_sections_pure(
-                skill_name,
-                _SKILL_TARGET_TABLES.get(skill_id),
+                skill_name, _SKILL_TARGET_TABLES.get(skill_id),
                 EQUIPMENT_ITEM_DATA,
                 slayer_families=SLAYER_FAMILIES_BY_ID,
+                player_data=player_data,
             )
         )
         first_anchor = None

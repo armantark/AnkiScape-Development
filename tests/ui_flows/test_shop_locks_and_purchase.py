@@ -66,7 +66,21 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
         self.selector.setCurrentItem(item)
         QApplication.processEvents()
 
-    def test_locked_shops_dim_last_in_list_and_search_and_still_open_read_only(self) -> None:
+    def _assert_locked_row_does_not_open(self, row) -> None:
+        """A real click, a forced itemClicked, and a programmatic current-row change all leave the detail alone."""
+        meta = _main_menu._find_named_label(self.dialog, "shopDetailMeta")
+        before = meta.text()
+        QTest.mouseClick(
+            self.selector.viewport(),
+            Qt.MouseButton.LeftButton,
+            pos=self.selector.visualItemRect(row).center(),
+        )
+        self.selector.itemClicked.emit(row)
+        self.selector.setCurrentItem(row)
+        QApplication.processEvents()
+        self.assertEqual(meta.text(), before)
+
+    def test_locked_shops_dim_last_in_list_and_search(self) -> None:
         from ankiscape.ui.ui_tab_shop_widgets import ROW_SIDE_PADDING
 
         shops = [
@@ -97,13 +111,6 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
         wrapped = metrics.boundingRect(QRect(0, 0, text_width, 10_000), Qt.TextFlag.TextWordWrap, labels[longest])
         self.assertGreaterEqual(rects[longest].height(), wrapped.height() + 10, "the longest row is elided")
 
-        self._select(lambda payload: payload.get("shop_id") == "canifis_general_store")
-        meta = _main_menu._find_named_label(self.dialog, "shopDetailMeta")
-        preview = _main_menu._find_named_label(self.dialog, "shopPreviewLabel")
-        self.assertIn("Requires Priest in Peril", meta.text())
-        self.assertEqual(preview.text(), "Requires Priest in Peril")
-        self.assertFalse(_main_menu._find_named_button(self.dialog, "shopTransactionButton").isEnabled())
-
         self._search("shark")
         results = _shop_rows(self.selector)
         dimmed = [is_dimmed for _label, is_dimmed in results]
@@ -111,6 +118,27 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
         etceteria = next(row for row in results if " · Etceteria Fish · " in row[0])
         self.assertIn(" · Etceteria Fish · Requires The Fremennik Trials · Stock ", etceteria[0])
         self.assertTrue(etceteria[1])
+
+    def _rows(self, dimmed: bool) -> list:
+        return [
+            self.selector.item(i)
+            for i in range(self.selector.count())
+            if (self.selector.item(i).data(Qt.ItemDataRole.ForegroundRole) is not None) == dimmed
+        ]
+
+    def test_locked_rows_cannot_be_selected_in_the_list_or_in_search(self) -> None:
+        for query in ("", "shark"):
+            self._search(query)
+            locked_rows = self._rows(dimmed=True)
+            self.assertTrue(locked_rows, query)
+            for row in locked_rows:
+                self.assertFalse(row.flags() & Qt.ItemFlag.ItemIsEnabled)
+                self.assertFalse(row.flags() & Qt.ItemFlag.ItemIsSelectable)
+            self._assert_locked_row_does_not_open(locked_rows[0])
+            open_payload = self._rows(dimmed=False)[0].data(Qt.ItemDataRole.UserRole)
+            self._select(lambda payload: payload == open_payload)
+            self.assertEqual(self.selector.currentItem().data(Qt.ItemDataRole.UserRole), open_payload)
+            self._assert_locked_row_does_not_open(locked_rows[0])
 
     def test_purchase_chip_shows_under_buy_at_owner_height_then_clears(self) -> None:
         from tests.ui_flows.qt_text_fit import text_fit_defects

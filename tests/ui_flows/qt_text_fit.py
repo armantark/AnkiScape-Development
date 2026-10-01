@@ -6,10 +6,12 @@ geometry, and these probes trust widget geometry, not pixels.
 """
 
 from aqt.qt import (
+    QAbstractButton,
     QAbstractScrollArea,
     QCheckBox,
     QComboBox,
     QLabel,
+    QLineEdit,
     QPoint,
     QPushButton,
     QRadioButton,
@@ -24,6 +26,12 @@ _HINTED = (QPushButton, QCheckBox, QRadioButton, QComboBox)
 
 
 def _text_fits(widget) -> bool:
+    if isinstance(widget, QCheckBox) and widget.hasHeightForWidth():
+        # A check box that wraps its own text needs only its longest word's width.
+        return (
+            widget.minimumSizeHint().width() <= widget.width()
+            and widget.heightForWidth(widget.width()) <= widget.height()
+        )
     if isinstance(widget, QPushButton):
         # A push button's size hint adds style margins the text never needs, so
         # measure the style's content rectangle instead.
@@ -36,7 +44,7 @@ def _text_fits(widget) -> bool:
         )
         text_size = option.fontMetrics.size(Qt.TextFlag.TextShowMnemonic, option.text)
         return text_size.width() <= contents.width() and text_size.height() <= contents.height()
-    if isinstance(widget, _HINTED):
+    if isinstance(widget, (QAbstractButton, QComboBox)):
         return widget.sizeHint().width() <= widget.width()
     if widget.wordWrap():
         # A wrapped label's minimum width is its longest word, which wrapping
@@ -97,4 +105,21 @@ def text_fit_defects(root) -> list[str]:
         for right, right_rect in zip(widgets[index + 1 :], rects[index + 1 :]):
             if left_rect.intersects(right_rect):
                 defects.append(f"{_text(left)!r} overlaps {_text(right)!r}")
+    return defects
+
+
+def clipped_text_defects(root) -> list[str]:
+    """Name each visible control whose text is cut off: labels, buttons, check boxes and search placeholders."""
+    controls = [
+        widget
+        for widget in root.findChildren(QLabel) + root.findChildren(QAbstractButton)
+        if widget.text() and widget.isVisibleTo(root)
+    ]
+    defects = [f"{widget.text()!r} is clipped in {widget.size()}" for widget in controls if not _text_fits(widget)]
+    # The 10 px side padding and 1 px border of the search field's stylesheet.
+    defects += [
+        f"placeholder {edit.placeholderText()!r} is clipped in {edit.size()}"
+        for edit in root.findChildren(QLineEdit)
+        if edit.isVisibleTo(root) and edit.fontMetrics().horizontalAdvance(edit.placeholderText()) + 22 > edit.width()
+    ]
     return defects

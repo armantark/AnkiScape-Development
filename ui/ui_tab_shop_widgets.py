@@ -3,7 +3,7 @@ plain lane can still import that module."""
 
 from collections.abc import Callable, Hashable
 
-from aqt.qt import QLabel, QStyledItemDelegate, QStyleOptionViewItem, QTimer  # type: ignore
+from aqt.qt import QLabel, QListWidget, QListWidgetItem, QStyledItemDelegate, QStyleOptionViewItem, Qt, QTimer  # type: ignore
 
 # Side padding of a Shop list row; the row stylesheet and the size hint share it.
 ROW_SIDE_PADDING = 7
@@ -12,6 +12,27 @@ _TONES = {
     True: ("✓ ", "rgba(76,175,80,0.18)", "#4CAF50"),
     False: ("", "rgba(240,199,94,0.22)", "#f0c75e"),
 }
+
+_LOCKED_FLAGS = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
+
+
+def mark_locked(item: QListWidgetItem, dim_color) -> None:
+    """Dim a locked row and make it unselectable (ruling 4.29.5): a dim row alone still opened on click."""
+    item.setForeground(dim_color)
+    item.setFlags(item.flags() & ~_LOCKED_FLAGS)
+
+
+def is_openable(item: QListWidgetItem | None) -> bool:
+    return item is not None and bool(item.flags() & Qt.ItemFlag.ItemIsEnabled)
+
+
+def restore_current(selector: QListWidget, item: QListWidgetItem | None) -> None:
+    """Re-mark the row that was open before a repopulate; a locked row never is."""
+    if not is_openable(item):
+        return
+    selector.blockSignals(True)
+    selector.setCurrentItem(item)
+    selector.blockSignals(False)
 
 
 class WrappedRowDelegate(QStyledItemDelegate):
