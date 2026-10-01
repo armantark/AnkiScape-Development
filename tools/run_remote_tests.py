@@ -3,7 +3,9 @@
 
 Preparation snapshots the worktree and checks prerequisites; sync includes pending-run reconciliation and mirror
 setup; execution includes launch, polling and final log retrieval. Lock wait is untimed,
-except that a promotion gate holds the lock itself and hands it to its lane runs.
+except that a promotion gate holds the lock itself and hands it to its lane runs. The
+pending JSON is transient coordination state: retain the announced exact-run log and
+report paths, and never infer success or relaunch solely because that record disappeared.
 """
 
 from __future__ import annotations
@@ -509,6 +511,10 @@ def _stream_remote_run(
         json.dump(pending, pending_file)
         pending_file.flush()
         os.fsync(pending_file.fileno())
+    print(
+        f"Remote run: {run_id}; log: {log_path}; report: {report_path}",
+        file=sys.stderr,
+    )
     try:
         _ssh(launch, label="remote lane launch")
     except SSHCommandError as exc:

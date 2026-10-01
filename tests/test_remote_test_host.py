@@ -224,7 +224,7 @@ class RemoteTestHostTests(unittest.TestCase):
         with (
             patch.object(run_remote_tests.subprocess, "run", side_effect=execute),
             contextlib.redirect_stdout(io.StringIO()) as stdout,
-            contextlib.redirect_stderr(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()) as stderr,
         ):
             returncode, output = run_remote_tests._stream_remote_run("qt", timeout=1, poll_interval=0.01)
         self.assertEqual(returncode, 2)
@@ -235,6 +235,10 @@ class RemoteTestHostTests(unittest.TestCase):
         # The report precedes the lane's exit, so the runner still stops what is left of it.
         pid_read = next(command for command in commands if command.startswith("cat ") and ".pid " in command)
         run = pid_read.split()[1].removesuffix(".pid")
+        self.assertIn(
+            f"Remote run: {Path(run).name}; log: {run}.log; report: {run}.report",
+            stderr.getvalue(),
+        )
         self.assertIn(f"group=4242 pid_path={run}.pid log_path={run}.log\n{run_remote_tests.LANE_STOP}", commands)
         self.assertFalse(run_remote_tests._pending_path().exists())
         report_command = next(command for command in commands if ".report " in command)
