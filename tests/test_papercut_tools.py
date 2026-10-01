@@ -204,6 +204,59 @@ class PapercutToolTests(unittest.TestCase):
         self.assertNotIn("construction_data.py", completed.stdout)
         self.assertIn("Search stopped at 1 results", completed.stderr)
 
+    def test_repo_search_previews_long_generated_rows_with_bounded_output(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            data = root / "data"
+            data.mkdir()
+            (data / "shop_data.py").write_text(
+                "wilderness " + "catalog-value " * 200 + "\n",
+                encoding="utf-8",
+            )
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tools" / "repo_search.py"),
+                    "wilderness",
+                    "data/shop_data.py",
+                    "--include-large",
+                    "--max-columns",
+                    "80",
+                ],
+                cwd=root,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("wilderness", completed.stdout)
+        self.assertLess(len(completed.stdout), 300)
+
+    def test_repo_search_treats_flag_prefixed_pattern_as_text(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            tool = root / "tools" / "run_remote_tests.py"
+            tool.parent.mkdir()
+            tool.write_text("parser.add_argument('--select')\n", encoding="utf-8")
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tools" / "repo_search.py"),
+                    "--",
+                    "--select|select.*startswith|test_name",
+                    "tools/run_remote_tests.py",
+                ],
+                cwd=root,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("parser.add_argument('--select')", completed.stdout)
+        self.assertNotIn("unrecognized flag", completed.stderr)
+
     def test_repo_search_include_large_reaches_shop_catalogs(self):
         completed = subprocess.run(
             [

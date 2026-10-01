@@ -85,6 +85,8 @@ def search_text(
         "--no-heading",
         "--max-columns",
         str(max_columns),
+        "--max-columns-preview",
+        "-e",
         pattern,
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

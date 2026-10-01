@@ -114,6 +114,10 @@ class MemoryBankQueuePacketTest(unittest.TestCase):
         self.assertIn("root[1]/memory-bank/design-thread-queue.md:4: - Blocks: owner choice.", first)
         self.assertIn('root[1]/memory-bank/gap-backlog.json:4:       "id": "alpha-blocked",', first)
         self.assertNotIn("alpha-done", first)
+        self.assertIn("## Operator search guidance", first)
+        self.assertIn("tools/repo_search.py", first)
+        self.assertIn("--include-large --max-columns 300", first)
+        self.assertIn("patterns that begin with `--`", first)
 
     def test_empty_match_sources_are_reported(self):
         with tempfile.TemporaryDirectory() as temp_dir:
