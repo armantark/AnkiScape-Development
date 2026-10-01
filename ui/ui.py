@@ -479,18 +479,17 @@ from ..data.slayer_data import (
 )
 from ..logic.slayer_logic import (
     sanitize_slayer_state_pure,
-    slayer_assignment_progress_pure,
     slayer_master_display_name_pure,
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
-from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_resolvable_combat_blockers_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
-from ..data.treasure_trails_data import TREASURE_TRAILS_ACTIVITY_ID
 from ..logic_pure.logic_pure import combat_grave_banner_view_pure, combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
+from ..logic_pure.logic_pure_combat_card import review_combat_card_view_pure
 
 from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
 
@@ -630,7 +629,7 @@ from ..logic.shop_logic import (
     shop_view_model_pure,
 )
 
-from ..core.constants import ITEM_DEFINITIONS
+from ..core.constants import ITEM_DEFINITIONS, TREASURE_TRAILS_ACTIVITY_ID
 from ..core.item_registry import ItemDefinition, item_definitions_by_storage_key
 
 from ..logic import inventory_pure
@@ -1532,11 +1531,6 @@ def refresh_skill_availability(
         pass
 
 
-def _quest_fight_or_quest_name(player_data: dict, quest_id: str, quest: dict) -> str:
-    fights = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, QUEST_DATA)
-    return str(fights[0]["display_name"] if fights else quest.get("display_name", quest_id))
-
-
 # Maps a skill id to the data table that resolves its current-target id into a
 # human-readable display name. Registry-driven (skill_registry supplies the
 # current_target_key/default_target) so the HUD label is just a literal echo of
@@ -1562,12 +1556,12 @@ _SKILL_TARGET_TABLES = {
 }
 
 def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
-    """Display name of the skill's current target (a quest fight's boss), or None to hide the label."""
+    """Display name of the skill's current target, or None to hide the label."""
     if skill == "Quests":
         quest_id = player_data.get("current_quest")
         quest = QUEST_DATA.get(quest_id) if isinstance(quest_id, str) else None
         if isinstance(quest, dict):
-            return _quest_fight_or_quest_name(player_data, quest_id, quest)
+            return str(quest.get("display_name", quest_id))
         return None
     if skill == _COMBAT_HUB_NAME:
         target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
@@ -2644,9 +2638,12 @@ if HAS_QT:
             self.slayer_lbl.setVisible(bool(text))
             self._info_layout.setSpacing(2 if text else 4)
 
-        def _set_combat_chips(self, state: dict, player_data: dict) -> None:
-            """Kills and trained skills, or, while the enemy is held and neither
-            count can move, the finisher prompt in amber over both chip lines."""
+        def _set_combat_chips(self, state: dict) -> None:
+            """Kills and the trained skills' icons, the whole sentence in the
+            tooltip, or, while the enemy is held and neither
+            count can move, the finisher prompt in amber over both chip lines.
+            A wrapped quest and boss label only fits the fixed-height card with
+            the rows drawn tighter."""
             notice = state["finisher_notice"]
             if notice:
                 self.chips_lbl.setText(notice)
@@ -2654,12 +2651,17 @@ if HAS_QT:
                 # Its two wrapped lines need the spacing a Slayer line gets.
                 self._info_layout.setSpacing(2)
             else:
-                trains = " • ".join(state["trained_skills"])
-                self.chips_lbl.setText(f"Kills: {state['kills_total']} · Trains {trains}")
+                icons = "".join(f'<img src="{skill_icon_path_for(skill)}" width="12" height="12"> ' for skill in state["trained_skills"])
+                self.chips_lbl.setText(state["chips_lead"] + icons)
                 self.chips_lbl.setStyleSheet(self.slayer_lbl.styleSheet())
-                self._set_slayer_progress(slayer_assignment_progress_pure(player_data))
+                self._set_slayer_progress(state["slayer_text"])
             self.chips_lbl.setWordWrap(bool(notice))
+            self.chips_lbl.setToolTip("" if notice else state["chips_text"])
             self.chips_lbl.setVisible(True)
+            if self.target_lbl.wordWrap():
+                self.layout().activate()
+                if self.target_lbl.heightForWidth(self.target_lbl.width()) > self.target_lbl.fontMetrics().lineSpacing():
+                    self._info_layout.setSpacing(1)
 
         def set_data(self, player_data: dict, skill: str) -> None:
             """Update HUD content from player data and currently active skill."""
@@ -2758,6 +2760,7 @@ if HAS_QT:
             self.second_progress.setVisible(False)
             self.progress_lbl.setVisible(False)
             self.second_progress_lbl.setVisible(False)
+            self.target_lbl.setWordWrap(False)
             self.progress.setTextVisible(False)
             self.progress.setStyleSheet(self.second_progress.styleSheet())
             if skill in _UTILITY_SKILL_NAMES:
@@ -2875,8 +2878,8 @@ if HAS_QT:
                 self._reposition()
                 self.show()
                 return
-            if skill == _COMBAT_HUB_NAME:
-                state = combat_hud_state_pure(player_data)
+            state = review_combat_card_view_pure(player_data, skill, QUEST_DATA, EQUIPMENT_DATA)
+            if state is not None:
                 ip = os.path.join(current_dir, "icon", "attack_icon.png")
                 if not os.path.exists(ip):
                     ip = self._placeholder_icon_path()
@@ -2905,15 +2908,13 @@ if HAS_QT:
                 self.sub_lbl.setVisible(False)
 
                 # Enemy name + health bar
-                target_text = state["enemy_name"]
-                if state["status"]:
-                    target_text += f" • {state['status']}"
-                self.target_lbl.setText(target_text)
+                self.target_lbl.setText(state["target_text"])
+                self.target_lbl.setWordWrap(state["target_wraps"])
                 self.target_lbl.setVisible(True)
                 self.enemy_progress.setVisible(True)
                 self.enemy_progress.setValue(state["enemy_pct"])
 
-                self._set_combat_chips(state, player_data)
+                self._set_combat_chips(state)
 
                 self.adjustSize()
                 self._reposition()
@@ -5315,7 +5316,7 @@ def show_main_menu(
     stop_btn.clicked.connect(lambda _=False: _stop_training())
 
     # ---- target list builders (one per implemented skill) ----
-    from .ui_target_search import build_searchable_target_selector
+    from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
 
     def _build_flat_target_list(
         rows: tuple[TargetRowMetadata, ...],
@@ -5323,16 +5324,10 @@ def show_main_menu(
         confirm_select=None,
     ) -> QListWidget:
         target_list = QListWidget()
-        target_list.setIconSize(QSize(28, 28))
-        target_list.setAlternatingRowColors(True)
-        target_list.setStyleSheet(
-            "QListWidget::item { min-height: 28px; padding: 1px; }"
-            " QListWidget::item:selected { background: rgba(66,133,244,0.35);"
-            " color: palette(text); }"
-        )
+        style_flat_target_list(target_list)
         current_item = None
         for row in rows:
-            item = QListWidgetItem(row.label)
+            item = QListWidgetItem(short_target_row_label(row.label))
             item.setData(Qt.ItemDataRole.UserRole, row.target_id)
             if row.icon_path and os.path.exists(row.icon_path):
                 icon = _pixel_path_icon(row.icon_path, 28)
@@ -5354,9 +5349,7 @@ def show_main_menu(
                     candidate.data(Qt.ItemDataRole.UserRole)
                 )
                 if row is not None:
-                    candidate.setText(
-                        f"✓ {row.label}" if candidate is item else row.label
-                    )
+                    candidate.setText(("✓ " if candidate is item else "") + short_target_row_label(row.label))
                 current_font = candidate.font()
                 current_font.setBold(candidate is item)
                 candidate.setFont(current_font)
