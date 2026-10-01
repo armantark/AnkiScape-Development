@@ -9,11 +9,19 @@ from tests import test_main_menu_widget as _main_menu
 from tests.test_main_menu_widget import HAS_AQT, _bank_grid_texts, _list_texts, _make_player_data, _open_bank_tab
 
 if HAS_AQT:
-    from aqt.qt import QApplication, QLabel, QListWidget, QMenu, QPushButton, QTextDocument, QTextDocumentFragment, QWidget
+    from aqt.qt import QApplication, QListWidget, QMenu, QPushButton, Qt, QWidget
 
 
-def _plain(label) -> str:
-    return QTextDocumentFragment.fromHtml(label.text()).toPlainText().replace("\xa0", " ")
+def _chips(group) -> list:
+    return [
+        chip
+        for chip in group.findChildren(QWidget)
+        if chip.objectName().startswith("toolBeltTool::") and not chip.isHidden()
+    ]
+
+
+def _plain(group) -> str:
+    return " ".join(str(chip.property("toolName")) for chip in _chips(group))
 
 
 def _pump() -> None:
@@ -21,21 +29,9 @@ def _pump() -> None:
         QApplication.processEvents()
 
 
-def _greyed_tools(label) -> set[str]:
-    """Tool names the label draws as greyed Add-to-toolbelt links."""
-    document = QTextDocument()
-    document.setHtml(label.text())
-    names = set()
-    block = document.begin()
-    while block.isValid():
-        iterator = block.begin()
-        while not iterator.atEnd():
-            char_format = iterator.fragment().charFormat()
-            if char_format.isAnchor():
-                names.add(char_format.anchorHref())
-            iterator += 1
-        block = block.next()
-    return names
+def _greyed_tools(group) -> set[str]:
+    """Tool names the group draws greyed, waiting for an Add-to-toolbelt action."""
+    return {str(chip.property("toolName")) for chip in _chips(group) if chip.property("greyed")}
 
 
 def _belt_group_labels(dialog) -> dict:
@@ -90,12 +86,13 @@ class ToolBeltPanelTest(unittest.TestCase):
 
         return self._open_bank(data, on_attach_tool=attach)
 
-    def _right_click_tool(self, label, tool_name: str):
-        """Hover ``tool_name`` in the label, right-click, and return the menu Qt would show."""
+    def _right_click_tool(self, group, tool_name: str):
+        """Right-click ``tool_name`` in the group and return the menu Qt would show."""
         shown: list = []
-        label.linkHovered.emit(tool_name if tool_name in _greyed_tools(label) else "")
+        chip = next(chip for chip in _chips(group) if chip.property("toolName") == tool_name)
         with mock.patch.object(QMenu, "exec", lambda menu, *_args: shown.append(menu)):
-            label.customContextMenuRequested.emit(label.rect().center())
+            if chip.contextMenuPolicy() == Qt.ContextMenuPolicy.CustomContextMenu:
+                chip.customContextMenuRequested.emit(chip.rect().center())
             _pump()
         return shown[-1] if shown else None
 

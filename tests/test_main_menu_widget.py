@@ -3773,7 +3773,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         bank_tab_scroll = dialog.findChild(QScrollArea, "bankTabScroll")
         self.assertIsNotNone(bank_tab_scroll)
         self.assertGreater(bank_tab_scroll.verticalScrollBar().maximum(), 0)
-        self.assertGreater(bank_tab_scroll.horizontalScrollBar().maximum(), 0)
+        self.assertEqual(bank_tab_scroll.horizontalScrollBar().maximum(), 0)
 
         bank_pack_grid = dialog.findChild(QWidget, "carriedLayoutGridBank")
         bank_tab_grid = dialog.findChild(QScrollArea, "carriedBankPickerBank")
