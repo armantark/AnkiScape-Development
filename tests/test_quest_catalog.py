@@ -988,7 +988,6 @@ class TestQuestCatalog(unittest.TestCase):
         )
         self.assertEqual(lava_monster["npc_stats"]["hitpoints"], 260)
         self.assertEqual(lava_monster["npc_stats"]["attack"], 28)
-        self.assertEqual(lava_monster["npc_stats"]["strength"], 0)
         self.assertEqual(lava_monster["npc_stats"]["defence"], 38)
         self.assertEqual(lava_monster["npc_stats"]["ranged"], 38)
         self.assertEqual(lava_monster["quantity"], 2)

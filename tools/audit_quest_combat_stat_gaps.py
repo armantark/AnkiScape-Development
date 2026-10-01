@@ -18,6 +18,7 @@ import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic_pure.logic_pure import quest_combat_encounter_has_stats_pure
 from ankiscape.data.quest_data import QUESTS, QuestCombatEncounter, QuestDefinition, QuestStageRequirement
 from tools import build_pre_eoc_quest_catalog as catalog_builder
+from tools.combat.quest_stat_sources import reviewed_source
 
 
 @dataclass(frozen=True)
@@ -179,6 +180,9 @@ def classify_gap(
     partial_groups: Mapping[Tuple[str, int], Tuple[Tuple[str, str, str], ...]] | None = None,
 ) -> str:
     partial_groups = partial_groups or {}
+    reviewed = reviewed_source(gap.quest_id, gap.display_name, gap.level)
+    if reviewed and reviewed.get("source_rejection") == "disclosed_calibration":
+        return "darkan_calibration_rejected"
     if gap.level <= 0:
         return "parser_or_variant_level"
     if catalog_builder._matching_local_npc_stats(gap.display_name, gap.level):
@@ -222,11 +226,20 @@ def _partial_metadata_classification(partial: Tuple[Tuple[str, str, str], ...]) 
     return "darkan_incomplete_metadata"
 
 
+def recorded_block_reason(gap: CombatGap) -> str:
+    row = reviewed_source(gap.quest_id, gap.display_name, gap.level)
+    if row and row["status"] == "source_blocked":
+        return str(row["reason"])
+    return ""
+
+
 def print_summary(gaps: Sequence[CombatGap]) -> None:
     darkan_groups = darkan_candidate_groups()
     partial_groups = darkan_partial_metadata_groups()
     classifications = Counter(classify_gap(gap, darkan_groups, partial_groups) for gap in gaps)
     print(f"statless_combat_encounters: {len(gaps)}")
+    print(f"affected_quests: {len({gap.quest_id for gap in gaps})}")
+    print(f"gaps_without_recorded_reason: {sum(not recorded_block_reason(gap) for gap in gaps)}")
     print("classifications:")
     for key in sorted(classifications):
         print(f"  {key}: {classifications[key]}")
@@ -245,6 +258,7 @@ def print_summary(gaps: Sequence[CombatGap]) -> None:
                     str(gap.quantity),
                     gap.source_text,
                     gap.source,
+                    recorded_block_reason(gap) or "UNRECORDED: review source evidence before adding stats",
                 )
             )
         )

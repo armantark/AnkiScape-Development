@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import sys
 import unittest
 from unittest.mock import patch
@@ -12,6 +13,9 @@ from ankiscape.logic_pure.logic_pure_quest import (
     quest_locked_reasons_pure,
     start_quest_pure,
 )
+from ankiscape.runtime.runtime_actions import handle_quest_answer
+import ankiscape.logic_pure.logic_pure_quest as quest_logic
+from tests.test_runtime_actions import _context
 from tests.test_combat_quest_gate import _answer_review, _maxed_player_for_quest
 from tests.test_integration_smoke import (
     _install_runtime_fakes,
@@ -161,6 +165,42 @@ class TestQuestCombatGateFallback(unittest.TestCase):
                 )
                 self.assertFalse(started)
                 self.assertEqual(unchanged, player)
+
+
+class TestSourcedQuestCombatReview(unittest.TestCase):
+    def test_bone_quest_bear_uses_source_stats_resumes_and_records_the_kill(self):
+        quest_id = "rag_and_bone_man"
+        encounter_id = "rag_and_bone_man_bear_2"
+        player = _maxed_player_for_quest(quest_id)
+        player.update(current_quest=quest_id, strength_level=20, attack_level=40, combat_lifepoints=990)
+        player["quests"][quest_id] = {"started": True, "progress": 4, "completed": False}
+        player["inventory"] = {"Logs": 8}
+        player["current_combat_target"] = "chicken"
+        player["combat_encounter"] = {"target_id": "chicken", "enemy_lifepoints": 7}
+        calls = {"xp": [], "saves": 0, "errors": []}
+        rng = random.Random(9)
+        ctx = _context(player, calls, random_values=(rng.random() for _ in range(10000)))
+        ctx.cadence_live_enabled = True
+        with patch.object(quest_logic, "apply_combat_burst_pure", wraps=quest_logic.apply_combat_burst_pure) as fight:
+            self.assertTrue(handle_quest_answer(ctx))
+        enemy = next(iter(fight.call_args.args[1].values()))
+        self.assertEqual(enemy["stats"], {"hitpoints": 250, "attack": 15, "strength": 16, "defence": 13})
+        remaining = player["quest_combat_active_encounters"][quest_id][encounter_id]
+        self.assertGreater(remaining, 0)
+        self.assertLess(remaining, 250)
+        self.assertTrue(handle_quest_answer(ctx))
+        result = player["combat_last_result"]
+        self.assertEqual(result["enemy_lifepoints"], remaining - result["player_damage"])
+        for _ in range(100):
+            if encounter_id in player.get("quest_combat_encounters", {}).get(quest_id, ()):
+                break
+            self.assertTrue(handle_quest_answer(ctx))
+        self.assertIn(encounter_id, player["quest_combat_encounters"][quest_id])
+        self.assertEqual(calls["activity"][-1], "Defeated Bear")
+        self.assertEqual(player["quests"][quest_id]["progress"], 4)
+        self.assertEqual(player["current_combat_target"], "chicken")
+        self.assertEqual(player["combat_encounter"], {"target_id": "chicken", "enemy_lifepoints": 7})
+        self.assertFalse(calls["errors"])
 
 
 class TestQuestCombatGateReviewFlow(unittest.TestCase):

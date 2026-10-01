@@ -14,6 +14,7 @@ import json
 import os
 import pprint
 import re
+import sys
 import time
 import urllib.parse
 import urllib.request
@@ -24,8 +25,10 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, Tuple
 
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.combat.quest_stat_sources import matching_quest_stats
+
 CACHE_DIR = ROOT / "tools" / ".cache" / "pre_eoc_quest_catalog"
 OUTPUT_PATH = ROOT / "generated" / "quest_catalog_generated.py"
 WIKI_API = "https://runescape.wiki/api.php"
@@ -1854,10 +1857,7 @@ def _matching_darkan_npc_stats(display_name: str, level: int) -> Dict[str, objec
 
 
 def _matching_source_npc_stats(display_name: str, level: int) -> Dict[str, object]:
-    local_stats = _matching_local_npc_stats(display_name, level)
-    if local_stats:
-        return local_stats
-    return _matching_darkan_npc_stats(display_name, level)
+    return _matching_local_npc_stats(display_name, level) or _matching_darkan_npc_stats(display_name, level)
 
 
 def _skip_combat_line(line: str) -> bool:
@@ -1960,7 +1960,7 @@ def parse_combat_encounters(combat_wikitext: str, source: str, quest_id: str) ->
         if level <= 0 and len(clean_markup(line)) > 80:
             continue
         quantity = _combat_quantity_from_line(line)
-        source_stats = _matching_source_npc_stats(display_name, level)
+        source_stats = matching_quest_stats(quest_id, display_name, level, _matching_source_npc_stats)
         base_id = quest_id_from_name(f"{quest_id} {display_name} {level or len(encounters) + 1}")
         encounter_id = base_id
         suffix = 2
@@ -1971,7 +1971,7 @@ def parse_combat_encounters(combat_wikitext: str, source: str, quest_id: str) ->
         row: Dict[str, object] = {
             "encounter_id": encounter_id,
             "display_name": display_name,
-            "level": level,
+            "level": source_stats.get("level", level),
             "quantity": quantity,
             "source": source,
             "source_text": clean_markup(line),

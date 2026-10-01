@@ -11,11 +11,9 @@ import json
 from pathlib import Path
 import re
 import sys
-import time
+import subprocess
 from typing import Callable, Dict, Iterable, Mapping, Optional, Sequence, Tuple
-import urllib.error
 import urllib.parse
-import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -238,38 +236,17 @@ def fetch_historical_revision(title: str) -> Optional[HistoricalRevision]:
         "rvdir": "older",
     }
     url = f"{WIKI_API}?{urllib.parse.urlencode(params)}"
-    last_error: Optional[Exception] = None
-    for attempt in range(5):
-        try:
-            time.sleep(0.2)
-            request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-            with urllib.request.urlopen(request, timeout=20) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-            CACHE_DIR.mkdir(parents=True, exist_ok=True)
-            cache_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-            return _revision_from_payload(title, payload)
-        except urllib.error.HTTPError as exc:
-            last_error = exc
-            if exc.code == 429:
-                retry_after = _retry_after_seconds(exc)
-                time.sleep(retry_after if retry_after is not None else 2.0 * (attempt + 1))
-                continue
-            time.sleep(0.75 * (attempt + 1))
-        except (OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
-            last_error = exc
-            time.sleep(0.75 * (attempt + 1))
-    print(f"warning: failed to fetch {title}: {last_error}", file=sys.stderr)
-    return None
-
-
-def _retry_after_seconds(error: urllib.error.HTTPError) -> Optional[float]:
-    value = error.headers.get("Retry-After") if error.headers else None
-    if not value:
-        return None
-    try:
-        return max(0.0, float(value))
-    except ValueError:
-        return None
+    raw = subprocess.check_output(
+        ["curl", "--fail", "--retry", "3", "--retry-all-errors", "--max-time", "30",
+         "--silent", "--show-error", "--user-agent", USER_AGENT, url],
+        text=True,
+    )
+    payload = json.loads(raw)
+    if "error" in payload:
+        raise RuntimeError(f"Historical wiki query failed for {title}: {payload['error']}")
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    return _revision_from_payload(title, payload)
 
 
 def _revision_from_payload(title: str, payload: Mapping[str, object]) -> Optional[HistoricalRevision]:
