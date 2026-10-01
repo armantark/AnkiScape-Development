@@ -4,7 +4,8 @@
 `move PLAN` reads a JSON plan:
 
     {"destination": "memory-bank/papercuts-fixed-YYYY-MM-DD.md",
-     "sections": [{"heading": "...", "note": "...", "lines": ["- 2026-...", "- 2026-..."]}]}
+     "sections": [{"heading": "...", "disposition": "fixed",
+                   "evidence": "commit ...", "lines": ["- 2026-..."]}]}
 
 Each line is an entry of `memory-bank/papercuts.md`, copied exactly. Naming
 entries by text rather than line number means a plan written before another
@@ -14,6 +15,9 @@ its lines in their order in `papercuts.md`. Nothing is
 written unless the result passes the same proof as `check`, and both files
 are staged in full before either is replaced, so a failed write loses nothing.
 Moves run one at a time: a second move waits until the first has finished.
+
+`append TIMESTAMP INCIDENT` constructs and appends one required `- ` bullet while
+holding the same lock as moves. Multiline values are refused before any write.
 
 `check BASE` proves that every line the papercut logs held at git revision
 BASE is still in one of them, and that no open papercut is also recorded as
@@ -92,10 +96,47 @@ def _choose(source: Sequence[str], entry: str, chosen: set[int]) -> int:
     raise SystemExit(f"not an open entry of {PAPERCUTS}, or chosen twice: {entry}")
 
 
+def _closure_note(section: dict) -> str:
+    disposition = section.get("disposition")
+    if disposition not in {"fixed", "duplicate"}:
+        raise SystemExit("each move section requires disposition 'fixed' or 'duplicate'")
+    evidence = section.get("evidence")
+    if not isinstance(evidence, str) or not evidence.strip():
+        raise SystemExit(f"{disposition} disposition requires non-empty evidence")
+    parts = [f"Disposition: {disposition}.", f"Evidence: {evidence.strip()}"]
+    note = section.get("note", "")
+    if note:
+        if not isinstance(note, str):
+            raise SystemExit("section note must be text")
+        parts.append(note.strip())
+    return "\n\n".join(parts)
+
+
+def append(root: Path, timestamp: str, incident: str) -> bool:
+    if not timestamp.strip() or not incident.strip() or any(
+        character in timestamp or character in incident for character in "\r\n"
+    ):
+        raise SystemExit("timestamp and incident must each be non-empty single-line text")
+    entry = f"- {timestamp.strip()} — {incident.strip()}"
+    source_path = root / PAPERCUTS
+    with _exclusive(root / "memory-bank"):
+        source_text = source_path.read_text(encoding="utf-8")
+        if entry in source_text.splitlines():
+            return False
+        archived = _lines(path.read_text(encoding="utf-8") for path in _fixed_paths(root))
+        if entry.removeprefix("- ") in archived:
+            raise SystemExit("entry is already archived as fixed; it cannot be reopened")
+        updated = source_text.rstrip("\n") + "\n" + entry + "\n"
+        _replace({source_path: updated})
+    return True
+
+
 def move(root: Path, plan: dict) -> tuple[int, list[str]]:
     match = FIXED_RE.fullmatch(plan["destination"])
     if not match:
         raise SystemExit(f"destination must be memory-bank/papercuts-fixed-YYYY-MM-DD.md: {plan['destination']}")
+    sections = plan.get("sections", [])
+    closure_notes = [_closure_note(section) for section in sections]
     source_path, destination = root / PAPERCUTS, root / plan["destination"]
     with _exclusive(root / "memory-bank"):
         source_text = source_path.read_text(encoding="utf-8")
@@ -107,9 +148,9 @@ def move(root: Path, plan: dict) -> tuple[int, list[str]]:
         )
         chosen: set[int] = set()
         fixed_after = fixed_before
-        for section in plan["sections"]:
+        for section, closure_note in zip(sections, closure_notes):
             numbers = [_choose(source, entry, chosen) for entry in section["lines"]]
-            fixed_after += f"\n## {section['heading']}\n\n{section['note']}\n\n" + "".join(
+            fixed_after += f"\n## {section['heading']}\n\n{closure_note}\n\n" + "".join(
                 source[number] for number in sorted(numbers)
             )
         remaining = "".join(line for number, line in enumerate(source) if number not in chosen)
@@ -141,6 +182,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("move").add_argument("plan", type=Path)
+    append_parser = commands.add_parser("append")
+    append_parser.add_argument("timestamp")
+    append_parser.add_argument("incident")
     commands.add_parser("check").add_argument("base")
     args = parser.parse_args(argv)
     root = args.root.resolve()
@@ -148,6 +192,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         plan = json.loads(args.plan.read_text(encoding="utf-8"))
         count, errors = move(root, plan)
         success = f"Moved {count} papercut lines into {plan['destination']}; no line lost."
+        failure = "Nothing was written."
+    elif args.command == "append":
+        added = append(root, args.timestamp, args.incident)
+        errors = []
+        success = "Appended one papercut entry." if added else "Papercut entry already open; nothing changed."
         failure = "Nothing was written."
     else:
         errors = check(root, args.base)
