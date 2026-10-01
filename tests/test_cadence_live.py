@@ -909,12 +909,12 @@ class TestLiveCombatContinuity(unittest.TestCase):
 
 
 class TestQuestCombatCadenceBoundary(unittest.TestCase):
-    def test_live_quest_combat_uses_collapsed_stage_while_flag_off_keeps_legacy_ticks(self):
+    def test_live_quest_combat_uses_the_combat_slice_while_flag_off_keeps_legacy_ticks(self):
         observed_ticks = []
 
         def fake_combat(player_data, *_args, **kwargs):
             observed_ticks.append(
-                (kwargs["ticks"], kwargs["stop_after_first_kill"])
+                (kwargs["ticks"], kwargs["live_cadence"])
             )
             return copy.deepcopy(player_data), True, {
                 "encounter_id": "proof",
@@ -955,7 +955,7 @@ class TestQuestCombatCadenceBoundary(unittest.TestCase):
             live_ctx.cadence_live_enabled = True
             self.assertTrue(handle_quest_answer(live_ctx))
 
-        self.assertEqual(observed_ticks, [(50, False), (None, True)])
+        self.assertEqual(observed_ticks, [(50, False), (6, True)])
 
     def test_live_collapsed_quest_combat_rewards_only_one_required_kill(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

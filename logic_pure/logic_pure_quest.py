@@ -701,6 +701,19 @@ def _quest_stage_skill_blockers(player_data, stage, source, requirements):
     return tuple(blockers)
 
 
+def _quest_combat_weapon_blockers(player_data, quest_id, stage, source, requirement):
+    # Darkan's DelrithBoss zeroes every hit not dealt with a wielded Silverlight,
+    # so such a fight cannot start or go on with any other weapon.
+    wielded = (player_data.get("equipment", {}) or {}).get("weapon")
+    return tuple(
+        _quest_blocker(stage, "missing_weapon", f"Wield {weapon} to damage {encounter.get('display_name')}", source)
+        for encounter in requirement.get("combat_encounters", ()) or ()
+        if (weapon := _quest_combat_configs(encounter).get("required_weapon"))
+        and weapon != wielded
+        and _quest_combat_remaining_count(player_data, quest_id, encounter.get("encounter_id"), encounter) > 0
+    )
+
+
 def _quest_requirement_blockers(player_data, quest_id, requirement):
     stage = _positive_int(requirement.get("stage", 0), 0)
     source = str(requirement.get("source", ""))
@@ -808,6 +821,7 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
                 )
             )
 
+    blockers.extend(_quest_combat_weapon_blockers(player_data, quest_id, stage, source, requirement))
     for encounter in requirement.get("combat_encounters", ()) or ():
         if not isinstance(encounter, Mapping):
             continue
@@ -820,65 +834,35 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
         if remaining_quantity <= 0:
             continue
         remaining_quantity_text = f" x{remaining_quantity}" if remaining_quantity > 1 else ""
+        label = f"{display_name}{level_text}{remaining_quantity_text}"
+        fight = dict(
+            encounter_id=encounter_id,
+            display_name=display_name,
+            level=level,
+            quantity=remaining_quantity,
+            total_quantity=quantity,
+            completed_quantity=completed_quantity,
+            remaining_quantity=remaining_quantity,
+        )
         if not quest_combat_encounter_has_stats_pure(encounter):
-            blockers.append(
-                _quest_blocker(
-                    stage,
-                    "combat_missing_stats",
-                    f"This fight is not modelled yet (combat stats missing): {display_name}{level_text}{remaining_quantity_text}",
-                    encounter_source,
-                    encounter_id=encounter_id,
-                    display_name=display_name,
-                    level=level,
-                    quantity=remaining_quantity,
-                    total_quantity=quantity,
-                    completed_quantity=completed_quantity,
-                    remaining_quantity=remaining_quantity,
-                )
-            )
+            reason = f"This fight is not modelled yet (combat stats missing): {label}"
+            blockers.append(_quest_blocker(stage, "combat_missing_stats", reason, encounter_source, **fight))
             continue
         player_level = player_combat_level_pure(player_data)
         minimum_player_combat = _positive_int(
             _quest_combat_configs(encounter).get("minimum_player_combat", 0), 0
         )
+        fight["minimum_player_combat"] = minimum_player_combat
         if minimum_player_combat > 0 and player_level < minimum_player_combat:
+            reason = f"Requires combat level {minimum_player_combat} for battle: {label}"
             blockers.append(
                 _quest_blocker(
-                    stage,
-                    "combat_underpowered",
-                    (
-                        f"Requires combat level {minimum_player_combat} for battle: "
-                        f"{display_name}{level_text}{remaining_quantity_text}"
-                    ),
-                    encounter_source,
-                    encounter_id=encounter_id,
-                    display_name=display_name,
-                    level=level,
-                    minimum_player_combat=minimum_player_combat,
-                    quantity=remaining_quantity,
-                    total_quantity=quantity,
-                    completed_quantity=completed_quantity,
-                    remaining_quantity=remaining_quantity,
-                    player_combat_level=player_level,
+                    stage, "combat_underpowered", reason, encounter_source, player_combat_level=player_level, **fight
                 )
             )
             continue
-        blockers.append(
-            _quest_blocker(
-                stage,
-                "combat_encounter",
-                f"Battle required: {display_name}{level_text}{remaining_quantity_text}",
-                encounter_source,
-                encounter_id=encounter_id,
-                display_name=display_name,
-                level=level,
-                minimum_player_combat=minimum_player_combat,
-                quantity=remaining_quantity,
-                total_quantity=quantity,
-                completed_quantity=completed_quantity,
-                remaining_quantity=remaining_quantity,
-            )
-        )
+        reason = f"Battle required: {label}"
+        blockers.append(_quest_blocker(stage, "combat_encounter", reason, encounter_source, **fight))
     return tuple(blockers)
 
 
@@ -964,6 +948,7 @@ _QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
     "missing_item_option",
     "missing_skill",
     "missing_tool",
+    "missing_weapon",
     "unmet_route",
     "quest_choice",
 }
@@ -1285,6 +1270,17 @@ def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, enco
     return None
 
 
+def _quest_combat_resumed_encounter(player_data, target_id, saved_lifepoints):
+    """A quest fight resumes the encounter its last review carried, so in live
+    pacing the attack clocks and spell effects run on as in an ordinary fight."""
+    if saved_lifepoints <= 0:
+        return {}
+    carried = player_data.get("quest_combat_encounter")
+    if not isinstance(carried, Mapping) or carried.get("target_id") != target_id:
+        carried = {"target_id": target_id}
+    return {**carried, "enemy_lifepoints": saved_lifepoints}
+
+
 def apply_quest_combat_encounter_pure(
     player_data,
     quest_id,
@@ -1295,6 +1291,7 @@ def apply_quest_combat_encounter_pure(
     equipment_data=None,
     *,
     stop_after_first_kill=False,
+    live_cadence=False,
 ):
     state = quest_state_pure(player_data, quest_id)
     if not state["started"] or state["completed"]:
@@ -1335,13 +1332,9 @@ def apply_quest_combat_encounter_pure(
     # Quest battles must resolve to a kill or death, because auto-flee would
     # soft-lock quest progress. Keep the override local to this battle.
     combat_player_data["combat_auto_flee"] = False
-    if saved_lifepoints > 0:
-        combat_player_data["combat_encounter"] = {
-            "target_id": quest_target_id,
-            "enemy_lifepoints": saved_lifepoints,
-        }
-    else:
-        combat_player_data["combat_encounter"] = {}
+    combat_player_data["combat_encounter"] = _quest_combat_resumed_encounter(
+        player_data, quest_target_id, saved_lifepoints
+    )
     combat_rng = rng if rng is not None else _quest_combat_default_rng()
     combat_ticks = ticks if ticks is not None else QUEST_COMBAT_DEFAULT_BURST_TICKS
     data, combat_ok, combat_result = apply_combat_burst_pure(
@@ -1351,10 +1344,12 @@ def apply_quest_combat_encounter_pure(
         ticks=combat_ticks,
         rng=combat_rng,
         stop_after_first_kill=stop_after_first_kill,
+        live_cadence=live_cadence,
     )
     if not combat_ok:
         return player_data, False, combat_result
 
+    quest_encounter = data.get("combat_encounter", {})
     data["current_combat_target"] = original_combat_target
     data["combat_encounter"] = {} if combat_result.get("died") else original_combat_encounter
     data["combat_auto_flee"] = player_data.get("combat_auto_flee", True)
@@ -1397,6 +1392,7 @@ def apply_quest_combat_encounter_pure(
         data["combat_last_result"] = quest_result
         return data, True, quest_result
 
+    data["quest_combat_encounter"] = {}
     if combat_result.get("killed"):
         quest_active.pop(encounter_id, None)
     elif combat_result.get("died"):
@@ -1405,6 +1401,7 @@ def apply_quest_combat_encounter_pure(
         enemy_lifepoints = _non_negative_int(combat_result.get("enemy_lifepoints", 0), 0)
         if enemy_lifepoints > 0:
             quest_active[encounter_id] = enemy_lifepoints
+            data["quest_combat_encounter"] = quest_encounter
 
     if quest_active:
         quest_active_encounters[quest_id] = quest_active

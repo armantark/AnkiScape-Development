@@ -1,3 +1,4 @@
+import random
 import sys
 import unittest
 
@@ -237,14 +238,16 @@ class TestZogreFleshEatersProductFlow(unittest.TestCase):
 
         self.assertTrue(addon.on_set_quest(QUEST_ID), calls["dialogs"])
         original_random = addon.random.random
-        addon.random.random = lambda: 0.0
+        # Each fight takes the live six-tick slice per review, so the rolls must
+        # be realistic: constant 0.0 rolls land only minimum hits.
+        addon.random.random = random.Random(0).random
         try:
-            for review_count in range(1, 31):
+            for review_count in range(1, 61):
                 _answer_review(addon)
                 if addon._state.player_data["quests"][QUEST_ID]["completed"]:
                     break
             else:
-                self.fail("Zogre Flesh Eaters did not complete within 30 reviews")
+                self.fail("Zogre Flesh Eaters did not complete within 60 reviews")
         finally:
             addon.random.random = original_random
 

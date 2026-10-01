@@ -21,7 +21,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 706)
+        self.assertEqual(len(EQUIPMENT_DATA), 766)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -458,6 +458,29 @@ class TestEquipmentData(unittest.TestCase):
             "Dragon gauntlets",
         ):
             self.assertNotIn(item_name, EQUIPMENT_DATA)
+
+    def test_every_equippable_quest_reward_is_wearable(self):
+        from ankiscape.core.constants import EQUIPMENT_DATA as LIVE_EQUIPMENT_DATA
+        from ankiscape.core.constants_parts.quest_items import QUEST_REWARD_ITEM_DATA
+
+        # 2011Scape's item list has no single wearable item under these names.
+        unsourced = {"Coral crossbow", "Elite black armour", "Gofannon amulet", "Medium helmet", "Proselyte armour", "Slayer ring"}
+        unworn = {
+            item_name
+            for item_name, spec in QUEST_REWARD_ITEM_DATA.items()
+            if spec.get("category") == "equipment" and item_name not in LIVE_EQUIPMENT_DATA
+        }
+        self.assertEqual(unworn, unsourced)
+        for item_name in ("Swordfish", "Bowl", "Steel key ring", "Magic watering can"):
+            self.assertEqual(QUEST_REWARD_ITEM_DATA[item_name]["category"], "material")
+        # Rev-727 cache item 2402 and 2011Scape items.yml agree on these values.
+        silverlight = EQUIPMENT_DATA["Silverlight"]
+        self.assertEqual((silverlight.slot, silverlight.source_item_id, silverlight.attack_speed), ("weapon", 2402, 5))
+        self.assertEqual(
+            (silverlight.bonuses.attack_stab, silverlight.bonuses.attack_slash, silverlight.bonuses.melee_strength),
+            (9, 14, 12),
+        )
+        self.assertEqual(EQUIPMENT_DATA["Wolfbane dagger"].source_item_id, 2952)
 
     def test_components_are_excluded_but_equippable_shop_tools_are_included(self):
         for item_name in (

@@ -10247,12 +10247,12 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Silverlight key"], 0)
         self.assertEqual(player_data["inventory"]["Silverlight"], 1)
 
-        blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
         self.assertEqual(
-            blockers[0]["reason"],
-            "Battle required: Delrith level 27",
+            quest_current_stage_blocker_reasons_pure(player_data, "demon_slayer", QUEST_DATA),
+            ("Wield Silverlight to damage Delrith", "Battle required: Delrith level 27"),
         )
+        inventory, equipment, _ = equip_item_pure("Silverlight", player_data["inventory"], {}, EQUIPMENT_DATA)
+        player_data.update(inventory=inventory, equipment=equipment)
 
         player_data["attack_level"] = 30
         player_data["strength_level"] = 30
@@ -10287,7 +10287,7 @@ class TestLogic(unittest.TestCase):
             ("Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",),
         )
         self.assertEqual(player_data["quest_points"], 3)
-        self.assertEqual(player_data["inventory"]["Silverlight"], 1)
+        self.assertEqual(player_data["equipment"]["weapon"], "Silverlight")
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
         after_complete, ok, completed_again = apply_quest_progress_pure(
@@ -10298,7 +10298,7 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 3)
-        self.assertEqual(after_complete["inventory"]["Silverlight"], 1)
+        self.assertEqual(after_complete["equipment"]["weapon"], "Silverlight")
 
     def test_gertrudes_cat_real_stage_emitters_complete_and_reward_once(self):
         quest_id = "gertrudes_cat"
@@ -10389,7 +10389,7 @@ class TestLogic(unittest.TestCase):
 
     def test_demon_slayer_delrith_source_backed_stats_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["inventory"]["Silverlight"] = 1
+        player_data["equipment"]["weapon"] = "Silverlight"
         player_data["quests"]["demon_slayer"] = {"started": True, "progress": 7, "completed": False}
         player_data["attack_level"] = 30
         player_data["strength_level"] = 30

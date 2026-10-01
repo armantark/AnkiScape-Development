@@ -7,9 +7,10 @@ import unittest
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
+from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.skill_registry import get_skill, trainable_skill_definitions
 from ankiscape.core.storage_pure import default_player_data
+from ankiscape.logic_pure.logic_pure import equip_item_pure
 from ankiscape.logic_pure.logic_pure_combat_engine import player_combat_level_pure
 import ankiscape.logic_pure.logic_pure_quest as quest_logic
 from ankiscape.runtime.runtime_actions import handle_quest_answer
@@ -52,6 +53,31 @@ def _combat_requirement(level: int = 89) -> dict:
             {"skill_id": "combat", "display_name": "Combat", "level": level},
         ),
     }
+
+
+def _delrith_player(**overrides) -> dict:
+    player = {
+        "inventory": {},
+        "equipment": {"weapon": "Silverlight"},
+        "current_quest": "demon_slayer",
+        "quests": {"demon_slayer": {"started": True, "progress": 7, "completed": False}},
+        "quest_points": 0,
+        "pending_skill_exp_rewards": {},
+        "completed_achievements": [],
+        "attack_level": 10,
+        "strength_level": 10,
+        "defense_level": 10,
+        "constitution_level": 20,
+        "combat_lifepoints": 200,
+    }
+    player.update(overrides)
+    return player
+
+
+def _live_quest_review(player: dict, calls: dict, random_values) -> bool:
+    ctx = _context(player, calls, random_values=random_values)
+    ctx.cadence_live_enabled = True
+    return handle_quest_answer(ctx)
 
 
 def _set_all_combat_stats(player: dict, level: int) -> None:
@@ -278,8 +304,8 @@ class TestCombatQuestRuntime(unittest.TestCase):
     def test_quest_answer_runs_delrith_as_persistent_shared_combat(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {"Silverlight": 1},
-            "equipment": {"weapon": "Bronze sword"},
+            "inventory": {},
+            "equipment": {"weapon": "Silverlight"},
             "current_combat_target": "chicken",
             "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 10},
             "current_quest": "demon_slayer",
@@ -299,7 +325,7 @@ class TestCombatQuestRuntime(unittest.TestCase):
             "combat_supply_loadout": {"food": {"Shrimps": 10}},
             "combat_auto_eat_threshold_percent": 80,
         }
-        first_rng = random.Random(0)
+        first_rng = random.Random(2)
 
         self.assertTrue(
             handle_quest_answer(
@@ -318,7 +344,7 @@ class TestCombatQuestRuntime(unittest.TestCase):
         ]
         self.assertGreater(first_remaining, 0)
         self.assertLess(first_remaining, 70)
-        self.assertEqual(first_result["weapon"], "Bronze sword")
+        self.assertEqual(first_result["weapon"], "Silverlight")
         self.assertTrue(first_result["food_used"])
         self.assertEqual(first_result["prayers"], ("burst_of_strength",))
         self.assertEqual(first_result["prayer_uptime"], 1.0)
@@ -370,8 +396,8 @@ class TestCombatQuestRuntime(unittest.TestCase):
     def test_quest_answer_reports_the_resolver_outcome_when_delrith_wins(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {"Silverlight": 1},
-            "equipment": {"weapon": "Bronze sword"},
+            "inventory": {},
+            "equipment": {"weapon": "Silverlight"},
             "current_quest": "demon_slayer",
             "quests": {"demon_slayer": {"started": True, "progress": 7, "completed": False}},
             "quest_points": 0,
@@ -392,11 +418,70 @@ class TestCombatQuestRuntime(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(player_data["quests"]["demon_slayer"]["completed"])
         self.assertEqual(player_data["quest_combat_encounters"], {})
-        self.assertEqual(player_data["combat_grave"]["items"], ["Bronze sword"])
+        self.assertEqual(player_data["combat_grave"]["items"], ["Silverlight"])
         self.assertEqual(player_data["combat_grave"]["source"], "combat_death")
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["☠ YOU DIED — killed by Delrith; gear moved to grave"])
+
+    def test_live_pacing_fights_delrith_one_combat_slice_per_review(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = _delrith_player()
+        rng = random.Random(1)
+        reviews = []
+        while "demon_slayer" not in player_data.get("quest_combat_encounters", {}):
+            self.assertLess(len(reviews), 30)
+            self.assertTrue(
+                _live_quest_review(player_data, calls, (rng.random() for _ in range(1000)))
+            )
+            reviews.append(player_data["combat_last_result"])
+
+        self.assertGreater(len(reviews), 2)
+        self.assertTrue(all(result["ticks_elapsed"] <= 6 for result in reviews))
+        self.assertEqual(len(calls["activity"]), len(reviews))
+        for text, result in zip(calls["activity"], reviews[:-1]):
+            self.assertEqual(
+                text,
+                f"Delrith: {result['player_damage']} damage dealt, {result['enemy_lifepoints']} LP left",
+            )
+        self.assertEqual(calls["activity"][-1], "Defeated Delrith")
+        self.assertEqual(player_data["quest_combat_encounter"], {})
+        self.assertEqual(calls["errors"], [])
+
+    def test_live_quest_fight_carries_attack_clocks_between_reviews(self):
+        # Rolls of 0.0 land every swing for 1 LP, so hits landed count
+        # Silverlight's five-tick swings: six across five six-tick reviews.
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = _delrith_player(
+            attack_level=1, strength_level=1, defense_level=1, constitution_level=50, combat_lifepoints=500
+        )
+        hits = []
+        for _review in range(5):
+            self.assertTrue(_live_quest_review(player_data, calls, (0.0,) * 1000))
+            hits.append(player_data["combat_last_result"]["player_hits_landed"])
+
+        self.assertEqual(hits, [2, 1, 1, 1, 1])
+
+    def test_delrith_needs_silverlight_wielded_not_carried(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = _delrith_player(inventory={"Silverlight": 1}, equipment={"weapon": "Bronze sword"})
+
+        self.assertFalse(_live_quest_review(player_data, calls, ()))
+
+        title, message = calls["errors"][0]
+        self.assertEqual(title, "Quest blocked")
+        self.assertIn("Wield Silverlight to damage Delrith", message)
+        self.assertTrue(calls["deactivated"])
+        self.assertNotIn("combat_last_result", player_data)
+
+        inventory, equipment, ok = equip_item_pure(
+            "Silverlight", player_data["inventory"], player_data["equipment"], EQUIPMENT_DATA
+        )
+        self.assertTrue(ok)
+        player_data.update(inventory=inventory, equipment=equipment)
+        self.assertTrue(_live_quest_review(player_data, calls, (0.5,) * 1000))
+        self.assertEqual(player_data["combat_last_result"]["weapon"], "Silverlight")
+        self.assertEqual(inventory["Bronze sword"], 1)
 
 
 if __name__ == "__main__":

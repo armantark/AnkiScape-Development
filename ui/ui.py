@@ -482,7 +482,7 @@ from ..logic.slayer_logic import (
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
-from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_resolvable_combat_blockers_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
@@ -1530,6 +1530,9 @@ def refresh_skill_availability(
         pass
 
 
+def _quest_fight_or_quest_name(player_data: dict, quest_id: str, quest: dict) -> str:
+    fights = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, QUEST_DATA)
+    return str(fights[0]["display_name"] if fights else quest.get("display_name", quest_id))
 
 
 # Maps a skill id to the data table that resolves its current-target id into a
@@ -1557,16 +1560,12 @@ _SKILL_TARGET_TABLES = {
 }
 
 def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
-    """Return the display name of the skill's currently selected target.
-
-    Returns None when the skill has no selectable target (e.g. combat/support)
-    or cannot be resolved, so callers can simply hide the label.
-    """
+    """Display name of the skill's current target (a quest fight's boss), or None to hide the label."""
     if skill == "Quests":
         quest_id = player_data.get("current_quest")
         quest = QUEST_DATA.get(quest_id) if isinstance(quest_id, str) else None
         if isinstance(quest, dict):
-            return str(quest.get("display_name", quest_id))
+            return _quest_fight_or_quest_name(player_data, quest_id, quest)
         return None
     if skill == _COMBAT_HUB_NAME:
         target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
@@ -2902,7 +2901,7 @@ if HAS_QT:
                 state = quest_state_pure(player_data, quest_id) if isinstance(quest_id, str) else {"progress": 0, "completed": False}
                 total = int(quest.get("stages", 1) if isinstance(quest, dict) else 1)
                 progress = int(state.get("progress", 0) or 0)
-                quest_name = str(quest.get("display_name", "Quest") if isinstance(quest, dict) else "Quest")
+                target_name = current_target_display_name(skill, player_data) or "Quest"
                 ip = os.path.join(current_dir, "icon", "quest_icon.png")
                 if os.path.exists(ip):
                     pm = QPixmap(ip)
@@ -2917,7 +2916,7 @@ if HAS_QT:
                 if combat_status:
                     quest_status = f"{quest_status} • {combat_status}"
                 self.sub_lbl.setText(quest_status)
-                self.target_lbl.setText(quest_name)
+                self.target_lbl.setText(target_name)
                 self.target_lbl.setVisible(True)
                 self.adjustSize()
                 self._reposition()

@@ -1349,7 +1349,7 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 "undo_boundary": "one answered-card transaction",
                 "flag_off_behavior": "same quest handler",
                 "profile": None,
-                "condition": f"{combat_stages} collapsed quest-combat stage(s)" if combat_stages else "",
+                "condition": f"{combat_stages} quest-combat stage(s) on the live Combat slice" if combat_stages else "",
                 "route_kind": "quest",
             }
         )
