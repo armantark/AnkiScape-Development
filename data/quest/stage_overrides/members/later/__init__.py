@@ -24,10 +24,12 @@ from . import some_like_it_cold as _some_like_it_cold
 from .some_like_it_cold import *
 from . import song_from_the_depths as _song_from_the_depths
 from .song_from_the_depths import *
+from . import the_fremennik_isles as _the_fremennik_isles
+from .the_fremennik_isles import *
 from . import wolf_whistle as _wolf_whistle
 from .wolf_whistle import *
 
-_MODULES = (_a_fairy_tale_i_growing_pains, _a_souls_bane, _carnillean_rising, _deadliest_catch, _diamond_in_the_rough, _dwarf_cannon, _gertrudes_cat, _icthlarins_little_helper, _nature_spirit, _smoking_kills, _some_like_it_cold, _song_from_the_depths, _wolf_whistle,)
+_MODULES = (_a_fairy_tale_i_growing_pains, _a_souls_bane, _carnillean_rising, _deadliest_catch, _diamond_in_the_rough, _dwarf_cannon, _gertrudes_cat, _icthlarins_little_helper, _nature_spirit, _smoking_kills, _some_like_it_cold, _song_from_the_depths, _the_fremennik_isles, _wolf_whistle,)
 _STAGE_REQUIREMENT_REPLACEMENTS_BY_QUEST = {
     module_name: module._STAGE_REQUIREMENT_REPLACEMENTS_BY_ID
     for module_name, module in (
@@ -43,6 +45,7 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_QUEST = {
         ('smoking_kills', _smoking_kills),
         ('some_like_it_cold', _some_like_it_cold),
         ('song_from_the_depths', _song_from_the_depths),
+        ('the_fremennik_isles', _the_fremennik_isles),
         ('wolf_whistle', _wolf_whistle),
     )
 }

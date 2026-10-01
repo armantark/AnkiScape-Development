@@ -48,6 +48,7 @@ STAGE_REQUIREMENT_REPLACEMENT_ORDER = (
     'wolf_whistle',
     'song_from_the_depths',
     'some_like_it_cold',
+    'the_fremennik_isles',
 )
 
 from . import definitions as _definitions

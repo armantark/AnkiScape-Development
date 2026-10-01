@@ -6,6 +6,12 @@ from ankiscape.core.constants import CLAIM_DATA, ITEM_DEFINITIONS, ORE_DATA, QUE
 from ankiscape.core.skill_registry import get_skill
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.logic_pure.logic_pure_claims import apply_claim_pure, claim_rows_pure
+from ankiscape.logic_pure.logic_pure_quest import (
+    quest_current_stage_blockers_pure,
+    start_quest_pure,
+)
+from ankiscape.runtime.runtime_actions import handle_crafting_answer, handle_quest_answer
+from tests.test_combat_quest_gate import _maxed_player_for_quest
 from tests.test_integration_smoke import (
     _DummyCol,
     _DummyMW,
@@ -13,6 +19,7 @@ from tests.test_integration_smoke import (
     _install_runtime_fakes,
     _load_addon_as_package,
 )
+from tests.test_runtime_actions import _context
 
 
 QUEST_ID = "the_fremennik_isles"
@@ -21,6 +28,34 @@ CLAIM_IDS = (
     "the_fremennik_isles_xp_lamp_2",
 )
 SKILL_OPTIONS = ("attack", "strength", "defense", "constitution")
+STAGE_ACTIONS = {
+    1: "Feed HRH Hrafn and deliver King Sorvott's assigned ore shipment",
+    2: "Perform for Mawnis and report the first spying answers to Slug",
+    3: "Repair the Neitiznot bridges and collect Sorvott's window tax",
+    4: "Collect Sorvott's facial-hair tax and report the second spying answers",
+    6: "Return the Ice Troll King's head to Mawnis Burowgar",
+}
+ROUND_SHIELD_PROOF = "Make a Fremennik round shield"
+
+
+def _stage_one_player():
+    player = _maxed_player_for_quest(QUEST_ID)
+    player["inventory"].update(
+        {
+            "Raw tuna": 1,
+            "Mithril ore": 6,
+            "Rope": 9,
+            "Split Arctic pine logs": 8,
+            "Knife": 1,
+            "Arctic pine logs": 2,
+            "Bronze nails": 1,
+            "Hammer": 1,
+        }
+    )
+    player, started = start_quest_pure(player, QUEST_ID, QUEST_DATA)
+    if not started:
+        raise AssertionError("The Fremennik Isles fixture could not start the quest")
+    return player
 
 
 def _final_stage_player():
@@ -43,6 +78,78 @@ def _answer_review(addon):
         4,
         lambda _self, _ease: "answered",
     )
+
+
+class TestFremennikIslesStageRoute(unittest.TestCase):
+    def test_source_backed_stage_actions_replace_every_generated_sentinel(self):
+        rows = {
+            row["stage"]: row
+            for row in QUEST_DATA[QUEST_ID]["stage_requirements"]
+        }
+
+        self.assertEqual(set(rows), {1, 2, 3, 4, 5, 6})
+        for stage, action in STAGE_ACTIONS.items():
+            self.assertEqual(rows[stage]["required_actions"], ())
+            self.assertEqual(rows[stage]["auto_actions"], (action,))
+        self.assertEqual(rows[1]["consumed_inventory"], {"Raw tuna": 1})
+        self.assertEqual(
+            rows[1]["consumed_inventory_options"],
+            (({"Tin ore": 8}, {"Coal": 7}, {"Mithril ore": 6}),),
+        )
+        self.assertEqual(rows[1]["required_tools"], {})
+        self.assertEqual(
+            rows[3]["consumed_inventory"],
+            {"Rope": 8, "Split Arctic pine logs": 8},
+        )
+        self.assertEqual(rows[3]["required_tools"], {"Knife": 1})
+        self.assertNotIn("Thread", rows[5]["required_inventory"])
+        self.assertEqual(
+            rows[5]["required_actions"],
+            ("Cure and stitch yak-hide armour", ROUND_SHIELD_PROOF),
+        )
+
+    def test_runtime_walk_reaches_round_shield_through_real_stage_actions(self):
+        player = _stage_one_player()
+        calls = {"xp": [], "saves": 0, "errors": []}
+
+        for expected_progress in (2, 3, 4):
+            self.assertTrue(handle_quest_answer(_context(player, calls)))
+            self.assertEqual(player["quests"][QUEST_ID]["progress"], expected_progress)
+            self.assertFalse(player["quests"][QUEST_ID]["completed"])
+
+        player["current_craft"] = "craft_fremennik_round_shield"
+        before_rites = dict(player["inventory"])
+        self.assertFalse(handle_crafting_answer(_context(player, calls)))
+        self.assertEqual(player["inventory"], before_rites)
+        self.assertNotIn(ROUND_SHIELD_PROOF, player["quest_action_proofs"])
+
+        self.assertTrue(handle_quest_answer(_context(player, calls)))
+        self.assertEqual(player["quests"][QUEST_ID]["progress"], 5)
+        self.assertTrue(
+            set(STAGE_ACTIONS.values()) - {STAGE_ACTIONS[6]}
+            <= set(player["quest_action_proofs"])
+        )
+
+        self.assertTrue(handle_crafting_answer(_context(player, calls, [0.99])))
+        self.assertEqual(player["inventory"]["Arctic pine logs"], 0)
+        self.assertEqual(player["inventory"]["Bronze nails"], 0)
+        self.assertEqual(player["inventory"]["Rope"], 0)
+        self.assertEqual(player["inventory"]["Hammer"], 1)
+        self.assertEqual(player["inventory"]["Fremennik round shield"], 1)
+        self.assertEqual(player["crafting_exp"], 34.0)
+        self.assertIn(ROUND_SHIELD_PROOF, player["quest_action_proofs"])
+        self.assertNotIn(
+            ROUND_SHIELD_PROOF,
+            {
+                blocker.get("action_id")
+                for blocker in quest_current_stage_blockers_pure(
+                    player,
+                    QUEST_ID,
+                    QUEST_DATA,
+                )
+            },
+        )
+        self.assertFalse(player["quests"][QUEST_ID]["completed"])
 
 
 class TestFremennikIslesLampContract(unittest.TestCase):
