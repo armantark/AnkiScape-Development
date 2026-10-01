@@ -9,10 +9,12 @@ tool reads its gzip JSON report and rewrites only what history proves:
 - A `missing_lines` or `missing_file` row is traced to the commit that first
   wrote its citation token into the record. If the lines cited at that commit
   appear exactly once in the current tree, the row is repointed there.
+  Otherwise the code is gone, and the citation is pinned to that commit as
+  `<sha>:path:line`, which the audit treats as a fixed historical citation.
 
 Every other row is printed as `unfixed` for a person to rewrite: its target
-is gone, ambiguous, or written in a form this tool does not edit. Without
-`--apply` nothing is written.
+never existed, is ambiguous, or is written in a form this tool does not edit.
+Without `--apply` nothing is written.
 
 The audit resolves a repository citation against the commit that `git blame`
 assigns to the record line, so an edited line is checked against the tree of
@@ -110,11 +112,10 @@ def _token(line: str, path: str, start: int, end: int) -> re.Match[str] | None:
     return None
 
 
-def _origin_block(root: Path, row: dict, line: str) -> tuple[str, ...] | None:
+def _origin(root: Path, row: dict, line: str) -> tuple[str, str, tuple[str, ...]] | None:
+    """The commit that first wrote this citation into the record, the cited file's path then, and the cited lines."""
     path, start, end = _split_target(row["target"])
     match = _token(line, path, start, end)
-    if match is None:
-        return None
     citation = line[line.rfind(path, 0, match.start()):match.end()]
     commits = _git(root, "log", "--reverse", "--format=%H", "-S", citation, "--", row["record_path"]).split()
     if not commits:
@@ -123,7 +124,7 @@ def _origin_block(root: Path, row: dict, line: str) -> tuple[str, ...] | None:
     if len(candidates) != 1:
         return None
     lines = _git(root, "show", f"{commits[0]}:{candidates[0]}").splitlines()
-    return tuple(lines[start - 1:end]) if 1 <= start <= end <= len(lines) else None
+    return (commits[0], candidates[0], tuple(lines[start - 1:end])) if 1 <= start <= end <= len(lines) else None
 
 
 def _edits(line: str, fix: Fix) -> list[tuple[int, int, str]]:
@@ -142,15 +143,16 @@ def _repoint(root: Path, tree: Tree, row: dict) -> Fix | None:
     if row["source"] != "repository" or _token(line, path, start, end) is None:
         return None
     if row["status"] == "moved":
-        real, how = row["real_target"], "moved"
-    else:
-        block = _origin_block(root, row, line)
-        # A short one-line block such as `material.xp,` can be unique by chance.
-        matches = tree.find(block) if block and len("".join(block).replace(" ", "")) >= 20 else []
-        if len(matches) != 1 or matches[0][0] == row["record_path"]:
-            return None
-        real, how = "{}:{}-{}".format(*matches[0]), "traced"
-    return Fix(row["record_path"], row["record_line"], path, start, end, *_split_target(real), how)
+        return Fix(row["record_path"], row["record_line"], path, start, end, *_split_target(row["real_target"]), "moved")
+    origin = _origin(root, row, line)
+    if origin is None:
+        return None
+    commit, origin_path, block = origin
+    # A short one-line block such as `material.xp,` can be unique by chance.
+    matches = tree.find(block) if len("".join(block).replace(" ", "")) >= 20 else []
+    if len(matches) == 1 and matches[0][0] != row["record_path"]:
+        return Fix(row["record_path"], row["record_line"], path, start, end, *matches[0], "traced")
+    return Fix(row["record_path"], row["record_line"], path, start, end, f"{commit[:8]}:{origin_path}", start, end, "pinned")
 
 
 def _consistent(report: dict, tree: Tree, candidates: list[tuple[dict, Fix]]) -> list[bool]:
@@ -219,8 +221,8 @@ def main() -> int:
               f"{fix.new_path}:{fix.new_start}-{fix.new_end}")
     for row in unfixed:
         print(f"unfixed {row['status']}: {row['record_path']}:{row['record_line']}: {row['target']}")
-    print(f"{len(fixes)} fixable ({sum(f.how == 'moved' for f in fixes)} moved, "
-          f"{sum(f.how == 'traced' for f in fixes)} traced), {len(unfixed)} unfixed.")
+    counts = ", ".join(f"{sum(f.how == how for f in fixes)} {how}" for how in ("moved", "traced", "pinned"))
+    print(f"{len(fixes)} fixable ({counts}), {len(unfixed)} unfixed.")
     if args.apply:
         apply(root, fixes)
     return 0
