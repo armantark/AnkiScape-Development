@@ -87,21 +87,8 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from .logic_pure_combat_engine import (
-    apply_combat_burst_pure,
-    player_combat_level_pure,
-)
-
-from .logic_pure_state import (
-    _copy_player_data_with_nested,
-    _non_negative_int,
-    _positive_int,
-    _signed_int,
-    quest_completed_pure,
-    quest_state_pure,
-    sanitize_quest_combat_active_encounters_pure,
-)
 from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
+from .quest_combat_modifiers import quest_combat_inventory_adjusted_stats_pure
 
 
 def _trainable_exp_keys():
@@ -569,7 +556,7 @@ def _quest_combat_normalized_bonuses(encounter):
     return normalized
 
 
-def _quest_combat_enemy_spec(quest_id, encounter_id, encounter):
+def _quest_combat_enemy_spec(quest_id, encounter_id, encounter, player_data=None):
     stats = {
         str(key): _non_negative_int(value, 0)
         for key, value in _quest_combat_stats(encounter).items()
@@ -589,6 +576,9 @@ def _quest_combat_enemy_spec(quest_id, encounter_id, encounter):
     stats["attack"] = _positive_int(stats.get("attack", 0), 1)
     stats["strength"] = _positive_int(stats.get("strength", 0), 1)
     stats["defence"] = _positive_int(stats.get("defence", 0), 1)
+    stats = quest_combat_inventory_adjusted_stats_pure(
+        quest_id, encounter_id, stats, player_data
+    )
     display_name, level, _quantity, _level_text, _quantity_text, source = _quest_combat_display(encounter)
     enemy = {
         "display_name": display_name,
@@ -1305,7 +1295,11 @@ def apply_quest_combat_encounter_pure(
         return player_data, False, {"reason": "combat_already_resolved"}
 
     quest_target_id = _quest_combat_target_id(quest_id, encounter_id)
-    quest_enemy_data = {quest_target_id: _quest_combat_enemy_spec(quest_id, encounter_id, encounter)}
+    quest_enemy_data = {
+        quest_target_id: _quest_combat_enemy_spec(
+            quest_id, encounter_id, encounter, player_data
+        )
+    }
     original_combat_target = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     original_combat_encounter = dict(player_data.get("combat_encounter", {}) or {})
     quest_active_encounters = sanitize_quest_combat_active_encounters_pure(

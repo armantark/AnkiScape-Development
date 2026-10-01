@@ -1,5 +1,9 @@
 import unittest
+from unittest.mock import patch
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import QUEST_DATA
+from ankiscape.logic_pure import logic_pure_quest
 from tools import audit_quest_combat_stat_gaps as gap_audit
 from tools import audit_quest_historical_wiki_combat_stats as wiki_audit
 
@@ -90,6 +94,43 @@ class TestQuestHistoricalWikiCombatStats(unittest.TestCase):
         self.assertEqual(rows[0].status, "historical_wiki_metadata_only")
         self.assertEqual(rows[1].status, "historical_wiki_resolver_stats_available")
         self.assertEqual(rows[1].source_url, "https://runescape.wiki/w/Sourced_melee_creature?oldid=1")
+
+    def test_count_draynor_uses_owned_garlic_without_mutating_source_stats(self):
+        target_id = "quest:vampyre_slayer:vampyre_slayer_count_draynor_37"
+        captured = []
+
+        def resolve_once(data, enemies, *_args, **_kwargs):
+            captured.append(dict(enemies[target_id]["stats"]))
+            return data, True, {
+                "reason": "combat_burst",
+                "killed": False,
+                "died": False,
+                "enemy_lifepoints": 100,
+            }
+
+        for inventory, carried, expected in (
+            ({"Stake": 1, "Stake hammer": 1}, {}, (25, 30)),
+            ({"Stake": 1, "Stake hammer": 1, "Garlic": 1}, {}, (20, 25)),
+            ({"Stake": 1, "Stake hammer": 1}, {target_id: {"Garlic": 1}}, (25, 30)),
+        ):
+            player = {
+                "inventory": inventory,
+                "carried_inventory": carried,
+                "quests": {"vampyre_slayer": {"started": True, "progress": 3, "completed": False}},
+                "attack_level": 40,
+                "strength_level": 40,
+                "defense_level": 35,
+                "constitution_level": 40,
+            }
+            with patch.object(logic_pure_quest, "apply_combat_burst_pure", side_effect=resolve_once):
+                _, ok, _ = logic_pure_quest.apply_quest_combat_encounter_pure(
+                    player, "vampyre_slayer", QUEST_DATA
+                )
+            self.assertTrue(ok)
+            self.assertEqual((captured[-1]["strength"], captured[-1]["defence"]), expected)
+
+        encounter = QUEST_DATA["vampyre_slayer"]["stage_requirements"][2]["combat_encounters"][0]
+        self.assertEqual((encounter["npc_stats"]["strength"], encounter["npc_stats"]["defence"]), (25, 30))
 
 
 if __name__ == "__main__":

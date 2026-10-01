@@ -62,6 +62,12 @@ Slayer.
   pre-owned Beer inventory gate, stake/stake hammer production, Count Draynor
   combat, stake consumption, and Morgan report. Garlic is documented as optional
   and is not a hard inventory blocker.
+- `Vampyre Slayer` oldid `6326248` (`2012-09-30T18:29:09Z`) says optional garlic
+  greatly weakens Count Draynor. 2011Scape's `draynor_manor.plugin.kts:79-82`
+  and Darkan commit `a661994abca48e93f571a06e3753202a4e7c8fce` independently
+  subtract 5 Defence and 5 Strength. AnkiScape checks its flat quest supply
+  store, because carried target views are overlays and this quest has no
+  configurable target pack.
 - Count Draynor remains resolver-ready from local 2011Scape stats. The global
   combat lock still fails closed until `quest_combat_config.resolver_enabled`
   is true.
