@@ -22,7 +22,7 @@ import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, Sequence
+from typing import Iterator, NoReturn, Sequence
 
 HOST = "armans-macbook-pro"
 REMOTE_HOME = Path("/Users/armantarkhanian")
@@ -213,13 +213,7 @@ def _ssh(
         # SSH 255 can also follow remote execution: only repeat safe operations.
         if not repeat_safe or result.returncode != 255 or attempt == NETWORK_ATTEMPTS:
             raise SSHCommandError(label, result)
-        delay = float(attempt)
-        if deadline is not None:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                raise SSHDeadlineExceeded(f"{label} did not finish before its deadline")
-            delay = min(delay, remaining)
-        time.sleep(delay)
+        time.sleep(attempt)
     raise AssertionError("unreachable SSH retry state")
 
 
@@ -502,7 +496,7 @@ def _print_skipped_tests(
 
 def _raise_lane_timeout(
     lane: str, timeout: float, report_path: Path, cause: BaseException | None = None,
-) -> None:
+) -> NoReturn:
     message = (
         f"remote {lane} lane did not finish within {timeout:g} seconds; "
         f"report path: {report_path}"
@@ -610,23 +604,20 @@ def _wait_for_remote_run(
 ) -> tuple[int, str]:
     deadline = time.monotonic() + timeout
     seen = ""
-    while time.monotonic() < deadline:
+    while True:
         try:
             seen, returncode = _poll_remote_run(log_path, report_path, seen, deadline)
         except SSHDeadlineExceeded as exc:
             _raise_lane_timeout(lane, timeout, report_path, exc)
-        if time.monotonic() >= deadline:
-            break
+        remaining = deadline - time.monotonic()
+        # A report that lands after the deadline is still a timeout, not a pass.
+        if remaining <= 0:
+            _raise_lane_timeout(lane, timeout, report_path)
         if returncode is not None:
             return _finish_remote_run(
                 log_path, skip_report_path, seen, selectors, returncode, collect_only,
             )
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            break
         time.sleep(min(poll_interval, remaining))
-    _raise_lane_timeout(lane, timeout, report_path)
-    raise AssertionError("unreachable remote lane timeout state")
 
 
 @contextmanager
@@ -724,41 +715,27 @@ def _validate_focused_summary(summary: TestSummary, expected_tests: int) -> None
         )
 
 
-def _validate_run_output(
+def _validated_summary_lines(
     args: argparse.Namespace, returncode: int, output: str,
-) -> tuple[TestSummary | None, int | None]:
+) -> tuple[str, ...]:
     if returncode != 0:
         raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
     if args.collect_only:
-        return None, parse_count_inventory(output)
+        count = parse_count_inventory(output)
+        return f"Remote {args.lane} inventory summary:", f"Matching tests: {count}"
     summary = parse_unittest_summary(output)
     if args.select:
         _validate_focused_summary(summary, args.expected_tests)
     else:
         validate_test_summary(args.lane, summary)
-    return summary, None
-
-
-def _print_run_summary(
-    lane: str, focused: bool, summary: TestSummary | None, inventory_count: int | None,
-) -> None:
-    if inventory_count is not None:
-        print(f"Remote {lane} inventory summary:")
-        print(f"Matching tests: {inventory_count}")
-        return
-    assert summary is not None
-    scope = "focused " if focused else ""
-    print(f"Remote {scope}{lane} lane summary:")
-    print(summary.ran_line)
-    print(summary.result_line)
+    scope = "focused " if args.select else ""
+    return f"Remote {scope}{args.lane} lane summary:", summary.ran_line, summary.result_line
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
     local_worktree = args.local_worktree
     timings: dict[str, PhaseTiming] = {}
-    summary: TestSummary | None = None
-    inventory_count: int | None = None
 
     print(
         "Remote verification uses the snapshot taken now; later edits require a new run.",
@@ -784,7 +761,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         selectors=args.select,
                         collect_only=args.collect_only,
                     )
-        summary, inventory_count = _validate_run_output(args, returncode, output)
+        summary_lines = _validated_summary_lines(args, returncode, output)
     except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         pending_path = _pending_path()
@@ -812,7 +789,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         return 1
     else:
-        _print_run_summary(args.lane, bool(args.select), summary, inventory_count)
+        print("\n".join(summary_lines))
         return 0
     finally:
         _print_phase_timings(timings)

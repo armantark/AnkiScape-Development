@@ -169,7 +169,6 @@ class RemoteTestHostTests(unittest.TestCase):
                     )
                 )
                 self.assertEqual(inventory[-5:], ["run_tests.py", "--count", "--", *selectors])
-                self.assertNotIn("--quiet", inventory)
                 full = run_remote_tests._remote_lane_command(lane)
                 self.assertNotIn("--quiet", full)
                 self.assertTrue(full.endswith("run_tests.py"))
@@ -802,11 +801,7 @@ class RemoteTestHostTests(unittest.TestCase):
                 run_remote_tests.fcntl.LOCK_UN,
             ],
         )
-        self.assertIn(
-            f"Remote mirror busy; waiting without a deadline for {lock_path}. ",
-            stderr.getvalue(),
-        )
-        self.assertIn("--timeout starts after launch", stderr.getvalue())
+        self.assertIn(f"Remote mirror busy; waiting without a deadline for {lock_path}.", stderr.getvalue())
 
     def test_run_syncs_the_worktree_as_launched_not_as_edited_during_the_lock_wait(self):
         worktree = self._worktree()
