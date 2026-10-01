@@ -363,6 +363,8 @@ class GrandExchangeDataTest(unittest.TestCase):
                 "Feather headdress",
                 "Flowers",
                 "Fremennik cloak",
+                # Exchange item per its 2012-06-25 page (oldid 5827384), absent from the limit table.
+                "Fremennik round shield",
                 "Fremennik shirt",
                 "Pirate bandana",
                 "Pirate leggings",

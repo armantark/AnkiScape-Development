@@ -140,36 +140,17 @@ class WoodcuttingSplitTest(unittest.TestCase):
                     kind = requirement.get("kind", "quest_completed")
                     quest_id = requirement.get("quest_id")
                     ability_id = requirement.get("ability_id")
-                    if kind == "quest_completed":
-                        completed = bool(
-                            (player_data.get("quests", {}).get(quest_id, {}) or {}).get(
-                                "completed"
-                            )
-                        )
-                        if not completed:
-                            reasons.append(
-                                str(
-                                    requirement.get("reason")
-                                    or str(quest_id).replace("_", " ").title()
-                                )
-                            )
-                    elif kind == "quest_started":
-                        state = player_data.get("quests", {}).get(quest_id, {}) or {}
-                        if not state.get("started") and not state.get("completed"):
-                            reasons.append(
-                                str(
-                                    requirement.get("reason")
-                                    or str(quest_id).replace("_", " ").title()
-                                )
-                            )
-                    elif kind == "ability_unlocked":
-                        if ability_id not in player_data.get("unlocked_abilities", ()):
-                            reasons.append(
-                                str(
-                                    requirement.get("reason")
-                                    or str(ability_id).replace("_", " ").title()
-                                )
-                            )
+                    state = player_data.get("quests", {}).get(quest_id, {}) or {}
+                    satisfied = {
+                        "quest_completed": state.get("completed"),
+                        "quest_started": state.get("started") or state.get("completed"),
+                        "quest_stage": state.get("completed")
+                        or (state.get("started") and state.get("progress", 0) >= max(requirement.get("stage", 0), 1)),
+                        "ability_unlocked": ability_id in player_data.get("unlocked_abilities", ()),
+                    }.get(kind, True)
+                    if not satisfied:
+                        name = ability_id if kind == "ability_unlocked" else quest_id
+                        reasons.append(str(requirement.get("reason") or str(name).replace("_", " ").title()))
             return tuple(dict.fromkeys(reasons))
 
         players = (
