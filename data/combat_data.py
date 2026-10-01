@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import Dict, Tuple
 
+from .bone_sources_data import bone_source_enemies_as_dict as _bone_source_enemies_as_dict
 from .soul_wars_data import (
     SOUL_WARS_COMBAT_TARGET_ID,
     soul_wars_avatar_enemy_pure,
@@ -521,6 +522,7 @@ COMBAT_ENEMY_DATA[CLAN_WARS_COMBAT_TARGET_ID] = clan_wars_enemy_pure()
 COMBAT_ENEMY_DATA.update(temple_trekking_enemy_registry_as_dict())
 COMBAT_ENEMY_DATA[CRUCIBLE_COMBAT_TARGET_ID] = crucible_enemy_pure()
 COMBAT_ENEMY_DATA[TROLL_INVASION_COMBAT_TARGET_ID] = troll_invasion_enemy_pure()
+COMBAT_ENEMY_DATA.update(_bone_source_enemies_as_dict())
 # Must run after the goblin rows it inherits its offensive stats from.
 COMBAT_ENEMY_DATA.update(goblin_raids_enemies_pure(COMBAT_ENEMY_DATA))
 
