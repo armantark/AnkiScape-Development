@@ -7089,7 +7089,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(crayfish_row.text().startswith("Catch crayfish"))
         self.assertEqual(sardine_row.text(), "✓ Catch sardine (Lvl 5)/herring (Lvl 10)")
         self.assertEqual(mackerel_row.text(), "Catch mackerel (Lvl 16)/cod (Lvl 23)/bass (Lvl 46)")
-        self.assertEqual(cave_eel_row.text(), "Catch cave eel (Lvl 38)")
+        self.assertEqual(cave_eel_row.text(), "Catch slimy eel (Lvl 28)/cave eel (Lvl 38) (Lumbridge Swamp Caves)")
         self.assertFalse(cave_eel_row.icon().isNull())
         tip = sardine_row.toolTip()
         self.assertIn("Outputs: Raw sardine", tip)

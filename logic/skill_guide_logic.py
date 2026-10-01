@@ -72,14 +72,33 @@ def _target_icon_key(spec: object, name: str) -> str:
         first = next((key for key in outputs if isinstance(key, str)), None)
         if first:
             return first
-
-    fish = _field(spec, "fish", ())
-    if isinstance(fish, (tuple, list)):
-        for fish_row in fish:
-            output = _field(fish_row, "output_item")
-            if isinstance(output, str) and output.strip():
-                return output
     return name
+
+
+def _fish_rows(
+    target_id: str,
+    name: str,
+    fish_rows: Sequence[object],
+    listed_fish: set[str],
+) -> list[SkillGuideRow]:
+    """One row per fish: a spot's lowest level does not unlock every fish it holds."""
+
+    rows = []
+    single = len(fish_rows) == 1
+    for fish in fish_rows:
+        fish_id = str(_field(fish, "id", ""))
+        if fish_id in listed_fish:
+            continue
+        listed_fish.add(fish_id)
+        rows.append(
+            SkillGuideRow(
+                row_id=f"action:{target_id}" if single else f"action:{target_id}:{fish_id}",
+                name=name if single else "Catch " + fish_id.removeprefix("raw_").replace("_", " "),
+                level=_positive_level(_field(fish, "level")) or 1,
+                icon_key=str(_field(fish, "output_item", name)),
+            )
+        )
+    return rows
 
 
 def _action_rows(target_table: object) -> tuple[SkillGuideRow, ...]:
@@ -87,6 +106,7 @@ def _action_rows(target_table: object) -> tuple[SkillGuideRow, ...]:
         return ()
 
     rows = []
+    listed_fish: set[str] = set()
     for target_key, spec in target_table.items():
         if _field(spec, "source_enum") == "MILESTONE_CAPES":
             continue
@@ -102,6 +122,10 @@ def _action_rows(target_table: object) -> tuple[SkillGuideRow, ...]:
             )
             or target_id
         )
+        fish_rows = _field(spec, "fish", ())
+        if isinstance(fish_rows, (tuple, list)) and fish_rows:
+            rows.extend(_fish_rows(target_id, name, fish_rows, listed_fish))
+            continue
         rows.append(
             SkillGuideRow(
                 row_id=f"action:{target_id}",

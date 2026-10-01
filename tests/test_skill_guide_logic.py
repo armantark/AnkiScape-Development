@@ -2,6 +2,7 @@ import unittest
 from dataclasses import dataclass
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import FISHING_DATA
 from ankiscape.logic.skill_guide_logic import skill_guide_sections_pure
 
 
@@ -162,6 +163,27 @@ class TestSkillGuideLogic(unittest.TestCase):
                 (85, "Abyssal demons", "abyssal_demon"),
             ],
         )
+
+    def test_fishing_lists_each_fish_once_at_its_own_level(self):
+        sections = skill_guide_sections_pure("Fishing", FISHING_DATA, {})
+
+        rows = [(row.level, row.name) for row in sections[0].rows]
+        for row in (
+            (16, "Catch mackerel"),
+            (23, "Catch cod"),
+            (46, "Catch bass"),
+            (28, "Catch slimy eel"),
+            (33, "Catch frog spawn"),
+            (38, "Catch cave eel"),
+            (70, "Catch leaping sturgeon"),
+            (76, "Catch sharks"),
+        ):
+            self.assertIn(row, rows)
+        names = [name for _, name in rows]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertFalse([name for name in names if "/" in name])
+        cod = next(row for row in sections[0].rows if row.name == "Catch cod")
+        self.assertEqual(cod.icon_key, "Raw cod")
 
 
 if __name__ == "__main__":

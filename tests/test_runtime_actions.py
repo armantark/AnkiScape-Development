@@ -2077,7 +2077,7 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(
             handle_fishing_answer(
-                _context(player_data, calls, random_values=(0.0,))
+                _context(player_data, calls, random_values=(1.0, 0.0))
             )
         )
 
