@@ -6,10 +6,11 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
-from tests.ui_flows.qt_text_fit import clipped_text_defects
 
 if _main_menu.HAS_AQT:
     from aqt.qt import QApplication, QLabel, QListWidget, QPushButton, QToolButton, QWidget
+
+    from tests.ui_flows.qt_text_fit import clipped_text_defects
 
 CATEGORIES = ("Combat", "Gathering", "Artisan", "Support", "Utilities", "Activities")
 
