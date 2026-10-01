@@ -16,7 +16,8 @@ The audit counts a citation as actionable when its cited lines moved, or when it
 | Run | Markdown files | Citations | Actionable |
 | --- | --- | --- | --- |
 | Before, with the audit on main | 839 | 2,922 | 735 |
-| After | 835 | 2,474 | 18 |
+| After the first pass | 835 | 2,474 | 18 |
+| After the applied nominations | 827 | 2,470 | 8 |
 
 The two counts do not measure the same set. Three audit changes on this branch removed rows that were not drift:
 
@@ -34,7 +35,7 @@ The new tool `tools/memory_bank/fix_citation_drift.py` did the mechanical work. 
 - The sweep repointed 10 more citations that moved when this sweep added three Kanban cards and corrected `systemPatterns.md`.
 - A check found that all 56 distinct pins resolve with `git cat-file -e`. One pinned range ran past the end of its file and now ends at line 1498.
 
-These 18 rows stay as written:
+After the first pass, these 18 rows stayed as written. The applied nominations below fixed 10 of them: the 2 staged papercut rows, 6 of the 7 Darkan rows, and the 2 cape tradeability rows.
 
 - 2 rows in `archive/progress-2026-09.md` cite lines 11 and 12 of `GOAL-BLOCKED.md`. That file was never committed.
 - 1 row in `audits/papercut-remediation-2026-08-09.md` cites a line range in an uncommitted snapshot of the papercut log.
@@ -95,25 +96,34 @@ The `techContext.md` rewrites:
 
 - The October rotation wrote a 113-line block into `archive/progress-2026-09.md` two times. Lines 2031 to 2143 were the same as lines 1584 to 1696. The sweep removed the second copy.
 
-## Nominations for the owner (not applied)
+## Applied on 2026-10-01
 
-Each line is a nomination. The owner decides; the sweep applied none of them.
+The owner ruled on 2026-10-01 that the sweep applies the wording changes itself. The sweep applied 17 of the 18 nominations; it left nomination 13 to the orchestrator.
 
-1. `productContext.md:16-22`: the "Experience" section is a status snapshot ("are live foundations", "many rows still require"). Replace it with a pointer to the surface states in `core/skill_registry.py` and to the Kanban.
-2. `techContext.md:38` and `systemPatterns.md:551`: "does not yet apply (reproduce) every runtime access gate". Write: "The audit measures declared routes; check runtime access gates before a claim of player acquisition."
-3. `techContext.md:209`: "in the current add-on". Write: "The add-on has no runtime package dependency; use `uv` if one becomes necessary."
-4. `techContext.md:251`: "whose acquisition loop is not built yet". Delete the clause; the Kanban owns acquisition gaps.
-5. `techContext.md:288`: "No runtime cropping helpers exist anymore". Write: "The UI does no runtime cropping."
-6. `techContext.md:298`: "rows now use". Delete "now".
-7. `techContext.md:306, 320, 332, 338, 350`: five copies of the rule "run provenance fetches one at a time because the current JSON writer is not concurrency-safe". Keep the one rule in `systemPatterns.md` ("Asset provenance writes are serialized") and delete the copies.
-8. `techContext.md:172-181`: the "Optional cloud test lane" depends on what the ChatGPT plan includes. Confirm that it still applies, or delete it.
-9. `systemPatterns.md:82, 189, 211, 212, 257, 410-413, 420-422, 539, 559, 564`: 15 lines describe a settled pattern with "now" or "still". Delete the time word in each.
-10. `systemPatterns.md:533`: "currently including". Write: "Ability gates use stable IDs from the ability registry."
-11. `systemPatterns.md:708-723`: the public release section says "missing explicit license" and "verification gate remains open". Write each one as a release requirement.
-12. `systemPatterns.md:270-275` and `:281-315`: the world-alert strip and the familiar policies (`Best available`) read as implemented, but the code has no such implementation. Label each passage as contract text.
-13. `memory-bank/pending/`: eight `*-papercuts-2026-09-05.md` files hold 63 papercut entries that never reached `papercuts.md`. Merge them into the papercut log, or archive them.
-14. `tools/audit_citation_drift.py`: also skip the `pending/*papercuts*` files, because they are papercut entries too. That removes 2 of the 18 remaining rows.
-15. Five Darkan source audits (7 rows): put the Darkan commit before each cited path, so the audit finds the commit that holds the lines. The Darkan thread knows which commit each citation meant.
-16. Two pins name commits that exist only on branches: `3c05da03` on `goal/secondaries-2026-08-11` and `a8137bab` on `goal/combat-magic-module-2026-09-18`. Add a `refs/preserved/` ref for each, so the pins survive a branch deletion.
-17. The October rotation wrote a 113-line block into `archive/progress-2026-09.md` two times. Add a check for repeated sections to the rotation tool or to `tools/audit_docs.py`.
-18. The two cape tradeability rows: rewrite the `logic/shop_logic.py` line numbers as the function names `_item_tradeable` and `_sell_price_for_item`, or accept them as history.
+1. `productContext.md`: the "Experience" section now points at `core/skill_registry.py` for surface states and at the Kanban for quest fidelity work. The section no longer lists live surfaces.
+2. `techContext.md` and `systemPatterns.md`: the reachability lines say that the audit measures declared routes, and that a claim of player acquisition needs a check of runtime access gates.
+3. `techContext.md`: the package line says that the add-on has no runtime package dependency.
+4. `techContext.md`: the Crafting line sends acquisition gaps to the Kanban.
+5. `techContext.md`: the cropping line says that the UI does no runtime cropping.
+6. `techContext.md`: the activity-icon line has no "now".
+7. `techContext.md`: the five copies of the provenance rule are gone. One sentence in "Asset Scraping (icons)" points at the rule in `systemPatterns.md`.
+8. `techContext.md`: the "Optional cloud test lane" stays unchanged. Its first sentence already limits it to a plan that includes the lane.
+9. `systemPatterns.md`: 17 lines lost "now", "still", or "right now". The sweep found two more such lines than it nominated.
+10. `systemPatterns.md`: the ability-gate line gives its two IDs as examples, without "currently".
+11. `systemPatterns.md`: the public release section states the license, acknowledgement, provenance, and gate requirements.
+12. `systemPatterns.md`: the world-alert strip bullet and the four familiar-policy bullets say that they are contract text, and that the runtime has no such implementation.
+13. Not applied. The orchestrator triages the papercut entries in `memory-bank/pending/` separately.
+14. `tools/audit_citation_drift.py` leaves the staged `pending/*papercuts*.md` files out of its scan (commit `4ee5b037`).
+15. Six of the seven Darkan citations now name, on their own line, the Darkan commit where `git show` holds the cited lines (commit `9d96e45d`). The sweep skipped the `Cooking.java` citation in the bonfire audit, because its named commit `d52f13c99` does not resolve in `darkan-world-server`, `darkan-client`, `darkan-cache`, or this repository.
+16. `refs/preserved/combat-magic-module-2026-09-18` holds `a8137bab`, and `refs/preserved/secondaries-handoff-2026-08-11` holds `3c05da03`. `tools/worktree_guard.py preserved list` shows both, and the matrix's preserved table records them (commit `cb33b83a`).
+17. `tools/audit_docs.py` reports `repeated_progress_section` when a progress log repeats a `## ` section word for word (commit `f751964f`). `tests/memory_bank_tools/test_progress_rotation_audit.py` covers it, and `tests/memory_bank_tools/test_fix_citation_drift.py` covers the citation fixer (commit `5b4b1d1a`).
+18. The cape tradeability records name `_item_tradeable` and `_sell_price_for_item`, which have since moved to `logic/shop/state.py` (commit `6d5340ff`).
+
+These 8 rows stay as written:
+
+- 2 rows in `archive/progress-2026-09.md` cite lines of `GOAL-BLOCKED.md`, which was never committed.
+- 1 row in `audits/papercut-remediation-2026-08-09.md` cites a line range in an uncommitted snapshot of the papercut log.
+- 2 rows in `handoffs/design-to-impl-rulings-2026-08-13.md` quote the bad worktree-guard citation that ruling 52.1 retracts.
+- 1 row in the bonfire source audit cites `Cooking.java` at a commit that does not resolve.
+- 1 row in `papercut-cleanup-2026-09-18/guard-review.md` cites a Codex memory file outside this repository.
+- 1 row in `resume-queue-reconciliation-2026-09-18/GOAL-BLOCKED-2026-09-17.md` is a verbatim copy of an old blocker file.
