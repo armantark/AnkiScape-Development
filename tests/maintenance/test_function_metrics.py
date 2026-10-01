@@ -96,9 +96,6 @@ class FunctionMetricsTests(unittest.TestCase):
         for text, name in (
             ("def safe():\n    return 1\n", "missing"),
             ("def broken(:\n", "broken"),
-            ("class A:\n    def same(self):\n        return 1\n\n"
-             "class B:\n    def same(self):\n        return 2\n", "same"),
-            ("def outer():\n    def inner():\n        return 1\n    return inner()\n", "inner"),
         ):
             with self.subTest(name=name):
                 self.source.write_text(text, encoding="utf-8")
@@ -106,6 +103,41 @@ class FunctionMetricsTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
                 self.assertFalse(self.output.exists())
                 self.assertIn("error:", result.stderr)
+
+    def test_space_joined_sources_are_named_in_the_error(self):
+        combined = f"{self.source} {self.source_root / 'other.py'}"
+        result = self._run("safe", source=combined)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(combined, result.stderr)
+        self.assertFalse(self.output.exists())
+
+    def test_nested_selection_names_enclosing_function_before_loading_gate(self):
+        self.source.write_text(
+            "def outer():\n    def inner():\n        return 1\n    return inner()\n",
+            encoding="utf-8",
+        )
+        result = self._run("inner", gate=self.root / "must-not-load.py")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("outer.inner at line 2", result.stderr)
+        self.assertIn("measure enclosing function 'outer'", result.stderr)
+        self.assertNotIn("No such file", result.stderr)
+        self.assertFalse(self.output.exists())
+
+    def test_duplicate_and_qualified_selections_list_scopes_and_locations(self):
+        self.source.write_text(
+            "class A:\n    def same(self):\n        return 1\n\n"
+            "class B:\n    def same(self):\n        return 2\n",
+            encoding="utf-8",
+        )
+        for name in ("same", "A.same"):
+            with self.subTest(name=name):
+                result = self._run(name, gate=self.root / "must-not-load.py")
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("A.same at line 2", result.stderr)
+                self.assertIn("B.same at line 6", result.stderr)
+                self.assertIn("qualified", result.stderr)
+                self.assertNotIn("No such file", result.stderr)
+                self.assertFalse(self.output.exists())
 
     def test_in_tree_directory_and_symlink_outputs_are_refused_before_writing(self):
         link = self.root / "evidence-link"
@@ -115,6 +147,8 @@ class FunctionMetricsTests(unittest.TestCase):
                 result = self._run("safe", output=output)
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
                 self.assertIn("error:", result.stderr)
+                if output == self.source_root / "metrics.json":
+                    self.assertIn("separate sibling source and evidence directories", result.stderr)
                 if not output.is_dir():
                     self.assertFalse(output.exists())
 

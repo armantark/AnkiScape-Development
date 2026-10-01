@@ -29,8 +29,8 @@ been switched off until this is resolved."
 
 ## Constraints every slice meets
 
-- slop-gate refuses a commit that grows any code file already above 1000
-  lines (`ui/ui.py` 29293, `ui/ui_tab_shop.py` 1831, `__init__.py` 5744,
+- slop-gate refuses a commit that grows any code file, tests included, already
+  above 1000 lines (`ui/ui.py` 29293, `ui/ui_tab_shop.py` 1831, `__init__.py` 5744,
   `logic_pure/logic_pure_quest.py` 1581, `runtime/runtime_actions_production.py`
   1446, `logic_pure/logic_pure_combat_model.py` 2815,
   `tools/generate_equipment_data.py` 1460 at 2026-09-30). Hold such a file at

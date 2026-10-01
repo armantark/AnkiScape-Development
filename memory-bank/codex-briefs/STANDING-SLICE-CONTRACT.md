@@ -80,6 +80,10 @@ this Anki install for real study.
   a migration you were not asked for.
 - New code matches the surrounding conventions, naming, and comment density.
   Comments explain why, never what.
+- The slop-gate's 1000-line growth ratchet covers test files too. Check every
+  proposed code or test file before editing; update pins in oversized files
+  without net growth, and put additional coverage in an existing focused test
+  module or cohesive test subpackage.
 - There is no "v1 then v2". Deliver the finished behavior on the first pass. An
   overengineered result fails this contract exactly as hard as a half-finished
   one.
@@ -150,7 +154,10 @@ other non-executable records, run the plain lane and skip the offscreen Qt
 lane. Say in your report that you skipped it and that the diff is
 documentation-only. A Markdown change cannot move a widget test, and the lane
 costs ten minutes of a shared machine. This exception is narrow: one executable
-line anywhere in the diff, including a test, removes it.
+line anywhere in the diff, including a test, removes it. This exception applies
+only to branch-side verification. Landing still requires a full gate on the
+exact commit, including both plain and offscreen Qt lanes, even for
+documentation-only changes.
 
 **Proving a test is load-bearing must leave no trace.** When you break your own
 change to show a test fails, break it, observe it, and restore it before you do

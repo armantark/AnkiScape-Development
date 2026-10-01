@@ -46,7 +46,12 @@ class MovePapercutsTests(unittest.TestCase):
         plan = self.root / name
         plan.write_text(json.dumps({
             "destination": f"memory-bank/papercuts-fixed-{destination}.md",
-            "sections": [{"heading": heading, "note": "Disposition: fixed.", "lines": lines}],
+            "sections": [{
+                "heading": heading,
+                "disposition": "fixed",
+                "evidence": "commit abc123 repairs the recorded cause",
+                "lines": lines,
+            }],
         }), encoding="utf-8")
         return str(plan)
 
@@ -58,8 +63,18 @@ class MovePapercutsTests(unittest.TestCase):
         plan.write_text(json.dumps({
             "destination": "memory-bank/papercuts-fixed-2026-09-25.md",
             "sections": [
-                {"heading": "Cause A — 2 occurrences", "note": "Disposition: fixed.", "lines": [FOURTH, FIRST]},
-                {"heading": "Cause B — 1 occurrence", "note": "Disposition: operator.", "lines": [THIRD]},
+                {
+                    "heading": "Cause A — 2 occurrences",
+                    "disposition": "fixed",
+                    "evidence": "commit abc123 repairs cause A",
+                    "lines": [FOURTH, FIRST],
+                },
+                {
+                    "heading": "Cause B — 1 occurrence",
+                    "disposition": "duplicate",
+                    "evidence": "Cause A remains the retained repair record",
+                    "lines": [THIRD],
+                },
             ],
         }), encoding="utf-8")
 
@@ -70,11 +85,52 @@ class MovePapercutsTests(unittest.TestCase):
         self.assertEqual(
             (self.memory_bank / "papercuts-fixed-2026-09-25.md").read_text(encoding="utf-8"),
             "# Papercuts fixed — 2026-09-25\n\n"
-            f"## Cause A — 2 occurrences\n\nDisposition: fixed.\n\n{FIRST}\n{FOURTH}\n\n"
-            f"## Cause B — 1 occurrence\n\nDisposition: operator.\n\n{THIRD}\n",
+            "## Cause A — 2 occurrences\n\nDisposition: fixed.\n\n"
+            f"Evidence: commit abc123 repairs cause A\n\n{FIRST}\n{FOURTH}\n\n"
+            "## Cause B — 1 occurrence\n\nDisposition: duplicate.\n\n"
+            f"Evidence: Cause A remains the retained repair record\n\n{THIRD}\n",
         )
         checked = self._tool("check", self.base)
         self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
+
+    def test_move_refuses_fixed_claim_without_evidence_before_writing(self) -> None:
+        plan = self.root / "unsupported.json"
+        plan.write_text(json.dumps({
+            "destination": "memory-bank/papercuts-fixed-2026-09-25.md",
+            "sections": [{
+                "heading": "Unsupported closure",
+                "disposition": "fixed",
+                "lines": [FIRST],
+            }],
+        }), encoding="utf-8")
+        before = self._snapshot()
+
+        moved = self._tool("move", str(plan))
+
+        self.assertNotEqual(moved.returncode, 0)
+        self.assertIn("requires non-empty evidence", moved.stderr)
+        self.assertEqual(self._snapshot(), before)
+
+    def test_append_constructs_one_bulleted_entry_and_rejects_multiline_incidents(self) -> None:
+        appended = self._tool(
+            "append",
+            "2026-09-29T14:27:05-07:00",
+            "Documentation audit rejected an unbulleted record.",
+        )
+        self.assertEqual(appended.returncode, 0, appended.stdout + appended.stderr)
+        self.assertTrue(
+            self.papercuts.read_text(encoding="utf-8").endswith(
+                "- 2026-09-29T14:27:05-07:00 — "
+                "Documentation audit rejected an unbulleted record.\n"
+            )
+        )
+        before = self._snapshot()
+
+        rejected = self._tool("append", "2026-09-29", "first line\nsecond line")
+
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertIn("single-line", rejected.stderr)
+        self.assertEqual(self._snapshot(), before)
 
     def test_check_fails_when_a_move_drops_a_line_or_leaves_a_copy(self) -> None:
         self.papercuts.write_text(f"# Papercuts\n\n{THIRD}\n{FOURTH}\n", encoding="utf-8")

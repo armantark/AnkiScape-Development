@@ -383,6 +383,14 @@ def _render(
         "# Memory Bank queue packet",
         "",
         f"Byte cap: {max_bytes} UTF-8 bytes, including this report.",
+        "",
+        "## Operator search guidance",
+        (
+            "- Discover filenames with `python3 tools/repo_search.py PATTERN ROOT --names` "
+            "or `rg --files ROOT` before targeted reads, and search contents with the same "
+            "tool instead of raw grep or shell globs; its --help covers generated catalogs."
+        ),
+        "",
         "Roots:",
     ]
     output.extend(f"- root[{index}]: {root}" for index, root in enumerate(roots, 1))

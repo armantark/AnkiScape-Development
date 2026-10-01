@@ -5,17 +5,27 @@
 - Discovery recurses into subdirectories that carry an `__init__.py`
   (for example `tests/combat/`).
 
-## Function-metrics prerequisites
+## Slop-gate tooling prerequisites
 
-`tests/maintenance/` uses the installed authority at `~/fleet/config/git/hooks/slop_gate.py`; do not copy the hook into this repository. Install the pinned metric executables in `~/.local/bin` before running the suite:
+`tests/maintenance/` uses the installed authority at `~/fleet/config/git/hooks/slop_gate.py`; do not copy the hook into this repository. Install its metric and static-analysis executables in `~/.local/bin` before running the suite:
 
 ```sh
 uv tool install lizard==1.24.0
 uv tool install complexipy==7.0.1
 uv tool install radon==6.0.1
+uv tool install vulture
+uv tool install pycodestyle
 ```
 
-Each maintenance test checks these prerequisites and fails with the missing paths and a pointer to this file; measurements are neither stubbed nor skipped.
+Each maintenance test checks its prerequisites and fails with the missing paths and a pointer to this file; measurements are neither stubbed nor skipped.
+
+### Function-metrics usage
+
+`tools/maintenance/function_metrics.py --help` states its selection rules. Pass the source once and each function name as a separate argument (zsh does not word-split a string variable), keep evidence in a sibling directory outside the measured source, and run large files in the background, because one selection still analyzes the whole file:
+
+```sh
+/opt/homebrew/bin/python3 tools/maintenance/function_metrics.py --output /tmp/pass15-evidence/carried-overlay.json runtime/runtime_actions_carried_overlay.py run_answer_with_carried_overlay _winter_storage_rejected
+```
 
 ## How to run
 

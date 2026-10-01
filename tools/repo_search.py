@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Run bounded repository searches without shell globs or giant generated files."""
+"""Run bounded repository searches without shell globs or giant generated files.
+
+For a deliberate generated-catalog search, add `--include-large --max-columns 300`;
+long rows print as a bounded preview. Put `--` before a pattern that begins with `--`.
+"""
 
 from __future__ import annotations
 
@@ -85,6 +89,8 @@ def search_text(
         "--no-heading",
         "--max-columns",
         str(max_columns),
+        "--max-columns-preview",
+        "-e",
         pattern,
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

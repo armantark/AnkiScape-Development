@@ -3,8 +3,10 @@
 
 --output names one evidence file outside the worktrees (the common Git directory
 is allowed). Exit 1 means a selected function exceeds a gate limit; invalid
-inputs or missing instruments exit 2 without publishing a report. Function
-names must be unambiguous and present in all three instruments.
+inputs or missing instruments exit 2 without publishing a report. Name one
+source file, then each function by its file-unique bare name; the gate's tables
+key on bare names, so qualified names cannot disambiguate repeated methods and a
+nested function is measurable only as its enclosing function.
 
 Requires the fleet slop_gate.py and its uv-installed lizard, complexipy and radon.
 """
@@ -19,7 +21,6 @@ import os
 import subprocess
 import sys
 import tempfile
-from collections import Counter
 from pathlib import Path
 
 
@@ -44,7 +45,42 @@ def validate_output(source: Path, output: Path) -> None:
     if any(output.is_relative_to(root) for root in roots) and not (
         common is not None and output.is_relative_to(common)
     ):
-        raise ValueError("--output must be outside the worktrees and measured source directory")
+        raise ValueError(
+            "--output must be outside the worktrees and measured source directory; "
+            "use separate sibling source and evidence directories"
+        )
+
+
+def collect_definitions(node: ast.AST, definitions: dict, scope: str = "", enclosing: str | None = None) -> dict:
+    """Map bare function names to (qualified name, line, enclosing function or None)."""
+    for child in ast.iter_child_nodes(node):
+        if isinstance(child, ast.ClassDef):
+            collect_definitions(child, definitions, f"{scope}{child.name}.", enclosing)
+        elif isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            qualified = scope + child.name
+            definitions.setdefault(child.name, []).append((qualified, child.lineno, enclosing))
+            collect_definitions(child, definitions, f"{qualified}.", enclosing or child.name)
+        else:
+            collect_definitions(child, definitions, scope, enclosing)
+    return definitions
+
+
+def validate_selection(tree: ast.AST, names: list[str]) -> None:
+    definitions = collect_definitions(tree, {})
+    for name in names:
+        matches = definitions.get(name.rsplit(".", 1)[-1], [])
+        if len(matches) != 1 or "." in name:
+            locations = ", ".join(f"{qualified} at line {line}" for qualified, line, _ in matches)
+            raise ValueError(
+                f"{name}: expected one file-unique bare function name; definitions: {locations or 'none'}; "
+                "qualified names are unsupported because slop-gate tables key on bare names"
+            )
+        qualified, line, enclosing = matches[0]
+        if enclosing is not None:
+            raise ValueError(
+                f"{name}: nested function {qualified} at line {line} has no separate slop-gate "
+                f"result; measure enclosing function {enclosing!r} instead"
+            )
 
 
 def measure(source: Path, names: list[str], gate) -> dict:
@@ -104,12 +140,8 @@ def main() -> int:
     try:
         source, output = args.file.resolve(), args.output.resolve()
         if source.suffix != ".py" or not source.is_file():
-            raise ValueError("file must be an existing Python source file")
-        definitions = Counter(node.name for node in ast.walk(ast.parse(source.read_bytes()))
-                              if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)))
-        for name in args.functions:
-            if definitions[name] != 1:
-                raise ValueError(f"{name}: expected one function definition, found {definitions[name]}")
+            raise ValueError(f"file must be an existing Python source file: {args.file}")
+        validate_selection(ast.parse(source.read_bytes()), args.functions)
         validate_output(source, output)
         gate = load_gate(args.slop_gate.resolve())
         # Match fleet's pre-commit hook, including uv tool executable discovery.
