@@ -27,6 +27,8 @@ Use the helper at repo root:
 
 It discovers and runs all `tests/test_*.py` files. The script adds the repo root to `PYTHONPATH` so tests can import modules like `logic_pure` directly. Before importing optional Anki/Qt modules or discovering tests, the helper also anchors the process working directory to the checkout that contains `run_tests.py`.
 
+The full suite includes local asset normalization and committed provenance/audit consistency checks in `tests.test_ui_asset_normalization` and `tests.test_audit_asset_cutoff`; these do not require a network-backed historical asset audit.
+
 Every test ID starts with `tests.`, and the helper refuses to run when one ID is
 discovered twice. A selector such as `test_combat`, `tests.test_combat` or
 `promotion.test_gate_lock_claim` matches whole dotted names, so `test_combat`
