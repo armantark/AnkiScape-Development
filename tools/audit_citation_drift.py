@@ -806,6 +806,24 @@ def _resolve_external(
         )
     return None
 
+def _resolve(
+    citation: Citation, root: Path, git: GitRepository, working: WorkingTree,
+    repositories: Sequence[tuple[ExternalRepository, GitRepository]], filesystems: Sequence[FilesystemTree],
+) -> CitationResult:
+    result = _resolve_local(citation, root, git, working)
+    # A path such as Darkan's `data/npcs/drops/x.json` looks local because this repo also
+    # has `data/`; a file that never existed here belongs to the external source holding it.
+    if result is None or (result.status == "missing_file" and result.origin_target is None):
+        external = _resolve_external(citation, repositories, filesystems)
+        if result is None or (external is not None and external.status != "missing_file"):
+            result = external
+    return result or CitationResult(
+        citation.record_path, citation.record_line, citation.target, "unresolved",
+        None, citation.origin_commit, None, (), None, (), None, (),
+        "No repository-local target or pinned external source matches this citation.",
+    )
+
+
 def audit_citations(
     root: Path,
     *,
@@ -820,38 +838,19 @@ def audit_citations(
     markdown_files, citations = _parse_citations(root, memory_bank, git)
     repositories = tuple((spec, GitRepository(spec.path)) for spec in external_repositories if spec.path.exists())
     filesystems = tuple(FilesystemTree(spec.name, spec.path) for spec in external_filesystems if spec.path.exists())
-    results: list[CitationResult] = []
-    for citation in citations:
-        result = _resolve_local(citation, root, git, working)
-        if result is None:
-            result = _resolve_external(citation, repositories, filesystems)
-        if result is None:
-            result = CitationResult(
-                citation.record_path, citation.record_line, citation.target, "unresolved",
-                None, citation.origin_commit, None, (), None, (), None, (),
-                "No repository-local target or pinned external source matches this citation.",
-            )
-        results.append(result)
-    result_tuple = tuple(results)
+    result_tuple = tuple(_resolve(citation, root, git, working, repositories, filesystems) for citation in citations)
     resolved = sum(result.resolved for result in result_tuple)
-    repository_local = sum(result.source == "repository" for result in result_tuple)
-    pinned_external = sum(bool(result.source and result.source.startswith("external:")) for result in result_tuple)
-    unpinned_external = sum(bool(result.source and result.source.startswith("external-tree:")) for result in result_tuple)
-    actionable = sum(result.actionable for result in result_tuple)
-    changed = sum(result.changed for result in result_tuple)
-    unpinned_external_issues = sum(result.unpinned_external_issue for result in result_tuple)
-    unresolved = len(result_tuple) - resolved
     return CitationAuditReport(
         markdown_files=markdown_files,
         citations=len(citations),
         resolved=resolved,
-        repository_local=repository_local,
-        pinned_external=pinned_external,
-        unpinned_external=unpinned_external,
-        actionable=actionable,
-        changed=changed,
-        unpinned_external_issues=unpinned_external_issues,
-        unresolved=unresolved,
+        repository_local=sum(result.source == "repository" for result in result_tuple),
+        pinned_external=sum(bool(result.source and result.source.startswith("external:")) for result in result_tuple),
+        unpinned_external=sum(bool(result.source and result.source.startswith("external-tree:")) for result in result_tuple),
+        actionable=sum(result.actionable for result in result_tuple),
+        changed=sum(result.changed for result in result_tuple),
+        unpinned_external_issues=sum(result.unpinned_external_issue for result in result_tuple),
+        unresolved=len(result_tuple) - resolved,
         results=result_tuple,
     )
 
