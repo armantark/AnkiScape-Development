@@ -26,6 +26,7 @@ you are in the game, with the date the change reached main.
 - [ ] A summoned Bunyip does not heal you inside Daemonheim, and heals you again once you leave. (2026-09-28)
 - [ ] A death in the red Clan Wars portal costs everything except the one item Protect Item saves. (2026-09-28)
 - [ ] Stronghold of Player Safety: from another skill, press "Fight Cockroach soldier"; the next review fights the soldier on Combat. Undo returns you to your skill. (2026-09-29)
+- [ ] Demon Slayer at the Delrith fight: with Silverlight only in the bank, the quest stops with "Wield Silverlight to damage Delrith". Equip it from the Bank, keep questing: the review card names Delrith, and each review shows "Delrith: N damage dealt, M LP left" until "Defeated Delrith". Vampyre Slayer's Count Draynor also lasts several reviews. (2026-09-30)
 
 ## Minigames
 

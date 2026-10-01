@@ -124,7 +124,6 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
                 f"{DARKAN_DEMON_SLAYER_SOURCE}; {DARKAN_DEMON_SLAYER_DELRITH_CONTROLLER_SOURCE}; "
                 f"{DARKAN_DEMON_SLAYER_DELRITH_SOURCE}; {DARKAN_DEMON_SLAYER_DELRITH_NPC_SOURCE}"
             ),
-            required_tools=(("Silverlight", 1),),
             combat_encounters=(
                 _combat(
                     DEMON_SLAYER_ID,
@@ -154,6 +153,7 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
                         ("attack_range", -1),
                         ("attack_style", "melee"),
                         ("aggressiveness_type", "passive"),
+                        ("required_weapon", "Silverlight"),
                     ),
                     npc_stats_source=DARKAN_DEMON_SLAYER_DELRITH_NPC_SOURCE,
                 ),

@@ -2053,13 +2053,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._state.player_data = {
             "inventory": {"Masked earmuffs": 1},
             "current_quest": "smoking_kills",
-            "quests": {
-                "smoking_kills": {
-                    "started": True,
-                    "progress": 9,
-                    "completed": False,
-                },
-            },
+            "quests": {"smoking_kills": {"started": True, "progress": 9, "completed": False}},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
             "wicked_hood": {"fed_altars": []},
@@ -2076,8 +2070,10 @@ class TestIntegrationSmoke(unittest.TestCase):
             "prayer_level": 99,
         }
 
-        addon.on_quest_answer()
+        while calls["gains"][-1:] != ["Defeated Mighty banshee"] and len(calls["gains"]) < 10:
+            addon.on_quest_answer()
         self.assertEqual(calls["gains"][-1], "Defeated Mighty banshee")
+        self.assertTrue(all(gain.startswith("Mighty banshee: ") for gain in calls["gains"][:-1]))
         self.assertEqual(addon._state.player_data["quests"]["smoking_kills"]["progress"], 9)
 
         addon.on_quest_answer()
@@ -2085,7 +2081,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.player_data["quests"]["smoking_kills"]["progress"], 10)
         self.assertEqual(addon._state.player_data["inventory"]["Banshee voice"], 1)
         self.assertEqual(calls["gains"][-1], "Smoking Kills 10/13")
-        self.assertEqual(calls["save"], 2)
+        self.assertEqual(calls["save"], len(calls["gains"]))
         self.assertEqual(calls["dialogs"], [])
 
     def test_shilo_village_review_flow_resolves_all_nazastarool_forms_then_corpse(self):

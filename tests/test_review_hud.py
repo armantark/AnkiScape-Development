@@ -1,4 +1,14 @@
+import os
 import unittest
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+try:
+    from aqt.qt import QApplication
+
+    HAS_AQT = True
+except Exception:  # pragma: no cover - environment without aqt installed
+    HAS_AQT = False
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.ui.ui import (
@@ -125,6 +135,27 @@ class TestCurrentTargetDisplayName(unittest.TestCase):
         for skill in ("Attack", "Nonsense"):
             with self.subTest(skill):
                 self.assertIsNone(current_target_display_name(skill, {}))
+
+
+@unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
+class TestQuestReviewHudTarget(unittest.TestCase):
+    def test_review_hud_names_the_boss_while_a_quest_fight_is_pending(self):
+        from ankiscape.ui import ui
+
+        self.app = QApplication.instance() or QApplication([])
+        hud = ui.ReviewHUD()
+        self.addCleanup(hud.deleteLater)
+        player = {
+            "current_quest": "demon_slayer",
+            "quests": {"demon_slayer": {"started": True, "progress": 7, "completed": False}},
+            "equipment": {"weapon": "Silverlight"},
+        }
+        hud.set_data(player, "Quests")
+        self.assertEqual(hud.target_lbl.text(), "Delrith")
+
+        player["equipment"] = {}
+        hud.set_data(player, "Quests")
+        self.assertEqual(hud.target_lbl.text(), "Demon Slayer")
 
 
 class TestCombatAttackStyleTrainedSkills(unittest.TestCase):

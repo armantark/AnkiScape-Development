@@ -911,7 +911,6 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(demon_requirements[5]["produced_inventory"], {"Silverlight key": 1})
         self.assertEqual(demon_requirements[6]["consumed_inventory"], {"Silverlight key": 3})
         self.assertEqual(demon_requirements[6]["produced_inventory"], {"Silverlight": 1})
-        self.assertEqual(demon_requirements[7]["required_tools"], {"Silverlight": 1})
         self.assertEqual(
             demon_requirements[8]["auto_actions"],
             ("Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",),
@@ -929,6 +928,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(delrith["npc_stats"]["defence"], 5)
         self.assertEqual(delrith["npc_configs"]["max_hit"], 30)
         self.assertEqual(delrith["npc_configs"]["attack_style"], "melee")
+        self.assertEqual(delrith["npc_configs"]["required_weapon"], "Silverlight")
         self.assertIn("darkan-world-server", delrith["npc_stats_source"])
         self.assertTrue(delrith["npc_stats_source"].endswith("delrith (nostats).json"))
 

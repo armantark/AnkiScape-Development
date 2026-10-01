@@ -641,9 +641,9 @@ Combat consumes `6 × M` immediate ticks per successful card and persists the
 same encounter across cards. Again advances world consumers only and marks an
 active encounter disengaged for safe automation without granting either side a
 combat beat. Kill, death, flee, and bank boundaries stop the current review.
-Finite quest combat is deliberately exempt: live mode resolves one collapsed
-quest stage, while an explicit cadence rollback retains the legacy 50-tick
-quest-combat burst.
+Quest combat takes the same `6 × M` slice and carries its own encounter,
+attack clocks included, from card to card, so a boss fight spans reviews; an
+explicit cadence rollback retains the legacy 50-tick quest-combat burst.
 
 Utility/Activity exemption is an owning contract, not a cadence bypass.
 Activity routes must declare whether one review is a world-clock tick, live

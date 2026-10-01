@@ -1246,8 +1246,8 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
             combat_blockers[0].get("encounter_id"),
             rng=ctx.random_random,
             equipment_data=EQUIPMENT_DATA,
-            ticks=None if ctx.cadence_live_enabled else _combat_review_ticks(ctx),
-            stop_after_first_kill=ctx.cadence_live_enabled,
+            ticks=_combat_review_ticks(ctx),
+            live_cadence=ctx.cadence_live_enabled,
         )
         if not ok:
             ctx.deactivate_current_skill()

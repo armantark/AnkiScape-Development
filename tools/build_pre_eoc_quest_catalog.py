@@ -74,6 +74,7 @@ SCAPE_2011_QUEST_IMPL_RELATIVE = Path(
     "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
 )
 SCAPE_2011_QUEST_IMPL_DIR = GAME_MAIN_DIR / SCAPE_2011_QUEST_IMPL_RELATIVE
+SCAPE_2011_ITEMS_PATH = GAME_MAIN_DIR / "data/cfg/items.yml"
 SCAPE_2011_NPC_DEFINITION_DIR = (
     GAME_MAIN_DIR / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions"
 )
@@ -228,25 +229,10 @@ _REWARD_ITEM_SKIP_TITLES = {
     "woodcutting",
 }
 
-_REWARD_ITEM_CATEGORY_HINTS = (
-    "amulet",
-    "armour",
-    "armor",
-    "axe",
-    "bow",
-    "body",
-    "boots",
-    "dagger",
-    "gloves",
-    "helmet",
-    "helm",
-    "mace",
-    "platebody",
-    "ring",
-    "shield",
-    "staff",
-    "sword",
-    "wand",
+# A reward the 2011Scape item list does not name falls back to whole-word hints,
+# so "Wolfbane dagger" stays gear while "Swordfish" and "Bowl" do not.
+_REWARD_ITEM_CATEGORY_HINT = re.compile(
+    r"(?i)\b(?:amulet|armou?r|axe|bow|crossbow|body|boots|dagger|gloves|helmet|helm|mace|platebody|ring|shield|staff|sword|wand)\b"
 )
 
 _QUEST_STAGE_TOOL_NAMES = {
@@ -1091,6 +1077,22 @@ def parse_2011scape_journals() -> Dict[str, Tuple[Dict[str, object], ...]]:
 _SCAPE_2011_JOURNALS = parse_2011scape_journals()
 
 
+def parse_2011scape_wearable_items() -> Dict[str, bool]:
+    """Lower-cased 2011Scape item name -> whether any definition of it is worn."""
+    wearable: Dict[str, bool] = {}
+    if not SCAPE_2011_ITEMS_PATH.exists():
+        return wearable
+    for entry in SCAPE_2011_ITEMS_PATH.read_text(encoding="utf-8").split("\n- id: "):
+        name = re.search(r'^  name: "(.*)"$', entry, flags=re.M)
+        if name:
+            key = name.group(1).lower()
+            wearable[key] = wearable.get(key, False) or bool(re.search(r"^    equip_slot: \d", entry, flags=re.M))
+    return wearable
+
+
+_SCAPE_2011_WEARABLE_ITEMS = parse_2011scape_wearable_items()
+
+
 def extract_reward_items(reward_html: str) -> List[Dict[str, object]]:
     parser = RewardListExtractor()
     parser.feed(reward_html)
@@ -1116,10 +1118,8 @@ def reward_text_from_items(items: Sequence[Mapping[str, object]]) -> str:
 
 
 def _reward_item_category(item_name: str) -> str:
-    lower = item_name.lower()
-    if any(hint in lower for hint in _REWARD_ITEM_CATEGORY_HINTS):
-        return "equipment"
-    return "material"
+    wearable = _SCAPE_2011_WEARABLE_ITEMS.get(item_name.lower(), bool(_REWARD_ITEM_CATEGORY_HINT.search(item_name)))
+    return "equipment" if wearable else "material"
 
 
 def _quantity_word(value: str) -> int:

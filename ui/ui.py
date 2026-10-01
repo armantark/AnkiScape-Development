@@ -1530,6 +1530,10 @@ def refresh_skill_availability(
         pass
 
 
+def _quest_fight_or_quest_name(player_data: dict, quest_id: str, quest: dict) -> str:
+    from ..logic_pure.logic_pure import quest_current_stage_resolvable_combat_blockers_pure
+    fights = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, QUEST_DATA)
+    return str(fights[0]["display_name"] if fights else quest.get("display_name", quest_id))
 
 
 # Maps a skill id to the data table that resolves its current-target id into a
@@ -1557,16 +1561,12 @@ _SKILL_TARGET_TABLES = {
 }
 
 def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
-    """Return the display name of the skill's currently selected target.
-
-    Returns None when the skill has no selectable target (e.g. combat/support)
-    or cannot be resolved, so callers can simply hide the label.
-    """
+    """Display name of the skill's current target (a quest fight's boss), or None to hide the label."""
     if skill == "Quests":
         quest_id = player_data.get("current_quest")
         quest = QUEST_DATA.get(quest_id) if isinstance(quest_id, str) else None
         if isinstance(quest, dict):
-            return str(quest.get("display_name", quest_id))
+            return _quest_fight_or_quest_name(player_data, quest_id, quest)
         return None
     if skill == _COMBAT_HUB_NAME:
         target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
@@ -2902,7 +2902,7 @@ if HAS_QT:
                 state = quest_state_pure(player_data, quest_id) if isinstance(quest_id, str) else {"progress": 0, "completed": False}
                 total = int(quest.get("stages", 1) if isinstance(quest, dict) else 1)
                 progress = int(state.get("progress", 0) or 0)
-                quest_name = str(quest.get("display_name", "Quest") if isinstance(quest, dict) else "Quest")
+                target_name = current_target_display_name(skill, player_data) or "Quest"
                 ip = os.path.join(current_dir, "icon", "quest_icon.png")
                 if os.path.exists(ip):
                     pm = QPixmap(ip)
@@ -2917,7 +2917,7 @@ if HAS_QT:
                 if combat_status:
                     quest_status = f"{quest_status} • {combat_status}"
                 self.sub_lbl.setText(quest_status)
-                self.target_lbl.setText(quest_name)
+                self.target_lbl.setText(target_name)
                 self.target_lbl.setVisible(True)
                 self.adjustSize()
                 self._reposition()

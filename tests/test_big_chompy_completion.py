@@ -1,3 +1,4 @@
+import random
 import sys
 import unittest
 
@@ -285,16 +286,19 @@ class TestBigChompyProductFlow(unittest.TestCase):
         addon._state.review_undo_stack.clear()
 
         original_random = addon.random.random
-        addon.random.random = lambda: 0.0
+        # Each fight takes the live six-tick slice per review, so the rolls must
+        # be realistic: constant 0.0 rolls land only minimum hits.
+        addon.random.random = random.Random(0).random
         try:
-            for review_count in range(1, 9):
+            for review_count in range(1, 61):
                 _answer_review(addon)
                 if addon._state.player_data["quests"][QUEST_ID]["completed"]:
                     break
+            else:
+                self.fail("Big Chompy Bird Hunting did not complete within 60 reviews")
         finally:
             addon.random.random = original_random
 
-        self.assertLess(review_count, 8)
         self.assertTrue(addon._state.player_data["quests"][QUEST_ID]["completed"])
         self.assertEqual(
             quest_action_proofs_for_quest(addon._state.player_data, QUEST_ID, QUEST_DATA),
