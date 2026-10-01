@@ -263,6 +263,8 @@ def _tracked_markdown(root: Path, memory_bank: Path) -> tuple[Path, ...]:
         [
             "git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
             "--exclude-standard", "--", memory_bank.relative_to(root).as_posix(),
+            # `move_papercuts.py check` keeps every papercut line verbatim, so their citations are never repointed.
+            f":(exclude){memory_bank.relative_to(root).as_posix()}/papercuts*.md",
         ],
         check=True,
         capture_output=True,

@@ -34,9 +34,6 @@ from pathlib import Path
 
 
 STRUCTURAL = frozenset({"moved", "missing_lines", "missing_file"})
-# `move_papercuts.py check` proves that no papercut line changes once written, so a
-# citation in a papercut log stays as its author wrote it.
-PAPERCUT_LOG = re.compile(r"memory-bank/papercuts(?:-fixed-[\d-]+)?\.md")
 NUMBER = r"\d+(?:[-–]\d+)?"
 
 
@@ -180,9 +177,9 @@ def _consistent(report: dict, tree: Tree, candidates: list[tuple[dict, Fix]]) ->
 
 
 def _editable(row: dict) -> bool:
-    """An actionable audit row (structural drift against history) outside the papercut logs."""
+    """An actionable audit row: structural drift measured against history."""
     authoritative = row["source"] == "repository" or row["source"].startswith("external:")
-    return row["status"] in STRUCTURAL and authoritative and not PAPERCUT_LOG.fullmatch(row["record_path"])
+    return row["status"] in STRUCTURAL and authoritative
 
 
 def plan(root: Path, report: dict, skip: frozenset[str]) -> tuple[list[Fix], list[dict]]:
