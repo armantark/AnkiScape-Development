@@ -271,7 +271,7 @@ from ..logic.duel_arena_logic import apply_duel_arena_review_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..data.troll_invasion_data import (
     TROLL_INVASION_ACTIVITY_ID,
-    TROLL_INVASION_REPAIR_MODE,
+    TROLL_INVASION_REPAIR_MODE as TROLL_INVASION_REPAIR_MODE,
 )
 from ..data.mage_training_arena_data import MAGE_TRAINING_ARENA_ACTIVITY_ID
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
