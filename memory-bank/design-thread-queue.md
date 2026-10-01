@@ -2881,3 +2881,9 @@ Rulings (each note is its own UI approval):
    source; the Do No Evil and Fremennik Isles purchase proofs get their quest
    side and the missing round-shield emitter; the 90 statless quest encounters
    get source stats where a source exists.
+8. **Prototype picks (owner, 2026-10-01 10:58).** Flat target list: variant C,
+   a short row with the lock text dropped and extra catches shown as "+N
+   more"; the lock reason stays in the tooltip and the Details panel. Combat
+   card: variant C, the trained skills as skill icons with the full sentence
+   in the tooltip. The card reads the equipped weapon, so the icons match the
+   style's real trained skills. Prototypes: memory-bank/prototypes/.
