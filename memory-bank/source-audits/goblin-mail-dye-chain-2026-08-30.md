@@ -177,7 +177,7 @@ The read-only Darkan checkout was inspected at
   trace through `afd096b773265197c220b3ea512a0ebe653f8004`,
   `e81ed74d77a860d176fadf50a23b1bb5d27cec34`, and
   `37592c5e1a69c73c24f7588a8b40cf23617daaba`.
-- `src/main/java/com/rs/game/content/items/Dye.kt:13-17,29-41` records IDs,
+- `src/main/java/com/rs/game/content/items/Dye.kt:13-17,29-41` (lines at `4acbf573f`) records IDs,
   component quantities, and Red-plus-Yellow mixing. The path's latest
   restoration commit is `5ba57196a06738f9c291cbd00c9bb1dec671e256`;
   the current rows trace through

@@ -76,7 +76,7 @@ The read-only Darkan checkout was inspected at current HEAD
 - `src/main/java/com/rs/game/content/quests/gertrudescat/GertrudeD.java:84`
   points the player to the bush out back. Git attributes that line to
   `c6fbe036b1743f4dd6067ec178332c69c3708856`.
-- `src/main/java/com/rs/game/content/quests/gertrudescat/GertrudesCat.java:296-302`
+- `src/main/java/com/rs/game/content/quests/gertrudescat/GertrudesCat.java:296-302` (lines at `94d32378e5`)
   registers Raw sardine `327` plus Doogle leaves `1573`, deletes one of each,
   and adds Doogle sardine `1552`. The transaction body was supplied by commit
   `1276a1d5db061dba0235fc88e0be5ca3165676ff`.
