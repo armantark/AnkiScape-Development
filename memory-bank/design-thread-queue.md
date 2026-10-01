@@ -2887,3 +2887,16 @@ Rulings (each note is its own UI approval):
    card: variant C, the trained skills as skill icons with the full sentence
    in the tooltip. The card reads the equipped weapon, so the icons match the
    style's real trained skills. Prototypes: memory-bank/prototypes/.
+
+### 4.30 Test suite pruning — owner choice of 2026-10-01 12:25
+
+The owner asked why the suite has about 5,000 tests and to remove the ones his
+testing rules call irrelevant. A strict audit (tautological, change-detector,
+duplicate, trivial, obsolete) of 25 of 342 chunks removed about 1% of tests and
+stripped fixed-value checks from about 13%. Offered strict, lean, or stop, the
+owner chose **lean**: also remove a small test when a broader test (a UI flow,
+a real review action, or a whole-dataset invariant) already covers the same
+behavior. Method: a per-test production-line coverage map finds the broader
+tests whose lines contain a small test's lines; a per-chunk rubric call then
+judges whether the broader test's assertions catch the small test's failure;
+GLM gives a second vote; both must agree before a deletion.
