@@ -72,6 +72,24 @@ Ask whether each test proves the source contract or merely restates the current
 implementation. Confirm that a purpose-written regression test fails against the
 unfixed implementation before accepting it as load-bearing.
 
+### Mutation proof
+
+Run mutation proofs from a linked worktree created or leased through
+`tools/worktree_guard.py`, never an rsync copy under `/tmp`, whose resolved
+`/private/tmp` paths fail unrelated tests. Preview the affected selection with
+`run_tests.py --count`, confirm it is green, then run the identical selection
+against the mutant through the probe, which restores the source bytes before it
+exits and exits 0 only when the selection went red:
+
+```
+/opt/homebrew/bin/python3 tools/maintenance/run_mutation_probe.py logic_pure/logic_pure_combat_model.py /tmp/combat_model_mutant.py -- /opt/homebrew/bin/python3 run_tests.py test_state_repair
+```
+
+An affected behavior test must fail; path-identity, missing-asset, or unrelated
+failures are invalid red evidence. Full-suite release gates are separate and are
+not rerun for each mutant. After an uncatchable stop, recover the source from the
+backup path the probe printed first.
+
 ### Independent, cross-lineage review
 
 Pair an author with a verifier from a different model lineage. The rule is

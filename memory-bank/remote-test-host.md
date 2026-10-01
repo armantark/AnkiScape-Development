@@ -48,6 +48,10 @@ AnkiScape worktree:
 /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" qt
 ```
 
+Before a focused run, follow `README-tests.md` for the remote `--collect-only`
+count, background launch, and launch-time snapshot rules, and keep the proof
+checkpoint the standing slice contract requires.
+
 The runner uses exactly
 `ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro '<remote command>'`,
 rsyncs to `/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork`, and excludes

@@ -21,4 +21,6 @@ open multiple dialogs, and serve stale code or assets.
   the sibling `Anki2/ankiscape_worktrees/` directory.
 - Run `python3 tools/worktree_guard.py audit` before and after worktree changes.
 - Never use a raw `git worktree add` destination beneath `addons21`.
+- Run mutation proofs in one of these guarded worktrees with
+  `tools/maintenance/run_mutation_probe.py`, never in an rsync scratch copy.
 - Do not delete a dirty or unmerged worktree. Move it to the safe root instead.

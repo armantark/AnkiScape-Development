@@ -47,13 +47,43 @@ remain unknown until execution; use the same tree and the intended lane's
 interpreter when collecting. `--list` keeps its existing ID-only stdout and exits
 2 when the ID cap cuts the list.
 
-Pass N to `tools/run_remote_tests.py` as `--expected-tests`, with each bare
-inventory selector repeated as `--select`. The runner still requires exactly N
-executed tests and zero skips. A focused failure names each actual skipped ID and
-reason on stderr, including runtime `self.skipTest` calls, without changing the
-quiet test output on stdout. Skip-report write, fetch, or decode faults produce
-stderr warnings and do not change the test outcome. Successful zero-skip focused
-runs do not fetch a report.
+When local and MacBook discovery can differ, take N from the synchronized remote
+lane instead:
+
+```
+/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --collect-only --select test_combat_logic --select test_prayer
+```
+
+Pass N as `--expected-tests`, with every inventory selector repeated as
+`--select` and the tree unchanged. The runner still requires exactly N executed
+tests and zero skips. A focused failure names each actual skipped ID and reason on
+stderr, including runtime `self.skipTest` calls, without changing the quiet test
+output on stdout. Skip-report write, fetch, or decode faults produce stderr
+warnings and do not change the test outcome. Successful zero-skip focused runs do
+not fetch a report.
+
+Launch remote runners as background tasks from the start: the mirror-lock queue
+is untimed, and `--timeout` starts only at lane launch. Each run tests the
+snapshot taken at launch, so rerun final verification after any later intended
+edit, docstrings included.
+
+Launch long local probes and audit sequences the same way, and treat only the
+task's completion notification as done. A `pgrep -f` waiter matches its own
+command line, a log file appearing is not completion, and a standalone
+`select.kqueue()` waiter fails because the object is not a context manager. When
+a foreground timeout moves a command to the background, monitor that task instead
+of relaunching it. Write probe code that holds Markdown backticks or quotes to a
+file and run the file instead of inlining it in a shell string. Long disposable
+comparators print a flushed progress line at a fixed case interval, with the case
+index or replay seed and the completed count, so a live log shows progress and an
+interrupted run names its last case.
+
+Raw logs keep complete child output, so compare handoff claims with the final
+outer `Ran` line and its `OK` or `FAILED` result, never every nested summary:
+
+```
+grep -E '^(Ran [0-9]+ tests? in |OK( \(.*\))?$|FAILED \()' /absolute/path/to/raw-test.log | tail -n 2
+```
 
 Run the full real Qt suite separately through the checked-in environment:
 
