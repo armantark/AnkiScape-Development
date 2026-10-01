@@ -17,6 +17,19 @@ uv tool install radon==6.0.1
 
 Each maintenance test checks these prerequisites and fails with the missing paths and a pointer to this file; measurements are neither stubbed nor skipped.
 
+### Function-metrics usage and evidence placement
+
+`tools/maintenance/function_metrics.py` accepts one Python source file per invocation, followed by file-unique bare function names. Qualified names cannot disambiguate the gate's instrument tables, and a nested function has no independent three-instrument result; measure its enclosing non-nested function instead when that bare name is unique.
+
+Keep disposable baseline source and evidence in separate sibling directories. The output must name a file in an existing directory outside the measured source directory and all linked worktrees, except that an evidence directory under the common Git directory is allowed. Selecting one function still analyzes the full file, so run large-file measurements in the background.
+
+Pass function names as separate arguments. A zsh array preserves those boundaries without breaking paths that contain spaces:
+
+```sh
+functions=(run_answer_with_carried_overlay _winter_storage_rejected)
+/opt/homebrew/bin/python3 tools/maintenance/function_metrics.py --output /tmp/pass15-evidence/carried-overlay.json runtime/runtime_actions_carried_overlay.py "${functions[@]}"
+```
+
 ## How to run
 
 Use the helper at repo root:
