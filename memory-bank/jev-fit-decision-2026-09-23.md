@@ -65,6 +65,8 @@ Do these steps in the next staleness sweep of this repo:
 2. If a row has no card, add a card to `memory-bank/future-work-kanban.md`.
 3. Change each line in the list above so that it calls the backlog a closed historical record.
 
+Done in the staleness sweep of 2026-10-01 (`memory-bank/staleness-sweep-2026-10-01.md`): the Kanban parity ledger now names the owning card of each of the 21 rows, three new cards cover the rows that had none, and the README, roadmap, Kanban, and project brief lines call the backlog a closed historical record. The two archive lines stay as written, because they are dated progress records.
+
 ### 2. Papercut count rule (fleet thread)
 
 Copy this prompt into the fleet thread:

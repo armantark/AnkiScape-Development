@@ -9,7 +9,7 @@ AnkiScape is a Python Anki add-on that turns eligible card reviews into a lightw
 Reach a coherent “complete AnkiScape” rather than accumulating disconnected v1 slices. The canonical scope and work routing are:
 
 - `memory-bank/future-work-kanban.md`
-- `memory-bank/gap-backlog.json` for detailed gaps inside shipped skill families
+- `memory-bank/gap-backlog.json` as the closed historical record of gaps inside shipped skill families; the Kanban parity ledger owns its open rows
 - dated completion audits as historical baseline evidence, not live registry truth
 
 ## Product Boundary

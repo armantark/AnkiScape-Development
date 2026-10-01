@@ -14,7 +14,7 @@ their owning workstream requires deeper context.
 - [Progress](progress.md): chronological completion ledger.
 - [Completion Kanban](future-work-kanban.md): canonical forward-work board.
 - [Roadmap](roadmap.md): dependency-ordered completion strategy.
-- [Gap backlog](gap-backlog.json): machine-readable existing-skill parity subledger.
+- [Gap backlog](gap-backlog.json): closed historical record of the existing-skill parity subledger; the Kanban owns its open rows.
 - [Public release lineage and license decision](public-release-lineage-and-license-2026-07-17.md):
   settled derivative-release posture, attribution copy, and ordered go-live gates.
 
