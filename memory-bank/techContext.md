@@ -45,6 +45,10 @@
   For a deliberate catalog search, use `python3 tools/repo_search.py
   --include-large --max-columns 300 'wilderness' data/shop_data.py`; put `--`
   before a positional pattern that begins with `--`.
+- Before adding or extracting a module, stage any compensating move and run
+  `python3 tools/pass14/check_imports.py --hook "$(git rev-parse --git-path hooks/slop_gate.py)" --output /tmp/placement.json --placement logic/helpers/new_helper.py --origin logic/source.py`.
+  The report exposes directory capacity, line-growth headroom, import fan-out,
+  and dependencies eligible for origin inference before implementation.
 - Broad tree searches ended four agents through context exhaustion on
   2026-08-10 and 2026-08-11. Single outputs reached `355.5 KB`, `758.3 KB`, and
   `610.4 KB`. First use `rg --files` to list exact paths. Then search only those
