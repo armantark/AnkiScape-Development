@@ -3,7 +3,9 @@
 
 Preparation snapshots the worktree and checks prerequisites; sync includes pending-run reconciliation and mirror
 setup; execution includes launch, polling and final log retrieval. Lock wait is untimed,
-except that a promotion gate holds the lock itself and hands it to its lane runs.
+except that a promotion gate holds the lock itself and hands it to its lane runs. The
+pending JSON is transient coordination state: retain the announced exact-run log and
+report paths, and never infer success or relaunch solely because that record disappeared.
 """
 
 from __future__ import annotations
@@ -221,6 +223,13 @@ def _pending_path() -> Path:
     return LOCAL_MIRROR_LOCK_PATH.with_suffix(".pending.json")
 
 
+def _run_identity(pending: dict[str, str]) -> str:
+    return (
+        f"run: {pending['run_id']}; log: {pending['log_path']}; "
+        f"report: {pending['report_path']}"
+    )
+
+
 def _completion_report(report_path: str, deadline: float | None = None) -> int | None:
     report = _ssh(
         f"cat {shlex.quote(report_path)} 2>/dev/null || true",
@@ -331,8 +340,7 @@ def _reconcile_pending_run() -> None:
             raise RuntimeError("previous remote lane is not confirmed stopped; sync blocked")
     except RuntimeError as exc:
         raise RuntimeError(
-            f"{exc}; pending record: {pending_path}; run: {pending['run_id']}; "
-            f"log: {pending['log_path']}; report: {pending['report_path']}"
+            f"{exc}; pending record: {pending_path}; {_run_identity(pending)}"
         ) from exc
     if returncode is None:
         print(
@@ -544,6 +552,7 @@ def _stream_remote_run(
         json.dump(pending, pending_file)
         pending_file.flush()
         os.fsync(pending_file.fileno())
+    print(f"Remote {_run_identity(pending)}", file=sys.stderr)
     try:
         _ssh(launch, label="remote lane launch")
     except SSHCommandError as exc:
@@ -769,10 +778,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"Unresolved remote run blocks sync; pending record: {pending_path}", file=sys.stderr)
             try:
                 pending = json.loads(pending_path.read_text(encoding="utf-8"))
-                print(
-                    f"Run: {pending['run_id']}; log: {pending['log_path']}; "
-                    f"report: {pending['report_path']}", file=sys.stderr,
-                )
+                print(_run_identity(pending), file=sys.stderr)
                 read_command = " ".join(
                     shlex.quote(pending[field])
                     for field in ("pid_path", "report_path", "log_path") if field in pending

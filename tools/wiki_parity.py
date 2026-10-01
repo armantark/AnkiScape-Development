@@ -43,7 +43,7 @@ import urllib.request
 
 API = "https://runescape.wiki/api.php"
 EOC = "2012-11-20T00:00:00Z"
-UA = "AnkiScape-parity-audit/1.0 (personal project; contact chuck67322@berkeley.edu)"
+UA = "AnkiScape parity audit"
 
 
 def _get(params):
@@ -53,7 +53,10 @@ def _get(params):
     for attempt in range(3):
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
-                return json.load(resp)
+                data = json.load(resp)
+            if error := data.get("error"):
+                raise RuntimeError(f"MediaWiki API {error['code']}: {error['info']}")
+            return data
         except (urllib.error.URLError, TimeoutError):
             if attempt == 2:
                 raise
@@ -69,6 +72,8 @@ def _normalize_cutoff(before):
 
 def resolve(title, before):
     """Return (revid, timestamp, resolved_title) of the newest rev before cutoff."""
+    if "|" in title:
+        raise ValueError("rvstart allows one title per lookup; resolve each title separately")
     data = _get({
         "action": "query",
         "prop": "revisions",
@@ -113,9 +118,11 @@ def _grep_sections(text, pattern):
     return "\n".join(kept) if kept else ""
 
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+def main(argv=None):
+    ap = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     r = sub.add_parser("resolve", help="print the pre-EOC revid + timestamp")
@@ -128,40 +135,42 @@ def main():
     c.add_argument("--before", default=EOC)
     c.add_argument("--grep", help="only sections matching this regex")
 
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
 
     if args.cmd == "resolve":
         res = resolve(args.title, args.before)
         if not res:
             print(f"NOT FOUND: {args.title!r} before {args.before}", file=sys.stderr)
-            sys.exit(1)
+            return 1
         revid, ts, title = res
-        print(f"title={title}\nrevid={revid}\ntimestamp={ts}\n"
-              f"url=https://runescape.wiki/w/{urllib.parse.quote(title.replace(' ', '_'))}?oldid={revid}")
-        return
+        print(
+            f"title={title}\nrevid={revid}\ntimestamp={ts}\n"
+            f"url=https://runescape.wiki/w/"
+            f"{urllib.parse.quote(title.replace(' ', '_'))}?oldid={revid}"
+        )
+        return 0
 
-    if args.cmd == "content":
-        if args.revid:
-            got = content_by_revid(args.revid)
-        elif args.title:
-            res = resolve(args.title, args.before)
-            if not res:
-                print(f"NOT FOUND: {args.title!r} before {args.before}", file=sys.stderr)
-                sys.exit(1)
-            got = content_by_revid(res[0])
-        else:
-            print("content needs a title or --revid", file=sys.stderr)
-            sys.exit(2)
-        if not got:
-            print("no content returned", file=sys.stderr)
-            sys.exit(1)
-        text, ts, title = got
-        if args.grep:
-            text = _grep_sections(text, args.grep) or f"(no sections matched {args.grep!r})"
-        print(f"# {title}  (pre-EOC snapshot {ts})\n")
-        print(text)
-        return
+    if args.revid:
+        got = content_by_revid(args.revid)
+    elif args.title:
+        res = resolve(args.title, args.before)
+        if not res:
+            print(f"NOT FOUND: {args.title!r} before {args.before}", file=sys.stderr)
+            return 1
+        got = content_by_revid(res[0])
+    else:
+        print("content needs a title or --revid", file=sys.stderr)
+        return 2
+    if not got:
+        print("no content returned", file=sys.stderr)
+        return 1
+    text, ts, title = got
+    if args.grep:
+        text = _grep_sections(text, args.grep) or f"(no sections matched {args.grep!r})"
+    print(f"# {title}  (pre-EOC snapshot {ts})\n")
+    print(text)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
