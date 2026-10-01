@@ -178,7 +178,7 @@ Vampyre-bite special cases (`logic_pure.py:4057-4101,8127-8186`). It does not
 expose the equivalent as a generic on-damaging-hit enemy rule.
 
 Ordinary enemy damage is reduced by the matching protection prayer at
-`logic_pure.py:8046-8076`. The bypass seam is currently tied to an
+`a78963f9:logic_pure.py:8046-8076`. The bypass seam is currently tied to an
 `unprotected_effect` produced by missing protective equipment, not to a
 target-native attack property. Encoding Goraks through fake required equipment
 would introduce a mechanic the source never had.

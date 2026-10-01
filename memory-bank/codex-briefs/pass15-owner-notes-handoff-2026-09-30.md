@@ -52,7 +52,7 @@ been switched off until this is resolved."
 A worn finisher reads as worn. `combat_finisher_state_pure`
 (`logic_pure/logic_pure_combat_model.py:1953-1974`) passes `worn` from
 `must_be_worn` (`data/combat/slayer/slayer_creatures.py:322-327`).
-`_combat_hud_status` (`logic_pure/logic_pure_combat_hud.py:93-104`) says
+`_combat_hud_status` (`3feb597b:logic_pure/logic_pure_combat_hud.py:93-104`) says
 "Wear Spiked gauntlets to finish" for a worn finisher and keeps "Finisher
 blocked: no loaded X" only for pack items. The finisher text leaves
 `target_lbl` and shows on its own amber line in the combat card, in the style
@@ -127,7 +127,7 @@ Wines, Rising Sun, Rusty Anchor). Each stage needs the Barcrawl card, pays the
 Arena stage 4 does (`data/quest/definitions/members/fight_arena.py:80-86`).
 Remove the ten "Buy <drink>" shop rows (`tools/generate_npc_shop_data.py:219-340`,
 regenerate `data/shop_data.py`) and their proof rules
-(`data/quest_action_proof_data.py:11-64,90-129`). Retire
+(`3feb597b:data/quest_action_proof_data.py:11-64,90-129`). Retire
 `tests/bar_crawl/test_vendor_actions.py`; update `tests/bar_crawl/test_quest_route.py`
 and `tests/bar_crawl/test_quest_ui.py`. The owner's save sits at progress 2
 with one proof; no migration. The "is blocked" dialog lists one reason per

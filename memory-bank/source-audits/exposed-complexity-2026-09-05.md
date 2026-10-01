@@ -81,7 +81,7 @@ The root state conversion is a prerequisite, not the dispatcher relocation. Reje
 | `logic/shop_logic.py:488::_preview_sell_from_state` | 16 | 17 | 7.5 |
 | `runtime/runtime_actions_activities.py:647::handle_castle_wars_answer` | 16 | 10 | 4.277777777777778 |
 | `logic/shop_logic.py:174::search_shop_catalog_pure` | 15 | 19 | 3.5454545454545454 |
-| `tools/generate_achievement_diary_data.py:1076::_condition_src` | 14 | 16 | 3.8333333333333335 |
+| `91c39417:tools/generate_achievement_diary_data.py:1076::_condition_src` | 14 | 16 | 3.8333333333333335 |
 | `tools/generate_achievement_diary_data.py:127::_emitted_ledger_actions` | 11 | 24 | 2.5 |
 | `tools/generate_achievement_diary_data.py:673::build` | 11 | 24 | 2.5 |
 | `tools/generate_achievement_diary_data.py:92::_module_level_strings` | 11 | 23 | 1.5 |
@@ -116,7 +116,7 @@ The recovered snapshot has 56 unique above-threshold functions across the fourte
 | `__init__.py:5244::on_equip_item` | 9 | 18 | 2.0 |
 | `__init__.py:5297::on_unequip_slot` | 9 | 17 | 2.0 |
 | `__init__.py:1871::_on_main_menu` | 1 | 982 | 7.092485549132948 |
-| `tests/test_combat_enemy_roster.py:1699::CombatEnemyRosterDataTest._assert_slots_well_formed` | None | 23 | None |
+| `91c39417:tests/test_combat_enemy_roster.py:1699::CombatEnemyRosterDataTest._assert_slots_well_formed` | None | 23 | None |
 
 ## Completion limits
 

@@ -25,7 +25,7 @@ Repository reconciliation:
   Broav route.
 - `quest_catalog_generated.py:5787-5818` already records the Gertrude's Cat
   kitten reward as `Kitten`, while focused quest item metadata uses
-  `Pet kitten` at `quest_data.py:8028`. Implementation must reconcile these
+  `Pet kitten` at `25bfdf4e:quest_data.py:8028`. Implementation must reconcile these
   identities into one stable pet entity instead of granting two differently
   named items.
 - `shop_data.py` already has Taverley and Yanille Pet Shop records, but their

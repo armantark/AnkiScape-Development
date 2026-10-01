@@ -43,7 +43,7 @@ target design is one commit action, the same as the new Big Top flow.
 2. **Fish Flingers ~5.3k XP came from an invented formula.** The local code
    pays `round(level × 200 × min(1, fish_total/48))` times an outfit
    multiplier (`logic/fish_flingers_logic.py:241-246`,
-   `runtime/runtime_actions_activities.py:1681-1702`). Darkan reconstructs
+   `0f642686:runtime/runtime_actions_activities.py:1681-1702`). Darkan reconstructs
    the period payout as `floor(max(162, 235 × clamp(level,1,99) − 73) ×
    clamp(score,0,48) / 48)`, paid once at event end. The exact coefficients
    are provisional (the pinned wiki marks its own table obsolete after the

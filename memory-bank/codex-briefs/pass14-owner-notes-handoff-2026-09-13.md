@@ -86,7 +86,7 @@ pass.
 ### S1 `encounter-no-lock`
 
 1. Delete the refusal seam for combat method and supply mode at
-   `logic_pure/logic_pure_combat_engine.py:2676-2696`, and the weapon equip
+   `66be9ee8:logic_pure/logic_pure_combat_engine.py:2676-2696`, and the weapon equip
    and unequip refusals that call it (`__init__.py:5244-5343`). Remove the
    three dialog titles and the combo restore that exist only for them.
 2. End the encounter when the action leaves combat or the target changes:

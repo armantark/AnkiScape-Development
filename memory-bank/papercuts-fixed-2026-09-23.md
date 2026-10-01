@@ -1983,7 +1983,7 @@ Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-
 
 ## The public runner exposes full lanes only, causing focused callers to monkeypatch private launch functions — 1 occurrence
 
-Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `remote-focused-interface`; `tools/run_remote_tests.py:521-527`, `tools/combat/run_enemy_attack_rolls_remote.py:129-155`, `tools/combat/run_player_attack_rolls_remote.py:147-185`.
+Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `remote-focused-interface`; `tools/run_remote_tests.py:521-527`, `bf38b68b:tools/combat/run_enemy_attack_rolls_remote.py:129-155`, `bf38b68b:tools/combat/run_player_attack_rolls_remote.py:147-185`.
 
 - 2026-09-18T16:27:05Z — Barcrawl focused verification: the test body printed `Ran 1 test in 0.590s` and `OK`, but the caller incorrectly reused the full remote runner entry point. Its fixed completeness guard correctly rejected the focused run with `error: remote plain lane false pass: ran 1 tests, expected at least 4506`; process `19401` exited `1`. The attempt is retained as failed evidence, the guard remains unchanged, and root is using the existing lower-level focused launcher with exact one-test and zero-skip validation.
 
@@ -2011,9 +2011,9 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## The test assumed ignored root/tmp existed in a fresh mirror — 1 occurrence
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `barcrawl-temp-fixed`; `tests/bar_crawl/test_vendor_actions.py:102`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `barcrawl-temp-fixed`; `bf38b68b:tests/bar_crawl/test_vendor_actions.py:102`.
 
-- 2026-09-18T09:19:38.532365-07:00 — Baseline gate `76834`, main `0d606cfd3e79fa660223a5b0a00974c9098a9447`: `test_generator_owns_drinks_and_preserves_the_pinned_shop_snapshot` errored at `tests/bar_crawl/test_vendor_actions.py:102` because `tempfile.TemporaryDirectory(dir=root / "tmp")` assumed an absent parent; exact remote error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork/tmp/tmpv2kux42v'`. Plain lane: `Ran 5688 tests in 579.048s`, `FAILED (errors=1, skipped=1366)`. The live Qt lane remains owned by root.
+- 2026-09-18T09:19:38.532365-07:00 — Baseline gate `76834`, main `0d606cfd3e79fa660223a5b0a00974c9098a9447`: `test_generator_owns_drinks_and_preserves_the_pinned_shop_snapshot` errored at `bf38b68b:tests/bar_crawl/test_vendor_actions.py:102` because `tempfile.TemporaryDirectory(dir=root / "tmp")` assumed an absent parent; exact remote error: `FileNotFoundError: [Errno 2] No such file or directory: '/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork/tmp/tmpv2kux42v'`. Plain lane: `Ran 5688 tests in 579.048s`, `FAILED (errors=1, skipped=1366)`. The live Qt lane remains owned by root.
 
 ## A0.2-second timeout raced interpreter startup — 6 occurrences
 
@@ -2054,7 +2054,7 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## Full shop regeneration changed unrelated rows for a vendor-only change — 1 occurrence
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `vendor-only-fixed`; `tools/generate_npc_shop_data.py:1057-1073`, `tools/generate_npc_shop_data.py:1299,1316-1321`, `tests/bar_crawl/test_vendor_actions.py:110-117`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `vendor-only-fixed`; `tools/generate_npc_shop_data.py:1057-1073`, `tools/generate_npc_shop_data.py:1299,1316-1321`, `bf38b68b:tests/bar_crawl/test_vendor_actions.py:110-117`.
 
 - 2026-09-16T17:43:00-07:00 — Full shop regeneration into `tmp/bar-crawl-generated.py` changed unrelated pinned shop rows, removed currency `13727`, and altered player price tables; use the snapshot-preserving vendor-only mode for the Barcrawl correction.
 
@@ -2452,7 +2452,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-02 02:27 PDT — The first load-bearing duplicate-key test revision failed because the split fragments used plain `Assign` nodes while the existing audit intentionally scans annotated `*_BY_ID` dictionaries; preserve the original annotated mapping shape in every quest fragment rather than widening the test to unrelated assignments.
 - 2026-09-02 02:31 PDT — The focused 848-test rerun stopped after 438 tests with 10 import errors and 3 failures because regeneration restored the moved lazy import to `from .achievement_diary_data`; the exact root error was `ModuleNotFoundError: No module named 'ankiscape.data.quest.achievement_diary_data'`. The generator must rewrite that source segment after extraction, not only patch one generated ledger instance.
 - 2026-09-02 02:44 PDT — The first “missing fragment” mutation removed a package registry entry, but assembly indexes every ordered quest and failed during import with `KeyError: 'cooks_assistant'` before the test ran; mutate `STAGE_REQUIREMENT_REPLACEMENT_ORDER` instead so import succeeds and the strengthened equality assertion itself proves load-bearing.
-- 2026-09-02 02:49 PDT — The first cleanup-table rebalance compiled but the surface import failed at `data/quest/stage_cleanups/__init__.py:87` with `KeyError: 'big_chompy_bird_hunting'`; inspect the extracted fragment key resolution before trusting the release-era partition.
+- 2026-09-02 02:49 PDT — The first cleanup-table rebalance compiled but the surface import failed at `bf38b68b:__init__.py:87` with `KeyError: 'big_chompy_bird_hunting'`; inspect the extracted fragment key resolution before trusting the release-era partition.
 - 2026-09-06T04:25:39+00:00 Parent static metric verification: parser first treated Radon `functions` as a list and raised `ValueError: too many values to unpack (expected 2)`; the report uses a dictionary, so direct key lookup fixed the read. `complexipy` exit 1 reflected existing above-threshold complexity and still produced a valid report.
 - 2026-09-06T04:57:11+00:00 Parent combat evidence inspection assumed `remote-after.json` had the wrapper used by `remote-before.json` and raised `KeyError: 'sources'`; corrected inspection compared the raw after map with `before.sources`. All 769 hashes matched; inspection output stays limited to selected fields and counts.
 - 2026-09-07T16:22:12-07:00 P4 product Opus review found `guild_player` supplied 30 of each Warriors Guild token, below the 200-token single-entry requirement. Parent verified the requirement and authorized only fixture tokens 30 -> 200; source inventory and driver pin were rebound before runtime.
@@ -2478,7 +2478,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## Tests/probes seeded the wrong lifecycle state, uncontrolled randomness or guessed behavioral output, or failed to witness the intended route — 45 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator-fixture-contract`; `run_tests.py:68-75`, `tests/bar_crawl/test_vendor_actions.py:90-118`, `tests/test_module_surface.py:75-133`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator-fixture-contract`; `run_tests.py:68-75`, `bf38b68b:tests/bar_crawl/test_vendor_actions.py:90-118`, `tests/test_module_surface.py:75-133`.
 
 - 2026-08-31 05:19 PDT — The first Zogre product-flow assertion assumed a newly started quest records progress `1`, but `start_quest_pure` correctly stores progress `0`; assert that exact started-but-unprogressed state before and after the combat review.
 - 2026-08-31 08:02 PDT — The first Fremennik end-to-end review test left the manually staged quest incomplete (`AssertionError: False is not true`) because the fixture had not selected it as `current_quest`; direct quest-state fixtures must also reproduce runtime selection state.
@@ -2734,7 +2734,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-08 04:35 UTC — Root included nonexistent `data/combat_enemies/` in an `rg` search; exact error: `rg: data/combat_enemies/: No such file or directory (os error 2)`. The search rerun against the existing `tests` and `data` directories found the Tz-Kih source and prayer-drain assertion; no remote runtime ran.
 - 2026-09-07T22:04:00-07:00 — A timestamp correction command used the nonexistent workdir `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/../ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/13/ankiscape_fork`; `exec_command` failed with `No such file or directory (os error 2)` before the command ran. Reusing the exact P13 worktree path completed the correction.
 - 2026-09-08T16:22:53+00:00 — During the active source gate, root queried not-yet-existing `.git/ankiscape-promotion-evidence/f3157d4de6129a0831d83c555756c13c42daf3ce.json`; `rg` returned `No such file or directory`. Live progress was found through `safe_log_root`, enumerated `gate-f3157d4d.log`, and the exact remote pending job. This was a lookup error, not a failed gate.
-- 2026-09-08T16:22:53+00:00 — Root included nonexistent `logic_pure/logic_pure_combat_state.py` in a dependency lookup; `rg` returned `No such file or directory (os error 2)`. The actual `combat_has_active_encounter_pure` definition is in `logic_pure/logic_pure_combat_engine.py:2651`. This was a lookup error, not a product bug.
+- 2026-09-08T16:22:53+00:00 — Root included nonexistent `logic_pure/logic_pure_combat_state.py` in a dependency lookup; `rg` returned `No such file or directory (os error 2)`. The actual `combat_has_active_encounter_pure` definition is in `bf38b68b:logic_pure/logic_pure_combat_engine.py:2651`. This was a lookup error, not a product bug.
 - 2026-09-08T16:26:22+00:00 — Root lookup of `tests/test_review_live_flow.py` returned `No such file or directory (os error 2)`. Root corrected it by enumerating `rg --files tests -g '*.py' | rg 'review|dream|magic|runtime_actions'` and reading only returned names. This was a lookup error, not a product failure.
 - 2026-09-08T16:43:31+00:00 — Parent dependency lookup queried nonexistent paths and returned `rg: combat/combat_supplies.py: No such file or directory (os error 2)` and `rg: magic.py: No such file or directory (os error 2)`. `rg --files` identified `logic_pure/logic_pure_combat_supplies.py` and `logic_pure/logic_pure_magic.py`; no product change was involved.
 - 2026-09-08: New-bank-trip preparation guessed `runtime/runtime_actions_carried_cadence.py` and received `sed: runtime/runtime_actions_carried_cadence.py: No such file or directory`; the existing import resolves `_admit_live_cadence` in `runtime/runtime_actions_shared.py:702`.
@@ -2902,7 +2902,7 @@ Disposition: operator error (`operator-error`). Evidence: the fleet gate enforce
 
 ## One-off lines, external-blocker — 2 occurrences
 
-Disposition: external blocker (`external-blocker`). Evidence: 2505 is a timeout in a user-level wrapper outside this repository (`memory-bank/evidence/opus-wrapper-whitespace-2026-09-08/manifest.json:5`); 2541 is the missing `unicase` collation in system SQLite.
+Disposition: external blocker (`external-blocker`). Evidence: 2505 is a timeout in a user-level wrapper outside this repository (`bf38b68b:memory-bank/evidence/opus-wrapper-whitespace-2026-09-08/manifest.json:5`); 2541 is the missing `unicase` collation in system SQLite.
 
 - 2026-09-19T17:03:45+00:00: Claude review packet 51407 bytes left Bash PID 50336 at 98.1% CPU after elapsed 15:59, with no children, empty output and no quota preflight. The wrapper whitespace-removal expression timed out after 2 seconds (2.003 measured); a regex check on identical bytes exited 0 in 0.007 seconds. Root terminated only that verified owned wrapper and used a short prompt with scoped read-only file access. The external wrapper source remains unchanged under the one-level scope boundary.
 - 2026-09-21T17:43:23-07:00 — Read-only collection analysis with system SQLite hit `sqlite3.OperationalError: no such collation sequence: unicase`; a `NOT INDEXED` scan then hit `sqlite3.OperationalError: no query solution` on the WITHOUT ROWID table. Ordinary full scans used a registered collation that raises if called; it was never invoked. No integrity-check pass or guessed Anki collation was claimed.

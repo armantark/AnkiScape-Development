@@ -1715,7 +1715,7 @@ The lesson is to trace an enum row through its inherited control flow before
 turning a flavour line into a refusal. A row-local message does not establish
 whether the shared drink path consumes the item.
 
-**2. A known-wrong record.** `memory-bank/activeContext.md:114` on the merged
+**2. A known-wrong record.** `56c79554:memory-bank/activeContext.md:114` on the merged
 tree still says "4,159 plain tests with 499 skips" and reachability
 `1,576 / 2,284 / 75 / 45 / 30 / 75 / 1,105`, contradicting the baseline the same
 commit pins. Same class main already had to correct in `d1af99b2`.

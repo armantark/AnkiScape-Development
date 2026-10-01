@@ -165,7 +165,7 @@ The current override lane is empty.
 | `311` unsatisfiable quest steps | Still false. No tracked audit emits this measure. The current fixed point has 148 blocked quest-stage products and 284 unresolved actions. | `tools/audit_item_reachability.py:1950-1965`; `tools/audit_item_reachability.py:2036-2057` |
 | Max requires 24 of 25 skills | Still false. Dungeoneering is partial and trainable. Floor completion still returns Dungeoneering XP. | `core/skill_registry.py:300-308`; `logic/dungeoneering_logic.py:2686-2702` |
 | 31 direct-action handlers have no shared seam | Still false. A fresh Abstract Syntax Tree scan found 54 handlers, 54 seam calls, and 0 bypasses. | `memory-bank/design-thread-queue.md:1997-2003`; `__init__.py:829` |
-| Wicked hood has art, but Evil Tree kindling does not | Now fully false. Both asset rows and both files exist. | `assets_provenance.json:36978`; `assets_provenance.json:48426`; `woodcuttingitems/evil_tree_kindling.png:1` |
+| Wicked hood has art, but Evil Tree kindling does not | Now fully false. Both asset rows and both files exist. | `assets_provenance.json:36978`; `assets_provenance.json:48426`; `7f347ad3:woodcuttingitems/evil_tree_kindling.png:1` |
 
 The direct-action correction in section 8 also contains a stale follow-up.
 The stated 30-handler migration now has zero open handlers.
@@ -175,10 +175,10 @@ The art correction also has no open art row.
 
 | location | stale claim | current evidence |
 | --- | --- | --- |
-| Section 5 row 1 | `167` quest definitions are absent. | The generated catalog has 194 rows. Two miniquests make 196 definitions. See `generated/quest_catalog_generated.py:12` and `data/quest_data.py:10844-10914`. |
+| Section 5 row 1 | `167` quest definitions are absent. | The generated catalog has 194 rows. Two miniquests make 196 definitions. See `generated/quest_catalog_generated.py:12` and `7f347ad3:data/quest_data.py:10844-10914`. |
 | Section 5 row 3 | 30 of 54 direct-action handlers bypass the undo seam. | The fresh scan found 0 bypasses. See `memory-bank/design-thread-queue.md:1997-2003`. |
 | Section 5 row 5 | Quest rewards skip the one-clue filter. | Quest completion calls the central filter at `logic_pure/logic_pure_quest.py:1474-1481`. |
-| Section 5 row 8 | Evil Tree kindling is the last stale art row. | The asset and provenance row exist at `woodcuttingitems/evil_tree_kindling.png:1` and `assets_provenance.json:48426`. |
+| Section 5 row 8 | Evil Tree kindling is the last stale art row. | The asset and provenance row exist at `7f347ad3:woodcuttingitems/evil_tree_kindling.png:1` and `assets_provenance.json:48426`. |
 | Section 5 row 10 | All four housekeeping records remain open. | The pause record is checked at `memory-bank/loop-queue.md:200`. The roadmap uses the current skill model at `memory-bank/roadmap.md:8`. The GPT art row remains stale at `memory-bank/gpt-deferred-queue.md:21`. |
 
 The other section 5 premises still hold at this checkpoint.
@@ -628,7 +628,7 @@ forbidden in every read-only brief.
    conflict recorded in section 12.5. Unblocking it certifies two Slayer masters.
 2. Whether ruling O1 and design-queue entry 4.18, which bar the Fable seat, survive
    into the current goal. The `QA: FABLE BLOCKED` label at
-   `memory-bank/future-work-kanban.md:1758` stays accurate while they stand.
+   `fed8f00a:memory-bank/future-work-kanban.md:1758` stays accurate while they stand.
 3. The Achievement Diary curation ledger spot-check, gate 2 of section 5.21. Gate 1
    passed. Until gate 2 clears, 0 of 34 diary tiers are claimable.
 
@@ -1351,7 +1351,7 @@ disagree the better-evidenced reading wins:
   price 10, at `data/shop_data.py:19`. The first pass reported no registry exists.
 - `enakhras_lament` 5, Crumble Undead: **already modelled** as a spell. `crumble_undead`
   is a standard Magic 39 spell with effect `undead_only` at `data/magic_data.py:528-535`,
-  merged into combat data at `data/combat_data.py:780-782`. The encounter itself is still
+  merged into combat data at `6db34c3f:data/combat_data.py:780-782`. The encounter itself is still
   missing.
 - `cold_war` 2, clockwork penguin: `crafting_table_3` DOES exist in `CONSTRUCTION_DATA`
   at `data/construction_data.py:21`, level 34, `Molten glass x2`. What is missing is a
@@ -1462,7 +1462,7 @@ it; measure it.
 ### 17.4 A genuine circularity to check, not to assume
 
 `Raw karambwan` has no route. `data/fishing_data.py:239-246` defines `catch_karambwan`,
-and `data/quest_data.py:11016-11017` gates it behind `tai_bwo_wannai_trio`, whose stage 2
+and `4bce42eb:data/quest_data.py:11016-11017` gates it behind `tai_bwo_wannai_trio`, whose stage 2
 requires two `Raw karambwan`. The pinned period page resolves the loop in the player's
 favour: `oldid=6096116` says karambwans are caught by members "who must have at least
 STARTED the Tai Bwo Wannai Trio quest", and the same revision records Tiadeche selling
@@ -1728,12 +1728,12 @@ slice. Rum Deal's further quest-item leads are `Blindweed seed`, `Blindweed`,
 
 `relocate_combat_encounters` exists byte-identical in `data/zogre_flesh_eaters_data.py`
 and `data/rum_deal_data.py` apart from three constant names, and `DARKAN_AUDIT_ROOT` is
-duplicated with it. The call site at `data/quest_data.py:10496` is a nested double call
+duplicated with it. The call site at `590348df:data/quest_data.py:10496` is a nested double call
 and Cabin Fever will make it triple. One shared helper plus a per-quest registry replaces
 all three.
 
 There is also a latent trap worth fixing with it: `_apply_stage_requirement_cleanups`
-returns early at `data/quest_data.py:10484` when a quest has no cleanup rows, so the
+returns early at `590348df:data/quest_data.py:10484` when a quest has no cleanup rows, so the
 relocation and its guaranteed drop happen only as a side effect of that quest having a
 cleanup key. Removing the cleanups would silently take the drop with them rather than
 failing.

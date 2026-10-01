@@ -171,7 +171,7 @@ karambwan gates, and a shop-to-quest end-to-end pass through `on_answer_card`.
 It also drives the real `handle_agility_answer` path through all 32 Agility
 Pyramid stages at level 30 and proves the final `apply_agility_review_pure`
 output is credited as one `Pyramid top` in inventory. The pure function returns
-outputs in its result; `runtime/runtime_actions_activities.py:3067-3076` owns
+outputs in its result; `93140651:runtime/runtime_actions_activities.py:3067-3076` owns
 the inventory credit. The established reachability test owns the seven numeric
 pins and blocked-row count.
 

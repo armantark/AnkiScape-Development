@@ -617,7 +617,7 @@ hide inside the audit.
 
 - **Broken quest stage:** `rune_mysteries`, stage `1`. Its exact required action
   is `Deliver the strange talisman to Sedridor` at
-  `data/quest_data.py:7086`. No production path emits that action. The matching
+  `d0607cba:data/quest_data.py:7086`. No production path emits that action. The matching
   pure-logic test at `tests/test_logic.py:3183-3188` injects it directly into
   `quest_stage_actions`, so it does not prove a player can produce it.
 - **Measured failure:** `build_reachability_report()` returns a
@@ -815,7 +815,7 @@ an open design fork; it does not choose or implement a repair.
   Biohazard snapshot exposed one stage before the earlier gates were repaired,
   while the landed repair covered 27 actions across all 13 playable stages.
 - **Worked example:** Dwarf Cannon stage `6` requires
-  `Reach the Dwarf Cannon goblin hideout` at `data/quest_data.py:6219-6224`,
+  `Reach the Dwarf Cannon goblin hideout` at `58951705:data/quest_data.py:6219-6224`,
   while `dwarf_cannon.choices` is empty. No route button exists, and the only
   writer rejects that route because no registered option offers it.
 - **Relationship to entry 3.31:** **19 quests** occur in both the missing-action
@@ -1887,8 +1887,8 @@ is **not scheduled work** and is not a quest-by-quest task list.
   set of strings. Testing either a reward tuple or a reward name directly with
   `value not in ITEM_DEFINITIONS` compares unlike types and flags every value.
   The catalog also self-registers raw quest reward strings:
-  `data/quest_data.py:10468-10480` emits each raw `item_name`,
-  `core/constants.py:1413` loads that output,
+  `13b3edde:data/quest_data.py:10468-10480` emits each raw `item_name`,
+  `13b3edde:core/constants.py:1413` loads that output,
   `core/constants.py:337-349` merges it into extra item data, and
   `core/constants.py:471` builds the final registry. The final registry is
   therefore not an independent validator of quest reward semantics.
@@ -1950,9 +1950,9 @@ is **not scheduled work** and is not a quest-by-quest task list.
   them as sources at `tools/audit_item_reachability.py:790-793`. It therefore
   cannot expose this class.
 - **Established repair route:** use
-  `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` at `data/quest_data.py:4197-4206` to
+  `QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID` at `a468d18a:data/quest_data.py:4197-4206` to
   replace or suppress a quest's scraped item rows before
-  `data/quest_data.py:9308-9314` builds its final rewards. Route experience
+  `13b3edde:data/quest_data.py:9308-9314` builds its final rewards. Route experience
   through `QUEST_XP_REWARD_REPLACEMENTS_BY_ID`, and keep unlocks in their
   owning quest or activity state. Apply those corrections only after
   source-checking each quest; this record does not schedule them.
@@ -1964,7 +1964,7 @@ current or explicitly pending entries: **9 COMPLETE**, **7 DEFERRED DATA
 DEPTH**, **14 BLOCKED** (**12 owner**, **2 source**), and **5 UNBLOCKED**.
 The pending reward-name record is included because the dispatch names it, but it
 is not in the audited tree: its heading exists only at
-`a468d18a:memory-bank/design-thread-queue.md:1959` on
+`a468d18a:memory-bank/design-thread-queue.md:1698` on
 `goal/reward-artifact-record-2026-08-24` and its `8ec703a9` measurements are
 stale against this base.
 
@@ -2127,7 +2127,7 @@ forks, so the implemented recommendation is not authority to close them.
   `output_items` and the four runtime callers still own eligibility. Move the
   tradeability rule into the hook and route all four callers through it.
 - `### 5.3 Quest reward strings can become inventory keys without semantic validation`
-  (`a468d18a:memory-bank/design-thread-queue.md:1959`, pending integration) — on
+  (`a468d18a:memory-bank/design-thread-queue.md:1698`, pending integration) — on
   this audited base the fresh measurement is **196 quests**, **142
   reward-bearing quests**, **310 reward occurrences**, **288 distinct
   `(name, amount)` pairs**, **269 distinct names**, **3,502 final item
@@ -2754,7 +2754,7 @@ brief lands.
 1. **No combat lock.** Owner: "I don't really know why there's a lock for
    anything at all." Style, spell, weapon, supply mode, and action change are
    never refused while an enemy is alive. A change applies from the next
-   review. The refusal seam at `logic_pure/logic_pure_combat_engine.py:2676-2696`
+   review. The refusal seam at `66be9ee8:logic_pure/logic_pure_combat_engine.py:2676-2696`
    and the pin `test_live_encounter_rejects_every_combat_method_mutation`
    (`tests/test_integration_smoke.py:4066-4124`) both go.
 2. **Encounter lifetime.** Owner: "a bank run would in fact reset the encounter

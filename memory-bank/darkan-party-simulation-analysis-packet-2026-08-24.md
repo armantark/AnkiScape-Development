@@ -365,7 +365,7 @@ The source still does not settle the AnkiScape healing interaction.
 | Session inventory and equipment | `logic/dungeoneering_logic.py:2137-2169` and `:2393-2431` | Can supply floor-only combat and healing resources. |
 | Auto-eat for the player | `logic/dungeoneering_logic.py:2300-2319` | Supplies a healing primitive, but only for the player. |
 | Tick-based combat burst | `logic_pure/logic_pure_combat_engine.py:1056-1069`, `:1252-1264`, and `:1569-1644` | Can supply attack rolls, attack speed, damage, and status timing. |
-| Combat result state | `logic_pure/logic_pure_combat_engine.py:2517-2543` | Can report damage, lifepoints, kills, death, and elapsed ticks. |
+| Combat result state | `0a53c576:logic_pure/logic_pure_combat_engine.py:2517-2543` | Can report damage, lifepoints, kills, death, and elapsed ticks. |
 | Ring class and tier state | `logic/dungeoneering_logic.py:753-754`, `:1150-1186`, and `:1988-2020` | Keeps one active class and authentic tier spending. |
 | Gatherer and Artisan effects | `logic/dungeoneering_logic.py:1576-1666` | Already supplies the two live skiller effects. |
 | Honest no-effect text | `logic/dungeoneering_logic.py:1169-1177` | Prevents an unsigned analog from appearing as settled behavior. |

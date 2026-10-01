@@ -518,7 +518,7 @@ Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13
 
 Disposition: duplicate (`duplicate`), triaged on 2026-09-29 against main `98eb13f2`. Kept open: papercuts.md entry `2026-09-26T09:44:58-0700`. Normalizing one append repaired that record, but the recurring append-formatting cause is still covered by the older open entry.
 
-- 2026-09-29T14:33:57-07:00 — Target-lock completion record: the final audit-output append left an extra blank line, and `git diff --check` returned `memory-bank/progress.md:2989: new blank line at EOF.` Finish generated record appends with exactly one terminal newline.
+- 2026-09-29T14:33:57-07:00 — Target-lock completion record: the final audit-output append left an extra blank line, and `git diff --check` returned `3e7e83f7:memory-bank/progress.md:2989: new blank line at EOF.` Finish generated record appends with exactly one terminal newline.
 
 ## 2026-09-29 — Focused counts do not require an uncapped ID list
 

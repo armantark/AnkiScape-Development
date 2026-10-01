@@ -37,7 +37,7 @@ area, with the code facts I've already confirmed.
 - **Burst length:** `COMBAT_BURST_TICKS = 50` (combat_data.py:16). Review ticks =
   `50 × review_action_multiplier` via `_combat_review_ticks` (runtime_actions.py:615).
   At RS 0.6s/tick that's the "30 seconds" the owner refers to.
-- **Cow:** 80 max LP, defence 1 with −21 defence bonuses (combat_data.py:4152).
+- **Cow:** 80 max LP, defence 1 with −21 defence bonuses (97f0f55c:combat_data.py:4152).
   Simulated with att/str 10: dies in ONE burst every time, at tick 17–49 of 50,
   dealing the full 80. So it is NOT tanky — the leftover ~half-window is wasted.
 - **Chain-kill blocker:** the burst loop `break`s the instant `enemy_lp <= 0`
@@ -57,7 +57,7 @@ area, with the code facts I've already confirmed.
   2013 bank-healing feature. **Open parity question:** owner may want this
   slowed toward RS-classic natural regen (~1 HP/min), since +100/review is very
   fast. Confirm before changing.
-- **Combat XP model:** `_combat_apply_xp` (logic_pure.py:1808) splits damage into
+- **Combat XP model:** `_combat_apply_xp` (97f0f55c:logic_pure.py:1808) splits damage into
   style XP (0.4×dmg) + Constitution (0.133×dmg); Controlled splits across
   Att/Str/Def. Keys: `attack_exp`, `strength_exp`, `defense_exp`,
   `constitution_exp`, `ranged_exp`, `magic_exp` (`_COMBAT_EXP_SKILLS`

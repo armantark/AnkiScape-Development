@@ -78,7 +78,7 @@ Three defects. The loadout summary is truthful (it projects the persisted
   through one pure combat-method reconciliation that applies the mutation,
   unloads the old loadout, and refills against the new effective method.
   Reuse the unload/refill sequence at
-  `logic_pure/logic_pure_combat_engine.py:2709-2720`. Apply ruling 6 for live
+  `16112e59:logic_pure/logic_pure_combat_engine.py:2709-2720`. Apply ruling 6 for live
   encounters.
 - Move the "Current inventory" label and scroll area (`ui/ui.py:25520-25526`)
   inside `custom_view` so Auto mode stops showing the unrelated
@@ -141,7 +141,7 @@ Depends on nothing in part 1; both call seams already exist.
   `runtime/runtime_actions_production.py:555-560`, `:622-627`, `:710-717`,
   `:771-776`, `:871-876`, `:937-942`, `:1035-1040`, `:1189-1194`,
   `:1279-1284`, `:1395-1400`,
-  `runtime/runtime_actions_activities.py:2902-2917`.
+  `16112e59:runtime/runtime_actions_activities.py:2902-2917`.
 - Refusal branches that return `False` without any deactivation call the seam
   explicitly: Dungeoneering, Temple Trekking, Gnome Restaurant, and Dominion
   Tower refusal paths.
@@ -165,7 +165,7 @@ lands on Bankstanding.
 
 - Remove only the active-encounter rejection in
   `request_combat_bank_run_now_pure`
-  (`logic_pure/logic_pure_combat_engine.py:2691-2696`). The state assignment
+  (`16112e59:logic_pure/logic_pure_combat_engine.py:2691-2696`). The state assignment
   at `:2701-2705` already preserves the encounter and starts the two-review
   route.
 - Add one pure travel projection beside

@@ -52,7 +52,7 @@ mapping is an AnkiScape abstraction; period ratios and ordering remain source cl
 | Enemy attacks | Successful Combat action only | Owner-settled: an active encounter receives no attack beat on Again. |
 | Prayer drain | Live Combat ticks only | Reconciled at `6 × M` immediate ticks with exact persisted counter state; Again grants no combat or Prayer-drain beat. |
 | Poison and poison immunity | Combat or successful safe-recovery ticks only | Current behavior (`logic_pure/logic_pure_combat_supplies.py:1470-1524`, `:4641`, `:5000`); reconcile with the active-encounter decision. |
-| Generic out-of-combat LP/stat/special recovery | Successful non-Combat review only | Current behavior (`__init__.py:5369-5370`, `logic_pure.py:4613-4648`); this unsourced convenience recovery does not fire on Again. Source-classified passive effects are separate world consumers and may heal on Again. |
+| Generic out-of-combat LP/stat/special recovery | Successful non-Combat review only | Current behavior (`__init__.py:5369-5370`, `ba2c5418:logic_pure.py:4613-4648`); this unsourced convenience recovery does not fire on Again. Source-classified passive effects are separate world consumers and may heal on Again. |
 | Agility boost and Surefooted budgets | Agility actions | Settled action budgets (`agility_logic.py:609-623`), despite older comments using review/hour pacing. |
 | Familiar passive healing and special-point recharge | Every answered card | Implemented as exact 6/25 and 6/50 short-duration residuals; passive benefits may resolve on Again. |
 

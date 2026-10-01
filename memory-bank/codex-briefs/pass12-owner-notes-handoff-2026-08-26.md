@@ -91,7 +91,7 @@ Owner ruling 2026-08-26 23:20: the 253-row curation ledger is grinding-queue
 work (design-thread-queue §5.21, kanban row), not a Pass 12 slice. Pass 12
 ships only the honest-stop cut.
 
-Root cause: `tools/generate_achievement_diary_data.py:1006-1027` converts a
+Root cause: `aa30c6f2:tools/generate_achievement_diary_data.py:1006-1027` converts a
 task's prerequisites into its completion condition. Probe counts on
 `a1c8fc90`: 474 named rows; 112 strict level-only proxies; 34 level+quest
 proxies; 3 mixed rows with real deed predicates; 22 anchors; 107 latent.
@@ -113,11 +113,11 @@ Honest-stop scope:
    §5.21 ledger wires one. They must not fire, and they must not block the
    Taskmaster incorrectly.
 3. Reference rewire, already evidenced: `falador_easy_chain_store` requires
-   the Wayne's Chains purchase (`logic/shop_logic.py:1730-1766` writer,
+   the Wayne's Chains purchase (`aa30c6f2:logic/shop_logic.py:1730-1766` writer,
    item 1107) plus body-slot equip; Defence 10 stays as an access gate only.
    This is the pattern the §5.21 ledger will follow.
 
-Fix sites: `tools/generate_achievement_diary_data.py:603-1027,1309-1317`,
+Fix sites: `aa30c6f2:tools/generate_achievement_diary_data.py:603-1027,1309-1317`,
 `data/achievement_diary_catalog.py` (generated), `core/logic.py:95-147`.
 Tests: `tests/test_achievement_diaries.py`,
 `tests/test_achievement_diaries_integration.py`; neighbours
@@ -177,7 +177,7 @@ fixtures at 2073-2153, `tests/test_herblore_data.py`, storage migration tests.
 
 Two stable Stronghold claim IDs delivered to Bank Claims on chest claim
 (`logic/stronghold_player_safety_logic.py:161-197`,
-`logic_pure/logic_pure_claims.py:201-286`, `data/quest_data.py:11579-11601`);
+`logic_pure/logic_pure_claims.py:201-286`, `aa30c6f2:data/quest_data.py:11579-11601`);
 derive remaining lamps from the claim records and retire `lamps_remaining`
 as a competing source of truth; migrate old counts 2/1/0 deterministically.
 Shared chooser `_choose_xp_lamp_skill(parent, title, eligible_skill_ids)`
