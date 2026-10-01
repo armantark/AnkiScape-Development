@@ -46,10 +46,6 @@ EOC = "2012-11-20T00:00:00Z"
 UA = "AnkiScape parity audit"
 
 
-class WikiAPIError(RuntimeError):
-    pass
-
-
 def _get(params):
     params = {**params, "format": "json"}
     url = API + "?" + urllib.parse.urlencode(params)
@@ -59,9 +55,7 @@ def _get(params):
             with urllib.request.urlopen(req, timeout=30) as resp:
                 data = json.load(resp)
             if error := data.get("error"):
-                code = error.get("code", "unknown")
-                info = error.get("info", "no details")
-                raise WikiAPIError(f"MediaWiki API {code}: {info}")
+                raise RuntimeError(f"MediaWiki API {error['code']}: {error['info']}")
             return data
         except (urllib.error.URLError, TimeoutError):
             if attempt == 2:
@@ -79,10 +73,7 @@ def _normalize_cutoff(before):
 def resolve(title, before):
     """Return (revid, timestamp, resolved_title) of the newest rev before cutoff."""
     if "|" in title:
-        raise ValueError(
-            "historical revision lookup accepts one title per cutoff lookup; "
-            "resolve each title separately"
-        )
+        raise ValueError("rvstart allows one title per lookup; resolve each title separately")
     data = _get({
         "action": "query",
         "prop": "revisions",
@@ -145,43 +136,40 @@ def main(argv=None):
     c.add_argument("--grep", help="only sections matching this regex")
 
     args = ap.parse_args(argv)
-    try:
-        if args.cmd == "resolve":
-            res = resolve(args.title, args.before)
-            if not res:
-                print(f"NOT FOUND: {args.title!r} before {args.before}", file=sys.stderr)
-                return 1
-            revid, ts, title = res
-            print(
-                f"title={title}\nrevid={revid}\ntimestamp={ts}\n"
-                f"url=https://runescape.wiki/w/"
-                f"{urllib.parse.quote(title.replace(' ', '_'))}?oldid={revid}"
-            )
-            return 0
 
-        if args.revid:
-            got = content_by_revid(args.revid)
-        elif args.title:
-            res = resolve(args.title, args.before)
-            if not res:
-                print(f"NOT FOUND: {args.title!r} before {args.before}", file=sys.stderr)
-                return 1
-            got = content_by_revid(res[0])
-        else:
-            print("content needs a title or --revid", file=sys.stderr)
-            return 2
-        if not got:
-            print("no content returned", file=sys.stderr)
+    if args.cmd == "resolve":
+        res = resolve(args.title, args.before)
+        if not res:
+            print(f"NOT FOUND: {args.title!r} before {args.before}", file=sys.stderr)
             return 1
-        text, ts, title = got
-        if args.grep:
-            text = _grep_sections(text, args.grep) or f"(no sections matched {args.grep!r})"
-        print(f"# {title}  (pre-EOC snapshot {ts})\n")
-        print(text)
+        revid, ts, title = res
+        print(
+            f"title={title}\nrevid={revid}\ntimestamp={ts}\n"
+            f"url=https://runescape.wiki/w/"
+            f"{urllib.parse.quote(title.replace(' ', '_'))}?oldid={revid}"
+        )
         return 0
-    except (ValueError, WikiAPIError) as exc:
-        print(f"error: {exc}", file=sys.stderr)
+
+    if args.revid:
+        got = content_by_revid(args.revid)
+    elif args.title:
+        res = resolve(args.title, args.before)
+        if not res:
+            print(f"NOT FOUND: {args.title!r} before {args.before}", file=sys.stderr)
+            return 1
+        got = content_by_revid(res[0])
+    else:
+        print("content needs a title or --revid", file=sys.stderr)
+        return 2
+    if not got:
+        print("no content returned", file=sys.stderr)
         return 1
+    text, ts, title = got
+    if args.grep:
+        text = _grep_sections(text, args.grep) or f"(no sections matched {args.grep!r})"
+    print(f"# {title}  (pre-EOC snapshot {ts})\n")
+    print(text)
+    return 0
 
 
 if __name__ == "__main__":
