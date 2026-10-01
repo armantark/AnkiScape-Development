@@ -41,7 +41,7 @@ area, with the code facts I've already confirmed.
   Simulated with att/str 10: dies in ONE burst every time, at tick 17–49 of 50,
   dealing the full 80. So it is NOT tanky — the leftover ~half-window is wasted.
 - **Chain-kill blocker:** the burst loop `break`s the instant `enemy_lp <= 0`
-  (logic_pure.py:3200) and clears the encounter (logic_pure.py:3251). No
+  (1b1157f7:logic_pure.py:3200) and clears the encounter (1b1157f7:logic_pure.py:3251). No
   respawn-and-continue. This is the single change for chain kills.
 - **Enemy LP is barely surfaced:** only in the post-review activity message
   "X damage dealt, Y LP left" (runtime_actions.py:737), and only when the enemy

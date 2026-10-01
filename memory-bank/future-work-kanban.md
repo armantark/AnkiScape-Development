@@ -108,7 +108,7 @@ Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
   widget tree also builds at open and only attaches behind a placeholder
   (`ui/ui.py:24794-24805,27139-27152`); Shop, Quests, Challenges, Achievements,
   Collections are truly deferred. Last measurement about 1.2 s per open on a
-  real save (`memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
+  real save (`66be9ee8:memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
   Target: under 300 ms click-to-visible on the owner's save, measured before
   and after with a profiling script against a copy of the save. Keep the
   fresh-dialog-per-open design; defer every tab including Bank.

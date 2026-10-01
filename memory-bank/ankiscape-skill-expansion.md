@@ -122,7 +122,7 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
   by `(1 − uptime)`; offensive prayers become effective-level multipliers
   scaled by uptime, applied pre-loop. Drain accrues per simulated tick at the
   authentic rate × uptime. Combat hooks: enemy damage
-  `logic_pure/logic_pure_combat_engine.py:2128-2198`; pre-loop accuracy and
+  `logic_pure/logic_pure_combat_engine.py:1596-1616`; pre-loop accuracy and
   maximum-hit setup `logic_pure/logic_pure_combat_engine.py:1394-1467`; per-tick
   loop `logic_pure/logic_pure_combat_engine.py:1417`.
 - **Uptime policy, not assumed 100%.** Toggle Off / Conservative 40% /

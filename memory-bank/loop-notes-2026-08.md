@@ -1417,7 +1417,7 @@ parents `3cbe114a3c43fd031f09fc5a5582c0d10a6a17cc` and
 `6c482e617ffbe1f803b2a17fb00fb74a0d07a305`. Two durable records on that branch
 instead name `26ccb2a4378f3968e2f255b5f34bddd8ffe889de` as the merge parent:
 
-- `memory-bank/activeContext.md:5027`
+- `6b5e41ac:memory-bank/activeContext.md:5027`
 - `memory-bank/source-audits/quest-jungle-potion-playable-2026-08-13.md:133`
 
 The reachability figures those records carry are still numerically valid,
@@ -1625,7 +1625,7 @@ delete the row, and never produce a value that merely looks right.
 `goal/secondaries-2026-08-11` looked self-refusing: its final commit subject is
 "Avoid merging the abandoned branch by recording the verified handoff". A
 read-only triage, then the orchestrator reading the record verbatim, both find
-the opposite. `memory-bank/handoffs/claude-handoff-2026-08-11-evening.md:17-20`
+the opposite. `3c05da03:memory-bank/handoffs/claude-handoff-2026-08-11-evening.md:17-20`
 says plainly:
 
 > The work started on `goal/grind-2026-08-11`. It moved to

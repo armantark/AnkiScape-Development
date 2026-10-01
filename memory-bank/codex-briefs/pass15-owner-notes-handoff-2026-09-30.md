@@ -151,7 +151,7 @@ Vinesweeper (`logic/vinesweeper_logic.py:121-131`) use the predicate too, and
 the tooltip "Carry a spade or add one to the tool belt before entering."
 (`ui/ui.py:10591`) goes. The Bank "Toolbelt" panel (`ui/ui.py:27161-27225`,
 rows from `bank_gear_rows_pure`) lists the belt tools by group, read-only,
-tooltip "Always on your tool belt." Pins: `tests/test_logic.py:8242-8255,8395,10947,7442,12401-12498`,
+tooltip "Always on your tool belt." Pins: `3feb597b:tests/test_logic.py:8242-8255,8395,10947,7442,12401-12498`,
 `tests/test_quest_catalog.py:1878,2118`, `tests/test_main_menu_widget.py:430-433,1415-1471`.
 
 ### S7 `shop-locks-and-purchase` (notes 7 and 8)

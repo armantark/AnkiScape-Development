@@ -15,7 +15,7 @@ The plain suite explicitly launches the Qt interpreter for its root-initializer 
 
 ## Supported static explanation
 
-`tools/module_surface.py:38` includes a function's `__module__` and `__qualname__`; `_normalize_function` at line 82 includes that qualified name plus its signature. `dump_module` at line 300 serializes every public binding. Re-exporting a function preserves the object; it does not restore the object's old defining-module metadata.
+`tools/module_surface.py:38` includes a function's `__module__` and `__qualname__`; `_normalize_function` at line 82 includes that qualified name plus its signature. `dump_module` at line 301 serializes every public binding. Re-exporting a function preserves the object; it does not restore the object's old defining-module metadata.
 
 AST and Git reads establish these exact moved public bindings:
 

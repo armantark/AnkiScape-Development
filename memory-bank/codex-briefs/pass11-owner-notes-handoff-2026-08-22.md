@@ -189,8 +189,8 @@ lands on Bankstanding.
 - Replace the button-only refresher (`__init__.py:1729-1738`) with one shared
   helper that refreshes the HUD and the button. Use it after manual strip
   requests (`__init__.py:1724-1733`), review completion
-  (`__init__.py:5764-5769`), direct GE actions (`__init__.py:2166-2177`), and
-  the reviewer-surface refresh (`__init__.py:5826-5841`). GE needs no route
+  (`16112e59:__init__.py:5764-5769`), direct GE actions (`16112e59:__init__.py:2166-2177`), and
+  the reviewer-surface refresh (`16112e59:__init__.py:5826-5841`). GE needs no route
   state of its own; it delegates through `_trigger_active_bank_run()`.
 - Adjacent fix (in scope): combat bank-run reviews currently fall through to
   the generic zero-damage message at

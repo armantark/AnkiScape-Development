@@ -50,9 +50,9 @@ pass.
   `target_id` and no `disengaged` flag. Weaker copies of the test exist at
   `logic_pure_combat_engine.py:1336-1395` and `core/target_metadata.py:1386-1472`.
 - Kill, death, flee, and exhausted enemy LP clear the record with
-  `data["combat_encounter"] = {}` (`logic_pure_combat_engine.py:2250-2277,
-  2340-2352`; `logic_pure_combat_model.py:825-881, 926-959, 2773-2840`).
-- The refusals live at `logic_pure_combat_engine.py:2676-2696`, messages
+  `data["combat_encounter"] = {}` (`66be9ee8:logic_pure/logic_pure_combat_engine.py:2250-2277,
+  2340-2352`; `66be9ee8:logic_pure/logic_pure_combat_model.py:840-896, 941-974, 2773-2840`).
+- The refusals live at `66be9ee8:logic_pure/logic_pure_combat_engine.py:2676-2696`, messages
   "Finish the active fight before changing combat method." and "Finish the
   active fight before changing supply mode." The UI shows them under the titles
   "Cannot change combat method" (`__init__.py:4800-4825`), "Cannot equip item",
@@ -74,7 +74,7 @@ pass.
 - The Level Up surface is `show_level_up_dialog` (`ui/ui.py:4513-4547`), a
   blocking custom `QDialog` with "OK". The diary dialogs queue during review
   and flush after it with `QTimer.singleShot(0, ...)` (`core/logic.py:81-113`;
-  `__init__.py:1522-1539, 5821-5829`).
+  `66be9ee8:__init__.py:1522-1539, 5821-5829`).
 - The review HUD shows "Kills: {kills} · Trains {trains}" and no assignment
   state (`ui/ui.py:2836-2883`).
 - Pace arithmetic at the owner's stats: 7.6 reviews per fresh black bear,

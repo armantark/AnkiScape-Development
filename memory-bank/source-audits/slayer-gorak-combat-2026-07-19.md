@@ -174,7 +174,7 @@ numeric tertiaries.
 ## Representation and context boundary
 
 Current Combat can apply a random-one stat drain inside missing-equipment and
-Vampyre-bite special cases (`logic_pure.py:4057-4101,8127-8186`). It does not
+Vampyre-bite special cases (`a78963f9:logic_pure.py:4057-4101,8127-8186`). It does not
 expose the equivalent as a generic on-damaging-hit enemy rule.
 
 Ordinary enemy damage is reduced by the matching protection prayer at

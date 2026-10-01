@@ -626,7 +626,7 @@ hide inside the audit.
   `['Deliver the strange talisman to Sedridor']`.
 - **Direct downstream blocks:** the Wicked hood claim inherits
   `ClaimDefinition.required_quest = RUNE_MYSTERIES_ID` from
-  `data/quest_data.py:1052` because its row at `data/quest_data.py:10244-10250`
+  `data/quest/contract.py:135` because its row at `data/quest/ledger.py:307-313`
   does not override the field; the `rune_essence` Mining target is gated by the
   quest at `data/quest/ledger.py:77`; and Lunar Diplomacy requires Rune Mysteries
   at `data/quest/definitions/members/lunar_diplomacy.py:53`, which in turn withholds its Lunar Spellbook and
@@ -2371,7 +2371,7 @@ block their drops.
 
 Commit `660fb870316643ac136692425e7133694c81ee3f` landed the generic path.
 `QuestCombatEncounter.guaranteed_drops` is serialized by
-`data/quest_data.py:942,10370`; `_quest_combat_enemy_spec` passes those drops to
+`data/quest/contract.py:24` and `data/quest/serializers.py:56`; `_quest_combat_enemy_spec` passes those drops to
 the ordinary combat contract at `logic_pure/logic_pure_quest.py:572-603`; and
 `tests/test_logic.py:8367-8417` proves that a real quest-combat kill places the
 guaranteed item in inventory.

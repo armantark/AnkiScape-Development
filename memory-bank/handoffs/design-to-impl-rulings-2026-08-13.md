@@ -3107,7 +3107,7 @@ counts as verified. Rulings:
 ### 52.1 Retraction and the measured slice — 10:42 PDT
 
 Ruling 52 item 4 is withdrawn. The citation `tools/worktree_guard.py:267513` was a
-line number in the unified diff, not the file, and resolves to file line 207; it is
+line number in the unified diff, not the file, and resolves to `7f692be2:tools/worktree_guard.py:207`; it is
 unusable for a reader, not fabricated. Both stray reviews mis-framed old code as
 new because their base was `@{upstream}`, which is `origin/main` at `1e99e017`, and
 this project never pushes, so "the diff" was 679 files and 214,796 insertions: the

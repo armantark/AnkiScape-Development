@@ -31,7 +31,7 @@ restore also rolls back every card, so it is not a game tool.
 The user interface (UI) entry point is two buttons, "Export game save…"
 and "Restore game save…".
 The recommended place is one "Game save" row at the bottom of the Settings
-tab, above Developer Mode (`ui/ui.py`, Settings tab near line 28173). Upstream
+tab, above Developer Mode (`ui/ui.py`, Settings tab near line 28083). Upstream
 uses the same place (Settings -> Advanced, `evolved/ui/settings.py:171-179` at upstream commit
 `97b79fb`).
 This changes an existing interface, so it needs owner approval (question 1).

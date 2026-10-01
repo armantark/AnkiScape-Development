@@ -670,7 +670,7 @@ The implementation should pin the following pages before settling disputed or un
 
 34. **Herblore Habitat**
     - Existing AS provenance records oldid `6513740`, dated 2012-10-31:
-      - `AS/memory-bank/source-audits/gap-grills-1-9-provenance-2026-07-10.md:42-50`
+      - `memory-bank/source-audits/gap-grills-1-9-provenance-2026-07-10.md:42-50`
     - This pin should prove the activity’s patch types and broad crop/Jadinko relationships, but crop-level tables may still need dedicated pins.
 
 35. **Vine flower patch**
@@ -732,7 +732,7 @@ Sources:
 - AS Herblore inputs: current Herblore data module.
 - AS reachability result: `AS/tools/audit_item_reachability.py --json`
 
-Farming alone would not complete the full juju-potion economy. The Herblore Habitat vine secondaries—corrupt vine, shadow vine, marble vine, plant teeth, aquatic vine, oily vine, draconic vine, Saradomin vine, Guthix vine, and Zamorak vine—are Jadinko rewards rather than farmed crops. For example, the juju farming potion needs an ugune potion (unf) plus marble vine; Farming can supply ugune, but marble vine still needs the Hunter/Jadinko side. Source: current AS Herblore data and `AS/memory-bank/source-audits/gap-grills-1-9-provenance-2026-07-10.md:42-50`.
+Farming alone would not complete the full juju-potion economy. The Herblore Habitat vine secondaries—corrupt vine, shadow vine, marble vine, plant teeth, aquatic vine, oily vine, draconic vine, Saradomin vine, Guthix vine, and Zamorak vine—are Jadinko rewards rather than farmed crops. For example, the juju farming potion needs an ugune potion (unf) plus marble vine; Farming can supply ugune, but marble vine still needs the Hunter/Jadinko side. Source: current AS Herblore data and `memory-bank/source-audits/gap-grills-1-9-provenance-2026-07-10.md:42-50`.
 
 Dungeoneering herbs remain a separate closed economy and should not be treated as supplied by overworld Farming merely because both are “herbs.” Source: AS Herblore data’s separate Dungeoneering herb and potion declarations.
 

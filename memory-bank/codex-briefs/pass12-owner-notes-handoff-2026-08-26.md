@@ -130,7 +130,7 @@ generator.
 
 `_switch_to_bankstanding()` (`__init__.py:1489-1505`) becomes the single
 post-acceptance transition seam with a true-transition guard. Call sites:
-`__init__.py:378-387,1477-1486,2395-2410,5889-5895`; direct-action path
+`aa30c6f2:__init__.py:378-387,1477-1486,2395-2410,5889-5895`; direct-action path
 `__init__.py:1019-1083`; manual Stop `__init__.py:4482-4505` stays silent.
 Automatic switches show a modal (achievement-popup style,
 `ui/ui.py:4565-4597` precedent) naming the reason; the modal fires after the
@@ -147,7 +147,7 @@ Keep ownership and drop crediting unchanged (`runtime_actions_combat.py:577-639`
 already folds retained loot into `carried_inventory` and banks at 28 slots).
 Move the read-only Current-inventory grid below both `auto_view` and
 `custom_view` (`ui/ui.py:25229-25684`); merge retained loot with
-`combat_supply_loadout_summary_pure()` (`logic_pure_combat_engine.py:2681-2694`)
+`combat_supply_loadout_summary_pure()` (`aa30c6f2:logic_pure/logic_pure_combat_engine.py:2681-2694`)
 for display; Bank and Equipment copies inherit from the shared builder.
 Never subtract carried quantities from Bank totals; never create a second
 ledger. Pin: death routes retained loot to the grave
@@ -218,7 +218,7 @@ stay unchanged; Shield of Arrav branch tests are the neighbour guard.
 
 Storage repair resolves the effective combat class on load; when no encounter
 is active and the persisted loadout is class-incompatible, unload it through
-the existing unload path (`logic_pure_combat_engine.py:2725-2735`), return
+the existing unload path (`aa30c6f2:logic_pure/logic_pure_combat_engine.py:2725-2735`), return
 exact quantities to the bank, and refill for the effective method. With an
 active saved encounter, leave the loadout untouched and reconcile on
 encounter end. Class-gate the summary projection as defense in depth.

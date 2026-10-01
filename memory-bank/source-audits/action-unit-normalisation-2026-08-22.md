@@ -16,7 +16,7 @@ The player-facing runtime does **not** reach that pouch ceiling. Standard Runecr
 
 ## Smithing
 
-At the default review-action multiplier of 1, one successful review applies exactly one selected recipe. `runtime/runtime_actions_production.py:1395-1500` calls `apply_smithing_action_pure` once; `logic_pure/logic_pure_smithing.py:350-386` deducts that recipe's requirements, adds its declared output quantity, and returns that recipe's XP for one award. The pure function explicitly defines this as “one source-shaped Smithing action”; the older entry point likewise says XP-bearing Smithing ignores recipe batch size (`logic_pure/logic_pure_smithing.py:275-298`). Examples from `data/smithing_data.py` are:
+At the default review-action multiplier of 1, one successful review applies exactly one selected recipe. `0d1b027c:runtime/runtime_actions_production.py:1395-1500` calls `apply_smithing_action_pure` once; `logic_pure/logic_pure_smithing.py:350-386` deducts that recipe's requirements, adds its declared output quantity, and returns that recipe's XP for one award. The pure function explicitly defines this as “one source-shaped Smithing action”; the older entry point likewise says XP-bearing Smithing ignores recipe batch size (`logic_pure/logic_pure_smithing.py:275-298`). Examples from `data/smithing_data.py` are:
 
 - one mithril-bar action consumes 1 mithril ore + 4 coal, produces 1 mithril bar, and pays 30 XP (`data/smithing_data.py:184-204`);
 - one mithril-dart-tip action consumes 1 mithril bar, produces 10 tips, and pays 50 XP (`data/smithing_data.py:2036-2055`); and
@@ -40,7 +40,7 @@ At multiplier 1, one successful review resolves one selected recipe. The handler
 
 ## Magic
 
-At multiplier 1, one successful review is one cast. `runtime/runtime_actions_magic.py:417-514` invokes `apply_magic_action_pure` once, increments `magic_actions_completed` by 1, and awards the returned Magic XP once. The pure function names its boundary “one ... noncombat cast” (`logic_pure/logic_pure_magic.py:376-398`): it consumes one cast's effective rune cost (staff-covered elemental runes are waived), consumes that spell's dynamic item requirements, applies the spell effect, and returns the spell's flat `exp` (`logic_pure/logic_pure_magic.py:398-552`).
+At multiplier 1, one successful review is one cast. `runtime/runtime_actions_magic.py:417-514` invokes `apply_magic_action_pure` once, increments `magic_actions_completed` by 1, and awards the returned Magic XP once. The pure function names its boundary “one ... noncombat cast” (`logic_pure/logic_pure_magic.py:376-398`): it consumes one cast's effective rune cost (staff-covered elemental runes are waived), consumes that spell's dynamic item requirements, applies the spell effect, and returns the spell's flat `exp` (`c90f1709:logic_pure/logic_pure_magic.py:398-547`).
 
 Spell effects do not redefine the action boundary. High Level Alchemy consumes one selected tradeable item and one cast's runes, produces coins, and pays 65 Magic XP (`data/magic_data.py:95`; `logic_pure/logic_pure_magic.py:411-415`). By contrast, inventory spells such as Humidify, Superglass Make, and String Jewellery affect their coded inventory batch in one cast while still paying one flat Magic XP award (`logic_pure/logic_pure_magic.py:433-472`; `data/magic_data.py:405-409`).
 

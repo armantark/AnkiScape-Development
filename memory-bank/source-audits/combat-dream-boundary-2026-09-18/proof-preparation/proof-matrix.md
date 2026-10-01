@@ -40,7 +40,7 @@ Pre-Dream audit for this fixture:
 
 Costs are `DREAM_COST = {"Astral rune": 2, "Cosmic rune": 1, "Body rune": 5}` at `data/magic_data.py:616`.
 
-Use ordinary `unittest` patterns already present in `tests/combat/test_magic_module.py:69-88`: `deepcopy` for no-write checks, `assertIs` for identity, `assertRaisesRegex` for raw failures, and `unittest.mock.patch.object(..., wraps=...)` for call-order observation. A focused test in the existing combat suite may import the engine module and call the private helper directly. This is not a new test framework.
+Use ordinary `unittest` patterns already present in `a8137bab:tests/combat/test_magic_module.py:69-88`: `deepcopy` for no-write checks, `assertIs` for identity, `assertRaisesRegex` for raw failures, and `unittest.mock.patch.object(..., wraps=...)` for call-order observation. A focused test in the existing combat suite may import the engine module and call the private helper directly. This is not a new test framework.
 
 ## Full-burst cases
 
