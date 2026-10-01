@@ -2843,3 +2843,41 @@ notes, the 2012 sources, and the existing contracts. Brief with fix sites:
 
 Owner notes 1, 3, 6, 7 and 10 change existing interfaces; each change is
 limited to what its note asks, and the note is the approval.
+
+### 4.29 Pass 15 follow-up — owner feedback of 2026-10-01 09:48
+
+The owner reviewed the Pass 15 results page. Verbatim notes:
+
+> To confirm, does this one actually show up as a normal combat fight UI, like when I select chickens, e.g.? Also for the toolbelt make it collapsible, it's supposed to just be an extra affordance so oyu're not left guessing what you do and don't have. Also, the stuff that's not on there by default (when you create your account in the real game) can be added to the toolbelt with a right-click option. The ones that can be added would be grayed out till added.
+> "Some steps still need a held tool" - for the spade example, it depends on the quest. Treasure trails you can in fact use the spade from your toolbelt, if you just rightclick the treasure scroll and click dig, but yeah, some quests (it's specific to the quest, and only a small %) will require you to actually have a separate tool in your inventory. You'll have to look that up down the line.
+> "Locked shops still open read-only" - yeah no just make it not selectable at all
+> "The HUD names the boss in a quest fight" - why not show both the quest name and the boss?
+> "Long locked rows clip" - give me a /prototype of this
+> "Combat chips line clips" - same here
+> Why are the other things "for later"? Because you found them on your own? I mean may as well change them if so
+
+Rulings (each note is its own UI approval):
+
+1. **Quest fights use the Combat card.** On main dd788d72 a quest boss fight
+   shows only the Quests card (`ReviewHUD.set_data()` picks the card by active
+   skill). A quest fight shows the ordinary Combat card: the boss, its LP bar,
+   the player's LP, and the chips, fed from the quest encounter.
+2. **Quest fight label.** The label shows the quest name and the boss name.
+3. **Tool belt panel.** The Bank Toolbelt panel collapses, and keeps its state.
+   Tools that a new 2012 account does not start with show greyed out until the
+   player adds them with a right-click action. Added tools persist in the save.
+   The 2012 start list and the add rule come from a pinned pre-cutoff source.
+4. **Spade digs.** Treasure Trails digs accept the belt spade. A quest dig needs
+   a real spade only where a pre-cutoff source says so; the rest accept the belt
+   spade. A dig that no source settles keeps its current rule and gets a kanban
+   card.
+5. **Locked shops.** A locked shop cannot be selected in the list or in search.
+   This replaces ruling 4.28.7's read-only browsing.
+6. **Prototypes.** The clipped long locked rows in the flat target list and the
+   clipped combat chips line each get a three-variant prototype for the owner.
+7. **Second-level items are in scope.** Phoenix Lair accepts belt tools; the
+   skill guide dims rows for every lock; Count Draynor loses 5 Strength and 5
+   Defence while the player holds garlic; the Spiked gauntlets price matches its
+   source; the Do No Evil and Fremennik Isles purchase proofs get their quest
+   side and the missing round-shield emitter; the 90 statless quest encounters
+   get source stats where a source exists.
