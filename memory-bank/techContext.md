@@ -47,14 +47,10 @@
   2026-08-10 and 2026-08-11. Single outputs reached `355.5 KB`, `758.3 KB`, and
   `610.4 KB`. First use `rg --files` to list exact paths. Then search only those
   paths through `tools/repo_search.py`.
-- Run focused product tests through the same MacBook runner. First collect on
-  the intended lane with `python3 tools/run_remote_tests.py "$PWD" plain
-  --collect-only --select tests/test_remote_test_host.py`, then repeat the same
-  `--select` arguments with its `Matching tests: N` as `--expected-tests N`.
-  Launch both commands as background tasks because the mirror-lock wait is
-  untimed. Each command tests its launch-time snapshot; rerun final verification
-  after any later intended edit. Exact count and zero skips are required, and
-  focused success never replaces full promotion checks.
+- Run focused product tests through the same MacBook runner. For example,
+  `python3 tools/run_remote_tests.py "$PWD" plain --select tests/test_remote_test_host.py --expected-tests 19`.
+  Repeat `--select` for additional selections. The exact count and zero skips
+  are required; focused success never replaces full promotion checks.
 - Inspect the pinned worktree pool with `python3 tools/worktree_guard.py status --json`.
   Return leases through the guard; it refuses gate markers and uncertain lease
   identity before detaching a checkout.

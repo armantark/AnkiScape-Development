@@ -170,12 +170,10 @@ neighbour check.
 
 **Focused-run count.** Take the `--expected-tests` value from a fresh
 `tools/run_remote_tests.py <worktree> <lane> --collect-only` run with the same
-repeated `--select` arguments. Its `Matching tests: N` comes from the synchronized
-MacBook tree and lane interpreter. Keep the tree and selectors unchanged before
-the execution run. N counts every discovered match, skipped tests too. The
-execution run also refuses any skip, which inventory cannot see, so drop from the
-selection every test that skips in the chosen lane: Qt-only tests on the plain
-lane, and any `@unittest.skip`, platform guard, or runtime `self.skipTest`.
+repeated `--select` arguments, as `README-tests.md` describes. N counts skipped
+tests too, and the execution run refuses any skip, so drop from the selection
+every test that skips in the chosen lane: Qt-only tests on the plain lane, and
+any `@unittest.skip`, platform guard, or runtime `self.skipTest`.
 
 Before launching a focused proof, put its inventory command and output, exact
 execution command, current revision and dirty-tree state, intended log path, and
