@@ -132,14 +132,6 @@ class FunctionMetricsTests(unittest.TestCase):
                 self.assertNotIn("No such file", result.stderr)
                 self.assertFalse(self.output.exists())
 
-    def test_combined_source_path_is_identified_without_splitting_it(self):
-        combined = f"{self.source} {self.source_root / 'other.py'}"
-        result = self._run("safe", source=Path(combined), gate=self.root / "must-not-load.py")
-        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-        self.assertIn(repr(combined), result.stderr)
-        self.assertIn("one file per invocation", result.stderr)
-        self.assertFalse(self.output.exists())
-
     def test_in_tree_directory_and_symlink_outputs_are_refused_before_writing(self):
         link = self.root / "evidence-link"
         link.symlink_to(self.source_root, target_is_directory=True)

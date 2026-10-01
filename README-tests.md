@@ -25,11 +25,10 @@ Each maintenance test checks its prerequisites and fails with the missing paths 
 
 Keep disposable baseline source and evidence in separate sibling directories. The output must name a file in an existing directory outside the measured source directory and all linked worktrees, except that an evidence directory under the common Git directory is allowed. Selecting one function still analyzes the full file, so run large-file measurements in the background.
 
-Pass function names as separate arguments. A zsh array preserves those boundaries without breaking paths that contain spaces:
+Pass the source once and each function name as a separate argument:
 
 ```sh
-functions=(run_answer_with_carried_overlay _winter_storage_rejected)
-/opt/homebrew/bin/python3 tools/maintenance/function_metrics.py --output /tmp/pass15-evidence/carried-overlay.json runtime/runtime_actions_carried_overlay.py "${functions[@]}"
+/opt/homebrew/bin/python3 tools/maintenance/function_metrics.py --output /tmp/pass15-evidence/carried-overlay.json runtime/runtime_actions_carried_overlay.py run_answer_with_carried_overlay _winter_storage_rejected
 ```
 
 ## How to run

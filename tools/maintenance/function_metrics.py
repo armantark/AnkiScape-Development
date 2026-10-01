@@ -161,10 +161,7 @@ def main() -> int:
     try:
         source, output = args.file.resolve(), args.output.resolve()
         if source.suffix != ".py" or not source.is_file():
-            raise ValueError(
-                "file must be one existing Python source pathname; "
-                f"got {str(args.file)!r}. Pass one file per invocation"
-            )
+            raise ValueError("file must be an existing Python source file")
         definitions = function_definitions(ast.parse(source.read_bytes()))
         validate_selection(args.functions, definitions)
         validate_output(source, output)
