@@ -95,6 +95,42 @@ class TestLiteralQuestMappings(unittest.TestCase):
                 else:
                     self.assertTrue(updated["quests"]["ghosts_ahoy"]["started"])
 
+    def test_do_no_evil_requires_monkey_madness(self):
+        quest_id = "do_no_evil"
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        for requirement in QUEST_DATA[quest_id]["required_skills"]:
+            player_data[f"{requirement['skill_id']}_level"] = requirement["level"]
+        prerequisite_ids = (
+            "garden_of_tranquillity",
+            "creature_of_fenkenstrain",
+            "monkey_madness",
+        )
+        player_data["quests"] = {
+            prerequisite_id: {
+                "started": True,
+                "progress": QUEST_DATA[prerequisite_id]["stages"],
+                "completed": prerequisite_id != "monkey_madness",
+            }
+            for prerequisite_id in prerequisite_ids
+        }
+
+        self.assertEqual(
+            quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA),
+            ("Monkey Madness",),
+        )
+        unchanged, started = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertFalse(started)
+        self.assertEqual(unchanged, player_data)
+
+        player_data["quests"]["monkey_madness"]["completed"] = True
+        self.assertEqual(
+            quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA),
+            (),
+        )
+        updated, started = start_quest_pure(player_data, quest_id, QUEST_DATA)
+        self.assertTrue(started)
+        self.assertTrue(updated["quests"][quest_id]["started"])
+
     def test_literal_quest_id_mappings_have_no_resolved_duplicate_keys(self):
         expected_keys_by_name = {
             name: set(getattr(quest_data, name))

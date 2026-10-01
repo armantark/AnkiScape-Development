@@ -20,6 +20,13 @@ QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]
         QuestPrerequisite(GOBLIN_DIPLOMACY_ID, "Goblin Diplomacy"),
         QuestPrerequisite(RUNE_MYSTERIES_ID, "Rune Mysteries"),
     ),
+    # Do No Evil oldid=6587790 expands Template:Questreq oldid=6552449,
+    # whose Freeing King Awowogei branch explicitly includes Monkey Madness.
+    "do_no_evil": (
+        QuestPrerequisite("garden_of_tranquillity", "Garden of Tranquillity"),
+        QuestPrerequisite("creature_of_fenkenstrain", "Creature of Fenkenstrain"),
+        QuestPrerequisite("monkey_madness", "Monkey Madness"),
+    ),
 }
 
 
