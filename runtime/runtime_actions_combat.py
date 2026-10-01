@@ -62,6 +62,8 @@ from ..logic_pure.logic_pure import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
+    combat_finisher_state_pure,
+    combat_hud_state_pure,
     apply_cooking_action_pure,
     apply_crafting_pure,
     apply_firemaking_action_pure,
@@ -447,6 +449,22 @@ def _apply_slayer_kill_credit(
     return new_data, slayer_result
 
 
+def _log_finisher_hold(ctx, display_name, finisher_was_ready) -> None:
+    """Say once, when the encounter first drops into finisher range and the
+    finisher will not fire by itself: the enemy cannot die without it, and the
+    HUD's amber line keeps saying so on later reviews."""
+    hud = combat_hud_state_pure(ctx.player_data)
+    finisher = hud["finisher"]
+    if finisher_was_ready or not finisher["ready"]:
+        return
+    if finisher["available"] and finisher["automatic"]:
+        return
+    ctx.show_activity_gain(
+        f"{display_name} at {finisher['enemy_lifepoints']} LP · "
+        f"{hud['finisher_notice']}"
+    )
+
+
 def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
@@ -512,6 +530,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     )
 
     active_prayer_selection = tuple(active_prayer_selection_pure(player_data))
+    finisher_was_ready = combat_finisher_state_pure(player_data, target_id)["ready"]
     using_finisher = player_data.get("combat_action") == "finisher"
     if using_finisher:
         new_data, ok, result = apply_combat_finisher_pure(
@@ -859,6 +878,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
             f"{healing_phrase}{dragonfire_suffix}"
         )
+    _log_finisher_hold(ctx, display_name, finisher_was_ready)
     clue_refusal_reason = str(result.get("clue_refusal_reason", ""))
     if clue_refusal_reason:
         ctx.show_activity_gain(clue_refusal_reason)

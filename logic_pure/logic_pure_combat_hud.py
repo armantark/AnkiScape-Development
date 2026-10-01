@@ -1,10 +1,13 @@
 """The combat HUD's health, prayer and summoning bars, last-fight summary and
-status line."""
+finisher text."""
 
 from typing import Mapping
 
+from .logic_pure_combat_finishers import (
+    combat_finisher_notice_pure,
+    combat_finisher_tooltip_pure,
+)
 from .logic_pure_combat_model import combat_max_lifepoints_pure
-from .logic_pure_combat_supplies import combat_status_summary_pure
 from .logic_pure_state import _non_negative_int, _positive_int
 
 
@@ -90,15 +93,10 @@ def _combat_hud_last_fight(player_data, target_id):
     }
 
 
-def _combat_hud_status(player_data, finisher):
-    """Poison status, followed by the finisher prompt once the target is low
-    enough for it."""
-    status = combat_status_summary_pure(player_data)
-    if not finisher["ready"]:
-        return status
-    finisher_status = (
-        f"Finisher ready: {finisher['action_label']}"
-        if finisher["available"]
-        else f"Finisher blocked: no loaded {finisher['item']}"
-    )
-    return f"{status} · {finisher_status}" if status else finisher_status
+def _combat_hud_finisher_text(finisher):
+    """The strip's finisher prompt, and the combat menu's tooltip for the
+    finisher option, which reads the same HUD state."""
+    return {
+        "finisher_notice": combat_finisher_notice_pure(finisher),
+        "finisher_tooltip": combat_finisher_tooltip_pure(finisher),
+    }

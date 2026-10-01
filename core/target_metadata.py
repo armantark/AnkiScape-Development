@@ -44,6 +44,7 @@ from ..logic_pure.logic_pure import (
     thieving_target_locked_reasons_pure,
 )
 
+from ..logic_pure.logic_pure_combat_finishers import combat_finisher_supply_pure
 from ..logic.agility_logic import agility_target_locked_reasons_pure
 from ..logic.skilling_boost_logic import skilling_effective_level_pure
 from ..logic.cooking_gauntlets_logic import cooking_gauntlets_worn_pure
@@ -1638,17 +1639,10 @@ def combat_target_rows(
             finisher = preview.get("finisher", {}) or {}
             finisher_line = ""
             if isinstance(finisher, Mapping) and finisher.get("required"):
-                if finisher.get("charged"):
-                    finisher_supply = (
-                        f"{finisher.get('charges', 0)} spray charges + "
-                        f"{finisher.get('reloads', 0)} canister reloads"
-                    )
-                else:
-                    finisher_supply = f"{finisher.get('item_count', 0)} loaded"
                 finisher_line = (
                     f"Finisher: {finisher.get('action_label')} at "
                     f"1–{finisher.get('threshold_lifepoints', 0)} LP · "
-                    f"{finisher_supply}\n"
+                    f"{combat_finisher_supply_pure(finisher)}\n"
                 )
             hazard = preview.get("environmental_hazard", {}) or {}
             hazard_line = ""

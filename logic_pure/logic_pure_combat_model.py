@@ -1936,6 +1936,7 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
             "charged": False,
             "charges": 0,
             "reloads": 0,
+            "worn": False,
         }
     item_name = str(finisher.get("item", "") or "")
     display_item = str(finisher.get("display_item", item_name) or item_name)
@@ -1953,23 +1954,21 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
         player_data, finisher
     )
     quick_unlock_key = str(finisher.get("quick_unlock_key", "") or "")
+    worn = bool(finisher.get("must_be_worn"))
     return {
         "required": True,
         "ready": ready,
         "available": ready and item_count > 0,
-        "automatic": bool(
-            quick_unlock_key and player_data.get(quick_unlock_key, False)
-        ),
+        "automatic": worn or bool(quick_unlock_key and player_data.get(quick_unlock_key)),
         "item": display_item,
         "item_count": item_count,
         "threshold_lifepoints": threshold,
-        "action_label": str(
-            finisher.get("action_label", f"Use {item_name}") or f"Use {item_name}"
-        ),
+        "action_label": str(finisher.get("action_label") or f"Use {item_name}"),
         "consumable": bool(finisher.get("consume", False)),
         "charged": bool(charge_items),
         "charges": charges,
         "reloads": reloads,
+        "worn": worn,
         "enemy_lifepoints": enemy_lifepoints,
     }
 

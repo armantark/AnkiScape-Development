@@ -22,6 +22,7 @@ you are in the game, with the date the change reached main.
 - [ ] With Prayer set to Off, your carried Prayer potions stay full. (2026-09-28)
 - [ ] After a quest fight, an ordinary fight still pulls you out when you run low with no food. (2026-09-28)
 - [ ] With a bow and the right supplies, a manual Ranged finishing blow goes through. (2026-09-28)
+- [ ] Fight a Gelatinous abomination without Spiked gauntlets on: when it drops to 1 LP the review strip shows "Wear Spiked gauntlets to finish" whole on an amber line, the event log says so once, and the combat target's hover reads "not worn". Put the gauntlets on and your next hit crushes it. (2026-09-30)
 - [ ] Above your max life points from a Tiger shark, eat a kebab or a beer: the extra life points stay. (2026-09-28)
 - [ ] A summoned Bunyip does not heal you inside Daemonheim, and heals you again once you leave. (2026-09-28)
 - [ ] A death in the red Clan Wars portal costs everything except the one item Protect Item saves. (2026-09-28)

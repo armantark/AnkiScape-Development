@@ -478,7 +478,7 @@ from .logic_pure_combat_hud import (
     _combat_hud_enemy_bar,
     _combat_hud_last_fight,
     _combat_hud_player_bars,
-    _combat_hud_status,
+    _combat_hud_finisher_text,
 )
 from .logic_pure_combat_risk import (
     _combat_preview_target_context,
@@ -2172,7 +2172,6 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
 
     last_fight = _combat_hud_last_fight(player_data, target_id)
     finisher = combat_finisher_state_pure(player_data, target_id, enemy_data)
-    status = _combat_hud_status(player_data, finisher)
     return {
         "combat_level": player_combat_level_pure(player_data),
         **player_bars,
@@ -2181,6 +2180,7 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
         "attack_style_name": str(style.get("display_name", style_id)),
         "trained_skills": combat_attack_style_trained_skills_pure(xp_style_id),
         **last_fight,
-        "status": status,
+        "status": combat_status_summary_pure(player_data),
+        **_combat_hud_finisher_text(finisher),
         "finisher": finisher,
     }
