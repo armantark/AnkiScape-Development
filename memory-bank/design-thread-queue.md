@@ -2804,3 +2804,42 @@ Normal regeneration (`python3 tools/generate_ge_period_data.py generated/grand_e
 The snapshot was built by running the generator's own parsers (`_price_row`, `_buy_limit_table`) over the branches' retained evidence, not by transcription: the crayfish `Exchange:Crayfish` API response (oldid 6570435) from `memory-bank/source-audits/crayfish-tradeability-source-2026-09-05/exchange-api-response.json` and the complete buy-limit table (oldid 6457777) from `memory-bank/source-audits/archery-ticket-tradeability-2026-09-05/global-buy-limits-oldid-6457777.json`, seeded with the rows already on main so the first offline run reproduced all 1441 existing rows plus the two new limits.
 
 Consequence to know: the snapshot is now authoritative for regeneration. A snapshot that is behind the wiki would silently produce stale generated data with no error, where the old live harvest would have picked up fresh rows. The guard is `tests/test_grand_exchange_data.py::GrandExchangeDataTest::test_offline_regeneration_preserves_all_committed_rows`, which regenerates twice with `harvest` patched to raise, asserts byte-identity between the two runs and against the committed module; if someone regenerates after editing the snapshot, that test pins what changed. Refreshing the snapshot itself is a deliberate `--harvest` act that will show up as a large, reviewable diff.
+
+### 4.28 Pass 15 — rulings of 2026-09-30 22:15
+
+Owner notes of 2026-09-15 to 2026-09-30 (`~/Downloads/ankiscape notes.rtfd`,
+Pass 15, ten notes, four images). Six read-only Opus fact-finders checked each
+note against main `9ba05589`. The owner asked for Opus 5.5 as the main author
+and did not grill; the orchestrator seat made the rulings below from the
+notes, the 2012 sources, and the existing contracts. Brief with fix sites:
+`memory-bank/codex-briefs/pass15-owner-notes-handoff-2026-09-30.md`.
+
+1. **Finisher notice.** A worn finisher says "Wear Spiked gauntlets to
+   finish", on its own amber line that fits the review HUD card; the event log
+   records once per encounter that the enemy was held at 1 LP. Period source:
+   Gelatinous abomination oldid 6079671 ("The gauntlets must be worn").
+2. **Bank trip and target switch.** A target switch cancels a pending bank
+   trip request for another target. The latest command wins.
+3. **Fishing levels.** The skill guide shows one row per fish at its own
+   level. Slimy eel is level 28; the eel and frog spawn spots match 2012.
+4. **Silverlight and quest fights.** Every equippable quest reward is
+   wearable. Quest fights in live pacing take the ordinary ticks per review,
+   so a boss fight spans reviews. Delrith takes damage only from a wielded
+   Silverlight. The HUD names the boss during a quest fight.
+5. **Barcrawl.** Ten automatic stages, one per bar, each paying its 2012 price;
+   the shop drink rows and purchase proofs go. A quest-blocked dialog lists one
+   reason per line.
+6. **Tool belt.** The 2012 tool belt list is one constant; every listed tool
+   except pickaxe and hatchet counts as present for quests, Farming and
+   Vinesweeper, without ownership, as skills already assume. Consumed tools
+   and the period exceptions stay item-based. The Bank Toolbelt panel lists
+   the belt tools.
+7. **Locked shops.** Any shop locked against the save sorts last in the list
+   and in search, dims, and names its reason; it still opens read-only.
+8. **Purchase confirmation.** A green chip under the Buy controls, amber for a
+   refusal, hidden after 4 seconds. Owner approval by name for Opus 5.5.
+9. **Skill target search.** Every Skills-tab target list gets the Combat
+   search bar through one shared helper.
+
+Owner notes 1, 3, 6, 7 and 10 change existing interfaces; each change is
+limited to what its note asks, and the note is the approval.
