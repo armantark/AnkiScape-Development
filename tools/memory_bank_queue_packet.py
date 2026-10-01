@@ -386,14 +386,9 @@ def _render(
         "",
         "## Operator search guidance",
         (
-            "- Discover filenames before targeted reads with "
-            "`python3 tools/repo_search.py PATTERN ROOT --names` or `rg --files ROOT`; "
-            "pass existing directory roots, not optional shell globs."
-        ),
-        (
-            "- Search contents through `tools/repo_search.py`. Add "
-            "`--include-large --max-columns 300` only for generated catalogs, and put "
-            "`--` before patterns that begin with `--`."
+            "- Discover filenames with `python3 tools/repo_search.py PATTERN ROOT --names` "
+            "or `rg --files ROOT` before targeted reads, and search contents with the same "
+            "tool instead of raw grep or shell globs; its --help covers generated catalogs."
         ),
         "",
         "Roots:",

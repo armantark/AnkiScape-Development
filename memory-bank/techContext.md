@@ -41,10 +41,8 @@
 
 - Discover moved files without shell globs with `python3 tools/repo_search.py
   'cadence|clock' logic memory-bank --names`. Search contents through the same
-  tool; it caps results and columns and excludes giant generated/archive files.
-  For a deliberate catalog search, use `python3 tools/repo_search.py
-  --include-large --max-columns 300 'wilderness' data/shop_data.py`; put `--`
-  before a positional pattern that begins with `--`.
+  tool; it caps results and columns and excludes giant generated/archive files
+  unless `--include-large` is explicit.
 - Broad tree searches ended four agents through context exhaustion on
   2026-08-10 and 2026-08-11. Single outputs reached `355.5 KB`, `758.3 KB`, and
   `610.4 KB`. First use `rg --files` to list exact paths. Then search only those

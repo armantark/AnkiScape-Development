@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Run bounded repository searches without shell globs or giant generated files."""
+"""Run bounded repository searches without shell globs or giant generated files.
+
+For a deliberate generated-catalog search, add `--include-large --max-columns 300`;
+long rows print as a bounded preview. Put `--` before a pattern that begins with `--`.
+"""
 
 from __future__ import annotations
 
