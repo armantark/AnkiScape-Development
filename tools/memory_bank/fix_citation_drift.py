@@ -178,8 +178,8 @@ def _consistent(report: dict, tree: Tree, candidates: list[tuple[dict, Fix]]) ->
 
 def _editable(row: dict) -> bool:
     """An actionable audit row: structural drift measured against history."""
-    authoritative = row["source"] == "repository" or row["source"].startswith("external:")
-    return row["status"] in STRUCTURAL and authoritative
+    source = row["source"] or ""
+    return row["status"] in STRUCTURAL and (source == "repository" or source.startswith("external:"))
 
 
 def plan(root: Path, report: dict, skip: frozenset[str]) -> tuple[list[Fix], list[dict]]:
