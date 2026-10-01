@@ -375,7 +375,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     add_parser.add_argument("branch")
     add_parser.add_argument("--name")
     add_parser.add_argument("--start-point", default="main")
-    lease_parser = subparsers.add_parser("lease")
+    lease_parser = subparsers.add_parser(
+        "lease",
+        description=(
+            "The final stdout line is always JSON containing path, lease_id, and branch; "
+            "omit --json."
+        ),
+    )
     lease_parser.add_argument("branch")
     lease_parser.add_argument("--holder")
     lease_parser.add_argument("--start-point", default="main")
