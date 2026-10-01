@@ -5,6 +5,7 @@ from typing import Iterable, Mapping, Optional
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 from ..data.soul_wars_data import SOUL_WARS_ZEAL_CAP
 from ..core.skill_registry import get_skill, trainable_skill_definitions
+from ..core.tool_belt import tool_on_belt
 
 from ..logic.treasure_trails_logic import clue_refusal_reason_pure, filter_clue_scroll_outputs_pure
 
@@ -432,33 +433,21 @@ def _quest_combat_remaining_count(player_data, quest_id, encounter_id, encounter
     return max(0, quantity - _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter))
 
 
+_GENERIC_TOOL_SUFFIXES = {"pickaxe": ("pickaxe",), "hatchet": ("hatchet", " axe"), "axe": ("hatchet", " axe")}
+
+
 def _has_quest_tool(player_data, tool_name, amount):
     inventory = player_data.get("inventory", {}) or {}
-    if inventory.get(tool_name, 0) >= amount:
+    # The belt holds one of each tool; a stage asking for several wants stock.
+    if inventory.get(tool_name, 0) >= amount or (amount == 1 and tool_on_belt(player_data, tool_name)):
         return True
     equipment = player_data.get("equipment", {}) or {}
     if isinstance(equipment, Mapping) and tool_name in {str(item_name) for item_name in equipment.values()}:
         return True
-    lowered = tool_name.lower()
-    toolbelt = player_data.get("toolbelt", {}) or {}
-    if lowered == "pickaxe":
-        mining_tools = toolbelt.get("mining", ()) if isinstance(toolbelt, Mapping) else ()
-        if isinstance(mining_tools, str):
-            mining_tools = (mining_tools,)
-        if isinstance(mining_tools, Iterable) and any(str(tool) for tool in mining_tools):
-            return True
-        return any(str(name).lower().endswith("pickaxe") and count >= amount for name, count in inventory.items())
-    if lowered in {"hatchet", "axe"}:
-        woodcutting_tools = toolbelt.get("woodcutting", ()) if isinstance(toolbelt, Mapping) else ()
-        if isinstance(woodcutting_tools, str):
-            woodcutting_tools = (woodcutting_tools,)
-        if isinstance(woodcutting_tools, Iterable) and any(str(tool) for tool in woodcutting_tools):
-            return True
-        return any(
-            (str(name).lower().endswith("hatchet") or str(name).lower().endswith(" axe")) and count >= amount
-            for name, count in inventory.items()
-        )
-    return False
+    suffixes = _GENERIC_TOOL_SUFFIXES.get(tool_name.lower())
+    return bool(suffixes) and any(
+        str(name).lower().endswith(suffixes) and count >= amount for name, count in inventory.items()
+    )
 
 
 def _quest_blocker(stage, kind, reason, source="", **extra):

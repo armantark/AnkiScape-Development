@@ -10557,11 +10557,6 @@ def show_main_menu(
             vinesweeper_primary.setEnabled(
                 on_vinesweeper_command is not None and (active or has_spade)
             )
-            vinesweeper_primary.setToolTip(
-                ""
-                if active or has_spade
-                else "Carry a spade or add one to the tool belt before entering."
-            )
 
             reward_id = str(vinesweeper_reward.currentData() or "")
             reward = next(
@@ -27131,71 +27126,17 @@ def show_main_menu(
     bk_layout.addWidget(death_office_box)
     bk_layout.addWidget(claims_box)
 
-    # Gear sits in its own pinned panel below the scrollable, striped inventory
-    # (the owner wanted it "outside the striped window"). The toolbelt changes
-    # only through the explicit Bank attach action. Worn equipment now has its
-    # own dedicated Equipment tab, so the Bank panel is toolbelt-only.
-    gear_list = QListWidget()
-    gear_list.setObjectName("gearList")
-    gear_list.setIconSize(QSize(28, 28))
-    gear_list.setAlternatingRowColors(False)
-    gear_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
-    gear_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-    gear_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    from .ui_tool_belt import build_bank_tool_belt_panel
 
-    def _add_gear_row(text: str, item_name: str) -> None:
-        li = QListWidgetItem(text)
-        definition = _item_def_for(item_name)
-        asset_path = definition.asset_path if definition is not None else None
-        icon_path = _bank_icon_path(item_name, asset_path)
-        if icon_path:
-            li.setIcon(QIcon(icon_path))
-        li.setFlags(Qt.ItemFlag.ItemIsEnabled)
-        li.setData(Qt.ItemDataRole.UserRole, "__gear__")
-        gear_list.addItem(li)
-
-    def _populate_bank_gear_list() -> None:
-        gear_list.clear()
-        gear = bank_gear_rows_pure(
-            player_data,
-            MINING_PICKAXE_DATA,
-            WOODCUTTING_AXE_DATA,
-            MINING_BONUS_ITEM_DATA,
-        )
-        gear_list.addItem(_make_header_item("Toolbelt", "__gear_header__"))
-        if gear["toolbelt"]:
-            for slot_label, display_name in gear["toolbelt"]:
-                _add_gear_row(f"{slot_label}: {display_name}", display_name)
-        else:
-            empty_tb = QListWidgetItem("No tools yet.")
-            empty_tb.setFlags(Qt.ItemFlag.NoItemFlags)
-            empty_tb.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
-            gear_list.addItem(empty_tb)
-        # Attached upgrades stay visible even while their use level is blocked.
-        for slot_label, display_name, skill_label, required_level in gear["toolbelt_blocked"]:
-            blocked = QListWidgetItem(f"{display_name} — needs {skill_label} {required_level}")
-            blocked.setToolTip(
-                f"This {slot_label.lower()} is attached, but it needs {skill_label} level "
-                f"{required_level} before it becomes active."
-            )
-            blocked.setForeground(dim_text_color(gear_list))
-            blocked.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            blocked.setData(Qt.ItemDataRole.UserRole, "__gear_blocked__")
-            gear_list.addItem(blocked)
-
-        # Hug contents so the panel is a fixed strip, never its own scroller.
-        gear_height = 2 * gear_list.frameWidth() + 6
-        for row_index in range(gear_list.count()):
-            row_height = gear_list.sizeHintForRow(row_index)
-            gear_height += row_height if row_height > 0 else 30
-        gear_list.setFixedHeight(gear_height)
-
-    gear_hint = QLabel("Right-click a Bank hatchet or pickaxe to attach it to the toolbelt.")
-    gear_hint.setObjectName("toolbeltAttachHint")
-    gear_hint.setWordWrap(True)
-    gear_hint.setStyleSheet(f"color: {dim_text_css(gear_hint)}; font-size: 10px;")
+    gear_hint, gear_panel, _populate_bank_gear_list = build_bank_tool_belt_panel(
+        lambda: bank_gear_rows_pure(
+            player_data, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA
+        ),
+        _make_header_item,
+        _item_icon_path,
+    )
     bk_layout.addWidget(gear_hint)
-    bk_layout.addWidget(gear_list)
+    bk_layout.addWidget(gear_panel)
     _equipment_refreshers.append(_populate_bank_gear_list)
 
     def _build_bank_tab(_ctx) -> QWidget:

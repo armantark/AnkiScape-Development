@@ -455,6 +455,7 @@ from .logic_pure_magic import (
 from .logic_pure_equipment import (
     _equipment_bonus_value,
     _equipment_value,
+    always_on_belt_groups_pure,
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
     equipment_stat_totals_pure,
@@ -1849,16 +1850,17 @@ def _blocked_toolbelt_rows(label, skill_label, skill_level, bound_ids, tool_data
 
 
 def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
-    """Read-only Bank summary of explicitly attached and worn gear.
+    """Read-only Bank summary of the tool belt.
 
     Buying or looting a better gathering tool leaves it in the Bank. The active
     row changes only after the player uses the Bank's attach action. Attached
     tools above the player's level remain visible in ``toolbelt_blocked`` while
-    the best usable attached tool stays active.
+    the best usable attached tool stays active. Every other 2012 belt tool is
+    always present and listed by its belt group.
 
     Returns {"toolbelt": [(label, display_name), ...],
              "toolbelt_blocked": [(label, display_name, skill_label, level), ...],
-             "equipped": [(slot, display_name), ...]}.
+             "belt_groups": ((group, (tool_name, ...)), ...)}.
     """
     inventory = player_data.get("inventory", {}) or {}
     toolbelt = player_data.get("toolbelt", {}) or {}
@@ -1889,16 +1891,10 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
             )
         )
 
-    equipped_rows: list = []
-    equipment = player_data.get("equipment", {}) or {}
-    if isinstance(equipment, Mapping):
-        for slot, item_name in equipment.items():
-            if isinstance(slot, str) and isinstance(item_name, str):
-                equipped_rows.append((slot, item_name))
     return {
         "toolbelt": toolbelt_rows,
         "toolbelt_blocked": blocked_rows,
-        "equipped": equipped_rows,
+        "belt_groups": always_on_belt_groups_pure(),
     }
 
 

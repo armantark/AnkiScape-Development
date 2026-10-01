@@ -9429,10 +9429,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = (
-            "Blocked: Needs Chocolate dust x1, Needs Snape grass x1, "
-            "Needs Pestle and mortar"
-        )
+        # The pestle and mortar is on the tool belt, so only the ingredients block.
+        expected = "Blocked: Needs Chocolate dust x1, Needs Snape grass x1"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_plague_city")
         self.assertIsNotNone(action)

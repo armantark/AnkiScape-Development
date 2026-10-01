@@ -12,6 +12,7 @@ from .stage_additions import *
 from .stage_cleanups import *
 from .combat_replacements import *
 from .combat_relocation import relocate_combat_encounters as _relocate_combat_encounters
+from ...core.tool_belt import ALWAYS_ON_TOOL_BELT, QUEST_STAGES_NEEDING_HELD_TOOLS
 
 _STAGE_COUNT_BY_LENGTH = {
     "Short": 3,
@@ -532,6 +533,36 @@ def _apply_stage_requirement_cleanups(
     return _relocate_combat_encounters(quest_id, tuple(rows) if changed else requirements)
 
 
+def _apply_tool_belt(
+    quest_id: str,
+    requirements: Tuple[QuestStageRequirement, ...],
+) -> Tuple[QuestStageRequirement, ...]:
+    """Keep ``required_inventory`` for tools that must be held and ``required_tools`` for belt tools."""
+    rows = []
+    for requirement in requirements:
+        held = QUEST_STAGES_NEEDING_HELD_TOOLS.get((quest_id, requirement.stage), ())
+        to_belt = tuple(
+            (name, amount)
+            for name, amount in requirement.required_inventory
+            if name in ALWAYS_ON_TOOL_BELT and amount == 1 and name not in held
+        )
+        to_held = tuple((name, amount) for name, amount in requirement.required_tools if name in held)
+        rows.append(
+            replace(
+                requirement,
+                required_inventory=_append_stage_item_pairs(
+                    _remove_stage_item_names(requirement.required_inventory, tuple(name for name, _ in to_belt)),
+                    to_held,
+                ),
+                required_tools=_append_stage_item_pairs(
+                    _remove_stage_item_names(requirement.required_tools, held),
+                    to_belt,
+                ),
+            )
+        )
+    return tuple(rows)
+
+
 def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object]) -> QuestDefinition:
     replacements = QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID.get(quest.id)
     if replacements is not None:
@@ -542,14 +573,17 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
         base = _catalog_stage_requirements(row.get("stage_requirements", ()))
 
     additions = QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID.get(quest.id, ())
-    requirements = _apply_stage_item_name_overrides(
-        _apply_combat_encounter_replacements(
-            quest.id,
-            _apply_stage_requirement_cleanups(
+    requirements = _apply_tool_belt(
+        quest.id,
+        _apply_stage_item_name_overrides(
+            _apply_combat_encounter_replacements(
                 quest.id,
-                _dedupe_stage_requirements((*base, *additions)),
-            ),
-        )
+                _apply_stage_requirement_cleanups(
+                    quest.id,
+                    _dedupe_stage_requirements((*base, *additions)),
+                ),
+            )
+        ),
     )
     max_requirement_stage = max((requirement.stage for requirement in requirements), default=0)
     configured_stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, quest.stages)

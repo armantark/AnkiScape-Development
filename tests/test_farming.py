@@ -1631,8 +1631,6 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertTrue(ok)
         mature, _ = advance_farm_clock_pure(bush, 17, lambda: 1.0)
         variants = {}
-        variants["missing Spade"] = copy.deepcopy(mature)
-        variants["missing Spade"]["inventory"]["Spade"] = 0
         variants["immature crop"] = copy.deepcopy(bush)
         variants["diseased crop"] = copy.deepcopy(mature)
         variants["diseased crop"]["farm_patches"]["champions_bush"]["diseased"] = True
@@ -2131,15 +2129,15 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertEqual(info["woodcutting_xp"], 202.0)
         self.assertEqual(finished["current_combat_target"], "chicken")
 
-    def test_harvest_and_clear_require_spade_and_scarecrow_can_be_removed(self):
+    def test_belt_tools_harvest_plant_and_clear_with_none_in_the_bank(self):
         ready, _ = advance_farm_clock_pure(_plant_ready(_state()), 7, lambda: 1.0)
         ready["inventory"].pop("Spade", None)
-        unchanged, ok, _ = execute_farm_field_step_pure(ready, {"kind": "harvest", "patch_id": "falador_allotment_north"})
-        self.assertFalse(ok)
-        self.assertEqual(unchanged["inventory"].get("Potato", 0), 0)
+        harvested, ok, _ = execute_farm_field_step_pure(ready, {"kind": "harvest", "patch_id": "falador_allotment_north"})
+        self.assertTrue(ok)
+        self.assertGreater(harvested["inventory"].get("Potato", 0), 0)
 
         scarecrow = _state()
-        scarecrow["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Scarecrow": 1})
+        scarecrow["inventory"].update({"Scarecrow": 1})
         scarecrow, ok, _ = execute_farm_field_step_pure(scarecrow, {"kind": "plant", "patch_id": "falador_flower", "crop_id": "scarecrow"})
         self.assertTrue(ok)
         scarecrow, ok, info = execute_farm_field_step_pure(scarecrow, {"kind": "clear", "patch_id": "falador_flower"})
