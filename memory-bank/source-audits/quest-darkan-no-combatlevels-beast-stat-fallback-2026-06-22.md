@@ -92,5 +92,5 @@ parser_or_variant_level: 27
 
 - `python3 -m unittest tests.test_quest_catalog.TestQuestCatalog.test_generated_catalog_stage_requirements_cover_items_and_combat`
 - `python3 -m unittest tests.test_logic.TestLogic.test_no_combat_levels_beast_stat_fight_is_resolver_ready`
-- `python3 -m unittest tests.test_quest_combat_stat_gap_audit.TestQuestCombatStatGapAudit.test_gap_classification_summary_matches_current_catalog_debt`
+- `TestQuestCombatStatGapAudit.test_gap_classification_summary_matches_current_catalog_debt` in `tests/test_quest_combat_stat_gap_audit.py` (removed in bd5103f6, which replaced the pinned gap counts with a recorded source block per statless encounter)
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_no_combat_levels_beast_stat_gate_selection`

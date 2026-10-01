@@ -111,8 +111,8 @@ definitions.
   and contains no placeholder objective.
 - `tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`
   protects both quest-item assets through the canonical registry.
-- `tests.test_quest_combat_stat_gap_audit.TestQuestCombatStatGapAudit.test_gap_classification_summary_matches_current_catalog_debt`
-  records the debt reduction from 103 to 102 statless encounters.
+- `TestQuestCombatStatGapAudit.test_gap_classification_summary_matches_current_catalog_debt` in
+  `tests/test_quest_combat_stat_gap_audit.py` (removed in bd5103f6) recorded the debt reduction from 103 to 102 statless encounters.
 
 ## Manual Anki smoke
 
