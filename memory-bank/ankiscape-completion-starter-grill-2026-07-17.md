@@ -200,7 +200,7 @@ The source-shaped constraints are already clear:
   (`memory-bank/dungeoneering-product-decision-deferred-2026-07-13.md:8-27`).
 - Floors combine rooms, keys, skill checks, combat, deaths, binds, complexity,
   prestige, tokens, rewards, and resumability
-  (`memory-bank/future-work-kanban.md:832-836`).
+  (`memory-bank/future-work-kanban.md:835-839`).
 - Dungeoneering is late because it depends on every skill and Combat, not
   because those mechanics can be flattened away.
 

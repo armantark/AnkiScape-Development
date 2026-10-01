@@ -183,12 +183,12 @@ The art correction also has no open art row.
 
 The other section 5 premises still hold at this checkpoint.
 `COMBAT_ENEMY_DATA` still records 130 enemies at
-`memory-bank/future-work-kanban.md:929`.
+`memory-bank/future-work-kanban.md:932`.
 Daily Challenge XP remains registered at
 `memory-bank/placeholder-values.md:74`.
 The placeholder register has 179 rows.
 Chaeldar remains at 25 of 34 families at
-`memory-bank/future-work-kanban.md:362`.
+`memory-bank/future-work-kanban.md:365`.
 The Dungeoneering floor XP curve remains registered at
 `memory-bank/placeholder-values.md:194`.
 
@@ -647,7 +647,7 @@ registered source-blocked placeholder, and
 makes the key obtainable; it does not license touching those weights.
 
 The queue order is already recorded and this thread must follow it rather than
-re-derive one. `memory-bank/future-work-kanban.md:658-664` and
+re-derive one. `memory-bank/future-work-kanban.md:661-667` and
 `memory-bank/archive/progress-2026-05-to-08.md:10441-10443` both give the same sequence: repair Jungle Potion's
 generated stage buttons, then Big Chompy Bird Hunting, Zogre Flesh Eaters, Rum Deal and
 Cabin Fever, and only then the Mos Le'Harmless, Cave horror, Black mask and
