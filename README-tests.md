@@ -93,6 +93,14 @@ summary. This read-only extraction works for green and red unittest logs:
 /opt/homebrew/bin/python3 -c 'import re, sys; from pathlib import Path; text = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace"); matches = list(re.finditer(r"^Ran \d+ tests? in .+$\n\n?(?:OK(?: \(skipped=\d+\))?|FAILED \(.+\))$", text, re.MULTILINE)); print(matches[-1].group(0) if matches else "no complete outer summary")' /absolute/path/to/raw-test.log
 ```
 
+Launch long local probes and audit sequences directly as Bash background tasks,
+and treat only that task's completion notification as done. A `pgrep -f` waiter
+matches its own command line, and a log file appearing is not completion. When a
+foreground timeout moves a command to the background, monitor that task instead
+of relaunching it. Long disposable comparators print a flushed progress line at
+a fixed case interval, with the case index or replay seed and the completed
+count, so a live log shows progress and an interrupted run names its last case.
+
 Run the full real Qt suite separately through the checked-in environment:
 
 ```
