@@ -11,9 +11,11 @@ Each line is an entry of `memory-bank/papercuts.md`, copied exactly. Naming
 entries by text rather than line number means a plan written before another
 move finished still moves the entries it names, or refuses if they are gone.
 Each section is appended to the destination as `## heading`, its disposition
-and evidence, then its lines in their order in `papercuts.md`. Evidence cites
+and evidence, then its lines in their order in `papercuts.md`. The disposition
+is `fixed`, `duplicate`, `wont_fix` or `record_only`. For `fixed`, evidence cites
 the repair of the cause; task completion, interruption, or a workaround is not
-evidence, and a section without evidence is refused. Nothing is
+evidence. For the others it names the surviving entry or the reason the entry
+closes unrepaired. A section without evidence is refused. Nothing is
 written unless the result passes the same proof as `check`, and both files
 are staged in full before either is replaced, so a failed write loses nothing.
 Moves run one at a time: a second move waits until the first has finished.
@@ -100,8 +102,8 @@ def _choose(source: Sequence[str], entry: str, chosen: set[int]) -> int:
 
 def _closure_note(section: dict) -> str:
     disposition, evidence = section.get("disposition"), section.get("evidence")
-    if disposition not in {"fixed", "duplicate"}:
-        raise SystemExit("each move section requires disposition 'fixed' or 'duplicate'")
+    if disposition not in {"fixed", "duplicate", "wont_fix", "record_only"}:
+        raise SystemExit("each move section requires disposition 'fixed', 'duplicate', 'wont_fix' or 'record_only'")
     if not isinstance(evidence, str) or not evidence.strip():
         raise SystemExit(f"{disposition} disposition requires non-empty evidence")
     return f"Disposition: {disposition}.\n\nEvidence: {evidence.strip()}"
