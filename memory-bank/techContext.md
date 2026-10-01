@@ -243,7 +243,7 @@ regenerate in memory, compare bytes with every file a write would touch
 `OUTPUT_CHECK: <n> of <m> files unchanged`, and exit 1 on any difference.
 Cite that line and exit code as the proof.
 
-Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure/logic_pure.py` adapt them to Anki review cadence.
+Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure/logic_pure_gathering.py` adapt them to Anki review cadence.
 
 Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
 
@@ -264,7 +264,7 @@ Firemaking data lives in `data/firemaking_data.py`, with the audit at
 local-2011Scape burnable targets, stable target IDs, input item IDs, source XP,
 `Ashes` output metadata, raw source low/high lighting odds, and explicit
 deferred bonfire/fire-spirit notes. Runtime review behavior adapts the source
-lighting roll in `logic_pure/logic_pure.py`; storage config version 12 adds
+lighting roll in `logic_pure/logic_pure_production.py`; storage config version 12 adds
 `firemaking_level`, `firemaking_exp`, and `current_firemaking`.
 
 Runecrafting data lives in `data/runecrafting_data.py`, with the audit at
@@ -272,7 +272,7 @@ Runecrafting data lives in `data/runecrafting_data.py`, with the audit at
 standard rune, combination rune, tiara binding, pouch, and Wicked hood feed
 metadata from the local 2011Scape Runecrafting source. `data/quest/definitions/free/rune_mysteries.py`
 stores Rune Mysteries, and `data/quest/ledger.py` stores the one-time Wicked hood claim. Runtime review behavior
-lives in `logic_pure/logic_pure.py`; storage config version 15 adds
+lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
 `runecrafting_level`, `runecrafting_exp`, `current_runecrafting`,
 `current_quest`, `quests`, `quest_points`, `claims`, `wicked_hood`,
 `runecrafting_pouches`, and `item_charges`.
