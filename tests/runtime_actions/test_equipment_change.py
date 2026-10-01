@@ -86,6 +86,12 @@ class GearMoveAfterReviewUndoTest(unittest.TestCase):
             inventory={"Iron pickaxe": 1}, equipment={},
         )
 
+    def test_tool_belt_add_after_a_review_is_undone_before_the_review(self):
+        self.assert_review_then_move_undoes_in_order(
+            lambda: self.addon.on_attach_tool("Chain link mould"),
+            inventory={"Chain link mould": 1}, equipment={},
+        )
+
     def test_supply_refill_after_a_review_is_undone_before_the_review(self):
         self.assert_review_then_move_undoes_in_order(
             self.addon.on_refill_combat_loadout,

@@ -17,7 +17,7 @@ FIRST_WAVE_DIGESTS = {
     "data/quest_data.py": "8d2521110b385044e17fcbaac1dc0dd95c245e4d2d92846c3e42c6efa3e008d7",
     "data/combat_data.py": "88a22f2dd67c72aa0e261a0f78d6e4b5c318b23f891c4cdf9a0da4e5c3dec1a4",
     "data/slayer_data.py": "7373a419da64c7bd1ac41dba45f772361fc0d4d78363c4625903b12b79cd86d6",
-    "logic_pure/logic_pure_combat_engine.py": "991b4a3ec2830030d63850ef391f73690cec27d9d8128b96a8a1107ebab11b62",
+    "logic_pure/logic_pure_combat_engine.py": "f3241071ec155649bba044a27d57e4609783964d10ef918b8f21fd83fb0b29ff",
     "tests/combat_roster/contract.py": "d12a75aa5058e4fb6bb2fb78529f03b146ab427dad7101383cb267a9b60d5ac3",
     "tests/combat_roster/test_dragon_families.py": "6f88bbfd4518bd4267d633640e8ec8871c8afec7c7a1490df01177ec81fb4b73",
     "tests/combat_roster/test_finisher_families.py": "daec4f059b5a5d80d13234f6dfb4b9dd7b920d3b2c81425890884e2bf2b12ed9",
@@ -32,7 +32,7 @@ FIRST_WAVE_DIGESTS = {
 QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "e5931feac9312ba27adf4388579a4cefbade779a43e884aaf593f22ed7bf1152"
 }
-ROOT_QT_DIGEST = "316fc36a1e7e525e34445fd5d1c9a89142b00547cd7e2c5bd6fb4a7f276ee9e0"
+ROOT_QT_DIGEST = "8ccf9af208d6a1d8f7e1e45fd636d5b5e9c111557e2b2a20d9dbf5ee4cbb86af"
 CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"
 
 

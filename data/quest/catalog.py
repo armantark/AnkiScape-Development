@@ -12,7 +12,7 @@ from .stage_additions import *
 from .stage_cleanups import *
 from .combat_replacements import *
 from .combat_relocation import relocate_combat_encounters as _relocate_combat_encounters
-from ...core.tool_belt import ALWAYS_ON_TOOL_BELT, QUEST_STAGES_NEEDING_HELD_TOOLS
+from ...core.tool_belt import QUEST_STAGES_NEEDING_HELD_TOOLS, TOOL_BELT_TOOLS
 
 _STAGE_COUNT_BY_LENGTH = {
     "Short": 3,
@@ -544,7 +544,7 @@ def _apply_tool_belt(
         to_belt = tuple(
             (name, amount)
             for name, amount in requirement.required_inventory
-            if name in ALWAYS_ON_TOOL_BELT and amount == 1 and name not in held
+            if name in TOOL_BELT_TOOLS and amount == 1 and name not in held
         )
         to_held = tuple((name, amount) for name, amount in requirement.required_tools if name in held)
         rows.append(
