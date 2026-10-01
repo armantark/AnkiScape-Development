@@ -872,6 +872,7 @@ def commit_direct_action(
     if switch_to_bankstanding:
         updated = dict(updated)
         updated["current_utility"] = before["player_data"].get("current_utility")
+    updated = runtime_actions.drop_superseded_bank_run_requests_pure(before["player_data"], updated)
     try:
         mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
     except (AttributeError, RuntimeError):
@@ -4649,12 +4650,7 @@ def _set_values(values):
     if all(_state.player_data.get(key) == value for key, value in values.items()):
         return True
 
-    def _change(current):
-        updated = dict(current)
-        updated.update(values)
-        return updated, True
-
-    if not commit_direct_action(_change):
+    if not commit_direct_action(lambda current: ({**current, **values}, True)):
         return False
     # Reflect target/activity changes on the in-review HUD immediately. For XP
     # skills the HUD shows level/progress (so the target swap is not visible
@@ -4807,6 +4803,8 @@ def on_set_quest(quest_id):
     if not ok:
         show_error_message("Cannot start quest", "You do not meet this quest's requirements.")
         return False
+    new_data = runtime_actions.drop_superseded_bank_run_requests_pure(_state.player_data, new_data)
+    _state.player_data.clear()
     _state.player_data.update(new_data)
     save_player_data()
     try:
