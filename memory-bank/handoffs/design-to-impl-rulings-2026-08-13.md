@@ -541,9 +541,9 @@ Adding that combat target would certify both masters in the audit while leaving 
 family permanently unplayable. `data/slayer_data.py:266-270` declares the family with
 `required_quest_id="skippy_and_the_mogres"`, and `logic/slayer_logic.py:79` gates the
 family on that quest being complete. The id appears nowhere in `data/quest_data.py`.
-`memory-bank/future-work-kanban.md:1065` already records the correct disposition: keep
-the Mogre work marked `DEPENDENCY: QUEST` and do not advance readiness with a
-permanently locked partial target.
+The named [Mogre combat](../future-work-kanban.md#mogre-combat) entry recorded the
+then-correct disposition: keep the work dependency-blocked and do not advance
+readiness with a permanently locked partial target.
 
 A doorbell to the 2012scape design thread on 2026-08-30 returned three facts. First,
 `skippy_and_the_mogres` is not planned, not in progress, and not inventoried in any of
@@ -554,15 +554,16 @@ miniquest, because their R25 bars that seat from goal-scoped design decisions.
 
 This is a recorded contract conflict. Their `quest_implementation_lane` is
 `ankiscape_external`, which reads as quest work belonging to this thread, while this
-thread's own kanban line 1065 forbids it. Only the owner can resolve it. Rank 5 is
-DEFERRED with that exact reason until he does.
+thread's named [Mogre combat](../future-work-kanban.md#mogre-combat) entry forbids it.
+Only the owner can resolve it. Rank 5 is DEFERRED with that exact reason until he does.
 
 RESOLVED 2026-08-31 by direct owner ruling (`design-thread-queue.md` §4.22 ruling 2):
 the waiver is granted. Either thread may implement `skippy_and_the_mogres` — whoever
 gets to it first works it, and neither duplicates the other's source harvesting.
 The 2012scape thread holds no pinned evidence for it, so an AnkiScape harvest
 duplicates nothing; doorbell them to claim the work before starting. Rank 5 leaves
-DEFERRED and becomes eligible.
+DEFERRED and becomes eligible. This dependency assessment is historical: §23.2 records
+that the miniquest landed at `9b933084` and is registered in the quest ledger.
 
 ### 12.6 The real remaining debt is 700 generated stage sentinels across 138 quests
 
