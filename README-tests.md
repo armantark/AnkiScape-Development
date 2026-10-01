@@ -17,7 +17,7 @@ uv tool install vulture
 uv tool install pycodestyle
 ```
 
-Each maintenance test checks its prerequisites and fails with the missing paths and a pointer to this file; measurements are neither stubbed nor skipped. Run `tools/maintenance/slop_gate_preflight.py` with no `--base` for pending working-tree changes, or with the reviewed branch's merge-base commit to judge a clean committed candidate without modifying the real index or refs.
+Each maintenance test checks its prerequisites and fails with the missing paths and a pointer to this file; measurements are neither stubbed nor skipped.
 
 ### Function-metrics usage and evidence placement
 
