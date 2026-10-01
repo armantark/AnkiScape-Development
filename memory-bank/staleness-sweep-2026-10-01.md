@@ -37,12 +37,12 @@ The new tool `tools/memory_bank/fix_citation_drift.py` did the mechanical work. 
 These 18 rows stay as written:
 
 - 2 rows in `archive/progress-2026-09.md` cite lines 11 and 12 of `GOAL-BLOCKED.md`. That file was never committed.
-- 1 row in `audits/papercut-remediation-2026-08-09.md` cites "snapshot lines 3-129" of an uncommitted snapshot.
-- 2 rows in `handoffs/design-to-impl-rulings-2026-08-13.md` quote the bad citation `tools/worktree_guard.py:267513` that ruling 52.1 retracts.
+- 1 row in `audits/papercut-remediation-2026-08-09.md` cites a line range in an uncommitted snapshot of the papercut log.
+- 2 rows in `handoffs/design-to-impl-rulings-2026-08-13.md` quote the bad worktree-guard citation that ruling 52.1 retracts.
 - 2 rows in `pending/*-papercuts-2026-09-05.md` are verbatim papercut entries that quote `git diff --check` output.
 - 7 rows in five Darkan source audits cite Darkan files. The audit takes the commit from prose above the citation, and that commit does not hold the cited lines.
 - 2 rows in the cape tradeability records cite `logic/shop_logic.py` line numbers from an implementation branch that is not in this repository.
-- 1 row in `papercut-cleanup-2026-09-18/guard-review.md` cites `MEMORY.md:57`, a Codex memory file outside this repository.
+- 1 row in `papercut-cleanup-2026-09-18/guard-review.md` cites a Codex memory file outside this repository.
 - 1 row in `resume-queue-reconciliation-2026-09-18/GOAL-BLOCKED-2026-09-17.md` is a verbatim copy of an old blocker file.
 
 ## Claims in the core files
