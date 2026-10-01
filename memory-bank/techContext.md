@@ -21,9 +21,9 @@
   removed. Preserve dirty and unmerged worktrees.
 - Future AnkiWeb updates may recreate or update `addons21/1808450369`; treat that folder as upstream and manually diff/merge changes into `ankiscape_fork`.
 - Public release must use a new AnkiWeb listing rather than reusing
-  `1808450369`, remove or replace the current hard-coded review link to that
-  original item, and declare the original package as a conflict where Anki
-  packaging supports it. The governing release record is
+  `1808450369` and declare the original package as a conflict where Anki
+  packaging supports it. The hard-coded review link to that original item was
+  removed in `3e4a5cb2`. The governing release record is
   `memory-bank/public-release-lineage-and-license-2026-07-17.md`.
 - The local working copy is a solo-project git repository on `main`.
 - The canonical checkout is the live add-on. Commit maintenance work in its
@@ -48,7 +48,8 @@
   `610.4 KB`. First use `rg --files` to list exact paths. Then search only those
   paths through `tools/repo_search.py`.
 - Run focused product tests through the same MacBook runner. For example,
-  `python3 tools/run_remote_tests.py "$PWD" plain --select tests/test_remote_test_host.py --expected-tests 19`.
+  `python3 tools/run_remote_tests.py "$PWD" plain --select tests/test_remote_test_host.py --expected-tests <n>`,
+  where `python3 run_tests.py --count tests/test_remote_test_host.py` prints `<n>`.
   Repeat `--select` for additional selections. The exact count and zero skips
   are required; focused success never replaces full promotion checks.
 - Inspect the pinned worktree pool with `python3 tools/worktree_guard.py status --json`.
@@ -77,18 +78,19 @@
 
 ### Parallel quest and family work
 
-Batch quest repairs by distance in `data/quest_data.py`, not alphabetically. The
+Quest definitions have lived in per-quest modules under `data/quest/` since
+`5c87ba05` (2026-09-05); `data/quest_data.py` is a re-export facade. Give
+parallel quest writers different modules, and never give two writers one shared
+module such as `data/quest/stage_cleanups.py`. The history below records why:
+before the split, quest repairs were batched by distance in one file. The
 alphabetical batch two containing Carnillean Rising, Deadliest Catch,
 Dealing with Scabaras, and Demon Slayer produced conflicts in three of four
 branches, left the merged tree unable to import, and required a dedicated
 13-minute merge agent. The distance-batched follow-up used Shield of Arrav at
 2617, Priest in Peril at 3309, Holy Grail at 5252, and Dwarf Cannon at 9535,
-with a smallest gap of 692 lines, and had zero `data/quest_data.py` conflicts. Quest
-do not reuse fixed line clusters after the file changes. Locate both
-`<NAME>_ID,` definitions and tuple-style `<NAME>_STAGES: Tuple[QuestStage`
-entries in the live file, measure the distances again, and give each writer its
-siblings' current anchors. Prefer quests outside the entry-3.32 route-gate class
-so a landed repair is finishable.
+with a smallest gap of 692 lines, and had zero `data/quest_data.py` conflicts.
+Prefer quests outside the entry-3.32 route-gate class so a landed repair is
+finishable.
 
 Every quest branch also re-pins the seven values in
 `tests/test_item_reachability_audit.py`; that conflict is expected and must be
@@ -268,8 +270,8 @@ lighting roll in `logic_pure/logic_pure.py`; storage config version 12 adds
 Runecrafting data lives in `data/runecrafting_data.py`, with the audit at
 `memory-bank/source-audits/runecrafting-2011scape-2026-06-17.md`. It stores
 standard rune, combination rune, tiara binding, pouch, and Wicked hood feed
-metadata from the local 2011Scape Runecrafting source. `data/quest_data.py` stores
-Rune Mysteries and the one-time Wicked hood claim. Runtime review behavior
+metadata from the local 2011Scape Runecrafting source. `data/quest/definitions/free/rune_mysteries.py`
+stores Rune Mysteries, and `data/quest/ledger.py` stores the one-time Wicked hood claim. Runtime review behavior
 lives in `logic_pure/logic_pure.py`; storage config version 15 adds
 `runecrafting_level`, `runecrafting_exp`, `current_runecrafting`,
 `current_quest`, `quests`, `quest_points`, `claims`, `wicked_hood`,
@@ -302,15 +304,14 @@ lives in `logic_pure/logic_pure.py`; storage config version 15 adds
   Qt scales both through the same 28-by-28 `KeepAspectRatio` contract as skill
   and target icons; no duplicate synthesized artwork is checked in.
 - Fetch activity-row icons with `uv run tools/fetch_assets.py <item> --out activityicons/<activity_id>.png --wiki-title <File title> --size 64`, then confirm `assets_provenance.json` contains the `activityicons/` key. Do provenance-affecting fetches sequentially because the current JSON writer is not concurrency-safe.
-- Current activity icon provenance: Soft clay, Wool, and Flax from OSRS wiki art; Open bird nests uses runescape.wiki `Bird's nest (seeds).png` because that title resolved there.
+- `assets_provenance.json` records each activity icon's source wiki and file title; Soft clay, Wool, and Flax come from the RuneScape Wiki.
 
 ### Firemaking asset wiring
 - `tools/fetch_firemaking_assets.py` derives the Firemaking-only asset manifest
   from `firemaking_data.FIREMAKING_TARGETS` and uses the shared
   `tools/fetch_assets.py` client/provenance writer.
-- The skill icon uses `File:Firemaking icon (detail).png` and lands at
-  `icon/firemaking_icon.png` with `--size 64`, matching the detail-icon
-  convention for playable skills.
+- The shipped skill icon `icon/firemaking_icon.png` is the period RuneScape
+  Wiki `Firemaking icon highscores.png`, as `assets_provenance.json` records.
 - Most logs reuse existing Woodcutting log art via `LOG_IMAGES`. Firemaking-only
   inputs plus Ashes live in `firemakingitems/` and are wired through
   `FIREMAKING_ITEM_IMAGES`: `ashes.png`, `arctic_pine_logs.png`,
@@ -323,8 +324,8 @@ lives in `logic_pure/logic_pure.py`; storage config version 15 adds
 - `tools/fetch_runecrafting_assets.py` derives the Runecrafting manifest from
   `data/runecrafting_data.py` and uses the shared `tools/fetch_assets.py`
   client/provenance writer.
-- The skill icon uses `File:Runecraft icon (detail).png` and lands at
-  `icon/runecrafting_icon.png`.
+- The shipped skill icon `icon/runecrafting_icon.png` is the period RuneScape
+  Wiki `Runecrafting icon highscores.png`, as `assets_provenance.json` records.
 - Runes, talismans, tiaras, pouches, the Wicked hood, and Binding necklace live
   in `runecraftingitems/` and are wired through `RUNECRAFTING_ITEM_IMAGES`.
 - Rune/Pure essence reuse Mining ore art; do provenance-affecting refreshes
@@ -339,10 +340,10 @@ lives in `logic_pure/logic_pure.py`; storage config version 15 adds
 ### Herblore asset wiring
 - `uv run tools/fetch_herblore_assets.py` derives its manifest from the live,
   already-filtered `CLEAN_TARGETS + UNF_TARGETS + FINISHED_TARGETS` catalog.
-- The 113 row outputs are fetched through the RS3-only source path. The skill
-  rail intentionally uses OSRS `Herblore icon (detail).png`, the compact icon
-  family used by the other skill rails, rather than modern RS3
-  `Herblore detail.png`.
+- The row outputs are fetched through the RS3-only source path. The skill
+  rail `icon/herblore_icon.png` is the period RuneScape Wiki
+  `Herblore icon highscores.png`, as `assets_provenance.json` records, not
+  modern RS3 `Herblore detail.png`.
 - `HERBLORE_ITEM_IMAGES` is existence-guarded and target metadata looks up each
   row's output item, so clean herbs, unfinished potions, and finished potions
   render their own sprites.
