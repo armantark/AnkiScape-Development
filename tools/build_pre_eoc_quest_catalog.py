@@ -8,15 +8,16 @@ tree can be audited and refreshed without re-scraping every page.
 
 from __future__ import annotations
 
-import argparse
 import datetime as dt
 import html
 import json
 import os
 import pprint
 import re
-import sys
+import time
 import urllib.parse
+import urllib.request
+import urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from html.parser import HTMLParser
@@ -24,13 +25,6 @@ from pathlib import Path
 from typing import Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from tools.generation import quest_cache
-from tools.generation.outputs import write_or_check
-
-CacheMissError = quest_cache.CacheMissError
 CACHE_DIR = ROOT / "tools" / ".cache" / "pre_eoc_quest_catalog"
 OUTPUT_PATH = ROOT / "generated" / "quest_catalog_generated.py"
 WIKI_API = "https://runescape.wiki/api.php"
@@ -39,7 +33,6 @@ RELEASE_LIST_SOURCE = "https://runescape.wiki/w/List_of_quests_by_release_date"
 EOC_CUTOFF_DATE = dt.date(2012, 11, 20)
 EOC_CUTOFF_TIMESTAMP = "2012-11-19T23:59:59Z"
 USER_AGENT = "AnkiScape pre-EOC quest catalog builder (local development; contact: local user)"
-_CACHE_ONLY = False
 LIGHT_SOURCES_SOURCE = "https://runescape.wiki/w/Light_sources?oldid=6581760"
 LIT_LIGHT_SOURCE_ITEMS = (
     "Lit torch",
@@ -504,13 +497,32 @@ class WalkthroughProseExtractor(HTMLParser):
 
 
 def cached_json(cache_key: str, params: Mapping[str, object]) -> Mapping[str, object]:
-    return quest_cache.load_or_fetch_json(
-        CACHE_DIR / f"{cache_key}.json",
-        params,
-        api_url=WIKI_API,
-        user_agent=USER_AGENT,
-        cache_only=_CACHE_ONLY,
-    )
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path = CACHE_DIR / f"{cache_key}.json"
+    if cache_path.exists():
+        return json.loads(cache_path.read_text(encoding="utf-8"))
+
+    query = urllib.parse.urlencode(params)
+    request = urllib.request.Request(f"{WIKI_API}?{query}", headers={"User-Agent": USER_AGENT})
+    last_error: Optional[BaseException] = None
+    for attempt in range(6):
+        try:
+            with urllib.request.urlopen(request, timeout=45) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            tmp_path = cache_path.with_suffix(".tmp")
+            tmp_path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+            tmp_path.replace(cache_path)
+            return payload
+        except urllib.error.HTTPError as exc:  # pragma: no cover - network only
+            last_error = exc
+            if exc.code == 429:
+                time.sleep(10 * (attempt + 1))
+            else:
+                time.sleep(1.5 * (attempt + 1))
+        except BaseException as exc:  # pragma: no cover - network only
+            last_error = exc
+            time.sleep(1.5 * (attempt + 1))
+    raise RuntimeError(f"Wiki API request failed for {cache_key}: {last_error}")
 
 
 def slug_key(value: str) -> str:
@@ -2554,14 +2566,7 @@ def fetch_release_list() -> str:
     return revision.content
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
-    global _CACHE_ONLY
-
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="use cached sources and report output drift")
-    args = parser.parse_args(argv)
-    _CACHE_ONLY = args.check
-
+def main() -> None:
     release_text = fetch_release_list()
     all_rows = parse_questline_templates(release_text)
     included_rows = [row for row in all_rows if include_row(row)]
@@ -2604,14 +2609,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "}\n\n"
         f"PRE_EOC_QUEST_CATALOG = {pprint.pformat(tuple(catalog), width=120, sort_dicts=False)}\n"
     )
-    result = write_or_check(
-        {OUTPUT_PATH: _preserve_source_provenance(output)},
-        check=args.check,
-    )
-    if not args.check:
-        print(f"wrote {len(catalog)} quests to {OUTPUT_PATH}")
-    return result
+    OUTPUT_PATH.write_text(_preserve_source_provenance(output), encoding="utf-8")
+    print(f"wrote {len(catalog)} quests to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
