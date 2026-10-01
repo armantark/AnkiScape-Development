@@ -9,7 +9,7 @@ from tests import test_main_menu_widget as _main_menu
 from tests.test_main_menu_widget import HAS_AQT, _bank_grid_texts, _list_texts, _make_player_data, _open_bank_tab
 
 if HAS_AQT:
-    from aqt.qt import QApplication, QListWidget, QMenu, QPushButton, Qt, QWidget
+    from aqt.qt import QApplication, QLabel, QListWidget, QMenu, QPushButton, Qt, QWidget
 
 
 def _chips(group) -> list:
@@ -27,6 +27,15 @@ def _plain(group) -> str:
 def _pump() -> None:
     for _ in range(4):
         QApplication.processEvents()
+
+
+def _icon_saturation(group, tool_name: str) -> int:
+    """Mean colour saturation of the tool's icon; a greyed icon has none."""
+    chip = next(chip for chip in _chips(group) if chip.property("toolName") == tool_name)
+    image = next(label.pixmap() for label in chip.findChildren(QLabel) if not label.pixmap().isNull()).toImage()
+    pixels = [image.pixelColor(x, y) for x in range(image.width()) for y in range(image.height())]
+    opaque = [pixel.hsvSaturation() for pixel in pixels if pixel.alpha() > 128]
+    return sum(opaque) // len(opaque)
 
 
 def _greyed_tools(group) -> set[str]:
@@ -182,6 +191,9 @@ class ToolBeltPanelTest(unittest.TestCase):
         data["inventory"] = {"Ammo mould": 1}
         dialog = self._open_with_belt_backend(data)
         crafting = _belt_group_labels(dialog)["Crafting"]
+        # A tool waiting to be added greys its icon as well as its name.
+        self.assertEqual(_icon_saturation(crafting, "Ammo mould"), 0)
+        self.assertGreater(_icon_saturation(crafting, "Tiara mould"), 0)
 
         menu = self._right_click_tool(crafting, "Ammo mould")
         action = menu.actions()[0]
@@ -208,6 +220,7 @@ class ToolBeltPanelTest(unittest.TestCase):
         self.assertEqual(data["inventory"], {"Ammo mould": 1})
         self.assertEqual(data["toolbelt_added"], ["Ammo mould"])
         self.assertEqual(_greyed_tools(crafting), {"Chain link mould"})
+        self.assertGreater(_icon_saturation(crafting, "Ammo mould"), 0)
 
 
 if __name__ == "__main__":

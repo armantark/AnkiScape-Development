@@ -55,7 +55,9 @@ def _belt_tool_chip(tool_name: str, icon_path, on_belt: bool, show_add_menu) -> 
     chip.setMinimumHeight(18)
     if icon_path:
         icon = QLabel()
-        icon.setPixmap(QIcon(icon_path).pixmap(QSize(18, 18)))
+        # Disabled mode greys the icon the way the name is greyed.
+        mode = QIcon.Mode.Normal if on_belt else QIcon.Mode.Disabled
+        icon.setPixmap(QIcon(icon_path).pixmap(QSize(18, 18), mode))
         chip_layout.addWidget(icon)
     name = QLabel(tool_name)
     chip_layout.addWidget(name)
