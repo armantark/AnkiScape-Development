@@ -387,7 +387,7 @@ def _run_gate_checks(
         (
             "audit_docs",
             "=== audit_docs ===",
-            ("python3", "tools/audit_docs.py"),
+            ("python3", "tools/audit_docs.py", "--root", str(worktree.resolve())),
             lambda lines: lines[-3:],
             None,
             None,
