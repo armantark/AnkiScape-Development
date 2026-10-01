@@ -106,19 +106,90 @@ def search_text(
     return lines, truncated, returncode
 
 
+def read_line_range(
+    path: Path,
+    start: int,
+    end: int,
+    *,
+    max_results: int,
+    max_columns: int,
+) -> tuple[list[str], bool]:
+    lines: list[str] = []
+    truncated = False
+    with path.open(encoding="utf-8") as source:
+        for line_number, raw_line in enumerate(source, start=1):
+            if line_number < start:
+                continue
+            if line_number > end:
+                break
+            if len(lines) >= max_results:
+                truncated = True
+                break
+            text = raw_line.rstrip("\r\n")
+            omitted = max(0, len(text) - max_columns)
+            preview = text[:max_columns]
+            if omitted:
+                preview += f" [omitted {omitted} columns]"
+            lines.append(f"{path}:{line_number}:{preview}")
+    return lines, truncated
+
+
+def run_line_range(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
+    if args.pattern is not None or args.paths or args.names or args.include_large:
+        parser.error("--line-range cannot be combined with search arguments")
+    path_text, start_text, end_text = args.line_range
+    try:
+        start, end = int(start_text), int(end_text)
+    except ValueError:
+        parser.error("--line-range START and END must be integers")
+    if start < 1 or end < start:
+        parser.error("--line-range requires 1 <= START <= END")
+    path = Path(path_text)
+    if not path.is_file():
+        parser.error(f"--line-range file does not exist: {path}")
+    lines, truncated = read_line_range(
+        path,
+        start,
+        end,
+        max_results=args.max_results,
+        max_columns=args.max_columns,
+    )
+    for line in lines:
+        print(line)
+    if not truncated:
+        return 0
+    print(
+        f"Line read stopped at {args.max_results} results; narrow the range "
+        "or raise --max-results.",
+        file=sys.stderr,
+    )
+    return 2
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("pattern", help="regular expression for text or repository-relative paths")
-    parser.add_argument("paths", nargs="*", default=["."], help="existing files or directories; shell globs are unnecessary")
+    parser.add_argument("pattern", nargs="?", help="regular expression for text or repository-relative paths")
+    parser.add_argument("paths", nargs="*", help="existing files or directories; shell globs are unnecessary")
     parser.add_argument("--names", action="store_true", help="search file names instead of file contents")
     parser.add_argument("--include-large", action="store_true", help="include known giant generated/archive files")
+    parser.add_argument(
+        "--line-range",
+        nargs=3,
+        metavar=("FILE", "START", "END"),
+        help="print a bounded source excerpt; giant lines include an omission marker",
+    )
     parser.add_argument("--max-results", type=int, default=200)
     parser.add_argument("--max-columns", type=int, default=500)
     args = parser.parse_args(argv)
 
     if args.max_results < 1 or args.max_columns < 1:
         parser.error("--max-results and --max-columns must be at least 1")
-    existing, missing = _existing_paths(args.paths)
+    if args.line_range:
+        return run_line_range(args, parser)
+    if args.pattern is None:
+        parser.error("pattern is required unless --line-range is used")
+    paths = args.paths or ["."]
+    existing, missing = _existing_paths(paths)
     if missing:
         print(f"Missing path(s): {', '.join(missing)}", file=sys.stderr)
         print("Use --names from an existing parent directory to locate moved files.", file=sys.stderr)

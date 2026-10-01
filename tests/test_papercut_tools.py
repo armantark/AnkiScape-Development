@@ -223,6 +223,41 @@ class PapercutToolTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertIn("data/shop_data.py", completed.stdout.splitlines())
 
+    def test_repo_search_line_range_bounds_giant_source_lines(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "generated.py"
+            source.write_text("first\n" + "x" * 1000 + "\nthird\nfourth\n", encoding="utf-8")
+
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tools" / "repo_search.py"),
+                    "--line-range",
+                    "generated.py",
+                    "2",
+                    "4",
+                    "--max-columns",
+                    "10",
+                    "--max-results",
+                    "2",
+                ],
+                cwd=root,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(completed.returncode, 2)
+        self.assertEqual(
+            completed.stdout.splitlines(),
+            [
+                "generated.py:2:xxxxxxxxxx [omitted 990 columns]",
+                "generated.py:3:third",
+            ],
+        )
+        self.assertIn("Line read stopped at 2 results", completed.stderr)
+
     def test_repo_search_names_locates_moved_files_without_shell_globs(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
