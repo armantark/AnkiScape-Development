@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Mapping
 
+from ..core.tool_belt import recipe_without_belt_tools
 from ..data.dungeoneering_data import COAL_BAG_CAPACITY
 
 from .logic_pure_quest import (  # noqa: F401  (re-export)
@@ -213,7 +214,7 @@ def smithing_target_locked_reasons_pure(player_data, target, smithing_data, ques
     if not has_smithing_materials_pure(
         target,
         smithing_inventory_with_coal_bag_pure(player_data),
-        smithing_data,
+        {target: recipe_without_belt_tools(player_data, spec)},
     ):
         reasons.append("materials")
     reasons.extend(

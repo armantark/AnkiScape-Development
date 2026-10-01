@@ -45,6 +45,7 @@ from ..logic_pure.logic_pure import (
 )
 
 from ..logic_pure.logic_pure_combat_finishers import combat_finisher_supply_pure
+from .tool_belt import without_belt_tools
 from ..logic.agility_logic import agility_target_locked_reasons_pure
 from ..logic.skilling_boost_logic import skilling_effective_level_pure
 from ..logic.cooking_gauntlets_logic import cooking_gauntlets_worn_pure
@@ -376,20 +377,15 @@ def smithing_target_rows(
         if output_qty > 1:
             label += f" — makes {output_qty}"
 
-        locked_reasons = smithing_target_locked_reasons_pure(
-            player_data,
-            recipe_id,
-            smithing_data,
-            quest_unlock_rules,
-        )
+        locked_reasons = smithing_target_locked_reasons_pure(player_data, recipe_id, smithing_data, quest_unlock_rules)
         tooltip = (
             f"{station_word} · requires Smithing level {lvl_req}. You have {lvl_have}.\n"
             f"Output: {output_item} x{output_qty}\n"
             f"Base XP: {spec.get('exp', 0):g} per action\n"
             f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
-        required_items = spec.get("required_items", {}) or {}
-        if isinstance(required_items, Mapping) and required_items:
+        required_items = without_belt_tools(player_data, spec.get("required_items", {}) or {})
+        if required_items:
             tooltip += f"\nRequired tools:\n{_indented_material_lines(required_items, inventory)}"
         if locked_reasons:
             tooltip += "\nLocked due to: " + ", ".join(locked_reasons)

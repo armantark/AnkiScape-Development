@@ -141,6 +141,7 @@ from ..logic_pure.logic_pure import (
     record_achievement_progress_pure,
     consume_ring_of_forging_charge_pure,
     reconcile_smithing_coal_bag_pure,
+    recipe_without_belt_tools,
     smithing_inventory_with_coal_bag_pure,
     smithing_success_probability_pure,
     smithing_target_locked_reasons_pure,
@@ -502,13 +503,13 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    spec = recipe_without_belt_tools(player_data, spec)
+    crafting_data = {item: spec}
     required_items = dict(spec.get("requirements", {}))
     required_items.update(spec.get("required_items", {}))
-    if not has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA):
+    if not has_crafting_materials_pure(item, player_data["inventory"], crafting_data):
         missing = missing_materials_text(required_items, player_data["inventory"])
-        _switch_material_failure_to_bankstanding(
-            ctx, f"You need {missing} to craft {display_name}."
-        )
+        _switch_material_failure_to_bankstanding(ctx, f"You need {missing} to craft {display_name}.")
         return False
 
     _auto_drink_skilling_potion_if_needed(
@@ -520,12 +521,10 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     thread_roll = min(int(ctx.random_random() * 5), 4) + 1 if spec.get("consume_thread_on_roll") else None
-    new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA, thread_roll)
+    new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], crafting_data, thread_roll)
     if not ok:
         missing = missing_materials_text(required_items, player_data["inventory"])
-        _switch_material_failure_to_bankstanding(
-            ctx, f"You need {missing} to craft {display_name}."
-        )
+        _switch_material_failure_to_bankstanding(ctx, f"You need {missing} to craft {display_name}.")
         return False
 
     player_data["inventory"] = new_inv
@@ -1344,7 +1343,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
     if target not in SMITHING_DATA:
         _switch_material_failure_to_bankstanding(ctx)
         return False
-    spec = SMITHING_DATA[target]
+    spec = recipe_without_belt_tools(player_data, SMITHING_DATA[target])
     display_name = spec.get("display_name", spec.get("output_item", target))
     player_level = player_data["smithing_level"]
 
@@ -1378,7 +1377,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
     new_inv, base_exp, processed, output_item, failed = apply_smithing_action_pure(
         target,
         effective_inventory,
-        SMITHING_DATA,
+        {target: spec},
         success_level,
         roll,
         has_ring_of_forging=has_forging_ring,

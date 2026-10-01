@@ -316,6 +316,9 @@ def build_quests_tab(ctx) -> "QWidget":
         title.setStyleSheet("font-weight: 700; color: palette(text);")
         title.setToolTip(stage_blocker_text or lock_text or str(quest.get("source", "")))
         status = QLabel(_quest_status_text(quest_id, q_state, quest))
+        status.setObjectName(f"questStatus_{quest_id}")
+        # A long blocker list wraps instead of widening the card past the tab.
+        status.setWordWrap(True)
         status.setStyleSheet(f"color: {dim_text_css(status)};")
         quest_btn = QPushButton(_quest_button_text(q_state))
         quest_btn.setObjectName(f"questAction_{quest_id}")
@@ -339,8 +342,7 @@ def build_quests_tab(ctx) -> "QWidget":
         quest_btn.clicked.connect(lambda _=False, qid=quest_id, btn=quest_btn, lbl=status: _set_quest_active(qid, btn, lbl))
         header_layout.addWidget(toggle_btn)
         header_layout.addWidget(title)
-        header_layout.addWidget(status)
-        header_layout.addStretch(1)
+        header_layout.addWidget(status, 1)
         header_layout.addWidget(quest_btn)
         card_layout.addWidget(header)
 

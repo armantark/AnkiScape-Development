@@ -6,6 +6,7 @@ from math import comb, floor, sqrt
 
 from typing import Iterable, Mapping, Optional
 
+from ..core.tool_belt import recipe_without_belt_tools
 from ..logic.skilling_boost_logic import skilling_target_level_available_pure
 
 from .logic_pure_gathering import (  # noqa: F401  (re-export)
@@ -465,7 +466,8 @@ def crafting_target_locked_reasons_pure(player_data, target, crafting_data, ques
         player_data, "crafting", str(target), required_level
     ):
         reasons.append(f"level {required_level}")
-    if not has_crafting_materials_pure(target, player_data.get("inventory", {}) or {}, crafting_data):
+    belt_recipe = {target: recipe_without_belt_tools(player_data, spec)}
+    if not has_crafting_materials_pure(target, player_data.get("inventory", {}) or {}, belt_recipe):
         reasons.append("materials")
     reasons.extend(
         quest_unlock_locked_reasons_pure(

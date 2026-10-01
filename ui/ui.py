@@ -71,6 +71,8 @@ except Exception:
     HAS_QT = False
 
 from . import completion_dialogs
+from .ui_bank_grid import bank_grid_columns, fit_bank_grid_columns
+from .ui_flow_layout import FlowLayout
 from ..core.action_registry import review_action_handler_key
 from ..core.constants import (
     EXP_TABLE,
@@ -1750,9 +1752,8 @@ if HAS_QT:
             root.addLayout(search_row)
 
             self.filter_row = QWidget()
-            self.filter_layout = QHBoxLayout(self.filter_row)
-            self.filter_layout.setContentsMargins(0, 0, 0, 0)
-            self.filter_layout.setSpacing(8)
+            # Filters wrap onto more lines rather than squeezing at 720 px.
+            self.filter_layout = FlowLayout(self.filter_row, h_spacing=8, v_spacing=6)
             self.filter_row.setVisible(False)
             root.addWidget(self.filter_row)
 
@@ -1771,9 +1772,14 @@ if HAS_QT:
         def add_filter(self, widget: QWidget, label: str = "") -> None:
             self.filter_row.setVisible(True)
             if label:
+                pair = QWidget()
+                pair_layout = QHBoxLayout(pair)
+                pair_layout.setContentsMargins(0, 0, 0, 0)
                 label_widget = QLabel(label)
                 label_widget.setStyleSheet(f"color: {dim_text_css(label_widget)};")
-                self.filter_layout.addWidget(label_widget)
+                pair_layout.addWidget(label_widget)
+                pair_layout.addWidget(widget)
+                widget = pair
             self.filter_layout.addWidget(widget)
 
         def query(self) -> str:
@@ -25776,17 +25782,15 @@ def show_main_menu(
         ("Value", "value"),
     ):
         bank_sort.addItem(label, mode)
-    bank_sort.setCurrentIndex(
-        max(0, bank_sort.findData(bank_layout_state["value"]["sort_mode"]))
-    )
-    bank_controls_layout.addWidget(bank_sort)
+    bank_sort.setCurrentIndex(max(0, bank_sort.findData(bank_layout_state["value"]["sort_mode"])))
+    bank_mode_row = QHBoxLayout()
+    bank_mode_row.addWidget(bank_sort)
 
     bank_auto_categories = QCheckBox("Auto-categories")
     bank_auto_categories.setObjectName("bankAutoCategoriesCheck")
-    bank_auto_categories.setChecked(
-        bool(bank_layout_state["value"]["auto_categories"])
-    )
-    bank_controls_layout.addWidget(bank_auto_categories)
+    bank_auto_categories.setChecked(bool(bank_layout_state["value"]["auto_categories"]))
+    bank_mode_row.addWidget(bank_auto_categories)
+    bank_mode_row.addStretch(1)
 
     bank_drop_group = QButtonGroup(bank_controls)
     bank_drop_group.setExclusive(True)
@@ -25800,8 +25804,8 @@ def show_main_menu(
     bank_drop_group.addButton(bank_insert)
     bank_swap.setChecked(bank_layout_state["value"]["drop_mode"] == "swap")
     bank_insert.setChecked(bank_layout_state["value"]["drop_mode"] == "insert")
-    bank_controls_layout.addWidget(bank_swap)
-    bank_controls_layout.addWidget(bank_insert)
+    bank_mode_row.addWidget(bank_swap)
+    bank_mode_row.addWidget(bank_insert)
 
     bank_frame = QtFrame()
     bank_frame.setObjectName("bankFrameA")
@@ -25809,17 +25813,21 @@ def show_main_menu(
     bank_frame.setStyleSheet(
         "QFrame#bankFrameA { border: 1px solid palette(mid); border-radius: 8px; }"
     )
-    bank_frame_layout = QHBoxLayout(bank_frame)
+    # Full-width control rows and a reflowing grid fit the 720 px dialog minimum.
+    bank_frame_layout = QVBoxLayout(bank_frame)
     bank_frame_layout.setContentsMargins(8, 8, 8, 8)
-    bank_frame_layout.setSpacing(12)
+    bank_frame_layout.setSpacing(6)
+    bank_frame_layout.addWidget(bank_controls)
+    bank_frame_layout.addLayout(bank_mode_row)
+    bank_columns_layout = QHBoxLayout()
+    bank_columns_layout.setSpacing(12)
+    bank_frame_layout.addLayout(bank_columns_layout, 1)
 
     bank_left = QWidget()
     bank_left.setObjectName("bankGridColumn")
-    bank_left.setMinimumWidth(12 * 54)
     bank_left_layout = QVBoxLayout(bank_left)
     bank_left_layout.setContentsMargins(0, 0, 0, 0)
     bank_left_layout.setSpacing(6)
-    bank_left_layout.addWidget(bank_controls)
 
     bank_tab_scroll = QScrollArea()
     bank_tab_scroll.setObjectName("bankTabStripScroll")
@@ -25836,7 +25844,7 @@ def show_main_menu(
     bank_tab_scroll.setWidget(bank_tab_host)
     bank_left_layout.addWidget(bank_tab_scroll)
 
-    bank_grid_scroll = QScrollArea()
+    bank_grid_scroll = _ResponsiveGridScrollArea()
     bank_grid_scroll.setObjectName("bankGridScroll")
     bank_grid_scroll.setWidgetResizable(True)
     bank_grid_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
@@ -25847,14 +25855,10 @@ def show_main_menu(
     bank_grid_layout.setContentsMargins(0, 0, 0, 0)
     bank_grid_layout.setHorizontalSpacing(0)
     bank_grid_layout.setVerticalSpacing(4)
-    for column in range(12):
-        bank_grid_layout.setColumnMinimumWidth(column, 54)
-        bank_grid_layout.setColumnStretch(column, 0)
-    bank_grid_layout.setColumnStretch(12, 1)
-    bank_grid_rows = {"count": 0}
+    bank_grid_rows = {"count": 0, "columns": 0}
     bank_grid_scroll.setWidget(bank_grid_host)
     bank_left_layout.addWidget(bank_grid_scroll, 1)
-    bank_frame_layout.addWidget(bank_left, 1)
+    bank_columns_layout.addWidget(bank_left, 1)
 
     bank_right = QWidget()
     bank_right.setObjectName("bankRightColumn")
@@ -25889,17 +25893,8 @@ def show_main_menu(
     bank_right_layout.addWidget(carried_header)
     bank_right_layout.addWidget(carried_body)
     bank_right_layout.addStretch(1)
-    bank_frame_layout.addWidget(bank_right)
+    bank_columns_layout.addWidget(bank_right)
     bk_layout.addWidget(bank_frame, 1)
-
-    def _make_header_item(label: str, marker: str) -> QListWidgetItem:
-        header = QListWidgetItem(label)
-        header.setFlags(Qt.ItemFlag.NoItemFlags)
-        header_font = header.font()
-        header_font.setBold(True)
-        header.setFont(header_font)
-        header.setData(Qt.ItemDataRole.UserRole, marker)
-        return header
 
     # Equip/Unequip mutate player_data via the backend handlers, so the Bank
     # inventory and the Equipment tab must both re-read after an action. The
@@ -26264,9 +26259,7 @@ def show_main_menu(
             if icon_path:
                 button.setIcon(QIcon(icon_path))
                 button.setIconSize(QSize(24, 24))
-            button.clicked.connect(
-                lambda _checked=False, selected=tab_id: _select_bank_tab(selected)
-            )
+            button.clicked.connect(lambda _checked=False, selected=tab_id: _select_bank_tab(selected))
             button.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             button.customContextMenuRequested.connect(
                 lambda point, selected=tab_id, widget=button: _show_bank_tab_menu(
@@ -26309,11 +26302,13 @@ def show_main_menu(
             return f"×{quantity / 1_000_000:.1f}M".replace(".0M", "M")
         return f"×{quantity / 1_000_000_000:.1f}B".replace(".0B", "B")
 
-    def _render_bank_surface(
-        sections: list[dict],
-        has_query: bool,
-        rebuild_tabs: bool,
-    ) -> None:
+    # Rebuild the cells only when a resize changes the column count.
+    bank_grid_scroll.on_viewport_resize = lambda: (
+        bank_grid_columns(bank_grid_scroll) != bank_grid_rows["columns"]
+        and _refresh_bank_surface(rebuild_tabs=False, refresh_carried=False)
+    )
+
+    def _render_bank_surface(sections: list[dict], has_query: bool, rebuild_tabs: bool) -> None:
         previous_scroll = bank_grid_scroll.verticalScrollBar().value()
         if rebuild_tabs:
             _render_bank_tabs()
@@ -26324,6 +26319,7 @@ def show_main_menu(
         for old_row in range(bank_grid_rows["count"] + 2):
             bank_grid_layout.setRowStretch(old_row, 0)
         _clear_layout(bank_grid_layout)
+        columns = bank_grid_rows["columns"] = fit_bank_grid_columns(bank_grid_scroll, bank_grid_layout)
         bank_cell_buttons.clear()
         state_value = bank_layout_state["value"]
         visible_rows = []
@@ -26335,22 +26331,16 @@ def show_main_menu(
             if state_value["auto_categories"]:
                 header = QLabel(f"— {section['label']} —")
                 header.setObjectName(f"bankCategoryHeader::{section['label']}")
-                header.setStyleSheet(
-                    "font-weight: 700; color: palette(text); padding: 5px 2px 1px 2px;"
-                )
-                bank_grid_layout.addWidget(header, row_index, 0, 1, 12)
+                header.setStyleSheet("font-weight: 700; color: palette(text); padding: 5px 2px 1px 2px;")
+                bank_grid_layout.addWidget(header, row_index, 0, 1, columns)
                 row_index += 1
             for display_index, row in enumerate(rows):
                 item_name = str(row["name"])
                 button = _BankDropButton(
                     item_name=item_name,
                     drag_enabled=state_value["sort_mode"] == "manual",
-                    on_item_drop=lambda source, target=item_name: _drop_item_on_cell(
-                        source, target
-                    ),
-                    can_item_drop=lambda source, target=item_name: _can_drop_item_on_cell(
-                        source, target
-                    ),
+                    on_item_drop=lambda source, target=item_name: _drop_item_on_cell(source, target),
+                    can_item_drop=lambda source, target=item_name: _can_drop_item_on_cell(source, target),
                 )
                 button.setObjectName(f"bankGridItem::{item_name}")
                 button.setProperty("bankItemName", item_name)
@@ -26371,15 +26361,11 @@ def show_main_menu(
                     button.setProperty("bankUrnId", str(urn_info["urn_id"]))
                     tooltip += f"\n{_full_urn_tooltip(urn_info)}"
                 elif is_equippable_item(item_name):
-                    ok, reason = can_equip_item_pure(
-                        item_name, EQUIPMENT_ITEM_DATA, player_data
-                    )
+                    ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
                     tooltip += f"\n{equipment_full_tooltip(item_name, '' if ok else reason)}"
                 button.setToolTip(tooltip)
                 _style_bank_cell(button, bank_selection["item"] == item_name)
-                button.clicked.connect(
-                    lambda _checked=False, name=item_name: _select_bank_item(name)
-                )
+                button.clicked.connect(lambda _checked=False, name=item_name: _select_bank_item(name))
                 button.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
                 button.customContextMenuRequested.connect(
                     lambda point, name=item_name, widget=button: _build_bank_equip_menu(
@@ -26387,13 +26373,11 @@ def show_main_menu(
                     ).exec(widget.mapToGlobal(point))
                 )
                 bank_grid_layout.addWidget(
-                    button,
-                    row_index + display_index // 12,
-                    display_index % 12,
+                    button, row_index + display_index // columns, display_index % columns
                 )
                 bank_cell_buttons[item_name] = button
                 visible_rows.append(row)
-            row_index += (len(rows) + 11) // 12
+            row_index += (len(rows) + columns - 1) // columns
         if not visible_rows:
             empty = QLabel(
                 "No Bank items match your search."
@@ -26401,8 +26385,9 @@ def show_main_menu(
                 else "This Bank tab is empty. Drag an item here from another tab."
             )
             empty.setObjectName("bankGridEmpty")
+            empty.setWordWrap(True)
             empty.setStyleSheet(f"color: {dim_text_css(empty)}; padding: 16px;")
-            bank_grid_layout.addWidget(empty, 0, 0, 1, 12)
+            bank_grid_layout.addWidget(empty, 0, 0, 1, columns)
         bank_grid_layout.setRowStretch(row_index + 1, 1)
         bank_grid_rows["count"] = row_index + 1
         if bank_selection["item"] not in {row["name"] for row in visible_rows}:
@@ -27129,8 +27114,9 @@ def show_main_menu(
         lambda: bank_gear_rows_pure(
             player_data, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA
         ),
-        _make_header_item,
         _item_icon_path,
+        on_attach_tool,
+        lambda: _refresh_equipment_views(refresh_visible_skill=True),
     )
     bk_layout.addWidget(gear_hint)
     bk_layout.addWidget(gear_panel)

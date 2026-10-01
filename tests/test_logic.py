@@ -54,7 +54,7 @@ from ankiscape.logic_pure.logic_pure import (
     apply_mining_action_pure,
     apply_open_bird_nests_pure,
     action_telemetry_key_pure,
-    attach_tool_to_toolbelt_pure,
+    put_tool_on_belt_pure,
     best_woodcutting_axe_pure,
     best_mining_pickaxe_pure,
     bank_gear_rows_pure,
@@ -12378,7 +12378,7 @@ class TestLogic(unittest.TestCase):
     def test_bank_gear_rows_list_belt_groups_without_the_attached_tools(self):
         pd = {"inventory": {}, "toolbelt": {}, "equipment": {}}
         gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
-        groups = dict(gear["belt_groups"])
+        groups = {group: [tool[0] for tool in tools] for group, tools in gear["belt_groups"]}
         self.assertEqual(tuple(groups), ("General", "Fishing", "Crafting", "Farming"))
         self.assertIn("Fishing rod", groups["Fishing"])
         self.assertIn("Spade", groups["Farming"])
@@ -12387,13 +12387,13 @@ class TestLogic(unittest.TestCase):
         self.assertNotIn("Bronze hatchet", groups["General"])
 
     def test_manual_attach_moves_mithril_hatchet_from_bank_to_toolbelt(self):
-        inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
+        updated, attached = put_tool_on_belt_pure(
+            {"inventory": {"Mithril hatchet": 1}, "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]}},
             "Mithril hatchet",
-            {"Mithril hatchet": 1},
-            {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
             MINING_PICKAXE_DATA,
             WOODCUTTING_AXE_DATA,
         )
+        inventory, toolbelt = updated["inventory"], updated["toolbelt"]
 
         self.assertTrue(attached)
         self.assertNotIn("Mithril hatchet", inventory)
@@ -12403,16 +12403,16 @@ class TestLogic(unittest.TestCase):
         )
 
     def test_manual_attach_registers_inferno_adze_for_both_tool_families(self):
-        inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
-            "Inferno adze",
-            {"Inferno adze": 1},
+        updated, attached = put_tool_on_belt_pure(
             {
-                "mining": ["bronze_pickaxe"],
-                "woodcutting": ["bronze_hatchet"],
+                "inventory": {"Inferno adze": 1},
+                "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
             },
+            "Inferno adze",
             MINING_PICKAXE_DATA,
             WOODCUTTING_AXE_DATA,
         )
+        inventory, toolbelt = updated["inventory"], updated["toolbelt"]
 
         self.assertTrue(attached)
         self.assertNotIn("Inferno adze", inventory)

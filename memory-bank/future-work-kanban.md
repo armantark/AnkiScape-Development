@@ -98,6 +98,20 @@ tier, pauses when idle, email and password flow, most of upstream's
 September went to its CI and server work); fresh-start-with-no-transfer and
 two-games-per-profile, which exist only to keep that leaderboard fair.
 
+### Tool belt source gaps — 2026-10-01
+
+Label: `SOURCE AUDIT`. From rulings 4.29.3 and 4.29.4; `core/tool_belt.py`
+holds both lists.
+
+- Unholy mould: no pre-cutoff source settles whether a new 2012 belt held it
+  (https://runescape.wiki/w/Unholy_mould?oldid=6088663 says only that it "can
+  be stored in your toolbelt"). It is a default belt tool today; move it to
+  `ADDABLE_TOOL_BELT_TOOLS` if a source shows it had to be added.
+- In Aid of the Myreque stage 1 and A Fairy Tale I stage 3 dig with a spade,
+  and no pre-cutoff source says whether the belt spade works. Both accept the
+  belt spade today; add them to `QUEST_STAGES_NEEDING_HELD_TOOLS` if a source
+  says it does not.
+
 ### Pass 14 follow-up — 2026-09-13
 
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
