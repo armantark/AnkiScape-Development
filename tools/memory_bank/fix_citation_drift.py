@@ -34,6 +34,9 @@ from pathlib import Path
 
 
 STRUCTURAL = frozenset({"moved", "missing_lines", "missing_file"})
+# `move_papercuts.py check` proves that no papercut line changes once written, so a
+# citation in a papercut log stays as its author wrote it.
+PAPERCUT_LOG = re.compile(r"memory-bank/papercuts(?:-fixed-[\d-]+)?\.md")
 NUMBER = r"\d+(?:[-–]\d+)?"
 
 
@@ -176,10 +179,15 @@ def _consistent(report: dict, tree: Tree, candidates: list[tuple[dict, Fix]]) ->
     return verdicts
 
 
+def _editable(row: dict) -> bool:
+    """An actionable audit row (structural drift against history) outside the papercut logs."""
+    authoritative = row["source"] == "repository" or row["source"].startswith("external:")
+    return row["status"] in STRUCTURAL and authoritative and not PAPERCUT_LOG.fullmatch(row["record_path"])
+
+
 def plan(root: Path, report: dict, skip: frozenset[str]) -> tuple[list[Fix], list[dict]]:
     tree = Tree(root)
-    rows = [row for row in report["results"] if row["status"] in STRUCTURAL and row["record_path"] not in skip
-            and (row["source"] == "repository" or row["source"].startswith("external:"))]
+    rows = [row for row in report["results"] if _editable(row) and row["record_path"] not in skip]
     repointed = [(row, _repoint(root, tree, row)) for row in rows]
     candidates = [(row, fix) for row, fix in repointed if fix is not None]
     verdicts = _consistent(report, tree, candidates)
@@ -210,7 +218,7 @@ def main() -> int:
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--report", type=Path, help="default: ROOT/memory-bank/citation-drift-results.json.gz")
     parser.add_argument("--skip", action="append", default=[], metavar="RECORD",
-                        help="leave this record untouched, e.g. a log another agent is editing")
+                        help="leave this record untouched, e.g. a live document to rewrite by hand")
     parser.add_argument("--apply", action="store_true", help="rewrite the records; default is a dry run")
     args = parser.parse_args()
     root = args.root.resolve()
