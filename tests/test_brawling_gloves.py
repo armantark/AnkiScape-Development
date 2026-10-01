@@ -1,7 +1,6 @@
 import struct
 from pathlib import Path
 import unittest
-from unittest.mock import patch
 
 import pkg_alias  # noqa: F401
 
@@ -212,21 +211,19 @@ class ChaosElementalTests(unittest.TestCase):
     def test_teleport_special_interrupts_burst_and_delays_next_attack(self):
         data = _player()
         data["current_combat_target"] = "chaos_elemental"
-        with patch(
-            "ankiscape.logic_pure.logic_pure_combat_engine._combat_select_enemy_attack_pure",
-            return_value={"kind": "teleport", "player_delay_ticks": 5},
-        ):
-            updated, ok, result = apply_combat_burst_pure(
-                data,
-                enemy_data=COMBAT_ENEMY_DATA,
-                equipment_data=EQUIPMENT_DATA,
-                ticks=6,
-                rng=lambda: 0.5,
-                live_cadence=True,
-            )
+        rolls = iter((0.0, 0.0, 0.0, 0.0, 0.0, 1.0))
+        updated, ok, result = apply_combat_burst_pure(
+            data,
+            enemy_data=COMBAT_ENEMY_DATA,
+            equipment_data=EQUIPMENT_DATA,
+            ticks=12,
+            rng=lambda: next(rolls),
+            live_cadence=True,
+        )
         self.assertTrue(ok)
         self.assertEqual(result["enemy_specials"], ({"kind": "teleport", "delay_ticks": 5},))
-        self.assertGreater(updated["combat_encounter"]["player_attack_ticks_remaining"], 0)
+        self.assertEqual(result["ticks_elapsed"], 6)
+        self.assertEqual(updated["combat_encounter"]["player_attack_ticks_remaining"], 7)
 
     def test_unequip_special_moves_weapon_to_carried_pack_and_preserves_encounter(self):
         data = _player()

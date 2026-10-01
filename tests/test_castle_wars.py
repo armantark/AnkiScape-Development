@@ -181,27 +181,27 @@ class CastleWarsMatchTests(unittest.TestCase):
                 "drops": {"guaranteed": (), "tables": ()},
             }
         }
-        # The damage roller must be patched on the module that defines it: the
-        # caller resolves the name from its own globals, not from logic_pure's
-        # re-export.
-        with patch(
-            "ankiscape.logic_pure.logic_pure_combat_engine._combat_roll_damage_lifepoints", return_value=100
-        ):
+        for multiplier, expected_damage in ((1.0, 59), (1.10, 64)):
+            rolls = iter((0.0, 0.999999))
             updated, ok, result = apply_combat_burst_pure(
                 player,
                 enemy,
                 {},
                 ticks=1,
-                rng=lambda: 0.0,
+                rng=lambda: next(rolls),
                 live_cadence=True,
                 stop_after_first_kill=True,
                 safe_death=True,
                 allow_bank_run=False,
-                player_damage_multiplier=1.10,
+                player_damage_multiplier=multiplier,
             )
-        self.assertTrue(ok, result)
-        self.assertEqual(result["player_damage"], 110)
-        self.assertEqual(updated["combat_encounter"]["enemy_lifepoints"], 390)
+            with self.subTest(multiplier=multiplier):
+                self.assertTrue(ok, result)
+                self.assertEqual(result["player_damage"], expected_damage)
+                self.assertEqual(
+                    updated["combat_encounter"]["enemy_lifepoints"],
+                    500 - expected_damage,
+                )
 
     def test_again_advances_the_crowd_without_personal_contribution(self):
         updated, ok, result = apply_castle_wars_review_pure(

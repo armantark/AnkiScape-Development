@@ -1,8 +1,6 @@
 """The player's hit inside a combat burst tick once it is rolled: the burst's
-damage multiplier, the finisher cap, melee recoil and Soul Split healing. The
-landing and damage rolls stay in the engine because tests patch the damage
-roller there; spell runes, spell effects and Magic XP stay with the burst's
-Magic code."""
+damage multiplier, the finisher cap, melee recoil and Soul Split healing.
+Spell runes, spell effects and Magic XP stay with the burst's Magic code."""
 
 from .logic_pure_combat_model import _combat_cap_damage_for_finisher
 from .logic_pure_state import _non_negative_int

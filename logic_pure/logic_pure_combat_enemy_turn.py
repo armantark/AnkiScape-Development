@@ -2,10 +2,9 @@
 selected attack uses or whether it teleports the player away, whether a
 dragon breathes fire, what a breath or a special the player is not protected
 from costs, how prayers cut the hit, what Deflect and a vampyre bite do to the
-enemy afterwards, and when Redemption saves the player. The attack selection
-and the ordinary hit roll stay in the engine because tests patch them there,
-and so does the unequip special's gear transaction; Vengeance stays with the
-burst's Magic code."""
+enemy afterwards, and when Redemption saves the player. The unequip special's
+gear transaction stays with the burst's equipment code; Vengeance stays with
+its Magic code."""
 
 from typing import Mapping
 
