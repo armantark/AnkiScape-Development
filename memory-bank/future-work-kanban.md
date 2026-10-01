@@ -24,7 +24,7 @@ Current goal selection, next action and branch disposition:
 Label: `PARKED`. Owner will write it ("I'll do this later I guess. Probably
 could answer them myself"). Goes after "What you get", before "Roadmap".
 Verified answers for the non-mechanics questions: any ease above Again runs
-one action (`__init__.py:5691`, `successful_answer = ease > 1`); no runtime
+one action (`__init__.py:5501`, `successful_answer = ease > 1`); no runtime
 network calls and no note, card, or scheduler edits (grep over
 `__init__.py core runtime logic ui`); desktop only, phone reviews earn
 nothing; no reset action exists; Ironman is an account type that locks the
@@ -74,7 +74,7 @@ Check, then close or fix:
 
 - One dialog for a multi-level gain. Upstream fixed a nineteen-dialog burst
   on 2026-09-19 (`fix(classic): summarise a multi-level gain in one dialog`).
-  Confirm `level_up_check` (`__init__.py:651`) and the core check behave the
+  Confirm `level_up_check` (`__init__.py:617`) and the core check behave the
   same after a large XP change. Fixed 2026-09-25: the runtime check only
   delegates to the core one, which showed one popup per level (the Elder Kiln
   100,000 XP lamp on level-1 Attack showed 48); it now shows one popup naming
@@ -103,10 +103,10 @@ two-games-per-profile, which exist only to keep that leaderboard fair.
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 
 - Main menu open time from the review screen. Facts (fact-finder 2026-09-13):
-  a new `QDialog` per open (`ui/ui.py:4887-4892`); Skills, Grand Exchange,
-  Equipment, Stats, Settings build at open (`ui/ui.py:23491-23493`); the Bank
+  a new `QDialog` per open (`ui/ui.py:4902-4907`); Skills, Grand Exchange,
+  Equipment, Stats, Settings build at open (`ui/ui.py:23424-23426`); the Bank
   widget tree also builds at open and only attaches behind a placeholder
-  (`ui/ui.py:24861-24872,27272-27285`); Shop, Quests, Challenges, Achievements,
+  (`ui/ui.py:24794-24805,27139-27152`); Shop, Quests, Challenges, Achievements,
   Collections are truly deferred. Last measurement about 1.2 s per open on a
   real save (`memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
   Target: under 300 ms click-to-visible on the owner's save, measured before

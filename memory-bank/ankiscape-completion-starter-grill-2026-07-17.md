@@ -197,10 +197,10 @@ The source-shaped constraints are already clear:
 
 - Daemonheim uses a closed temporary economy; its 54 Herblore targets must not
   leak into the ordinary Bank or Herblore catalog
-  (`memory-bank/dungeoneering-product-decision-deferred-2026-07-13.md:3-22`).
+  (`memory-bank/dungeoneering-product-decision-deferred-2026-07-13.md:8-27`).
 - Floors combine rooms, keys, skill checks, combat, deaths, binds, complexity,
   prestige, tokens, rewards, and resumability
-  (`memory-bank/future-work-kanban.md:366-370`).
+  (`memory-bank/future-work-kanban.md:832-836`).
 - Dungeoneering is late because it depends on every skill and Combat, not
   because those mechanics can be flattened away.
 

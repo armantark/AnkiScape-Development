@@ -8,9 +8,9 @@ The gate must keep the `(not implemented)` blocker for an unknown skill. This sl
 
 ## Runtime authority
 
-`logic_pure/logic_pure_combat_engine.py:2864-2877` computes the player combat level from eight combat stats. This is the existing game value.
+`logic_pure/logic_pure_combat_engine.py:2066-2079` computes the player combat level from eight combat stats. This is the existing game value.
 
-`logic_pure/logic_pure_quest.py:133-152` now handles `skill_id == "combat"` before the skill registry check. A low level gives `Combat N`. A sufficient level gives no blocker.
+`logic_pure/logic_pure_quest.py:111-130` now handles `skill_id == "combat"` before the skill registry check. A low level gives `Combat N`. A sufficient level gives no blocker.
 
 The quest module already imported `player_combat_level_pure`. The combat engine does not import the quest module, so this change adds no import cycle.
 
@@ -29,17 +29,17 @@ The live `QUEST_DATA` query returned exactly these six combat requirements.
 | `underground_pass` | 79 | Starts |
 | `zogre_flesh_eaters` | 89 | Starts |
 
-`tests/test_combat_quest_gate.py:161-197` covers the low Zogre gate and all six start results.
+`tests/test_combat_quest_gate.py:192-228` covers the low Zogre gate and all six start results.
 
 ## Catalog guard
 
-`tests/test_combat_quest_gate.py:111-122` scans quest-level and stage-level `required_skills` rows. Each skill ID must resolve to a trainable skill or equal the exact string `combat`.
+`tests/test_combat_quest_gate.py:142-153` scans quest-level and stage-level `required_skills` rows. Each skill ID must resolve to a trainable skill or equal the exact string `combat`.
 
 The assertion reports the quest ID and invalid skill ID. A typo, an unknown pseudo-skill, or the wrong `Combat` case now fails the suite.
 
 ## Reachability audit decision
 
-`tools/audit_item_reachability.py:918-949` uses prerequisite quests and quest points for quest completion and startability. It does not read `required_skills`.
+`tools/audit_item_reachability.py:919-950` uses prerequisite quests and quest points for quest completion and startability. It does not read `required_skills`.
 
 The audit later builds a normal maxed player. It gives every trainable skill its maximum level and computes a derived maximum combat level.
 
@@ -67,7 +67,7 @@ The test lowers only the Zogre combat stats for a deterministic one-review kill.
 
 The combat review produces `Ogre coffin key` and `Zogre bones`. The quest remains at progress 0 and remains incomplete.
 
-`tests/test_bone_sources.py:44-187,272-332` already drives the real coffin and grinding actions. It produces all four bones and all four bonemeals from the key and Zogre bones.
+`tests/test_bone_sources.py:58-201,286-346` already drives the real coffin and grinding actions. It produces all four bones and all four bonemeals from the key and Zogre bones.
 
 Together, the product review and existing route coverage prove these nine item identities after quest start:
 

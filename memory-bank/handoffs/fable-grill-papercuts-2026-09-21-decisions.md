@@ -34,7 +34,7 @@ Codex; the paused status in the memory bank is stale.
   functions without that rewrite and failed two digest pins.
 - Five current files state the paused status: `activeContext.md:7`,
   `pause-checkpoint-2026-09-18.md:3`, `loop-queue.md:4-6`,
-  `goal-priority-matrix.md:9`, `progress.md:13576`. No tool reads any of them.
+  `goal-priority-matrix.md:9`, `memory-bank/archive/progress-2026-09.md:1459`. No tool reads any of them.
   `memory-bank/GOAL-BLOCKED.md` does not exist.
 
 ## Decision list

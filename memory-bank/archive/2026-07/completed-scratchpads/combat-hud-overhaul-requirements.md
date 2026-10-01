@@ -50,7 +50,7 @@ area, with the code facts I've already confirmed.
   `constitution_level × 10` (default 100). This is the green 65/100 bar; the
   "100" the owner saw was this, not the cow.
 - **The up/down LP fluctuation is NOT bank healing.** It's
-  `apply_safe_combat_recovery_pure` (logic_pure.py:2915), which adds
+  `apply_safe_combat_recovery_pure` (logic_pure/logic_pure_combat_model.py:1116), which adds
   `SAFE_COMBAT_RECOVERY_LIFEPOINTS = 100` per safe/non-combat review (effectively
   a full heal at constitution 10), called from __init__.py:1121. It's an
   out-of-combat rest heal, a tuning knob — not decoded engine math, and not the

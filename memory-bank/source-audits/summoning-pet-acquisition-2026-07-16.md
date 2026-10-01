@@ -16,7 +16,7 @@ or drop rates, incubation durations, repeatability, and colour-selection rules.
 
 Repository reconciliation:
 
-- `woodcutting_data.py:140-197` already gives bird nests a `1 / 257` drop roll,
+- `woodcutting_data.py:217-274` already gives bird nests a `1 / 257` drop roll,
   includes Zamorak, Guthix, and Saradomin egg nests at weight `1` each, and
   opens each into the corresponding bird egg. Those eggs are dead-end
   materials until pet incubation exists. Raven egg acquisition is still

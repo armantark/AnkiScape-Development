@@ -108,11 +108,11 @@ behind Priest in Peril. Keep target ids `catch_slimy_eel` and
    `runtime/runtime_actions_production.py:1249` drops the `None` branch.
    Retire the exemption at `memory-bank/systemPatterns.md:644` and change the
    pin `tests/test_cadence_live.py:912`. Each review shows the existing
-   damage line (`runtime_actions_production.py:1284`).
+   damage line (`runtime_actions_production.py:1290`).
 3. Delrith takes damage only from a wielded Silverlight (Darkan
    `DelrithBoss.java:133-141`, "You need silverlight to damage Delrith."). A
    Silverlight in the bank no longer satisfies that step. Update
-   `tests/test_combat_quest_gate.py:278`.
+   `tests/test_combat_quest_gate.py:304`.
 4. During a quest fight the review HUD names the boss, not the quest
    (`ui/ui.py:1565-1569`); this closes the Pass 13 kanban follow-up.
 
@@ -160,11 +160,11 @@ tooltip "Always on your tool belt." Pins: `tests/test_logic.py:8242-8255,8395,10
    skill total, quest points) sorts after every open shop in the list and in
    search, dims, and names its reason, for example "Canifis General Store ·
    Requires Priest in Peril". Search sorts before the 80-row cut
-   (`logic/shop_logic.py:189,206-224`); the list uses the computed
+   (`logic/shop_logic.py:233,206-224`); the list uses the computed
    `selector_views` (`ui/ui_tab_shop.py:660-665,1611-1650`). A dimmed shop
    still opens read-only.
 2. The purchase result shows as a chip directly under the Buy controls in the
-   transaction panel (`ui/ui_tab_shop.py:250-253`), green with a check mark
+   transaction panel (`ui/ui_tab_shop.py:258-261`), green with a check mark
    for success and amber for a refused buy or sell, and hides after 4 seconds
    or on a shop or row change. It replaces `shop_toast` at the bottom of the
    scroll (`:593-621`). The owner approved this change for Opus 5.5 by name.
@@ -173,7 +173,7 @@ tooltip "Always on your tool belt." Pins: `tests/test_logic.py:8242-8255,8395,10
 
 Every Skills-tab target list gets the Combat search bar. Move the body of
 `_render_combat_targets` (`ui/ui.py:8591-8670`) into one shared helper beside
-`_build_target_selector` (`ui/ui.py:5526`); Combat keeps its Slayer filter as
+`_build_target_selector` (`ui/ui.py:5545`); Combat keeps its Slayer filter as
 an extra filter. The search matches the row name and its group, opens the
 groups that hold a match, shows "Showing N/M", never selects a hidden row, and
 Escape clears it. Measure the Crafting rebuild (233 rows) per keystroke; add

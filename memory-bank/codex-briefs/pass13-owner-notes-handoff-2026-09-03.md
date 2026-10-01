@@ -64,10 +64,10 @@ November 2012 game with a rollback of the owner's past games.
   `tools/achievement_diary_ledger.py:421-427` returns the source text for every
   row that is not invented. So the game shows "Dial to the fairy ring on
   Mudskipper Point" for a row that fires on one big-net catch.
-- The popup `ui/ui.py:4550-4575` shows `task.name` and `task.description`;
+- The popup `ui/ui.py:4565-4590` shows `task.name` and `task.description`;
   `DiaryTask` (`data/achievement_diaries/contract.py:39-54`) has no other text
   field. Reload shows no popups; the first review after a reload rescans every
-  row and queues one popup per newly satisfied row (`core/logic.py:129-174`,
+  row and queues one popup per newly satisfied row (`core/logic.py:151-196`,
   `__init__.py:1344-1353,1561-1578`). Ruling 7: no change.
 - Quest fights: `logic_pure/logic_pure_quest.py:109-124` reads
   `quest_combat_config["resolver_enabled"]`, default false, initialised at
@@ -80,25 +80,25 @@ November 2012 game with a rollback of the owner's past games.
 - Bankstanding: the seam `__init__.py:1604-1645` accepts `caller_owns_notice`;
   only two Crafting paths use it (`runtime/runtime_actions_shared.py:397-417`).
   Every other exhausted-material branch shows its own popup and then the
-  deferred "Switched to Bankstanding" modal (`ui/ui.py:4585-4630`). Affected
+  deferred "Switched to Bankstanding" modal (`ui/ui.py:4600-4645`). Affected
   branches: gathering `:451-459,592-600`; production `:511-539,575-607,647-656,
   724-739,779-841,863-908,958-966,1031-1061,1181-1241,1387-1442`; utility
   `:773-928`; activities encounters `:76-96`; distractions `:135-158`; combat
   `:422-512`.
 - Activities: the shared seam is target selection then
-  `_start_surface_activity()` (`ui/ui.py:8927-8937,20492-20508,21298-21308`).
+  `_start_surface_activity()` (`ui/ui.py:8927-8937,20431-20447,21298-21308`).
   Evil Tree arms only (`ui/ui.py:9117-9143`, "Select full event"). Shooting
   star's handler passes `activate=True` (`ui/ui.py:9465-9608`). Fish Flingers
   (`ui/ui.py:13743-13917`) and Big Top (`ui/ui.py:14877-15438`) have a "Start
   activity" control. The owner's shooting star two-step needs a reproduction.
 - Bones: `combat_auto_prayer_training` ("Auto-bury bones",
-  `ui/ui.py:7870-7875`) removes every bone from the kill's drops, awards Prayer
+  `ui/ui.py:7871-7876`) removes every bone from the kill's drops, awards Prayer
   XP, and adds two ticks per bone (`data/prayer_data.py:60-71,91-105`,
   `logic_pure/logic_pure_urns.py:405-416`). The learning record stores the
-  drops after that step (`logic_pure/logic_pure_combat_model.py:1083-1109`), so
-  the keep/drop list (`ui/ui.py:8160-8175`, `__init__.py:2099-2109`) never
+  drops after that step (`logic_pure/logic_pure_combat_model.py:1068-1094`), so
+  the keep/drop list (`ui/ui.py:8161-8176`, `__init__.py:2099-2109`) never
   shows bones. Bank "Bury" targets already exist (`data/prayer_data.py:38-39`).
-- Targets: `core/target_metadata.py:73-88` makes `sort_key` optional. Flat
+- Targets: `core/target_metadata.py:70-85` makes `sort_key` optional. Flat
   lists keep insertion order (`core/target_metadata.py:748-855`). Trees sort by
   `sort_key` or label (`ui/ui.py:5385-5553`); Herblore is a tree
   (`ui/ui.py:5555-5640`, groups at `data/herblore_data.py:353-365,425-435`).
@@ -112,7 +112,7 @@ November 2012 game with a rollback of the owner's past games.
   combatenemies 62, questitems 40, crafteditems 32, prayeritems 32, and more).
   `smithingitems/mithril_platebody.png` is one (fetched 2021-08-20). The batch
   scraper precedent is `tools/fetch_smithing_assets.py`.
-- Fish Flingers: `logic/fish_flingers_logic.py:242-288` pays
+- Fish Flingers: `logic/fish_flingers_logic.py:270-316` pays
   `floor(max(162, 235*level - 73) * score / 48)` on review 8 of 8, reachable
   scores 28 to 43. At level 39: 5,303 to 8,144 XP per game. The formula is a
   Darkan reconstruction; the pinned wiki oldid 6529096 gives no table. The
@@ -179,7 +179,7 @@ Fix sites: `__init__.py:1604-1645`, the runtime branch files. Tests:
 3. Tests: an auto-buried kill learns Bones; the keep/drop override is honoured
    under both settings.
 
-Fix sites: `logic_pure/logic_pure_combat_model.py:1083-1109`,
+Fix sites: `logic_pure/logic_pure_combat_model.py:1068-1094`,
 `logic_pure/logic_pure_urns.py:405-416`. Tests: `tests/test_runtime_actions.py`.
 
 ### S5 `quest-combat-flag-removal`

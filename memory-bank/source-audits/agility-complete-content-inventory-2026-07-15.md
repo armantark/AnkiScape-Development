@@ -49,7 +49,7 @@ reward lineage survives through the factory. [Rogues' Den oldid
 The exact route, XP, level, quest/item gates, and known failure consequences for
 the previously audited rows remain authoritative in:
 
-- `source-audits/agility-tables-2026-07-13.md:36-299`;
+- `source-audits/agility-tables-2026-07-13.md:40-303`;
 - `source-audits/agility-fail-rates-2026-07-13.md`;
 - `source-audits/agility-fail-consequences-2026-07-15.md`; and
 - `agility-brimhaven-contract-2026-07-15.md`.
@@ -72,7 +72,7 @@ the previously audited rows remain authoritative in:
 | Dorgesh-Kaan Agility route | `period`; level 80, Death to the Dorgeshuun, light source, outbound/part/return/hand-in loop totaling `2,375 XP`. Cable/ladder failures can occur at 99 and damage the retrieved part. |
 | Dorgesh-Kaan grapple and mixed routes | `period` feature, `source_blocked` exact mixed payout in the current audit. Retain separate Agility, Ranged/grapple, and mixed route identities rather than deleting the non-pure route. |
 | Penguin | `period`; level 30, Cold War, penguin suit, four grouped stages and `540 XP` perfect lap. Every sourced safe/failable distinction survives; missing rolls/damage/setbacks remain `source_blocked`. |
-| Brimhaven Arena | `accepted abstraction`; use the closed hidden-grid/eight-review chase, activation streak, tickets, obstacle consequences, entry waiver, and fixed reward exchanges. Karamja gloves 4 retain the period `25%` chance to award one extra ticket on a qualifying tag; this narrowly supplements the earlier one-ticket rule. `source-audits/agility-tables-2026-07-13.md:243-250`. |
+| Brimhaven Arena | `accepted abstraction`; use the closed hidden-grid/eight-review chase, activation streak, tickets, obstacle consequences, entry waiver, and fixed reward exchanges. Karamja gloves 4 retain the period `25%` chance to award one extra ticket on a qualifying tag; this narrowly supplements the earlier one-ticket rule. `source-audits/agility-tables-2026-07-13.md:247-254`. |
 | Bandos's Throne Room | `period_candidate`; The Chosen Commander, Agility/Ranged/Strength 60, crossbow and mith grapple. Nine statue jumps give `2 Agility XP` each; grapple completion gives `362 Agility + 125 Ranged + 125 Strength`, total `380/125/125`. Statue jumps can fail for damage; exact curve/fail XP/setback, LP-unit normalization, and the full source ledger remain `source_blocked`. [oldid 6451499](https://runescape.wiki/w/Bandos%27s_Throne_Room_Agility_Course?oldid=6451499). |
 
 ## Activities, D&Ds, and incidental training
@@ -96,11 +96,11 @@ the previously audited rows remain authoritative in:
 
 | Family | Required design coverage |
 |---|---|
-| Barbarian Fishing | Already stores Agility requirements and `5/6/7` Agility XP alongside Strength XP for leaping trout/salmon/sturgeon (`fishing_data.py:97-137,321-337`). Activating Agility must preserve existing hidden XP and award future XP directly. |
+| Barbarian Fishing | Already stores Agility requirements and `5/6/7` Agility XP alongside Strength XP for leaping trout/salmon/sturgeon (`fishing_data.py:88-128,322-338`). Activating Agility must preserve existing hidden XP and award future XP directly. |
 | Barehanded butterflies | Add Ruby Harvest `A75/H80 -> 300 Hunter + 50 Agility`, Sapphire Glacialis `A80/H85 -> 400 + 70`, Snowy Knight `A85/H90 -> 500 + 100`, and Black Warlock `A90/H95 -> 650 + 125`; no butterfly item is retained. Catch curves receive one final source sweep and then the labeled hidden-roll fallback. [ruby oldid 6435967](https://runescape.wiki/w/Ruby_harvest?oldid=6435967), [sapphire oldid 6253371](https://runescape.wiki/w/Sapphire_glacialis?oldid=6253371), [snowy oldid 6487915](https://runescape.wiki/w/Snowy_knight?oldid=6487915), [black oldid 6253409](https://runescape.wiki/w/Black_warlock?oldid=6253409). |
 | Fishing double catches | Agility levels `35/50/76` unlock a small double-catch chance for tuna/swordfish/shark, no extra Fishing XP, Baron shark excluded. The item-yield roll is atomic and replaceable when exact probability evidence improves. Same update oldid `3346072`. |
-| Thieving multi-pickpocket | Existing pure/runtime logic already reads Agility and can award two, three, or four loot rolls (`logic_pure.py:8478-8486`, `runtime_actions.py:2617-2625`). Preserve one roll, one transaction, and no extra Thieving XP. |
-| Herblore Habitat | The east vine-herb patch already has the level-55 Agility gate (`farming_data.py:375-379`). Retain the sourced three-phase shortcut and `3 x 10 Agility XP` as a route-local Farming/Hunter traversal, not a global location system. [oldid 6513740](https://runescape.wiki/w/Herblore_Habitat?oldid=6513740). |
+| Thieving multi-pickpocket | Existing pure/runtime logic already reads Agility and can award two, three, or four loot rolls (`logic_pure/logic_pure_thieving.py:356-364`, `runtime_actions.py:2617-2625`). Preserve one roll, one transaction, and no extra Thieving XP. |
+| Herblore Habitat | The east vine-herb patch already has the level-55 Agility gate (`farming_data.py:578-582`). Retain the sourced three-phase shortcut and `3 x 10 Agility XP` as a route-local Farming/Hunter traversal, not a global location system. [oldid 6513740](https://runescape.wiki/w/Herblore_Habitat?oldid=6513740). |
 | Dorgesh/Bandos/grapple routes | Cross-skill gates and XP are one atomic action result. Ranged/Strength/Construction own grapple equipment and hidey-hole state; Agility owns its requirement and XP component. |
 | Daemonheim/Dungeoneering | `dependency/source_blocked`: Dungeoneering owns dungeon sessions, Agility skill doors, and Agility-maze state. Agility supplies level gates, XP/modifiers, telemetry, and undo-compatible atomic results after pinned verification; no partial Dungeoneering activity ships inside Agility. |
 | Quest-owned Agility stages | `dependency/source_blocked`: quests such as The Firemaker's Curse own their maze/stage progression. Agility supplies requirements, XP/modifiers, telemetry, and undo hooks once each quest receives pinned verification. |

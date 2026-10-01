@@ -773,12 +773,12 @@ Sources:
 - Crop definitions:
   - `GM/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/farming/data/Seed.kt:714-794`
 - AS Cooking recipes and acquisition notes:
-  - `AS/ankiscape/data/skills/cooking_data.py:135-150`
-  - `AS/ankiscape/data/skills/cooking_data.py:210-235`
+  - `data/cooking_data.py:257-272`
+  - `data/cooking_data.py:379-404`
 - Current reachability audit:
   - `AS/tools/audit_item_reachability.py --json`
 
-The Cooking module notes that temporary gathering bridges for several farm products were retired because shops already supplied them: `AS/ankiscape/data/skills/cooking_data.py:230-235`. Consequently, crops such as potatoes, onions, cabbages, tomatoes, apples, bananas, oranges, pineapples, and other ordinary farm foods may add a canonical source without changing current root reachability.
+The Cooking module notes that temporary gathering bridges for several farm products were retired because shops already supplied them: `data/cooking_data.py:399-404`. Consequently, crops such as potatoes, onions, cabbages, tomatoes, apples, bananas, oranges, pineapples, and other ordinary farm foods may add a canonical source without changing current root reachability.
 
 ### Crafting and other skill inputs
 
@@ -794,8 +794,8 @@ The Cooking module notes that temporary gathering bridges for several farm produ
 
 Sources:
 
-- `AS/ankiscape/data/skills/crafting_data.py:217-223`
-- `AS/ankiscape/data/skills/crafting_data.py:312-313`
+- `data/crafting_data.py:216-222`
+- `data/crafting_data.py:326-327`
 - `AS/tools/audit_item_reachability.py --json`
 - GM tree/root behavior:
   - `GM/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/farming/handlers/TreeChoppingHandler.kt`

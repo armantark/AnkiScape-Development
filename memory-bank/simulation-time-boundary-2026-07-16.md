@@ -45,15 +45,15 @@ mapping is an AnkiScape abstraction; period ratios and ordering remain source cl
 | System | Current channel | Settled/needs review |
 |---|---|---|
 | NPC shop/market progression | Every answered card | Settled and compliant (`__init__.py:1536-1541`, `shop_logic.py:142-149`). |
-| Farming growth, disease, jobs, and regrowth | Every answered card | Settled and compliant (`__init__.py:1541-1546`, `runtime_actions.py:943-947`). |
+| Farming growth, disease, jobs, and regrowth | Every answered card | Settled and compliant (`__init__.py:1541-1546`, `runtime/runtime_actions_shared.py:754-758`). |
 | Daily/weekly eligibility such as the Agility Circus | Shared answered-card calendar | Calendar boundary is compliant; carryover needs implementation after Decision 2 (`agility_logic.py:198-229`). |
 | Ordinary skilling, quests, Combat, Thieving, and Agility actions | Successful answer only | Settled and compliant (`__init__.py:1530-1553`). |
 | Familiar lifetime and Summoning-point drain | Every answered card while summoned | Implemented with exact residuals and the short-duration conversion; renewal resets phase and zero points create no debt. |
 | Enemy attacks | Successful Combat action only | Owner-settled: an active encounter receives no attack beat on Again. |
 | Prayer drain | Live Combat ticks only | Reconciled at `6 × M` immediate ticks with exact persisted counter state; Again grants no combat or Prayer-drain beat. |
-| Poison and poison immunity | Combat or successful safe-recovery ticks only | Current behavior (`logic_pure.py:4070-4124`, `:4641`, `:5000`); reconcile with the active-encounter decision. |
-| Generic out-of-combat LP/stat/special recovery | Successful non-Combat review only | Current behavior (`__init__.py:1517-1518`, `logic_pure.py:4613-4648`); this unsourced convenience recovery does not fire on Again. Source-classified passive effects are separate world consumers and may heal on Again. |
-| Agility boost and Surefooted budgets | Agility actions | Settled action budgets (`agility_logic.py:417-431`), despite older comments using review/hour pacing. |
+| Poison and poison immunity | Combat or successful safe-recovery ticks only | Current behavior (`logic_pure/logic_pure_combat_supplies.py:1470-1524`, `:4641`, `:5000`); reconcile with the active-encounter decision. |
+| Generic out-of-combat LP/stat/special recovery | Successful non-Combat review only | Current behavior (`__init__.py:5369-5370`, `logic_pure.py:4613-4648`); this unsourced convenience recovery does not fire on Again. Source-classified passive effects are separate world consumers and may heal on Again. |
+| Agility boost and Surefooted budgets | Agility actions | Settled action budgets (`agility_logic.py:609-623`), despite older comments using review/hour pacing. |
 | Familiar passive healing and special-point recharge | Every answered card | Implemented as exact 6/25 and 6/50 short-duration residuals; passive benefits may resolve on Again. |
 
 ## Decision 1 — idle during an active Combat encounter (settled and clarified 2026-07-16)

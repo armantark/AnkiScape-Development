@@ -101,7 +101,7 @@ that buys nothing.
 - **[Resolved 2026-08-22]** The five vine-herb seeds ARE plantable now. The
   habitat crop rows sit at `data/farming_data.py:421-425` on the merged tree
   with `blocked=()`, and `Herblore:finished_juju_hunting` exists at
-  `data/herblore_data.py:285`; the chain is reachable. The merged tree measures
+  `data/herblore_data.py:286`; the chain is reachable. The merged tree measures
   `1599 / 2370 / 38 / 34 / 4 / 37 / 1123` (actions / reachable items / orphan
   inputs / root orphans / cascade orphans / blocked actions / seed items),
   re-measured with `python3 tools/audit_item_reachability.py` and pinned at
@@ -204,7 +204,7 @@ were marked in place rather than silently rewritten. Summary of what changed:
 - Section 5 claimed the five vine-herb seeds could not be planted and that
   `Herblore:finished_juju_hunting` was blocked. Both are live:
   `data/farming_data.py:421-425` (blocked=()) and
-  `data/herblore_data.py:285`. Merged-tree reachability baseline:
+  `data/herblore_data.py:286`. Merged-tree reachability baseline:
   `1599 / 2370 / 38 / 34 / 4 / 37 / 1123`.
 - Section 8's "twenty-five of thirty-two handlers remain" was stale; see the
   in-place note there.

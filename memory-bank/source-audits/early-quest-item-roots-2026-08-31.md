@@ -66,7 +66,7 @@ item output: `agility_pyramid:retrieve_top` produces one `Pyramid top` at
 `data/agility_data.py:218-223`. The new adapter at
 `data/agility_data.py:328-341` exposes stage outputs through the same action
 shape as other skills, and the audit consumes it at
-`tools/audit_item_reachability.py:1322-1338`.
+`tools/audit_item_reachability.py:1323-1339`.
 
 Therefore the audit omission affected exactly one modelled Agility stage output:
 `Pyramid top`. Nineteen other names in `AGILITY_REWARD_ITEMS` still have no
@@ -81,8 +81,8 @@ shop access row also used `stage="completed"`. Both contradicted the period
 source and preserved the stage-2 circularity.
 
 The target rule now uses `kind="quest_started"` at
-`data/quest_data.py:11104-11106`. The generator-owned shop rule now uses
-`stage="started"` at `tools/generate_npc_shop_data.py:396-397`, and the checked-in
+`data/quest/ledger.py:191-193`. The generator-owned shop rule now uses
+`stage="started"` at `tools/generate_npc_shop_data.py:188-189`, and the checked-in
 `data/shop_data.py` row matches it. Runtime and audit machinery already support
 both started states; no gate resolver changed.
 
@@ -96,7 +96,7 @@ route to a Karambwan vessel and supplies the direct 440-coin Raw karambwan route
 
 ## Canonical rum predicate
 
-`data/quest_data.py:1359-1364,7642-7650` now uses `Karamjan rum` in the Pirate's
+`data/quest/definitions/free/pirates_treasure.py:10-15,37-45` now uses `Karamjan rum` in the Pirate's
 Treasure journal, consumed inventory, description, and auto action. The item
 registry and shop row were already canonical and were not renamed. The real
 review-answer product-flow test buys item `431` from the existing shop and

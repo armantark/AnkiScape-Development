@@ -53,6 +53,6 @@ The final repaired-source review is complete. The parent also independently comp
 
 ## Remaining acceptance
 
-The static report remains frozen at SHA-256 `62570531c49eab9fc59e88ab1f107720e6a95b15c83211db3d34094244ff0565`. It records the exact allowed name normalization. The owner requirements are §48 at `handoffs/design-to-impl-rulings-2026-08-13.md:2913`, §47 at `:2881`, and §53 at `:3136`: named domain seams, standalone modules, explicit treatment of adapted bodies, and no rebinding into another module's globals.
+The static report remains frozen at SHA-256 `62570531c49eab9fc59e88ab1f107720e6a95b15c83211db3d34094244ff0565`. It records the exact allowed name normalization. The owner requirements are §48 at `handoffs/design-to-impl-rulings-2026-08-13.md:2914`, §47 at `:2881`, and §53 at `:3136`: named domain seams, standalone modules, explicit treatment of adapted bodies, and no rebinding into another module's globals.
 
 The targeted verification and accepted source review do not replace full branch and repository gates, native verification, or the exact merged-tree gate. These remain pending. The parent reviewed the retained evidence manifest and authorized the normal author commit. The parent owns the mirror and all runtime execution. This document records the pre-commit state; no local project imports, tests, UI, remote access, or promotion ran in this retention pass.

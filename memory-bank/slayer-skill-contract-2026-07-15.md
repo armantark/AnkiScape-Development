@@ -36,7 +36,7 @@ value `source_blocked`; it cannot erase an attested feature.
   of one task state, not two selectable combat handlers.
 
 These boundaries continue the settled Combat contract in
-`combat-design-grill-2026-06-23.md:213-216,327-329,395,506-512`.
+`combat-design-grill-2026-06-23.md:233-236,347-349,415,526-532`.
 
 ## Owner decision 1 — assignment categories and exact target choice
 

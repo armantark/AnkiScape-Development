@@ -35,10 +35,10 @@ not a partially implemented quest. Its entire live completion footprint is:
 | Surface | Measured state |
 | --- | --- |
 | Completion-state reader | `logic/agility_logic.py:280-285` has the sole Python reference: `_quest_complete(..., "bar_crawl")` reads `player_data.get("bar_crawl_completed", False)` at line **282**. A source-wide exact search found **1** matching Python file and no writer. |
-| Current gated content | `data/agility_data.py:178-189` and `data/agility_data.py:191-210` assign `quest_gate="bar_crawl"` to the normal and advanced Barbarian Outpost courses: **2** gates. `logic/agility_logic.py:327-329` enforces either gate through the reader above. |
+| Current gated content | `data/agility_data.py:178-189` and `data/agility_data.py:191-210` assign `quest_gate="bar_crawl"` to the normal and advanced Barbarian Outpost courses: **2** gates. `logic/agility_logic.py:333-335` enforces either gate through the reader above. |
 | Existing item data | `generated/item_values_generated.py:903` lists `Barcrawl card` at value **10**, but has no card lifecycle or quest logic. |
 | Existing bars and drinks | An exact search of shipped Python found **0** occurrences of any of the ten required specialty-drink names. Venue names survive only as unrelated quest, diary, music, or generic-shop text; there is no Bar Crawl venue entity, drink transaction, signed-card state, bartender route, or test reference. |
-| Reusable machinery | Generic bartender vendor actions exist at `data/shop_data.py:23` and `logic/shop_logic.py:630-653`; generic quest/action-proof machinery exists at `logic_pure/logic_pure_quest.py:1231-1249,1495` and `data/quest_action_proof_data.py:13-36`. Neither writes `bar_crawl_completed` or names a Bar Crawl drink. |
+| Reusable machinery | Generic bartender vendor actions exist at `data/shop_data.py:23` and `logic/shop_logic.py:630-653`; generic quest/action-proof machinery exists at `logic_pure/logic_pure_quest.py:1165-1183,1441` and `data/quest_action_proof_data.py:13-36`. Neither writes `bar_crawl_completed` or names a Bar Crawl drink. |
 
 The premise therefore holds, rather than inverts: this is an
 unstartable-quest defect. The measured implementation scope is one miniquest

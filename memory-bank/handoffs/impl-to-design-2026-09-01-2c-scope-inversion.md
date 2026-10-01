@@ -53,7 +53,7 @@ covers one row. **The resolve set is about 245 of 247, not 102.**
 ### 3.1 `quest_stage_actions` is retired, not planned
 
 The name appears in the queue and the memory bank, so a name search scores it as
-planned. It is the opposite. `memory-bank/activeContext.md:6014`:
+planned. It is the opposite. `memory-bank/archive/progress-2026-09.md:1360`:
 
 > Config version 123 retires the quest-local `quest_stage_actions` model. New and
 > copied player data omit it, completed stages write only the global

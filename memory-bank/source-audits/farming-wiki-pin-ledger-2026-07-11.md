@@ -243,7 +243,7 @@ Papa Mambo authentically sells only red/blue/green blossom seeds among Habitat s
 
 #### Bird-nest tree/fruit/special seed table
 
-The era pin proves that bird nests supply tree and fruit-tree seeds through Woodcutting and Wyson/mole exchanges. GM supplies the exact rev-667 weight table, total weight 1,024: Acorn 218; apple 174; willow 147; banana 114; orange 87; curry 69; maple 57; pineapple 42; papaya 34; yew 27; palm 22; calquat 17; spirit 11; magic 5. [Bird’s nests oldid 6550484; GM `game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/birdnests/bird_nest.plugin.kts`; AS mirror `woodcutting_data.py:149-168`]
+The era pin proves that bird nests supply tree and fruit-tree seeds through Woodcutting and Wyson/mole exchanges. GM supplies the exact rev-667 weight table, total weight 1,024: Acorn 218; apple 174; willow 147; banana 114; orange 87; curry 69; maple 57; pineapple 42; papaya 34; yew 27; palm 22; calquat 17; spirit 11; magic 5. [Bird’s nests oldid 6550484; GM `game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/birdnests/bird_nest.plugin.kts`; AS mirror `woodcutting_data.py:226-245`]
 
 #### Master Farmer, monsters, quests, and activities
 

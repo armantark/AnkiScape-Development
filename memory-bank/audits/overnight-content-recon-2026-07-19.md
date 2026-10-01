@@ -3,7 +3,7 @@
 Cutoff: RuneScape gameplay available strictly before `2012-11-20T00:00:00Z`.
 
 Purpose: establish the append-only baseline for the live-index overnight recon
-promised by `memory-bank/source-audits/recon-coverage-closure-2026-07-18.md:64-69`.
+promised by `memory-bank/source-audits/recon-coverage-closure-2026-07-18.md:100-105`.
 This file tracks discovery only. It does not reopen owner decisions, promote
 source leads into period facts, or count already-owned work as a new finding.
 
@@ -57,10 +57,10 @@ work; owner-settled forks; pattern-determined surfaces; parked sequencing;
 explicit exclusions; post-cutoff/OSRS-only content; transport-only systems;
 generic multiplayer/social layers; and a variant already owned by a broader
 complete family. This follows the canonical label contract and duplicate rule
-at `memory-bank/future-work-kanban.md:5-13,45-50`, the settled recon dispositions
+at `memory-bank/future-work-kanban.md:7-15,156-161`, the settled recon dispositions
 at `memory-bank/source-audits/recon-coverage-closure-2026-07-18.md:7-69`, and the
 wider-family/exclusion ledgers at
-`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:625-738`.
+`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:631-744`.
 
 When documents conflict, use this authority order:
 
@@ -72,9 +72,9 @@ When documents conflict, use this authority order:
 
 This prevents an old sentence from resurrecting closed work. For example, the
 starter packet once called Warriors' Guild unowned
-(`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:698-699`), but the
+(`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:704-705`), but the
 current board records its executable closure
-(`memory-bank/future-work-kanban.md:342-348`) and the focused implementation
+(`memory-bank/future-work-kanban.md:378-384`) and the focused implementation
 audit supplies pinned period citations
 (`memory-bank/source-audits/warriors-guild-live-implementation-2026-07-18.md:1-23`).
 
@@ -95,7 +95,7 @@ Every row below is required once before `Required sweep complete` can become
 | Local implementation and audit seam diff | Whether a period surface is absent, named-only, implemented, or owned elsewhere | Pending | Exact `rg` evidence across code, tests, assets, audits, contracts, Kanban, and backlog for every admitted candidate |
 
 The source roles above come directly from
-`memory-bank/pre-eoc-source-verification-standard.md:90-132,134-167,181-209`.
+`memory-bank/pre-eoc-source-verification-standard.md:90-132,145-178,181-209`.
 In particular, rev 727 and Darkan are one source layer, caches prove client
 identity rather than server mechanics, and modern pages may locate questions
 but cannot independently close parity.
@@ -122,10 +122,10 @@ has an owner or disposition; it does **not** mean historical completeness.
 | Transport, world-map, social, cosmetic, post-cutoff, and inert-preview boundaries | Explicit exclusion ledgers | Excluded/parked | Wiki Pass 1 exclusion check complete; other source families pending |
 
 The named family anchors are at
-`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:625-674,676-738`.
+`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:631-680,682-744`.
 The canonical forward cards for special methods, activities, bosses,
 diaries/collections, random content, and exclusions are at
-`memory-bank/future-work-kanban.md:643-755,875-880`.
+`memory-bank/future-work-kanban.md:682-794,925-930`.
 
 ## Baseline ledger reconciliation
 
@@ -145,7 +145,7 @@ is:
 | 1 | `rejected_product_scope` | Excluded; duplicate |
 
 This matches the canonical prose summary at
-`memory-bank/future-work-kanban.md:45-50`. No backlog card is eligible to become
+`memory-bank/future-work-kanban.md:156-161`. No backlog card is eligible to become
 a new overnight candidate merely because it is not yet implemented.
 
 The two prior Sol recon passes are also closed against duplication. Daily

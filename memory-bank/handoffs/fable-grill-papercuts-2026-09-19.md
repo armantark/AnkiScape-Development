@@ -41,7 +41,7 @@ The cleanup does not loosen a rail to make a failing candidate pass. It does not
 
 A historical Magic comparison archive with only Python and JSON could not import the same runtime surface. It needed asset directories too. This is a real dependency cost: a small logic question needs a much larger environment.
 
-Equipment, capes, diaries and shops also refer back into shared logic. Relevant edges are in `logic_pure/logic_pure_equipment.py:270`, `logic/cape_logic.py:291`, `logic/achievement_diary_logic.py:37` and `logic/shop_logic.py:273`. Some imports are lazy. These edges do not prove a current import failure.
+Equipment, capes, diaries and shops also refer back into shared logic. Relevant edges are in `logic_pure/logic_pure_equipment.py:279`, `logic/cape_logic.py:291`, `logic/achievement_diary_logic.py:37` and `logic/shop_logic.py:337`. Some imports are lazy. These edges do not prove a current import failure.
 
 **Question for Fable:** Can deterministic catalog construction replace import-time filesystem discovery without a broad rewrite? What must stay observable at the public facade?
 
@@ -85,7 +85,7 @@ The source is the historical trial record in `memory-bank/progress.md`, under â€
 
 | Reported obstacle | What the evidence supports | Present disposition |
 | --- | --- | --- |
-| Order-independent collection looked impossible. | The engine already checks every required action at `logic_pure/logic_pure_quest.py:787`. The orchestrator's separate-stage brief added confusion. | Model and orchestration mistake. No new quest engine is needed. |
+| Order-independent collection looked impossible. | The engine already checks every required action at `logic_pure/logic_pure_quest.py:789`. The orchestrator's separate-stage brief added confusion. | Model and orchestration mistake. No new quest engine is needed. |
 | Vendor rows went into generated output by hand. | Regeneration could erase the feature. The generator now owns the rows, with a preservation test. | Real ownership hazard, already repaired. |
 | A proof requirement crossed into Scorpion Catcher. | It violated the quest-local contract. Commit `2dcc9eee` removed that coupling. | Orchestrator design mistake, already repaired. |
 | Focused tests passed while full tests failed. | Focused coverage did not establish complete acceptance. Full gates caught the regressions. | Keep full gates. Do not call focused evidence sufficient. |

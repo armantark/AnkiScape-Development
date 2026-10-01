@@ -31,7 +31,7 @@ for that scenario; it never reaches a skill handler. On successful skill answers
 two full-state deep copies can remain: one in
 `_apply_safe_combat_recovery_after_review` at `__init__.py:4755`, reached from
 `__init__.py:4847-4848`, and one for `winter_storage_before` in
-`runtime/runtime_actions_carried.py:1057`. Both copies predate this branch rather
+`runtime/runtime_actions_carried_overlay.py:851`. Both copies predate this branch rather
 than being introduced by it, and together they cost roughly 4 ms per answer.
 
 Qt traversals per refresh cycle measured 90 on main, two once at add-on load on

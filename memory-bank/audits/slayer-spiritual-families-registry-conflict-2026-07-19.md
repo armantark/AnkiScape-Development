@@ -38,7 +38,7 @@ SlayerFamily(
 ),
 ```
 
-Source: `slayer_data.py:724-741`.
+Source: `data/slayer/contract.py:734-751`.
 
 One Saradomin target could therefore certify each family even though the
 owner-settled Armadyl, Bandos, and Zamorak identities and their target-local

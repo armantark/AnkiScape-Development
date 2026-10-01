@@ -32,7 +32,7 @@ Result: **13 findings** across the four newest activity families: 9 broken mecha
 
 ### 4. Gnome Restaurant — accepting a job can steal another persistent activity’s session
 
-- **Files:** `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/gnome_restaurant_logic.py:237-254`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/gnome_restaurant_logic.py:430-450`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/core/storage_pure.py:1421-1436`
+- **Files:** `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/gnome_restaurant_logic.py:237-254`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/gnome_restaurant_logic.py:436-456`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/core/storage_pure.py:1895-1910`
 - **Severity:** broken-mechanic
 - **What is wrong:** `_accept_reason()` checks service state, outstanding orders, decline wait, and customer reachability, but not the exclusive `activity_session`. `accept_gnome_restaurant_order_pure()` then unconditionally overwrites `activity_session.active_id` with `gnome_restaurant`.
 - **Failure scenario:** Open Gnome Restaurant service, then start a real Temple Trekking session. While the trek is active, accept an easy Gnome Restaurant order. The Gnome command succeeds, replaces the owner, and the next save/load reconciliation deletes the live Temple Trekking session.
@@ -40,7 +40,7 @@ Result: **13 findings** across the four newest activity families: 9 broken mecha
 
 ### 5. Dominion Tower — Leave works during a live match despite the sourced lock-in rule
 
-- **Files:** `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/dominion_tower_logic.py:1290-1299`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/dominion_tower_logic.py:1694-1696`
+- **Files:** `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/dominion_tower_logic.py:1290-1299`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/dominion_tower_logic.py:1875-1877`
 - **Severity:** broken-mechanic
 - **What is wrong:** The combat path cites the rule that a player cannot leave a match until winning or losing, but the `leave` command accepts any non-empty mode and does not check `state["roster"]`.
 - **Failure scenario:** Start a Freestyle match against Nomad and immediately press Leave before one review. The run ends safely, allowing the player to evade the match and any defeat consequence.
@@ -88,7 +88,7 @@ Result: **13 findings** across the four newest activity families: 9 broken mecha
 
 ### 11. Dominion Tower — the 20-per-item reward-box cap is applied per roll, not per box
 
-- **Files:** `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/data/dominion_tower_data.py:1549-1568`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/dominion_tower_logic.py:1021-1029`
+- **Files:** `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/data/dominion_tower_data.py:1569-1588`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/dominion_tower_logic.py:1021-1029`
 - **Severity:** broken-mechanic
 - **What is wrong:** The source says a Reward box gives at most 20 of any individual capped item at once. The code caps each roll at 20, then allows repeated rolls of the same item to accumulate beyond 20.
 - **Failure scenario:** All three reward rolls select Blood rune. The box grants 60 Blood runes.

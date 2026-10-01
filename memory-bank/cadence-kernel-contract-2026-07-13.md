@@ -25,7 +25,7 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
    period record (gilded altar 913/hr, dragonhide 1,000/hr, High Alchemy 1,200/hr —
    the last stated outright by the 2012 page). `R = 1800` has no support.
 2. **Pace is the player's, via the existing `ankiscape_review_action_multiplier`**
-   (`__init__.py:136`). All parity claims are defined at multiplier 1. `M > 1`
+   (`__init__.py:395`). All parity claims are defined at multiplier 1. `M > 1`
    executes M complete kernel steps; ratios are preserved. It is a game-speed
    override and is explicitly **not** part of source parity.
 3. **The `0.20 + 0.72·√p` adapter is a BUG, not a feature.** It was intended to

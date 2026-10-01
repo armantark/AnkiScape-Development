@@ -141,7 +141,7 @@ Sections of `memory-bank/progress.md` dated before 2026-09-01, moved verbatim an
 - Completed Big Chompy Bird Hunting unlocks `Utility:hunt_chompy_birds`. Each action consumes one Ogre arrow, requires a non-consumed Ogre bow, produces one Raw chompy, displays `cookingitems/raw_chompy.png`, and names the missing arrow when materials run out.
 - The reachability instrument still reports a move from 1,608 actions / 2,244 reachable items / 190 orphan inputs / 277 unresolved actions to 1,609 / 2,257 / 179 / 266. Root and cascade orphans report 39 / 151 to 37 / 142, seed items 1,179 to 1,182, and blocked stage rows 144 to 143.
 - This slice actually delivers exactly four items: Ogre bow, Raw chompy, Raw wild pie, and Wild pie. Big Chompy Bird Hunting is the sole newly completable quest.
-- The audit's other nine credited Zogre/coffin items are phantom. `tools/audit_item_reachability.py:943-948` omits required skills from startability, while runtime returns `Combat 89 (not implemented)` at `logic_pure/logic_pure_quest.py:146` and refuses to start Zogre Flesh Eaters. Six combat-category quests share the instrument gap; the audit and requirement fixes belong to the next slice.
+- The audit's other nine credited Zogre/coffin items are phantom. `tools/audit_item_reachability.py:944-949` omits required skills from startability, while runtime returns `Combat 89 (not implemented)` at `logic_pure/logic_pure_quest.py:147` and refuses to start Zogre Flesh Eaters. Six combat-category quests share the instrument gap; the audit and requirement fixes belong to the next slice.
 - The combat equipment registry also lacks Ogre bow and uses plural `Ogre arrows` while the item registry uses canonical singular `Ogre arrow`; that equipability gap remains a follow-on.
 - Evidence: `source-audits/big-chompy-bird-hunting-completion-2026-08-31.md`.
 
@@ -348,7 +348,7 @@ Sections of `memory-bank/progress.md` dated before 2026-09-01, moved verbatim an
   `/Users/armantarkhanian/ankiscape-remote-test-host/repo/.venv-qt`. Its target,
   `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt`,
   does not exist on the MacBook.
-- `tests/test_promotion_gate.py:41-47` dereferenced that dangling mirror link in
+- `tests/test_promotion_gate.py:42-48` dereferenced that dangling mirror link in
   `shutil.copytree`. Exactly six reachability tests call that helper. Both gate
   lanes therefore reached `Ran 4529 tests` and failed with `errors=6`: plain in
   `239.071s` with `skipped=513`, and Qt in `435.650s` with `skipped=3`. The exact
@@ -641,7 +641,7 @@ worktree's `.venv-qt` as an absolute Mac Studio symlink, but the remote sync
 used the directory-only pattern `--exclude=.venv-qt/`. Rsync `-a` copied the
 symlink to `/Users/armantarkhanian/ankiscape-remote-test-host/repo/.venv-qt`.
 Its target, `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.venv-qt`,
-was absent. Six calls to `tests/test_promotion_gate.py:41-47` then failed with
+was absent. Six calls to `tests/test_promotion_gate.py:42-48` then failed with
 this exact receiver-side error:
 
 ```
@@ -1277,7 +1277,7 @@ measures `1584 / 2334 / 50 / 35 / 15 / 53 / 1104`; and the merged tree measures
 `1598 / 2369 / 38 / 34 / 4 / 37 / 1123` for actions / reachable items / orphan
 inputs / root orphans / cascade orphans / blocked actions / seed items.
 **Correction 2026-08-26:** the live pins at
-`tests/test_item_reachability_audit.py:706-715` and the audit tool now read `1600 /
+`tests/test_item_reachability_audit.py:701-710` and the audit tool now read `1600 /
 2468 / 36 / 32 / 4 / 35 / 1218`. These are the instrument's action, reachable-item,
 orphan-input, root-orphan, cascade-orphan, unresolved-action, and seed-item
 counts. Queue entry 5.12 proves that the instrument still credits inaccessible

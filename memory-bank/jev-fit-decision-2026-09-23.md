@@ -55,9 +55,9 @@ The grill found that `memory-bank/gap-backlog.json` is a historical record, and 
 
 - `memory-bank/README.md` line 17
 - `memory-bank/roadmap.md` line 12
-- `memory-bank/future-work-kanban.md` lines 3, 536, and 1940
+- `memory-bank/future-work-kanban.md` lines 3, 160, and 1267
 - `memory-bank/projectbrief.md` line 12
-- `memory-bank/progress.md` lines 306 and 319
+- `memory-bank/archive/progress-2026-09.md` lines 1027 and 1040
 
 Do these steps in the next staleness sweep of this repo:
 

@@ -50,7 +50,7 @@ Thieving is done when all of the following hold:
    because a tick is 0.6s, so `actions_per_hour = 6000 / respawnTicks` is an
    exact rational. The vegetable, baker, and wall-safe stalls exceed `R = 1000`
    and must declare `overflow_policy=CAP_ONE_ACTION` — the kernel raises if they
-   don't (`cadence_kernel.py:169`). **The stall catch chance is zero.** There is
+   don't (`cadence_kernel.py:164`). **The stall catch chance is zero.** There is
    no roll to write.
 4. **The wall safe** ships 2011Scape's `lowChance = 8, highChance = 160`
    endpoints — the only stall-family row that can fail, and the only one whose
@@ -61,7 +61,7 @@ Thieving is done when all of the following hold:
    substrate. One casual toggle — "Fight back when caught", default off —
    governs both stall guards and blackjack thugs.
 6. The stall XP/hour comes out within rounding of the pinned period rates in
-   `tools/sourced_xp_rates.py:90-96`. **This is the acceptance test for the whole
+   `tools/sourced_xp_rates.py:94-100`. **This is the acceptance test for the whole
    stall line.** Write it as a real test, not a spot check: the gem, spice, and
    silver stalls should land on 3,240 / 3,600 / 6,480 xp per balancing-hour.
 7. Full suite green. Baseline on `main` right now is **1,219 tests, 187 skips, 3

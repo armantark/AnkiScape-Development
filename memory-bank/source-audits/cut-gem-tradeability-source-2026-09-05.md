@@ -116,7 +116,7 @@ the cache value, and emits no buy limit when the generated limit is missing.
 Thus changing only the two false flags would enable cache-value pricing
 without the already qualified period limits and prices. The generator obtains
 its item names from `GE_ITEM_CATALOG` through `_registered_item_names()` at
-`tools/generate_ge_period_data.py:148`. The two false flags therefore exclude
+`tools/generate_ge_period_data.py:153`. The two false flags therefore exclude
 these names from that harvest input. This explains their exclusion under the
 current generator; it does not claim an independently observed historical
 execution of the original harvest.
@@ -128,7 +128,7 @@ execution of the original harvest.
    the verified identity in the registry.
 2. Add only these two keys to the current period price, buy-limit, and price
    provenance dictionaries through the existing `write_generated` entry point
-   in `tools/generate_ge_period_data.py:278`. Supply the existing full maps plus
+   in `tools/generate_ge_period_data.py:283`. Supply the existing full maps plus
    the two qualified rows; preserve every other entry and the global limit
    source. Use the exact nine-key provenance row order: `price`, `page_title`,
    `oldid`, `timestamp`, `price_date`, `page_item`, `item_id`, `cache_value`, and

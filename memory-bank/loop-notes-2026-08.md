@@ -1444,7 +1444,7 @@ with real defects. None of the rejections were style.
 
 **Jungle Potion — REJECT.** A Shattered Heart strange rock replaces the clean
 herb produced by the quest's Herblore step, because `_record_action` in
-`runtime/runtime_actions_shared.py:566-575` subtracts the produced output as
+`runtime/runtime_actions_shared.py:581-590` subtracts the produced output as
 the rock's replacement. Each grimy jungle herb has exactly one producer, the
 already-passed search stage, so the quest becomes permanently unfinishable and
 takes Shilo Village and thirteen exclusive items with it. Incidence
@@ -1551,14 +1551,14 @@ polished away while the Codex block runs down:
 
 1. `__init__.py:787` — the availability cache fingerprint gained `"crafting"`
    but not `"smithing"`, although Smithing availability now applies
-   `QUEST_UNLOCK_RULES` and `data/quest_data.py:9395` gates `forge_cannonballs`
+   `QUEST_UNLOCK_RULES` and `data/quest/ledger.py:147` gates `forge_cannonballs`
    on `dwarf_cannon`. The reviewer could not construct a player state that
    produces a wrong output, because completing the quest grants an Ammo mould
    which is itself a tracked requirement item. An asymmetry to close, not a
    shipped defect.
 2. `ui/ui.py:1465` — the seven unavailable-tooltip strings are duplicated
    verbatim between `refresh_skill_availability` and the panel render path at
-   `ui/ui.py:22840-22857`, so editing one leaves the other emitting old text.
+   `ui/ui.py:22883-22900`, so editing one leaves the other emitting old text.
    The available branch also sets the tooltip to the bare skill name while the
    render path sets none, so an enabled button silently acquires a tooltip
    after the first refresh.

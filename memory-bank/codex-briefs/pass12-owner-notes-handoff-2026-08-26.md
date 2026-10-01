@@ -133,9 +133,9 @@ post-acceptance transition seam with a true-transition guard. Call sites:
 `__init__.py:378-387,1477-1486,2395-2410,5889-5895`; direct-action path
 `__init__.py:1019-1083`; manual Stop `__init__.py:4482-4505` stays silent.
 Automatic switches show a modal (achievement-popup style,
-`ui/ui.py:4549-4581` precedent) naming the reason; the modal fires after the
+`ui/ui.py:4565-4597` precedent) naming the reason; the modal fires after the
 review answer completes, never before the XP feedback flush
-(`__init__.py:5566-5573`). One event-log entry per switch; repeated switch
+(`__init__.py:5369-5376`). One event-log entry per switch; repeated switch
 while already Bankstanding is silent; guard the redundant call at
 `__init__.py:2404-2408` against double-fire.
 Tests: `tests/test_runtime_actions.py`, `tests/test_direct_action_undo_seam.py`,
@@ -151,9 +151,9 @@ Move the read-only Current-inventory grid below both `auto_view` and
 for display; Bank and Equipment copies inherit from the shared builder.
 Never subtract carried quantities from Bank totals; never create a second
 ledger. Pin: death routes retained loot to the grave
-(`runtime_actions_combat.py:606-630`), coins stay excluded, the 28-slot bank
+(`runtime_actions_combat.py:684-708`), coins stay excluded, the 28-slot bank
 run clears the view, mode switches mutate nothing.
-Tests: `tests/test_runtime_actions.py:2595-2703`,
+Tests: `tests/test_runtime_actions.py:2628-2736`,
 `tests/test_main_menu_widget.py:3537-3809`, `tests/test_inventory_pure.py`.
 
 ### S4 `druidic-2012`
@@ -177,12 +177,12 @@ fixtures at 2073-2153, `tests/test_herblore_data.py`, storage migration tests.
 
 Two stable Stronghold claim IDs delivered to Bank Claims on chest claim
 (`logic/stronghold_player_safety_logic.py:161-197`,
-`logic_pure/logic_pure_claims.py:197-282`, `data/quest_data.py:11579-11601`);
+`logic_pure/logic_pure_claims.py:201-286`, `data/quest_data.py:11579-11601`);
 derive remaining lamps from the claim records and retire `lamps_remaining`
 as a competing source of truth; migrate old counts 2/1/0 deterministically.
 Shared chooser `_choose_xp_lamp_skill(parent, title, eligible_skill_ids)`
-beside `_exec_selection_dialog` (`ui/ui.py:28640-28643`), icon grid via
-`skill_icon_path_for` (`ui/ui.py:805-842`), explicit Claim/Cancel, returns
+beside `_exec_selection_dialog` (`ui/ui.py:28614-28617`), icon grid via
+`skill_icon_path_for` (`ui/ui.py:808-845`), explicit Claim/Cancel, returns
 the stable skill id; both callers (`ui/ui.py:18060-18077`, 26506-26520)
 keep their own eligibility computation. Completion per ruling 5; fix the
 header clipping (`ui/ui.py:17913-17923`) and the 188px dialog title elision.

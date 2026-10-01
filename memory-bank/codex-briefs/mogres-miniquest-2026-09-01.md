@@ -12,7 +12,7 @@ this brief and the contract disagree, stop and report both texts.
 ## 1. Why this slice exists
 
 Mogre combat is source-closed and has been since 2026-07-18. It cannot run,
-because `data/slayer_data.py:270` gates the `mogres` Slayer family on the
+because `data/slayer/contract.py:269` gates the `mogres` Slayer family on the
 completion ID `skippy_and_the_mogres`, and no quest in the catalog carries that
 ID. The result is one blocked family and two Slayer masters that no player can
 finish.
@@ -92,10 +92,10 @@ miniquest rows already follow.
 Follow the two existing miniquest rows rather than inventing a shape:
 `HUNT_FOR_SUROK` and `LAIR_OF_TARN_RAZORLOR` in `data/quest_data.py`. Both set
 `miniquest=True`, `point_reward=0` and `release_order=9999`. Read
-`data/quest_data.py:10532-10538` for the comment that explains why hand-written
+`data/quest/definitions/miniquests/hunt_for_surok.py:10-16` for the comment that explains why hand-written
 miniquest rows join the same ledger, storage and unlock engine.
 
-Reuse, do not reimplement: `data/quest_data.py:6510-6518` already mixes a
+Reuse, do not reimplement: `data/quest/stage_overrides/members/classic/plague_city.py:189-197` already mixes a
 Hangover cure from exactly Chocolate dust, a Bucket of milk and Snape grass
 with a Pestle and mortar, for Plague City stage 14. Decide from the sources
 whether the two cures are the same item or two quest-local items, and record

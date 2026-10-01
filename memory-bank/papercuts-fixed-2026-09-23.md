@@ -45,7 +45,7 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## Ranging Guild hand edits were absent from generator source — 1 occurrence
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_diary_generation_overrides`; `tools/generate_achievement_diary_data.py:855-874`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_diary_generation_overrides`; `tools/achievement_diary_generation/task_conditions.py:321-340`.
 
 2026-08-11 04:13 PDT — Ranging Guild diary source IDs `238` and `239` are hand edits absent from `tools/generate_achievement_diary_data.py` on this branch and on canonical `main`. Regeneration will silently delete them. This is pre-existing data-depth debt.
 
@@ -84,7 +84,7 @@ Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-a
 
 ## Process-global QApplication state allowed tests to open real modal dialogs under discovery — 10 occurrences
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_qt_modal_guard`; `tests/__init__.py`, `run_tests.py:116-127`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_qt_modal_guard`; `tests/__init__.py`, `run_tests.py:182-193`.
 
 2026-08-08 21:23:54 PDT — The 715-test Penguin-focused real-Qt aggregate entered a modal `QDialog::exec()` after its early modules and slept for more than three minutes with no child process or output; `SIGTERM` ended PID 12463 with exit 143 after two PTY interrupts did not unwind the nested event loop. Use isolated Penguin/UI paths plus canonical full-suite order as the product oracle.
 2026-08-11 21:58 PDT — The final offscreen Qt lane hung for more than 21 minutes inside `QDialog::exec()` with no test output, while the paired plain lane passed; the process was terminated with exit 144. The tree cannot be committed until the full Qt gate completes, and the unblocker is identifying or bypassing the modal dialog that the harness leaves open.
@@ -140,7 +140,7 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## Absolute runner invocation left relative test paths tied to caller cwd — 19 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_runner_cwd`; `run_tests.py:73-75`, `pkg_alias.py`, `tests/test_papercut_tools.py`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_runner_cwd`; `run_tests.py:121-123`, `pkg_alias.py`, `tests/test_papercut_tools.py`.
 
 - 2026-08-27T09:08:49-07:00 — The full plain promotion-gate wrapper omitted an explicit worktree `cd` and then assigned zsh's read-only `status` variable, so tests resolved asset paths from the canonical checkout before the wrapper discarded their exit code and tail; enter the worktree in the same shell command and use `rc` for every exit-code capture.
 - 2026-08-13T11:35:00-07:00 — The first focused cadence regression command omitted the explicit worktree `cd`, so it loaded canonical tests and reported the new method missing; every worktree test command must set the guarded worktree as cwd in the same shell invocation.
@@ -229,7 +229,7 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## Remote mirrors lacked dependencies and inherited workstation-only source paths — 5 occurrences
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_remote_portability`; `tools/run_remote_tests.py`, `tools/generate_smithing_data.py:563`, `tools/remote_test_host_requirements.txt`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_remote_portability`; `tools/run_remote_tests.py`, `tools/generate_smithing_data.py:602`, `tools/remote_test_host_requirements.txt`.
 
 2026-08-19 13:49 PDT — The first MacBook plain lane ran all 4,144 tests but ended `FAILED (failures=5, errors=6, skipped=514)`: the mirror lacked Pillow and `rg`, while generator and quest-source tests still pointed at `/Users/ArmanTarkhanian1/...` source trees that cannot exist under the laptop user's home.
 2026-08-19 13:50 PDT — The laptop account cannot create the old Studio home path and `sudo -n true` returned `sudo: a password is required`; portable source-root environment variables were required instead of filesystem aliases.
@@ -313,7 +313,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 2026-08-13 09:51:00 PDT — Documentation promoted a successful reflective interface-decoder experiment into a capability of `OpenRs2InterfaceQuery`, which still skips all fifteen guarded archives; record experiment evidence separately from shipped tool capability.
 2026-08-19 17:51 PDT — A conflict-resolution probe incorrectly required `logic_pure/logic_pure_gathering.py` and `runtime/runtime_actions_gathering.py` to be byte-identical to the main parent; the merge correctly retains main’s generic implementation while adding the Common-jadinko call-site integration, so verify the specific generic contract and delta instead of whole-file equality.
 2026-08-19 14:59 PDT — A brief quoted baseline SHA `26ccb2a4378f3968e2f255b5f34bddd8ffe889de`, which was then written into durable records as the merge parent instead of `6c482e617ffbe1f803b2a17fb00fb74a0d07a305`, and the slice stopped for an authorization it already held; distinguish measurement commits from graph parents and correct known-wrong durable identifiers before closure.
-2026-08-21 13:28 PDT — The orchestrator quoted `memory-bank/placeholder-values.md:35` as source truth in a fix brief, and that ledger row over-reads its own source, so the fix replaced an invented `+3` Hunter boost with an invented refusal. Read directly, Darkan's `Potions.kt` defines `open fun canDrink(player: Player): Boolean { return true }` and a `drink()` that swaps the item for the next-lower dose, calls `effect.invoke(player)` and prints "You drink some of your ...". `JUJU_HUNTER_POTION` has no `canDrink` override, so the period behaviour is: drinking IS allowed, a dose IS consumed, and the only effect is the flavour line. The Habitat reagent handling the row attributes to `Potions.kt` actually lives in `FarmPatch.java:340-361`. A Memory Bank summary is not a source; cite the file and read it before writing its claim into a brief, because a brief that quotes a summary launders it into a shipped fact.
+2026-08-21 13:28 PDT — The orchestrator quoted `memory-bank/placeholder-values.md:36` as source truth in a fix brief, and that ledger row over-reads its own source, so the fix replaced an invented `+3` Hunter boost with an invented refusal. Read directly, Darkan's `Potions.kt` defines `open fun canDrink(player: Player): Boolean { return true }` and a `drink()` that swaps the item for the next-lower dose, calls `effect.invoke(player)` and prints "You drink some of your ...". `JUJU_HUNTER_POTION` has no `canDrink` override, so the period behaviour is: drinking IS allowed, a dose IS consumed, and the only effect is the flavour line. The Habitat reagent handling the row attributes to `Potions.kt` actually lives in `FarmPatch.java:340-361`. A Memory Bank summary is not a source; cite the file and read it before writing its claim into a brief, because a brief that quotes a summary launders it into a shipped fact.
 2026-08-21 13:37 PDT — The refusal mutation used a non-unique `for base, spec in POTION_FAMILIES.items()` anchor and the mutator failed with `refusal mutation target mismatch`; because the wrapper lacked `set -e`, it still ran the unmutated test and printed `REFUSAL_MUTATION_EXIT_CODE=0`. Anchor the specific `potion_consumables_as_dict` block and stop immediately if mutation setup fails.
 2026-08-11 05:32:56 PDT — Two item-registry probes assumed mapping rows with `name`/`item_id`; `ITEM_DEFINITIONS` actually contains `ItemDefinition` records keyed by `display_name` with `source_item_id`, so inspect the dataclass shape before projecting fields.
 2026-08-11 06:14:21 PDT — The orchestrator supplied the 1556/2585/90/85 baseline from sibling branch `goal/breadth-2026-08-11` instead of this slice's merge-base `0071218b` baseline 1556/2573/102/101; future slices must measure the baseline from their own merge-base.
@@ -334,7 +334,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## Development edits or fixtures violated the owning contract and were caught by existing gates; a historical first-attempt failure does not prove a present defect — 74 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_fixture_authoring`; `ui/ui.py:23335`, `tests/test_main_menu_widget.py:12506`, `tests/test_crystal_chest.py:99`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_fixture_authoring`; `ui/ui.py:23299`, `tests/test_main_menu_widget.py:12504`, `tests/test_crystal_chest.py:99`.
 
 - 2026-08-28 19:49 PDT — The first tab commit was rejected because the CCN hook measured both new tab tests at 16 over the limit of 15; remove one duplicated native-style branch with an ordered candidate expression, then create a new commit rather than amend.
 - 2026-08-28T11:31:00-07:00 — The first offscreen tab-overflow evidence run reached all cases but failed before capture with exact `TypeError: int() argument must be a string, a bytes-like object or a real number, not 'TextElideMode'`; serializing `enum.value` fixed the temp-only verifier and the fresh rerun passed. Evidence: `/private/tmp/claude-504/-Users-ArmanTarkhanian1-Library-Application-Support-Anki2-addons21-ankiscape-fork/56d8d23a-e661-4318-8e28-30eaf1999572/scratchpad/tab-overflow-visual-final/report.txt`.
@@ -970,7 +970,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-08T13:45:00-07:00 — Retaining the failed cached-diff stdout as raw text repeated the offending `+ ` context lines, so the next `git diff --cached --check` failed on its own evidence. Store exact diagnostic output that can contain whitespace findings as deterministic gzip.
 2026-08-09 — Final Long-kebbit staging found Markdown hard-break whitespace in the new audit only after `git add`; use a blank line instead of trailing spaces for status metadata.
 2026-08-21 13:07 PDT — The final `git diff --check` found `memory-bank/source-audits/juju-vine-secondaries-2026-08-11.md:134: new blank line at EOF.` after removing the obsolete queue item; normalize the edited file to exactly one trailing newline before the gate.
-- 2026-08-21 13:06:54 PDT — The first `git diff --check` failed with `memory-bank/design-thread-queue.md:1012: new blank line at EOF.` after appending section 4.16; normalize appended Markdown to exactly one trailing newline.
+- 2026-08-21 13:06:54 PDT — The first `git diff --check` failed with `memory-bank/design-thread-queue.md:1025: new blank line at EOF.` after appending section 4.16; normalize appended Markdown to exactly one trailing newline.
 
 ## One-off command/API assumptions or observation mistakes produced incorrect local conclusions — 11 occurrences
 
@@ -1018,13 +1018,13 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## Absolute run_tests.py invocation preserved caller cwd and broke relative provenance paths — 1 occurrence
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_absolute_runner_cwd`; `run_tests.py:73-75`, `tests/test_papercut_tools.py`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_absolute_runner_cwd`; `run_tests.py:121-123`, `tests/test_papercut_tools.py`.
 
 2026-08-21 14:34 PDT — The first promotion plain lane invoked the worktree's absolute `run_tests.py` path while the shell stayed in the canonical checkout, so `test_shades_bronze_chest_poisoned_daggers_are_registered_with_art` derived `../../ankiscape_worktrees/promote-undo2-2026-08-21/activityitems/shades_of_mortton_black_dagger_p.png` instead of the repository-relative provenance key and failed. Run path-sensitive full lanes after `cd` into the audited worktree, even though `run_tests.py` itself adds its own directory to `PYTHONPATH`.
 
 ## A historical runner lacked the quiet option — 1 occurrence
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_runner_quiet_option`; `run_tests.py:103-107`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `early_runner_quiet_option`; `run_tests.py:169-173`.
 
 2026-08-19 18:19:52 PDT — The first plain-lane attempt copied --quiet from a prior monolithic Qt note, but run_tests.py rejected it with error: unrecognized arguments: --quiet; use the standing contract's exact run_tests.py command.
 
@@ -1036,13 +1036,13 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## Equipment generation accepts a mutable external source by design; the incident identifies an input-provenance policy decision, not a proved present product defect — 1 occurrence
 
-Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `equipment_generator_mutable_input_drift`; `tools/generate_equipment_data.py:16`, `tests/test_generated_skill_data.py:73-105`.
+Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `equipment_generator_mutable_input_drift`; `tools/generate_equipment_data.py:16`, `tests/test_generated_skill_data.py:345-377`.
 
 - 2026-08-22 14:27 PDT — Regenerating `data/equipment_data.py` from the mutable external `game-main` checkout changed unrelated Steel spear and Brawling-glove rows; adding a late-cache equipment slice requires separating the intended generated rows from source-checkout drift.
 
 ## The independent EQUIPMENT_DATA count pin correctly rejected an author change that added a generated row without updating the expected contract — 1 occurrence
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `generated_registry_cardinality_guard_caught_omitted_update`; `tests/test_generated_skill_data.py:73-105`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `generated_registry_cardinality_guard_caught_omitted_update`; `tests/test_generated_skill_data.py:345-377`.
 
 - 2026-08-22 14:32 PDT — The full plain lane caught a manually pinned `EQUIPMENT_DATA` cardinality that the generated-row addition did not update (`AssertionError: 706 != 702`); generated registry changes have a separate count pin outside the generator.
 
@@ -1054,7 +1054,7 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## Qt probes need a real aqt environment and a realized widget before geometry observations are meaningful — 3 occurrences
 
-Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `qt_harness_and_geometry_probe_lifecycle`; `tests/test_main_menu_widget.py:24-40`.
+Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `qt_harness_and_geometry_probe_lifecycle`; `tests/test_main_menu_widget.py:25-41`.
 
 - 2026-08-23 01:30 PDT — A Qt probe imported `aqt.qt` before the test harness installed its fake `aqt` module, causing `ModuleNotFoundError: No module named 'aqt'`; importing test_main_menu_widget first is required.
 - 2026-08-23 01:31 PDT — Correction to the prior Qt probe papercut: the custom sys.path filter removed every path containing `ankiscape_fork`, including `.venv-qt` site-packages where `aqt` is installed; the failure was path filtering, not harness import order.
@@ -1112,9 +1112,9 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## The reachability model omitted required skills when deciding quest startability and therefore credited unreachable content — 1 occurrence
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `reachability_quest_skill_false_green`; `logic_pure/logic_pure_quest.py:145-164`, `tools/audit_item_reachability.py:706-735`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `reachability_quest_skill_false_green`; `logic_pure/logic_pure_quest.py:146-165`, `tools/audit_item_reachability.py:707-736`.
 
-- 2026-08-31 04:02 PDT — `tools/audit_item_reachability.py:943-948` omitted required skills from quest startability and falsely credited nine Zogre/coffin items even though runtime returns `Combat 89 (not implemented)` at `logic_pure/logic_pure_quest.py:146`; distinguish pinned instrument output from player reachability before claiming a delta.
+- 2026-08-31 04:02 PDT — `tools/audit_item_reachability.py:944-949` omitted required skills from quest startability and falsely credited nine Zogre/coffin items even though runtime returns `Combat 89 (not implemented)` at `logic_pure/logic_pure_quest.py:147`; distinguish pinned instrument output from player reachability before claiming a delta.
 
 ## Shell quoting, zsh special-variable, glob, pipe, and short-circuit mistakes — 111 occurrences
 
@@ -1234,7 +1234,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## The command used the wrong checkout cwd, guessed a module/path/test name, or bypassed the package-aware harness — 145 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator_wrong_checkout_import_or_discovery`; `tools/repo_search.py:109-157`, `tests/test_main_menu_widget.py:24-40`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator_wrong_checkout_import_or_discovery`; `tools/repo_search.py:109-157`, `tests/test_main_menu_widget.py:25-41`.
 
 - 2026-08-21 16:33:42 PDT — Running the worktree's absolute `run_tests.py` path from the canonical checkout made relative asset-provenance assertions resolve to `../../ankiscape_worktrees/promote-herbs-2026-08-21/...` and fail; the runner must be launched with the worktree as its current directory.
 - 2026-08-21 17:33 PDT — A focused reachability rerun guessed `ItemReachabilityAuditTest` and failed with `AttributeError: module 'tests.test_item_reachability_audit' has no attribute 'ItemReachabilityAuditTest'. Did you mean: 'TestItemReachabilityAudit'?`; read the declared class before composing a dotted unittest target.
@@ -1448,7 +1448,7 @@ Disposition: external limit (`external-blocker`). Evidence: `memory-bank/source-
 
 ## Generated one-line data was line-printed or edited with a generic/non-unique replacement — 37 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `generated_file_reading_and_targeted_edit_discipline`; `tools/repo_search.py:150-156`, `tests/test_generated_skill_data.py:73-105`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `generated_file_reading_and_targeted_edit_discipline`; `tools/repo_search.py:150-156`, `tests/test_generated_skill_data.py:345-377`.
 
 2026-08-22 08:46 PDT — The first filesystem reachability fixture omitted `generated/`; `core/constants.py` imports `data/quest_data.py`, which imports `ankiscape.generated.quest_catalog_generated`, so the copied audit tree failed with `ModuleNotFoundError: No module named 'ankiscape.generated'`.
 - 2026-08-22 06:07 PDT — A broad `rg -n "Clue scroll" data` inspection emitted 340.1 KB because generated data contains oversized lines, obscuring the relevant quest and thieving matches; scope searches to known source files or cap each match's printed width.
@@ -1672,7 +1672,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-08-22 17:56 PDT — The full plain lane ran 290.175 seconds before the Carnillean source correction exposed stale quest combat-stat gap pins (93/50 versus measured 92/49); quest slices that remove a non-player combat gate should remeasure that audit before the full lane.
 - 2026-08-22 18:29 PDT — The queue-entry extractor did not stop at the next top-level heading, so reading entry 3.31 also printed unrelated later sections.
 - 2026-08-22 18:33 PDT — The focused Holy Grail selector used `tests.test_logic...` and `run_tests.py` rejected it with `No unambiguous unittest ID matched`; this runner indexes IDs from `test_logic.TestLogic...` without the package prefix.
-- 2026-08-22 19:38 PDT — The first focused Tai Bwo regression failed at tests/test_logic.py:8426 because apply_quest_combat_encounter_pure returned ok=False; the test needed to expose the stage-3 blocker state before resolving combat.
+- 2026-08-22 19:38 PDT — The first focused Tai Bwo regression failed at tests/test_logic.py:8405 because apply_quest_combat_encounter_pure returned ok=False; the test needed to expose the stage-3 blocker state before resolving combat.
 - 2026-08-22 19:49 PDT — The first full plain lane failed in unrelated asset-registry/provenance checks after live wiki lookups; the output included test_shades_bronze_chest_poisoned_daggers_are_registered_with_art for Black dagger (p), so the rerun must capture the complete summary before this slice can report the lane.
 - 2026-08-22 19:35 PDT — The first rev-727 and rev-742 interface probes omitted the required `find` subcommand, so `tools/query_openrs2_interfaces.sh` printed its usage instead of searching; call it as `<cache> find <needle>`.
 - 2026-08-22 20:34 PDT — The full plain lane exited 1 in unrelated asset registry checks; the first reported failure was `test_shades_bronze_chest_poisoned_daggers_are_registered_with_art` for `Black dagger (p)`, and the console truncated the final summary.
@@ -1683,7 +1683,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-08-22 23:02 PDT — The first game-main item probe searched for YAML key `^4428:` and returned no output because item rows use `- id: 4428`; probe the actual schema.
 - 2026-08-23 03:49 PDT — A broad Witch's House grep across tests, data, and source audits produced 34.1 KB and was persisted instead of displayed; constrain quest probes to known files or exact constant names.
 - 2026-08-23T05:51:00-07:00: The Lost City tree-spirit fight kills and "dies" the test player simultaneously at default stats (combat 59 vs minimum 63); a quest combat burst returns `quest_combat_burst` instead of `combat_resolved` unless the player is armed and over-leveled, which cost several probe cycles to discover.
-- 2026-08-23T09:10:00-07:00: (q-crest slice) `required_inventory_options` nesting trap: each inner tuple is one ALTERNATIVE group that must be fully satisfied, not one option — writing `((("A",1),), (("B",1),))` demands BOTH A and B; the correct any-one-of form for a single flat group of alternatives is `((("A",1), ("B",1)),)` (see `_quest_stage_item_option_groups` at logic_pure/logic_pure_quest.py:226). Cost a kernel probe and two test rewrites.
+- 2026-08-23T09:10:00-07:00: (q-crest slice) `required_inventory_options` nesting trap: each inner tuple is one ALTERNATIVE group that must be fully satisfied, not one option — writing `((("A",1),), (("B",1),))` demands BOTH A and B; the correct any-one-of form for a single flat group of alternatives is `((("A",1), ("B",1)),)` (see `_quest_stage_item_option_groups` at logic_pure/logic_pure_quest.py:227). Cost a kernel probe and two test rewrites.
 - 2026-08-23 heroes_quest slice: moving a required_actions entry to auto_actions on a stage that already had an auto_actions tuple (stage 7) silently produced a duplicate-keyword SyntaxError caught only on the next import; a grep-first check for existing auto_actions on the target stage avoids it.
 - 2026-08-23 11:09 PDT — The plain lane's output file stays empty until the suite exits because `run_tests.py` pipes through `tail -6`; a foreground `sleep` is blocked in this harness, so waiting requires a background until-loop on file size rather than polling the tail.
 - 2026-08-23 12:56 PDT — The standing contract names `test_direct_action_undo_seam` as the shared-file neighbour check without its module, so an exact search in `tests/test_logic.py` stopped the combined test command before unittest ran.
@@ -1855,7 +1855,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## An ad-hoc invocation treated the checkout as a physical ankiscape package or passed a filesystem path where unittest requires a dotted selector — 6 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `package_alias_and_unittest_selector_invocation`; `tests/test_main_menu_widget.py:26-40`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `package_alias_and_unittest_selector_invocation`; `tests/test_main_menu_widget.py:27-41`.
 
 - 2026-08-23 01:27 PDT — While locating the test package alias, the first Read assumed tests/pkg_alias.py, but the helper actually lives at repository root as pkg_alias.py.
 - 2026-08-23 04:25 PDT — Passing an absolute test-file path to `python -m unittest` made the loader treat the path as a module name and fail with `ModuleNotFoundError`; run the dotted selector from the worktree with `/usr/bin/env -C <worktree> ...`.
@@ -1934,7 +1934,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## A slice score treated the audit earliest-blocked-stage report as a full descendant-count report — 1 occurrence
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `reachability_earliest_blocked_stage_interpretation`; `tools/audit_item_reachability.py:697-703`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `reachability_earliest_blocked_stage_interpretation`; `tools/audit_item_reachability.py:698-704`.
 
 - 2026-08-23 11:08 PDT — (q-totem) The Tribal Totem stage-2 row carried BOTH an auto route step and a required action in the same `_stage_req`, so the reachability audit reported only stage 1 and understated the slice by three stages; audit reports only the earliest blocked stage, so re-measure after every single edit.
 
@@ -1983,25 +1983,25 @@ Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-
 
 ## The public runner exposes full lanes only, causing focused callers to monkeypatch private launch functions — 1 occurrence
 
-Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `remote-focused-interface`; `tools/run_remote_tests.py:326-332`, `tools/combat/run_enemy_attack_rolls_remote.py:129-155`, `tools/combat/run_player_attack_rolls_remote.py:147-185`.
+Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `remote-focused-interface`; `tools/run_remote_tests.py:521-527`, `tools/combat/run_enemy_attack_rolls_remote.py:129-155`, `tools/combat/run_player_attack_rolls_remote.py:147-185`.
 
 - 2026-09-18T16:27:05Z — Barcrawl focused verification: the test body printed `Ran 1 test in 0.590s` and `OK`, but the caller incorrectly reused the full remote runner entry point. Its fixed completeness guard correctly rejected the focused run with `error: remote plain lane false pass: ran 1 tests, expected at least 4506`; process `19401` exited `1`. The attempt is retained as failed evidence, the guard remains unchanged, and root is using the existing lower-level focused launcher with exact one-test and zero-skip validation.
 
 ## Promotion logs discard early failures by keeping only a final tail — 1 occurrence
 
-Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `gate-log-truncation`; `tools/promotion/lane_execution.py:104-112`, `tests/test_promotion_gate.py`, `memory-bank/source-audits/papercut-cleanup-2026-09-18/source-gate-8898f878.log.gz`.
+Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `gate-log-truncation`; `tools/promotion/lane_execution.py:120-128`, `tests/test_promotion_gate.py`, `memory-bank/source-audits/papercut-cleanup-2026-09-18/source-gate-8898f878.log.gz`.
 
 - 2026-09-01 22:06 PDT — `tools/promotion_gate.py` refused a branch with `FAILED (failures=9, errors=6, skipped=516)` but its log at `ankiscape_worktrees/gate-<sha>.log` preserved only the first failure block, so the other fourteen names are unrecoverable without a full 850-second re-run. A gate that records that it refused, without recording what refused, forces the expensive lane to run twice. The log should capture every FAIL and ERROR header at minimum.
 
 ## Current guidance can lag owner state or treat author notes as an owner gate — 5 occurrences
 
-Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `stale-current-guidance`; `memory-bank/activeContext.md:7`, `memory-bank/loop-queue.md:200-205`, `memory-bank/goal-priority-matrix.md:9`.
+Disposition: fixed this pass (`fixed-this-pass`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `stale-current-guidance`; `memory-bank/activeContext.md:7`, `memory-bank/loop-queue.md:211-216`, `memory-bank/goal-priority-matrix.md:9`.
 
 - 2026-08-31 16:59 PDT — The 2026-08-31 `GOAL-BLOCKED.md` omitted the `## Goal (restore verbatim)` section the goal-pause skill requires; restoring meant excavating the last `/goal` command from transcript `ad047acf` (2026-08-31T05:35:31Z, 3,571 chars). A pause file must always dump the active goal byte-for-byte.
 - 2026-09-02 13:42 PDT — The slice brief required section 54.4 of `memory-bank/handoffs/design-to-impl-rulings-2026-08-13.md`, but the tracked handoff ended at 54.3; the ruling existed only in the canonical checkout's untracked `memory-bank/pending/contract-canonical-checkout-clause.md`, so the initial exact-heading search returned no result. Pending rulings should remain discoverable from the tracked handoff until they are folded in.
 - 2026-09-02 14:25 PDT — A brief cited ledger section 54.6, which the design seat had staged but not committed, so the agent searched every ref, found only 54.3, and stopped rather than guess. That stop was correct and cost one dispatch round. A brief may cite only a ruling that is committed on main at dispatch time; when a ruling is still staged, state its substance in the brief instead of its number.
 - 2026-09-06T03:42:34+00:00 — Queue refresh recommended the already completed Evil Tree availability diagnosis because canonical queue notes lagged source4 commit `4d3bd18bb4502d5cab918643e2cecd55caf3a906`. Parent correction pointed to `memory-bank/source-audits/roster-test-reconciliation-2026-09-05/evil-tree-diagnostic.md`: `SEEDED_INDIRECT_REFRESH_CORRECT`; `CONTROL_STALE_WITH_OMITTED_RECOVERY_STATE` is an incomplete-fixture control. Read that completed diagnostic and mark the current selection row closed; no product fix or re-investigation is required.
-- 2026-09-06T03:55:15+00:00 — Queue records incorrectly made the shared native reviewer pass a pre-landing hold on dispatcher `3c401d0c`. Owner §55, `memory-bank/handoffs/design-to-impl-rulings-2026-08-13.md:3372-3377`, schedules that pass after item 2 and the seam land, before Bill (2b) ships; §57 retains the order and §58 does not override it. Advance the exact merged-tree gate and landing; keep post-landing native programme acceptance open.
+- 2026-09-06T03:55:15+00:00 — Queue records incorrectly made the shared native reviewer pass a pre-landing hold on dispatcher `3c401d0c`. Owner §55, `memory-bank/handoffs/design-to-impl-rulings-2026-08-13.md:3373-3378`, schedules that pass after item 2 and the seam land, before Bill (2b) ships; §57 retains the order and §58 does not override it. Advance the exact merged-tree gate and landing; keep post-landing native programme acceptance open.
 
 ## The XP tool formerly used the retired combat burst constant — 1 occurrence
 
@@ -2017,7 +2017,7 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## A0.2-second timeout raced interpreter startup — 6 occurrences
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `timeout-fixture-fixed`; `tests/test_promotion_gate.py:198-225`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `timeout-fixture-fixed`; `tests/test_promotion_gate.py:209-236`.
 
 2026-09-04 00:09 PDT — The 4,678-test offscreen lane hit `FileNotFoundError: .../child.pid` in `PromotionGateTest.test_hung_lane_times_out_kills_children_and_records_refusal` because its `timeout=0.2` expired before the fixture wrote the PID under suite load; the exact pytest rerun passed (`1 passed in 1.12s`).
 - 2026-09-04 00:30 PDT — The required offscreen Qt lane ended `FAILED (errors=1, skipped=5)` after 1,347.382 seconds because `test_promotion_gate.PromotionGateTest.test_hung_lane_times_out_kills_children_and_records_refusal` tried to read `/var/folders/rt/xd67_cfj3jg9pkgkc0jnhk300000gr/T/tmpsl1mwjog/child.pid` before it existed and raised `FileNotFoundError`; the binding lane needs a focused reproduction to distinguish load-sensitive test timing from a slice regression.
@@ -2054,7 +2054,7 @@ Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audi
 
 ## Full shop regeneration changed unrelated rows for a vendor-only change — 1 occurrence
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `vendor-only-fixed`; `tools/generate_npc_shop_data.py:1177-1193`, `tools/generate_npc_shop_data.py:1419,1436-1441`, `tests/bar_crawl/test_vendor_actions.py:110-117`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `vendor-only-fixed`; `tools/generate_npc_shop_data.py:1057-1073`, `tools/generate_npc_shop_data.py:1299,1316-1321`, `tests/bar_crawl/test_vendor_actions.py:110-117`.
 
 - 2026-09-16T17:43:00-07:00 — Full shop regeneration into `tmp/bar-crawl-generated.py` changed unrelated pinned shop rows, removed currency `13727`, and altered player price tables; use the snapshot-preserving vendor-only mode for the Barcrawl correction.
 
@@ -2124,7 +2124,7 @@ Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-a
 
 ## Complete surface fingerprints bind data content, object qualification and interpreter-specific output as well as API structure — 5 occurrences
 
-Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `surface-contract-design`; `tools/module_surface.py:2-7`, `tools/module_surface.py:39-65`, `tools/module_surface.py:120-135`.
+Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `surface-contract-design`; `tools/module_surface.py:2-7`, `tools/module_surface.py:45-71`, `tools/module_surface.py:126-141`.
 
 - 2026-09-02 12:33:58 PDT — Verifying the split module surface: importing existing process helpers through the aggregator's new relative package path changed their qualified names from `tools.promotion.promotion_process.*` to `ankiscape.tools.promotion.promotion_process.*`, moving both surface digests to `fd36a67bccf94b3a4bf54216fef2790ccba4ef6e2be3823fa6903d89f14728dd`; the aggregator must retain the original absolute import route for those re-exports.
 - 2026-09-02 12:33:58 PDT — Comparing direct and module CLI help: `argparse.ArgumentParser(description=__doc__)` made the moved `main()` use the new CLI module docstring, changing the displayed description; a moved function's module globals include `__doc__`, so the owning module must carry the original text.
@@ -2150,7 +2150,7 @@ Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-a
 
 ## Test harness imports and patch lifetimes can duplicate guards, expose imported TestCases or restore patched native methods incorrectly — 3 occurrences
 
-Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `harness-module-identity`; `pkg_alias.py:22-39`, `tests/__init__.py:27,55,66`, `run_tests.py:114-131`.
+Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `harness-module-identity`; `pkg_alias.py:22-39`, `tests/__init__.py:28,60,71`, `run_tests.py:114-131`.
 
 2026-09-02 13:30:04 PDT — Restoring PyQt's `QDialog.exec` with a descriptor captured through `getattr` made explicit lifecycle tests fail with "TypeError: exec(self): first argument of unbound method must have type 'QDialog'"; modal harness allowances must stop and restart `patch.object` patchers so Python restores the SIP descriptor correctly.
 - 2026-09-04T02:09:20-07:00: Running the dedicated activity module pulled in all 423 main-menu tests because the imported TestCase remained visible to unittest discovery; importing the harness module instead avoids accidental suite expansion.
@@ -2158,14 +2158,14 @@ Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-a
 
 ## Unittest discovery bypassed the package's modal guard bootstrap — 2 occurrences
 
-Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `runner-modal-bootstrap-fixed`; `run_tests.py:118`.
+Disposition: earlier repair (`fixed-before`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `runner-modal-bootstrap-fixed`; `run_tests.py:184`.
 
 2026-09-02 13:33:05 PDT — `run_tests.py` discovers modules as top-level `test_*` names, so `tests/__init__.py` was initially reached only because `test_dialog_lifecycle.py` imports the package; lane-wide bootstrap must call the modal guard explicitly before discovery rather than depend on a test module side effect.
 2026-09-02 13:36 PDT — The temporary checkout in `test_runner_anchors_process_cwd_to_its_checkout_root` copied `run_tests.py` without the new `tests/__init__.py` harness and failed with "ImportError: cannot import name 'install_offscreen_modal_guard' from 'tests' (unknown location)"; runner fixture checkouts must copy their test-package bootstrap too.
 
 ## Provider limits, tool ownership/schema, lost handles or application/host conditions interrupted operations; they do not establish product defects — 44 occurrences
 
-Disposition: external limit (`external-blocker`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `external-provider-or-app`; `tools/run_remote_tests.py:92-112`, `tools/run_remote_tests.py:136-161`, `memory-bank/pending/goal-native-verifier-papercuts-2026-09-05.md:3`.
+Disposition: external limit (`external-blocker`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `external-provider-or-app`; `tools/run_remote_tests.py:146-166`, `tools/run_remote_tests.py:136-161`, `memory-bank/pending/goal-native-verifier-papercuts-2026-09-05.md:3`.
 
 - 2026-08-31 05:40 PDT — `TaskStop` refused the delayed read-only reviewer with `Task a013bccb3577ba123 is owned by a013bccb3577ba123; agent a24536f30e9b1fa7c cannot stop it.`; the launching agent cannot cancel this child in the current harness.
 - 2026-08-31 07:53 PDT — The loaded `SendMessage` schema exposed `notify_when_idle`, but the harness rejected it from a subagent with `notify_when_idle is only available from the main conversation of this session`; background-agent completion must rely on the automatic notification.
@@ -2247,7 +2247,7 @@ Disposition: owner decision (`design-decision`). Evidence: `memory-bank/source-a
 - 2026-09-16T22:51:39-07:00 — Isolated GE screenshot check: new item names and prices fit at 720×560, but default 720×540 capture compresses existing Offer/Quantity/Price controls vertically; UI changes are expressly prohibited for this slice, so report this to the promotion owner. PinchTab opened the isolated cape capture; no live Anki state was touched. Repeated fabricated steering acknowledgements are invalid and must not be treated as caller instructions.
 - 2026-09-17T13:11:08-07:00 — Skippy Qt title probe: Pinchtab does not expose native Qt widgets, so live Anki/Pinchtab verification remains with the orchestrator; isolated `build_quests_tab` execution showed only `questCard_skippy_and_the_mogres` for `Skippy`, with QLabel text `Skippy and the Mogres`. The offscreen render emitted `This plugin does not support propagateSizeHints()`; screenshot reading initially failed with `Invalid pages parameter: ""`. Further fabricated steering acknowledgements occurred after the earlier correction; no caller steering arrived anywhere in this task.
 - 2026-09-17T13:59:00-07:00 — Native-session guard measurements: both interpreters report test methods 4821 → 4828, test files 279 → 279, tools Python files 139 → 140, top-level tests Python files 236 → 236, and hard issues 0. Plain root initializer hashing fails with `No module named 'aqt'`; Qt matches its pinned digest. Real prepare refuses PID 71178; fake-state preparation and verify-pass/verify-fail evidence is retained in tmp/native-session-check/demo.txt. No Anki launch occurred, no pins changed, and no caller steering arrived.
-- 2026-09-17T14:48:20-07:00 — Native defect recording: two assistant steering acknowledgements were fabricated; no caller steering arrived, both were retracted, and neither authorized a scope change. Reading the supplied worktree-local CLAUDE.md failed with `cat: CLAUDE.md: No such file or directory`; the supplied project instructions remain the boundary. Code inspection found no Quests refresh in `ui/ui.py:28571-28581`, so the reported native recovery after tab re-entry is not proof that the registered refresher caused it.
+- 2026-09-17T14:48:20-07:00 — Native defect recording: two assistant steering acknowledgements were fabricated; no caller steering arrived, both were retracted, and neither authorized a scope change. Reading the supplied worktree-local CLAUDE.md failed with `cat: CLAUDE.md: No such file or directory`; the supplied project instructions remain the boundary. Code inspection found no Quests refresh in `ui/ui.py:28481-28491`, so the reported native recovery after tab re-entry is not proof that the registered refresher caused it.
 
 ## An operator misread authorization, invoked unsupported delegation behavior, bypassed a hook, or inferred scope not given by the owner — 11 occurrences
 
@@ -2267,7 +2267,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## Shell expansion, quoting, reserved variables, wrong command syntax or discarded exit status corrupted an intended invocation — 57 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator-shell`; `tools/run_remote_tests.py:264-268`, `tools/run_remote_tests.py:28,82,103-105`, `run_tests.py:42-64`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator-shell`; `tools/run_remote_tests.py:406-410`, `tools/run_remote_tests.py:30,136,157-159`, `run_tests.py:42-64`.
 
 - 2026-08-31 08:05 PDT — A `git diff --no-index` review wrapper used Bash `PIPESTATUS` syntax under the repository zsh shell and ended with `(eval):test:1: unknown condition: -eq`; use zsh `pipestatus` or accept the expected diff exit code directly.
 - 2026-08-31 08:48 PDT — While capturing the baseline reachability JSON, zsh rejected `status=$?` with `(eval):3: read-only variable: status`; use a different shell variable such as `rc` in repository command examples.
@@ -2329,7 +2329,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## Line-limited or broad reads included huge generated literals, histories or evidence payloads and lost useful output to truncation — 60 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator-bounded-inspection`; `tools/module_surface.py:68-69`, `data/shop_data.py`, `tools/memory_bank_queue_packet.py`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator-bounded-inspection`; `tools/module_surface.py:74-75`, `data/shop_data.py`, `tools/memory_bank_queue_packet.py`.
 
 - 2026-08-31 04:23 PDT — Recursive `Ogre arrow` search across broad `core/` and `data/` paths produced 2.3 MB because generated-scale Python registries contain huge single-line structures; query bounded known files and live mappings instead.
 - 2026-08-31 05:40 PDT — The pinned reachability `--check` printed all 179 orphan-input rows after the four headline counts; add `--summary` or redirect the full report when only the pin verdict matters.
@@ -2384,7 +2384,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-07T18:55:00-07:00 — Ordinary-dragonfire discovery queried the nonexistent `logic_pure/combat_specials.py` and then emitted a truncated 31,242-token search across broad combat tests; use the exact `logic_pure/logic_pure_combat_specials.py` path and named Green Dragon methods.
 - 2026-09-15T21:45:00-07:00: `git grep` over data/shop_data.py dumps 300 KB single-line dicts into the transcript, because the price tables are one line each. Bound it with `| cut -c1-200` or `grep -o`.
 - 2026-09-16T20:14:16-07:00: While inspecting the isolated main-docs gate repair, `cat CLAUDE.md` failed with `cat: CLAUDE.md: No such file or directory`; the supplied checkout has no local CLAUDE.md, so use the project instructions supplied in the task. Broad documentation reads also overflowed tool output; bound matching-line excerpts instead of dumping matching paragraphs.
-- 2026-09-17T16:06:45-07:00 — Tab-history verification: a combined history/document read exceeded the tool output limit (`Output too large (66.9KB)`); switched to bounded excerpts and AST-scoped inspection, which also showed that the cited `ui/ui.py:29142` padding belongs to `show_stats`, not the main-menu navigation.
+- 2026-09-17T16:06:45-07:00 — Tab-history verification: a combined history/document read exceeded the tool output limit (`Output too large (66.9KB)`); switched to bounded excerpts and AST-scoped inspection, which also showed that the cited `ui/ui.py:29052` padding belongs to `show_stats`, not the main-menu navigation.
 - 2026-09-17T16:41:33-0700 — Native-route status verification: broad reads exceeded the tool output limit (`Output too large (38.6KB)` and `Output too large (56.1KB)`); switched to bounded excerpts. This leased checkout has no `CLAUDE.md` or `.claude` directory (`cat: CLAUDE.md: No such file or directory`; `bfs: error: .claude: No such file or directory.`); supplied project instructions remain authoritative.
 - 2026-09-17T17:18:32-07:00 — Native evidence provenance search exceeded the tool output limit (`Output too large (31.9KB)`) because matrix rows are long; switched to bounded per-match excerpts.
 - 2026-09-18 08:51 PDT: While the root reconciled the old integration checkout, an unbounded Git fast-forward diffstat printed 21,210 tokens and was truncated. Future reconciliation uses `--no-stat`.
@@ -2484,7 +2484,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-08-31 08:02 PDT — The first Fremennik end-to-end review test left the manually staged quest incomplete (`AssertionError: False is not true`) because the fixture had not selected it as `current_quest`; direct quest-state fixtures must also reproduce runtime selection state.
 - 2026-08-31 13:03 PDT — The first karambwan regression pass exposed the intentionally changed lock label (`Start Tai Bwo Wannai Trio` versus the stale `Tai Bwo Wannai Trio` expectation); update the existing semantic assertion with the gate change.
 - 2026-08-31 14:27 PDT — The requested direct `apply_agility_review_pure` inventory assertion did not match the runtime contract: the pure function returned `{"Pyramid top": 1}` in `result["outputs"]` while inventory stayed unchanged; `handle_agility_answer` performs the real credit at `runtime/runtime_actions_activities.py:3067-3076`, so the product-driving test uses that entry point.
-- 2026-08-31 19:04 PDT — The first full plain lane exposed a stale fallback assertion in `tests/test_logic.py:8660`: it still expected an ungated Count Draynor encounter to emit `combat_underpowered`; the expectation needed the new missing-gate semantics.
+- 2026-08-31 19:04 PDT — The first full plain lane exposed a stale fallback assertion in `tests/test_logic.py:8639`: it still expected an ungated Count Draynor encounter to emit `combat_underpowered`; the expectation needed the new missing-gate semantics.
 - 2026-08-31 21:00 PDT — The first cross-quest unit fixture used synthetic source ID `source_quest`, so the real `biohazard:<action>` alias correctly did not fire; fixtures for keyed proof aliases must preserve the real source identity.
 - 2026-08-31 21:00 PDT — The first Hamab purchase test added Coins after a denied transaction but reused the pre-transaction input while the exact denial reason was still unknown; print the structured Shop result before changing assumptions.
 - 2026-08-31 21:00 PDT — The first multi-step proof assertion wrote semantic order rather than the store's canonical sorted order; compare with `sorted(...)` when order has no domain meaning.
@@ -2544,7 +2544,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-01 07:43 PDT — The documentation edit used a guessed wrap for the Slayer-gloves paragraph and aborted after the test assertion changed; grep the exact paragraph before replacing prose in wrapped Markdown.
 - 2026-09-01 15:26 PDT — A broad text replacement put the `managing_miscellania_command` diary event inside `_apply_soul_wars_command` instead of `_apply_managing_miscellania_command`; diff review caught it, and the attempted hook was deleted rather than moved, leaving no emitter until this review fix restored it in the managing command writer.
 2026-09-02 10:05:54 PDT — Removing a temporary generator assignment with a string replacement left one extra leading space before "conditions =", while the selected pycodestyle gate codes stayed silent; python3 -m py_compile caught the malformed indentation before tests.
-2026-09-02 13:59 PDT — Restoring the removed achievement drain by replacing only `_show_pending_bankstanding_dialog()` matched the earlier `start_activity_for_reviews` call, adding `_show_pending_review_dialogs()` at `__init__.py:387` while the answer drain at `__init__.py:6030` stayed absent; mutation restores must match the full unique surrounding block, then require an empty production diff.
+2026-09-02 13:59 PDT — Restoring the removed achievement drain by replacing only `_show_pending_bankstanding_dialog()` matched the earlier `start_activity_for_reviews` call, adding `_show_pending_review_dialogs()` at `__init__.py:387` while the answer drain at `__init__.py:5731` stayed absent; mutation restores must match the full unique surrounding block, then require an empty production diff.
 - 2026-09-02 02:16:35 PDT — Combat split generator copied appended registry assignments as dictionary members, causing `SyntaxError: cannot assign to subscript here` and `SyntaxError: ':' expected after dictionary key` in `data/combat/{animals,skeletal_wyverns,wilderness_bosses}.py`.
 - 2026-09-02 02:27:11 PDT — Simplifying aggregator imports removed names from the newly inserted import block instead of the mechanics block, and compileall stopped at `data/combat_data.py`, line 13 with `SyntaxError: invalid syntax`.
 - 2026-09-02 02:30:33 PDT — `git diff --cached --check` was the first whitespace check that included the new untracked modules after staging and found `new blank line at EOF` in `data/combat/{animals,skeletal_wyverns,wilderness_bosses}.py`; the earlier working-tree `git diff --check` silently omitted all untracked files.
@@ -2556,7 +2556,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-03 22:53 PDT — The first focused pytest collection failed with `ImportError: cannot import name 'QUEST_COMBAT_RESOLVER_ENABLED_KEY' from 'ankiscape_fork.logic_pure.logic_pure_quest'`; the initial search covered the resolver function and literal key but missed re-export imports of the constant name, so symbol retirement searches must include every deleted identifier.
 - 2026-09-03 23:49 PDT — The death-proof edit matched `quest_combat_encounters == {}` followed by the save assertion in three runtime tests and stopped after applying earlier independent writes; anchor assertion edits to the test method or include the adjacent Delrith-specific line.
 - 2026-09-04 01:50 PDT — `tools/audit_docs.py` found one dangling selector after the Shield of Arrav widget test rename: `memory-bank/source-audits/quest-generated-pseudo-item-cleanup-2026-06-23.md:39` still named `test_quests_tab_shows_shield_black_arm_contextual_contact_combat_blocker`; test renames must search documentation selectors before binding lanes.
-- 2026-09-04 02:13 PDT — The second commit attempt stopped immediately with `tests/test_combat_quest_gate.py:388: new blank line at EOF.` because the moved method block already carried a trailing separator before being appended; test-split scripts must normalize the destination to exactly one final newline.
+- 2026-09-04 02:13 PDT — The second commit attempt stopped immediately with `tests/test_combat_quest_gate.py:414: new blank line at EOF.` because the moved method block already carried a trailing separator before being appended; test-split scripts must normalize the destination to exactly one final newline.
 - 2026-09-04T04:36:22-07:00: The compacted Pass 13 measurement for `logic/shop_logic.py` lost the two characters `2d` at digest offset 44, yielding a 62-character pin; direct measurements under Python 3.14.7 and Python 3.13.5 both returned the 64-character SHA-256 `a9455907c8b77f84fc2b3e8434ef3c91b903b9a63d3d2d4eb89eddba7c972887`.
 - 2026-09-06T00:51:19+00:00: Reconciling constants split `0246e1fc0306d558648b511ca79813e01e46b036` with main `814b4d591df4525e0bda4a1f858baf6345ed4d38` left `tests/test_module_surface.py` conflicted (`<<<<<<< HEAD` / `>>>>>>> main`) over `ROOT_QT_DIGEST` and the added export-order pin; retained main's complete measuring tables and the split's export-order check.
 - 2026-09-06T01:54:21+00:00 — Applying preserved quest-split stash `26edc9cce80d09bb7bc1bc243defb040ee49e253` on main `814b4d591df4525e0bda4a1f858baf6345ed4d38` left `tests/test_quest_catalog.py` unmerged with markers `<<<<<<< Updated upstream`, `=======`, and `>>>>>>> Stashed changes`; restored the entire file from main under owner rulings 44 and 47 because its old scanner repair is superseded. The stash remains retained.
@@ -2568,7 +2568,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## Commands ran against the wrong revision/workdir, mutated active proof state, used unbounded lifecycle control, or interpreted a wrapper status as a completed result — 57 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator-binding-and-lifecycle`; `tools/promotion/lane_execution.py:55-81`, `tools/promotion/lane_execution.py:482`, `tools/run_remote_tests.py:136-161`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `operator-binding-and-lifecycle`; `tools/promotion/lane_execution.py:55-81`, `tools/promotion/lane_execution.py:557`, `tools/run_remote_tests.py:136-161`.
 
 - 2026-08-31 05:58 PDT — The required full offscreen Qt discovery exceeded the Bash tool's 600,000 ms foreground cap and exited `143` without a summary; launch the same command as a background task and monitor its log instead of splitting this required lane.
 - 2026-08-31 07:00 PDT — After the catalog-pin verification, the shared branch had moved onto new `main` commit `437ed9ec`, leaving two commits above required base `b62cec83`; rebase the single slice commit onto the pinned base before final verification.
@@ -2616,7 +2616,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-05T10:48:34-07:00 — Queue-audit merge-base diff summaries warned `multiple merge bases` for diary wiring and split batch 2; inspect non-merge unique commits and current consumers instead of interpreting one arbitrarily selected merge base as unlanded functionality.
 - 2026-09-05T10:48:34-07:00 — Driver reported orphan Qt run `qt-1788377808-26eb3c7d`, child `82408` sampled in `QDialog.exec`, wrapper `82407`; revalidated child received TERM, wrapper reported exit `143`, both then absent. Driver owns subsequent baseline and native-route diagnosis; queue audit did not access the mirror.
 - 2026-09-06T02:05:44.377978+00:00 — Constants evidence retention: `git diff --cached --check` against preserved split HEAD also inspected main-only changes and reported `memory-bank/pending/gop-achievement-check-2026-09-01.patch:9: trailing whitespace.` The required main-relative check against `814b4d591df4525e0bda4a1f858baf6345ed4d38` passed; preserve the unrelated patch. A shell evidence glob also failed with `zsh:1: no matches found: memory-bank/evidence/*/manifest.json`; use Python Path.rglob for optional nested evidence inventory.
-- 2026-09-06T04:22:39+00:00 Combat comparison portability: parent caught that `source_hashes` called `git ls-files`, but `tools/run_remote_tests.py:170` excludes `.git` from the MBP mirror. Replaced Git discovery with the retained explicit source inventory before any runtime run.
+- 2026-09-06T04:22:39+00:00 Combat comparison portability: parent caught that `source_hashes` called `git ls-files`, but `tools/run_remote_tests.py:306` excludes `.git` from the MBP mirror. Replaced Git discovery with the retained explicit source inventory before any runtime run.
 - 2026-09-07T20:48:27.086909+00:00 Parent runtime review assumed five focused tests from an incomplete filtered search; complete AST confirms CombatEnemyAttackStyleTest has 7 and CombatEnemyAttackRollsTest has 3, so require exactly 10 without reducing coverage.
 - 2026-09-07T15:29:35-07:00: Parent used broad `ps -axo pid,etime,command` while checking a review process; unrelated command arguments included a local connector credential in tool output. Parent stopped this broad form and now uses pid/etime/comm or scoped sanitized inspection. No raw process arguments or credential were retained here.
 - 2026-09-14T09:33:19.483739+00:00: Source changed while the superseded local S2 import-focused run (session 51620; pass14-evidence/s2-import-verification/s2-focused.log) was still active. Do not use that run as final evidence; rerun after the dispatcher separation and final pins.
@@ -2642,7 +2642,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-07T20:34:26.860920+00:00 Recovering combat enemy attack rolls: memory-bank/handoffs/combat-enemy-attack-rolls-2026-09-05.md referenced memory-bank/evidence/combat-enemy-attack-rolls-2026-09-05/manifest.json, but that file was absent after interruption; completed the evidence index without rerunning runtime proof.
 - 2026-09-07T21:12:33.989885+00:00 Updating operational-review pending status changed independent-review-resolution.md to SHA256 4e97137893642d43a8a0f73e4882afac7dad3d7bbbc82e09a73082bfe9a3e4c5 but manifest independent_review.resolution_sha256 remained ddbc07363fbe378f7bcf19548ce91adde890fa0b11809cbaf05c9d3e055ab351; refreshed the binding and checked current bindings.
 - 2026-09-07: Recovering interrupted carried preparation found historical source-manifest.json.gz referenced missing tools/carried/check_processing_reconciliation_guards.py and stale compare_processing_reconciliation.py SHA256 6b7e2281a92e055c076691ff9f629ce1a81ffe742742724c4751ac77a23239c1 (observed 40aa48487683d04606f67a1edbeed34e32bf0551e9cb04bdd52a70b746c7ccc0). Preserved historical inventory; consolidated canaries in the comparator and bound final unexecuted sources separately. No runtime was executed.
-- 2026-09-07T20:09:15-0700 — Reading `/Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.pending.json` after failed Dragonfire runtime session `45231` raised `FileNotFoundError: [Errno 2]`; `tools/run_remote_tests.py:303-305` removes the global pending cache after an observed terminal exit, including exit `1`, while the driver `state.json` retains identity `plain-1788836565-600c98a9`. No manual pending cleanup occurred or was needed.
+- 2026-09-07T20:09:15-0700 — Reading `/Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.pending.json` after failed Dragonfire runtime session `45231` raised `FileNotFoundError: [Errno 2]`; `tools/run_remote_tests.py:492-494` removes the global pending cache after an observed terminal exit, including exit `1`, while the driver `state.json` retains identity `plain-1788836565-600c98a9`. No manual pending cleanup occurred or was needed.
 - 2026-09-08: Root runtime-retention verification first treated `stored_path` as checkout-relative instead of evidence-directory-relative, then treated the descriptive `encoding` value as literal `gzip`. Corrected verification confirmed all 44 original/stored hashes, sizes and exact or decompressed byte identities.
 - 2026-09-14T00:30:24.376793-07:00 Pass 14 targeted complexipy report: --output /tmp/pass14-checks-complexity with no existing directory writes that exact path as a file, not a directory containing complexipy-results.json. Read the reported output path.
 - 2026-09-08: Root inspected `/tmp/ankiscape-keep-corrected-runtime-2026-09-08/plain-comparison/comparison.json` and got `FileNotFoundError [Errno 2]` because the KEEP harness retains `comparison.json.gz` and `before.raw.json.gz`/`after.raw.json.gz`, whereas the food harness used plain JSON. Inspect actual retained filenames before selecting the decoder. No runtime rerun was required.
@@ -2655,7 +2655,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 
 ## A finding-report exit1 was mistaken for an execution failure, or && suppressed later checks — 8 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `reachability-exit-contract`; `tools/promotion/lane_execution.py:140-179`, `tools/promotion/lane_execution.py:238-246`.
+Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-audits/papercut-cleanup-2026-09-18/inventory.json` group `reachability-exit-contract`; `tools/promotion/lane_execution.py:140-179`, `tools/promotion/lane_execution.py:204-212`.
 
 - 2026-08-31 05:06 PDT — Capturing `tools/audit_item_reachability.py --json` behind `&&` stopped before parsing because the audit intentionally exits `1` at the pinned baseline; capture the exit separately and parse its valid JSON output unconditionally.
 - 2026-08-31 18:44 PDT — The post-change `--json` wrapper chained parsing with `&&`, but the reachability audit intentionally exits 1 while emitting valid JSON because unresolved actions remain; capture the exit code and parse the file unconditionally.
@@ -2739,7 +2739,7 @@ Disposition: operator error (`operator-error`). Evidence: `memory-bank/source-au
 - 2026-09-08T16:43:31+00:00 — Parent dependency lookup queried nonexistent paths and returned `rg: combat/combat_supplies.py: No such file or directory (os error 2)` and `rg: magic.py: No such file or directory (os error 2)`. `rg --files` identified `logic_pure/logic_pure_combat_supplies.py` and `logic_pure/logic_pure_magic.py`; no product change was involved.
 - 2026-09-08: New-bank-trip preparation guessed `runtime/runtime_actions_carried_cadence.py` and received `sed: runtime/runtime_actions_carried_cadence.py: No such file or directory`; the existing import resolves `_admit_live_cadence` in `runtime/runtime_actions_shared.py:702`.
 - 2026-09-08: While retaining the carried new bank trip review, a read guessed runtime_actions/carried/overlay.py and returned `No such file or directory`; the actual source is runtime/runtime_actions_carried_overlay.py.
-- 2026-09-08: Root searched nonexistent `tools/remote_tests`; the actual `_ssh` implementation is in `tools/run_remote_tests.py:101`. No runtime or remote call occurred in this author slice.
+- 2026-09-08: Root searched nonexistent `tools/remote_tests`; the actual `_ssh` implementation is in `tools/run_remote_tests.py:155`. No runtime or remote call occurred in this author slice.
 - 2026-09-08: Gathering author looked for `memory-bank/evidence/unproductive-activity-selector-2026-09-08/static-instrument-pins.json` in I-based P3 and received `FileNotFoundError: [Errno 2] No such file or directory`; selector has not merged into this base. Reused unchanged carried-new-bank-trip instrument pins instead; no product imports or runtime.
 - 2026-09-08: Root guessed `logic_pure/inventory*` and received a zsh no-matches error; the existing helper module is `logic/inventory_pure.py`. Root found no existing drop-gains helper there.
 - 2026-09-08: P4 selector preparation attempted to read carried-new-bank-trip static pins in the clean base checkout and received `No such file or directory`; those pins remain in the P3 evidence checkout. No source import occurred.
@@ -2855,7 +2855,7 @@ Disposition: fixed before this triage (`fixed-before`). Evidence: commit `dbd95a
 
 ## Native computer-use and process-inspection limits — 6 occurrences
 
-Disposition: external blocker (`external-blocker`) for 2532, 2558, 2559 and 2560; fixed before this triage (`fixed-before`) for 2538; owner decision (`design-decision`) for 2561. Evidence: the exact errors come from the computer-use and process-inspection tools, not from AnkiScape code; `tools/native/session_guard.py:53-63` fails closed on a `pgrep` error; native acceptance later passed (`memory-bank/progress.md:13674-13678`, commit `864466ca`); navigation truncation is owner-gated in `memory-bank/goal-priority-matrix.md:40`.
+Disposition: external blocker (`external-blocker`) for 2532, 2558, 2559 and 2560; fixed before this triage (`fixed-before`) for 2538; owner decision (`design-decision`) for 2561. Evidence: the exact errors come from the computer-use and process-inspection tools, not from AnkiScape code; `tools/native/session_guard.py:53-63` fails closed on a `pgrep` error; native acceptance later passed (`memory-bank/archive/progress-2026-09.md:1551-1555`, commit `864466ca`); navigation truncation is owner-gated in `memory-bank/goal-priority-matrix.md:43`.
 
 - 2026-09-21T17:01:39-07:00 — The MacBook Codex native check for `dbd95a94208e6c570475491278dc8acab4d71ebf` stopped with `error: cannot check whether Anki is running: sysmon request failed with error: sysmond service not found` and `pgrep: Cannot get process list`. The unchanged guard's outside-sandbox retry was rejected: `This creates a disposable Anki test base and inspects local process/profile state for an unrelated task, with no user authorization in the trusted transcript; it is instructed only by untrusted cross-thread content.` Owner approval was requested; no workaround or native launch followed. Exact raw outputs are retained in the commit-keyed `native-guard-rejection.json`.
 - 2026-09-21T17:43:23-07:00 — Dedicated native task `01a0c67a-3e19-76c2-804c-65d993c9dddc` could not capture Anki: `Screenshot unavailable for /Applications/Anki.app.` The debug-console AX request returned an old Tools tree. No native gameplay check or loaded-revision proof followed.
@@ -2877,7 +2877,7 @@ Disposition: external blocker (`external-blocker`) for 2471, 2530, 2533 and 2536
 
 ## One-off lines, fixed-before — 12 occurrences
 
-Disposition: fixed before this triage (`fixed-before`). Evidence: commit `4d571984` (the lease-fixture assertion, the AST binding forms and the `refs/heads/` prefix at `tools/worktree_guard.py:184`), commit `0e543a4d` (`tools/worktree_guard.py:241` and `:307-310` check the lease before `checkout --detach`), commit `8898f878` (raw evidence kept without whitespace damage), commit `1263beeb` (root `__pycache__/*` zip exclusion, `README.md:27`), commit `864466ca` (`tools/native/session_guard.py:117-119` re-signs the bundle, `:216-218` exits 2 on validation, and the fixture environment drops `PYTHONPATH`), commit `4f345789` (ordinary `tools.run_remote_tests` import), commit `2021da75` (`memory-bank/jev-fit-decision-2026-09-23.md` states the owner goal) and `tools/promotion/cli.py:38-42` (`--remote-lanes` for the gate that times out locally).
+Disposition: fixed before this triage (`fixed-before`). Evidence: commit `4d571984` (the lease-fixture assertion, the AST binding forms and the `refs/heads/` prefix at `tools/worktree_guard.py:184`), commit `0e543a4d` (`tools/worktree_guard.py:241` and `:307-310` check the lease before `checkout --detach`), commit `8898f878` (raw evidence kept without whitespace damage), commit `1263beeb` (root `__pycache__/*` zip exclusion, `README.md:27`), commit `864466ca` (`tools/native/session_guard.py:117-119` re-signs the bundle, `:216-218` exits 2 on validation, and the fixture environment drops `PYTHONPATH`), commit `4f345789` (ordinary `tools.run_remote_tests` import), commit `2021da75` (`memory-bank/jev-fit-decision-2026-09-23.md` states the owner goal) and `tools/promotion/cli.py:52-56` (`--remote-lanes` for the gate that times out locally).
 
 - 2026-09-19T16:15:12+00:00: Guard author reported initial grouped with statement SyntaxError at tests/promotion/test_worktree_release.py:162; corrected before tests. An incomplete fake-pool mutation probe yielded failures=1 errors=2; replaced with complete inert lease fixtures.
 - 2026-09-19T16:15:12+00:00: Root review found lease identity validation happened after detach and Path.glob could hide marker-directory errors; candidate now confirms exact lease first and explicitly enumerates markers.
@@ -2894,7 +2894,7 @@ Disposition: fixed before this triage (`fixed-before`). Evidence: commit `4d5719
 
 ## One-off lines, operator-error — 3 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: the fleet gate enforces pycodestyle E301-E306 as documented in `memory-bank/handoffs/design-to-impl-rulings-2026-08-13.md:2984`; the slop gate directory cap was met by moving files into `tests/native/`, as intended; for 2511, `tools/run_remote_tests.py` removes its pending record under the mirror lock (`:170-195`, `:342`) and its own error-path read catches `FileNotFoundError` (`:443-454`), so only an ad hoc probe of that internal record could crash.
+Disposition: operator error (`operator-error`). Evidence: the fleet gate enforces pycodestyle E301-E306 as documented in `memory-bank/handoffs/design-to-impl-rulings-2026-08-13.md:2985`; the slop gate directory cap was met by moving files into `tests/native/`, as intended; for 2511, `tools/run_remote_tests.py` removes its pending record under the mirror lock (`:170-195`, `:342`) and its own error-path read catches `FileNotFoundError` (`:443-454`), so only an ad hoc probe of that internal record could crash.
 
 - 2026-09-19T16:25:32+00:00: Normal commit hook rejected tests/promotion/test_worktree_release.py:151:9 with E306 expected 1 blank line before a nested definition, found 0. Inserted the required blank line; no hook bypass.
 - 2026-09-19T17:03:45+00:00: A read-only progress probe raced normal runner completion and raised FileNotFoundError for /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.pending.json. The runner had removed the completed pending record; the full gate log established the result. No retry or resync was launched.
@@ -2968,7 +2968,7 @@ Disposition: fixed before this pass (`fixed-before`). Evidence: commit `bf38b68b
 
 ## Remote selectors matched too much or matched nothing — 2 occurrences
 
-Disposition: operator error (`operator-error`). Evidence: `run_tests.py:25-30` selects every test whose ID contains any selector as a case-insensitive fragment, so a broad fragment runs extra tests, and `run_tests.py:42-61` resolves a `.py` path to its module name plus a dot but no directory path; `tools/run_remote_tests.py:393-397` then rejects any run whose count differs from `--expected-tests`, by design. Anchoring each selector as the module name followed by a dot, or one `--select <file>.py` per module, limits the match and resolves both lines.
+Disposition: operator error (`operator-error`). Evidence: `run_tests.py:25-30` selects every test whose ID contains any selector as a case-insensitive fragment, so a broad fragment runs extra tests, and `run_tests.py:42-61` resolves a `.py` path to its module name plus a dot but no directory path; `tools/run_remote_tests.py:633-637` then rejects any run whose count differs from `--expected-tests`, by design. Anchoring each selector as the module name followed by a dot, or one `--select <file>.py` per module, limits the match and resolves both lines.
 
 - 2026-09-23T17:23:26-0700 Selecting remote generator tests by broad fragments also selected unrelated widget and smoke method IDs: Ran 75 tests, OK (skipped=6), rejected against expected 68; anchor selectors to the module name followed by a dot.
 - 2026-09-23T20:58:02-0700 Reachability-exit review fix: the remote runner rejected directory selector `--select tests/promotion/` with exact `No unambiguous unittest ID matched: tests/promotion/`, and an earlier try stopped on `error: previous remote lane has no completion report; sync blocked` for another agent's run `plain-1790221091-b0104622`; pass one `--select tests/promotion/<file>.py` per module and retry after the other run reports.
@@ -11942,7 +11942,7 @@ Disposition: fixed this pass (`fixed-this-pass`). Evidence: each line records it
 
 ## 2026-09-26 — Bunyip slice context-read friction
 
-Disposition: operator error (`operator-error`). Evidence: each line is the operator's own over-wide read, unmatched shell glob, guessed path or unneeded lock diagnostic; bounded reads, `rg --files` and the runner's own `Remote mirror busy; waiting for` message (`tools/run_remote_tests.py:390-393`) avoid them.
+Disposition: operator error (`operator-error`). Evidence: each line is the operator's own over-wide read, unmatched shell glob, guessed path or unneeded lock diagnostic; bounded reads, `rg --files` and the runner's own `Remote mirror busy; waiting for` message (`tools/run_remote_tests.py:586-589`) avoid them.
 
 - 2026-09-26: While reading slice startup context, combined tool output was truncated (original token count: 13992); use evidence files and bounded reads for subsequent context.
 - 2026-09-26T22:35:38Z: While locating neighbouring Summoning paths, zsh refused the unmatched glob logic/*familiar* with 'zsh:1: no matches found: logic/*familiar*'; use existing file paths in rg.

@@ -22,7 +22,7 @@ result. There is no player-facing board UI
 
 All competitive activities receive solo adaptations with labelled bounded
 simulations
-(`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:645-652`). One
+(`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:651-658`). One
 answer must do bounded work, inactive sessions must not advance, and only state
 that can change a later decision, visible status, reward, cost, or failure may
 persist (`memory-bank/simulation-computation-budget-contract-2026-07-17.md:20-42`).
@@ -334,11 +334,11 @@ curve is the largest reward placeholder candidate.
 AnkiScape already stores that exact shared balance at the top level:
 
 - default key: `"pest_control_commendations": 0` at
-  `logic/pest_control_logic.py:71-83`;
-- sanitizer and cap application at `logic/pest_control_logic.py:133-156`;
+  `logic/pest_control_logic.py:76-88`;
+- sanitizer and cap application at `logic/pest_control_logic.py:138-161`;
 - cap `500` at `data/pest_control_data.py:19-23`;
 - new-save default merge at `core/storage_pure.py:545-565`;
-- Pest Control capped credit at `logic/pest_control_logic.py:350-369`;
+- Pest Control capped credit at `logic/pest_control_logic.py:355-374`;
 - Void seal spending at `logic/pest_control_logic.py:551-568`.
 
 Conquest must credit and debit `pest_control_commendations`; it must not create a

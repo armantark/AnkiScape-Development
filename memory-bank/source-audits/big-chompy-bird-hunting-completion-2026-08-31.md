@@ -40,7 +40,7 @@ Darkan registers `BIG_CHOMPY_BIRD_HUNTING(102, 20)` in `com/rs/engine/quest/Ques
 | `2` | Retrieve the ogre bellows, fill them with swamp gas, inflate swamp toads, and place the bait for Rantz. | The existing generated Chompy bird combat encounter. |
 | `3` | Lure and kill a Chompy bird with an ogre bow and ogre arrows, pluck it, take the raw chompy to Rantz, gather the three seasonings from Rantz, Fycie and Bugs, then spit-roast the seasoned chompy for him. | Cooking `30` and Ranged `30` remain quest-start requirements. |
 
-Each cleanup removes its exact `Complete Big Chompy Bird Hunting stage N objective` sentinel and adds one same-stage automatic action. This order is required because `logic_pure/logic_pure_quest.py:1329-1330` returns on blockers before a stage can record its automatic action.
+Each cleanup removes its exact `Complete Big Chompy Bird Hunting stage N objective` sentinel and adds one same-stage automatic action. This order is required because `logic_pure/logic_pure_quest.py:1231-1232` returns on blockers before a stage can record its automatic action.
 
 The readable cleanup specifications live in `data/chompy_hunting_data.py` and all cite `BIG_CHOMPY_BIRD_HUNTING_STAGE_ACTION_SOURCE`, which combines the pinned quest revision and the resolved pinned local miniquest path. `data/quest_data.py` converts those specifications into its existing `QuestStageRequirementCleanup` contract. The generated item and combat gates remain intact.
 
@@ -55,9 +55,9 @@ The readable cleanup specifications live in `data/chompy_hunting_data.py` and al
 - `UTILITY_ITEM_IMAGES` explicitly maps `Raw chompy` to `cookingitems/raw_chompy.png`, so the existing Utilities row renders its cooking asset.
 - `UTILITY_ITEM_IMAGES` maps the consumed `Ogre arrow` to the existing `shopitems/ogre_arrow.png` before utility inputs are registered, so its canonical item definition and visible shop row retain an asset.
 
-The consumable requirement also keeps the existing player-facing contracts honest. `core/target_metadata.py:1915-1917` now lists the Ogre arrow in the tooltip, and `runtime/runtime_actions_utility.py:790-799` can name the missing arrow in the out-of-materials message instead of showing an empty-material tooltip and a generic activity failure.
+The consumable requirement also keeps the existing player-facing contracts honest. `core/target_metadata.py:1862-1864` now lists the Ogre arrow in the tooltip, and `runtime/runtime_actions_utility.py:790-799` can name the missing arrow in the out-of-materials message instead of showing an empty-material tooltip and a generic activity failure.
 
-A generic combat-target row was not used. The live item registry and `data/quest_data.py:1031` use the canonical singular `Ogre arrow`, while `EQUIPMENT_DATA` contains the incompatible plural key `Ogre arrows`; `Ogre bow` has no equipment row. A player therefore cannot equip either required hunting identity through the combat equipment system. Closing the missing bow metadata and singular/plural ammunition mismatch is a separate follow-on slice, not a reason to invent combat equipment values here.
+A generic combat-target row was not used. The live item registry and `data/quest/item_names.py:61` use the canonical singular `Ogre arrow`, while `EQUIPMENT_DATA` contains the incompatible plural key `Ogre arrows`; `Ogre bow` has no equipment row. A player therefore cannot equip either required hunting identity through the combat equipment system. Closing the missing bow metadata and singular/plural ammunition mismatch is a separate follow-on slice, not a reason to invent combat equipment values here.
 
 ## Reachability instrument output
 
@@ -86,6 +86,6 @@ Big Chompy Bird Hunting is the sole newly completable quest. This slice actually
 
 The current reachability instrument also credits `Fayrg bonemeal`, `Fayrg bones`, `Ogre coffin key`, `Ourg bonemeal`, `Ourg bones`, `Raurg bonemeal`, `Raurg bones`, `Zogre bonemeal`, and `Zogre bones`. Those nine items are phantom additions, not delivered by this slice.
 
-`tools/audit_item_reachability.py:943-948` builds the audit's `startable` quest set from required quests and required quest points without consulting required skills. At runtime, Zogre Flesh Eaters carries `QuestSkillRequirement(skill_id="combat", level=89)`, and `logic_pure/logic_pure_quest.py:146` returns the permanent sentinel `Combat 89 (not implemented)` because `combat` is a skill category rather than a registered `SkillDefinition`. `start_quest_pure` therefore refuses every player, so the Zogre target never opens.
+`tools/audit_item_reachability.py:944-949` builds the audit's `startable` quest set from required quests and required quest points without consulting required skills. At runtime, Zogre Flesh Eaters carries `QuestSkillRequirement(skill_id="combat", level=89)`, and `logic_pure/logic_pure_quest.py:146` returns the permanent sentinel `Combat 89 (not implemented)` because `combat` is a skill category rather than a registered `SkillDefinition`. `start_quest_pure` therefore refuses every player, so the Zogre target never opens.
 
 The same audit gap affects `dream_mentor` combat `85`, `grim_tales` `100`, `legends_quest` `75`, `smoking_kills` `85`, `underground_pass` `79`, and `zogre_flesh_eaters` `89`. Fixing the audit or the combat-category requirement is explicitly outside this slice. The pinned values continue to record what the instrument reports; the prose does not treat its phantom nine as player-reachable work.

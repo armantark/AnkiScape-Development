@@ -158,7 +158,7 @@ Steps:
    `-3`, and so on, before `.json`, until the creation succeeds. Never
    replace an existing safety file. If this write fails, refuse the restore.
 5. Replace the game as one direct action through `commit_direct_action`
-   (`__init__.py:1002`). This creates one Anki undo entry,
+   (`__init__.py:1003`). This creates one Anki undo entry,
    "AnkiScape direct action", and one whole-save snapshot on the direct-action
    undo stack.
 6. Close the main menu dialog. The next open builds fresh from the restored
@@ -202,7 +202,7 @@ current, and only a stale file changes. Two other parts of the normal
 direct-action path would break the rule above. The restore must bypass both:
 
 - The Bankstanding switch after a cleared activity session
-  (`__init__.py:1039-1050`) overwrites `current_utility` with the old game's
+  (`__init__.py:1040-1051`) overwrites `current_utility` with the old game's
   value.
 - `_select_review_action` (`__init__.py:988`) clears `combat_encounter` when
   the review action changes.
