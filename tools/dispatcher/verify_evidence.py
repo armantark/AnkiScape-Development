@@ -27,15 +27,10 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _artifact_path(artifact_dir: Path, name: str) -> Path:
-    root = artifact_dir.resolve()
+def _artifact_path(root: Path, name: str) -> Path:
     path = (root / name).resolve()
-    try:
-        path.relative_to(root)
-    except ValueError as exc:
-        raise EvidenceVerificationError(
-            f"{name}: path is outside artifact directory"
-        ) from exc
+    if not path.is_relative_to(root):
+        raise EvidenceVerificationError(f"{name}: path is outside artifact directory")
     return path
 
 
@@ -46,34 +41,29 @@ def _verify_value(name: str, field: str, actual: object, expected: object) -> No
         )
 
 
-def _verify_plaintext(name: str, declaration: Mapping[str, object], data: bytes) -> None:
-    _verify_value(name, "bytes", len(data), declaration["bytes"])
-    _verify_value(name, "sha256", _sha256(data), declaration["sha256"])
+def _verify_payload(
+    name: str,
+    declaration: Mapping[str, object],
+    data: bytes,
+    prefix: str = "",
+) -> None:
+    bytes_field = f"{prefix}bytes"
+    hash_field = f"{prefix}sha256"
+    _verify_value(name, bytes_field, len(data), declaration[bytes_field])
+    _verify_value(name, hash_field, _sha256(data), declaration[hash_field])
 
 
 def _verify_gzip(name: str, declaration: Mapping[str, object], data: bytes) -> None:
-    _verify_value(name, "gzip_bytes", len(data), declaration["gzip_bytes"])
-    _verify_value(name, "gzip_sha256", _sha256(data), declaration["gzip_sha256"])
+    _verify_payload(name, declaration, data, "gzip_")
     try:
         plaintext = gzip.decompress(data)
     except (EOFError, OSError, zlib.error) as exc:
         raise EvidenceVerificationError(f"{name}: invalid gzip data: {exc}") from exc
-    _verify_value(
-        name,
-        "plaintext_bytes",
-        len(plaintext),
-        declaration["plaintext_bytes"],
-    )
-    _verify_value(
-        name,
-        "plaintext_sha256",
-        _sha256(plaintext),
-        declaration["plaintext_sha256"],
-    )
+    _verify_payload(name, declaration, plaintext, "plaintext_")
 
 
 def _verify_artifact(
-    artifact_dir: Path,
+    root: Path,
     name: str,
     declaration: object,
 ) -> None:
@@ -85,13 +75,13 @@ def _verify_artifact(
             f"{name}: unsupported hash declaration; expected {sorted(PLAIN_FIELDS)} "
             f"or {sorted(GZIP_FIELDS)}"
         )
-    path = _artifact_path(artifact_dir, name)
+    path = _artifact_path(root, name)
     try:
         data = path.read_bytes()
     except OSError as exc:
         raise EvidenceVerificationError(f"{name}: cannot read artifact: {exc}") from exc
     if fields == PLAIN_FIELDS:
-        _verify_plaintext(name, declaration, data)
+        _verify_payload(name, declaration, data)
     else:
         _verify_gzip(name, declaration, data)
 
@@ -104,10 +94,9 @@ def verify_manifest(manifest_path: Path, artifact_dir: Path) -> int:
     if not isinstance(manifest, Mapping) or not isinstance(manifest.get("artifacts"), Mapping):
         raise EvidenceVerificationError("manifest must contain an artifacts object")
     artifacts = manifest["artifacts"]
+    root = artifact_dir.resolve()
     for name, declaration in artifacts.items():
-        if not isinstance(name, str):
-            raise EvidenceVerificationError("artifact names must be strings")
-        _verify_artifact(artifact_dir, name, declaration)
+        _verify_artifact(root, name, declaration)
     return len(artifacts)
 
 
