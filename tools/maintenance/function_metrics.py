@@ -3,10 +3,10 @@
 
 --output names one evidence file outside the worktrees (the common Git directory
 is allowed). Exit 1 means a selected function exceeds a gate limit; invalid
-inputs or missing instruments exit 2 without publishing a report. Only
-file-unique bare names for non-nested functions or methods are supported.
-Qualified selectors and closure-only metrics are unavailable because the gate's
-instrument tables do not preserve enough scope information to join them.
+inputs or missing instruments exit 2 without publishing a report. Name one
+source file, then each function by its file-unique bare name; the gate's tables
+key on bare names, so qualified names cannot disambiguate repeated methods and a
+nested function is measurable only as its enclosing function.
 
 Requires the fleet slop_gate.py and its uv-installed lizard, complexipy and radon.
 """
@@ -41,10 +41,7 @@ def validate_output(source: Path, output: Path) -> None:
             ["git", "-C", str(ROOT), "rev-parse", "--path-format=absolute", "--git-common-dir"], text=True,
         ).strip()).resolve()
     if output.is_dir() or not output.parent.is_dir():
-        raise ValueError(
-            "--output must name a file in an existing evidence directory; "
-            "pass a filename, not a directory"
-        )
+        raise ValueError("--output must name a file in an existing evidence directory")
     if any(output.is_relative_to(root) for root in roots) and not (
         common is not None and output.is_relative_to(common)
     ):
@@ -54,53 +51,35 @@ def validate_output(source: Path, output: Path) -> None:
         )
 
 
-def function_definitions(tree: ast.AST) -> dict[str, list[tuple[str, int, str | None]]]:
-    definitions: dict[str, list[tuple[str, int, str | None]]] = {}
-
-    def walk(node: ast.AST, scope: tuple[str, ...] = (), enclosing: str | None = None) -> None:
-        next_scope = scope
-        next_enclosing = enclosing
-        if isinstance(node, ast.ClassDef):
-            next_scope = (*scope, node.name)
-        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            qualified = ".".join((*scope, node.name))
-            definitions.setdefault(node.name, []).append((qualified, node.lineno, enclosing))
-            next_scope = (*scope, node.name)
-            next_enclosing = enclosing or qualified
-        for child in ast.iter_child_nodes(node):
-            walk(child, next_scope, next_enclosing)
-
-    walk(tree)
+def collect_definitions(node: ast.AST, definitions: dict, scope: str = "", enclosing: str | None = None) -> dict:
+    """Map bare function names to (qualified name, line, enclosing function or None)."""
+    for child in ast.iter_child_nodes(node):
+        if isinstance(child, ast.ClassDef):
+            collect_definitions(child, definitions, f"{scope}{child.name}.", enclosing)
+        elif isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            qualified = scope + child.name
+            definitions.setdefault(child.name, []).append((qualified, child.lineno, enclosing))
+            collect_definitions(child, definitions, f"{qualified}.", enclosing or child.name)
+        else:
+            collect_definitions(child, definitions, scope, enclosing)
     return definitions
 
 
-def validate_selection(
-    names: list[str], definitions: dict[str, list[tuple[str, int, str | None]]]
-) -> None:
+def validate_selection(tree: ast.AST, names: list[str]) -> None:
+    definitions = collect_definitions(tree, {})
     for name in names:
-        bare = name.rsplit(".", 1)[-1]
-        matches = definitions.get(bare, [])
-        locations = ", ".join(
-            f"{qualified} at line {line}" for qualified, line, _ in matches
-        ) or "none"
-        if bare != name:
+        matches = definitions.get(name.rsplit(".", 1)[-1], [])
+        if len(matches) != 1 or "." in name:
+            locations = ", ".join(f"{qualified} at line {line}" for qualified, line, _ in matches)
             raise ValueError(
-                f"{name}: qualified selectors are unsupported; pass the file-unique "
-                f"bare name {bare!r}. Definitions: {locations}"
-            )
-        if len(matches) != 1:
-            raise ValueError(
-                f"{name}: expected one function definition, found {len(matches)}; "
-                f"definitions: {locations}. Only file-unique bare names are supported; "
-                "qualified names cannot disambiguate slop-gate tables"
+                f"{name}: expected one file-unique bare function name; definitions: {locations or 'none'}; "
+                "qualified names are unsupported because slop-gate tables key on bare names"
             )
         qualified, line, enclosing = matches[0]
         if enclosing is not None:
-            owner = enclosing.rsplit(".", 1)[-1]
             raise ValueError(
-                f"{name}: nested function {qualified} at line {line} has no independent "
-                "three-instrument slop-gate result; measure enclosing function "
-                f"{enclosing!r} with bare name {owner!r} if it is file-unique"
+                f"{name}: nested function {qualified} at line {line} has no separate slop-gate "
+                f"result; measure enclosing function {enclosing!r} instead"
             )
 
 
@@ -161,9 +140,8 @@ def main() -> int:
     try:
         source, output = args.file.resolve(), args.output.resolve()
         if source.suffix != ".py" or not source.is_file():
-            raise ValueError("file must be an existing Python source file")
-        definitions = function_definitions(ast.parse(source.read_bytes()))
-        validate_selection(args.functions, definitions)
+            raise ValueError(f"file must be an existing Python source file: {args.file}")
+        validate_selection(ast.parse(source.read_bytes()), args.functions)
         validate_output(source, output)
         gate = load_gate(args.slop_gate.resolve())
         # Match fleet's pre-commit hook, including uv tool executable discovery.

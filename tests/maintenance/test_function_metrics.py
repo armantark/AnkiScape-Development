@@ -104,6 +104,13 @@ class FunctionMetricsTests(unittest.TestCase):
                 self.assertFalse(self.output.exists())
                 self.assertIn("error:", result.stderr)
 
+    def test_space_joined_sources_are_named_in_the_error(self):
+        combined = f"{self.source} {self.source_root / 'other.py'}"
+        result = self._run("safe", source=combined)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn(combined, result.stderr)
+        self.assertFalse(self.output.exists())
+
     def test_nested_selection_names_enclosing_function_before_loading_gate(self):
         self.source.write_text(
             "def outer():\n    def inner():\n        return 1\n    return inner()\n",

@@ -19,13 +19,9 @@ uv tool install pycodestyle
 
 Each maintenance test checks its prerequisites and fails with the missing paths and a pointer to this file; measurements are neither stubbed nor skipped.
 
-### Function-metrics usage and evidence placement
+### Function-metrics usage
 
-`tools/maintenance/function_metrics.py` accepts one Python source file per invocation, followed by file-unique bare function names. Qualified names cannot disambiguate the gate's instrument tables, and a nested function has no independent three-instrument result; measure its enclosing non-nested function instead when that bare name is unique.
-
-Keep disposable baseline source and evidence in separate sibling directories. The output must name a file in an existing directory outside the measured source directory and all linked worktrees, except that an evidence directory under the common Git directory is allowed. Selecting one function still analyzes the full file, so run large-file measurements in the background.
-
-Pass the source once and each function name as a separate argument:
+`tools/maintenance/function_metrics.py --help` states its selection rules. Pass the source once and each function name as a separate argument (zsh does not word-split a string variable), keep evidence in a sibling directory outside the measured source, and run large files in the background, because one selection still analyzes the whole file:
 
 ```sh
 /opt/homebrew/bin/python3 tools/maintenance/function_metrics.py --output /tmp/pass15-evidence/carried-overlay.json runtime/runtime_actions_carried_overlay.py run_answer_with_carried_overlay _winter_storage_rejected
