@@ -14290,7 +14290,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             if dialog is not None:
                 dialog.deleteLater()
 
-    def test_phoenix_lair_advanced_mode_names_the_carried_pack_gate(self) -> None:
+    def test_phoenix_lair_advanced_mode_opens_with_belt_tools_missing_from_the_pack(self) -> None:
         from ankiscape.logic.phoenix_lair_logic import default_phoenix_lair_state_pure
 
         pd = _make_player_data()
@@ -14321,10 +14321,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         status = _find_named_label(dialog, "phoenixLairStatusChip")
         summary = _find_named_label(dialog, "phoenixLairSummary")
         primary = _find_named_button(dialog, "phoenixLairPrimaryButton")
-        self.assertEqual(status.text(), "LOCKED")
-        self.assertIn("Tinderbox in carried pack or toolbelt", summary.text())
-        self.assertNotIn("Bank or toolbelt", summary.text())
-        self.assertFalse(primary.isEnabled())
+        # The tinderbox is a 2012 tool belt tool, so the pack without it still enters.
+        self.assertEqual(status.text(), "READY")
+        self.assertNotIn("Tinderbox", summary.text())
+        self.assertTrue(primary.isEnabled())
 
     def test_barrows_card_enters_selects_repairs_and_suspends_without_nested_scroll(self) -> None:
         from ankiscape.logic.barrows_logic import default_barrows_state_pure
