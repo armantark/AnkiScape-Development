@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goal paused 2026-09-29: 12 changes wait for one check</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%234f8cff'/%3E%3C/svg%3E">
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { box-sizing: border-box; }
+html { scroll-snap-type: y proximity; }
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Outfit, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+}
+section {
+    min-height: 100svh;
+    scroll-snap-align: start;
+    padding: 56px clamp(20px, 6vw, 96px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+h1 { font-size: clamp(30px, 5vw, 52px); line-height: 1.15; margin: 0; }
+h2 { font-size: clamp(24px, 3.4vw, 36px); margin: 0; }
+p { margin: 0; color: var(--text-dim); font-size: 18px; max-width: 60ch; }
+.big { color: var(--text); font-size: clamp(18px, 2.2vw, 22px); }
+.mono { font-family: "JetBrains Mono", Menlo, monospace; }
+.track { display: grid; gap: 10px; }
+.stop {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 16px;
+    align-items: start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+}
+.stop.play { border-left-color: var(--green); }
+.stop.safe { border-left-color: var(--accent); }
+.stop .tag { font-family: "JetBrains Mono", Menlo, monospace; font-size: 13px; color: var(--text-dim); padding-top: 3px; }
+.stop strong { display: block; font-size: 18px; }
+.stop span { color: var(--text-dim); font-size: 15px; }
+.gate {
+    background: var(--accent-glow);
+    border: 1px dashed var(--accent);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    font-size: 17px;
+}
+.legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 15px; color: var(--text-dim); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+}
+.card.warn { border-color: var(--amber); }
+.card h3 { margin: 0 0 8px; font-size: 20px; }
+.card p { font-size: 16px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.counts { display: flex; gap: 28px; flex-wrap: wrap; }
+.count b { display: block; font-family: "JetBrains Mono", Menlo, monospace; font-size: clamp(34px, 5vw, 48px); color: var(--accent); }
+.count span { color: var(--text-dim); font-size: 15px; }
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .stop, .card { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+        @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    }
+}
+</style>
+</head>
+<body>
+<main>
+<section aria-labelledby="payload">
+    <h1 id="payload">Nothing new reached your game today. 12 accepted changes wait in one batch for the full check.</h1>
+    <p class="big">You paused at 11:51 to test GPT 6.1 Sol. Every change in the batch has its review and its own plain test run. The batch needs one more step: the full two-lane check on the MacBook. When that check is green, the batch goes to main.</p>
+    <video src="goal-pause-results-2026-09-29.mp4" controls autoplay muted loop playsinline style="width:min(100%,520px);border-radius:var(--radius);border:1px solid var(--border)"></video>
+    <div class="counts">
+        <div class="count"><b>12</b><span>commits in the batch</span></div>
+        <div class="count"><b>3</b><span>that you can see in play</span></div>
+        <div class="count"><b>2</b><span>slices stopped mid-work</span></div>
+        <div class="count"><b>1</b><span>new player defect found</span></div>
+    </div>
+</section>
+
+<section aria-labelledby="batch">
+    <h2 id="batch">The batch, in landing order</h2>
+    <div class="legend"><span><i style="background:var(--green)"></i>you can see it in play</span><span><i style="background:var(--accent)"></i>safer code or tools, no change in play</span></div>
+    <div class="track">
+        <div class="stop play"><div class="tag">Stronghold</div><div><strong>"Fight Cockroach soldier" starts the fight from any skill</strong><span>Before, the button did nothing when you trained another skill. Undo takes you back to your skill.</span></div></div>
+        <div class="stop play"><div class="tag">Checklist</div><div><strong>Your list of things to try while you study</strong><span>memory-bank/play-checklist.md: 22 lines by part of the game. The Stronghold line now shows the date 2026-09-29.</span></div></div>
+        <div class="stop play"><div class="tag">Tools</div><div><strong>The Castle Wars and Penguin screenshot tools work again</strong><span>They show their screens as the game does now.</span></div></div>
+        <div class="stop safe"><div class="tag">Combat</div><div><strong>Three combat functions are smaller, with the same results</strong><span>Prayer drain in a fight, repair of an old saved fight (a test over 49,810 cases found no difference), and the carried-pack settlement for gathering.</span></div></div>
+        <div class="stop safe"><div class="tag">Menu</div><div><strong>The cooking menu actions have their own file</strong><span>The menu, its labels and its messages are the same.</span></div></div>
+        <div class="stop safe"><div class="tag">Records</div><div><strong>The papercut log has 88 open entries, down from 280</strong><span>The check now refuses any tree that loses a papercut or lists one as both open and fixed.</span></div></div>
+        <div class="stop safe"><div class="tag">Tests</div><div><strong>Test runs report how many tests a selection matches</strong><span>Also in the batch: the record of the "land now, one check later" rule.</span></div></div>
+    </div>
+    <div class="gate">Next step on resume: run the full check on this batch. On green, it goes to main, and then you do one check in the game.</div>
+</section>
+
+<section aria-labelledby="open">
+    <h2 id="open">What stopped, and one defect for later</h2>
+    <div class="grid2">
+        <div class="card">
+            <h3>Respawn fix: done, but not committed</h3>
+            <p>When your hit killed a monster in a fight and it came back, the new monster kept part of the old fight. A salted Rock slug came back and never attacked. Two reviewers approved the fix. The commit failed because the combat file may not grow by any line. The author was changing the fix so that the file does not grow when you paused.</p>
+        </div>
+        <div class="card">
+            <h3>Bank-trip cleanup: just started</h3>
+            <p>One file changed, and no tests ran yet. A new author starts it again after you resume.</p>
+        </div>
+        <div class="card warn">
+            <h3>No menu sells "Deliver killing blows quicker"</h3>
+            <p>This Slayer reward turns on automatic finishers, but the Slayer Rewards tab shows only a placeholder. So no player can get the unlock. A read-only check of the reward sources started, and your pause stopped it. When the tab gets its purchases, it is either a new feature or a change to an existing screen. That decision can come to you.</p>
+        </div>
+        <div class="card">
+            <h3>Model routing today</h3>
+            <p>GPT models did the work, as you asked. GPT-5.6 Sol and GPT-6 Astra wrote the slices. GPT-6 Sol and GLM 5.3 Flash reviewed each one. Claude was at 51 of the day's 52 and did only the orchestration.</p>
+        </div>
+    </div>
+</section>
+</main>
+</body>
+</html>

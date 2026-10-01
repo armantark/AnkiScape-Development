@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnkiScape run results, paused 2026-09-24</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23161a21'/%3E%3Crect x='9' y='8' width='5' height='16' rx='1.5' fill='%234f8cff'/%3E%3Crect x='18' y='8' width='5' height='16' rx='1.5' fill='%234f8cff'/%3E%3C/svg%3E">
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+    --sans: "Outfit", "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.55;
+    font-size: 16px;
+}
+main { max-width: 1100px; margin: 0 auto; padding: 40px 24px 64px; }
+h1 { font-size: 2rem; font-weight: 700; margin: 14px 0 20px; line-height: 1.2; }
+h2 { font-size: 1.25rem; margin: 44px 0 14px; }
+h3 { font-size: 1.02rem; margin: 0 0 8px; }
+p { margin: 0 0 10px; }
+.dim { color: var(--text-dim); }
+.badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--amber);
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    border-radius: 999px;
+    padding: 4px 12px;
+}
+.truth {
+    background: linear-gradient(135deg, var(--surface) 0%, #1a1f2b 100%);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+}
+.truth p:last-child { margin-bottom: 0; }
+.truth strong { color: var(--text); }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.pane {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+}
+.pane h3 { display: flex; gap: 8px; align-items: center; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); }
+.card .tag {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-dim);
+    display: inline-block;
+    margin-bottom: 8px;
+}
+.card ul { margin: 6px 0 0; padding-left: 20px; }
+.card li { margin-bottom: 4px; }
+.stack {
+    display: flex;
+    height: 34px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin: 10px 0 12px;
+}
+.stack div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: #0c0e12;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.9rem; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.chip {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 12px;
+    font-size: 0.86rem;
+}
+.decisions { counter-reset: d; list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.decisions li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px 16px 62px;
+    position: relative;
+}
+.decisions li::before {
+    counter-increment: d;
+    content: counter(d);
+    position: absolute;
+    left: 18px;
+    top: 16px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.decisions ol { margin: 6px 0 0; padding-left: 22px; }
+.meter { background: var(--surface-2); border-radius: 8px; height: 14px; overflow: hidden; margin: 8px 0; }
+.meter div { height: 100%; background: var(--amber); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--surface-2); color: var(--text-dim); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+td.mono, span.mono { font-family: var(--mono); font-size: 0.82rem; }
+.num { color: var(--green); font-family: var(--mono); }
+details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-top: 12px;
+}
+summary { cursor: pointer; font-weight: 600; }
+details[open] summary { margin-bottom: 10px; }
+@media (max-width: 900px) {
+    .split, .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<span class="badge">Goal paused 2026-09-24 07:14 PDT</span>
+<h1>AnkiScape run results: a stronger workshop, almost no change in the game</h1>
+
+<section class="truth" aria-label="Bottom line">
+<p><strong>For the player, main changed very little.</strong> This run did cleanup that keeps game behaviour the same. It also made the tools and the test system stronger. One small change can affect a future diary: the diary builder now stops a task that can never complete.</p>
+<p><strong>For you, the work is safer and faster.</strong> Seven landings on main hold 19 slices. Each slice went through the full gate and a review by a second model family.</p>
+<p><strong>22 more game cleanups are ready but not on main.</strong> They wait for one choice from you: how to do the in-game check.</p>
+</section>
+
+<div class="split">
+    <div class="pane">
+        <h3><span class="dot" style="background: var(--green)"></span>What the player sees now</h3>
+        <p>The same game as before the run. No skill, quest, shop or screen changed.</p>
+        <p class="dim">Diary text stays exactly the same. The builder only refuses a broken task. No shipped task had this problem.</p>
+    </div>
+    <div class="pane">
+        <h3><span class="dot" style="background: var(--accent)"></span>What changed below the game</h3>
+        <p>The game code is easier to change without new bugs. The checks catch more mistakes. The project records are small and easy to read again.</p>
+    </div>
+</div>
+
+<h2>What you gained</h2>
+<div class="grid">
+    <article class="card">
+        <span class="tag">Game data you can trust</span>
+        <h3>Smithing and Summoning data records its sources</h3>
+        <p>The Smithing and Summoning data now names the exact source files it came from. If a source changes without notice, the build stops.</p>
+        <p class="dim">Equipment, NPC shops and Construction do not have this yet. Their sources are not available.</p>
+    </article>
+    <article class="card">
+        <span class="tag">Safer diaries</span>
+        <h3>A typo cannot ship a diary task that never completes</h3>
+        <p>The diary builder now refuses a task if the game never writes its counter. Before, one wrong letter could make a task that no player can finish.</p>
+        <p class="dim">The diary generator also has clear parts now. It makes the same diaries, byte for byte.</p>
+    </article>
+    <article class="card">
+        <span class="tag">Checks that catch more</span>
+        <h3>18 interface checks now run</h3>
+        <p>These checks covered one-click activities, changes during a fight and the Slayer counter. Before, they never ran. Now they run in both test lanes, and they pass.</p>
+        <p class="dim">The native test guard also refuses to report "collection unchanged" while Anki still runs.</p>
+    </article>
+    <article class="card">
+        <span class="tag">Faster, calmer gate</span>
+        <h3>Good changes no longer fail in the queue</h3>
+        <ul>
+            <li>The gate holds the test machine for both lanes. A second run in the queue cannot break a good change.</li>
+            <li>The Qt test lane is about one third faster, with the same tests.</li>
+            <li>Remote test runs now report the time of each phase.</li>
+        </ul>
+    </article>
+    <article class="card">
+        <span class="tag">Smaller records</span>
+        <h3>The Memory Bank is light again</h3>
+        <ul>
+            <li>Raw test evidence moved out of the repository. A digest keeps a record of each file.</li>
+            <li>The papercut log holds only the open entries. Each closed entry moved, word for word, to the fixed file.</li>
+            <li>Old progress and kanban history moved to archives.</li>
+        </ul>
+    </article>
+    <article class="card">
+        <span class="tag">Less friction</span>
+        <h3>Three repeated false alarms are gone</h3>
+        <ul>
+            <li>The item audit accepts the known baseline. It no longer reports it as a failure.</li>
+            <li>The docs audit accepts test references inside folders.</li>
+            <li>A new project skill rebuilds the grilled-designs progress page.</li>
+        </ul>
+        <p class="dim">These three changes complete the ordered handoff list.</p>
+    </article>
+</div>
+
+<h2>Game cleanup: how far it got</h2>
+<p>The cleanup list has 45 game functions that are too complex. The bar shows where each one is now.</p>
+<div class="stack" role="img" aria-label="45 functions: 9 done on main, 33 done in the batch that waits, 3 still large">
+    <div style="width: 20%; background: var(--green)">9</div>
+    <div style="width: 73.3%; background: var(--amber)">33</div>
+    <div style="width: 6.7%; background: var(--red)">3</div>
+</div>
+<div class="legend">
+    <span><span class="dot" style="background: var(--green)"></span>9 below the limits on main</span>
+    <span><span class="dot" style="background: var(--amber)"></span>33 below the limits in the batch that waits</span>
+    <span><span class="dot" style="background: var(--red)"></span>3 still large</span>
+</div>
+<p style="margin-top: 14px">The three large ones are the combat turn, the carried-items screen and the combat preview. Each one is smaller in the batch. The rest of the combat code includes the Magic and Dream parts, which you reserved for yourself.</p>
+
+<h3 style="margin-top: 22px">The batch that waits touches these game areas</h3>
+<p class="dim">No behaviour changes. The gate was green for the first 11 slices.</p>
+<div class="chips">
+    <span class="chip">Carried packs and refills</span>
+    <span class="chip">Pack yak storage</span>
+    <span class="chip">Agility courses and deaths</span>
+    <span class="chip">Combat preview</span>
+    <span class="chip">HUD</span>
+    <span class="chip">Fight ends and monster turns</span>
+    <span class="chip">Quest catalog load</span>
+    <span class="chip">Shop locks</span>
+    <span class="chip">Undo</span>
+    <span class="chip">Sales to shops</span>
+    <span class="chip">Search</span>
+    <span class="chip">Potion decant</span>
+    <span class="chip">Evil Tree</span>
+    <span class="chip">Shooting Star</span>
+    <span class="chip">Competition minigames</span>
+    <span class="chip">Livid Farm</span>
+    <span class="chip">Temple Trekking</span>
+    <span class="chip">Card answers</span>
+    <span class="chip">Equip and unequip</span>
+    <span class="chip">Prayer settings</span>
+</div>
+
+<h2>Decisions that only you can make</h2>
+<ol class="decisions">
+    <li>
+        <h3>Choose how to do the in-game check (design queue 3.38)</h3>
+        <p>Your rule says each game-code change needs a real check in Anki before it goes to main. Four checks through the laptop Codex command line failed. The computer-use tool could not take screenshots, and then it could not click. Isolation worked each time, and your collection did not change.</p>
+        <p>Choose one:</p>
+        <ol>
+            <li>Run the check in the MacBook Codex desktop task. The 2026-09-21 check used this route.</li>
+            <li>Approve the 22 cleanups on a green gate alone.</li>
+            <li>Name a different computer-use route.</li>
+        </ol>
+    </li>
+    <li>
+        <h3>Revisit the goal text with the define-goal skill (design queue 3.36)</h3>
+        <p>You reserved this session. The goal does not say when a cleanup is done: below all limits, or only simpler. This choice sets how long the cleanup takes.</p>
+    </li>
+    <li>
+        <h3>Merge or rework the Magic extraction candidate</h3>
+        <p>A candidate change for the Magic extraction is ready (commit <span class="mono">a8137bab</span>). Magic code is yours, so it waits for your call.</p>
+    </li>
+</ol>
+
+<h2>Pace</h2>
+<div class="pane">
+    <p>7 product landings in about 14 hours of active orchestration. The target is 10 landings for each active day.</p>
+    <div class="meter" role="img" aria-label="7 of 10 landings"><div style="width: 70%"></div></div>
+    <p class="dim">All seven landings are tool, data and test work. The in-game check holds back the game-code batch.</p>
+</div>
+
+<h2>Evidence</h2>
+<details open>
+<summary>Landings on main</summary>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Commit</th><th>What landed</th><th>Exact numbers</th></tr></thead>
+<tbody>
+<tr><td class="mono">4f345789</td><td>Remote test runs report the time of each phase (handoff step 2).</td><td></td></tr>
+<tr><td class="mono">a45c92d8</td><td>Smithing and Summoning source records (step 3). Evidence moved out of the repository (step 5). The progress page skill.</td><td>Memory Bank evidence <span class="num">95 MB → 744 KB</span>; source audits <span class="num">51 MB → 6.6 MB</span></td></tr>
+<tr><td class="mono">db75276f</td><td>Papercut log cut down, three frictions removed, history archived (step 6). The gate holds the test-host lock across both lanes. Faster Qt lane.</td><td>Papercut log <span class="num">2,567 → about 60</span> lines; Qt lane <span class="num">1,160 s → about 764 s</span></td></tr>
+<tr><td class="mono">f82b0b8b<br>6f8f47a7</td><td>Diary generator split, roster test helpers made simple, never-run interface checks enabled.</td><td><span class="num">18</span> interface checks now run in both lanes</td></tr>
+<tr><td class="mono">71dab95a</td><td>The diary builder refuses a task with a counter that the game never writes.</td><td><span class="num">0</span> shipped tasks affected</td></tr>
+<tr><td class="mono">d0904603</td><td>The Memory Bank records the blocker and the queue.</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p class="dim" style="margin-top: 10px">Main now finds 5,756 tests. Both lanes pass. Each slice passed both test lanes and the docs, test-quality, reachability, worktree, clean-tree and diff checks.</p>
+</details>
+
+<details>
+<summary>The three large functions, before and after the batch</summary>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Area</th><th>Complexity on main</th><th>In the batch</th><th>What remains</th></tr></thead>
+<tbody>
+<tr><td>Combat turn</td><td class="mono">299</td><td class="mono">255</td><td>Includes the reserved Magic and Dream code</td></tr>
+<tr><td>Carried-items screen</td><td class="mono">157</td><td class="mono">119</td><td>One author change is open on its branch. Keep it.</td></tr>
+<tr><td>Combat preview</td><td class="mono">48</td><td class="mono">20</td><td>The reserved Magic branch</td></tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<details>
+<summary>In-game check attempts</summary>
+<ul>
+    <li>2026-09-23 18:25 and 19:32, and 2026-09-24 03:02: "Screenshot unavailable" for the test copy of Anki.</li>
+    <li>2026-09-24 03:17: a shell screenshot proved that the test copy loaded. Then the clicks failed ("cannotClickOffscreenElement", "noWindowsAvailable", timeouts). The run reviewed 0 cards.</li>
+    <li>On all four runs, the guard reported the owner's collection unchanged, and no Anki process stayed open.</li>
+    <li>The gate for the full batch stopped at the pause. Run it again before the batch lands.</li>
+</ul>
+</details>
+
+</main>
+</body>
+</html>

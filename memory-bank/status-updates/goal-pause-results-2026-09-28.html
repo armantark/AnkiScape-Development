@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnkiScape paused: 24 game fixes are in your game and need one play check</title>
+<link rel="icon" href="data:,">
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Outfit", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+main { max-width: 1180px; margin: 0 auto; padding: 32px 20px 64px; }
+h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 10px; }
+h2 { font-size: 1.25rem; margin: 40px 0 12px; }
+p { margin: 0 0 10px; }
+.dim { color: var(--text-dim); }
+.mono { font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; font-size: 0.9em; }
+.hero {
+    background: linear-gradient(135deg, var(--accent-glow), transparent 70%), var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+}
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 18px; }
+.stat { background: var(--surface-2); border-radius: var(--radius); padding: 14px; }
+.stat b { display: block; font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; font-size: 1.7rem; }
+.stat span { color: var(--text-dim); font-size: 0.92rem; }
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
+.check {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    cursor: pointer;
+}
+.check:has(input:checked) { border-color: var(--green); opacity: 0.7; }
+.check input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--green); }
+.check strong { display: block; }
+.check em { font-style: normal; color: var(--text-dim); font-size: 0.93rem; }
+.tag { display: inline-block; font-size: 0.78rem; padding: 1px 8px; border-radius: 999px; margin-right: 6px; }
+.t-combat { background: rgba(255, 92, 92, 0.15); color: var(--red); }
+.t-skill { background: rgba(74, 222, 128, 0.14); color: var(--green); }
+.t-safety { background: rgba(167, 139, 250, 0.16); color: var(--purple); }
+.t-mini { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
+.lanes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.lane { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.lane h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.lane ul { margin: 10px 0 0; padding-left: 18px; }
+.lane li { margin-bottom: 8px; }
+.lane.ready { border-top: 3px solid var(--green); }
+.lane.review { border-top: 3px solid var(--amber); }
+.lane.stopped { border-top: 3px solid var(--text-dim); }
+.decide { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.decide li { background: var(--surface); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 12px 16px; }
+.decide li.first { border-left-color: var(--amber); background: var(--surface-2); }
+footer { margin-top: 40px; color: var(--text-dim); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+
+<section class="hero" aria-labelledby="payload">
+<h1 id="payload">24 game fixes are in your game now, and they need one play check from you</h1>
+<p>The batch reached your Anki add-on at 00:10 on Monday after every automatic check passed, as you ruled on Sunday ("Land now, one check later"). The list below is that check. Tick each item as you see it work. If one fails, tell me and it becomes a fix.</p>
+<p class="dim">Since 09:38 today, six more changes were built and reviewed. They wait for the next batch and are not in your game yet. You paused the work at 10:53.</p>
+<div class="stats">
+<div class="stat"><b>24</b><span>fixes you can see, in your game now</span></div>
+<div class="stat"><b>6</b><span>changes built today, waiting for the next batch</span></div>
+<div class="stat"><b>4</b><span>changes stopped part-way by the pause, all kept</span></div>
+<div class="stat"><b>280 → 80</b><span>open annoyance notes after today's sort (lands with the next batch)</span></div>
+</div>
+</section>
+
+<h2>Check these in the game: what you should see</h2>
+<div class="checks">
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Levels</span><strong>One level-up window for a big jump</strong><em>Use a large XP lamp or finish a quest that gives many levels. You see one window from the old level to the new one, not one per level.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-combat">Combat</span><strong>Max hit and hit chance count your prayers</strong><em>Pick a monster. The numbers now include the Strength, Attack or Ranged prayer you will really have up in that fight.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-combat">Combat</span><strong>Prayer set to Off keeps your Prayer potions</strong><em>Your carried Prayer potions stay full. With prayers on and running low, you still drink them.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-combat">Combat</span><strong>A quest fight leaves your auto-flee alone</strong><em>After a quest fight, ordinary fights still pull you out when you run low with no food.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-combat">Combat</span><strong>Ranged finishing blows work</strong><em>With a bow equipped and the right supplies, a manual Ranged finishing blow goes through.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-combat">Combat</span><strong>Overheal survives ordinary food</strong><em>Above max life points from a Tiger shark, eat a kebab or a beer. The extra stays.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-combat">Combat</span><strong>"Fight back when caught" starts the Menaphite Thug fight</strong><em>Fail a blackjack knockout. You fight the thug on the next reviews with the food, arrows and runes you carry.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-combat">Combat</span><strong>A summoned Bunyip does not heal you in Daemonheim</strong><em>It heals you again once you leave.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-combat">Combat</span><strong>Red Clan Wars portal death costs everything but Protect Item</strong><em>You keep only the one item Protect Item saves, as you ruled.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-mini">Minigames</span><strong>Castle Wars, Pest Control, Soul Wars and Barbarian Assault pay XP once</strong><em>Before, each fight paid twice. Damage to Pest Control portals now earns half-rate XP.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-mini">Minigames</span><strong>Barbarian Advanced: a failed log costs that lap's bonus</strong><em>The next clean lap earns the bonus again.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Skills</span><strong>Astral runes open after Lunar Diplomacy</strong><em>Runecrafting 40 and Pure essence. No Astral talisman is asked for.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Skills</span><strong>Combination runes use only what is in your pack</strong><em>Magic Imbue still saves your talisman.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Skills</span><strong>Wicked hood teleport counts as arriving at the altar</strong><em>Summoning points come back and a bank diary deed is credited, as after a walk.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Skills</span><strong>Cooking keeps Brawling gloves when gauntlets would not help</strong><em>Only when the fish's Gauntlets setting is Casual.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Skills</span><strong>Fletching headless arrows does not freeze</strong><em>Even with millions of items in the bank, the answer is quick.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Skills</span><strong>Auto-drink takes no extra bottle</strong><em>The carried pack loses only the dose you drank.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Skills</span><strong>A failed Thieving attempt keeps its damage and stun</strong><em>Also when your pack yak banks an item. The next review clears the stun.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Items</span><strong>A half-full urn keeps its progress in a grave</strong><em>Reload while it waits in a grave or Death's Office. It fills again once you carry it.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-skill">Shops</span><strong>A sold-out item comes back on schedule</strong><em>Buying other things in the same shop no longer restarts the wait.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-safety">Undo</span><strong>A gear change right after a review is its own Undo step</strong><em>Undo takes the gear change back first. A platebody can no longer be worn and in the bank at once.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-safety">Safety</span><strong>An error in a processing action keeps your bank</strong><em>Only what that action used is gone. Before, a 100-log bank could shrink to what fits in a pack.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-safety">Safety</span><strong>A failed answer or reward puts the game back</strong><em>You keep your last log or reward book, and you are paid once when the answer goes through.</em></span></label>
+<label class="check"><input type="checkbox"><span><span class="tag t-safety">Safety</span><strong>Another add-on that blocks an answer blocks the pay too</strong><em>No XP for an answer Anki did not record. You are paid once when it records.</em></span></label>
+</div>
+<p class="dim" style="margin-top:10px">The same batch also rebuilt much of the fight, Agility, bank-run and shop code into smaller parts. Those parts play exactly as before, so they need no check.</p>
+
+<h2>Where today's work stands</h2>
+<div class="lanes">
+<section class="lane ready" aria-labelledby="l1">
+<h3 id="l1">Reviewed and saved: 5</h3>
+<p class="dim">Each passed its tests and a review by a model from another family.</p>
+<ul>
+<li><strong>"Fight Cockroach soldier" works from any skill.</strong> In the Stronghold of Player Safety, the fight was lost on the switch to Combat. Undo still returns you to your earlier skill.</li>
+<li><strong>Your Sunday decision is in the notes.</strong> The grave reward question is saved for a design thread, as you asked.</li>
+<li><strong>The annoyance notes are sorted.</strong> 280 open notes became 80; the rest were fixed or repeats.</li>
+<li><strong>The Castle Wars and Penguin screenshot tools work again.</strong></li>
+<li><strong>The fight code's prayer drain sits in its own parts.</strong> Fights play the same: 109,980 test fights matched exactly.</li>
+</ul>
+</section>
+<section class="lane review" aria-labelledby="l2">
+<h3 id="l2">Built, review not started: 1</h3>
+<ul>
+<li><strong>The test tool now prints how many tests a filter picks.</strong> The review was stopped by the pause and runs first on resume.</li>
+</ul>
+</section>
+<section class="lane stopped" aria-labelledby="l3">
+<h3 id="l3">Stopped part-way, all kept: 4</h3>
+<ul>
+<li><strong>A monster that appears after your kill fights back.</strong> Now a new monster can start marked as "stopped fighting back". The fix had not started its first test.</li>
+<li>The bank-trip answer code in smaller parts (was in its last test run).</li>
+<li>The saved-fight repair code in smaller parts (last test run not started).</li>
+<li>The release check also checks the annoyance notes (last test run not started).</li>
+</ul>
+</section>
+</div>
+
+<h2>Only you can do these</h2>
+<ol class="decide">
+<li class="first"><strong>Play-check the 24 fixes above</strong>, or give the check to the MacBook Codex task. Any failure becomes a fix.</li>
+<li><strong>Sign in the model gateway's Codex login again.</strong> Your Codex sign-in fixed the Codex app, but the gateway keeps its own login. Until then, GPT models can review but cannot edit.</li>
+<li><strong>The main tab bar is too wide for the window.</strong> At the default size the last tab reads "Sett"; on a laptop-size window the tabs after Quests are cut. A fix changes an existing screen, so it needs your approval.</li>
+<li><strong>Open design questions, unchanged:</strong> a sync from a second computer can wipe game progress; the grave reward values; Leech Energy and Leech Special Attack drain prayer but do nothing; and the others in your design queue.</li>
+</ol>
+
+<footer>
+<p>Paused 2026-09-28 10:54 PDT at your request. Resume: ask to continue; the pause note in the Memory Bank lists the resume order.</p>
+</footer>
+</main>
+</body>
+</html>
