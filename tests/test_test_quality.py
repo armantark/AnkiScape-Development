@@ -65,6 +65,36 @@ class DerivedTests(BrokenTests):
             },
         )
 
+    def test_audit_recognizes_private_assertion_helpers(self):
+        source = '''
+import unittest
+
+def _assert_module_value(value):
+    assert value
+
+class HelperTests(unittest.TestCase):
+    def _assert_instance_value(self, value):
+        self.assertTrue(value)
+
+    def test_private_helpers(self):
+        _assert_module_value(True)
+        self._assert_instance_value(True)
+
+    def test_no_assertion(self):
+        value = 1
+'''
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "test_helpers.py"
+            path.write_text(source, encoding="utf-8")
+            report = audit_test_suite(Path(temp_dir))
+
+        assertion_free = [
+            issue.name
+            for issue in report.hard_issues
+            if issue.kind == "assertion_free_test"
+        ]
+        self.assertEqual(assertion_free, ["HelperTests.test_no_assertion"])
+
     def test_audit_tracks_read_values_without_combining_unrelated_expressions(self):
         source = '''
 import unittest

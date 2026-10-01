@@ -50,7 +50,10 @@ def _call_name(call: ast.Call) -> str:
 def _assertion_count(node: ast.AST) -> int:
     return sum(
         isinstance(child, ast.Assert)
-        or (isinstance(child, ast.Call) and _call_name(child).startswith("assert"))
+        or (
+            isinstance(child, ast.Call)
+            and _call_name(child).startswith(("assert", "_assert_"))
+        )
         for child in ast.walk(node)
     )
 
