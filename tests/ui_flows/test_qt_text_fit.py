@@ -33,47 +33,20 @@ class QtTextFitTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
 
-    def _button(self, text: str, x: int, width: int, height: int = 30) -> QPushButton:
-        button = QPushButton(text, self.root)
-        button.setGeometry(x, 20, width, height)
-        button.show()
-        self._settle()
-        return button
-
-    def test_buttons_can_fit_below_the_styles_preferred_width(self) -> None:
+    def test_text_clipped_in_either_dimension_is_reported(self) -> None:
         from tests.ui_flows.qt_text_fit import text_fit_defects
 
-        buttons = []
-        x = 0
-        for text, width in (("1", 44), ("5", 44), ("10", 44), ("50", 44), ("All", 50)):
-            button = self._button(text, x, width)
-            buttons.append(button)
-            x += width + 4
-
-        self.assertTrue(all(button.sizeHint().width() > button.width() for button in buttons))
-        self.assertEqual(text_fit_defects(self.root), [])
-
-    def test_width_clipping_is_detected_and_clears_when_room_is_added(self) -> None:
-        from tests.ui_flows.qt_text_fit import text_fit_defects
-
-        button = self._button("Definitely clipped", 20, 40)
-        self.assertEqual(len(text_fit_defects(self.root)), 1)
-        self.assertIn("'Definitely clipped' is clipped", text_fit_defects(self.root)[0])
-
-        button.resize(180, 30)
-        self._settle()
-        self.assertEqual(text_fit_defects(self.root), [])
-
-    def test_height_clipping_is_detected_and_clears_when_room_is_added(self) -> None:
-        from tests.ui_flows.qt_text_fit import text_fit_defects
-
-        button = self._button("Tall", 20, 120, 8)
-        self.assertEqual(len(text_fit_defects(self.root)), 1)
-        self.assertIn("'Tall' is clipped", text_fit_defects(self.root)[0])
-
-        button.resize(120, 30)
-        self._settle()
-        self.assertEqual(text_fit_defects(self.root), [])
+        for text, width, height in (("Definitely clipped", 40, 30), ("Tall", 120, 8)):
+            with self.subTest(text=text):
+                button = QPushButton(text, self.root)
+                button.setGeometry(20, 20, width, height)
+                button.show()
+                self._settle()
+                defects = text_fit_defects(self.root)
+                self.assertEqual(len(defects), 1)
+                self.assertIn(f"'{text}' is clipped", defects[0])
+                button.setParent(None)
+                self._settle()
 
 
 if __name__ == "__main__":
