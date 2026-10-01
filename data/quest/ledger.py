@@ -233,6 +233,20 @@ TARGET_UNLOCK_RULES: Tuple[TargetUnlockRule, ...] = tuple(
     ),
     TargetUnlockRule(
         gate_kind="target",
+        skill_id="crafting",
+        target_ids=("craft_fremennik_round_shield",),
+        requirements=(
+            TargetUnlockRequirement(
+                kind="quest_stage",
+                reason="Reach The Fremennik Isles traditional rites",
+                source=THE_FREMENNIK_ISLES_SOURCE,
+                quest_id=THE_FREMENNIK_ISLES_ID,
+                stage=5,
+            ),
+        ),
+    ),
+    TargetUnlockRule(
+        gate_kind="target",
         skill_id="fletching",
         target_ids=("broad_arrows", "feather_broad_bolts"),
         requirements=(

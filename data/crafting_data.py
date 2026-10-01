@@ -25,6 +25,10 @@ DARKAN_GLASSBLOWING_SOURCE = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "src/main/java/com/rs/game/content/skills/crafting/GlassBlowing.java"
 )
+FREMENNIK_ROUND_SHIELD_SOURCE = (
+    "https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919; "
+    "https://runescape.wiki/w/Fremennik_round_shield?oldid=5641898"
+)
 
 
 @dataclass(frozen=True)
@@ -179,6 +183,7 @@ CRAFTING_SPECIAL_ITEMS: Dict[str, Dict[str, object]] = {
 
 CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("chisel_limestone_brick", "Limestone brick", "stone", "chisel", 12, 6.0, _req(("Limestone", 1)), "Limestone brick", source=LIMESTONE_BRICK_SOURCE, source_item_id=3420),
+    CraftingRecipe("craft_fremennik_round_shield", "Fremennik round shield", "fremennik", "woodcutting_stump", 1, 34.0, _req(("Arctic pine logs", 2), ("Bronze nails", 1), ("Rope", 1)), "Fremennik round shield", source=FREMENNIK_ROUND_SHIELD_SOURCE, source_item_id=10826, required_items=_req(("Hammer", 1))),
     # Gem cutting. Semiprecious source crush chances are documented but not modeled;
     # one successful review is one completed Crafting action.
     CraftingRecipe("cut_opal", "Opal", "gems", "chisel", 1, 15.0, _req(("Uncut opal", 1)), "Opal", source=GEM_SOURCE, source_enum="OPAL", notes="Source has crush chance; AnkiScape treats the review action as a successful cut."),

@@ -11476,7 +11476,6 @@ class TestLogic(unittest.TestCase):
                 "Arctic pine logs": 1,
             }
         )
-
         self.assertEqual(
             quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_slimy_eel", QUEST_UNLOCK_RULES),
             ("Priest in Peril",),
@@ -11530,15 +11529,15 @@ class TestLogic(unittest.TestCase):
             cooking_target_locked_reasons_pure(player_data, "cook_slimy_eel", COOKING_DATA, QUEST_UNLOCK_RULES),
             (),
         )
-        self.assertEqual(
-            firemaking_target_locked_reasons_pure(
-                player_data,
-                "arctic_pine_logs",
-                FIREMAKING_DATA,
-                QUEST_UNLOCK_RULES,
-            ),
-            (),
-        )
+        for state, expected in (
+            ({"started": True, "progress": 4, "completed": False}, ("Reach The Fremennik Isles traditional rites",)),
+            ({"started": True, "progress": 5, "completed": False}, ()),
+            ({"started": True, "progress": 6, "completed": False}, ()),
+            ({"completed": True}, ()),
+            ({"started": False, "progress": 5, "completed": False}, ("Reach The Fremennik Isles traditional rites",)),
+        ):
+            player_data["quests"]["the_fremennik_isles"] = state
+            self.assertEqual(quest_unlock_locked_reasons_pure(player_data, "crafting", "craft_fremennik_round_shield", QUEST_UNLOCK_RULES), expected)
     def test_wicked_hood_claim_requires_rune_mysteries(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         rows = claim_rows_pure(player_data, CLAIM_DATA)

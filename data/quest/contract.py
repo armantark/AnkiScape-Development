@@ -166,6 +166,7 @@ class TargetUnlockRequirement:
     source: str
     quest_id: str = ""
     ability_id: str = ""
+    stage: int = 0
 
 
 @dataclass(frozen=True)

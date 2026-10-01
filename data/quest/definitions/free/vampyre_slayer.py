@@ -67,8 +67,10 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
                     "count_draynor_37",
                     "Count Draynor",
                     37,
-                    f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_MANOR_SOURCE_PATH}; {COUNT_DRAYNOR_NPC_SOURCE_PATH}",
-                    "2011Scape removes the stake when the coffin is opened, spawns Count Draynor, and treats garlic as an optional stat weakening item.",
+                    f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_MANOR_SOURCE_PATH}; "
+                    f"{COUNT_DRAYNOR_NPC_SOURCE_PATH}; "
+                    "https://runescape.wiki/w/Vampyre_Slayer?oldid=6326248",
+                    "Vampyre Slayer oldid 6326248 establishes optional garlic weakening; 2011Scape subtracts 5 Defence and 5 Strength when garlic is present.",
                     npc_stats=(
                         ("hitpoints", 350),
                         ("attack", 30),

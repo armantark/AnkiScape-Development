@@ -1391,7 +1391,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = live_reachability_report()
 
-        self.assertEqual(report["action_count"], 1670)
+        self.assertEqual(report["action_count"], 1671)
         self.assertEqual(report["reachable_item_count"], 2354)
         self.assertEqual(report["routes"].get("Living water"), "quest-stage:druidic_ritual:2")
         self.assertEqual(report["routes"].get("Wandering wyrmwood"), "quest-stage:druidic_ritual:3")
@@ -1410,7 +1410,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["orphan_input_count"], 161)
         self.assertEqual(report["root_orphan_count"], 30)
         self.assertEqual(report["cascade_orphan_count"], 131)
-        self.assertEqual(report["unresolved_action_count"], 245)
+        self.assertEqual(report["unresolved_action_count"], 246)
         self.assertEqual(report["seed_item_count"], 1238)
         self.assertEqual(report["completable_quest_count"], 57)
         self.assertIn("Use the rotten apple to sabotage the mourner food stores", report["earned_quest_action_proofs"])

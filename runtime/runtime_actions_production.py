@@ -121,6 +121,7 @@ from ..logic_pure.logic_pure import (
     fletching_material_requirements_pure,
     fletching_target_locked_reasons_pure,
     herblore_target_locked_reasons_pure,
+    target_unlock_locked_reasons_pure,
     has_cooking_materials_pure,
     has_crafting_materials_pure,
     has_firemaking_materials_pure,
@@ -414,21 +415,6 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
     RuntimeActionContext,
 )
 
-from .runtime_actions_shared import (
-    _admit_live_cadence,
-    _award_action_xp_rewards,
-    _charge_urn_for_action,
-    _combat_review_ticks,
-    _record_action,
-    _refresh_combat_levels,
-    _switch_material_failure_to_bankstanding,
-    missing_materials_text,
-)
-
-from .runtime_actions_context import (
-    RuntimeActionContext,
-)
-
 
 def _spec_output_items(spec: dict[str, Any], fallback_item: Optional[str] = None) -> dict[str, int]:
     outputs = spec.get("outputs")
@@ -503,6 +489,17 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     display_name = spec.get("display_name", item) if spec else item
     if not spec:
         ctx.show_error_message("Unknown crafting target", "Choose a valid Crafting target before reviewing.")
+        return False
+
+    locked_reasons = target_unlock_locked_reasons_pure(
+        player_data, "crafting", item, QUEST_UNLOCK_RULES
+    )
+    if locked_reasons:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Crafting target locked",
+            f"{display_name} requires {', '.join(locked_reasons)}, so Crafting has been switched off.",
+        )
         return False
 
     required_items = dict(spec.get("requirements", {}))

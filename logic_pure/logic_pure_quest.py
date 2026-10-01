@@ -87,21 +87,15 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from .logic_pure_combat_engine import (
-    apply_combat_burst_pure,
-    player_combat_level_pure,
-)
-
-from .logic_pure_state import (
-    _copy_player_data_with_nested,
-    _non_negative_int,
-    _positive_int,
-    _signed_int,
-    quest_completed_pure,
-    quest_state_pure,
-    sanitize_quest_combat_active_encounters_pure,
-)
 from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
+from .quest_runtime_rules import (  # noqa: F401  (re-export)
+    _requirements_for_unlock_rule,
+    _target_ids_for_unlock_rule,
+    ability_unlocked_pure,
+    quest_combat_inventory_adjusted_stats_pure,
+    quest_unlock_locked_reasons_pure,
+    target_unlock_locked_reasons_pure,
+)
 
 
 def _trainable_exp_keys():
@@ -569,7 +563,7 @@ def _quest_combat_normalized_bonuses(encounter):
     return normalized
 
 
-def _quest_combat_enemy_spec(quest_id, encounter_id, encounter):
+def _quest_combat_enemy_spec(quest_id, encounter_id, encounter, player_data=None):
     stats = {
         str(key): _non_negative_int(value, 0)
         for key, value in _quest_combat_stats(encounter).items()
@@ -589,6 +583,9 @@ def _quest_combat_enemy_spec(quest_id, encounter_id, encounter):
     stats["attack"] = _positive_int(stats.get("attack", 0), 1)
     stats["strength"] = _positive_int(stats.get("strength", 0), 1)
     stats["defence"] = _positive_int(stats.get("defence", 0), 1)
+    stats = quest_combat_inventory_adjusted_stats_pure(
+        quest_id, encounter_id, stats, player_data
+    )
     display_name, level, _quantity, _level_text, _quantity_text, source = _quest_combat_display(encounter)
     enemy = {
         "display_name": display_name,
@@ -991,109 +988,6 @@ def quest_catalog_sections_pure(rows):
     return tuple(sections)
 
 
-def ability_unlocked_pure(player_data, ability_id):
-    abilities = player_data.get("unlocked_abilities", ())
-    if isinstance(abilities, str):
-        return abilities == ability_id
-    if isinstance(abilities, Iterable):
-        return ability_id in {ability for ability in abilities if isinstance(ability, str)}
-    return False
-
-
-def _target_ids_for_unlock_rule(rule):
-    target_ids = rule.get("target_ids", ())
-    if isinstance(target_ids, str):
-        return (target_ids,)
-    if isinstance(target_ids, Iterable):
-        return tuple(item for item in target_ids if isinstance(item, str))
-    return tuple()
-
-
-def _requirements_for_unlock_rule(rule):
-    requirements = rule.get("requirements")
-    if isinstance(requirements, Mapping):
-        return (requirements,)
-    if isinstance(requirements, Iterable) and not isinstance(requirements, str):
-        return tuple(requirement for requirement in requirements if isinstance(requirement, Mapping))
-    quest_id = rule.get("quest_id")
-    if isinstance(quest_id, str):
-        return (
-            {
-                "kind": "quest_completed",
-                "quest_id": quest_id,
-                "reason": rule.get("reason") or quest_id.replace("_", " ").title(),
-                "source": rule.get("source", ""),
-            },
-        )
-    return tuple()
-
-
-_TARGET_UNLOCK_RULE_INDEX_CACHE = {}
-
-
-def _normalized_target_unlock_rule_index(target_unlock_rules):
-    rules = target_unlock_rules or ()
-    if not isinstance(rules, tuple):
-        return _build_normalized_target_unlock_rule_index(rules)
-    cache_key = id(rules)
-    cached = _TARGET_UNLOCK_RULE_INDEX_CACHE.get(cache_key)
-    if cached is not None and cached[0] is rules:
-        return cached[1]
-    index = _build_normalized_target_unlock_rule_index(rules)
-    _TARGET_UNLOCK_RULE_INDEX_CACHE[cache_key] = (rules, index)
-    return index
-
-
-def _build_normalized_target_unlock_rule_index(target_unlock_rules):
-    index = {}
-    for rule in target_unlock_rules or ():
-        if not isinstance(rule, Mapping):
-            continue
-        if rule.get("gate_kind", "target") != "target":
-            continue
-        skill_id = rule.get("skill_id")
-        if not isinstance(skill_id, str):
-            continue
-        requirements = tuple(
-            (
-                str(requirement.get("kind", "quest_completed")),
-                requirement.get("quest_id"),
-                requirement.get("ability_id"),
-                requirement.get("reason"),
-            )
-            for requirement in _requirements_for_unlock_rule(rule)
-        )
-        for target_id in _target_ids_for_unlock_rule(rule):
-            index.setdefault((skill_id, target_id), []).extend(requirements)
-    return {key: tuple(requirements) for key, requirements in index.items()}
-
-
-def target_unlock_locked_reasons_pure(player_data, skill_id, target_id, target_unlock_rules):
-    reasons = []
-    requirements = _normalized_target_unlock_rule_index(target_unlock_rules).get(
-        (skill_id, target_id), ()
-    )
-    for kind, quest_id, ability_id, reason in requirements:
-        if kind == "quest_completed":
-            if not isinstance(quest_id, str) or quest_completed_pure(player_data, quest_id):
-                continue
-            reasons.append(str(reason or quest_id.replace("_", " ").title()))
-        elif kind == "quest_started":
-            state = quest_state_pure(player_data, quest_id) if isinstance(quest_id, str) else {}
-            if state.get("started") or state.get("completed"):
-                continue
-            reasons.append(str(reason or str(quest_id).replace("_", " ").title()))
-        elif kind == "ability_unlocked":
-            if not isinstance(ability_id, str) or ability_unlocked_pure(player_data, ability_id):
-                continue
-            reasons.append(str(reason or ability_id.replace("_", " ").title()))
-    return tuple(dict.fromkeys(reasons))
-
-
-def quest_unlock_locked_reasons_pure(player_data, skill_id, target_id, quest_unlock_rules):
-    return target_unlock_locked_reasons_pure(player_data, skill_id, target_id, quest_unlock_rules)
-
-
 def normalize_xp_rewards_pure(action_spec, default_skill_id="", default_amount=None):
     raw_rewards = action_spec.get("xp_rewards", ()) if isinstance(action_spec, Mapping) else ()
     normalized = []
@@ -1305,7 +1199,11 @@ def apply_quest_combat_encounter_pure(
         return player_data, False, {"reason": "combat_already_resolved"}
 
     quest_target_id = _quest_combat_target_id(quest_id, encounter_id)
-    quest_enemy_data = {quest_target_id: _quest_combat_enemy_spec(quest_id, encounter_id, encounter)}
+    quest_enemy_data = {
+        quest_target_id: _quest_combat_enemy_spec(
+            quest_id, encounter_id, encounter, player_data
+        )
+    }
     original_combat_target = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     original_combat_encounter = dict(player_data.get("combat_encounter", {}) or {})
     quest_active_encounters = sanitize_quest_combat_active_encounters_pure(

@@ -140,6 +140,7 @@ def target_unlock_rules_as_dict() -> Tuple[Dict[str, object], ...]:
                     "kind": requirement.kind,
                     "quest_id": requirement.quest_id,
                     "ability_id": requirement.ability_id,
+                    "stage": requirement.stage,
                     "reason": requirement.reason,
                     "source": requirement.source,
                 }
