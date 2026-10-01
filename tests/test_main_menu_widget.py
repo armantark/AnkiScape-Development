@@ -1433,7 +1433,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_bank_toolbelt_attach_action_moves_mithril_hatchet_end_to_end(self) -> None:
         from ankiscape.core.constants import MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA
-        from ankiscape.logic_pure.logic_pure import attach_tool_to_toolbelt_pure
+        from ankiscape.logic_pure.logic_pure_equipment import attach_tool_to_toolbelt_pure
 
         pd = _make_player_data()
         pd["woodcutting_level"] = 1
@@ -11335,7 +11335,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         bank_texts = _bank_grid_texts(dialog)
         self.assertNotIn("Toolbelt", bank_texts, "Toolbelt leaked into inventory list")
         gear_texts = [gear.item(i).text() for i in range(gear.count())]
-        self.assertIn("Toolbelt", gear_texts, "missing Toolbelt header")
+        self.assertIn("Toolbelt", dialog.findChild(QPushButton, "toolbeltHeader").text(), "missing Toolbelt header")
         self.assertTrue(any(t.startswith("Pickaxe: ") for t in gear_texts), f"no pickaxe row in {gear_texts}")
         self.assertTrue(any(t.startswith("Hatchet: ") for t in gear_texts), f"no hatchet row in {gear_texts}")
         # Worn equipment moved to its own tab; the Bank gear strip is toolbelt

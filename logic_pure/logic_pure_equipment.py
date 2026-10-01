@@ -2,7 +2,13 @@
 
 from typing import Iterable, Mapping, Optional
 
-from ..core.tool_belt import ALWAYS_ON_TOOL_BELT, TOOL_BELT_GROUPS
+from ..core.tool_belt import (
+    ADDABLE_TOOL_BELT_TOOLS,
+    TOOL_BELT_GROUPS,
+    TOOL_BELT_TOOLS,
+    added_belt_tools,
+    tool_on_belt,
+)
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 from .logic_pure_landmarks import (  # noqa: F401  (re-export)
@@ -84,12 +90,59 @@ def _toolbelt_ids(toolbelt, skill_key):
     return set()
 
 
-def always_on_belt_groups_pure():
-    """The 2012 belt groups without the pickaxe and hatchet, which stay on the attach path."""
+def belt_groups_pure(player_data):
+    """The 2012 belt groups without the pickaxe and hatchet, which stay on the attach path.
+
+    Each tool is ``(name, on_belt, add_refusal)``; ``add_refusal`` is empty when
+    the Add-to-toolbelt action is available.
+    """
     return tuple(
-        (group, tuple(name for name in names if name in ALWAYS_ON_TOOL_BELT))
+        (
+            group,
+            tuple(
+                (name, tool_on_belt(player_data, name), tool_belt_add_refusal_pure(player_data, name))
+                for name in names
+                if name in TOOL_BELT_TOOLS
+            ),
+        )
         for group, names in TOOL_BELT_GROUPS
     )
+
+
+def tool_belt_add_refusal_pure(player_data, tool_name):
+    """Why ``tool_name`` cannot be added to the belt now, or "" when it can."""
+    if tool_name not in ADDABLE_TOOL_BELT_TOOLS or tool_on_belt(player_data, tool_name):
+        return "already on your tool belt"
+    quest = ADDABLE_TOOL_BELT_TOOLS[tool_name]
+    if quest is not None and not quest_completed_pure(player_data, quest[0]):
+        return f"complete {quest[1]} first"
+    if (player_data.get("inventory") or {}).get(tool_name, 0) <= 0:
+        return f"no {tool_name} in your Bank"
+    return ""
+
+
+def put_tool_on_belt_pure(player_data, item_name, pickaxe_data, axe_data):
+    """The Bank's tool belt action: attach a pickaxe or hatchet, or add a quest tool.
+
+    Either way one Bank copy is used up. Returns ``(player_data, changed)``.
+    """
+    if item_name not in ADDABLE_TOOL_BELT_TOOLS:
+        inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
+            item_name,
+            player_data.get("inventory", {}) or {},
+            player_data.get("toolbelt", {}) or {},
+            pickaxe_data,
+            axe_data,
+        )
+        return {**player_data, "inventory": inventory, "toolbelt": toolbelt}, attached
+    if tool_belt_add_refusal_pure(player_data, item_name):
+        return player_data, False
+    inventory = dict(player_data["inventory"])
+    inventory[item_name] -= 1
+    if inventory[item_name] <= 0:
+        inventory.pop(item_name)
+    added = [*added_belt_tools(player_data), item_name]
+    return {**player_data, "inventory": inventory, "toolbelt_added": added}, True
 
 
 def best_woodcutting_axe_pure(woodcutting_level, _inventory, toolbelt, axe_data):

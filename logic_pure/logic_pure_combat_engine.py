@@ -455,7 +455,7 @@ from .logic_pure_magic import (
 from .logic_pure_equipment import (
     _equipment_bonus_value,
     _equipment_value,
-    always_on_belt_groups_pure,
+    belt_groups_pure,
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
     equipment_stat_totals_pure,
@@ -1856,11 +1856,11 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     row changes only after the player uses the Bank's attach action. Attached
     tools above the player's level remain visible in ``toolbelt_blocked`` while
     the best usable attached tool stays active. Every other 2012 belt tool is
-    always present and listed by its belt group.
+    listed by its belt group with its belt and Add-to-toolbelt state.
 
     Returns {"toolbelt": [(label, display_name), ...],
              "toolbelt_blocked": [(label, display_name, skill_label, level), ...],
-             "belt_groups": ((group, (tool_name, ...)), ...)}.
+             "belt_groups": ((group, ((tool_name, on_belt, add_refusal), ...)), ...)}.
     """
     inventory = player_data.get("inventory", {}) or {}
     toolbelt = player_data.get("toolbelt", {}) or {}
@@ -1894,7 +1894,7 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     return {
         "toolbelt": toolbelt_rows,
         "toolbelt_blocked": blocked_rows,
-        "belt_groups": always_on_belt_groups_pure(),
+        "belt_groups": belt_groups_pure(player_data),
     }
 
 

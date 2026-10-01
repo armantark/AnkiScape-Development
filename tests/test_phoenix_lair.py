@@ -101,32 +101,21 @@ class PhoenixLairRequirementsTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("Slayer level 51", info["reason"])
 
+        # The knife, secateurs and tinderbox are 2012 belt tools, so a custom
+        # pack holding none of them, over a Bank holding none, still enters.
         data = _player()
+        for tool in ("Knife", "Secateurs", "Tinderbox"):
+            data["inventory"].pop(tool)
+        data["inventory"]["Shark"] = 5
         data["carried_advanced_targets"][PHOENIX_LAIR_ACTIVITY_ID] = True
-        data["carried_layout"][PHOENIX_LAIR_ACTIVITY_ID] = {
-            "Knife": 1,
-            "Secateurs": 1,
-        }
+        data["carried_layout"][PHOENIX_LAIR_ACTIVITY_ID] = {"Shark": 5}
         view = phoenix_lair_view_pure(data)
-        self.assertFalse(view["requirements_met"])
-        self.assertIn(
-            "Tinderbox in carried pack or toolbelt",
-            view["missing_requirements"],
-        )
-        _blocked, ok, info = apply_phoenix_lair_command_pure(data, "enter")
-        self.assertFalse(ok)
-        self.assertIn("carried pack or toolbelt", info["reason"])
-        self.assertIn("Tinderbox", info["reason"])
-
-        data["toolbelt"]["utility"] = ["Tinderbox"]
+        self.assertTrue(view["requirements_met"], view["missing_requirements"])
         entered, ok, info = apply_phoenix_lair_command_pure(
             data, "enter", rng=lambda: 0.0, equipment_data=EQUIPMENT_DATA
         )
         self.assertTrue(ok, info)
-        self.assertEqual(
-            entered["carried_inventory"][PHOENIX_LAIR_ACTIVITY_ID],
-            {"Knife": 1, "Secateurs": 1},
-        )
+        self.assertEqual(entered["carried_inventory"][PHOENIX_LAIR_ACTIVITY_ID], {"Shark": 5})
         self.assertEqual(entered["activity_session"], {"active_id": PHOENIX_LAIR_ACTIVITY_ID})
         self.assertEqual(len(entered["phoenix_lair"]["guardian_roster"]), 5)
         self.assertEqual(

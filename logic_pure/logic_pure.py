@@ -677,13 +677,13 @@ from .logic_pure_equipment import (  # noqa: F401  (re-export)
     _mage_arena_god_for_item,
     _normalized_equipment_slot,
     _toolbelt_ids,
-    attach_tool_to_toolbelt_pure,
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
     can_equip_item_pure,
     equip_item_pure,
     equipment_bonus_state_pure,
     equipment_stat_totals_pure,
+    put_tool_on_belt_pure,
     unequip_item_pure,
 )
 

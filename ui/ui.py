@@ -25892,15 +25892,6 @@ def show_main_menu(
     bank_frame_layout.addWidget(bank_right)
     bk_layout.addWidget(bank_frame, 1)
 
-    def _make_header_item(label: str, marker: str) -> QListWidgetItem:
-        header = QListWidgetItem(label)
-        header.setFlags(Qt.ItemFlag.NoItemFlags)
-        header_font = header.font()
-        header_font.setBold(True)
-        header.setFont(header_font)
-        header.setData(Qt.ItemDataRole.UserRole, marker)
-        return header
-
     # Equip/Unequip mutate player_data via the backend handlers, so the Bank
     # inventory and the Equipment tab must both re-read after an action. The
     # Equipment tab registers its repaint here so a single call refreshes both
@@ -27129,8 +27120,9 @@ def show_main_menu(
         lambda: bank_gear_rows_pure(
             player_data, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA
         ),
-        _make_header_item,
         _item_icon_path,
+        on_attach_tool,
+        lambda: _refresh_equipment_views(refresh_visible_skill=True),
     )
     bk_layout.addWidget(gear_hint)
     bk_layout.addWidget(gear_panel)

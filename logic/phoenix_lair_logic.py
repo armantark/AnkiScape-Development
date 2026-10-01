@@ -36,6 +36,7 @@ from ..data.phoenix_lair_data import (
     PHOENIX_QUILL_ITEM,
 )
 from ..core.review_context import remember_review_context_choice_pure
+from ..core.tool_belt import tool_on_belt
 
 
 PHOENIX_LAIR_STATE_VERSION = 1
@@ -187,16 +188,8 @@ def _advanced_carried_pack(player_data: Mapping[str, Any]) -> dict[str, int]:
 
 
 def _tool_available(player_data: Mapping[str, Any], item_name: str) -> bool:
-    wanted = item_name.replace("_", " ").casefold()
-    toolbelt = player_data.get("toolbelt")
-    if isinstance(toolbelt, Mapping):
-        for raw_items in toolbelt.values():
-            items = (raw_items,) if isinstance(raw_items, str) else raw_items
-            if isinstance(items, (tuple, list, set)) and any(
-                str(item).replace("_", " ").casefold() == wanted for item in items
-            ):
-                return True
-
+    if tool_on_belt(player_data, item_name):
+        return True
     inventory = player_data.get("inventory")
     if not carried_advanced_for(player_data, PHOENIX_LAIR_ACTIVITY_ID):
         return isinstance(inventory, Mapping) and _int(inventory.get(item_name)) > 0

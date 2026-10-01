@@ -75,7 +75,7 @@ from .logic_pure.logic_pure import (
     grant_stronghold_reward_pure,
     STRONGHOLD_REWARD_COINS,
     sanitize_review_action_multiplier,
-    attach_tool_to_toolbelt_pure,
+    put_tool_on_belt_pure,
     can_equip_item_pure,
     equip_item_pure,
     unequip_item_pure,
@@ -4973,18 +4973,8 @@ def on_mining_answer():
 
 
 def on_attach_tool(item_name):
-    def _attach(current):
-        inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(
-            item_name,
-            current.get("inventory", {}) or {},
-            current.get("toolbelt", {}) or {},
-            MINING_PICKAXE_DATA,
-            WOODCUTTING_AXE_DATA,
-        )
-        return {**current, "inventory": inventory, "toolbelt": toolbelt}, attached
-
     return _commit_equipment_change(
-        _attach,
+        lambda current: put_tool_on_belt_pure(current, item_name, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA),
         "Cannot attach tool",
         f"You need an unattached {item_name} in your Bank.",
     )
