@@ -47,13 +47,27 @@ remain unknown until execution; use the same tree and the intended lane's
 interpreter when collecting. `--list` keeps its existing ID-only stdout and exits
 2 when the ID cap cuts the list.
 
-Pass N to `tools/run_remote_tests.py` as `--expected-tests`, with each bare
-inventory selector repeated as `--select`. The runner still requires exactly N
-executed tests and zero skips. A focused failure names each actual skipped ID and
-reason on stderr, including runtime `self.skipTest` calls, without changing the
-quiet test output on stdout. Skip-report write, fetch, or decode faults produce
-stderr warnings and do not change the test outcome. Successful zero-skip focused
-runs do not fetch a report.
+When local and MacBook discovery can differ, collect the authoritative count on
+the synchronized remote lane before execution:
+
+```
+/opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" plain --collect-only --select test_combat_logic --select test_prayer
+```
+
+Launch remote runner commands as background tasks from the start. The mirror-lock
+queue is intentionally untimed, while `--timeout` starts only after lane launch;
+wait for the original task's terminal result instead of launching a second waiter.
+Each command tests the immutable snapshot taken at launch. Keep the tree and
+selectors unchanged between inventory and execution, and rerun final verification
+when any intended edit, including a docstring, occurs after launch.
+
+Pass the remote `Matching tests: N` as `--expected-tests`, with every inventory
+selector repeated as `--select`. The runner still requires exactly N executed
+tests and zero skips. A focused failure names each actual skipped ID and reason on
+stderr, including runtime `self.skipTest` calls, without changing the quiet test
+output on stdout. Skip-report write, fetch, or decode faults produce stderr
+warnings and do not change the test outcome. Successful zero-skip focused runs do
+not fetch a report.
 
 Run the full real Qt suite separately through the checked-in environment:
 

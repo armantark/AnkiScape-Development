@@ -48,6 +48,17 @@ AnkiScape worktree:
 /opt/homebrew/bin/python3 tools/run_remote_tests.py "$PWD" qt
 ```
 
+Start direct remote runners with the Bash tool's `run_in_background=true` and
+retain that task's output until its terminal result. The standalone mirror-lock
+wait is untimed and is not covered by `--timeout`, which starts only after lane
+launch; a foreground harness timeout or a queued run is not a test verdict. Do
+not add a separate filesystem or process-name waiter. For focused runs, first use
+`--collect-only` with the same repeated `--select` arguments to obtain the
+MacBook lane's authoritative `Matching tests: N`, then pass N to
+`--expected-tests` without changing the tree. The runner tests the snapshot taken
+at command launch, not later edits, so any intended post-launch change requires a
+new final run.
+
 The runner uses exactly
 `ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro '<remote command>'`,
 rsyncs to `/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork`, and excludes

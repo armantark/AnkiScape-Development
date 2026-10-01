@@ -164,6 +164,13 @@ def validate_test_summary(lane: str, summary: TestSummary) -> None:
         )
 
 
+def parse_count_inventory(output: str) -> int:
+    matches = re.findall(r"^Matching tests: (\d+)$", output, re.MULTILINE)
+    if not matches:
+        raise ValueError("remote inventory did not emit 'Matching tests: N'")
+    return int(matches[-1])
+
+
 def _run_with_retries(command: Sequence[str], *, label: str) -> subprocess.CompletedProcess[str]:
     last: subprocess.CompletedProcess[str] | None = None
     for attempt in range(1, NETWORK_ATTEMPTS + 1):
@@ -186,6 +193,10 @@ class SSHCommandError(RuntimeError):
         )
 
 
+class SSHDeadlineExceeded(RuntimeError):
+    pass
+
+
 def _ssh(
     remote_command: str, *, label: str, repeat_safe: bool = False, deadline: float | None = None,
 ) -> str:
@@ -196,13 +207,19 @@ def _ssh(
                 timeout=None if deadline is None else max(deadline - time.monotonic(), 0.0),
             )
         except subprocess.TimeoutExpired as exc:
-            raise RuntimeError(f"{label} did not finish before its deadline") from exc
+            raise SSHDeadlineExceeded(f"{label} did not finish before its deadline") from exc
         if result.returncode == 0:
             return result.stdout
         # SSH 255 can also follow remote execution: only repeat safe operations.
         if not repeat_safe or result.returncode != 255 or attempt == NETWORK_ATTEMPTS:
             raise SSHCommandError(label, result)
-        time.sleep(attempt)
+        delay = float(attempt)
+        if deadline is not None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise SSHDeadlineExceeded(f"{label} did not finish before its deadline")
+            delay = min(delay, remaining)
+        time.sleep(delay)
     raise AssertionError("unreachable SSH retry state")
 
 
@@ -371,13 +388,20 @@ def _sync(local_worktree: Path) -> None:
     )
 
 
-def _remote_lane_command(lane: str, *, selectors: Sequence[str] = ()) -> str:
+def _remote_lane_command(
+    lane: str, *, selectors: Sequence[str] = (), collect_only: bool = False,
+) -> str:
     environment = (
         "PATH=/opt/homebrew/bin:/usr/bin:/bin "
         f"ANKISCAPE_GAME_MAIN={shlex.quote(str(REMOTE_GAME_MAIN))} "
         f"ANKISCAPE_DARKAN_WORLD_SERVER={shlex.quote(str(REMOTE_DARKAN))} "
     )
-    run_tests = "run_tests.py" + (" --quiet -- " + shlex.join(selectors) if selectors else "")
+    arguments = ["run_tests.py"]
+    if collect_only:
+        arguments.extend(("--count", "--", *selectors))
+    elif selectors:
+        arguments.extend(("--quiet", "--", *selectors))
+    run_tests = shlex.join(arguments)
     if lane == "plain":
         return (
             environment
@@ -430,9 +454,11 @@ def _preflight(lane: str) -> None:
     )
 
 
-def _lane_command_with_skip_report(lane: str, selectors: Sequence[str], report_path: Path) -> str:
-    command = _remote_lane_command(lane, selectors=selectors)
-    if selectors:
+def _lane_command_with_skip_report(
+    lane: str, selectors: Sequence[str], report_path: Path, *, collect_only: bool,
+) -> str:
+    command = _remote_lane_command(lane, selectors=selectors, collect_only=collect_only)
+    if selectors and not collect_only:
         return f"ANKISCAPE_TEST_SKIP_REPORT={shlex.quote(str(report_path))} " + command
     return command
 
@@ -474,8 +500,21 @@ def _print_skipped_tests(
         print(f"warning: skipped-test diagnostics unavailable: {exc}", file=sys.stderr)
 
 
+def _raise_lane_timeout(
+    lane: str, timeout: float, report_path: Path, cause: BaseException | None = None,
+) -> None:
+    message = (
+        f"remote {lane} lane did not finish within {timeout:g} seconds; "
+        f"report path: {report_path}"
+    )
+    print(f"{message}; stopping it", file=sys.stderr)
+    print(stop_pending_lane(), file=sys.stderr)
+    raise TimeoutError(message) from cause
+
+
 def _stream_remote_run(
     lane: str, *, timeout: float, poll_interval: float, selectors: Sequence[str] = (),
+    collect_only: bool = False,
 ) -> tuple[int, str]:
     run_id = f"{lane}-{int(time.time())}-{uuid.uuid4().hex[:8]}"
     log_path = REMOTE_ROOT / "reports" / f"{run_id}.log"
@@ -483,7 +522,9 @@ def _stream_remote_run(
     temporary_report = REMOTE_ROOT / "reports" / f"{run_id}.report.tmp"
     pid_path = REMOTE_ROOT / "reports" / f"{run_id}.pid"
     skip_report_path = REMOTE_ROOT / "reports" / f"{run_id}.skips.json"
-    lane_command = _lane_command_with_skip_report(lane, selectors, skip_report_path)
+    lane_command = _lane_command_with_skip_report(
+        lane, selectors, skip_report_path, collect_only=collect_only,
+    )
     script = "\n".join(
         (
             f"printf '%s\\n' \"$$\" > {shlex.quote(str(pid_path))}",
@@ -516,48 +557,76 @@ def _stream_remote_run(
             raise
         print(f"{exc}; reconciling the same run without relaunch", file=sys.stderr)
 
-    started = time.monotonic()
-    seen = ""
-    while True:
-        output = _ssh(
-            f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
-            label="remote lane log poll",
-            repeat_safe=True,
-        )
-        if output.startswith(seen):
-            addition = output[len(seen) :]
-        else:
-            addition = output
-        if addition:
-            print(addition, end="", flush=True)
-        seen = output
+    return _wait_for_remote_run(
+        lane,
+        timeout=timeout,
+        poll_interval=poll_interval,
+        selectors=selectors,
+        collect_only=collect_only,
+        log_path=log_path,
+        report_path=report_path,
+        skip_report_path=skip_report_path,
+    )
 
-        returncode = _completion_report(str(report_path))
+
+def _print_log_addition(seen: str, output: str) -> str:
+    addition = output[len(seen) :] if output.startswith(seen) else output
+    if addition:
+        print(addition, end="", flush=True)
+    return output
+
+
+def _poll_remote_run(
+    log_path: Path, report_path: Path, seen: str, deadline: float,
+) -> tuple[str, int | None]:
+    output = _ssh(
+        f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
+        label="remote lane log poll", repeat_safe=True, deadline=deadline,
+    )
+    seen = _print_log_addition(seen, output)
+    return seen, _completion_report(str(report_path), deadline)
+
+
+def _finish_remote_run(
+    log_path: Path, skip_report_path: Path, seen: str, selectors: Sequence[str],
+    returncode: int, collect_only: bool,
+) -> tuple[int, str]:
+    # The report precedes the lane's exit, and a detached helper can outlive it.
+    stop_pending_lane()
+    final_output = _ssh(
+        f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
+        label="remote lane final log read", repeat_safe=True,
+        deadline=time.monotonic() + LANE_STOP_TIMEOUT,
+    )
+    _print_log_addition(seen, final_output)
+    if not collect_only:
+        _print_skipped_tests(skip_report_path, selectors, returncode, final_output)
+    return returncode, final_output
+
+
+def _wait_for_remote_run(
+    lane: str, *, timeout: float, poll_interval: float, selectors: Sequence[str],
+    collect_only: bool, log_path: Path, report_path: Path, skip_report_path: Path,
+) -> tuple[int, str]:
+    deadline = time.monotonic() + timeout
+    seen = ""
+    while time.monotonic() < deadline:
+        try:
+            seen, returncode = _poll_remote_run(log_path, report_path, seen, deadline)
+        except SSHDeadlineExceeded as exc:
+            _raise_lane_timeout(lane, timeout, report_path, exc)
+        if time.monotonic() >= deadline:
+            break
         if returncode is not None:
-            # The report precedes the lane's exit, and a detached helper can outlive it.
-            stop_pending_lane()
-            final_output = _ssh(
-                f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
-                label="remote lane final log read",
-                repeat_safe=True,
+            return _finish_remote_run(
+                log_path, skip_report_path, seen, selectors, returncode, collect_only,
             )
-            if final_output.startswith(seen):
-                addition = final_output[len(seen) :]
-            else:
-                addition = final_output
-            if addition:
-                print(addition, end="", flush=True)
-            _print_skipped_tests(skip_report_path, selectors, returncode, final_output)
-            return returncode, final_output
-        if time.monotonic() - started >= timeout:
-            message = (
-                f"remote {lane} lane did not finish within {timeout:g} seconds; "
-                f"report path: {report_path}"
-            )
-            print(f"{message}; stopping it", file=sys.stderr)
-            print(stop_pending_lane(), file=sys.stderr)
-            raise TimeoutError(message)
-        time.sleep(poll_interval)
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        time.sleep(min(poll_interval, remaining))
+    _raise_lane_timeout(lane, timeout, report_path)
+    raise AssertionError("unreachable remote lane timeout state")
 
 
 @contextmanager
@@ -586,7 +655,8 @@ def _hold_mirror_lock() -> Iterator[None]:
             )
         except BlockingIOError:
             print(
-                f"Remote mirror busy; waiting for {LOCAL_MIRROR_LOCK_PATH}",
+                f"Remote mirror busy; waiting without a deadline for {LOCAL_MIRROR_LOCK_PATH}. "
+                "--timeout starts after launch; run this command as a background task.",
                 file=sys.stderr,
             )
             fcntl.flock(mirror_lock.fileno(), fcntl.LOCK_EX)
@@ -597,7 +667,14 @@ def _hold_mirror_lock() -> Iterator[None]:
 
 
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        epilog=(
+            "The mirror-lock wait is untimed; --timeout covers lane execution only. Launch "
+            "the runner as a background task. The run tests the snapshot taken at launch, "
+            "so rerun after any later intended edit."
+        ),
+    )
     parser.add_argument("local_worktree", type=Path)
     parser.add_argument("lane", choices=("plain", "qt"))
     parser.add_argument("--timeout", type=float, default=1800.0)
@@ -607,11 +684,17 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         help="Focused test selector; repeat for each selection.",
     )
     parser.add_argument(
+        "--collect-only", action="store_true",
+        help=(
+            "discover the selected tests on the synchronized remote lane without running them; "
+            "prints the authoritative 'Matching tests: N' for a later --expected-tests run"
+        ),
+    )
+    parser.add_argument(
         "--expected-tests", type=int,
         help=(
-            "Exact focused test count; no skipped tests are accepted. Take it from the "
-            "'Matching tests: N' line of `python3 run_tests.py --count <selectors>`, given the "
-            "same selectors bare, without --select. --list also reports N but caps printed IDs."
+            "Exact focused test count; no skipped tests are accepted. Take it from a remote "
+            "--collect-only run with the same selectors and unchanged tree."
         ),
     )
     args = parser.parse_args(argv)
@@ -621,7 +704,10 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         parser.error(f"not an AnkiScape worktree: {args.local_worktree}")
     if args.timeout <= 0 or args.poll_interval <= 0:
         parser.error("--timeout and --poll-interval must be positive")
-    if bool(args.select) != (args.expected_tests is not None):
+    if args.collect_only:
+        if not args.select or args.expected_tests is not None:
+            parser.error("--collect-only requires --select and cannot use --expected-tests")
+    elif bool(args.select) != (args.expected_tests is not None):
         parser.error("--select and --expected-tests must be supplied together")
     if args.expected_tests is not None and args.expected_tests <= 0:
         parser.error("--expected-tests must be positive")
@@ -638,11 +724,46 @@ def _validate_focused_summary(summary: TestSummary, expected_tests: int) -> None
         )
 
 
+def _validate_run_output(
+    args: argparse.Namespace, returncode: int, output: str,
+) -> tuple[TestSummary | None, int | None]:
+    if returncode != 0:
+        raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
+    if args.collect_only:
+        return None, parse_count_inventory(output)
+    summary = parse_unittest_summary(output)
+    if args.select:
+        _validate_focused_summary(summary, args.expected_tests)
+    else:
+        validate_test_summary(args.lane, summary)
+    return summary, None
+
+
+def _print_run_summary(
+    lane: str, focused: bool, summary: TestSummary | None, inventory_count: int | None,
+) -> None:
+    if inventory_count is not None:
+        print(f"Remote {lane} inventory summary:")
+        print(f"Matching tests: {inventory_count}")
+        return
+    assert summary is not None
+    scope = "focused " if focused else ""
+    print(f"Remote {scope}{lane} lane summary:")
+    print(summary.ran_line)
+    print(summary.result_line)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
     local_worktree = args.local_worktree
     timings: dict[str, PhaseTiming] = {}
+    summary: TestSummary | None = None
+    inventory_count: int | None = None
 
+    print(
+        "Remote verification uses the snapshot taken now; later edits require a new run.",
+        file=sys.stderr,
+    )
     try:
         with tempfile.TemporaryDirectory(prefix="ankiscape-remote-sync-") as snapshot:
             with _measure_phase(timings, "Remote preparation"):
@@ -661,14 +782,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                         timeout=args.timeout,
                         poll_interval=args.poll_interval,
                         selectors=args.select,
+                        collect_only=args.collect_only,
                     )
-        if returncode != 0:
-            raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
-        summary = parse_unittest_summary(output)
-        if args.select:
-            _validate_focused_summary(summary, args.expected_tests)
-        else:
-            validate_test_summary(args.lane, summary)
+        summary, inventory_count = _validate_run_output(args, returncode, output)
     except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         pending_path = _pending_path()
@@ -696,10 +812,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         return 1
     else:
-        scope = "focused " if args.select else ""
-        print(f"Remote {scope}{args.lane} lane summary:")
-        print(summary.ran_line)
-        print(summary.result_line)
+        _print_run_summary(args.lane, bool(args.select), summary, inventory_count)
         return 0
     finally:
         _print_phase_timings(timings)

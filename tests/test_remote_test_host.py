@@ -31,6 +31,8 @@ class RemoteTestHostTests(unittest.TestCase):
             ["--expected-tests", "1"],
             ["--select", "test_remote_test_host", "--expected-tests", "0"],
             ["--select", "", "--expected-tests", "1"],
+            ["--collect-only"],
+            ["--collect-only", "--select", "test_remote_test_host", "--expected-tests", "1"],
         )
         for arguments in cases:
             with (
@@ -161,6 +163,13 @@ class RemoteTestHostTests(unittest.TestCase):
             with self.subTest(lane=lane):
                 focused = shlex.split(run_remote_tests._remote_lane_command(lane, selectors=selectors))
                 self.assertEqual(focused[-5:], ["run_tests.py", "--quiet", "--", *selectors])
+                inventory = shlex.split(
+                    run_remote_tests._remote_lane_command(
+                        lane, selectors=selectors, collect_only=True,
+                    )
+                )
+                self.assertEqual(inventory[-5:], ["run_tests.py", "--count", "--", *selectors])
+                self.assertNotIn("--quiet", inventory)
                 full = run_remote_tests._remote_lane_command(lane)
                 self.assertNotIn("--quiet", full)
                 self.assertTrue(full.endswith("run_tests.py"))
@@ -793,10 +802,11 @@ class RemoteTestHostTests(unittest.TestCase):
                 run_remote_tests.fcntl.LOCK_UN,
             ],
         )
-        self.assertEqual(
+        self.assertIn(
+            f"Remote mirror busy; waiting without a deadline for {lock_path}. ",
             stderr.getvalue(),
-            f"Remote mirror busy; waiting for {lock_path}\n",
         )
+        self.assertIn("--timeout starts after launch", stderr.getvalue())
 
     def test_run_syncs_the_worktree_as_launched_not_as_edited_during_the_lock_wait(self):
         worktree = self._worktree()
