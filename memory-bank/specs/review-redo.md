@@ -369,7 +369,7 @@ steps, and the save hash after each step, under `memory-bank/evidence/`.
 
 ## 10. Conflicts and findings
 
-- Conflict: `memory-bank/systemPatterns.md` line 554 says review undo
+- Conflict: `memory-bank/systemPatterns.md` line 557 says review undo
   "restores those values and saves config". This spec delays the write
   (4.2.4). The owner must accept that change; update the line when it lands.
 - Finding: Anki Redo is unavailable after every AnkiScape review undo and
