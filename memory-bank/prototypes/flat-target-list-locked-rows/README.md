@@ -53,13 +53,12 @@ At 720 px wide, some text in the panel header clips on main too:
 `rently train`, and the Talent Scout checkbox loses its last letters. This
 prototype did not cause those clips and does not fix them.
 
-## Recommendation
-
-**A.** It keeps the full row text, including the reason, and it costs the
-fewest lines. It uses the same wrapper as the Shop list, so the two lists
-behave the same. B shows more, but its rows are about 63 px tall at 720 px wide,
-and the list has only about 124 px of space at 560 px tall.
-
 ## Verdict
 
-Pending the owner's pick.
+**C, picked by the owner on 2026-10-01 (ruling 4.29.8).** A short row keeps
+most rows on one line in a list that has only about 124 px of height at 560 px
+tall. The lock reason and the extra catches are still in the row tooltip and
+the Details panel. The prototype recommended A, which keeps the reason in the
+row but makes more rows wrap. Production (`ui/ui_target_search.py`) applies C to
+every flat Skills target list. When a short row is still too wide, it wraps
+instead of scrolling sideways.

@@ -51,13 +51,12 @@ real width, at 2x pixel density. The capture checked every text at both reviewer
 sizes (900 x 560 and 1000 x 700). No text clips or overlaps in any of the 12
 PNGs, and each PNG was also checked by eye.
 
-## Recommendation
-
-**B.** Every word stays readable without a hover, on two lines that each have
-room to spare. This also stops the 192 px space from limiting any future style.
-A wraps the skill list in the middle, and C needs a hover to show the skill
-names, which is rare during review.
-
 ## Verdict
 
-Pending the owner's pick.
+**C, picked by the owner on 2026-10-01 (ruling 4.29.8).** Four small icons fit
+the 192 px space beside Bank run for every style, in the ordinary fight, a
+Slayer-task fight, and a quest fight. The full sentence is in the tooltip. The
+prototype recommended B, which keeps every word visible but moves Bank run and
+shortens the enemy health bar. Production also fixes the bug described above:
+the card now reads the equipped weapon from the same equipment table that the
+combat review uses, so the icons match the style's real trained skills.
