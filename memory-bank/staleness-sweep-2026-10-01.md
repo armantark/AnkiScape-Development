@@ -16,7 +16,7 @@ The audit counts a citation as actionable when its cited lines moved, or when it
 | Run | Markdown files | Citations | Actionable |
 | --- | --- | --- | --- |
 | Before, with the audit on main | 839 | 2,922 | 735 |
-| After | 835 | 2,446 | 18 |
+| After | 835 | 2,474 | 18 |
 
 The two counts do not measure the same set. Three audit changes on this branch removed rows that were not drift:
 
