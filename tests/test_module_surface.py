@@ -50,6 +50,16 @@ def run_tool(interpreter: Path, *args: str, qt: bool = False) -> subprocess.Comp
     )
 
 
+def digest_mismatch_message(interpreter: Path, *paths: str) -> str:
+    command = " ".join((str(interpreter), str(TOOL), "--digest-only", *paths))
+    return (
+        "Public module-level imports count as exports. Keep implementation-only "
+        "dependencies private or function-local unless the API changes intentionally. "
+        "Inspect the current surface before deciding whether to repin:\n"
+        f"{command}"
+    )
+
+
 def interpreter_cases():
     plain = Path("/opt/homebrew/bin/python3")
     if not plain.exists():
@@ -140,7 +150,11 @@ class ModuleSurfaceTest(unittest.TestCase):
                 self.assertEqual(len(lines), len(expected))
                 for line, (module_path, digest) in zip(lines, expected.items()):
                     with self.subTest(module=module_path):
-                        self.assertEqual(line, f"MODULE_SURFACE_SHA256: {module_path} {digest}")
+                        self.assertEqual(
+                            line,
+                            f"MODULE_SURFACE_SHA256: {module_path} {digest}",
+                            digest_mismatch_message(interpreter, module_path),
+                        )
 
     def test_constants_parts_import_standalone(self):
         script = "\n".join(
@@ -261,7 +275,11 @@ class ModuleSurfaceTest(unittest.TestCase):
             if "No module named 'aqt'" in result.stderr:
                 self.skipTest("root initializer requires aqt; use the offscreen Qt interpreter")
             self.fail(result.stderr)
-        self.assertEqual(result.stdout.strip(), f"MODULE_SURFACE_SHA256: __init__.py {ROOT_QT_DIGEST}")
+        self.assertEqual(
+            result.stdout.strip(),
+            f"MODULE_SURFACE_SHA256: __init__.py {ROOT_QT_DIGEST}",
+            digest_mismatch_message(plain[1], "__init__.py"),
+        )
 
     def test_root_initializer_digest_under_qt(self):
         qt = next((case for case in interpreter_cases() if case[0] == "qt"), None)
@@ -269,7 +287,11 @@ class ModuleSurfaceTest(unittest.TestCase):
             self.skipTest("Qt interpreter is not installed")
         result = run_tool(qt[1], "--digest-only", "__init__.py", qt=True)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.strip(), f"MODULE_SURFACE_SHA256: __init__.py {ROOT_QT_DIGEST}")
+        self.assertEqual(
+            result.stdout.strip(),
+            f"MODULE_SURFACE_SHA256: __init__.py {ROOT_QT_DIGEST}",
+            digest_mismatch_message(qt[1], "__init__.py"),
+        )
 
 
 if __name__ == "__main__":

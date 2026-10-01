@@ -5,6 +5,10 @@ The output is intentionally a text format rather than a Python object display.  
 and set members are sorted by their normalized representation, and functions
 and classes omit implementation details that are not part of an import
 surface.  This makes the final digest useful as a pure-move regression guard.
+Public module-level imports count as exports. For an implementation-only
+dependency in a surface-preserving change, use a private alias or a function-local
+import. A digest mismatch requires deciding whether the API changed;
+``--digest-only`` inspects the current value but does not authorize repinning it.
 """
 
 from __future__ import annotations
