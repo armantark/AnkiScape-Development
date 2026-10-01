@@ -5292,6 +5292,8 @@ def show_main_menu(
     stop_btn.clicked.connect(lambda _=False: _stop_training())
 
     # ---- target list builders (one per implemented skill) ----
+    from .ui_target_search import build_searchable_target_selector
+
     def _build_flat_target_list(
         rows: tuple[TargetRowMetadata, ...],
         on_select=None,
@@ -5551,7 +5553,8 @@ def show_main_menu(
         )
 
     def _build_ore_list() -> QWidget:
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             mining_target_rows(
                 player_data,
                 ORE_DATA,
@@ -5561,11 +5564,14 @@ def show_main_menu(
                 DEFAULT_MINING_TARGET,
                 quest_unlock_rules=QUEST_UNLOCK_RULES,
             ),
+            key="mining",
+            noun="rocks",
             on_select=on_set_ore,
         )
 
     def _build_tree_list() -> QWidget:
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             woodcutting_target_rows(
                 player_data,
                 TREE_DATA,
@@ -5574,6 +5580,8 @@ def show_main_menu(
                 DEFAULT_WOODCUTTING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
+            key="woodcutting",
+            noun="trees",
             on_select=on_set_tree,
         )
 
@@ -5588,7 +5596,8 @@ def show_main_menu(
 
         images = dict(BAR_IMAGES)
         images.update(_item_asset_paths())
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             smithing_target_rows(
                 player_data,
                 SMITHING_DATA,
@@ -5596,48 +5605,59 @@ def show_main_menu(
                 DEFAULT_SMITHING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
-            {},
-            "__tier__:",
-            _set_smith_target,
+            key="smithing",
+            noun="bars and items",
+            group_role_prefix="__tier__:",
+            on_select=_set_smith_target,
             expanded_groups=set(smith_expanded_tiers()),
             set_group_expanded=set_smith_tier_expanded,
         )
 
     def _build_craft_list() -> QWidget:
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             crafting_target_rows(
                 player_data,
                 CRAFTING_DATA,
                 CRAFTED_ITEM_IMAGES,
                 QUEST_UNLOCK_RULES,
             ),
-            _CRAFT_FAMILY_LABELS,
-            "__family__:",
-            on_set_craft,
+            key="crafting",
+            noun="items to craft",
+            group_labels=_CRAFT_FAMILY_LABELS,
+            group_role_prefix="__family__:",
+            on_select=on_set_craft,
             expanded_groups=set(craft_expanded_families()),
             set_group_expanded=set_craft_family_expanded,
         )
 
     def _build_fletch_list() -> QWidget:
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             fletching_target_rows(player_data, FLETCHING_DATA, FLETCHED_ITEM_IMAGES, QUEST_UNLOCK_RULES),
-            FLETCHING_GROUP_LABELS,
-            "__fletching_group__:",
-            on_set_fletch,
+            key="fletching",
+            noun="items to fletch",
+            group_labels=FLETCHING_GROUP_LABELS,
+            group_role_prefix="__fletching_group__:",
+            on_select=on_set_fletch,
             group_order=list(FLETCHING_GROUP_ORDER),
         )
 
     def _build_herblore_list() -> QWidget:
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             herblore_target_rows(player_data, HERBLORE_DATA, HERBLORE_ITEM_IMAGES, QUEST_UNLOCK_RULES),
-            HERBLORE_GROUP_LABELS,
-            "__herblore_group__:",
-            on_set_herblore,
+            key="herblore",
+            noun="herbs and potions",
+            group_labels=HERBLORE_GROUP_LABELS,
+            group_role_prefix="__herblore_group__:",
+            on_select=on_set_herblore,
             group_order=list(HERBLORE_GROUP_LABELS),
         )
 
     def _build_summoning_list() -> QWidget:
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             summoning_target_rows(
                 player_data,
                 SUMMONING_ACTIONS,
@@ -5645,12 +5665,11 @@ def show_main_menu(
                 SUMMONING_ITEM_IMAGES,
                 DEFAULT_SUMMONING_TARGET,
             ),
-            {
-                "Infuse pouches": "Infuse pouches",
-                "Create scrolls": "Create scrolls",
-            },
-            "__summoning_group__:",
-            on_set_summoning,
+            key="summoning",
+            noun="pouches and scrolls",
+            group_labels={"Infuse pouches": "Infuse pouches", "Create scrolls": "Create scrolls"},
+            group_role_prefix="__summoning_group__:",
+            on_select=on_set_summoning,
             group_order=["Infuse pouches", "Create scrolls"],
         )
 
@@ -5715,15 +5734,16 @@ def show_main_menu(
             if selection is not None:
                 _apply_prayer_selection(*selection)
 
-        tree = _build_target_selector(
+        panel_layout.addWidget(build_searchable_target_selector(
+            _build_target_selector,
             prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET),
-            {group: group for group in PRAYER_GROUP_ORDER},
-            "__prayer_group__:",
-            _select_prayer_target,
+            key="prayer",
+            noun="bones and ashes",
+            group_labels={group: group for group in PRAYER_GROUP_ORDER},
+            group_role_prefix="__prayer_group__:",
+            on_select=_select_prayer_target,
             group_order=list(PRAYER_GROUP_ORDER),
-        )
-        tree.setObjectName("prayerTargetTree")
-        panel_layout.addWidget(tree, 1)
+        ), 1)
         return panel
 
     construction_feedback = {"message": ""}
@@ -5824,14 +5844,17 @@ def show_main_menu(
         details.setVisible(False)
         details_toggle.toggled.connect(lambda checked: (details.setVisible(checked), details_toggle.setArrowType(Qt.ArrowType.DownArrow if checked else Qt.ArrowType.RightArrow)))
         panel_layout.addWidget(details)
-        tree = _build_target_selector(
+        panel_layout.addWidget(build_searchable_target_selector(
+            _build_target_selector,
             construction_target_rows(
                 player_data, CONSTRUCTION_DATA, ROOM_DATA, SERVANT_DATA, NAIL_DATA,
                 WORKBENCH_TIERS, CONSTRUCTION_ITEM_IMAGES, DEFAULT_CONSTRUCTION_TARGET,
-            ), {}, "__construction_group__:", on_set_construction,
-        )
-        tree.setObjectName("constructionTargetTree")
-        panel_layout.addWidget(tree, 1)
+            ),
+            key="construction",
+            noun="builds",
+            group_role_prefix="__construction_group__:",
+            on_select=on_set_construction,
+        ), 1)
         return panel
 
     farming_ui_state = {
@@ -6809,7 +6832,8 @@ def show_main_menu(
             for item in ITEM_DEFINITIONS
             if item.tradeable and item.storage_key in SHOP_PLAYER_BUY_PRICES
         }
-        tree = _build_target_selector(
+        panel_layout.addWidget(build_searchable_target_selector(
+            _build_target_selector,
             magic_target_rows(
                 player_data,
                 MAGIC_DATA,
@@ -6818,17 +6842,18 @@ def show_main_menu(
                 alch_values,
                 MAGIC_SPELL_IMAGES,
             ),
-            {group: group for group in MAGIC_GROUP_ORDER},
-            "__magic_group__:",
-            on_set_magic,
+            key="magic",
+            noun="spells",
+            group_labels={group: group for group in MAGIC_GROUP_ORDER},
+            group_role_prefix="__magic_group__:",
+            on_select=on_set_magic,
             group_order=list(MAGIC_GROUP_ORDER),
-        )
-        tree.setObjectName("magicTargetTree")
-        panel_layout.addWidget(tree, 1)
+        ), 1)
         return panel
 
     def _build_firemaking_list() -> QWidget:
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             firemaking_target_rows(
                 player_data,
                 FIREMAKING_DATA,
@@ -6836,11 +6861,14 @@ def show_main_menu(
                 DEFAULT_FIREMAKING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
+            key="firemaking",
+            noun="logs",
             on_select=on_set_firemaking,
         )
 
     def _build_fishing_list() -> QWidget:
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             fishing_target_rows(
                 player_data,
                 FISHING_DATA,
@@ -6848,6 +6876,8 @@ def show_main_menu(
                 DEFAULT_FISHING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
+            key="fishing",
+            noun="fish",
             on_select=on_set_fishing,
         )
 
@@ -6926,7 +6956,8 @@ def show_main_menu(
             player_data["current_hunter"] = target_id
             _refresh_private_ground()
 
-        tree = _build_target_selector(
+        panel_layout.addWidget(build_searchable_target_selector(
+            _build_target_selector,
             hunter_target_rows(
                 player_data,
                 HUNTER_DATA,
@@ -6934,13 +6965,13 @@ def show_main_menu(
                 DEFAULT_HUNTER_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
-            HUNTER_GROUP_LABELS,
-            "__hunter_group__:",
-            _set_hunter_target,
+            key="hunter",
+            noun="creatures",
+            group_labels=HUNTER_GROUP_LABELS,
+            group_role_prefix="__hunter_group__:",
+            on_select=_set_hunter_target,
             group_order=list(HUNTER_GROUP_ORDER),
-        )
-        tree.setObjectName("hunterTargetTree")
-        panel_layout.addWidget(tree, 1)
+        ), 1)
         panel_layout.addWidget(private_ground)
         panel_layout.addWidget(private_hint)
 
@@ -6968,7 +6999,8 @@ def show_main_menu(
     def _build_cooking_list() -> QWidget:
         images = dict(COOKING_ITEM_IMAGES)
         images.update(_item_asset_paths())
-        return _build_target_selector(
+        return build_searchable_target_selector(
+            _build_target_selector,
             cooking_target_rows(
                 player_data,
                 COOKING_DATA,
@@ -6976,9 +7008,11 @@ def show_main_menu(
                 DEFAULT_COOKING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
-            _COOKING_FAMILY_LABELS,
-            "__cooking_family__:",
-            on_set_cooking,
+            key="cooking",
+            noun="recipes",
+            group_labels=_COOKING_FAMILY_LABELS,
+            group_role_prefix="__cooking_family__:",
+            on_select=on_set_cooking,
         )
 
     wicked_hood_feedback = {"message": ""}
@@ -7224,7 +7258,8 @@ def show_main_menu(
         reclaim_button.clicked.connect(lambda _checked=False: _run_hood_action("reclaim"))
         layout.addWidget(hood_card)
 
-        tree = _build_target_selector(
+        layout.addWidget(build_searchable_target_selector(
+            _build_target_selector,
             runecrafting_target_rows(
                 player_data,
                 RUNECRAFTING_DATA,
@@ -7233,13 +7268,13 @@ def show_main_menu(
                 DEFAULT_RUNECRAFTING_TARGET,
                 QUEST_UNLOCK_RULES,
             ),
-            RUNECRAFTING_GROUP_LABELS,
-            "__runecrafting_group__:",
-            on_set_runecrafting,
+            key="runecrafting",
+            noun="runecrafting actions",
+            group_labels=RUNECRAFTING_GROUP_LABELS,
+            group_role_prefix="__runecrafting_group__:",
+            on_select=on_set_runecrafting,
             group_order=list(RUNECRAFTING_GROUP_LABELS),
-        )
-        tree.setObjectName("runecraftingTargetTree")
-        layout.addWidget(tree, 1)
+        ), 1)
         return panel
 
     def _build_thieving_list() -> QWidget:
@@ -7277,20 +7312,21 @@ def show_main_menu(
                 on_set_thieving(target_id)
                 _render_panel()
 
-        tree = _build_target_selector(
+        layout.addWidget(build_searchable_target_selector(
+            _build_target_selector,
             thieving_target_rows(
                 player_data,
                 THIEVING_TARGETS,
                 THIEVING_ITEM_IMAGES,
                 DEFAULT_THIEVING_TARGET,
             ),
-            dict(THIEVING_GROUP_LABELS),
-            "__thieving_group__:",
-            _select_thieving_target,
+            key="thieving",
+            noun="thieving targets",
+            group_labels=dict(THIEVING_GROUP_LABELS),
+            group_role_prefix="__thieving_group__:",
+            on_select=_select_thieving_target,
             group_order=list(THIEVING_GROUP_ORDER),
-        )
-        tree.setObjectName("thievingTargetTree")
-        layout.addWidget(tree, 1)
+        ), 1)
         return panel
 
     agility_feedback = {"message": ""}
@@ -7498,20 +7534,21 @@ def show_main_menu(
                 on_set_agility(target_id)
             _render_panel()
 
-        tree = _build_target_selector(
+        layout.addWidget(build_searchable_target_selector(
+            _build_target_selector,
             agility_target_rows(
                 player_data,
                 AGILITY_TARGETS,
                 AGILITY_TARGET_IMAGES,
                 DEFAULT_AGILITY_TARGET,
             ),
-            dict(AGILITY_GROUP_LABELS),
-            "__agility_group__:",
-            _select_agility_target,
+            key="agility",
+            noun="courses and activities",
+            group_labels=dict(AGILITY_GROUP_LABELS),
+            group_role_prefix="__agility_group__:",
+            on_select=_select_agility_target,
             group_order=list(AGILITY_GROUP_ORDER),
-        )
-        tree.setObjectName("agilityTargetTree")
-        layout.addWidget(tree, 1)
+        ), 1)
 
         rewards = QWidget()
         rewards.setObjectName("agilityRewardControls")
@@ -8525,18 +8562,12 @@ def show_main_menu(
 
         layout.addWidget(_build_combat_skill_bars())
 
-        filter_bar = CatalogFilterBar(
-            placeholder="Search combat targets",
-            search_object_name="combatTargetSearchInput",
-        )
         task_only = QCheckBox("Current Slayer task only")
         task_only.setObjectName("slayerTaskOnlyCheckBox")
         task_only.setChecked(bool(player_data.get("slayer_combat_filter", False)))
         task_only.setToolTip(
             "Show only enemies that count toward the active Slayer assignment."
         )
-        filter_bar.add_filter(task_only)
-        layout.addWidget(filter_bar)
 
         combat_images = _item_asset_paths()
         combat_rows = combat_target_rows(
@@ -8582,88 +8613,31 @@ def show_main_menu(
                 confirm_wilderness_combat_risk(fingerprint)
             return confirmed
 
-        tree_host = QWidget()
-        tree_layout = QVBoxLayout(tree_host)
-        tree_layout.setContentsMargins(0, 0, 0, 0)
-        tree_layout.setSpacing(0)
-        live_tree = {"widget": None}
-
-        def _render_combat_targets() -> None:
-            previous = live_tree["widget"]
-            if previous is not None:
-                tree_layout.removeWidget(previous)
-                previous.setParent(None)
-                previous.deleteLater()
-
-            filtered_rows = tuple(
-                row
-                for row in combat_rows
-                if not task_only.isChecked()
-                or row.target_id in assignment_target_ids
-                if filter_bar.matches_text(
-                    row.target_id,
-                    row.label,
-                    row.tooltip,
-                    row.group,
+        def _empty_combat_text(query: str) -> str:
+            if not task_only.isChecked():
+                return "No combat targets match this search."
+            if not assignment_target_ids:
+                return (
+                    "No active Slayer assignment. Untick the filter to see all "
+                    "enemies, or get a new task from Slayer."
                 )
-            )
-            tree = _build_target_selector(
-                filtered_rows,
-                {group: group for group in COMBAT_TARGET_GROUP_ORDER},
-                "__combat_group__:",
-                on_set_combat,
-                confirm_select=_confirm_combat_target,
-                group_order=list(COMBAT_TARGET_GROUP_ORDER),
-                expanded_groups=(
-                    {row.group or "other" for row in filtered_rows}
-                    if filter_bar.query() or task_only.isChecked()
-                    else None
-                ),
-            )
-            tree.setObjectName("combatTargetTree")
-            if not filtered_rows:
-                if task_only.isChecked() and not assignment_target_ids:
-                    empty_text = (
-                        "No active Slayer assignment. Untick the filter to see all "
-                        "enemies, or get a new task from Slayer."
-                    )
-                elif task_only.isChecked() and filter_bar.query():
-                    empty_text = "No assigned targets match this search."
-                elif task_only.isChecked():
-                    empty_text = "No playable enemies are available for this assignment."
-                else:
-                    empty_text = "No combat targets match this search."
-                if isinstance(tree, QTreeWidget):
-                    empty = QTreeWidgetItem([empty_text])
-                    empty.setFlags(Qt.ItemFlag.NoItemFlags)
-                    empty.setForeground(0, dim_text_color(tree))
-                    tree.addTopLevelItem(empty)
-                else:
-                    empty = QListWidgetItem(empty_text)
-                    empty.setFlags(Qt.ItemFlag.NoItemFlags)
-                    empty.setForeground(dim_text_color(tree))
-                    tree.addItem(empty)
-            filter_bar.set_count(len(filtered_rows), len(combat_rows))
-            tree_layout.addWidget(tree)
-            live_tree["widget"] = tree
+            if query:
+                return "No assigned targets match this search."
+            return "No playable enemies are available for this assignment."
 
-            def _scroll_saved_target_into_view() -> None:
-                if live_tree["widget"] is not tree:
-                    return
-                try:
-                    current = tree.currentItem()
-                    if current is not None:
-                        tree.scrollToItem(
-                            current,
-                            QAbstractItemView.ScrollHint.PositionAtCenter,
-                        )
-                except RuntimeError:
-                    return
-
-            QTimer.singleShot(0, _scroll_saved_target_into_view)
-
-        filter_bar.search_input.textChanged.connect(
-            lambda _text="": _render_combat_targets()
+        search = build_searchable_target_selector(
+            _build_target_selector,
+            combat_rows,
+            key="combat",
+            noun="combat targets",
+            group_labels={group: group for group in COMBAT_TARGET_GROUP_ORDER},
+            extra_filter=(task_only, lambda row: row.target_id in assignment_target_ids),
+            empty_text=_empty_combat_text,
+            match_tooltip=True,
+            group_role_prefix="__combat_group__:",
+            on_select=on_set_combat,
+            confirm_select=_confirm_combat_target,
+            group_order=list(COMBAT_TARGET_GROUP_ORDER),
         )
 
         def _set_task_only(enabled: bool) -> None:
@@ -8674,11 +8648,10 @@ def show_main_menu(
                 task_only.blockSignals(True)
                 task_only.setChecked(not enabled)
                 task_only.blockSignals(False)
-            _render_combat_targets()
+            search._ankiscape_render_targets()
 
         task_only.toggled.connect(_set_task_only)
-        _render_combat_targets()
-        layout.addWidget(tree_host, 1)
+        layout.addWidget(search, 1)
         return container
 
     def _build_utility_list(surface_name: str) -> QWidget:
