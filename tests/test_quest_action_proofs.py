@@ -39,6 +39,7 @@ from ankiscape.logic_pure.quest_action_proofs import (
 )
 from ankiscape.runtime.runtime_actions import handle_crafting_answer
 from ankiscape.tools.quest_action_proof_reachability import reachable_quest_action_proof_events
+from tests.quest_action_proof_helpers import quest_required_action_proofs_for_quest
 from tests.test_combat_quest_gate import _answer_review, _maxed_player_for_quest
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 from tests.test_runtime_actions import _context
@@ -351,16 +352,20 @@ class TestQuestActionProofIntegration(unittest.TestCase):
 
     def test_shop_purchase_proves_recovery_only_after_a_successful_buy(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["do_no_evil"] = {"started": True, "progress": 3, "completed": False}
         denied, result = apply_shop_buy_pure(
             player,
             "hamabs_crafting_emporium",
             "hamabs_crafting_emporium:3:4020",
         )
         self.assertFalse(result["allowed"])
-        self.assertNotIn(
-            DO_NO_EVIL_MAMULET_MOULD_PROOF,
-            denied["quest_action_proofs"],
-        )
+        self.assertNotIn(DO_NO_EVIL_MAMULET_MOULD_PROOF, denied["quest_action_proofs"])
+        action_ids = {
+            row.get("action_id")
+            for row in quest_current_stage_blockers_pure(player, "do_no_evil", QUEST_DATA)
+        }
+        self.assertIn(DO_NO_EVIL_MAMULET_MOULD_PROOF, action_ids)
+        self.assertNotIn("Complete Do No Evil stage 3 objective", action_ids)
 
         player["inventory"]["Coins"] = 10_000
         player["quests"]["monkey_madness"] = {
@@ -375,9 +380,14 @@ class TestQuestActionProofIntegration(unittest.TestCase):
         )
         self.assertTrue(result["allowed"])
         self.assertEqual(bought["inventory"]["M'amulet mould"], 1)
-        self.assertIn(
+        self.assertIn(DO_NO_EVIL_MAMULET_MOULD_PROOF, bought["quest_action_proofs"])
+        self.assertNotIn(
             DO_NO_EVIL_MAMULET_MOULD_PROOF,
-            bought["quest_action_proofs"],
+            {row.get("action_id") for row in quest_current_stage_blockers_pure(bought, "do_no_evil", QUEST_DATA)},
+        )
+        self.assertEqual(
+            quest_required_action_proofs_for_quest(bought, "do_no_evil", QUEST_DATA),
+            (DO_NO_EVIL_MAMULET_MOULD_PROOF,),
         )
 
     def test_purchase_rollback_keeps_only_retained_support(self):
@@ -468,6 +478,7 @@ class TestQuestActionProofIntegration(unittest.TestCase):
     def test_shop_purchase_rollback_retracts_its_proof(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player["inventory"]["Coins"] = 10_000
+        player["quests"]["do_no_evil"] = {"started": True, "progress": 3, "completed": False}
         player["quests"]["monkey_madness"] = {
             "started": True,
             "progress": 1,
@@ -487,6 +498,10 @@ class TestQuestActionProofIntegration(unittest.TestCase):
         self.assertEqual(restored["inventory"]["M'amulet mould"], 0)
         self.assertEqual(restored["inventory"]["Coins"], 10_000)
         self.assertNotIn(DO_NO_EVIL_MAMULET_MOULD_PROOF, restored["quest_action_proofs"])
+        self.assertIn(
+            DO_NO_EVIL_MAMULET_MOULD_PROOF,
+            {row.get("action_id") for row in quest_current_stage_blockers_pure(restored, "do_no_evil", QUEST_DATA)},
+        )
 
     def test_yak_hide_proof_requires_service_then_real_crafting(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -497,6 +512,10 @@ class TestQuestActionProofIntegration(unittest.TestCase):
         }
         player["inventory"].update({"Yak-hide": 1, "Thread": 1, "Coins": 100})
         player["crafting_level"] = 99
+        self.assertNotIn(
+            "Complete The Fremennik Isles stage 5 objective",
+            {row.get("action_id") for row in quest_current_stage_blockers_pure(player, "the_fremennik_isles", QUEST_DATA)},
+        )
 
         player, service = apply_shop_service_pure(
             player,
@@ -511,6 +530,10 @@ class TestQuestActionProofIntegration(unittest.TestCase):
         self.assertTrue(handle_crafting_answer(_context(player, calls, [0.0])))
         self.assertEqual(calls["saves"], 1)
         self.assertIn(FREMENNIK_ISLES_YAK_HIDE_PROOF, player["quest_action_proofs"])
+        self.assertEqual(
+            quest_required_action_proofs_for_quest(player, "the_fremennik_isles", QUEST_DATA),
+            (FREMENNIK_ISLES_YAK_HIDE_PROOF,),
+        )
 
         inventory_only = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         inventory_only["inventory"].update({"Cured yak-hide": 1, "Thread": 1})
@@ -521,6 +544,34 @@ class TestQuestActionProofIntegration(unittest.TestCase):
             FREMENNIK_ISLES_YAK_HIDE_PROOF,
             inventory_only["quest_action_proofs"],
         )
+
+    def test_round_shield_requires_rites_and_records_real_crafting(self):
+        proof = "Make a Fremennik round shield"
+        output = "Fremennik round shield"
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["quests"]["the_fremennik_isles"] = {"started": True, "progress": 5, "completed": False}
+        player["inventory"].update({"Arctic pine logs": 2, "Bronze nails": 1, "Rope": 1, "Hammer": 1, output: 1})
+        player["crafting_level"] = 1
+        player["current_craft"] = "craft_fremennik_round_shield"
+        player["quests"]["the_fremennik_isles"]["progress"] = 4
+        before = copy.deepcopy(player["inventory"])
+        calls = {"xp": [], "saves": 0, "errors": []}
+        self.assertFalse(handle_crafting_answer(_context(player, calls)))
+        self.assertEqual(player["inventory"], before)
+        self.assertNotIn(proof, player["quest_action_proofs"])
+
+        player["quests"]["the_fremennik_isles"]["progress"] = 5
+        action_ids = {row.get("action_id") for row in quest_current_stage_blockers_pure(player, "the_fremennik_isles", QUEST_DATA)}
+        self.assertIn(proof, action_ids)
+        calls = {"xp": [], "saves": 0, "errors": []}
+        self.assertTrue(handle_crafting_answer(_context(player, calls, [0.99])))
+        item_names = ("Arctic pine logs", "Bronze nails", "Rope", "Hammer", output)
+        self.assertEqual({item: player["inventory"][item] for item in item_names}, dict(zip(item_names, (0, 0, 0, 1, 2))))
+        self.assertEqual((player["crafting_exp"], calls["xp"], calls["saves"]), (34.0, [34.0], 1))
+        self.assertIn(proof, player["quest_action_proofs"])
+        action_ids = {row.get("action_id") for row in quest_current_stage_blockers_pure(player, "the_fremennik_isles", QUEST_DATA)}
+        self.assertNotIn(proof, action_ids)
+        self.assertEqual(quest_required_action_proofs_for_quest(player, "the_fremennik_isles", QUEST_DATA), (proof,))
 
 
 class TestQuestActionProofReviewFlow(unittest.TestCase):
@@ -826,8 +877,6 @@ _UNEMITTED_CLEANUP_ACTIONS = frozenset({
     ("mournings_end_part_i", 3, "Have Oronwen repair the mourner trousers"),
     # Audit: the furniture exists, but the clockwork-penguin action does not.
     ("cold_war", 2, "Build the clockwork penguin on a crafting table 3"),
-    # Audit: the live round_shield target is the wrong mechanic.
-    ("the_fremennik_isles", 5, "Make a Fremennik round shield"),
     # Audit: the live Telegrab target is Wine of Zamorak, not the Ancestral key.
     ("spirits_of_the_elid", 2, "Cast Telegrab for the water channel puzzle"),
     # Audit: the source uses a direct spell-on-NPC interaction, not generic combat.

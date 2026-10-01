@@ -396,6 +396,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=5,
             remove_required_inventory=("Yak hide armour", "Fremennik round shield"),
+            remove_required_actions=("Complete The Fremennik Isles stage 5 objective",),
             add_required_actions=("Cure and stitch yak-hide armour", "Make a Fremennik round shield"),
         ),
     ),
@@ -716,6 +717,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=3,
             remove_required_inventory=("M'amulet mould",),
+            remove_required_actions=("Complete Do No Evil stage 3 objective",),
             add_required_actions=("Recover an m'amulet mould before making the monkeyspeak amulet",),
         ),
     ),

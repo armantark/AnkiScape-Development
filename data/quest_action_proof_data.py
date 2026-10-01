@@ -4,6 +4,7 @@ DO_NO_EVIL_MAMULET_MOULD_PROOF = (
     "Recover an m'amulet mould before making the monkeyspeak amulet"
 )
 FREMENNIK_ISLES_YAK_HIDE_PROOF = "Cure and stitch yak-hide armour"
+FREMENNIK_ISLES_ROUND_SHIELD_PROOF = "Make a Fremennik round shield"
 MOURNER_FOOD_STORES_PROOF = "Use the rotten apple to sabotage the mourner food stores"
 BIOHAZARD_CAULDRON_ACTION = "Put the rotten apple in the Mourner HQ cauldron"
 THAKKRAD_CURED_YAK_HIDE_PROOF = "Cure yak-hide with Thakkrad"
@@ -28,6 +29,10 @@ QUEST_ACTION_PROOF_RULES = {
         "leather_yakhide_armour",
     ): ((THAKKRAD_CURED_YAK_HIDE_PROOF,), (FREMENNIK_ISLES_YAK_HIDE_PROOF,)),
     (
+        "crafting",
+        "craft_fremennik_round_shield",
+    ): ((), (FREMENNIK_ISLES_ROUND_SHIELD_PROOF,)),
+    (
         "quest_stage",
         f"biohazard:{BIOHAZARD_CAULDRON_ACTION}",
     ): ((), (MOURNER_FOOD_STORES_PROOF,)),
@@ -50,6 +55,10 @@ QUEST_ACTION_PROOF_AUDIT_SOURCES = {
     ),
     ("crafting", "leather_yakhide_armour"): (
         "Crafting:leather_yakhide_armour",
+        "",
+    ),
+    ("crafting", "craft_fremennik_round_shield"): (
+        "Crafting:craft_fremennik_round_shield",
         "",
     ),
 }

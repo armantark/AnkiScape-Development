@@ -1,6 +1,11 @@
 # Genuine quest actions: source contract and implementation plan
 
-Status: source-only review. Implementation is blocked by two unresolved source fields and the applicable file-size prerequisites. No product code, tests, generated catalog, source pins, UI, or live state changed. No project imports or runtime tests ran. No commit or push was made.
+> **Fremennik shield supersession — 2026-10-01:** Ruling 4.29.7 resolved the
+> Woodcutting conflict by adding no separate recipe threshold: the existing
+> quest eligibility and a stage-5 traditional-rites gate govern the action. The
+> source-only implementation block below remains applicable to the two spells.
+
+Status: source-only review for the two spell actions. Their implementation remains blocked by the unresolved rod-state identity and applicable file-size prerequisites; the shield action is superseded above.
 
 ## Outcome
 

@@ -1,5 +1,10 @@
 # Shared quest-action proofs source audit — 2026-08-31
 
+> **Fremennik shield follow-up — 2026-10-01:** Ruling 4.29.7 adds the real
+> `craft_fremennik_round_shield` Crafting action and binds its successful event
+> to the stage-5 proof. The earlier stage-1 generated sentinel still prevents
+> whole-quest reachability and remains a separate quest-stage parity gap.
+
 ## Authority and boundary
 
 The branch started from `35b912a08535222282a86d80cc35e10dbc26bab5`.
@@ -65,9 +70,9 @@ thread. The live Shop service enforces stage 5, consumes the hide and fee, and
 produces Cured yak-hide. The two live Crafting recipes consume one or two Cured
 yak-hides plus Thread and award 32 Crafting experience.
 
-The sibling proof `Make a Fremennik round shield` remains unwired. The existing
-Construction `round_shield` target is a furnishing, not the quest shield made
-from arctic logs, a bronze nail, a hammer, and rope at the Neitiznot stump.
+The sibling proof `Make a Fremennik round shield` comes from the dedicated
+Crafting action at the Neitiznot stump. It consumes two Arctic pine logs, one
+Bronze nail, and one Rope, retains a Hammer, and is gated by stage 5.
 
 ### Mourning's End Part I stage 5
 
@@ -84,7 +89,7 @@ this required-action blocker.
 
 ## Deliberately unwired hand-written actions
 
-The other eight hand-written actions remain blocked because the exact mechanic
+The other seven hand-written actions remain blocked because the exact mechanic
 is absent or the apparent generic action is not source-faithful:
 
 - `Have Oronwen repair the mourner trousers`: no Oronwen service action.
@@ -97,8 +102,6 @@ is absent or the apparent generic action is not source-faithful:
 - `Collect a bucket of sap from an evergreen tree`: no evergreen sap action.
 - `Build the clockwork penguin on a crafting table 3`: the furniture exists,
   but the clockwork-penguin action does not.
-- `Make a Fremennik round shield`: the live `round_shield` target is the wrong
-  mechanic.
 - `Cast Enchant Level 2 Jewellery for the emerald preparations`: no
   quest-specific emerald preparation target.
 
