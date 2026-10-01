@@ -13526,7 +13526,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertFalse(reward_trader_row.isHidden())
             self.assertFalse(coal_bag_row.isHidden())
             self.assertLessEqual(
-                panel.mapTo(dialog, panel.rect().bottomRight()).y(),
+                panel.parentWidget().mapTo(dialog, panel.parentWidget().rect().bottomRight()).y(),
                 dialog.contentsRect().bottom(),
             )
 
@@ -13632,7 +13632,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             for _ in range(6):
                 QApplication.processEvents()
             self.assertLessEqual(
-                panel.mapTo(dialog, panel.rect().bottomRight()).y(),
+                panel.parentWidget().mapTo(dialog, panel.parentWidget().rect().bottomRight()).y(),
                 dialog.contentsRect().bottom(),
             )
             self.assertGreater(panel.height(), 0)
@@ -13677,7 +13677,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 ["Eligible blade"],
             )
             self.assertLessEqual(
-                panel.mapTo(dialog, panel.rect().bottomRight()).y(),
+                panel.parentWidget().mapTo(dialog, panel.parentWidget().rect().bottomRight()).y(),
                 dialog.contentsRect().bottom(),
             )
         finally:

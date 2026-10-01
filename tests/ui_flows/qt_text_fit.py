@@ -5,7 +5,7 @@ Callers must show, resize and pump events before probing, per
 geometry, and these probes trust widget geometry, not pixels.
 """
 
-from aqt.qt import QLabel, QPoint, QPushButton, QRect
+from aqt.qt import QAbstractButton, QCheckBox, QLabel, QLineEdit, QPoint, QPushButton, QRect
 
 
 def _text_fits(widget) -> bool:
@@ -45,4 +45,32 @@ def text_fit_defects(root) -> list[str]:
         for right, right_rect in zip(widgets[index + 1 :], rects[index + 1 :]):
             if left_rect.intersects(right_rect):
                 defects.append(f"{left.text()!r} overlaps {right.text()!r}")
+    return defects
+
+
+def _control_text_fits(widget) -> bool:
+    if isinstance(widget, QCheckBox) and widget.hasHeightForWidth():
+        return (
+            widget.minimumSizeHint().width() <= widget.width()
+            and widget.heightForWidth(widget.width()) <= widget.height()
+        )
+    if isinstance(widget, QAbstractButton):
+        return widget.sizeHint().width() <= widget.width()
+    return _text_fits(widget)
+
+
+def clipped_text_defects(root) -> list[str]:
+    """Name each visible control whose text is cut off: labels, buttons, check boxes and search placeholders."""
+    controls = [
+        widget
+        for widget in root.findChildren(QLabel) + root.findChildren(QAbstractButton)
+        if widget.text() and widget.isVisibleTo(root)
+    ]
+    defects = [f"{widget.text()!r} is clipped in {widget.size()}" for widget in controls if not _control_text_fits(widget)]
+    # The 10 px side padding and 1 px border of the search field's stylesheet.
+    defects += [
+        f"placeholder {edit.placeholderText()!r} is clipped in {edit.size()}"
+        for edit in root.findChildren(QLineEdit)
+        if edit.isVisibleTo(root) and edit.fontMetrics().horizontalAdvance(edit.placeholderText()) + 22 > edit.width()
+    ]
     return defects
