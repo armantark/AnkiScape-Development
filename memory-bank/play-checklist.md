@@ -14,6 +14,7 @@ you are in the game, with the date the change reached main.
 
 - [ ] A big XP lamp or a quest that gives many levels shows one level-up window from the old level to the new one. (2026-09-28)
 - [ ] Put on or take off gear right after a review, then press Undo: the gear change goes back first, and the item is not both worn and in the bank. (2026-09-28)
+- [ ] Open Skills > Artisan > Crafting and type "combinations" in the search box above the list: only the Combinations group shows, opened, with "Showing 30/233"; your current target does not change, and Escape brings back the full list with your target still marked. Every other skill list has the same box. (2026-09-30)
 
 ## Combat
 
