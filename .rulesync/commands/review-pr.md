@@ -13,5 +13,6 @@ Execute the following in parallel:
 2. Review test coverage
 3. Verify documentation updates
 4. Check for potential bugs or security issues
+5. Run `/opt/homebrew/bin/python3 tools/maintenance/slop_gate_preflight.py --base <merge-base-commit>` on the exact reviewed checkout
 
-Then provide a summary of findings and suggestions for improvement.
+Do not approve unless the preflight exits 0. If the reviewed tree changes, rerun it before providing the summary of findings and suggestions for improvement.
