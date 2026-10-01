@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 # Drop-derived rows the live catalog does not carry: the six skill Brawling
-# gloves already come from data/brawling_gloves_data.py, and Mudskipper hat
-# (6665) and Flippers (6666) have no equipment row in data/equipment_data.py.
-DROP_ONLY_EXCLUDED_ITEM_IDS = frozenset({6665, 6666, 13850, 13851, 13852, 13855, 13856, 13857})
+# gloves already come from data/brawling_gloves_data.py.
+DROP_ONLY_EXCLUDED_ITEM_IDS = frozenset({13850, 13851, 13852, 13855, 13856, 13857})
 
 LEGACY_EQUIPMENT_ITEMS: tuple[
     tuple[str, int, str | None, int, bool, str, str], ...
