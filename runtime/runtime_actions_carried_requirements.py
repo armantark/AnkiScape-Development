@@ -26,6 +26,7 @@ from ..core.constants import (
     TREE_DATA,
 )
 from ..core.skill_registry import CURRENT_SKILLS
+from ..core.tool_belt import without_belt_tools
 from ..data.agility_data import AGILITY_TARGETS_BY_ID
 from ..data.item_values import STACKABLE_ITEM_NAMES
 from ..data.smithing_data import DEFAULT_SMITHING_TARGET
@@ -225,7 +226,10 @@ def _processing_presence_requirements_for(handler_key: str, player_data: dict[st
     required_items = spec.get("required_items", {}) if isinstance(spec, dict) else {}
     if not isinstance(required_items, dict):
         return {}
-    return {str(item): int(amount) for item, amount in required_items.items() if isinstance(item, str)}
+    # A belt tool is never packed: the belt holds it on every trip.
+    return without_belt_tools(
+        player_data, {str(item): int(amount) for item, amount in required_items.items() if isinstance(item, str)}
+    )
 
 
 def _skilling_potion_requirement_for(

@@ -7,7 +7,7 @@ import math
 from typing import Any, Callable, Iterable, Mapping, Optional
 
 from ..core.constants import EQUIPMENT_DATA, EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA
-from ..core.tool_belt import tool_on_belt
+from ..core.tool_belt import tool_on_belt, without_belt_tools
 from ..data.farming_data import (
     COMPOST_BIN_CAPACITY,
     COMPOST_TIERS,
@@ -2416,10 +2416,6 @@ def _access_reason(gate: Any) -> str:
     return "This patch is locked."
 
 
-def _without_belt_tools(state: Mapping[str, Any], requirements: Mapping[str, int]) -> dict[str, int]:
-    return {item: amount for item, amount in requirements.items() if not tool_on_belt(state, item)}
-
-
 def _missing_items_reason(inventory: Mapping[str, Any], requirements: Mapping[str, int]) -> str:
     missing = [
         f"{amount} {item} ({_int(inventory.get(item))} in Bank)"
@@ -2707,7 +2703,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                     requirements[compost_item] = requirements.get(compost_item, 0) + 1
             tool = "Spade" if planned_crop and planned_crop.patch_type in {"tree", "fruit_tree", "calquat", "spirit_tree"} else "Seed dibber"
             requirements.update({"Rake": 1, tool: 1})
-            primary_reason = _missing_items_reason(inventory, _without_belt_tools(state, requirements))
+            primary_reason = _missing_items_reason(inventory, without_belt_tools(state, requirements))
         elif not primary_reason and primary_kind == "cure":
             item_reason = _missing_items_reason(inventory, {"Plant cure": 1})
             spell_reasons = _cure_spell_locked_reasons(state, patch.id)
@@ -2719,7 +2715,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             if primary_kind == "harvest" and crop:
                 primary_reason = _missing_harvest_tool_reason(state, crop)
             else:
-                primary_reason = _missing_items_reason(inventory, _without_belt_tools(state, {"Spade": 1}))
+                primary_reason = _missing_items_reason(inventory, without_belt_tools(state, {"Spade": 1}))
         elif not primary_reason and primary_kind == "chop" and crop and crop.id == "jade_vine":
             if _int(state.get("slayer_level", 1), default=1, minimum=1) < 59:
                 primary_reason = "Requires Slayer level 59."
@@ -2765,7 +2761,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             if not dig_up_reason and patch.id in queued_patch_ids:
                 dig_up_reason = "This patch already has queued work."
             if not dig_up_reason:
-                dig_up_reason = _missing_items_reason(inventory, _without_belt_tools(state, {"Spade": 1}))
+                dig_up_reason = _missing_items_reason(inventory, without_belt_tools(state, {"Spade": 1}))
             dig_up_action = {
                 "id": "dig_up",
                 "label": "Queue dig up",
@@ -2887,7 +2883,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             seed, _seedling, _sapling = SAPLING_RECIPES[sapling_crop.id]
             amount = min(28, _int(inventory.get(seed)), _int(inventory.get("Plant pot")))
             reason = _missing_items_reason(
-                inventory, _without_belt_tools(state, {seed: 1, "Plant pot": 1, "Gardening trowel": 1})
+                inventory, without_belt_tools(state, {seed: 1, "Plant pot": 1, "Gardening trowel": 1})
             )
             if not reason and not any(_int(inventory.get(item)) > 0 for item in ("Watering can", "Watering can (8)")):
                 reason = "Needs a Watering can in your Bank."

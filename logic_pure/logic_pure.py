@@ -28,11 +28,7 @@ from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 
 from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
 
-from ..logic.wicked_hood_logic import (
-    apply_wicked_hood_upgrade_pure,
-    wicked_hood_fed_altars_pure,
-    wicked_hood_operable_pure,
-)
+from ..logic.wicked_hood_logic import apply_wicked_hood_upgrade_pure, wicked_hood_fed_altars_pure, wicked_hood_operable_pure
 
 from ..logic.court_cases_logic import filter_court_summons_outputs_pure
 
@@ -207,6 +203,7 @@ from .logic_pure_production import (  # noqa: F401  (re-export)
     has_fletching_materials_pure,
     has_herblore_materials_pure,
     herblore_target_locked_reasons_pure,
+    recipe_without_belt_tools,
     utility_activity_locked_reasons_pure,
 )
 

@@ -133,3 +133,13 @@ def tool_on_belt(player_data: Mapping[str, Any], tool_name: str) -> bool:
     if isinstance(attached, str):
         attached = (attached,)
     return isinstance(attached, Iterable) and any(str(tool) for tool in attached)
+
+
+def without_belt_tools(player_data: Mapping[str, Any], requirements: Mapping[str, int]) -> dict[str, int]:
+    """``requirements`` minus the tools on the player's belt, which count as held."""
+    return {item: amount for item, amount in requirements.items() if not tool_on_belt(player_data, item)}
+
+
+def recipe_without_belt_tools(player_data: Mapping[str, Any], spec: Mapping[str, Any]) -> dict[str, Any]:
+    """A recipe whose required tools leave out the belt's; consumed inputs never come from the belt."""
+    return {**spec, "required_items": without_belt_tools(player_data, spec.get("required_items") or {})}
