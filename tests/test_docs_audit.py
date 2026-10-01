@@ -7,8 +7,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOL = ROOT / "tools" / "audit_docs.py"
-SPEC = importlib.util.spec_from_file_location("audit_docs", TOOL)
+SPEC = importlib.util.spec_from_file_location("audit_docs", ROOT / "tools" / "audit_docs.py")
 assert SPEC and SPEC.loader
 AUDIT_DOCS = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = AUDIT_DOCS
@@ -26,41 +25,6 @@ class DocumentationAuditTests(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
         subprocess.run(["git", "add", "--", relative], cwd=root, check=True)
-
-    def test_cli_requires_an_explicit_absolute_root(self) -> None:
-        missing = subprocess.run(
-            [sys.executable, str(TOOL)],
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        relative = subprocess.run(
-            [sys.executable, str(TOOL), "--root", "."],
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-
-        self.assertEqual(missing.returncode, 2)
-        self.assertIn("the following arguments are required: --root", missing.stderr)
-        self.assertEqual(relative.returncode, 2)
-        self.assertIn("--root must be an absolute worktree path", relative.stderr)
-
-    def test_cli_audits_the_explicit_root_from_another_working_directory(self) -> None:
-        root = self._repo()
-        self._track(root, "README.md", "# Docs\n")
-        other = Path(self.enterContext(tempfile.TemporaryDirectory()))
-
-        result = subprocess.run(
-            [sys.executable, str(TOOL), "--root", str(root)],
-            cwd=other,
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Audited 1 Markdown and 0 HTML files.", result.stdout)
 
     def test_accepts_valid_tracked_markdown_and_html(self) -> None:
         root = self._repo()

@@ -264,21 +264,9 @@ def audit_docs(root: Path) -> DocAuditReport:
     return DocAuditReport(markdown_files, html_files, tuple(issues))
 
 
-def _absolute_root(value: str) -> Path:
-    root = Path(value)
-    if not root.is_absolute():
-        raise argparse.ArgumentTypeError("--root must be an absolute worktree path")
-    return root
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--root",
-        type=_absolute_root,
-        required=True,
-        help="absolute path to the worktree whose tracked documents should be audited",
-    )
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
     report = audit_docs(args.root.resolve())
