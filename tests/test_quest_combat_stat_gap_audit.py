@@ -60,7 +60,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         self.assertNotIn(("nomads_requiem", "Nomad"), self.by_quest_and_name)
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("fight_arena", "Khazard scorpion")], self.darkan_groups, self.partial_groups),
-            "darkan_missing_resolver_stats",
+            "source_stats_missing",
         )
         self.assertNotIn(("heroes_quest", "Entrana Fire Bird"), self.by_quest_and_name)
         self.assertNotIn(("spirits_of_the_elid", "Golem"), self.by_quest_and_name)

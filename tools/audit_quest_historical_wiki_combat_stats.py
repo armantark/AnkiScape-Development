@@ -23,10 +23,10 @@ from tools import audit_quest_combat_stat_gaps as gap_audit
 from tools import build_pre_eoc_quest_catalog as catalog_builder
 
 
-CACHE_DIR = ROOT / "tools" / ".cache" / "quest_historical_wiki_combat_stats"
+CACHE_DIR = ROOT / "tools" / ".cache" / "quest_historical_wiki_combat_stats" / "literal"
 WIKI_API = "https://runescape.wiki/api.php"
 EOC_CUTOFF_TIMESTAMP = "2012-11-19T23:59:59Z"
-USER_AGENT = "AnkiScape quest combat source audit (local development)"
+USER_AGENT = "AnkiScape parity audit"
 
 
 @dataclass(frozen=True)
@@ -81,14 +81,26 @@ def title_candidates(display_name: str) -> Tuple[str, ...]:
     return tuple(output)
 
 
-def parse_monster_infobox_metadata(wikitext: str) -> Tuple[Dict[str, int], Dict[str, str]]:
+def monster_infoboxes(wikitext: str) -> Iterable[Dict[str, str]]:
     for body in catalog_builder.iter_templates(wikitext):
-        name = catalog_builder.template_name(body)
-        if name not in {"infobox monster", "infobox npc"}:
+        if catalog_builder.template_name(body) in {"infobox monster", "infobox npc"}:
+            yield catalog_builder.parse_template_params(body)
+        else:
+            yield from monster_infoboxes(body)
+
+
+def parse_monster_infobox_metadata(wikitext: str, *, level: int = 0) -> Tuple[Dict[str, int], Dict[str, str]]:
+    best: Tuple[Dict[str, int], Dict[str, str]] = ({}, {})
+    for params in monster_infoboxes(wikitext):
+        levels = {int(value) for value in re.findall(r"\d+", params.get("level", ""))}
+        if level and levels and level not in levels:
             continue
-        params = catalog_builder.parse_template_params(body)
-        return _stats_and_configs_from_infobox(params)
-    return {}, {}
+        metadata = _stats_and_configs_from_infobox(params)
+        if metadata_has_resolver_stats(*metadata):
+            return metadata
+        if not any(best):
+            best = metadata
+    return best
 
 
 def _stats_and_configs_from_infobox(params: Mapping[str, str]) -> Tuple[Dict[str, int], Dict[str, str]]:
@@ -134,9 +146,8 @@ def _stats_and_configs_from_infobox(params: Mapping[str, str]) -> Tuple[Dict[str
         value = catalog_builder.clean_markup(str(raw_value))
         stat_key = stat_aliases.get(key)
         if stat_key:
-            parsed = _first_int(value)
-            if parsed is not None:
-                stats[stat_key] = parsed
+            if re.fullmatch(r"(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)", value.strip()):
+                stats[stat_key] = int(value.replace(",", ""))
             continue
         config_key = config_aliases.get(key)
         if config_key == "attack_style":
@@ -189,7 +200,7 @@ def audit_gap(gap: gap_audit.CombatGap, fetch_revision: FetchRevision = None) ->
         revision = fetch_revision(title)
         if revision is None or not revision.content:
             continue
-        stats, configs = parse_monster_infobox_metadata(revision.content)
+        stats, configs = parse_monster_infobox_metadata(revision.content, level=gap.level)
         if not stats and not configs:
             continue
         status = "historical_wiki_resolver_stats_available" if metadata_has_resolver_stats(stats, configs) else "historical_wiki_metadata_only"
@@ -229,7 +240,6 @@ def fetch_historical_revision(title: str) -> Optional[HistoricalRevision]:
         "rvslots": "main",
         "rvlimit": "1",
         "titles": title,
-        "redirects": "1",
         "format": "json",
         "formatversion": "2",
         "rvstart": EOC_CUTOFF_TIMESTAMP,

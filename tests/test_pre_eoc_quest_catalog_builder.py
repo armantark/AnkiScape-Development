@@ -109,6 +109,7 @@ class TestPreEocQuestCatalogBuilder(unittest.TestCase):
             ("Ram", 2, 40, "ram_4"),
             ("Unicorn", 15, 190, "unicorn_5"),
             ("Giant bat", 27, 320, "giant_bat_8"),
+            ("Giant rat", 6, 100, "giant_rat_7"),
         ):
             with self.subTest(name=name):
                 row = by_name[name]
@@ -118,7 +119,7 @@ class TestPreEocQuestCatalogBuilder(unittest.TestCase):
                 self.assertTrue(quest_combat_encounter_has_stats_pure(row))
                 self.assertIn("oldid=", row["npc_stats_source"])
                 self.assertIn("@", row["npc_stats_source"])
-        for name in ("Goblin", "Big frog", "Monkey", "Giant rat"):
+        for name in ("Goblin", "Big frog", "Monkey"):
             self.assertFalse(quest_combat_encounter_has_stats_pure(by_name[name]))
 
     def test_reviewed_variant_does_not_leak_to_other_quests_or_explicit_levels(self):

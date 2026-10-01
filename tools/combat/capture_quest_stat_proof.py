@@ -38,6 +38,11 @@ def capture_theme(output, theme):
         player["current_quest"] = "rag_and_bone_man"
         player["quests"]["rag_and_bone_man"] = {"started": True, "progress": 4, "completed": False}
         player["inventory"] = {"Logs": 8}
+        player["quest_combat_encounters"] = {"rag_and_bone_man": [
+            f"rag_and_bone_man_{suffix}" for suffix in (
+                "goblin_1", "bear_2", "big_frog_3", "ram_4", "unicorn_5", "monkey_6",
+            )
+        ]}
         dialog = case._open(player, current_skill="Quests")
         dialog.show()
         _open_quests_tab(dialog)
@@ -54,7 +59,7 @@ def capture_theme(output, theme):
                 raise RuntimeError(f"Could not save {filename}")
             captures.append({"file": filename, "width": dialog.width(), "height": dialog.height()})
         texts = [label.text() for label in dialog.findChildren(QLabel) if label.isVisible()]
-        assert any("Bear level 19" in text for text in texts), texts
+        assert any("Giant rat level 6" in text for text in texts), texts
         return {"theme": theme, "captures": captures, "visible_labels": texts}
     finally:
         case.tearDown()

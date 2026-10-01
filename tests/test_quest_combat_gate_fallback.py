@@ -168,6 +168,35 @@ class TestQuestCombatGateFallback(unittest.TestCase):
 
 
 class TestSourcedQuestCombatReview(unittest.TestCase):
+    def test_bone_quest_resumes_at_the_sourced_swamp_rat_after_prior_kills(self):
+        quest_id = "rag_and_bone_man"
+        encounter_id = "rag_and_bone_man_giant_rat_7"
+        player = _maxed_player_for_quest(quest_id)
+        player.update(current_quest=quest_id, strength_level=20, attack_level=40, combat_lifepoints=990)
+        player["quests"][quest_id] = {"started": True, "progress": 4, "completed": False}
+        player["inventory"] = {"Logs": 8}
+        prior_kills = [f"rag_and_bone_man_{suffix}" for suffix in (
+            "goblin_1", "bear_2", "big_frog_3", "ram_4", "unicorn_5", "monkey_6",
+        )]
+        player["quest_combat_encounters"] = {quest_id: list(prior_kills)}
+        calls = {"xp": [], "saves": 0, "errors": []}
+        rng = random.Random(9)
+        ctx = _context(player, calls, random_values=(rng.random() for _ in range(10000)))
+        ctx.cadence_live_enabled = True
+        with patch.object(quest_logic, "apply_combat_burst_pure", wraps=quest_logic.apply_combat_burst_pure) as fight:
+            self.assertTrue(handle_quest_answer(ctx))
+        enemy = next(iter(fight.call_args.args[1].values()))
+        self.assertEqual(enemy["stats"], {"hitpoints": 100, "attack": 6, "strength": 5, "defence": 2})
+        for _ in range(100):
+            if encounter_id in player["quest_combat_encounters"][quest_id]:
+                break
+            self.assertTrue(handle_quest_answer(ctx))
+        self.assertIn(encounter_id, player["quest_combat_encounters"][quest_id])
+        self.assertEqual(calls["activity"][-1], "Defeated Giant rat")
+        self.assertTrue(set(prior_kills) <= set(player["quest_combat_encounters"][quest_id]))
+        self.assertEqual(player["quests"][quest_id]["progress"], 4)
+        self.assertFalse(calls["errors"])
+
     def test_bone_quest_bear_uses_source_stats_resumes_and_records_the_kill(self):
         quest_id = "rag_and_bone_man"
         encounter_id = "rag_and_bone_man_bear_2"

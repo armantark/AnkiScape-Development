@@ -16508,10 +16508,22 @@ PRE_EOC_QUEST_CATALOG = ({'id': 'cooks_assistant',
                                                  'source_text': 'A Monkey'},
                                                 {'encounter_id': 'rag_and_bone_man_giant_rat_7',
                                                  'display_name': 'Giant rat',
-                                                 'level': 0,
+                                                 'level': 6,
                                                  'quantity': 1,
                                                  'source': 'https://runescape.wiki/w/Rag_and_Bone_Man?oldid=6326142',
-                                                 'source_text': 'A Giant rat'},
+                                                 'source_text': 'A Giant rat',
+                                                 'npc_stats': {'hitpoints': 100,
+                                                               'attack': 6,
+                                                               'strength': 5,
+                                                               'defence': 2},
+                                                 'npc_bonuses': {},
+                                                 'npc_configs': {'attack_style': 'melee'},
+                                                 'npc_stats_source': 'https://runescape.wiki/w/Giant_rat?oldid=6543015; '
+                                                                     'https://runescape.wiki/w/Giant_rat?oldid=5496080; '
+                                                                     'https://runescape.wiki/w/Rag_and_Bone_Man?oldid=5628794; '
+                                                                     '/Users/ArmanTarkhanian1/Documents/2012scape with '
+                                                                     'bots/darkan-world-server/data/npcs/combatdefs/uncategorized/giant_rat/giant_rat_(6).json@72ea82f1d23634b6c2cd42f516f48a96676a1893; '
+                                                                     '/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/giant_rat_level_6.plugin.kts#sha256=070f4f34eca46a3dc4c3af1a24eb06830c45e29a133d7fb920c82b0abf254fa7'},
                                                 {'encounter_id': 'rag_and_bone_man_giant_bat_8',
                                                  'display_name': 'Giant bat',
                                                  'level': 27,

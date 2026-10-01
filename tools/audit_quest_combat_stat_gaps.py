@@ -183,6 +183,8 @@ def classify_gap(
     reviewed = reviewed_source(gap.quest_id, gap.display_name, gap.level)
     if reviewed and reviewed.get("source_rejection") == "disclosed_calibration":
         return "darkan_calibration_rejected"
+    if reviewed and reviewed.get("block_classification"):
+        return str(reviewed["block_classification"])
     if gap.level <= 0:
         return "parser_or_variant_level"
     if catalog_builder._matching_local_npc_stats(gap.display_name, gap.level):
