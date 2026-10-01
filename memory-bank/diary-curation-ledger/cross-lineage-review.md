@@ -47,7 +47,7 @@ Resolution: accepted and applied to the whole canonical file. Independent enumer
 
 Finding: the note cited `_apply_brimhaven_review`, which does not exist.
 
-Resolution: accepted. The note now cites `logic/agility_logic.py:698::_brimhaven_review`, with the ticket award at lines 735-742, and the existing runtime telemetry handoff at `runtime/runtime_actions_activities.py:3089-3103::handle_agility_answer`.
+Resolution: accepted. The note now cites `logic/agility_logic.py:695::_brimhaven_review`, with the ticket award at lines 735-742, and the existing runtime telemetry handoff at `98e6630f:runtime/runtime_actions_activities.py:3089-3103::handle_agility_answer`.
 
 ### 4. Rows 12, 33, 49, 54, 62, and 109: rolling Farming log
 
@@ -109,7 +109,7 @@ Resolution: accepted. The row is now `dormant` with `future_system="world_transp
 
 Finding: the Bronze pickaxe is present on every fresh mining tool belt, so the cited attach action cannot succeed.
 
-Resolution: accepted. The row is now `dormant` with `future_system="equipment_state_actions"`. The note cites `data/mining_data.py:435::DEFAULT_MINING_TOOLBELT`, `core/storage_pure.py:817-823::_default_toolbelt`, and the no-op branch in `logic_pure/logic_pure_equipment.py:119-150::attach_tool_to_toolbelt_pure`.
+Resolution: accepted. The row is now `dormant` with `future_system="equipment_state_actions"`. The note cites `data/mining_data.py:443::DEFAULT_MINING_TOOLBELT`, `core/storage_pure.py:809-815::_default_toolbelt`, and the no-op branch in `logic_pure/logic_pure_equipment.py:128-159::attach_tool_to_toolbelt_pure`.
 
 ### 14. Row 245: Stronghold second-level off-by-one
 
@@ -133,7 +133,7 @@ Resolution: accepted. Row 301 is now `active` with `future_system=null`, keyed t
 
 Finding: `MAGIC_DATA` is exposed from `core/constants.py`, while the data module defines `MAGIC_TARGETS`.
 
-Resolution: accepted. The note now cites `data/magic_data.py:83,108::MAGIC_TARGETS`, `core/constants.py:1409::MAGIC_DATA`, and `runtime/runtime_actions_magic.py:417::handle_magic_answer`.
+Resolution: accepted. The note now cites `data/magic_data.py:83,108::MAGIC_TARGETS`, `core/constants_parts/skill_catalog.py:195::MAGIC_DATA`, and `runtime/runtime_actions_magic.py:417::handle_magic_answer`.
 
 ### 18. Row 266: duplicate Bork disposition and line range
 

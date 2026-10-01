@@ -16,7 +16,7 @@ or drop rates, incubation durations, repeatability, and colour-selection rules.
 
 Repository reconciliation:
 
-- `woodcutting_data.py:140-197` already gives bird nests a `1 / 257` drop roll,
+- `woodcutting_data.py:217-274` already gives bird nests a `1 / 257` drop roll,
   includes Zamorak, Guthix, and Saradomin egg nests at weight `1` each, and
   opens each into the corresponding bird egg. Those eggs are dead-end
   materials until pet incubation exists. Raven egg acquisition is still
@@ -25,7 +25,7 @@ Repository reconciliation:
   Broav route.
 - `quest_catalog_generated.py:5787-5818` already records the Gertrude's Cat
   kitten reward as `Kitten`, while focused quest item metadata uses
-  `Pet kitten` at `quest_data.py:8028`. Implementation must reconcile these
+  `Pet kitten` at `25bfdf4e:quest_data.py:8028`. Implementation must reconcile these
   identities into one stable pet entity instead of granting two differently
   named items.
 - `shop_data.py` already has Taverley and Yanille Pet Shop records, but their

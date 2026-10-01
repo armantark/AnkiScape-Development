@@ -19,7 +19,7 @@ recipe. No source-faithful emitted event exists for any of the three predicates.
 - Quest ID: `legacy_of_seergaze`.
 - Stage: `5`.
 - Exact predicate: `Cast Enchant Level 2 Jewellery for the emerald preparations`.
-- Catalog location: `data/quest_data.py:9371-9376`; the predicate is at `:9375`.
+- Catalog location: `data/quest/stage_cleanups.py:678-683`; the predicate is at `:9375`.
 
 ### Existing action and what it emits
 
@@ -36,7 +36,7 @@ or `Emerald bracelet`, respectively, and produce the corresponding ordinary
 jewellery enchantment. After a successful Magic review,
 `runtime/runtime_actions_magic.py:474-498` records the action as
 `("magic", target)`. The shared post-success seam then passes that pair to the
-proof store at `runtime/runtime_actions_shared.py:647-648`.
+proof store at `runtime/runtime_actions_shared.py:655-656`.
 
 ### Exact gap
 
@@ -69,7 +69,7 @@ emitted pair represents the documented sickle transformation.
 - Quest ID: `in_aid_of_the_myreque`.
 - Stage: `6`.
 - Exact predicate: `Enchant sapphire for the Myreque preparations`.
-- Catalog location: `data/quest_data.py:9220-9230`; the predicate is at `:9229`.
+- Catalog location: `data/quest/stage_cleanups.py:527-537`; the predicate is at `:9229`.
 
 ### Existing action and what it emits
 
@@ -83,7 +83,7 @@ creates these ordinary jewellery target IDs at `:348`:
 
 As with the emerald rows, successful use emits `("magic", target)` through
 `runtime/runtime_actions_magic.py:474-498` and the shared proof seam at
-`runtime/runtime_actions_shared.py:647-648`. Each target consumes an ordinary
+`runtime/runtime_actions_shared.py:655-656`. Each target consumes an ordinary
 sapphire jewellery item, not a Silvthrill rod.
 
 ### Exact gap
@@ -114,7 +114,7 @@ recorded honestly for this predicate.
 - Quest ID: `the_fremennik_isles`.
 - Stage: `5`.
 - Exact predicate: `Make a Fremennik round shield`.
-- Catalog location: `data/quest_data.py:9086-9093`; the predicate is at `:9092`.
+- Catalog location: `data/quest/stage_cleanups.py:393-400`; the predicate is at `:9092`.
 
 ### Existing action and what it emits
 
@@ -128,7 +128,7 @@ furnishing named `Round shield`, requiring two `Oak plank`. Successful
 Construction reviews emit `("construction", "round_shield")` at
 `runtime/runtime_actions_production.py:863-926`, specifically `:913-921`, and
 the shared seam makes that available to proof rules at
-`runtime/runtime_actions_shared.py:647-648`.
+`runtime/runtime_actions_shared.py:655-656`.
 
 ### Exact gap
 
@@ -159,7 +159,7 @@ predicates faithfully today.
 `data/quest_action_proof_data.py:11-34` defines rules solely as a mapping from
 an `(event_type, event_id)` pair to prerequisite and emitted proof strings.
 `logic_pure/quest_action_proofs.py:29-41` performs that exact lookup, and
-`runtime/runtime_actions_shared.py:647-648` calls it only after a successful
+`runtime/runtime_actions_shared.py:655-656` calls it only after a successful
 runtime action. The mechanism can express a link once a source-faithful action
 already emits its own existing pair. It cannot distinguish the generic
 jewellery forms from an emerald sickle or Silvthrill rod, and it cannot

@@ -54,20 +54,20 @@ The source contract is `logic/review_strip_logic.py:227-236`. These are excluded
 | Registry id | Strip exposes | Running/review reducer grants | Verdict | Evidence |
 |---|---|---|---|---|
 | `big_chinchompa` | Hunter | Hunter | Correct | `runtime/runtime_actions_activities.py:739-783` |
-| `big_top_bonanza` | No XP bar | Magic/Ranged/Agility/Firemaking/Thieving, selected performance only | Deliberate no-bar: payout/action choice | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `court_cases` | No XP bar | Attack or Defence, selected by court role | Deliberate no-bar: payout/action choice | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `big_top_bonanza` | No XP bar | Magic/Ranged/Agility/Firemaking/Thieving, selected performance only | Deliberate no-bar: payout/action choice | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `court_cases` | No XP bar | Attack or Defence, selected by court role | Deliberate no-bar: payout/action choice | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `enchanted_key` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 | `familiarisation` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `fish_flingers` | Fishing | Fishing | Correct | `runtime/runtime_actions_activities.py:1573-1613` |
-| `goblin_raids` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `fish_flingers` | Fishing | Fishing | Correct | `0e35e50c:runtime/runtime_actions_activities.py:1573-1613` |
+| `goblin_raids` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `penguin_hide_and_seek` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `phoenix_lair` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Firemaking + Fletching + Crafting + Slayer on completion | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `phoenix_lair` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Firemaking + Fletching + Crafting + Slayer on completion | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `shattered_heart` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 | `shooting_stars` | Mining | Mining | Correct | `runtime/runtime_actions_activities.py:786-888` |
-| `skeletal_horror` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Slayer + Prayer on completion | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `tears_of_guthix` | One dynamic least-XP trainable skill (probe: Agility) | One dynamic least-XP trainable skill | Correct | `runtime/runtime_actions_activities.py:1136-1181` |
+| `skeletal_horror` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Slayer + Prayer on completion | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `tears_of_guthix` | One dynamic least-XP trainable skill (probe: Agility) | One dynamic least-XP trainable skill | Correct | `runtime/runtime_actions_activities_distractions.py:347-392` |
 | `treasure_trail` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `troll_invasion` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Construction/Crafting/Firemaking in repair mode; chosen trainable skill at payout | Deliberate no-bar: payout/action choice | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `troll_invasion` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Construction/Crafting/Firemaking in repair mode; chosen trainable skill at payout | Deliberate no-bar: payout/action choice | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 
 ### activities: distractions_and_diversions (unregistered world event)
 
@@ -87,7 +87,7 @@ The source contract is `logic/review_strip_logic.py:227-236`. These are excluded
 
 | Registry id | Strip exposes | Running/review reducer grants | Verdict | Evidence |
 |---|---|---|---|---|
-| `managing_miscellania` | Woodcutting | Woodcutting | Correct | `runtime/runtime_actions_activities.py:2691-2721` |
+| `managing_miscellania` | Woodcutting | Woodcutting | Correct | `runtime/runtime_actions_activities_distractions.py:704-734` |
 | `stronghold_player_safety` | No XP bar; finite landmark progress bar instead | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 | `varrock_museum` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
 
@@ -95,34 +95,34 @@ The source contract is `logic/review_strip_logic.py:227-236`. These are excluded
 
 | Registry id | Strip exposes | Running/review reducer grants | Verdict | Evidence |
 |---|---|---|---|---|
-| `barbarian_assault` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `barrows` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `castle_wars` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `clan_wars` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `crucible` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `dominion_tower` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `barbarian_assault` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `barrows` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `castle_wars` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `clan_wars` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `crucible` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `dominion_tower` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `duel_arena` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `fight_caves` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `fishing_trawler` | Fishing | Fishing | Correct | `runtime/runtime_actions_activities.py:1616-1656` |
-| `fist_of_guthix` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `fight_caves` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `fishing_trawler` | Fishing | Fishing | Correct | `runtime/runtime_actions_activities_training.py:456-496` |
+| `fist_of_guthix` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `flash_powder_factory` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `gnome_ball` | Agility + Ranged | Agility + Ranged | Correct | `runtime/runtime_actions_activities.py:1525-1570` |
+| `gnome_ball` | Agility + Ranged | Agility + Ranged | Correct | `runtime/runtime_actions_activities_training.py:363-408` |
 | `gnome_restaurant` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `great_orb_project` | Runecrafting | Runecrafting | Correct | `runtime/runtime_actions_activities.py:1659-1703` |
+| `great_orb_project` | Runecrafting | Runecrafting | Correct | `runtime/runtime_actions_activities_training.py:499-543` |
 | `livid_farm` | Magic | Magic + Farming + Construction + Crafting + Agility | DEFECT | `logic/livid_farm_logic.py:199-205; data/livid_farm_data.py:30-88` |
 | `mage_training_arena` | No XP bar | Magic | DEFECT | `logic/mage_training_arena_logic.py:604-687` |
 | `mobilising_armies` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `pest_control` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `pyramid_plunder` | Thieving + Strength + Runecrafting (also-trains caption) | Thieving + Strength + Runecrafting | Correct | `runtime/runtime_actions_activities.py:1444-1489` |
-| `shades_of_mortton` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Crafting + Firemaking + Prayer, action dependent | Deliberate no-bar: payout/action choice | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `sorceress_garden` | Farming + Thieving | Farming + Thieving | Correct | `runtime/runtime_actions_activities.py:1289-1334` |
-| `soul_wars` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `pest_control` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `pyramid_plunder` | Thieving + Strength + Runecrafting (also-trains caption) | Thieving + Strength + Runecrafting | Correct | `runtime/runtime_actions_activities_training.py:282-327` |
+| `shades_of_mortton` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains; Crafting + Firemaking + Prayer, action dependent | Deliberate no-bar: payout/action choice | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `sorceress_garden` | Farming + Thieving | Farming + Thieving | Correct | `runtime/runtime_actions_activities_distractions.py:430-475` |
+| `soul_wars` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
 | `stealing_creation` | No XP bar | No XP from the running/review reducer | Correct | `Family review/command reducer grants no XP while running` |
-| `temple_trekking` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains on combat encounters | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `trouble_brewing` | No XP bar | Agility + Cooking + Crafting + Firemaking + Woodcutting, duty dependent | Deliberate no-bar: payout/action choice | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `tzhaar_fight_pit` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
-| `vinesweeper` | Hunter | Hunter | Correct | `runtime/runtime_actions_activities.py:1362-1403` |
-| `werewolf_skullball` | Agility | Agility | Correct | `runtime/runtime_actions_activities.py:1492-1522` |
+| `temple_trekking` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains on combat encounters | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `trouble_brewing` | No XP bar | Agility + Cooking + Crafting + Firemaking + Woodcutting, duty dependent | Deliberate no-bar: payout/action choice | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `tzhaar_fight_pit` | No XP bar | Attack/Strength/Defence/Ranged/Magic + Constitution, selected by attack style; Prayer can be added by enabled kill effects where the encounter yields eligible remains | Deliberate no-bar: combat | `0e35e50c:runtime/runtime_actions_activities.py:891-2688 (family handler); family logic reducer` |
+| `vinesweeper` | Hunter | Hunter | Correct | `runtime/runtime_actions_activities_distractions.py:503-544` |
+| `werewolf_skullball` | Agility | Agility | Correct | `runtime/runtime_actions_activities_training.py:330-360` |
 
 ### activities: warriors_guild
 
@@ -142,6 +142,6 @@ The source contract is `logic/review_strip_logic.py:227-236`. These are excluded
 
 - Pure enumeration/probe artifacts: `activity_registry_dump.json`, `live_strip_probe.json`, and `defect_reducer_probe.json` in this scratchpad.
 - The real reducer probe returned Livid Farm keys `agility`, `construction`, `crafting`, `farming`, `magic`; Mage Training Arena returned 301 Magic XP at its first XP-bearing checkpoint; and the four noncombat Warriors' Guild activities returned Attack, Defence, Strength, and Strength respectively.
-- World-event probes produced Big Chinchompa → Hunter and Shooting Stars → Mining. Evil Tree produced Woodcutting at entry/prepare and Woodcutting + Firemaking in fell; the dynamic adapter also maps an explicit nurture phase to Farming (`logic/review_strip_logic.py:257-268`).
+- World-event probes produced Big Chinchompa → Hunter and Shooting Stars → Mining. Evil Tree produced Woodcutting at entry/prepare and Woodcutting + Firemaking in fell; the dynamic adapter also maps an explicit nurture phase to Farming (`logic/review_strip_logic.py:408-419`).
 - Pyramid Plunder produced two visible bars (Thieving, Strength) plus Runecrafting in `also_trains`, matching the two-bar cap.
 - No repository file was edited and no git command was run.

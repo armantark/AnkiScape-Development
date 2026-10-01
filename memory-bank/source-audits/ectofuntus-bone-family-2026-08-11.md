@@ -149,7 +149,7 @@ Frost dragon (Dungeoneering) oldid `5794845`, lines 19, 27, and 37, also names t
 Neither old revision gives an item ID.
 
 The live normal Frost dragon always drops exchangeable item `18832`.
-`data/bone_sources_data.py:88-90,116` and `generated/grand_exchange_period_generated.py:3676` record this implementation.
+`data/bone_sources_data.py:88-90,116` and `generated/grand_exchange_period_generated.py:3784` record this implementation.
 Item `18830` has no live route.
 
 No recovered period source maps either ID to the Asgarnian Ice Dungeon or Daemonheim route.

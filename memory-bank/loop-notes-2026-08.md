@@ -1417,7 +1417,7 @@ parents `3cbe114a3c43fd031f09fc5a5582c0d10a6a17cc` and
 `6c482e617ffbe1f803b2a17fb00fb74a0d07a305`. Two durable records on that branch
 instead name `26ccb2a4378f3968e2f255b5f34bddd8ffe889de` as the merge parent:
 
-- `memory-bank/activeContext.md:5027`
+- `6b5e41ac:memory-bank/activeContext.md:5027`
 - `memory-bank/source-audits/quest-jungle-potion-playable-2026-08-13.md:133`
 
 The reachability figures those records carry are still numerically valid,
@@ -1444,7 +1444,7 @@ with real defects. None of the rejections were style.
 
 **Jungle Potion — REJECT.** A Shattered Heart strange rock replaces the clean
 herb produced by the quest's Herblore step, because `_record_action` in
-`runtime/runtime_actions_shared.py:566-575` subtracts the produced output as
+`runtime/runtime_actions_shared.py:581-590` subtracts the produced output as
 the rock's replacement. Each grimy jungle herb has exactly one producer, the
 already-passed search stage, so the quest becomes permanently unfinishable and
 takes Shilo Village and thirteen exclusive items with it. Incidence
@@ -1551,14 +1551,14 @@ polished away while the Codex block runs down:
 
 1. `__init__.py:787` — the availability cache fingerprint gained `"crafting"`
    but not `"smithing"`, although Smithing availability now applies
-   `QUEST_UNLOCK_RULES` and `data/quest_data.py:9395` gates `forge_cannonballs`
+   `QUEST_UNLOCK_RULES` and `data/quest/ledger.py:147` gates `forge_cannonballs`
    on `dwarf_cannon`. The reviewer could not construct a player state that
    produces a wrong output, because completing the quest grants an Ammo mould
    which is itself a tracked requirement item. An asymmetry to close, not a
    shipped defect.
 2. `ui/ui.py:1465` — the seven unavailable-tooltip strings are duplicated
    verbatim between `refresh_skill_availability` and the panel render path at
-   `ui/ui.py:22840-22857`, so editing one leaves the other emitting old text.
+   `ui/ui.py:22883-22900`, so editing one leaves the other emitting old text.
    The available branch also sets the tooltip to the bare skill name while the
    render path sets none, so an enabled button silently acquires a tooltip
    after the first refresh.
@@ -1625,7 +1625,7 @@ delete the row, and never produce a value that merely looks right.
 `goal/secondaries-2026-08-11` looked self-refusing: its final commit subject is
 "Avoid merging the abandoned branch by recording the verified handoff". A
 read-only triage, then the orchestrator reading the record verbatim, both find
-the opposite. `memory-bank/handoffs/claude-handoff-2026-08-11-evening.md:17-20`
+the opposite. `3c05da03:memory-bank/handoffs/claude-handoff-2026-08-11-evening.md:17-20`
 says plainly:
 
 > The work started on `goal/grind-2026-08-11`. It moved to
@@ -1715,7 +1715,7 @@ The lesson is to trace an enum row through its inherited control flow before
 turning a flavour line into a refusal. A row-local message does not establish
 whether the shared drink path consumes the item.
 
-**2. A known-wrong record.** `memory-bank/activeContext.md:114` on the merged
+**2. A known-wrong record.** `56c79554:memory-bank/activeContext.md:114` on the merged
 tree still says "4,159 plain tests with 499 skips" and reachability
 `1,576 / 2,284 / 75 / 45 / 30 / 75 / 1,105`, contradicting the baseline the same
 commit pins. Same class main already had to correct in `d1af99b2`.

@@ -31,7 +31,7 @@ training method — that is *why* Jagex made it rare. So the adapter systematica
 promotes exactly the content the period game made unattractive to train.
 
 This is not malicious. It exists so a 7% action doesn't feel miserable in Anki,
-and `mining_data.py:442` shows the same instinct — `ratio = 8 / ticks_between_rolls`
+and `mining_data.py:512` shows the same instinct — `ratio = 8 / ticks_between_rolls`
 folds the pickaxe's roll *cadence* into its *probability*. That is a duration
 model in disguise. The honest version is a tick budget, and it needs no invented
 constant.

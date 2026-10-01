@@ -197,7 +197,7 @@ Darkan's implementation is a lower-tier executable lead:
 
 - `src/main/java/com/rs/game/content/skills/firemaking/Bonfire.kt:21-183`,
   principally commit `5130667690f693df3e4527a5ec64ddbadb3649e2`;
-- `src/main/java/com/rs/game/content/skills/firemaking/FireSpirit.kt:15-62`,
+- `src/main/java/com/rs/game/content/skills/firemaking/FireSpirit.kt:15-62` (lines at `7e927b2c14`),
   principally commits `5130667690f693df3e4527a5ec64ddbadb3649e2` and
   `7e927b2c14`;
 - `data/npcs/drops/fire_spirit.json:1-439`, commit

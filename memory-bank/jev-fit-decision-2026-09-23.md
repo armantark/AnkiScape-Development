@@ -55,15 +55,17 @@ The grill found that `memory-bank/gap-backlog.json` is a historical record, and 
 
 - `memory-bank/README.md` line 17
 - `memory-bank/roadmap.md` line 12
-- `memory-bank/future-work-kanban.md` lines 3, 536, and 1940
+- `memory-bank/future-work-kanban.md` lines 3, 160, and 1267
 - `memory-bank/projectbrief.md` line 12
-- `memory-bank/progress.md` lines 306 and 319
+- `memory-bank/archive/progress-2026-09.md` lines 1027 and 1040
 
 Do these steps in the next staleness sweep of this repo:
 
 1. For each of the 21 rows that do not say `merged`, find the Completion Kanban card that owns the work.
 2. If a row has no card, add a card to `memory-bank/future-work-kanban.md`.
 3. Change each line in the list above so that it calls the backlog a closed historical record.
+
+Done in the staleness sweep of 2026-10-01 (`memory-bank/staleness-sweep-2026-10-01.md`): the Kanban parity ledger now names the owning card of each of the 21 rows, three new cards cover the rows that had none, and the README, roadmap, Kanban, and project brief lines call the backlog a closed historical record. The two archive lines stay as written, because they are dated progress records.
 
 ### 2. Papercut count rule (fleet thread)
 

@@ -14,11 +14,11 @@ HUD widget.
   (`ui.py:1546-1634`). It proves the correct lifecycle/parenting pattern for clickable
   reviewer status without turning the HUD into a top-level window.
 - `combat_grave` already persists items, a remaining-review count, source, and saved
-  loadout (`logic_pure.py:2623-2689`). It has no grave artwork and no reviewer alert.
+  loadout (`b678fb4d:logic_pure.py:2623-2689`). It has no grave artwork and no reviewer alert.
   Its existing countdown automatically returns items after five safe non-Combat
   reviews; a second death moves the old grave to Death's Office.
 - Death's Office appears only in the Bank tab and currently uses the first stored item's
-  art rather than grave/Death artwork (`ui.py:7072-7144`). It is persistent rather than
+  art rather than grave/Death artwork (`ui.py:26676-26748`). It is persistent rather than
   urgent, so it does not belong in this expiring-alert strip by default.
 
 ## Reusable projection

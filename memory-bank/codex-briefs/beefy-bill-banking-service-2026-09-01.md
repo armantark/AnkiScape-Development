@@ -45,7 +45,7 @@ Verified in the tree, so you do not have to rediscover it:
   dispatches on its `action_type`. Three special kinds branch there today; the
   rest fall through to `_apply_service_like`.
 - The surface is the existing "Shops and service providers" list at
-  `ui/ui_tab_shop.py:115`.
+  `ui/ui_tab_shop.py:123`.
 
 One correction to the ruling's framing, which changes nothing but should not
 mislead you: the registry holds 84 rows across only **6 distinct providers**,
@@ -70,7 +70,7 @@ handler rather than a plain data row.
 In the single-ledger carried model, "banking" means the chosen items leave the
 death-loss carried view and enter the Bank proper. Keep his sourced cut.
 
-`ui/ui_tab_shop.py:1140-1196` already branches on `action_type` for three
+`ui/ui_tab_shop.py:1148-1204` already branches on `action_type` for three
 kinds. **Your fourth branch is expected work, not a gate.** Build the item
 picker Bill's service needs as contained new-feature interface on the existing
 surface. The design seat authorized exactly that (rulings ledger section 28.4),

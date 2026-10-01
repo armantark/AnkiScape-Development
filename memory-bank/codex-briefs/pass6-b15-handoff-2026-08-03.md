@@ -22,7 +22,7 @@ Two builders make the target lists today. They are in `ui/ui.py`:
 | Builder | Line | Returns |
 |---|---|---|
 | `_build_flat_target_list` | `ui/ui.py:4759` | `QListWidget` |
-| `_build_grouped_target_tree` | `ui/ui.py:4832` | `QTreeWidget` |
+| `_build_grouped_target_tree` | `ui/ui.py:5402` | `QTreeWidget` |
 
 Each skill calls one builder directly. Examples: `_build_ore_list` at `ui/ui.py:4968`
 calls the flat builder, and `_build_craft_list` at `ui/ui.py:5021` calls the tree
@@ -67,7 +67,7 @@ Out of scope. Do not do these:
 - The pass-3 target-highlight bug. It belongs to D.1 for the same reason.
 - Any other pass-6 section C item (D.1, D.2, D.3).
 
-The flat builder already does items 3, 5 and 6 at `ui/ui.py:4762` and
+The flat builder already does items 3, 5 and 6 at `ui/ui.py:5321` and
 `ui/ui.py:4784-4797`. The work is to give the tree the same behavior, and to make the
 row count pick the builder.
 

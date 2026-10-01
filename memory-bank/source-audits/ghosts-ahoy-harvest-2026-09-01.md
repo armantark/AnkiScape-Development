@@ -43,7 +43,7 @@ entries are generated rather than literal quest rows. Their current source is
 `generated/quest_catalog_generated.py:9106-9155` (`ghosts_ahoy`), where each
 stage has `source_kind: 'source_page_checkpoint'` and source oldid `6575527`.
 The generator's Long-quest fallback creates seven stages in
-`tools/build_pre_eoc_quest_catalog.py:732-745,2503-2514`.
+`tools/build_pre_eoc_quest_catalog.py:718-731,2503-2514`.
 
 **Adjacent catalog discrepancy, not changed here:** the generated
 `required_quests` row names only The Restless Ghost at

@@ -9,7 +9,7 @@ Finish by dependency layers. Nineteen complete skill surfaces, five partial Comb
 
 ## Layer 1 — Close Proven Existing-Skill Slices
 
-- Continue `gap-backlog.json` cards only when pre-EOC evidence closes inputs, outputs, gates, values, and state transitions.
+- Continue the Kanban parity-ledger cards (the open rows of the closed `gap-backlog.json`) only when pre-EOC evidence closes inputs, outputs, gates, values, and state transitions.
 - Preserve source base values and Anki pacing separation.
 - Split proven sub-slices from source-blocked families.
 - Keep backend, frontend, assets, tests, source audit, and Memory Bank handoff explicit.

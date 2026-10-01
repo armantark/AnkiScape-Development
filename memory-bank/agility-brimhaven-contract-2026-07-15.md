@@ -90,7 +90,7 @@ inactive + missed chase   -> inactive, +0 tickets
 **2026-07-15 completeness ratification:** the table above is the unmodified
 base rule. If Karamja gloves 4 are equipped, each otherwise qualifying
 one-ticket tag has the period-sourced `25%` chance to award one additional
-ticket (`source-audits/agility-tables-2026-07-13.md:243-250`). The extra roll is
+ticket (`source-audits/agility-tables-2026-07-13.md:247-254`). The extra roll is
 part of the same route transaction and undo snapshot. This is the only
 supplement to the settled chase design.
 

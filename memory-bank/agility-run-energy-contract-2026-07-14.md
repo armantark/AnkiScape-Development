@@ -44,9 +44,9 @@ owner wanted a run-energy analog. This contract is that analog.
 
 AnkiScape already charges a discrete, tunable "bank run": when the 28-slot carried pack
 fills (gathering) or cannot supply a recipe (processing), a review tick is spent banking
-instead of acting (`inventory_pure.py:363` `carried_bank_run_gate_pure`, sole skilling
+instead of acting (`inventory_pure.py:470` `carried_bank_run_gate_pure`, sole skilling
 caller `runtime_actions.py:613`; combat has its own two-review gate at
-`logic_pure.py:3779`). That spent review **is** the walk to the bank.
+`d613f891:logic_pure.py:3779`). That spent review **is** the walk to the bank.
 
 **Agility gives a level-scaled chance/degree of reducing that bank-run cost.** Higher
 Agility = you ran the trip instead of walking it. Sourced XP/hour rates are never touched.
@@ -60,7 +60,7 @@ On a successful Agility roll the code still repacks, refills, materialises urns
 charge a review for it. Flipping `act=True` without repacking makes processing act on an
 empty pack (`runtime_actions.py:618` only repacks in the `not act` branch), silently drops
 an urn charge, and immediately re-triggers churn. Combat must run its full
-restock/altar/deposit transaction (`logic_pure.py:3687`) or it proceeds with no supplies
+restock/altar/deposit transaction (`logic_pure/logic_pure_combat_supplies.py:679`) or it proceeds with no supplies
 and loops. Roll only when a cost unit is actually due, or RNG streams (Fishing/Hunter/
 gem/nest/Thieving/combat) drift.
 
@@ -70,7 +70,7 @@ The current flat `SKILLING_BANK_RUN_REVIEWS = 1` (one review per 28 actions, a m
 3.6% overhead) is wrong in both directions: ~0 for Fletching (you stand on the bank) and
 huge for Runecrafting (the walk is the whole skill). **Replace it with a per-skill trip
 cost derived from the already-sourced XP/hour:** `reviews_per_action = R/actions_per_hour −
-1` where `R = 1000` (`cadence_kernel.py:15`). Fractional costs resolve through the kernel's
+1` where `R = 1000` (`cadence_kernel.py:10`). Fractional costs resolve through the kernel's
 existing `Fraction` residual scheduler (a 2.5-review trip alternates 2 and 3; no floats).
 
 This also fixes a latent double-count: the sourced XP/hour already contains the guide

@@ -38,7 +38,7 @@ numbers. The re-verify accepted, and the branch merged at `f31b886b` with both l
    answers can still perform two full-state deep copies: one in
    `_apply_safe_combat_recovery_after_review` at `__init__.py:4755`, reached from
    `__init__.py:4847-4848`, and one for `winter_storage_before` in
-   `runtime/runtime_actions_carried.py:1057`. Both copies predate this branch rather than
+   `runtime/runtime_actions_carried_overlay.py:851`. Both copies predate this branch rather than
    being introduced by it, and together they cost roughly 4 ms per answer. Both test lanes
    pass with performance and exact-save undo regressions pinned.
    **Anki lag after hours** (recurs every pass): dossier at
@@ -114,11 +114,11 @@ was reached after Claude's verify budget was spent.
   rather than patching twice.
 - **D.2 "Dream thrift"** — it is real, not invented: the Lunar spellbook Dream spell
   (79 Magic, Dream Mentor) used to restore HP without food, hence a food-thrift combat
-  option (`ui/ui.py:7127`, gated by `combat_dream_thrift_locked_reasons_pure`). But it is
+  option (`ui/ui.py:7856`, gated by `combat_dream_thrift_locked_reasons_pure`). But it is
   exactly the hyperspecific checkbox the casual-surface-minimalism ruling exists to
   prevent. Recommendation: demote to the advanced editor only; casual surface drops the
   checkbox and the pack-mode dial decides it. The pass-5 latch bug (Dream requirement
-  kicking the player off combat) already has a guard in `core/storage_pure.py:2308`;
+  kicking the player off combat) already has a guard in `core/storage_pure.py:2559`;
   re-verify it during implementation.
 - **D.3 Full scroll-pane separation feasibility**: owner accepts the current iteration
   "given limitations" but the ideal is the card scroll pane entirely separate from the

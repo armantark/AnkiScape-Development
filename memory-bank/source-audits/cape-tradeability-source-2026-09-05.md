@@ -75,8 +75,8 @@ The two cache builds are independent dated client inputs. They share a decoder a
 `static-source-bindings.json` binds source excerpts and literal table membership to the pool15 baseline. The author used AST parsing and literal data only. No product module was imported, and no runtime map was evaluated.
 
 - `data/agility_data.py:505` supplies the two storage names and asset names. Its equipment set includes both capes. The extra-item constructor at line 552 supplies source `Agility`, category `equipment`, tradeability false, and no source ID for these two names.
-- `core/constants.py:2740` merges the Agility rows into the quest-related extra metadata. Later maps can override those fields. At this baseline, the literal shop extra-item map contains neither cape, so the shop-only overlay cannot supply their metadata.
-- `data/equipment_data.py:359` and `:374` include both capes, and `_apply_equipment_metadata` at `core/constants.py:2722` overlays equipment fields but never `tradeable` or `source_item_id`, so Agility remains the literal owner of those two fields.
+- `1932b3c0:core/constants.py:2740` merges the Agility rows into the quest-related extra metadata. Later maps can override those fields. At this baseline, the literal shop extra-item map contains neither cape, so the shop-only overlay cannot supply their metadata.
+- `data/equipment_data.py:359` and `:374` include both capes, and `_apply_equipment_metadata` at `1932b3c0:core/constants.py:2722` overlays equipment fields but never `tradeable` or `source_item_id`, so Agility remains the literal owner of those two fields.
 - `core/item_registry.py:84` reads `tradeable` and `source_item_id` from the final metadata. The extra-item loop uses the metadata's source name.
 - The generated cache-value table already has values `400` and `800`, both exchangeable names, and neither stackable name. No spelling alias is required.
 - The generated period guide-price, buy-limit, and price-provenance maps contain neither cape at this baseline. Existing NPC shop price tables contain cape prices, but those tables do not create item registry metadata.

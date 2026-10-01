@@ -35,25 +35,25 @@ The root state conversion is a prerequisite, not the dispatcher relocation. Reje
 
 | Function at measured source | CCN | Cognitive | Halstead |
 | --- | ---: | ---: | ---: |
-| `logic_pure/logic_pure_combat_engine.py:1020::apply_combat_burst_pure` | 348 | 690 | 16.59811320754717 |
-| `runtime/runtime_actions_carried_overlay.py:145::run_answer_with_carried_overlay` | 189 | 267 | 11.831521739130435 |
+| `logic_pure/logic_pure_combat_engine.py:1056::apply_combat_burst_pure` | 348 | 690 | 16.59811320754717 |
+| `runtime/runtime_actions_carried_overlay.py:746::run_answer_with_carried_overlay` | 189 | 267 | 11.831521739130435 |
 | `__init__.py:5700::on_answer_card` | 93 | 84 | 3.664285714285714 |
-| `runtime/runtime_actions_activities_training.py:638::handle_agility_answer` | 61 | 80 | 5.6911764705882355 |
-| `runtime/runtime_actions_carried_overlay.py:53::_try_pack_yak_winter_storage_overlay` | 34 | 20 | 7.838709677419355 |
+| `runtime/runtime_actions_activities_training.py:884::handle_agility_answer` | 61 | 80 | 5.6911764705882355 |
+| `runtime/runtime_actions_carried_overlay.py:147::_try_pack_yak_winter_storage_overlay` | 34 | 20 | 7.838709677419355 |
 | `logic/shop/state.py:170::shop_access_lock_reason_pure` | 29 | 42 | 3.9705882352941178 |
-| `runtime/runtime_actions_carried_requirements.py:108::_processing_requirements_for` | 26 | 42 | 5.516129032258065 |
-| `runtime/runtime_actions_carried_requirements.py:239::_agility_casual_layout_for` | 24 | 33 | 4.5 |
-| `runtime/runtime_actions_activities_distractions.py:58::_handle_evil_tree_answer` | 24 | 22 | 3.369565217391304 |
+| `runtime/runtime_actions_carried_requirements.py:182::_processing_requirements_for` | 26 | 42 | 5.516129032258065 |
+| `runtime/runtime_actions_carried_requirements.py:334::_agility_casual_layout_for` | 24 | 33 | 4.5 |
+| `runtime/runtime_actions_activities_distractions.py:133::_handle_evil_tree_answer` | 24 | 22 | 3.369565217391304 |
 | `tools/promotion/lane_execution.py:140::_read_reachability_pins` | 22 | 17 | 5.256410256410256 |
 | `logic/shop/state.py:45::sanitize_shop_state_pure` | 21 | 42 | 3.652173913043478 |
-| `runtime/runtime_actions_activities_training.py:168::_handle_livid_farm_answer` | 21 | 19 | 2.0952380952380953 |
-| `runtime/runtime_actions_activities_competitions.py:408::handle_troll_invasion_answer` | 21 | 16 | 5.370967741935484 |
-| `runtime/runtime_actions_activities_distractions.py:208::_handle_shooting_star_answer` | 20 | 25 | 3.3823529411764706 |
-| `runtime/runtime_actions_carried_requirements.py:275::_agility_carried_requirement_gaps` | 16 | 16 | 3.6923076923076925 |
-| `runtime/runtime_actions_activities_competitions.py:135::handle_pest_control_answer` | 16 | 10 | 4.277777777777778 |
+| `runtime/runtime_actions_activities_training.py:211::_handle_livid_farm_answer` | 21 | 19 | 2.0952380952380953 |
+| `runtime/runtime_actions_activities_competitions.py:405::handle_troll_invasion_answer` | 21 | 16 | 5.370967741935484 |
+| `runtime/runtime_actions_activities_distractions.py:280::_handle_shooting_star_answer` | 20 | 25 | 3.3823529411764706 |
+| `runtime/runtime_actions_carried_requirements.py:355::_agility_carried_requirement_gaps` | 16 | 16 | 3.6923076923076925 |
+| `runtime/runtime_actions_activities_competitions.py:130::handle_pest_control_answer` | 16 | 10 | 4.277777777777778 |
 | `logic/shop/services.py:167::_decant_potions_delta` | 11 | 17 | 3.4 |
 | `logic/shop/state.py:461::_item_tradeable` | 10 | 18 | 2.727272727272727 |
-| `tools/promotion/lane_execution.py:256::_run_gate_checks` | 10 | 17 | 3.75 |
+| `tools/promotion/lane_execution.py:339::_run_gate_checks` | 10 | 17 | 3.75 |
 | `logic/shop/services.py:454::_decant_flasks_to_vials_delta` | 9 | 16 | 2.3076923076923075 |
 
 ## Provisional candidate functions
@@ -75,17 +75,17 @@ The root state conversion is a prerequisite, not the dispatcher relocation. Reje
 | Function at measured source | CCN | Cognitive | Halstead |
 | --- | ---: | ---: | ---: |
 | `tools/generate_achievement_diary_data.py:243::resolve_condition_key` | 35 | 50 | 6.938775510204081 |
-| `tools/generate_achievement_diary_data.py:1217::_regional_roster` | 30 | 47 | 4.9655172413793105 |
+| `tools/generate_achievement_diary_data.py:495::_regional_roster` | 30 | 47 | 4.9655172413793105 |
 | `logic/shop_logic.py:430::rollback_shop_event_pure` | 21 | 48 | 3.4285714285714284 |
-| `runtime/runtime_actions_activities.py:777::handle_temple_trekking_answer` | 20 | 16 | 1.5 |
-| `logic/shop_logic.py:553::_preview_sell_from_state` | 16 | 17 | 7.5 |
+| `runtime/runtime_actions_activities.py:815::handle_temple_trekking_answer` | 20 | 16 | 1.5 |
+| `logic/shop_logic.py:488::_preview_sell_from_state` | 16 | 17 | 7.5 |
 | `runtime/runtime_actions_activities.py:647::handle_castle_wars_answer` | 16 | 10 | 4.277777777777778 |
 | `logic/shop_logic.py:174::search_shop_catalog_pure` | 15 | 19 | 3.5454545454545454 |
-| `tools/generate_achievement_diary_data.py:1076::_condition_src` | 14 | 16 | 3.8333333333333335 |
+| `91c39417:tools/generate_achievement_diary_data.py:1076::_condition_src` | 14 | 16 | 3.8333333333333335 |
 | `tools/generate_achievement_diary_data.py:127::_emitted_ledger_actions` | 11 | 24 | 2.5 |
-| `tools/generate_achievement_diary_data.py:1333::build` | 11 | 24 | 2.5 |
+| `tools/generate_achievement_diary_data.py:673::build` | 11 | 24 | 2.5 |
 | `tools/generate_achievement_diary_data.py:92::_module_level_strings` | 11 | 23 | 1.5 |
-| `tools/generate_achievement_diary_data.py:1121::_equipment_rows` | 10 | 27 | 2.25 |
+| `tools/generate_achievement_diary_data.py:312::_equipment_rows` | 10 | 27 | 2.25 |
 
 ## Complete snapshot inventory and unsplit-family remainders
 
@@ -93,30 +93,30 @@ The recovered snapshot has 56 unique above-threshold functions across the fourte
 
 | Function at captured source | CCN | Cognitive | Halstead |
 | --- | ---: | ---: | ---: |
-| `logic_pure/logic_pure_combat_engine.py:510::combat_target_preview_pure` | 54 | 58 | 7.930232558139535 |
-| `ui/ui_tab_shop.py:1131::build_shop_tab._refresh_service_preview` | 45 | None | None |
-| `ui/ui_tab_shop.py:1582::build_shop_tab._populate_shop_selector` | 40 | None | None |
-| `data/quest_data.py:10182::_quest_from_catalog` | 35 | 35 | 2.1176470588235294 |
+| `logic_pure/logic_pure_combat_engine.py:553::combat_target_preview_pure` | 54 | 58 | 7.930232558139535 |
+| `ui/ui_tab_shop.py:1138::build_shop_tab._refresh_service_preview` | 45 | None | None |
+| `ui/ui_tab_shop.py:1591::build_shop_tab._populate_shop_selector` | 40 | None | None |
+| `data/quest/catalog.py:276::_quest_from_catalog` | 35 | 35 | 2.1176470588235294 |
 | `__init__.py:4881::_set_combat_prayer_config` | 26 | 37 | 3.0172413793103448 |
-| `__init__.py:5614::on_good_answer` | 24 | 39 | 6.111111111111111 |
-| `ui/ui_tab_shop.py:715::build_shop_tab._preview_denial_text` | 24 | None | None |
-| `tests/test_combat_enemy_roster.py:362::CombatEnemyRosterDataTest.test_new_slayer_family_assets_are_present_and_provenanced` | 22 | 41 | 1.8333333333333333 |
-| `tests/test_combat_enemy_roster.py:178::CombatEnemyRosterDataTest.test_new_enemies_have_required_schema` | 20 | 42 | 3.787878787878788 |
-| `ui/ui_tab_shop.py:1476::build_shop_tab._render_shop_detail` | 20 | None | None |
-| `logic_pure/logic_pure_combat_engine.py:2952::combat_hud_state_pure` | 18 | 22 | 4.34 |
+| `__init__.py:5285::on_good_answer` | 24 | 39 | 6.111111111111111 |
+| `ui/ui_tab_shop.py:717::build_shop_tab._preview_denial_text` | 24 | None | None |
+| `tests/combat_roster/test_roster_contract.py:60::CombatEnemyRosterDataTest.test_new_slayer_family_assets_are_present_and_provenanced` | 22 | 41 | 1.8333333333333333 |
+| `tests/combat_roster/test_roster_contract.py:41::CombatEnemyRosterDataTest.test_new_enemies_have_required_schema` | 20 | 42 | 3.787878787878788 |
+| `ui/ui_tab_shop.py:1484::build_shop_tab._render_shop_detail` | 20 | None | None |
+| `logic_pure/logic_pure_combat_engine.py:2154::combat_hud_state_pure` | 18 | 22 | 4.34 |
 | `__init__.py:1073::resolve_review_context_action` | 18 | 21 | 5.173913043478261 |
 | `ui/ui_tab_shop.py:59::build_shop_tab` | 17 | 653 | 9.028409090909092 |
 | `__init__.py:575::_combine_activity_feedback` | 17 | 29 | 6.868421052631579 |
 | `__init__.py:808::_skill_availability_fingerprint` | 16 | 13 | 1.0 |
-| `ui/ui_tab_shop.py:956::build_shop_tab._refresh_transaction_panel` | 16 | None | None |
-| `data/quest_data.py:10058::_catalog_item_pairs` | 15 | 33 | 2.6923076923076925 |
-| `__init__.py:986::commit_direct_action` | 14 | 16 | 3.142857142857143 |
-| `data/quest_data.py:11456::quest_reward_items_as_dict` | 12 | 19 | 1.1 |
-| `__init__.py:705::_catalog_requirement_item_names` | 11 | 36 | 0.5 |
+| `ui/ui_tab_shop.py:959::build_shop_tab._refresh_transaction_panel` | 16 | None | None |
+| `data/quest/catalog.py:104::_catalog_item_pairs` | 15 | 33 | 2.6923076923076925 |
+| `__init__.py:796::commit_direct_action` | 14 | 16 | 3.142857142857143 |
+| `data/quest/reward_items.py:72::quest_reward_items_as_dict` | 12 | 19 | 1.1 |
+| `__init__.py:655::_catalog_requirement_item_names` | 11 | 36 | 0.5 |
 | `__init__.py:5244::on_equip_item` | 9 | 18 | 2.0 |
 | `__init__.py:5297::on_unequip_slot` | 9 | 17 | 2.0 |
 | `__init__.py:1871::_on_main_menu` | 1 | 982 | 7.092485549132948 |
-| `tests/test_combat_enemy_roster.py:1699::CombatEnemyRosterDataTest._assert_slots_well_formed` | None | 23 | None |
+| `91c39417:tests/test_combat_enemy_roster.py:1699::CombatEnemyRosterDataTest._assert_slots_well_formed` | None | 23 | None |
 
 ## Completion limits
 

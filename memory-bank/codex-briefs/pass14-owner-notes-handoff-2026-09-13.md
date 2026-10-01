@@ -46,35 +46,35 @@ pass.
 ## Facts (fact-finders of 2026-09-13, read-only)
 
 - The encounter predicate is `combat_has_active_encounter_pure`
-  (`logic_pure/logic_pure_combat_engine.py:2648-2654`): a mapping with a string
+  (`logic_pure/logic_pure_combat_engine.py:1959-1965`): a mapping with a string
   `target_id` and no `disengaged` flag. Weaker copies of the test exist at
   `logic_pure_combat_engine.py:1336-1395` and `core/target_metadata.py:1386-1472`.
 - Kill, death, flee, and exhausted enemy LP clear the record with
-  `data["combat_encounter"] = {}` (`logic_pure_combat_engine.py:2250-2277,
-  2340-2352`; `logic_pure_combat_model.py:840-896, 941-974, 2773-2840`).
-- The refusals live at `logic_pure_combat_engine.py:2676-2696`, messages
+  `data["combat_encounter"] = {}` (`66be9ee8:logic_pure/logic_pure_combat_engine.py:2250-2277,
+  2340-2352`; `66be9ee8:logic_pure/logic_pure_combat_model.py:840-896, 941-974, 2773-2840`).
+- The refusals live at `66be9ee8:logic_pure/logic_pure_combat_engine.py:2676-2696`, messages
   "Finish the active fight before changing combat method." and "Finish the
   active fight before changing supply mode." The UI shows them under the titles
   "Cannot change combat method" (`__init__.py:4800-4825`), "Cannot equip item",
   and "Cannot unequip item" (`__init__.py:5244-5343`). The style combo restores
   the old value after a refusal (`ui/ui.py:7693-7710`).
 - Utilities selection sets `player_data["current_utility"]` with no encounter
-  branch (`ui/ui.py:20599-21261`). `_switch_to_bankstanding`
+  branch (`ui/ui.py:20531-21193`). `_switch_to_bankstanding`
   (`__init__.py:1553-1601`) and Stop (`__init__.py:4596-4620`) do not touch
   `combat_encounter`. A bank run returns before combat ticks
   (`logic_pure_combat_engine.py:1218-1314`) and preserves the encounter
   (`logic_pure_combat_supplies.py:965-991`).
 - Slayer completion sets `completed=True`, increments `slayer_tasks_completed`,
-  and records `slayer_last_family_id` (`logic/slayer_logic.py:227-277`). The
+  and records `slayer_last_family_id` (`logic/slayer_logic.py:234-284`). The
   combat handler builds "Defeated {kill_phrase} · Slayer assignment complete"
-  (`runtime/runtime_actions_combat.py:774-806`) and sends it through
+  (`runtime/runtime_actions_combat.py:828-860`) and sends it through
   `show_activity_gain`, which on an XP-paying review only records the event
-  (`__init__.py:654-692`). The XP bubble `ExpPopup` holds 900 ms and fades
-  500 ms (`ui/ui.py:3557-3670`). No dialog exists.
+  (`__init__.py:622-660`). The XP bubble `ExpPopup` holds 900 ms and fades
+  500 ms (`ui/ui.py:3589-3702`). No dialog exists.
 - The Level Up surface is `show_level_up_dialog` (`ui/ui.py:4513-4547`), a
   blocking custom `QDialog` with "OK". The diary dialogs queue during review
   and flush after it with `QTimer.singleShot(0, ...)` (`core/logic.py:81-113`;
-  `__init__.py:1522-1539, 5821-5829`).
+  `66be9ee8:__init__.py:1522-1539, 5821-5829`).
 - The review HUD shows "Kills: {kills} · Trains {trains}" and no assignment
   state (`ui/ui.py:2836-2883`).
 - Pace arithmetic at the owner's stats: 7.6 reviews per fresh black bear,
@@ -86,7 +86,7 @@ pass.
 ### S1 `encounter-no-lock`
 
 1. Delete the refusal seam for combat method and supply mode at
-   `logic_pure/logic_pure_combat_engine.py:2676-2696`, and the weapon equip
+   `66be9ee8:logic_pure/logic_pure_combat_engine.py:2676-2696`, and the weapon equip
    and unequip refusals that call it (`__init__.py:5244-5343`). Remove the
    three dialog titles and the combo restore that exist only for them.
 2. End the encounter when the action leaves combat or the target changes:
@@ -129,7 +129,7 @@ Tests: `tests/test_integration_smoke.py`, `tests/test_cadence_kernel.py`,
    `.claude/rules/qt-offscreen-screenshots.md`. Frontend-taste review before
    promotion (project rule).
 
-Fix sites: `runtime/runtime_actions_combat.py:774-806`, `__init__.py`
+Fix sites: `runtime/runtime_actions_combat.py:828-860`, `__init__.py`
 (notice queue), `ui/ui.py` (dialog beside `show_level_up_dialog`; HUD at
 `2836-2883`). Tests: `tests/test_runtime_actions.py:2826-2860`,
 `tests/test_slayer_logic.py`, `tests/test_main_menu_widget.py`.

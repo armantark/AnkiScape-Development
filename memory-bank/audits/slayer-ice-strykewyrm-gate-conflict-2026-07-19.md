@@ -12,7 +12,7 @@ Kuradal:
 <https://runescape.wiki/w/Ice_strykewyrm?oldid=6565909>.
 
 The settled Kuradal pool audit includes that quest gate. The settled
-Duradel/Lapalok audit omits it, and current `slayer_data.py:785-794` has no
+Duradel/Lapalok audit omits it, and current `data/slayer/contract.py:792-801` has no
 `required_quest_id` on the global family row. That global row would affect
 both masters.
 

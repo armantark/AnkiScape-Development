@@ -9,7 +9,7 @@ Companion documents:
 - Source dossier (prose, uses a shorthand that has already caused one
   misreading): `memory-bank/source-audits/thieving-source-dossier-2026-07-13.md`
 - Decisions of record: `memory-bank/future-work-kanban.md`, the Thieving card.
-- Sourced XP/hour, already pinned: `tools/sourced_xp_rates.py:74-97`.
+- Sourced XP/hour, already pinned: `tools/sourced_xp_rates.py:78-101`.
 - Verification standard: `memory-bank/pre-eoc-source-verification-standard.md`.
 
 ## Sources, and which one wins
@@ -75,7 +75,7 @@ Which is one call into the shipped kernel, per stall, with no free parameter:
 rate_limited_profile_pure(f"thieving:{stall_id}", 6000, respawn_ticks)
 ```
 
-`cadence_kernel.py:175`. Rates above `R = 1000` (the vegetable, baker, and wall
+`cadence_kernel.py:170`. Rates above `R = 1000` (the vegetable, baker, and wall
 safe stalls) must declare `overflow_policy=CAP_ONE_ACTION`; the kernel raises if
 they don't (`:169`).
 
@@ -100,7 +100,7 @@ defect the cadence kernel exists to remove.
 stall-family row carrying chance endpoints (`lowChance = 8, highChance = 160`,
 `StallTarget.kt:263-264`) — the same interpolate-against-255 shape as
 pickpocketing — and the only one whose unconditional success (70 xp / 3s =
-84,000/hr) overshoots its sourced ceiling (~20,000/hr, `sourced_xp_rates.py:96`).
+84,000/hr) overshoots its sourced ceiling (~20,000/hr, `sourced_xp_rates.py:100`).
 It fails because the period game meant it to. Ship those endpoints. Note the
 fields are declared but **unused** in `Stalls.kt`: 2011Scape carried the data and
 never wired it.
@@ -139,7 +139,7 @@ target's** level (`Pickpocketing.kt:101`) — not minus an Agility requirement. 
 a Knight of Ardougne (Thieving 55) needs Agility >= 55 to double, >= 65 to
 triple, >= 75 to quadruple. The pinned rates already encode this: the Gnome's
 150,000/hr row declares its modifiers as `("multi-loot", "85 Agility")`
-(`sourced_xp_rates.py:83`).
+(`sourced_xp_rates.py:87`).
 
 Agility is a stub (`skill_registry.py:251`, `surface_state="planned"`) whose only
 XP sources are quest rewards, capping a completionist at **level 66**. The rule
@@ -167,7 +167,7 @@ fears checkbox hell, and full control lives in the advanced editors.
 - **Desert Phoenix is NOT a Thieving target.** Both caches show `Grab-feather`;
   2011Scape has it only as a spawn. It ships as a **Utility activity** yielding
   one Phoenix feather, gated on The Golem, with **no Thieving level and no XP**.
-  This also closes a live bug: `herblore_data.py:188` ships Super antifire (3)
+  This also closes a live bug: `herblore_data.py:236` ships Super antifire (3)
   requiring a Phoenix feather that nothing in the game currently yields.
 - **Pirates' Hideout chest parks.** Its XP is literally `?` in the period record.
   Ships only if a pre-cutoff value surfaces.

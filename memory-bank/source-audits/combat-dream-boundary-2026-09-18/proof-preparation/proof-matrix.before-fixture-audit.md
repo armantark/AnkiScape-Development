@@ -25,7 +25,7 @@ inventory={"Astral rune": 2, "Cosmic rune": 1, "Body rune": 5}
 
 No equipment means the selected standard spell does not enter the preset spellbook set; valid Dream can reach the transaction. `enemy_data={}` makes a non-Dream path deterministically reach the existing target lock at engine `:1270-1272` without combat rolls.
 
-Use ordinary `unittest` assertions already used by `tests/combat/test_magic_module.py:69-88`: `deepcopy` for no-write checks, `assertIs` for identity, and `assertRaisesRegex` for raw failures. A focused test in the existing combat test suite may import the engine module and call the private helper directly. This adds cases, not a new test framework.
+Use ordinary `unittest` assertions already used by `a8137bab:tests/combat/test_magic_module.py:69-88`: `deepcopy` for no-write checks, `assertIs` for identity, and `assertRaisesRegex` for raw failures. A focused test in the existing combat test suite may import the engine module and call the private helper directly. This adds cases, not a new test framework.
 
 ## Full-burst cases
 

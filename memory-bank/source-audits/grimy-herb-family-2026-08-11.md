@@ -94,8 +94,8 @@ from AnkiScape's item registry. Darkan's inherited
 `ItemConstants.isTradeable()` rule at
 `src/main/java/com/rs/game/player/content/ItemConstants.java:388-410` (core
 rule commit `c6fbe036b1743f4dd6067ec178332c69c3708856`) and the later exception
-set at `src/main/java/com/rs/game/content/ItemConstants.java:403-428` (commit
-`14fb66f0db9d2ca8a63c6f0dec24fa1e709e290c`) treats stackable items as
+set at `src/main/java/com/rs/game/content/ItemConstants.java:403-428` (commit `14fb66f0db9d2ca8a63c6f0dec24fa1e709e290c`)
+treats stackable items as
 tradeable only when `canExchange()` is true or their ID is in the explicit
 exception set. None of these seven IDs appears there. The immutable
 `/Users/ArmanTarkhanian1/Library/Caches/Codex/2012scape-openrs2/runescape-727-2012-07-24-openrs2-309-disk.zip`

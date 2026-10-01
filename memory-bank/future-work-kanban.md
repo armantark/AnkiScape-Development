@@ -1,6 +1,6 @@
 # AnkiScape Completion Kanban
 
-Status: reconciled 2026-07-16. This is the canonical forward-work board. The 2026-07-10 completion audit is archived baseline evidence; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
+Status: reconciled 2026-07-16. This is the canonical forward-work board. The 2026-07-10 completion audit is archived baseline evidence; `memory-bank/gap-backlog.json` is the closed historical record of the shipped-skill subledger; the parity ledger below owns its open rows.
 
 Shipped cards older than 30 days rotate monthly into [the shipped-card archive](archive/kanban-shipped-2026.md).
 
@@ -24,7 +24,7 @@ Current goal selection, next action and branch disposition:
 Label: `PARKED`. Owner will write it ("I'll do this later I guess. Probably
 could answer them myself"). Goes after "What you get", before "Roadmap".
 Verified answers for the non-mechanics questions: any ease above Again runs
-one action (`__init__.py:5691`, `successful_answer = ease > 1`); no runtime
+one action (`__init__.py:5501`, `successful_answer = ease > 1`); no runtime
 network calls and no note, card, or scheduler edits (grep over
 `__init__.py core runtime logic ui`); desktop only, phone reviews earn
 nothing; no reset action exists; Ironman is an account type that locks the
@@ -74,7 +74,7 @@ Check, then close or fix:
 
 - One dialog for a multi-level gain. Upstream fixed a nineteen-dialog burst
   on 2026-09-19 (`fix(classic): summarise a multi-level gain in one dialog`).
-  Confirm `level_up_check` (`__init__.py:651`) and the core check behave the
+  Confirm `level_up_check` (`__init__.py:617`) and the core check behave the
   same after a large XP change. Fixed 2026-09-25: the runtime check only
   delegates to the core one, which showed one popup per level (the Elder Kiln
   100,000 XP lamp on level-1 Attack showed 48); it now shows one popup naming
@@ -103,12 +103,12 @@ two-games-per-profile, which exist only to keep that leaderboard fair.
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 
 - Main menu open time from the review screen. Facts (fact-finder 2026-09-13):
-  a new `QDialog` per open (`ui/ui.py:4887-4892`); Skills, Grand Exchange,
-  Equipment, Stats, Settings build at open (`ui/ui.py:23491-23493`); the Bank
+  a new `QDialog` per open (`ui/ui.py:4902-4907`); Skills, Grand Exchange,
+  Equipment, Stats, Settings build at open (`ui/ui.py:23424-23426`); the Bank
   widget tree also builds at open and only attaches behind a placeholder
-  (`ui/ui.py:24861-24872,27272-27285`); Shop, Quests, Challenges, Achievements,
+  (`ui/ui.py:24794-24805,27139-27152`); Shop, Quests, Challenges, Achievements,
   Collections are truly deferred. Last measurement about 1.2 s per open on a
-  real save (`memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
+  real save (`66be9ee8:memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
   Target: under 300 ms click-to-visible on the owner's save, measured before
   and after with a profiling script against a copy of the save. Keep the
   fresh-dialog-per-open design; defer every tab including Bank.
@@ -157,8 +157,11 @@ landed the translated/invented text and selectable-instruction corrections;
 
 Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
 
-- Continue from `memory-bank/gap-backlog.json`; do not reconstruct merged cards or re-grill settled branches.
-- Current detailed state: 22 merged, 13 design/source-blocked waits (including Grenwall), four split-scope, one Farming seed, one partially reopened/source-waiting, two exclusions, one design-partial/source-waiting card, and one design-settled parent-decision card.
+- `memory-bank/gap-backlog.json` is a closed historical record, last changed 2026-08-28: 45 rows, 24 `merged`. Do not add rows, reconstruct merged cards, or re-grill settled branches.
+- The 21 rows that do not say `merged` belong to these cards (2026-10-01 sweep): this ledger owns `hunter-tracking-pitfall-snare`, `hunter-grenwall-herb-table`, `fm-bonfires`, `wc-arctic-euc-cursed`, and the three cards below; Large special methods and activities owns `hunter-habitat-jadinko`, `rc-runespan`, `smith-artisan-burial`, `smith-blastfurnace-goldsmith`, `rc-zmi-gop-wickedhood`, `mine-lrc-stars`, and `fm-pyres-beacons`; Dungeoneering depth owns the Daemonheim fish left by `fish-trawler-flingers`; Explicitly excluded owns `fletch-javelin-construction` and `wc-canoe-shaping`. `cook-karambwan-family`, `artisan-skill-potion-runtime`, and `cook-cooking-gauntlets-runtime` are live and need no card.
+- `SOURCE AUDIT` Runecrafting route selection and the Abyss (`rc-method-selection`, `rc-abyss`): owner ruling 2026-07-14 makes each Runecrafting method or route a player-selectable target once unlocked, with the Abyss as the fast, dangerous route to the rift ring. The design is settled; the Abyss-versus-foot throughput delta has no period rate and stays `source_blocked`.
+- `SOURCE AUDIT` Herblore remainder after Overload (`herb-overload-sanfew`): Overload mixing is live; Sanfew serum stages, weapon poison+ and ++ application, and combat potion effects still need pinned pre-EOC values and a runtime owner.
+- `DEPENDENCY` Barbarian Firemaking bow lighting (`fm-barbarian-bow-lighting`): the bow-on-log target behavior is settled from pinned oldid 6476330; the permanent learned flag belongs to the future Barbarian Training miniquest or activity pass.
 - Grenwall's pinned period revision proves its broad reward family but not exact spike/herb probabilities; it now explicitly waits on literal period evidence or a stable reconciled Darkan milestone (`memory-bank/source-audits/grenwall-reward-source-closure-2026-07-11.md`).
 - Hunter tracking, pitfalls, and rabbit snaring were re-audited after Darkan's
   July 2026 restoration. The restoration is a deterministic ceiling rather
@@ -1264,7 +1267,7 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   `source-audits/mage-training-arena-source-readiness-2026-07-21.md`.
 - Harvest each remaining family for entry/run state, review cost, event
   variance, currency, rewards, reward shop, persistence, expiry, and undo.
-- Include the split activity cards from `gap-backlog.json`, bosses/instances, and wider pre-EOC reward activities. Never expose individual reward stubs before they work end to end.
+- Include the split activity rows that the closed `gap-backlog.json` records (the parity ledger names their owning cards), bosses/instances, and wider pre-EOC reward activities. Never expose individual reward stubs before they work end to end.
 
 ### Bosses and instanced Combat
 

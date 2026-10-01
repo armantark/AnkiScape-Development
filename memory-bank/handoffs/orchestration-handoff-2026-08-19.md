@@ -49,7 +49,7 @@ Two majors stopped it originally:
    the dose. Direct inspection of `Potions.kt:881-904` shows inherited
    `canDrink=true` and one-dose consumption. The correct fix is a flavour-only
    drink, not the `drinkable` refusal the prior brief requested.
-2. `memory-bank/activeContext.md:114` on the merged tree carries pre-merge
+2. `f0879d95:memory-bank/activeContext.md:114` on the merged tree carries pre-merge
    figures contradicting the baseline the same commit pins.
 
 Neither is reachable in play today, because all four Juju hunter potion doses
@@ -101,7 +101,7 @@ that buys nothing.
 - **[Resolved 2026-08-22]** The five vine-herb seeds ARE plantable now. The
   habitat crop rows sit at `data/farming_data.py:421-425` on the merged tree
   with `blocked=()`, and `Herblore:finished_juju_hunting` exists at
-  `data/herblore_data.py:285`; the chain is reachable. The merged tree measures
+  `data/herblore_data.py:286`; the chain is reachable. The merged tree measures
   `1599 / 2370 / 38 / 34 / 4 / 37 / 1123` (actions / reachable items / orphan
   inputs / root orphans / cascade orphans / blocked actions / seed items),
   re-measured with `python3 tools/audit_item_reachability.py` and pinned at
@@ -204,12 +204,12 @@ were marked in place rather than silently rewritten. Summary of what changed:
 - Section 5 claimed the five vine-herb seeds could not be planted and that
   `Herblore:finished_juju_hunting` was blocked. Both are live:
   `data/farming_data.py:421-425` (blocked=()) and
-  `data/herblore_data.py:285`. Merged-tree reachability baseline:
+  `data/herblore_data.py:286`. Merged-tree reachability baseline:
   `1599 / 2370 / 38 / 34 / 4 / 37 / 1123`.
 - Section 8's "twenty-five of thirty-two handlers remain" was stale; see the
   in-place note there.
 - Citation drift found by `tools/audit_citation_drift.py` in this file:
-  `memory-bank/activeContext.md:114` (content changed) and
+  `f0879d95:memory-bank/activeContext.md:114` (content changed) and
   `data/farming_data.py:395-399` -> now `421-425`.
 
 Still true as of `968b4f61`: `goal/secondaries-2026-08-11` and

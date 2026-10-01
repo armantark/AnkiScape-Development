@@ -129,11 +129,9 @@ Pinned Darkan paths and commits:
   `developer-information/npcListBonuses.txt:4420,6220`, commit
   `c6fbe036b1743f4dd6067ec178332c69c3708856`;
 - prayer-bypassing combat handler:
-  `src/main/java/com/rs/game/content/world/npcs/GorakCombat.java:28-42`,
-  commit `347552cad462e96670e3ff04228c0232881da9f5`;
+  `src/main/java/com/rs/game/content/world/npcs/GorakCombat.java:28-42`, commit `347552cad462e96670e3ff04228c0232881da9f5`;
 - ordinary drops:
-  `data/npcs/drops/gorak.json:1-311`, commit
-  `9fee66a1548441d2d954303348557aa18c1a0c7a`; and
+  `data/npcs/drops/gorak.json:1-311`, commit `9fee66a1548441d2d954303348557aa18c1a0c7a`; and
 - hard clue:
   `src/main/java/com/rs/utils/NPCClueDrops.java`, commit
   `2b63cd96a7859df145204b0e8d96aedbc0515680`.
@@ -174,11 +172,11 @@ numeric tertiaries.
 ## Representation and context boundary
 
 Current Combat can apply a random-one stat drain inside missing-equipment and
-Vampyre-bite special cases (`logic_pure.py:4057-4101,8127-8186`). It does not
+Vampyre-bite special cases (`a78963f9:logic_pure.py:4057-4101,8127-8186`). It does not
 expose the equivalent as a generic on-damaging-hit enemy rule.
 
 Ordinary enemy damage is reduced by the matching protection prayer at
-`logic_pure.py:8046-8076`. The bypass seam is currently tied to an
+`a78963f9:logic_pure.py:8046-8076`. The bypass seam is currently tied to an
 `unprotected_effect` produced by missing protective equipment, not to a
 target-native attack property. Encoding Goraks through fake required equipment
 would introduce a mechanic the source never had.

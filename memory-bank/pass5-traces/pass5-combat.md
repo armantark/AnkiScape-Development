@@ -37,7 +37,7 @@
   - Dream control: at Magic 1 with Dream Mentor incomplete, the shown checkbox was disabled and its tooltip read `Requires 79 Magic and Dream Mentor.`
 - Per-clause verdict: pass for implementation evidence; package status is `fixed-pending-confirmation` until the owner's pass-6 playtest.
 - Simplification review: one inline four-angle pass found no safe deletion that preserved the owner-save migration, status propagation, universal routing, and unified UI transition. The full four-agent fan-out was unavailable.
-- Surfaced outside this branch's fix scope: `on_set_combat_auto_eat_food` is declared as a `show_main_menu` parameter (`ui/ui.py:4343`) and passed from the add-on (`__init__.py:4099`), but no widget consumes it. This defect is pre-existing on main and remains unfixed here.
+- Surfaced outside this branch's fix scope: `on_set_combat_auto_eat_food` is declared as a `show_main_menu` parameter (`ui/ui.py:4856`) and passed from the add-on (`__init__.py:4544`), but no widget consumes it. This defect is pre-existing on main and remains unfixed here.
 - Open questions: Only owner confirmation on the next playtest.
 
 ## Post-rebase verifier closure

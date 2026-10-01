@@ -241,6 +241,23 @@ def _audit_papercuts(path: Path, root: Path, text: str, issues: list[DocIssue]) 
             issues.append(DocIssue("papercut_without_bullet", _relative(path, root), line_number, line))
 
 
+PROGRESS_LOG_RE = re.compile(r"memory-bank/(?:progress|archive/progress-[\w-]+)\.md")
+SECTION_HEADING_RE = re.compile(r"^## .*$", re.M)
+
+
+def _audit_repeated_sections(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
+    """A monthly rotation that copies a block twice leaves `## ` sections repeated word for word."""
+    headings = list(SECTION_HEADING_RE.finditer(text))
+    first_line: dict[str, int] = {}
+    for heading, following in zip(headings, [*headings[1:], None]):
+        section = text[heading.start():following.start() if following else len(text)].strip()
+        line = text.count("\n", 0, heading.start()) + 1
+        if section in first_line:
+            detail = f"{heading.group()} repeats line {first_line[section]}"
+            issues.append(DocIssue("repeated_progress_section", _relative(path, root), line, detail))
+        first_line.setdefault(section, line)
+
+
 def audit_docs(root: Path) -> DocAuditReport:
     issues: list[DocIssue] = []
     markdown_files = 0
@@ -258,6 +275,8 @@ def audit_docs(root: Path) -> DocAuditReport:
                 _audit_active_context(path, root, text, issues)
             if path.resolve() == (root / PAPERCUTS).resolve():
                 _audit_papercuts(path, root, text, issues)
+            if PROGRESS_LOG_RE.fullmatch(_relative(path, root)):
+                _audit_repeated_sections(path, root, text, issues)
         else:
             html_files += 1
             _audit_html(path, root, text, issues)

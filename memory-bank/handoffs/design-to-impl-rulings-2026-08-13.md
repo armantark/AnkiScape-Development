@@ -80,8 +80,8 @@ show the arithmetic. GATE-1 (section 6) governs this table.
 | 5 | Quest rewards bypass the one-clue filter | 2 | 1 | 3 | — | 6 | `logic_pure/logic_pure_quest.py:1436-1461` skips the filter in `logic/treasure_trails_logic.py:105-164`; small route-through |
 | 6 | rev-727 placeholder harvest, per-row slices | 2 | 2 | 1 | ×1.5 ev | 6 | Register rows with undecoded local evidence; harvest before more invention |
 | 7 | Chaeldar readiness families | 2 | 1 | 2 | ×1.5 ev | 6 | Nine families short of 34/34; per-family slices |
-| 8 | Evil Tree kindling period art | 2 | 2 | 1 | — | 4 | Last stale row from the tranche-2 art sweep; `assets_provenance.json:48054` |
-| 9 | Dungeoneering payout curves | 2 | 1 | 1 | ×1.5 ev | 3 | Registered curves at `memory-bank/placeholder-values.md:177-185`; Darkan evidence |
+| 8 | Evil Tree kindling period art | 2 | 2 | 1 | — | 4 | Last stale row from the tranche-2 art sweep; `assets_provenance.json:48426` |
+| 9 | Dungeoneering payout curves | 2 | 1 | 1 | ×1.5 ev | 3 | Registered curves at `memory-bank/placeholder-values.md:194-202`; Darkan evidence |
 | 10 | Housekeeping rider: stale selection records | — | — | — | — | rider | Retire `memory-bank/loop-queue.md:177` pause, the stale art row in `memory-bank/gpt-deferred-queue.md`, and the two-planned-skills framing in `memory-bank/roadmap.md` and `memory-bank/progress.md` |
 
 ## 6. GATE-1 — passed
@@ -164,8 +164,8 @@ The current override lane is empty.
 | --- | --- | --- |
 | `311` unsatisfiable quest steps | Still false. No tracked audit emits this measure. The current fixed point has 148 blocked quest-stage products and 284 unresolved actions. | `tools/audit_item_reachability.py:1950-1965`; `tools/audit_item_reachability.py:2036-2057` |
 | Max requires 24 of 25 skills | Still false. Dungeoneering is partial and trainable. Floor completion still returns Dungeoneering XP. | `core/skill_registry.py:300-308`; `logic/dungeoneering_logic.py:2686-2702` |
-| 31 direct-action handlers have no shared seam | Still false. A fresh Abstract Syntax Tree scan found 54 handlers, 54 seam calls, and 0 bypasses. | `memory-bank/design-thread-queue.md:1738-1744`; `__init__.py:1020` |
-| Wicked hood has art, but Evil Tree kindling does not | Now fully false. Both asset rows and both files exist. | `assets_provenance.json:36954`; `assets_provenance.json:48402`; `woodcuttingitems/evil_tree_kindling.png:1` |
+| 31 direct-action handlers have no shared seam | Still false. A fresh Abstract Syntax Tree scan found 54 handlers, 54 seam calls, and 0 bypasses. | `memory-bank/design-thread-queue.md:1997-2003`; `__init__.py:829` |
+| Wicked hood has art, but Evil Tree kindling does not | Now fully false. Both asset rows and both files exist. | `assets_provenance.json:36978`; `assets_provenance.json:48426`; `7f347ad3:woodcuttingitems/evil_tree_kindling.png:1` |
 
 The direct-action correction in section 8 also contains a stale follow-up.
 The stated 30-handler migration now has zero open handlers.
@@ -175,22 +175,22 @@ The art correction also has no open art row.
 
 | location | stale claim | current evidence |
 | --- | --- | --- |
-| Section 5 row 1 | `167` quest definitions are absent. | The generated catalog has 194 rows. Two miniquests make 196 definitions. See `generated/quest_catalog_generated.py:12` and `data/quest_data.py:10844-10914`. |
-| Section 5 row 3 | 30 of 54 direct-action handlers bypass the undo seam. | The fresh scan found 0 bypasses. See `memory-bank/design-thread-queue.md:1738-1744`. |
-| Section 5 row 5 | Quest rewards skip the one-clue filter. | Quest completion calls the central filter at `logic_pure/logic_pure_quest.py:1530-1537`. |
-| Section 5 row 8 | Evil Tree kindling is the last stale art row. | The asset and provenance row exist at `woodcuttingitems/evil_tree_kindling.png:1` and `assets_provenance.json:48402`. |
+| Section 5 row 1 | `167` quest definitions are absent. | The generated catalog has 194 rows. Two miniquests make 196 definitions. See `generated/quest_catalog_generated.py:12` and `7f347ad3:data/quest_data.py:10844-10914`. |
+| Section 5 row 3 | 30 of 54 direct-action handlers bypass the undo seam. | The fresh scan found 0 bypasses. See `memory-bank/design-thread-queue.md:1997-2003`. |
+| Section 5 row 5 | Quest rewards skip the one-clue filter. | Quest completion calls the central filter at `logic_pure/logic_pure_quest.py:1474-1481`. |
+| Section 5 row 8 | Evil Tree kindling is the last stale art row. | The asset and provenance row exist at `7f347ad3:woodcuttingitems/evil_tree_kindling.png:1` and `assets_provenance.json:48426`. |
 | Section 5 row 10 | All four housekeeping records remain open. | The pause record is checked at `memory-bank/loop-queue.md:200`. The roadmap uses the current skill model at `memory-bank/roadmap.md:8`. The GPT art row remains stale at `memory-bank/gpt-deferred-queue.md:21`. |
 
 The other section 5 premises still hold at this checkpoint.
 `COMBAT_ENEMY_DATA` still records 130 enemies at
-`memory-bank/future-work-kanban.md:1374`.
+`memory-bank/future-work-kanban.md:932`.
 Daily Challenge XP remains registered at
-`memory-bank/placeholder-values.md:71`.
+`memory-bank/placeholder-values.md:74`.
 The placeholder register has 179 rows.
 Chaeldar remains at 25 of 34 families at
-`memory-bank/future-work-kanban.md:810`.
+`memory-bank/future-work-kanban.md:365`.
 The Dungeoneering floor XP curve remains registered at
-`memory-bank/placeholder-values.md:191`.
+`memory-bank/placeholder-values.md:194`.
 
 ## 11. Re-score after the 2026-08-30 queue audit
 
@@ -370,7 +370,7 @@ The read-only Darkan authorities are `/Users/ArmanTarkhanian1/Documents/2012scap
 
 Two verification seams can cause false negatives:
 
-- `data.combat_data.COMBAT_ENEMY_DATA` has 197 base keys. `core/constants.py:818` adds four bone-source enemies with `COMBAT_ENEMY_DATA.update(bone_source_enemies_as_dict())`. Count the exported runtime registry to get 201.
+- `data.combat_data.COMBAT_ENEMY_DATA` has 197 base keys. `core/constants_parts/activity_updates.py:406` adds four bone-source enemies with `COMBAT_ENEMY_DATA.update(bone_source_enemies_as_dict())`. Count the exported runtime registry to get 201.
 - `root_orphan_leverage` and `--rank-roots` do not compute quest descendants. Follow the transitive `required_quests[].quest_id` graph to reproduce the descendant counts above.
 
 ### 11.8 Deferred register
@@ -538,8 +538,8 @@ vannaka: blocked, hidden, 34/35 families ready
 ```
 
 Adding that combat target would certify both masters in the audit while leaving the
-family permanently unplayable. `data/slayer_data.py:266-270` declares the family with
-`required_quest_id="skippy_and_the_mogres"`, and `logic/slayer_logic.py:79` gates the
+family permanently unplayable. `data/slayer/contract.py:265-269` declares the family with
+`required_quest_id="skippy_and_the_mogres"`, and `logic/slayer_logic.py:80` gates the
 family on that quest being complete. The id appears nowhere in `data/quest_data.py`.
 `memory-bank/future-work-kanban.md:1065` already records the correct disposition: keep
 the Mogre work marked `DEPENDENCY: QUEST` and do not advance readiness with a
@@ -593,7 +593,7 @@ holds a sentinel. Measured on `2df4709c`:
 | Root orphan | Items it unlocks | Modelled producer | Real blocker |
 | --- | ---: | --- | --- |
 | `Ogre coffin key` | 9 | Zogre bone source, `data/bone_sources_data.py:71-75` | `zogre_flesh_eaters` stage 1 sentinel, itself behind `big_chompy_bird_hunting` |
-| `Wergali seed` | 8 | Molanisk drop, `data/combat_data.py:3201-3225`; Vinesweeper reward | `death_to_the_dorgeshuun` stage 1 sentinel |
+| `Wergali seed` | 8 | Molanisk drop, `data/combat/slayer/slayer_coastal.py:166-190`; Vinesweeper reward | `death_to_the_dorgeshuun` stage 1 sentinel |
 | `Raw chompy` | 3 | Chompy bird drop in the read-only Darkan tree | `big_chompy_bird_hunting` stage 1 sentinel |
 | `Shaikahan bones` | 2 | Shaikahan bone source, `data/bone_sources_data.py:80-83` | `tai_bwo_wannai_trio` stage 2, missing `Raw karambwan` |
 | `Astral rune shards` | 2 | Astral rune on anvil, Darkan `DreamMentor.kt:402-411` | `dream_mentor` stage 1 sentinel |
@@ -628,7 +628,7 @@ forbidden in every read-only brief.
    conflict recorded in section 12.5. Unblocking it certifies two Slayer masters.
 2. Whether ruling O1 and design-queue entry 4.18, which bar the Fable seat, survive
    into the current goal. The `QA: FABLE BLOCKED` label at
-   `memory-bank/future-work-kanban.md:1758` stays accurate while they stand.
+   `fed8f00a:memory-bank/future-work-kanban.md:1758` stays accurate while they stand.
 3. The Achievement Diary curation ledger spot-check, gate 2 of section 5.21. Gate 1
    passed. Until gate 2 clears, 0 of 34 diary tiers are claimable.
 
@@ -647,8 +647,8 @@ registered source-blocked placeholder, and
 makes the key obtainable; it does not license touching those weights.
 
 The queue order is already recorded and this thread must follow it rather than
-re-derive one. `memory-bank/future-work-kanban.md:1104-1110` and
-`memory-bank/progress.md:5090-5092` both give the same sequence: repair Jungle Potion's
+re-derive one. `memory-bank/future-work-kanban.md:661-667` and
+`memory-bank/archive/progress-2026-05-to-08.md:10441-10443` both give the same sequence: repair Jungle Potion's
 generated stage buttons, then Big Chompy Bird Hunting, Zogre Flesh Eaters, Rum Deal and
 Cabin Fever, and only then the Mos Le'Harmless, Cave horror, Black mask and
 Slayer-helmet runtime.
@@ -743,13 +743,13 @@ refuses forever. Six quests carry such a requirement:
 | `zogre_flesh_eaters` | 89 |
 
 AnkiScape already computes the value the requirement wants.
-`logic_pure/logic_pure_combat_engine.py:2864` defines `player_combat_level_pure`, which
+`logic_pure/logic_pure_combat_engine.py:2066` defines `player_combat_level_pure`, which
 derives the combat level from Attack, Strength, Defence, Constitution, Prayer, Ranged,
 Magic and Summoning. The quest blocker path simply has no case that reaches it.
 
 ### 13.2 The instrument does not see the defect
 
-`tools/audit_item_reachability.py:943-948` builds the `startable` set from
+`tools/audit_item_reachability.py:944-949` builds the `startable` set from
 `required_quests` and `required_quest_points` only:
 
 ```python
@@ -804,13 +804,13 @@ identical registry gap also destroys a quest REWARD, on a different code path.
 
 `generated/quest_catalog_generated.py:19446` gives The Fremennik Isles an experience
 reward row of `{'skill_id': 'combat', 'amount': 10000.0}`.
-`_apply_quest_xp_rewards` at `logic_pure/logic_pure_quest.py:1596-1607` resolves
+`_apply_quest_xp_rewards` at `logic_pure/logic_pure_quest.py:1510-1521` resolves
 `get_skill("combat")` to `None`, falls back to the experience key `combat_exp`, finds it
 is not a trainable experience key, and parks the amount in
 `pending_skill_exp_rewards`.
 
 That parking lot exists so an award survives until a planned skill is implemented, and
-`core/storage_pure.py:1041-1097` preserves unrecognised keys indefinitely. But `combat`
+`core/storage_pure.py:1026-1082` preserves unrecognised keys indefinitely. But `combat`
 is a category and will never gain a `SkillDefinition`, so the award is stranded forever.
 Measured on a fresh player completing the quest: `pending: {'combat_exp': 10000.0}`,
 `woodcutting_exp` correctly `+10000`, `attack_exp` `+0`.
@@ -1001,7 +1001,7 @@ replace the earlier ones.
 Section 12.9 listed "whether ruling O1 and design-queue entry 4.18 survive into the
 current goal" as a decision waiting on the owner. It is not waiting. The owner ruled it
 directly to this seat on 2026-08-23, and the ruling is recorded verbatim at
-`memory-bank/design-thread-queue.md:1567-1584`:
+`memory-bank/design-thread-queue.md:1826-1843`:
 
 > "Do not ever use fable again during this goal."
 
@@ -1033,7 +1033,7 @@ nine each, `monkey_madness` and `rat_catchers` at eight, and `a_clockwork_syring
 ### 15.3 Two ranked rows are complete, and their prose is stale
 
 Rank 11, Fancy boots and Fighter boots period art, is shipped; the registrations are at
-`core/constants.py:2272-2285` and `:2817-2846`, so the owner-approval sentence beside it
+`core/constants_parts/activity_assets.py:367-380` and `:2817-2846`, so the owner-approval sentence beside it
 no longer applies. The `mine-lrc-stars` leaf is shipped as the 5 to 24 Living-mineral
 route, so the former 5 to 20 conflict is closed.
 
@@ -1098,7 +1098,7 @@ the prerequisite closure. Quest points obtainable total 333, and the largest gat
 Two apparent problems were checked and are not problems. Thirteen quests repeat a lower
 skill level than a prerequisite already demands, which is redundant rather than
 contradictory. Thirteen stages both require and consume the same item, which the code
-handles correctly by checking possession at `logic_pure/logic_pure_quest.py:770-777`
+handles correctly by checking possession at `logic_pure/logic_pure_quest.py:718-725`
 before consuming at `:1327-1345`.
 
 ### 16.3 Blocker one: 704 action predicates that nothing can emit
@@ -1188,7 +1188,7 @@ them, and the combat-gate fix is one change to one fallback rather than 131 data
 
 ### 16.6 Guard coverage, which is where the next defect will hide
 
-Two catalog-wide pins exist: `required_skills` in `tests/test_combat_quest_gate.py:113-122`
+Two catalog-wide pins exist: `required_skills` in `tests/test_combat_quest_gate.py:144-153`
 and `xp_rewards` in `tests/test_fremennik_isles_lamps.py:76-84`. Everything else is
 unguarded: `required_quests`, `required_quest_points`, quest `required_items`, stage
 `required_inventory`, `consumed_inventory`, both option fields, `required_tools`,
@@ -1229,7 +1229,7 @@ mechanism plus per-quest wiring.
 A second structural limit sits beside it. The lookup is quest-LOCAL. Mourning's End
 Part I stage 5 requires "Use the rotten apple to sabotage the mourner food stores", and
 Biohazard already models exactly that: it produces `Rotten apple` at
-`data/quest_data.py:6603-6615` and emits its own action at `:6616-6630`. Biohazard is a
+`data/quest/stage_overrides/members/classic/biohazard.py:131-143` and emits its own action at `:6616-6630`. Biohazard is a
 recorded prerequisite of Mourning's End Part I. The proof exists and the dependent quest
 cannot see it, because proofs do not cross quest boundaries.
 
@@ -1237,17 +1237,17 @@ cannot see it, because proofs do not cross quest boundaries.
 
 | Required action | Shape | Evidence |
 | --- | --- | --- |
-| `mournings_end_part_i` 5, rotten apple | Already modelled, blocked only by the quest-local lookup | Biohazard `data/quest_data.py:6603-6630` |
+| `mournings_end_part_i` 5, rotten apple | Already modelled, blocked only by the quest-local lookup | Biohazard `data/quest/stage_overrides/members/classic/biohazard.py:131-158` |
 | `the_fremennik_isles` 5, cure and stitch yak-hide armour | Existing contract, one gap | Recipes `leather_yakhide_armour_10824` and `leather_yakhide_armour` exist at `data/crafting_data.py:281-282`; the tanning list at `:373-381` omits yak hide |
-| `the_fremennik_isles` 5, Fremennik round shield | Existing `CraftingRecipe` contract | Registry and execution at `data/crafting_data.py:434-456` and `logic_pure/logic_pure_production.py:221-245` |
+| `the_fremennik_isles` 5, Fremennik round shield | Existing `CraftingRecipe` contract | Registry and execution at `data/crafting_data.py:434-456` and `logic_pure/logic_pure_production.py:215-239` |
 | `in_aid_of_the_myreque` 6, enchant sapphire | Existing Magic target contract | `enchant_sapphire_ring` and siblings, `data/magic_data.py:332-348` |
 | `legacy_of_seergaze` 5, Enchant Level 2 Jewellery | Existing Magic target contract | Emerald tier at `data/magic_data.py:335` |
 | `spirits_of_the_elid` 2, Telegrab | Existing contract, but the text is wrong | `telegrab_wine_of_zamorak` at `data/magic_data.py:392-397` is Wine-specific. The source journal says Telegrab the Ancestral key at `generated/quest_catalog_generated.py:13720-13726`; the water-channel steps are later at `:13733-13741`. The requirement conflates two guide steps |
 | `mournings_end_part_i` 3, Oronwen repair | Needs new mechanics | No NPC interaction id exists |
 | `cold_war` 2, clockwork penguin | Needs new mechanics | No `Clockwork penguin` target or `Crafting table 3` station exists |
-| `enakhras_lament` 5, Crumble Undead on the boneguard | Needs new mechanics | Spell `crumble_undead` exists at `data/magic_data.py:528-546`, but stage 5 has `combat_encounters: ()` at `generated/quest_catalog_generated.py:14180-14187`, and the undead test at `logic_pure/logic_pure_combat_model.py:2503-2506` matches only names containing skeleton, zombie, ghost, shade or undead, not Boneguard |
+| `enakhras_lament` 5, Crumble Undead on the boneguard | Needs new mechanics | Spell `crumble_undead` exists at `data/magic_data.py:528-546`, but stage 5 has `combat_encounters: ()` at `generated/quest_catalog_generated.py:14180-14187`, and the undead test at `logic_pure/logic_pure_combat_model.py:2426-2429` matches only names containing skeleton, zombie, ghost, shade or undead, not Boneguard |
 | `the_eyes_of_glouphrie` 3, bucket of sap | Needs new mechanics | No evergreen-sap action; the former pseudo-tool was removed per `memory-bank/source-audits/quest-generated-pseudo-item-cleanup-2026-06-23.md:25-29` |
-| `do_no_evil` 3, m'amulet mould | Needs new mechanics | No registry for Do No Evil; the similar Monkey Madness auto action at `data/quest_data.py:8735-8743` belongs to a quest Do No Evil does not require |
+| `do_no_evil` 3, m'amulet mould | Needs new mechanics | No registry for Do No Evil; the similar Monkey Madness auto action at `data/quest/stage_cleanups.py:36-44` belongs to a quest Do No Evil does not require |
 
 So of eleven: one is already modelled, five ride existing contracts with at most a small
 data gap, and five need genuinely new mechanics. None is a simple string edit, and all
@@ -1275,8 +1275,8 @@ figures were also wrong.
 **The probe was wrong.** `minimum_player_combat` is nested, not a top-level encounter
 key. The correct path is
 `QUEST_DATA[qid]["stage_requirements"][*]["combat_encounters"][*]["npc_configs"]["minimum_player_combat"]`,
-declared at `data/quest_data.py:1057-1069` and read at
-`logic_pure/logic_pure_quest.py:525-527`. Re-probed with the correct key, **10
+declared at `data/quest/contract.py:13-25` and read at
+`logic_pure/logic_pure_quest.py:464-466`. Re-probed with the correct key, **10
 encounters set it explicitly**, not zero:
 
 | Quest, stage | Encounter | NPC level | `minimum_player_combat` |
@@ -1351,7 +1351,7 @@ disagree the better-evidenced reading wins:
   price 10, at `data/shop_data.py:19`. The first pass reported no registry exists.
 - `enakhras_lament` 5, Crumble Undead: **already modelled** as a spell. `crumble_undead`
   is a standard Magic 39 spell with effect `undead_only` at `data/magic_data.py:528-535`,
-  merged into combat data at `data/combat_data.py:780-782`. The encounter itself is still
+  merged into combat data at `6db34c3f:data/combat_data.py:780-782`. The encounter itself is still
   missing.
 - `cold_war` 2, clockwork penguin: `crafting_table_3` DOES exist in `CONSTRUCTION_DATA`
   at `data/construction_data.py:21`, level 34, `Molten glass x2`. What is missing is a
@@ -1461,8 +1461,8 @@ it; measure it.
 
 ### 17.4 A genuine circularity to check, not to assume
 
-`Raw karambwan` has no route. `data/fishing_data.py:237-244` defines `catch_karambwan`,
-and `data/quest_data.py:11016-11017` gates it behind `tai_bwo_wannai_trio`, whose stage 2
+`Raw karambwan` has no route. `data/fishing_data.py:239-246` defines `catch_karambwan`,
+and `4bce42eb:data/quest_data.py:11016-11017` gates it behind `tai_bwo_wannai_trio`, whose stage 2
 requires two `Raw karambwan`. The pinned period page resolves the loop in the player's
 favour: `oldid=6096116` says karambwans are caught by members "who must have at least
 STARTED the Tai Bwo Wannai Trio quest", and the same revision records Tiadeche selling
@@ -1474,7 +1474,7 @@ which one AnkiScape's unlock rule encodes before changing anything.
 ### 17.5 Everything else in the 34 already has a producer
 
 The dossier's central result is that most of these items are already produced by a quest
-stage in AnkiScape: `Pressure gauge` at `data/quest_data.py:7444-7449`, `Grimy key` at
+stage in AnkiScape: `Pressure gauge` at `data/quest/definitions/free/ernest_the_chicken.py:64-69`, `Grimy key` at
 `:7451-7456`, `Blamish snail slime` at `:2091-2103`, `Research package` at `:7725-7732`,
 `Stake` and `Stake hammer` at `:7516-7521`, `Top-quality milk` at `:5777-5784`, and so
 on through eighteen quest-internal grants and five player-made items.
@@ -1529,7 +1529,7 @@ attempt 3: progressed=False proofs=[] blockers=['required_action']
 ```
 
 The only quest-side emitter is `auto_actions`, and `_consume_quest_current_stage_items`
-at `logic_pure/logic_pure_quest.py:1324-1330` fires it only once a stage has no blockers.
+at `logic_pure/logic_pure_quest.py:1229-1235` fires it only once a stage has no blockers.
 A stage blocked by its own sentinel can therefore never emit that sentinel. No proof
 mechanism can break that loop.
 
@@ -1554,7 +1554,7 @@ more one-time wirings land.
 ### 18.3 Two follow-ups recorded rather than fixed
 
 `quest_stage_actions` is now dual-written with no gameplay reader. Its only non-test
-readers are defaults and migration bookkeeping at `core/storage_pure.py:710`, `:988` and
+readers are defaults and migration bookkeeping at `core/storage_pure.py:702`, `:988` and
 `:1024`. Under clean-break the retired store should go, but roughly 200 assertions in
 `tests/test_logic.py` pin it, so it is its own slice.
 
@@ -1717,7 +1717,7 @@ belongs in the queue on its own.
 `Ruined backpack` and `Ogre artefact` from Zogre, `Fever spider body` from Rum Deal. All
 three are granted by the real quest-combat flow and absent from `ITEM_DEFINITIONS`, so
 the Bank keeps them under `Other`, cannot draw an icon, and will not let the player sell
-them, because `ui/ui.py:6757` gates selling on registry membership.
+them, because `ui/ui.py:6795` gates selling on registry membership.
 
 Each needs a period sprite fetched, and no `Fever spider body` sprite exists anywhere in
 the repository today. So registration is genuinely its own slice, not a line in a quest
@@ -1728,12 +1728,12 @@ slice. Rum Deal's further quest-item leads are `Blindweed seed`, `Blindweed`,
 
 `relocate_combat_encounters` exists byte-identical in `data/zogre_flesh_eaters_data.py`
 and `data/rum_deal_data.py` apart from three constant names, and `DARKAN_AUDIT_ROOT` is
-duplicated with it. The call site at `data/quest_data.py:10496` is a nested double call
+duplicated with it. The call site at `590348df:data/quest_data.py:10496` is a nested double call
 and Cabin Fever will make it triple. One shared helper plus a per-quest registry replaces
 all three.
 
 There is also a latent trap worth fixing with it: `_apply_stage_requirement_cleanups`
-returns early at `data/quest_data.py:10484` when a quest has no cleanup rows, so the
+returns early at `590348df:data/quest_data.py:10484` when a quest has no cleanup rows, so the
 relocation and its guaranteed drop happen only as a side effect of that quest having a
 cleanup key. Removing the cleanups would silently take the drop with them rather than
 failing.
@@ -1772,7 +1772,7 @@ and the opposite of registering a placeholder for it.
 
 ### 22.2 A pre-existing claim contradicts the contract, and it is not this slice's doing
 
-`data/quest_data.py:11222` defines `cabin_fever_bill_teach_coins`, granting `Coins`
+`data/quest/ledger.py:324` defines `cabin_fever_bill_teach_coins`, granting `Coins`
 `10000` on `required_quest="cabin_fever"`, sourced to
 `https://runescape.wiki/w/Cabin_Fever?oldid=6533785`.
 
@@ -1856,7 +1856,7 @@ excluded**. Their words: "your coins claim stands on your own sourcing, and our 
 simply does not vouch for it." Both their pinned revisions do mention the payout, so
 nothing in their record contradicts it; they decline only to certify the amount.
 
-`cabin_fever_bill_teach_coins` at `data/quest_data.py:11222` is therefore a legitimate
+`cabin_fever_bill_teach_coins` at `data/quest/ledger.py:324` is therefore a legitimate
 claim on our own sources and needs no change. **The general rule to carry forward: a
 frozen contract's silence never licenses deleting one of our sourced claims.** Read a
 missing entry as unproven, not as refuted.
@@ -1934,7 +1934,7 @@ trouser repair.
 1. **Mogres and `skippy_and_the_mogres`.** Highest measured leverage: the live Slayer
    audit shows `mogres:combat_target` is the sole remaining blocker for BOTH
    `mazchna_achtryn` at 26 of 27 and `vannaka` at 34 of 35. The owner's waiver is at
-   `memory-bank/design-thread-queue.md:2312-2317` and the Darkan thread has already
+   `memory-bank/design-thread-queue.md:2607-2612` and the Darkan thread has already
    answered no-claim, no-dossier for this exact unit. **Dispatched.**
 2. `Cast Enchant Level 2 Jewellery`, one predicate, mechanic exists at
    `data/magic_data.py:335`.
@@ -2153,7 +2153,7 @@ item 2's generator change lands.
 The seat's count stands: 84 rows from 6 providers, 78 of them Bogrog pouch
 exchanges, so the precedent is thin. Every existing row has fixed inputs, and
 Bill's service acts on items the player picks, so the new handler and a picker
-are the real work. `ui/ui_tab_shop.py:1140-1196` branches on `action_type`; a
+are the real work. `ui/ui_tab_shop.py:1148-1204` branches on `action_type`; a
 fourth branch that renders the item picker for Bill is contained new-feature
 interface on the existing surface. It is allowed and expected, and it takes the
 frontend-taste model review before promotion (goal rails: a model with good
@@ -2695,7 +2695,7 @@ failure, not evidence.
 The quest split was refused for a nine-file import cycle across `core/constants.py`,
 both diary modules, three `logic/` modules and the new quest modules. The cycle is
 pre-existing on main, documented by a previous author who deferred an import inside
-a function to hide it (`data/achievement_diary_data.py:232`, "avoids a cycle"). The
+a function to hide it (`data/achievement_diary_data.py:370`, "avoids a cycle"). The
 split created no new edge; it created new module names that participate in the
 same loop, and the new-cycle ratchet fired on an address change. So the owner's
 gate question (42.3) covers three rules, not one: the complexity and cognitive
@@ -3107,7 +3107,7 @@ counts as verified. Rulings:
 ### 52.1 Retraction and the measured slice — 10:42 PDT
 
 Ruling 52 item 4 is withdrawn. The citation `tools/worktree_guard.py:267513` was a
-line number in the unified diff, not the file, and resolves to file line 207; it is
+line number in the unified diff, not the file, and resolves to `7f692be2:tools/worktree_guard.py:207`; it is
 unusable for a reader, not fabricated. Both stray reviews mis-framed old code as
 new because their base was `@{upstream}`, which is `origin/main` at `1e99e017`, and
 this project never pushes, so "the diff" was 679 files and 214,796 insertions: the
@@ -3149,7 +3149,7 @@ instead of removing it. Ruling: the pattern is rejected.
 4. The contract names this pattern as forbidden so no later split reinvents it.
 5. Queued for read-only measurement before belief, since two are save-data
    correctness claims: the v121 migration deleting stage actions without
-   conversion into the proof store (`core/storage_pure.py:988`); proof retraction
+   conversion into the proof store (`core/storage_pure.py:982`); proof retraction
    removing a proof another retained event supplies
    (`logic_pure/quest_action_proofs.py:83`); the Evil Tree handler lacking the
    `refresh_skill_availability` call its 29 siblings make; the hot-path cost

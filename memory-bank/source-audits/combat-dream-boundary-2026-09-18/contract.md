@@ -14,7 +14,7 @@ Its raw record begins `1213,299,6303,11,1276`: NLOC is **1213** and Lizard CCN i
 
 ## Ownership contract
 
-Dream is `logic_pure/logic_pure_combat_engine.py:1249-1269`. The engine keeps, in the existing order:
+Dream is `logic_pure/logic_pure_combat_engine.py:1080-1100`. The engine keeps, in the existing order:
 
 1. preset-lock rejection;
 2. unconditional `max_lp_for_dream` read;

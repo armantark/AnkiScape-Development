@@ -15,7 +15,7 @@ The nearest cutoff article, RuneScape Wiki `Warped terrorbird` oldid
 Source:
 <https://runescape.wiki/w/Warped_terrorbird?oldid=6555103>.
 
-Current `slayer_data.py:825-832` stores
+Current `data/slayer/contract.py:832-839` stores
 `required_quest_id="the_path_of_glouphrie"`. Current
 `slayer_logic.py:42-46,82-90` interprets that field only as a completed quest
 and renders `Complete The Path Of Glouphrie`.

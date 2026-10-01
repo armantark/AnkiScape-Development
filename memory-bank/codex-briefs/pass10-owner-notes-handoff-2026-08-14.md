@@ -35,7 +35,7 @@ target design is one commit action, the same as the new Big Top flow.
 1. **Big Top 1,940 Magic XP is INVALID.** The period mechanism pays XP per
    successful trick from a tier table, and each tier pays only once per
    performance. The local tier table already matches Darkan (tier 10 pays
-   970 XP; see `data/circus_data.py:53-80`). The defect: an above-level
+   970 XP; see `data/circus_data.py:57-84`). The defect: an above-level
    "barely succeed" trick maps down to the half-level tier, but the
    once-per-tier mask keys on the trick's original tier
    (`logic/circus_logic.py:246-260`, `:488-499`). Two above-level tricks can
@@ -43,7 +43,7 @@ target design is one commit action, the same as the new Big Top flow.
 2. **Fish Flingers ~5.3k XP came from an invented formula.** The local code
    pays `round(level × 200 × min(1, fish_total/48))` times an outfit
    multiplier (`logic/fish_flingers_logic.py:241-246`,
-   `runtime/runtime_actions_activities.py:1681-1702`). Darkan reconstructs
+   `0f642686:runtime/runtime_actions_activities.py:1681-1702`). Darkan reconstructs
    the period payout as `floor(max(162, 235 × clamp(level,1,99) − 73) ×
    clamp(score,0,48) / 48)`, paid once at event end. The exact coefficients
    are provisional (the pinned wiki marks its own table obsolete after the
@@ -64,17 +64,17 @@ target design is one commit action, the same as the new Big Top flow.
 ### UI defect mechanics
 
 - Combat selector: the grouped `QTreeWidget` path sets the same green
-  background brush as the flat path (`ui/ui.py:5287-5350`), but the tree
+  background brush as the flat path (`ui/ui.py:5438-5501`), but the tree
   stylesheet (`ui/ui.py:5267-5276`) suppresses the item background role in
   native paint. The existing tests assert the brush role, not pixels
-  (`tests/test_main_menu_widget.py:6223-6248`, `:8469-8503`), so they pass
+  (`tests/test_main_menu_widget.py:6465-6490`, `:8469-8503`), so they pass
   while the screen is wrong.
 - Strip text: the line is one `QProgressBar` with `setFormat(...)` text and a
   12 px green chunk (`ui/ui.py:2344-2402`, `:2550-2576`). The fill clips
   behind the centered text. That is the whole "stupid text" effect.
 - Level-up popups: the shared checker emits `show_level_up_dialog(skill,
   old, new)` per crossed level (`core/logic.py:29-54`). Combat level is
-  derived on demand (`logic_pure/logic_pure_combat_engine.py:2718-2731`);
+  derived on demand (`logic_pure/logic_pure_combat_engine.py:2066-2079`);
   no combat-level popup exists.
 - Big Top start flow: an Activities-row click already selects Big Top with
   the saved or default policy through the generic fallthrough
@@ -142,7 +142,7 @@ target design is one commit action, the same as the new Big Top flow.
    first level mutation of the review and after the last one. If it
    increased and popups are enabled, show "Your Combat level increased."
    with "Level <old> → <new>", after the skill dialogs. Use the calculator
-   at `logic_pure/logic_pure_combat_engine.py:2718-2731`.
+   at `logic_pure/logic_pure_combat_engine.py:2066-2079`.
 2. Make the saved-target green fill visible in the grouped combat selector.
    The brush is already set; fix the stylesheet/native-paint conflict in
    the tree path (`ui/ui.py:5267-5276`). The acceptance evidence is rendered

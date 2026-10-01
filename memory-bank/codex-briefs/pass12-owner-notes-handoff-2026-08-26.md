@@ -91,7 +91,7 @@ Owner ruling 2026-08-26 23:20: the 253-row curation ledger is grinding-queue
 work (design-thread-queue §5.21, kanban row), not a Pass 12 slice. Pass 12
 ships only the honest-stop cut.
 
-Root cause: `tools/generate_achievement_diary_data.py:1006-1027` converts a
+Root cause: `aa30c6f2:tools/generate_achievement_diary_data.py:1006-1027` converts a
 task's prerequisites into its completion condition. Probe counts on
 `a1c8fc90`: 474 named rows; 112 strict level-only proxies; 34 level+quest
 proxies; 3 mixed rows with real deed predicates; 22 anchors; 107 latent.
@@ -113,11 +113,11 @@ Honest-stop scope:
    §5.21 ledger wires one. They must not fire, and they must not block the
    Taskmaster incorrectly.
 3. Reference rewire, already evidenced: `falador_easy_chain_store` requires
-   the Wayne's Chains purchase (`logic/shop_logic.py:1730-1766` writer,
+   the Wayne's Chains purchase (`aa30c6f2:logic/shop_logic.py:1730-1766` writer,
    item 1107) plus body-slot equip; Defence 10 stays as an access gate only.
    This is the pattern the §5.21 ledger will follow.
 
-Fix sites: `tools/generate_achievement_diary_data.py:603-1027,1309-1317`,
+Fix sites: `aa30c6f2:tools/generate_achievement_diary_data.py:603-1027,1309-1317`,
 `data/achievement_diary_catalog.py` (generated), `core/logic.py:95-147`.
 Tests: `tests/test_achievement_diaries.py`,
 `tests/test_achievement_diaries_integration.py`; neighbours
@@ -130,12 +130,12 @@ generator.
 
 `_switch_to_bankstanding()` (`__init__.py:1489-1505`) becomes the single
 post-acceptance transition seam with a true-transition guard. Call sites:
-`__init__.py:378-387,1477-1486,2395-2410,5889-5895`; direct-action path
+`aa30c6f2:__init__.py:378-387,1477-1486,2395-2410,5889-5895`; direct-action path
 `__init__.py:1019-1083`; manual Stop `__init__.py:4482-4505` stays silent.
 Automatic switches show a modal (achievement-popup style,
-`ui/ui.py:4549-4581` precedent) naming the reason; the modal fires after the
+`ui/ui.py:4565-4597` precedent) naming the reason; the modal fires after the
 review answer completes, never before the XP feedback flush
-(`__init__.py:5566-5573`). One event-log entry per switch; repeated switch
+(`__init__.py:5369-5376`). One event-log entry per switch; repeated switch
 while already Bankstanding is silent; guard the redundant call at
 `__init__.py:2404-2408` against double-fire.
 Tests: `tests/test_runtime_actions.py`, `tests/test_direct_action_undo_seam.py`,
@@ -147,13 +147,13 @@ Keep ownership and drop crediting unchanged (`runtime_actions_combat.py:577-639`
 already folds retained loot into `carried_inventory` and banks at 28 slots).
 Move the read-only Current-inventory grid below both `auto_view` and
 `custom_view` (`ui/ui.py:25229-25684`); merge retained loot with
-`combat_supply_loadout_summary_pure()` (`logic_pure_combat_engine.py:2681-2694`)
+`combat_supply_loadout_summary_pure()` (`aa30c6f2:logic_pure/logic_pure_combat_engine.py:2681-2694`)
 for display; Bank and Equipment copies inherit from the shared builder.
 Never subtract carried quantities from Bank totals; never create a second
 ledger. Pin: death routes retained loot to the grave
-(`runtime_actions_combat.py:606-630`), coins stay excluded, the 28-slot bank
+(`runtime_actions_combat.py:684-708`), coins stay excluded, the 28-slot bank
 run clears the view, mode switches mutate nothing.
-Tests: `tests/test_runtime_actions.py:2595-2703`,
+Tests: `tests/test_runtime_actions.py:2628-2736`,
 `tests/test_main_menu_widget.py:3537-3809`, `tests/test_inventory_pure.py`.
 
 ### S4 `druidic-2012`
@@ -177,12 +177,12 @@ fixtures at 2073-2153, `tests/test_herblore_data.py`, storage migration tests.
 
 Two stable Stronghold claim IDs delivered to Bank Claims on chest claim
 (`logic/stronghold_player_safety_logic.py:161-197`,
-`logic_pure/logic_pure_claims.py:197-282`, `data/quest_data.py:11579-11601`);
+`logic_pure/logic_pure_claims.py:201-286`, `aa30c6f2:data/quest_data.py:11579-11601`);
 derive remaining lamps from the claim records and retire `lamps_remaining`
 as a competing source of truth; migrate old counts 2/1/0 deterministically.
 Shared chooser `_choose_xp_lamp_skill(parent, title, eligible_skill_ids)`
-beside `_exec_selection_dialog` (`ui/ui.py:28640-28643`), icon grid via
-`skill_icon_path_for` (`ui/ui.py:805-842`), explicit Claim/Cancel, returns
+beside `_exec_selection_dialog` (`ui/ui.py:28614-28617`), icon grid via
+`skill_icon_path_for` (`ui/ui.py:808-845`), explicit Claim/Cancel, returns
 the stable skill id; both callers (`ui/ui.py:18060-18077`, 26506-26520)
 keep their own eligibility computation. Completion per ruling 5; fix the
 header clipping (`ui/ui.py:17913-17923`) and the 188px dialog title elision.
@@ -218,7 +218,7 @@ stay unchanged; Shield of Arrav branch tests are the neighbour guard.
 
 Storage repair resolves the effective combat class on load; when no encounter
 is active and the persisted loadout is class-incompatible, unload it through
-the existing unload path (`logic_pure_combat_engine.py:2725-2735`), return
+the existing unload path (`aa30c6f2:logic_pure/logic_pure_combat_engine.py:2725-2735`), return
 exact quantities to the bank, and refill for the effective method. With an
 active saved encounter, leave the loadout untouched and reconcile on
 encounter end. Class-gate the summary projection as defense in depth.

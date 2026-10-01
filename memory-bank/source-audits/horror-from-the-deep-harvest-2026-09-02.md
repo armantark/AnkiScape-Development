@@ -51,7 +51,7 @@ The live add-on has only one reader of `bar_crawl_completed`, at
 `logic/agility_logic.py:281-283`; a source-wide writer search found no writer.
 The same search found ordinary completion-state writers for unrelated positive
 controls such as `logic/gnome_ball_logic.py:310` and
-`logic/agility_logic.py:840`. Thus HFTD cannot faithfully enforce its Bar Crawl
+`logic/agility_logic.py:837`. Thus HFTD cannot faithfully enforce its Bar Crawl
 gate until a player-reachable Bar Crawl completion route exists. This is a
 measured prerequisite blocker, not a reason to silently omit the gate.
 
@@ -63,7 +63,7 @@ Two further live-catalog discrepancies are direct implementation work:
 - The generated/live row requires one plank at stage 2 and puts the hammer at
   stage 1. The period route requires a hammer plus **2** planks and **60** steel
   nails across the two bridge halves. The live cleanup at
-  `data/quest_data.py:9182-9187` also removes the source-required sword and
+  `data/quest/stage_cleanups.py:489-494` also removes the source-required sword and
   arrow from stage 6 because the generic inventory representation cannot
   identify their eligible variants or consume them.
 

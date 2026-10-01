@@ -37,11 +37,11 @@ area, with the code facts I've already confirmed.
 - **Burst length:** `COMBAT_BURST_TICKS = 50` (combat_data.py:16). Review ticks =
   `50 × review_action_multiplier` via `_combat_review_ticks` (runtime_actions.py:615).
   At RS 0.6s/tick that's the "30 seconds" the owner refers to.
-- **Cow:** 80 max LP, defence 1 with −21 defence bonuses (combat_data.py:4152).
+- **Cow:** 80 max LP, defence 1 with −21 defence bonuses (97f0f55c:combat_data.py:4152).
   Simulated with att/str 10: dies in ONE burst every time, at tick 17–49 of 50,
   dealing the full 80. So it is NOT tanky — the leftover ~half-window is wasted.
 - **Chain-kill blocker:** the burst loop `break`s the instant `enemy_lp <= 0`
-  (logic_pure.py:3200) and clears the encounter (logic_pure.py:3251). No
+  (1b1157f7:logic_pure.py:3200) and clears the encounter (1b1157f7:logic_pure.py:3251). No
   respawn-and-continue. This is the single change for chain kills.
 - **Enemy LP is barely surfaced:** only in the post-review activity message
   "X damage dealt, Y LP left" (runtime_actions.py:737), and only when the enemy
@@ -50,14 +50,14 @@ area, with the code facts I've already confirmed.
   `constitution_level × 10` (default 100). This is the green 65/100 bar; the
   "100" the owner saw was this, not the cow.
 - **The up/down LP fluctuation is NOT bank healing.** It's
-  `apply_safe_combat_recovery_pure` (logic_pure.py:2915), which adds
+  `apply_safe_combat_recovery_pure` (logic_pure/logic_pure_combat_model.py:1116), which adds
   `SAFE_COMBAT_RECOVERY_LIFEPOINTS = 100` per safe/non-combat review (effectively
   a full heal at constitution 10), called from __init__.py:1121. It's an
   out-of-combat rest heal, a tuning knob — not decoded engine math, and not the
   2013 bank-healing feature. **Open parity question:** owner may want this
   slowed toward RS-classic natural regen (~1 HP/min), since +100/review is very
   fast. Confirm before changing.
-- **Combat XP model:** `_combat_apply_xp` (logic_pure.py:1808) splits damage into
+- **Combat XP model:** `_combat_apply_xp` (97f0f55c:logic_pure.py:1808) splits damage into
   style XP (0.4×dmg) + Constitution (0.133×dmg); Controlled splits across
   Att/Str/Def. Keys: `attack_exp`, `strength_exp`, `defense_exp`,
   `constitution_exp`, `ranged_exp`, `magic_exp` (`_COMBAT_EXP_SKILLS`
