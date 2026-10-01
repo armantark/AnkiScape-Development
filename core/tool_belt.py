@@ -72,29 +72,29 @@ ALWAYS_ON_TOOL_BELT = frozenset(
 _ATTACH_FAMILY_BY_TOOL = {"pickaxe": "mining", "hatchet": "woodcutting", "axe": "woodcutting"}
 
 # Quest steps where a belt tool did not work in 2012, so the tool must sit in
-# the Bank. The same wiki revision names the Horror from the Deep lighthouse,
-# the Shilo Village bone key and the Tai Bwo Wannai Trio knife, and says a belt
-# spade "can't be used for digging at the ground". The ground digs are the
-# steps Darkan resolves through the carried spade's Dig option (Spade.kt,
-# LunarDiplomacy.kt "non-toolbelt spade", OlafsQuest.kt "carried spade",
-# DefenderOfVarrock.kt "physical spade") or that dig at a clue or coordinate
-# spot. Darkan's Great Brain Robbery hands the "carried hammer" to Dr
-# Fenkenstrain (GreatBrainRobbery.kt:135,466).
+# the Bank. The Tool belt revision names the Horror from the Deep lighthouse,
+# the Shilo Village bone key and the Tai Bwo Wannai Trio knife; Darkan's Great
+# Brain Robbery hands the "carried hammer" to Dr Fenkenstrain
+# (GreatBrainRobbery.kt:135,466). A spade dig is listed only where that quest's
+# pre-cutoff walkthrough says the belt spade fails, cited by its
+# https://runescape.wiki/w/<Quest>?oldid=<id> revision; Plague City (oldid
+# 6544754) lists the spade under "Toolbelt:", so its dig accepts the belt.
 QUEST_STAGES_NEEDING_HELD_TOOLS = {
     ("horror_from_the_deep", 5): ("Tinderbox",),
     ("shilo_village", 7): ("Chisel",),
     ("tai_bwo_wannai_trio", 4): ("Knife",),
     ("the_great_brain_robbery", 1): ("Hammer",),
-    ("a_void_dance", 3): ("Spade",),
-    ("defender_of_varrock", 3): ("Spade",),
-    ("do_no_evil", 5): ("Spade",),
-    ("ghosts_ahoy", 1): ("Spade",),
-    ("lunar_diplomacy", 1): ("Spade",),
-    ("making_history", 1): ("Spade",),
-    ("olafs_quest", 1): ("Spade",),
-    ("pirates_treasure", 3): ("Spade",),
-    ("plague_city", 4): ("Spade",),
-    ("ritual_of_the_mahjarrat", 5): ("Spade",),
+    ("a_void_dance", 3): ("Spade",),  # oldid 6543386
+    ("creature_of_fenkenstrain", 1): ("Spade",),  # 6535792: "cannot be in the toolbelt"
+    ("defender_of_varrock", 3): ("Spade",),  # 6542570
+    ("do_no_evil", 5): ("Spade",),  # 6587790
+    ("ghosts_ahoy", 1): ("Spade",),  # 6575527
+    ("lunar_diplomacy", 1): ("Spade",),  # 6569662
+    ("making_history", 1): ("Spade",),  # 6493057
+    ("olafs_quest", 1): ("Spade",),  # 6539226
+    ("pirates_treasure", 3): ("Spade",),  # 6514086
+    ("ritual_of_the_mahjarrat", 5): ("Spade",),  # 6564051
+    ("shilo_village", 2): ("Spade",),  # 6389566: "A spade (Toolbelt does not work)"
 }
 
 
