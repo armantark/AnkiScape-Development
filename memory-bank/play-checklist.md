@@ -15,6 +15,7 @@ you are in the game, with the date the change reached main.
 - [ ] A big XP lamp or a quest that gives many levels shows one level-up window from the old level to the new one. (2026-09-28)
 - [ ] Put on or take off gear right after a review, then press Undo: the gear change goes back first, and the item is not both worn and in the bank. (2026-09-28)
 - [ ] Open Skills > Artisan > Crafting and type "combinations" in the search box above the list: only the Combinations group shows, opened, with "Showing 30/233"; your current target does not change, and Escape brings back the full list with your target still marked. Every other skill list has the same box. (2026-09-30)
+- [ ] Quest Alfred Grimhand's Barcrawl with coins in the bank: each review drinks at the next bar and pays its price (Blue Moon Inn first, 50 coins), the Shop tab sells no Barcrawl drinks, and the last review returns the card. With too few coins, the "Quest blocked" window lists each reason on its own line. (2026-09-30)
 
 ## Combat
 

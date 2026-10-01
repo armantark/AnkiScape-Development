@@ -8,16 +8,53 @@ from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.storage_pure import default_player_data
 from ankiscape.data.quest_data import BAR_CRAWL_ID, QUESTS_BY_ID, quest_reward_items_as_dict
 from ankiscape.logic.agility_logic import agility_target_locked_reasons_pure
-from ankiscape.logic.shop_logic import apply_shop_vendor_action_pure
-from ankiscape.logic_pure.logic_pure import (
-    apply_quest_progress_pure,
-    quest_current_stage_blocker_reasons_pure,
-    start_quest_pure,
+from ankiscape.logic_pure.logic_pure import start_quest_pure
+from ankiscape.runtime.runtime_actions import handle_quest_answer
+from tests.test_runtime_actions import _context
+
+# Ruling 4.28 item 5 bar order; prices from Bar Crawl oldid 6304383.
+BAR_ROUTE = (
+    ("Uncle Humphrey's Gutrot", "Blue Moon Inn", 50),
+    ("Fire Toad Blast", "Blurberry's Bar", 10),
+    ("Supergrog", "Dead Man's Chest", 15),
+    ("Fire Brandy", "Dragon Inn", 12),
+    ("Heart Stopper", "Flying Horse Inn", 8),
+    ("Liverbane Ale", "Forester's Arms", 18),
+    ("Olde Suspiciouse", "Jolly Boar Inn", 10),
+    ("Ape Bite Liqueur", "Karamja Wines, Spirits, and Beers", 7),
+    ("Hand of Death Cocktail", "Rising Sun", 70),
+    ("Black Skull Ale", "Rusty Anchor", 8),
 )
-from tests.bar_crawl.test_vendor_actions import BAR_CRAWL_PURCHASES
+RETURN_STAGE = len(BAR_ROUTE) + 2
 
 
 class TestBarCrawlQuest(unittest.TestCase):
+    def _player(self, coins=sum(row[2] for row in BAR_ROUTE)):
+        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player["agility_level"] = 99
+        player["inventory"]["Coins"] = coins
+        player["current_quest"] = BAR_CRAWL_ID
+        self._assert_outpost_access(player, False)
+        return player
+
+    def _review(self, player):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        return handle_quest_answer(_context(player, calls)), calls
+
+    def _review_to(self, player, progress):
+        while player["quests"].get(BAR_CRAWL_ID, {}).get("progress", 0) < progress:
+            ok, calls = self._review(player)
+            self.assertTrue(ok, calls["errors"])
+        return player
+
+    def _assert_outpost_access(self, player, allowed):
+        for course in ("barbarian_normal", "barbarian_advanced"):
+            with self.subTest(course=course):
+                self.assertEqual(
+                    agility_target_locked_reasons_pure(player, course),
+                    () if allowed else ("Bar Crawl",),
+                )
+
     def test_guard_grants_a_registered_card_with_source_backed_identity(self):
         cards = [item for item in ITEM_DEFINITIONS if item.storage_key == "Barcrawl card"]
         self.assertEqual(len(cards), 1)
@@ -28,11 +65,67 @@ class TestBarCrawlQuest(unittest.TestCase):
         self.assertEqual(metadata["model_id"], 2430)
         self.assertEqual(metadata["client_options"], ("Read", "Drop"))
         self.assertIn("bar-crawl-harvest-2026-09-02.md", metadata["source"])
-        player = self._start_and_collect(())
+        player = self._review_to(self._player(), 2)
         self.assertEqual(player["inventory"][card.storage_key], 1)
 
+    def test_each_review_drinks_at_the_next_bar_then_the_guard_return_completes(self):
+        player = self._review_to(self._player(), 2)
+        for index, (drink, bar, price) in enumerate(BAR_ROUTE):
+            with self.subTest(bar=bar):
+                coins = player["inventory"]["Coins"]
+                ok, calls = self._review(player)
+                self.assertTrue(ok)
+                self.assertEqual(calls["errors"], [])
+                self.assertEqual(player["quests"][BAR_CRAWL_ID]["progress"], index + 3)
+                self.assertEqual(player["inventory"]["Coins"], coins - price)
+                self.assertEqual(player["inventory"]["Barcrawl card"], 1)
+                self.assertIn(f"Drink {drink} at {bar}", player["quest_action_proofs"])
+                for later_drink, later_bar, _ in BAR_ROUTE[index + 1:]:
+                    self.assertNotIn(f"Drink {later_drink} at {later_bar}", player["quest_action_proofs"])
+                self.assertFalse(player["quests"][BAR_CRAWL_ID]["completed"])
+                self._assert_outpost_access(player, False)
+        self.assertEqual(player["inventory"]["Coins"], 0)
+
+        before = copy.deepcopy(player)
+        ok, calls = self._review(player)
+        self.assertTrue(ok)
+        self.assertEqual(player["quests"][BAR_CRAWL_ID]["progress"], RETURN_STAGE + 1)
+        self.assertTrue(player["quests"][BAR_CRAWL_ID]["completed"])
+        self.assertEqual(calls["errors"][0][0], "Quest complete")
+        self.assertEqual(player["inventory"], before["inventory"])
+        self.assertEqual(player["quest_points"], before["quest_points"])
+        self.assertEqual(
+            {key: value for key, value in player.items() if key.endswith("_exp")},
+            {key: value for key, value in before.items() if key.endswith("_exp")},
+        )
+        self.assertNotIn("bar_crawl_completed", player)
+        self._assert_outpost_access(player, True)
+
+    def test_short_coins_or_lost_card_switch_questing_off_with_one_reason_per_line(self):
+        player = self._review_to(self._player(), 4)
+        player["inventory"]["Coins"] = 14
+        del player["inventory"]["Barcrawl card"]
+        before = copy.deepcopy(player)
+        ok, calls = self._review(player)
+        self.assertFalse(ok)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(player, before)
+        self.assertEqual(calls["errors"], [(
+            "Quest blocked",
+            "Alfred Grimhand's Barcrawl is blocked:\n"
+            "• Needs Barcrawl card x1\n"
+            "• Needs Coins x15\n\n"
+            "Questing has been switched off until this is resolved.",
+        )])
+        player["inventory"]["Barcrawl card"] = 1
+        player["inventory"]["Coins"] = 15
+        ok, calls = self._review(player)
+        self.assertTrue(ok)
+        self.assertEqual(player["quests"][BAR_CRAWL_ID]["progress"], 5)
+        self.assertEqual(player["inventory"]["Coins"], 0)
+
     def test_dependent_quests_require_completed_crawl_in_the_kernel(self):
-        player = self._start_and_collect(range(len(BAR_CRAWL_PURCHASES)))
+        player = self._review_to(self._player(), RETURN_STAGE)
         for skill in ("agility", "prayer"):
             player[f"{skill}_level"] = 99
         for quest_id in ("horror_from_the_deep", "scorpion_catcher"):
@@ -44,86 +137,19 @@ class TestBarCrawlQuest(unittest.TestCase):
                 self.assertFalse(started)
                 self.assertEqual(blocked, before)
                 self.assertEqual(player, before)
-        player, ok, completed = apply_quest_progress_pure(player, BAR_CRAWL_ID, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed)
+        player = self._review_to(player, RETURN_STAGE + 1)
+        self.assertTrue(player["quests"][BAR_CRAWL_ID]["completed"])
         for quest_id in ("horror_from_the_deep", "scorpion_catcher"):
             with self.subTest(quest_id=quest_id):
                 updated, started = start_quest_pure(player, quest_id, QUEST_DATA)
                 self.assertTrue(started)
                 self.assertTrue(updated["quests"][quest_id]["started"])
 
-    def _assert_outpost_access(self, player, allowed):
-        for course in ("barbarian_normal", "barbarian_advanced"):
-            with self.subTest(course=course):
-                self.assertEqual(
-                    agility_target_locked_reasons_pure(player, course),
-                    () if allowed else ("Bar Crawl",),
-                )
-
-    def _start_and_collect(self, order):
-        player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player["agility_level"] = 99
-        player["inventory"]["Coins"] = sum(row[1] for row in BAR_CRAWL_PURCHASES)
-        self._assert_outpost_access(player, False)
-        player, started = start_quest_pure(player, BAR_CRAWL_ID, QUEST_DATA)
-        self.assertTrue(started)
-        self.assertFalse(player["quests"][BAR_CRAWL_ID]["completed"])
-        player, ok, completed = apply_quest_progress_pure(player, BAR_CRAWL_ID, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed)
-        self.assertEqual(player["quests"][BAR_CRAWL_ID]["progress"], 2)
-        self.assertEqual(player["inventory"]["Barcrawl card"], 1)
-        for index in order:
-            action_id, _, _, _ = BAR_CRAWL_PURCHASES[index]
-            player, result = apply_shop_vendor_action_pure(player, action_id)
-            self.assertTrue(result["allowed"], result)
-            self.assertFalse(player["quests"][BAR_CRAWL_ID]["completed"])
-            self._assert_outpost_access(player, False)
-        return player
-
-    def test_shuffled_drinks_then_guard_return_completes_and_opens_both_courses(self):
-        player = self._start_and_collect((7, 2, 9, 0, 5, 8, 1, 6, 3, 4))
-        self.assertEqual(quest_current_stage_blocker_reasons_pure(player, BAR_CRAWL_ID, QUEST_DATA), ())
-        before = copy.deepcopy(player)
-        player, ok, completed = apply_quest_progress_pure(player, BAR_CRAWL_ID, QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertTrue(completed)
-        self.assertEqual(player["quests"][BAR_CRAWL_ID]["progress"], 3)
-        self.assertTrue(player["quests"][BAR_CRAWL_ID]["completed"])
-        self.assertEqual(player["inventory"], before["inventory"])
-        self.assertEqual(player["quest_points"], before["quest_points"])
-        self.assertEqual(
-            {key: value for key, value in player.items() if key.endswith("_exp")},
-            {key: value for key, value in before.items() if key.endswith("_exp")},
-        )
-        self.assertEqual(player.get("pending_skill_exp_rewards", {}), before.get("pending_skill_exp_rewards", {}))
-        self.assertNotIn("bar_crawl_completed", player)
-        self._assert_outpost_access(player, True)
-        player, ok, completed = apply_quest_progress_pure(player, BAR_CRAWL_ID, QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed)
-
-    def test_any_missing_drink_blocks_the_guard_return(self):
-        order = (7, 2, 9, 0, 5, 8, 1, 6, 3, 4)
-        for missing in order:
-            with self.subTest(missing=BAR_CRAWL_PURCHASES[missing][0]):
-                player = self._start_and_collect(index for index in order if index != missing)
-                self.assertEqual(
-                    quest_current_stage_blocker_reasons_pure(player, BAR_CRAWL_ID, QUEST_DATA),
-                    (f"Action required: {BAR_CRAWL_PURCHASES[missing][2]}",),
-                )
-                before = copy.deepcopy(player)
-                player, ok, completed = apply_quest_progress_pure(player, BAR_CRAWL_ID, QUEST_DATA)
-                self.assertFalse(ok)
-                self.assertFalse(completed)
-                self.assertEqual(player, before)
-                self._assert_outpost_access(player, False)
-
-    def test_metadata_and_proof_stage_match_the_settled_contract(self):
+    def test_metadata_matches_the_settled_contract(self):
         quest = QUESTS_BY_ID[BAR_CRAWL_ID]
         self.assertEqual(quest.display_name, "Alfred Grimhand's Barcrawl")
-        self.assertEqual(quest.stages, 3)
+        self.assertEqual(quest.stages, RETURN_STAGE + 1)
+        self.assertEqual(len(quest.journal_stages), quest.stages)
         self.assertTrue(quest.members)
         self.assertEqual(quest.difficulty, "Special")
         self.assertEqual(quest.length, "Medium")
@@ -149,10 +175,6 @@ class TestBarCrawlQuest(unittest.TestCase):
         self.assertEqual(quest.point_reward, 0)
         self.assertEqual(quest.rewards, ())
         self.assertEqual(quest.xp_rewards, ())
-        proof_stages = [stage for stage in quest.stage_requirements if stage.required_actions]
-        self.assertEqual(len(proof_stages), 1)
-        self.assertEqual(proof_stages[0].stage, 2)
-        self.assertEqual(proof_stages[0].required_actions, tuple(row[2] for row in BAR_CRAWL_PURCHASES))
         self.assertTrue(all(not stage.combat_encounters for stage in quest.stage_requirements))
 
 
