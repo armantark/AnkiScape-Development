@@ -288,7 +288,7 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
     return QuestDefinition(
         id=quest_id,
         display_name=display_name,
-        stages=stages,
+        stage_count=stages,
         point_reward=_catalog_int(row, "point_reward", 0),
         rewards=item_rewards,
         start_point=str(row.get("start_point", "See the source guide for the start location.")),
@@ -586,14 +586,14 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
         ),
     )
     max_requirement_stage = max((requirement.stage for requirement in requirements), default=0)
-    configured_stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, quest.stages)
+    configured_stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, quest.stage_count)
     stages = max(configured_stages, max_requirement_stage + 1)
     journal_stages = QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID.get(quest.id, quest.journal_stages)
     combat = QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID.get(quest.id, quest.combat)
     choices = QUEST_CHOICE_REPLACEMENTS_BY_ID.get(quest.id, quest.choices)
     if (
         requirements == quest.stage_requirements
-        and stages == quest.stages
+        and stages == quest.stage_count
         and journal_stages == quest.journal_stages
         and combat == quest.combat
         and choices == quest.choices
@@ -601,7 +601,7 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
         return quest
     return replace(
         quest,
-        stages=stages,
+        stage_count=stages,
         journal_stages=journal_stages,
         combat=combat,
         stage_requirements=requirements,

@@ -92,7 +92,7 @@ def quests_as_dict() -> Dict[str, Dict[str, object]]:
         quest.id: {
             "id": quest.id,
             "display_name": quest.display_name,
-            "stages": quest.stages,
+            "stages": quest.stage_count,
             "point_reward": quest.point_reward,
             "rewards": dict(quest.rewards),
             "start_point": quest.start_point,

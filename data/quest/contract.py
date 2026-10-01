@@ -94,7 +94,7 @@ class QuestLampReward:
 class QuestDefinition:
     id: str
     display_name: str
-    stages: int
+    stage_count: int
     point_reward: int
     rewards: Tuple[Tuple[str, int], ...]
     start_point: str

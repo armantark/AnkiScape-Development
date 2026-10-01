@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "module_surface.py"
 
 FIRST_WAVE_DIGESTS = {
-    "core/constants.py": "6dabebc66192ab24dce33002ab47ac30829daa28a2b4a9878d63df0752dd8fa5",
-    "data/quest_data.py": "cdf55d6a3fa3f926e7b6fde5a49c4ce4bb9e32983c6bbc70e65e1735622c524b",
+    "core/constants.py": "8f11305cb0f746eacf554213c4cebf85a467e2036ee19c6c5c789e8ca687c7dc",
+    "data/quest_data.py": "6b14162532ba197c21d7be5ff3569b48307bc1185e166d475ff38ccae3248985",
     "data/combat_data.py": "88a22f2dd67c72aa0e261a0f78d6e4b5c318b23f891c4cdf9a0da4e5c3dec1a4",
     "data/slayer_data.py": "7373a419da64c7bd1ac41dba45f772361fc0d4d78363c4625903b12b79cd86d6",
     "logic_pure/logic_pure_combat_engine.py": "991b4a3ec2830030d63850ef391f73690cec27d9d8128b96a8a1107ebab11b62",

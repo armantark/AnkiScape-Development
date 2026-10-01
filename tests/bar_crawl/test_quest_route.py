@@ -148,8 +148,8 @@ class TestBarCrawlQuest(unittest.TestCase):
     def test_metadata_matches_the_settled_contract(self):
         quest = QUESTS_BY_ID[BAR_CRAWL_ID]
         self.assertEqual(quest.display_name, "Alfred Grimhand's Barcrawl")
-        self.assertEqual(quest.stages, RETURN_STAGE + 1)
-        self.assertEqual(len(quest.journal_stages), quest.stages)
+        self.assertEqual(quest.stage_count, RETURN_STAGE + 1)
+        self.assertEqual(len(quest.journal_stages), quest.stage_count)
         self.assertTrue(quest.members)
         self.assertEqual(quest.difficulty, "Special")
         self.assertEqual(quest.length, "Medium")
