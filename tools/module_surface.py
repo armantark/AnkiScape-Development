@@ -346,14 +346,7 @@ def _print_environment() -> None:
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        epilog=(
-            "Hash only the exact 'MODULE_SURFACE module=' header and 'NAME ' rows, "
-            "including the final newline; exclude the 'MODULE_SURFACE_SHA256:' footer, "
-            "and call dump_module() from Python instead of reparsing stdout."
-        ),
-    )
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("modules", nargs="+", help="module import paths or repository .py paths")
     parser.add_argument(
         "--digest-only", "--digests", dest="digest_only", action="store_true",

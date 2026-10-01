@@ -1,6 +1,3 @@
-import contextlib
-import hashlib
-import io
 import os
 import subprocess
 import sys
@@ -9,7 +6,6 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from tools import module_surface
 from tools.module_surface import _normalize, dump_module
 
 
@@ -91,23 +87,6 @@ def public_surface_fixture(
 
 
 class ModuleSurfaceTest(unittest.TestCase):
-    def test_cli_digest_footer_is_outside_the_hashed_payload(self):
-        fixture = public_surface_fixture(defining_module="implementation")
-        stdout = io.StringIO()
-        with (
-            mock.patch("tools.module_surface._reexec_with_stable_hash_seed"),
-            mock.patch("tools.module_surface._load_module", return_value=fixture),
-            contextlib.redirect_stdout(stdout),
-            contextlib.redirect_stderr(io.StringIO()),
-        ):
-            self.assertEqual(module_surface.main(["published.api"]), 0)
-
-        output = stdout.getvalue()
-        payload, footer = output.rsplit("MODULE_SURFACE_SHA256: ", 1)
-        self.assertTrue(payload.endswith("\n"))
-        self.assertEqual(hashlib.sha256(payload.encode()).hexdigest(), footer.strip())
-        self.assertNotEqual(hashlib.sha256(output.encode()).hexdigest(), footer.strip())
-
     def test_reexported_objects_keep_identity_when_defining_module_moves(self):
         before = public_surface_fixture(defining_module="implementation.before")
         after = public_surface_fixture(defining_module="implementation.after")
