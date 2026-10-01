@@ -1,12 +1,21 @@
+import importlib
+import json
 import os
+import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
-from ankiscape.data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS, PERIOD_LIT_LIGHT_SOURCE_ITEMS
+importlib.import_module("pkg_alias")
+from ankiscape.data.firemaking_data import (
+    LIT_LIGHT_SOURCE_ITEMS,
+    PERIOD_LIT_LIGHT_SOURCE_ITEMS,
+)
 from ankiscape.logic_pure.logic_pure import quest_combat_encounter_has_stats_pure
+
 from tools import build_pre_eoc_quest_catalog as builder
 
 
@@ -156,6 +165,77 @@ class TestPreEocQuestCatalogBuilder(unittest.TestCase):
 
         self.assertEqual(lines, ())
         self.assertEqual(source, "")
+
+    def test_cache_only_release_fetch_reads_existing_cache_without_side_effects(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_dir = Path(temp_dir) / "cache"
+            cache_dir.mkdir()
+            cache_path = cache_dir / "wikitext_list_of_quests_by_release_date_current.json"
+            cache_path.write_text(
+                json.dumps({
+                    "query": {
+                        "pages": [{
+                            "title": builder.RELEASE_LIST_TITLE,
+                            "revisions": [{
+                                "revid": 1,
+                                "timestamp": "2012-11-19T00:00:00Z",
+                                "slots": {"main": {"content": "cached release list"}},
+                            }],
+                        }]
+                    }
+                }),
+                encoding="utf-8",
+            )
+            with (
+                patch.object(builder, "CACHE_DIR", cache_dir),
+                patch.object(builder, "_CACHE_ONLY", True),
+                patch.object(Path, "mkdir", side_effect=AssertionError("cache hit must not mkdir")),
+                patch.object(builder.quest_cache.urllib.request, "urlopen") as urlopen,
+            ):
+                self.assertEqual(builder.fetch_release_list(), "cached release list")
+            urlopen.assert_not_called()
+
+    def test_cache_only_release_fetch_fails_before_network_or_directory_creation(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_dir = Path(temp_dir) / "missing-cache"
+            cache_path = cache_dir / "wikitext_list_of_quests_by_release_date_current.json"
+            with (
+                patch.object(builder, "CACHE_DIR", cache_dir),
+                patch.object(builder, "_CACHE_ONLY", True),
+                patch.object(builder.quest_cache.urllib.request, "urlopen") as urlopen,
+                self.assertRaisesRegex(builder.CacheMissError, re.escape(str(cache_path))),
+            ):
+                builder.fetch_release_list()
+            self.assertFalse(cache_dir.exists())
+            urlopen.assert_not_called()
+
+    def test_cache_miss_is_not_hidden_by_quick_guide_fallback(self):
+        with patch.object(
+            builder,
+            "fetch_wikitext",
+            side_effect=builder.CacheMissError("missing cached quick guide"),
+        ), self.assertRaisesRegex(builder.CacheMissError, "missing cached quick guide"):
+            builder.parse_quick_guide_lines("Example Quest", "Example Quest")
+
+    def test_check_mode_enables_cache_only_reads_and_checks_rendered_output(self):
+        cache_modes = []
+
+        def release_list():
+            cache_modes.append(builder._CACHE_ONLY)
+            return ""
+
+        with (
+            patch.object(builder, "fetch_release_list", side_effect=release_list),
+            patch.object(builder, "parse_questline_templates", return_value=[]),
+            patch.object(builder, "write_or_check", return_value=0) as output_check,
+            patch("builtins.print"),
+        ):
+            self.assertEqual(builder.main(["--check"]), 0)
+
+        self.assertEqual(cache_modes, [True])
+        outputs = output_check.call_args.args[0]
+        self.assertEqual(tuple(outputs), (builder.OUTPUT_PATH,))
+        output_check.assert_called_once_with(outputs, check=True)
 
     def test_stage_requirements_include_compact_source_checkpoint_actions(self):
         rows = builder.build_stage_requirements(
