@@ -4,11 +4,18 @@ Combat and every skill filter through this one selector, so a query behaves
 the same everywhere: it matches a row's name and its group, opens the groups
 that hold a match, counts the visible rows, and keeps the saved target marked
 only while it is visible. Typing never selects or activates a row.
+
+A flat list shows each row's short name (ruling 4.29.8): the lock reason and
+the extra catches of a Fishing spot stay in the row tooltip and the Details
+panel, which keeps most rows on one line in a list that has little width.
+Search still matches the full label.
 """
 try:
     from aqt.qt import (  # type: ignore
         QAbstractItemView,
+        QListWidget,
         QListWidgetItem,
+        QSize,
         Qt,
         QTimer,
         QTreeWidget,
@@ -20,6 +27,10 @@ except Exception:  # pragma: no cover - non-Qt environment keeps the module impo
     pass
 
 from .ui import CatalogFilterBar, dim_text_color
+
+# Written by the Agility, Thieving and Summoning row builders in core/target_metadata.py.
+_LOCK_SUFFIX = " \u2014 Locked: "
+_ROW_PADDING = 1
 
 
 def _add_empty_row(selector, text: str) -> None:
@@ -149,3 +160,35 @@ def build_searchable_target_selector(
     container._ankiscape_render_targets = _render
     _render()
     return container
+
+
+def short_target_row_label(label: str) -> str:
+    """The label without its lock reason, extra catches folded into "+N more".
+
+    A Fishing row keeps its place, because two spots can share their catches
+    and differ only there ("... cave eel (Lvl 38) (Mort Myre)").
+    """
+    name = label.split(_LOCK_SUFFIX)[0]
+    first, slash, rest = name.partition("/")
+    if not slash:
+        return name
+    place = rest.rsplit("/", 1)[-1].partition(")")[2]
+    return f"{first} +{rest.count('/') + 1} more{place}"
+
+
+def style_flat_target_list(target_list) -> None:
+    from .ui_tab_shop_widgets import WrappedRowDelegate
+
+    target_list.setIconSize(QSize(28, 28))
+    target_list.setAlternatingRowColors(True)
+    target_list.setStyleSheet(
+        f"QListWidget::item {{ min-height: 28px; padding: {_ROW_PADDING}px; }}"
+        " QListWidget::item:selected { background: rgba(66,133,244,0.35);"
+        " color: palette(text); }"
+    )
+    # A short row can still outgrow a narrow list, so it wraps instead of
+    # hiding its end behind a sideways scroll.
+    target_list.setWordWrap(True)
+    target_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    target_list.setResizeMode(QListWidget.ResizeMode.Adjust)
+    target_list.setItemDelegate(WrappedRowDelegate(target_list, _ROW_PADDING))

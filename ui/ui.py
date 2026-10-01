@@ -2633,7 +2633,8 @@ if HAS_QT:
             self._info_layout.setSpacing(2 if text else 4)
 
         def _set_combat_chips(self, state: dict) -> None:
-            """Kills and trained skills, or, while the enemy is held and neither
+            """Kills and the trained skills' icons, the whole sentence in the
+            tooltip, or, while the enemy is held and neither
             count can move, the finisher prompt in amber over both chip lines.
             A wrapped quest and boss label only fits the fixed-height card with
             the rows drawn tighter."""
@@ -2644,10 +2645,12 @@ if HAS_QT:
                 # Its two wrapped lines need the spacing a Slayer line gets.
                 self._info_layout.setSpacing(2)
             else:
-                self.chips_lbl.setText(state["chips_text"])
+                icons = "".join(f'<img src="{skill_icon_path_for(skill)}" width="12" height="12"> ' for skill in state["trained_skills"])
+                self.chips_lbl.setText(state["chips_lead"] + icons)
                 self.chips_lbl.setStyleSheet(self.slayer_lbl.styleSheet())
                 self._set_slayer_progress(state["slayer_text"])
             self.chips_lbl.setWordWrap(bool(notice))
+            self.chips_lbl.setToolTip("" if notice else state["chips_text"])
             self.chips_lbl.setVisible(True)
             if self.target_lbl.wordWrap():
                 self.layout().activate()
@@ -2869,7 +2872,7 @@ if HAS_QT:
                 self._reposition()
                 self.show()
                 return
-            state = review_combat_card_view_pure(player_data, skill, QUEST_DATA)
+            state = review_combat_card_view_pure(player_data, skill, QUEST_DATA, EQUIPMENT_DATA)
             if state is not None:
                 ip = os.path.join(current_dir, "icon", "attack_icon.png")
                 if not os.path.exists(ip):
@@ -5307,7 +5310,7 @@ def show_main_menu(
     stop_btn.clicked.connect(lambda _=False: _stop_training())
 
     # ---- target list builders (one per implemented skill) ----
-    from .ui_target_search import build_searchable_target_selector
+    from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
 
     def _build_flat_target_list(
         rows: tuple[TargetRowMetadata, ...],
@@ -5315,16 +5318,10 @@ def show_main_menu(
         confirm_select=None,
     ) -> QListWidget:
         target_list = QListWidget()
-        target_list.setIconSize(QSize(28, 28))
-        target_list.setAlternatingRowColors(True)
-        target_list.setStyleSheet(
-            "QListWidget::item { min-height: 28px; padding: 1px; }"
-            " QListWidget::item:selected { background: rgba(66,133,244,0.35);"
-            " color: palette(text); }"
-        )
+        style_flat_target_list(target_list)
         current_item = None
         for row in rows:
-            item = QListWidgetItem(row.label)
+            item = QListWidgetItem(short_target_row_label(row.label))
             item.setData(Qt.ItemDataRole.UserRole, row.target_id)
             if row.icon_path and os.path.exists(row.icon_path):
                 icon = _pixel_path_icon(row.icon_path, 28)
@@ -5346,9 +5343,7 @@ def show_main_menu(
                     candidate.data(Qt.ItemDataRole.UserRole)
                 )
                 if row is not None:
-                    candidate.setText(
-                        f"✓ {row.label}" if candidate is item else row.label
-                    )
+                    candidate.setText(("✓ " if candidate is item else "") + short_target_row_label(row.label))
                 current_font = candidate.font()
                 current_font.setBold(candidate is item)
                 candidate.setFont(current_font)

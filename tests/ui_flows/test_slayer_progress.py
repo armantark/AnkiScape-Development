@@ -240,6 +240,7 @@ class SlayerProgressTextFitTest(unittest.TestCase):
                     COMBAT_ENEMY_DATA[target_id]["display_name"],
                 )
                 self.assertIn("#f0c75e", hud.chips_lbl.styleSheet())
+                self.assertEqual(hud.chips_lbl.toolTip(), "")
                 self.assertTrue(ui._BANK_RUN_BUTTON.isVisible())
                 self.assertFalse(hud.slayer_lbl.isVisible())
                 self.assertEqual(text_fit_defects(hud), [])
@@ -250,7 +251,7 @@ class SlayerProgressTextFitTest(unittest.TestCase):
         for _ in range(4):
             QApplication.processEvents()
         self.assertEqual(
-            hud.chips_lbl.text(), "Kills: 21 · Trains Attack • Constitution"
+            hud.chips_lbl.toolTip(), "Kills: 21 · Trains Attack • Constitution"
         )
         self.assertNotIn("#f0c75e", hud.chips_lbl.styleSheet())
         self.assertEqual(hud.slayer_lbl.text(), "Slayer: 4 of 17 left")

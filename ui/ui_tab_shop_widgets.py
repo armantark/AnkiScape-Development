@@ -23,9 +23,13 @@ class WrappedRowDelegate(QStyledItemDelegate):
     second line instead of wrapping.
     """
 
+    def __init__(self, parent, side_padding: int = ROW_SIDE_PADDING) -> None:
+        super().__init__(parent)
+        self._side_padding = side_padding
+
     def sizeHint(self, option, index):  # type: ignore[no-untyped-def]
         painted = QStyleOptionViewItem(option)
-        painted.rect.setWidth(self.parent().viewport().width() - 2 * ROW_SIDE_PADDING)
+        painted.rect.setWidth(self.parent().viewport().width() - 2 * self._side_padding)
         return super().sizeHint(painted, index)
 
 

@@ -1,7 +1,9 @@
 """A quest boss fight drives the review HUD's ordinary Combat card through real
 quest reviews, and the Quests card returns once the boss falls."""
 
+import itertools
 import random
+import re
 import unittest
 
 import pkg_alias  # noqa: F401
@@ -87,7 +89,7 @@ class QuestFightCombatCardTest(unittest.TestCase):
             self.assertEqual(hud.target_lbl.text(), label)
             self.assertTrue(hud.enemy_progress.isVisible())
             self.assertTrue(hud.combat_resources.isVisible())
-            self.assertEqual(hud.chips_lbl.text(), "Trains Attack • Constitution")
+            self.assertEqual(hud.chips_lbl.toolTip(), "Trains Attack • Constitution")
             self.assertFalse(hud.slayer_lbl.isVisible())
             self._assert_fits(hud)
             frames.append(
@@ -112,9 +114,33 @@ class QuestFightCombatCardTest(unittest.TestCase):
     def _assert_ordinary_combat_card_is_untouched(self, player):
         hud = self._show(player, "Combat")
         self.assertEqual(hud.target_lbl.text(), "Chicken")
-        self.assertEqual(hud.chips_lbl.text(), "Kills: 40 · Trains Attack • Constitution")
+        self.assertEqual(hud.chips_lbl.toolTip(), "Kills: 40 · Trains Attack • Constitution")
         self.assertEqual(hud.slayer_lbl.text(), "Slayer: 4 of 17 left")
         self._assert_fits(hud)
+
+    def test_the_card_draws_the_wielded_weapons_trained_skills_as_icons_beside_bank_run(self):
+        """Silverlight's controlled lunge trains Attack, Strength and Defence;
+        bare fists have no controlled style, which is what the card read before
+        it was given the equipment. The quest label, the ordinary target and the
+        Slayer line all keep the icons and Bank run on one row."""
+        player = self._fighter("demon_slayer", 7, 30)
+        player["equipment"]["weapon"] = "Silverlight"
+        cases = (
+            ("controlled", "stab", ("attack", "strength", "defense", "constitution"), "Attack • Strength • Defence • Constitution"),
+            ("aggressive", "slash", ("strength", "constitution"), "Strength • Constitution"),
+        )
+        for (style, style_type, icons, trains), skill, parent_size in itertools.product(cases, ("Quests", "Combat"), _PARENT_SIZES):
+            with self.subTest(style=style, skill=skill, parent_size=parent_size):
+                player.update({"combat_attack_style": style, "combat_attack_style_type": style_type})
+                self.strip.parent.resize(*parent_size)
+                hud = self._show(player, skill)
+                lead = "Trains " if skill == "Quests" else "Kills: 40 · Trains "
+                self.assertEqual(hud.chips_lbl.toolTip(), lead + trains)
+                self.assertTrue(hud.chips_lbl.text().startswith(lead))
+                self.assertEqual(re.findall(r"icon/(\w+)_icon\.png", hud.chips_lbl.text()), list(icons))
+                self.assertEqual(hud.slayer_lbl.isVisible(), skill == "Combat")
+                self.assertTrue(self.ui._BANK_RUN_BUTTON.isVisible())
+                self._assert_fits(hud)
 
     def test_delrith_fills_the_combat_card_only_with_silverlight_and_his_bar_falls_to_the_kill(self):
         player = self._fighter("demon_slayer", 7, 30)
@@ -201,7 +227,7 @@ class QuestFightCombatCardTest(unittest.TestCase):
                 self.assertTrue(hud.target_lbl.text().startswith(f"{quest['display_name']} · "))
                 self.assertTrue(hud.enemy_progress.isVisible())
                 self.assertFalse(hud.slayer_lbl.isVisible())
-                self.assertTrue(hud.chips_lbl.text().startswith("Trains "))
+                self.assertTrue(hud.chips_lbl.toolTip().startswith("Trains "))
                 if int(encounter.get("quantity", 1) or 1) > 1:
                     self.assertRegex(hud.target_lbl.text(), r" x\d+ • Poisoned")
                 self._assert_fits(hud)

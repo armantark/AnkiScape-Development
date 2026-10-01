@@ -5,7 +5,7 @@ Callers must show, resize and pump events before probing, per
 geometry, and these probes trust widget geometry, not pixels.
 """
 
-from aqt.qt import QLabel, QPoint, QPushButton, QRect
+from aqt.qt import QLabel, QPoint, QPushButton, QRect, Qt
 
 
 def _text_fits(widget) -> bool:
@@ -18,6 +18,10 @@ def _text_fits(widget) -> bool:
             widget.minimumSizeHint().width() <= widget.width()
             and widget.heightForWidth(widget.width()) <= widget.height()
         )
+    if widget.textFormat() == Qt.TextFormat.RichText or "<img" in widget.text():
+        # A one-line rich label: the metrics below would measure the markup, not what Qt draws.
+        hint = widget.sizeHint()
+        return hint.width() <= widget.width() and hint.height() <= widget.height()
     metrics = widget.fontMetrics()
     lines = widget.text().splitlines()
     contents = widget.contentsRect()

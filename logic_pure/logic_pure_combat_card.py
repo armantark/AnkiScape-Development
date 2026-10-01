@@ -17,18 +17,26 @@ def _card_target_text(name, state):
     return f"{name} • {state['status']}" if state["status"] else name
 
 
-def combat_card_view_pure(player_data):
-    state = combat_hud_state_pure(player_data)
+def _trains_text(state):
+    return f"Trains {' • '.join(state['trained_skills'])}"
+
+
+def combat_card_view_pure(player_data, equipment_data):
+    """``chips_lead`` precedes the trained skills' icons; ``chips_text`` is the
+    whole sentence, for the tooltip."""
+    state = combat_hud_state_pure(player_data, equipment_data=equipment_data)
+    kills = f"Kills: {state['kills_total']} · "
     return {
         **state,
         "target_text": _card_target_text(state["enemy_name"], state),
-        "chips_text": f"Kills: {state['kills_total']} · Trains {' • '.join(state['trained_skills'])}",
+        "chips_lead": f"{kills}Trains ",
+        "chips_text": kills + _trains_text(state),
         "slayer_text": slayer_assignment_progress_pure(player_data),
         "target_wraps": False,
     }
 
 
-def quest_fight_card_view_pure(player_data, quest_data):
+def quest_fight_card_view_pure(player_data, quest_data, equipment_data):
     """The Combat card for the current quest's next fight, or None when the next
     quest review does not fight.
 
@@ -54,7 +62,8 @@ def quest_fight_card_view_pure(player_data, quest_data):
         "current_combat_target": target_id,
         "combat_encounter": _quest_combat_resumed_encounter(player_data, target_id, saved_lifepoints),
     }
-    state = combat_hud_state_pure(projected, {target_id: _quest_combat_enemy_spec(quest_id, encounter_id, encounter)})
+    enemy = {target_id: _quest_combat_enemy_spec(quest_id, encounter_id, encounter)}
+    state = combat_hud_state_pure(projected, enemy, equipment_data)
     quest_name = str(quest.get("display_name", quest_id))
     # Some quest-only NPCs carry their quest in parentheses ("Bandit (Diamond in
     # the Rough)"); the label already names the quest once.
@@ -63,15 +72,20 @@ def quest_fight_card_view_pure(player_data, quest_data):
     return {
         **state,
         "target_text": _card_target_text(f"{quest_name} · {boss_name}{remaining}", state),
-        "chips_text": f"Trains {' • '.join(state['trained_skills'])}",
+        "chips_lead": "Trains ",
+        "chips_text": _trains_text(state),
         "slayer_text": "",
         # The longest quest and boss names need a second line.
         "target_wraps": True,
     }
 
 
-def review_combat_card_view_pure(player_data, skill, quest_data):
-    """The Combat card the review HUD shows for the active skill, or None."""
+def review_combat_card_view_pure(player_data, skill, quest_data, equipment_data):
+    """The Combat card the review HUD shows for the active skill, or None.
+
+    The equipped weapon decides which skills the attack style trains, so the
+    card needs the same equipment table the combat review resolves with.
+    """
     if skill == "Quests":
-        return quest_fight_card_view_pure(player_data, quest_data)
-    return combat_card_view_pure(player_data) if skill == "Combat" else None
+        return quest_fight_card_view_pure(player_data, quest_data, equipment_data)
+    return combat_card_view_pure(player_data, equipment_data) if skill == "Combat" else None
