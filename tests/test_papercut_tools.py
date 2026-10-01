@@ -256,7 +256,7 @@ class PapercutToolTests(unittest.TestCase):
                 "generated.py:3:third",
             ],
         )
-        self.assertIn("Line read stopped at 2 results", completed.stderr)
+        self.assertIn("stopped at 2 results", completed.stderr)
 
     def test_repo_search_names_locates_moved_files_without_shell_globs(self):
         with tempfile.TemporaryDirectory() as temp_dir:

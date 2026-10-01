@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import itertools
 import re
 import subprocess
 import sys
@@ -115,55 +116,23 @@ def read_line_range(
     max_columns: int,
 ) -> tuple[list[str], bool]:
     lines: list[str] = []
-    truncated = False
     with path.open(encoding="utf-8") as source:
-        for line_number, raw_line in enumerate(source, start=1):
-            if line_number < start:
-                continue
-            if line_number > end:
-                break
+        for line_number, raw_line in enumerate(itertools.islice(source, start - 1, end), start):
             if len(lines) >= max_results:
-                truncated = True
-                break
+                return lines, True
             text = raw_line.rstrip("\r\n")
-            omitted = max(0, len(text) - max_columns)
-            preview = text[:max_columns]
-            if omitted:
-                preview += f" [omitted {omitted} columns]"
-            lines.append(f"{path}:{line_number}:{preview}")
-    return lines, truncated
+            omitted = f" [omitted {len(text) - max_columns} columns]" if len(text) > max_columns else ""
+            lines.append(f"{path}:{line_number}:{text[:max_columns]}{omitted}")
+    return lines, False
 
 
-def run_line_range(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
-    if args.pattern is not None or args.paths or args.names or args.include_large:
-        parser.error("--line-range cannot be combined with search arguments")
-    path_text, start_text, end_text = args.line_range
-    try:
-        start, end = int(start_text), int(end_text)
-    except ValueError:
-        parser.error("--line-range START and END must be integers")
-    if start < 1 or end < start:
-        parser.error("--line-range requires 1 <= START <= END")
-    path = Path(path_text)
-    if not path.is_file():
-        parser.error(f"--line-range file does not exist: {path}")
-    lines, truncated = read_line_range(
-        path,
-        start,
-        end,
-        max_results=args.max_results,
-        max_columns=args.max_columns,
-    )
-    for line in lines:
-        print(line)
-    if not truncated:
-        return 0
-    print(
-        f"Line read stopped at {args.max_results} results; narrow the range "
-        "or raise --max-results.",
-        file=sys.stderr,
-    )
-    return 2
+def _line_range(args: argparse.Namespace, parser: argparse.ArgumentParser) -> tuple[Path, int, int]:
+    if args.pattern is not None or args.paths or args.names:
+        parser.error("--line-range cannot be combined with a search")
+    path, start, end = args.line_range
+    if not (start.isdigit() and end.isdigit() and 1 <= int(start) <= int(end)):
+        parser.error("--line-range needs integers 1 <= START <= END")
+    return Path(path), int(start), int(end)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -185,18 +154,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.max_results < 1 or args.max_columns < 1:
         parser.error("--max-results and --max-columns must be at least 1")
     if args.line_range:
-        return run_line_range(args, parser)
-    if args.pattern is None:
+        line_range = _line_range(args, parser)
+    elif args.pattern is None:
         parser.error("pattern is required unless --line-range is used")
-    paths = args.paths or ["."]
-    existing, missing = _existing_paths(paths)
+    existing, missing = _existing_paths(args.paths or ["."])
     if missing:
         print(f"Missing path(s): {', '.join(missing)}", file=sys.stderr)
         print("Use --names from an existing parent directory to locate moved files.", file=sys.stderr)
         return 2
 
     try:
-        if args.names:
+        if args.line_range:
+            lines, truncated = read_line_range(
+                *line_range,
+                max_results=args.max_results,
+                max_columns=args.max_columns,
+            )
+            returncode = 0
+        elif args.names:
             lines, truncated = find_names(
                 args.pattern,
                 existing,
@@ -212,7 +187,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 max_results=args.max_results,
                 max_columns=args.max_columns,
             )
-    except (re.error, RuntimeError) as exc:
+    except (re.error, RuntimeError, OSError) as exc:
         print(str(exc), file=sys.stderr)
         return 2
 
