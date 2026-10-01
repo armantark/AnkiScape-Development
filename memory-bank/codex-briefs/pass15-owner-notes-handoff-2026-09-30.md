@@ -185,7 +185,8 @@ the Bank's 140 ms delay only if a keystroke takes longer than 100 ms.
   `draynor_manor.plugin.kts:79-81`) is unmodelled.
 - 90 of 293 quest encounters across 46 quests still have no stats (Pass 13
   said 91/47); harvesting belongs to the Darkan thread by doorbell.
-- Spiked gauntlets cost 6 coins plus a free sample; the 2012-08 page says free.
+- Spiked gauntlets cost 6 coins per purchase; the one free sample explains the
+  2012-08 page's shorthand that the gauntlets are available for free.
 - Do No Evil's m'amulet mould and Fremennik Isles' yak-hide cure use the same
   purchase-proof design the Barcrawl leaves.
 - A raw git worktree sits at
