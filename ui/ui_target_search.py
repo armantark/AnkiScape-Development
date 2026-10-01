@@ -76,7 +76,9 @@ def _visible_rows(rows, filter_bar, group_labels: dict, match_tooltip: bool, ext
 def _opened_groups(saved_groups, visible: tuple, filtering: bool) -> set:
     # Search-driven opening joins the saved open groups but is never saved
     # itself: the selector connects its expand signals after it applies these.
-    opened = set(saved_groups or ())
+    # The saved groups are read on every redraw because the player can open or
+    # close a group between keystrokes.
+    opened = set(saved_groups()) if saved_groups is not None else set()
     if filtering:
         opened |= {row.group or "other" for row in visible}
     return opened
@@ -97,7 +99,7 @@ def build_searchable_target_selector(
     key: str,
     noun: str,
     group_labels=None,
-    expanded_groups=None,
+    saved_groups=None,
     extra_filter=None,
     empty_text=None,
     match_tooltip: bool = False,
@@ -105,6 +107,7 @@ def build_searchable_target_selector(
 ) -> "QWidget":
     """Return a search bar above the selector ``build_selector`` draws for ``rows``.
 
+    ``saved_groups()`` returns the groups the player keeps open.
     ``extra_filter`` is ``(checkbox, accepts_row)``: while the box is ticked
     only accepted rows show. ``empty_text(query)`` words an empty result. The
     caller owns the box's toggle and re-filters through the returned widget's
@@ -129,7 +132,7 @@ def build_searchable_target_selector(
         _drop_selector(layout, live)
         visible = _visible_rows(rows, filter_bar, group_labels, match_tooltip, extra_filter)
         opened = _opened_groups(
-            expanded_groups, visible, _ticked(extra_filter) or bool(filter_bar.query())
+            saved_groups, visible, _ticked(extra_filter) or bool(filter_bar.query())
         )
         selector = build_selector(
             visible, group_labels, expanded_groups=opened, **selector_options

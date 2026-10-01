@@ -94,6 +94,10 @@ class SkillTargetSearchTest(unittest.TestCase):
             search = _find_named_line_edit(dialog, "craftingTargetSearchInput")
             summary = dialog.findChild(QLabel, "craftingTargetSearchInputSummary")
             total = int(summary.text().rsplit("/", 1)[1])
+            # A group the player opens before searching stays open after it.
+            tree = dialog.findChild(QTreeWidget, "craftingTargetTree")
+            _craft_family_node(tree, "leather").setExpanded(True)
+            QApplication.processEvents()
 
             # A family name matches every row in it, although no row label says it.
             search.setText("combinations")
@@ -105,7 +109,8 @@ class SkillTargetSearchTest(unittest.TestCase):
             self.assertEqual(summary.text(), f"Showing {combinations.childCount()}/{total}")
             self.assertIsNone(tree.currentItem())
             self.assertEqual(
-                ui.mw.col.get_config("ankiscape_craft_expanded_families"), ["pottery"]
+                ui.mw.col.get_config("ankiscape_craft_expanded_families"),
+                ["leather", "pottery"],
             )
 
             search.setText("sapphire necklace")
@@ -129,6 +134,7 @@ class SkillTargetSearchTest(unittest.TestCase):
             )
             self.assertTrue(_craft_family_node(tree, "jewellery").isExpanded())
             self.assertTrue(_craft_family_node(tree, "pottery").isExpanded())
+            self.assertTrue(_craft_family_node(tree, "leather").isExpanded())
             self.assertFalse(_craft_family_node(tree, "combination").isExpanded())
             self.assertEqual(pd["current_craft"], "jewellery_gold_ring")
             self.assertEqual(self.menu._craft_calls, [])

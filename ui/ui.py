@@ -5609,7 +5609,7 @@ def show_main_menu(
             noun="bars and items",
             group_role_prefix="__tier__:",
             on_select=_set_smith_target,
-            expanded_groups=set(smith_expanded_tiers()),
+            saved_groups=smith_expanded_tiers,
             set_group_expanded=set_smith_tier_expanded,
         )
 
@@ -5627,7 +5627,7 @@ def show_main_menu(
             group_labels=_CRAFT_FAMILY_LABELS,
             group_role_prefix="__family__:",
             on_select=on_set_craft,
-            expanded_groups=set(craft_expanded_families()),
+            saved_groups=craft_expanded_families,
             set_group_expanded=set_craft_family_expanded,
         )
 
