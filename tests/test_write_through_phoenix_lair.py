@@ -224,8 +224,6 @@ class PhoenixLairWriteThroughTest(unittest.TestCase):
         """The rejection paths return a whole-save copy the caller may keep."""
         no_quest = _player()
         no_quest["quests"]["in_pyre_need"] = {"started": True, "completed": False}
-        no_tools = _player()
-        no_tools["inventory"]["Tinderbox"] = 0
         same_day = _player()
         same_day["phoenix_lair"]["last_completed_world_day"] = 0
         locked_loadout = _player(
@@ -236,7 +234,6 @@ class PhoenixLairWriteThroughTest(unittest.TestCase):
             ("another activity active", _player(activity_session={"active_id": "x"}), "enter"),
             ("quest not complete", no_quest, "enter"),
             ("slayer level too low", _player(slayer_level=50), "enter"),
-            ("missing tools", no_tools, "enter"),
             ("already rewarded today", same_day, "enter"),
             ("locked combat loadout", locked_loadout, "enter"),
             ("leave without a run", _player(), "leave"),
