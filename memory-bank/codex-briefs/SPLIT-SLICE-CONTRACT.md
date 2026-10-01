@@ -135,12 +135,9 @@ public surface and a SHA-256 digest of it.
 3. **They must be byte-identical.** A moved digest means the public surface
    changed, which means it was not a pure move.
 
-If a digest moves, do not adjust the dump and do not pin the new value. Find what
-changed and put it back. The digest moving is the tool doing its job.
-
-`tests/test_module_surface.py` pins the baselines. Update the pinned digest only
-if the split legitimately changes a module's identity, and say so explicitly in
-your report with the reason.
+If a digest moves, do not adjust the dump. Find what changed and put it back.
+The digest moving is the tool doing its job. If the split legitimately changes a
+module's identity, say so explicitly in your report with the reason.
 
 **The root `__init__.py` dumps only under the offscreen Qt interpreter**,
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python`. Its split runs that proof under
