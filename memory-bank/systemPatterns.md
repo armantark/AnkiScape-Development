@@ -107,6 +107,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   changes. It audits every present tracked or untracked Markdown and HTML file
   for mechanical integrity, including local Markdown links and HTML resources,
   without rewriting historical prose.
+- Fix line-citation drift in two passes: run `python3 tools/audit_citation_drift.py`,
+  then `python3 tools/memory_bank/fix_citation_drift.py --apply`, commit, and run
+  the audit again. The fixer repoints moved citations and pins citations to
+  deleted code as `<sha>:path:line`, a form the audit treats as historical; it
+  prints every row a person must rewrite. Neither tool reads the papercut logs.
 - Each `papercuts.md` entry is one line starting with `- `; the docs audit
   rejects any other form. Move closed entries with
   `python3 tools/memory_bank/move_papercuts.py move <plan.json>` rather than
