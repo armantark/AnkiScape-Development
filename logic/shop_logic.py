@@ -170,6 +170,47 @@ def _shop_view_model_from_state(data: Mapping[str, Any], shop_id: str) -> Dict[s
     }
 
 
+def shop_selector_entries_pure(player_data: Mapping[str, Any], shop_ids) -> list[Dict[str, Any]]:
+    """Shop-list entries in browse order.
+
+    A shop locked against this save (any access wall, or a static currency
+    lock) sorts after every open shop and its label names only the reason, so
+    the list never advertises a shop the player cannot use yet. It still opens
+    read-only.
+    """
+    views = shop_view_models_pure(player_data, shop_ids)
+    keyed = []
+    for shop_id in shop_ids:
+        shop = SHOP_DATA[shop_id]
+        view = views[shop_id]
+        locked = bool(view["lock_reason"])
+        # Live stock from the data, not the current stock level, so a shop
+        # does not jump around the list as it sells out.
+        has_live_stock = any(row.get("disposition") == "live" for row in shop["stock"])
+        entry = {
+            "shop_id": shop_id,
+            "label": _shop_selector_label(shop, view),
+            "locked": locked,
+            "rows": view["rows"],
+        }
+        keyed.append(((locked, not has_live_stock, shop["display_name"]), entry))
+    return [entry for _key, entry in sorted(keyed, key=lambda pair: pair[0])]
+
+
+def _shop_selector_label(shop: Mapping[str, Any], view: Mapping[str, Any]) -> str:
+    lock_reason = str(view["lock_reason"])
+    if lock_reason:
+        return f"{shop['display_name']} · {lock_reason[:1].upper()}{lock_reason[1:].replace('_', ' ')}"
+    live_count = sum(1 for row in view["rows"] if row["can_buy"])
+    locked_count = sum(1 for row in view["rows"] if row["lock_reason"])
+    parts = [
+        f"{live_count} live" if live_count else "",
+        f"{locked_count} locked" if locked_count else "",
+        "general store" if shop["general_store"] else "",
+    ]
+    return f"{shop['display_name']} · " + (" · ".join(part for part in parts if part) or "read-only")
+
+
 def search_shop_catalog_pure(
     player_data: Mapping[str, Any],
     query: str,
@@ -186,6 +227,9 @@ def search_shop_catalog_pure(
         include_hidden=include_hidden,
     )
     results.extend(_search_services(normalized))
+    # Locked rows go last before the cut, so a common word ("fish") cannot fill
+    # the limit with shops the save cannot buy from and push open ones out.
+    results.sort(key=lambda result: bool(result["lock_reason"]))
     return {"query": query, "results": results[: max(0, limit)]}
 
 
@@ -219,7 +263,7 @@ def _search_stock_rows(
                     "buy_price": row["buy_price"],
                     "sell_price": row["sell_price"],
                     "visibility": row["visibility"],
-                    "lock_reason": row["lock_reason"],
+                    "lock_reason": row["lock_reason"] or view["lock_reason"],
                 }
             )
     return results
