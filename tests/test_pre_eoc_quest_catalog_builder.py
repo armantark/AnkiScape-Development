@@ -96,6 +96,46 @@ class TestPreEocQuestCatalogBuilder(unittest.TestCase):
         self.assertIn("goblin_level_2.plugin.kts", encounters[0]["npc_stats_source"])
         self.assertFalse(quest_combat_encounter_has_stats_pure(encounters[0]))
 
+    def test_bone_quest_uses_reviewed_variants_without_changing_saved_encounter_ids(self):
+        encounters = builder.parse_combat_encounters(
+            "*A [[Goblin (monster)|Goblin]]\n*A [[Bear]]\n*A [[Big frog]]\n"
+            "*A [[Ram]]\n*A [[Unicorn]]\n*A [[Monkey]]\n*A [[Giant rat]]\n*A [[Giant bat]]",
+            "https://runescape.wiki/w/Rag_and_Bone_Man?oldid=6326142",
+            "rag_and_bone_man",
+        )
+        by_name = {row["display_name"]: row for row in encounters}
+        for name, level, hp, encounter_suffix in (
+            ("Bear", 19, 250, "bear_2"),
+            ("Ram", 2, 40, "ram_4"),
+            ("Unicorn", 15, 190, "unicorn_5"),
+            ("Giant bat", 27, 320, "giant_bat_8"),
+            ("Giant rat", 6, 100, "giant_rat_7"),
+        ):
+            with self.subTest(name=name):
+                row = by_name[name]
+                self.assertEqual(row["encounter_id"], f"rag_and_bone_man_{encounter_suffix}")
+                self.assertEqual(row["level"], level)
+                self.assertEqual(row["npc_stats"]["hitpoints"], hp)
+                self.assertTrue(quest_combat_encounter_has_stats_pure(row))
+                self.assertIn("oldid=", row["npc_stats_source"])
+                self.assertIn("@", row["npc_stats_source"])
+        for name in ("Goblin", "Big frog", "Monkey"):
+            self.assertFalse(quest_combat_encounter_has_stats_pure(by_name[name]))
+
+    def test_reviewed_variant_does_not_leak_to_other_quests_or_explicit_levels(self):
+        for quest_id, text in (
+            ("other_quest", "*A [[Bear]]"),
+            ("rag_and_bone_man", "*A [[Bear]] (level 2)"),
+        ):
+            row = builder.parse_combat_encounters(text, "source", quest_id)[0]
+            self.assertFalse(quest_combat_encounter_has_stats_pure(row))
+
+    def test_disclosed_jungle_demon_calibration_is_not_historical_stats(self):
+        row = builder.parse_combat_encounters(
+            "Jungle demon (level 195)", "source", "monkey_madness"
+        )[0]
+        self.assertFalse(quest_combat_encounter_has_stats_pure(row))
+
     def test_combat_parser_skips_source_list_headings(self):
         encounters = builder.parse_combat_encounters(
             "4 Guardians which are:\n*Dessous (level 139)",

@@ -62,6 +62,21 @@ class TestQuestHistoricalWikiCombatStats(unittest.TestCase):
         self.assertEqual(stats["defence"], 29)
         self.assertTrue(wiki_audit.metadata_has_resolver_stats(stats, configs))
 
+    def test_switch_infobox_selects_the_requested_variant_not_the_first_tab(self):
+        other_variant = SOURCE_BACKED_MELEE_STATS.replace("level = 44", "level = 99")
+        page = "{{Switch infobox|item1=" + other_variant + "|item2=" + KHazard_SCORPION_2012 + "}}"
+        stats, configs = wiki_audit.parse_monster_infobox_metadata(page, level=44)
+        self.assertEqual(stats, {"hitpoints": 290})
+        self.assertFalse(wiki_audit.metadata_has_resolver_stats(stats, configs))
+        stats, configs = wiki_audit.parse_monster_infobox_metadata(page, level=99)
+        self.assertTrue(wiki_audit.metadata_has_resolver_stats(stats, configs))
+
+    def test_variant_labels_and_ranges_are_not_misread_as_stat_values(self):
+        page = SOURCE_BACKED_MELEE_STATS.replace("LP = 290", "LP = (Level 3: 67) 53 / 50 / 100")
+        stats, configs = wiki_audit.parse_monster_infobox_metadata(page)
+        self.assertNotIn("hitpoints", stats)
+        self.assertFalse(wiki_audit.metadata_has_resolver_stats(stats, configs))
+
     def test_title_candidates_include_monster_variant_and_strip_variant_suffix(self):
         self.assertEqual(
             wiki_audit.title_candidates("Lava monster (Elder Kiln)"),

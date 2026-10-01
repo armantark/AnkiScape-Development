@@ -1,5 +1,5 @@
 import unittest
-from collections import Counter
+from tools.combat.quest_stat_sources import reviewed_sources
 
 from tools import audit_quest_combat_stat_gaps as audit
 
@@ -15,21 +15,20 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
             for gap in cls.gaps
         }
 
-    def test_gap_classification_summary_matches_current_catalog_debt(self):
-        counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
+    def test_every_statless_encounter_has_a_current_recorded_source_block(self):
+        actual = {(gap.quest_id, gap.display_name, gap.level) for gap in self.gaps}
+        recorded = {key for key, row in reviewed_sources().items() if row["status"] == "source_blocked"}
+        self.assertEqual(actual, recorded, "Source decisions must cover new gaps and remove resolved blocks")
+        for gap in self.gaps:
+            with self.subTest(quest=gap.quest_id, encounter=gap.display_name):
+                self.assertTrue(audit.recorded_block_reason(gap))
+                row = reviewed_sources()[(gap.quest_id, gap.display_name, gap.level)]
+                self.assertNotIn("payload", row, "A blocked encounter must not carry playable stats")
+                self.assertTrue(row["quest_source"])
 
-        self.assertEqual(len(self.gaps), 90)
-        self.assertEqual(
-            counts,
-            {
-                "darkan_hitpoints_only_metadata": 49,
-                "darkan_missing_resolver_stats": 14,
-                "darkan_same_name_wrong_level": 6,
-                "darkan_identical_available": 1,
-                "no_local_source_match": 6,
-                "parser_or_variant_level": 14,
-            },
-        )
+    def test_unreviewed_gap_is_not_silently_classified_as_source_blocked(self):
+        gap = audit.CombatGap("new_quest", "New Quest", 1, "New monster", 2, 1, "", "")
+        self.assertEqual(audit.recorded_block_reason(gap), "")
 
     def test_known_combat_gap_examples_explain_why_rows_remain_statless(self):
         self.assertNotIn(("priest_in_peril", "Monk of Zamorak"), self.by_quest_and_name)
@@ -46,7 +45,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         )
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("monkey_madness", "Jungle demon")], self.darkan_groups, self.partial_groups),
-            "darkan_identical_available",
+            "darkan_calibration_rejected",
         )
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("land_of_the_goblins", "Snothead")], self.darkan_groups, self.partial_groups),
@@ -61,7 +60,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         self.assertNotIn(("nomads_requiem", "Nomad"), self.by_quest_and_name)
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("fight_arena", "Khazard scorpion")], self.darkan_groups, self.partial_groups),
-            "darkan_missing_resolver_stats",
+            "source_stats_missing",
         )
         self.assertNotIn(("heroes_quest", "Entrana Fire Bird"), self.by_quest_and_name)
         self.assertNotIn(("spirits_of_the_elid", "Golem"), self.by_quest_and_name)
