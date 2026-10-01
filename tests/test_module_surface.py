@@ -23,14 +23,14 @@ FIRST_WAVE_DIGESTS = {
     "tests/combat_roster/test_finisher_families.py": "daec4f059b5a5d80d13234f6dfb4b9dd7b920d3b2c81425890884e2bf2b12ed9",
     "tests/combat_roster/test_roster_contract.py": "b7960e7fe5be4f1dca4e084af515aaeb2541ff8809b2b8db4d9adb36dff71638",
     "tests/combat_roster/test_slayer_families.py": "f9d5dea98865963b02803910c9394ee2cac405e3f0a2dd1d5b9b8d2e009cb781",
-    "logic/shop_logic.py": "53a900c9b4641264f4b3cfdb1a613b2672316b569eff35c45c5202aaf7c0e2f0",
-    "ui/ui_tab_shop.py": "21290975fe1bf7515f106b94d7bff79fd4945dcf0cdd7a35c1ac96c54b52acc7",
+    "logic/shop_logic.py": "2e9bae9877e0f479c8ae899b88580957ac9afee4f336f9efd24a1c6f4353711d",
+    "ui/ui_tab_shop.py": "bae1710a23febde767667dc9857ce2746d87e7a3d144078701d21a584a9a1ef4",
     "data/achievement_diary_catalog.py": "7c52991703757ec872b6f99533267ba3d65637c1dc6fda9e37f580f988ad8720",
     "runtime/runtime_actions_carried.py": "cb2f433223a0d04de7fc192d28943b7de330a362aead9bc48861ce3d22364d5a",
     "runtime/runtime_actions_activities.py": "3171f8e9df9c4fa1d9ebbb33394c61865aa475574c173a4772922f44301d6223"
 }
 QT_DIGEST_OVERRIDES = {
-    "ui/ui_tab_shop.py": "d21ce90e5bd51c90d7d40c562289954ab19bd5c55251c8e44f57650bd54a518a"
+    "ui/ui_tab_shop.py": "055247d7a5cd4e194604e4d8b17ef34c39c671cc4fba727215560efccee7c1c5"
 }
 ROOT_QT_DIGEST = "1af448f8643e587c89ee14b1f6efa42d6215157224a7efb20b04447113577950"
 CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"

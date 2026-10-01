@@ -41,8 +41,8 @@ from ..logic.shop_logic import (
     preview_shop_vendor_action_pure,
     search_shop_catalog_pure,
     shop_history_rows_pure,
+    shop_selector_entries_pure,
     shop_view_model_pure,
-    shop_view_models_pure,
 )
 from ..logic.cape_logic import cape_view_pure
 from .ui import (
@@ -58,6 +58,8 @@ from .ui import (
 
 def build_shop_tab(ctx) -> "QWidget":
     """Return the Shop page."""
+    from .ui_tab_shop_widgets import ROW_SIDE_PADDING, ShopResultChip, WrappedRowDelegate
+
     player_data = ctx.player_data
     dialog = ctx.dialog
     on_check_achievements = ctx.on_check_achievements
@@ -102,10 +104,16 @@ def build_shop_tab(ctx) -> "QWidget":
         selector.setMinimumHeight(116)
         selector.setIconSize(QSize(24, 24))
         selector.setAlternatingRowColors(True)
+        # A long shop name or lock reason wraps rather than hiding off the
+        # right edge behind a sideways scroll.
+        selector.setWordWrap(True)
+        selector.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        selector.setResizeMode(QListWidget.ResizeMode.Adjust)
+        selector.setItemDelegate(WrappedRowDelegate(selector))
         selector.setStyleSheet(
             "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
             " background: palette(base); color: palette(text); padding: 3px; }"
-            " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
+            f" QListWidget::item {{ padding: 5px {ROW_SIDE_PADDING}px; border-radius: 6px; }}"
             " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
         )
         column_layout.addWidget(selector, 1)
@@ -252,6 +260,16 @@ def build_shop_tab(ctx) -> "QWidget":
     shop_action_btn.setObjectName("shopTransactionButton")
     quantity_layout.addWidget(shop_action_btn)
     transaction_layout.addWidget(quantity_row)
+    shop_result_chip = ShopResultChip(
+        "shopResultChip",
+        lambda: (
+            shop_state["shop_id"],
+            shop_state["row_id"],
+            shop_state["sell_item"],
+            shop_mode_tabs.currentIndex(),
+        ),
+    )
+    transaction_layout.addWidget(shop_result_chip)
     shop_preview_label = QLabel("Preview unavailable")
     shop_preview_label.setObjectName("shopPreviewLabel")
     shop_preview_label.setWordWrap(True)
@@ -312,6 +330,10 @@ def build_shop_tab(ctx) -> "QWidget":
     service_controls_layout.addStretch(1)
     service_row_layout.addWidget(service_controls)
     services_panel_layout.addWidget(service_row)
+    service_result_chip = ShopResultChip(
+        "shopServiceResultChip", lambda: (shop_state["provider"], shop_state["service_id"])
+    )
+    services_panel_layout.addWidget(service_result_chip)
     service_preview = QLabel("")
     service_preview.setObjectName("shopServicePreviewLabel")
     service_preview.setWordWrap(True)
@@ -590,12 +612,6 @@ def build_shop_tab(ctx) -> "QWidget":
     shop_shell_layout.addWidget(local_history)
     shop_shell_layout.addWidget(global_history)
 
-    shop_toast = QLabel("")
-    shop_toast.setObjectName("shopToastLabel")
-    shop_toast.setWordWrap(True)
-    shop_toast.setStyleSheet("color: #4CAF50; font-weight: 600;")
-    shop_toast.setVisible(False)
-
     # Below the fixed-height stock/services area, the shell's remaining
     # sections (transaction, reward shops, history) must survive a ~560pt
     # dialog: they scroll as one body instead of compressing to zero. The
@@ -614,7 +630,6 @@ def build_shop_tab(ctx) -> "QWidget":
         history_header,
         local_history,
         global_history,
-        shop_toast,
     ):
         shop_shell_layout.removeWidget(widget)
         shop_lower_layout.addWidget(widget)
@@ -650,19 +665,6 @@ def build_shop_tab(ctx) -> "QWidget":
             shop for shop in SHOP_DATA.values()
             if shop.get("visibility") != "hidden"
         ]
-
-    def _shop_live_row_count(shop: dict) -> int:
-        return sum(
-            1 for row in shop.get("stock", [])
-            if shop.get("visibility") == "visible" and row.get("disposition") == "live"
-        )
-
-    def _shop_selector_sort_key(shop: dict) -> tuple:
-        return (
-            _shop_live_row_count(shop) == 0,
-            shop.get("visibility") != "visible",
-            str(shop.get("display_name", "")),
-        )
 
     def _sync_shop_detail_visibility(detail_open: bool) -> None:
         # Browse-first: the shop list owns the tab until a shop is opened, and
@@ -815,14 +817,15 @@ def build_shop_tab(ctx) -> "QWidget":
         _populate_shop_history()
         _populate_agility_reward_shops()
 
-    def _refresh_after_shop_mutation(message: str) -> None:
-        shop_toast.setText(message)
-        shop_toast.setVisible(bool(message))
+    def _refresh_after_shop_mutation(chip: ShopResultChip, message: str, ok: bool = True) -> None:
         _refresh_shop_views()
         try:
             ctx.refresh("gear")
         except Exception:
             pass
+        # After the refresh, so the chip records the selection the player
+        # now sees (selling out an item moves the sell selection).
+        chip.show_result(message, ok)
 
     def _shop_view() -> dict:
         # No default shop: until the user clicks a shop, there is no detail
@@ -954,6 +957,7 @@ def build_shop_tab(ctx) -> "QWidget":
                 _set_quantity(max(1, _inventory_count_for_ui(item_name)))
 
     def _refresh_transaction_panel() -> None:
+        shop_result_chip.follow()
         view = _shop_view()
         shop_id = str(view.get("shop_id", ""))
         qty = int(shop_custom_qty.value())
@@ -1025,7 +1029,7 @@ def build_shop_tab(ctx) -> "QWidget":
         shop_state["wilderness_confirmed"] = True
         return True
 
-    def _ambush_toast_suffix(result: dict) -> str:
+    def _ambush_suffix(result: dict) -> str:
         ambush = result.get("wilderness_ambush") or {}
         if not ambush.get("triggered"):
             return ""
@@ -1046,12 +1050,14 @@ def build_shop_tab(ctx) -> "QWidget":
             new_data, result = apply_shop_buy_pure(player_data, shop_id, str(row.get("id", "")), qty)
             if not result.get("allowed"):
                 _refresh_transaction_panel()
+                shop_result_chip.show_result(_preview_denial_text(result, str(row.get("lock_reason", ""))), False)
                 return
             _replace_player_data(new_data)
             _persist_shop_state()
             _refresh_after_shop_mutation(
+                shop_result_chip,
                 f"Bought {int(result.get('quantity', 0) or 0):,} x {result.get('item_name', row.get('item_name', 'item'))}."
-                + _ambush_toast_suffix(result)
+                + _ambush_suffix(result),
             )
         else:
             item_name = shop_state.get("sell_item", "")
@@ -1060,10 +1066,11 @@ def build_shop_tab(ctx) -> "QWidget":
             new_data, result = apply_shop_sell_pure(player_data, shop_id, item_name, qty)
             if not result.get("allowed"):
                 _refresh_transaction_panel()
+                shop_result_chip.show_result(_preview_denial_text(result), False)
                 return
             _replace_player_data(new_data)
             _persist_shop_state()
-            _refresh_after_shop_mutation(f"Sold {int(result.get('quantity', 0) or 0):,} x {item_name}.")
+            _refresh_after_shop_mutation(shop_result_chip, f"Sold {int(result.get('quantity', 0) or 0):,} x {item_name}.")
 
     def _service_text(kind: str, row: dict) -> str:
         label = "Service" if kind == "service" else "Vendor"
@@ -1129,6 +1136,7 @@ def build_shop_tab(ctx) -> "QWidget":
         return "", None
 
     def _refresh_service_preview() -> None:
+        service_result_chip.follow()
         kind, row = _selected_service_def()
         if row is None:
             service_qty.setProperty("serviceRowId", "")
@@ -1260,6 +1268,7 @@ def build_shop_tab(ctx) -> "QWidget":
             new_data, result = apply_shop_vendor_action_pure(player_data, str(row.get("id", "")), qty)
         if not result.get("allowed"):
             _refresh_service_preview()
+            service_result_chip.show_result(_preview_denial_text(result, str(row.get("lock_reason", ""))), False)
             return
         _replace_player_data(new_data)
         _persist_shop_state()
@@ -1272,8 +1281,7 @@ def build_shop_tab(ctx) -> "QWidget":
             if row.get("batchable") and amount != 1
             else "."
         )
-        _refresh_after_shop_mutation(f"Used {display_name}{suffix}")
-        _refresh_service_preview()
+        _refresh_after_shop_mutation(service_result_chip, f"Used {display_name}{suffix}")
 
     def _run_agility_reward_command(action_id: str, payload: dict) -> None:
         on_agility_command = getattr(ctx, "on_agility_command", None)
@@ -1561,7 +1569,8 @@ def build_shop_tab(ctx) -> "QWidget":
                 if result.get("lock_reason")
                 else ""
             )
-            return f"{result.get('item_name')} · {result.get('shop_name')} · Stock {stock} · {price}{lock}"
+            # The wall goes before stock and price so a narrow list still shows it.
+            return f"{result.get('item_name')} · {result.get('shop_name')}{lock} · Stock {stock} · {price}"
         label = "Service" if kind == "service" else "Vendor"
         lock = (
             f" · {_humanize_display(result.get('lock_reason'))}"
@@ -1576,7 +1585,7 @@ def build_shop_tab(ctx) -> "QWidget":
         )
         return (
             f"{label}: {result.get('display_name')} · "
-            f"{result.get('provider')} · {cost}{lock}"
+            f"{result.get('provider')}{lock} · {cost}"
         )
 
     def _populate_shop_selector() -> None:
@@ -1610,43 +1619,23 @@ def build_shop_tab(ctx) -> "QWidget":
             empty.setFlags(Qt.ItemFlag.NoItemFlags)
             shop_selector.addItem(empty)
             return
-        visible = sorted(_visible_shop_defs(), key=_shop_selector_sort_key)
-        selector_views = shop_view_models_pure(
-            player_data, [str(shop.get("id", "")) for shop in visible]
-        )
-        for shop in visible:
-            view = selector_views[str(shop.get("id", ""))]
-            rows = view.get("rows", [])
-            live_count = sum(1 for row in rows if row.get("can_buy"))
-            locked_count = sum(1 for row in rows if row.get("lock_reason"))
-            suffix = []
-            if live_count:
-                suffix.append(f"{live_count} live")
-            if locked_count:
-                suffix.append(f"{locked_count} locked")
-            if shop.get("general_store"):
-                suffix.append("general store")
-            if shop.get("lock_reason"):
-                suffix.append(_humanize_display(shop.get("lock_reason")))
-            display_name = shop.get("display_name") or _humanize_display(shop.get("id"))
-            label = f"{display_name} · " + (
-                " · ".join(suffix) if suffix else "read-only"
-            )
-            item = QListWidgetItem(label)
-            item.setData(Qt.ItemDataRole.UserRole, {"kind": "shop", "shop_id": shop.get("id", "")})
+        visible_ids = [str(shop.get("id", "")) for shop in _visible_shop_defs()]
+        for entry in shop_selector_entries_pure(player_data, visible_ids):
+            item = QListWidgetItem(entry["label"])
+            item.setData(Qt.ItemDataRole.UserRole, {"kind": "shop", "shop_id": entry["shop_id"]})
             icon_name = next(
                 (
                     str(row.get("item_name", ""))
-                    for row in rows
+                    for row in entry["rows"]
                     if _item_icon_path(str(row.get("item_name", "")))
                 ),
                 "",
             )
             _set_list_item_icon(item, icon_name)
-            if shop.get("visibility") != "visible":
+            if entry["locked"]:
                 item.setForeground(dim_text_color(shop_selector))
             shop_selector.addItem(item)
-            if shop.get("id") == current_shop_id:
+            if entry["shop_id"] == current_shop_id:
                 shop_selector.blockSignals(True)
                 shop_selector.setCurrentItem(item)
                 shop_selector.blockSignals(False)
