@@ -47,3 +47,4 @@ you are in the game, with the date the change reached main.
 
 - [ ] A half-full urn in a grave or Death's Office keeps its progress across a reload, and fills again once you carry it. (2026-09-28)
 - [ ] A sold-out shop item comes back on schedule, also when you keep buying other things in that shop. (2026-09-28)
+- [ ] In the Bank, the Toolbelt panel lists the General, Fishing, Crafting and Farming belt tools under your pickaxe and hatchet, and a quest step that wants a belt tool, such as the Druidic Ritual fishing rod, goes ahead with none in the Bank. (2026-09-30)

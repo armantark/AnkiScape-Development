@@ -2,6 +2,7 @@
 
 from typing import Iterable, Mapping, Optional
 
+from ..core.tool_belt import ALWAYS_ON_TOOL_BELT, TOOL_BELT_GROUPS
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 from .logic_pure_landmarks import (  # noqa: F401  (re-export)
@@ -81,6 +82,14 @@ def _toolbelt_ids(toolbelt, skill_key):
     if isinstance(raw, Iterable):
         return {item for item in raw if isinstance(item, str)}
     return set()
+
+
+def always_on_belt_groups_pure():
+    """The 2012 belt groups without the pickaxe and hatchet, which stay on the attach path."""
+    return tuple(
+        (group, tuple(name for name in names if name in ALWAYS_ON_TOOL_BELT))
+        for group, names in TOOL_BELT_GROUPS
+    )
 
 
 def best_woodcutting_axe_pure(woodcutting_level, _inventory, toolbelt, axe_data):

@@ -114,15 +114,11 @@ class VinesweeperLogicTests(unittest.TestCase):
         self.assertEqual(upgraded["Vial"], 1)
         self.assertEqual(info["remainder"], "Vial")
 
-    def test_entry_requires_spade_and_grants_free_flags_only_once(self):
-        blocked, ok, info = apply_vinesweeper_command_pure(
+    def test_belt_spade_enters_and_free_flags_are_granted_only_once(self):
+        entered, ok, _ = apply_vinesweeper_command_pure(
             _player(inventory={"Coins": 10_000}), "enter"
         )
-        self.assertFalse(ok)
-        self.assertIn("spade", info["reason"].lower())
-        self.assertFalse(blocked["vinesweeper"]["active"])
-
-        entered = _entered()
+        self.assertTrue(ok)
         self.assertEqual(entered["vinesweeper"]["flags"], 10)
         left, ok, _ = apply_vinesweeper_command_pure(entered, "leave")
         self.assertTrue(ok)

@@ -7439,12 +7439,11 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
-            ("Needs Bat bones x1", "Needs Tinderbox"),
+            ("Needs Bat bones x1",),
         )
 
         # Stage 7 ritual chain: inscription, binding, smash, report are all automatic.
         player_data["inventory"]["Bat bones"] = 1
-        player_data["inventory"]["Tinderbox"] = 1
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
@@ -8238,29 +8237,28 @@ class TestLogic(unittest.TestCase):
         fishing_blockers = quest_current_stage_blocker_reasons_pure(
             druidic, "druidic_ritual", QUEST_DATA
         )
-        self.assertIn("Needs Coins x1", fishing_blockers)
-        self.assertIn("Needs Fishing rod", fishing_blockers)
-        druidic["inventory"].update({"Coins": 1, "Fishing rod": 1})
+        # The rod and the chisel are tool-belt tools, so neither waits on the Bank.
+        self.assertEqual(fishing_blockers, ("Needs Coins x1",))
+        druidic["inventory"]["Coins"] = 1
         druidic, ok, completed_now = apply_quest_progress_pure(
             druidic, "druidic_ritual", QUEST_DATA
         )
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(druidic["inventory"]["Coins"], 0)
-        self.assertEqual(druidic["inventory"]["Fishing rod"], 1)
+        self.assertEqual(druidic["inventory"].get("Fishing rod", 0), 0)
         self.assertEqual(druidic["inventory"]["Stone fish"], 1)
 
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(druidic, "druidic_ritual", QUEST_DATA),
-            ("Needs Chisel",),
+            (),
         )
-        druidic["inventory"]["Chisel"] = 1
         druidic, ok, completed_now = apply_quest_progress_pure(
             druidic, "druidic_ritual", QUEST_DATA
         )
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(druidic["inventory"]["Chisel"], 1)
+        self.assertEqual(druidic["inventory"].get("Chisel", 0), 0)
         self.assertEqual(druidic["inventory"]["Stone fish"], 1)
         self.assertEqual(druidic["inventory"]["Stone scales"], 1)
 
@@ -8392,7 +8390,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(pirate["inventory"]["Pirate message"], 1)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(pirate, "pirates_treasure", QUEST_DATA),
-            ("Needs Spade",),
+            ("Needs Spade x1",),
         )
 
         pirate["inventory"]["Spade"] = 1
@@ -10941,12 +10939,11 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(player_data["inventory"]["Dramen branch"], 1)
 
-        # Stage 5: craft the staff and enter Zanaris through the shed.
+        # Stage 5: craft the staff with the belt knife and enter Zanaris through the shed.
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA),
-            ("Needs Knife",),
+            (),
         )
-        player_data["inventory"]["Knife"] = 1
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
@@ -11661,7 +11658,7 @@ class TestLogic(unittest.TestCase):
 
         self.assertFalse(claimed)
 
-    def test_the_golem_throne_claim_requires_tools_and_is_once_only(self):
+    def test_the_golem_throne_claim_uses_belt_tools_and_is_once_only(self):
         claim_id = "the_golem_thammarons_throne_gems"
         self.assertEqual(
             CLAIM_DATA[claim_id]["source"],
@@ -11686,19 +11683,14 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed)
         for gem in ("Ruby", "Emerald", "Sapphire"):
             self.assertEqual(completed_data["inventory"].get(gem, 0), 0)
-        completed_data["inventory"]["Chisel"] = 1
-        refused_data, ok = apply_claim_pure(completed_data, claim_id, CLAIM_DATA)
-        self.assertFalse(ok)
-        self.assertEqual(refused_data["inventory"].get("Ruby", 0), 0)
-        completed_data["inventory"]["Hammer"] = 1
+        self.assertEqual(completed_data["inventory"].get("Chisel", 0), 0)
+        self.assertEqual(completed_data["inventory"].get("Hammer", 0), 0)
         claimed_data, ok = apply_claim_pure(completed_data, claim_id, CLAIM_DATA)
         self.assertTrue(ok)
         self.assertEqual(
             {gem: claimed_data["inventory"][gem] for gem in ("Ruby", "Emerald", "Sapphire")},
             {"Ruby": 2, "Emerald": 2, "Sapphire": 2},
         )
-        self.assertEqual(claimed_data["inventory"]["Chisel"], 1)
-        self.assertEqual(claimed_data["inventory"]["Hammer"], 1)
         claimed_again, ok = apply_claim_pure(claimed_data, claim_id, CLAIM_DATA)
         self.assertFalse(ok)
         self.assertEqual(claimed_again["inventory"]["Ruby"], 2)
@@ -12402,22 +12394,17 @@ class TestLogic(unittest.TestCase):
         pick = dict(gear["toolbelt"])
         self.assertEqual(pick["Pickaxe"], "Bronze pickaxe")
         self.assertEqual(pick["Hatchet"], "Bronze hatchet")
-        self.assertEqual(gear["equipped"], [])
 
-    def test_bank_gear_rows_lists_equipped_with_slot(self):
-        bonus_id = next(iter(MINING_BONUS_ITEM_DATA))
-        pd = {
-            "mining_level": 1,
-            "woodcutting_level": 1,
-            "inventory": {},
-            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
-            "equipment": {"neck": MINING_BONUS_ITEM_DATA[bonus_id]["display_name"]},
-        }
+    def test_bank_gear_rows_list_belt_groups_without_the_attached_tools(self):
+        pd = {"inventory": {}, "toolbelt": {}, "equipment": {}}
         gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
-        self.assertEqual(len(gear["equipped"]), 1)
-        slot, name = gear["equipped"][0]
-        self.assertEqual(slot, "neck")
-        self.assertEqual(name, MINING_BONUS_ITEM_DATA[bonus_id]["display_name"])
+        groups = dict(gear["belt_groups"])
+        self.assertEqual(tuple(groups), ("General", "Fishing", "Crafting", "Farming"))
+        self.assertIn("Fishing rod", groups["Fishing"])
+        self.assertIn("Spade", groups["Farming"])
+        # The pickaxe and hatchet show as attached rows, so they never repeat here.
+        self.assertNotIn("Bronze pickaxe", groups["General"])
+        self.assertNotIn("Bronze hatchet", groups["General"])
 
     def test_manual_attach_moves_mithril_hatchet_from_bank_to_toolbelt(self):
         inventory, toolbelt, attached = attach_tool_to_toolbelt_pure(

@@ -1727,7 +1727,7 @@ class TestQuestCatalog(unittest.TestCase):
             sir_amik_stage_1["required_inventory_options"],
             (({"Dramen staff": 1}, {"Lunar Staff": 1}),),
         )
-        self.assertEqual(sir_amik_stage_1["required_tools"], {})
+        self.assertEqual(sir_amik_stage_1["required_tools"], {"Machete": 1, "Pestle and mortar": 1})
 
         regicide_stage_1 = data["regicide"]["stage_requirements"][0]
         self.assertEqual(regicide_stage_1["required_inventory"]["Rope"], 1)
@@ -2149,8 +2149,8 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(pirate_by_stage[1]["produced_inventory"], {"Chest key": 1})
         self.assertEqual(pirate_by_stage[2]["consumed_inventory"], {"Chest key": 1})
         self.assertEqual(pirate_by_stage[2]["produced_inventory"], {"Pirate message": 1})
-        self.assertEqual(pirate_by_stage[3]["required_inventory"], {"Pirate message": 1})
-        self.assertEqual(pirate_by_stage[3]["required_tools"], {"Spade": 1})
+        self.assertEqual(pirate_by_stage[3]["required_inventory"], {"Pirate message": 1, "Spade": 1})
+        self.assertEqual(pirate_by_stage[3]["required_tools"], {})
 
     def test_stolen_hearts_is_a_playable_source_backed_dependency(self):
         quest = quests_as_dict()["stolen_hearts"]

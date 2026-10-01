@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, Mapping, Sequence
 
 from .pet_logic import store_active_pet_pure
+from ..core.tool_belt import tool_on_belt
 from .summoning_logic import dismiss_familiar_pure
 from ..data.vinesweeper_data import (
     COMPOST_POTION_DOSES,
@@ -118,19 +119,6 @@ def apply_compost_potion_pure(
     }
 
 
-def _has_spade(player_data: Mapping[str, Any]) -> bool:
-    if _int(_inventory(player_data).get("Spade")) > 0:
-        return True
-    toolbelt = player_data.get("toolbelt")
-    if not isinstance(toolbelt, Mapping):
-        return False
-    return any(
-        "Spade" in values
-        for values in toolbelt.values()
-        if isinstance(values, (list, tuple, set))
-    )
-
-
 def _active_follower(player_data: Mapping[str, Any]) -> Mapping[str, Any]:
     summoning = player_data.get("summoning_state")
     if not isinstance(summoning, Mapping):
@@ -152,11 +140,11 @@ def vinesweeper_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     level = min(99, max(1, _int(player_data.get("farming_level"), 1, minimum=1)))
     return {
         **state,
-        "has_spade": _has_spade(player_data),
+        "has_spade": tool_on_belt(player_data, "Spade"),
         "flag_cap": VINESWEEPER_FLAG_CAP,
         "follower_active": bool(follower),
         "follower_kind": str(follower.get("kind", "")),
-        "can_enter": _has_spade(player_data),
+        "can_enter": tool_on_belt(player_data, "Spade"),
         "farming_level": level,
         "xp_point_cost": vinesweeper_xp_point_cost_pure(level),
         "rewards": tuple(
@@ -344,8 +332,8 @@ def apply_vinesweeper_command_pure(
     payload = payload if isinstance(payload, Mapping) else {}
 
     if action_id == "enter":
-        if not _has_spade(data):
-            return data, False, {"reason": "A spade or tool-belt spade is required."}
+        if not tool_on_belt(data, "Spade"):
+            return data, False, {"reason": "A spade is required."}
         follower = _active_follower(data)
         if follower and not bool(payload.get("confirm_dismiss_follower", False)):
             return data, False, {

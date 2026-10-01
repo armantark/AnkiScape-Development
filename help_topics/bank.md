@@ -19,3 +19,7 @@ Search matches item names and categories without changing quantities or carried-
 ## Claims and recovery
 
 Bank Claims collect rewards that need an explicit choice. Grave and Death's Office panels expose recoverable Combat items and costs. Target-local carried packs remain separate from Bank ownership; see [Carried inventory](help:carried-inventory).
+
+## Tool belt
+
+The Toolbelt panel below the Bank items shows your attached pickaxe and hatchet, then every other 2012 tool-belt tool by group. Those tools are always with you for skills, quests, Farming and Vinesweeper, so they never need a Bank slot. A few quest steps needed a held tool in 2012, such as digging bare ground with a spade, and those still ask for one in the Bank.
