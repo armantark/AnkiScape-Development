@@ -1,117 +1,69 @@
-import json
+import shutil
 import signal
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[2]
-TOOL = ROOT / "tools" / "maintenance" / "run_mutation_probe.py"
+TOOL = Path(__file__).resolve().parents[2] / "tools" / "maintenance" / "run_mutation_probe.py"
+SEES_MUTANT = "from pathlib import Path; assert Path('target.py').read_text() == \"VALUE = 'mutant'\\n\"; "
 
 
 class MutationProbeTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
-        self.worktree = self.root / "worktree"
-        self.worktree.mkdir()
+        self.worktree = Path(self.enterContext(tempfile.TemporaryDirectory()))
         (self.worktree / ".git").write_text("gitdir: /tmp/test-git\n", encoding="utf-8")
+        self.tool = self.worktree / "tools" / "maintenance" / TOOL.name
+        self.tool.parent.mkdir(parents=True)
+        shutil.copy(TOOL, self.tool)
         self.source = self.worktree / "target.py"
-        self.original = b"VALUE = 'original dirty bytes'\n"
+        self.original = b"VALUE = 'uncommitted edit'\n"
         self.source.write_bytes(self.original)
-        self.mutant = self.root / "mutant.py"
+        self.mutant = self.worktree / "mutant.py.txt"
         self.mutant.write_bytes(b"VALUE = 'mutant'\n")
-        self.evidence = self.root / "evidence"
-        self.command_file = self.root / "command.json"
 
-    def _write_command(self, source: str) -> None:
-        self.command_file.write_text(
-            json.dumps([sys.executable, "-c", source, str(self.source)]),
-            encoding="utf-8",
-        )
-
-    def _run(self, timeout: float = 5.0) -> subprocess.CompletedProcess[str]:
+    def _probe(self, child: str, timeout: float = 30.0) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
             [
-                sys.executable,
-                str(TOOL),
-                str(self.source),
-                str(self.mutant),
-                "--worktree",
-                str(self.worktree),
-                "--evidence-dir",
-                str(self.evidence),
-                "--command-file",
-                str(self.command_file),
-                "--timeout",
-                str(timeout),
+                sys.executable, str(self.tool), str(self.source), str(self.mutant),
+                "--timeout", str(timeout), "--", sys.executable, "-c", SEES_MUTANT + child,
             ],
-            cwd=self.worktree,
-            text=True,
-            capture_output=True,
-            check=False,
+            text=True, capture_output=True, check=False,
         )
 
-    def _report(self) -> dict:
-        reports = list(self.evidence.glob("*.json"))
-        self.assertEqual(len(reports), 1)
-        return json.loads(reports[0].read_text(encoding="utf-8"))
+    def test_only_a_red_focused_command_under_the_mutant_is_a_proof(self):
+        for child_exit, probe_exit in ((7, 0), (0, 1)):
+            with self.subTest(child_exit=child_exit):
+                result = self._probe(f"raise SystemExit({child_exit})")
 
-    def test_failing_focused_command_restores_preexisting_bytes_and_records_red_proof(self):
-        bytecode = self.worktree / "__pycache__" / "target.cpython-314.pyc"
-        bytecode.parent.mkdir()
-        bytecode.write_bytes(b"stale")
-        self._write_command(
-            "from pathlib import Path; import sys; "
-            "assert Path(sys.argv[1]).read_text() == \"VALUE = 'mutant'\\n\"; "
-            "raise SystemExit(7)"
-        )
+                self.assertEqual(result.returncode, probe_exit, result.stdout + result.stderr)
+                self.assertEqual(self.source.read_bytes(), self.original)
 
-        result = self._run()
+    def test_timeout_stops_the_command_restores_the_source_and_is_not_a_proof(self):
+        started = time.monotonic()
+        result = self._probe("import time; time.sleep(60)", timeout=0.5)
 
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertLess(time.monotonic() - started, 30)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertEqual(self.source.read_bytes(), self.original)
-        self.assertFalse(bytecode.exists())
-        report = self._report()
-        self.assertEqual(report["child_returncode"], 7)
-        self.assertTrue(report["proof_passed"])
-        self.assertTrue(report["restoration_verified"])
-        self.assertEqual(Path(report["backup_path"]).read_bytes(), self.original)
 
-    def test_timeout_restores_source_and_cannot_report_a_successful_proof(self):
-        self._write_command(
-            "from pathlib import Path; import sys, threading; "
-            "assert Path(sys.argv[1]).read_text() == \"VALUE = 'mutant'\\n\"; "
-            "threading.Event().wait(60)"
-        )
-
-        result = self._run(timeout=0.1)
-
-        self.assertEqual(result.returncode, 124, result.stdout + result.stderr)
-        self.assertEqual(self.source.read_bytes(), self.original)
-        report = self._report()
-        self.assertTrue(report["timed_out"])
-        self.assertFalse(report["proof_passed"])
-        self.assertTrue(report["restoration_verified"])
-
-    def test_handled_termination_restores_source_and_preserves_backup(self):
-        self._write_command(
-            "from pathlib import Path; import os, signal, sys, threading; "
-            "assert Path(sys.argv[1]).read_text() == \"VALUE = 'mutant'\\n\"; "
-            "os.kill(int(os.environ['ANKISCAPE_MUTATION_PROBE_PID']), signal.SIGTERM); "
-            "threading.Event().wait(60)"
-        )
-
-        result = self._run()
+    def test_termination_mid_run_restores_the_source(self):
+        result = self._probe("import os, signal, time; os.kill(os.getppid(), signal.SIGTERM); time.sleep(60)")
 
         self.assertEqual(result.returncode, 128 + signal.SIGTERM, result.stdout + result.stderr)
         self.assertEqual(self.source.read_bytes(), self.original)
-        report = self._report()
-        self.assertEqual(report["interrupted_signal"], signal.SIGTERM)
-        self.assertFalse(report["proof_passed"])
-        self.assertTrue(report["restoration_verified"])
-        self.assertEqual(Path(report["backup_path"]).read_bytes(), self.original)
+
+    def test_canonical_checkout_is_refused_before_mutation(self):
+        (self.worktree / ".git").unlink()
+        (self.worktree / ".git").mkdir()
+
+        result = self._probe("raise SystemExit(7)")
+
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(self.source.read_bytes(), self.original)
 
 
 if __name__ == "__main__":

@@ -75,16 +75,6 @@ second filesystem watcher. On macOS, `select.kqueue()` is not a context manager.
 A standalone use must wrap it in `contextlib.closing(select.kqueue())` or close it
 in `finally`.
 
-For mutation proof, preview the affected selection with `--list` or `--count`,
-then run the unchanged and mutated code with the same bare positional selectors.
-An affected behavior test must fail under the mutant. Full-suite release gates are
-separate and should not be rerun locally for each mutant. For example:
-
-```
-/opt/homebrew/bin/python3 run_tests.py --count test_state_repair
-/opt/homebrew/bin/python3 run_tests.py test_state_repair
-```
-
 Keep complete child output in raw logs. Handoff claims compare against the final
 outer `Ran` line and its following `OK` or `FAILED` result, not every nested child
 summary. This read-only extraction works for green and red unittest logs:
@@ -97,7 +87,8 @@ Launch long local probes and audit sequences directly as Bash background tasks,
 and treat only that task's completion notification as done. A `pgrep -f` waiter
 matches its own command line, and a log file appearing is not completion. When a
 foreground timeout moves a command to the background, monitor that task instead
-of relaunching it. Long disposable comparators print a flushed progress line at
+of relaunching it. Write probe code that holds Markdown backticks or quotes to a
+file and run the file instead of inlining it in a shell string. Long disposable comparators print a flushed progress line at
 a fixed case interval, with the case index or replay seed and the completed
 count, so a live log shows progress and an interrupted run names its last case.
 

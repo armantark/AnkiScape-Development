@@ -74,20 +74,21 @@ unfixed implementation before accepting it as load-bearing.
 
 ### Mutation proof
 
-Run mutation proofs only in an isolated linked worktree created or leased through
-`tools/worktree_guard.py`, never in an rsync scratch copy under `/tmp`. Use the
-worktree's resolved absolute path, establish a green focused selection, then run
-the identical selectors against the mutant. A full-suite release gate is separate
-and must not be repeated for each mutant. Path-identity, missing-asset, or unrelated
-failures are invalid red evidence.
+Run mutation proofs from a linked worktree created or leased through
+`tools/worktree_guard.py`, never an rsync copy under `/tmp`, whose resolved
+`/private/tmp` paths fail unrelated tests. Preview the affected selection with
+`run_tests.py --count`, confirm it is green, then run the identical selection
+against the mutant through the probe, which restores the source bytes before it
+exits and exits 0 only when the selection went red:
 
-Use `tools/maintenance/run_mutation_probe.py` with an explicit mutant file, a JSON
-command argument vector, and an evidence directory outside the worktree. The tool
-backs up the exact pre-probe bytes, applies the mutant, bounds the focused command,
-and restores and verifies the source after a red result, timeout, or handled
-termination. It exits 0 only when the focused command is red and restoration is
-verified; its retained backup is the recovery path after an uncatchable stop.
-Release the worktree only after the report says `restoration_verified: true`.
+```
+/opt/homebrew/bin/python3 tools/maintenance/run_mutation_probe.py logic_pure/logic_pure_combat_model.py /tmp/combat_model_mutant.py -- /opt/homebrew/bin/python3 run_tests.py test_state_repair
+```
+
+An affected behavior test must fail; path-identity, missing-asset, or unrelated
+failures are invalid red evidence. Full-suite release gates are separate and are
+not rerun for each mutant. After an uncatchable stop, recover the source from the
+backup path the probe printed first.
 
 ### Independent, cross-lineage review
 

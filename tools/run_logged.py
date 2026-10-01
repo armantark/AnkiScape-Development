@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import shlex
 import subprocess
 import sys
@@ -40,40 +39,17 @@ def run_logged(
     return completed.returncode, log_path, tail
 
 
-def read_command_file(path: Path) -> list[str]:
-    try:
-        command = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"invalid JSON command file: {exc}") from exc
-    if not isinstance(command, list) or not command:
-        raise ValueError("command file must contain a non-empty JSON argument vector")
-    if any(not isinstance(argument, str) or not argument for argument in command):
-        raise ValueError("every command-file argument must be a non-empty string")
-    return command
-
-
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--label", default="check")
     parser.add_argument("--summary-lines", type=int, default=12)
     parser.add_argument("--log-dir", type=Path)
-    parser.add_argument(
-        "--command-file", type=Path,
-        help="JSON argument vector to execute directly, without shell interpolation",
-    )
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv)
 
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
-    if args.command_file is not None:
-        if command:
-            parser.error("--command-file cannot be combined with a command after --")
-        try:
-            command = read_command_file(args.command_file)
-        except (OSError, ValueError) as exc:
-            parser.error(str(exc))
     if not command:
-        parser.error("a command is required after -- or in --command-file")
+        parser.error("a command is required after --")
     if args.summary_lines < 1:
         parser.error("--summary-lines must be at least 1")
 
