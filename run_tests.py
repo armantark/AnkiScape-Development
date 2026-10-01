@@ -78,6 +78,11 @@ def report_refusals(test_ids: list[str], unresolved: list[str]) -> bool:
             print(f"  {test_id}", file=sys.stderr)
     if unresolved:
         print(f"No unambiguous unittest ID matched: {', '.join(unresolved)}", file=sys.stderr)
+        print(
+            "Discover IDs first with run_tests.py --list <known module or method fragment>, "
+            "then copy a reported ID.",
+            file=sys.stderr,
+        )
         for selector in unresolved:
             suggestions = selector_suggestions(selector, test_ids)
             if suggestions:
@@ -130,7 +135,8 @@ def main() -> int:
         nargs="*",
         help=(
             "case-insensitive dotted names matched as whole segments of discovered "
-            "unittest IDs, or as fragments when no whole segment matches"
+            "unittest IDs, or as fragments when no whole segment matches; use --list "
+            "with a known module or method fragment before constructing a qualified ID"
         ),
     )
     inventory = parser.add_mutually_exclusive_group()

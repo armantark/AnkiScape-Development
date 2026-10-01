@@ -62,6 +62,9 @@
   tools/run_logged.py --label <lane> -- <complete command>`. The wrapper
   preserves the command's exit code, prints a bounded tail, and reports the
   full temporary-log path without relying on zsh's read-only `status` name.
+  When literal document text contains backticks, quotes, or spaces, write a JSON
+  argument vector and pass it through `--command-file`; do not interpolate that
+  text into an inline shell command.
 - Delegation briefs must state the assigned files, allowed actions, evidence
   and acceptance checks. A read-only brief must prohibit checkout writes.
 - Select the next slice with `python3 tools/memory_bank_queue_packet.py

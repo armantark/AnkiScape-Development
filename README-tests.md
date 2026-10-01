@@ -69,6 +69,30 @@ output on stdout. Skip-report write, fetch, or decode faults produce stderr
 warnings and do not change the test outcome. Successful zero-skip focused runs do
 not fetch a report.
 
+The remote runner already polls its own completion report. Observe the original
+background task through its completion notification or Monitor; do not launch a
+second filesystem watcher. On macOS, `select.kqueue()` is not a context manager.
+A standalone use must wrap it in `contextlib.closing(select.kqueue())` or close it
+in `finally`.
+
+For mutation proof, preview the affected selection with `--list` or `--count`,
+then run the unchanged and mutated code with the same bare positional selectors.
+An affected behavior test must fail under the mutant. Full-suite release gates are
+separate and should not be rerun locally for each mutant. For example:
+
+```
+/opt/homebrew/bin/python3 run_tests.py --count test_state_repair
+/opt/homebrew/bin/python3 run_tests.py test_state_repair
+```
+
+Keep complete child output in raw logs. Handoff claims compare against the final
+outer `Ran` line and its following `OK` or `FAILED` result, not every nested child
+summary. This read-only extraction works for green and red unittest logs:
+
+```
+/opt/homebrew/bin/python3 -c 'import re, sys; from pathlib import Path; text = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace"); matches = list(re.finditer(r"^Ran \d+ tests? in .+$\n\n?(?:OK(?: \(skipped=\d+\))?|FAILED \(.+\))$", text, re.MULTILINE)); print(matches[-1].group(0) if matches else "no complete outer summary")' /absolute/path/to/raw-test.log
+```
+
 Run the full real Qt suite separately through the checked-in environment:
 
 ```

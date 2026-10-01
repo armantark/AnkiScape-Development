@@ -10,7 +10,8 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-from run_tests import resolve_selectors, select_tests, selector_suggestions, test_result_exit_code
+from run_tests import report_refusals, resolve_selectors, select_tests, selector_suggestions, test_result_exit_code
+from tools.run_logged import main as run_logged_main
 from tools.run_logged import run_logged
 from tools.workflow_manifest_guard import validate_manifest
 
@@ -83,9 +84,13 @@ class PapercutToolTests(unittest.TestCase):
         ]
 
         resolved, unresolved = resolve_selectors(["MainMenuWidgetTests"], test_ids)
+        with redirect_stderr(io.StringIO()) as stderr:
+            refused = report_refusals(test_ids, unresolved)
 
         self.assertEqual(resolved, [])
         self.assertEqual(unresolved, ["MainMenuWidgetTests"])
+        self.assertTrue(refused)
+        self.assertIn("run_tests.py --list", stderr.getvalue())
 
     def test_focused_runner_refuses_ambiguous_fuzzy_methods(self):
         test_ids = [
@@ -252,6 +257,42 @@ class PapercutToolTests(unittest.TestCase):
             self.assertEqual(returncode, 7)
             self.assertEqual(tail, ["failure"])
             self.assertEqual(log_path.read_text(encoding="utf-8"), "before\nfailure\n")
+
+    def test_logged_runner_reads_literal_arguments_from_json_without_a_shell(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            command_file = root / "command with spaces.json"
+            arguments = ["`markdown`", '"quoted"', "path with spaces"]
+            command_file.write_text(json.dumps([
+                sys.executable,
+                "-c",
+                "import json, sys; print(json.dumps(sys.argv[1:]))",
+                *arguments,
+            ]), encoding="utf-8")
+
+            with redirect_stdout(io.StringIO()) as stdout:
+                result = run_logged_main([
+                    "--command-file", str(command_file), "--log-dir", str(root),
+                ])
+
+            self.assertEqual(result, 0)
+            self.assertIn(json.dumps(arguments), stdout.getvalue())
+
+    def test_logged_runner_refuses_malformed_command_files_without_execution(self):
+        invalid = ("{", "null", "[]", '["python", 7]', '["", "arg"]')
+        with tempfile.TemporaryDirectory() as temp_dir:
+            command_file = Path(temp_dir) / "command.json"
+            for payload in invalid:
+                with self.subTest(payload=payload):
+                    command_file.write_text(payload, encoding="utf-8")
+                    with (
+                        patch("tools.run_logged.run_logged") as execute,
+                        redirect_stderr(io.StringIO()),
+                        self.assertRaises(SystemExit) as failure,
+                    ):
+                        run_logged_main(["--command-file", str(command_file)])
+                    self.assertEqual(failure.exception.code, 2)
+                    execute.assert_not_called()
 
     def test_workflow_preflight_rejects_recorded_schema_mistakes(self):
         manifest = {

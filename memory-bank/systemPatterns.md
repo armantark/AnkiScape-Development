@@ -80,6 +80,24 @@ durability through equip, death, recovery, discard, and undo.
 ## Architecture Snapshot
 The add-on is a small Python package loaded by Anki. It separates pure game contracts from Anki-aware orchestration for review dispatch, runtime actions, target rows, and achievements, though some skill behavior still lives in UI, storage, stats, and icon-registration surfaces.
 
+## Long probes own process and evidence state
+
+Launch long disposable probes and local audit sequences through
+`tools/maintenance/run_probe.py`. Its `--commands-file` is a JSON list of argument
+vectors; invoke it with `--worktree`, an outside `--evidence-dir`, `--label`, and
+`--detach`, or launch the foreground form as a harness background task. The worker
+waits on exact child handles with per-command deadlines and publishes completion
+JSON only after every child exits. Monitor that same run; never add a `pgrep -f`
+waiter or treat the appearance of the output log as completion, and never launch
+duplicate audits after a foreground timeout.
+
+Long comparators wrap each generated case with
+`tools.maintenance.probe_progress.ProbeProgress`. The run-specific JSONL records a
+flushed start and completion with phase, deterministic case index or replay seed,
+elapsed time, and completed count. An unmatched start identifies the active case
+after interruption; final equality checks and summaries remain the comparator's
+responsibility.
+
 ## Documentation Authority
 
 - `memory-bank/papercuts.md` is an append-only shared log and has the tracked

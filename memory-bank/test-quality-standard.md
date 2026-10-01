@@ -72,6 +72,23 @@ Ask whether each test proves the source contract or merely restates the current
 implementation. Confirm that a purpose-written regression test fails against the
 unfixed implementation before accepting it as load-bearing.
 
+### Mutation proof
+
+Run mutation proofs only in an isolated linked worktree created or leased through
+`tools/worktree_guard.py`, never in an rsync scratch copy under `/tmp`. Use the
+worktree's resolved absolute path, establish a green focused selection, then run
+the identical selectors against the mutant. A full-suite release gate is separate
+and must not be repeated for each mutant. Path-identity, missing-asset, or unrelated
+failures are invalid red evidence.
+
+Use `tools/maintenance/run_mutation_probe.py` with an explicit mutant file, a JSON
+command argument vector, and an evidence directory outside the worktree. The tool
+backs up the exact pre-probe bytes, applies the mutant, bounds the focused command,
+and restores and verifies the source after a red result, timeout, or handled
+termination. It exits 0 only when the focused command is red and restoration is
+verified; its retained backup is the recovery path after an uncatchable stop.
+Release the worktree only after the report says `restoration_verified: true`.
+
 ### Independent, cross-lineage review
 
 Pair an author with a verifier from a different model lineage. The rule is
