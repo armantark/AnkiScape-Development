@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import subprocess
+import sys
 import unittest
+from pathlib import Path
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import (
@@ -29,6 +32,34 @@ from ankiscape.logic_pure.logic_pure import (
 
 
 class BoneSourceDataTests(unittest.TestCase):
+    def test_combat_data_registers_bone_sources_before_constants_import(self):
+        script = """
+import copy
+import sys
+
+import pkg_alias  # noqa: F401
+from ankiscape.data import combat_data
+from ankiscape.data.bone_sources_data import COMBAT_BONE_SOURCES, bone_source_enemies_as_dict
+
+assert "ankiscape.core.constants" not in sys.modules
+expected = bone_source_enemies_as_dict()
+assert {source.id: combat_data.COMBAT_ENEMY_DATA[source.id] for source in COMBAT_BONE_SOURCES} == expected
+roster_before = copy.deepcopy(combat_data.COMBAT_ENEMY_DATA)
+
+from ankiscape.core import constants
+
+assert constants.COMBAT_ENEMY_DATA is combat_data.COMBAT_ENEMY_DATA
+assert combat_data.COMBAT_ENEMY_DATA == roster_before
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            cwd=Path(__file__).resolve().parents[1],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_four_combat_sources_have_exact_profiles_and_guaranteed_routes(self):
         self.assertEqual(
             [

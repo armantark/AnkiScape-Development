@@ -13,26 +13,26 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "module_surface.py"
 
 FIRST_WAVE_DIGESTS = {
-    "core/constants.py": "6dabebc66192ab24dce33002ab47ac30829daa28a2b4a9878d63df0752dd8fa5",
+    "core/constants.py": "c2fcac63af65cda69d99d44f771c175f5e84bcd9b9823f5cfc7f100a3a1ffbef",
     "data/quest_data.py": "cdf55d6a3fa3f926e7b6fde5a49c4ce4bb9e32983c6bbc70e65e1735622c524b",
-    "data/combat_data.py": "88a22f2dd67c72aa0e261a0f78d6e4b5c318b23f891c4cdf9a0da4e5c3dec1a4",
+    "data/combat_data.py": "7509334687e47525e9e512f64bfca6753f04744635002d6cb73a68f6b43016d5",
     "data/slayer_data.py": "7373a419da64c7bd1ac41dba45f772361fc0d4d78363c4625903b12b79cd86d6",
-    "logic_pure/logic_pure_combat_engine.py": "991b4a3ec2830030d63850ef391f73690cec27d9d8128b96a8a1107ebab11b62",
-    "tests/combat_roster/contract.py": "d12a75aa5058e4fb6bb2fb78529f03b146ab427dad7101383cb267a9b60d5ac3",
-    "tests/combat_roster/test_dragon_families.py": "6f88bbfd4518bd4267d633640e8ec8871c8afec7c7a1490df01177ec81fb4b73",
-    "tests/combat_roster/test_finisher_families.py": "daec4f059b5a5d80d13234f6dfb4b9dd7b920d3b2c81425890884e2bf2b12ed9",
-    "tests/combat_roster/test_roster_contract.py": "b7960e7fe5be4f1dca4e084af515aaeb2541ff8809b2b8db4d9adb36dff71638",
-    "tests/combat_roster/test_slayer_families.py": "f9d5dea98865963b02803910c9394ee2cac405e3f0a2dd1d5b9b8d2e009cb781",
-    "logic/shop_logic.py": "3d562a9eae474a86958e563349772fda3236433a17bf49521503c787dfc190b9",
+    "logic_pure/logic_pure_combat_engine.py": "6a8dbc326f2fc768f1208b551adcfd922ec55d9e0ffad9f4dd46dc8b60ca9019",
+    "tests/combat_roster/contract.py": "12eb272aee8af160bdfca308c6aaa184b04b9a9fc4ff4ae782a82874692eb6fc",
+    "tests/combat_roster/test_dragon_families.py": "622ddc3df4746ca84dd13cb662ea0376a5f3ce826341ae6e7e92dbabf1637b73",
+    "tests/combat_roster/test_finisher_families.py": "8342a393b890f48ec20e402f18deea3b566c51b85bbb3370c802f6fffd0a319b",
+    "tests/combat_roster/test_roster_contract.py": "c8554f2ad3a5514a7fcf131a33165d20254f2a658982b7ebfaf1b220eb7e664c",
+    "tests/combat_roster/test_slayer_families.py": "a53f5df80b97763d7be54130af3e46493faebff8e3fc725d259f74442cc4d833",
+    "logic/shop_logic.py": "6bd9587265e4d904d5f62caeb72f806dbace1b5abe7b219aefa85a7c1c410eb0",
     "ui/ui_tab_shop.py": "333de4c12d8d75707aee95a2a2c58194cf3fd2568e9e2fe50ee451e082b4a9bf",
     "data/achievement_diary_catalog.py": "e4caca4baf314e00c680931d03f2d3d3cb234dcd16ab2e3a199d2782d3b74cad",
-    "runtime/runtime_actions_carried.py": "2adca47eb3dab754cf183492afb5cff7497742d57c2edb91b7faf963572cecb0",
-    "runtime/runtime_actions_activities.py": "3887200096d2242e6fbf7f28d2b44f4ad76dd757415b52cb7d95be87ebd3d0e3"
+    "runtime/runtime_actions_carried.py": "e1ccec7960801224264c99da149dff2478f6ac90831f895342974f3181ff4295",
+    "runtime/runtime_actions_activities.py": "bc603c7775a8b6edd91c386540a8aed7a2f8b6b12d9505372e880527563a38ec"
 }
 QT_DIGEST_OVERRIDES = {
     "ui/ui_tab_shop.py": "e5931feac9312ba27adf4388579a4cefbade779a43e884aaf593f22ed7bf1152"
 }
-ROOT_QT_DIGEST = "82ee3fadd94c011bbc74b00002d9076646f2d8d35890bc2e7ddabb5302064684"
+ROOT_QT_DIGEST = "072f1d417e1d1ebadae2ec1b4a27c604d6325a9fb6e39ecd80b5830d050a806b"
 CONSTANTS_EXPORT_ORDER_DIGEST = "d180a5355fcedac9a896e306b8749d53252999e855582441f16b0261391d0ccc"
 
 
@@ -177,7 +177,7 @@ class ModuleSurfaceTest(unittest.TestCase):
                 "    diary = importlib.import_module('ankiscape.data.achievement_diary_data')",
                 "    data.update(diary.diary_equipment_data_as_dict())",
                 "    module._add_post_diary_equipment_data(data)",
-                "    assert len(data) == 1049",
+                "    assert len(data) == 1051",
                 "    assert module._BASE_EQUIPMENT_DATA == base",
                 "assert 'ankiscape.core.constants' not in sys.modules",
                 "print('OK')",

@@ -403,7 +403,6 @@ UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update({**compost_potion_activities_as_dict(), **chompy_hunting_activity_as_dict()})
-COMBAT_ENEMY_DATA.update(bone_source_enemies_as_dict())
 UTILITY_ACTIVITY_DATA[CRYSTAL_CHEST_ACTIVITY_ID] = {
     **crystal_chest_utility_spec(),
     "icon_path": os.path.join(CRAFTED_ITEMS_FOLDER, "crystal_key.png"),

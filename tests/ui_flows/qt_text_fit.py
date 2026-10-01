@@ -5,12 +5,20 @@ Callers must show, resize and pump events before probing, per
 geometry, and these probes trust widget geometry, not pixels.
 """
 
-from aqt.qt import QLabel, QPoint, QPushButton, QRect
+from aqt.qt import QLabel, QPoint, QPushButton, QRect, QStyle, QStyleOptionButton, Qt
 
 
 def _text_fits(widget) -> bool:
     if isinstance(widget, QPushButton):
-        return widget.sizeHint().width() <= widget.width()
+        option = QStyleOptionButton()
+        widget.initStyleOption(option)
+        contents = widget.style().subElementRect(
+            QStyle.SubElement.SE_PushButtonContents,
+            option,
+            widget,
+        )
+        text_size = option.fontMetrics.size(Qt.TextFlag.TextShowMnemonic, option.text)
+        return text_size.width() <= contents.width() and text_size.height() <= contents.height()
     if widget.wordWrap():
         # A wrapped label's minimum width is its longest word, which wrapping
         # cannot shorten; the height check alone misses that clip.

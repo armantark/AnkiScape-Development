@@ -24,7 +24,6 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, Tuple
 
-
 ROOT = Path(__file__).resolve().parents[1]
 CACHE_DIR = ROOT / "tools" / ".cache" / "pre_eoc_quest_catalog"
 OUTPUT_PATH = ROOT / "generated" / "quest_catalog_generated.py"

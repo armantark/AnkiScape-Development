@@ -125,9 +125,7 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
         viewport = _main_menu._find_named_widget(self.dialog, "shopLowerScroll").viewport()
         self.assertIs(chip.parentWidget(), panel)
         self.assertFalse(chip.isVisible())
-        # The Qty buttons already fail the helper's size-hint check while
-        # their text is whole on screen; the chip must add nothing to that.
-        defects_without_chip = text_fit_defects(panel)
+        self.assertEqual(text_fit_defects(panel), [])
 
         button.click()
         QApplication.processEvents()
@@ -138,7 +136,7 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
             viewport.rect().contains(QRect(chip.mapTo(viewport, QPoint(0, 0)), chip.size())),
             "the chip needs scrolling to see at 560 px",
         )
-        self.assertEqual(text_fit_defects(panel), defects_without_chip)
+        self.assertEqual(text_fit_defects(panel), [])
 
         self._click_tile(live_rows[1]["id"])
         self.assertFalse(chip.isVisible(), "a stale result stayed under a different row")
@@ -157,7 +155,7 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
         self.assertTrue(chip.isVisible())
         self.assertRegex(chip.text(), r"^Need \d[\d,]* Coins, you have 0\.$")
         self.assertIn("#f0c75e", chip.styleSheet())
-        self.assertEqual(text_fit_defects(panel), defects_without_chip)
+        self.assertEqual(text_fit_defects(panel), [])
 
     def test_service_chip_confirms_a_vendor_action_beside_its_use_button(self) -> None:
         from ankiscape.data.shop_data import SHOP_VENDOR_ACTIONS

@@ -19,6 +19,13 @@ ADDON_ROOT = Path(__file__).resolve().parents[1]
 if str(ADDON_ROOT) not in sys.path:
     sys.path.insert(0, str(ADDON_ROOT))
 
+from tools.generation.equipment_policy import (
+    DROP_ONLY_EXCLUDED_ITEM_IDS,
+    LEGACY_EQUIPMENT_ITEMS,
+    LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES,
+    SOURCE_PROVENANCE_OVERRIDES,
+)
+
 SlotId = str
 BonusValue = int | float | bool | str
 EquipmentBlock = Dict[str, BonusValue]
@@ -150,70 +157,6 @@ RANGED_BOW_EQUIPMENT: Mapping[str, Tuple[int, str]] = {
     "Yew longbow": (40, "yew_longbow"),
     "Magic shortbow": (50, "magic_shortbow"),
     "Magic longbow": (50, "magic_longbow"),
-}
-LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str], ...] = (
-    ("Air tiara", 5527, None, 1, False, "runecrafting_access", "Altar.kt; AIR_TIARA"),
-    ("Binding necklace", 5521, None, 1, False, "binding_necklace", "legacy equipment_data.py; BINDING_NECKLACE"),
-    ("Blood tiara", 5549, None, 1, False, "runecrafting_access", "Altar.kt; BLOOD_TIARA"),
-    ("Body tiara", 5533, None, 1, False, "runecrafting_access", "Altar.kt; BODY_TIARA"),
-    ("Brass necklace", 1009, None, 1, False, "necklace", "BRASS_NECKLACE"),
-    ("Bronze spear", 1237, "attack", 1, True, "spear", "BRONZE_SPEAR"),
-    ("Cape", 1019, None, 1, False, "cape", "CAPE_1019"),
-    ("Chaos tiara", 5543, None, 1, False, "runecrafting_access", "Altar.kt; CHAOS_TIARA"),
-    ("Chef's hat", 1949, None, 1, False, "hat", "CHEFS_HAT"),
-    ("Mining helmet (lit)", 5013, "defense", 1, False, "head", "LightSource.java; MINING_HELMET_LIT"),
-    ("Lit bug lantern", 7053, None, 1, False, "shield", "Lit bug lantern oldid=6591557; LightSource.java item 7053"),
-    ("Mind shield", 9731, None, 1, False, "shield", "ElementalWorkshopIIIds.MIND_SHIELD"),
-    ("Body shield", 18691, None, 1, False, "shield", "period elemental shield variant"),
-    ("Cosmic shield", 20436, None, 1, False, "shield", "period elemental shield variant"),
-    ("Chaos shield", 20438, None, 1, False, "shield", "period elemental shield variant"),
-    ("Dragonfire shield", 11284, "defense", 75, False, "shield", "ItemForging.java: Anti-dragon shield plus Draconic visage"),
-    ("Cosmic tiara", 5539, None, 1, False, "runecrafting_access", "Altar.kt; COSMIC_TIARA"),
-    ("Death tiara", 5547, None, 1, False, "runecrafting_access", "Altar.kt; DEATH_TIARA"),
-    ("Earth tiara", 5535, None, 1, False, "runecrafting_access", "Altar.kt; EARTH_TIARA"),
-    ("Fire battlestaff", 1393, "attack", 30, False, "battlestaff", "FIRE_BATTLESTAFF"),
-    ("Fire tiara", 5537, None, 1, False, "runecrafting_access", "Altar.kt; FIRE_TIARA"),
-    ("Iron spear", 1239, "attack", 1, True, "spear", "IRON_SPEAR"),
-    ("Law tiara", 5545, None, 1, False, "runecrafting_access", "Altar.kt; LAW_TIARA"),
-    ("Mind tiara", 5529, None, 1, False, "runecrafting_access", "Altar.kt; MIND_TIARA"),
-    ("Nature tiara", 5541, None, 1, False, "runecrafting_access", "Altar.kt; NATURE_TIARA"),
-    ("Obsidian cape", 6568, None, 1, False, "obsidian_cape", "OBSIDIAN_CAPE"),
-    ("Lava battlestaff", 3053, "attack", 30, False, "battlestaff", "LAVA_BATTLESTAFF"),
-    ("Mystic hat (dark)", 4099, "defense", 20, False, "head", "MYSTIC_HAT_DARK"),
-    ("Mystic robe bottom (dark)", 4103, "defense", 20, False, "legs", "MYSTIC_ROBE_BOTTOM_DARK"),
-    ("Mystic boots (dark)", 4107, "defense", 20, False, "boots", "MYSTIC_BOOTS_DARK"),
-    ("Mystic robe bottom (light)", 4113, "defense", 20, False, "legs", "MYSTIC_ROBE_BOTTOM_LIGHT"),
-    ("Mystic hat (light)", 4109, "defense", 20, False, "head", "MYSTIC_HAT_LIGHT"),
-    ("Leaf-bladed spear", 4158, "attack", 50, True, "spear", "LEAF_BLADED_SPEAR"),
-    ("Leaf-bladed sword", 13290, "attack", 50, False, "sword", "LEAF_BLADED_SWORD"),
-    ("Slayer's staff", 4170, "magic", 50, False, "staff", "SLAYER_STAFF"),
-    ("Staff", 1379, None, 1, False, "staff", "STAFF"),
-    ("Staff of air", 1381, None, 1, False, "elemental_staff", "STAFF_OF_AIR"),
-    ("Staff of earth", 1385, None, 1, False, "elemental_staff", "STAFF_OF_EARTH"),
-    ("Staff of fire", 1387, None, 1, False, "elemental_staff", "STAFF_OF_FIRE"),
-    ("Staff of water", 1383, None, 1, False, "elemental_staff", "STAFF_OF_WATER"),
-    ("Steel boots", 4123, "defense", 5, False, "boots", "STEEL_BOOTS"),
-    ("Black boots", 4125, "defense", 10, False, "boots", "BLACK_BOOTS"),
-    ("Mithril boots", 4127, "defense", 20, False, "boots", "MITHRIL_BOOTS"),
-    ("Steel spear", 1241, "attack", 5, True, "spear", "STEEL_SPEAR"),
-    ("Toktz-ket-xil", 6524, "defense", 60, False, "obsidian_shield", "TOKTZKETXIL"),
-    ("Tzhaar-ket-om", 6528, "strength", 60, True, "obsidian_maul", "TZHAARKETOM"),
-    ("Water tiara", 5531, None, 1, False, "runecrafting_access", "Altar.kt; WATER_TIARA"),
-    ("Wicked hood", 22332, None, 1, False, "wicked_hood", "legacy equipment_data.py; WICKED_HOOD"),
-)
-LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES: Mapping[
-    str, Tuple[Tuple[str, int], ...]
-] = {
-    "Fire battlestaff": (("attack", 30), ("magic", 30)),
-    "Lava battlestaff": (("attack", 30), ("magic", 30)),
-    "Mystic hat (dark)": (("defense", 20), ("magic", 40)),
-    "Mystic robe bottom (dark)": (("defense", 20), ("magic", 40)),
-    "Mystic boots (dark)": (("defense", 20), ("magic", 20)),
-    "Mystic robe bottom (light)": (("defense", 20), ("magic", 40)),
-    "Mystic hat (light)": (("defense", 20), ("magic", 20)),
-    "Leaf-bladed spear": (("attack", 50), ("slayer", 55)),
-    "Leaf-bladed sword": (("attack", 50), ("slayer", 55)),
-    "Slayer's staff": (("magic", 50),),
 }
 # Quest pages name these equipment rewards apart from their item definitions.
 QUEST_EQUIPMENT_SOURCE_NAMES: Mapping[str, str] = {
@@ -543,6 +486,8 @@ def _recipe_equipment_item(
 
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+
+
 def _smithing_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     try:
         from ankiscape.data.smithing_data import SMITHING_RECIPES
@@ -637,6 +582,10 @@ def _smithing_recipe_equipment_items(
     return tuple(generated)
 
 
+def _drop_is_excluded(source_item: Optional[SourceItem]) -> bool:
+    return source_item is None or source_item.item_id in DROP_ONLY_EXCLUDED_ITEM_IDS
+
+
 def _resolve_source_item_by_name(
     item_name: object,
     items_by_name: Mapping[str, SourceItem],
@@ -719,7 +668,7 @@ def _drop_equipment_items(
             if not guaranteed_drop:
                 continue
             source_item = _resolve_source_item_by_name(guaranteed_drop[0], items_by_name)
-            if source_item is None:
+            if _drop_is_excluded(source_item):
                 continue
             equipment_item = _equipment_item_from_source_item(source_item, f"COMBAT_ENEMY_DATA guaranteed drop; {enemy_name}")
             if equipment_item is not None:
@@ -741,7 +690,7 @@ def _drop_equipment_items(
                     source_item = _resolve_source_item_by_name(
                         slot.get("item"), items_by_name
                     )
-                if source_item is None:
+                if _drop_is_excluded(source_item):
                     continue
                 equipment_item = _equipment_item_from_source_item(
                     source_item,
@@ -794,6 +743,10 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
         block = source_item.equipment if source_item is not None else None
         if not _has_mappable_equipment_slot(block):
             continue
+        source, source_status = SOURCE_PROVENANCE_OVERRIDES.get(
+            item_id,
+            (f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}; {source_note}", "items.yml equipment block"),
+        )
         generated.append(
             GeneratedEquipmentItem(
                 item_name=item_name,
@@ -805,8 +758,8 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
                 bonuses=_bonuses_from_block(block),
                 attack_speed=_int_from_block(block, "attack_speed", 0),
                 source_item_id=item_id,
-                source=f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}; {source_note}",
-                source_status="items.yml equipment block",
+                source=source,
+                source_status=source_status,
                 skill_requirements=LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES.get(
                     item_name,
                     _combat_requirements(combat_skill, required_level),

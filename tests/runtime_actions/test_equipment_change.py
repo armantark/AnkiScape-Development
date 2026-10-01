@@ -1,6 +1,7 @@
 """Gear, supply and bank moves refuse cleanly and stay in order with review Undo."""
 
 import copy
+from dataclasses import asdict
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -30,6 +31,40 @@ class TestEquipmentChange(unittest.TestCase):
         self.assertEqual(errors, [("Cannot unequip item", "That equipment slot is already empty.")])
         self.assertEqual(saves, [])
         self.assertEqual(addon._state.player_data, before)
+
+    def test_mogre_drops_equip_from_inventory_and_apply_their_bonuses(self):
+        addon = integration._load_addon_as_package("ankiscape_mogre_equipment")
+        addon.mw = integration._DummyMW(integration._DummyCol())
+        addon.save_player_data = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon._state.player_data = {
+            "inventory": {"Mudskipper hat": 1, "Flippers": 1},
+            "equipment": {},
+            "defense_level": 1,
+        }
+        expected_stats = {
+            "Mudskipper hat": {
+                field: 0 for field in addon.ui.EQUIPMENT_BONUS_FIELDS
+            },
+            "Flippers": {
+                **{field: 0 for field in addon.ui.EQUIPMENT_BONUS_FIELDS},
+                "attack_stab": -2,
+                "attack_slash": -2,
+                "attack_crush": -2,
+                "defence_slash": 1,
+                "defence_crush": 1,
+            },
+        }
+
+        for item_name, slot in (("Mudskipper hat", "head"), ("Flippers", "feet")):
+            with self.subTest(item_name=item_name):
+                self.assertTrue(addon.on_equip_item(item_name))
+                self.assertEqual(addon._state.player_data["inventory"][item_name], 0)
+                self.assertEqual(addon._state.player_data["equipment"][slot], item_name)
+                totals = addon.ui.equipment_stat_totals_pure(
+                    addon._state.player_data["equipment"], addon.EQUIPMENT_DATA
+                )
+                self.assertEqual(asdict(totals), expected_stats[item_name])
 
 
 class GearMoveAfterReviewUndoTest(unittest.TestCase):

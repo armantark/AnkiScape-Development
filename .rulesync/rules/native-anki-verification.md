@@ -1,5 +1,5 @@
 ---
-root: true
+root: false
 targets:
   - '*'
 description: Route native Anki checks to Codex on the connected MacBook
