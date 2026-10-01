@@ -320,6 +320,11 @@ def _split_line_citations(previous_line: str | None, line: str) -> Iterable[tupl
             yield target_path, start, int(item.group("end") or start)
 
 
+def _unpinned(line: str, found: set[tuple[str, int, int]]) -> set[tuple[str, int, int]]:
+    # `a468d18a:path:12` names the file at that commit, as `git show` does; it cannot drift.
+    return {item for item in found if not re.search(rf"(?<![0-9a-f])[0-9a-f]{{7,40}}:{re.escape(item[0])}:", line)}
+
+
 def _commit_candidates(lines: Sequence[str], line_index: int) -> tuple[str, ...]:
     candidates: list[str] = []
     for index in range(line_index, max(-1, line_index - 120), -1):
@@ -392,7 +397,7 @@ def _parse_citations(root: Path, memory_bank: Path, git: GitRepository) -> tuple
                 continue
             commits = _commit_candidates(lines, line_index)
             context = f"{_source_context(lines, line_index)}\nrecord:{path.name.lower()}"
-            for target_path, start_line, end_line in sorted(found):
+            for target_path, start_line, end_line in sorted(_unpinned(line, found)):
                 target = f"{target_path}:{start_line}" + (f"-{end_line}" if end_line != start_line else "")
                 pending.append((line_index, target_path, start_line, end_line, target, commits, context))
         if not pending:
