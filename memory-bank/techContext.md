@@ -35,7 +35,7 @@
   acceptance.
 - Tests use Python's built-in `unittest`, not pytest.
 - `run_tests.py` adds the repository root to `sys.path`; tests and direct probes import `pkg_alias` before package-relative `ankiscape.*` modules.
-- `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. Because the audit does not yet apply every runtime access gate, its output is not proof of player acquisition.
+- `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. The audit measures declared routes; check runtime access gates before a claim of player acquisition.
 
 ### Bounded operator commands
 
@@ -206,7 +206,7 @@ Existing tests cover:
 - New Python code should be fully typed where practical, especially new public helpers and data models.
 
 ## Package Management
-There is no separate package manager requirement in the current add-on. If Python dependencies become necessary, prefer `uv` unless the project adopts another tool explicitly.
+The add-on has no runtime package dependency. If one becomes necessary, use `uv` unless the project adopts another tool explicitly.
 
 Developer-only scripts can use `uv run` inline script metadata when optional tooling dependencies should not become add-on runtime dependencies. `tools/fetch_assets.py` uses this pattern for Pillow-based PNG normalization.
 
@@ -248,7 +248,7 @@ Woodcutting backend parity data lives in `data/woodcutting_data.py`, with a deta
 Mining backend parity data lives in `data/mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
 
 
-Crafting backend parity data lives in `data/crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content whose acquisition loop is not built yet. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
+Crafting backend parity data lives in `data/crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content; the Kanban owns its acquisition gaps. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
 
 Smithing backend parity data lives in `data/smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits 9 ordinary smelt recipes, 158 anvil recipes, and the separate source-backed cannonball furnace process. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
 
@@ -278,14 +278,14 @@ lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
 `runecrafting_pouches`, and `item_charges`.
 
 ## Asset Scraping (icons)
-`tools/fetch_assets.py` pulls one wiki icon at a time and records provenance. For pre-EOC RuneScape content, pass `--source rs3` so a same-named modern OSRS file cannot silently win. Use OSRS art only after independently proving that exact art belongs to the target era. Two practical asset gotchas remain:
+`tools/fetch_assets.py` pulls one wiki icon at a time and records provenance. Every fetcher writes `assets_provenance.json`, so run fetchers one at a time (`systemPatterns.md`, "Asset provenance writes are serialized"). For pre-EOC RuneScape content, pass `--source rs3` so a same-named modern OSRS file cannot silently win. Use OSRS art only after independently proving that exact art belongs to the target era. Two practical asset gotchas remain:
 
 - **Skill icons use period highscores art.** Every skill icon `icon/<skill>_icon.png` is the period RuneScape Wiki `<Skill> icon highscores.png`, as `assets_provenance.json` records. Fetch a new skill icon the same way so the skill rail stays uniform.
 - **Item sprites render small unless they fill the frame — fix it in the asset, not at runtime.** Wiki item sprites are tightly cropped (e.g. an arrow is a thin diagonal, and Flax's real art is only ~30x23 inside a 64x64 file). Historically `--size N` normalized by `thumbnail((N,N))` then centering on a transparent NxN canvas, which *preserved* those transparent margins — so at the fixed 28px list icon box the visible sprite was much smaller than the legacy bundled icons (full-frame photos that fill the box edge-to-edge). The fix is to bake a trim into the PNG so the UI just does `QIcon(path)` like everything else (a brief experiment with per-paint runtime cropping was reverted: it scanned the 1000–1500px crafted photos pixel-by-pixel and beachballed when opening Crafting). Two pieces keep assets display-ready:
   - **Scrape time (new fetches):** `tools/fetch_assets.py` trims the alpha bounding box (`getchannel("A").getbbox()`) *before* thumbnail/pad, so freshly fetched icons fill the frame. Lossless — only removes invisible pixels.
   - **Existing assets / batch fix:** `tools/trim_icons.py` audits and trims small padded sprites (`<= 256px`) across every top-level UI asset family. It is idempotent and skips large full-frame photos, where trimming would change the intended composition. Run it with `/opt/homebrew/bin/python3` (Pillow) or `.venv-qt/bin/python` (the `QImage` fallback) after adding sprites; `tests/test_ui_asset_normalization.py` fails if a new top-level family is omitted or any small asset retains transparent margins.
   - **New downloads:** `tools/fetch_assets.py` crops invisible margins before applying its optional maximum dimension. The `size` argument is a maximum visible-art box, not a request to re-center the art on a padded square canvas.
-  - The UI renders normalized assets with a plain `QIcon(path)`. No runtime cropping helpers exist anymore.
+  - The UI renders normalized assets with a plain `QIcon(path)`. The UI does no runtime cropping.
 
 ### Woodcutting asset wiring (the log/hatchet/nest fetch)
 - **Batch driver:** `tools/fetch_woodcutting_assets.py` (`uv run …`) fetches the whole Woodcutting manifest through one rate-limited `HttpWikiClient` so provenance is recorded per file and a single failure doesn't abort the rest. Re-run with `--force` to refresh.
@@ -295,7 +295,7 @@ lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
 - **Ivy uses the Choking ivy interface icon.** Ivy has no inventory/log item, and `File:Ivy.png` (OSRS) is a full castle-wall *screenshot*, not an icon. The usable art is `File:Choking ivy icon.png` (RS3) — fetched into `trees/Ivy.png` so the (XP-only, no-output) row still shows a vine icon. Egg bird-nests and bird's eggs stay iconless (wiki titles don't resolve; vanishingly rare drops). Nest *ring* contents reuse the existing crafted ring sprites.
 
 ### Utilities and Activities row icons
-- Existing no-XP activity rows now use dedicated `activityicons/` PNGs instead of relying only on output-item material art. The row contract is `UTILITY_ACTIVITY_DATA[activity_id]["icon_path"]`.
+- No-XP activity rows use dedicated `activityicons/` PNGs instead of relying only on output-item material art. The row contract is `UTILITY_ACTIVITY_DATA[activity_id]["icon_path"]`.
 - The Qt Utilities and Activities target lists prefer `icon_path` and fall back
   to `UTILITY_ITEM_IMAGES` for output-producing rows. Missing icons therefore
   degrade to output art or a text-only row without changing action behavior.
@@ -303,7 +303,7 @@ lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
   `questitems/toolkit.png` and `agilityitems/agility_arena_ticket.png` sprites.
   Qt scales both through the same 28-by-28 `KeepAspectRatio` contract as skill
   and target icons; no duplicate synthesized artwork is checked in.
-- Fetch activity-row icons with `uv run tools/fetch_assets.py <item> --out activityicons/<activity_id>.png --wiki-title <File title> --size 64`, then confirm `assets_provenance.json` contains the `activityicons/` key. Do provenance-affecting fetches sequentially because the current JSON writer is not concurrency-safe.
+- Fetch activity-row icons with `uv run tools/fetch_assets.py <item> --out activityicons/<activity_id>.png --wiki-title <File title> --size 64`, then confirm `assets_provenance.json` contains the `activityicons/` key.
 - `assets_provenance.json` records each activity icon's source wiki and file title; Soft clay, Wool, and Flax come from the RuneScape Wiki.
 
 ### Firemaking asset wiring
@@ -316,9 +316,7 @@ lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
   inputs plus Ashes live in `firemakingitems/` and are wired through
   `FIREMAKING_ITEM_IMAGES`: `ashes.png`, `arctic_pine_logs.png`,
   `eucalyptus_logs.png`, `curly_root.png`, and `cursed_magic_logs.png`.
-- Provenance is recorded in `assets_provenance.json`; do Firemaking asset
-  refreshes sequentially because the provenance JSON writer is not
-  concurrency-safe.
+- Provenance is recorded in `assets_provenance.json`.
 
 ### Runecrafting asset wiring
 - `tools/fetch_runecrafting_assets.py` derives the Runecrafting manifest from
@@ -328,14 +326,12 @@ lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
   Wiki `Runecrafting icon highscores.png`, as `assets_provenance.json` records.
 - Runes, talismans, tiaras, pouches, the Wicked hood, and Binding necklace live
   in `runecraftingitems/` and are wired through `RUNECRAFTING_ITEM_IMAGES`.
-- Rune/Pure essence reuse Mining ore art; do provenance-affecting refreshes
-  sequentially because the provenance JSON writer is not concurrency-safe.
+- Rune/Pure essence reuse Mining ore art.
 
 ### Prayer passive asset wiring
 - `tools/fetch_prayer_assets.py` derives Prayer materials and passive-item rows from `data/prayer_data.py` and `data/prayer_passive_data.py`.
 - Its fetch path is explicitly restricted to `RS3_WIKI`; do not restore the shared OSRS-first fallback for these pre-EOC assets without independent exact-period art proof.
 - Bonecrusher and Ectoplasmator live at `prayeritems/bonecrusher.png` and `prayeritems/ectoplasmator.png`; `tests/test_urns.py` requires `source_wiki == "rs3"` for both provenance rows.
-- Run Prayer/provenance fetches sequentially because the shared JSON writer is not concurrency-safe.
 
 ### Herblore asset wiring
 - `uv run tools/fetch_herblore_assets.py` derives its manifest from the live,
@@ -347,7 +343,6 @@ lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
 - `HERBLORE_ITEM_IMAGES` is existence-guarded and target metadata looks up each
   row's output item, so clean herbs, unfinished potions, and finished potions
   render their own sprites.
-- Run the manifest sequentially because every request updates `assets_provenance.json`.
 
 ### Thieving target portraits
 

@@ -79,7 +79,7 @@ rewrite while ensuring two visually identical copies can retain different hidden
 durability through equip, death, recovery, discard, and undo.
 
 ## Architecture Snapshot
-The add-on is a small Python package loaded by Anki. It separates pure game contracts from Anki-aware orchestration for review dispatch, runtime actions, target rows, and achievements, though some skill behavior still lives in UI, storage, stats, and icon-registration surfaces.
+The add-on is a small Python package loaded by Anki. It separates pure game contracts from Anki-aware orchestration for review dispatch, runtime actions, target rows, and achievements, though some skill behavior also lives in UI, storage, stats, and icon-registration surfaces.
 
 ## Documentation Authority
 
@@ -184,9 +184,9 @@ expected file and provenance key in the asset test.
 - Processing skills consume inventory and produce output items.
 - Skills get their XP curve from `exp_table_for_skill()`: Dungeoneering uses `DUNGEONEERING_EXP_TABLE`, every other skill `EXP_TABLE`. Each skill keeps per-skill `*_level` / `*_exp` fields.
 - Inventory is a single dictionary shared across ores, logs, gems, bars, and crafted items.
-- The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration right now.
+- The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration.
 - The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs can support future UI/action metadata without breaking current saves.
-- Review dispatch now resolves an `action_registry.review_action_handler_key` before calling the matching `runtime/runtime_actions.py` handler. Thin public `on_<skill>_answer` wrappers remain for compatibility and direct tests. This keeps display names, save keys, Utility aliases, handler identity, and runtime mutation logic connected without requiring a large action-engine rewrite.
+- Review dispatch resolves an `action_registry.review_action_handler_key` before calling the matching `runtime/runtime_actions.py` handler. Thin public `on_<skill>_answer` wrappers remain for compatibility and direct tests. This keeps display names, save keys, Utility aliases, handler identity, and runtime mutation logic connected without requiring a large action-engine rewrite.
 - Cadence state uses the route-keyed `player_data["cadence_profiles"]` mapping.
   Each route contains `credit`, `opening_ready`, `assigned_reviews`,
   `opportunities_emitted`, and `cadence_version`. Sanitation validates these fields.
@@ -208,8 +208,8 @@ expected file and provenance key in the asset test.
 - Saved Advanced layouts describe logical urn slots. `materialize_urn_layout_pure()` follows each slot through runed, active, and full physical names before either skilling or Combat repacks it, prioritizing the active charge-bearing object and then teleportable full urns.
 - Direct inventory actions that award XP but do not answer a card use a bounded custom Anki undo stack. Full-urn teleport persists immediately and never consumes or creates the single review-action snapshot; multiple direct teleports undo in LIFO order independently of review undo.
 - Owned gilded-altar state is stint-scoped. Starting a new stint consumes one clean marrentill per installed burner, freezes the 250/300/350% multiplier, and does not re-charge herbs until target/mode selection ends that stint.
-- Skills-hub target lists now consume `target_metadata.TargetRowMetadata` rows. `_build_target_selector()` picks the shared flat `QListWidget` renderer when a skill has fewer than 25 rows or no row has a group, and the shared grouped `QTreeWidget` renderer otherwise. The pure row metadata owns labels, tooltips, icon paths, group ids, sort keys, current state, enabled state, and lock reasons; Qt only renders rows, persists group expansion where applicable, and guards disabled-row clicks.
-- Achievement definitions now live behind `core/achievement_metadata.py`. `constants.ACHIEVEMENTS` stays as a legacy export for `core/logic.py`, old tests, and any add-on code that reads the dict shape, while UI code consumes row/progress helpers instead of reconstructing grouped achievement state.
+- Skills-hub target lists consume `target_metadata.TargetRowMetadata` rows. `_build_target_selector()` picks the shared flat `QListWidget` renderer when a skill has fewer than 25 rows or no row has a group, and the shared grouped `QTreeWidget` renderer otherwise. The pure row metadata owns labels, tooltips, icon paths, group ids, sort keys, current state, enabled state, and lock reasons; Qt only renders rows, persists group expansion where applicable, and guards disabled-row clicks.
+- Achievement definitions live behind `core/achievement_metadata.py`. `constants.ACHIEVEMENTS` stays as a legacy export for `core/logic.py`, old tests, and any add-on code that reads the dict shape, while UI code consumes row/progress helpers instead of reconstructing grouped achievement state.
 - Generated Achievement Diary curation preserves source identity rather than
   rewriting it. A task moved within its family keeps its original-tier durable
   ID and records both original and curated tiers in provenance; explicit
@@ -254,7 +254,7 @@ expected file and provenance key in the asset test.
   `memory-bank/simulation-time-boundary-2026-07-16.md` defines the calendar scale.
   Its recurring-activity decision defines bounded entry reserves, not automatic rewards.
   Each consumer requires an explicit implementation check before a carryover claim.
-- Answer-button semantics are now explicit: every valid answer emits one
+- Answer-button semantics are explicit: every valid answer emits one
   idle/world tick, while only Hard, Good, and Easy (`ease > 1`) also emit a
   foreground action. Again therefore means the player idled for one simulation
   interval while the world continued. World and foreground mutation share the
@@ -272,6 +272,7 @@ expected file and provenance key in the asset test.
   The strip is a sibling above the mouse-transparent XP HUD, not a control inside it.
   Do not create a standalone widget for each feature.
   Gravestone and expiring Familiar cargo use distinct source art, labels, countdown rules, and detail actions.
+  This bullet is contract text: the contract records its implementation as deferred, and no runtime alert strip exists.
 - Rare gameplay-created decisions use the sibling contextual-action contract in
   `review-hud-context-actions-contract-2026-07-18.md`: one labeled row, at most
   three direct actions, no duplicate toast, no automatic Casual/Advanced split,
@@ -296,6 +297,8 @@ expected file and provenance key in the asset test.
   when compatible Bank stock exists; it does not also perform the target action and
   never fires on Again. Advanced carried slots reduce detour frequency rather than
   bypassing the same resource rules.
+- The next four bullets are Summoning contract text. The runtime implements no
+  familiar renewal, replacement, or `Best available` policy.
 - Consumable automation uses the target-carried inventory as its explicit budget.
   An enabled Summoning familiar policy may atomically renew or replace from matching
   carried pouches, and auto-special may consume a deliberately packed scroll, but
@@ -407,20 +410,20 @@ expected file and provenance key in the asset test.
   dedicated `activityicons/<activity>.png` asset. The Qt target list prefers
   that icon and falls back to output-item art without changing reward logic.
 - Crafting recipe data stores source XP only. Runtime reward handling awards base XP per action tick; review pacing is controlled by the actions-per-review multiplier rather than by inflating a single action's XP.
-- Crafting now follows the source-data-module pattern at the backend layer (`data/crafting_data.py`). `current_craft` stores stable recipe IDs, inventory stores real item names, and the data intentionally includes live input-starved recipes so missing acquisition loops light up later without reshaping the recipe. XP-bearing Crafting ignores recipe `batch_size`; only no-XP Utility/Activities batch material prep.
-- Woodcutting now has a focused source-data module (`data/woodcutting_data.py`) rather than only ad hoc `core/constants.py` rows. Its stable target IDs are persisted in `current_tree`, while inventory uses real item output names such as `Logs` and `Oak logs`.
-- Fishing now follows the source-data-module pattern (`data/fishing_data.py`) as a Gathering skill. Its stable method IDs are persisted in `current_fishing`, while inventory uses real output item names such as `Raw crayfish`, `Raw salmon`, and `Raw shark`. Mixed-output rows preserve source order during rolls, consumable material is removed only after a successful catch, and Barbarian fish side XP updates hidden Strength and the live Agility state without exposing Strength as an independent skill surface.
-- Fletching now follows the source-data-module pattern (`data/fletching_data.py`) as
+- Crafting follows the source-data-module pattern at the backend layer (`data/crafting_data.py`). `current_craft` stores stable recipe IDs, inventory stores real item names, and the data intentionally includes live input-starved recipes so missing acquisition loops light up later without reshaping the recipe. XP-bearing Crafting ignores recipe `batch_size`; only no-XP Utility/Activities batch material prep.
+- Woodcutting has a focused source-data module (`data/woodcutting_data.py`) rather than only ad hoc `core/constants.py` rows. Its stable target IDs are persisted in `current_tree`, while inventory uses real item output names such as `Logs` and `Oak logs`.
+- Fishing follows the source-data-module pattern (`data/fishing_data.py`) as a Gathering skill. Its stable method IDs are persisted in `current_fishing`, while inventory uses real output item names such as `Raw crayfish`, `Raw salmon`, and `Raw shark`. Mixed-output rows preserve source order during rolls, consumable material is removed only after a successful catch, and Barbarian fish side XP updates hidden Strength and the live Agility state without exposing Strength as an independent skill surface.
+- Fletching follows the source-data-module pattern (`data/fletching_data.py`) as
   an Artisan processing skill. Stable target IDs are persisted in
   `current_fletch`, while inventory uses real output and material item names.
   `constants.FLETCHING_DATA` is only a compatibility export. Fletching target
   metadata carries group/sort data for the shared grouped `QTreeWidget`
   renderer. Common reusable tools remain ambient; only level, materials, and
   generic target unlocks gate rows.
-- Cooking now follows the source-data-module pattern (`data/cooking_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_cooking`, while inventory uses real raw/cooked/burnt item names. Cooking failures are productive inventory mutations: the raw input is consumed, the source burnt item is added, and no XP is awarded. Source low/high chances stay in data and are adapted to review-scale probabilities in pure logic.
-- Runecrafting now follows the source-data-module pattern (`data/runecrafting_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_runecrafting`, while inventory uses real rune/access item names. Rune Mysteries quest state, Bank Claims, Wicked hood fed-altars, pouch degradation, and Binding necklace charges are explicit flat side-state keys in `player_data`. Quests are review actions through `core/action_registry.py`, not fake skills in `core/skill_registry.py`.
-- Hunter now follows the source-data-module pattern (`data/hunter_data.py`) as a Gathering skill. Its stable target IDs are persisted in `current_hunter`, while inventory uses canonical cache item names such as `Red feather`, `Kebbit claws`, `Imp-in-a-box (2)`, `Gourm' impling jar`, and `Ess' impling jar`. The local 2011Scape cache/snapshot is treated as identity evidence, not a mechanics implementation; 2011.rs guide rows supply levels/XP/rewards, and local 2012scape/Darkan Hunter code supplies mechanics/id parity. Hunter outputs are first-class `hunter` bank items, while jars/traps such as `Butterfly jar`, `Impling jar`, and `Magic box` remain material items. Quest locks cover completion gates and narrow route precedents only; partial-route access such as Regicide-start content stays in notes until a route model exists.
-- Hunter separates reusable gear from consumables. `requirements` are deleted only on successful catches; `tools` are bank/inventory gates that remain after a catch. Current reusable gates cover bird snares, box traps, butterfly nets for butterfly/Puro-Puro rows, and small fishing net plus rope for tree-net rows. Hunter supplies now come from live NPC shops; the retired `Buy Hunter supplies` Utility bridge must not return.
+- Cooking follows the source-data-module pattern (`data/cooking_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_cooking`, while inventory uses real raw/cooked/burnt item names. Cooking failures are productive inventory mutations: the raw input is consumed, the source burnt item is added, and no XP is awarded. Source low/high chances stay in data and are adapted to review-scale probabilities in pure logic.
+- Runecrafting follows the source-data-module pattern (`data/runecrafting_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_runecrafting`, while inventory uses real rune/access item names. Rune Mysteries quest state, Bank Claims, Wicked hood fed-altars, pouch degradation, and Binding necklace charges are explicit flat side-state keys in `player_data`. Quests are review actions through `core/action_registry.py`, not fake skills in `core/skill_registry.py`.
+- Hunter follows the source-data-module pattern (`data/hunter_data.py`) as a Gathering skill. Its stable target IDs are persisted in `current_hunter`, while inventory uses canonical cache item names such as `Red feather`, `Kebbit claws`, `Imp-in-a-box (2)`, `Gourm' impling jar`, and `Ess' impling jar`. The local 2011Scape cache/snapshot is treated as identity evidence, not a mechanics implementation; 2011.rs guide rows supply levels/XP/rewards, and local 2012scape/Darkan Hunter code supplies mechanics/id parity. Hunter outputs are first-class `hunter` bank items, while jars/traps such as `Butterfly jar`, `Impling jar`, and `Magic box` remain material items. Quest locks cover completion gates and narrow route precedents only; partial-route access such as Regicide-start content stays in notes until a route model exists.
+- Hunter separates reusable gear from consumables. `requirements` are deleted only on successful catches; `tools` are bank/inventory gates that remain after a catch. Current reusable gates cover bird snares, box traps, butterfly nets for butterfly/Puro-Puro rows, and small fishing net plus rope for tree-net rows. Hunter supplies come from live NPC shops; the retired `Buy Hunter supplies` Utility bridge must not return.
 - `tools/build_pre_eoc_quest_catalog.py` generates the pre-EOC quest catalog in release order.
   Recipe for Disaster subquests have separate rows. Use the generator for the current catalog size.
   Catalog and stage rows provide coverage structure, not proof of full quest parity.
@@ -530,13 +533,13 @@ expected file and provenance key in the asset test.
   The Fremennik Isles gates Neitiznot/yak/arctic pine rows, As a First Resort
   gates Hunter `catch_wimpy_bird`, Eagles' Peak gates Hunter `catch_ferret`, and
   Rocking Out gates Hunter pirate implings. Ability gates are flat
-  `player_data["unlocked_abilities"]` ids, currently including
+  `player_data["unlocked_abilities"]` ids such as
   `broad_fletching` and `barbarian_fishing`.
 - Utilities and Activities are grouped independently by `group` metadata in
   their own Qt trees. Group metadata also feeds the explicit surface
   classification; tests require every registered no-XP row to belong to exactly
   one side.
-- Mining now follows the same source-data-module pattern (`data/mining_data.py`). Its stable target IDs are persisted in `current_ore`, while inventory continues to use real item output names such as `Iron ore`, `Pure essence`, `Sandstone (10kg)`, and `Uncut opal`.
+- Mining follows the same source-data-module pattern (`data/mining_data.py`). Its stable target IDs are persisted in `current_ore`, while inventory continues to use real item output names such as `Iron ore`, `Pure essence`, `Sandstone (10kg)`, and `Uncut opal`.
 - Smithing uses `data/smithing_data.py` for smelt and forge recipes in `SMITHING_DATA`.
   Stable `current_smith` IDs select recipes; `BAR_DATA` is a compatibility view for smelt-only consumers.
   Runtime uses the same pure processing helper for both stations. Hammer and tool requirements remain implicit.
@@ -548,7 +551,7 @@ expected file and provenance key in the asset test.
 - The custom carried-pack editor has three distinct projections: desired 28-slot layout, clickable Bank inventory, and live current inventory (including loot pickups). Layout edits refresh only the plan; Bank/current grids refresh when their source inventory changes.
 - Reusable tools are not automatically visible just because the source action has one. Fishing deliberately keeps rods, nets, cages, pots, vessels, and harpoons implicit in labels, tooltips, gating, and assets. Visible progression remains limited to Woodcutting hatchets and Mining pickaxes unless a future design explicitly promotes another tool family.
 - Equipment has backend and Qt surfaces. `data/equipment_data.py` is generated from checked-in Smithing data plus local 2011Scape `items.yml`; storage keeps a flat `equipment` mapping (slot -> item name); pure helpers own gate/swap/stat-total rules; runtime callbacks feed a dedicated Equipment tab with right-click Equip/Unequip. Attack, Strength, Defence, Constitution, and Ranged are partial skills trained through unified Combat; Magic has its own complete review surface.
-- `tools/audit_item_reachability.py` builds a deterministic route graph from registered seeds and transformations, including quest `start_inventory`, stage `produced_inventory`, and final rewards. Use `--rank-roots N` to prioritize source work by simulated transitive gain. The instrument does not yet reproduce every runtime access gate and can credit inaccessible combat drops or shop stock, so it measures declared route closure rather than player acquisition. Never silence an orphan by inventing a recipe or free seed. Its report modes exit 0 whenever the report builds, because known orphans are a pinned baseline, not a failure; only `--check` fails, when the report differs from the pins in `tests/test_item_reachability_audit.py`.
+- `tools/audit_item_reachability.py` builds a deterministic route graph from registered seeds and transformations, including quest `start_inventory`, stage `produced_inventory`, and final rewards. Use `--rank-roots N` to prioritize source work by simulated transitive gain. The instrument measures declared routes and can credit inaccessible combat drops or shop stock; check runtime access gates before a claim of player acquisition. Never silence an orphan by inventing a recipe or free seed. Its report modes exit 0 whenever the report builds, because known orphans are a pinned baseline, not a failure; only `--check` fails, when the report differs from the pins in `tests/test_item_reachability_audit.py`.
 - Combat death/reclaim state stays flat and review-transaction friendly. `combat_grave.items` is the active five-safe-review recovery list, while `death_office.items` holds gear collapsed out of the active grave path, such as a second Combat death before recovery. Death's Office reclaim consumes Coins and returns gear to inventory through a pure helper plus Bank-tab callback, so Anki undo can still roll the whole review transaction back by restoring `player_data`.
 - Combat bank runs are target-scoped supply-recovery state. If `combat_bank_run.target_id` no longer matches the current Combat target, reset the run before deciding whether the new target needs its own two-review bank trip; never complete an old run against a different enemy. Bank-run supply decisions must use the same enemy table being simulated so quest/injected enemies with poison can load antipoison correctly.
 - Quest combat reuses the ordinary burst engine but must not leak quest target ids into ordinary Combat progression. Keep ordinary `combat_kill_counts` scoped to selectable Combat targets; restore the pre-quest ordinary encounter after partial/kill quest bursts, but let quest-combat death clear ordinary encounter state because the shared death path has killed the player.
@@ -556,12 +559,12 @@ expected file and provenance key in the asset test.
 - `ItemDefinition.tradeable` defines item tradability from source evidence.
   Grand Exchange eligibility must use item metadata, not category alone.
   Document source anomalies in the relevant item audit.
-- `food` is now a first-class item category for cooked/prepared/burnt Cooking items. Burnt Cooking items are intentionally registered as non-tradeable junk in this fork even though RuneScape player-to-player tradability is historically weird, because future AnkiScape GE/trading will not distinguish marketing from trading.
+- `food` is a first-class item category for cooked/prepared/burnt Cooking items. Burnt Cooking items are intentionally registered as non-tradeable junk in this fork even though RuneScape player-to-player tradability is historically weird, because future AnkiScape GE/trading will not distinguish marketing from trading.
 - Random no-XP Utility actions can use dedicated pure helpers.
   `Open bird nests` consumes a known nest subtype and rolls source contents.
   It does not use a fixed `requirements -> output_item` recipe.
 - Review rewards are paired with Anki undo via `gui_hooks.state_did_undo`. When an eligible answer changes game state, the runtime records the original values for only the changed `player_data` keys; undo restores those values and saves config so Command-Z does not leave XP/items ahead of the card schedule.
-- Review pacing is now an integer **actions-per-review** multiplier, not an XP-only scalar. Runtime reads `ankiscape_review_action_multiplier` (falling back to the old `ankiscape_xp_multiplier` key), executes up to N normal action ticks inside one eligible review, aggregates floating feedback, and records one undo snapshot for the whole review. Gathering skills spend N independent probability rolls; processing and Utility/Activities stop cleanly when materials run out before an extra sub-action.
+- Review pacing is an integer **actions-per-review** multiplier, not an XP-only scalar. Runtime reads `ankiscape_review_action_multiplier` (falling back to the old `ankiscape_xp_multiplier` key), executes up to N normal action ticks inside one eligible review, aggregates floating feedback, and records one undo snapshot for the whole review. Gathering skills spend N independent probability rolls; processing and Utility/Activities stop cleanly when materials run out before an extra sub-action.
 - Every started review action should record durable telemetry in `player_data["action_telemetry"]`. The stable row key is `skill_id:action_id`; rows track attempts, successes, failures, expected successes, dry streaks, output counts, and failure kinds. Blocked actions such as missing materials or insufficient level do not count as attempts, but dry RNG outcomes, Cooking burns, and iron smelt failures do save telemetry.
 
 ## Landmark activity pattern
@@ -714,13 +717,14 @@ not reuse Wilson's item `1808450369`, and do not leave the in-product review
 link pointing at his listing. Public source must match the exact release
 candidate rather than a stale fork snapshot.
 
-Code lineage and asset redistribution are separate gates. The working
-AGPL-3.0 basis from AnkiWeb does not close the repository's missing explicit
-license, Wilson acknowledgement, or the provenance of RuneScape-derived assets.
+Code lineage and asset redistribution are separate gates. A public release
+requires an explicit repository license, Wilson's acknowledgement, and the
+provenance of RuneScape-derived assets; the AGPL-3.0 basis from AnkiWeb covers
+none of these.
 Follow
 `memory-bank/public-release-lineage-and-license-2026-07-17.md` in order and
-stop before upload if any rights, attribution, asset, packaging, or real-profile
-verification gate remains open.
+upload only after every rights, attribution, asset, packaging, and real-profile
+verification gate is closed.
 
 ## UI Gotcha: nested-closure name collisions in `show_main_menu`
 `show_main_menu` defines nested helpers in a shared local scope.
