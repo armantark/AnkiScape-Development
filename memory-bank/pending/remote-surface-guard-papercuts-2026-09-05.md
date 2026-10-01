@@ -1,8 +1,0 @@
-# Remote surface guard papercuts
-
-- 2026-09-05T18:34:53.700090+00:00: Static validation used the guessed script tools/audit_memory_bank_docs.py, which does not exist; the repository entry point is tools/audit_docs.py.
-- 2026-09-05T18:34:53.700266+00:00: An optional tools/pre_commit* search operand triggered `zsh:1: no matches found: tools/pre_commit*`; use rg --files filters for optional families.
-- 2026-09-05T18:37:28.996175+00:00: Calling `_ssh` directly for a failing focused unittest command reran the test command three times under the transport retry wrapper. Focused commands now capture the test result in a remote report and return it as data so transport retries do not mistake assertion failures for connection failures.
-- 2026-09-05T19:01:11.412149+00:00: Driver worktree lease command supplied an extra `--json` flag and failed with `error: unrecognized arguments: --json`; the wrapper already emits JSON, and retrying without the flag succeeded.
-- 2026-09-05T19:01:11.412149+00:00: Driver MBP native task creation with gpt-6-astra and low failed with `could not validate reasoning effort "low" for model "gpt-6-astra"`; model-only then failed with `could not validate model "gpt-6-astra"`. Creation without overrides succeeded; the configured remote model remains unverified.
-- 2026-09-05T19:03:54.101497+00:00: Normal commit was rejected by slop-gate: `__init__.py: 6251 lines (was 6249)` and `fan-out 114 (was 112)`. The two public constants already exist in the imported runtime_actions module, so the repair now extends that existing import instead of adding two dependencies. Root size and fan-out remain unchanged. No commit was amended and no hook was bypassed.

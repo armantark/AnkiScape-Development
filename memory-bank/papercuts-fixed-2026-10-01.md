@@ -1079,3 +1079,567 @@ Disposition: fixed.
 Evidence: goal/papercuts-quality-tools: 9c48b073, 7602e258, c302fd86, 6bba4d49, 6c30ff8b, 51386a97, c39c77f9, 1398ecc7, simplified in b84058d8, db86c461, d5b56ec0, 01bab391, e3deff07, 41a0dc8d. Triage cause: The standing contract's documentation-only Qt exemption does not distinguish slice verification from landing authorization. The landing tool correctly requires a full gate, but an agent following the exemption can complete a plain-only gate before discovering that its receipt cannot authorize landing.
 
 - 2026-10-01 02:10 October rotation: promotion_gate.py run --plain-only passed on docs-only 82a870c6, but land refused it: 'Landing refused: evidence for 82a870c6... did not pass every full-gate check'; the contract's documentation-only exception does not reach landing, so docs-only batches still need the Qt lane.
+
+# Staged papercuts from 2026-09-05, closed 2026-10-01
+
+These entries sat in `memory-bank/pending/*-papercuts-2026-09-05.md` and never reached `papercuts.md`. A per-entry triage on 2026-10-01 (main eb9fcb90) closed every one; the pending files are removed. Each entry keeps its source file and line.
+
+## A read-only progress probe treated the runner's transient pending record as a durable status file. Normal completion deletes that record, so an unlock
+
+Disposition: fixed.
+
+Evidence: goal/papercuts-staged ad1741ea: tools/run_remote_tests.py says the pending record is temporary and prints the exact run's log and report paths.
+
+Source: memory-bank/pending/complexity-recovery-papercuts-2026-09-05.md line 3 at main eb9fcb90
+
+- 2026-09-06T05:27Z: The parent attempted a read-only progress snapshot as remote Qt completed; the pending record was already removed and `read_text` raised `FileNotFoundError: [Errno 2] No such file or directory: '/Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.pending.json'`. Reconcile the completion log when the pending record disappears; do not assume it persists between observations. No remote command ran or retry was needed.
+
+## A branch-history audit used `git log --all`, which also traverses T3 checkpoint refs and floods the output with non-branch history. The repository has
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/complexity-recovery-papercuts-2026-09-05.md line 4 at main eb9fcb90
+
+- 2026-09-06T05:29Z: The first scoped move-history query used `git log --all`, which included hundreds of `refs/t3/checkpoints` entries and truncated the output. Restrict this audit to `--branches` or immutable accepted commits.
+
+## The complexity-inventory reconciliation included below-threshold raw rows outside the audit scope, causing an unnecessary AST lookup for a duplicated 
+
+Disposition: fixed.
+
+Evidence: Commit 91c394170dd94d832bddeb0824c32843703926f9 retained the corrected inventory. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/exposed-complexity-2026-09-05.md:92 explicitly limits the inventory to above-threshold functions. The current archived recovery-script.py.gz has `if not above(row): continue` at decompressed line 96. Reading the current archived complete-function-inventory.json.gz verified zero below-threshold inventory rows and no inclusion of `_on_main_menu._on_main_menu._apply_achievement_diary_command._change` among raw_metric_names. The original raw measurement remains preserved with CCN 2 and null cognitive/Halstead values; the correction restores scope rather than rewriting evidence or claiming Lizard's naming behavior was fixed.
+
+Source: memory-bank/pending/complexity-recovery-papercuts-2026-09-05.md line 6 at main eb9fcb90
+
+- 2026-09-07: Reconciliation initially included below-threshold Lizard rows; its duplicated nested name `_on_main_menu._on_main_menu._apply_achievement_diary_command._change` did not uniquely match the AST. Restored the retained audit's above-threshold raw-row scope; no metrics rerun or evidence replacement.
+
+## The complete complexity inventory initially omitted ast_sha256 and retained raw metric rows from its provisional candidates, so the verifier's field l
+
+Disposition: fixed.
+
+Evidence: Commit 91c394170dd94d832bddeb0824c32843703926f9 contains the corrected complete-function-inventory.json.gz. Read-only verification confirmed that all 56 snapshot rows and all 5 provisional candidate rows contain nonempty ast_sha256 and raw_metric_rows. The retained archive is byte-identical to the committed file. In /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/91c394170dd94d832bddeb0824c32843703926f9/memory-bank/evidence/exposed-complexity-2026-09-05/complete-function-inventory.json.gz, decompressed lines 1931–1932, 1964–1965, 1998–1999, 2040–2041, and 2072–2073 contain the corrected fields for every provisional row. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/evidence/exposed-complexity-2026-09-05/SUMMARY.md lines 4–6 document the archive location and producer lookup.
+
+Source: memory-bank/pending/complexity-recovery-papercuts-2026-09-05.md line 8 at main eb9fcb90
+
+- 2026-09-07: Parent evidence verifier checked all 56 snapshot rows, then raised `KeyError: 'ast_sha256'` because the 5 provisional rows lacked that field. Added the same AST identity and retained raw metric rows to provisional evidence; original compressed measurements remain unchanged.
+
+## After an interruption, the driver treated a previously returned tool process handle as still resumable instead of first checking persisted results. A 
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/complexity-recovery-papercuts-2026-09-05.md line 9 at main eb9fcb90
+
+- 2026-09-07: After the interrupted run, root attempted to resume stale process 2951 and received `Unknown process id`; reconcile persisted outputs before assuming a process remains resumable.
+
+## Consumer inspection guessed repository filenames instead of discovering existing paths before reading.
+
+Disposition: fixed.
+
+Evidence: Commit ff0e4be8d063c683130843affcf5b77ef28700cb added the existing repository path resolver. Verified /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/repo_search.py:42-71 implements bounded filename discovery, :113 exposes --names, and :121-125 rejects missing paths with an explicit discovery hint. Commit db14782b6 documents this remedy in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts-fixed-2026-08-11.md:54-62. A read-only invocation of the resolver confirmed it locates tests/test_crafting_data.py, logic_pure/logic_pure_production.py, and tests/test_logic.py, the replacement paths recorded in the entry. The entry itself states that discovery now precedes reads; no new resolver is needed.
+
+Source: memory-bank/pending/cut-gem-tradeability-implementation-papercuts-2026-09-05.md line 3 at main eb9fcb90
+
+- 2026-09-05T21:03:36.723525+00:00: Initial consumer inspection guessed nonexistent `tests/test_crafting.py`, `logic/crafting_logic.py`, and `tests/test_logic_pure.py`; `rg --files` and symbol searches located `tests/test_crafting_data.py`, `logic_pure/logic_pure_production.py`, and `tests/test_logic.py`. File discovery now precedes reads.
+
+## Unbounded text searches over decoder-evidence JSON print full classpath arguments and exhaust the tool-output budget.
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/cut-gem-tradeability-implementation-papercuts-2026-09-05.md line 5 at main eb9fcb90
+
+- 2026-09-05T21:32:25.354550+00:00 — Decoder evidence inspection emitted an oversized full classpath from JSON and truncated the tool output (17,767 tokens in the rg result). Read only selected JSON keys and bound string lengths for subsequent evidence inspection.
+
+## The shared SSH wrapper retried remote command failures as though every nonzero exit were a transport failure.
+
+Disposition: fixed.
+
+Evidence: Commit ef6f38018119a21e9c81065c84d7017ee0da5c03 fixed the retry policy. Verified the current tree: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/run_remote_tests.py:202-205 raises SSHCommandError immediately unless the operation is explicitly repeat-safe and the exit code is 255. The reported exit 1 therefore cannot be replayed. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/test_remote_test_host.py:177-190 covers immediate failure without another execution or sleep; lines 193-210 cover bounded transport retries. The unavailable aqt environment was expected according to the entry. The accompanying guessed catalog key was a one-time verification mistake, not evidence of a broken catalog or another persistent tool defect.
+
+Source: memory-bank/pending/cut-gem-tradeability-implementation-papercuts-2026-09-05.md line 7 at main eb9fcb90
+
+- 2026-09-05T21:35:52.354028+00:00 — Driver report, 2026-09-05: full baseline plain root snapshot exited 1 with `module_surface: cannot import '__init__.py': No module named 'aqt'`, an expected unavailable environment per existing tests; shared `_ssh` retried that non-transport failure three times. Later read-only catalog verification used guessed key `cut_redtopaz` and raised `KeyError: 'cut_redtopaz'`; parent is resolving the actual key from the normalized row.
+
+## New cut-gem regression coverage grew shared test modules past the slop-gate line limit. Separately, retaining raw Qt stderr as text exposed a trailing
+
+Disposition: fixed.
+
+Evidence: Commit 83bcb01b9e8eaef50eaf7c4660307bb0c9e3d07f landed the repaired coverage in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/item_tradeability/test_cut_gem_tradeability.py:18,61,132. Current symbol searches find the three gem methods only there, not in the three oversized fixture modules; the commit's numstat confirms those fixture modules were not changed. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05.md:231-249 documents the baseline restoration and cohesive test placement. Lines 227-229 document lossless deterministic gzip storage of the warning; decompressing focused.stderr.gz directly from that commit confirms the original trailing space survives without being tracked as whitespace-bearing text. Commit 4147d0ae9f88da6ee010cbb51bacbd76efd7e3c3 subsequently archived the raw evidence outside the checkout, with the current recovery contract at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/SUMMARY.md:3-8. The specific rejected changes and text-evidence cause no longer exist in the tree; the line-limit gate remains intentionally enforced.
+
+Source: memory-bank/pending/cut-gem-tradeability-implementation-papercuts-2026-09-05.md line 9 at main eb9fcb90
+
+- 2026-09-05T21:47:21.703750+00:00 — Preparing the attributable commit: `git diff --cached --check` found one trailing space in the exact retained Qt warning at `memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/mbp/focused.stderr:4`. The prior tracked-only check did not include this new evidence file. Normal commit then exited 1 with `slop-gate: code files above 1000 lines were grown:` and `tests/test_grand_exchange_logic.py: 1039 lines (was 996)`, `tests/test_integration_smoke.py: 9526 lines (was 9460)`, `tests/test_main_menu_widget.py: 20000 lines (was 19987)`, followed by `Split along module seams (a cohesive unit per file), not at an arbitrary line count.` No commit was created or amended.
+
+## The cut-gem regression module was initially placed directly in the already-capped tests directory, so repairing file-length violations exposed the dir
+
+Disposition: fixed.
+
+Evidence: The recorded placement violation was repaired, not bypassed. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/pending/cut-gem-tradeability-implementation-papercuts-2026-09-05.md:13 records moving the module into tests/item_tradeability/. I read the current module at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/item_tradeability/test_cut_gem_tradeability.py:17-18 and verified that the package marker is tracked and the root-level tests/test_cut_gem_tradeability.py is not tracked. Commit 83bcb01b9e8eaef50eaf7c4660307bb0c9e3d07f adds the package marker and gem module, explicitly incorporates original repair commit 797bbf45, and is an ancestor of current HEAD. The global directory-width gate remains intentional; this entry's offending placement no longer exists.
+
+Source: memory-bank/pending/cut-gem-tradeability-implementation-papercuts-2026-09-05.md line 11 at main eb9fcb90
+
+- 2026-09-05T22:22:10.455109+00:00 — The next normal commit attempt, after the reviewed cohesive test repair and MacBook verification, exited 1 with `slop-gate: code files were added to directories already at 40 files:`, `tests: 238 code files (was 237)`, and `Create a cohesive subdirectory instead of widening this directory.` The earlier file-length gate had hidden this later directory-width boundary. HEAD remained `6438d42256236992b10d921d4cca920293b55d93`; no commit was created or amended, and no gate was bypassed.
+
+## This entry is a repair-progress note documenting the gem test's relocation, not a separate failure or recurring source of friction.
+
+Disposition: record_only.
+
+Evidence: The entry at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/pending/cut-gem-tradeability-implementation-papercuts-2026-09-05.md:13 records the solution to the preceding directory-width rejection. Its only unfinished item was package discovery. Commit 83bcb01b9e8eaef50eaf7c4660307bb0c9e3d07f committed the package marker and gem regression module, which remain in the current tree. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05.md:316-334 records subsequent successful package execution and discovery verification. The historical comparison.json inspected through git show confirms discovery of the gem methods without removing existing IDs. There is no additional cause to fix in this progress entry.
+
+Source: memory-bank/pending/cut-gem-tradeability-implementation-papercuts-2026-09-05.md line 13 at main eb9fcb90
+
+- 2026-09-05T22:23:26.001884+00:00 — The directory-width repair moves the byte-identical 158-line gem test into `tests/item_tradeability/` with an empty package marker. This is the shared item-tradeability domain boundary for gem and cape regression coverage; it avoids widening the capped `tests` directory or routing trading behavior into an unrelated skills bucket. No path-dependent `__file__`, `ROOT`, or `Path` reference exists in the moved module. Package discovery remains pending.
+
+## An optional, unverified pathname glob was passed to zsh; an unmatched glob aborts the command before the search tool runs.
+
+Disposition: duplicate.
+
+Evidence: Same cause as /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts.md:59 — 2026-09-26T21:26:06Z. The pending entry at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md:3 records `no matches found: data/gem*`. The earliest matching entry currently open in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts.md:59 records the same optional-glob failure and discovery remedy. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts-fixed-2026-09-28.md:207-209 already groups guessed paths and unmatched optional globs under that survivor. Read /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/repo_search.py:109-125 and /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/techContext.md:42-49: safe filename discovery exists, but callers can still bypass it; this is not evidence that the cause is fixed.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 3 at main eb9fcb90
+
+- 2026-09-05T20:30:57.212984+00:00: Initial optional path `data/gem*` failed under zsh with `no matches found: data/gem*`; use `rg --files` before optional path selection.
+
+## Unbounded text searches print entire generated single-line dictionaries; limiting matching line counts does not limit their size.
+
+Disposition: fixed.
+
+Evidence: Verified existing protection from commit ff0e4be8d063c683130843affcf5b77ef28700cb. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/repo_search.py:14-23 excludes giant catalogs by default, :83-88 passes --max-columns, and :115-116 sets bounded result and column defaults. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/techContext.md:42-49 directs agents to use this helper for content searches. A read-only verification searched 'Jade|Red topaz' in data/shop_data.py with --include-large --max-results 5 --max-columns 300; output contained only '[Omitted long matching line]' notices, not the generated mappings. Raw grep can still bypass the protection, but a documented, working repository tool already prevents this output flood.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 4 at main eb9fcb90
+
+- 2026-09-05T20:30:57.213180+00:00: A name search through generated one-line maps produced truncated output of 613024 tokens. Exact-key AST reads now inspect the two selected storage keys and avoid dumping unrelated item mappings.
+
+## Historical MediaWiki revision queries combine multiple titles with rvstart, which only supports a single page; the repository helper neither rejects c
+
+Disposition: fixed.
+
+Evidence: goal/papercuts-staged e48189ad, c74cd43c: tools/wiki_parity.py rejects piped titles before any request and raises on a MediaWiki API error.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 5 at main eb9fcb90
+
+- 2026-09-05T20:31:51.660379+00:00: A combined historical MediaWiki query for Jade and Red topaz returned HTTP success with API `invalidparammix`: revision-bound parameters may only be used on a single page. Preserved the exact error response and changed to one title per request.
+
+## The agent guessed source filenames before discovering existing repository paths; neither guessed filename exists, and the always-loaded project instru
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 6 at main eb9fcb90
+
+- 2026-09-05T20:36:44.627740+00:00: Two guessed source paths failed with `rg: tools/scrape_grand_exchange_period.py: IO error for operation on tools/scrape_grand_exchange_period.py: No such file or directory (os error 2)` and `rg: logic/grand_exchange.py: IO error for operation on logic/grand_exchange.py: No such file or directory (os error 2)`. `rg --files` identified `tools/generate_ge_period_data.py` and `logic/grand_exchange_logic.py`.
+
+## The agent guessed the documentation-audit script path instead of using the repository's documented command.
+
+Disposition: fixed.
+
+Evidence: Verified the current tree: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/README.md:93-99 documents `/opt/homebrew/bin/python3 tools/audit_docs.py`; the command at line 96 was introduced by commit e5672371a0b3de9995c7fcd429eaaacf5c10af2e, before this incident. Read /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/audit_docs.py:1-14 and confirmed the actual audit implementation exists at the documented path. The entry itself records successful discovery of that command. No matching open entry was found in memory-bank/papercuts.md.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 7 at main eb9fcb90
+
+- 2026-09-05T20:38:39.230365+00:00: Documentation audit was first invoked with the nonexistent path `tools/docs/audit_doc_refs.py` and failed with `[Errno 2] No such file or directory`; the repository command is `python3 tools/audit_docs.py`, resolved with `rg --files tools`.
+
+## Line-count-bounded source reads are not size-bounded: a generated dictionary can occupy one enormous line, so a short line range can overflow the tool
+
+Disposition: fixed.
+
+Evidence: goal/papercuts-staged d80f92f1, 2eae3388: tools/repo_search.py --line-range caps line width and count.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 8 at main eb9fcb90
+
+- 2026-09-05T20:47:49.725203+00:00: A small source-line range crossed generated one-line maps and produced truncated output of 633924 tokens. Remaining source-key inspection uses AST node selection and bounded excerpts; no generated map is printed in full.
+
+## The agent attempted to read a guessed helper path before discovering the actual filename and location; pkg_alias.py is at the repository root, not und
+
+Disposition: duplicate.
+
+Evidence: Same cause as /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts.md:59 — 2026-09-26T21:26:06Z. Verified the root helper at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/pkg_alias.py:1-18; tools/pkg_alias.py does not exist. The earliest open entry for reading guessed paths before discovery is papercuts.md:59, which records nonexistent paths resolved with rg --files. The existing archive at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts-fixed-2026-09-28.md:207-214 groups this same cause under that survivor and specifically includes an incorrect tests/pkg_alias.py lookup. This staged September 5 entry predates the open survivor but was never added to the open log; it should be consolidated with that existing cause rather than trigger a separate helper relocation or import fix.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 9 at main eb9fcb90
+
+- 2026-09-05T20:52:07.643298+00:00: The alias helper was initially read as `tools/pkg_alias.py`, which does not exist; `rg --files` located the root `pkg_alias.py`. The source binding uses the actual root file and matching Git blob.
+
+## Raw HTTP-header evidence was staged as text, exposing its intentional CRLF, trailing spaces, and terminal blank lines to Git normalization and whitesp
+
+Disposition: fixed.
+
+Evidence: Verified commit 83bcb01b9e8eaef50eaf7c4660307bb0c9e3d07f stores all five affected headers as .headers.gz; its cut-gem manifest binds stored and decompressed hashes and lengths at lines 88–92, 105–109, 132–136, 149–153, and 166–170. The current /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-source-2026-09-05.md:190–194 documents byte-preserving deterministic gzip. The same commit adds /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/cape-tradeability-2026-09-05/fetch_sources.py:17–27 and :63–64, which gzip header bytes before retention. Commit 4147d0ae9f88da6ee010cbb51bacbd76efd7e3c3 later removes the cut-gem payloads from the checkout; its current SUMMARY.md:3–7 records the external recovery locations and digest manifest. The problematic plaintext payloads are no longer in the tree.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 10 at main eb9fcb90
+
+- 2026-09-05T20:55:08.622905+00:00: Staging five raw `.headers` files reported `CRLF will be replaced by LF the next time Git touches it`; staged whitespace checks reported `trailing whitespace.` on literal `HTTP/2 200 ` and `new blank line at EOF.`. Staging was reversed before any commit. All five exact original payloads were preserved with deterministic gzip, and references plus manifest were updated; no Git configuration or attributes were changed.
+
+## A clean new-file comparison can make `git diff --no-index --check` exit 1 without diagnostics; treating every nonzero status as a whitespace failure p
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 11 at main eb9fcb90
+
+- 2026-09-05T20:55:38.496818+00:00: `git diff --no-index --check /dev/null <new file>` returned exit 1 with no diagnostics for a clean new-file difference. The untracked-file whitespace check accepts 0 or 1 only when stdout and stderr are empty; it does not treat the normal diff exit as a whitespace failure.
+
+## The retained provenance checker used insufficient top-level blank lines and inline compound statements, so the normal commit hook correctly rejected n
+
+Disposition: fixed.
+
+Evidence: Commit 83bcb01b9e8eaef50eaf7c4660307bb0c9e3d07f contains the formatted checker. Current /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-2026-09-05/cache-input-binding-check.py has the required blank lines at lines 6–7, 10–11, and 15–16, and separate loop/conditional statements at lines 29–39. A fresh read-only pycodestyle check selecting E301,E302,E303,E305,E306,E701,E702,E703 returned exit status 0 with no violations. The hook rejection was valid; the offending formatting no longer exists.
+
+Source: memory-bank/pending/cut-gem-tradeability-papercuts-2026-09-05.md line 12 at main eb9fcb90
+
+- 2026-09-05T20:57:53.262865+00:00: The normal commit hook rejected retained `memory-bank/source-audits/cut-gem-tradeability-2026-09-05/cache-input-binding-check.py`: `slop-gate: PEP 8 layout violations were introduced:` with `E302 x1 (was 0)`, `E305 x1 (was 0)`, `E701 x3 (was 0)`, and `E702 x8 (was 0)`. No commit was created. The checker was formatted with identical AST, and its manifest hash was updated; no hook was bypassed.
+
+## Combining entire core Memory Bank documents in one dispatcher-contract read exceeded the tool output budget; contract discovery needs heading searches
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 1 at main eb9fcb90
+
+- 2026-09-05: Initial dispatcher-contract read combined large core Memory Bank files and truncated at 271708 tokens; subsequent reads use exact ruling sections and bounded source ranges.
+
+## An unquoted optional path glob was expanded by zsh before the search command ran; no path matched tests/split*, so zsh aborted.
+
+Disposition: fixed.
+
+Evidence: The tree already provides a glob-free discovery tool and operator guidance. Commit ff0e4be8d063c683130843affcf5b77ef28700cb introduced /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/repo_search.py:42-52, which lists files through rg --files and filters names in Python without shell expansion. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/techContext.md:42-49 directs agents to use this tool or discover exact paths with rg --files first. Commit db14782b6680bbb4cccaa80a710c0d7aeb638f8d documents this same cause and remedy in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts-fixed-2026-08-11.md:44-52. A read-only invocation of repo_search.py with pattern 'split', the existing tests directory, and --names succeeded. The recorded command bypassed the existing guardrail; this verdict does not claim that arbitrary unquoted zsh globs are now safe.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 2 at main eb9fcb90
+
+- 2026-09-05: Dispatcher source search used unquoted `tests/split*` under zsh and failed with `zsh:4: no matches found: tests/split*`; use `rg --files` before path filters.
+
+## The Firemaking reviewer test expected a successful burn while leaving the action's random roll uncontrolled, making its inventory assertion nondetermi
+
+Disposition: fixed.
+
+Evidence: Commit 307002127772a6031fae3815a1c17716086fb72d contains the fix, which remains in the current tree. In /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/runtime_actions/test_dispatcher_state.py:75-84, the test saves the RNG state and installs successful_roll(), which advances the original RNG and returns 0.0. Line 95 asserts the expected inventory; line 107 verifies that the RNG changed before undo; lines 115-118 perform undo and verify restoration of the original RNG state. Verified by reading the current file and inspecting git blame and the committed file; no tests were executed during this read-only triage.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 3 at main eb9fcb90
+
+- 2026-09-05: First MBP dispatcher-state focused run executed 4 tests in 1.537s and failed the new Firemaking case with `AssertionError: {'Logs': 2} != {'Logs': 1, 'Ashes': 1}`; its action roll was uncontrolled. Supply a deterministic successful roll while advancing the real RNG, and assert the RNG changed before testing undo.
+
+## The remote mirror excluded .venv-qt without recreating the repo-local interpreter link required by the root-surface tests, so the Qt guard skipped and
+
+Disposition: fixed.
+
+Evidence: Commit 716bb369a3dde829ea63a16e142af76bd1d889f3, verified as an ancestor of HEAD, repaired both causes. Current /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/run_remote_tests.py:356-371 recreates the remote-local .venv-qt link after rsync; lines 395-397 require an executable Qt interpreter before either lane. Current /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/__init__.py:333 retains the restored BIG_CHINCHOMPA_UTILITY_ID and EVIL_TREE_UTILITY_ID exports. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/test_remote_test_host.py:676-723 contains the repeated-sync canary that verifies the interpreter link and executes it. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/remote-surface-guard-2026-09-05.md:9-16 records the historical digest discrepancy as exactly those missing exports, not a serializer or pin defect. Classification is based on current source and commit inspection; no tests were executed in this read-only triage.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 4 at main eb9fcb90
+
+- 2026-09-05: MBP root-surface tests silently skipped under the full Qt environment because `repo/.venv-qt/bin/python` is absent: `Qt interpreter is not installed` and `root initializer requires aqt; use the offscreen Qt interpreter`. An unchanged canonical-basename baseline with the expected symlink executes the test and fails with measured `fa36126b7ddff3d7d7d6582f80a12000d811533689fe3330e4e3864bb8641732` versus pinned `2625d3d2bb6110c0faee0a33863cf1bf8e921fe0591460eed25d071bec85e26d`; driver owns instrument diagnosis.
+
+## An optional test-family path was passed as an unquoted shell glob before discovering existing filenames. When no file matched, zsh aborted before the 
+
+Disposition: duplicate.
+
+Evidence: Same cause as /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts.md:59 — 2026-09-26T21:26:06Z. The entry reports `zsh:1: no matches found: tests/test_toolbelt*.py`. The earliest open entry for optional-path discovery, memory-bank/papercuts.md:59 (2026-09-26T21:26:06Z), records the same failure and recommends `rg --files`. Existing triage in memory-bank/papercuts-fixed-2026-09-28.md:207-209 explicitly keeps that entry as the survivor; lines 220 and 227 archive equivalent optional test-family glob failures as duplicates. tools/repo_search.py:42-71 already provides filename discovery without shell expansion, and memory-bank/techContext.md:42-49 documents it, but later open repetitions at papercuts.md:93 and :117 show that merely having this optional helper has not removed the cause.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 6 at main eb9fcb90
+
+- 2026-09-05T18:31:41.591254+00:00: Coverage-fixture search used zsh glob tests/test_toolbelt*.py and failed with `zsh:1: no matches found: tests/test_toolbelt*.py`; use rg file filters for optional test families.
+
+## File discovery guessed module paths instead of locating current files after package splits.
+
+Disposition: fixed.
+
+Evidence: Existing discovery guardrails cover this cause; the obsolete paths were not restored. Commit ff0e4be8d063c683130843affcf5b77ef28700cb added /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/repo_search.py:42-71 (--names discovery) and :121-125 (missing-path diagnostic directing callers to search an existing parent). /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/techContext.md:42-49 documents moved-file discovery and listing exact paths before content searches; lines 48-49 were added by f63538435. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/test_papercut_tools.py:226-241 covers moved-file discovery. A read-only invocation of the existing helper successfully located logic_pure/logic_pure_construction.py, logic/flash_powder_factory_logic.py, and logic/inventory_pure.py in the current tree.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 7 at main eb9fcb90
+
+- 2026-09-05T18:44:47.348991+00:00: Coverage-fixture searches guessed stale monolithic paths `logic/construction_logic.py`, `logic/rogues_den_logic.py`, and `logic_pure/inventory_pure.py` and received missing-file errors. Definitions now live in `logic_pure/logic_pure_construction.py`, `logic/flash_powder_factory_logic.py`, and the inventory package; use repository-wide definition searches before selecting files.
+
+## The headless dispatcher-state fixture assumed ITEM_DEFINITIONS was exported by the add-on module and allowed the real level-up path to reach an unavai
+
+Disposition: fixed.
+
+Evidence: Commit 30700212 (Give dispatcher state one explicit owner before relocation) contains both corrections, verified by reading the current fixture and git blame. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/runtime_actions/test_dispatcher_state.py:15 imports ITEM_DEFINITIONS directly from ankiscape.core.constants; lines 33–35 replace only core.logic.show_level_up_dialog with a capture callback. The current test uses the directly imported constant at lines 358, 579, 613, and 641 rather than accessing self.addon.ITEM_DEFINITIONS. These changes remove both causes recorded in the entry.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 8 at main eb9fcb90
+
+- 2026-09-05T18:49:03.474957+00:00: First expanded state suite on MBP ran 11 tests in 3.385s with 4 errors: three `AttributeError: module 'ankiscape_dispatcher_state_test' has no attribute 'ITEM_DEFINITIONS'` from the new fixture and one `NameError: name 'QDialog' is not defined` from the real level-up code reaching the intentionally absent Qt UI. The fixture now imports ITEM_DEFINITIONS from constants and captures only the terminal level-up dialog while retaining both XP and level-up dispatchers.
+
+## The expanded dispatcher-state fixture used an invalid Fish Flingers command and checked inventory instead of Temple Trekking state; failed subcases al
+
+Disposition: fixed.
+
+Evidence: Verified the current tree and git blame. Commit 307002127772a6031fae3815a1c17716086fb72d contains all corrections in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/runtime_actions/test_dispatcher_state.py:357 (enter_fish_flingers), :362 and :380 (assert the temple_trekking state changes), and :374 (clear direct_action_undo_stack at each subcase entry). These match the current production behavior in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/fish_flingers_logic.py:565-566 and /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/temple_trekking_logic.py:417-424. No test execution was needed to verify that the recorded fixture mistakes are absent.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 9 at main eb9fcb90
+
+- 2026-09-05T18:50:43.183247+00:00: Expanded state suite second run: `Ran 11 tests in 3.625s`, `FAILED (failures=6)`. Two fixture mistakes caused the failures: Fish Flingers command is `enter_fish_flingers` (`Unknown Fish Flingers action.` for `enter`), and Temple Trekking pouch preparation changes `temple_trekking.pouch_charges` rather than an already-held inventory item. The latter failed before undo and left four cascading stack-length failures (`2 != 1`, `3 != 1`, `4 != 1`, `5 != 1`). Subcases now clear the fixture stack at entry so failures stay independent.
+
+## Fixture filename discovery printed matches from the full source manifest, including staged product paths, instead of restricting the lookup to fixture
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 11 at main eb9fcb90
+
+- 2026-09-05: Native fixture discovery searched the full source manifest for Python paths and truncated at 18445 tokens; filtering out staged product paths returned the fixture evidence filenames directly.
+
+## A source read guessed a module path instead of locating the existing definition; utility handling is not implemented in logic/utility.py.
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 12 at main eb9fcb90
+
+- 2026-09-05: Native utility discovery guessed `logic/utility.py` and received `No such file or directory (os error 2)`; use the existing root definition or repository-wide symbol lookup.
+
+## An unquoted optional wildcard is expanded by zsh before the discovery command runs; with no matching path, zsh aborts with `no matches found: tools/RE
+
+Disposition: duplicate.
+
+Evidence: Same cause as /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/papercuts.md:64 — 2026-09-26T14:13:30-0700. The staged entry at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md:13 records the same pre-command unmatched-glob failure as the open entry at papercuts.md:64. Line 64 is the earliest timestamped matching entry currently in the open log; line 59's 2026-09-26T21:26:06Z is later. A quoted `rg --files` filter found no tools/README* files. Later open entries at lines 93, 95, 97 and 117 show that switching one lookup to rg did not eliminate the cause.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 13 at main eb9fcb90
+
+- 2026-09-05: Static-check command lookup used optional `tools/README*` and zsh returned `no matches found: tools/README*`; file discovery now uses `rg --files tools` before filtering.
+
+## The initial draft kept per-function report summarization inside main and added a test module to the capped tests root, triggering the existing complex
+
+Disposition: fixed.
+
+Evidence: Verified commit 307002127772a6031fae3815a1c17716086fb72d and the current tree. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/dispatcher/state_coverage.py:54-66 contains the extracted summarize_functions method, called by main at line 107. The committed regression module resides at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/runtime_actions/test_dispatcher_state_coverage.py:11, not the tests root. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/dispatcher-state-restructure-2026-09-05.md:229-232 explicitly records both hook-required adjustments and states that no hook was bypassed. The entry describes a draft rejection already corrected in the landed code, not a defective gate.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 14 at main eb9fcb90
+
+- 2026-09-05: Normal draft commit rejected by slop-gate: `tools/dispatcher/state_coverage.py: main 21 (new)` exceeded cognitive complexity 15, and `tests: 238 code files (was 237)` exceeded the directory cap. Moved the utility test into the existing runtime_actions test package and extracted function-report summarization from main; no instrument or hook threshold changed.
+
+## Report extraction left an extra blank line between class methods in tools/dispatcher/state_coverage.py, causing the E303 pre-commit rejection.
+
+Disposition: fixed.
+
+Evidence: Commit 307002127772a6031fae3815a1c17716086fb72d contains the corrected spacing in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/dispatcher/state_coverage.py:52-54: frame_name ends at line 52, exactly one blank line follows, and summarize_functions starts at line 54. The current file retains this spacing. A read-only AST/line-gap check found no excess blank-line gaps between adjacent class methods. The original entry at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md:15 also records removal of the extra blank line.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 15 at main eb9fcb90
+
+- 2026-09-05: The next normal commit attempt rejected `tools/dispatcher/state_coverage.py: E303 x1 (was 0)` after report extraction added two blank lines between methods; removed the extra blank line.
+
+## The module-surface CLI prints both the hashed payload header and an unhashed digest footer with the MODULE_SURFACE prefix, so a broad startswith('MODU
+
+Disposition: wont_fix.
+
+Evidence: tools/module_surface.py is retired under owner ruling 4.30.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 16 at main eb9fcb90
+
+- 2026-09-05T20:15:41.944023+00:00: Driver root-payload verification initially failed its assertion because broad `startswith('MODULE_SURFACE')` filtering included the `MODULE_SURFACE_SHA256:` summary digest line. Use the exact `MODULE_SURFACE module=` header and `NAME ` rows; this was not a candidate payload mismatch and did not require rerunning the candidate.
+
+## The documentation audit treated a valid dotted reference to a nested test module as a dangling test selector because its known-selector set included t
+
+Disposition: fixed.
+
+Evidence: Commit fc14c8f971e33b506c0319d71943850d0d8a9971 fixes this cause. Verified in the current tree: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/audit_docs.py:130-132 discovers nested test files and adds each dotted module name to the known selectors. The exact referenced file, /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/runtime_actions/test_dispatcher_state_coverage.py, still exists, so tests.runtime_actions.test_dispatcher_state_coverage is now recognized. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/test_docs_audit.py:40-65 provides regression coverage accepting an existing nested module while rejecting a missing module and a stale method. Verified by reading code and commit; did not run tests because the test helper creates files and initializes temporary git repositories.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 17 at main eb9fcb90
+
+- 2026-09-05T20:15:41.944023+00:00: Final evidence documentation audit flagged `dangling_test_selector: tests.runtime_actions.test_dispatcher_state_coverage` for the executed module reference; wrote the actual test file path `tests/runtime_actions/test_dispatcher_state_coverage.py` instead.
+
+## The ad hoc evidence verifier assumed all manifest artifacts were gzip instead of selecting verification from each artifact's declared hash fields. The
+
+Disposition: wont_fix.
+
+Evidence: One-off check of one historical packet whose artifact is missing; no current tool writes gzip_sha256 manifests.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 18 at main eb9fcb90
+
+- 2026-09-05T20:16:03.957502+00:00: Driver evidence verification assumed every manifest artifact was gzip after plaintext artifacts had been added and raised `gzip.BadGzipFile: Not a gzipped file (b'..')`. Dispatch verification by each artifact's declared `gzip_sha256` versus `sha256` fields; this was not an evidence defect.
+
+## The byte-exact Qt coverage log was staged as plaintext, so the trailing space in the emitted font warning triggered Git's whitespace check.
+
+Disposition: fixed.
+
+Evidence: Commit 3c401d0cf9349271f38aefca8582cb39afd2b645, verified as an ancestor of current HEAD, replaced final-coverage.txt with final-coverage.txt.gz and recorded compressed/plaintext hashes in manifest-final.json lines 4–8. Current documentation at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/dispatcher-state-restructure-2026-09-05.md lines 352–365 explains the byte-preserving fix. Read-only verification of the committed gzip confirms timestamp 0 and exact equality with the original log from 24b7597b165900c4b89ed10da9fdd4a854064db2: 1,786 decoded bytes, SHA-256 3e006e3838bd6daea48690a62ba135bf24eddfdb4812299d5cfeab03408ae926. Neither plaintext nor gzip remains in the current checkout; /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/evidence/dispatcher-state-2026-09-05/SUMMARY.md lines 3–8 records subsequent out-of-tree evidence retention. The offending plaintext representation is no longer present.
+
+Source: memory-bank/pending/dispatcher-state-papercuts-2026-09-05.md line 19 at main eb9fcb90
+
+- 2026-09-05T20:19:00.063769+00:00: `git diff --cached --check` reported `memory-bank/source-audits/evidence/dispatcher-state-2026-09-05/final-coverage.txt:1: trailing whitespace.` in the raw Qt font warning. Normal commit hooks nevertheless passed and created `24b7597b165900c4b89ed10da9fdd4a854064db2`. A separate evidence-packaging commit stores the unchanged log bytes as deterministic gzip (level 9, timestamp 0), updates manifest formats, and preserves the original plaintext SHA-256 `3e006e3838bd6daea48690a62ba135bf24eddfdb4812299d5cfeab03408ae926`; no log stripping, hook bypass, or MBP rerun.
+
+## The agent assumed git merge treats `-F -` as standard input, as git commit does; git merge instead tries to read a file literally named `-`.
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/goal-driver-promotion-papercuts-2026-09-05.md line 3 at main eb9fcb90
+
+- 2026-09-05 22:33:15 UTC: While preparing the queue promotion merge, `git merge --no-ff 774cecb1173ceddd5c55124dad40f8e5fc6062d1 -F -` returned exit `129` with `error: could not read file '-'`. No merge occurred. The supported sequence `git merge --no-ff --no-commit` followed by `git commit -F -` with a heredoc succeeded without skipping hooks.
+
+## Gem evidence was located by guessing a pooled worktree rather than using a worktree-independent evidence location; the read targeted cape pool 9 inste
+
+Disposition: fixed.
+
+Evidence: Commit 4147d0ae9f88da6ee010cbb51bacbd76efd7e3c3 archived this evidence in the shared Git common directory and added /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/SUMMARY.md:4-8 with the recovery path, producer lookup, and digest index. Both named artifacts are mapped to producer 83bcb01b9e8eaef50eaf7c4660307bb0c9e3d07f in the retained manifest (lines 4 and 34). Read-only verification confirmed both files exist beneath /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/83bcb01b9e8eaef50eaf7c4660307bb0c9e3d07f/memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/mbp/ and match the manifest: summary.json SHA-256 c681339c15b871c7a86f36962d113388458bba569c03f795c249e71845c55da7; code-hashes.json SHA-256 36e901e1b3053eb5a77c36493f2c12898a355ad4bcf7c1d2ee7ac9d6ab93d562. Retrieval no longer requires choosing the gem or cape pool.
+
+Source: memory-bank/pending/goal-driver-promotion-papercuts-2026-09-05.md line 4 at main eb9fcb90
+
+- 2026-09-05 22:33:15 UTC: While locating gem surface evidence, a read used cape pool 9 instead of gem pool 14 and returned `No such file or directory (os error 2)` for `memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/mbp/summary.json` and `memory-bank/source-audits/cut-gem-tradeability-implementation-2026-09-05/mbp/code-hashes.json`; the retained cape owner snapshot supplied the exact MacBook baseline path.
+
+## A cross-worktree read reused the source checkout as the root for a queue-owned file instead of resolving the queue worktree explicitly.
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/goal-driver-promotion-papercuts-2026-09-05.md line 5 at main eb9fcb90
+
+- 2026-09-05 22:35:20 UTC: A combined source read looked for `memory-bank/goal-priority-matrix.md` in source pool 15 and returned `No such file or directory (os error 2)`; that file belongs to queue pool 1. Subsequent orchestration resolves named worktree roles explicitly before file reads instead of inheriting the last working directory.
+
+## The driver guessed promotion filenames and used an unmatched shell glob instead of resolving existing repository paths.
+
+Disposition: fixed.
+
+Evidence: The current tree documents the promotion entrypoints in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/systemPatterns.md:826-827: tools/promotion_gate.py owns verification and landing, and tools/run_remote_tests.py owns remote lane commands. Those lines are attributed to commit 038157f68d65ff073637444f41747e657285934d. The existing safe discovery helper, introduced by ff0e4be8d, accepts directory roots and --names and gives a missing-path recovery hint at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/repo_search.py:111-125. I read the helper and both actual promotion files, then ran a read-only --names search over the tools directory; it exited successfully and located tools/run_remote_tests.py and tools/promotion/lane_execution.py without shell globs. The relevant repository documentation and discovery tool therefore already cover this friction.
+
+Source: memory-bank/pending/goal-driver-promotion-papercuts-2026-09-05.md line 6 at main eb9fcb90
+
+- 2026-09-05 22:59:51 UTC: While locating MacBook promotion checks, the driver guessed `tools/*mbp*` and received `no matches found: tools/*mbp*` from zsh; the guessed `tools/promotion/checks.py` and `tools/promotion/gate.py` paths also did not exist. `rg --files` resolved the actual files as `tools/run_remote_tests.py` and `tools/promotion/lane_execution.py`.
+
+## Codex's connected-MacBook thread retrieval returned empty items for a completed turn whose execution and final result were persisted in the session tr
+
+Disposition: wont_fix.
+
+Evidence: External and generic: Owner: the Codex connected-thread connector maintainer, outside AnkiScape. Repair read_thread's retrieval of persisted completed-turn items and verify against the recorded task/turn identifiers. Add c
+
+Source: memory-bank/pending/goal-native-verifier-papercuts-2026-09-05.md line 3 at main eb9fcb90
+
+- 2026-09-05 12:20 PDT: `read_thread` reported zero items for completed MacBook task turn `01a07303-7c1c-74b3-ad12-480e404c84c5`. Direct read of `/Users/armantarkhanian/.codex/sessions/2026/09/05/rollout-2026-09-05T11-55-01-01a072ec-928c-73f0-99ea-d316edefd44b.jsonl` proved the prompt, command, final answer, and `task_complete` were persisted at lines 243, 250, 255–256, and 258. The task completed at `2026-09-05T19:20:22.865Z` in `19499` ms; this was a retrieval gap, not lost execution. Inspect the exact persisted result before retrying a supposedly empty task.
+
+## Native launch preparation depended on evidence addressed by an old disposable /private/tmp session path, rather than a durable, retrievable launch-pro
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/goal-native-verifier-papercuts-2026-09-05.md line 4 at main eb9fcb90
+
+- 2026-09-05 12:20 PDT: Native preparation found `/private/tmp/ankiscape-native-tab-final.utu7VD` but none of its five recorded evidence files (`execution_notes.txt`, `product_prelaunch_proof.txt`, `canary2_process_proof.txt`, `helper_source.py`, `product_seed_player_data_source.json`). Helper hash `e41f01225cefc5d2ab9c0dc9fc11a9df37f5f5a9218dc5975534c1544c2f8385` could not be verified. The old path is not a reusable launch proof.
+
+## A single documentation fetch failed to resolve docs.ankiweb.net; the entry does not establish a persistent DNS fault or a repository defect.
+
+Disposition: record_only.
+
+Evidence: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/pending/goal-native-verifier-papercuts-2026-09-05.md:5 records the 2026-09-05 12:13 PDT error `curl: (6) Could not resolve host: docs.ankiweb.net` and says reading the installed Anki 26.5 parser established `-b/--base` and `-p/--profile`. The entry is also present in commit b4d769fb. Repository search found this host/error only in that historical entry, not in a fetch implementation; the current open papercut log has no matching DNS entry. This is an isolated failed lookup with a completed local-source investigation, not evidence of an ongoing fault to fix.
+
+Source: memory-bank/pending/goal-native-verifier-papercuts-2026-09-05.md line 5 at main eb9fcb90
+
+- 2026-09-05 12:13 PDT: The MacBook documentation request returned `curl: (6) Could not resolve host: docs.ankiweb.net`. Reading the installed Anki 26.5 parser established `-b/--base` and `-p/--profile` without a network retry or app launch.
+
+## The merge command treated `-F -` as a literal filename; unlike `git commit -F -`, this form does not read the merge message from standard input. The s
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/goal-native-verifier-papercuts-2026-09-05.md line 6 at main eb9fcb90
+
+- 2026-09-05T12:40:34-07:00: The driver reported that `git merge -F -` was rejected with `error: could not read file -`; `git merge -F /dev/stdin` with a HEREDOC worked. Use the successful explicit input path for this non-interactive merge-message flow.
+
+## Asset verification has no explicit entry-point map in the testing guide, so the driver guessed a nonexistent tools/verify directory and zsh rejected i
+
+Disposition: fixed.
+
+Evidence: goal/papercuts-staged 8e3bd89a: README-tests.md names the asset check entry points.
+
+Source: memory-bank/pending/goal-queue-maintenance-papercuts-2026-09-05.md line 3 at main eb9fcb90
+
+- 2026-09-05: While checking asset coverage, the driver guessed `tools/verify/*.py` and received `zsh:1: no matches found: tools/verify/*.py`. The actual full-lane entry points are `run_tests.py` and unittest discovery under `tests`. Asset normalization and provenance checks are in the full suite; these slices contain no asset edits. Do not run a broad asset network audit for this check.
+
+## The native actor's execution context rejected sandbox initialization before the canary probe ran: /usr/bin/sandbox-exec exited 71 with "sandbox-exec: 
+
+Disposition: wont_fix.
+
+Evidence: External and generic: Owner: the native actor execution-runtime maintainer and MacBook host administrator, outside this repository. Re-run a disposable sentinel-only canary in the original native actor tool context and com
+
+Source: memory-bank/pending/goal-queue-maintenance-papercuts-2026-09-05.md line 4 at main eb9fcb90
+
+- 2026-09-05: The driver reported that the native sandbox canary completed with `/usr/bin/sandbox-exec` exit `71` before the probe and exact stderr `sandbox-exec: sandbox_apply: Operation not permitted`. Evidence on the MacBook: `/private/tmp/ankiscape-sandbox-canary.NbIxze/canary-evidence.json`. Ordinary sentinel read/write passed; both recorded hashes were unchanged; no Anki launch or profile access occurred. Native workflows are integration-blocked by sandbox initialization failure in the native actor’s tool context, not pending approval. Read-only diagnosis is checking scope; this evidence does not establish OS-wide unavailability. Full headless promotion continues.
+
+## Ad hoc non-interactive SSH process queries assume Homebrew ripgrep is on the remote shell's PATH; the recorded shell could not resolve bare `rg`.
+
+Disposition: wont_fix.
+
+Evidence: Generic git, shell, SSH, or harness behavior with no repository defect; owner rule: no prose rule for generic knowledge.
+
+Source: memory-bank/pending/goal-queue-maintenance-papercuts-2026-09-05.md line 5 at main eb9fcb90
+
+- 2026-09-05T12:58:38-07:00: The driver’s non-interactive SSH command `ps -eo pid,etime,args | rg 'unittest|run_tests.py'` returned exit `127` with `zsh:1: command not found: rg`. The remote PATH lacks `rg`; use `/opt/homebrew/bin/rg` only after verifying it exists, or use Python filtering.
+
+## The authoritative goal priority matrix existed only in an unpromoted worktree, so the driver could not find it in the canonical checkout.
+
+Disposition: fixed.
+
+Evidence: Commit 2f27d206647b51398408110cadacd484b2555c89 added memory-bank/goal-priority-matrix.md and is an ancestor of the inspected HEAD (git merge-base --is-ancestor exited 0). The file now exists in the canonical checkout: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/goal-priority-matrix.md:3-9 defines authority and current queue reconciliation; lines 15-19 contain the current selection table. Commit 953d5197f refreshed the authority text at lines 5 and 7. Current startup guidance at /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/activeContext.md:7 directs work to this canonical matrix. The original pool-only lookup problem is therefore resolved; neither an alternative implementation-priority-matrix.md nor a blocker file is needed to locate the queue.
+
+Source: memory-bank/pending/goal-queue-maintenance-papercuts-2026-09-05.md line 6 at main eb9fcb90
+
+- 2026-09-05T13:57:14-07:00: The driver looked for nonexistent canonical `memory-bank/implementation-priority-matrix.md` and `memory-bank/GOAL-BLOCKED.md`, then `memory-bank/goal-priority-matrix.md`. The authoritative current matrix is not yet promoted and exists at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/pool/.treehouse/ankiscape_fork-091389/1/ankiscape_fork/memory-bank/goal-priority-matrix.md`; use that exact path for the current queue.
+
+## The agent guessed the documentation auditor's filename instead of using the repository's documented entry point.
+
+Disposition: fixed.
+
+Evidence: Verified the current tree rather than relying on the entry's correction. /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/README.md:93-99 explicitly documents `/opt/homebrew/bin/python3 tools/audit_docs.py`; git blame attributes the command at line 96 to e5672371a0b3de9995c7fcd429eaaacf5c10af2e. The September README rewrite, 1263beeb3c03a48418d4af9f9bac567aa21ed611, retains it under the Documentation audit heading. Read /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/audit_docs.py:1-2 and verified its CLI entry point at lines 267-284. The promotion gate also invokes the correct filename directly in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/promotion/lane_execution.py:386-394. An authoritative documented command and an automated invocation already exist; adding an alias for the guessed filename is unnecessary.
+
+Source: memory-bank/pending/remote-surface-guard-papercuts-2026-09-05.md line 3 at main eb9fcb90
+
+- 2026-09-05T18:34:53.700090+00:00: Static validation used the guessed script tools/audit_memory_bank_docs.py, which does not exist; the repository entry point is tools/audit_docs.py.
+
+## An agent supplied an optional filename pattern as an unquoted zsh operand. With NOMATCH enabled, zsh rejected tools/pre_commit* before the search comm
+
+Disposition: wont_fix.
+
+Evidence: External and generic: Owner: Fleet agent-shell/harness maintainer. Add a command preflight that detects unquoted wildcard search operands before execution and directs the caller to filename discovery over an existing direc
+
+Source: memory-bank/pending/remote-surface-guard-papercuts-2026-09-05.md line 4 at main eb9fcb90
+
+- 2026-09-05T18:34:53.700266+00:00: An optional tools/pre_commit* search operand triggered `zsh:1: no matches found: tools/pre_commit*`; use rg --files filters for optional families.
+
+## The SSH wrapper retried every nonzero exit, treating deterministic unittest failures as transport failures and replaying the test command.
+
+Disposition: fixed.
+
+Evidence: Commit ef6f38018119a21e9c81065c84d7017ee0da5c03 replaced unconditional SSH retries with repeat-safe, exit-255-only retries. Verified current /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tools/run_remote_tests.py:189-205: arbitrary commands default to repeat_safe=False, and non-255 failures raise immediately even when repeat_safe=True. Lines 487-495 capture the test exit in an atomic completion report; lines 513-517 launch once and reconcile a disconnected launch without replay; lines 535-551 return the recorded exit as data. Regression coverage exists in /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/tests/test_remote_test_host.py:177-210 for no replay on remote failures and :212-239 for preserving a failed test result after a disconnected single launch. Tests were inspected, not executed.
+
+Source: memory-bank/pending/remote-surface-guard-papercuts-2026-09-05.md line 5 at main eb9fcb90
+
+- 2026-09-05T18:37:28.996175+00:00: Calling `_ssh` directly for a failing focused unittest command reran the test command three times under the transport retry wrapper. Focused commands now capture the test result in a remote report and return it as data so transport retries do not mistake assertion failures for connection failures.
+
+## The guarded lease command always emits JSON but its CLI help does not explain that output contract; supplying the familiar --json flag produces only a
+
+Disposition: fixed.
+
+Evidence: goal/papercuts-staged 37a59f50: worktree_guard.py lease --help says the last stdout line is JSON.
+
+Source: memory-bank/pending/remote-surface-guard-papercuts-2026-09-05.md line 6 at main eb9fcb90
+
+- 2026-09-05T19:01:11.412149+00:00: Driver worktree lease command supplied an extra `--json` flag and failed with `error: unrecognized arguments: --json`; the wrapper already emits JSON, and retrying without the flag succeeded.
+
+## The MacBook native task-creation interface rejected the requested custom model override. Removing only the effort override still rejected gpt-6-astra,
+
+Disposition: wont_fix.
+
+Evidence: External and generic: Owner: the fleet maintainer and MacBook native task/remote desktop harness maintainer, not AnkiScape. Inspect the receiving task-creation interface's advertised model IDs and effort capabilities. Repa
+
+Source: memory-bank/pending/remote-surface-guard-papercuts-2026-09-05.md line 7 at main eb9fcb90
+
+- 2026-09-05T19:01:11.412149+00:00: Driver MBP native task creation with gpt-6-astra and low failed with `could not validate reasoning effort "low" for model "gpt-6-astra"`; model-only then failed with `could not validate model "gpt-6-astra"`. Creation without overrides succeeded; the configured remote model remains unverified.
+
+## Adding separate imports for two activity constants grew the already-capped root module and its import fan-out, so slop-gate rejected the commit.
+
+Disposition: fixed.
+
+Evidence: Commit 716bb369a3dde829ea63a16e142af76bd1d889f3 (2026-09-05) repaired the rejected change by extending the existing runtime_actions import rather than introducing dependencies. Verified the commit diff and the current tree: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/__init__.py:333 imports BIG_CHINCHOMPA_UTILITY_ID and EVIL_TREE_UTILITY_ID alongside RuntimeActionContext on the existing line. Both constants remain available from /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/runtime/runtime_actions.py:362,365. The rejected import approach is absent; the gate itself is an intentional constraint, not a defect requiring removal.
+
+Source: memory-bank/pending/remote-surface-guard-papercuts-2026-09-05.md line 8 at main eb9fcb90
+
+- 2026-09-05T19:03:54.101497+00:00: Normal commit was rejected by slop-gate: `__init__.py: 6251 lines (was 6249)` and `fan-out 114 (was 112)`. The two public constants already exist in the imported runtime_actions module, so the repair now extends that existing import instead of adding two dependencies. Root size and fan-out remain unchanged. No commit was amended and no hook was bypassed.
