@@ -1229,6 +1229,12 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _switch_off_blocked_quest(ctx: RuntimeActionContext, quest_name: str, reasons: tuple[str, ...]) -> None:
+    ctx.deactivate_current_skill()
+    reason_lines = "\n".join(f"• {reason}" for reason in reasons)
+    ctx.show_error_message("Quest blocked", f"{quest_name} is blocked:\n{reason_lines}\n\nQuesting has been switched off until this is resolved.")
+
+
 def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     quest_id = player_data.get("current_quest", "rune_mysteries")
@@ -1287,11 +1293,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         return True
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
     if stage_blocker_reasons:
-        ctx.deactivate_current_skill()
-        ctx.show_error_message(
-            "Quest blocked",
-            f"{quest.get('display_name', quest_id)} is blocked: {', '.join(stage_blocker_reasons)}. Questing has been switched off until this is resolved.",
-        )
+        _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
         return False
     if not can_start_quest_pure(player_data, quest_id, QUEST_DATA):
         ctx.deactivate_current_skill()
@@ -1313,11 +1315,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     if not ok:
         stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
         if stage_blocker_reasons:
-            ctx.deactivate_current_skill()
-            ctx.show_error_message(
-                "Quest blocked",
-                f"{quest.get('display_name', quest_id)} is blocked: {', '.join(stage_blocker_reasons)}. Questing has been switched off until this is resolved.",
-            )
+            _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
         return False
     player_data.update(new_data)
     _record_action(ctx, "quest", quest_id, True, expected_success_chance=1.0)

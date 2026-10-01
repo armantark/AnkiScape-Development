@@ -6,18 +6,23 @@ from ...sources import *
 from ...item_names import *
 from ...contract import *
 from ...choices import *
-from ....quest_action_proof_data import (
-    BAR_CRAWL_BLUE_MOON_INN_PROOF,
-    BAR_CRAWL_BLURBERRYS_BAR_PROOF,
-    BAR_CRAWL_DEAD_MANS_CHEST_PROOF,
-    BAR_CRAWL_DRAGON_INN_PROOF,
-    BAR_CRAWL_FLYING_HORSE_INN_PROOF,
-    BAR_CRAWL_FORESTERS_ARMS_PROOF,
-    BAR_CRAWL_JOLLY_BOAR_INN_PROOF,
-    BAR_CRAWL_KARAMJA_WINES_SPIRITS_AND_BEERS_PROOF,
-    BAR_CRAWL_RISING_SUN_PROOF,
-    BAR_CRAWL_RUSTY_ANCHOR_PROOF,
+
+# (drink, bar, place, coins) from Bar Crawl oldid 6304383. That page allows any
+# order; ruling 4.28 item 5 fixes this one because each bar is an automatic
+# review step, and a free order means nothing once nobody chooses it.
+BAR_CRAWL_DRINKS: Tuple[Tuple[str, str, str, int], ...] = (
+    ("Uncle Humphrey's Gutrot", "Blue Moon Inn", "Varrock", 50),
+    ("Fire Toad Blast", "Blurberry's Bar", "the Grand Tree", 10),
+    ("Supergrog", "Dead Man's Chest", "Brimhaven", 15),
+    ("Fire Brandy", "Dragon Inn", "Yanille", 12),
+    ("Heart Stopper", "Flying Horse Inn", "Ardougne", 8),
+    ("Liverbane Ale", "Forester's Arms", "Seers' Village", 18),
+    ("Olde Suspiciouse", "Jolly Boar Inn", "Varrock", 10),
+    ("Ape Bite Liqueur", "Karamja Wines, Spirits, and Beers", "Musa Point", 7),
+    ("Hand of Death Cocktail", "Rising Sun", "Falador", 70),
+    ("Black Skull Ale", "Rusty Anchor", "Port Sarim", 8),
 )
+_RETURN_STAGE = len(BAR_CRAWL_DRINKS) + 2
 
 BAR_CRAWL_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(
@@ -25,19 +30,28 @@ BAR_CRAWL_STAGES: Tuple[QuestStage, ...] = (
         "I should speak to a Barbarian guard at the Barbarian Outpost",
         "and take a Barcrawl card.",
     ),
-    _simple_stage(
-        2,
-        "I have a Barcrawl card. I must buy the named speciality drink",
-        "at each of the ten bars, in any order, and get every signature.",
-        "Then I should bring the completed card back to a guard.",
+    *(
+        _simple_stage(
+            stage,
+            f"My Barcrawl card has {stage - 2} of 10 signatures.",
+            f"Next I should drink {drink} at {bar}, {place}, for {coins} coins.",
+        )
+        for stage, (drink, bar, place, coins) in enumerate(BAR_CRAWL_DRINKS, start=2)
     ),
     _simple_stage(
-        3,
+        _RETURN_STAGE,
+        "My Barcrawl card has all 10 signatures.",
+        "I should bring it back to a Barbarian guard.",
+    ),
+    _simple_stage(
+        _RETURN_STAGE + 1,
         "I returned the completed Barcrawl card to a Barbarian guard.",
         "I can now enter the Barbarian Outpost.",
         "Miniquest complete!",
     ),
 )
+
+_BAR_CRAWL_STAGE_SOURCE = f"{BAR_CRAWL_WIKI_SOURCE}; {BAR_CRAWL_CARD_SOURCE}; {BAR_CRAWL_HARVEST_SOURCE}"
 
 BAR_CRAWL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     _stage_req(
@@ -50,25 +64,23 @@ BAR_CRAWL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
         ),
         produced_inventory=(("Barcrawl card", 1),),
     ),
-    # As in Tarn, entering the final journal stage writes completion. All
-    # signatures gate that return transition together, never a prescribed route.
+    *(
+        _stage_req(
+            stage,
+            f"Pay {coins} coins for {drink} at {bar} and get the Barcrawl card signed.",
+            _BAR_CRAWL_STAGE_SOURCE,
+            required_inventory=(("Barcrawl card", 1),),
+            consumed_inventory=(("Coins", coins),),
+            auto_actions=(f"Drink {drink} at {bar}",),
+        )
+        for stage, (drink, bar, _place, coins) in enumerate(BAR_CRAWL_DRINKS, start=2)
+    ),
+    # As in Tarn, entering the final journal stage writes completion.
     _stage_req(
-        2,
-        "Buy all ten speciality drinks in any order, then return the signed card to a Barbarian guard.",
-        f"{BAR_CRAWL_WIKI_SOURCE}; {BAR_CRAWL_CARD_SOURCE}; {BAR_CRAWL_HARVEST_SOURCE}",
+        _RETURN_STAGE,
+        "Return the signed Barcrawl card to a Barbarian guard.",
+        _BAR_CRAWL_STAGE_SOURCE,
         required_inventory=(("Barcrawl card", 1),),
-        required_actions=(
-            BAR_CRAWL_BLUE_MOON_INN_PROOF,
-            BAR_CRAWL_BLURBERRYS_BAR_PROOF,
-            BAR_CRAWL_DEAD_MANS_CHEST_PROOF,
-            BAR_CRAWL_DRAGON_INN_PROOF,
-            BAR_CRAWL_FLYING_HORSE_INN_PROOF,
-            BAR_CRAWL_FORESTERS_ARMS_PROOF,
-            BAR_CRAWL_JOLLY_BOAR_INN_PROOF,
-            BAR_CRAWL_KARAMJA_WINES_SPIRITS_AND_BEERS_PROOF,
-            BAR_CRAWL_RISING_SUN_PROOF,
-            BAR_CRAWL_RUSTY_ANCHOR_PROOF,
-        ),
         auto_actions=("Return the signed Barcrawl card to a Barbarian guard",),
     ),
 )

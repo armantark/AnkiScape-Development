@@ -8,10 +8,9 @@ from unittest.mock import patch
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from tests import test_main_menu_widget as menu
-from tests.bar_crawl.test_vendor_actions import BAR_CRAWL_PURCHASES
+from tests.bar_crawl.test_quest_route import BAR_ROUTE, RETURN_STAGE
 from ankiscape.core.constants import QUEST_DATA
 from ankiscape.data.quest_data import BAR_CRAWL_ID
-from ankiscape.logic.shop_logic import apply_shop_vendor_action_pure
 from ankiscape.logic_pure.logic_pure import apply_quest_progress_pure, start_quest_pure
 
 
@@ -23,7 +22,7 @@ class TestBarCrawlQuestUI(unittest.TestCase):
 
     def setUp(self):
         self.player = menu._make_player_data()
-        self.player["inventory"]["Coins"] = sum(row[1] for row in BAR_CRAWL_PURCHASES)
+        self.player["inventory"]["Coins"] = sum(row[2] for row in BAR_ROUTE)
         self.dialogs = []
 
     def tearDown(self):
@@ -106,26 +105,24 @@ class TestBarCrawlQuestUI(unittest.TestCase):
         action.click()
         menu.QApplication.processEvents()
         self.assertTrue(self.player["quests"][BAR_CRAWL_ID]["started"])
-        self._card(dialog, "Stage 0/3")
+        self._card(dialog, "Stage 0/13")
 
         self.player, ok, completed = apply_quest_progress_pure(self.player, BAR_CRAWL_ID, QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed)
         dialog.close()
         dialog = self._open()
-        card = dialog.findChild(menu.QWidget, "questCard_bar_crawl")
-        self.assertTrue(any(
-            label.text().startswith("Blocked: Action required:")
-            for label in card.findChildren(menu.QLabel)
-        ))
-        for action_id, _, _, _ in BAR_CRAWL_PURCHASES:
-            self.player, result = apply_shop_vendor_action_pure(self.player, action_id)
-            self.assertTrue(result["allowed"], result)
+        card = self._card(dialog, "Stage 2/13")
+        self.assertFalse(any(label.text().startswith("Blocked:") for label in card.findChildren(menu.QLabel)))
+        for _ in BAR_ROUTE:
+            self.player, ok, completed = apply_quest_progress_pure(self.player, BAR_CRAWL_ID, QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed)
         dialog.close()
         dialog = self._open()
-        card = self._card(dialog, "Stage 2/3")
+        card = self._card(dialog, f"Stage {RETURN_STAGE}/13")
         self.assertEqual(card.findChild(menu.QPushButton, "questAction_bar_crawl").text(), "Continue quest")
-        self._assert_filters(dialog, "Stage 2/3")
+        self._assert_filters(dialog, f"Stage {RETURN_STAGE}/13")
 
         self.player, ok, completed = apply_quest_progress_pure(self.player, BAR_CRAWL_ID, QUEST_DATA)
         self.assertTrue(ok)
