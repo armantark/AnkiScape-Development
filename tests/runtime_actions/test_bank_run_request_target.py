@@ -76,7 +76,7 @@ class TestBankRunRequestTarget(unittest.TestCase):
         self.assertEqual(data["current_fishing"], "catch_mackerel_cod_bass")
         self.assertEqual(len(self._pending()), 2, "Undo of the switch restores its trip")
 
-    def test_a_switch_on_another_skill_keeps_the_trip(self):
+    def test_switches_and_reviews_on_another_skill_keep_the_trip(self):
         addon = self.addon
         addon._state.current_skill = "Fishing"
         addon._state.player_data["current_fishing"] = "catch_tuna_swordfish"
@@ -85,8 +85,11 @@ class TestBankRunRequestTarget(unittest.TestCase):
         self.assertTrue(addon._set_value("current_ore", "iron_ore"))
         cooking = importlib.import_module(f"{addon.__name__}.core.menu_cooking")
         self.assertTrue(cooking.set_cooking_target(addon, "cook_anchovies"))
+        self.assertTrue(addon.on_set_quest("cooks_assistant"))
+        self.assertTrue(self._review("quest"))
 
         self.assertEqual(self._pending(), {"skilling_bank_run_requested": "catch_tuna_swordfish"})
+        self.assertEqual(self.activity, [])
 
     def test_every_target_command_cancels_its_own_trip(self):
         addon = self.addon
