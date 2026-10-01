@@ -1054,12 +1054,10 @@ def build_shop_tab(ctx) -> "QWidget":
                 return
             _replace_player_data(new_data)
             _persist_shop_state()
-            ambush = _ambush_suffix(result)
             _refresh_after_shop_mutation(
                 shop_result_chip,
                 f"Bought {int(result.get('quantity', 0) or 0):,} x {result.get('item_name', row.get('item_name', 'item'))}."
-                + ambush,
-                ok=not ambush,
+                + _ambush_suffix(result),
             )
         else:
             item_name = shop_state.get("sell_item", "")
