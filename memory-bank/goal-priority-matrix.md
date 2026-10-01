@@ -79,6 +79,7 @@ An unmerged ref does not prove that its behavior is absent from main. A past gat
 | --- | --- |
 | `goal/combat-magic-module-2026-09-08` and its dirty P6 candidate | Preserve. The branch head `c225c456` is landed; the uncommitted magic extraction is separate source-preparation evidence. P8 owns recovery onto current main. |
 | `goal/native-review-fixture-2026-09-05` | Parked verification candidate under the current selection table. |
+| `refs/preserved/combat-magic-module-2026-09-18` (`a8137bab`), `refs/preserved/secondaries-handoff-2026-08-11` (`3c05da03`) | Keep Memory Bank citations pinned to these commits resolvable after their branches are deleted. They add no work and no merge obligation. |
 | `refs/preserved/emerald-sickle-2026-09-17` | Preserve the dependency-blocked attempt and exclude its unwanted reachability-tool split from any later adoption. |
 | `goal/cape-tradeability-2026-09-05`, `goal/cut-gem-tradeability-2026-09-05` | Their content is on main at `074b9cd2`; do not replay their stale layouts. |
 | `goal/crayfish-tradeability-implementation-2026-09-05`, `goal/archery-ticket-tradeability-2026-09-05` | Their content is on main at `889d1cc7`. |
