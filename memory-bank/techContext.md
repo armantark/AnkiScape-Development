@@ -58,6 +58,10 @@
   tools/run_logged.py --label <lane> -- <complete command>`. The wrapper
   preserves the command's exit code, prints a bounded tail, and reports the
   full temporary-log path without relying on zsh's read-only `status` name.
+- Identify papercut-triage verdicts by `class_key`; label `line_no` as the source papercut line at a named revision, not a physical JSON line, and include the incident timestamp or exact entry text.
+- For AnkiScape behavioral differential probes, launch both Python processes with `PYTHONHASHSEED=0`, encode callbacks by stable qualified identity instead of raw `repr`, and first require unchanged-tree cross-process equality.
+- Check undefined names and unused locals in the combat facade with `uvx ruff check --no-cache --select F821,F841 logic_pure/logic_pure_combat_engine.py`; broad F811 checks are noisy because the facade repeats re-exports.
+- Locate this checkout's installed Anki source with `.venv-qt/bin/python -B -c "import sysconfig; print(sysconfig.get_path('purelib') + '/aqt')"`; report a missing environment instead of searching the whole filesystem.
 - Delegation briefs must state the assigned files, allowed actions, evidence
   and acceptance checks. A read-only brief must prohibit checkout writes.
 - Select the next slice with `python3 tools/memory_bank_queue_packet.py
