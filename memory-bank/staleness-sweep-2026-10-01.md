@@ -17,7 +17,7 @@ The audit counts a citation as actionable when its cited lines moved, or when it
 | --- | --- | --- | --- |
 | Before, with the audit on main | 839 | 2,922 | 735 |
 | After the first pass | 835 | 2,474 | 18 |
-| After the applied nominations | 827 | 2,470 | 8 |
+| After the applied nominations | 827 | 2,444 | 8 |
 
 The two counts do not measure the same set. Three audit changes on this branch removed rows that were not drift:
 
