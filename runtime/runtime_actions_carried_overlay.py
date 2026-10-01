@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import dataclasses
 
-from typing import Any
+from typing import Any, Mapping
 
 from ..core.constants import FLETCHING_DATA, RUNECRAFTING_DATA, TREE_DATA
 from ..data.agility_data import AGILITY_TARGETS_BY_ID
@@ -414,6 +414,29 @@ def _spend_review_on_bank_trip(
         ctx.check_achievements,
     )
     ctx.save_player_data()
+
+
+def drop_superseded_bank_run_requests_pure(
+    before: Mapping[str, Any], after: dict[str, Any]
+) -> dict[str, Any]:
+    """Cancel the pending trip of every handler whose target the change switched.
+
+    A request waits for its own target's next review, so one the switch left
+    behind would fire as a surprise trip whenever the player returned to the
+    old target. The latest command wins.
+    """
+    switched = {
+        handler: before.get(key)
+        for handler, key in _BANK_RUN_TARGET_KEYS.items()
+        if key and before.get(key) != after.get(key)
+    }
+    updated = dict(after)
+    for request in ("skilling_bank_run_requested", "review_bank_run_requested_target"):
+        if updated.get(request) in switched.values():
+            updated.pop(request, None)
+    if updated.get("review_bank_run_requested_handler") in switched:
+        updated.pop("review_bank_run_requested_handler")
+    return updated
 
 
 def _run_without_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
