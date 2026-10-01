@@ -529,7 +529,7 @@ FAMILY = DiaryFamily(
                 'lumbridge_easy_nowt_tool_look_at',
                 'Eel of Fortune',
                 'Catch a cave eel, the fortune of the Lumbridge Swamp caves.',
-                (DiaryCondition('ledger_action', 'fishing:catch_cave_eel', 1, 'Catch cave eel'),),
+                (DiaryCondition('ledger_output', 'fishing:Raw cave eel', 1, 'Catch cave eel'),),
                 'Darkan LumbridgeDraynorTasks; rev-727 cache enum 3483; corroborated by Lumbridge achievements oldid=6549949 (2012-11-12T17:54:35Z); original period tier easy; curated into hard',
                 92,
                 0,

@@ -131,7 +131,9 @@ FISHING_FISH: Tuple[FishingFish, ...] = (
     FishingFish("rainbow_fish", "RAINBOW_FISH", "Raw rainbow fish", 10138, 38, 8, 64, 80.0),
     FishingFish("monkfish", "MONKFISH", "Raw monkfish", 7944, 62, 48, 90, 120.0),
     FishingFish("karambwanji", "KARAMBWANJI", "Raw karambwanji", 3150, 5, 100, 256, 5.0, tradeable=False),
-    FishingFish("slimy_eel", "SLIMY_EEL", "Slimy eel", 3379, 38, 10, 80, 65.0),
+    # game-main Fish.kt swaps the two eel levels; the 2012 pages pin slimy eel
+    # at 28 (oldid 6112771) and cave eel at 38 (oldid 6359511).
+    FishingFish("slimy_eel", "SLIMY_EEL", "Slimy eel", 3379, 28, 10, 80, 65.0),
     # PLACEHOLDER(fishing.cave_eel_catch_roll): the unbound rev-667 row
     # supplies 10/80 until a period server roll is recovered.
     FishingFish("cave_eel", "CAVE_EEL", "Raw cave eel", 5001, 38, 10, 80, 80.0),
@@ -244,25 +246,35 @@ FISHING_METHODS: Tuple[FishingMethod, ...] = (
     ),
     FishingMethod(
         "catch_slimy_eel",
-        "Catch slimy eel",
+        "Catch slimy eel/cave eel (Mort Myre)",
         "MORTMYRE_ROD",
-        ("slimy_eel",),
+        ("slimy_eel", "cave_eel"),
         bait_items=("Fishing bait",),
         source_spots=("MORTMYRE_ROD",),
+        source="https://runescape.wiki/w/Slimy_eel?oldid=6112771",
+        notes="The period page lists slimy eels and cave eels at the Mort Myre rod spot.",
     ),
     FishingMethod(
         "catch_cave_eel",
-        "Catch cave eel",
-        "FISHING_ROD_CAVE_EEL",
-        ("cave_eel",),
+        "Catch slimy eel/cave eel (Lumbridge Swamp Caves)",
+        "LUMBDSWAMP_ROD",
+        ("slimy_eel", "cave_eel"),
         bait_items=("Fishing bait",),
         source_spots=("LUMBRIDGE_SWAMP_CAVES",),
-        source="https://runescape.wiki/w/Cave_eel?oldid=6357178",
+        source="https://runescape.wiki/w/Slimy_eel?oldid=6112771",
         notes=(
-            "The period page pins the ordinary rod-and-bait Lumbridge Swamp "
-            "Caves route. The catch roll uses the registered unbound-row "
-            "placeholder."
+            "The period page lists slimy eels and cave eels at the Lumbridge "
+            "Swamp Caves rod spot; game-main LUMBDSWAMP_ROD rolls slimy eel first."
         ),
+    ),
+    FishingMethod(
+        "catch_frog_spawn",
+        "Catch frog spawn",
+        "SMALL_FISHING_NET",
+        ("frog_spawn",),
+        source_spots=("LUMBRIDGE_SWAMP_CAVES",),
+        source="https://runescape.wiki/w/Frog_spawn?oldid=6358408",
+        notes="The period page nets frog spawn in the Lumbridge Swamp Caves.",
     ),
     FishingMethod(
         "catch_leaping_fish",
@@ -290,13 +302,6 @@ FISHING_METHODS: Tuple[FishingMethod, ...] = (
         "Catch lava eel",
         "OILY_FISHING_ROD",
         ("lava_eel",),
-        bait_items=("Fishing bait",),
-    ),
-    FishingMethod(
-        "lumbridge_swamp_eel_spawn",
-        "Catch slimy eel/frog spawn",
-        "LUMBDSWAMP_ROD",
-        ("slimy_eel", "frog_spawn"),
         bait_items=("Fishing bait",),
     ),
 )

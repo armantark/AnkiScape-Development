@@ -1135,14 +1135,13 @@ def _fishing_row_label(display_name: str, fish_rows: Sequence[Mapping[str, objec
     if len(fish_rows) <= 1:
         return f"{display_name} (Lvl {fallback_level})"
 
-    ordered = _ordered_fishing_label_fish(display_name, fish_rows)
+    catch_name, _, place = display_name.partition(" (")
+    ordered = _ordered_fishing_label_fish(catch_name, fish_rows)
     parts = [
         f"{_fishing_fish_label_name(fish)} (Lvl {int(fish.get('level', fallback_level) or fallback_level)})"
         for fish in ordered
     ]
-    if display_name.startswith("Catch "):
-        return "Catch " + "/".join(parts)
-    return f"{display_name} (" + ", ".join(parts) + ")"
+    return "Catch " + "/".join(parts) + (f" ({place}" if place else "")
 
 
 def fishing_target_rows(

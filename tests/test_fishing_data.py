@@ -1,6 +1,8 @@
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import FISHING_DATA
+from ankiscape.core.target_metadata import fishing_target_rows
 from ankiscape.data.fishing_data import (
     FISHING_BAIT_SHOP_SOURCE_PATH,
     FISHING_METHODS,
@@ -14,6 +16,7 @@ from ankiscape.data.fishing_data import (
     fishing_methods_as_dict,
     fishing_output_items,
 )
+from ankiscape.logic_pure.logic_pure_gathering import apply_fishing_action_pure, can_fish_method_pure
 
 
 class TestFishingData(unittest.TestCase):
@@ -58,7 +61,7 @@ class TestFishingData(unittest.TestCase):
                 ("rainbow_fish", "Raw rainbow fish", 10138, 38, 8, 64, 80.0, None, None),
                 ("monkfish", "Raw monkfish", 7944, 62, 48, 90, 120.0, None, None),
                 ("karambwanji", "Raw karambwanji", 3150, 5, 100, 256, 5.0, None, None),
-                ("slimy_eel", "Slimy eel", 3379, 38, 10, 80, 65.0, None, None),
+                ("slimy_eel", "Slimy eel", 3379, 28, 10, 80, 65.0, None, None),
                 ("cave_eel", "Raw cave eel", 5001, 38, 10, 80, 80.0, None, None),
                 ("lava_eel", "Raw lava eel", 2148, 53, 16, 96, 60.0, None, None),
                 ("frog_spawn", "Frog spawn", 5004, 33, 16, 96, 75.0, None, None),
@@ -90,13 +93,13 @@ class TestFishingData(unittest.TestCase):
                 ("catch_rocktail", "Catch rocktail", "FISHING_ROD_ROCKTAIL", ("rocktail",), ("Living minerals",), ("FISHING_ROD_ROCKTAIL",)),
                 ("catch_monkfish", "Catch monkfish", "MONKFISH_NET", ("monkfish",), (), ("SMALL_FISHING_NET_MONKFISH",)),
                 ("catch_karambwan", "Catch karambwan", "KARAMBWAN_VESSEL", ("raw_karambwan",), (), ("KARAMBWAN",)),
-                ("catch_slimy_eel", "Catch slimy eel", "MORTMYRE_ROD", ("slimy_eel",), ("Fishing bait",), ("MORTMYRE_ROD",)),
-                ("catch_cave_eel", "Catch cave eel", "FISHING_ROD_CAVE_EEL", ("cave_eel",), ("Fishing bait",), ("LUMBRIDGE_SWAMP_CAVES",)),
+                ("catch_slimy_eel", "Catch slimy eel/cave eel (Mort Myre)", "MORTMYRE_ROD", ("slimy_eel", "cave_eel"), ("Fishing bait",), ("MORTMYRE_ROD",)),
+                ("catch_cave_eel", "Catch slimy eel/cave eel (Lumbridge Swamp Caves)", "LUMBDSWAMP_ROD", ("slimy_eel", "cave_eel"), ("Fishing bait",), ("LUMBRIDGE_SWAMP_CAVES",)),
+                ("catch_frog_spawn", "Catch frog spawn", "SMALL_FISHING_NET", ("frog_spawn",), (), ("LUMBRIDGE_SWAMP_CAVES",)),
                 ("catch_leaping_fish", "Catch leaping fish", "BARBARIAN_ROD", ("leaping_trout", "leaping_salmon", "leaping_sturgeon"), ("Feather", "Fishing bait", "Fish offcuts", "Roe", "Caviar"), ("BARBARIAN_ROD",)),
                 ("karambwanji_net", "Catch karambwanji", "KBWANJI_NET", ("karambwanji",), (), ()),
                 ("rainbow_fish", "Catch rainbow fish", "FLY_FISHING_ROD_RAINBOW_FISH", ("rainbow_fish",), ("Stripy feather",), ()),
                 ("lava_eel", "Catch lava eel", "OILY_FISHING_ROD", ("lava_eel",), ("Fishing bait",), ()),
-                ("lumbridge_swamp_eel_spawn", "Catch slimy eel/frog spawn", "LUMBDSWAMP_ROD", ("slimy_eel", "frog_spawn"), ("Fishing bait",), ()),
             ],
         )
         self.assertEqual(set(FISHING_METHODS_BY_ID), {row[0] for row in rows})
@@ -146,6 +149,32 @@ class TestFishingData(unittest.TestCase):
         fish = fishing_fish_as_dict()
         for fish_id in ("karambwanji", "lava_eel", "frog_spawn"):
             self.assertFalse(fish[fish_id]["tradeable"])
+
+    def test_swamp_cave_rod_spot_catches_slimy_eel_at_28_and_cave_eel_at_38(self):
+        self.assertFalse(can_fish_method_pure(27, {"Fishing bait": 1}, "catch_cave_eel", FISHING_DATA))
+        _, _, ok, _, _ = apply_fishing_action_pure(
+            "catch_cave_eel", {"Fishing bait": 1}, FISHING_DATA, fishing_level=37, rolls=(1.0, 0.0)
+        )
+        self.assertFalse(ok)
+        _, xp, ok, output, _ = apply_fishing_action_pure(
+            "catch_cave_eel", {"Fishing bait": 1}, FISHING_DATA, fishing_level=37, rolls=(0.0,)
+        )
+        self.assertEqual((ok, output, xp), (True, "Slimy eel", 65.0))
+        caught, xp, ok, output, rewards = apply_fishing_action_pure(
+            "catch_cave_eel", {"Fishing bait": 1}, FISHING_DATA, fishing_level=38, rolls=(1.0, 0.0)
+        )
+        self.assertEqual((ok, output, xp), (True, "Raw cave eel", 80.0))
+        self.assertEqual(rewards, ({"skill_id": "fishing", "amount": 80.0},))
+        self.assertEqual(caught, {"Fishing bait": 0, "Raw cave eel": 1})
+
+    def test_both_eel_spots_name_their_place_in_the_picker(self):
+        rows = {row.target_id: row for row in fishing_target_rows({"fishing_level": 99}, FISHING_DATA, {}, "")}
+
+        self.assertEqual(rows["catch_slimy_eel"].label, "Catch slimy eel (Lvl 28)/cave eel (Lvl 38) (Mort Myre)")
+        self.assertEqual(
+            rows["catch_cave_eel"].label, "Catch slimy eel (Lvl 28)/cave eel (Lvl 38) (Lumbridge Swamp Caves)"
+        )
+        self.assertEqual(rows["catch_frog_spawn"].label, "Catch frog spawn (Lvl 33)")
 
 
 if __name__ == "__main__":

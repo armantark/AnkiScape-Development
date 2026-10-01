@@ -42,6 +42,7 @@ you are in the game, with the date the change reached main.
 - [ ] Auto-drink removes only the dose you drank from the carried pack, not an extra bottle. (2026-09-28)
 - [ ] Thieving: a failed attempt keeps its damage and stun when your pack yak banks an item, and the next review clears the stun. (2026-09-28)
 - [ ] Thieving: fail a blackjack knockout with "Fight back when caught" on; you fight the Menaphite Thug with the food, arrows and runes you carry. (2026-09-28)
+- [ ] Fishing: Stats > Fishing lists each fish once at its own level (16 Catch mackerel, 23 Catch cod, 46 Catch bass, 28 Catch slimy eel). In Skills > Fishing, the Lumbridge Swamp Caves eel spot gives slimy eels from level 28 and cave eels from 38, the Mort Myre spot opens after Priest in Peril, and frog spawn needs no bait. (2026-09-30)
 
 ## Bank, shops and items
 
