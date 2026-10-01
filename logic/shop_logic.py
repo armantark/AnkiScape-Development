@@ -175,8 +175,8 @@ def shop_selector_entries_pure(player_data: Mapping[str, Any], shop_ids) -> list
 
     A shop locked against this save (any access wall, or a static currency
     lock) sorts after every open shop and its label names only the reason, so
-    the list never advertises a shop the player cannot use yet. It still opens
-    read-only.
+    the list never advertises a shop the player cannot use yet. The list
+    cannot select it.
     """
     views = shop_view_models_pure(player_data, shop_ids)
     keyed = []

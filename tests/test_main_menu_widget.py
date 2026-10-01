@@ -4865,27 +4865,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotIn("Darkan shop JSON", tooltip)
         self.assertNotIn("source", tooltip.casefold())
 
-        gabooty = next(
-            selector.item(index)
-            for index in range(selector.count())
-            if (selector.item(index).data(Qt.ItemDataRole.UserRole) or {}).get("shop_id")
-            == "gabootys_tai_bwo_wannai_cooperative"
-        )
-        selector.setCurrentItem(gabooty)
-        QApplication.processEvents()
-        tribal_top = next(
-            button
-            for button in dialog.findChildren(QToolButton)
-            if button.objectName().startswith("shopStockTile_")
-            and button.text() == "Tribal top"
-        )
-        locked_tooltip = tribal_top.toolTip()
-        self.assertIn(
-            "Locked: This shop uses a currency you cannot spend.",
-            locked_tooltip,
-        )
-        self.assertNotIn("currency_not_implemented", locked_tooltip)
-        self.assertNotIn("implemented", locked_tooltip.casefold())
         dialog.deleteLater()
 
     def test_shop_browse_splits_normal_and_reward_targets_left_to_right(self) -> None:
@@ -5322,7 +5301,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("you have 0", preview.text())
         self.assertFalse(buy_button.isEnabled())
 
-    def test_shop_locked_currency_search_shows_backend_reason_and_disables_buy(self) -> None:
+    def test_shop_locked_currency_search_names_backend_reason_and_cannot_be_selected(self) -> None:
         from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
         fixtures = build_shop_frontend_fixtures()
@@ -5348,14 +5327,14 @@ class MainMenuWidgetTest(unittest.TestCase):
                 locked_item = item
                 break
         self.assertIsNotNone(locked_item, "locked search did not render stock-source comparison rows")
-        selector.setCurrentItem(locked_item)
+        self.assertIn("Currency not implemented", locked_item.text())
+        self.assertNotIn("currency_not_implemented", locked_item.text())
+        self.assertFalse(locked_item.flags() & Qt.ItemFlag.ItemIsEnabled)
+        selector.itemClicked.emit(locked_item)
         QApplication.processEvents()
 
-        preview = _find_named_label(dialog, "shopPreviewLabel")
-        button = _find_named_button(dialog, "shopTransactionButton")
-        self.assertIn("Currency not implemented", preview.text())
-        self.assertNotIn("currency_not_implemented", preview.text())
-        self.assertFalse(button.isEnabled())
+        self.assertEqual(_find_named_label(dialog, "shopPreviewLabel").text(), "No stock row selected.")
+        self.assertFalse(_find_named_button(dialog, "shopTransactionButton").isEnabled())
 
     def test_shop_live_stock_buy_updates_inventory_and_history(self) -> None:
         from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
