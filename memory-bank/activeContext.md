@@ -13,7 +13,7 @@
 - Open owner gates are the grave reward values ([design-thread queue §3.40](design-thread-queue.md): lamp, bag and book values do not record which copy holds which value, and `nonempty_urn_count_pure` ignores urns in a grave), for which `goal/grave-reward-values-2026-09-27` stays uncommitted until the owner answers; the Magic candidate above; the diary-deed spot-check feedback; and the native journal/navigation UI decisions. Missing quest combat stats are source work, not a new gameplay-design question. Other exact source and dependency blockers remain in the matrix.
 - Old quota prose is not a live quota result. Menu-open performance remains on `memory-bank/future-work-kanban.md` under its owner target.
 
-Last staleness sweep: 2026-09-23
+Last staleness sweep: 2026-10-01
 
 ## Decision Boundaries
 
