@@ -107,15 +107,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   changes. It audits every present tracked or untracked Markdown and HTML file
   for mechanical integrity, including local Markdown links and HTML resources,
   without rewriting historical prose.
-- Each `papercuts.md` entry is one line starting with `- `; append it with
-  `python3 tools/memory_bank/move_papercuts.py append <timestamp> <incident>`
-  so the tool constructs the bullet under the ledger lock. Move closed entries
-  with `python3 tools/memory_bank/move_papercuts.py move <plan.json>` rather
-  than by hand. Every plan section must declare `fixed` or `duplicate` and cite
-  evidence that the cause was repaired; task completion, interruption, and a
-  successful workaround do not close a papercut. Prove any log edit with
-  `python3 tools/memory_bank/move_papercuts.py check <base-revision>`: it fails
-  on a lost line or on an entry that is both open and fixed.
+- Each `papercuts.md` entry is one line starting with `- `; the docs audit
+  rejects any other form. Move closed entries with
+  `python3 tools/memory_bank/move_papercuts.py move <plan.json>` rather than
+  by hand, and prove any edit of the papercut logs with
+  `python3 tools/memory_bank/move_papercuts.py check <base-revision>`: it
+  fails on a lost line or on an entry that is both open and fixed.
   If `move` fails after it replaced the fixed log, `check` reports the moved
   entries as open and fixed; delete them from `papercuts.md` by hand, because
   re-running the plan would archive them twice.

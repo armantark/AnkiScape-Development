@@ -10,8 +10,10 @@
 Each line is an entry of `memory-bank/papercuts.md`, copied exactly. Naming
 entries by text rather than line number means a plan written before another
 move finished still moves the entries it names, or refuses if they are gone.
-Each section is appended to the destination as `## heading`, the note, then
-its lines in their order in `papercuts.md`. Nothing is
+Each section is appended to the destination as `## heading`, its disposition
+and evidence, then its lines in their order in `papercuts.md`. Evidence cites
+the repair of the cause; task completion, interruption, or a workaround is not
+evidence, and a section without evidence is refused. Nothing is
 written unless the result passes the same proof as `check`, and both files
 are staged in full before either is replaced, so a failed write loses nothing.
 Moves run one at a time: a second move waits until the first has finished.
@@ -97,45 +99,28 @@ def _choose(source: Sequence[str], entry: str, chosen: set[int]) -> int:
 
 
 def _closure_note(section: dict) -> str:
-    disposition = section.get("disposition")
+    disposition, evidence = section.get("disposition"), section.get("evidence")
     if disposition not in {"fixed", "duplicate"}:
         raise SystemExit("each move section requires disposition 'fixed' or 'duplicate'")
-    evidence = section.get("evidence")
     if not isinstance(evidence, str) or not evidence.strip():
         raise SystemExit(f"{disposition} disposition requires non-empty evidence")
-    parts = [f"Disposition: {disposition}.", f"Evidence: {evidence.strip()}"]
-    note = section.get("note", "")
-    if note:
-        if not isinstance(note, str):
-            raise SystemExit("section note must be text")
-        parts.append(note.strip())
-    return "\n\n".join(parts)
+    return f"Disposition: {disposition}.\n\nEvidence: {evidence.strip()}"
 
 
-def append(root: Path, timestamp: str, incident: str) -> bool:
-    if not timestamp.strip() or not incident.strip() or any(
-        character in timestamp or character in incident for character in "\r\n"
-    ):
-        raise SystemExit("timestamp and incident must each be non-empty single-line text")
+def append(root: Path, timestamp: str, incident: str) -> None:
     entry = f"- {timestamp.strip()} — {incident.strip()}"
+    if not timestamp.strip() or not incident.strip() or "\n" in entry or "\r" in entry:
+        raise SystemExit("timestamp and incident must each be non-empty single-line text")
     source_path = root / PAPERCUTS
     with _exclusive(root / "memory-bank"):
-        source_text = source_path.read_text(encoding="utf-8")
-        if entry in source_text.splitlines():
-            return False
-        archived = _lines(path.read_text(encoding="utf-8") for path in _fixed_paths(root))
-        if entry.removeprefix("- ") in archived:
-            raise SystemExit("entry is already archived as fixed; it cannot be reopened")
-        updated = source_text.rstrip("\n") + "\n" + entry + "\n"
-        _replace({source_path: updated})
-    return True
+        _replace({source_path: source_path.read_text(encoding="utf-8").rstrip("\n") + f"\n{entry}\n"})
 
 
 def move(root: Path, plan: dict) -> tuple[int, list[str]]:
     match = FIXED_RE.fullmatch(plan["destination"])
     if not match:
         raise SystemExit(f"destination must be memory-bank/papercuts-fixed-YYYY-MM-DD.md: {plan['destination']}")
-    sections = plan.get("sections", [])
+    sections = plan["sections"]
     closure_notes = [_closure_note(section) for section in sections]
     source_path, destination = root / PAPERCUTS, root / plan["destination"]
     with _exclusive(root / "memory-bank"):
@@ -194,9 +179,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         success = f"Moved {count} papercut lines into {plan['destination']}; no line lost."
         failure = "Nothing was written."
     elif args.command == "append":
-        added = append(root, args.timestamp, args.incident)
+        append(root, args.timestamp, args.incident)
         errors = []
-        success = "Appended one papercut entry." if added else "Papercut entry already open; nothing changed."
+        success = "Appended one papercut entry."
         failure = "Nothing was written."
     else:
         errors = check(root, args.base)

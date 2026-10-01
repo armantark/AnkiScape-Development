@@ -11,12 +11,14 @@ their owning workstream requires deeper context.
 - [Active Context](activeContext.md): present implementation and verification state.
 - [System Patterns](systemPatterns.md): architecture and durable engineering conventions.
 - [Technical Context](techContext.md): runtime, tooling, evidence, and test environment.
-- [Progress](progress.md): chronological completion ledger. Append a prepared record with `python3 tools/memory_bank/append_record.py memory-bank/progress.md < record.md` so record boundaries end with exactly one terminal newline.
+- [Progress](progress.md): chronological completion ledger.
 - [Completion Kanban](future-work-kanban.md): canonical forward-work board.
 - [Roadmap](roadmap.md): dependency-ordered completion strategy.
 - [Gap backlog](gap-backlog.json): machine-readable existing-skill parity subledger.
 - [Public release lineage and license decision](public-release-lineage-and-license-2026-07-17.md):
   settled derivative-release posture, attribution copy, and ordered go-live gates.
+
+The memory bank is the agents' own space; the owner does not read it (2026-10-01), so agents apply staleness-sweep rewrites themselves instead of nominating them.
 
 ## Evidence and design directories
 
