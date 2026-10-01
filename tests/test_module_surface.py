@@ -52,12 +52,7 @@ def run_tool(interpreter: Path, *args: str, qt: bool = False) -> subprocess.Comp
 
 def digest_mismatch_message(interpreter: Path, *paths: str) -> str:
     command = " ".join((str(interpreter), str(TOOL), "--digest-only", *paths))
-    return (
-        "Public module-level imports count as exports. Keep implementation-only "
-        "dependencies private or function-local unless the API changes intentionally. "
-        "Inspect the current surface before deciding whether to repin:\n"
-        f"{command}"
-    )
+    return f"Surface digest moved; read {TOOL} --help before repinning. Inspect with:\n{command}"
 
 
 def interpreter_cases():
