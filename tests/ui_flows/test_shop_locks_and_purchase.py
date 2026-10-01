@@ -82,6 +82,9 @@ class ShopLocksAndPurchaseTest(unittest.TestCase):
         self.assertIn(("Canifis General Store · Requires Priest in Peril", True), shops)
         # Long reasons wrap inside the list: nothing hides off the right edge,
         # and a wrapped row is laid out at its full height, not over the next.
+        # A narrow list makes the longest label wrap whatever the host's font.
+        self.selector.setFixedWidth(240)
+        QApplication.processEvents()
         viewport_width = self.selector.viewport().width()
         rects = [self.selector.visualItemRect(self.selector.item(i)) for i in range(self.selector.count())]
         self.assertLessEqual(max(rect.right() for rect in rects), viewport_width)
