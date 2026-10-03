@@ -1,4 +1,7 @@
 {
+  "data/equipment_data.py": {
+    "data/cfg/items.yml": "4bc95333b282216b6d1a50dd60b4510aa0bbc837d5bc39b0d1b8e44d7390e4f0"
+  },
   "data/smithing_data.py": {
     "data/cfg/items.yml": "4bc95333b282216b6d1a50dd60b4510aa0bbc837d5bc39b0d1b8e44d7390e4f0",
     "game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt": "77b817e72cbaf384178fcbeada61cddc5502129b5bb8b45ba3c34b39bf15847b",

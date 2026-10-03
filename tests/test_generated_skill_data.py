@@ -124,6 +124,54 @@ def _paused_digest_save(manifest, output_name, read_ready, release, signal_lock=
 
 
 class TestGeneratorDigestRaces(unittest.TestCase):
+    def test_equipment_records_the_bytes_read_and_preserves_other_generators(self):
+        tool = generate_equipment_data
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / tool.ITEMS_YML_RELATIVE
+            source.parent.mkdir(parents=True)
+            original = (GAME_ROOT / tool.ITEMS_YML_RELATIVE).read_bytes()
+            source.write_bytes(original)
+            output, manifest = root / "equipment.py", root / "digests.json"
+            previous = {"data/foreign_data.py": {"foreign.yml": "pinned"}}
+            manifest.write_text(json.dumps(previous))
+            read_bytes = Path.read_bytes
+
+            def replace_after_read(path):
+                content = read_bytes(path)
+                if path == source:
+                    source.write_bytes(original + b"\n")
+                return content
+
+            with patch.object(Path, "read_bytes", replace_after_read):
+                tool.generate(root, output, digest_manifest=manifest)
+            previous["data/equipment_data.py"] = {
+                tool.ITEMS_YML_RELATIVE.as_posix(): hashlib.sha256(original).hexdigest(),
+            }
+            self.assertEqual(json.loads(manifest.read_text()), previous)
+            self.assertEqual(output.read_bytes(), (ROOT / "data/equipment_data.py").read_bytes())
+
+    def test_equipment_refuses_changed_source_before_writing_until_accepted(self):
+        tool = generate_equipment_data
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / tool.ITEMS_YML_RELATIVE
+            source.parent.mkdir(parents=True)
+            source.write_bytes((GAME_ROOT / tool.ITEMS_YML_RELATIVE).read_bytes())
+            output, manifest = root / "equipment.py", root / "digests.json"
+            tool.generate(root, output, digest_manifest=manifest)
+            output.write_bytes(b"sentinel: output must survive refusal\n")
+            expected = output.read_bytes(), manifest.read_bytes()
+            changed = source.read_bytes() + b"\n"
+            source.write_bytes(changed)
+            with self.assertRaisesRegex(ValueError, "data/cfg/items.yml; pass --accept-source-change"):
+                tool.generate(root, output, digest_manifest=manifest)
+            self.assertEqual((output.read_bytes(), manifest.read_bytes()), expected)
+            tool.generate(root, output, digest_manifest=manifest, accept_source_change=True)
+            self.assertEqual(json.loads(manifest.read_text())["data/equipment_data.py"], {
+                tool.ITEMS_YML_RELATIVE.as_posix(): hashlib.sha256(changed).hexdigest(),
+            })
+
     def test_summoning_uses_bytes_captured_before_source_replacement(self):
         tool = generate_summoning_catalog
         with tempfile.TemporaryDirectory() as temp:
@@ -337,7 +385,8 @@ class TestGeneratedSkillData(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             output_path = Path(temp_dir) / "equipment_data.py"
             generate_equipment_data.generate(
-                GAME_ROOT, output_path, provenance_root=PROVENANCE_ROOT
+                GAME_ROOT, output_path, provenance_root=PROVENANCE_ROOT,
+                digest_manifest=output_path.with_suffix(".json"),
             )
             generated = output_path.read_text(encoding="utf-8")
 

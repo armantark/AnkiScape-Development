@@ -25,7 +25,10 @@ from tools.generation.equipment_policy import (
     LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES,
     SOURCE_PROVENANCE_OVERRIDES,
 )
+from tools.generation.source_digests import check_source_digests, save_source_digests
 
+SOURCE_DIGESTS = ADDON_ROOT / "generated" / "source_digests.json"
+OUTPUT_NAME = "data/equipment_data.py"
 SlotId = str
 BonusValue = int | float | bool | str
 EquipmentBlock = Dict[str, BonusValue]
@@ -206,10 +209,6 @@ class GeneratedEquipmentItem:
     weapon_type: int = -1
 
 
-def _read(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
-
-
 def _parse_scalar(raw_value: str) -> BonusValue:
     value = raw_value.strip().strip('"')
     if value.lower() == "true":
@@ -224,7 +223,8 @@ def _parse_scalar(raw_value: str) -> BonusValue:
         return value
 
 
-def _parse_items_yml(path: Path) -> Dict[int, SourceItem]:
+def _parse_items_yml(path: Path) -> Tuple[Dict[int, SourceItem], bytes]:
+    source_bytes = path.read_bytes()
     items: Dict[int, SourceItem] = {}
     current_id: Optional[int] = None
     current_name: Optional[str] = None
@@ -246,7 +246,7 @@ def _parse_items_yml(path: Path) -> Dict[int, SourceItem]:
         current_tradeable = True
         current_equipment = None
 
-    for raw_line in _read(path).splitlines():
+    for raw_line in source_bytes.decode("utf-8").splitlines():
         stripped = raw_line.strip()
         if stripped.startswith("- id:"):
             flush()
@@ -277,7 +277,7 @@ def _parse_items_yml(path: Path) -> Dict[int, SourceItem]:
         else:
             in_equipment = False
     flush()
-    return items
+    return items, source_bytes
 
 
 def _int_from_block(block: Optional[Mapping[str, BonusValue]], key: str, default: int = 0) -> int:
@@ -1334,9 +1334,7 @@ def equipment_items_as_dict(
 '''
 
 
-def _with_weapon_type(
-    item: GeneratedEquipmentItem, items: Mapping[int, SourceItem]
-) -> GeneratedEquipmentItem:
+def _with_weapon_type(item: GeneratedEquipmentItem, items: Mapping[int, SourceItem]) -> GeneratedEquipmentItem:
     """Attach the items.yml ``weapon_type`` id so combat can pick the right
     attack style (stab/slash/crush) per weapon. Only weapon-slot items carry a
     meaningful type; everything else keeps the -1 (unarmed/typeless) default."""
@@ -1350,17 +1348,20 @@ def _with_weapon_type(
 
 
 def generate(
-    game_root: Path,
-    output_path: Path,
+    game_root: Path, output_path: Path,
     *,
     provenance_root: Optional[Path] = None,
+    accept_source_change: bool = False,
+    digest_manifest: Path = SOURCE_DIGESTS,
 ) -> None:
     if provenance_root is None:
         provenance_root = game_root
-    addon_root = output_path.resolve().parent
-    if str(addon_root) not in sys.path:
-        sys.path.insert(0, str(addon_root))
-    items = _parse_items_yml(game_root / ITEMS_YML_RELATIVE)
+    source_path = game_root / ITEMS_YML_RELATIVE
+    items, source_bytes = _parse_items_yml(source_path)
+    digests = check_source_digests(
+        digest_manifest, OUTPUT_NAME, {source_path: source_bytes}, source_root=game_root,
+        accept_source_change=accept_source_change,
+    )
     items_by_name = _source_items_by_name(items)
     equipment_items = _dedupe_equipment_items(
         tuple(_agility_equipment_items(items, items_by_name))
@@ -1386,17 +1387,15 @@ def generate(
     if game_root != provenance_root:
         rendered = rendered.replace(str(game_root), str(provenance_root))
     output_path.write_text(rendered, encoding="utf-8")
+    save_source_digests(digest_manifest, OUTPUT_NAME, digests)
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--game-root",
-        type=Path,
-        default=None,
-        help="external 2011Scape checkout root; reads <root>/data/cfg/items.yml",
-    )
+    parser.add_argument("--game-root", type=Path, help="external 2011Scape checkout root; reads <root>/data/cfg/items.yml")
     parser.add_argument("--output", type=Path, default=ADDON_ROOT / "data" / "equipment_data.py")
+    parser.add_argument("--accept-source-change", action="store_true")
+    parser.add_argument("--digest-manifest", type=Path, default=SOURCE_DIGESTS)
     args = parser.parse_args(argv)
     if args.game_root is None:
         game_root = Path(os.environ.get("ANKISCAPE_GAME_MAIN", DEFAULT_GAME_ROOT))
@@ -1404,7 +1403,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     else:
         game_root = args.game_root
         provenance_root = args.game_root
-    generate(game_root, args.output, provenance_root=provenance_root)
+    generate(game_root, args.output, provenance_root=provenance_root,
+             accept_source_change=args.accept_source_change, digest_manifest=args.digest_manifest)
     print(f"Wrote {args.output}")
     return 0
 
