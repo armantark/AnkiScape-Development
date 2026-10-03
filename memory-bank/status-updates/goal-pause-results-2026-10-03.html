@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnkiScape: three quest stages now have a path forward</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%234ade80'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+*{box-sizing:border-box}html{scroll-snap-type:y proximity}body{margin:0;background:var(--bg);color:var(--text);font-family:Outfit,"Helvetica Neue",Arial,sans-serif;line-height:1.5}section{min-height:100svh;scroll-snap-align:start;padding:56px clamp(24px,5vw,76px);max-width:1400px;margin:auto;display:flex;flex-direction:column;justify-content:center;gap:24px}h1,h2,h3,p{margin:0}h1{font-size:clamp(36px,4.8vw,66px);line-height:1.08;max-width:20ch}h2{font-size:clamp(30px,3.4vw,46px);line-height:1.15}h3{font-size:clamp(21px,2.2vw,28px);line-height:1.25}p,li,td,th,blockquote{font-size:18px}p{max-width:70ch}a{color:var(--accent);overflow-wrap:anywhere}a:focus-visible,video:focus-visible{outline:3px solid var(--amber);outline-offset:5px}.dim{color:var(--text-dim)}.hero{display:grid;grid-template-columns:1.2fr .8fr;align-items:start;gap:36px}.hero-copy{display:grid;gap:28px}video{width:100%;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}.routes{margin:0;padding:0;list-style:none;display:grid;gap:0}.routes li{padding:18px 0;border-bottom:1px solid var(--border)}.routes strong{display:block;font-size:22px;font-weight:500}.route{color:var(--green);font-family:"JetBrains Mono",Menlo,monospace;font-size:17px}.rows{display:grid;gap:0;border-top:1px solid var(--border)}.row{display:grid;grid-template-columns:minmax(180px,.45fr) 1fr;gap:28px;padding:24px 0;border-bottom:1px solid var(--border)}.row p{color:var(--text-dim)}.note{padding:20px 24px;background:var(--surface);border-left:4px solid var(--amber);border-radius:var(--radius)}.note h3{color:var(--amber);margin-bottom:8px}.under{padding-left:24px;margin:0;display:grid;gap:17px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border)}th{color:var(--text-dim);font-weight:500}td:nth-child(2),td:nth-child(3){font-family:"JetBrains Mono",Menlo,monospace}.decisions{list-style:none;margin:0;padding:0;display:grid;gap:26px;counter-reset:decision}.decisions>li{counter-increment:decision;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}.decisions h3:before{content:counter(decision) ". ";color:var(--amber)}.decisions p{margin-top:12px}blockquote{margin:14px 0 0;padding-left:18px;border-left:3px solid var(--amber)}.evidence{font-size:15px;color:var(--text-dim)}.mono{font-family:"JetBrains Mono",Menlo,monospace}footer{padding:20px 0;border-top:1px solid var(--border)}
+@media(max-width:760px){.hero,.row{grid-template-columns:1fr}.hero{gap:28px}.row{gap:12px}section{padding-top:36px;padding-bottom:36px}video{max-width:520px}th,td{padding:10px 8px;font-size:16px}}
+@supports(animation-timeline:view()){@media(prefers-reduced-motion:no-preference){.row,.decisions>li{animation:arrive linear both;animation-timeline:view();animation-range:entry 0% entry 25%}@keyframes arrive{from{opacity:.3;transform:translateY(12px)}to{opacity:1;transform:none}}}}
+</style>
+</head>
+<body>
+<main>
+<section aria-labelledby="play">
+<div class="hero">
+<div class="hero-copy">
+<h1 id="play">Three quest stages now have a path forward.</h1>
+<p>At these stages, the required action now lets the player advance. These changes are on main.</p>
+<ol class="routes">
+<li><strong>Spirits of the Elid</strong><span class="route">Stage 2 → 3</span><br>Cast Telegrab on the ancestral key. The stage still needs Thread.</li>
+<li><strong>The Eyes of Glouphrie</strong><span class="route">Stage 3 → 4</span><br>Collect evergreen sap through Utility with a Bucket. The belt Knife counts.</li>
+<li><strong>Enakhra's Lament</strong><span class="route">Stage 5 → 6</span><br>Cast Crumble Undead on the first Boneguard with Magic 39 and the required runes. The stage still needs a Candle.</li>
+</ol>
+</div>
+<video src="goal-pause-results-2026-10-03.mp4" controls autoplay muted loop playsinline aria-label="A 35-second summary of the run"></video>
+</div>
+<p class="dim">Undo restores the quest advance, then the action and its supplies. These fixes remove the named stage blockers; other quest stages can still have blockers.</p>
+<p class="evidence">Goal run: 2026-10-02 17:29 to 2026-10-03 04:00, America/Los_Angeles. Main before the run: <span class="mono">60d7bd83</span>.</p>
+</section>
+<section aria-labelledby="tools">
+<h2 id="tools">The shield checks skills, and Fletching accepts belt tools.</h2>
+<div class="rows">
+<div class="row"><h3>Fremennik round shield</h3><p>Make it with Woodcutting 54, two Arctic pine logs, one Bronze nail, one Rope, and a Hammer. The belt Hammer counts. Wear it with Defence 25. The Fremennik Isles stage 5 also checks Woodcutting 54. The owner must resolve the 54-versus-56 source conflict.</p></div>
+<div class="row"><h3>Fletching</h3><p>Belt tools count for the action and its tool list. A Chisel on the belt needs no copy in the Bank. The recipe still consumes its materials.</p></div>
+<div class="row"><h3>Shades of Mort'ton temple</h3><p>Temple repair still needs a held Hammer or an owned Flamtaer hammer. The altar still needs a held Tinderbox. Period sources did not confirm belt use for these actions.</p></div>
+<div class="row"><h3>Phoenix Lair</h3><p>The lair no longer asks for extra Knife, Secateurs, or Tinderbox copies. In Pyre Need, Slayer 51, and the daily reward limit still apply.</p></div>
+<div class="row"><h3>Magic alchemy</h3><p>The item selector, spell list, and lock messages use the same rules for eligible items and their values.</p></div>
+</div>
+<div class="note"><h3>One quantity remains a placeholder on main.</h3><p>The first Boneguard cast gives five Big bones. The period quest text and monster drop table conflict, so the quantity remains open.</p></div>
+</section>
+<section aria-labelledby="under">
+<h2 id="under">The checks beneath the game have clearer boundaries.</h2>
+<ul class="under">
+<li>The promotion gate no longer starves behind author test runs; the first successful gate acquired the mirror after 865.8 seconds.</li>
+<li>New worktrees receive the project rules; the run confirmed the generated rules in a new worktree at 03:41.</li>
+<li>The Memory Bank names the goal priority matrix as the single authority for work selection.</li>
+<li>Combat cleanups preserve results in the old-against-new cases below; each recorded comparison found zero differences.</li>
+<li>The quest catalog uses pinned source inputs; rebuilds reproduced the same output. A pin does not resolve inherited source conflicts.</li>
+</ul>
+<div class="table-wrap"><table><caption class="dim">Recorded combat comparisons for changes on main</caption><thead><tr><th scope="col">Behavior</th><th scope="col">Cases</th><th scope="col">Differences</th></tr></thead><tbody>
+<tr><th scope="row">Automatic potion use</th><td>12,847</td><td>0</td></tr>
+<tr><th scope="row">Death and item recovery</th><td>10,288</td><td>0</td></tr>
+<tr><th scope="row">Dragonfire and potion expiry</th><td>12,322</td><td>0</td></tr>
+<tr><th scope="row">Finisher charges</th><td>26,080</td><td>0</td></tr>
+</tbody></table></div>
+<p class="dim">Carried restock decisions also matched across 12,056 cases. Loot menu choices matched across 12,050 cases. Both comparisons found zero differences.</p>
+<p class="evidence" id="main-state">Main at this check: 0a628129. Batches a, b, c and d landed. Batch d landed at 0a628129: papercut triage and Winter Storage cleanup. Its recorded comparison covered 12,049 cases with zero differences.</p>
+<p class="evidence" id="gate-state">The log records full plain and Qt lanes before each landing. Batch c ran 5,204 tests in each lane.</p>
+</section>
+<section aria-labelledby="review">
+<h2 id="review">Six quest fights remain in review.</h2>
+<p>Othanian, Sir Leye, Solus Dellagar, Juvinate, the level-82 Ice troll, and The Illusive have proposed combat stats.</p>
+<div class="note"><h3>In review; not on main.</h3><p>The proposed fights use registered placeholders for missing stats. Review found source-receipt collisions and a conflict in Solus Dellagar's maximum hit. The correction remains on its branch.</p></div>
+<p>The test-prune classification finished 342 of 342 chunks. The second-vote workflow stopped after 135 agents started. No test-prune deletion landed in this run.</p>
+<p class="dim">The owner parked interface work at the start of the run: the main tab bar at 720 px, flow layout, achievement card, Agility benefits, and the Magic alchemy name.</p>
+</section>
+<section aria-labelledby="questions">
+<h2 id="questions">Four questions need the owner's decision.</h2>
+<ol class="decisions">
+<li><h3>Fremennik round shield Woodcutting 54 vs 56</h3><p>Does the owner choose Woodcutting 54 or 56 for the Fremennik round shield?</p><p>Main uses 54. The shield pages of 2012-05-22 and 2012-06-25 say 54. The Fremennik Isles page of 2012-11-07 says 56. Darkan also uses 56, but its restored quest does not supply independent period evidence. The source standard leaves this conflict open.</p><p class="evidence">Source: <a href="/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/design-thread-queue.md">/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/memory-bank/design-thread-queue.md</a></p></li>
+<li><h3>Slayer Rewards</h3><blockquote>Does Owner decision 15 authorize replacing the existing Slayer Rewards placeholder with a contained purchase interface, starting with the 400-point quick-finisher reward once players can earn authentic Slayer points, or should that UI remain excluded?</blockquote><p>Players currently earn no Slayer points. The Rewards tab remains a placeholder.</p></li>
+<li><h3>Global Claude Code hook: workflow size cap</h3><p>Does the owner approve the proposed global Claude Code hook for a workflow size cap, subject to pre-install review?</p><p class="dim">The retro proposed this hook after the large second-vote workflow. The hook remains a proposal and needs the owner's pre-install confirmation.</p></li>
+<li><h3>Global Claude Code hook: protect the live add-on</h3><p>Does the owner approve the proposed global Claude Code hook that denies subagent writes to the live add-on, subject to pre-install review?</p><p class="dim">A read-only classifier edited a live test at 17:48:54. The orchestrator restored the file. The proposed hook needs the owner's pre-install confirmation.</p></li>
+</ol>
+<footer><p id="resume">The goal paused because Claude exceeded its day pace, 19 against 13; batch d comes first, then the retained combat, carried-item, and quest-fight work resumes review and verification.</p></footer>
+</section>
+</main>
+</body>
+</html>
