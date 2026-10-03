@@ -30,3 +30,4 @@
 
 - 2026-10-03T20:20:44.357812+00:00 — Death-transfer authority search named `memory-bank/next-cleanup-boundaries.md`, which does not exist in this checkout; `rg: memory-bank/next-cleanup-boundaries.md: No such file or directory (os error 2)`. The root's leaf-10 contract supplies this slice boundary.
 - 2026-10-03T20:22:20.806232+00:00 — Death-transfer static-check discovery guessed `tools/audit_static_layout.py`, which does not exist; `rg: tools/audit_static_layout.py: No such file or directory (os error 2)`. Use direct AST/source layout comparison for this slice.
+- 2026-10-03T20:27:02.942263+00:00 — Death-transfer docs evidence initially assumed the audit omitted untracked records. `tools/audit_docs.py:95` uses `git ls-files -z --cached --others --exclude-standard`; pre-commit and committed inventories both reported `Audited 890 Markdown and 454 HTML files.` Corrected the source-audit statement without changing the instrument.
