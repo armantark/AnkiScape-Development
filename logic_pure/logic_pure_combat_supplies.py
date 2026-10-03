@@ -1139,6 +1139,23 @@ def _combat_recover_current_levels(data, ticks):
     data["combat_recovery_progress"] = {key: value for key, value in progress.items() if value > 0}
 
 
+def _combat_dragonfire_protection_tier(
+    spec, shield_active, antifire_active, super_antifire_active, magic_prayer_active,
+):
+    full = bool(
+        super_antifire_active
+        or antifire_active and (shield_active or magic_prayer_active)
+    )
+    partial = bool(
+        not full and (shield_active or antifire_active or magic_prayer_active)
+    )
+    if full:
+        return 2, "Full", 0
+    if partial:
+        return 1, "Partial", _positive_int(spec.get("partial_max_hit", 50), 50)
+    return 0, "None", _positive_int(spec.get("unprotected_max_hit", 500), 500)
+
+
 def combat_dragonfire_protection_pure(
     player_data,
     enemy,
@@ -1173,29 +1190,12 @@ def combat_dragonfire_protection_pure(
         magic_prayer_active = bool(
             prayer_effect_state_pure(player_data).get("protect_magic")
         )
-    full = bool(
-        super_antifire_active
-        or antifire_active and (shield_active or magic_prayer_active)
-    )
-    partial = bool(
-        not full
-        and (
-            shield_active
-            or antifire_active
-            or magic_prayer_active
-        )
-    )
-    protection_level = 2 if full else 1 if partial else 0
-    max_hit = (
-        0
-        if full
-        else _positive_int(spec.get("partial_max_hit", 50), 50)
-        if partial
-        else _positive_int(spec.get("unprotected_max_hit", 500), 500)
+    protection_level, state, max_hit = _combat_dragonfire_protection_tier(
+        spec, shield_active, antifire_active, super_antifire_active, magic_prayer_active,
     )
     return {
         "protection_level": protection_level,
-        "state": "Full" if full else "Partial" if partial else "None",
+        "state": state,
         "max_hit": max_hit,
         "shield_active": shield_active,
         "shield_item": shield_name if shield_active else "",
