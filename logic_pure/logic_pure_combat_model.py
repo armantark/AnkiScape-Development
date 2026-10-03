@@ -2186,22 +2186,11 @@ def _combat_ranged_ammo_count(player_data, ammo_name, target_id):
     return loaded + banked
 
 
-def _combat_selected_ranged_ammo(
-    player_data,
-    weapon_spec,
-    target_id,
-    allowed_ammo=None,
-):
-    if not isinstance(weapon_spec, Mapping):
-        return None
+def _combat_compatible_ranged_ammo(weapon_spec, target_id, allowed_ammo):
     compatible_ammo = tuple(weapon_spec.get("compatible_ammo", ()) or ())
     if allowed_ammo is None:
         enemy = COMBAT_ENEMY_DATA.get(target_id, {})
-        restriction = (
-            enemy.get("restricted_weapon")
-            if isinstance(enemy, Mapping)
-            else None
-        )
+        restriction = enemy.get("restricted_weapon") if isinstance(enemy, Mapping) else None
         if isinstance(restriction, Mapping):
             allowed_ammo = restriction.get("ranged_ammunition")
     if allowed_ammo:
@@ -2209,6 +2198,13 @@ def _combat_selected_ranged_ammo(
         compatible_ammo = tuple(
             ammo_name for ammo_name in compatible_ammo if ammo_name in allowed
         )
+    return compatible_ammo
+
+
+def _combat_selected_ranged_ammo(player_data, weapon_spec, target_id, allowed_ammo=None):
+    if not isinstance(weapon_spec, Mapping):
+        return None
+    compatible_ammo = _combat_compatible_ranged_ammo(weapon_spec, target_id, allowed_ammo)
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
     loaded_ammo = loadout.get("ammo", {}) or {}
     for ammo_name in compatible_ammo:
