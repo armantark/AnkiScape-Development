@@ -43,4 +43,4 @@ The helper `_combat_transfer_old_grave_to_office` occupies lines 802–815. Its 
 
 ## Friction and preserved incident text
 
-The two timestamped lines in `memory-bank/papercuts.md` retain the exact missing-path errors from authority/static-check discovery. No historic incident was removed or rewritten.
+The timestamped lines in `memory-bank/papercuts.md` retain the exact missing-path errors from authority/static-check discovery. No historic incident was removed or rewritten.
