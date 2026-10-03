@@ -1613,11 +1613,26 @@ def _combat_pick_potion_for_skill(stat_potions, skill_id):
     return best
 
 
+def _combat_drink_stat_potion(data, stat_potions, item_name):
+    """Consume a dose (a (4) leaves a (3); a (1) empties) and apply all family effects; auto-drinking waits until the boost fully decays, so one flask lasts until then."""
+    base_name, skills, strategy, dose, is_flask = _COMBAT_STAT_POTION_BY_DOSE[item_name]
+    stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) - 1
+    if dose > 1:
+        lower = potion_flask_name(base_name, dose - 1) if is_flask else potion_dose_name(base_name, dose - 1)
+        stat_potions[lower] = _non_negative_int(stat_potions.get(lower, 0), 0) + 1
+    for boosted_skill in skills:
+        if boosted_skill == "prayer":
+            prayer_level = _combat_base_skill_level(data, "prayer", 1)
+            restored = prayer_potion_restore_amount_pure(prayer_level, strategy)
+            data["combat_prayer_points"] = min(prayer_level * 10, _non_negative_int(data.get("combat_prayer_points", 0), 0) + restored * 10)
+        else:
+            boost = _potion_boost_amount(_combat_base_skill_level(data, boosted_skill, 1), strategy)
+            apply_combat_stat_boost_to_pure(data, boosted_skill, boost)
+    return {"item": item_name, "skills": tuple(skills)}
+
+
 def _combat_auto_drink_potions(data, combat_class):
-    """Drink carried stat potions at burst start to (re)apply the output boosts
-    for the active style. Only drinks a stat that has no active boost (effective
-    <= base), so one flask lasts until its boost fully decays. Drinking a dose
-    consumes it (a (4) leaves a (3); a (1) empties). Returns the drink events."""
+    """Drink carried style-relevant potions after boosts fully decay; return drink events."""
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     stat_potions = dict(loadout.get("stat_potions", {}) or {})
     if not stat_potions:
@@ -1635,22 +1650,7 @@ def _combat_auto_drink_potions(data, combat_class):
         item_name = _combat_pick_potion_for_skill(stat_potions, skill_id)
         if item_name is None:
             continue
-        base_name, skills, strategy, dose, is_flask = _COMBAT_STAT_POTION_BY_DOSE[item_name]
-        # Consume one dose: the vial/flask drops to the next-lower dose (dropped at 0/empty).
-        stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) - 1
-        if dose > 1:
-            lower = potion_flask_name(base_name, dose - 1) if is_flask else potion_dose_name(base_name, dose - 1)
-            stat_potions[lower] = _non_negative_int(stat_potions.get(lower, 0), 0) + 1
-        # Apply the boost to every stat the family covers (Combat potion = both).
-        for boosted_skill in skills:
-            if boosted_skill == "prayer":
-                prayer_level = _combat_base_skill_level(data, "prayer", 1)
-                restored = prayer_potion_restore_amount_pure(prayer_level, strategy)
-                data["combat_prayer_points"] = min(prayer_level * 10, _non_negative_int(data.get("combat_prayer_points", 0), 0) + restored * 10)
-            else:
-                boost = _potion_boost_amount(_combat_base_skill_level(data, boosted_skill, 1), strategy)
-                apply_combat_stat_boost_to_pure(data, boosted_skill, boost)
-        events.append({"item": item_name, "skills": tuple(skills)})
+        events.append(_combat_drink_stat_potion(data, stat_potions, item_name))
     loadout["stat_potions"] = {name: amount for name, amount in stat_potions.items() if amount > 0}
     data["combat_supply_loadout"] = loadout
     return events
