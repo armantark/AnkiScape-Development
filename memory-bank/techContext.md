@@ -388,3 +388,22 @@ These scripts have no caller in code, tests or other tools. They stay for manual
 
 ## Manual Testing Target
 Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.
+
+## Operator environment and evidence paths
+
+- The citation-drift audit uses committed HEAD blame; edit and revert commits change citation provenance, so audit committed trees (`tools/audit_citation_drift.py:193`).
+- As of 2026-10-02, `/Users/ArmanTarkhanian1/Downloads/game-main` is an extracted source archive with `data/cfg/items.yml` but no `.git`; check the input before relying on this host state and retain file hashes when Git provenance is unavailable.
+- Every worktree test command must set its working directory explicitly; agent shell defaults can select the canonical checkout. For collection discrepancies, compare the imported module path and collected test IDs from the same checkout before attributing a cause (`tools/run_remote_tests.py` takes the source checkout as its first argument).
+- As of 2026-10-02, the logged `/opt/homebrew/bin/jq` executable is absent on this host; check availability before relying on it and use Python JSON parsing for source probes.
+- Raw quest-audit packets live under the common Git directory in `ankiscape-promotion-evidence/<producer-commit>/<original-path>`; each audit SUMMARY.md names its manifest (`source-audits/genuine-quest-actions-2026-09-05/SUMMARY.md`).
+- As of 2026-10-02, `tools/.cache/pre_eoc_quest_catalog` is ignored; check cache availability before source generation and supply explicit research inputs because linked worktrees do not inherit ignored caches.
+- Linked worktrees share the common Git directory and its stash reference; isolate staged verification without stash operations that affect other worktrees.
+- zsh does not split scalar file lists on spaces; use arrays for multiple path arguments and quote glob-bearing arguments.
+- The slop-gate can refuse different defect classes on successive attempts; retain its full verdict and do static spacing, import and complexity checks before the first commit without changing gate rules.
+- zsh expands unquoted glob-bearing options and paths before a command runs; quote literal patterns or use `rg --files` to find exact paths.
+- As of 2026-10-02, the `/opt/homebrew/bin/pyflakes` shim names absent `/opt/homebrew/opt/python@3.12/bin/python3.12`; check the interpreter before relying on it. A stderr-only shim failure is not a clean check; use `uvx pyflakes` when the shim is broken.
+- The test runner is root `run_tests.py`, not `tools/run_tests.py`; find exact files with `rg --files` and keep source reads within the output budget.
+- Verified by the orchestrator at 2026-10-02 18:27: in Claude Code agent shells, `grep` is a shell function from the Claude shell snapshot that runs ugrep 7.8.4, and a bounded-context regex such as `.{0,90}PATTERN.{0,90}` fails with "exceeds complexity limits"; in Codex shells and plain zsh, `grep` is `/usr/bin/grep` (BSD grep 2.6.0). Use `rg -o` or `tools/repo_search.py` for bounded context in either shell.
+- `tools/worktree_guard.py add` defaults `--start-point` to `main`; a branch stacked on a slice must pass `--start-point <family-branch>`, or its brief must require a plain merge when histories have diverged instead of `git merge --ff-only`.
+- Wiki research requests must send `User-Agent: AnkiScape parity audit`; never put the owner's identity or email in a public User-Agent.
+- In PyQt6, `QStyleOptionViewItem.icon` returns a live reference; save `QIcon(opt.icon)` before assigning a new icon to the option.
