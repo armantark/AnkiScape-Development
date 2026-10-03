@@ -2,24 +2,40 @@
 
 This log keeps the current month. Earlier months rotate into `memory-bank/archive/` on the first session of each month; May to August 2026 is in [the May–August progress archive](archive/progress-2026-05-to-08.md), and the rotated September 2026 sections are in [the September progress archive](archive/progress-2026-09.md).
 
-## 2026-10-03: Active queue reconciliation
+## 2026-10-03: Current queue result
+
+Current main is `da02e004b55f196b60438b4cc24ccdcf6deda5c5` with tracked files clean.
+Three landings are on current main: the documentation batch `06480995a8fea1bd6716307ea46e0a373c27779e`, normal-runner fairness (S01) at `046d5f53dbec963f52f86b89421b82bea1d4c2f4` and source URL query (S03) at `da02e004b55f196b60438b4cc24ccdcf6deda5c5`.
+The S03 official receipt records nine passed checks: plain lane, Qt lane, `audit_docs`, `audit_test_quality`, reachability, `worktree_guard`, worktree clean, diff check and papercuts.
+Final quest head `c2c37322dcdcc61defaef9b4094723ca8765f76c` has Astra source acceptance plus Kimi substantive verification. Root fixed Kimi's sole P3 below/above typo with byte-identical source and tests. Runtime, visual, full branch, full merged and native proof remain pending, and the remaining source gaps stay `source_blocked`.
+Final Cache CLI (S12) head `4dc7271df1f1c7df3fb82953d8283d9d11e3f1a4` has final Opus source acceptance. Its focused remote proof ran 39 checks in 27.099s with OK and no skips, over selectors `test_papercut_tools` and `test_openrs2_definitions`. The full branch plain lane passed 5211 tests in 476.735s, OK with 581 skips. The exact merged gate is not run and S12 is not landed.
+Carried trip schedule `0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088` and death settlement `7e08030e3aa0323e5cc22d45865f9d458ec50fdc` hold source acceptance only, with exact runtime, full and native proof pending.
+The full remote gate of four-cleanup candidate `94420078f978c2281144a144857dc805f9042cde` is historical. `94420078` is not a descendant of current main, so root must recompose the accepted cleanup heads on current main and obtain a new exact full gate and native acceptance.
+Source acceptance grants no runtime, native or visual permission. Root prepared disposable carried, death and composed runtime probes but did not execute them, so no new runtime proof exists.
+The native attempt stopped at the locked MacBook before preparation or launch, with zero reviews; the unlock response is still pending and no waiver exists.
+The byte-exact pause archive landed at `memory-bank/archive/2026-10/handoffs/goal-pause-2026-10-03-0428.md`: 6288 bytes, SHA-256 `fc242460b169867b9a15538018c1eada0b25f9801ef56fe6834c26e576209d0a`. Root then removed the obsolete untracked canonical `memory-bank/GOAL-BLOCKED.md`, which no longer exists. The canonical HTML and MP4 remain preserved unchanged.
+The banked reset remains a pending root action with no activation. The goal is active and unfinished.
+This entry is documentation only. It claims no fresh main audit, no full staleness sweep, no new runtime proof and no test-pruning agreement.
+
+## 2026-10-03 checkpoint (historical): active queue reconciliation
 
 The owner resumed [the exact governing goal](plans/goal-2026-10-03.md).
 The owner permits daily pacing overages and directs root to run available quota down to zero, "while still minmaxing the agent work". The banked reset is a pending root action when the actual limit reaches 100%. Actual model and tool hard limits remain binding. Daily pace figures and copied historical quota prose are not live limit readings.
 The goal is active and unfinished. Root must record actual reset activation separately; the action remains pending at this checkpoint.
 [The current pickup](pickup-2026-10-03.md) replaces the October 1 selection and names the external source-review records.
-Main baseline `0a6281292401f62a59804044ff195091559f2623` includes Equipment digest closure, the Pass 15 Fletching/cutoff follow-up,
+This section records the earlier October 3 checkpoint only. The current queue result above supersedes its landing and blocker status.
+Main baseline at that checkpoint, `0a6281292401f62a59804044ff195091559f2623`, includes Equipment digest closure, the Pass 15 Fletching/cutoff follow-up,
 Telegrab, evergreen sap, first Boneguard, and potion, finisher, dragonfire and combat Winter Storage cleanups.
 Four emitter tuples remain unresolved. The matrix rewrites the earlier eight-action claim to the current set.
 Astra and Kimi accepted cleanup heads `ff93c48a`, `312d0b9a`, `446825ee` and `94e8cef7` at source level only.
 Root checkpoint: the four-cleanup candidate `94420078` passed its full remote gate, but its native attempt stopped at the locked MacBook.
 No preparation, launch, test or seed occurred; zero cards were reviewed. No native acceptance or new waiver exists.
-The matrix records newer quest, tooling and carried candidates with their exact source/proof states; no candidate is landed.
+The matrix records newer quest, tooling and carried candidates with their exact source/proof states; no candidate was landed at that checkpoint.
 The pickup preserves the exact native error and both report paths. October 3 work is bounded queue reconciliation, not a full staleness sweep.
 The September waiver covers only its named batch; no new runtime slice gains that waiver.
 [Historical pause evidence](archive/2026-10/handoffs/goal-pause-2026-10-03-evidence.md) preserves exact blocker, HTML and video bytes.
-The older goal text is history. Root will remove only the obsolete canonical blocker after the byte-exact archive is accepted and landed.
-The canonical blocker still exists at this checkpoint. This documentation leaf changes no canonical file. No status artifact was opened, modified, published or regenerated.
+The older goal text is history. At that checkpoint the canonical blocker still existed, and root removed it later, after the byte-exact archive landed.
+This documentation leaf changes no canonical file. No status artifact was opened, modified, published or regenerated.
 This change edits documentation only. Root owns full branch plain proof and both merged lanes; no lane is green by implication.
 The source-review launcher recovery used the exact cached packet and a short file-based brief; no launcher, skill or global change occurred.
 The retained sample is `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/.orchestrator/tasks-2026-10-03-codex-resume/queue-opus-review-launcher-sample.txt`.
