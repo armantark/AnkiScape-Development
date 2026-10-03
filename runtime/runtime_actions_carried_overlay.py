@@ -800,6 +800,21 @@ def _prepare_winter_storage(
     return pack, view, churn, winter_storage_before
 
 
+def _select_bank_trip_schedule(
+    ctx: RuntimeActionContext, pack: _TargetPack, view: dict[str, int],
+    bank_run: Any, active_run: bool, trip_due: bool, target_altar: str,
+) -> tuple[AgilityTravelProfile | None, int, tuple[dict[str, Any], ...], bool]:
+    reviews_cost = inventory_pure.SKILLING_BANK_RUN_REVIEWS
+    if active_run:
+        reviews_cost = max(1, int(bank_run.get("reviews_total", bank_run.get("reviews_remaining", 1)) or 1))
+        return None, reviews_cost, (), False
+    if trip_due:
+        return _initialize_due_bank_trip(
+            ctx, pack.handler_key, pack.target_id, view, target_altar
+        )
+    return None, reviews_cost, (), False
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
@@ -902,16 +917,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             )
         )
     )
-    travel_profile = None
-    reviews_cost = inventory_pure.SKILLING_BANK_RUN_REVIEWS
-    route_phases = ()
-    outbound_teleport_used = False
-    if active_run:
-        reviews_cost = max(1, int(bank_run.get("reviews_total", bank_run.get("reviews_remaining", 1)) or 1))
-    elif trip_due:
-        travel_profile, reviews_cost, route_phases, outbound_teleport_used = (
-            _initialize_due_bank_trip(ctx, handler_key, target_id, view, target_altar)
-        )
+    travel_profile, reviews_cost, route_phases, outbound_teleport_used = (
+        _select_bank_trip_schedule(ctx, pack, view, bank_run, active_run, trip_due, target_altar)
+    )
 
     if trip_due and reviews_cost <= 0:
         new_state, new_view, new_churn = {}, {}, 0
