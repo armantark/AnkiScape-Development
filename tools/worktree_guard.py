@@ -4,8 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -132,6 +135,110 @@ def audit(repo: Path) -> None:
         print(f"WARNING: repo-local landing freeze hook missing: {repo_local_hook_path(repo)}")
 
 
+RULESYNC_TIMEOUT_SECONDS = 60
+RULE_OUTPUT_MANIFEST = ".claude/rules/.rulesync-managed.json"
+
+
+def contained_rule_path(destination: Path, relative: str) -> Path:
+    root = destination.resolve()
+    path = root / relative
+    if not path.is_relative_to(root) or any(
+        not parent.resolve().is_relative_to(root)
+        for parent in (path, *path.parents)
+        if parent.is_relative_to(root)
+    ):
+        raise RuntimeError(f"rulesync output resolves outside the destination: {path}")
+    if any(parent.is_symlink() for parent in (path, *path.parents) if parent.is_relative_to(root)):
+        raise RuntimeError(f"refusing rulesync publication through a symlink: {path}")
+    return path
+
+
+def run_rulesync(executable: str, destination: Path, *, preview: bool = False) -> dict:
+    command = (executable, "--json", "generate", "--config", "rulesync.jsonc", "--features", "rules")
+    try:
+        result = subprocess.run(
+            (*command, "--dry-run") if preview else (*command, "--output-roots", ".", "--input-root", "."),
+            cwd=destination, text=True, capture_output=True, timeout=RULESYNC_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"rulesync generation timed out after {RULESYNC_TIMEOUT_SECONDS}s in {destination}") from exc
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"rulesync generation failed in {destination}:\n{result.stderr.strip() or result.stdout.strip()}"
+        )
+    return json.loads(result.stdout)
+
+
+def tracked_rule_files(destination: Path) -> set[str]:
+    return set(_git(destination, "ls-files", "-z", capture=True).stdout.split("\0"))
+
+
+def managed_rule_files(manifest: Path) -> dict[str, str | None]:
+    if not manifest.exists():
+        return {}
+    paths = json.loads(manifest.read_text(encoding="utf-8"))
+    # Filename-only manifests cannot establish ownership of current bytes.
+    if isinstance(paths, list) and all(isinstance(path, str) for path in paths):
+        paths = dict.fromkeys(paths)
+    if not isinstance(paths, dict) or any(
+        not isinstance(path, str) or Path(path).parent != Path(".claude/rules") or Path(path).suffix != ".md"
+        or (digest is not None and not isinstance(digest, str))
+        for path, digest in paths.items()
+    ):
+        raise RuntimeError(f"invalid rulesync managed-file manifest: {manifest}")
+    return paths
+
+
+def publish_worktree_rules(destination: Path, staged: Path, outputs: set[str]) -> None:
+    manifest = contained_rule_path(destination, RULE_OUTPUT_MANIFEST)
+    previous = managed_rule_files(manifest)
+    for relative in outputs | previous.keys():
+        contained_rule_path(destination, relative)
+    tracked = tracked_rule_files(destination)
+    for relative in previous.keys() - outputs:
+        path = contained_rule_path(destination, relative)
+        if path.resolve().relative_to(destination.resolve()).as_posix() in tracked:
+            continue
+        if previous[relative] is not None and path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == previous[relative]:
+            path.unlink()
+    for relative in outputs:
+        path = contained_rule_path(destination, relative)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(staged / relative, path)
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    sidecars = sorted(path for path in outputs if Path(path).parent == Path(".claude/rules") and Path(path).suffix == ".md")
+    hashes = {path: hashlib.sha256((staged / path).read_bytes()).hexdigest() for path in sidecars}
+    manifest.write_text(json.dumps(hashes, indent=2) + "\n", encoding="utf-8")
+
+
+def generate_worktree_rules(destination: Path) -> None:
+    local_config = destination / "rulesync.local.jsonc"
+    if local_config.exists() or local_config.is_symlink():
+        raise RuntimeError(f"refusing rulesync local override: {local_config}")
+    if not (destination / "rulesync.jsonc").is_file():
+        return
+    executable = shutil.which("rulesync")
+    if executable is None:
+        raise RuntimeError("rulesync CLI not found on PATH")
+    # A clean staging directory exposes the complete output set, including files
+    # that Rulesync would omit from a preview because their content is unchanged.
+    # The write pass pins both roots to staging, so config cannot redirect writes.
+    with tempfile.TemporaryDirectory(prefix="ankiscape-rules-") as temporary:
+        staged = Path(temporary).resolve()
+        shutil.copyfile(destination / "rulesync.jsonc", staged / "rulesync.jsonc")
+        shutil.copytree(destination / ".rulesync/rules", staged / ".rulesync/rules")
+        preview = run_rulesync(executable, staged, preview=True)
+        outputs = set(preview["data"]["features"]["rules"]["paths"])
+        for relative in outputs:
+            contained_rule_path(staged, relative)
+            contained_rule_path(destination, relative)
+        generated = run_rulesync(executable, staged)
+        actual = set(generated["data"]["features"]["rules"]["paths"])
+        if actual != outputs:
+            raise RuntimeError("rulesync output set changed during generation; refusing publication")
+        publish_worktree_rules(destination, staged, outputs)
+
+
 def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str) -> None:
     audit(repo)
     canonical, _ = canonical_and_paths(repo)
@@ -157,8 +264,13 @@ def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str)
         _git(canonical, "worktree", "add", str(destination), branch)
     else:
         _git(canonical, "worktree", "add", "-b", branch, str(destination), start_point)
-    (destination / ".venv-qt").symlink_to(qt_environment, target_is_directory=True)
-    audit(repo)
+    try:
+        (destination / ".venv-qt").symlink_to(qt_environment, target_is_directory=True)
+        generate_worktree_rules(destination)
+        audit(repo)
+    except BaseException:
+        _git(canonical, "worktree", "remove", "--force", str(destination))
+        raise
     print(f"Created worktree: {destination}")
 
 
@@ -228,6 +340,7 @@ def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: 
         link = destination / ".venv-qt"
         if not link.is_symlink():
             link.symlink_to(qt_environment, target_is_directory=True)
+        generate_worktree_rules(destination)
         audit(repo)
     except BaseException:
         _treehouse(canonical, "return", "--force", "--if-lease-id", lease_id, str(destination))
