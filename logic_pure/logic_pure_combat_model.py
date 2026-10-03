@@ -776,6 +776,29 @@ def _combat_no_grave_protected_items(original_equipment, carried_counts, kept_it
     return protected_slots, protected_carried
 
 
+def _combat_settle_carried_death(data, carried_counts, protected_carried, grave_items, active_target, no_grave):
+    # Only the active pack is carried; dormant target views remain bank loadouts.
+    # Debit its lost units from the flat store before staging grave recovery.
+    if carried_counts:
+        inventory = dict(data.get("inventory", {}) or {})
+        for item_name, count in carried_counts.items():
+            lost = count - protected_carried.get(item_name, 0)
+            if lost <= 0:
+                continue
+            inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - lost)
+            if not no_grave:
+                grave_items.extend([item_name] * lost)
+        data["inventory"] = inventory
+    if not isinstance(active_target, str):
+        return
+    for map_key in ("carried_inventory", "carried_churn"):
+        container = data.get(map_key)
+        if isinstance(container, Mapping) and active_target in container:
+            container = dict(container)
+            container.pop(active_target, None)
+            data[map_key] = container
+
+
 def _combat_apply_pvm_death(
     data,
     max_player_lifepoints,
@@ -818,32 +841,8 @@ def _combat_apply_pvm_death(
         if slot not in protected_slots
     }
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
-    # Carried items are a view over the flat store: remove them from the bank and
-    # drop them into the grave, expanded one grave entry per unit. Only the view of
-    # the target being fought is at risk — other targets' saved packs are loadouts
-    # resting in the bank, not carried, so they must survive the death.
-    if carried_counts:
-        inventory = dict(data.get("inventory", {}) or {})
-        for item_name, count in carried_counts.items():
-            lost = count - protected_carried.get(item_name, 0)
-            if lost <= 0:
-                continue
-            inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - lost)
-            if not no_grave:
-                grave_items.extend([item_name] * lost)
-        data["inventory"] = inventory
-    active_target = (
-        carried_target_id
-        if isinstance(carried_target_id, str)
-        else data.get("current_combat_target")
-    )
-    if isinstance(active_target, str):
-        for map_key in ("carried_inventory", "carried_churn"):
-            container = data.get(map_key)
-            if isinstance(container, Mapping) and active_target in container:
-                container = dict(container)
-                container.pop(active_target, None)
-                data[map_key] = container
+    active_target = carried_target_id if isinstance(carried_target_id, str) else data.get("current_combat_target")
+    _combat_settle_carried_death(data, carried_counts, protected_carried, grave_items, active_target, no_grave)
     if not no_grave:
         existing_grave = data.get("combat_grave", {}) or {}
         existing_grave_items = _combat_grave_items(existing_grave)
