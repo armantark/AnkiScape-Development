@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -11,6 +12,42 @@ from tools import build_pre_eoc_quest_catalog as builder
 
 
 class TestPreEocQuestCatalogBuilder(unittest.TestCase):
+    def test_rebuild_is_exact_without_external_sources_or_network(self):
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "quest_catalog.py"
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    (
+                        "from pathlib import Path; "
+                        "from unittest.mock import patch; "
+                        "from unittest import TestCase; import socket; "
+                        "block_network = patch('socket.socket.connect', "
+                        "side_effect=AssertionError('Rebuild attempted network access')); "
+                        "block_network.start(); "
+                        "\nwith TestCase().assertRaisesRegex(AssertionError, 'Rebuild attempted network access'):\n"
+                        "    with socket.socket() as connection:\n"
+                        "        connection.connect(('127.0.0.1', 9))\n"
+                        "from tools import build_pre_eoc_quest_catalog as builder; "
+                        "builder.OUTPUT_PATH = Path(__import__('sys').argv[1]); builder.main()"
+                    ),
+                    str(output),
+                ],
+                cwd=root,
+                env=dict(
+                    os.environ,
+                    ANKISCAPE_GAME_MAIN=str(Path(directory) / "missing-game"),
+                    ANKISCAPE_DARKAN_WORLD_SERVER=str(Path(directory) / "missing-darkan"),
+                ),
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertEqual(output.read_bytes(), (root / "generated/quest_catalog_generated.py").read_bytes())
+
     def test_mirrored_quest_sources_keep_canonical_provenance(self):
         game_mirror = "/tmp/disposable-game-main-mirror"
         darkan_mirror = "/tmp/disposable-darkan-mirror"

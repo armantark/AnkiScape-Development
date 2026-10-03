@@ -2,8 +2,8 @@
 """Build the pre-EOC quest catalog from source-backed RuneScape Wiki pages.
 
 The runtime imports the generated Python catalog. This script is intentionally
-repeatable: network responses are cached under tools/.cache so the broad quest
-tree can be audited and refreshed without re-scraping every page.
+offline: retained wiki responses and emulator lookup tables are checked in under
+tools/generation. Source changes cannot silently rewrite unrelated quest rows.
 """
 
 from __future__ import annotations
@@ -15,12 +15,10 @@ import os
 import pprint
 import re
 import sys
-import time
 import urllib.parse
-import urllib.request
-import urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
+from functools import lru_cache
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, Tuple
@@ -28,15 +26,13 @@ from typing import Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.combat.quest_stat_sources import matching_quest_stats
+from tools.generation.quest_inputs import journals, load_sources, npc_stats
 
-CACHE_DIR = ROOT / "tools" / ".cache" / "pre_eoc_quest_catalog"
+PINNED_INPUTS_PATH = ROOT / "tools" / "generation" / "quest_sources.json.gz"
 OUTPUT_PATH = ROOT / "generated" / "quest_catalog_generated.py"
-WIKI_API = "https://runescape.wiki/api.php"
 RELEASE_LIST_TITLE = "List of quests by release date"
 RELEASE_LIST_SOURCE = "https://runescape.wiki/w/List_of_quests_by_release_date"
 EOC_CUTOFF_DATE = dt.date(2012, 11, 20)
-EOC_CUTOFF_TIMESTAMP = "2012-11-19T23:59:59Z"
-USER_AGENT = "AnkiScape pre-EOC quest catalog builder (local development; contact: local user)"
 LIGHT_SOURCES_SOURCE = "https://runescape.wiki/w/Light_sources?oldid=6581760"
 LIT_LIGHT_SOURCE_ITEMS = (
     "Lit torch",
@@ -77,10 +73,6 @@ SCAPE_2011_QUEST_IMPL_RELATIVE = Path(
     "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
 )
 SCAPE_2011_QUEST_IMPL_DIR = GAME_MAIN_DIR / SCAPE_2011_QUEST_IMPL_RELATIVE
-SCAPE_2011_ITEMS_PATH = GAME_MAIN_DIR / "data/cfg/items.yml"
-SCAPE_2011_NPC_DEFINITION_DIR = (
-    GAME_MAIN_DIR / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions"
-)
 DEFAULT_DARKAN_WORLD_SERVER_DIR = Path(
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server"
 )
@@ -500,33 +492,12 @@ class WalkthroughProseExtractor(HTMLParser):
         self._text = []
 
 
-def cached_json(cache_key: str, params: Mapping[str, object]) -> Mapping[str, object]:
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cache_path = CACHE_DIR / f"{cache_key}.json"
-    if cache_path.exists():
-        return json.loads(cache_path.read_text(encoding="utf-8"))
+def _pinned_sources() -> Dict[str, object]:
+    return load_sources(PINNED_INPUTS_PATH)
 
-    query = urllib.parse.urlencode(params)
-    request = urllib.request.Request(f"{WIKI_API}?{query}", headers={"User-Agent": USER_AGENT})
-    last_error: Optional[BaseException] = None
-    for attempt in range(6):
-        try:
-            with urllib.request.urlopen(request, timeout=45) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-            tmp_path = cache_path.with_suffix(".tmp")
-            tmp_path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
-            tmp_path.replace(cache_path)
-            return payload
-        except urllib.error.HTTPError as exc:  # pragma: no cover - network only
-            last_error = exc
-            if exc.code == 429:
-                time.sleep(10 * (attempt + 1))
-            else:
-                time.sleep(1.5 * (attempt + 1))
-        except BaseException as exc:  # pragma: no cover - network only
-            last_error = exc
-            time.sleep(1.5 * (attempt + 1))
-    raise RuntimeError(f"Wiki API request failed for {cache_key}: {last_error}")
+
+def pinned_json(cache_key: str) -> Mapping[str, object]:
+    return _pinned_sources()["wiki"][cache_key]
 
 
 def slug_key(value: str) -> str:
@@ -803,20 +774,7 @@ def include_row(row: ReleaseRow) -> bool:
 
 
 def fetch_wikitext(title: str, before_cutoff: bool = True) -> Revision:
-    params: Dict[str, object] = {
-        "action": "query",
-        "prop": "revisions",
-        "rvprop": "ids|timestamp|content",
-        "rvslots": "main",
-        "rvlimit": "1",
-        "titles": title,
-        "redirects": "1",
-        "format": "json",
-        "formatversion": "2",
-    }
-    if before_cutoff:
-        params.update({"rvstart": EOC_CUTOFF_TIMESTAMP, "rvdir": "older"})
-    payload = cached_json(f"wikitext_{slug_key(title)}_{'old' if before_cutoff else 'current'}", params)
+    payload = pinned_json(f"wikitext_{slug_key(title)}_{'old' if before_cutoff else 'current'}")
     page = (payload.get("query", {}).get("pages") or [{}])[0]  # type: ignore[union-attr]
     revisions = page.get("revisions") or {}
     if isinstance(revisions, list) and revisions:
@@ -834,16 +792,7 @@ def fetch_wikitext(title: str, before_cutoff: bool = True) -> Revision:
 
 
 def fetch_parsed_html(revision: Revision) -> str:
-    payload = cached_json(
-        f"parse_{revision.oldid}",
-        {
-            "action": "parse",
-            "oldid": revision.oldid,
-            "prop": "text",
-            "format": "json",
-            "formatversion": "2",
-        },
-    )
+    payload = pinned_json(f"parse_{revision.oldid}")
     parsed = payload.get("parse") or {}
     return str((parsed.get("text") or ""))
 
@@ -1046,54 +995,14 @@ def clean_journal_line(value: str) -> str:
     return text.strip()
 
 
+@lru_cache(maxsize=1)
 def parse_2011scape_journals() -> Dict[str, Tuple[Dict[str, object], ...]]:
-    journals: Dict[str, Tuple[Dict[str, object], ...]] = {}
-    if not SCAPE_2011_QUEST_IMPL_DIR.exists():
-        return journals
-    for path in sorted(SCAPE_2011_QUEST_IMPL_DIR.glob("*.kt")):
-        text = path.read_text(encoding="utf-8")
-        name_match = re.search(r'name\s*=\s*"([^"]+)"', text)
-        if not name_match:
-            continue
-        quest_id = quest_id_from_name(_unescape_kotlin_string(name_match.group(1)))
-        stages: List[Dict[str, object]] = []
-        for stage_match in re.finditer(
-            r"\b(\d+)\s*->\s*(?:\{[^{}]*)?QuestStage\s*\(\s*objectives\s*=\s*listOf\s*\((.*?)\)\s*,?\s*\)",
-            text,
-            flags=re.S,
-        ):
-            stage = parse_int(stage_match.group(1), 0)
-            if stage <= 0:
-                continue
-            lines = tuple(
-                line
-                for line in (clean_journal_line(match.group(1)) for match in re.finditer(r'"((?:\\.|[^"])*)"', stage_match.group(2)))
-                if line
-            )
-            if lines:
-                stages.append({"stage": stage, "journal": lines})
-        if stages:
-            journals[quest_id] = tuple(stages)
-    return journals
+    return journals(_pinned_sources())
 
 
-_SCAPE_2011_JOURNALS = parse_2011scape_journals()
-
-
+@lru_cache(maxsize=1)
 def parse_2011scape_wearable_items() -> Dict[str, bool]:
-    """Lower-cased 2011Scape item name -> whether any definition of it is worn."""
-    wearable: Dict[str, bool] = {}
-    if not SCAPE_2011_ITEMS_PATH.exists():
-        return wearable
-    for entry in SCAPE_2011_ITEMS_PATH.read_text(encoding="utf-8").split("\n- id: "):
-        name = re.search(r'^  name: "(.*)"$', entry, flags=re.M)
-        if name:
-            key = name.group(1).lower()
-            wearable[key] = wearable.get(key, False) or bool(re.search(r"^    equip_slot: \d", entry, flags=re.M))
-    return wearable
-
-
-_SCAPE_2011_WEARABLE_ITEMS = parse_2011scape_wearable_items()
+    return _pinned_sources()["wearable_items"]
 
 
 def extract_reward_items(reward_html: str) -> List[Dict[str, object]]:
@@ -1121,7 +1030,7 @@ def reward_text_from_items(items: Sequence[Mapping[str, object]]) -> str:
 
 
 def _reward_item_category(item_name: str) -> str:
-    wearable = _SCAPE_2011_WEARABLE_ITEMS.get(item_name.lower(), bool(_REWARD_ITEM_CATEGORY_HINT.search(item_name)))
+    wearable = parse_2011scape_wearable_items().get(item_name.lower(), bool(_REWARD_ITEM_CATEGORY_HINT.search(item_name)))
     return "equipment" if wearable else "material"
 
 
@@ -1361,17 +1270,6 @@ def parse_stage_item_requirements(items_wikitext: str) -> Dict[str, object]:
     }
 
 
-def _npc_file_display_name(path: Path) -> Tuple[str, int]:
-    stem = path.stem.replace(".plugin", "")
-    level = 0
-    match = re.search(r"_(?:level|lvl|lv)_?(\d+)", stem, flags=re.I)
-    if match:
-        level = parse_int(match.group(1), 0)
-        stem = stem[: match.start()] + stem[match.end() :]
-    name = re.sub(r"[_\s]+", " ", stem).strip()
-    return name.title(), level
-
-
 def _normalize_npc_lookup_name(name: str) -> str:
     normalized = name.lower().replace("&", "and")
     normalized = re.sub(r"\([^)]*\)", "", normalized)
@@ -1428,72 +1326,8 @@ def _token_sequence_contains(haystack: str, needle: str) -> bool:
     return False
 
 
-def _parse_kts_assignment_int(block: str, key: str) -> Optional[int]:
-    match = re.search(rf"\b{re.escape(key)}\s*=\s*(-?\d+)", block)
-    if not match:
-        return None
-    return parse_int(match.group(1), 0)
-
-
 def _load_local_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
-    if not SCAPE_2011_NPC_DEFINITION_DIR.exists():
-        return {}
-    rows: Dict[Tuple[str, int], Dict[str, object]] = {}
-    stat_keys = ("hitpoints", "attack", "strength", "defence", "magic", "ranged")
-    bonus_keys = (
-        "attackStab",
-        "attackSlash",
-        "attackCrush",
-        "attackMagic",
-        "attackRanged",
-        "defenceStab",
-        "defenceSlash",
-        "defenceCrush",
-        "defenceMagic",
-        "defenceRanged",
-    )
-    for path in SCAPE_2011_NPC_DEFINITION_DIR.rglob("*.plugin.kts"):
-        try:
-            text = path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
-            text = path.read_text(encoding="latin-1")
-        if "set_combat_def" not in text:
-            continue
-        display_name, level = _npc_file_display_name(path)
-        stats_block = re.search(r"\bstats\s*\{(?P<body>.*?)\n\s*\}", text, flags=re.S)
-        configs_block = re.search(r"\bconfigs\s*\{(?P<body>.*?)\n\s*\}", text, flags=re.S)
-        bonuses_block = re.search(r"\bbonuses\s*\{(?P<body>.*?)\n\s*\}", text, flags=re.S)
-        stats = {}
-        if stats_block:
-            for key in stat_keys:
-                value = _parse_kts_assignment_int(stats_block.group("body"), key)
-                if value is not None:
-                    stats[key] = value
-        bonuses = {}
-        if bonuses_block:
-            for key in bonus_keys:
-                value = _parse_kts_assignment_int(bonuses_block.group("body"), key)
-                if value is not None:
-                    bonuses[key] = value
-        configs = {}
-        if configs_block:
-            attack_speed = _parse_kts_assignment_int(configs_block.group("body"), "attackSpeed")
-            if attack_speed is not None:
-                configs["attack_speed"] = attack_speed
-            style_match = re.search(r"\battackStyle\s*=\s*StyleType\.([A-Z_]+)", configs_block.group("body"))
-            if style_match:
-                configs["attack_style"] = style_match.group(1).lower()
-        if stats or bonuses or configs:
-            key = (_normalize_npc_lookup_name(display_name), level)
-            rows[key] = {
-                "display_name": display_name,
-                "level": level,
-                "stats": stats,
-                "bonuses": bonuses,
-                "configs": configs,
-                "source": str(path),
-            }
-    return rows
+    return npc_stats(_pinned_sources(), "local_npcs", DEFAULT_GAME_MAIN_DIR)
 
 
 _LOCAL_NPC_STATS: Optional[Dict[Tuple[str, int], Dict[str, object]]] = None
@@ -1793,46 +1627,7 @@ def _darkan_name_level_pairs(
 
 
 def _load_darkan_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
-    if not DARKAN_NPC_COMBATDEF_DIR.exists():
-        return {}
-    by_id, levels_by_name = _load_darkan_npc_list()
-    rows: Dict[Tuple[str, int], List[Dict[str, object]]] = {}
-    for path in DARKAN_NPC_COMBATDEF_DIR.rglob("*.json"):
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError, UnicodeDecodeError):
-            continue
-        for display_name, level in _darkan_name_level_pairs(data, by_id, levels_by_name):
-            payload = _darkan_combat_payload(path, data, match_name=display_name, match_level=level)
-            if not payload:
-                continue
-            key = (_normalize_npc_lookup_name(display_name), level)
-            rows.setdefault(key, []).append(
-                {
-                    "display_name": display_name,
-                    "level": level,
-                    "stats": payload["stats"],
-                    "bonuses": {},
-                    "configs": payload["configs"],
-                    "source": payload["source"],
-                }
-            )
-
-    unambiguous: Dict[Tuple[str, int], Dict[str, object]] = {}
-    for key, candidates in rows.items():
-        groups: Dict[Tuple[str, str], List[Dict[str, object]]] = {}
-        for candidate in candidates:
-            signature = (
-                json.dumps(candidate["stats"], sort_keys=True),
-                json.dumps(candidate["configs"], sort_keys=True),
-            )
-            groups.setdefault(signature, []).append(candidate)
-        if len(groups) == 1:
-            unique_sources = sorted({str(candidate["source"]) for candidate in candidates})
-            row = dict(sorted(candidates, key=lambda candidate: str(candidate["source"]))[0])
-            row["source"] = "; ".join(unique_sources)
-            unambiguous[key] = row
-    return unambiguous
+    return npc_stats(_pinned_sources(), "darkan_npcs", DEFAULT_DARKAN_WORLD_SERVER_DIR)
 
 
 _DARKAN_NPC_STATS: Optional[Dict[Tuple[str, int], Dict[str, object]]] = None
@@ -2480,10 +2275,10 @@ def parse_catalog_row(
     combat_wikitext = details.get("kills", "") or details.get("combat", "")
     combat = clean_markup(combat_wikitext)
     length = canonical_length(details.get("length", ""))
-    local_journal = _SCAPE_2011_JOURNALS.get(quest_id)
+    local_journal = parse_2011scape_journals().get(quest_id)
     if local_journal:
         journal_stages = local_journal
-        journal_source = str(SCAPE_2011_QUEST_IMPL_DIR)
+        journal_source = str(DEFAULT_GAME_MAIN_DIR / SCAPE_2011_QUEST_IMPL_RELATIVE)
         journal_source_kind = "2011scape_quest_stage"
         stages = max(parse_int(stage.get("stage"), 1) for stage in local_journal)
     else:
@@ -2610,7 +2405,7 @@ def main() -> None:
         "}\n\n"
         f"PRE_EOC_QUEST_CATALOG = {pprint.pformat(tuple(catalog), width=120, sort_dicts=False)}\n"
     )
-    OUTPUT_PATH.write_text(_preserve_source_provenance(output), encoding="utf-8")
+    OUTPUT_PATH.write_text(output, encoding="utf-8")
     print(f"wrote {len(catalog)} quests to {OUTPUT_PATH}")
 
 

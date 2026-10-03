@@ -439,3 +439,32 @@ Disposition: record_only.
 Evidence: tools/run_remote_tests.py:683 uses argparse action=append and requires one --select per selector. The corrected command repeats the flag; the initial refusal launched no remote lane. review-resolution-remote-tests.log retains the refusal and corrected run.
 
 - 2026-10-02 review resolution — The remote docs command passed two separate values to --select; argparse refused tests.memory_bank_tools with unrecognized arguments. run_remote_tests.py requires one --select flag per selector.
+# Papercuts fixed — 2026-10-02
+
+## Quest catalog generation reads only retained inputs — 2026-10-02
+
+Disposition: fixed.
+
+Evidence: `tools/build_pre_eoc_quest_catalog.py` reads checked-in `tools/generation/quest_sources.json.gz` and the reviewed quest-specific stat ledger. Both rebuilds exit 0 with no catalog diff. The regression reproduces the checked-in bytes with missing emulator roots and denied network. Equipment generation already reproduces its file; the control rebuild also exits 0 with an exact byte comparison. Raw command logs and input/output hashes are retained under the assigned `.git/ankiscape-promotion-evidence/goal-quest-catalog-reproducible-2026-10-02/` directory.
+
+- 2026-09-30T23:03:30-07:00 — Pass 15 S4 equipment regeneration: `python3 tools/generate_equipment_data.py` does not reproduce the checked-in `data/equipment_data.py` (it drops the hand-added `Steel spear (kp)` and adds `Mudskipper hat`, `Flippers` and six `Brawling gloves (*)` rows), and `python3 tools/build_pre_eoc_quest_catalog.py` rewrites unrelated Darkan-derived combat stats in `generated/quest_catalog_generated.py`; both outputs were spliced so only this slice's rows and category fields changed (goal-priority-matrix Handoff 3 records the equipment drift).
+
+## Quest source refresh review
+
+- 2026-10-02T19:28:09-07:00 — Quest review commit refused: slop-gate reported _load_local_npc_stats cyclomatic 16/cognitive 34, _load_darkan_npc_stats cognitive 16, parse_2011scape_journals cognitive 20, trim_manifest cognitive 16, builder 2440 lines (was 2422), and tools 150 code files (was 149); queued focused snapshot was cancelled before sync after these code changes. The gate remained unchanged. Resolved in 64dc7372: cohesive generation modules, flat parser control flow, unchanged gate.
+- 2026-10-02T19:31:23-07:00 — The next pre-commit attempt reported `tools/build_pre_eoc_quest_catalog.py: E303 x1 (was 0)` and `tools/generation/refresh_quest_sources.py: E303 x3 (was 0)`; removed the four extra blank lines. Commit 64dc7372 passed without changing the hook.
+
+## Quest mirror provenance and verification
+
+- 2026-10-02T19:38:27-07:00 — Read-only quest verification queue inspection treated tools.run_remote_tests._ssh as a CompletedProcess and raised `AttributeError: 'str' object has no attribute 'stdout'`; the helper returns stdout text directly. No remote state changed. Resolved: canonical NPC and journal paths precede formatting in 8858f7d1 and 144f081d; the SSH helper result is used as text. The unchanged MacBook regression passed in plain-1790998782-f42118f5.
+- 2026-10-02T20:02:31-07:00 — MacBook quest review focused run plain-1790996389-287a99ea failed test_rebuild_is_exact_without_external_sources_or_network at tests/test_pre_eoc_quest_catalog_builder.py:45: `Ran 49 tests in 1.576s`, `FAILED (failures=1)`, `error: remote plain lane failed with exit 1`; expanding NPC pin paths against mirror roots before pprint changed wrapping before canonical replacement. Exact assertion output is in review-remote-focused-accepted.log in the quest slice promotion-evidence folder. No baseline or test assertion changed. Resolved: canonical NPC and journal paths precede formatting in 8858f7d1 and 144f081d; the SSH helper result is used as text. The unchanged MacBook regression passed in plain-1790998782-f42118f5.
+- 2026-10-02T20:12:39-07:00 — Quest refresh canary with emulator-root aliases `game with spaces` and `world with spaces` exited 1 with `RuntimeError: Refreshed sources do not reproduce --check-catalog; pin was not written`; journal provenance still came from a mirror root before pprint. Exact output: review-mirror-spaces-before.log in the quest slice promotion-evidence folder. Resolved: canonical NPC and journal paths precede formatting in 8858f7d1 and 144f081d; the SSH helper result is used as text. The unchanged MacBook regression passed in plain-1790998782-f42118f5.
+
+## Quest refresh review controls
+
+Disposition: fixed.
+
+Evidence: Verification retains complete tool results and persisted logs. The named transport request function passes the unchanged slop gate. Evidence: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-quest-catalog-reproducible-2026-10-02/review2-preflight.log.
+
+- 2026-10-02 — Quest review verification: a tool wrapper printed only command output and lost the background session handle; subsequent checks capture the complete tool result and persist logs.
+- 2026-10-02 — Quest review preflight: slop-gate refused `tools/generation/refresh_quest_sources.py: WikiSources::read 20 (was 13)` with `cognitive complexity above 15 was introduced`; transport retries now have a separate named request function, with the unchanged gate pending.

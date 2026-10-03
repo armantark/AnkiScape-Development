@@ -132,11 +132,12 @@ paths populated from the Studio copies:
 `tools/run_remote_tests.py` preflights these paths, ripgrep, Pillow, Java 25,
 and the Qt imports before it changes the mirror. `tools/generate_equipment_data.py`
 and `tools/generate_smithing_data.py` honour `ANKISCAPE_GAME_MAIN`;
-`tools/build_pre_eoc_quest_catalog.py` honours both `ANKISCAPE_GAME_MAIN` and
-`ANKISCAPE_DARKAN_WORLD_SERVER`. Generated provenance remains pinned to the
-caller's logical source path so mirroring does not rewrite checked-in data.
-Other source-reading generators, harvesters, and gap tools still use
-Studio-only source paths.
+`tools/build_pre_eoc_quest_catalog.py` reads checked-in inputs offline and renders
+canonical source paths. `ANKISCAPE_GAME_MAIN` and `ANKISCAPE_DARKAN_WORLD_SERVER`
+do not select catalog inputs or rendered paths.
+`tools/generation/refresh_quest_sources.py` uses both variables to locate emulator
+inputs. The live Darkan audit helpers also use these roots.
+Other source-reading generators and harvesters still use Studio-only source paths.
 
 ## Proven result
 
