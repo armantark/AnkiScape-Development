@@ -27,10 +27,26 @@ INSECT_REPELLENT_SOURCE = (
     f"{DARKAN_ROOT}/src/main/java/com/rs/game/content/world/areas/catherby/npcs/"
     f"Beekeeper.java @ {DARKAN_REV}"
 )
+EVERGREEN_SAP_SOURCE = (
+    "https://runescape.wiki/w/Bucket_of_sap?oldid=6288759; "
+    "https://runescape.wiki/w/Evergreen?oldid=6310045"
+)
 
 
 def quest_item_acquisition_activities_as_dict() -> dict[str, dict[str, Any]]:
     return {
+        "collect_evergreen_sap": {
+            "display_name": "Collect evergreen sap",
+            "icon_path": str(_ROOT / "questitems" / "bucket_of_sap.png"),
+            "requirements": {"Bucket": 1},
+            "required_items": {"Knife": 1},
+            "output_item": "Bucket of sap",
+            "output_qty": 1,
+            "batch_size": 1,
+            "group": "gathering",
+            "source": EVERGREEN_SAP_SOURCE,
+            "source_status": "pinned/period-wiki",
+        },
         "collect_ugthanki_dung": {
             "display_name": "Collect Ugthanki dung",
             "icon_path": str(_ROOT / "questitems" / "bucket.png"),

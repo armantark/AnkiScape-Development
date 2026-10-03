@@ -608,6 +608,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=3,
             remove_required_tools=("Bucket of sap",),
+            remove_required_actions=("Complete The Eyes of Glouphrie stage 3 objective",),
             add_required_actions=("Collect a bucket of sap from an evergreen tree",),
         ),
     ),

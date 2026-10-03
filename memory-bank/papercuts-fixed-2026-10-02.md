@@ -485,3 +485,12 @@ Disposition: fixed.
 Evidence: Move the unchanged test blob 93d442d7057a5aa37db5cd89896f2ce2e8a0095b from tests/test_quest_telegrab.py to tests/quest_catalog/test_quest_telegrab.py. The root no longer gains a code file; discovery still collects 229 selected tests and 5161 total tests.
 
 - 2026-10-02T20:16:56-07:00 — Telegrab branch commit refused by slop-gate: `slop-gate: code files were added to directories already at 40 files:` / `tests: 237 code files (was 236)` / `-> Create a cohesive subdirectory instead of widening this directory.` The new test is relocated without content changes to `tests/quest_catalog/test_quest_telegrab.py`; verification and a fresh commit attempt follow.
+# Papercuts fixed — 2026-10-02
+
+## Evergreen sap authoring gates
+
+Disposition: fixed.
+
+Evidence: The redundant retained-tool branch was removed: core/tool_belt.py always supplies Knife and every live Utility row has no retained tool outside that belt. logic_pure/logic_pure_production.py is byte-identical to HEAD. The unchanged tests moved into the existing tests/quest_catalog/ package, preserving the root file count. Evidence: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-quest-sap-emitter-2026-10-02/hook-fix-equivalence.log.
+
+- 2026-10-02T20:45:12-07:00 — Evergreen sap commit: slop-gate refused `utility_activity_locked_reasons_pure` at cyclomatic complexity `17 (was 15)` and cognitive complexity `20 (was 19)`, plus `tests: 237 code files (was 236)` under the 40-file directory cap; raw output: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-quest-sap-emitter-2026-10-02/commit.log`.

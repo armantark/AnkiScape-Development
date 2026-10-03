@@ -882,8 +882,6 @@ _UNEMITTED_CLEANUP_ACTIONS = frozenset({
     ("enakhras_lament", 5, "Cast Crumble Undead during the boneguard fight"),
     # Audit: no Silvthrill-rod enchant target.
     ("in_aid_of_the_myreque", 6, "Enchant sapphire for the Myreque preparations"),
-    # Audit: no evergreen sap action.
-    ("the_eyes_of_glouphrie", 3, "Collect a bucket of sap from an evergreen tree"),
     # Audit: no quest-specific emerald preparation target.
     ("legacy_of_seergaze", 5, "Cast Enchant Level 2 Jewellery for the emerald preparations"),
 })

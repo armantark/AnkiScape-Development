@@ -18,6 +18,10 @@ QUEST_ACTION_PROOF_RULES = {
         "telegrab_ancestral_key",
     ): ((), (SPIRITS_OF_THE_ELID_TELEGRAB_PROOF,)),
     (
+        "utility",
+        "collect_evergreen_sap",
+    ): ((), ("Collect a bucket of sap from an evergreen tree",)),
+    (
         "shop_buy",
         "hamabs_crafting_emporium:3:4020",
     ): ((), (DO_NO_EVIL_MAMULET_MOULD_PROOF,)),
@@ -50,6 +54,7 @@ QUEST_ACTION_PROOF_AUDIT_SOURCES = {
         "Magic:telegrab_ancestral_key",
         "",
     ),
+    ("utility", "collect_evergreen_sap"): ("Utility:collect_evergreen_sap", ""),
     ("shop_buy", "hamabs_crafting_emporium:3:4020"): (
         "shop:hamabs_crafting_emporium",
         "M'amulet mould",
