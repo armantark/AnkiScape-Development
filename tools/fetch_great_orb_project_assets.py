@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.fetch_assets import (  # noqa: E402
+    PRE_EOC_CUTOFF,
     AssetFetchError,
     AssetRequest,
     HttpWikiClient,
@@ -26,7 +27,6 @@ from tools.fetch_assets import (  # noqa: E402
     fetch_asset,
 )
 
-PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 VISUAL_FALLBACK_ITEMS = frozenset(
     f"{colour.title()} runecrafter hat"
     for colour in ("green", "blue", "yellow")

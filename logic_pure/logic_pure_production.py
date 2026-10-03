@@ -466,6 +466,9 @@ def crafting_target_locked_reasons_pure(player_data, target, crafting_data, ques
         player_data, "crafting", str(target), required_level
     ):
         reasons.append(f"level {required_level}")
+    for skill_id, level in spec.get("skill_requirements", {}).items():
+        if _positive_int(player_data.get(f"{skill_id}_level", 1), 1) < level:
+            reasons.append(f"{skill_id.title()} level {level}")
     belt_recipe = {target: recipe_without_belt_tools(player_data, spec)}
     if not has_crafting_materials_pure(target, player_data.get("inventory", {}) or {}, belt_recipe):
         reasons.append("materials")
@@ -535,7 +538,8 @@ def fletching_target_locked_reasons_pure(player_data, target, fletching_data, ta
         player_data, "fletching", str(target), required_level
     ):
         reasons.append(f"Fletching level {required_level}")
-    if not has_fletching_materials_pure(target, player_data.get("inventory", {}) or {}, fletching_data):
+    belt_recipe = {target: recipe_without_belt_tools(player_data, spec)}
+    if not has_fletching_materials_pure(target, player_data.get("inventory", {}) or {}, belt_recipe):
         reasons.append("materials")
     reasons.extend(
         target_unlock_locked_reasons_pure(

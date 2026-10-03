@@ -50,7 +50,8 @@ class SkillsPanelTextFitTest(unittest.TestCase):
         _pump()
         return dialog
 
-    def _select(self, dialog, category: str, skill: str) -> None:
+    @staticmethod
+    def _select(dialog, category: str, skill: str) -> None:
         next(
             button for button in dialog.findChildren(QPushButton) if button.text() == category and button.isVisibleTo(dialog)
         ).click()

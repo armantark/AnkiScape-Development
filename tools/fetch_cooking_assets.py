@@ -40,6 +40,7 @@ from ankiscape.core.constants import (  # noqa: E402
     _asset_slug,
 )
 from tools.fetch_assets import (  # noqa: E402
+    PRE_EOC_CUTOFF,
     AssetFetchError,
     AssetRequest,
     DEFAULT_WIKI_SOURCES,
@@ -50,7 +51,6 @@ from tools.fetch_assets import (  # noqa: E402
 )
 
 PROVENANCE = Path("assets_provenance.json")
-PRE_EOC_CUTOFF = "2012-11-20T00:00:00Z"
 _COOKING_ITEMS_REL = Path(COOKING_ITEMS_FOLDER).relative_to(REPO_ROOT)
 
 _COVERED_ELSEWHERE = (

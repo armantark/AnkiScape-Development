@@ -552,6 +552,7 @@ class TestQuestActionProofIntegration(unittest.TestCase):
         player["quests"]["the_fremennik_isles"] = {"started": True, "progress": 5, "completed": False}
         player["inventory"].update({"Arctic pine logs": 2, "Bronze nails": 1, "Rope": 1, "Hammer": 1, output: 1})
         player["crafting_level"] = 1
+        player["woodcutting_level"] = 54
         player["current_craft"] = "craft_fremennik_round_shield"
         player["quests"]["the_fremennik_isles"]["progress"] = 4
         before = copy.deepcopy(player["inventory"])

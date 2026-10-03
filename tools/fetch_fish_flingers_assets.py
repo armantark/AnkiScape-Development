@@ -18,9 +18,7 @@ if str(ROOT) not in sys.path:
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.fish_flingers_data import fish_flingers_extra_items_as_dict  # noqa: E402
-from tools.fetch_assets import AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset  # noqa: E402
-
-PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
+from tools.fetch_assets import PRE_EOC_CUTOFF, AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset  # noqa: E402
 
 
 def _slug(name: str) -> str:

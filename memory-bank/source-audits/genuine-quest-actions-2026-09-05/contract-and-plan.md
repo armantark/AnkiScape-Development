@@ -1,11 +1,8 @@
 # Genuine quest actions: source contract and implementation plan
 
-> **Fremennik shield supersession — 2026-10-01:** Ruling 4.29.7 resolved the
-> Woodcutting conflict by adding no separate recipe threshold: the existing
-> quest eligibility and a stage-5 traditional-rites gate govern the action. The
-> source-only implementation block below remains applicable to the two spells.
+> **Fremennik shield review disposition — 2026-10-02:** This branch retains Woodcutting 54, sourced from https://runescape.wiki/w/Fremennik_round_shield?oldid=5641898 (`2012-05-22T11:53:12Z`, no beta marker) and repeated by oldid 5827384 (`2012-06-25T19:52:33Z`, beta marker). The November quest revision 6540919 states 56, and Darkan's restored `craftShield` checks 56. The evidence standard does not give either source automatic precedence; the historical threshold remains unresolved, with an open owner question in `memory-bank/design-thread-queue.md`. No repo record establishes an owner ruling for 54. Defence 25, Crafting XP 34 and the rites/proof gate are agreed. The current 53/54 runtime boundary remains branch behavior, not historical conflict closure.
 
-Status: source-only review for the two spell actions. Their implementation remains blocked by the unresolved rod-state identity and applicable file-size prerequisites; the shield action is superseded above.
+Status: source-only review for the two spell actions. Their implementation remains blocked by the unresolved rod-state identity and applicable file-size prerequisites; the shield implementation uses the explicitly unresolved branch threshold recorded above.
 
 ## Outcome
 
@@ -17,7 +14,7 @@ Bind three existing quest requirements to the named successful player actions. G
 | Cast Level 1 Enchant on the Silvthrill rod | `magic:enchant_silvthrill_rod` | `Enchant sapphire for the Myreque preparations` | The action and recipe are bound. The raw/enchanted numeric item transition remains unresolved. |
 | Make a Fremennik round shield | `crafting:craft_fremennik_round_shield` | `Make a Fremennik round shield` | Recipe, retained hammer, output, XP, and rites gate are bound. Woodcutting 54 versus 56 remains unresolved. |
 
-The event IDs are proposals, not existing implementation. No proof ID needs to be renamed.
+The spell event IDs are proposals. The shield event already exists on this branch. No proof ID needs to be renamed.
 
 ## Bound mechanics
 
@@ -74,9 +71,9 @@ fun craftShield(player: Player): Boolean {
 }
 ```
 
-`git blame` attributes that function to `adb5dd15fe6272fd3c639d5de698f3633ba117b0`, “Restore the November 2012 Fremennik Isles route.” The supplying file was created by that July 2026 restoration, not recovered unchanged from a period server. The current checkout is `6277992980582f7b3da3a48e722e96cfa5b0a57d`; the file’s latest commit is `161542997012a031807930112f31e767419dd99b`. The restoration and its cited quest article cannot be presumed independent. This history proves where the check came from in the local code, not that the number is historically correct.
+The retained audit attributed that function to `adb5dd15fe6272fd3c639d5de698f3633ba117b0`, “Restore the November 2012 Fremennik Isles route.” The supplying file was created by that July 2026 restoration, not recovered unchanged from a period server. The audit recorded checkout `6277992980582f7b3da3a48e722e96cfa5b0a57d`; its recorded latest file commit was `161542997012a031807930112f31e767419dd99b`. The restoration and its cited quest article cannot be presumed independent. This history proves where the check came from in the local code, not that the number is historically correct.
 
-The project source standard requires independent corroboration and explicit conflict retention. The standard explicitly separates “two axes”: search order and corroboration. Its first search position for Darkan is not an authority ranking. It gives no rule that automatically lets Darkan, the newer quest guide, or the more focused item article win. Record the field as `source_blocked`; do not choose a threshold silently. All agreed shield mechanics remain ready for implementation once this field is resolved.
+The project source standard requires independent corroboration and explicit conflict retention. The standard explicitly separates “two axes”: search order and corroboration. Its first search position for Darkan is not an authority ranking. It gives no rule that automatically lets Darkan, the newer quest guide, or the more focused item article win. Record the field as `source_blocked`; do not choose a threshold silently. The branch implements the agreed shield mechanics with the explicitly unresolved threshold recorded above.
 
 ## Ordinary acquisition and stage ordering
 

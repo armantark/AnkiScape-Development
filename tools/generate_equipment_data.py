@@ -138,11 +138,11 @@ EQUIPMENT_ITEM_NAME_OVERRIDES: Mapping[int, str] = {
     5013: "Mining helmet (lit)",
     5014: "Mining helmet (unlit)",
 }
-EQUIPMENT_REQUIREMENT_OVERRIDES: Mapping[
-    int, Tuple[Tuple[str, int], ...]
-] = {
+EQUIPMENT_REQUIREMENT_OVERRIDES: Mapping[int, Tuple[Tuple[str, int], ...]] = {
     7159: (("slayer", 37),),
     9185: (("ranged", 61),),
+    # Fremennik round shield oldid 5827384 (2012-06-25), not its Crafting XP level.
+    10826: (("defense", 25),),
 }
 MINING_BONUS_EQUIPMENT_FALLBACKS: Mapping[int, int] = {
     8283: 1704,

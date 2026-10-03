@@ -121,9 +121,9 @@ from ..logic_pure.logic_pure import (
     fletching_material_requirements_pure,
     fletching_target_locked_reasons_pure,
     herblore_target_locked_reasons_pure,
-    target_unlock_locked_reasons_pure,
     has_cooking_materials_pure,
     has_crafting_materials_pure,
+    crafting_target_locked_reasons_pure,
     has_firemaking_materials_pure,
     has_fishing_bait_pure,
     has_hunter_materials_pure,
@@ -492,8 +492,9 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message("Unknown crafting target", "Choose a valid Crafting target before reviewing.")
         return False
 
-    locked_reasons = target_unlock_locked_reasons_pure(
-        player_data, "crafting", item, QUEST_UNLOCK_RULES
+    locked_reasons = tuple(
+        reason for reason in crafting_target_locked_reasons_pure(player_data, item, CRAFTING_DATA, QUEST_UNLOCK_RULES)
+        if reason != "materials" and not reason.startswith("level ")
     )
     if locked_reasons:
         ctx.deactivate_current_skill()
@@ -512,9 +513,7 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         _switch_material_failure_to_bankstanding(ctx, f"You need {missing} to craft {display_name}.")
         return False
 
-    _auto_drink_skilling_potion_if_needed(
-        ctx, "crafting", str(item), int(spec["level"])
-    )
+    _auto_drink_skilling_potion_if_needed(ctx, "crafting", str(item), int(spec["level"]))
     player_level = skilling_effective_level_pure(player_data, "crafting")
     if player_level < spec["level"]:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {display_name}.")
@@ -545,7 +544,8 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
     if target not in FLETCHING_DATA:
         _switch_material_failure_to_bankstanding(ctx)
         return False
-    spec = FLETCHING_DATA[target]
+    spec = recipe_without_belt_tools(player_data, FLETCHING_DATA[target])
+    fletching_data = {target: spec}
     display_name = spec.get("display_name", target)
     locked_reasons = fletching_target_locked_reasons_pure(player_data, target, FLETCHING_DATA, QUEST_UNLOCK_RULES)
     unlock_locked = tuple(
@@ -570,16 +570,14 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    _auto_drink_skilling_potion_if_needed(
-        ctx, "fletching", str(target), int(spec["level"])
-    )
+    _auto_drink_skilling_potion_if_needed(ctx, "fletching", str(target), int(spec["level"]))
     player_level = skilling_effective_level_pure(player_data, "fletching")
 
     if player_level < spec["level"]:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {display_name}.")
         return False
 
-    new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
+    new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], fletching_data)
     if not ok:
         missing_requirements = dict(spec.get("requirements", {}))
         missing_requirements.update(spec.get("required_items", {}))

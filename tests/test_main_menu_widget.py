@@ -7231,7 +7231,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         long_kebbit = _fletching_row(tree, "fletch_long_kebbit_bolts")
         self.assertFalse(long_kebbit.isDisabled())
         self.assertIn("Long kebbit spike x1", long_kebbit.toolTip(0))
-        self.assertIn("Chisel x1", long_kebbit.toolTip(0))
+        self.assertNotIn("Chisel x1", long_kebbit.toolTip(0))
 
     def test_firemaking_is_selectable_and_shows_source_backed_target_list(self) -> None:
         pd = _make_player_data()

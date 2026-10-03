@@ -130,6 +130,16 @@ class TestFremennikIslesStageRoute(unittest.TestCase):
             <= set(player["quest_action_proofs"])
         )
 
+        player["woodcutting_level"] = 53
+        self.assertFalse(handle_crafting_answer(_context(player, calls)))
+        self.assertEqual(player["inventory"], before_rites)
+        self.assertNotIn(ROUND_SHIELD_PROOF, player["quest_action_proofs"])
+        self.assertTrue(any(row.get("skill_id") == "woodcutting" for row in
+                            quest_current_stage_blockers_pure(player, QUEST_ID, QUEST_DATA)))
+        self.assertIn("Woodcutting", calls["errors"][-1][1])
+        player["woodcutting_level"] = 54
+        self.assertFalse(any(row.get("skill_id") == "woodcutting" for row in
+                             quest_current_stage_blockers_pure(player, QUEST_ID, QUEST_DATA)))
         self.assertTrue(handle_crafting_answer(_context(player, calls, [0.99])))
         self.assertEqual(player["inventory"]["Arctic pine logs"], 0)
         self.assertEqual(player["inventory"]["Bronze nails"], 0)

@@ -44,6 +44,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from tools.fetch_assets import (  # noqa: E402
+    PRE_EOC_CUTOFF,
     AssetFetchError,
     AssetRequest,
     HttpWikiClient,
@@ -172,7 +173,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if unknown:
             parser.error(f"unknown Crafting item(s): {', '.join(unknown)}")
         manifest = [row for row in manifest if row[0] in requested]
-    client = HttpWikiClient()
+    client = HttpWikiClient(
+        user_agent="AnkiScape parity audit",
+        before_timestamp=PRE_EOC_CUTOFF,
+    )
     ok = skipped = failed = 0
     failures: List[str] = []
     print(f"Resolving {len(manifest)} Crafting icons...")

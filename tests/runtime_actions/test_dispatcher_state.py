@@ -527,7 +527,7 @@ class DispatcherStateTest(unittest.TestCase):
         self.assertEqual(collection.get_config("ankiscape_player_data"), before)
 
     def test_selection_dialogs_persist_the_shared_targets_and_skill(self):
-        self.state.player_data = {"inventory": {"Soft clay": 2}, "crafting_level": 99}
+        self.state.player_data = {}
         self.addon.mw.col.set_config("ankiscape_current_skill", "Utility")
         self.addon.initialize_skill()
         self.assertEqual(self.state.current_skill, "Utilities")
@@ -537,7 +537,6 @@ class DispatcherStateTest(unittest.TestCase):
         self.assertEqual(self.state.current_skill, "Mining")
         self.assertEqual(self.addon.mw.col.get_config("ankiscape_current_skill"), "Mining")
         cases = (
-            (self.addon.ui, "show_craft_selection_dialog", "show_craft_selection", "current_craft", "form_pot_unfired"),
             (self.addon.ui, "show_bar_selection_dialog", "show_bar_selection", "current_bar", "Bronze bar"),
             (self.addon, "show_tree_selection_dialog", "show_tree_selection", "current_tree", "tree"),
             (self.addon, "show_ore_selection_dialog", "show_ore_selection", "current_ore", "copper"),
@@ -549,7 +548,6 @@ class DispatcherStateTest(unittest.TestCase):
                 self.assertEqual(self.state.player_data[field], selection)
                 self.assertEqual(self.saved[-1][0][field], selection)
         self.assertEqual(self.state.player_data["current_smith"], "smelt_bronze_bar")
-        self.assertTrue(self.addon.has_crafting_materials("form_pot_unfired"))
 
     def test_carried_menu_callbacks_read_live_state_and_save_preferences(self):
         menu = self._menu({"inventory": {}, "current_ore": "copper"}, "Mining")

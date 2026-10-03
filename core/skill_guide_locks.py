@@ -10,7 +10,6 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 
 from ..data.construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, WORKBENCH_TIERS
-from ..data.shop_data import SHOP_PLAYER_BUY_PRICES
 from ..data.thieving_data import THIEVING_TARGETS
 from ..logic.agility_logic import agility_target_locked_reasons_pure
 from ..logic.slayer_logic import slayer_family_locked_reasons_pure
@@ -35,6 +34,7 @@ from ..logic_pure.logic_pure_runecrafting import runecrafting_locked_reasons_pur
 from ..logic_pure.logic_pure_smithing import smithing_target_locked_reasons_pure
 from ..logic_pure.logic_pure_thieving import thieving_target_locked_reasons_pure
 from .constants import (
+    ALCH_VALUES,
     CONSTRUCTION_DATA,
     COOKING_DATA,
     CRAFTING_DATA,
@@ -43,7 +43,6 @@ from .constants import (
     FLETCHING_DATA,
     HERBLORE_DATA,
     HUNTER_DATA,
-    ITEM_DEFINITIONS,
     MAGIC_DATA,
     MINING_PICKAXE_DATA,
     ORE_DATA,
@@ -58,12 +57,6 @@ from .constants import (
 
 # Above every skill's cap, so a predicate never reports the skill's own level.
 _OWN_LEVEL_CLEARED = 200
-
-ALCH_VALUES = {
-    item.storage_key: int(SHOP_PLAYER_BUY_PRICES[item.storage_key])
-    for item in ITEM_DEFINITIONS
-    if item.tradeable and item.storage_key in SHOP_PLAYER_BUY_PRICES
-}
 
 _PREDICATES: dict[str, Callable[[Mapping[str, object], str], tuple[str, ...]]] = {
     "mining": lambda pd, tid: mining_target_locked_reasons_pure(pd, tid, ORE_DATA, MINING_PICKAXE_DATA, QUEST_UNLOCK_RULES),

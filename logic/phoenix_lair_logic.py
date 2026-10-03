@@ -36,7 +36,6 @@ from ..data.phoenix_lair_data import (
     PHOENIX_QUILL_ITEM,
 )
 from ..core.review_context import remember_review_context_choice_pure
-from ..core.tool_belt import tool_on_belt
 
 
 PHOENIX_LAIR_STATE_VERSION = 1
@@ -187,24 +186,6 @@ def _advanced_carried_pack(player_data: Mapping[str, Any]) -> dict[str, int]:
     return clamp_carried_view_to_bank(carried, inventory)
 
 
-def _tool_available(player_data: Mapping[str, Any], item_name: str) -> bool:
-    if tool_on_belt(player_data, item_name):
-        return True
-    inventory = player_data.get("inventory")
-    if not carried_advanced_for(player_data, PHOENIX_LAIR_ACTIVITY_ID):
-        return isinstance(inventory, Mapping) and _int(inventory.get(item_name)) > 0
-
-    return _int(_advanced_carried_pack(player_data).get(item_name)) > 0
-
-
-def _tool_location_label(player_data: Mapping[str, Any]) -> str:
-    return (
-        "carried pack or toolbelt"
-        if carried_advanced_for(player_data, PHOENIX_LAIR_ACTIVITY_ID)
-        else "Bank or toolbelt"
-    )
-
-
 def _quest_complete(player_data: Mapping[str, Any]) -> bool:
     quests = player_data.get("quests")
     quest = quests.get("in_pyre_need") if isinstance(quests, Mapping) else None
@@ -249,15 +230,6 @@ def phoenix_lair_view_pure(
         missing.append("Complete In Pyre Need")
     if _int(player_data.get("slayer_level"), 1, minimum=1) < 51:
         missing.append("Slayer level 51")
-    missing_tools = [
-        tool
-        for tool in ("Knife", "Secateurs", "Tinderbox")
-        if not _tool_available(player_data, tool)
-    ]
-    if missing_tools:
-        missing.append(
-            f"{', '.join(missing_tools)} in {_tool_location_label(player_data)}"
-        )
     current_day = _world_day(player_data)
     daily_ready = current_day > state["last_completed_world_day"]
     current_guardian = ""
@@ -326,19 +298,6 @@ def apply_phoenix_lair_command_pure(
             return data, False, {"reason": "Complete In Pyre Need first."}
         if _int(data.get("slayer_level"), 1, minimum=1) < 51:
             return data, False, {"reason": "Phoenix Lair requires Slayer level 51."}
-        missing_tools = [
-            tool
-            for tool in ("Knife", "Secateurs", "Tinderbox")
-            if not _tool_available(data, tool)
-        ]
-        if missing_tools:
-            return data, False, {
-                "reason": (
-                    f"Missing tools from {_tool_location_label(data)}: "
-                    + ", ".join(missing_tools)
-                    + "."
-                )
-            }
         if _world_day(data) <= state["last_completed_world_day"]:
             return data, False, {"reason": "The Phoenix has already rewarded you this world day."}
         if carried_advanced_for(data, PHOENIX_LAIR_ACTIVITY_ID):

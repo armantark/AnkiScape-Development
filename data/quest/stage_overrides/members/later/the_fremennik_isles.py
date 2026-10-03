@@ -58,7 +58,8 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
         _stage_req(
             5,
             "Complete the traditional rites and defeat the Ice Troll King.",
-            THE_FREMENNIK_ISLES_SOURCE,
+            f"{THE_FREMENNIK_ISLES_SOURCE}; https://runescape.wiki/w/Fremennik_round_shield?oldid=5827384",
+            required_skills=(QuestSkillRequirement("woodcutting", "Woodcutting", 54),),
             required_actions=(
                 "Cure and stitch yak-hide armour",
                 "Make a Fremennik round shield",

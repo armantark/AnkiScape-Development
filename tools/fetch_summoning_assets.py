@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.summoning_data import summoning_extra_items_as_dict
 from tools.fetch_assets import (
+    PRE_EOC_CUTOFF,
     OSRS_WIKI,
     RS3_WIKI,
     AssetFetchError,
@@ -27,8 +28,6 @@ from tools.fetch_assets import (
     fetch_asset,
     wiki_title_for_item,
 )
-
-PRE_EOC_CUTOFF = "2012-11-20T00:00:00Z"
 
 
 def _slug(name: str) -> str:

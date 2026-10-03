@@ -22,7 +22,8 @@ if str(REPO_ROOT / "tools") not in sys.path:
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.combat_data import COMBAT_ENEMY_DATA  # noqa: E402
-from fetch_assets import (  # noqa: E402
+from tools.fetch_assets import (  # noqa: E402
+    PRE_EOC_CUTOFF,
     AssetFetchError,
     AssetRequest,
     HttpWikiClient,
@@ -31,8 +32,6 @@ from fetch_assets import (  # noqa: E402
     fetch_asset,
     wiki_title_for_item,
 )
-
-PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 
 
 TITLE_OVERRIDES = {

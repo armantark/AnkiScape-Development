@@ -16,12 +16,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.fetch_assets import AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset  # noqa: E402
+from tools.fetch_assets import PRE_EOC_CUTOFF, AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset  # noqa: E402
 
 import pkg_alias  # noqa: E402,F401  (installs the ankiscape package alias)
 from ankiscape.data.trouble_brewing_data import TROUBLE_BREWING_REWARDS  # noqa: E402
 
-PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 _WIKI_FILE_TITLES = {
     "The stuff": "The Stuff.png",
     "Red rum": "Rum (red).png",

@@ -17,14 +17,13 @@ if str(ROOT) not in sys.path:
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.herblore_data import CLEAN_TARGETS, FINISHED_TARGETS, UNF_TARGETS
 from tools.fetch_assets import (
+    PRE_EOC_CUTOFF,
     RS3_WIKI,
     AssetFetchError,
     AssetRequest,
     HttpWikiClient,
     fetch_asset,
 )
-
-PRE_EOC_CUTOFF = "2012-11-20T00:00:00Z"
 
 
 def _slug(name: str) -> str:

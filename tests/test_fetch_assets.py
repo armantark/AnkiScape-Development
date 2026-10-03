@@ -117,6 +117,56 @@ class TestFetchAssets(unittest.TestCase):
             fetch_assets.write_source_png(source_bytes.getvalue(), output_path)
             self.assertEqual(output_path.read_bytes(), source_bytes.getvalue())
 
+    def test_crafting_fetcher_selects_period_art_and_refuses_release_day_only_art(self):
+        from tools import fetch_crafting_assets
+
+        release_art = {
+            "url": "https://images.example/release-day.png",
+            "timestamp": "2012-11-20T00:00:00Z",
+        }
+        historical_art = {
+            "url": "https://images.example/historical.png",
+            "timestamp": fetch_assets.PRE_EOC_CUTOFF,
+        }
+        for has_historical_art in (True, False):
+            with self.subTest(has_historical_art=has_historical_art):
+                requests = []
+
+                def network_response(request, timeout):
+                    requests.append(request)
+                    self.assertEqual(request.get_header("User-agent"), "AnkiScape parity audit")
+                    query = parse_qs(urlparse(request.full_url).query)
+                    self.assertEqual(query["iistart"], [fetch_assets.PRE_EOC_CUTOFF])
+                    images = [release_art]
+                    if has_historical_art and urlparse(request.full_url).netloc == "runescape.wiki":
+                        images.append(historical_art)
+                    return BytesIO(json.dumps({
+                        "query": {"pages": [{
+                            "title": "File:Fremennik round shield.png",
+                            "imageinfo": images,
+                        }]},
+                    }).encode())
+
+                with (
+                    patch("urllib.request.urlopen", side_effect=network_response),
+                    patch("builtins.print") as output,
+                ):
+                    status = fetch_crafting_assets.main(
+                        ["--item", "Fremennik round shield", "--dry-run", "--force"]
+                    )
+
+                self.assertTrue(requests)
+                printed = "\n".join(str(call.args[0]) for call in output.call_args_list)
+                if has_historical_art:
+                    self.assertEqual(status, 0)
+                    self.assertIn("Fremennik round shield [rs3]", printed)
+                    self.assertNotIn("[osrs]", printed)
+                    self.assertIn("1 fetched, 0 skipped, 0 failed", printed)
+                else:
+                    self.assertEqual(status, 1)
+                    self.assertIn("FAIL Fremennik round shield", printed)
+                    self.assertIn("0 fetched, 0 skipped, 1 failed", printed)
+
     def test_historical_lookup_requests_newest_revision_before_cutoff(self):
         class RecordingClient(fetch_assets.HttpWikiClient):
             def __init__(self):

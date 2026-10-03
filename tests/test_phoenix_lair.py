@@ -48,7 +48,6 @@ def _player(**overrides):
             "combat_lifepoints": 990,
         }
     )
-    data["inventory"].update({"Knife": 1, "Secateurs": 1, "Tinderbox": 1})
     data.update(overrides)
     return data
 
@@ -88,7 +87,7 @@ def _combat_result(*, killed=False, died=False, lifepoints=1000, grave=False):
 
 
 class PhoenixLairRequirementsTests(unittest.TestCase):
-    def test_entry_checks_quest_slayer_tools_daily_and_shared_combat_readiness(self):
+    def test_entry_checks_quest_slayer_daily_and_shared_combat_readiness(self):
         data = _player()
         data["quests"]["in_pyre_need"]["completed"] = False
         blocked, ok, info = apply_phoenix_lair_command_pure(data, "enter")
@@ -101,11 +100,7 @@ class PhoenixLairRequirementsTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("Slayer level 51", info["reason"])
 
-        # The knife, secateurs and tinderbox are 2012 belt tools, so a custom
-        # pack holding none of them, over a Bank holding none, still enters.
         data = _player()
-        for tool in ("Knife", "Secateurs", "Tinderbox"):
-            data["inventory"].pop(tool)
         data["inventory"]["Shark"] = 5
         data["carried_advanced_targets"][PHOENIX_LAIR_ACTIVITY_ID] = True
         data["carried_layout"][PHOENIX_LAIR_ACTIVITY_ID] = {"Shark": 5}

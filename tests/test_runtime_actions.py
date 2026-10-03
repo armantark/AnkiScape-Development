@@ -5907,10 +5907,8 @@ class TestProcessingPackOverlay(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Long kebbit spike"], 1)
         self.assertEqual(player_data["inventory"]["Chisel"], 1)
         self.assertEqual(player_data["inventory"]["Long kebbit bolts"], 6)
-        self.assertEqual(
-            player_data["carried_inventory"]["fletch_long_kebbit_bolts"],
-            {"Long kebbit spike": 1, "Chisel": 1},
-        )
+        self.assertEqual(player_data["carried_inventory"]["fletch_long_kebbit_bolts"],
+                         {"Long kebbit spike": 1, "Chisel": 1})
 
 
 if __name__ == "__main__":

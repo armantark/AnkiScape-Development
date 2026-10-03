@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.fetch_assets import (  # noqa: E402
+    PRE_EOC_CUTOFF,
     AssetFetchError,
     AssetRequest,
     HttpWikiClient,
@@ -24,7 +25,6 @@ from tools.fetch_assets import (  # noqa: E402
 )
 
 
-PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 CAP_TITLES = (
     "Duellist's cap (tier 1).png",
     "Duellist's cap (tier 2).png",

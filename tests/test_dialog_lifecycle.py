@@ -332,7 +332,6 @@ class DialogLifecycleTest(unittest.TestCase):
             lambda: self.ui.show_tree_selection_dialog("", 1, {}, {}),
             lambda: self.ui.show_ore_selection_dialog("", 1, {}, {}),
             lambda: self.ui.show_bar_selection_dialog("", 1, {}, {}),
-            lambda: self.ui.show_craft_selection_dialog("", 1, {}, {}, {}),
             lambda: self.ui.show_skill_selection_dialog("None", False),
             lambda: self.ui.show_stats({}, "None"),
         )

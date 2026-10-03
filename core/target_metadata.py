@@ -910,7 +910,7 @@ def fletching_target_rows(
             f" (base {base_level}).\n"
             f"Output: {output_item} x{output_qty}\nMaterials:\n{mat_text}"
         )
-        required_items = spec.get("required_items", {}) or {}
+        required_items = without_belt_tools(player_data, spec.get("required_items", {}) or {})
         if isinstance(required_items, Mapping) and required_items:
             tooltip += f"\nRequired tools:\n{_indented_material_lines(required_items, inventory)}"
         locked_reasons = fletching_target_locked_reasons_pure(

@@ -2900,3 +2900,7 @@ behavior. Method: a per-test production-line coverage map finds the broader
 tests whose lines contain a small test's lines; a per-chunk rubric call then
 judges whether the broader test's assertions catch the small test's failure;
 GLM gives a second vote; both must agree before a deletion.
+
+### Open owner question — 2026-10-02: Fremennik shield Woodcutting
+
+54: shield oldids 5641898 (2012-05-22, no beta marker) and 5827384 (2012-06-25, beta). 56: The Fremennik Isles oldid 6540919 (2012-11-07) and Darkan `craftShield` restoration commit `a7e91cb9769642e3e833a523fd5f0688eef21924`. Current branch uses 54; the evidence standard does not automatically resolve this conflict. Owner decision remains open.

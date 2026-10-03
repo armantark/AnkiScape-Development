@@ -32,6 +32,25 @@ class TestEquipmentChange(unittest.TestCase):
         self.assertEqual(saves, [])
         self.assertEqual(addon._state.player_data, before)
 
+    def test_fremennik_round_shield_requires_25_defence_to_equip(self):
+        addon = integration._load_addon_as_package("ankiscape_round_shield_equipment")
+        addon.mw = integration._DummyMW(integration._DummyCol())
+        saves, errors = [], []
+        addon.save_player_data = lambda: saves.append(copy.deepcopy(addon._state.player_data))
+        addon.show_error_message = lambda _title, message: errors.append(message)
+        player = {"inventory": {"Fremennik round shield": 1}, "equipment": {}, "defense_level": 24}
+        addon._state.player_data = player
+        before = copy.deepcopy(player)
+        self.assertFalse(addon.on_equip_item("Fremennik round shield"))
+        self.assertEqual(player, before)
+        self.assertEqual(saves, [])
+        self.assertIn("25", errors[-1])
+        player["defense_level"] = 25
+        self.assertTrue(addon.on_equip_item("Fremennik round shield"))
+        self.assertEqual(player["inventory"]["Fremennik round shield"], 0)
+        self.assertEqual(player["equipment"]["shield"], "Fremennik round shield")
+        self.assertTrue(saves)
+
     def test_mogre_drops_equip_from_inventory_and_apply_their_bonuses(self):
         addon = integration._load_addon_as_package("ankiscape_mogre_equipment")
         addon.mw = integration._DummyMW(integration._DummyCol())

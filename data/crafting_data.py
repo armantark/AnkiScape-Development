@@ -27,7 +27,7 @@ DARKAN_GLASSBLOWING_SOURCE = (
 )
 FREMENNIK_ROUND_SHIELD_SOURCE = (
     "https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919; "
-    "https://runescape.wiki/w/Fremennik_round_shield?oldid=5641898"
+    "https://runescape.wiki/w/Fremennik_round_shield?oldid=5827384"
 )
 
 
@@ -53,6 +53,7 @@ class CraftingRecipe:
     byproducts: Tuple[Tuple[str, int], ...] = ()
     required_items: Tuple[Tuple[str, int], ...] = ()
     consume_thread_on_roll: bool = False
+    skill_requirements: Tuple[Tuple[str, int], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -183,7 +184,7 @@ CRAFTING_SPECIAL_ITEMS: Dict[str, Dict[str, object]] = {
 
 CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("chisel_limestone_brick", "Limestone brick", "stone", "chisel", 12, 6.0, _req(("Limestone", 1)), "Limestone brick", source=LIMESTONE_BRICK_SOURCE, source_item_id=3420),
-    CraftingRecipe("craft_fremennik_round_shield", "Fremennik round shield", "fremennik", "woodcutting_stump", 1, 34.0, _req(("Arctic pine logs", 2), ("Bronze nails", 1), ("Rope", 1)), "Fremennik round shield", source=FREMENNIK_ROUND_SHIELD_SOURCE, source_item_id=10826, required_items=_req(("Hammer", 1))),
+    CraftingRecipe("craft_fremennik_round_shield", "Fremennik round shield", "fremennik", "woodcutting_stump", 1, 34.0, _req(("Arctic pine logs", 2), ("Bronze nails", 1), ("Rope", 1)), "Fremennik round shield", source=FREMENNIK_ROUND_SHIELD_SOURCE, source_item_id=10826, required_items=_req(("Hammer", 1)), skill_requirements=_req(("woodcutting", 54))),
     # Gem cutting. Semiprecious source crush chances are documented but not modeled;
     # one successful review is one completed Crafting action.
     CraftingRecipe("cut_opal", "Opal", "gems", "chisel", 1, 15.0, _req(("Uncut opal", 1)), "Opal", source=GEM_SOURCE, source_enum="OPAL", notes="Source has crush chance; AnkiScape treats the review action as a successful cut."),
@@ -456,6 +457,7 @@ def crafting_recipes_as_dict() -> Dict[str, Dict[str, object]]:
             "byproducts": dict(recipe.byproducts),
             "required_items": dict(recipe.required_items),
             "consume_thread_on_roll": recipe.consume_thread_on_roll,
+            "skill_requirements": dict(recipe.skill_requirements),
         }
         for recipe in CRAFTING_RECIPES
     }

@@ -186,66 +186,6 @@
       "status": "no_earlier_revision",
       "wiki": "rs3"
     },
-    "combatenemies/duck_water.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140804142503%21Duck.png?3af2e",
-          "sha1": "0ffa82bca32f95b4720b49a111e968270647ed08",
-          "size": 94885,
-          "timestamp": "2011-11-20T10:13:11Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Duck.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Duck.png?d74e3",
-        "sha1": "269d54f2dd7af09392a322e4d231772d5193affa",
-        "size": 62027,
-        "timestamp": "2026-04-09T05:27:07Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "combatenemies/dwarf_level_11.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20130902133456%21Dwarf.png?00eb3",
-          "sha1": "a0729aa7d2d00abd5400d38e0e6d7fe100812a0a",
-          "size": 116009,
-          "timestamp": "2011-04-23T04:07:07Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Dwarf.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Dwarf.png?e1ad7",
-        "sha1": "9967bd883e0d7dbff71145473c35b780fa10682b",
-        "size": 97371,
-        "timestamp": "2025-12-19T20:56:41Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "combatenemies/elf_warrior.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": null,
@@ -287,66 +227,6 @@
       },
       "status": "no_earlier_revision",
       "wiki": "rs3"
-    },
-    "combatenemies/giant_rat_level_26.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20230516235034%21Giant_rat.png?d7dd5",
-          "sha1": "05ecf6f0ab7180a26f5c148495bc8c40ef800b57",
-          "size": 154070,
-          "timestamp": "2011-02-23T23:38:51Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Giant rat.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Giant_rat.png?9bf29",
-        "sha1": "db0a8a005cece163e13bf13dabe5c6f86409312c",
-        "size": 68297,
-        "timestamp": "2017-01-21T12:08:54Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "combatenemies/giant_rat_level_6.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20230516235034%21Giant_rat.png?d7dd5",
-          "sha1": "05ecf6f0ab7180a26f5c148495bc8c40ef800b57",
-          "size": 154070,
-          "timestamp": "2011-02-23T23:38:51Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Giant rat.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Giant_rat.png?9bf29",
-        "sha1": "db0a8a005cece163e13bf13dabe5c6f86409312c",
-        "size": 68297,
-        "timestamp": "2017-01-21T12:08:54Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "combatenemies/giant_spider_level_50.png": {
       "cross_wiki_lookup": {
@@ -686,66 +566,6 @@
       "status": "unresolved",
       "wiki": "osrs"
     },
-    "combatenemies/hobgoblin_armed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160111155913%21Hobgoblin.png?5ab2c",
-          "sha1": "748e62cae195c1bf49ec824491667584141ca6a9",
-          "size": 627969,
-          "timestamp": "2012-10-19T16:13:37Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Hobgoblin.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Hobgoblin.png?b3da9",
-        "sha1": "da5ba3a6ed7b69cd85725400655e2c918b6c583b",
-        "size": 153258,
-        "timestamp": "2024-09-28T22:28:07Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "combatenemies/hobgoblin_unarmed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160111155913%21Hobgoblin.png?5ab2c",
-          "sha1": "748e62cae195c1bf49ec824491667584141ca6a9",
-          "size": 627969,
-          "timestamp": "2012-10-19T16:13:37Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Hobgoblin.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Hobgoblin.png?b3da9",
-        "sha1": "da5ba3a6ed7b69cd85725400655e2c918b6c583b",
-        "size": 153258,
-        "timestamp": "2024-09-28T22:28:07Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "combatenemies/jail_guard.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -770,66 +590,6 @@
         "wiki": "osrs"
       },
       "status": "unresolved",
-      "wiki": "osrs"
-    },
-    "combatenemies/moss_giant.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/Moss_giant.png?3fe7e",
-          "sha1": "eeb00d3c28e467d5ac1898952bb8ee8329f8eca9",
-          "size": 592481,
-          "timestamp": "2011-01-16T17:25:34Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Moss giant.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Moss_giant.png?3c6c6",
-        "sha1": "3ef5db3d1d34ed4bb5f3ea3f5f3284d66ec66faf",
-        "size": 128804,
-        "timestamp": "2016-11-30T15:21:52Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "combatenemies/narf_jeff_rusty.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20141128214803%21Man.png?f4b8e",
-          "sha1": "0696274e549a55c933297ed11735178b3d321b70",
-          "size": 86914,
-          "timestamp": "2012-10-06T23:52:19Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Man.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Man.png?6a35a",
-        "sha1": "e795771f21a1548deac22ce51aef57ab67d026e2",
-        "size": 16789,
-        "timestamp": "2019-05-04T15:56:01Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
       "wiki": "osrs"
     },
     "combatenemies/pickpocket_lletya_elf.png": {
@@ -960,36 +720,6 @@
       },
       "status": "different",
       "wiki": "rs3"
-    },
-    "combatenemies/spider_level_24.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140512115727%21Spider.png?d1def",
-          "sha1": "365e67f25a465d867456d502d9bd1af4f33386b6",
-          "size": 39583,
-          "timestamp": "2010-08-12T15:25:53Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Spider.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Spider.png?f1788",
-        "sha1": "606853af7fc0e90b1887908d4dbfab17817d3f3a",
-        "size": 44876,
-        "timestamp": "2019-02-02T18:43:59Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "combatenemies/thief.png": {
       "cross_wiki_lookup": null,
@@ -3248,7 +2978,7 @@
       "earlier_revision": null,
       "file_title": "Spike trap.gif",
       "provenance_source_wiki": "rs3",
-      "reason": "No file revision exists at or before the cutoff.",
+      "reason": "The requested file page is now missing from the queried wiki.",
       "recorded_revision": {
         "image_url": "https://runescape.wiki/images/Spike_trap.gif?e10b1",
         "sha1": "c3efda5e27c82c5fdaad2974bb483430c64ec8a1",
@@ -3257,11 +2987,11 @@
       },
       "source_lookup": {
         "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
+        "reason": "The requested file page is now missing from the queried wiki.",
+        "status": "unresolved",
         "wiki": "rs3"
       },
-      "status": "no_earlier_revision",
+      "status": "unresolved",
       "wiki": "rs3"
     },
     "constructionitems/spiked_cage.png": {
@@ -3823,36 +3553,6 @@
       "status": "unresolved",
       "wiki": "osrs"
     },
-    "cookingitems/burnt_pitta_bread.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/Burnt_pitta_bread.png?3d3fa",
-          "sha1": "3c7ae96977b19faa56220cffae39e4ad6eda3ea1",
-          "size": 1360,
-          "timestamp": "2011-06-20T21:21:23Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Burnt pitta bread.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Burnt_pitta_bread.png?56d17",
-        "sha1": "0120d282a8705c2fa3676a914e0edf3176985bd6",
-        "size": 345,
-        "timestamp": "2021-08-20T14:54:08Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "cookingitems/burnt_tiger_shark.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": null,
@@ -4004,36 +3704,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "crafteditems/air_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152431%21Air_rune.png?52fb0",
-          "sha1": "ea86af5ac02c3ec620a08522bfa17866636af37c",
-          "size": 775,
-          "timestamp": "2011-08-09T23:28:19Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Air rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Air_rune.png?248b4",
-        "sha1": "c0ce2cb0b1a0e845a9c2b14f8446e19108f0ec6e",
-        "size": 878,
-        "timestamp": "2021-08-20T14:52:00Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "crafteditems/battlestaff.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -4058,36 +3728,6 @@
         "wiki": "osrs"
       },
       "status": "no_earlier_revision",
-      "wiki": "osrs"
-    },
-    "crafteditems/bucket_of_sand.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502072800%21Bucket_of_sand.png?f2829",
-          "sha1": "b7802c3af42fb4ea4424cb13725cded8534d28df",
-          "size": 1586,
-          "timestamp": "2010-03-19T09:43:52Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bucket of sand.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bucket_of_sand.png?c50c3",
-        "sha1": "b41bf2aafe4d939c0895aae5a20a50f1b7ca8cea",
-        "size": 754,
-        "timestamp": "2021-08-20T14:54:04Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
       "wiki": "osrs"
     },
     "crafteditems/coif.png": {
@@ -4374,36 +4014,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "crafteditems/earth_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152433%21Earth_rune.png?9e87a",
-          "sha1": "4eeee0c278531c98722899796f9d820519505088",
-          "size": 723,
-          "timestamp": "2011-08-09T23:28:22Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Earth rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Earth_rune.png?0b998",
-        "sha1": "bd6ec8dee9adc5c3e7c2d51b8f80c3b0304aa73e",
-        "size": 831,
-        "timestamp": "2021-08-20T14:55:48Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "crafteditems/fire_battlestaff.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -4423,36 +4033,6 @@
         "image_url": "https://oldschool.runescape.wiki/images/Fire_battlestaff.png?3859a",
         "sha1": "04ce4ce83c17354d738ccf9054ec5b3e47a7034b",
         "size": 394,
-        "timestamp": "2021-08-20T14:55:59Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "crafteditems/fire_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152433%21Fire_rune.png?33419",
-          "sha1": "cd7c48b9a4a92a7833e1bca7f46febe5764b106a",
-          "size": 743,
-          "timestamp": "2011-08-09T23:28:23Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Fire rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Fire_rune.png?3859a",
-        "sha1": "0ea72ffadea522e1a6c168e1eac8a75effd7c81f",
-        "size": 847,
         "timestamp": "2021-08-20T14:55:59Z"
       },
       "source_lookup": {
@@ -4638,36 +4218,6 @@
       "status": "different",
       "wiki": "rs3"
     },
-    "crafteditems/jade.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140511080002%21Jade.png?6891e",
-          "sha1": "81828eab4ad3596a08f738892ada88389994057d",
-          "size": 312,
-          "timestamp": "2010-09-18T15:18:05Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Jade.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Jade.png?c27a4",
-        "sha1": "81f59dcc3827cd34485c43ba3f4995acef8bf5ec",
-        "size": 368,
-        "timestamp": "2021-08-20T14:58:24Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "crafteditems/mining_urn_nr.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": {
@@ -4726,96 +4276,6 @@
       "status": "different",
       "wiki": "rs3"
     },
-    "crafteditems/oil_lamp.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140708074151%21Oil_lamp.png?2200d",
-          "sha1": "22d3777dd549f84b40990705e0d727179c93769d",
-          "size": 721,
-          "timestamp": "2011-11-25T10:06:40Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Oil lamp.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Oil_lamp.png?769ea",
-        "sha1": "fce335e576cb4beed272e2828c40164b48689d5e",
-        "size": 599,
-        "timestamp": "2021-08-20T15:02:34Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "crafteditems/onyx.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140403040004%21Onyx.png?9ae29",
-          "sha1": "d56f2adc6c586f58d15104f73a1cdc38916e82ca",
-          "size": 301,
-          "timestamp": "2010-10-04T20:56:14Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Onyx.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Onyx.png?8bdb9",
-        "sha1": "2ed2d2024372700a5b2f2f242b3a449850205dc1",
-        "size": 330,
-        "timestamp": "2021-08-20T15:02:38Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "crafteditems/opal.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140511080004%21Opal.png?6891e",
-          "sha1": "feeac49bc11dc487f0f03cca61cde79c6eaeb2f9",
-          "size": 308,
-          "timestamp": "2010-09-18T15:18:05Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Opal.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Opal.png?8bdb9",
-        "sha1": "ff7a7eb51c462a7aaf0241f2471d95d697f9ff29",
-        "size": 366,
-        "timestamp": "2021-08-20T15:02:38Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "crafteditems/plant_pot_unfired.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": {
@@ -4844,36 +4304,6 @@
       },
       "status": "different",
       "wiki": "rs3"
-    },
-    "crafteditems/pot_lid_unfired.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502064006%21Pot_lid.png?204af",
-          "sha1": "2bb208957615729e80176d6ed6912b5b6797c1b2",
-          "size": 380,
-          "timestamp": "2011-11-27T06:21:27Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Pot lid.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Pot_lid.png?219da",
-        "sha1": "0434883fcb76b3585a4d3c789b50e8e3615ef455",
-        "size": 388,
-        "timestamp": "2021-08-20T15:03:06Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "crafteditems/ring_of_slaying_8.png": {
       "cross_wiki_lookup": null,
@@ -5096,36 +4526,6 @@
       "status": "different",
       "wiki": "rs3"
     },
-    "crafteditems/water_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152434%21Water_rune.png?0842d",
-          "sha1": "fd72319aaba1f2de90d48b2e51c6b569710d97f0",
-          "size": 727,
-          "timestamp": "2011-08-09T23:29:47Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Water rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Water_rune.png?75a26",
-        "sha1": "a67df4e4d7cebd07172d828fb3fa6476cd286fe3",
-        "size": 843,
-        "timestamp": "2021-08-20T15:08:09Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "crafteditems/woodcutting_urn_nr.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": {
@@ -5183,36 +4583,6 @@
       },
       "status": "different",
       "wiki": "rs3"
-    },
-    "crafteditems/wool.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140511082111%21Wool.png?3be4e",
-          "sha1": "ffaee7b64cfe50c9ac3c511b4e13fe6f0b6e6d07",
-          "size": 1663,
-          "timestamp": "2010-10-08T19:20:29Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Wool.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Wool.png?819f7",
-        "sha1": "54dad46e1fe850ed6dbb8e2064104eb3784f5984",
-        "size": 941,
-        "timestamp": "2021-08-20T15:14:02Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "equipment_slots/body.png": {
       "cross_wiki_lookup": {
@@ -6177,66 +5547,6 @@
       "status": "needs_inspection",
       "wiki": "osrs"
     },
-    "fletcheditems/feather.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502215245%21Feather.png?f55aa",
-          "sha1": "4d50fcef6c38cc9a9082d39d368323795fe9f384",
-          "size": 347,
-          "timestamp": "2011-08-10T02:26:32Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Feather.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Feather.png?97fe8",
-        "sha1": "8fbb526d1542155c94cb4ade9f972ee4e4c0634b",
-        "size": 411,
-        "timestamp": "2021-08-20T14:55:58Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "fletcheditems/logs.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502051329%21Logs.png?af000",
-          "sha1": "9b10fa7e075c289cdf710463cd97d94cb884fedd",
-          "size": 522,
-          "timestamp": "2011-08-10T02:25:57Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Logs.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Logs.png?6dc61",
-        "sha1": "6146ff70c95c2458329cf55737a296e4d7128634",
-        "size": 646,
-        "timestamp": "2021-08-20T14:58:42Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "fletcheditems/longbow.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -6373,36 +5683,6 @@
         "sha1": "4635fa9347e8f81d51ca54b92827274ef082600d",
         "size": 359,
         "timestamp": "2021-08-20T15:02:28Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "fletcheditems/silver_bolts_unf.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160503055247%21Silver_bolts_%28unf%29_5.png?427e1",
-          "sha1": "e6618286d78c2dcc8c955267dc4f2ba3412007fc",
-          "size": 1458,
-          "timestamp": "2010-07-21T01:48:20Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Silver bolts (unf) 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Silver_bolts_%28unf%29_5.png?ad8db",
-        "sha1": "f6960a661996b23f59831b8aabc1b6e3aed4a4f1",
-        "size": 785,
-        "timestamp": "2014-06-13T17:46:09Z"
       },
       "source_lookup": {
         "earlier_revision": null,
@@ -7371,36 +6651,6 @@
       },
       "status": "different",
       "wiki": "rs3"
-    },
-    "hunteritems/stripy_feather.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502070628%21Stripy_feather.png?015d2",
-          "sha1": "eb899dbcf1bb7848656d92756744336cb5be04c9",
-          "size": 350,
-          "timestamp": "2011-11-29T07:43:02Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Stripy feather.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Stripy_feather.png?a8970",
-        "sha1": "1ecb0f37c541dc0e330ec1a903f135adf3b53a90",
-        "size": 391,
-        "timestamp": "2021-08-20T15:06:31Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "hunteritems/swamp_lizard.png": {
       "cross_wiki_lookup": {
@@ -9399,36 +8649,6 @@
       "status": "no_earlier_revision",
       "wiki": "rs3"
     },
-    "prayeritems/bucket.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502180240%21Bucket.png?b646d",
-          "sha1": "8b815193bf0f99db7c020e6ec3235134817525f6",
-          "size": 642,
-          "timestamp": "2011-11-18T18:04:17Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bucket.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bucket.png?acbdf",
-        "sha1": "cb7bebcc4d416ba6a72c54864ff71b41825723f7",
-        "size": 747,
-        "timestamp": "2021-08-20T14:54:05Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "prayeritems/burnt_bonemeal.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -9820,36 +9040,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "questitems/anti_dragon_shield.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502004913%21Anti-dragon_shield.png?62b32",
-          "sha1": "036356c88972d20a75fbfefb70062bb4c3926a44",
-          "size": 1140,
-          "timestamp": "2012-03-07T22:11:22Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Anti-dragon shield.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Anti-dragon_shield.png?0b6b6",
-        "sha1": "eb55863b62dc07525c640462240135e6ba01ccef",
-        "size": 788,
-        "timestamp": "2021-08-20T14:52:04Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "questitems/backroom_key.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -9874,36 +9064,6 @@
         "wiki": "osrs"
       },
       "status": "unresolved",
-      "wiki": "osrs"
-    },
-    "questitems/bat_bones.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140326223359%21Bat_bones.png?3505b",
-          "sha1": "42db716b1d2b3b76fe600b735c12dd394200e1b0",
-          "size": 1349,
-          "timestamp": "2009-03-03T01:53:09Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bat bones.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bat_bones.png?3be33",
-        "sha1": "de8cbf0c869617e5aa101516211946a048ef14be",
-        "size": 535,
-        "timestamp": "2021-08-20T14:52:24Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
       "wiki": "osrs"
     },
     "questitems/blue_sheep_bones.png": {
@@ -9932,36 +9092,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "questitems/bucket.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502180240%21Bucket.png?b646d",
-          "sha1": "8b815193bf0f99db7c020e6ec3235134817525f6",
-          "size": 642,
-          "timestamp": "2011-11-18T18:04:17Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bucket.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bucket.png?acbdf",
-        "sha1": "cb7bebcc4d416ba6a72c54864ff71b41825723f7",
-        "size": 747,
-        "timestamp": "2021-08-20T14:54:05Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "questitems/door_key.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -9986,36 +9116,6 @@
         "wiki": "osrs"
       },
       "status": "unresolved",
-      "wiki": "osrs"
-    },
-    "questitems/dwellberries.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502070530%21Dwellberries.png?cb125",
-          "sha1": "c3af237a7b1ef48375612e7cc8cabcaa50c10197",
-          "size": 308,
-          "timestamp": "2011-11-20T12:36:36Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Dwellberries.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Dwellberries.png?0b998",
-        "sha1": "d977613cccc891531b90cbc850ba4a8eda5a18d7",
-        "size": 338,
-        "timestamp": "2021-08-20T14:55:48Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
       "wiki": "osrs"
     },
     "questitems/fire_feather.png": {
@@ -10190,36 +9290,6 @@
       "status": "no_earlier_revision",
       "wiki": "rs3"
     },
-    "questitems/lava_eel.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502071600%21Lava_eel.png?53b79",
-          "sha1": "8792fb35ee271437b5f6177d6a43da4f98257311",
-          "size": 489,
-          "timestamp": "2011-11-19T11:59:03Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Lava eel.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Lava_eel.png?1f4ab",
-        "sha1": "94c34a885836dbd888f56a1787a22425403c5e05",
-        "size": 438,
-        "timestamp": "2021-08-20T14:58:44Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "questitems/light_source.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -10319,36 +9389,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "questitems/silverlight.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502180127%21Silverlight.png?1a629",
-          "sha1": "9be470f7acd309e907021da47fb4c17a8dfad49c",
-          "size": 568,
-          "timestamp": "2011-11-28T15:57:51Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Silverlight.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Silverlight.png?0df0a",
-        "sha1": "4d5d7fbd9dd385de20427d1756696dbaf5aaf268",
-        "size": 524,
-        "timestamp": "2021-08-20T15:05:40Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "questitems/thieves_armband.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -10425,336 +9465,6 @@
         "wiki": "osrs"
       },
       "status": "no_earlier_revision",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/air_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152431%21Air_rune.png?52fb0",
-          "sha1": "ea86af5ac02c3ec620a08522bfa17866636af37c",
-          "size": 775,
-          "timestamp": "2011-08-09T23:28:19Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Air rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Air_rune.png?248b4",
-        "sha1": "c0ce2cb0b1a0e845a9c2b14f8446e19108f0ec6e",
-        "size": 878,
-        "timestamp": "2021-08-20T14:52:00Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/astral_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202153630%21Astral_rune.png?d32a7",
-          "sha1": "634d804b8f69401c3427f369eb77d83edbb34a1d",
-          "size": 726,
-          "timestamp": "2011-08-09T23:28:20Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Astral rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Astral_rune.png?2baad",
-        "sha1": "c38da4730a64a3bba34ee7c9406f9ba3eaccd481",
-        "size": 852,
-        "timestamp": "2021-08-20T14:52:17Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/binding_necklace.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20131202182103%21Binding_necklace.png?c70c8",
-          "sha1": "5091cd8accc88fc3900a1cb1f6874620f4b38117",
-          "size": 650,
-          "timestamp": "2011-11-18T00:53:04Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Binding necklace.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Binding_necklace.png?3be33",
-        "sha1": "2222d0bb40ec7541a5146852bca0f5d166eda143",
-        "size": 567,
-        "timestamp": "2021-08-20T14:52:24Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/blood_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152436%21Blood_rune.png?d32a7",
-          "sha1": "b142cd89d8628f9110d30decdb6477b1f4679410",
-          "size": 724,
-          "timestamp": "2011-08-09T23:28:20Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Blood rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Blood_rune.png?3d4c6",
-        "sha1": "d92ff963454d628de84b0fb98fb8eefdd7533db1",
-        "size": 842,
-        "timestamp": "2021-08-20T14:53:38Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/cosmic_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202153632%21Cosmic_rune.png?04ddd",
-          "sha1": "14f272b3bd3071eafc661ce7793d198ce4474583",
-          "size": 736,
-          "timestamp": "2011-08-09T23:28:21Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Cosmic rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Cosmic_rune.png?1f2bc",
-        "sha1": "e3837e52350ed6e6bd32c61722b2af5ab3caddbc",
-        "size": 866,
-        "timestamp": "2021-08-20T14:55:12Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/earth_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152433%21Earth_rune.png?9e87a",
-          "sha1": "4eeee0c278531c98722899796f9d820519505088",
-          "size": 723,
-          "timestamp": "2011-08-09T23:28:22Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Earth rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Earth_rune.png?0b998",
-        "sha1": "bd6ec8dee9adc5c3e7c2d51b8f80c3b0304aa73e",
-        "size": 831,
-        "timestamp": "2021-08-20T14:55:48Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/fire_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152433%21Fire_rune.png?33419",
-          "sha1": "cd7c48b9a4a92a7833e1bca7f46febe5764b106a",
-          "size": 743,
-          "timestamp": "2011-08-09T23:28:23Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Fire rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Fire_rune.png?3859a",
-        "sha1": "0ea72ffadea522e1a6c168e1eac8a75effd7c81f",
-        "size": 847,
-        "timestamp": "2021-08-20T14:55:59Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/law_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202153630%21Law_rune.png?33419",
-          "sha1": "4402b10040abcb38ed49fb1bcfdae3d6e30287c3",
-          "size": 746,
-          "timestamp": "2011-08-09T23:28:23Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Law rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Law_rune.png?6592f",
-        "sha1": "a25d51dae44a3c7d2ed7d8bfea05c1c4d4bb2a56",
-        "size": 868,
-        "timestamp": "2021-08-20T14:58:46Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/nature_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202153633%21Nature_rune.png?0842d",
-          "sha1": "3a8b15cf5e6d96bc699b98b74963394b6cc00445",
-          "size": 737,
-          "timestamp": "2011-08-09T23:29:47Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Nature rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Nature_rune.png?ed6d0",
-        "sha1": "981f1f1817afecda15a3716e7b2573252d3a1bd6",
-        "size": 855,
-        "timestamp": "2021-08-20T14:58:54Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "runecraftingitems/water_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202152434%21Water_rune.png?0842d",
-          "sha1": "fd72319aaba1f2de90d48b2e51c6b569710d97f0",
-          "size": 727,
-          "timestamp": "2011-08-09T23:29:47Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Water rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Water_rune.png?75a26",
-        "sha1": "a67df4e4d7cebd07172d828fb3fa6476cd286fe3",
-        "size": 843,
-        "timestamp": "2021-08-20T15:08:09Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/adamant_arrow.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160503045739%21Adamant_arrow_5.png?8047c",
-          "sha1": "5ccff34eff2808cf2f64478ddcd07f077ace7298",
-          "size": 325,
-          "timestamp": "2011-11-17T04:22:13Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Adamant arrow 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Adamant_arrow_5.png?d0b33",
-        "sha1": "c63d36832c1e5dcb5166d0e3355c6e60a3a0790c",
-        "size": 1393,
-        "timestamp": "2013-02-25T00:59:24Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
       "wiki": "osrs"
     },
     "shopitems/adamant_crossbow.png": {
@@ -10940,36 +9650,6 @@
       },
       "status": "different",
       "wiki": "rs3"
-    },
-    "shopitems/arrow_shaft.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140504040112%21Shaft_5.png?9c012",
-          "sha1": "4da1dc25bab3a7f86d1a21cf55b6d5321c365ed5",
-          "size": 1238,
-          "timestamp": "2011-11-17T14:21:49Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Arrow shaft 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Arrow_shaft_5.png?3ba7a",
-        "sha1": "a2f0404ba8fadabd3562d073d09a930bccc976e1",
-        "size": 360,
-        "timestamp": "2014-05-28T10:28:29Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "shopitems/bagged_bluebells.png": {
       "cross_wiki_lookup": {
@@ -11424,36 +10104,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "shopitems/basket.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502064313%21Basket.png?54366",
-          "sha1": "bdc1e234d9365f3177a0059899baa7fff2429e43",
-          "size": 660,
-          "timestamp": "2011-11-17T22:06:51Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Basket.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Basket.png?248b4",
-        "sha1": "f204630ecb1a3e418fca8a436d574f6d7e2e50db",
-        "size": 756,
-        "timestamp": "2021-08-20T14:52:00Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/black_brutal.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -11562,36 +10212,6 @@
       "status": "unresolved",
       "wiki": "osrs"
     },
-    "shopitems/bolt_of_cloth.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502073234%21Bolt_of_cloth.png?4ff86",
-          "sha1": "d4ff7f0802c777d70fe4ee9b0b827cd933d4221f",
-          "size": 1441,
-          "timestamp": "2010-04-03T16:09:05Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bolt of cloth.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bolt_of_cloth.png?71e10",
-        "sha1": "d8c117e660b4f390059753ab6ab2fc48fc16f622",
-        "size": 824,
-        "timestamp": "2021-08-20T14:53:53Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/bolt_rack.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -11616,36 +10236,6 @@
         "wiki": "osrs"
       },
       "status": "no_earlier_revision",
-      "wiki": "osrs"
-    },
-    "shopitems/brandy.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502072053%21Brandy.png?74abc",
-          "sha1": "31032242cd7cfb1423a5c0edffb45f2fe04896ef",
-          "size": 1415,
-          "timestamp": "2010-01-08T12:33:18Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Brandy.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Brandy.png?3d026",
-        "sha1": "071ba4eba51606af2b7f208fdd810ade1519a100",
-        "size": 558,
-        "timestamp": "2021-08-20T14:53:57Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
       "wiki": "osrs"
     },
     "shopitems/bronze_crossbow.png": {
@@ -11708,66 +10298,6 @@
       "status": "needs_inspection",
       "wiki": "osrs"
     },
-    "shopitems/bucket_of_sand.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502072800%21Bucket_of_sand.png?f2829",
-          "sha1": "b7802c3af42fb4ea4424cb13725cded8534d28df",
-          "size": 1586,
-          "timestamp": "2010-03-19T09:43:52Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bucket of sand.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bucket_of_sand.png?c50c3",
-        "sha1": "b41bf2aafe4d939c0895aae5a20a50f1b7ca8cea",
-        "size": 754,
-        "timestamp": "2021-08-20T14:54:04Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/bucket_of_slime.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502175322%21Bucket_of_slime.png?90840",
-          "sha1": "3306c3f397dd15196e4de6c80ad2add19716ea9c",
-          "size": 1547,
-          "timestamp": "2010-04-24T11:10:34Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bucket of slime.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bucket_of_slime.png?c50c3",
-        "sha1": "59cfefb7f7fbabb0fbd1ffc3979ee7eef308584e",
-        "size": 756,
-        "timestamp": "2021-08-20T14:54:04Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/candle.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -11814,66 +10344,6 @@
       },
       "status": "no_earlier_revision",
       "wiki": "rs3"
-    },
-    "shopitems/chocolate_bar.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502021801%21Chocolate_bar.png?abc25",
-          "sha1": "7dfc0152614132b3b06b9b186a7c9ef08b5f749a",
-          "size": 899,
-          "timestamp": "2012-10-03T03:06:37Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Chocolate bar.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Chocolate_bar.png?bcc94",
-        "sha1": "3aac87ac0be70bbac2f025e4b01dbf3af50d0022",
-        "size": 405,
-        "timestamp": "2021-08-20T14:54:15Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/crunchy_tray.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502063806%21Crunchy_tray.png?b4e9d",
-          "sha1": "17f972bcc49661e325ee70f3f941dbdfd0627869",
-          "size": 689,
-          "timestamp": "2011-11-19T16:07:50Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Crunchy tray.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Crunchy_tray.png?ec18f",
-        "sha1": "99952914f553c20df41ac96e6e2a6e4bc0fad8af",
-        "size": 596,
-        "timestamp": "2021-08-20T14:55:17Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "shopitems/dragon_battleaxe.png": {
       "cross_wiki_lookup": {
@@ -11957,66 +10427,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "shopitems/emerald_bracelet.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140328084918%21Emerald_bracelet.png?eed52",
-          "sha1": "319d4a272f9d1e19c82406230c76a7dfab15ab20",
-          "size": 705,
-          "timestamp": "2011-11-20T17:44:03Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Emerald bracelet.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Emerald_bracelet.png?ef54e",
-        "sha1": "e12a113e77b6bf6efcdba63ad215330dd588f8a5",
-        "size": 510,
-        "timestamp": "2021-08-20T14:55:52Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/equa_leaves.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140511081025%21Equa_leaves.png?01275",
-          "sha1": "ef56f04fd80e2327985e5ac702a540fdec1af8d7",
-          "size": 647,
-          "timestamp": "2010-10-03T20:39:17Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Equa leaves.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Equa_leaves.png?01f76",
-        "sha1": "ce7a9cae434aabc50c2ae268d2fc7ceff821e4ab",
-        "size": 212,
-        "timestamp": "2021-08-20T14:55:54Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/eye_of_gnome.png": {
       "cross_wiki_lookup": {
         "earlier_revision": null,
@@ -12041,36 +10451,6 @@
         "wiki": "osrs"
       },
       "status": "no_earlier_revision",
-      "wiki": "osrs"
-    },
-    "shopitems/eye_of_newt.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502071539%21Eye_of_newt.png?11325",
-          "sha1": "bf8c85d774f03d80221e3d6473fa9d2d1f84a83b",
-          "size": 1342,
-          "timestamp": "2009-09-06T16:40:14Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Eye of newt.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Eye_of_newt.png?97fe8",
-        "sha1": "8955b9f47396c41ccef63d123cb80be58e8272b7",
-        "size": 390,
-        "timestamp": "2021-08-20T14:55:58Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
       "wiki": "osrs"
     },
     "shopitems/fancy_hedge.png": {
@@ -12115,96 +10495,6 @@
       "status": "no_earlier_revision",
       "wiki": "rs3"
     },
-    "shopitems/gianne_dough.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502035751%21Gianne_dough.png?78206",
-          "sha1": "2832fe74a4a82b7a54ba721ee124c08600249018",
-          "size": 1020,
-          "timestamp": "2011-09-05T00:23:27Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Gianne dough.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Gianne_dough.png?d2266",
-        "sha1": "2c0c17f2a15d3055732f87c5a13400802cef4881",
-        "size": 718,
-        "timestamp": "2021-08-20T14:57:16Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/gnomebowl_mould.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502063809%21Gnomebowl_mould.png?6af58",
-          "sha1": "8d1a83329e054d5c796fa431398b2b3cc18df6e3",
-          "size": 757,
-          "timestamp": "2011-11-22T02:53:19Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Gnomebowl mould.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Gnomebowl_mould.png?122dd",
-        "sha1": "8077bd0d65acc3d568898187b6614538ea2c92a1",
-        "size": 686,
-        "timestamp": "2021-08-20T14:57:26Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/iron_arrow.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160503052710%21Iron_arrow_5.png?2c238",
-          "sha1": "0991c3a5298680a295b81695ff0990f484b12c55",
-          "size": 325,
-          "timestamp": "2011-11-23T01:13:08Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Iron arrow 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Iron_arrow_5.png?8d7e7",
-        "sha1": "2564184d5bb6f7a3f18f568498f24bb858643d9b",
-        "size": 678,
-        "timestamp": "2016-08-18T02:47:00Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/iron_halberd.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -12225,66 +10515,6 @@
         "sha1": "92361a10e6c9f57f0fe68877fe99c9c4726eca53",
         "size": 373,
         "timestamp": "2021-08-20T14:57:52Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/leather_cowl.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502050905%21Leather_cowl.png?341b6",
-          "sha1": "3b30cd4a6b1c3259c26a815bd65149577f4d8711",
-          "size": 571,
-          "timestamp": "2012-01-31T21:06:59Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Leather cowl.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Leather_cowl.png?fa8bd",
-        "sha1": "6e0673349a534f2674fcb527803926955ea19e68",
-        "size": 391,
-        "timestamp": "2021-08-20T14:58:43Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/lime.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502073220%21Lime.png?905c7",
-          "sha1": "7523ad1d56e68699895ec3a8fc0f44f6975f1ebf",
-          "size": 1344,
-          "timestamp": "2010-04-03T15:50:18Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Lime.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Lime.png?01ae1",
-        "sha1": "274b0208d4e0ef70fe54971153a3d4e88cd4a8af",
-        "size": 399,
-        "timestamp": "2021-08-20T14:58:47Z"
       },
       "source_lookup": {
         "earlier_revision": null,
@@ -12321,36 +10551,6 @@
       "status": "unresolved",
       "wiki": "osrs"
     },
-    "shopitems/mining_helmet.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502070419%21Mining_helmet.png?06d3d",
-          "sha1": "42e16f0e2947fb3ecb7e57fc210a373ca5b154fa",
-          "size": 598,
-          "timestamp": "2011-11-26T02:09:12Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Mining helmet.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Mining_helmet.png?ccf02",
-        "sha1": "2c5a31af66e7471329b0a54323db5e6e580ca199",
-        "size": 651,
-        "timestamp": "2021-08-20T14:59:01Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/mith_crossbow.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -12371,36 +10571,6 @@
         "sha1": "46ff083b8ff5244a6a86c4abcdb3d35e3b24122b",
         "size": 741,
         "timestamp": "2021-08-20T14:59:01Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/mithril_arrow.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160503053853%21Mithril_arrow_5.png?02b55",
-          "sha1": "f7a5ed077ff41940cbac8588f194d92c434353b2",
-          "size": 328,
-          "timestamp": "2011-11-26T03:37:52Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Mithril arrow 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Mithril_arrow_5.png?bb85d",
-        "sha1": "aceadb9d1f08693ff46546824b5cd0d22b821f42",
-        "size": 674,
-        "timestamp": "2016-08-18T02:36:07Z"
       },
       "source_lookup": {
         "earlier_revision": null,
@@ -12437,36 +10607,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "shopitems/mystic_hat.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502055034%21Mystic_hat.png?14b65",
-          "sha1": "6738b26eb1c330f8b1ab640f94c7d60c55786d1f",
-          "size": 783,
-          "timestamp": "2012-03-06T23:28:40Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Mystic hat.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Mystic_hat.png?246bf",
-        "sha1": "dabb8730035b7f3f894e5dcd1804b098a218517b",
-        "size": 827,
-        "timestamp": "2021-08-20T14:59:12Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/nice_hedge.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": null,
@@ -12487,96 +10627,6 @@
       },
       "status": "unresolved",
       "wiki": "rs3"
-    },
-    "shopitems/oil_lamp.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140708074151%21Oil_lamp.png?2200d",
-          "sha1": "22d3777dd549f84b40990705e0d727179c93769d",
-          "size": 721,
-          "timestamp": "2011-11-25T10:06:40Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Oil lamp.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Oil_lamp.png?769ea",
-        "sha1": "fce335e576cb4beed272e2828c40164b48689d5e",
-        "size": 599,
-        "timestamp": "2021-08-20T15:02:34Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/oil_lantern.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140708074152%21Oil_lantern.png?80dea",
-          "sha1": "f7a29ceaa746573f4d4a9273737726a8a86c5e6a",
-          "size": 656,
-          "timestamp": "2011-11-26T18:07:55Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Oil lantern.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Oil_lantern.png?769ea",
-        "sha1": "0b9d7e01ed38762e84d8db736737dc20566cff41",
-        "size": 654,
-        "timestamp": "2021-08-20T15:02:34Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/orange.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140511081657%21Orange.png?0e087",
-          "sha1": "f716f21944dcd4212e8c2bddf28680165ef33aae",
-          "size": 394,
-          "timestamp": "2010-10-05T00:59:46Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Orange.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Orange.png?96ed5",
-        "sha1": "c1e479d4df4e69f392d267af72f6cbba51b1d982",
-        "size": 425,
-        "timestamp": "2021-08-20T15:02:41Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "shopitems/pineapple_punch.png": {
       "cross_wiki_lookup": {
@@ -12890,133 +10940,13 @@
       "status": "unresolved",
       "wiki": "osrs"
     },
-    "shopitems/red_dye.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502071531%21Red_dye.png?042bc",
-          "sha1": "d0dfdcc6cef46f838ad7888617e7f0dca31ff277",
-          "size": 1453,
-          "timestamp": "2009-09-06T16:24:59Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Red dye.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Red_dye.png?cb76b",
-        "sha1": "3def671b8bf847c6dc260debfe500d15cf221bfd",
-        "size": 539,
-        "timestamp": "2021-08-20T15:04:29Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/rosemary.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502063719%21Rosemary.png?dfcc2",
-          "sha1": "44004c644fc6a7ed4610c8c5546df2008cecc755",
-          "size": 587,
-          "timestamp": "2011-11-27T20:34:50Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Rosemary.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Rosemary.png?43f24",
-        "sha1": "4b55c9e863c4319ccdb861ee22e3db7f5150851d",
-        "size": 601,
-        "timestamp": "2021-08-20T15:04:35Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/ruby_bracelet.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502174046%21Ruby_bracelet.png?20aae",
-          "sha1": "9d90d9b357a4a99d6d4d0492242413a3389bc88d",
-          "size": 504,
-          "timestamp": "2011-11-27T21:36:03Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Ruby bracelet.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Ruby_bracelet.png?625fb",
-        "sha1": "421ba3b9182a10a3e9615ded95b216458c20c34e",
-        "size": 510,
-        "timestamp": "2021-08-20T15:04:36Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "shopitems/rune_arrow.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160503054857%21Rune_arrow_5.png?5ec67",
-          "sha1": "32d7b2635432ca7f0e30f46fef6dcc4b62bee8bf",
-          "size": 328,
-          "timestamp": "2011-11-27T23:28:53Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Rune arrow 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Rune_arrow_5.png?31136",
-        "sha1": "b3692cac55092e4e76eff344b6c78a07095b7b3c",
-        "size": 1395,
-        "timestamp": "2013-03-01T15:57:31Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/rune_crossbow.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20121206201119%21Rune_crossbow.png?6a4fb",
-          "sha1": "d23f53d6fd702f7d5832d297d345dacf94086789",
-          "size": 1422,
-          "timestamp": "2012-11-20T21:58:46Z"
+          "archive_url": "https://runescape.wiki/images/archive/20160502071104%21Rune_crossbow.png?e9e04",
+          "sha1": "02046f495c5abaf7d4a94349499828651fe95232",
+          "size": 724,
+          "timestamp": "2012-10-08T17:06:29Z"
         },
         "status": "different",
         "wiki": "rs3"
@@ -13113,36 +11043,6 @@
       "status": "no_earlier_revision",
       "wiki": "osrs"
     },
-    "shopitems/soul_rune.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140202153631%21Soul_rune.png?39489",
-          "sha1": "db5aa27f2a963ac3027bd93a1fd7301fe7960989",
-          "size": 686,
-          "timestamp": "2011-11-28T22:25:56Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Soul rune.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Soul_rune.png?44c1f",
-        "sha1": "3c80e007df8761c31df8ceb82b2533e1b3306c29",
-        "size": 853,
-        "timestamp": "2021-08-20T15:05:52Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/spirit_shards.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": {
@@ -13172,36 +11072,6 @@
       "status": "different",
       "wiki": "rs3"
     },
-    "shopitems/steel_arrow.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160503055508%21Steel_arrow_5.png?daa91",
-          "sha1": "38e5f54965f03569904c96964e3bf21f20693cac",
-          "size": 342,
-          "timestamp": "2011-11-29T04:44:07Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Steel arrow 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Steel_arrow_5.png?2c4a2",
-        "sha1": "8c7c71befaa239cb6cd3456c8c03ece115486889",
-        "size": 1397,
-        "timestamp": "2013-03-15T09:25:06Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "shopitems/tall_box_hedge.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": null,
@@ -13222,36 +11092,6 @@
       },
       "status": "unresolved",
       "wiki": "rs3"
-    },
-    "shopitems/unlit_torch.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502071709%21Unlit_torch.png?43aec",
-          "sha1": "8e30d6219ee205451a698df24dadb7732fef8d79",
-          "size": 454,
-          "timestamp": "2011-11-30T05:48:08Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Unlit torch.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Unlit_torch.png?e3acf",
-        "sha1": "061cc0b849839202df0ed07e0a221f6ce352a688",
-        "size": 316,
-        "timestamp": "2021-08-20T15:08:05Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "shopitems/waterskin_0.png": {
       "cross_wiki_lookup": null,
@@ -13321,66 +11161,6 @@
       "status": "unresolved",
       "wiki": "osrs"
     },
-    "shopitems/yak_hide.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502070507%21Yak-hide.png?0f1e0",
-          "sha1": "d86d0d5502c276370327a89faf37c92e39189b95",
-          "size": 416,
-          "timestamp": "2011-12-05T08:49:21Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Yak-hide.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Yak-hide.png?7e7a8",
-        "sha1": "5b40674ff0208d22c27a984f6c25d201d7f58ee6",
-        "size": 467,
-        "timestamp": "2021-08-20T15:14:06Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/adamant_dart_tip.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502173704%21Adamant_dart_tip.png?a321c",
-          "sha1": "8d5cc376cc1fd7e3065c167be733590894c54958",
-          "size": 1262,
-          "timestamp": "2010-04-28T16:24:35Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Adamant dart tip.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Adamant_dart_tip.png?e3937",
-        "sha1": "49ce834cae8a3eda9aeef9176463b4135d83482d",
-        "size": 179,
-        "timestamp": "2021-08-20T14:51:45Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "smithingitems/adamant_knife.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -13401,66 +11181,6 @@
         "sha1": "4c4df023f128ff904b93a2d36d0551ce7f3d38c5",
         "size": 367,
         "timestamp": "2021-08-20T14:51:48Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/adamant_platebody.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502003708%21Adamant_platebody.png?272d4",
-          "sha1": "da904b4a07e3ee4a101b2c05de56d302f03badd2",
-          "size": 1959,
-          "timestamp": "2012-03-06T21:58:36Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Adamant platebody.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Adamant_platebody.png?6fdfc",
-        "sha1": "1dc11dd4024eeb0f34eb184ee863801fd36088e5",
-        "size": 582,
-        "timestamp": "2021-08-20T14:51:49Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/adamant_plateskirt.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502003738%21Adamant_plateskirt.png?272d4",
-          "sha1": "605f865dc410172de0ce41716261eee97a6ebdfb",
-          "size": 1686,
-          "timestamp": "2012-03-06T21:58:36Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Adamant plateskirt.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Adamant_plateskirt.png?959ce",
-        "sha1": "b7249ff57b1e96fb0495c4540e89f17629a8f73a",
-        "size": 424,
-        "timestamp": "2021-08-20T14:51:50Z"
       },
       "source_lookup": {
         "earlier_revision": null,
@@ -13501,36 +11221,6 @@
       "status": "needs_inspection",
       "wiki": "osrs"
     },
-    "smithingitems/bronze_bolts_unf.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502123236%21Bronze_bolts_%28unf%29_5.png?11338",
-          "sha1": "6ed1ebc207bead1a1222d411374beec183463904",
-          "size": 343,
-          "timestamp": "2010-12-05T06:12:50Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bronze bolts (unf) 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bronze_bolts_%28unf%29_5.png?f1d3a",
-        "sha1": "ccd0e41dd7c646e9b9c5b7d9e88cd3605a7d8744",
-        "size": 532,
-        "timestamp": "2014-06-13T17:46:02Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "smithingitems/bronze_dagger.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -13551,36 +11241,6 @@
         "sha1": "426692aeaf78e74eeb2501db04cb6498a5c1abfc",
         "size": 361,
         "timestamp": "2021-08-20T14:54:00Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/bronze_dart_tip.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502173707%21Bronze_dart_tip.png?e48dc",
-          "sha1": "5b0f7234efbf5addc81eb2303558affd47c26d7c",
-          "size": 1257,
-          "timestamp": "2010-04-28T16:36:40Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bronze dart tip.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bronze_dart_tip.png?fe489",
-        "sha1": "a2bc6fffd671daeb84e9372bc7d11fa10cfd9b32",
-        "size": 172,
-        "timestamp": "2021-08-20T14:54:01Z"
       },
       "source_lookup": {
         "earlier_revision": null,
@@ -13681,36 +11341,6 @@
       "status": "needs_inspection",
       "wiki": "osrs"
     },
-    "smithingitems/bronze_nails.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502072254%21Bronze_nails.png?d4db0",
-          "sha1": "3f7266515c9d7592fb17d135ba0e64812735e878",
-          "size": 1298,
-          "timestamp": "2011-11-18T16:54:47Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Bronze nails.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Bronze_nails.png?cd939",
-        "sha1": "a4a76fde455a2728ddfdf7591882cee0fb701251",
-        "size": 428,
-        "timestamp": "2021-08-20T14:54:02Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "smithingitems/bronze_sword.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -13797,36 +11427,6 @@
       "status": "needs_inspection",
       "wiki": "osrs"
     },
-    "smithingitems/iron_bolts_unf.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502221257%21Iron_bolts_%28unf%29_5.png?8cdc1",
-          "sha1": "df0a65be7d3e8045709f8835eb16ef44567bfd21",
-          "size": 377,
-          "timestamp": "2011-11-23T01:15:12Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Iron bolts (unf) 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Iron_bolts_%28unf%29_5.png?3400e",
-        "sha1": "020366f817ea4bd770cb39986bec92a2d0af89f7",
-        "size": 665,
-        "timestamp": "2014-06-13T17:46:03Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "smithingitems/iron_claws.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -13847,36 +11447,6 @@
         "sha1": "e30ea04cc78f4bfaba9cf2f489502cf64a18e34b",
         "size": 467,
         "timestamp": "2021-08-20T14:57:53Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/iron_dart_tip.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502173705%21Iron_dart_tip.png?71ba2",
-          "sha1": "7890544ec480d2a4bfd6d3b4a4e5a83f86635c65",
-          "size": 189,
-          "timestamp": "2011-11-23T01:20:51Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Iron dart tip.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Iron_dart_tip.png?4972c",
-        "sha1": "16fcc6acde400ac90dda78431baffeb178f04340",
-        "size": 182,
-        "timestamp": "2021-08-20T14:57:55Z"
       },
       "source_lookup": {
         "earlier_revision": null,
@@ -13917,36 +11487,6 @@
       "status": "needs_inspection",
       "wiki": "osrs"
     },
-    "smithingitems/iron_nails.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502072256%21Iron_nails.png?44867",
-          "sha1": "22faa85e1456468c934eb59ca8d3e955c3bb2e90",
-          "size": 1298,
-          "timestamp": "2011-11-23T01:34:20Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Iron nails.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Iron_nails.png?a51bc",
-        "sha1": "4b53abbb40471b21c9be0a4cfeac1476359d097e",
-        "size": 739,
-        "timestamp": "2026-05-27T22:15:31Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "smithingitems/iron_scimitar.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": null,
@@ -13968,36 +11508,6 @@
       "status": "no_earlier_revision",
       "wiki": "rs3"
     },
-    "smithingitems/mithril_dart_tip.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502173708%21Mithril_dart_tip.png?a3e6c",
-          "sha1": "74686d72de2bbc4efa9866091b985e4e62002640",
-          "size": 1262,
-          "timestamp": "2010-07-07T21:55:54Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Mithril dart tip.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Mithril_dart_tip.png?ccf02",
-        "sha1": "23e9f8e072f7a3600664b5cfa0af73e72f4cd3f6",
-        "size": 189,
-        "timestamp": "2021-08-20T14:59:01Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "smithingitems/mithril_knife.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -14017,66 +11527,6 @@
         "image_url": "https://oldschool.runescape.wiki/images/Mithril_knife.png?8b58a",
         "sha1": "79f31539613562a712c3095d2b3bef6f7112b367",
         "size": 370,
-        "timestamp": "2021-08-20T14:59:03Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/mithril_nails.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502072257%21Mithril_nails.png?ed9b7",
-          "sha1": "755bafe1eb0f91e6b34eb0e3d3b39d6fffa06af6",
-          "size": 1323,
-          "timestamp": "2011-11-26T03:55:21Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Mithril nails.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Mithril_nails.png?c2098",
-        "sha1": "40305c1ad90cb12da063b72e4a4af8b174455868",
-        "size": 472,
-        "timestamp": "2021-08-20T14:59:04Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/mithril_platebody.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502054206%21Mithril_platebody.png?f3539",
-          "sha1": "d87a987b006e804d99ac995c7b35e2d2e53c4ff8",
-          "size": 1117,
-          "timestamp": "2012-03-09T18:34:32Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Mithril platebody.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Mithril_platebody.png?8b58a",
-        "sha1": "904c6647952f119931792d9e72b9448c37d5ea37",
-        "size": 614,
         "timestamp": "2021-08-20T14:59:03Z"
       },
       "source_lookup": {
@@ -14118,66 +11568,6 @@
       "status": "needs_inspection",
       "wiki": "osrs"
     },
-    "smithingitems/rune_dart_tip.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502071109%21Rune_dart_tip.png?2dc47",
-          "sha1": "8b5660bf11d5733bd2f0a6eed1a7732d235ba958",
-          "size": 475,
-          "timestamp": "2012-10-31T21:03:52Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Rune dart tip.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Rune_dart_tip.png?8e13b",
-        "sha1": "69fed3cc0cbfce26f4e34fe70dc752a123f5b43b",
-        "size": 191,
-        "timestamp": "2021-08-20T15:05:06Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/rune_full_helm.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20121126142509%21Rune_full_helm.png?b915e",
-          "sha1": "4798f5bcbd559a60580a52f06e6abdcb18487b18",
-          "size": 1058,
-          "timestamp": "2012-03-06T22:19:41Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Rune full helm.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Rune_full_helm.png?ce07d",
-        "sha1": "12f8927ab348dcc48763087eecbea03de3ecf5ed",
-        "size": 555,
-        "timestamp": "2021-08-20T15:05:07Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "smithingitems/rune_knife.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -14208,66 +11598,6 @@
       "status": "needs_inspection",
       "wiki": "osrs"
     },
-    "smithingitems/rune_plateskirt.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502071359%21Rune_plateskirt.png?7b004",
-          "sha1": "5f9499fcd0a6f2bd2af200d3f702a5ac504240bc",
-          "size": 702,
-          "timestamp": "2012-03-06T23:41:28Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Rune plateskirt.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Rune_plateskirt.png?28dbb",
-        "sha1": "e2c54cf63fd5b98ab946bac4f1c30abea86c1693",
-        "size": 461,
-        "timestamp": "2021-08-20T15:05:12Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/steel_dart_tip.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502173709%21Steel_dart_tip.png?77899",
-          "sha1": "d333c7757b68da8df25e53c09cff3f1e39dbd0ae",
-          "size": 212,
-          "timestamp": "2010-06-14T16:45:37Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Steel dart tip.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Steel_dart_tip.png?3203e",
-        "sha1": "55c341e9c0bf27545c2f47dee34695d3daab0000",
-        "size": 203,
-        "timestamp": "2021-08-20T15:05:58Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "smithingitems/steel_knife.png": {
       "cross_wiki_lookup": {
         "earlier_revision": {
@@ -14288,66 +11618,6 @@
         "sha1": "fe8bc2ac25481877c95029cd32db125f970e86ae",
         "size": 384,
         "timestamp": "2021-08-20T15:06:20Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/steel_nails.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140502072259%21Steel_nails.png?a1076",
-          "sha1": "b08338fcae267bb23c3d51b71adf63a25970a528",
-          "size": 1423,
-          "timestamp": "2010-02-09T18:31:07Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Steel nails.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Steel_nails.png?e1fa4",
-        "sha1": "579d0dc30c763c0361ef6a95fb51f77ba4121af6",
-        "size": 820,
-        "timestamp": "2026-05-27T22:13:04Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "smithingitems/steel_studs.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20140330120330%21Steel_studs.png?2a9bb",
-          "sha1": "1896f45faa78d937b69949abaf67e6fa8561cfec",
-          "size": 476,
-          "timestamp": "2010-07-18T09:46:10Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Steel studs.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Steel_studs.png?659e6",
-        "sha1": "12bca7de98a16b9d0cfe14465b75d85074030cab",
-        "size": 545,
-        "timestamp": "2021-08-20T15:06:22Z"
       },
       "source_lookup": {
         "earlier_revision": null,
@@ -15407,36 +12677,6 @@
       "status": "different",
       "wiki": "rs3"
     },
-    "woodcuttingitems/acorn.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502164631%21Acorn_5.png?436e4",
-          "sha1": "b459da77b6102db45c3e03c059009041305f8a52",
-          "size": 604,
-          "timestamp": "2011-11-17T04:06:02Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Acorn 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Acorn_5.png?262f7",
-        "sha1": "b6f420426e19c656ef10ee5d407d5609ee4e6473",
-        "size": 1085,
-        "timestamp": "2017-09-21T02:07:03Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "woodcuttingitems/adamant_hatchet.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": {
@@ -15465,66 +12705,6 @@
       },
       "status": "different",
       "wiki": "rs3"
-    },
-    "woodcuttingitems/apple_tree_seed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502200534%21Apple_tree_seed_5.png?4c07e",
-          "sha1": "bb8ba3735bc9ac283b40c81aa2357565d11b9afd",
-          "size": 235,
-          "timestamp": "2010-12-25T19:51:01Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Apple tree seed 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Apple_tree_seed_5.png?8276d",
-        "sha1": "c383a9a13ff6150d39d3521bb35600535cb751af",
-        "size": 650,
-        "timestamp": "2014-06-17T21:38:39Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "woodcuttingitems/banana_tree_seed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502202254%21Banana_tree_seed_5.png?ddee3",
-          "sha1": "07a69e141f6ce69e8521848e7042c353720024d0",
-          "size": 476,
-          "timestamp": "2011-11-17T18:28:23Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Banana tree seed 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Banana_tree_seed_5.png?e8ce4",
-        "sha1": "121dac9caf1e01f606acaee4c2bf370b3d1bbeeb",
-        "size": 3734,
-        "timestamp": "2014-07-23T04:55:42Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     },
     "woodcuttingitems/bird_s_nest_ring.png": {
       "cross_wiki_lookup": null,
@@ -15758,66 +12938,6 @@
       "status": "different",
       "wiki": "rs3"
     },
-    "woodcuttingitems/magic_seed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502191615%21Magic_seed_5.png?e16fa",
-          "sha1": "3e43dc96238adda040730144bda0e42c8e17ad8a",
-          "size": 1468,
-          "timestamp": "2008-04-12T19:12:24Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Magic seed 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Magic_seed_5.png?db296",
-        "sha1": "ce8e8f9a49f9adf5a023647043392497b8201af3",
-        "size": 887,
-        "timestamp": "2014-07-08T20:32:34Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "woodcuttingitems/maple_seed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502191618%21Maple_seed_5.png?3e18f",
-          "sha1": "6984caac4a36a8ff12ff0b85260cab8174f368a1",
-          "size": 541,
-          "timestamp": "2011-11-25T19:21:41Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Maple seed 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Maple_seed_5.png?ee59d",
-        "sha1": "23d33ec1c5e736b2ad7cc64adecd2ca6cd45effc",
-        "size": 1081,
-        "timestamp": "2017-10-16T03:57:18Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
     "woodcuttingitems/mithril_hatchet.png": {
       "cross_wiki_lookup": null,
       "earlier_revision": {
@@ -15846,129 +12966,9 @@
       },
       "status": "different",
       "wiki": "rs3"
-    },
-    "woodcuttingitems/orange_tree_seed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502212327%21Orange_tree_seed_5.png?da3ea",
-          "sha1": "82c5532b579dc84d05b8202113631e8fab5c02d7",
-          "size": 510,
-          "timestamp": "2011-11-26T19:23:42Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Orange tree seed 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Orange_tree_seed_5.png?d301a",
-        "sha1": "965ac4049ad00a60dfb99ec9fe7e5faa0f2247af",
-        "size": 757,
-        "timestamp": "2013-09-28T04:00:09Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "woodcuttingitems/palm_tree_seed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502212330%21Palm_tree_seed_5.png?650f3",
-          "sha1": "70818d48510b37f92236543366e92ac260d5e640",
-          "size": 853,
-          "timestamp": "2010-07-03T16:34:36Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Palm tree seed 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Palm_tree_seed_5.png?9afdd",
-        "sha1": "dc98e787f73b81e83a68c1deccb9a32315a609cc",
-        "size": 1308,
-        "timestamp": "2017-10-10T01:49:56Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "woodcuttingitems/spirit_seed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502214658%21Spirit_seed_5.png?4a561",
-          "sha1": "b77649be86db69d6a9987af514183f12c3ae4900",
-          "size": 553,
-          "timestamp": "2011-11-29T01:02:04Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Spirit seed 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Spirit_seed_5.png?b2c4c",
-        "sha1": "ecd821f31476e8d3c32365af21fe56a85c23a413",
-        "size": 913,
-        "timestamp": "2015-06-19T06:49:02Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
-    },
-    "woodcuttingitems/yew_seed.png": {
-      "cross_wiki_lookup": {
-        "earlier_revision": {
-          "archive_url": "https://runescape.wiki/images/archive/20160502173158%21Yew_seed_5.png?29615",
-          "sha1": "fb86e655803d4bb42444ee43be58d14d237f5ccd",
-          "size": 468,
-          "timestamp": "2011-12-05T10:03:01Z"
-        },
-        "status": "different",
-        "wiki": "rs3"
-      },
-      "earlier_revision": null,
-      "file_title": "Yew seed 5.png",
-      "provenance_source_wiki": "osrs",
-      "reason": "The RS3 wiki has a same-titled pre-cutoff revision, but the title alone does not prove it is the same item's period art.",
-      "recorded_revision": {
-        "image_url": "https://oldschool.runescape.wiki/images/Yew_seed_5.png?eb8e4",
-        "sha1": "847715620361f529dd3447c01b8ea4d68a5594dd",
-        "size": 728,
-        "timestamp": "2014-09-04T20:59:33Z"
-      },
-      "source_lookup": {
-        "earlier_revision": null,
-        "reason": "No file revision exists at or before the cutoff.",
-        "status": "no_earlier_revision",
-        "wiki": "osrs"
-      },
-      "status": "needs_inspection",
-      "wiki": "osrs"
     }
   },
-  "cutoff_timestamp": "2012-11-20T23:59:59Z",
+  "cutoff_timestamp": "2012-11-19T23:59:59Z",
   "provenance_path": "assets_provenance.json",
   "report_path": "memory-bank/source-audits/post-cutoff-asset-revisions-2026-08-21.json",
   "schema_version": 2,
@@ -15976,21 +12976,21 @@
     "byte_identical": 0,
     "cross_wiki_results": {
       "byte_identical": 0,
-      "different": 135,
+      "different": 35,
       "no_earlier_revision": 61,
-      "queried": 279,
+      "queried": 179,
       "unresolved": 83
     },
     "different": 137,
-    "needs_inspection": 135,
-    "no_earlier_revision": 223,
+    "needs_inspection": 35,
+    "no_earlier_revision": 222,
     "pending": 0,
-    "post_cutoff_assets": 616,
-    "unresolved": 121,
+    "post_cutoff_assets": 516,
+    "unresolved": 122,
     "unresolved_reasons": {
       "The OSRS source lookup had no pre-cutoff revision; the RS3 same-title lookup was unresolved: The requested file page is now missing from the queried wiki.": 83,
-      "The requested file page is now missing from the queried wiki.": 38
+      "The requested file page is now missing from the queried wiki.": 39
     }
   },
-  "updated_at": "2026-08-30T08:39:46.335596Z"
+  "updated_at": "2026-10-03T00:50:00.782230Z"
 }

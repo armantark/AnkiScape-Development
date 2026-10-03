@@ -23,6 +23,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.fetch_assets import (  # noqa: E402
+    PRE_EOC_CUTOFF,
     AssetRequest,
     HttpWikiClient,
     RS3_WIKI,
@@ -30,7 +31,6 @@ from tools.fetch_assets import (  # noqa: E402
 )
 
 
-PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 DAILY_CHALLENGE_ICON_REVISION = "2014-04-18T11:21:12Z"
 CHALLENGE_ICON_PATH = ROOT / "icon" / "challenges_icon.png"
 

@@ -15,9 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.fetch_assets import AssetFetchError, AssetRequest, HttpWikiClient, OSRS_WIKI, RS3_WIKI, fetch_asset
+from tools.fetch_assets import PRE_EOC_CUTOFF, AssetFetchError, AssetRequest, HttpWikiClient, OSRS_WIKI, RS3_WIKI, fetch_asset
 
-PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 
 THIEVING_NPC_TITLES = {
     "pickpocket_man": "Man.png",

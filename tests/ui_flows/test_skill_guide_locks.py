@@ -6,9 +6,10 @@ import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
+from tests.ui_flows import test_skills_panel_text_fit as _skills
 
 if _main_menu.HAS_AQT:
-    from aqt.qt import QApplication, QLabel, QWidget
+    from aqt.qt import QApplication, QLabel, QTreeWidget, Qt, QWidget
 
 
 def _player(**changes) -> dict:
@@ -64,6 +65,35 @@ class SkillGuideLocksTest(unittest.TestCase):
         row, name = self._row(_player(fishing_level=60), "Fishing", "action:catch_slimy_eel:slimy_eel")
         self.assertIsNotNone(row.graphicsEffect())
         self.assertIn("Priest in Peril", name.toolTip())
+
+    def test_fletching_guide_and_target_list_use_belt_chisel_but_need_the_spike(self) -> None:
+        target = "fletch_long_kebbit_bolts"
+        for spikes in (1, 0):
+            with self.subTest(spikes=spikes):
+                player = _player(fletching_level=42, inventory={"Long kebbit spike": spikes})
+                dialog = self.menu._open(player, current_skill="Fletching")
+                guide = dialog.findChild(QWidget, f"statsGuideRow::action:{target}")
+                dialog.show()
+                _skills.SkillsPanelTextFitTest._select(dialog, "Artisan", "Fletching")
+                item = _main_menu._fletching_row(_main_menu._find_fletching_tree(dialog), target)
+                self.assertEqual(bool(item.flags() & Qt.ItemFlag.ItemIsEnabled), bool(spikes))
+                self.assertNotIn("Chisel", item.toolTip(0))
+                self.assertEqual(guide.graphicsEffect() is None, bool(spikes))
+
+    def test_alchemy_guide_and_target_list_agree_on_tradeable_bank_items(self) -> None:
+        for chosen, stock, enabled in (("Bronze platebody", 1, True), ("Bronze platebody", 0, False), ("Coins", 1, False)):
+            with self.subTest(chosen=chosen, stock=stock):
+                player = _player(magic_level=99, magic_alchemy_item=chosen,
+                                 inventory={chosen: stock, "Fire rune": 10, "Nature rune": 3})
+                dialog = self.menu._open(player, current_skill="Magic")
+                guide = dialog.findChild(QWidget, "statsGuideRow::action:high_alchemy")
+                dialog.show()
+                _skills.SkillsPanelTextFitTest._select(dialog, "Combat", "Magic")
+                selector = dialog.findChild(QTreeWidget, "magicTargetTree")
+                item = next(item for item in _main_menu._tree_items(selector)
+                            if item.data(0, Qt.ItemDataRole.UserRole) == "high_alchemy")
+                self.assertEqual(bool(item.flags() & Qt.ItemFlag.ItemIsEnabled), enabled)
+                self.assertEqual(guide.graphicsEffect() is None, enabled)
 
     def test_every_skill_target_table_projects_with_its_predicate(self) -> None:
         from ankiscape.core.constants import EQUIPMENT_ITEM_DATA

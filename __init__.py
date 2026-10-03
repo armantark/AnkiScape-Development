@@ -27,7 +27,6 @@ from .core.constants import (
     ORE_IMAGES,
     TREE_IMAGES,
     BAR_IMAGES,
-    CRAFTED_ITEM_IMAGES,
     EQUIPMENT_DATA,
 )
 from .data.smithing_data import DEFAULT_SMITHING_TARGET
@@ -47,7 +46,6 @@ from .logic_pure.logic_pure import (
     apply_item_pack_open_pure,
     combat_observed_drop_item_names_pure,
     smithing_target_locked_reasons_pure,
-    has_crafting_materials_pure,
     crafting_target_locked_reasons_pure,
     fletching_target_locked_reasons_pure,
     cooking_target_locked_reasons_pure,
@@ -1502,21 +1500,6 @@ def save_skill(skill, dialog):
         if dialog:
             dialog.accept()
 
-
-def show_craft_selection():
-    selected = ui.show_craft_selection_dialog(
-        current_craft=_state.player_data.get("current_craft", ""),
-        crafting_level=_state.player_data.get("crafting_level", 1),
-        inventory=_state.player_data.get("inventory", {}),
-        CRAFTING_DATA=CRAFTING_DATA,
-        CRAFTED_ITEM_IMAGES=CRAFTED_ITEM_IMAGES,
-    )
-    if selected:
-        _state.player_data["current_craft"] = selected
-        save_player_data()
-
-def has_crafting_materials(item):
-    return has_crafting_materials_pure(item, _state.player_data["inventory"], CRAFTING_DATA)
 
 def on_crafting_answer():
     return runtime_actions.handle_crafting_answer(_runtime_action_context())

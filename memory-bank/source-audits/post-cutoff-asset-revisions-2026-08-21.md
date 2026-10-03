@@ -8,7 +8,26 @@ recorded source wiki first. When an OSRS lookup had no pre-cutoff revision, it
 also queried the RS3 wiki for the same file title. Each affected row records
 both wikis' answers explicitly.
 
-## Measured result
+## Recheck — 2026-10-02
+
+Commit `075e90a9` tightened the shared cutoff to `2012-11-19T23:59:59Z`,
+but did not regenerate the report. The unchanged audit was rerun against
+current provenance at that stricter cutoff, first into a disposable report,
+then at its normal path. The audit code and consistency test are unchanged.
+
+The report now covers 516 post-cutoff records: 137 `different`,
+35 `needs_inspection`, 222 `no_earlier_revision`, 122 `unresolved`,
+0 `byte_identical`, and 0 `pending`. All earlier revision timestamps are
+at or before the new cutoff. All 179 OSRS lookups have explicit RS3 results.
+
+The previous committed report held 616 records. The 100 removed rows each
+have current provenance at or before the stricter cutoff; no questioned
+current record was excluded. Two retained rows changed: `shopitems/rune_crossbow.png`
+now selects `2012-10-08T17:06:29Z` instead of release-day
+`2012-11-20T21:58:46Z`; `constructionitems/spike_trap.png` is now `unresolved`
+because its source page is missing. No asset or provenance was changed.
+
+## Original measured result — 2026-08-21
 
 | Lookup result | Assets |
 | --- | ---: |

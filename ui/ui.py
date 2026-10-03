@@ -483,7 +483,7 @@ from ..logic.slayer_logic import (
     slayer_master_persona_pure,
     slayer_target_ids_for_assignment_pure,
 )
-from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
@@ -614,9 +614,9 @@ from ..core.review_context import (
     review_context_projection_pure,
 )
 
-from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
+from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
 
-from ..core.constants import ITEM_DEFINITIONS, TREASURE_TRAILS_ACTIVITY_ID
+from ..core.constants import ALCH_VALUES, ITEM_DEFINITIONS, TREASURE_TRAILS_ACTIVITY_ID
 from ..core.item_registry import ItemDefinition, item_definitions_by_storage_key
 
 from ..logic import inventory_pure
@@ -6780,12 +6780,11 @@ def show_main_menu(
         alch_names = sorted(
             name for name, amount in inventory.items()
             if int(amount or 0) > 0 and name != "Coins"
-            and name in _ITEM_DEFS_BY_KEY and _ITEM_DEFS_BY_KEY[name].tradeable
-            and name in SHOP_PLAYER_BUY_PRICES
+            and name in ALCH_VALUES
         )
         alch_picker.addItem("Choose an item…", "")
         for name in alch_names:
-            value = int(SHOP_PLAYER_BUY_PRICES[name])
+            value = ALCH_VALUES[name]
             alch_picker.addItem(f"{name} ({int(inventory.get(name, 0) or 0)}; H {int(value * .6)} / L {int(value * .4)})", name)
         selected_index = alch_picker.findData(current_alch)
         alch_picker.setCurrentIndex(max(0, selected_index))
@@ -6832,11 +6831,6 @@ def show_main_menu(
         farming_spell_layout.addWidget(farming_spell_picker, 1)
         panel_layout.addWidget(farming_spell_row)
 
-        alch_values = {
-            item.storage_key: int(SHOP_PLAYER_BUY_PRICES[item.storage_key])
-            for item in ITEM_DEFINITIONS
-            if item.tradeable and item.storage_key in SHOP_PLAYER_BUY_PRICES
-        }
         panel_layout.addWidget(build_searchable_target_selector(
             _build_target_selector,
             magic_target_rows(
@@ -6844,7 +6838,7 @@ def show_main_menu(
                 MAGIC_DATA,
                 MAGIC_ITEM_IMAGES,
                 DEFAULT_MAGIC_TARGET,
-                alch_values,
+                ALCH_VALUES,
                 MAGIC_SPELL_IMAGES,
             ),
             key="magic",
@@ -28873,77 +28867,6 @@ def show_bar_selection_dialog(current_bar: str, smithing_level: int, BAR_DATA: d
     return _exec_selection_dialog(
         dialog,
         lambda: getattr(button_group.checkedButton(), "bar_name", None),
-    )
-
-
-def show_craft_selection_dialog(current_craft: str, crafting_level: int, inventory: dict, CRAFTING_DATA: dict, CRAFTED_ITEM_IMAGES: dict) -> Optional[str]:
-    dialog = QDialog(mw)
-    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
-    dialog.setWindowTitle("Craft Selection")
-    dialog.setMinimumWidth(400)
-    dialog.setMinimumHeight(500)
-
-    layout = QVBoxLayout()
-    title_label = QLabel("Select Item to Craft")
-    title_label.setStyleSheet("font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 15px;")
-    layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
-
-    scroll_area = QScrollArea()
-    scroll_area.setWidgetResizable(True)
-    scroll_area.setStyleSheet("border: none;")
-
-    scroll_content = QWidget()
-    grid_layout = QGridLayout(scroll_content)
-    grid_layout.setSpacing(10)
-
-    row, col = 0, 0
-    button_group = QButtonGroup(dialog)
-
-    for item, data in CRAFTING_DATA.items():
-        item_widget = QWidget()
-        item_layout = QVBoxLayout(item_widget)
-
-        item_image = QLabel()
-        pixmap = QPixmap(CRAFTED_ITEM_IMAGES.get(item, ""))
-        item_image.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio))
-        item_layout.addWidget(item_image, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        item_info = QLabel(f"{item}\nLevel: {data['level']}")
-        item_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        item_layout.addWidget(item_info)
-
-        radio_button = QRadioButton()
-        radio_button.setChecked(item == current_craft)
-        if not can_craft_item_pure(crafting_level, inventory, item, CRAFTING_DATA):
-            radio_button.setEnabled(False)
-            item_widget.setStyleSheet("color: gray;")
-
-        button_group.addButton(radio_button)
-        radio_button.item_name = item
-        item_layout.addWidget(radio_button, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        grid_layout.addWidget(item_widget, row, col)
-        col += 1
-        if col > 2:
-            col = 0
-            row += 1
-
-    scroll_area.setWidget(scroll_content)
-    layout.addWidget(scroll_area)
-
-    button_layout = QHBoxLayout()
-    ok_button = QPushButton("OK")
-    cancel_button = QPushButton("Cancel")
-    ok_button.clicked.connect(dialog.accept)
-    cancel_button.clicked.connect(dialog.reject)
-    button_layout.addWidget(cancel_button)
-    button_layout.addWidget(ok_button)
-    layout.addLayout(button_layout)
-
-    dialog.setLayout(layout)
-    return _exec_selection_dialog(
-        dialog,
-        lambda: getattr(button_group.checkedButton(), "item_name", None),
     )
 
 

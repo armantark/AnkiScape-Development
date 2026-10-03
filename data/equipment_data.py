@@ -3630,7 +3630,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         item_name='Fremennik round shield',
         slot='shield',
         combat_skill='defense',
-        required_level=1,
+        required_level=25,
         two_handed=False,
         equipment_type='shield',
         bonuses=EquipmentBonuses(attack_stab=0, attack_slash=0, attack_crush=0, attack_magic=-10, attack_ranged=-10, defence_stab=17, defence_slash=17, defence_crush=31, defence_magic=-4, defence_ranged=33, melee_strength=0, ranged_strength=0, magic_damage=0, prayer=0),
@@ -3638,7 +3638,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source_item_id=10826,
         source='data/cfg/items.yml item 10826; craft_fremennik_round_shield',
         source_status='items.yml equipment block',
-        skill_requirements=(),
+        skill_requirements=(('defense', 25),),
         weapon_type=-1,
     ),
     'Clay ring': EquipmentItem(

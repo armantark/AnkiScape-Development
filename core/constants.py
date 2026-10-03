@@ -32,6 +32,7 @@ from ..data.quest_data import (
     quest_unlock_rules_as_dict,
     quests_as_dict,
 )
+from ..data.shop_data import SHOP_PLAYER_BUY_PRICES as _SHOP_PLAYER_BUY_PRICES
 from ..data.summoning_data import SUMMONING_POUCHES as _SUMMONING_POUCHES
 from .constants_parts.paths import *
 
@@ -501,6 +502,12 @@ ITEM_DEFINITIONS = apply_item_asset_overrides(
     FARMING_ITEM_IMAGES,
     only_missing=True,
 )
+ALCH_VALUES = {
+    item.storage_key: int(_SHOP_PLAYER_BUY_PRICES[item.storage_key])
+    for item in ITEM_DEFINITIONS
+    if item.tradeable and item.storage_key in _SHOP_PLAYER_BUY_PRICES
+}
+
 FARMING_ITEM_IMAGES = {
     _definition.storage_key: _definition.asset_path
     for _definition in ITEM_DEFINITIONS
