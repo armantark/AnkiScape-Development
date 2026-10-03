@@ -647,6 +647,18 @@ def _hold_mirror_lock() -> Iterator[None]:
         yield
         return
     LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # A waiting gate closes admission before waiting for the mirror; never queue here
+    # while holding admission, or runners would starve the gate at this lock instead.
+    with LOCAL_MIRROR_LOCK_PATH.with_suffix(".turnstile").open("a+") as turnstile:
+        try:
+            fcntl.lockf(turnstile.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print(
+                f"Remote mirror busy; waiting without a deadline for turnstile {turnstile.name}. "
+                "--timeout starts after launch; run this command as a background task.",
+                file=sys.stderr,
+            )
+            fcntl.lockf(turnstile.fileno(), fcntl.LOCK_EX)
     with LOCAL_MIRROR_LOCK_PATH.open("a+", encoding="utf-8") as mirror_lock:
         try:
             fcntl.flock(

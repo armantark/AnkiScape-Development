@@ -66,7 +66,11 @@ files. Dispatches started on this machine share the fixed mirror, so the runner
 holds an exclusive local flock at `~/Library/Caches/ankiscape-remote-test-host.lock`
 through rsync and polling while the local dispatching process lives. A promotion
 gate with `--remote-lanes` takes that lock itself before its lanes, waits at most
-3,600 seconds for it, logs the wait, and holds it across both lanes. Its lane runs
+3,600 seconds for it, logs the wait, and holds it across both lanes. A sibling
+`ankiscape-remote-test-host.turnstile` admission lock stops new runners while the
+gate waits for the mirror; runners already past admission can finish. Runners
+release admission before waiting for the mirror. The gate's bound and heartbeat
+cover both locks, and the gate releases admission once it holds the mirror. Its lane runs
 inherit the held descriptor, so focused runs queue behind the gate and the fixed
 lane limits count only each lane's own sync and execution. The flock does not coordinate a dispatcher
 on another machine and cannot outlive the local process. Each lane runs in its own

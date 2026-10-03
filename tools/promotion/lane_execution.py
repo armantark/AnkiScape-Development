@@ -9,8 +9,10 @@ import re
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from collections.abc import Callable, Iterator, Sequence
+from concurrent.futures import Future
 from contextlib import contextmanager
 from dataclasses import asdict
 from datetime import datetime
@@ -240,33 +242,86 @@ def _run_papercut_check(log: TextIO, worktree: Path) -> int:
     )
 
 
+def _wait_for_remote_mirror(lock: TextIO, started: float, heartbeat: Callable[[], None]) -> bool:
+    if time.monotonic() - started >= REMOTE_MIRROR_LOCK_TIMEOUT:
+        return False
+    try:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return True
+    except BlockingIOError:
+        pass
+
+    completed: Future[None] = Future()
+    descriptor = os.dup(lock.fileno())
+
+    def acquire() -> None:
+        try:
+            # The duplicate shares the gate's lock description. If the gate times out
+            # and closes its copy, a late acquisition releases when this copy closes.
+            with os.fdopen(descriptor) as pending:
+                fcntl.flock(pending.fileno(), fcntl.LOCK_EX)
+        except OSError as exc:
+            completed.set_exception(exc)
+        else:
+            completed.set_result(None)
+
+    threading.Thread(target=acquire, daemon=True).start()
+    while not completed.done():
+        remaining = REMOTE_MIRROR_LOCK_TIMEOUT - (time.monotonic() - started)
+        if remaining <= 0:
+            return False
+        heartbeat()
+        time.sleep(min(1.0, remaining))
+    completed.result()
+    return time.monotonic() - started < REMOTE_MIRROR_LOCK_TIMEOUT
+
+
 @contextmanager
 def _hold_remote_mirror(log: TextIO, heartbeat: Callable[[], None]) -> Iterator[int | None]:
     """Hold the test-mirror lock across both remote lanes, or yield None at its bound.
 
     Focused runs share this lock. Taking it before the lanes keeps their queue out of the
     fixed lane limits, which then bound only each lane's own sync and execution.
+
+    Production callers are promotion_gate.py run (run_gate -> _run_gate_checks)
+    and maintenance/verify_remote_mirror_priority.py main. Both are one-shot
+    processes that exit on timeout failure; promotion_gate.py land never calls
+    this function. The daemon worker and its duplicate may stay blocked until
+    that exit or the holder releases. Tests that keep a caller alive release
+    their holders and verify late acquisitions do not leak.
     """
     lock_path = run_remote_tests.LOCAL_MIRROR_LOCK_PATH
     print("=== remote mirror lock ===", file=log)
     lock_path.parent.mkdir(parents=True, exist_ok=True)
-    with lock_path.open("a+", encoding="utf-8") as lock:
+    with (
+        lock_path.open("a+", encoding="utf-8") as lock,
+        lock_path.with_suffix(".turnstile").open("a+") as turnstile,
+    ):
         started = time.monotonic()
+        admitted = False
         while True:
             try:
-                fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.lockf(turnstile.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                admitted = True
                 break
             except BlockingIOError:
-                if time.monotonic() - started >= REMOTE_MIRROR_LOCK_TIMEOUT:
-                    print(
-                        f"TIMEOUT: waited {REMOTE_MIRROR_LOCK_TIMEOUT:g} seconds for {lock_path}",
-                        file=log,
-                    )
-                    log.flush()
-                    yield None
-                    return
+                remaining = REMOTE_MIRROR_LOCK_TIMEOUT - (time.monotonic() - started)
+                if remaining <= 0:
+                    break
                 heartbeat()
-                time.sleep(1.0)
+                time.sleep(min(1.0, remaining))
+        if not admitted or not _wait_for_remote_mirror(lock, started, heartbeat):
+            # Close before yielding: the caller may keep running after the timeout.
+            lock.close()
+            turnstile.close()
+            print(
+                f"TIMEOUT: waited {REMOTE_MIRROR_LOCK_TIMEOUT:g} seconds for {lock_path}",
+                file=log,
+            )
+            log.flush()
+            yield None
+            return
+        turnstile.close()
         print(f"held after {time.monotonic() - started:.1f} seconds", file=log)
         log.flush()
         yield lock.fileno()
