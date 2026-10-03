@@ -1743,6 +1743,12 @@ def _on_main_menu(
     import sys
 
     from .core.menu_cooking import set_cooking_equipment_choice, set_cooking_target
+    from .core.menu_loot import (
+        current_combat_loot_rows,
+        current_gathering_keep_drop_state,
+        set_carried_keep_drop,
+        set_loot_override,
+    )
 
     _set_cooking_target = partial(set_cooking_target, sys.modules[__name__])
     _set_cooking_equipment_choice = partial(
@@ -1814,64 +1820,16 @@ def _on_main_menu(
         except Exception:
             pass
 
-    # Keep/Drop is a gathering choice (power-gather = drop the product for the
-    # fastest XP). Resolve it against the currently-selected gathering target.
-    _GATHERING_HANDLER_KEYS = {"mining", "woodcutting", "fishing", "hunter"}
-
-    def _current_gathering_target():
-        handler_key = review_action_handler_key(_state.current_skill)
-        if handler_key not in _GATHERING_HANDLER_KEYS:
-            return None
-        target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
-        target_id = _state.player_data.get(target_key) if target_key else None
-        return str(target_id) if target_id else None
-
-    def _current_gathering_keep_drop_state():
-        target_id = _current_gathering_target()
-        if target_id is None:
-            return None
-        return (_state.player_data.get("carried_keep_drop") or {}).get(target_id, "keep")
-
-    def _set_carried_keep_drop(drop: bool):
-        target_id = _current_gathering_target()
-        if target_id is None:
-            return
-        keep_drop = _state.player_data.get("carried_keep_drop")
-        if not isinstance(keep_drop, dict):
-            keep_drop = {}
-        if drop:
-            keep_drop[target_id] = "drop"
-        else:
-            keep_drop.pop(target_id, None)
-        _state.player_data["carried_keep_drop"] = keep_drop
-        save_player_data()
-
-    def _current_combat_loot_rows():
-        # Advanced per-drop loot control for the enemy currently selected. Each row
-        # is {item, mode} where mode is auto/keep/leave from loot_overrides.
-        if review_action_handler_key(_state.current_skill) != "combat":
-            return ()
-        target_id = _state.player_data.get("current_combat_target")
-        overrides = _state.player_data.get("loot_overrides") or {}
-        rows = []
-        for item_name in combat_observed_drop_item_names_pure(_state.player_data, target_id):
-            rows.append({"item": item_name, "mode": overrides.get(item_name, "auto")})
-        return tuple(rows)
-
-    def _set_loot_override(item_name: str, mode: str):
-        overrides = _state.player_data.get("loot_overrides")
-        if not isinstance(overrides, dict):
-            overrides = {}
-        if mode in ("keep", "leave"):
-            overrides[item_name] = mode
-        else:
-            overrides.pop(item_name, None)
-        _state.player_data["loot_overrides"] = overrides
-        save_player_data()
+    _current_gathering_keep_drop_state = partial(
+        current_gathering_keep_drop_state, sys.modules[__name__]
+    )
+    _set_carried_keep_drop = partial(set_carried_keep_drop, sys.modules[__name__])
+    _current_combat_loot_rows = partial(current_combat_loot_rows, sys.modules[__name__])
+    _set_loot_override = partial(set_loot_override, sys.modules[__name__])
 
     # The 4x7 carried-pack grid applies to every skilling target the overlay
     # tracks (gathering AND processing) — a superset of the gathering-only
-    # Keep/Drop toggle above.
+    # Keep/Drop callbacks bound above.
     def _current_carried_pack_target():
         handler_key = review_action_handler_key(_state.current_skill)
         if handler_key == "combat":
