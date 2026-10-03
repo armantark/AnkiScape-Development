@@ -37,7 +37,7 @@ The helper `_combat_transfer_old_grave_to_office` occupies lines 802–815. Its 
 - `python3 tools/audit_docs.py`: exit 0; `Audited 890 Markdown and 454 HTML files.`; `Documentation audit passed.` Both pre-commit and committed checks include the new source-audit record: the instrument inventories cached and untracked documentation with `git ls-files --cached --others --exclude-standard`. The committed check also passes with the same exact counts.
 - `python3 tools/audit_test_quality.py`: exit 0; `5169 tests across 331 files`; `hard issues: 0`; `structural clone candidates: 32 groups`; the exact full output is retained in `quality.log` and the check summary in `checks.json`.
 - `python3 tools/worktree_guard.py audit`: exit 0; `Worktree layout safe: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork`; `Linked worktree root: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees`.
-- `git diff --check`: exit 0, no output.
+- `git diff 0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088 HEAD --check`: exit 0, no output.
 
 `python3 tools/audit_item_reachability.py --check` remains required and pending with root. The instrument imports product modules, so running it on Studio would violate the leaf contract. Root explicitly confirmed this ownership; it is not an audit waiver. No existing test inventory, behavior differential, branch plain, merged plain/Qt or native check has been run by this author.
 
