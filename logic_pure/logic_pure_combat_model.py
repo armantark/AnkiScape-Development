@@ -799,6 +799,22 @@ def _combat_settle_carried_death(data, carried_counts, protected_carried, grave_
             data[map_key] = container
 
 
+def _combat_transfer_old_grave_to_office(data):
+    existing_grave = data.get("combat_grave", {}) or {}
+    existing_grave_items = _combat_grave_items(existing_grave)
+    if existing_grave_items:
+        existing_office = data.get("death_office", {}) or {}
+        existing_office_items = _combat_death_office_items(existing_office)
+        # A second death before the first grave is reclaimed pushes the old grave
+        # to Death's Office; carry both loadouts so either set still re-equips.
+        loadout = {
+            **_combat_stored_loadout(existing_grave),
+            **_combat_stored_loadout(existing_office),
+        }
+        items = existing_office_items + existing_grave_items
+        _set_combat_death_office_items(data, items, "combat_stacked_grave", loadout)
+
+
 def _combat_apply_pvm_death(
     data,
     max_player_lifepoints,
@@ -844,23 +860,7 @@ def _combat_apply_pvm_death(
     active_target = carried_target_id if isinstance(carried_target_id, str) else data.get("current_combat_target")
     _combat_settle_carried_death(data, carried_counts, protected_carried, grave_items, active_target, no_grave)
     if not no_grave:
-        existing_grave = data.get("combat_grave", {}) or {}
-        existing_grave_items = _combat_grave_items(existing_grave)
-        if existing_grave_items:
-            existing_office = data.get("death_office", {}) or {}
-            existing_office_items = _combat_death_office_items(existing_office)
-            # A second death before the first grave is reclaimed pushes the old grave
-            # to Death's Office; carry both loadouts so either set still re-equips.
-            stacked_loadout = {
-                **_combat_stored_loadout(existing_grave),
-                **_combat_stored_loadout(existing_office),
-            }
-            _set_combat_death_office_items(
-                data,
-                existing_office_items + existing_grave_items,
-                "combat_stacked_grave",
-                stacked_loadout,
-            )
+        _combat_transfer_old_grave_to_office(data)
     data["equipment"] = protected_equipment
     if not no_grave:
         data["combat_grave"] = {
