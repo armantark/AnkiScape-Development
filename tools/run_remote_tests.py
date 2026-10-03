@@ -629,8 +629,63 @@ def _wait_for_remote_run(
         time.sleep(min(poll_interval, remaining))
 
 
+def _wait_for_turnstile() -> None:
+    """Pass mirror admission after a waiting gate releases it.
+
+    Never wait for the mirror or for an earlier runner while holding this: runners would
+    then starve the gate here instead.
+    """
+    with LOCAL_MIRROR_LOCK_PATH.with_suffix(".turnstile").open("a+") as turnstile:
+        try:
+            fcntl.lockf(turnstile.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print(
+                f"Remote mirror busy; waiting without a deadline for turnstile {turnstile.name}. "
+                "--timeout starts after launch; run this command as a background task.",
+                file=sys.stderr,
+            )
+            fcntl.lockf(turnstile.fileno(), fcntl.LOCK_EX)
+
+
+@contextmanager
+def _mirror_queue_place() -> Iterator[None]:
+    """Register before gate admission and retain every earlier normal's priority.
+
+    The file length allocates monotonically increasing tickets under byte zero's lock.
+    Each runner locks its own ticket before publication, then every earlier ticket as
+    one range. Later runners cannot pass a paused predecessor; death releases all owned
+    ranges without deleting coordination state or reusing a live ticket.
+    """
+    with LOCAL_MIRROR_LOCK_PATH.with_suffix(".queue").open("a+") as queue:
+        descriptor = queue.fileno()
+        try:
+            fcntl.lockf(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB, 1, 0)
+        except BlockingIOError:
+            fcntl.lockf(descriptor, fcntl.LOCK_EX, 1, 0)
+        place = os.fstat(descriptor).st_size + 1
+        fcntl.lockf(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB, 1, place)
+        os.ftruncate(descriptor, place)
+        fcntl.lockf(descriptor, fcntl.LOCK_UN, 1, 0)
+        if place > 1:
+            try:
+                fcntl.lockf(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB, place - 1, 1)
+            except BlockingIOError:
+                print(
+                    f"Remote mirror busy; waiting without a deadline for queue {queue.name}. "
+                    "--timeout starts after launch; run this command as a background task.",
+                    file=sys.stderr,
+                )
+                fcntl.lockf(descriptor, fcntl.LOCK_EX, place - 1, 1)
+        yield
+
+
 @contextmanager
 def _hold_mirror_lock() -> Iterator[None]:
+    """Hold the test mirror for one run, or reuse the lock a promotion gate handed down.
+
+    Normal runners retain registration order across gate waits. A waiting gate blocks
+    admission, and only the normal queue head competes for the mirror itself.
+    """
     inherited = os.environ.get(INHERITED_MIRROR_LOCK_FD)
     if inherited is not None:
         descriptor = int(inherited)
@@ -647,19 +702,11 @@ def _hold_mirror_lock() -> Iterator[None]:
         yield
         return
     LOCAL_MIRROR_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
-    # A waiting gate closes admission before waiting for the mirror; never queue here
-    # while holding admission, or runners would starve the gate at this lock instead.
-    with LOCAL_MIRROR_LOCK_PATH.with_suffix(".turnstile").open("a+") as turnstile:
-        try:
-            fcntl.lockf(turnstile.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            print(
-                f"Remote mirror busy; waiting without a deadline for turnstile {turnstile.name}. "
-                "--timeout starts after launch; run this command as a background task.",
-                file=sys.stderr,
-            )
-            fcntl.lockf(turnstile.fileno(), fcntl.LOCK_EX)
-    with LOCAL_MIRROR_LOCK_PATH.open("a+", encoding="utf-8") as mirror_lock:
+    with (
+        _mirror_queue_place(),
+        LOCAL_MIRROR_LOCK_PATH.open("a+", encoding="utf-8") as mirror_lock,
+    ):
+        _wait_for_turnstile()
         try:
             fcntl.flock(
                 mirror_lock.fileno(),
