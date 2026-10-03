@@ -770,6 +770,36 @@ class _CadenceAdmission:
             player_data.pop("cadence_profiles", None)
 
 
+def _prepare_winter_storage(
+    player_data: dict[str, Any], pack: _TargetPack, view: dict[str, int], churn: int,
+    *, keep: bool, active_run: bool, bank_run_requested: bool, force: bool,
+) -> tuple[_TargetPack, dict[str, int], int, dict[str, Any] | None]:
+    """Retain the admitted state so a rejected action can give back its scroll use."""
+    winter_storage_before = None
+    if keep and not active_run and not bank_run_requested:
+        winter_storage_before = copy.deepcopy(player_data)
+        view, churn, winter_storage_used = _try_pack_yak_winter_storage_overlay(
+            player_data,
+            pack.target_id,
+            view,
+            int(churn or 0),
+            pack.capacity,
+            advanced=pack.advanced,
+            force_bank=force,
+        )
+        if winter_storage_used:
+            pack = dataclasses.replace(pack, bank=player_data.get("inventory", {}) or {})
+            _set_carried_target_map(
+                player_data, "carried_inventory", pack.target_id, view
+            )
+            _set_carried_target_map(
+                player_data, "carried_churn", pack.target_id, churn
+            )
+        else:
+            winter_storage_before = None
+    return pack, view, churn, winter_storage_before
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
@@ -857,28 +887,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     cadence = _CadenceAdmission(ctx, handler_key, target_id)
     if keep and not active_run and not cadence.admit():
         return True
-    winter_storage_before = None
-    if keep and not active_run and not bank_run_requested:
-        winter_storage_before = copy.deepcopy(player_data)
-        view, churn, winter_storage_used = _try_pack_yak_winter_storage_overlay(
-            player_data,
-            target_id,
-            view,
-            int(churn or 0),
-            capacity,
-            advanced=pack.advanced,
-            force_bank=force,
-        )
-        if winter_storage_used:
-            pack = dataclasses.replace(pack, bank=player_data.get("inventory", {}) or {})
-            _set_carried_target_map(
-                player_data, "carried_inventory", target_id, view
-            )
-            _set_carried_target_map(
-                player_data, "carried_churn", target_id, churn
-            )
-        else:
-            winter_storage_before = None
+    pack, view, churn, winter_storage_before = _prepare_winter_storage(
+        player_data, pack, view, churn, keep=keep, active_run=active_run,
+        bank_run_requested=bank_run_requested, force=force,
+    )
     trip_due = bool(
         bank_run_requested
         or (
