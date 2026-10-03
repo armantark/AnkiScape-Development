@@ -814,6 +814,35 @@ def _combat_winter_storage_loot(data, target_id, carried, priority, scroll_name)
     )
 
 
+def _combat_winter_storage_item(data, target_id, scroll_name):
+    state = data.get("summoning_state", {}) or {}
+    follower = state.get("active_follower", {}) or {}
+    if (
+        not isinstance(state, Mapping)
+        or follower.get("kind") != "familiar"
+        or follower.get("entity_id") != "packyak"
+        or _non_negative_int(state.get("special_move_points_current", 0), 0) < 12
+    ):
+        return None
+    policy = (state.get("target_policies", {}) or {}).get(target_id, {}) or {}
+    priority = policy.get("winter_storage_priority", ())
+    if isinstance(priority, str):
+        priority = (priority,)
+    if not isinstance(priority, Iterable):
+        return None
+    carried_root = data.get("carried_inventory", {}) or {}
+    carried = (
+        carried_root.get(target_id, {})
+        if isinstance(carried_root, Mapping)
+        else {}
+    )
+    if not isinstance(carried, Mapping):
+        return None
+    if _non_negative_int(carried.get(scroll_name, 0), 0) <= 0:
+        return None
+    return _combat_winter_storage_loot(data, target_id, carried, priority, scroll_name)
+
+
 def _combat_try_pack_yak_winter_storage(
     data,
     target_id,
@@ -823,33 +852,8 @@ def _combat_try_pack_yak_winter_storage(
     equipment_data=None,
     enemy_data=None,
 ):
-    state = data.get("summoning_state", {}) or {}
-    follower = state.get("active_follower", {}) or {}
-    if (
-        not isinstance(state, Mapping)
-        or follower.get("kind") != "familiar"
-        or follower.get("entity_id") != "packyak"
-        or _non_negative_int(state.get("special_move_points_current", 0), 0) < 12
-    ):
-        return False
-    policy = (state.get("target_policies", {}) or {}).get(target_id, {}) or {}
-    priority = policy.get("winter_storage_priority", ())
-    if isinstance(priority, str):
-        priority = (priority,)
-    if not isinstance(priority, Iterable):
-        return False
-    carried_root = data.get("carried_inventory", {}) or {}
-    carried = (
-        carried_root.get(target_id, {})
-        if isinstance(carried_root, Mapping)
-        else {}
-    )
-    if not isinstance(carried, Mapping):
-        return False
     scroll_name = "Winter storage scroll"
-    if _non_negative_int(carried.get(scroll_name, 0), 0) <= 0:
-        return False
-    selected = _combat_winter_storage_loot(data, target_id, carried, priority, scroll_name)
+    selected = _combat_winter_storage_item(data, target_id, scroll_name)
     if selected is None:
         return False
     candidate = _copy_player_data_with_nested(data)
@@ -864,16 +868,11 @@ def _combat_try_pack_yak_winter_storage(
     candidate_carried_root[target_id] = candidate_carried
     candidate["carried_inventory"] = candidate_carried_root
     inventory = dict(candidate.get("inventory", {}) or {})
-    inventory[scroll_name] = max(
-        0, _non_negative_int(inventory.get(scroll_name, 0), 0) - 1
-    )
+    inventory[scroll_name] = max(0, _non_negative_int(inventory.get(scroll_name, 0), 0) - 1)
     candidate["inventory"] = inventory
     candidate_state = dict(candidate.get("summoning_state", {}) or {})
     candidate_state["special_move_points_current"] = (
-        _non_negative_int(
-            candidate_state.get("special_move_points_current", 0), 0
-        )
-        - 12
+        _non_negative_int(candidate_state.get("special_move_points_current", 0), 0) - 12
     )
     candidate["summoning_state"] = candidate_state
     if _combat_bank_run_needed(
@@ -886,9 +885,7 @@ def _combat_try_pack_yak_winter_storage(
         enemy_data,
     ):
         return False
-    candidate["summoning_exp"] = float(
-        candidate.get("summoning_exp", 0.0) or 0.0
-    ) + 4.8
+    candidate["summoning_exp"] = float(candidate.get("summoning_exp", 0.0) or 0.0) + 4.8
     candidate_state["event_log"] = (
         list(candidate_state.get("event_log", []))
         + [
