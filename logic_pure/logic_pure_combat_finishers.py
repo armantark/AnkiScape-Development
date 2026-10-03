@@ -1,7 +1,33 @@
-"""Charged combat finisher reload consumption, and the finisher wording the
+"""Charged combat finisher consumption, and the finisher wording the
 review HUD, the combat menu and the target row share."""
 
 from .logic_pure_state import _non_negative_int, _positive_int
+
+
+def _combat_consume_finisher_charge(data, finisher, charge_items, loadout, finishers):
+    for index, (charged_item, _charges) in enumerate(charge_items):
+        current = _non_negative_int(finishers.get(charged_item, 0), 0)
+        if current <= 0:
+            continue
+        if current == 1:
+            finishers.pop(charged_item, None)
+        else:
+            finishers[charged_item] = current - 1
+        replacement = (
+            charge_items[index + 1][0]
+            if index + 1 < len(charge_items)
+            else str(finisher.get("empty_item", "") or "")
+        )
+        if replacement:
+            finishers[replacement] = (
+                _non_negative_int(finishers.get(replacement, 0), 0) + 1
+            )
+        loadout["finishers"] = finishers
+        data["combat_supply_loadout"] = loadout
+        return True
+    return _combat_reload_and_consume_finisher(
+        data, finisher, charge_items, loadout, finishers
+    )
 
 
 def _combat_reload_and_consume_finisher(data, finisher, charge_items, loadout, finishers):

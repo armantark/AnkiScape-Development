@@ -1980,30 +1980,9 @@ def _combat_consume_loaded_finisher(data, finisher):
     finishers = dict(loadout.get("finishers", {}) or {})
     charge_items = _combat_finisher_charge_items(finisher)
     if charge_items:
-        for index, (charged_item, _charges) in enumerate(charge_items):
-            current = _non_negative_int(finishers.get(charged_item, 0), 0)
-            if current <= 0:
-                continue
-            if current == 1:
-                finishers.pop(charged_item, None)
-            else:
-                finishers[charged_item] = current - 1
-            replacement = (
-                charge_items[index + 1][0]
-                if index + 1 < len(charge_items)
-                else str(finisher.get("empty_item", "") or "")
-            )
-            if replacement:
-                finishers[replacement] = (
-                    _non_negative_int(finishers.get(replacement, 0), 0) + 1
-                )
-            loadout["finishers"] = finishers
-            data["combat_supply_loadout"] = loadout
-            return True
+        from .logic_pure_combat_finishers import _combat_consume_finisher_charge
 
-        from .logic_pure_combat_finishers import _combat_reload_and_consume_finisher
-
-        return _combat_reload_and_consume_finisher(
+        return _combat_consume_finisher_charge(
             data, finisher, charge_items, loadout, finishers
         )
 
