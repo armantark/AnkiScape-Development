@@ -322,6 +322,33 @@ def _processing_refill_due(
     )
 
 
+def _bank_trip_forced(
+    pack: _TargetPack, view: dict[str, int], bank_run_requested: bool
+) -> bool:
+    """Whether a manual request, refillable processing shortage, or Agility pack
+    item the bank can restock forces a bank trip.
+    """
+    force = bank_run_requested or (
+        pack.is_processing
+        and _processing_refill_due(
+            view,
+            pack.bank,
+            pack.requirements,
+            pack.consumable_requirements,
+            pack.presence_requirements,
+            advanced=pack.advanced,
+        )
+    )
+    desired_agility_view = pack.repack() if pack.handler_key == "agility" else {}
+    if desired_agility_view:
+        force = force or any(
+            int(view.get(item_name, 0) or 0) <= 0 and int(pack.bank.get(item_name, 0) or 0) > 0
+            for item_name in desired_agility_view
+        )
+
+    return force
+
+
 def _initialize_due_bank_trip(
     ctx: RuntimeActionContext,
     handler_key: str,
@@ -809,23 +836,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             )
             return False
 
-    force = bank_run_requested or (
-        pack.is_processing
-        and _processing_refill_due(
-            view,
-            pack.bank,
-            pack.requirements,
-            pack.consumable_requirements,
-            pack.presence_requirements,
-            advanced=pack.advanced,
-        )
-    )
-    desired_agility_view = pack.repack() if is_agility else {}
-    if desired_agility_view:
-        force = force or any(
-            int(view.get(item_name, 0) or 0) <= 0 and int(pack.bank.get(item_name, 0) or 0) > 0
-            for item_name in desired_agility_view
-        )
+    force = _bank_trip_forced(pack, view, bank_run_requested)
 
     target_altar = (
         str((RUNECRAFTING_DATA.get(target_id) or {}).get("altar_id", ""))
