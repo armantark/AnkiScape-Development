@@ -1,6 +1,6 @@
 # AnkiScape Completion Kanban
 
-Status: reconciled 2026-07-16. This is the canonical forward-work board. The 2026-07-10 completion audit is archived baseline evidence; `memory-bank/gap-backlog.json` is the closed historical record of the shipped-skill subledger; the parity ledger below owns its open rows.
+Status: reconciled 2026-07-16. This is the product-wide parity and depth backlog; selection is in [the goal priority matrix](goal-priority-matrix.md). The 2026-07-10 completion audit is archived baseline evidence; `memory-bank/gap-backlog.json` is the closed historical record of the shipped-skill subledger; the parity ledger below owns its open rows.
 
 Shipped cards older than 30 days rotate monthly into [the shipped-card archive](archive/kanban-shipped-2026.md).
 

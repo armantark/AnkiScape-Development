@@ -22,5 +22,13 @@ points; use the successor named below for live status or implementation work.
 | `progress-2026-09.md` | September 2026 progress sections except Pass 15 notes spanning 2026-10-01 | `../progress.md` |
 | `kanban-shipped-2026.md` | Kanban cards shipped or closed before 2026-08-24 | `../future-work-kanban.md` |
 
+## 2026-10-02 selection records
+
+| Archived record | Reason | Current successor |
+|---|---|---|
+| [gpt-deferred-queue.md](gpt-deferred-queue.md) | Quota drain trigger is obsolete | [Goal priority matrix](../goal-priority-matrix.md) and the newest `../pickup-*.md` |
+| [loop-queue.md](loop-queue.md) | Superseded selection queue | [Goal priority matrix](../goal-priority-matrix.md) and the newest `../pickup-*.md` |
+| [ankiscape-grind-loop-2026-08-03.md](ankiscape-grind-loop-2026-08-03.md) | Superseded loop instructions could recreate the retired queue | [Goal priority matrix](../goal-priority-matrix.md) and the newest `../pickup-*.md` |
+
 Archived status reports are indexed separately in
 `../status-updates/archive/README.md`.

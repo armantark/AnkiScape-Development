@@ -115,6 +115,21 @@ class MemoryBankQueuePacketTest(unittest.TestCase):
         self.assertIn('root[1]/memory-bank/gap-backlog.json:4:       "id": "alpha-blocked",', first)
         self.assertNotIn("alpha-done", first)
 
+    def test_archived_queues_are_not_required_or_selected(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = self._root(Path(temp_dir), "one")
+            memory_bank = root / "memory-bank"
+            archive = memory_bank / "archive"
+            archive.mkdir()
+            for name in ("loop-queue.md", "gpt-deferred-queue.md"):
+                (memory_bank / name).rename(archive / name)
+
+            packet = build_packet([root])
+
+        self.assertIn("root[1]/memory-bank/design-thread-queue.md", packet)
+        self.assertNotIn("loop-queue.md", packet)
+        self.assertNotIn("gpt-deferred-queue.md", packet)
+
     def test_empty_match_sources_are_reported(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = self._root(Path(temp_dir), "one")

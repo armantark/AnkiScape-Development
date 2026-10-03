@@ -1,18 +1,20 @@
 # AnkiScape grind-loop queue
 
-Source: `memory-bank/codex-briefs/ankiscape-grind-loop-2026-08-03.md`.
+Archived 2026-10-02; selection is in [../goal-priority-matrix.md](../goal-priority-matrix.md).
+
+Source: `memory-bank/archive/ankiscape-grind-loop-2026-08-03.md`.
 The owner resumed the implementation goal on 2026-09-21. No automatic restart
 is scheduled. All six steps of the
-[handoff](handoffs/fable-grill-papercuts-2026-09-21-decisions.md) are on main:
+[handoff](../handoffs/fable-grill-papercuts-2026-09-21-decisions.md) are on main:
 step 1 `f7c0c7a9`, step 4 `3d0cae26`, step 2 `4f345789`, steps 3 and 5
 `a45c92d8`, and step 6, the Memory Bank rotation, with the papercut triage
 `bf38b68b` in docs batch `db75276f`. Process one unblocked
 gameplay item per iteration from the priority matrix. Move design gaps to
 `memory-bank/design-thread-queue.md`.
 The Magic candidate remains an owner choice; do not merge, rebase or rework it.
-The laptop Codex CLI over SSH ([route](remote-test-host.md)) failed four native
+The laptop Codex CLI over SSH ([route](../remote-test-host.md)) failed four native
 checks and reviewed 0 cards. The owner's answer to
-[design-thread queue §3.38](design-thread-queue.md), "Land now, one check
+[design-thread queue §3.38](../design-thread-queue.md), "Land now, one check
 later", released only batch `promote/game-2026-09-27b`, which landed on main at
 `279be965` on 2026-09-28 after its full two-lane gate passed. The one remaining
 step is one in-game check of the whole batch by the owner or the MacBook Codex

@@ -34,8 +34,6 @@ _REQUIRED_FILES = (
     "progress.md",
     "future-work-kanban.md",
     "design-thread-queue.md",
-    "gpt-deferred-queue.md",
-    "loop-queue.md",
     "gap-backlog.json",
     "papercuts.md",
 )

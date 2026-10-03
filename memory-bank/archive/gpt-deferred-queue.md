@@ -1,5 +1,7 @@
 # Deferred GPT work
 
+Archived 2026-10-02; selection is in [../goal-priority-matrix.md](../goal-priority-matrix.md).
+
 Status: **live queue.** The owner's goal says to defer GPT work until the quota
 hook reports the Codex subscription is back inside its daily share.
 

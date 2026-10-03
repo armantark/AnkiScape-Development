@@ -222,6 +222,23 @@ def _audit_html(path: Path, root: Path, text: str, issues: list[DocIssue]) -> No
 
 ACTIVE_CONTEXT = Path("memory-bank") / "activeContext.md"
 DATED_HEADING_RE = re.compile(r"^## .*\d{4}-\d{2}-\d{2}")
+STARTUP_LINE_BUDGET = 3000
+STARTUP_FILES = tuple(f"memory-bank/{name}.md" for name in (
+    "activeContext", "progress", "future-work-kanban",
+    "goal-priority-matrix", "loop-queue", "papercuts",
+))
+
+
+def _audit_startup_budget(root: Path, issues: list[DocIssue]) -> None:
+    counts: dict[str, int] = {}
+    for relative in STARTUP_FILES:
+        path = root / relative
+        counts[relative] = path.read_bytes().count(b"\n") if path.exists() else 0
+    total = sum(counts.values())
+    if total >= STARTUP_LINE_BUDGET:
+        detail = f"{total} startup lines must stay under {STARTUP_LINE_BUDGET}: "
+        detail += ", ".join(f"{path}={count}" for path, count in counts.items())
+        issues.append(DocIssue("startup_line_budget_exceeded", ACTIVE_CONTEXT.as_posix(), 1, detail))
 
 
 def _audit_active_context(path: Path, root: Path, text: str, issues: list[DocIssue]) -> None:
@@ -280,6 +297,7 @@ def audit_docs(root: Path) -> DocAuditReport:
         else:
             html_files += 1
             _audit_html(path, root, text, issues)
+    _audit_startup_budget(root, issues)
     return DocAuditReport(markdown_files, html_files, tuple(issues))
 
 

@@ -37,6 +37,38 @@ class DocumentationAuditTests(unittest.TestCase):
         self.assertTrue(report.ok, report.issues)
         self.assertEqual((report.markdown_files, report.html_files), (2, 1))
 
+    def test_startup_budget_accepts_under_limit_without_counting_archives(self) -> None:
+        root = self._repo()
+        for name in ("activeContext", "future-work-kanban", "goal-priority-matrix", "loop-queue", "papercuts"):
+            self._track(root, f"memory-bank/{name}.md", "- context\n" * 100)
+        self._track(root, "memory-bank/archive/progress-2026-09.md", "history\n" * 4000)
+        self._track(root, "memory-bank/progress.md", "progress\n" * 2499)
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tools/audit_docs.py"), "--root", str(root)],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Documentation audit passed.", result.stdout)
+
+    def test_startup_budget_refuses_at_limit_with_each_file_count(self) -> None:
+        root = self._repo()
+        counts = {
+            "activeContext": 48, "future-work-kanban": 1580, "goal-priority-matrix": 152,
+            "loop-queue": 235, "papercuts": 58, "progress": 927,
+        }
+        for name, count in counts.items():
+            self._track(root, f"memory-bank/{name}.md", "- context\n" * count)
+
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tools/audit_docs.py"), "--root", str(root)],
+            capture_output=True, text=True,
+        )
+
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("3000", result.stdout)
+        for name, count in counts.items():
+            self.assertIn(f"memory-bank/{name}.md={count}", result.stdout)
+
     def test_reports_dangling_qualified_test_selectors(self) -> None:
         root = self._repo()
         self._track(

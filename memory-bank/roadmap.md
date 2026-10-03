@@ -1,6 +1,7 @@
 # AnkiScape Completion Roadmap
 
-Status: reconciled 2026-07-16. Use `future-work-kanban.md` for actionable cards;
+Status: reconciled 2026-07-16. Use `future-work-kanban.md` for the product-wide parity and depth backlog;
+selection is in [the goal priority matrix](goal-priority-matrix.md);
 the dated completion audit is archived under `archive/2026-07/baselines/`.
 
 ## Strategy

@@ -2,7 +2,7 @@
 
 Status: **historical breadth ledger; breadth is closed.** The family table below
 records the completed July 2026 tranche. Current depth selection and blockers
-are in `memory-bank/goal-priority-matrix.md` and `memory-bank/loop-queue.md`.
+are in [the goal priority matrix](goal-priority-matrix.md).
 
 ## Where the programme stands
 

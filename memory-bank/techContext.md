@@ -34,6 +34,7 @@
   pending run before sync. Local static inspection does not establish runtime
   acceptance.
 - Tests use Python's built-in `unittest`, not pytest.
+- `tools/audit_docs.py` reads the Git index and runs only in a Git checkout; the Git-free MacBook mirror's `git ls-files ... exit status 128` is a runner failure, not an audit result.
 - `run_tests.py` adds the repository root to `sys.path`; tests and direct probes import `pkg_alias` before package-relative `ankiscape.*` modules.
 - `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. The audit measures declared routes; check runtime access gates before a claim of player acquisition.
 
@@ -67,8 +68,11 @@
   report a missing environment instead of searching the whole filesystem.
 - Delegation briefs must state the assigned files, allowed actions, evidence
   and acceptance checks. A read-only brief must prohibit checkout writes.
-- Select the next slice with `python3 tools/memory_bank_queue_packet.py
-  <repository-or-worktree-root> [<root> ...]`, not a whole-Memory-Bank read. The
+- Before selecting the next slice, read `memory-bank/goal-priority-matrix.md`
+  and the newest `memory-bank/pickup-*.md`. Use the supporting packet from
+  `python3 tools/memory_bank_queue_packet.py
+  <repository-or-worktree-root> [<root> ...]`; the packet does not replace
+  those selection records. The
   deterministic packet defaults to a 32,768-byte UTF-8 cap, retains repository
   line references, and reports every source omitted or truncated by either a
   context limit or the byte cap; raise `--max-bytes` only deliberately.

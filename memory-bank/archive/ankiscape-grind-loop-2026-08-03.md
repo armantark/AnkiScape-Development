@@ -1,5 +1,7 @@
 # AnkiScape grind loop — run this inside Codex
 
+Archived 2026-10-02; selection is in [../goal-priority-matrix.md](../goal-priority-matrix.md).
+
 Date: 2026-08-03. Author: Claude. Reader: a Codex session that runs unattended.
 
 This document tells you how to run a continuous work loop on AnkiScape. You pick
