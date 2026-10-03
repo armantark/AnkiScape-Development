@@ -1,7 +1,9 @@
 import io
+import itertools
 import json
 import os
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -16,6 +18,9 @@ from tools.workflow_manifest_guard import validate_manifest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFINITION_JAVA = Path(os.environ.get("JAVA_BIN", "/opt/homebrew/opt/openjdk@25/bin/java"))
+DEFINITION_JAVAC = Path(os.environ.get("JAVAC_BIN", "/opt/homebrew/opt/openjdk@25/bin/javac"))
+DEFINITION_GRADLE_CACHE = Path(os.environ.get("GRADLE_CACHE", Path.home() / ".gradle/caches/modules-2/files-2.1"))
 
 
 class PapercutToolTests(unittest.TestCase):
@@ -785,6 +790,174 @@ class PapercutToolTests(unittest.TestCase):
 
         result.errors.append((self, "cleanup failed"))
         self.assertEqual(test_result_exit_code(result, focused=True), 1)
+
+    def test_synthetic_cache_fixture_skips_only_without_its_optional_runtime(self):
+        with tempfile.TemporaryDirectory() as directory:
+            missing = str(Path(directory) / "absent")
+            count = len(unittest.defaultTestLoader.getTestCaseNames(OpenRs2DefinitionArgumentTests))
+            for field in ("JAVA_BIN", "JAVAC_BIN", "GRADLE_CACHE"):
+                with self.subTest(field=field):
+                    result = subprocess.run(
+                        [sys.executable, "-m", "unittest", "tests.test_papercut_tools.OpenRs2DefinitionArgumentTests"],
+                        cwd=ROOT, env={**os.environ, field: missing},
+                        check=False, capture_output=True, text=True, timeout=30,
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn(f"OK (skipped={count})", result.stderr)
+                    self.assertNotIn("ERROR", result.stderr)
+
+
+@unittest.skipUnless(
+    DEFINITION_JAVA.is_file() and DEFINITION_JAVAC.is_file()
+    and (DEFINITION_GRADLE_CACHE / "rs.darkan/core/2.0.5").is_dir(),
+    "Java 25 and Darkan core 2.0.5 required for the synthetic disk cache",
+)
+class OpenRs2DefinitionArgumentTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temp = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(cls.temp.cleanup)
+        cls.root = Path(cls.temp.name)
+        cls.cache = cls.root / "cache"
+        cls.cache.mkdir()
+        cls.java = str(DEFINITION_JAVA)
+        cls.javac = str(DEFINITION_JAVAC)
+        cls.classpath = ":".join(str(path) for path in DEFINITION_GRADLE_CACHE.rglob("*.jar"))
+        cls.classes = cls.root / "classes"
+        subprocess.run(
+            [cls.javac, "--release", "25", "-cp", cls.classpath, "-d", str(cls.classes),
+             str(ROOT / "tools/OpenRs2CacheDefinitionSearch.java")],
+            check=True, capture_output=True, text=True, timeout=30,
+        )
+        data = bytearray(520)
+
+        def archive(index, archive_id, payload):
+            container = b"\0" + struct.pack(">I", len(payload)) + payload
+            sector = len(data) // 520
+            # Tiny uncompressed fixture archives fit within one 512-byte sector payload.
+            data.extend(struct.pack(">HH", archive_id, 0) + b"\0\0\0" + bytes([index])
+                        + container + bytes(512 - len(container)))
+            path = cls.cache / f"main_file_cache.idx{index}"
+            entries = bytearray(path.read_bytes() if path.exists() else b"")
+            entries.extend(bytes(max(0, (archive_id + 1) * 6 - len(entries))))
+            entries[archive_id * 6:archive_id * 6 + 6] = (
+                len(container).to_bytes(3, "big") + sector.to_bytes(3, "big")
+            )
+            path.write_bytes(entries)
+
+        # Index 10 holds "huffman", whose 31-based archive-name hash is 1258058669.
+        for index, files, name_hash in ((10, (0,), 1258058669), (16, (1, 2), None), (18, (1, 2), None)):
+            reference = bytes([5, int(name_hash is not None)]) + struct.pack(">HH", 1, 0)
+            if name_hash is not None:
+                reference += struct.pack(">I", name_hash)
+            reference += struct.pack(">IIH", 0, 0, len(files))
+            reference += struct.pack(">" + "H" * len(files), files[0], *[b - a for a, b in zip(files, files[1:])])
+            if name_hash is not None:
+                reference += bytes(4 * len(files))
+            archive(255, index, reference)
+        # Huffman maps all 256 byte values with eight-bit codes, a complete prefix code.
+        archive(10, 0, bytes([8]) * 256)
+        for index, kind in ((16, "object"), (18, "npc")):
+            definitions = [
+                b"\2" + f"{kind} canary {number}".encode() + b"\0"
+                + (bytes([95, 0, 40 + number]) if kind == "npc" else b"") + b"\0"
+                for number in (1, 2)
+            ]
+            archive(index, 0, b"".join(definitions)
+                    + struct.pack(">ii", len(definitions[0]), len(definitions[1]) - len(definitions[0])) + b"\1")
+        (cls.cache / "main_file_cache.dat2").write_bytes(data)
+
+    def _run(self, *arguments, direct=False, unavailable=False, cache=None):
+        cache = self.cache if cache is None else cache
+        # Unavailable removes toolchain and cache for the wrapper, but only the cache for direct Java.
+        if unavailable:
+            cache = self.root / "unopened"
+        command = (
+            [self.java, "--class-path", f"{self.classes}:{self.classpath}", "OpenRs2CacheDefinitionSearch"]
+            if direct else [str(ROOT / "tools/query_openrs2_cache_definitions.sh")]
+        )
+        env = {**os.environ, "TMPDIR": str(self.root)}
+        if unavailable and not direct:
+            env.update(JAVA_BIN=str(self.root / "missing-java"), JAVAC_BIN=str(self.root / "missing-javac"),
+                       GRADLE_CACHE=str(self.root / "missing-gradle"))
+        return subprocess.run([*command, str(cache), *arguments], cwd=ROOT, env=env,
+                              check=False, capture_output=True, text=True, timeout=30)
+
+    def test_invalid_id_operands_fail_before_runtime_cache_or_partial_output(self):
+        for direct in (False, True):
+            for unavailable in (False, True):
+                for mode in ("--id", "--params", "--combat-levels"):
+                    for operands in ((), ("--id", "2"), ("1", "--id", "2"), ("1", "bad"),
+                                     ("1", ""), ("1.5",), ("-1",), ("2147483648",)):
+                        with self.subTest(direct=direct, unavailable=unavailable, mode=mode, operands=operands):
+                            result = self._run("npc", mode, *operands, direct=direct, unavailable=unavailable)
+                            self.assertEqual(result.returncode, 2, result.stderr)
+                            self.assertEqual(result.stdout, "")
+                            self.assertIn("usage:", result.stderr)
+                            self.assertNotIn("Exception", result.stderr)
+                            self.assertNotIn("\tat ", result.stderr)
+
+    def test_valid_multi_id_modes_read_both_synthetic_definitions(self):
+        cases = (("npc", "--id"), ("npc", "--params"), ("npc", "--combat-levels"),
+                 ("object", "--id"), ("object", "--params"))
+        for direct, (kind, mode) in itertools.product((False, True), cases):
+            with self.subTest(direct=direct, kind=kind, mode=mode):
+                result = self._run(kind, mode, "+0001", "2", direct=direct)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                suffixes = {
+                    "--combat-levels": ("41", "42"), "--params": ("{}", "{}"),
+                }.get(mode, ("[null, null, null, null, null]",) * 2)
+                self.assertEqual(result.stdout, "".join(
+                    f"{number}\t{kind} canary {number}\t{suffix}\n"
+                    for number, suffix in zip((1, 2), suffixes)
+                ))
+                self.assertEqual(result.stderr, "")
+
+    def test_invalid_kind_and_object_combat_mode_fail_before_cache_open(self):
+        for direct in (False, True):
+            for arguments in (("item", "--id", "1"), ("object", "--combat-levels", "1")):
+                with self.subTest(direct=direct, arguments=arguments):
+                    result = self._run(*arguments, direct=direct, unavailable=True)
+                    self.assertEqual(result.returncode, 2, result.stderr)
+                    self.assertIn("usage:", result.stderr)
+
+    def test_name_search_and_wrapper_cleanup_keep_working(self):
+        result = self._run("object", "canary")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual([row.split("\t")[:2] for row in result.stdout.splitlines()],
+                         [["1", "object canary 1"], ["2", "object canary 2"]])
+        self.assertEqual(list(self.root.glob("ankiscape-openrs2-defs.*")), [])
+
+    def test_name_search_reports_the_missing_cache_index(self):
+        for direct, (index, kind, name), truncate in itertools.product(
+            (False, True), ((16, "object", "OBJECTS"), (18, "npc", "NPCS")), (False, True)
+        ):
+            with self.subTest(direct=direct, kind=kind, truncate=truncate), tempfile.TemporaryDirectory(dir=self.root) as directory:
+                cache = Path(directory)
+                shutil.copytree(self.cache, cache, dirs_exist_ok=True)
+                table = bytearray((cache / "main_file_cache.idx255").read_bytes())
+                if truncate:
+                    del table[index * 6:]
+                else:
+                    table[index * 6:index * 6 + 6] = bytes(6)
+                (cache / "main_file_cache.idx255").write_bytes(table)
+                result = self._run(kind, "canary", direct=direct, cache=cache)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr, f"cache is missing the {name} index\n")
+
+    def test_java_failure_preserves_wrapper_exit_status_and_cleans_owned_temp_files(self):
+        with tempfile.TemporaryDirectory(dir=self.root) as directory:
+            cache = Path(directory)
+            shutil.copytree(self.cache, cache, dirs_exist_ok=True)
+            (cache / "main_file_cache.dat2").write_bytes(b"")
+            direct = self._run("npc", "canary", direct=True, cache=cache)
+            result = self._run("npc", "canary", cache=cache)
+            self.assertNotEqual(direct.returncode, 0, direct.stderr)
+            self.assertEqual(result.returncode, direct.returncode, result.stderr)
+            self.assertEqual(result.stdout, "")
+            self.assertIn("com.rs.cache.Store", result.stderr)
+            self.assertEqual(list(self.root.glob("ankiscape-openrs2-defs.*")), [])
 
 
 if __name__ == "__main__":
