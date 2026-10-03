@@ -1026,28 +1026,28 @@ def _sanitize_combat_observed_drops(raw_log):
             break
         if not isinstance(target_id, str) or not target_id or not isinstance(raw_items, Mapping):
             continue
-        items = {}
-        for item_name, raw_observation in raw_items.items():
-            if len(items) >= COMBAT_OBSERVED_DROP_ITEM_LIMIT:
-                break
-            if not isinstance(item_name, str) or not item_name or not isinstance(raw_observation, Mapping):
-                continue
-            times_seen = min(
-                COMBAT_OBSERVED_DROP_COUNT_LIMIT,
-                _non_negative_int(raw_observation.get("times_seen", 0), 0),
-            )
-            quantity_seen = min(
-                COMBAT_OBSERVED_DROP_COUNT_LIMIT,
-                _non_negative_int(raw_observation.get("quantity_seen", 0), 0),
-            )
-            if times_seen > 0 and quantity_seen > 0:
-                items[item_name] = {
-                    "times_seen": times_seen,
-                    "quantity_seen": quantity_seen,
-                }
+        items = _sanitize_combat_observed_items(raw_items)
         if items:
             cleaned[target_id] = items
     return cleaned
+
+
+def _sanitize_combat_observed_items(raw_items):
+    items = {}
+    for item_name, raw_observation in raw_items.items():
+        if len(items) >= COMBAT_OBSERVED_DROP_ITEM_LIMIT:
+            break
+        if not isinstance(item_name, str) or not item_name or not isinstance(raw_observation, Mapping):
+            continue
+        times_seen = min(
+            COMBAT_OBSERVED_DROP_COUNT_LIMIT, _non_negative_int(raw_observation.get("times_seen", 0), 0),
+        )
+        quantity_seen = min(
+            COMBAT_OBSERVED_DROP_COUNT_LIMIT, _non_negative_int(raw_observation.get("quantity_seen", 0), 0),
+        )
+        if times_seen > 0 and quantity_seen > 0:
+            items[item_name] = {"times_seen": times_seen, "quantity_seen": quantity_seen}
+    return items
 
 
 def _sanitize_combat_examined_monsters(raw_targets, enemy_data):
