@@ -393,6 +393,8 @@ _add(
     _spell("bones_to_bananas", "Bones to Bananas", "standard", "Conversions", 15, 25, {"Water rune": 2, "Earth rune": 2, "Nature rune": 1}, "bones_conversion", outputs={"Banana": 1}, source=f"{STANDARD_WIKI}; RuneScape Wiki Bones to Bananas oldid=6586873", batch="all", reachability_inputs=("Bones",)),
     _spell("bones_to_peaches", "Bones to Peaches", "standard", "Conversions", 60, 65, {"Water rune": 4, "Earth rune": 2, "Nature rune": 2}, "bones_conversion", outputs={"Peach": 1}, quest_gate="mage_training_arena", source=f"{STANDARD_WIKI}; RuneScape Wiki Bones to Peaches oldid=6586898", batch="all", reachability_inputs=("Bones", "Big bones")),
     _spell("telegrab_wine_of_zamorak", "Telegrab Wine of Zamorak", "standard", "Pure casts", 33, 43, {"Air rune": 1, "Law rune": 1}, "produce", outputs={"Wine of zamorak": 1}, source=TELEGRAB_WIKI),
+    # PLACEHOLDER(quests.enakhras_lament.first_boneguard_big_bones): needs an independently qualified period drop quantity.
+    _spell("crumble_undead_first_boneguard", "Crumble Undead: First Boneguard", "standard", "Pure casts", 39, 24.5, {"Air rune": 2, "Earth rune": 2, "Chaos rune": 1}, "transform", outputs={"Big bones": 5}, source=f"{STANDARD_WIKI}; RuneScape Wiki Enakhra's Lament oldid=6548386; Boneguard oldid=6352071"),
     _spell("charge", "Charge", "standard", "Pure casts", 80, 180, {"Air rune": 3, "Fire rune": 3, "Blood rune": 3}, "charge", quest_gate="mage_arena", source=f"{CHARGE_WIKI}; {MAGE_ARENA_WIKI}"),
 )
 

@@ -31285,6 +31285,18 @@
     "source_wiki": "rs3-period",
     "timestamp": "2011-11-19T01:49:14Z"
   },
+  "magicspells/crumble_undead_first_boneguard.png": {
+    "file_page_url": "https://runescape.fandom.com/wiki/File:Crumble_Undead_icon.png",
+    "file_title": "Crumble Undead icon.png",
+    "image_url": "https://static.wikia.nocookie.net/runescape2/images/f/fe/Crumble_Undead_icon.png/revision/latest?cb=20111119160524&format=original",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "263b75038c03b742bdfa93843623f38a656896b7",
+    "size": 297,
+    "source_wiki": "rs3-fandom-period",
+    "timestamp": "2011-11-19T16:05:24Z"
+  },
   "magicspells/cure_me.png": {
     "file_page_url": "https://runescape.wiki/w/File:Cure_Me_icon.png",
     "file_title": "Cure Me icon.png",

@@ -878,8 +878,6 @@ _UNEMITTED_CLEANUP_ACTIONS = frozenset({
     ("mournings_end_part_i", 3, "Have Oronwen repair the mourner trousers"),
     # Audit: the furniture exists, but the clockwork-penguin action does not.
     ("cold_war", 2, "Build the clockwork penguin on a crafting table 3"),
-    # Audit: the source uses a direct spell-on-NPC interaction, not generic combat.
-    ("enakhras_lament", 5, "Cast Crumble Undead during the boneguard fight"),
     # Audit: no Silvthrill-rod enchant target.
     ("in_aid_of_the_myreque", 6, "Enchant sapphire for the Myreque preparations"),
     # Audit: no quest-specific emerald preparation target.

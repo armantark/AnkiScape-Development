@@ -276,6 +276,23 @@ def _magic_dynamic_requirements_pure(
     return requirements, ()
 
 
+_MAGIC_QUEST_OBSTACLE_EFFECTS = {
+    "crumble_undead_first_boneguard": {"enakhras_lament_first_boneguard_crumbled": True},
+}
+
+
+def _first_boneguard_locked_reasons_pure(player_data, target_id):
+    if target_id != "crumble_undead_first_boneguard":
+        return ()
+    state = quest_state_pure(player_data, "enakhras_lament")
+    reasons = []
+    if not state["started"] or state["completed"] or state["progress"] != 5:
+        reasons.append("Enakhra's Lament stage 5")
+    if player_data.get("enakhras_lament_first_boneguard_crumbled"):
+        reasons.append("First Boneguard already crumbled")
+    return tuple(reasons)
+
+
 def magic_target_locked_reasons_pure(
     player_data,
     target_id,
@@ -292,6 +309,7 @@ def magic_target_locked_reasons_pure(
     required_level = _positive_int(spec.get("level", 1), 1)
     if level < required_level:
         reasons.append(f"Magic level {required_level}")
+    reasons.extend(_first_boneguard_locked_reasons_pure(player_data, target_id))
     secondary_skill = str(spec.get("secondary_skill", "") or "")
     secondary_level = _positive_int(spec.get("secondary_level", 1), 1)
     if secondary_skill and _positive_int(player_data.get(f"{secondary_skill}_level", 1), 1) < secondary_level:
@@ -425,6 +443,7 @@ def apply_magic_action_pure(
     elif action in {"transform", "produce"}:
         for item, amount in (spec.get("outputs", {}) or {}).items():
             add(str(item), amount)
+        data.update(_MAGIC_QUEST_OBSTACLE_EFFECTS.get(target_id, {}))
         if action == "transform" and target_id.startswith("plank_make_"):
             livid_state = data.get("livid_farm", {}) or {}
             if (

@@ -31,6 +31,7 @@ from tools.fetch_navigation_icons import CUTOFF, period_image_info  # noqa: E402
 
 
 WIKI_TITLE_OVERRIDES: dict[str, str] = {
+    "crumble_undead_first_boneguard": "Crumble Undead icon.png",
     "ape_atoll_teleport": "Ape Atoll Teleport icon.png",
     "telegrab_wine_of_zamorak": "Telekinetic Grab icon.png",
     "telegrab_ancestral_key": "Telekinetic Grab icon.png",
@@ -81,6 +82,7 @@ WIKI_TITLE_OVERRIDES.update(
 # These exact legacy sprites remain available from the former RuneScape Wiki
 # host with period timestamps.
 LEGACY_PERIOD_TITLES = {
+    "crumble_undead_first_boneguard": "Crumble Undead icon.png",
     "teleport_to_house": "Teleport to House icon.png",
     "spiritualise_food": "Spiritualise Food icon.png",
     **{

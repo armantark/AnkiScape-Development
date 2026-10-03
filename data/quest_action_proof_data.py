@@ -13,6 +13,9 @@ SPIRITS_OF_THE_ELID_TELEGRAB_PROOF = "Cast Telegrab for the water channel puzzle
 # Each rule is (required proofs, emitted proofs). Runtime code calls the rule
 # only after the named action succeeds; prerequisites support genuine multi-step work.
 QUEST_ACTION_PROOF_RULES = {
+    ("magic", "crumble_undead_first_boneguard"): (
+        (), ("Cast Crumble Undead during the boneguard fight",),
+    ),
     (
         "magic",
         "telegrab_ancestral_key",
@@ -55,6 +58,9 @@ QUEST_ACTION_PROOF_AUDIT_SOURCES = {
         "",
     ),
     ("utility", "collect_evergreen_sap"): ("Utility:collect_evergreen_sap", ""),
+    ("magic", "crumble_undead_first_boneguard"): (
+        "Magic:crumble_undead_first_boneguard", "",
+    ),
     ("shop_buy", "hamabs_crafting_emporium:3:4020"): (
         "shop:hamabs_crafting_emporium",
         "M'amulet mould",

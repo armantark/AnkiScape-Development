@@ -435,6 +435,7 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
                 " level " in f" {text} "
                 or (gate_reason and text == gate_reason)
                 or text == "Unlock at Livid Farm"
+                or text in {"Enakhra's Lament stage 5", "First Boneguard already crumbled"}
                 or (
                     spec.get("consumer_unavailable")
                     and text == str(spec["consumer_unavailable"])

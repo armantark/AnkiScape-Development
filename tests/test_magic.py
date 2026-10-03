@@ -183,7 +183,7 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         )
 
     def test_three_books_and_stable_ids_are_complete(self):
-        self.assertEqual(len(MAGIC_TARGETS), 115)
+        self.assertEqual(len(MAGIC_TARGETS), 116)
         self.assertEqual(len(MAGIC_TARGETS), len(set(MAGIC_TARGETS)))
         books = {row["spellbook"] for row in MAGIC_TARGETS.values()}
         self.assertEqual(books, {"standard", "ancient", "lunar"})
@@ -1065,7 +1065,7 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(migrated["equipment"]["neck"], "Gold amulet")
 
     def test_every_magic_manifest_asset_exists(self):
-        self.assertEqual(len(MAGIC_ITEM_IMAGES), 139)
+        self.assertEqual(len(MAGIC_ITEM_IMAGES), 141)
         for path in MAGIC_ITEM_IMAGES.values():
             self.assertTrue(os.path.exists(path), path)
 
