@@ -8,10 +8,15 @@ FREMENNIK_ISLES_ROUND_SHIELD_PROOF = "Make a Fremennik round shield"
 MOURNER_FOOD_STORES_PROOF = "Use the rotten apple to sabotage the mourner food stores"
 BIOHAZARD_CAULDRON_ACTION = "Put the rotten apple in the Mourner HQ cauldron"
 THAKKRAD_CURED_YAK_HIDE_PROOF = "Cure yak-hide with Thakkrad"
+SPIRITS_OF_THE_ELID_TELEGRAB_PROOF = "Cast Telegrab for the water channel puzzle"
 
 # Each rule is (required proofs, emitted proofs). Runtime code calls the rule
 # only after the named action succeeds; prerequisites support genuine multi-step work.
 QUEST_ACTION_PROOF_RULES = {
+    (
+        "magic",
+        "telegrab_ancestral_key",
+    ): ((), (SPIRITS_OF_THE_ELID_TELEGRAB_PROOF,)),
     (
         "shop_buy",
         "hamabs_crafting_emporium:3:4020",
@@ -41,6 +46,10 @@ QUEST_ACTION_PROOF_RULES = {
 # The reachability audit uses the same event bindings, but proves an event only
 # when the corresponding action or source is reachable in its fixed-point graph.
 QUEST_ACTION_PROOF_AUDIT_SOURCES = {
+    ("magic", "telegrab_ancestral_key"): (
+        "Magic:telegrab_ancestral_key",
+        "",
+    ),
     ("shop_buy", "hamabs_crafting_emporium:3:4020"): (
         "shop:hamabs_crafting_emporium",
         "M'amulet mould",

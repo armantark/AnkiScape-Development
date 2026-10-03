@@ -396,6 +396,14 @@ _add(
     _spell("charge", "Charge", "standard", "Pure casts", 80, 180, {"Air rune": 3, "Fire rune": 3, "Blood rune": 3}, "charge", quest_gate="mage_arena", source=f"{CHARGE_WIKI}; {MAGE_ARENA_WIKI}"),
 )
 
+_add({
+    **MAGIC_TARGETS["telegrab_wine_of_zamorak"],
+    "id": "telegrab_ancestral_key",
+    "display_name": "Telegrab Ancestral key",
+    "outputs": {"Ancestral key": 1},
+    "source": f"{TELEGRAB_WIKI}; RuneScape Wiki Spirits of the Elid oldid=6326193 (2012-09-30)",
+})
+
 
 # Lunar functional and pure-cast ledger. Authentic inventory-wide semantics are
 # represented by the named batch actions; their per-item secondary XP remains

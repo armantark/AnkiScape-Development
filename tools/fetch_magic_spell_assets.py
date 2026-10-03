@@ -33,6 +33,7 @@ from tools.fetch_navigation_icons import CUTOFF, period_image_info  # noqa: E402
 WIKI_TITLE_OVERRIDES: dict[str, str] = {
     "ape_atoll_teleport": "Ape Atoll Teleport icon.png",
     "telegrab_wine_of_zamorak": "Telekinetic Grab icon.png",
+    "telegrab_ancestral_key": "Telekinetic Grab icon.png",
     "plank_make_logs": "Plank Make icon.png",
     "plank_make_oak_logs": "Plank Make icon.png",
     "plank_make_teak_logs": "Plank Make icon.png",

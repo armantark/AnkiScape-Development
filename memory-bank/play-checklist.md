@@ -38,6 +38,7 @@ you are in the game, with the date the change reached main.
 
 ## Gathering and processing skills
 
+- [ ] At Spirits of the Elid stage 2, keep Thread and choose Magic > Pure casts > Telegrab Ancestral key with one Air rune and one Law rune: a successful review gives the key; the next quest review advances to stage 3; Undo returns to stage 2, and a second Undo restores both runes and the Telegrab proof blocker. (after the next batch)
 - [ ] Runecrafting: Astral runes open after Lunar Diplomacy with level 40 and Pure essence; no Astral talisman is asked for. (2026-09-28)
 - [ ] Runecrafting: combination runes use only what is in your pack, and Magic Imbue still saves the talisman. (2026-09-28)
 - [ ] Runecrafting: a Wicked hood teleport to the altar gives your Summoning points back, as a walk there does. (2026-09-28)

@@ -32329,6 +32329,18 @@
     "source_wiki": "osrs-visual-fallback",
     "timestamp": "2015-03-09T22:07:06Z"
   },
+  "magicspells/telegrab_ancestral_key.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Telekinetic_Grab_icon.png",
+    "file_title": "Telekinetic Grab icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20130111000632%21Telekinetic_Grab_icon.png?fe052",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "239bc51b9fba8be8f38c6e4f5460531186482294",
+    "size": 225,
+    "source_wiki": "rs3-period",
+    "timestamp": "2011-11-29T14:12:02Z"
+  },
   "magicspells/telegrab_wine_of_zamorak.png": {
     "file_page_url": "https://runescape.wiki/w/File:Telekinetic_Grab_icon.png",
     "file_title": "Telekinetic Grab icon.png",

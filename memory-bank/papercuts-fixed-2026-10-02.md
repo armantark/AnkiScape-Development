@@ -468,3 +468,20 @@ Evidence: Verification retains complete tool results and persisted logs. The nam
 
 - 2026-10-02 — Quest review verification: a tool wrapper printed only command output and lost the background session handle; subsequent checks capture the complete tool result and persist logs.
 - 2026-10-02 — Quest review preflight: slop-gate refused `tools/generation/refresh_quest_sources.py: WikiSources::read 20 (was 13)` with `cognitive complexity above 15 was introduced`; transport retries now have a separate named request function, with the unchanged gate pending.
+# Papercuts fixed — 2026-10-02
+
+## Telegrab pins approved by the orchestrator
+
+Disposition: fixed.
+
+Evidence: Orchestrator ruling 2026-10-02 18:51 permits action_count 1671 → 1672, reachable_item_count 2354 → 2355, and Magic count 114 → 115; the repository pin assertions are updated and audit_item_reachability.py --check exits 0.
+
+- 2026-10-02T18:39:38-07:00 — Telegrab emitter verification: `tests/test_magic.py:186` in `test_three_books_and_stable_ids_are_complete` pins 114 Magic targets; the new ancestral-key target produces `AssertionError: 115 != 114` in the remote 229-test selection. Fixed-instrument rules prohibit this author from re-pinning it; the orchestrator must resolve it alongside `action_count: expected 1671, observed 1672` and `reachable_item_count: expected 2354, observed 2355`.
+
+## Quest review tests use the quest package
+
+Disposition: fixed.
+
+Evidence: Move the unchanged test blob 93d442d7057a5aa37db5cd89896f2ce2e8a0095b from tests/test_quest_telegrab.py to tests/quest_catalog/test_quest_telegrab.py. The root no longer gains a code file; discovery still collects 229 selected tests and 5161 total tests.
+
+- 2026-10-02T20:16:56-07:00 — Telegrab branch commit refused by slop-gate: `slop-gate: code files were added to directories already at 40 files:` / `tests: 237 code files (was 236)` / `-> Create a cohesive subdirectory instead of widening this directory.` The new test is relocated without content changes to `tests/quest_catalog/test_quest_telegrab.py`; verification and a fresh commit attempt follow.

@@ -507,6 +507,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
         QuestStageRequirementCleanup(
             stage=2,
             remove_required_inventory=("Telegrab",),
+            remove_required_actions=("Complete Spirits of the Elid stage 2 objective",),
             add_required_actions=("Cast Telegrab for the water channel puzzle",),
         ),
     ),
