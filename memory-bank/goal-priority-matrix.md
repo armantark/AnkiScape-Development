@@ -14,6 +14,8 @@ Disposition meanings: `eligible` has a settled action; `verification_pending` la
 
 ## Current selection
 
+The goal is paused at the combined 20% owner cap. [The pause checkpoint](GOAL-BLOCKED.md) requires explicit owner resume.
+
 | Priority | Unit | Disposition | Next action and acceptance boundary |
 | --- | --- | --- | --- |
 | Handoff 3 | Construction and NPC-shop source digests | `source_blocked` | Equipment digests closed on main at `cfee2a048622096330152d8a962a08f7c4825986`; `generated/source_digests.json` contains Equipment, Smithing and Summoning. Equipment needs no new slice. Construction and NPC-shop reproduction remain blocked. The September 23 retained probe `python3 tools/generate_npc_shop_data.py` with all three outputs under `<evidence>` produced 282 source shops and no currency `13727`, against 274 source shops and currency `13727` in `data/shop_data.py` (diff SHA-256 `51546616c44460b7b990495fedb3222cfa8a234e3b5baa1341c23e1057322031`). `git -C '/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server' cat-file -e '7e7d67b481f1b94599de38a98c470419ab7c96b3^{commit}'` exits 128: `fatal: Not a valid object name 7e7d67b481f1b94599de38a98c470419ab7c96b3^{commit}`; the GitLab commit API returns HTTP 404 `{"message":"404 Commit Not Found"}`. Establish a generator-and-source combination that reproduces the existing shop rows and restore the exact Construction pin before recording their hashes; neither a changed row nor a fabricated header is authorized. Evidence directory: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-generator-source-digests-2026-09-23/`. |

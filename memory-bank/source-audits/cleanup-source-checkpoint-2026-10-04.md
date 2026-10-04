@@ -1,6 +1,6 @@
 # Cleanup source checkpoint, 2026-10-04
 
-The goal remains active. Current main is `28481d9295db918396d5d0188f69c1ea36f102b5`.
+The goal is paused at the combined 20% owner cap. Current main is `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
 Source acceptance does not grant runtime, native or promotion acceptance.
 
 Combat clock source `6175db9b4e2dd6ce713e23814bca27a5da410ae1` has Astra source acceptance with no findings.
@@ -27,3 +27,16 @@ Both carried focused lanes passed 241 tests without skips: plain 15.389s; Qt 15.
 No full-suite, native or promotion acceptance follows for either source.
 The locked MacBook blocks genuine Anki Undo and native acceptance. No new waiver exists.
 Preserve earlier accepted sources, Magic candidate `a8137bab` and Dream's dependency gate.
+
+Combat supply source `edeafd88c824e8a354b856cf37042ff68810bc5a` uses baseline `6175db9b4e2dd6ce713e23814bca27a5da410ae1`.
+Astra and GLM accepted the final source. All source findings are resolved.
+The final change preserves the whole engine AST after helper expansion and the prior enemy-turn definitions.
+Root remeasured the helper at CCN 3, cognitive 2 and Halstead difficulty 0, against unchanged 15/15/80 limits.
+The parent measures CCN 165, cognitive 273 and Halstead difficulty 16.82383419689119. The parent remains over limits.
+Both focused lanes passed 406 tests without skips: plain 8.895s; Qt 8.938s.
+Root read all five proof tools. Every prepared hash and all 1045 tracked Python Git blobs matched.
+The full corpus AST remains unchanged. All five tools compile without execution.
+The frozen archive contains 6697 source files and 33 input/prepared files.
+Root interrupted the independent tool-readiness review at the cap. No report or verdict exists.
+No supply proof operator or product case ran. Runtime, native, full-gate and promotion acceptance remain pending.
+Pause evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/ca859eb0ef06a0b298d25bcedd9338a1120afabc/goal-pause-2026-10-04/retention-manifest.json`.

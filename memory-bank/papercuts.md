@@ -143,3 +143,36 @@
 - 2026-10-04T03:17:57.383226+00:00: Carried bank proof preparation: 2026-10-04 preparation: guessed tests/runtime_actions/test_carried_inventory_overlay.py and data/agility_travel_data.py were absent; exact existing test_runtime_actions.py and logic/agility_travel.py supplied the fixture context.
 - 2026-10-04: Next cleanup boundary review: {"exact_examples": ["Warning: truncated output (original token count: 17344)", "Warning: truncated output (original token count: 24182)", "Warning: truncated output (original token count: 7749)", "Warning: truncated output (original token count: 3610)", "Warning: truncated output (original token count: 11932)", "Warning: truncated output (original token count: 1056)"], "kind": "output_budget", "resolution": "Material candidate and consumer source was read in targeted ranges. No decision relies on omitted search matches. Root owns any papercut record.", "utc_date": "2026-10-04"}
 - 2026-10-04: Next cleanup boundary review: {"commands": ["rg -n 'logic_pure_combat_engine|logic_pure_combat_enemy_turn|__all__|__module__|_MODULES' logic_pure/__init__.py", "rg --files logic_pure | rg 'export|facade|registry'"], "exit_code": 1, "kind": "no_match_exit", "resolution": "The facade is logic_pure/logic_pure.py; its actual re-export was then read.", "stderr": "", "utc_date": "2026-10-04"}
+
+- 2026-10-04T03:43:48Z recorded by root: checkpoint line count guessed `memory-bank/pickup-instructions.md`; `wc: memory-bank/pickup-instructions.md: open: No such file or directory`. Actual current handoff is `memory-bank/pickup-2026-10-03.md`; no file was changed.
+
+- 2026-10-04T03:43:48Z recorded by root: guessed clock preparer path; `sed: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/.orchestrator/tasks-2026-10-03-codex-resume/clock-proof-prepared/prepare_harness.py: No such file or directory`; discovery must bind actual operator names before reads. No file was changed.
+
+- 2026-10-04T03:46Z recorded by root: goal matrix read of 167 lines emitted 9814 tokens against a 7000-token cap; output was truncated. Created `.orchestrator/read_text_slice.py` with an enforced 16000-character maximum and exact continuation offset; subsequent reads use character slices rather than line-count guesses.
+
+- 2026-10-04T03:48:00.324143+00:00 Astra supply source review: Broad initial context reads caused tool-output truncation; recovered source and contract sections with bounded reads. Exact output included Warning: truncated output (original token count: 46291). No product execution occurred.
+
+- 2026-10-04T03:48:00.324143+00:00 Astra supply source review: A context search supplied an unmatched path glob. Exact error: rg: memory-bank/audits/*cleanup*: No such file or directory (os error 2). The same search located memory-bank/codex-briefs/STANDING-SLICE-CONTRACT.md; subsequent reads used that exact path.
+
+- 2026-10-04T03:52:59.159561+00:00 root: lint-context search guessed root-level `logic_pure.py` and `pyproject.toml`; exact errors `rg: logic_pure.py: No such file or directory (os error 2)` and `rg: pyproject.toml: No such file or directory (os error 2)`. Subsequent source reads resolve paths from tracked-file inventory before use. No lint instrument ran.
+
+- 2026-10-04T03:58:51.518514+00:00 root: generic string-field projection included the Firemaking `mutation_trace` string of 1388212 characters; emitted 418509 tokens against a 3500-token cap. Added `bounded_output.show_json`, which refuses oversized diagnostics before stdout; a 50000-character canary proved zero output. Later JSON diagnostics use exact field names and this guard. No product or retained file changed.
+
+- 2026-10-04T03:48:47.436182+00:00 Astra docs review: Initial combined diff and filename discovery exceeded output budgets: Warning: truncated output (original token count: 13806); Warning: truncated output (original token count: 10491). The broad contract glob included unrelated source snapshots. Recovery used named files and bounded changed ranges.
+
+- 2026-10-04T03:48:47.436182+00:00 Astra docs review: Initial retained-manifest display exceeded output budget: Warning: truncated output (original token count: 14478). Recovery parsed every manifest completely and printed only file counts, selected names and hash mismatches.
+
+- 2026-10-04T03:48:47.436182+00:00 Astra docs review: Initial probe-summary display exceeded output budget: Warning: truncated output (original token count: 16046). Recovery printed scalar fields and explicit canary/run/path projections, then independently counted saved JSONL pairs.
+
+- 2026-10-04T03:48:47.436182+00:00 Astra docs review: rg -n 15|80 tools/maintenance/function_metrics.py returned exit 1 with no matches. No missing-file error occurred. The bound metric receipts supply the unchanged 15/15/80 limits; no metric instrument ran.
+
+- 2026-10-04T04:04:49.710371+00:00 root: pre-land diagnostic required a blank line in both repeated summaries; exact AssertionError: [('5220', '468.695', '581'), ('5220', '691.053', '7')]. Refused before retention or land. Corrected the diagnostic to validate all four exact Ran lines and all four exact skip lines independently; the official gate and logs stay unchanged.
+
+- 2026-10-04T04:13:50.573450+00:00 root: GLM bounded closure miscounted diff hunks as two in enemy_turn; actual measured diff is one enemy_turn hunk plus two engine hunks. Root correction is retained with the raw review; all three source line edits and both source votes remain verified.
+
+- 2026-10-04T04:17:12.747852+00:00 Root context recovery: broad rg --files against the entire worktree pool emitted 9,405 tokens and truncated at 2,500; use the already checkpointed exact C/W/T/E paths and bounded directory catalogs instead.
+
+- 2026-10-04T04:17:25.142440+00:00 Root context recovery: read_text_slice.py called with positional offset/chars refused with 'error: unrecognized arguments: 0 14000'; exact interface uses --offset and --chars.
+
+- 2026-10-04T04:27:53.157569+00:00: Pause checkpoint orchestration refused before execution with JavaScript SyntaxError: Unexpected string from nested literal backticks; use a saved utility and chr(96) for Markdown code marks. No filesystem or product write occurred in the refused call.
+- 2026-10-04T04:28:56.225403+00:00: Pause checkpoint validation guessed tools/maintenance/audit_papercuts.py; exact error: can't open file '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/promote-docs-batch-2026-09-23/tools/maintenance/audit_papercuts.py': [Errno 2] No such file or directory. Documentation audit passed; locate the tracked audit path before retry.
