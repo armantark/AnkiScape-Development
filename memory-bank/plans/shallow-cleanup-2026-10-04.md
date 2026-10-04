@@ -57,3 +57,4 @@ If a condition is blocked, preserve committed source and exact evidence. Report 
 ## Events
 - 2026-10-04: Plan settled. Pool acquire refused: all 16 worktrees are in use or dirty (max_trees = 16). Reused clean root-owned leases without raising the limit.
 
+- 2026-10-04: The standing goal/* branch rule governs the leaf branches. Each leaf renames its assigned branch to goal/shallow-<scope>-cleanup-2026-10-04. No gate or standing rule changed.
