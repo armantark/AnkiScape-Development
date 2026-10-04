@@ -48,6 +48,7 @@ from .runtime_actions_carried_arrival import (
     _settle_teleport_arrival,
     _teleport_past_outbound_leg,
 )
+from .runtime_actions_carried_bank_gate import _carried_bank_gate_transition
 from .runtime_actions_context import RuntimeActionContext
 from .runtime_actions_shared import _admit_live_cadence
 
@@ -921,33 +922,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         _select_bank_trip_schedule(ctx, pack, view, bank_run, active_run, trip_due, target_altar)
     )
 
-    if trip_due and reviews_cost <= 0:
-        new_state, new_view, new_churn = {}, {}, 0
-        event = {"active": True, "started": True, "completed": True, "reviews_remaining": 0, "waived": True}
-        act = True
-        new_view = pack.repack()
-    else:
-        gate_churn = min(int(churn or 0), capacity - 1) if evil_tree_overflow and not active_run else churn
-        new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
-            view,
-            gate_churn,
-            keep or bank_run_requested,
-            _OVERLAY_STACKABLE_NAMES,
-            target_id,
-            bank_run,
-            max(1, reviews_cost),
-            capacity,
-            force or bank_run_requested,
-        )
-        if evil_tree_overflow and act:
-            new_churn = int(churn or 0)
-        if event.get("started") and new_state:
-            new_state["reviews_total"] = max(1, reviews_cost)
-            new_state["route_label"] = travel_profile.route_label if travel_profile else "Running to the bank"
-            if route_phases:
-                new_state["route_phases"] = list(route_phases)
-            if outbound_teleport_used:
-                new_state["outbound_teleport_used"] = True
+    new_state, new_view, new_churn, event, act = _carried_bank_gate_transition(
+        pack, view, churn, keep, bank_run_requested, capacity, force,
+        bank_run, target_id, evil_tree_overflow, active_run, reviews_cost,
+        trip_due, travel_profile, route_phases, outbound_teleport_used,
+    )
 
     _settle_bank_run_requests(
         player_data,
