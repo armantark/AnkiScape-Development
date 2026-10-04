@@ -89,8 +89,8 @@ Those runtime slices later landed at `279be965` in the named September batch; it
 
 ## Current candidates — root checkpoint, 2026-10-03
 
-Root verified main `d2aa35d20d7b8ef18f2af42f88018641b439a8c8` clean at 2026-10-04T01:28:47Z.
-Five October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004`, S12 `58438c4d` and the ten assertion trims at `d2aa35d20d7b8ef18f2af42f88018641b439a8c8`.
+Root verified main `28481d9295db918396d5d0188f69c1ea36f102b5` clean at 2026-10-04T02:44:05.487131+00:00.
+Six October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004`, S12 `58438c4d`, assertion trims `d2aa35d2` and covered-method deletions `28481d9295db918396d5d0188f69c1ea36f102b5`.
 The following status comes from root's exact proof and source-review checkpoint.
 Source review, full gate and native acceptance remain separate checks for each unlanded slice.
 
@@ -120,11 +120,13 @@ The bad-source canary refused before cases. Genuine Anki Undo and native accepta
 
 The ten assertion trims landed at `d2aa35d20d7b8ef18f2af42f88018641b439a8c8` through the official land command after all nine promotion checks passed. The exact receipt records `remote_lanes=true` and `plain_only=false`. Both lanes ran 5223 tests: plain 453.956s with 581 skips; Qt 673.591s with 7 skips. Root verified all nine final test-file hashes on main. No test method was removed in that slice.
 
-Current review of all 614 historical nominations yields 601 keep, 10 landed assertion trims and 3 qualified method deletions. Sol and GLM agree on each deletion; root verified the actual methods, fixtures and surviving fault assertions. Of 35 covered nominations, 32 stay. Firemaking stays because its independent fixture and lane gap remain.
+Current review of all 614 historical nominations yields 601 keep, 10 landed assertion trims and 3 landed method deletions. Sol and GLM agree on each deletion; root verified the actual methods, fixtures and surviving fault assertions. Of 35 covered nominations, 32 stay. Firemaking stays because its independent fixture and lane gap remain.
 
-The deletion operator passed ten refusal canaries without writes. It removed three methods across three files, with 24 net lines removed. Whole-module AST comparisons show only these method deletions. All three broader methods and the Firemaking file remain unchanged. The candidate still needs its own exact full promotion gate and official land.
+The deletion operator passed ten refusal canaries without writes. It removed three methods across three files, with 24 net lines removed. Whole-module AST comparisons show only these method deletions. All three broader methods and the Firemaking file remain unchanged. The three-method deletion slice landed at `28481d9295db918396d5d0188f69c1ea36f102b5` through the official land command. All nine promotion checks passed. Both lanes ran 5220 tests: plain 461.986s with 581 skips; Qt 677.356s with 7 skips. The exact receipt records `remote_lanes=true` and `plain_only=false`. Root verified all three final test-file hashes on clean main.
 
 The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skips. Independent raw-map verification passed. This subset is not a whole-suite coverage map.
+
+The [October 4 source checkpoint](source-audits/cleanup-source-checkpoint-2026-10-04.md) records the accepted combat clock and carried bank-gate sources. Runtime proof and native acceptance remain separate.
 
 [The current pickup](pickup-2026-10-03.md) records the exact error, evidence paths and next actions.
 The September batch waiver releases none of these candidates.
