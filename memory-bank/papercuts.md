@@ -146,3 +146,5 @@
 
 - 2026-10-04T07:24:40.448606+00:00: Shallow cleanup pool acquire refused: all 16 worktrees are in use or dirty (max_trees = 16). Reused clean root-owned leases 4, 5 and 7; no limit change.
 - 2026-10-04T07:24:40.448606+00:00: Shallow cleanup context reads and a recursive scratch inventory truncated output. Use bounded sections and top-level file discovery for this task.
+- 2026-10-04T07:32:16.729817+00:00 Tools cleanup startup: combined Memory Bank reads exceeded tool output budgets (97,529 and 26,064 tokens); switched to bounded per-file contract reads. A guessed tools/promotion/verification.py read failed with "No such file or directory"; the tracked module listing owns further discovery.
+- 2026-10-04T07:33:51.652425+00:00 Tools cleanup edit: a combined patch failed at the techContext.md anchor because "- **Batch driver:**" was only a line prefix; verified the applied state and used the exact heading anchor for the documentation edit.

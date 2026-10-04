@@ -297,6 +297,8 @@ lives in `logic_pure/logic_pure_runecrafting.py`; storage config version 15 adds
   - **New downloads:** `tools/fetch_assets.py` crops invisible margins before applying its optional maximum dimension. The `size` argument is a maximum visible-art box, not a request to re-center the art on a padded square canvas.
   - The UI renders normalized assets with a plain `QIcon(path)`. The UI does no runtime cropping.
 
+Dominion Tower and Gnome Restaurant retain their named asset commands and use the shared manifest command in `tools/fetch_assets.py`. It preserves manifest order, `--force` and `--dry-run`, the pre-EOC cutoff, RS3 source, 1.1-second interval, size conversion, and root-relative asset/provenance paths.
+
 ### Woodcutting asset wiring (the log/hatchet/nest fetch)
 - **Batch driver:** `tools/fetch_woodcutting_assets.py` (`uv run …`) fetches the whole Woodcutting manifest through one rate-limited `HttpWikiClient` so provenance is recorded per file and a single failure doesn't abort the rest. Re-run with `--force` to refresh.
 - **Logs reuse `trees/`.** The `trees/<Name>.png` files *are* the log item sprites (see `WIKI_TITLE_OVERRIDES`: `Oak` → `Oak logs.png`). So `constants.LOG_IMAGES` just re-keys those files by log item name (`Oak logs` → `trees/Oak.png`) for the Bank/Stats registry — no second fetch. New tree rows only needed `Achey` (Achey tree logs) and `Hollow` (Bark).

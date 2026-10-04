@@ -500,6 +500,30 @@ def _strip_html(value: str) -> str:
     return html.unescape(without_tags).strip() or "unknown"
 
 
+def fetch_manifest_assets(manifest: Sequence[Mapping[str, object]], root: Path) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--force", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+    client = HttpWikiClient(min_interval_seconds=1.1, before_timestamp=PRE_EOC_CUTOFF)
+    for row in manifest:
+        outcome = fetch_asset(
+            AssetRequest(
+                item_name=str(row["item_name"]),
+                wiki_title=str(row["wiki_title"]),
+                output_path=root / str(row["output_path"]),
+                provenance_path=root / "assets_provenance.json",
+            ),
+            client,
+            size=int(row["size"]),
+            force=args.force,
+            dry_run=args.dry_run,
+            sources=(RS3_WIKI,),
+        )
+        print(f"{outcome.item_name}: {outcome.output_path}")
+    return 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch a single RuneScape wiki icon for AnkiScape.")
     parser.add_argument("item", nargs="?", help="Item display name, e.g. 'Yew logs' or 'Rune essence'.")
