@@ -6,13 +6,11 @@ from contextvars import ContextVar
 from .constants import (
     ACHIEVEMENTS,
     exp_table_for_skill,
-    BASE_WOODCUTTING_PROBABILITY,
-    BASE_MINING_PROBABILITY,
-    LEVEL_BONUS_FACTOR,
 )
 from ..ui.ui import show_level_up_dialog, show_achievement_dialog
 from ..logic.review_strip_logic import record_review_event_pure
 from .skill_registry import skill_level_exp_keys
+from ..logic_pure.logic_pure import calculate_new_level
 from ..logic_pure.logic_pure_combat_engine import player_combat_level_pure
 
 
@@ -20,15 +18,6 @@ def _record_review_event(player_data, kind: str, text: str) -> None:
     updated = record_review_event_pure(player_data, kind, text)
     player_data["review_event_log"] = updated["review_event_log"]
 
-
-def get_exp_to_next_level(player_data, exp_table):
-    current_level = player_data["mining_level"]
-    max_level = 99 if isinstance(exp_table, dict) else len(exp_table)
-    if current_level >= max_level:
-        return 0
-    return exp_table[current_level] - player_data["total_exp"]
-
-from ..logic_pure.logic_pure import calculate_new_level, calculate_probability_with_level
 
 def level_up_check(skill, player_data):
     skill_keys = skill_level_exp_keys(skill)
@@ -194,23 +183,3 @@ def check_achievements(player_data):
             deferred_dialogs.append(
                 lambda title=title, data=data: show_achievement_dialog(title, data)
             )
-
-
-def calculate_woodcutting_probability(player_level: int, tree_probability: float) -> float:
-    return calculate_probability_with_level(
-        player_level,
-        BASE_WOODCUTTING_PROBABILITY,
-        LEVEL_BONUS_FACTOR,
-        tree_probability,
-        cap=0.95,
-    )
-
-
-def calculate_mining_probability(player_level: int, ore_probability: float) -> float:
-    return calculate_probability_with_level(
-        player_level,
-        BASE_MINING_PROBABILITY,
-        LEVEL_BONUS_FACTOR,
-        ore_probability,
-        cap=0.95,
-    )

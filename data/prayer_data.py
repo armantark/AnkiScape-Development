@@ -6,7 +6,7 @@ wiki revisions are development-time evidence and are never runtime dependencies.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
 
@@ -392,7 +392,3 @@ CURSES: Tuple[CombatPrayer, ...] = (
 )
 COMBAT_PRAYERS = STANDARD_PRAYERS + CURSES
 COMBAT_PRAYERS_BY_ID = {prayer.id: prayer for prayer in COMBAT_PRAYERS}
-
-
-def combat_prayers_as_dict() -> Dict[str, dict]:
-    return {prayer.id: asdict(prayer) for prayer in COMBAT_PRAYERS}

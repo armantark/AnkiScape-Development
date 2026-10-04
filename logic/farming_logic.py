@@ -2342,42 +2342,6 @@ def collect_compost_bin_pure(player_data: Mapping[str, Any], bin_id: str) -> tup
     return updated, True, f"collected {amount} {output}"
 
 
-def farming_status_projection_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
-    state = sanitize_farming_state_pure(player_data)
-    ready = diseased = dead = active = 0
-    rows = []
-    for patch in FARMING_PATCHES:
-        record = state["farm_patches"][patch.id]
-        crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
-        if crop is None:
-            continue
-        active += 1
-        is_ready = _is_mature(record, crop) and (
-            crop.fixed_yield is None or _int(record.get("produce_count")) > 0
-        )
-        ready += int(is_ready)
-        diseased += int(record.get("diseased", False))
-        dead += int(record.get("dead", False))
-        rows.append({
-            "patch_id": patch.id,
-            "crop_id": crop.id,
-            "stage": record["stage"],
-            "stages": crop.stages,
-            "ready": is_ready,
-            "diseased": record["diseased"],
-            "dead": record["dead"],
-        })
-    return {
-        "clock_minutes": state["farm_clock_minutes"],
-        "active": active,
-        "ready": ready,
-        "diseased": diseased,
-        "dead": dead,
-        "queue_length": len(state["farm_queue"]),
-        "patches": rows,
-    }
-
-
 def _display_location(complex_id: str) -> str:
     overrides = {
         "falador": "South Falador",

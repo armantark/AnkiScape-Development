@@ -444,10 +444,6 @@ class _NamedExperience(float):
             (*getattr(other, "breakdown", ()), *self.breakdown),
         )
 
-def show_review_popup():
-    ui.show_review_popup()
-
-
 def save_player_data():
     _state.player_data.update(reconcile_bank_layout_for_player_pure(_state.player_data))
     storage_save_player_data(_state.player_data, _state.current_skill)
@@ -456,7 +452,6 @@ def save_player_data():
 def load_player_data():
     _state.player_data, _state.current_skill = storage_load_player_data()
     _state.current_skill = _normalize_legacy_utility_skill(_state.current_skill)
-    ui.update_menu_visibility(_state.current_skill)
 
 # UI functions
 
@@ -466,7 +461,6 @@ def initialize_skill():
     if normalized_skill != _state.current_skill:
         _state.current_skill = normalized_skill
         mw.col.set_config("ankiscape_current_skill", _state.current_skill)
-    ui.update_menu_visibility(_state.current_skill)
 
 
 def _initialize_debug_from_config():
@@ -820,7 +814,6 @@ def _select_review_action(skill, *, keep_encounter=False):
         mw.col.set_config("ankiscape_current_skill", _state.current_skill)
     except AttributeError:
         pass
-    ui.update_menu_visibility(_state.current_skill)
     return changed
 
 
@@ -1270,10 +1263,6 @@ def _restore_review_award_snapshot(snapshot) -> None:
 
     save_player_data()
     try:
-        ui.update_menu_visibility(_state.current_skill)
-    except Exception:
-        pass
-    try:
         update_review_hud(_state.player_data, _state.current_skill)
         update_review_status_badge(
             _state.player_data, _open_activities_sheet, _open_farming_sheet
@@ -1302,7 +1291,6 @@ def _restore_direct_action_snapshot(snapshot) -> None:
         mw.col.set_config("ankiscape_current_skill", _state.current_skill)
     except (AttributeError, RuntimeError):
         pass
-    ui.update_menu_visibility(_state.current_skill)
     try:
         update_review_hud(_state.player_data, _state.current_skill)
         update_review_status_badge(
@@ -1429,10 +1417,6 @@ def _switch_to_bankstanding(
             "reason": reason_text,
             "show_dialog": not caller_owns_notice,
         }
-    try:
-        ui.update_menu_visibility(_state.current_skill)
-    except Exception:
-        pass
     try:
         mw.col.set_config("ankiscape_current_skill", _state.current_skill)
     except Exception:

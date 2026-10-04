@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Any
 
 from .equipment_data import EquipmentBonuses, EquipmentItem
@@ -256,10 +256,6 @@ def conquest_equipment_data_as_dict() -> dict[str, EquipmentItem]:
             source_status="period item identity and equipment block",
         )
     }
-
-
-def conquest_units_as_dicts() -> tuple[dict[str, Any], ...]:
-    return tuple(asdict(unit) for unit in CONQUEST_UNITS)
 
 
 __all__ = [

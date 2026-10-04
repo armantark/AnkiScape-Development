@@ -1913,13 +1913,3 @@ def dominion_tower_enemy_pure(npc: dict[str, Any], attack_style: str) -> dict[st
         "encounter_only": True,
         "source": npc["source"],
     }
-
-
-def dominion_tower_enemy_registry_as_dict() -> dict[str, dict[str, Any]]:
-    """One registry row so the shared Combat target list can name the tower."""
-    return {
-        DOMINION_TOWER_TARGET_ID: dominion_tower_enemy_pure(
-            copy.deepcopy(DOMINION_TOWER_NPCS["delrith"]),
-            "melee",
-        )
-    }

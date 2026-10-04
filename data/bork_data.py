@@ -6,7 +6,6 @@ Authority: `memory-bank/source-audits/bork-loop-2026-07-18.md` and
 
 from __future__ import annotations
 
-import copy
 from typing import Any
 
 
@@ -181,20 +180,6 @@ def ork_legion_enemy_pure() -> dict[str, Any]:
     }
 
 
-def bork_mage_enemy_pure() -> dict[str, Any]:
-    """The lair's caster: a fixed-damage bolt, not a Combat-maths attacker."""
-    return {
-        "display_name": BORK_MAGE_DISPLAY_NAME,
-        "npc_id": 7137,
-        "level": 0,
-        "group": "Bork",
-        "attack_style": "magic",
-        "max_hit": BORK_MAGE_DAMAGE_MAXIMUM,
-        "encounter_only": True,
-        "source": BORK_SOURCE,
-    }
-
-
 def bork_guaranteed_drops_pure(
     varrock_elite: bool,
     ring_of_wealth: bool,
@@ -236,11 +221,4 @@ def bork_extra_items_as_dict() -> dict[str, dict[str, Any]]:
                 "https://runescape.wiki/w/Bork?oldid=6565904"
             ),
         }
-    }
-
-
-def bork_enemy_data_pure() -> dict[str, dict[str, Any]]:
-    return {
-        BORK_TARGET_ID: copy.deepcopy(bork_enemy_pure()),
-        ORK_LEGION_TARGET_ID: copy.deepcopy(ork_legion_enemy_pure()),
     }
