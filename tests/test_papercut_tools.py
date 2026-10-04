@@ -424,7 +424,6 @@ class PapercutToolTests(unittest.TestCase):
 
         self.assertEqual(completed.returncode, 1)
         self.assertEqual(completed.stderr.strip(), "usage: generate_ge_period_data.py <output-py>")
-        self.assertNotIn("No module named 'pkg_alias'", completed.stderr)
 
     def test_reachability_report_modes_exit_zero_with_or_without_orphans(self):
         from tools import audit_item_reachability

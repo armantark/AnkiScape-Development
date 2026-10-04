@@ -437,7 +437,6 @@ Evidence logs: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons
 
 The initial author stopped under the owner's fixed-instrument rule. At that point no audit, pinned baseline, or existing assertion had changed, and the alchemy slice remained uncommitted. The follow-up diagnosis and final verification are below. The six accepted commits remain intact. Full traceback: `alchemy-full-plain-2026-10-02.log` in the evidence folder above.
 
-
 ## Pass 15b failure diagnosis and final verification — 2026-10-02
 
 Both original tests pass on main `60d7bd835c77b08f7040c67c77db4da7a233e648`
@@ -878,3 +877,19 @@ Qt lane not run: no Qt import path changed; the orchestrator runs both lanes on 
 - full-plain: `/opt/homebrew/bin/python3 tools/run_remote_tests.py '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-winter-storage-2026-10-03' plain` → `Ran 5170 tests in 448.363s | OK (skipped=581); runner exit 0`; log: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-winter-storage-2026-10-03/full-plain.log`.
 - diff-check: `git diff --check` → `exit 0; no output`; log: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-winter-storage-2026-10-03/diff-check.log`.
 - Both full lanes are required because Qt imports the combat logic facade; full plain is the last remote invocation. Native reviewer acceptance and promotion remain with the orchestrator; this slice does not land runtime code.
+
+### 2026-10-03: exact proof and ten qualified assertion trims
+
+Cache CLI (S12) landed at `58438c4dbcd38f189cd2b3fd2b05933c901ce8a6` through the official land command after all nine checks passed. Its exact receipt records `remote_lanes=true` and `plain_only=false`. Earlier S12 candidates remain historical evidence.
+
+Root composed the four accepted cleanup sources on main `58438c4dbcd38f189cd2b3fd2b05933c901ce8a6` as `1ec3427b48a34ad550764a049392bfc219fe5c9d`. All nine promotion checks passed on that exact candidate at 2026-10-04T00:29:17Z. The plain lane ran 5223 tests in 459.304s, with 581 skips. The Qt lane ran 5223 tests in 681.328s, with 7 skips.
+
+Native acceptance remains blocked by the locked MacBook. No native preparation, launch or review occurred. A later main advance requires a new merged candidate and its own full gate.
+
+The one allowed fixture repair completed on exact death source `7e08030e3aa0323e5cc22d45865f9d458ec50fdc`. Only two explicit armoured fixture controls were added. `carried_inventory` became `{"killer": {"Lobster": 4}}`; `combat_auto_eat_food` became `["Shrimps"]`.
+
+The repaired run passed 1142 direct cases and 29 real consumer cases, with 0 differences and 0 failed consumer checks. All five fatal bursts entered the death implementation once and used three scripted burst draws. Both previously failed armoured cases completed fatal deaths.
+
+The bad-source canary refused before cases. Genuine Anki Undo and native acceptance remain pending.
+
+The ten-trim candidate preserves every test method. [The proof summary](source-audits/test-pruning-2026-10-03.md) records the paired votes, refusal canaries and coverage subset. Its full gate and official land remain pending.

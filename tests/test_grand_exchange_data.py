@@ -354,7 +354,6 @@ class GrandExchangeDataTest(unittest.TestCase):
             if row["buy_limit"] is None
         }
         self.assertNotIn("Steel spear (kp)", GE_ITEM_CATALOG)
-        self.assertNotIn("Steel spear (kp)", blocked)
         self.assertEqual(
             blocked,
             {

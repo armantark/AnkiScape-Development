@@ -7,7 +7,6 @@ from ankiscape.data.shop_data import SHOP_DATA
 
 class TestEquipmentData(unittest.TestCase):
     def test_generated_equipment_contract_shape(self):
-        self.assertEqual(len(EQUIPMENT_SLOTS), 11)
         self.assertEqual([slot.id for slot in EQUIPMENT_SLOTS], [
             "head",
             "cape",

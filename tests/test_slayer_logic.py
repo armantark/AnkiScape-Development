@@ -114,7 +114,6 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             set(readiness["blockers"]),
             set(),
         )
-        self.assertNotIn("hobgoblins:slayer_xp", readiness["blockers"])
         self.assertEqual(
             eligible_slayer_families_pure(
                 {

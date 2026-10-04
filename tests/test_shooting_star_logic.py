@@ -37,7 +37,6 @@ def _player(*, answered=20, mining_level=99):
 
 class TestShootingStarLogic(unittest.TestCase):
     def test_cutoff_crash_site_catalog_is_complete_and_legacy_names_repair(self):
-        self.assertEqual(len(SHOOTING_STAR_LOCATIONS), 43)
         self.assertEqual(
             SHOOTING_STAR_LOCATIONS,
             (

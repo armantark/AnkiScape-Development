@@ -522,7 +522,6 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
             "redberry", "cadavaberry", "dwellberry", "bittercap", "morchella", "evil_turnip",
             "erzille", "ugune", "argway", "shengo", "samaden", "lergberry", "kalferberry",
         )
-        self.assertEqual(len(crop_ids), 20)
         live_stock = {
             row["item_name"]
             for shop in SHOP_DATA.values()
