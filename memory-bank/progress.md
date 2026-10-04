@@ -4,18 +4,23 @@ This log keeps the current month. Earlier months rotate into `memory-bank/archiv
 
 ## 2026-10-03: Current queue result
 
-Current main is `da02e004b55f196b60438b4cc24ccdcf6deda5c5` with tracked files clean.
-Three landings are on current main: the documentation batch `06480995a8fea1bd6716307ea46e0a373c27779e`, normal-runner fairness (S01) at `046d5f53dbec963f52f86b89421b82bea1d4c2f4` and source URL query (S03) at `da02e004b55f196b60438b4cc24ccdcf6deda5c5`.
-The S03 official receipt records nine passed checks: plain lane, Qt lane, `audit_docs`, `audit_test_quality`, reachability, `worktree_guard`, worktree clean, diff check and papercuts.
-Final quest head `c2c37322dcdcc61defaef9b4094723ca8765f76c` has Astra source acceptance plus Kimi substantive verification. Root fixed Kimi's sole P3 below/above typo with byte-identical source and tests. Runtime, visual, full branch, full merged and native proof remain pending, and the remaining source gaps stay `source_blocked`.
-Final Cache CLI (S12) head `4dc7271df1f1c7df3fb82953d8283d9d11e3f1a4` has final Opus source acceptance. Its focused remote proof ran 39 checks in 27.099s with OK and no skips, over selectors `test_papercut_tools` and `test_openrs2_definitions`. The full branch plain lane passed 5211 tests in 476.735s, OK with 581 skips. The exact merged gate is not run and S12 is not landed.
-Carried trip schedule `0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088` and death settlement `7e08030e3aa0323e5cc22d45865f9d458ec50fdc` hold source acceptance only, with exact runtime, full and native proof pending.
-The full remote gate of four-cleanup candidate `94420078f978c2281144a144857dc805f9042cde` is historical. `94420078` is not a descendant of current main, so root must recompose the accepted cleanup heads on current main and obtain a new exact full gate and native acceptance.
-Source acceptance grants no runtime, native or visual permission. Root prepared disposable carried, death and composed runtime probes but did not execute them, so no new runtime proof exists.
-The native attempt stopped at the locked MacBook before preparation or launch, with zero reviews; the unlock response is still pending and no waiver exists.
-The byte-exact pause archive landed at `memory-bank/archive/2026-10/handoffs/goal-pause-2026-10-03-0428.md`: 6288 bytes, SHA-256 `fc242460b169867b9a15538018c1eada0b25f9801ef56fe6834c26e576209d0a`. Root then removed the obsolete untracked canonical `memory-bank/GOAL-BLOCKED.md`, which no longer exists. The canonical HTML and MP4 remain preserved unchanged.
-The banked reset remains a pending root action with no activation. The goal is active and unfinished.
-This entry is documentation only. It claims no fresh main audit, no full staleness sweep, no new runtime proof and no test-pruning agreement.
+Root verified main `d2aa35d20d7b8ef18f2af42f88018641b439a8c8` clean at 2026-10-04T01:28:47Z.
+Five October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004`, S12 `58438c4d` and the ten assertion trims at `d2aa35d20d7b8ef18f2af42f88018641b439a8c8`.
+
+The ten assertion trims landed at `d2aa35d20d7b8ef18f2af42f88018641b439a8c8` through the official land command after all nine promotion checks passed. The exact receipt records `remote_lanes=true` and `plain_only=false`. Both lanes ran 5223 tests: plain 453.956s with 581 skips; Qt 673.591s with 7 skips. Root verified all nine final test-file hashes on main. No test method was removed in that slice.
+
+Current review of all 614 historical nominations yields 601 keep, 10 landed assertion trims and 3 qualified method deletions. Sol and GLM agree on each deletion; root verified the actual methods, fixtures and surviving fault assertions. Of 35 covered nominations, 32 stay. Firemaking stays because its independent fixture and lane gap remain.
+
+The deletion operator passed ten refusal canaries without writes. It removed three methods across three files, with 24 net lines removed. Whole-module AST comparisons show only these method deletions. All three broader methods and the Firemaking file remain unchanged. The candidate still needs its own exact full promotion gate and official land.
+
+The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skips. Independent raw-map verification passed. This subset is not a whole-suite coverage map.
+
+Cache CLI (S12) is landed. Quest head `c2c37322dcdcc61defaef9b4094723ca8765f76c`, carried trip schedule `0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088` and death settlement `7e08030e3aa0323e5cc22d45865f9d458ec50fdc` remain unlanded under their separate gates.
+The composed four-cleanup candidate `1ec3427b48a34ad550764a049392bfc219fe5c9d` passed all nine checks on `58438c4d`; current main has advanced, so a new merged candidate and full gate are required.
+Carried differential proof passed 1132 cases with no differences or check violations. Repaired death proof passed 1142 direct and 29 consumer cases with no differences or failed checks. The first failed run and exact fixture repair remain retained. Genuine Anki Undo remains pending.
+Native acceptance stopped at the locked MacBook before preparation or launch, with zero reviews. The unlock response is pending and no waiver exists.
+The goal is active and unfinished. The owner's combined 20% account cap remains binding. No fresh main audit or full staleness sweep is claimed.
+
 
 ## 2026-10-03 checkpoint (historical): active queue reconciliation
 
@@ -877,19 +882,3 @@ Qt lane not run: no Qt import path changed; the orchestrator runs both lanes on 
 - full-plain: `/opt/homebrew/bin/python3 tools/run_remote_tests.py '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-winter-storage-2026-10-03' plain` → `Ran 5170 tests in 448.363s | OK (skipped=581); runner exit 0`; log: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-winter-storage-2026-10-03/full-plain.log`.
 - diff-check: `git diff --check` → `exit 0; no output`; log: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-winter-storage-2026-10-03/diff-check.log`.
 - Both full lanes are required because Qt imports the combat logic facade; full plain is the last remote invocation. Native reviewer acceptance and promotion remain with the orchestrator; this slice does not land runtime code.
-
-### 2026-10-03: exact proof and ten qualified assertion trims
-
-Cache CLI (S12) landed at `58438c4dbcd38f189cd2b3fd2b05933c901ce8a6` through the official land command after all nine checks passed. Its exact receipt records `remote_lanes=true` and `plain_only=false`. Earlier S12 candidates remain historical evidence.
-
-Root composed the four accepted cleanup sources on main `58438c4dbcd38f189cd2b3fd2b05933c901ce8a6` as `1ec3427b48a34ad550764a049392bfc219fe5c9d`. All nine promotion checks passed on that exact candidate at 2026-10-04T00:29:17Z. The plain lane ran 5223 tests in 459.304s, with 581 skips. The Qt lane ran 5223 tests in 681.328s, with 7 skips.
-
-Native acceptance remains blocked by the locked MacBook. No native preparation, launch or review occurred. A later main advance requires a new merged candidate and its own full gate.
-
-The one allowed fixture repair completed on exact death source `7e08030e3aa0323e5cc22d45865f9d458ec50fdc`. Only two explicit armoured fixture controls were added. `carried_inventory` became `{"killer": {"Lobster": 4}}`; `combat_auto_eat_food` became `["Shrimps"]`.
-
-The repaired run passed 1142 direct cases and 29 real consumer cases, with 0 differences and 0 failed consumer checks. All five fatal bursts entered the death implementation once and used three scripted burst draws. Both previously failed armoured cases completed fatal deaths.
-
-The bad-source canary refused before cases. Genuine Anki Undo and native acceptance remain pending.
-
-The ten-trim candidate preserves every test method. [The proof summary](source-audits/test-pruning-2026-10-03.md) records the paired votes, refusal canaries and coverage subset. Its full gate and official land remain pending.

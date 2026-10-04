@@ -417,10 +417,6 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(calculate_new_level(150, 1, EXP_TABLE), 2)
         self.assertEqual(calculate_new_level(350, 2, EXP_TABLE), 3)
 
-    def test_calculate_new_level_multiple_level_up(self):
-        EXP_TABLE = {1: 0, 2: 100, 3: 300, 4: 600, 5: 1000}
-        self.assertEqual(calculate_new_level(1200, 1, EXP_TABLE), 5)
-
     def test_calculate_new_level_max_level(self):
         EXP_TABLE = {98: 10000, 99: 20000}
         self.assertEqual(calculate_new_level(25000, 98, EXP_TABLE), 99)

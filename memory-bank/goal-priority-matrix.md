@@ -89,17 +89,17 @@ Those runtime slices later landed at `279be965` in the named September batch; it
 
 ## Current candidates — root checkpoint, 2026-10-03
 
-Root verified main `58438c4dbcd38f189cd2b3fd2b05933c901ce8a6` clean at 2026-10-04T00:44Z.
-Four October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004` and S12 `58438c4dbcd38f189cd2b3fd2b05933c901ce8a6`.
-The following status comes from root's checkpoint. This leaf performed no new remote or native execution.
+Root verified main `d2aa35d20d7b8ef18f2af42f88018641b439a8c8` clean at 2026-10-04T01:28:47Z.
+Five October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004`, S12 `58438c4d` and the ten assertion trims at `d2aa35d20d7b8ef18f2af42f88018641b439a8c8`.
+The following status comes from root's exact proof and source-review checkpoint.
 Source review, full gate and native acceptance remain separate checks for each unlanded slice.
 
 | Slice | Exact head | Current acceptance |
 | --- | --- | --- |
-| Ranged ammunition | `ff93c48a6537b3a9c6c7ec7aee961b5629d54ed6` | Astra/Kimi source accepted. Root composed `1ec3427b48a34ad550764a049392bfc219fe5c9d` on `58438c4d`; all nine checks passed. Native acceptance remains blocked. |
-| Combat bank run | `312d0b9a9037ecd2dbe5bdeaf446210ed812ddf0` | Astra/Kimi source accepted. Root composed `1ec3427b48a34ad550764a049392bfc219fe5c9d` on `58438c4d`; all nine checks passed. Native acceptance remains blocked. |
-| Observed loot | `446825ee168b36c56c43564d60ff8e0ae5c12fd9` | Astra/Kimi source accepted. Root composed `1ec3427b48a34ad550764a049392bfc219fe5c9d` on `58438c4d`; all nine checks passed. Native acceptance remains blocked. |
-| Carried Winter Storage | `94e8cef7d9f4f0208ac38c4e95cb3d4cda83ffdc` | Astra/Kimi source accepted. Root composed `1ec3427b48a34ad550764a049392bfc219fe5c9d` on `58438c4d`; all nine checks passed. Native acceptance remains blocked. The dispatcher still exceeds the limits. |
+| Ranged ammunition | `ff93c48a6537b3a9c6c7ec7aee961b5629d54ed6` | Astra/Kimi source accepted. Root composed `1ec3427b48a34ad550764a049392bfc219fe5c9d` on `58438c4d`; all nine checks passed there. Main has advanced; that gate is historical. Native acceptance remains blocked. |
+| Combat bank run | `312d0b9a9037ecd2dbe5bdeaf446210ed812ddf0` | Astra/Kimi source accepted. Root composed `1ec3427b48a34ad550764a049392bfc219fe5c9d` on `58438c4d`; all nine checks passed there. Main has advanced; that gate is historical. Native acceptance remains blocked. |
+| Observed loot | `446825ee168b36c56c43564d60ff8e0ae5c12fd9` | Astra/Kimi source accepted. Root composed `1ec3427b48a34ad550764a049392bfc219fe5c9d` on `58438c4d`; all nine checks passed there. Main has advanced; that gate is historical. Native acceptance remains blocked. |
+| Carried Winter Storage | `94e8cef7d9f4f0208ac38c4e95cb3d4cda83ffdc` | Astra/Kimi source accepted. Root composed `1ec3427b48a34ad550764a049392bfc219fe5c9d` on `58438c4d`; all nine checks passed there. Main has advanced; that gate is historical. Native acceptance remains blocked. The dispatcher still exceeds the limits. |
 | Quest fights | `c2c37322dcdcc61defaef9b4094723ca8765f76c` | Astra source acceptance plus Kimi substantive verification. Root fixed Kimi's sole P3 below/above typo with byte-identical source and tests. Runtime, visual, full branch, full merged and native proof remain pending. The remaining source gaps stay `source_blocked`. |
 | Source URL query (S03) | `378e998fe9c092425072457ed02eaa543cf71787` | Landed on main at `da02e004b55f196b60438b4cc24ccdcf6deda5c5`; the official receipt records plain lane, Qt lane, `audit_docs`, `audit_test_quality`, reachability, `worktree_guard`, worktree clean, diff check and papercuts |
 | Normal-runner fairness (S01) | `11869836b9a4de3695ccc08af87a8e917e74ac0f` | Landed on main at `046d5f53dbec963f52f86b89421b82bea1d4c2f4` |
@@ -110,7 +110,7 @@ Source review, full gate and native acceptance remain separate checks for each u
 Source acceptance grants no runtime, native or visual permission for any slice in this table.
 Root composed the four accepted cleanup sources on main `58438c4dbcd38f189cd2b3fd2b05933c901ce8a6` as `1ec3427b48a34ad550764a049392bfc219fe5c9d`. All nine promotion checks passed on that exact candidate at 2026-10-04T00:29:17Z. The plain lane ran 5223 tests in 459.304s, with 581 skips. The Qt lane ran 5223 tests in 681.328s, with 7 skips.
 
-Native acceptance remains blocked by the locked MacBook. No native preparation, launch or review occurred. A later main advance requires a new merged candidate and its own full gate.
+Native acceptance remains blocked by the locked MacBook. No native preparation, launch or review occurred. Main has advanced, so that gate is historical. Runtime promotion needs a candidate based on current main and a new full gate.
 
 The first death run and its two failed armoured cases remain historical evidence. The one allowed fixture repair completed on exact death source `7e08030e3aa0323e5cc22d45865f9d458ec50fdc`. Only two explicit armoured fixture controls were added. `carried_inventory` became `{"killer": {"Lobster": 4}}`; `combat_auto_eat_food` became `["Shrimps"]`.
 
@@ -118,11 +118,13 @@ The repaired run passed 1142 direct cases and 29 real consumer cases, with 0 dif
 
 The bad-source canary refused before cases. Genuine Anki Undo and native acceptance remain pending.
 
-Root reviewed all 614 historical test nominations against current source. Static decisions kept 604 nominations and proposed 10 assertion trims. Sol and GLM agreed on the ten exact statements. Root verified the unchanged source for the first paired vote.
+The ten assertion trims landed at `d2aa35d20d7b8ef18f2af42f88018641b439a8c8` through the official land command after all nine promotion checks passed. The exact receipt records `remote_lanes=true` and `plain_only=false`. Both lanes ran 5223 tests: plain 453.956s with 581 skips; Qt 673.591s with 7 skips. Root verified all nine final test-file hashes on main. No test method was removed in that slice.
 
-The trim operator passed eight refusal canaries without writes. It removed 10 assertions across nine files, with 0 test methods removed. The candidate still needs its own exact full gate and official land.
+Current review of all 614 historical nominations yields 601 keep, 10 landed assertion trims and 3 qualified method deletions. Sol and GLM agree on each deletion; root verified the actual methods, fixtures and surviving fault assertions. Of 35 covered nominations, 32 stay. Firemaking stays because its independent fixture and lane gap remain.
 
-A fresh 146-case coverage subset passed both lanes and independent raw-map verification. The plain lane had 21 skips; the Qt lane had none. Three read-only reviews now assess the 35 covered nominations. The subset is not a whole-suite coverage map.
+The deletion operator passed ten refusal canaries without writes. It removed three methods across three files, with 24 net lines removed. Whole-module AST comparisons show only these method deletions. All three broader methods and the Firemaking file remain unchanged. The candidate still needs its own exact full promotion gate and official land.
+
+The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skips. Independent raw-map verification passed. This subset is not a whole-suite coverage map.
 
 [The current pickup](pickup-2026-10-03.md) records the exact error, evidence paths and next actions.
 The September batch waiver releases none of these candidates.
