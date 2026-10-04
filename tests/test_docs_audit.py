@@ -166,6 +166,24 @@ class DocumentationAuditTests(unittest.TestCase):
 
         self.assertEqual([(issue.kind, issue.detail) for issue in report.issues], [("broken_html_target", "missing.png")])
 
+    def test_status_artifacts_use_only_the_publish_preflight(self) -> None:
+        root = self._repo()
+        self._track(root, "memory-bank/status-updates/plan.html", '<video src="plan.mp4">\n')
+        self._track(root, "memory-bank/status-updates/notes.md", "[Missing](missing.md)\n")
+        self._track(
+            root, "docs/status-updates/report.html",
+            '<!doctype html><html><body><img src="missing.png"></body></html>\n',
+        )
+
+        report = AUDIT_DOCS.audit_docs(root)
+
+        self.assertEqual(
+            {(issue.kind, issue.path) for issue in report.issues},
+            {("broken_local_link", "memory-bank/status-updates/notes.md"),
+             ("broken_html_target", "docs/status-updates/report.html")},
+        )
+        self.assertEqual((report.markdown_files, report.html_files), (1, 1))
+
     def test_ignores_staged_paths_removed_during_a_move(self) -> None:
         root = self._repo()
         self._track(root, "old.md", "# Old location\n")
