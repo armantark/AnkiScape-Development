@@ -58,7 +58,6 @@ class SummoningUndoSeamTest(unittest.TestCase):
         addon._state.current_skill = "Summoning"
         addon.save_calls = []
         addon.save_player_data = lambda: addon.save_calls.append(1)
-        addon.ui.update_menu_visibility = lambda _skill: None
         addon.check_achievements = lambda *_args, **_kwargs: None
         addon._show_activity_gain = lambda _text: None
         addon.update_review_hud = lambda *_args, **_kwargs: None

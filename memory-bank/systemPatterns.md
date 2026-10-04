@@ -153,7 +153,7 @@ expected file and provenance key in the asset test.
 - `tools/cadence_shadow_report.py` renders current, proposed, and pinned source XP/hour.
   It accepts the complete route catalog or accumulated shadow state from a player-data JSON export.
   Use the tool for the current route census.
-- `core/logic.py`: Anki-aware level-up and achievement checks plus probability wrappers.
+- `core/logic.py`: Anki-aware level-up and achievement checks.
 - `core/storage.py`: Anki config persistence.
 - `core/storage_pure.py`: default player shape and migrations.
 - `core/skill_registry.py`: pure skill catalog for stable IDs, categories, save keys, review eligibility, and complete/partial/planned surface state.

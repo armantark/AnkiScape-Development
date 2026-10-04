@@ -58,3 +58,5 @@ If a condition is blocked, preserve committed source and exact evidence. Report 
 - 2026-10-04: Plan settled. Pool acquire refused: all 16 worktrees are in use or dirty (max_trees = 16). Reused clean root-owned leases without raising the limit.
 
 - 2026-10-04: The standing goal/* branch rule governs the leaf branches. Each leaf renames its assigned branch to goal/shallow-<scope>-cleanup-2026-10-04. No gate or standing rule changed.
+
+- 2026-10-04: Root will reuse the existing commit snapshot and native source-copy rules for the required native handoff. A small tools/native command will make this repeated sequence reproducible. Before use, check refusal for a wrong revision, dirty source, an existing output directory and an add-on symlink. Check archive extraction against the file manifest and native source digest. The command must not open Anki or access a collection.

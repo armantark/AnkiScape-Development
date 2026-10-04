@@ -29,7 +29,6 @@ class BankstandingNoticeTest(unittest.TestCase):
         addon.mw = _DummyMW(_DummyCol())
         addon.update_review_event_log_drawer = lambda _data: None
         addon.update_review_hud = lambda *_args: None
-        addon.ui.update_menu_visibility = lambda *_args: None
         popups = []
         errors = []
         addon.ui.show_bankstanding_dialog = popups.append
@@ -65,7 +64,6 @@ class BankstandingNoticeTest(unittest.TestCase):
         addon = _load_addon_as_package("ankiscape_bankstanding_popup_reset")
         addon.mw = _DummyMW(_DummyCol())
         addon.update_review_hud = lambda *_args: None
-        addon.ui.update_menu_visibility = lambda *_args: None
         popups = []
         errors = []
         gains = []
@@ -114,7 +112,6 @@ class BankstandingNoticeTest(unittest.TestCase):
         addon = _load_addon_as_package("ankiscape_activity_end_notice")
         addon.mw = _DummyMW(_DummyCol())
         addon.update_review_hud = lambda *_args: None
-        addon.ui.update_menu_visibility = lambda *_args: None
         popups = []
         addon.ui.show_bankstanding_dialog = popups.append
         addon._state.current_skill = "Activities"
@@ -138,7 +135,6 @@ class BankstandingNoticeTest(unittest.TestCase):
         addon = _load_addon_as_package("ankiscape_bankstanding_ends_encounter")
         addon.mw = _DummyMW(_DummyCol())
         addon.update_review_hud = lambda *_args: None
-        addon.ui.update_menu_visibility = lambda *_args: None
         addon.ui.show_bankstanding_dialog = lambda _text: None
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon._state.current_skill = "Combat"

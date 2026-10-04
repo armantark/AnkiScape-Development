@@ -231,7 +231,6 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw = _DummyMW(_DummyCol())
         addon.update_review_event_log_drawer = lambda _data: None
         addon.update_review_hud = lambda *_args: None
-        addon.ui.update_menu_visibility = lambda *_args: None
         popups = []
         gains = []
         rewards = []
@@ -287,7 +286,6 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon = _load_addon_as_package("ankiscape_bankstanding_reason_backpatch")
         addon.mw = _DummyMW(_DummyCol())
         addon.update_review_hud = lambda *_args: None
-        addon.ui.update_menu_visibility = lambda *_args: None
         addon.show_error_message = lambda *_args: None
         addon._state.current_skill = "Crafting"
         addon._state.player_data = {
@@ -558,7 +556,6 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._state.player_data = player
         addon._state.current_skill = "Activities"
         addon.save_player_data = lambda: None
-        addon.ui.update_menu_visibility = lambda _skill: None
         addon.update_review_hud = lambda _data, _skill: None
         addon.update_review_status_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
@@ -615,7 +612,6 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._state.player_data = player
         addon._state.current_skill = "Activities"
         addon.save_player_data = lambda: None
-        addon.ui.update_menu_visibility = lambda _skill: None
         addon.update_review_hud = lambda _data, _skill: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda *_args: None

@@ -27,7 +27,6 @@ class DispatcherStateTest(unittest.TestCase):
         self.addon.mw = _DummyMW(
             _DummyCol({"ankiscape_floating_xp_enabled": False})
         )
-        self.addon.ui.update_menu_visibility = lambda _skill: None
         self.addon.update_review_hud = lambda _data, _skill: None
         self.level_dialogs = []
         sys.modules[f"{self.addon.__name__}.core.logic"].show_level_up_dialog = (

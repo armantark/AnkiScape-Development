@@ -470,7 +470,6 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon.update_review_event_log_drawer = lambda *_args: None
         addon._update_review_bank_run_surface = lambda: None
         addon._update_review_context_surface = lambda: None
-        addon.ui.update_menu_visibility = lambda *_args: None
         addon._state.current_skill = "Mining"
         return tier
 
