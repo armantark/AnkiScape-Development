@@ -4837,11 +4837,8 @@ def show_main_menu(
     on_check_achievements=None,
     on_save_player_data=None,
 ):
-    """Show the consolidated window.
+    """Show global sections and the registry-driven Skills hub.
 
-    The top bar is limited to global sections (Skills, Bank, Stats,
-    Achievements, Settings). Per-skill navigation lives inside the Skills hub
-    as category -> skill -> target list, driven by the skill registry.
     Callbacks apply changes and handle persistence in the caller.
     """
     _debug_log("ui.show_main_menu: enter")
@@ -4858,6 +4855,9 @@ def show_main_menu(
     tabs = QTabWidget()
     tabs.setDocumentMode(True)
     tabs.setIconSize(QSize(18, 18))
+    tabs.tabBar().setElideMode(Qt.TextElideMode.ElideNone)
+    tabs.tabBar().setExpanding(False)
+    tabs.setUsesScrollButtons(True)
 
     def _set_global_tab_icon(tab: QWidget, filename: str) -> None:
         icon_path = os.path.join(current_dir, "icon", filename)
