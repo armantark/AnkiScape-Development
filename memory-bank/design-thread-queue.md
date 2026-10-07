@@ -2904,3 +2904,9 @@ GLM gives a second vote; both must agree before a deletion.
 ### Open owner question — 2026-10-02: Fremennik shield Woodcutting
 
 54: shield oldids 5641898 (2012-05-22, no beta marker) and 5827384 (2012-06-25, beta). 56: The Fremennik Isles oldid 6540919 (2012-11-07) and Darkan `craftShield` restoration commit `a7e91cb9769642e3e833a523fd5f0688eef21924`. Current branch uses 54; the evidence standard does not automatically resolve this conflict. Owner decision remains open.
+
+### Open owner question — 2026-10-07: Collections native acceptance
+
+The shallow cleanup and approved main-menu repair await the owner's native acceptance decision. Exact merged candidate `8d8888be054424ad68e1b156523b25edc1d32ed1` passed all nine official promotion checks. Independent reviews passed. Native behavior, full tab names and scroll buttons passed on frozen source `84a5fd0d215dcea7d433db092fc988cb8b278ed4`. The shipped files match the merged candidate.
+
+Collections selected content remains unverified at both required widths. Candidate, frozen control and coordinate-route attempts crashed before capture. [The blocker record](GOAL-BLOCKED.md) retains exact evidence. Root asked the owner to permit this candidate with Collections proof open, or retain complete Collections proof as a prerequisite. No answer exists. This exception would apply only to this candidate; other native gates and the wider UI boundary remain binding.

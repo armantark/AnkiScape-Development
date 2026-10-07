@@ -155,3 +155,16 @@ Root owns the full remote gate, official land command and every external side ef
 2026-10-07T04:46:32.172297+00:00 Root verified all nine checks on the unlanded documentation source `40255a60986c57ce5f0268cc707f8f7a867984bc`. Plain and Qt each ran 5220 tests; plain skipped 581 and Qt skipped 7. The gate receipt remains exact-source evidence, not acceptance of this corrected successor. Scheduling preparation is complete; independent readiness review and all runtime cases remain pending. Astra and Kimi K3 accepted encounter-state source `1eb9588d2c9767b19120497fafe822c276500bd0` at source level only. Its focused lanes, behavior proof, native acceptance and promotion remain pending.
 
 2026-10-07T04:49:55.770591+00:00 Root closed the remaining pickup next-action inconsistency: scheduling preparation is complete and readiness review remains pending. Root marked the linked October 3 quota directive and blocker-removal report as historical. The verbatim goal objective and all archived copies remain unchanged.
+
+## Owner continuation, 2026-10-07
+
+The owner said: "Huh? Just move on to the next slice if there's something blocking." Park the Collections-blocked candidate `8d8888be054424ad68e1b156523b25edc1d32ed1`. Preserve its source and passed gate. Its native acceptance remains incomplete. Continue with the next eligible slice under the existing priority order.
+
+Select the reviewed carried Evil Tree overflow contract in `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/.orchestrator/goal-resume-2026-10-06/reset-70/next-cleanup-inventory-review/report.md`. The source is `16d8840410a9b6f1c27411e0d66893acb0fd2286`. The author owns only `runtime/runtime_actions_carried_overlay.py` in `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/promote-runner-fairness-2026-10-03`, branch `codex/carried-evil-tree-overflow-2026-10-06`. Root owns Memory Bank records, the test mirror and promotion. No other author can edit that source checkout.
+
+The private interface is `_evil_tree_overflow_active(player_data: dict[str, Any], handler_key: str, target_id: str) -> bool`. Preserve the exact selected expressions and call position. Acceptance requires the contract's inverse AST proof, unchanged surrounding source, a helper below the fixed limits, and lower parent CCN and cognitive values. Root owns independent review, the existing behavior-proof process and later promotion gates. Native or promotion acceptance is not granted by source acceptance.
+
+Root assigned a read-only review of the three accepted upstream specs on 2026-10-07.
+The reviewer must identify one complete backend-only slice allowed by the settled sequence and UI boundary, or give exact blockers.
+The reviewer owns no product files. Root owns integration and acceptance; native checks and existing UI remain excluded from this review.
+The upstream review found no complete backend-only slice. Root verified each spec status and kept all owner decisions open.
