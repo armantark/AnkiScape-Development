@@ -103,3 +103,33 @@ Reports grant source acceptance only. All required runtime, native and promotion
 2026-10-07T02:10:05.503947+00:00 Root verified all 155100 burst captures and all 2310 direct captures, zero normal differences, all retained file hashes and report-time metrics. Root will freeze these documentation records and run all promotion checks with both full remote lanes before documentation landing. Runtime code remains unchanged and its native requirements remain binding.
 
 2026-10-07T02:34:28.571774+00:00 Shared account usage reached 40%. Root closed the already running documentation gate: outer exit 2, audit_docs exit 1, six reported issues. Plain completed 5220 tests with 581 skips; Qt completed 5220 tests with 7 skips. No documentation or runtime source landed. Exact failure records remain at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/3e714e2e15dba3281b46422ff6490b8821e798cf/documentation-gate-failure-2026-10-06/retention-manifest.json`. Supply proof is complete; scheduling complete proof, native acceptance and runtime promotion remain pending. Root pauses the unfinished goal without a new repair or gate unit.
+
+## Reset continuation under the shared 70% ceiling
+
+2026-10-07T04:17:02.817339+00:00 The owner resumed the goal after the reset and authorized 70% total account use across both chats.
+The fresh Codex account reading is 0%; resetsAt is 1791951211.
+Root recorded the allowance through `quota-guard grant codex --to 70`.
+The provider line still reports its 75% daily allowance; the separate owner ceiling remains 70%.
+Root owns all source, Git, Memory Bank, local execution, remote mirror and native coordination.
+The prior pause remains byte-identical in `archive/2026-10/handoffs/goal-pause-2026-10-06.txt`.
+Root repairs the five incident bullet prefixes without changing the incident text.
+The status video exists locally but its ignored file is absent from the gate archive.
+Root will include that existing status asset in the documentation slice; no new status artifact is required.
+
+### Scheduling proof preparation leaf
+
+Question: Does exact scheduling source 3b4b04f1eec6d5968c7d9f3fcd89cfab01d02c43 preserve the complete engine behavior of edeafd88c824e8a354b856cf37042ff68810bc5a?
+Use one GPT-6.1 Sol leaf at xhigh to prepare disposable evidence outside all shipped trees.
+The leaf owns only `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/.orchestrator/goal-resume-2026-10-06/reset-70/scheduling-proof-prepared`.
+Reuse the complete retained burst corpus and capture format without reductions.
+Bind every source file and operator by SHA256 before product imports.
+Cover the latch, due predicate, short-circuit order, exceptions and returned latch value with directed inputs.
+Prove refusal stops before imports and outputs. Include one event sensitivity mutation that changes actual returned events.
+Do not run product cases; root executes after independent readiness review.
+Do not modify source, tests, instruments, baselines, limits, Magic, Dream, UI or prior evidence.
+Do not use Git mutation, network, browsers, Anki, remote hosts, other chats or child agents.
+CHECK: Verify all prepared hashes, source Git blobs and syntax without product imports.
+EXPECT: Exact source binding, complete corpus, no tracked mutation and no product execution.
+Return a README with exact root commands, failure modes, operators and a preparation report.
+Stop after one complete preparation pass. Missing evidence must remain explicit.
+Root verifies readiness and all raw captures before accepting the behavior proof.
