@@ -20,56 +20,42 @@ final class OpenRs2CacheDefinitionSearch {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 3) {
-            System.err.println("usage: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> <term> [term ...]");
-            System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> --id <id> [id ...]");
-            System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> --params <id> [id ...]");
-            System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> npc --combat-levels <id> [id ...]");
-            System.exit(2);
+            usage("cache path, entity kind and query are required");
         }
-
+        String kind = args[1].toLowerCase(Locale.ROOT);
+        if (!kind.equals("npc") && !kind.equals("object")) {
+            usage("entity kind must be npc or object");
+        }
+        int[] ids = parseDefinitionIds(args, kind);
         String cacheDirectory = args[0].endsWith(File.separator) ? args[0] : args[0] + File.separator;
         Store store = new Store(cacheDirectory, false);
         Cache.STORE = store;
-        String kind = args[1].toLowerCase(Locale.ROOT);
         if (args[2].equals("--id")) {
-            for (int i = 3; i < args.length; i++) {
-                int id = Integer.parseInt(args[i]);
+            for (int id : ids) {
                 if (kind.equals("npc")) {
                     NPCDefinitions definition = NPCDefinitions.getDefs(id);
                     System.out.printf("%d\t%s\t%s%n", id, definition == null ? null : definition.getName(), definition == null ? null : Arrays.toString(definition.options));
-                } else if (kind.equals("object")) {
+                } else {
                     ObjectDefinitions definition = ObjectDefinitions.getDefs(id);
                     System.out.printf("%d\t%s\t%s%n", id, definition == null ? null : definition.getName(), definition == null ? null : Arrays.toString(definition.options));
-                } else {
-                    System.err.println("entity kind must be npc or object");
-                    System.exit(2);
                 }
             }
             return;
         }
         if (args[2].equals("--params")) {
-            for (int i = 3; i < args.length; i++) {
-                int id = Integer.parseInt(args[i]);
+            for (int id : ids) {
                 if (kind.equals("npc")) {
                     NPCDefinitions definition = NPCDefinitions.getDefs(id);
                     System.out.printf("%d\t%s\t%s%n", id, definition == null ? null : definition.getName(), sortedParameters(definition == null ? null : definition.parameters));
-                } else if (kind.equals("object")) {
+                } else {
                     ObjectDefinitions definition = ObjectDefinitions.getDefs(id);
                     System.out.printf("%d\t%s\t%s%n", id, definition == null ? null : definition.getName(), sortedParameters(definition == null ? null : definition.parameters));
-                } else {
-                    System.err.println("entity kind must be npc or object");
-                    System.exit(2);
                 }
             }
             return;
         }
         if (args[2].equals("--combat-levels")) {
-            if (!kind.equals("npc")) {
-                System.err.println("combat levels are available only for NPC definitions");
-                System.exit(2);
-            }
-            for (int i = 3; i < args.length; i++) {
-                int id = Integer.parseInt(args[i]);
+            for (int id : ids) {
                 NPCDefinitions definition = NPCDefinitions.getDefs(id);
                 System.out.printf(
                         "%d\t%s\t%d%n",
@@ -83,18 +69,17 @@ final class OpenRs2CacheDefinitionSearch {
                 .map(value -> value.toLowerCase(Locale.ROOT))
                 .toArray(String[]::new);
 
-        Index index = kind.equals("npc")
-                ? store.getIndex(IndexType.NPCS)
-                : kind.equals("object") ? store.getIndex(IndexType.OBJECTS) : null;
-        int filesPerArchive = kind.equals("npc") ? 128 : 256;
-        int maxId = index == null
-                ? -1
-                : index.getLastArchiveId() * filesPerArchive
-                        + index.getLastFileId(index.getLastArchiveId()) + 1;
-        if (maxId < 0) {
-            System.err.println("entity kind must be npc or object");
-            System.exit(2);
+        IndexType indexType = kind.equals("npc") ? IndexType.NPCS : IndexType.OBJECTS;
+        int indexId = indexType.getId();
+        Index[] indexes = store.getIndices();
+        Index index = indexId < indexes.length ? indexes[indexId] : null;
+        if (index == null) {
+            System.err.println("cache is missing the " + indexType + " index");
+            System.exit(1);
         }
+        int filesPerArchive = kind.equals("npc") ? 128 : 256;
+        int maxId = index.getLastArchiveId() * filesPerArchive
+                + index.getLastFileId(index.getLastArchiveId()) + 1;
 
         List<Integer> skippedIds = new ArrayList<>();
         for (int id = 0; id < maxId; id++) {
@@ -128,6 +113,39 @@ final class OpenRs2CacheDefinitionSearch {
             );
             System.exit(3);
         }
+    }
+
+    private static int[] parseDefinitionIds(String[] args, String kind) {
+        int[] ids = new int[0];
+        if (args[2].equals("--id") || args[2].equals("--params") || args[2].equals("--combat-levels")) {
+            if (args.length == 3) {
+                usage(args[2] + " requires at least one ID");
+            }
+            if (args[2].equals("--combat-levels") && !kind.equals("npc")) {
+                usage("combat levels are available only for NPC definitions");
+            }
+            ids = new int[args.length - 3];
+            for (int i = 3; i < args.length; i++) {
+                if (!args[i].matches("\\+?[0-9]+")) {
+                    usage("invalid definition ID: " + args[i]);
+                }
+                try {
+                    ids[i - 3] = Integer.parseInt(args[i]);
+                } catch (NumberFormatException invalidId) {
+                    usage("definition ID out of range: " + args[i]);
+                }
+            }
+        }
+        return ids;
+    }
+
+    private static void usage(String diagnostic) {
+        System.err.println(diagnostic);
+        System.err.println("usage: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> <term> [term ...]");
+        System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> --id <id> [id ...]");
+        System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> <npc|object> --params <id> [id ...]");
+        System.err.println("   or: OpenRs2CacheDefinitionSearch <cache-dir> npc --combat-levels <id> [id ...]");
+        System.exit(2);
     }
 
     private static Map<Integer, Object> sortedParameters(Map<Integer, Object> parameters) {

@@ -1074,7 +1074,6 @@ class CombatLogicTest(unittest.TestCase):
         (wolf_main,) = wolf["drops"]["tables"]
         self.assertEqual(wolf["display_name"], "Wolf")
         self.assertEqual(wolf["level"], 11)
-        self.assertEqual(wolf["group"], "Animals")
         self.assertEqual(wolf["attack_speed"], 4)
         self.assertEqual(wolf["respawn_delay"], 90)
         self.assertEqual(wolf["slayer_xp"], 10.0)

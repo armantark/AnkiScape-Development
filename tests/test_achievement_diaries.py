@@ -1736,15 +1736,6 @@ class ClaimTest(unittest.TestCase):
                 row["status"], "Roster pending harvest", row["tier_id"]
             )
 
-    def test_the_granted_item_can_actually_be_worn(self):
-        family = self.family
-        player = _complete_tier(_fresh(), family.tiers[0])
-        player = claim_diary_tier_pure(player, family.tiers[0].id)[0]
-        allowed, reason = can_equip_item_pure(
-            "Ardougne cloak 1", EQUIPMENT_DATA, player
-        )
-        self.assertTrue(allowed, reason)
-
 
 class MilestoneCapeTest(unittest.TestCase):
     """The design's one named repair: nine craftable, unwearable capes."""

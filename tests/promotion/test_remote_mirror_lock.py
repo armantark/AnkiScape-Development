@@ -115,6 +115,13 @@ class RemoteMirrorLockTimingTest(unittest.TestCase):
         self.assertIn("=== PLAIN LANE ===", log)
         self.assertIn("TIMEOUT: exceeded 2 seconds\nFAILED: exit 124 (TIMEOUT)", log)
 
+    @staticmethod
+    def _stop_lane(process: subprocess.Popen) -> None:
+        # Reap it: an unwaited kill leaves a zombie and a ResourceWarning that hides
+        # real failures in this fixture's output.
+        process.kill()
+        process.wait(timeout=30)
+
     def _local_host(self, host_dir: str) -> Path:
         host = Path(host_dir)
         (host / "reports").mkdir()
@@ -145,7 +152,7 @@ class RemoteMirrorLockTimingTest(unittest.TestCase):
             pid_path = host / "reports" / "qt-earlier.pid"
             with pid_path.open("w+") as lane_stdin:
                 earlier = subprocess.Popen(("sleep", "60"), start_new_session=True, stdin=lane_stdin)
-            self.addCleanup(earlier.kill)
+            self.addCleanup(self._stop_lane, earlier)
             pid_path.write_text(f"{earlier.pid}\n")
             record = json.dumps({
                 "run_id": "qt-earlier", "log_path": str(host / "reports" / "qt-earlier.log"),

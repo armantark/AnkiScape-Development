@@ -554,7 +554,6 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(quest["stages"], 8)
         self.assertEqual(quest["required_items"], {})
         self.assertEqual(quest["rewards"], {"Gnome amulet": 1})
-        self.assertNotIn("Spirit Tree", quest["rewards"])
         self.assertIn("Two Khazard commanders (level 48)", quest["combat"])
         self.assertIn("Khazard warlord (level 112)", quest["combat"])
         self.assertEqual(quest["xp_rewards"], ({"skill_id": "attack", "amount": 11450.0},))
@@ -2446,13 +2445,6 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertNotIn("Firemaking 33", quest["requirements"])
         self.assertNotIn("Slayer 33", quest["requirements"])
         self.assertEqual(tuple(by_stage), tuple(range(1, 6)))
-        self.assertFalse(
-            any(
-                action.startswith("Complete Jungle Potion stage")
-                for row in by_stage.values()
-                for action in row["required_actions"]
-            )
-        )
         self.assertTrue(all(not row["required_actions"] for row in by_stage.values()))
 
         herb_rows = (

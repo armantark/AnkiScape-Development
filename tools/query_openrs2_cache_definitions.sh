@@ -1,14 +1,40 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -lt 3 ]]; then
+usage() {
+  echo "$1" >&2
   echo "usage: $0 <disk.zip|cache-dir> <npc|object> <name-term|--id|--params|--combat-levels> [term|id ...]" >&2
   exit 2
+}
+
+if [[ $# -lt 3 ]]; then
+  usage "cache path, entity kind and query are required"
 fi
 
 source_path=$1
 kind=$2
 shift 2
+case "$kind" in
+  [nN][pP][cC]|[oO][bB][jJ][eE][cC][tT]) ;;
+  *) usage "entity kind must be npc or object" ;;
+esac
+case "$1" in
+  --id|--params|--combat-levels)
+    mode=$1
+    [[ $# -gt 1 ]] || usage "$mode requires at least one ID"
+    if [[ "$mode" == --combat-levels && ! "$kind" =~ ^[nN][pP][cC]$ ]]; then
+      usage "combat levels are available only for NPC definitions"
+    fi
+    for id in "${@:2}"; do
+      [[ "$id" =~ ^\+?[0-9]+$ ]] || usage "invalid definition ID: $id"
+      decimal=${id#+}
+      decimal="${decimal#"${decimal%%[!0]*}"}"
+      if (( ${#decimal} > 10 || decimal > 2147483647 )); then
+        usage "definition ID out of range: $id"
+      fi
+    done
+    ;;
+esac
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 java_bin=${JAVA_BIN:-/opt/homebrew/opt/openjdk@25/bin/java}
 javac_bin=${JAVAC_BIN:-/opt/homebrew/opt/openjdk@25/bin/javac}
@@ -41,5 +67,5 @@ fi
 classpath=$(find "$gradle_cache" -name '*.jar' -print | paste -sd: -)
 "$javac_bin" --release 25 -cp "$classpath" -d "$temp_dir/classes" \
   "$script_dir/OpenRs2CacheDefinitionSearch.java"
-exec "$java_bin" --class-path "$temp_dir/classes:$classpath" \
+"$java_bin" --class-path "$temp_dir/classes:$classpath" \
   OpenRs2CacheDefinitionSearch "$cache_dir" "$kind" "$@"

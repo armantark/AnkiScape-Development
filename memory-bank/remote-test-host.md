@@ -69,7 +69,12 @@ gate with `--remote-lanes` takes that lock itself before its lanes, waits at mos
 3,600 seconds for it, logs the wait, and holds it across both lanes. A sibling
 `ankiscape-remote-test-host.turnstile` admission lock stops new runners while the
 gate waits for the mirror; runners already past admission can finish. Runners
-release admission before waiting for the mirror. The gate's bound and heartbeat
+release admission before waiting for the mirror. Normal runners register tickets before
+admission in `ankiscape-remote-test-host.queue`. The queue file length allocates a new
+ticket under a short record lock; a runner owns its ticket byte and waits for every
+earlier ticket before reaching admission. The kernel releases a cancelled or killed
+runner's ranges, so later runners keep their order without deleting or reusing tickets.
+The gate's bound and heartbeat
 cover both locks, and the gate releases admission once it holds the mirror. Its lane runs
 inherit the held descriptor, so focused runs queue behind the gate and the fixed
 lane limits count only each lane's own sync and execution. The flock does not coordinate a dispatcher

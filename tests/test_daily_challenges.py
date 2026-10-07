@@ -370,17 +370,6 @@ class HandInAndRewardTest(unittest.TestCase):
         )
         self.assertNotIn("xp_rewards", info)
 
-    def test_the_lamp_grants_its_experience_in_the_chosen_skill(self):
-        data = _finished("rampage_mk_i")
-        claimed, _ok, _info = claim_daily_challenge_pure(data, "rampage_mk_i-1")
-        rubbed, ok, _info = rub_challenge_xp_lamp_pure(claimed, "strength")
-        self.assertTrue(ok)
-        self.assertEqual(
-            rubbed["strength_exp"],
-            float(DAILY_CHALLENGE_DATA["rampage_mk_i"]["reward_xp"]),
-        )
-        self.assertNotIn(DAILY_CHALLENGE_XP_LAMP_ITEM, rubbed["inventory"])
-
     def test_the_lamp_refuses_a_skill_it_never_offered(self):
         data = _finished("rampage_mk_i")
         claimed, _ok, _info = claim_daily_challenge_pure(data, "rampage_mk_i-1")

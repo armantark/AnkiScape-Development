@@ -9,12 +9,15 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 LOCK_WORKER = """\
-import fcntl, io, sys, threading
+import fcntl, io, os, sys, threading
 from pathlib import Path
 from tools import run_remote_tests as runner
 from tools.promotion import lane_execution as gate
 
 role, path, bound = sys.argv[1:]
+registration_barrier = role == 'registration-runner'
+if registration_barrier:
+    role = 'runner'
 runner.LOCAL_MIRROR_LOCK_PATH = Path(path)
 gate.REMOTE_MIRROR_LOCK_TIMEOUT = float(bound)
 real_flock, real_lockf = fcntl.flock, fcntl.lockf
@@ -44,15 +47,42 @@ def flock(descriptor, operation):
         report('waiting-mirror')
         raise
 
-def lockf(descriptor, operation):
+def lockf(descriptor, operation, *arguments):
     try:
-        return real_lockf(descriptor, operation)
+        return real_lockf(descriptor, operation, *arguments)
     except BlockingIOError:
+        if registration_barrier and arguments == (1, 0):
+            report('registration-blocked')
         if role == 'runner':
-            report('waiting-turnstile')
+            if not arguments:
+                report('waiting-turnstile')
+            elif arguments[1] == 1:
+                report('waiting-queue')
         raise
 
 fcntl.flock, fcntl.lockf = flock, lockf
+
+def on_mirror(descriptor):
+    return os.fstat(descriptor).st_ino == Path(path).stat().st_ino
+
+def step(real, mirror_hold):
+    # Report and park at the call boundary, so the test picks the interleaving
+    # instead of the kernel's unspecified wake order. The call itself stays real.
+    # Only a blocking flock on the mirror path is the hold; any other blocking
+    # lock is a queue place, wherever the runner keeps it.
+    def locked(descriptor, operation, *arguments):
+        if operation == fcntl.LOCK_EX:
+            held = mirror_hold and on_mirror(descriptor)
+            report('queued-mirror' if held else 'queued-elsewhere')
+            if sys.stdin.readline().strip() != 'go':
+                raise RuntimeError('the test did not authorize this lock call')
+        return real(descriptor, operation, *arguments)
+    return locked
+
+if role == 'step-runner':
+    fcntl.flock = step(real_flock, mirror_hold=True)
+    fcntl.lockf = step(real_lockf, mirror_hold=False)
+
 if role in ('gate', 'queue-gate', 'timeout-gate'):
     if role == 'timeout-gate':
         now = 0.0
@@ -80,6 +110,15 @@ elif role == 'old-runner':
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
         report('acquired')
         sys.stdin.readline()
+elif role == 'failing-runner':
+    try:
+        with runner._hold_mirror_lock():
+            raise RuntimeError('the lane failed under the held mirror')
+    except RuntimeError as error:
+        if str(error) != 'the lane failed under the held mirror':
+            raise
+        report('released')
+    sys.stdin.readline()
 else:
     with runner._hold_mirror_lock():
         report('acquired')
@@ -116,6 +155,39 @@ class RemoteMirrorPriorityTest(unittest.TestCase):
         process.stdin.write((command + "\n").encode())
         process.stdin.flush()
 
+    def step_runner(self, lock_path, expected):
+        """Start a runner and leave it parked at the barrier before its next real lock call."""
+        process = self.start_worker("step-runner", lock_path)
+        self.assertEqual(self.read_event(process), expected)
+        return process
+
+    def queued_runner(self, lock_path):
+        """Start a runner that must wait somewhere other than the mirror, then release it."""
+        process = self.step_runner(lock_path, "queued-elsewhere")
+        self.send(process, "go")
+        return process
+
+    def release_step_runner(self, process):
+        self.assertEqual(self.read_event(process), "acquired")
+        self.send(process, "release")
+        self.assertEqual(process.wait(timeout=30), 0)
+
+    def serve_step_runner(self, process):
+        """Require this parked runner, not any later arrival, to take the free mirror."""
+        self.send(process, "go")
+        self.release_step_runner(process)
+
+    def assert_first_to_report(self, process, *later_arrivals):
+        """Require this runner alone to reach the free mirror while the others stay blocked."""
+        with selectors.DefaultSelector() as ready:
+            for waiter in (process, *later_arrivals):
+                ready.register(waiter.stdout, selectors.EVENT_READ, waiter)
+            readable = ready.select(timeout=30)
+        self.assertEqual(
+            [key.data for key, _ in readable], [process],
+            "the runner that waited longest did not reach the free mirror first",
+        )
+
     def test_gate_bound_also_covers_a_busy_turnstile(self):
         with tempfile.TemporaryDirectory() as directory:
             lock_path = Path(directory) / "mirror.lock"
@@ -129,19 +201,30 @@ class RemoteMirrorPriorityTest(unittest.TestCase):
     def test_waiting_gate_stops_new_runners_at_the_turnstile(self):
         with tempfile.TemporaryDirectory() as directory:
             lock_path = Path(directory) / "mirror.lock"
-            with lock_path.open("a+") as current_runner:
+            with (
+                lock_path.open("a+") as current_runner,
+                lock_path.with_suffix(".queue").open("a+") as registration,
+            ):
                 fcntl.flock(current_runner.fileno(), fcntl.LOCK_EX)
                 gate = self.start_worker("gate", lock_path)
                 self.waiting_gate(gate)
-                runners = [self.start_worker("runner", lock_path) for _ in range(3)]
+                fcntl.lockf(registration.fileno(), fcntl.LOCK_EX, 1, 0)
+                runners = [self.start_worker("registration-runner", lock_path) for _ in range(3)]
                 for runner in runners:
-                    self.assertEqual(self.read_event(runner), "waiting-turnstile")
+                    self.assertEqual(self.read_event(runner), "registration-blocked")
+                fcntl.lockf(registration.fileno(), fcntl.LOCK_UN, 1, 0)
+                for runner in runners:
+                    event = self.read_event(runner)
+                    self.assertIn(event, {"waiting-turnstile", "waiting-queue"})
+                    waiting_path = lock_path.with_suffix(
+                        ".turnstile" if event == "waiting-turnstile" else ".queue"
+                    )
                     with selectors.DefaultSelector() as ready:
                         ready.register(runner.stderr, selectors.EVENT_READ)
                         self.assertTrue(ready.select(timeout=30), "runner gave no turnstile notice")
                     notice = runner.stderr.readline().decode().strip()
                     self.assertIn("Remote mirror busy; waiting", notice)
-                    self.assertIn(str(lock_path.with_suffix(".turnstile")), notice)
+                    self.assertIn(str(waiting_path), notice)
                 fcntl.flock(current_runner.fileno(), fcntl.LOCK_UN)
                 self.send(gate, "retry")
                 self.assertEqual(self.read_event(gate), "acquired")
@@ -267,6 +350,111 @@ class RemoteMirrorPriorityTest(unittest.TestCase):
                     fcntl.lockf(admission.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                 self.send(gate, "release")
                 self.assertEqual(gate.wait(timeout=30), 0)
+
+    # A normal runner that waits for the mirror must first take a place in a queue that
+    # later normal arrivals cannot pass. `queued-elsewhere` is that place: the later
+    # arrival blocks on a lock other than the mirror, so it cannot overtake.
+    def test_a_registered_runner_keeps_later_arrivals_out_of_the_mirror_queue(self):
+        with tempfile.TemporaryDirectory() as directory:
+            lock_path = Path(directory) / "mirror.lock"
+            with lock_path.open("a+") as current_runner:
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_EX)
+                older = self.step_runner(lock_path, "queued-mirror")
+                second = self.queued_runner(lock_path)
+                third = self.queued_runner(lock_path)
+
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_UN)
+                self.serve_step_runner(older)
+                # The second runner waited behind the first, so it precedes the third.
+                self.assert_first_to_report(second, third)
+                self.release_step_runner(second)
+                self.release_step_runner(third)
+
+    def test_queued_runners_leave_the_gate_its_admission(self):
+        with tempfile.TemporaryDirectory() as directory:
+            lock_path = Path(directory) / "mirror.lock"
+            with lock_path.open("a+") as current_runner:
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_EX)
+                older = self.step_runner(lock_path, "queued-mirror")
+                later = self.queued_runner(lock_path)
+
+                gate = self.start_worker("gate", lock_path)
+                self.waiting_gate(gate)
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_UN)
+                self.send(gate, "retry")
+                self.assertEqual(self.read_event(gate), "acquired")
+                self.send(gate, "release")
+                self.assertEqual(gate.wait(timeout=30), 0)
+
+                self.serve_step_runner(older)
+                self.release_step_runner(later)
+
+    def test_a_paused_queued_runner_keeps_its_place_after_a_middle_cancellation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            lock_path = Path(directory) / "mirror.lock"
+            with lock_path.open("a+") as current_runner:
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_EX)
+                older = self.step_runner(lock_path, "queued-mirror")
+                second = self.queued_runner(lock_path)
+                third = self.step_runner(lock_path, "queued-elsewhere")
+                fourth = self.queued_runner(lock_path)
+                second.kill()
+                self.assertEqual(second.wait(timeout=30), -9)
+
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_UN)
+                self.serve_step_runner(older)
+                self.send(third, "go")
+                self.assert_first_to_report(third, fourth)
+                self.release_step_runner(third)
+                self.release_step_runner(fourth)
+
+    def test_normals_waiting_behind_a_gate_keep_their_arrival_order(self):
+        with tempfile.TemporaryDirectory() as directory:
+            lock_path = Path(directory) / "mirror.lock"
+            with lock_path.open("a+") as current_runner:
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_EX)
+                gate = self.start_worker("gate", lock_path)
+                self.waiting_gate(gate)
+                older = self.step_runner(lock_path, "queued-elsewhere")
+                later = self.queued_runner(lock_path)
+
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_UN)
+                self.send(gate, "retry")
+                self.assertEqual(self.read_event(gate), "acquired")
+                self.send(gate, "release")
+                self.assertEqual(gate.wait(timeout=30), 0)
+                self.send(older, "go")
+                self.assert_first_to_report(older, later)
+                self.release_step_runner(older)
+                self.release_step_runner(later)
+
+    def test_a_killed_runner_leaves_its_queue_place_to_the_next_arrival(self):
+        with tempfile.TemporaryDirectory() as directory:
+            lock_path = Path(directory) / "mirror.lock"
+            with lock_path.open("a+") as current_runner:
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_EX)
+                older = self.step_runner(lock_path, "queued-mirror")
+                later = self.queued_runner(lock_path)
+
+                older.kill()
+                self.assertEqual(older.wait(timeout=30), -9)
+                self.assertEqual(self.read_event(later), "queued-mirror")
+                self.send(later, "go")
+                fcntl.flock(current_runner.fileno(), fcntl.LOCK_UN)
+                self.release_step_runner(later)
+
+    def test_a_failed_runner_frees_the_queue_while_it_stays_alive(self):
+        with tempfile.TemporaryDirectory() as directory:
+            lock_path = Path(directory) / "mirror.lock"
+            failed = self.start_worker("failing-runner", lock_path)
+            self.assertEqual(self.read_event(failed), "released")
+
+            later = self.start_worker("step-runner", lock_path)
+            self.release_step_runner(later)
+            # Process exit must not be what frees the queue: the failed runner still runs.
+            self.assertIsNone(failed.poll())
+            self.send(failed, "release")
+            self.assertEqual(failed.wait(timeout=30), 0)
 
 
 if __name__ == "__main__":

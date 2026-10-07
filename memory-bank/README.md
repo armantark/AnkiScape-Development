@@ -13,7 +13,7 @@ their owning workstream requires deeper context.
 - [Technical Context](techContext.md): runtime, tooling, evidence, and test environment.
 - [Progress](progress.md): chronological completion ledger.
 - [Goal priority matrix](goal-priority-matrix.md): selection authority for the implementation goal.
-- The newest `pickup-*.md` (currently [pickup-2026-10-01.md](pickup-2026-10-01.md)): latest handoff and preserved work.
+- The newest `pickup-*.md` (currently [pickup-2026-10-03.md](pickup-2026-10-03.md)): latest handoff and preserved work.
 - [Completion Kanban](future-work-kanban.md): product-wide parity and depth backlog.
 - [Roadmap](roadmap.md): dependency-ordered completion strategy.
 - [Gap backlog](gap-backlog.json): closed historical record of the existing-skill parity subledger; the Kanban owns its open rows.

@@ -377,10 +377,16 @@ def fetch_asset(
 
 def _source_image_url(image_url: str, cache_bust: Optional[str] = None) -> str:
     parsed = urllib.parse.urlsplit(image_url)
-    query_params = {"source": parsed.query or "original"}
+    query = parsed.query
+    if not query or ("=" not in query and "&" not in query):
+        query = urllib.parse.urlencode({"source": query or "original"})
+    elif not any(
+        key == "source"
+        for key, _value in urllib.parse.parse_qsl(query, keep_blank_values=True)
+    ):
+        query += "&source=original"
     if cache_bust:
-        query_params["cache_bust"] = cache_bust
-    query = urllib.parse.urlencode(query_params)
+        query += "&" + urllib.parse.urlencode({"cache_bust": cache_bust})
     return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, query, ""))
 
 

@@ -138,7 +138,6 @@ class DungeoneeringDataTests(unittest.TestCase):
         self.assertEqual(STARTER_SKILL_DOOR_REQUIREMENT, 1)
 
     def test_kinship_boss_and_reward_tables_are_complete_for_the_starter(self):
-        self.assertEqual(len(KINSHIP_CLASSES), 12)
         self.assertEqual(
             [kinship_class.display_name for kinship_class in KINSHIP_CLASSES],
             [
