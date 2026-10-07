@@ -63,7 +63,10 @@ Astra and Kimi K3 approved the concrete source. Root verified the unchanged modu
 Root remeasured the dispatcher at CCN 3 and cognitive 2. Every added or modified method has no violation of the fixed 15/15/80 limits. The file has 985 lines.
 The complete corpus compared 1158 pairs with zero differences and no check violations. All 13 bank paths ran, including the 32-review Firemaking refill and exhaustion sequence.
 Nine Keep/urn captures, nine new-trip captures and 18 processing captures matched. The route metadata sensitivity run detected 71 changed states, mutation traces, callback traces and schedule captures; its expected exit was 1.
-Local focused proof passed 259 tests without skips. All five standing audits exited 0. Remote merged, native and promotion acceptance remain pending.
+Local focused proof passed 259 tests without skips. All five standing audits exited 0.
+Exact current-main integration `d71c85e5f415cd67c50660967ac981652499c33c` passed all nine official checks with remote lanes.
+Each full lane ran 5220 tests: plain 463.637s with 581 skips; Qt 680.677s with 7 skips. Native and promotion acceptance remain pending.
+Root retained six gate artifacts at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/d71c85e5f415cd67c50660967ac981652499c33c/carried-runtime-full-gate/retention-manifest.json`. Manifest SHA-256 `0712258733e9f68107311953fd94f815af4e45ce74f4a99632cd0534a9c5e3d9`.
 Retained raw artifacts and each digest: [/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/a0241667f17dba4ed3a0634be98978b5cf424e1c/carried-review-lifecycle-proof/retention-manifest.json](</Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/a0241667f17dba4ed3a0634be98978b5cf424e1c/carried-review-lifecycle-proof/retention-manifest.json>). Manifest SHA-256 `214b98843a496eda67e40ec644223995f30b6714f8e2d24be480fc4824395ae2`.
 The next non-Magic combat ownership proposal is blocked by shared health, scheduling and replacement-data state. A rewards-only wrapper would be shallow. Preserve Magic and continue independent work.
 
