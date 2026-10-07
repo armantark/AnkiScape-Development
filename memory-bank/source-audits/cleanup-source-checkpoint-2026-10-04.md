@@ -54,3 +54,23 @@ The helper measures CCN 5, cognitive 2 and Halstead difficulty 3.272727272727273
 Retained raw artifacts and each digest: [/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/1817edd394e03fd51ac924805e2024157a814b15/carried-overflow-proof/retention-manifest.json](</Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/1817edd394e03fd51ac924805e2024157a814b15/carried-overflow-proof/retention-manifest.json>). Manifest SHA-256 `336b0a3a544ed391cc926c0a6b74d3b0e5c6101df61151d7b7a3471926deb647`.
 The source remains unlanded. Native acceptance and the exact merged promotion gate are pending. Collections blocks only the parked menu candidate.
 The next remaining carried and non-Magic combat boundaries need a coherent lifecycle ownership contract; broad wrappers are not accepted. Root is continuing the source-accepted quest-fight runtime checks.
+
+## October 7 carried lifecycle proof
+
+Source `a0241667f17dba4ed3a0634be98978b5cf424e1c` uses baseline `1817edd394e03fd51ac924805e2024157a814b15`. Only the carried overlay changed.
+The private review workflow owns preparation, arrival, bank selection, settlement and action handling. The caller retains the exact Agility refusal.
+Astra and Kimi K3 approved the concrete source. Root verified the unchanged module prefix, definitions, initial aliases and refusal AST.
+Root remeasured the dispatcher at CCN 3 and cognitive 2. Every added or modified method has no violation of the fixed 15/15/80 limits. The file has 985 lines.
+The complete corpus compared 1158 pairs with zero differences and no check violations. All 13 bank paths ran, including the 32-review Firemaking refill and exhaustion sequence.
+Nine Keep/urn captures, nine new-trip captures and 18 processing captures matched. The route metadata sensitivity run detected 71 changed states, mutation traces, callback traces and schedule captures; its expected exit was 1.
+Local focused proof passed 259 tests without skips. All five standing audits exited 0. Remote merged, native and promotion acceptance remain pending.
+Retained raw artifacts and each digest: [/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/a0241667f17dba4ed3a0634be98978b5cf424e1c/carried-review-lifecycle-proof/retention-manifest.json](</Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/a0241667f17dba4ed3a0634be98978b5cf424e1c/carried-review-lifecycle-proof/retention-manifest.json>). Manifest SHA-256 `214b98843a496eda67e40ec644223995f30b6714f8e2d24be480fc4824395ae2`.
+The next non-Magic combat ownership proposal is blocked by shared health, scheduling and replacement-data state. A rewards-only wrapper would be shallow. Preserve Magic and continue independent work.
+
+## October 7 quest runtime gate
+
+Test source `fd8aa78dd36a59cb87fce19b2ecbe87b5136dcc3` adds real review progression for Sir Leye, The Illusive and all ten Ice trolls. Six local tests passed; Astra and Kimi K3 approved the test delta.
+Merged candidate `dde1a78f1ad90037ea398e84b4ecaab17659f614` passed both full lanes: 5226 tests each, plain 455.799s with 581 skips and Qt 666.827s with 7 skips.
+Its gate exited 2 because the papercut check found eight exact entries both open and fixed. No full gate acceptance exists for that commit.
+The duplicate open copies were removed; every dated fixed copy and all quest source/test bytes remain unchanged. Both ledger preservation and the documentation audit passed before the normal repair commit `52748d16cb5e0ff581b31a70e538deb03eccf07e`.
+The new exact merged gate is running. Native, visual and promotion acceptance remain pending.
