@@ -16,4 +16,4 @@ The real MacBook transfer passed on two disposable files. Both bad transport-rep
 The initial probe failed before product import with `ModuleNotFoundError: No module named 'tools'`; the repaired probe passed. Both logs remain retained.
 Root retained 162 raw files and their digests in [the proof manifest](</Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/1bd9b9f9e10bdaca6a096b3369e159b542d6f842/native-source-freezer-proof/retention-manifest.json>).
 Manifest SHA-256 `32549bb35ea62b3a5d3a0c7d1cf08332c33bf8cd380e33d4ff49d3078cd87b8b`.
-The exact merged full gate and official landing remain pending. This record does not accept any runtime or menu candidate.
+Use the official exact-commit gate and landing receipts to verify promotion. This source proof does not accept any runtime or menu candidate.
