@@ -69,3 +69,14 @@ Record a failed check exactly. Never substitute a passed check from another sour
 2026-10-06 Root recovered the terminal pause checkpoint. The supply proof review was interrupted; no supply cases ran.
 
 2026-10-07T01:04:08.516797+00:00 Astra returned REVISE R1. Root confirmed the source paths and repaired only the disposable second-read fixture in a new prepared directory. Source, baseline, burst corpus and expected failure assertions remain unchanged. Root will run the cold local source copy after closure, first refusal stops, then event sensitivity and complete comparisons. No MacBook mirror or GUI ownership is required for those local copies.
+
+2026-10-07T01:21:18.552060+00:00 Root assigns a read-only selection review while the complete supply comparison runs.
+The leaf reads only the frozen supply source at edeafd88c824e8a354b856cf37042ff68810bc5a and the fourteen-family scope record.
+The leaf proposes at most three remaining combat extraction boundaries, ordered by reduction of the current parent.
+The leaf must exclude Magic, Dream, every already extracted responsibility and all gameplay changes.
+Each proposal must name exact source spans, inputs, outputs, side effects, failure risks and why the boundary can meet the unchanged limits.
+The leaf writes only selection-report.md and selection-verdict.json in the existing review directory.
+No source change or behavior acceptance follows. Root checks the source and measures a selected boundary before authoring.
+The root owns all source, execution, Git, Memory Bank, browser and remote resources.
+CHECK: Inspect the exact committed source and prior extracted helpers; report source SHA256 and AST spans.
+EXPECT: No imports, product case, command that changes state, source write, Git mutation or chat message occurs.

@@ -180,3 +180,7 @@
 
 2026-10-07T00:59:04.389311+00:00 Goal recovery reads exceeded the tool output budget several times: combined core files, broad quota/pause matches and nested proof inventories returned "Warning: truncated output". Use exact prepared roots, relative paths and bounded sections; no truncated result counts as complete evidence.
 2026-10-07T01:04:08.516797+00:00 Supply readiness review returned REVISE R1 before product execution: direct_supply_probe.py:206 targets ("data.combat_supply_loadout", "get", "potions", 2), but default Shark consumption replaces its TraceDict after the first read. Root confirmed the real sanitizer and food/antipoison paths. The copied fixture now has no food only for this rule; all 14 required failure assertions and the original prepared bundle remain unchanged. Closure review and runtime reachability remain pending.
+
+2026-10-07T01:20:09.094986+00:00 Root looked for cleanup metrics in `tools/check_complexity.py`; `sed: tools/check_complexity.py: No such file or directory`. The verified instrument is `tools/maintenance/function_metrics.py`; use the file inventory before reads.
+
+2026-10-07T01:20:42.982533+00:00 Root attempted an unverified carried dispatcher path; `sed: logic_pure/carried_dispatcher.py: No such file or directory`. The second assumed-path read failed; all further source reads in this slice will select from the actual `rg --files` inventory.
