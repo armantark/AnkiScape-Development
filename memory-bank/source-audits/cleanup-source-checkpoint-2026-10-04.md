@@ -1,6 +1,6 @@
 # Cleanup source checkpoint, 2026-10-04
 
-The first October 6 continuation under 40% is historical. After the reset, the owner resumed under the shared 70% ceiling. Current main is `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
+The first October 6 continuation under 40% is historical. After the reset, the owner resumed under the shared 70% ceiling. The earlier checkpoint main was `ca859eb0ef06a0b298d25bcedd9338a1120afabc`; current main is recorded in activeContext.md.
 Source acceptance does not grant runtime, native or promotion acceptance.
 
 Combat clock source `6175db9b4e2dd6ce713e23814bca27a5da410ae1` has Astra source acceptance with no findings.
@@ -41,5 +41,16 @@ The recovered readiness review found R1 in a disposable fixture; root repaired t
 All 18 refusal checks stopped before product imports. Both direct runs completed; the normal run compared all 2310 captures with zero differences and no coverage violations.
 The complete comparison passed all 155100 cases with zero differences; root audited every saved capture and verified all retained hashes.
 [The October 6 supply proof](combat-enemy-attack-supplies-proof-2026-10-06.md) records exact bindings and limits. Native, full-gate and promotion acceptance remain pending.
-[The later scheduling source](combat-enemy-attack-scheduling-2026-10-06.md) has independent source acceptance and both focused lanes; its complete behavior proof remains pending.
+[The later scheduling source](combat-enemy-attack-scheduling-2026-10-06.md) passed independent source acceptance, both focused lanes and its complete saved behavior proof.
 Pause evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/ca859eb0ef06a0b298d25bcedd9338a1120afabc/goal-pause-2026-10-04/retention-manifest.json`.
+
+## October 7 carried overflow proof
+
+Source `1817edd394e03fd51ac924805e2024157a814b15` extracts the Evil Tree overflow policy from baseline `16d8840410a9b6f1c27411e0d66893acb0fd2286`.
+Astra and Kimi K3 approved the exact source with no findings. Root independently restored the complete module AST.
+Nine complete overlay comparisons and 23 directed policy checks passed. The checks preserve dict-subclass access, malformed-duration errors, short-circuit order, state identity and callback/RNG captures.
+Both focused remote lanes passed 257 tests without skips: plain 15.384s; Qt 16.157s. All five standing audits exited 0.
+The helper measures CCN 5, cognitive 2 and Halstead difficulty 3.272727272727273. The parent measures 29/25 and remains over limits. The file has 984 lines.
+Retained raw artifacts and each digest: [/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/1817edd394e03fd51ac924805e2024157a814b15/carried-overflow-proof/retention-manifest.json](</Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/1817edd394e03fd51ac924805e2024157a814b15/carried-overflow-proof/retention-manifest.json>). Manifest SHA-256 `336b0a3a544ed391cc926c0a6b74d3b0e5c6101df61151d7b7a3471926deb647`.
+The source remains unlanded. Native acceptance and the exact merged promotion gate are pending. Collections blocks only the parked menu candidate.
+The next remaining carried and non-Magic combat boundaries need a coherent lifecycle ownership contract; broad wrappers are not accepted. Root is continuing the source-accepted quest-fight runtime checks.

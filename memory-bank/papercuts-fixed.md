@@ -2,3 +2,11 @@
 
 2026-10-07T01:04:08.516797+00:00 Supply readiness review returned REVISE R1 before product execution: direct_supply_probe.py:206 targets ("data.combat_supply_loadout", "get", "potions", 2), but default Shark consumption replaces its TraceDict after the first read. Root confirmed the real sanitizer and food/antipoison paths. The copied fixture now has no food only for this rule; all 14 required failure assertions and the original prepared bundle remain unchanged. Closure review and runtime reachability remain pending.
 2026-10-07T01:38:58.474588+00:00 Resolved R1 in the copied disposable fixture. Independent closure approved; the direct comparison reached every required typed failure, including the second potion read, and all 2310 captures compared equal. The 14 failure rules and original prepared bundle remain unchanged.
+
+## October 7 source-proof preparation
+
+- 2026-10-07T15:54:49.800680+00:00 Root lookup guessed memory-bank/source-audits/carried-bank-gate-2026-10-04.md, which does not exist; the retained record is memory-bank/source-audits/cleanup-source-checkpoint-2026-10-04.md.
+- 2026-10-07T15:54:49.800680+00:00 The policy probe measured identity through an overridden player.get before exception capture and raised RuntimeError: overflow-policy-get-sentinel; using dict.get in probe setup fixed the probe without changing product source.
+- 2026-10-07T15:54:49.800680+00:00 Unbounded combined reads and git worktree list --porcelain produced Warning: truncated output (original token count: 13456) and Warning: truncated output (original token count: 13665); scoped line windows and filtering captured worktree records before emission returned complete relevant evidence.
+- 2026-10-07T15:32:41.928279+00:00 Startup context inventory and combined core-doc reads exceeded tool output limits; exact contract and live assigned-source pins govern this bounded extraction.
+- 2026-10-07T15:33:56.034886+00:00 Inline inverse AST probe passed AST checks but its extra byte-reconstruction check failed at <stdin>:44 with AssertionError; probe counted the helper ending newline twice. Correcting the probe separator from three appended newlines to two; product source unchanged.
