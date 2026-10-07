@@ -1,6 +1,6 @@
 # Cleanup source checkpoint, 2026-10-04
 
-The goal is paused at the combined 20% owner cap. Current main is `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
+The owner resumed the goal on 2026-10-06 under the shared 40% ceiling. Current main is `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
 Source acceptance does not grant runtime, native or promotion acceptance.
 
 Combat clock source `6175db9b4e2dd6ce713e23814bca27a5da410ae1` has Astra source acceptance with no findings.

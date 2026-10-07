@@ -1,27 +1,7 @@
-# Goal paused at the owner cap, 2026-10-04
+# Goal resumed under the shared owner ceiling, 2026-10-06
 
-The goal is paused and unfinished. Root set the goal status to `paused` at 2026-10-04T04:21:40+00:00.
-The actual account-wide `usedPercent` reached 20%. The owner set this combined cap for AnkiScape and Darkan.
-The cap stops goal work. It is not a provider hard-limit failure.
-Root interrupted the proof-tool review. The frozen bundle completed before the stop. No supply proof case ran.
-No shared mirror pending record exists. No new remote or native action started after the cap.
+The owner resumed the goal on 2026-10-06: "Let's continue the goal. I permit you and the other thread to use 40% Codex quota total." AnkiScape and Darkan share a total account ceiling of 40% used. The initial live reading was 34%, with windowDurationMins=10080, resetsAt=1791673175 and rateLimitResetCredits.availableCount=0. Root stops new goal work at 40%. The daily provider allowance does not replace this owner ceiling. Native, visual, source and instrument gates remain binding.
 
-Root remeasured seven official landings on clean main `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
-Three are tooling, two are test cleanup and two are documentation. No new gameplay runtime slice landed in this run.
-The last documentation gate passed all nine checks. Both lanes ran 5220 tests: plain 468.695s; Qt 691.053s.
-The skips were 581 plain and 7 Qt. The gate and land receipts remain retained.
+The goal is unfinished. The owner resumed work; the goal tool still reports its prior paused status and exposes no resume operation. Root does not create a duplicate goal.
 
-Supply source `edeafd88c824e8a354b856cf37042ff68810bc5a` has resolved Astra and GLM source reviews.
-Both focused lanes passed 406 tests without skips: plain 8.895s; Qt 8.938s.
-Root read all five proof tools. Their integrity and complete corpus checks passed without product imports.
-The independent proof-tool readiness review remains incomplete. Runtime, native, full-gate and promotion acceptance remain pending.
-The frozen bundle has 6697 source files and 33 input/prepared files. No proof operator or product case ran.
-Bundle SHA-256: `bb7febb30f10512b360b6051095e1ce501941b72e29a1b0e4dd521f1983ff3e9`.
-Manifest SHA-256: `81e342106507b6ff7caae5504f93786ebd5c1c8812450d715cb64497b3895aed`.
-
-Resume only after an explicit owner instruction within a renewed allowance.
-After resume, finish the proof-tool review, then run refusal checks before any product case.
-Preserve every native, visual, full-gate, instrument and owner gate. Do not push.
-The locked MacBook remains a separate native blocker. No new waiver exists.
-Raw checkpoint: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/ca859eb0ef06a0b298d25bcedd9338a1120afabc/goal-pause-2026-10-04/retention-manifest.json`.
-This checkpoint is committed on `codex/goal-pause-2026-10-04`. It is not promoted to main.
+The [exact prior pause](archive/2026-10/handoffs/goal-pause-2026-10-04.md) remains unchanged. Continue from [the resume plan](plans/goal-resume-2026-10-06.md). Supply proof readiness, runtime proof and all later acceptance checks remain pending. Main remains `ca859eb0ef06a0b298d25bcedd9338a1120afabc`. No runtime slice landed during this continuation.
