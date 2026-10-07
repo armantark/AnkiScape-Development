@@ -80,3 +80,22 @@ No source change or behavior acceptance follows. Root checks the source and meas
 The root owns all source, execution, Git, Memory Bank, browser and remote resources.
 CHECK: Inspect the exact committed source and prior extracted helpers; report source SHA256 and AST spans.
 EXPECT: No imports, product case, command that changes state, source write, Git mutation or chat message occurs.
+
+2026-10-07T01:30:16.555226+00:00 Root selects enemy attack scheduling. The disposable helper passes 5/3/3.1818181818181817 under unchanged 15/15/80 limits; the parent measures 161/269 and still exceeds its limits.
+The two original AST fragments match exactly; expansion restores the whole engine AST.
+Root will make the same small extraction in clean pooled checkout 4, preserving its old branch.
+The new branch starts at edeafd88c824e8a354b856cf37042ff68810bc5a. Root owns its source and commits.
+Move only the retaliation latch and attack-due predicate to the existing enemy-turn module.
+Preserve latch timing, short-circuit order, existing resets, loop exits, all side effects and random draws.
+Do not change gameplay, Magic, Dream, tests, baselines, instruments, UI or any prior helper.
+CHECK: Expand the new call and attack predicate; compare the complete engine AST and every prior enemy-turn definition to the base. Measure the final committed source.
+EXPECT: Exact AST equality and unchanged prior definitions. The helper passes all fixed limits.
+A separate source review, exact focused lanes, complete behavior proof, native acceptance and merged promotion gate remain required.
+No prior supply receipt accepts the new scheduling source.
+
+2026-10-07T01:32:42.702992+00:00 Root committed the two-file scheduling extraction at 3b4b04f1eec6d5968c7d9f3fcd89cfab01d02c43; the checkout is clean.
+Committed bytes match the full AST expansion and prior-module comparison.
+One read-only Astra leaf and one Kimi K3 pass assess this exact source against base edeafd88c824e8a354b856cf37042ff68810bc5a.
+Review ownership covers reports only; root retains every source, execution, Git, Memory Bank, browser and remote resource.
+Both passes exclude product execution, mutations, network/tool installation, delegation and chat messages; the root owns the Kimi request.
+Reports grant source acceptance only. All required runtime, native and promotion checks remain separate.

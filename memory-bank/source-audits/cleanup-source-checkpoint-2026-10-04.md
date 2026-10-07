@@ -25,7 +25,7 @@ Four binding canaries stopped before cases. The metadata mutation changed actual
 Runtime proof: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/16d8840410a9b6f1c27411e0d66893acb0fd2286/runtime-bank-gate-proof/retention-manifest.json`.
 Both carried focused lanes passed 241 tests without skips: plain 15.389s; Qt 15.773s.
 No full-suite, native or promotion acceptance follows for either source.
-The locked MacBook blocks genuine Anki Undo and native acceptance. No new waiver exists.
+The last native attempt was locked; no fresh lock check establishes the current screen state. Genuine Anki Undo and native acceptance remain pending. No new waiver exists.
 Preserve earlier accepted sources, Magic candidate `a8137bab` and Dream's dependency gate.
 
 Combat supply source `edeafd88c824e8a354b856cf37042ff68810bc5a` uses baseline `6175db9b4e2dd6ce713e23814bca27a5da410ae1`.
@@ -37,6 +37,7 @@ Both focused lanes passed 406 tests without skips: plain 8.895s; Qt 8.938s.
 Root read all five proof tools. Every prepared hash and all 1045 tracked Python Git blobs matched.
 The full corpus AST remains unchanged. All five tools compile without execution.
 The frozen archive contains 6697 source files and 33 input/prepared files.
-Root interrupted the independent tool-readiness review at the cap. No report or verdict exists.
-No supply proof operator or product case ran. Runtime, native, full-gate and promotion acceptance remain pending.
+The recovered readiness review found R1 in a disposable fixture; root repaired the copied fixture and independent closure approved.
+All 18 refusal checks stopped before product imports. Both direct runs completed; the normal run compared all 2310 captures with zero differences and no coverage violations.
+The complete burst comparison is running on the frozen local source. Root must audit every saved pair before runtime proof acceptance. Native, full-gate and promotion acceptance remain pending.
 Pause evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/ca859eb0ef06a0b298d25bcedd9338a1120afabc/goal-pause-2026-10-04/retention-manifest.json`.
