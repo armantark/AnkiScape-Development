@@ -73,4 +73,7 @@ Test source `fd8aa78dd36a59cb87fce19b2ecbe87b5136dcc3` adds real review progress
 Merged candidate `dde1a78f1ad90037ea398e84b4ecaab17659f614` passed both full lanes: 5226 tests each, plain 455.799s with 581 skips and Qt 666.827s with 7 skips.
 Its gate exited 2 because the papercut check found eight exact entries both open and fixed. No full gate acceptance exists for that commit.
 The duplicate open copies were removed; every dated fixed copy and all quest source/test bytes remain unchanged. Both ledger preservation and the documentation audit passed before the normal repair commit `52748d16cb5e0ff581b31a70e538deb03eccf07e`.
-The new exact merged gate is running. Native, visual and promotion acceptance remain pending.
+Candidate `52748d16cb5e0ff581b31a70e538deb03eccf07e` passed all nine official checks with remote lanes.
+Each full lane ran 5226 tests: plain 474.836s with 581 skips; Qt 678.456s with 7 skips.
+Root retained 18 raw artifacts and their digests in `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/52748d16cb5e0ff581b31a70e538deb03eccf07e/quest-runtime-full-gate/retention-manifest.json`.
+Manifest SHA-256 `1ade8e051fd54964b0b89d0db21b1493f580159764815c9b0d8336c00400b1b6`. Native, visual and promotion acceptance remain pending.
