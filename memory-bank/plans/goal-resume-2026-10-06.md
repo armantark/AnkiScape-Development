@@ -168,3 +168,25 @@ Root assigned a read-only review of the three accepted upstream specs on 2026-10
 The reviewer must identify one complete backend-only slice allowed by the settled sequence and UI boundary, or give exact blockers.
 The reviewer owns no product files. Root owns integration and acceptance; native checks and existing UI remain excluded from this review.
 The upstream review found no complete backend-only slice. Root verified each spec status and kept all owner decisions open.
+
+Root assigned the remaining eligible bounded acquisition audit on 2026-10-07.
+The read-only leaf must inspect at most five generated sentinel or acquisition-root entries against current main and retained contracts.
+No product file belongs to this leaf. It must return one qualified complete slice or exact source, owner or dependency blockers.
+The five-entry acquisition review found no qualified complete slice. Its dated source record preserves each exact blocker and its limited scope.
+
+Root assigns a read-only Rat Catchers selection review on 2026-10-07 after the five-entry review.
+The leaf owns no files. It must identify a complete backend slice from existing qualified sources, or name the exact source or dependency boundary.
+The review may read current main and retained local dossiers; it must not harvest, run suites, touch native state or re-audit the five completed entries.
+Root owns verification, integration and every external side effect.
+
+Official full gate for source-freeze candidate `d919d479838724fd16bad91c1aff60d67ba488e3` passed all nine checks with both remote lanes.
+Plain: 5220 tests, 460.946s, 581 skips; Qt: 5220 tests, 686.462s, 7 skips. Official landing returned 0 at 2026-10-07T18:22:37.975723+00:00.
+Canonical main is clean at that revision; its sole executable change from `b40f6c7af4f5adce580db1c1cc14efbc1e82f147` is `tools/native/freeze_source.py`.
+Exact Quest `52748d16` and carried `d71c85e5` source packets were transferred and retained under their source commits; no native session was started or dispatched.
+
+Root selects the accepted native fixture as the next independent tooling slice on 2026-10-07.
+Reuse the exact helper and test blobs from `f7f9d505df9ae830e3a6253047bac4a4aa797078`; source changes remain limited to `tools/native/review_fixture.py` and `tests/skills/test_native_review_fixture.py`.
+The tool requires an already-open disposable profile and does not launch Anki. Root owns integration and the remote mirror; reviewers own no files.
+Acceptance requires the real-Collection test with zero skips, independent cross-lineage review, unchanged safety stops, and the official full nine-check gate on the exact merged revision.
+Historical raw publication and sandbox evidence remains on the preserved source branch. No UI, native launch, owner collection, reserved Magic or instrument change belongs to this slice.
+Rat Catchers has a source-ready collapsed route, but authentic cat acquisition is missing. Root verified the exact completion reward and pet-activation seams and retained the bounded dependency record.
