@@ -832,153 +832,154 @@ def _evil_tree_overflow_active(
     )
 
 
+class _CarriedReview:
+    """Own a carried review's pack, bank travel, cadence and action settlement."""
+
+    def __init__(
+        self, ctx: RuntimeActionContext, player_data: dict[str, Any],
+        handler_key: str, target_id: str,
+    ) -> None:
+        self._ctx = ctx
+        self._player_data = player_data
+        self._handler_key = handler_key
+        self._target_id = target_id
+
+    def prepare(self) -> tuple[str, ...]:
+        player_data, handler_key, target_id = self._player_data, self._handler_key, self._target_id
+        self._evil_tree_overflow = _evil_tree_overflow_active(player_data, handler_key, target_id)
+        self._view = dict((player_data.get("carried_inventory") or {}).get(target_id, {}))
+        self._pack = _describe_target_pack(player_data, handler_key, target_id, self._view)
+        is_agility = handler_key == "agility"
+        # Keep/Drop is a gathering-only choice; processing always draws from
+        # and refills its pack rather than dropping a recipe's inputs.
+        self._keep = True if self._pack.is_processing else inventory_pure.carried_keep_for(player_data, target_id)
+        self._churn = (player_data.get("carried_churn") or {}).get(target_id, 0)
+        self._bank_run = player_data.get("skilling_bank_run", {})
+        self._manual_bank_run = (
+            str(player_data.get("review_bank_run_requested_target", "") or "") == target_id
+        )
+        requested_target = player_data.get("skilling_bank_run_requested")
+        self._skilling_bank_run_requested = requested_target == target_id
+        self._bank_run_requested = self._manual_bank_run or self._skilling_bank_run_requested
+        self._capacity = self._pack.capacity
+        self._view = _prime_first_trip(player_data, self._pack, self._view)
+        if is_agility and self._pack.advanced:
+            return _agility_carried_requirement_gaps(player_data, target_id, self._view)
+        return ()
+
+    def _arrive(self) -> None:
+        self._force = _bank_trip_forced(self._pack, self._view, self._bank_run_requested)
+        self._target_altar = (
+            str((RUNECRAFTING_DATA.get(self._target_id) or {}).get("altar_id", ""))
+            if self._handler_key == "runecrafting" else ""
+        )
+        if self._target_altar:
+            self._bank_run, restocked_view = _teleport_past_outbound_leg(
+                self._player_data, self._pack, self._bank_run, self._target_altar
+            )
+            if restocked_view is not None:
+                self._pack = _settle_teleport_arrival(
+                    self._ctx, self._pack, self._view,
+                    manual_bank_run=self._manual_bank_run,
+                    skilling_bank_run_requested=self._skilling_bank_run_requested,
+                )
+                self._bank_run_requested = False
+                self._view, self._churn, self._force = restocked_view, 0, False
+        self._active_run = isinstance(self._bank_run, dict) and int(self._bank_run.get("reviews_remaining", 0) or 0) > 0
+
+    def _choose_bank_trip(self) -> bool:
+        self._pack, self._view, self._churn, self._winter_storage_before = _prepare_winter_storage(
+            self._player_data, self._pack, self._view, self._churn,
+            keep=self._keep, active_run=self._active_run,
+            bank_run_requested=self._bank_run_requested, force=self._force,
+        )
+        trip_due = bool(
+            self._bank_run_requested
+            or (
+                self._keep
+                and (
+                    self._active_run
+                    or (self._churn >= self._capacity and not self._evil_tree_overflow)
+                    or self._force
+                )
+            )
+        )
+        travel_profile, self._reviews_cost, route_phases, outbound_teleport_used = (
+            _select_bank_trip_schedule(
+                self._ctx, self._pack, self._view, self._bank_run,
+                self._active_run, trip_due, self._target_altar,
+            )
+        )
+        self._new_state, self._new_view, self._new_churn, self._event, act = _carried_bank_gate_transition(
+            self._pack, self._view, self._churn, self._keep,
+            self._bank_run_requested, self._capacity, self._force,
+            self._bank_run, self._target_id, self._evil_tree_overflow,
+            self._active_run, self._reviews_cost, trip_due,
+            travel_profile, route_phases, outbound_teleport_used,
+        )
+        _settle_bank_run_requests(
+            self._player_data, self._view, self._event,
+            manual_bank_run=self._manual_bank_run,
+            skilling_bank_run_requested=self._skilling_bank_run_requested,
+        )
+        return act
+
+    def _spend_bank_review(self) -> bool:
+        self._cadence.restore_after_rejection()
+        if self._event.get("completed"):
+            self._new_view = self._pack.repack()
+        _spend_review_on_bank_trip(
+            self._ctx, self._target_id, self._bank_run, self._new_state,
+            self._new_view, self._new_churn, self._event, self._reviews_cost,
+        )
+        return True
+
+    def _run_action(self, handler) -> bool:
+        # Urn substitutions must see the actual trip view, including a seeded trip.
+        _set_carried_target_map(self._player_data, "carried_inventory", self._target_id, self._new_view)
+        if not self._cadence.admit():
+            return True
+        if self._pack.is_processing and self._pack.requirements:
+            return _run_processing_tick(
+                self._ctx, self._cadence.action_ctx, handler, self._pack,
+                self._new_state, self._new_view, self._new_churn,
+                winter_storage_before=self._winter_storage_before,
+                restore_cadence=self._cadence.restore_after_rejection,
+            )
+        return _run_keep_drop_tick(
+            self._ctx, self._cadence.action_ctx, handler, self._pack,
+            self._new_state, self._new_churn, keep=self._keep,
+            evil_tree_overflow=self._evil_tree_overflow,
+            winter_storage_before=self._winter_storage_before,
+            restore_cadence=self._cadence.restore_after_rejection,
+        )
+
+    def run(self, handler) -> bool:
+        self._arrive()
+        self._cadence = _CadenceAdmission(self._ctx, self._handler_key, self._target_id)
+        if self._keep and not self._active_run and not self._cadence.admit():
+            return True
+        if not self._choose_bank_trip():
+            return self._spend_bank_review()
+        return self._run_action(handler)
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
-    """Run one skilling tick through the 28-slot carried overlay.
-
-    Gathering skills fill the pack with their product (Keep) or bypass it
-    entirely (Drop); the pack banks when full. Processing skills instead *draw*
-    their recipe inputs from the pack: the handler only sees as much of each
-    required material as the pack currently holds, so the pack — not the
-    infinite bank — is what limits actions-per-trip. This is what gives the
-    advanced 4x7 layout real consequence: a well-arranged pack (matching a
-    recipe's true ratio) yields more actions before a bank-run than an even
-    casual split.
-
-    Before the tick, the gate decides whether this answer is spent banking
-    instead of acting: churn reaching capacity (either skill), or — processing
-    only — the pack running out of a required input the bank could still
-    supply. On a completed bank run the pack is repacked from the bank (casual
-    preset / processing split, or the advanced saved layout) rather than simply
-    cleared. Handlers without carried teeth run untouched unless the player
-    explicitly spends that review on a bank run.
-    """
+    """Run one skilling tick through the 28-slot carried overlay."""
     player_data = ctx.player_data
     target_key = _OVERLAY_TARGET_KEYS.get(handler_key)
     if target_key is None:
         return _run_without_carried_overlay(ctx, handler_key, handler)
 
     target_id = str(player_data.get(target_key, ""))
-    evil_tree_overflow = _evil_tree_overflow_active(player_data, handler_key, target_id)
-    view = dict((player_data.get("carried_inventory") or {}).get(target_id, {}))
-    pack = _describe_target_pack(player_data, handler_key, target_id, view)
-    is_agility = handler_key == "agility"
-    # Keep/Drop is a gathering-only choice; processing always draws from (and
-    # refills) its pack — there is no "drop the product" for a recipe's inputs.
-    keep = True if pack.is_processing else inventory_pure.carried_keep_for(player_data, target_id)
-    churn = (player_data.get("carried_churn") or {}).get(target_id, 0)
-    bank_run = player_data.get("skilling_bank_run", {})
-    manual_bank_run = (
-        str(player_data.get("review_bank_run_requested_target", "") or "")
-        == target_id
-    )
-    requested_target = player_data.get("skilling_bank_run_requested")
-    skilling_bank_run_requested = requested_target == target_id
-    bank_run_requested = manual_bank_run or skilling_bank_run_requested
-    capacity = pack.capacity
-    view = _prime_first_trip(player_data, pack, view)
-
-    if is_agility and pack.advanced:
-        missing = _agility_carried_requirement_gaps(player_data, target_id, view)
-        if missing:
-            ctx.deactivate_current_skill()
-            ctx.show_error_message(
-                "Agility pack incomplete",
-                f"Custom mode must carry or equip {', '.join(missing)} for "
-                f"{AGILITY_TARGETS_BY_ID[target_id].display_name}.",
-            )
-            return False
-
-    force = _bank_trip_forced(pack, view, bank_run_requested)
-
-    target_altar = (
-        str((RUNECRAFTING_DATA.get(target_id) or {}).get("altar_id", ""))
-        if handler_key == "runecrafting"
-        else ""
-    )
-    if target_altar:
-        bank_run, restocked_view = _teleport_past_outbound_leg(player_data, pack, bank_run, target_altar)
-        if restocked_view is not None:
-            pack = _settle_teleport_arrival(
-                ctx, pack, view,
-                manual_bank_run=manual_bank_run, skilling_bank_run_requested=skilling_bank_run_requested,
-            )
-            bank_run_requested = False
-            view, churn, force = restocked_view, 0, False
-
-    active_run = isinstance(bank_run, dict) and int(bank_run.get("reviews_remaining", 0) or 0) > 0
-    cadence = _CadenceAdmission(ctx, handler_key, target_id)
-    if keep and not active_run and not cadence.admit():
-        return True
-    pack, view, churn, winter_storage_before = _prepare_winter_storage(
-        player_data, pack, view, churn, keep=keep, active_run=active_run,
-        bank_run_requested=bank_run_requested, force=force,
-    )
-    trip_due = bool(
-        bank_run_requested
-        or (
-            keep
-            and (
-                active_run
-                or (churn >= capacity and not evil_tree_overflow)
-                or force
-            )
+    review = _CarriedReview(ctx, player_data, handler_key, target_id)
+    missing = review.prepare()
+    if missing:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Agility pack incomplete",
+            f"Custom mode must carry or equip {', '.join(missing)} for "
+            f"{AGILITY_TARGETS_BY_ID[target_id].display_name}.",
         )
-    )
-    travel_profile, reviews_cost, route_phases, outbound_teleport_used = (
-        _select_bank_trip_schedule(ctx, pack, view, bank_run, active_run, trip_due, target_altar)
-    )
-
-    new_state, new_view, new_churn, event, act = _carried_bank_gate_transition(
-        pack, view, churn, keep, bank_run_requested, capacity, force,
-        bank_run, target_id, evil_tree_overflow, active_run, reviews_cost,
-        trip_due, travel_profile, route_phases, outbound_teleport_used,
-    )
-
-    _settle_bank_run_requests(
-        player_data,
-        view,
-        event,
-        manual_bank_run=manual_bank_run,
-        skilling_bank_run_requested=skilling_bank_run_requested,
-    )
-
-    if not act:
-        cadence.restore_after_rejection()
-        if event.get("completed"):
-            new_view = pack.repack()
-        _spend_review_on_bank_trip(
-            ctx, target_id, bank_run, new_state, new_view, new_churn, event, reviews_cost
-        )
-        return True
-
-    # Handlers that substitute carried items (urn runed -> active -> full) must
-    # see the actual trip view, including a just-seeded first trip.
-    _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
-    if not cadence.admit():
-        return True
-
-    if pack.is_processing and pack.requirements:
-        return _run_processing_tick(
-            ctx,
-            cadence.action_ctx,
-            handler,
-            pack,
-            new_state,
-            new_view,
-            new_churn,
-            winter_storage_before=winter_storage_before,
-            restore_cadence=cadence.restore_after_rejection,
-        )
-
-    return _run_keep_drop_tick(
-        ctx,
-        cadence.action_ctx,
-        handler,
-        pack,
-        new_state,
-        new_churn,
-        keep=keep,
-        evil_tree_overflow=evil_tree_overflow,
-        winter_storage_before=winter_storage_before,
-        restore_cadence=cadence.restore_after_rejection,
-    )
+        return False
+    return review.run(handler)
