@@ -63,7 +63,10 @@ Astra and Kimi K3 approved the concrete source. Root verified the unchanged modu
 Root remeasured the dispatcher at CCN 3 and cognitive 2. Every added or modified method has no violation of the fixed 15/15/80 limits. The file has 985 lines.
 The complete corpus compared 1158 pairs with zero differences and no check violations. All 13 bank paths ran, including the 32-review Firemaking refill and exhaustion sequence.
 Nine Keep/urn captures, nine new-trip captures and 18 processing captures matched. The route metadata sensitivity run detected 71 changed states, mutation traces, callback traces and schedule captures; its expected exit was 1.
-Local focused proof passed 259 tests without skips. All five standing audits exited 0. Remote merged, native and promotion acceptance remain pending.
+Local focused proof passed 259 tests without skips. All five standing audits exited 0.
+Exact current-main integration `d71c85e5f415cd67c50660967ac981652499c33c` passed all nine official checks with remote lanes.
+Each full lane ran 5220 tests: plain 463.637s with 581 skips; Qt 680.677s with 7 skips. Native and promotion acceptance remain pending.
+Root retained six gate artifacts at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/d71c85e5f415cd67c50660967ac981652499c33c/carried-runtime-full-gate/retention-manifest.json`. Manifest SHA-256 `0712258733e9f68107311953fd94f815af4e45ce74f4a99632cd0534a9c5e3d9`.
 Retained raw artifacts and each digest: [/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/a0241667f17dba4ed3a0634be98978b5cf424e1c/carried-review-lifecycle-proof/retention-manifest.json](</Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/a0241667f17dba4ed3a0634be98978b5cf424e1c/carried-review-lifecycle-proof/retention-manifest.json>). Manifest SHA-256 `214b98843a496eda67e40ec644223995f30b6714f8e2d24be480fc4824395ae2`.
 The next non-Magic combat ownership proposal is blocked by shared health, scheduling and replacement-data state. A rewards-only wrapper would be shallow. Preserve Magic and continue independent work.
 
@@ -73,4 +76,7 @@ Test source `fd8aa78dd36a59cb87fce19b2ecbe87b5136dcc3` adds real review progress
 Merged candidate `dde1a78f1ad90037ea398e84b4ecaab17659f614` passed both full lanes: 5226 tests each, plain 455.799s with 581 skips and Qt 666.827s with 7 skips.
 Its gate exited 2 because the papercut check found eight exact entries both open and fixed. No full gate acceptance exists for that commit.
 The duplicate open copies were removed; every dated fixed copy and all quest source/test bytes remain unchanged. Both ledger preservation and the documentation audit passed before the normal repair commit `52748d16cb5e0ff581b31a70e538deb03eccf07e`.
-The new exact merged gate is running. Native, visual and promotion acceptance remain pending.
+Candidate `52748d16cb5e0ff581b31a70e538deb03eccf07e` passed all nine official checks with remote lanes.
+Each full lane ran 5226 tests: plain 474.836s with 581 skips; Qt 678.456s with 7 skips.
+Root retained 18 raw artifacts and their digests in `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/52748d16cb5e0ff581b31a70e538deb03eccf07e/quest-runtime-full-gate/retention-manifest.json`.
+Manifest SHA-256 `1ade8e051fd54964b0b89d0db21b1493f580159764815c9b0d8336c00400b1b6`. Native, visual and promotion acceptance remain pending.
