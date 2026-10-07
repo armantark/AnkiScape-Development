@@ -16,3 +16,9 @@ Kimi raw output SHA-256: `53098ca4707303ec85e27785d0ba95b87d19e483567c19a2b15a1e
 Root retains raw controls and reviews outside the worktree. Official full-gate and landing receipts govern promotion status.
 No historical compressed publication or sandbox reports are copied into this slice. The original branch remains preserved.
 Retained source proof manifest: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/9e53240d02a4c6816cb3e003080e0228008e07ea/native-review-fixture-proof/retention-manifest.json`; SHA-256 `6f4c47373720cd0ba0a7967d32332721656c391fe52d70c156684eeb78a42ed0`.
+
+Exact merged revision `5a8b3de77edbd4ae404296b994029a0c5970f36a` passed all nine official checks with both full remote lanes.
+The official land command completed with actual exit 0; canonical main is clean at that revision.
+Gate receipt: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/5a8b3de77edbd4ae404296b994029a0c5970f36a/native-review-fixture-full-gate/5a8b3de77edbd4ae404296b994029a0c5970f36a.json`.
+Landing control: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/5a8b3de77edbd4ae404296b994029a0c5970f36a/native-review-fixture-landing/landing/landing-execution.json`.
+These receipts accept the tooling only; no native gameplay was run for this slice.

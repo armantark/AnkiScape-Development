@@ -200,3 +200,9 @@ The authentic cat-acquisition review found source-backed transaction interfaces,
 Official fixture gate `5a8b3de77edbd4ae404296b994029a0c5970f36a` passed all nine checks with both remote lanes.
 Plain: 5222 tests, 465.872s, 582 skips; Qt: 5222 tests, 677.838s, 7 skips. Official landing returned 0 at 2026-10-07T19:10:10.402688+00:00.
 Canonical main is clean at the fixture revision. Source packaging and disposable-collection fixture tooling are landed; Quest and carried runtime candidates still lack native acceptance.
+
+Root assigns a fresh full remaining-queue audit against canonical main `5a8b3de77edbd4ae404296b994029a0c5970f36a` on 2026-10-07.
+The read-only leaf owns no files. Cover every current priority row and every retained class/gap obligation, without narrowing to previously reviewed candidates.
+Use current source, exact ancestry and acceptance receipts. Return the next complete qualified independent slice, or per-entry exact blocker evidence.
+Accepted unmerged sources must remain explicit; green source gates are not native acceptance, and a single failed boundary is not a whole-family proof.
+Root owns all integration, native/remote resources, writes and external effects. No harvesting, UI work, suites, new tools or model calls belongs to the leaf.
