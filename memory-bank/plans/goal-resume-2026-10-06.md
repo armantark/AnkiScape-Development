@@ -133,3 +133,14 @@ EXPECT: Exact source binding, complete corpus, no tracked mutation and no produc
 Return a README with exact root commands, failure modes, operators and a preparation report.
 Stop after one complete preparation pass. Missing evidence must remain explicit.
 Root verifies readiness and all raw captures before accepting the behavior proof.
+
+### Documentation review and promotion leaf
+
+2026-10-07T04:19:20.827093+00:00 Root freezes the documentation candidate before the full remote gate.
+One Astra leaf and one Kimi K3 pass review the exact candidate against main ca859eb0ef06a0b298d25bcedd9338a1120afabc.
+Each reviewer owns only its named report under `.orchestrator/goal-resume-2026-10-06/reset-70/docs-review`.
+The reviews must distinguish historical source proof, pending native acceptance and current promotion evidence.
+CHECK: Inspect all changed records, exact retained summaries, original pause bytes and the existing video digest.
+EXPECT: No false acceptance claim, weakened gate, runtime mutation or unsupported source binding.
+Missing evidence requires REVISE; root resolves every valid finding before landing.
+Root owns the full remote gate, official land command and every external side effect.
