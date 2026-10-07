@@ -4,6 +4,8 @@ This log keeps the current month. Earlier months rotate into `memory-bank/archiv
 
 ## 2026-10-03: Current queue result
 
+2026-10-07T22:01:49.978967+00:00 Root landed carried integration `7c7651e993236127c73ceae8cd98eab2e1dd4e92` through the official command. Main is clean. Its exact receipt records all nine checks, `remote_lanes=true` and `plain_only=false`. Plain ran 5222 tests in 474.107s with 582 skips; Qt ran 5222 tests in 679.355s with 7 skips. All four product files match native-accepted D71. The retained gate and landing records are in canonical `.git/ankiscape-promotion-evidence/7c7651e993236127c73ceae8cd98eab2e1dd4e92/carried-native-accepted-landed-2026-10-07/retention-manifest.json`. Ancestry confirms the carried trip schedule, bank gate, overflow and lifecycle sources are on main. Death and quest native acceptance remain separate.
+
 Root verified main `ca859eb0ef06a0b298d25bcedd9338a1120afabc` clean at 2026-10-04T04:24:05.550171+00:00.
 Seven October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004`, S12 `58438c4d`, assertion trims `d2aa35d2`, covered-method deletions `28481d9295db918396d5d0188f69c1ea36f102b5` and documentation `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
 
@@ -15,7 +17,7 @@ The deletion operator passed ten refusal canaries without writes. It removed thr
 
 The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skips. Independent raw-map verification passed. This subset is not a whole-suite coverage map.
 
-Cache CLI (S12) is landed. Quest head `c2c37322dcdcc61defaef9b4094723ca8765f76c`, carried trip schedule `0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088` and death settlement `7e08030e3aa0323e5cc22d45865f9d458ec50fdc` remain unlanded under their separate gates.
+Cache CLI (S12) is landed. Quest head `c2c37322dcdcc61defaef9b4094723ca8765f76c` and death settlement `7e08030e3aa0323e5cc22d45865f9d458ec50fdc` remain unlanded under their separate gates. Carried trip schedule `0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088` is an ancestor of landed `7c7651e9`.
 The composed four-cleanup candidate `1ec3427b48a34ad550764a049392bfc219fe5c9d` passed all nine checks on `58438c4d`; current main has advanced, so a new merged candidate and full gate are required.
 Carried differential proof passed 1132 cases with no differences or check violations. Repaired death proof passed 1142 direct and 29 consumer cases with no differences or failed checks. The first failed run and exact fixture repair remain retained. Genuine Anki Undo remains pending.
 The historical native attempt stopped at the locked MacBook before preparation or launch, with zero reviews. The owner authorized the prepared native dispatch and required screen notices in this continuation. Root sent the before notice and dispatched exact source `c8ad3924b81832a2ef4274ca6907f3738c15a124` after the headless gate released the MacBook. The native chat reported a real isolated launch; native acceptance remains pending. No native acceptance or new waiver exists.
