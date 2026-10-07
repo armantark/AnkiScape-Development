@@ -1,6 +1,6 @@
 # Cleanup source checkpoint, 2026-10-04
 
-The goal remains active. Current main is `28481d9295db918396d5d0188f69c1ea36f102b5`.
+The first October 6 continuation under 40% is historical. After the reset, the owner resumed under the shared 70% ceiling. Current main is `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
 Source acceptance does not grant runtime, native or promotion acceptance.
 
 Combat clock source `6175db9b4e2dd6ce713e23814bca27a5da410ae1` has Astra source acceptance with no findings.
@@ -25,5 +25,21 @@ Four binding canaries stopped before cases. The metadata mutation changed actual
 Runtime proof: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/16d8840410a9b6f1c27411e0d66893acb0fd2286/runtime-bank-gate-proof/retention-manifest.json`.
 Both carried focused lanes passed 241 tests without skips: plain 15.389s; Qt 15.773s.
 No full-suite, native or promotion acceptance follows for either source.
-The locked MacBook blocks genuine Anki Undo and native acceptance. No new waiver exists.
+The earlier native attempt was locked. In the reset continuation, root dispatched the authorized shallow cleanup source `c8ad3924b81832a2ef4274ca6907f3738c15a124`; the native chat reported a real isolated launch. Genuine Anki Undo and native acceptance remain pending. No new waiver exists.
 Preserve earlier accepted sources, Magic candidate `a8137bab` and Dream's dependency gate.
+
+Combat supply source `edeafd88c824e8a354b856cf37042ff68810bc5a` uses baseline `6175db9b4e2dd6ce713e23814bca27a5da410ae1`.
+Astra and GLM accepted the final source. All source findings are resolved.
+The final change preserves the whole engine AST after helper expansion and the prior enemy-turn definitions.
+Root remeasured the helper at CCN 3, cognitive 2 and Halstead difficulty 0, against unchanged 15/15/80 limits.
+The parent measures CCN 165, cognitive 273 and Halstead difficulty 16.82383419689119. The parent remains over limits.
+Both focused lanes passed 406 tests without skips: plain 8.895s; Qt 8.938s.
+Root read all five proof tools. Every prepared hash and all 1045 tracked Python Git blobs matched.
+The full corpus AST remains unchanged. All five tools compile without execution.
+The frozen archive contains 6697 source files and 33 input/prepared files.
+The recovered readiness review found R1 in a disposable fixture; root repaired the copied fixture and independent closure approved.
+All 18 refusal checks stopped before product imports. Both direct runs completed; the normal run compared all 2310 captures with zero differences and no coverage violations.
+The complete comparison passed all 155100 cases with zero differences; root audited every saved capture and verified all retained hashes.
+[The October 6 supply proof](combat-enemy-attack-supplies-proof-2026-10-06.md) records exact bindings and limits. Native, full-gate and promotion acceptance remain pending.
+[The later scheduling source](combat-enemy-attack-scheduling-2026-10-06.md) has independent source acceptance and both focused lanes; its complete behavior proof remains pending.
+Pause evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/ca859eb0ef06a0b298d25bcedd9338a1120afabc/goal-pause-2026-10-04/retention-manifest.json`.

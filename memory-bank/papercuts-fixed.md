@@ -1,0 +1,4 @@
+# Fixed papercuts
+
+2026-10-07T01:04:08.516797+00:00 Supply readiness review returned REVISE R1 before product execution: direct_supply_probe.py:206 targets ("data.combat_supply_loadout", "get", "potions", 2), but default Shark consumption replaces its TraceDict after the first read. Root confirmed the real sanitizer and food/antipoison paths. The copied fixture now has no food only for this rule; all 14 required failure assertions and the original prepared bundle remain unchanged. Closure review and runtime reachability remain pending.
+2026-10-07T01:38:58.474588+00:00 Resolved R1 in the copied disposable fixture. Independent closure approved; the direct comparison reached every required typed failure, including the second potion read, and all 2310 captures compared equal. The 14 failure rules and original prepared bundle remain unchanged.
