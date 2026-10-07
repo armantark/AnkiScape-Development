@@ -14,3 +14,9 @@ The poison-exchange test seeds prerequisites and supplies, and stops at the next
 A full quest slice must also obtain Snake charm during the route and grant cat-training access, rather than a free Wily cat.
 The retained target contract is `/Users/ArmanTarkhanian1/Documents/2012scape with bots/memory-bank/audit/evidence/static/rat-catchers-target-contract.json`.
 The reviewer performed no harvest, test, product execution or writes. Root performed source checks only.
+
+A separate acquisition-dependency review found reusable grant, follower, persistence and NPC-provider interfaces.
+The complete cat route remains unqualified: the current pet view selects icons by pet ID and stage, ignores colour variant, and omits colour from its follower summary. Existing UI remains reserved.
+The retained dated pages prove random colours, but independent evidence for the reconstructed uniform six-colour draw is absent from this packet.
+Generic care applies adult hunger to cats, contrary to the retained Cat source; its food matcher does not translate catalog `milk` to `Bucket of milk`. These backend gaps do not close acquisition on their own.
+Legacy inventory-cat policy remains reserved. Root read the current variant-blind view, generic hunger path and corroboration gate; no implementation was started.

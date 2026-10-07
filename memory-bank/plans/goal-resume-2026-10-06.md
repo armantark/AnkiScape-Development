@@ -190,3 +190,9 @@ The tool requires an already-open disposable profile and does not launch Anki. R
 Acceptance requires the real-Collection test with zero skips, independent cross-lineage review, unchanged safety stops, and the official full nine-check gate on the exact merged revision.
 Historical raw publication and sandbox evidence remains on the preserved source branch. No UI, native launch, owner collection, reserved Magic or instrument change belongs to this slice.
 Rat Catchers has a source-ready collapsed route, but authentic cat acquisition is missing. Root verified the exact completion reward and pet-activation seams and retained the bounded dependency record.
+
+Root assigns a bounded review of the authentic cat-acquisition dependency on 2026-10-07.
+The read-only leaf must assess Gertrude completion and the sourced post-quest replacement route through existing pet and action surfaces.
+Return a complete backend-only route contract or exact source, owner or UI boundaries; do not repeat the Rat Catchers review or author code.
+Root owns all files and acceptance. Existing UI, migration policy, reserved Magic, fixed instruments and native state remain excluded.
+The authentic cat-acquisition review found source-backed transaction interfaces, but no complete independent backend slice under the colour UI reservation and unresolved random-colour qualification. Root verified the current view and care seams and retained the exact limited ruling.
