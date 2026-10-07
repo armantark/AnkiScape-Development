@@ -68,3 +68,4 @@ Record a failed check exactly. Never substitute a passed check from another sour
 2026-10-06 Root verified clean main `ca859eb0ef06a0b298d25bcedd9338a1120afabc` and safe worktree placement.
 2026-10-06 Root recovered the terminal pause checkpoint. The supply proof review was interrupted; no supply cases ran.
 
+2026-10-07T01:04:08.516797+00:00 Astra returned REVISE R1. Root confirmed the source paths and repaired only the disposable second-read fixture in a new prepared directory. Source, baseline, burst corpus and expected failure assertions remain unchanged. Root will run the cold local source copy after closure, first refusal stops, then event sensitivity and complete comparisons. No MacBook mirror or GUI ownership is required for those local copies.
