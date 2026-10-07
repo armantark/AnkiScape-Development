@@ -816,6 +816,22 @@ def _select_bank_trip_schedule(
     return None, reviews_cost, (), False
 
 
+def _evil_tree_overflow_active(
+    player_data: dict[str, Any], handler_key: str, target_id: str,
+) -> bool:
+    evil_tree_state = player_data.get("evil_tree")
+    if not isinstance(evil_tree_state, dict):
+        evil_tree_state = {}
+    return bool(
+        handler_key == "woodcutting"
+        and target_id in EVIL_TREE_ELIGIBLE_BLESSING_TARGETS
+        and int(
+            evil_tree_state.get("blessing_reviews_remaining", 0) or 0
+        )
+        > 0
+    )
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
@@ -842,17 +858,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         return _run_without_carried_overlay(ctx, handler_key, handler)
 
     target_id = str(player_data.get(target_key, ""))
-    evil_tree_state = player_data.get("evil_tree")
-    if not isinstance(evil_tree_state, dict):
-        evil_tree_state = {}
-    evil_tree_overflow = bool(
-        handler_key == "woodcutting"
-        and target_id in EVIL_TREE_ELIGIBLE_BLESSING_TARGETS
-        and int(
-            evil_tree_state.get("blessing_reviews_remaining", 0) or 0
-        )
-        > 0
-    )
+    evil_tree_overflow = _evil_tree_overflow_active(player_data, handler_key, target_id)
     view = dict((player_data.get("carried_inventory") or {}).get(target_id, {}))
     pack = _describe_target_pack(player_data, handler_key, target_id, view)
     is_agility = handler_key == "agility"
