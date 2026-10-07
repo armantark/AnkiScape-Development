@@ -1,4 +1,9 @@
-# Continue the AnkiScape goal under the shared quota ceiling
+# AnkiScape goal continuation records
+
+The latest reset continuation below controls the active 70% shared owner ceiling.
+The first continuation and its 40% stop are historical. Dates use America/Los_Angeles unless a timestamp states UTC.
+
+## Historical first continuation under the shared 40% ceiling
 
 The owner resumed the goal on 2026-10-06.
 The owner said: "Let's continue the goal. I permit you and the other thread to use 40% Codex quota total."
@@ -114,7 +119,7 @@ Root owns all source, Git, Memory Bank, local execution, remote mirror and nativ
 The prior pause remains byte-identical in `archive/2026-10/handoffs/goal-pause-2026-10-06.txt`.
 Root repairs the five incident bullet prefixes without changing the incident text.
 The status video exists locally but its ignored file is absent from the gate archive.
-Root will include that existing status asset in the documentation slice; no new status artifact is required.
+Root included that existing status asset in the documentation commit; no new status artifact is required.
 
 ### Scheduling proof preparation leaf
 
@@ -144,3 +149,7 @@ CHECK: Inspect all changed records, exact retained summaries, original pause byt
 EXPECT: No false acceptance claim, weakened gate, runtime mutation or unsupported source binding.
 Missing evidence requires REVISE; root resolves every valid finding before landing.
 Root owns the full remote gate, official land command and every external side effect.
+
+2026-10-07T04:39:48.778405+00:00 Astra review returned REVISE R1/R2/R3 for stale current ceilings, repeated completed work and historical lock claims. Root corrects the current passages and marks the initial 40% plan section historical without changing the original directives. The owner authorized native dispatch and both required notices. The full documentation gate for `40255a60986c57ce5f0268cc707f8f7a867984bc` passed all nine checks and released the MacBook. Root sent the authorized before notice and dispatched the prepared native source. That documentation candidate remains unlanded while root resolves the review findings; its corrected successor needs a fresh exact-head full gate.
+
+2026-10-07T04:46:32.172297+00:00 Root verified all nine checks on the unlanded documentation source `40255a60986c57ce5f0268cc707f8f7a867984bc`. Plain and Qt each ran 5220 tests; plain skipped 581 and Qt skipped 7. The gate receipt remains exact-source evidence, not acceptance of this corrected successor. Scheduling preparation is complete; independent readiness review and all runtime cases remain pending. Astra and Kimi K3 accepted encounter-state source `1eb9588d2c9767b19120497fafe822c276500bd0` at source level only. Its focused lanes, behavior proof, native acceptance and promotion remain pending.

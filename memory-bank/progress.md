@@ -18,10 +18,10 @@ The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skip
 Cache CLI (S12) is landed. Quest head `c2c37322dcdcc61defaef9b4094723ca8765f76c`, carried trip schedule `0bbf4aa494c3bff9ab5dc78f95b2595f6ec2d088` and death settlement `7e08030e3aa0323e5cc22d45865f9d458ec50fdc` remain unlanded under their separate gates.
 The composed four-cleanup candidate `1ec3427b48a34ad550764a049392bfc219fe5c9d` passed all nine checks on `58438c4d`; current main has advanced, so a new merged candidate and full gate are required.
 Carried differential proof passed 1132 cases with no differences or check violations. Repaired death proof passed 1142 direct and 29 consumer cases with no differences or failed checks. The first failed run and exact fixture repair remain retained. Genuine Anki Undo remains pending.
-Native acceptance stopped at the locked MacBook before preparation or launch, with zero reviews. The unlock response is pending and no waiver exists.
-The goal is paused and unfinished at the combined 20% owner cap. See [the pause checkpoint](GOAL-BLOCKED.md).
+The historical native attempt stopped at the locked MacBook before preparation or launch, with zero reviews. The owner authorized the prepared native dispatch and required screen notices in this continuation. Root sent the before notice and dispatched exact source `c8ad3924b81832a2ef4274ca6907f3738c15a124` after the headless gate released the MacBook. The native chat reported a real isolated launch; native acceptance remains pending. No native acceptance or new waiver exists.
+The goal is active and unfinished under the shared 70% owner ceiling after the reset. See [the resume checkpoint](GOAL-BLOCKED.md).
 The [October 4 source checkpoint](source-audits/cleanup-source-checkpoint-2026-10-04.md) records the accepted combat clock and carried bank-gate sources. Runtime proof and native acceptance remain separate.
-The owner's combined 20% account cap remains binding. No fresh main audit or full staleness sweep is claimed.
+The owner's shared 70% account-used ceiling remains binding. No fresh whole-queue audit or full staleness sweep is claimed.
 
 
 ## 2026-10-03 checkpoint (historical): active queue reconciliation

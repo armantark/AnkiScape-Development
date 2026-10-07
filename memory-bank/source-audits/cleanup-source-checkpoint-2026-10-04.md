@@ -1,6 +1,6 @@
 # Cleanup source checkpoint, 2026-10-04
 
-The owner resumed the goal on 2026-10-06 under the shared 40% ceiling. Current main is `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
+The first October 6 continuation under 40% is historical. After the reset, the owner resumed under the shared 70% ceiling. Current main is `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
 Source acceptance does not grant runtime, native or promotion acceptance.
 
 Combat clock source `6175db9b4e2dd6ce713e23814bca27a5da410ae1` has Astra source acceptance with no findings.
@@ -25,7 +25,7 @@ Four binding canaries stopped before cases. The metadata mutation changed actual
 Runtime proof: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/16d8840410a9b6f1c27411e0d66893acb0fd2286/runtime-bank-gate-proof/retention-manifest.json`.
 Both carried focused lanes passed 241 tests without skips: plain 15.389s; Qt 15.773s.
 No full-suite, native or promotion acceptance follows for either source.
-The last native attempt was locked; no fresh lock check establishes the current screen state. Genuine Anki Undo and native acceptance remain pending. No new waiver exists.
+The earlier native attempt was locked. In the reset continuation, root dispatched the authorized shallow cleanup source `c8ad3924b81832a2ef4274ca6907f3738c15a124`; the native chat reported a real isolated launch. Genuine Anki Undo and native acceptance remain pending. No new waiver exists.
 Preserve earlier accepted sources, Magic candidate `a8137bab` and Dream's dependency gate.
 
 Combat supply source `edeafd88c824e8a354b856cf37042ff68810bc5a` uses baseline `6175db9b4e2dd6ce713e23814bca27a5da410ae1`.
