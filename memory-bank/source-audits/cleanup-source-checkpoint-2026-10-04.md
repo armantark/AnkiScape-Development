@@ -39,5 +39,7 @@ The full corpus AST remains unchanged. All five tools compile without execution.
 The frozen archive contains 6697 source files and 33 input/prepared files.
 The recovered readiness review found R1 in a disposable fixture; root repaired the copied fixture and independent closure approved.
 All 18 refusal checks stopped before product imports. Both direct runs completed; the normal run compared all 2310 captures with zero differences and no coverage violations.
-The complete burst comparison is running on the frozen local source. Root must audit every saved pair before runtime proof acceptance. Native, full-gate and promotion acceptance remain pending.
+The complete comparison passed all 155100 cases with zero differences; root audited every saved capture and verified all retained hashes.
+[The October 6 supply proof](combat-enemy-attack-supplies-proof-2026-10-06.md) records exact bindings and limits. Native, full-gate and promotion acceptance remain pending.
+[The later scheduling source](combat-enemy-attack-scheduling-2026-10-06.md) has independent source acceptance and both focused lanes; its complete behavior proof remains pending.
 Pause evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/ca859eb0ef06a0b298d25bcedd9338a1120afabc/goal-pause-2026-10-04/retention-manifest.json`.

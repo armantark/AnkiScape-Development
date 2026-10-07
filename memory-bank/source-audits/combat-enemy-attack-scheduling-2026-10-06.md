@@ -13,4 +13,4 @@ The plain lane passed 406 tests without skips in 8.762s; the Qt lane passed 406 
 Root verified every inventory and run log hash, exact source binding and outer exit 0.
 Evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/3b4b04f1eec6d5968c7d9f3fcd89cfab01d02c43/source-review-and-focused-lanes/retention-manifest.json`.
 Complete behavior proof, native acceptance, full branch and merged gates, and promotion remain pending.
-No prior clock or supply proof accepts this scheduling source. Canonical main remains unchanged.
+No prior clock or supply proof accepts this scheduling source. The scheduling source remains unlanded.

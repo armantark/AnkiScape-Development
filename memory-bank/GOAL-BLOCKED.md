@@ -4,4 +4,6 @@ The owner resumed the goal on 2026-10-06: "Let's continue the goal. I permit you
 
 The goal is unfinished. The owner resumed work; the goal tool still reports its prior paused status and exposes no resume operation. Root does not create a duplicate goal.
 
-The [exact prior pause](archive/2026-10/handoffs/goal-pause-2026-10-04.md) remains unchanged. Continue from [the resume plan](plans/goal-resume-2026-10-06.md). Supply proof readiness, runtime proof and all later acceptance checks remain pending. Main remains `ca859eb0ef06a0b298d25bcedd9338a1120afabc`. No runtime slice landed during this continuation.
+The [exact prior pause](archive/2026-10/handoffs/goal-pause-2026-10-04.md) remains unchanged. Continue from [the resume plan](plans/goal-resume-2026-10-06.md). [Supply readiness and complete behavior proof](source-audits/combat-enemy-attack-supplies-proof-2026-10-06.md) passed. [The later scheduling source](source-audits/combat-enemy-attack-scheduling-2026-10-06.md) has source acceptance and both focused lanes; its complete behavior proof remains pending. Native, full merged gates and runtime promotion remain pending. Runtime code remains as in `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
+
+The shallow cleanup native check remains pending current-turn authorization to message “Verify AnkiScape in native Anki” and “Restore Darkan content fidelity”. No native dispatch occurred. The historical locked-screen result does not establish the current screen state.

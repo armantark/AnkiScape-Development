@@ -47,6 +47,10 @@ The goal is paused at the combined 20% owner cap. [The pause checkpoint](GOAL-BL
 | Separate | Lease release and duplicate-branch guard proposals | Proposed; no implementation authorization | A release proposal would hold the promotion lock through detach/return, disable stale recovery, and refuse matching or unreadable markers without signals or cleanup. A lease proposal would reject a duplicate branch before allocation. The root decides a separate follow-up; do not treat proposals as assigned work. |
 | Separate | Open papercuts, menu-open performance, release and standalone travel | Unassigned / `parked` / `excluded` | The one-time papercut triage landed with handoff step 6 (`bf38b68b`, docs batch `db75276f`); lines added to `papercuts.md` since then are open and need a separate assignment. Old quota prose is not a live quota signal. Menu-open performance remains on the kanban under its owner target. No publication, transport system, post-cutoff content or remote push is authorized. |
 
+## October 6 source proof checkpoint
+
+[The supply proof](source-audits/combat-enemy-attack-supplies-proof-2026-10-06.md) passed complete comparisons and raw audits on its exact source. [The later scheduling extraction](source-audits/combat-enemy-attack-scheduling-2026-10-06.md) passed independent source reviews and both focused lanes. The scheduling source still needs complete behavior proof. Both sources remain unlanded under their native, full merged gate and promotion requirements.
+
 ## Closed implementation and route work
 
 These changes are on the audited main. Preserve their receipts and source records; do not repeat implementation from stale queue text. Shared reviewer acceptance remains separate.
@@ -112,7 +116,7 @@ Source review, full gate and native acceptance remain separate checks for each u
 Source acceptance grants no runtime, native or visual permission for any slice in this table.
 Root composed the four accepted cleanup sources on main `58438c4dbcd38f189cd2b3fd2b05933c901ce8a6` as `1ec3427b48a34ad550764a049392bfc219fe5c9d`. All nine promotion checks passed on that exact candidate at 2026-10-04T00:29:17Z. The plain lane ran 5223 tests in 459.304s, with 581 skips. The Qt lane ran 5223 tests in 681.328s, with 7 skips.
 
-Native acceptance remains blocked by the locked MacBook. No native preparation, launch or review occurred. Main has advanced, so that gate is historical. Runtime promotion needs a candidate based on current main and a new full gate.
+The last native attempt was locked. No fresh lock probe establishes the current screen state. Native dispatch requires the pending chat-message authorization. Main has advanced, so that gate is historical. Runtime promotion needs a candidate based on current main and a new full gate.
 
 The first death run and its two failed armoured cases remain historical evidence. The one allowed fixture repair completed on exact death source `7e08030e3aa0323e5cc22d45865f9d458ec50fdc`. Only two explicit armoured fixture controls were added. `carried_inventory` became `{"killer": {"Lobster": 4}}`; `combat_auto_eat_food` became `["Shrimps"]`.
 
