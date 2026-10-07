@@ -196,3 +196,7 @@ The read-only leaf must assess Gertrude completion and the sourced post-quest re
 Return a complete backend-only route contract or exact source, owner or UI boundaries; do not repeat the Rat Catchers review or author code.
 Root owns all files and acceptance. Existing UI, migration policy, reserved Magic, fixed instruments and native state remain excluded.
 The authentic cat-acquisition review found source-backed transaction interfaces, but no complete independent backend slice under the colour UI reservation and unresolved random-colour qualification. Root verified the current view and care seams and retained the exact limited ruling.
+
+Official fixture gate `5a8b3de77edbd4ae404296b994029a0c5970f36a` passed all nine checks with both remote lanes.
+Plain: 5222 tests, 465.872s, 582 skips; Qt: 5222 tests, 677.838s, 7 skips. Official landing returned 0 at 2026-10-07T19:10:10.402688+00:00.
+Canonical main is clean at the fixture revision. Source packaging and disposable-collection fixture tooling are landed; Quest and carried runtime candidates still lack native acceptance.
