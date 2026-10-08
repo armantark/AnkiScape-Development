@@ -9,6 +9,8 @@ from .definitions import *
 from .stage_overrides import *
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
+    # Template:Questreq oldid=6552449 supplies the guide's transcluded prerequisite.
+    AS_A_FIRST_RESORT_ID: (QuestPrerequisite("zogre_flesh_eaters", "Zogre Flesh Eaters"),),
     # Template:Questreq oldid=5981134; corroborated in the Ghosts Ahoy source harvest.
     "ghosts_ahoy": (
         QuestPrerequisite(THE_RESTLESS_GHOST_ID, "The Restless Ghost"),
