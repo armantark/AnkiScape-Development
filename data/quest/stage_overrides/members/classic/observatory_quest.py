@@ -11,5 +11,9 @@ OBSERVATORY_QUEST_CLEANUPS = (
             "Talk to the Observatory professor in the house near the Observatory which is located North of Castle Wars.",
             "Talk to his assistant.",
         ),
+        source=(
+            "https://runescape.wiki/w/Observatory_Quest?oldid=6496978; "
+            "https://runescape.wiki/w/Observatory_Quest%2FQuick_guide?oldid=5706277"
+        ),
     ),
 )
