@@ -2912,3 +2912,7 @@ Collections selected content remains unverified at both required widths. Candida
 ### Open owner UI scope — 2026-10-07: poison status text
 
 The fresh death-partition native fixture at f570a15f showed the existing pre-answer and Undo HUD ending at `Poisoned: 110 LP in 30 t`, while AX contains `Poisoned: 110 LP in 30 ticks`. Pixel proof: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/worktrees/promote-runner-fairness-2026-10-03/ankiscape-promotion-evidence/f570a15fefde7e037313f20dad91eed990b031f2/native-death-partition-accepted-2026-10-07/native-result-death-equipment-partition-f570a15f/answer-001-before.jpg`. The governing goal excludes existing UI without recorded owner authorization; the approved main-menu tab repair does not cover this HUD. Preserve the current UI and park this text repair for an owner scope decision; it does not change acceptance of the backend partition.
+
+### Open owner UI scope — 2026-10-07: Myreque stage transition
+
+Complete In Search of the Myreque stage1 would expose generated stage2 instruction “Give him three Planks and then ten Coins.” despite the retained period contract placing the fare after completion; root and Astra park the opening until a source-correct journal change has recorded owner scope, without changing the UI, advancing incomplete persuasion or replacing the five-current-charge guard with a permanent proof.

@@ -4,6 +4,8 @@ This log keeps the current month. Earlier months rotate into `memory-bank/archiv
 
 ## 2026-10-03: Current queue result
 
+2026-10-08T04:55:40.519337+00:00 First Resort5c309e1d is landed, main clean, official exit0 at2026-10-08T04:53:29.602798+00:00. Exact full9 and qualified native seven-Good/one-Undo/six-retained scope passed. Existing journal/menu/alert limitations and seed-acquisition limits remain explicit in [the source checkpoint](source-audits/cleanup-source-checkpoint-2026-10-04.md). Fenkenstrain source69/a9e2e756 passed original plain5234 and focused integration55; final full9/native/land remain pending. Combat d7 source composition passed534 focused cases; salt/title gaps remain.
+
 2026-10-08T01:36:45.656560+00:00 Shared diary popup native scope accepted; final source/owner guard passed and GUI released. Three genuine answers and one Undo left two reviews, with no duplicate on the later burn and scoped reopen preserved. Root verified 79 indexed files and retained 81 files in [the current source checkpoint](source-audits/cleanup-source-checkpoint-2026-10-04.md). Astra and root close the shared reviewer obligation under §§55 and 3.38; later runtime slices keep separate native requirements. The bounded combat follow-up remains active.
 
 2026-10-08T01:13:22.363643+00:00 Corrected death native acceptance passed on frozen `7c7651e9`: root verified two real answers, one genuine Undo, one retained review, 40 XP, old-grave transfer and scoped reopen against all 55 indexed hashes. The ordered office is `["Cape", "Bronze sword"]` at cost 200; the Iron sword enters a new five-review grave. Root's fresh shipped owner guard returned actual 0; source and owner stayed unchanged, Anki stopped and all GUI/copied resources were released. The 57 existing files are retained at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/7c7651e993236127c73ceae8cd98eab2e1dd4e92/native-death-saved-firemaking-accepted-2026-10-07/retention-manifest.json`. Both burns succeeded, and reopen changed only two telemetry probabilities from `0.40277402395547235` to `0.4027740239554723`; no dry outcome or broader death branch is claimed. Required after/before notices and deferred-popup dispatch succeeded. The combat follow-up is ready with sixteen bindings checked; no product gate or successful gameplay was rerun.
@@ -22,8 +24,7 @@ This log keeps the current month. Earlier months rotate into `memory-bank/archiv
 
 2026-10-07T22:01:49.978967+00:00 Root landed carried integration `7c7651e993236127c73ceae8cd98eab2e1dd4e92` through the official command. Main is clean. Its exact receipt records all nine checks, `remote_lanes=true` and `plain_only=false`. Plain ran 5222 tests in 474.107s with 582 skips; Qt ran 5222 tests in 679.355s with 7 skips. All four product files match native-accepted D71. The retained gate and landing records are in canonical `.git/ankiscape-promotion-evidence/7c7651e993236127c73ceae8cd98eab2e1dd4e92/carried-native-accepted-landed-2026-10-07/retention-manifest.json`. Ancestry confirms the carried trip schedule, bank gate, overflow and lifecycle sources are on main. Death and quest native acceptance remain separate.
 
-Root verified main `ca859eb0ef06a0b298d25bcedd9338a1120afabc` clean at 2026-10-04T04:24:05.550171+00:00.
-Seven October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004`, S12 `58438c4d`, assertion trims `d2aa35d2`, covered-method deletions `28481d9295db918396d5d0188f69c1ea36f102b5` and documentation `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
+Root verified main `ca859eb0ef06a0b298d25bcedd9338a1120afabc` clean at 2026-10-04T04:24:05.550171+00:00. Seven October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004`, S12 `58438c4d`, assertion trims `d2aa35d2`, covered-method deletions `28481d9295db918396d5d0188f69c1ea36f102b5` and documentation `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
 
 The ten assertion trims landed at `d2aa35d20d7b8ef18f2af42f88018641b439a8c8` through the official land command after all nine promotion checks passed. The exact receipt records `remote_lanes=true` and `plain_only=false`. Both lanes ran 5223 tests: plain 453.956s with 581 skips; Qt 673.591s with 7 skips. Root verified all nine final test-file hashes on main. No test method was removed in that slice.
 
@@ -34,7 +35,6 @@ The deletion operator passed ten refusal canaries without writes. It removed thr
 The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skips. Independent raw-map verification passed. This subset is not a whole-suite coverage map.
 
 Cache CLI, carried integration and the accepted quest bundle are landed. The death-model blob is on main; its separate native acceptance is pending. The historical four-cleanup `1ec3427b` receipt and repaired death proof remain retained in [the source checkpoint](source-audits/cleanup-source-checkpoint-2026-10-04.md). The goal is active under the owner's recorded 100% shared Codex ceiling. Current native and gate states are recorded above; earlier attempts are historical. No fresh closure audit is claimed.
-
 
 ## 2026-10-03 checkpoint (historical): active queue reconciliation
 
