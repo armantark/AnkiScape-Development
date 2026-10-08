@@ -846,16 +846,11 @@ def _combat_apply_pvm_death(
     data.clear()
     data.update(discharged)
     discharged_equipment = dict(data.get("equipment", {}) or {})
-    protected_equipment = {
-        slot: item_name
-        for slot, item_name in discharged_equipment.items()
-        if slot in protected_slots
-    }
-    equipment = {
-        slot: item_name
-        for slot, item_name in discharged_equipment.items()
-        if slot not in protected_slots
-    }
+    protected_equipment = {}
+    equipment = {}
+    for slot, item_name in discharged_equipment.items():
+        target_equipment = protected_equipment if slot in protected_slots else equipment
+        target_equipment[slot] = item_name
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
     active_target = carried_target_id if isinstance(carried_target_id, str) else data.get("current_combat_target")
     _combat_settle_carried_death(data, carried_counts, protected_carried, grave_items, active_target, no_grave)
