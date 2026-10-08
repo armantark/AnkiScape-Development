@@ -12,6 +12,8 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- In Quests, choose As a First Resort with Zogre Flesh Eaters completed and the required skill levels. The first review follows Chief Tess and Balnea without later materials; the next uses exactly eight Achey and ten Eucalyptus logs. Undo restores those logs and the earlier stage; later unresolved stages stay held.
+
 - [ ] In a narrow main menu, scroll the tabs to Settings and back to Skills: each fully visible tab name stays complete. Repeat at a wider width with the same native scroll buttons. (after native acceptance)
 - [ ] A big XP lamp or a quest that gives many levels shows one level-up window from the old level to the new one. (2026-09-28)
 - [ ] Put on or take off gear right after a review, then press Undo: the gear change goes back first, and the item is not both worn and in the bank. (2026-09-28)

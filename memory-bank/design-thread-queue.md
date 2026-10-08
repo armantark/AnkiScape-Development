@@ -1166,9 +1166,7 @@ plain `Ran 5053 tests in 443.588s`, `OK (skipped=549)`; Qt `Ran 5053 tests in
 the 18 runtime-batch slices, so their old hashes are not ancestors of main;
 each one has a landed commit with the same subject.
 
-Remaining step: the one in-game check of the whole landed batch at `279be965`
-by the owner or task `01a0c67a-3e19-76c2-804c-65d993c9dddc`. Never run it while
-a gate lane runs, and doorbell the Darkan restoration seat before and after it.
+Completed 2026-10-07: the dedicated task proved the current shared reviewer, dispatcher and deferred Willow diary popup on source-qualified descendant `0e770066`; root verified raw Undo/reopen, guards and release, and Astra confirmed the shared obligation is satisfied. [The existing source checkpoint](source-audits/cleanup-source-checkpoint-2026-10-04.md) retains the exact observed scope and unobserved advanced-Barbarian/historical branches. The required before/after notices succeeded. Later runtime slices keep their own native requirements.
 
 ### 3.39 A sync that brings another desktop's save is overwritten by the next game write
 
@@ -2910,3 +2908,7 @@ GLM gives a second vote; both must agree before a deletion.
 The shallow cleanup and approved main-menu repair await the owner's native acceptance decision. Exact merged candidate `8d8888be054424ad68e1b156523b25edc1d32ed1` passed all nine official promotion checks. Independent reviews passed. Native behavior, full tab names and scroll buttons passed on frozen source `84a5fd0d215dcea7d433db092fc988cb8b278ed4`. The shipped files match the merged candidate.
 
 Collections selected content remains unverified at both required widths. Candidate, frozen control and coordinate-route attempts crashed before capture. [The blocker record](GOAL-BLOCKED.md) retains exact evidence. Root asked the owner to permit this candidate with Collections proof open, or retain complete Collections proof as a prerequisite. No answer exists. This exception would apply only to this candidate; other native gates and the wider UI boundary remain binding.
+
+### Open owner UI scope — 2026-10-07: poison status text
+
+The fresh death-partition native fixture at f570a15f showed the existing pre-answer and Undo HUD ending at `Poisoned: 110 LP in 30 t`, while AX contains `Poisoned: 110 LP in 30 ticks`. Pixel proof: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/worktrees/promote-runner-fairness-2026-10-03/ankiscape-promotion-evidence/f570a15fefde7e037313f20dad91eed990b031f2/native-death-partition-accepted-2026-10-07/native-result-death-equipment-partition-f570a15f/answer-001-before.jpg`. The governing goal excludes existing UI without recorded owner authorization; the approved main-menu tab repair does not cover this HUD. Preserve the current UI and park this text repair for an owner scope decision; it does not change acceptance of the backend partition.
