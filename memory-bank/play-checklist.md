@@ -12,6 +12,8 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- In Quests, choose Observatory Quest with Crafting 10 and no Bronze bar, Planks or Molten glass. One review talks to the professor then his assistant and reaches the material stage without rewards; Undo restores the unstarted quest. The next review stays blocked, even with all three materials. (after native acceptance)
+
 - In Quests, choose As a First Resort with Zogre Flesh Eaters completed and the required skill levels. The first review follows Chief Tess and Balnea without later materials; the next uses exactly eight Achey and ten Eucalyptus logs. Undo restores those logs and the earlier stage; later unresolved stages stay held.
 
 - [ ] In a narrow main menu, scroll the tabs to Settings and back to Skills: each fully visible tab name stays complete. Repeat at a wider width with the same native scroll buttons. (after native acceptance)
