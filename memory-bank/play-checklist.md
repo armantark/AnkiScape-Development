@@ -13,6 +13,10 @@ you are in the game, with the date the change reached main.
 ## Any skill
 
 - In Quests, choose Monk's Friend. The first review follows Omad's request and the hidden-ladder route to recover one Child's blanket. The next returns exactly one blanket and stops before Cedric's task. Undo restores the blanket and earlier stage. (after native acceptance)
+- In Quests, choose Tree Gnome Village. The first review reaches Montai after Bolren's stolen-orb request and leaves your Logs intact. Chop six normal Logs, then review Quests again: exactly six Logs are used before tracker work. Undo restores those Logs and Montai's request. (after native acceptance)
+- [ ] In Quests, choose Tribal Totem with Thieving 21 and no coins: the first review reaches progress 2 without an Address label; Undo restores the opening, and the next review after replay adds one Address label at progress 3. (after native acceptance)
+- In Quests, choose Observatory Quest with Crafting 10: the first review talks to the professor and assistant; with three Planks, one Bronze bar and one Molten glass, the next review completes the handoff, chest continuation search for the Goblin kitchen key and return to the entrance stairs without leaving the dungeon. Materials stay owned, and Undo restores the material stage. Later reviews fight the Poisonous Spider, then stop at the unresolved stage 3 objective without quest rewards. (after native acceptance)
+
 - In Quests, choose As a First Resort with Zogre Flesh Eaters completed and the required skill levels. The first review follows Chief Tess and Balnea without later materials; the next uses exactly eight Achey and ten Eucalyptus logs. Undo restores those logs and the earlier stage; later unresolved stages stay held.
 
 - [ ] In a narrow main menu, scroll the tabs to Settings and back to Skills: each fully visible tab name stays complete. Repeat at a wider width with the same native scroll buttons. (after native acceptance)

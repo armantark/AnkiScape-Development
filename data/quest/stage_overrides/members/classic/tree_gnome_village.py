@@ -23,10 +23,15 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
         _stage_req(
             1,
             "Reach Commander Montai on the battlefield.",
-            f"{TREE_GNOME_BOLREN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}",
+            f"{TREE_GNOME_WIKI_SOURCE}; {TREE_GNOME_BOLREN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}",
             auto_actions=(
+                "Navigate the Gnome Maze and squeeze through the village fence",
+                "Hear King Bolren's request to recover the stolen Orb of protection",
+                "Agree to help King Bolren recover the stolen orb",
+                "Follow Elkoy out of the Gnome Maze",
                 "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
+                "Agree to gather six normal logs for Commander Montai",
             ),
         ),
         _stage_req(
