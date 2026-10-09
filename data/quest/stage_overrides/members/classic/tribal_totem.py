@@ -21,8 +21,18 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
         _stage_req(
             1,
             "Ask Wizard Cromperty about his teleportation block.",
-            f"{DARKAN_TRIBAL_TOTEM_KANGAI_SOURCE}; {DARKAN_TRIBAL_TOTEM_WIZARD_SOURCE}",
-            auto_actions=("Ask Wizard Cromperty about the teleportation block",),
+            (
+                f"{DARKAN_TRIBAL_TOTEM_KANGAI_SOURCE}; {DARKAN_TRIBAL_TOTEM_WIZARD_SOURCE}; "
+                "https://runescape.wiki/w/Tribal_Totem?oldid=6326240"
+            ),
+            auto_actions=(
+                "Agree to recover the stolen Rantuki totem for Kangai Mau",
+                "Reach Handelmort Mansion in East Ardougne",
+                "Attempt to enter Handelmort Mansion",
+                "Ask Horacio about Handelmort Mansion security",
+                "Ask Wizard Cromperty about the teleportation block",
+                "Request Wizard Cromperty's initial crate teleport to locate the RPDT block",
+            ),
         ),
         _stage_req(
             2,
