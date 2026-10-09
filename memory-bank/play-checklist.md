@@ -12,7 +12,7 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
-- In Quests, choose Observatory Quest with Crafting 10 and no Bronze bar, Planks or Molten glass. One review talks to the professor then his assistant and reaches the material stage without rewards; Undo restores the unstarted quest. The next review stays blocked, even with all three materials. (after native acceptance)
+- In Quests, choose Observatory Quest with Crafting 10: the first review talks to the professor and assistant; with three Planks, one Bronze bar and one Molten glass, the next review completes the handoff, chest continuation search for the Goblin kitchen key and return to the entrance stairs without leaving the dungeon. Materials stay owned, and Undo restores the material stage. Later reviews fight the Poisonous Spider, then stop at the unresolved stage 3 objective without quest rewards. (after native acceptance)
 
 - In Quests, choose As a First Resort with Zogre Flesh Eaters completed and the required skill levels. The first review follows Chief Tess and Balnea without later materials; the next uses exactly eight Achey and ten Eucalyptus logs. Undo restores those logs and the earlier stage; later unresolved stages stay held.
 
