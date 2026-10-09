@@ -16,3 +16,11 @@ Disposition: fixed.
 Evidence: The stock move removes three resolved lines from startup while preserving every byte in the dated fixed ledger. The fixed limit remains less than 3000.
 
 - 2026-10-07T21:24:12.967009+00:00 Native acceptance notes hit `startup_line_budget_exceeded: 3000 startup lines must stay under 3000: memory-bank/activeContext.md=70, memory-bank/progress.md=866, memory-bank/future-work-kanban.md=1580, memory-bank/goal-priority-matrix.md=221, memory-bank/loop-queue.md=0, memory-bank/papercuts.md=263`. Move only resolved receipt-reader and integer-report entries with the stock ledger tool; keep the limit unchanged and preserve completed product verification.
+
+## 2026-10-09T18:53:31.776038+00:00 Tribal Totem context timestamp correction
+
+Disposition: record_only.
+
+Evidence: The original event time is unverified. The author-recorded2026-10-09T18:10:00Z is incorrect as an event timestamp: source commit04e4800726fea99fbb8a950754fd3e4afe87f69c was created at2026-10-09T06:56:44-07:00 and already contained this row. Retained run receipts do not establish the exact recovery time. Preserve the original row verbatim below as a historical erroneous recording, not a verified timestamp; this correction was recorded at2026-10-09T18:53:31.776038+00:00. The recovered paths and errors remain exact. No product edit, test replay or invented past event time was used.
+
+- 2026-10-09T18:10:00Z — Tribal Totem opening context: combined reads truncated repeatedly; guessed paths returned rg: data/quest/generated*: No such file or directory (os error 2), rg: runtime/runtime_actions_quest.py: No such file or directory (os error 2), rg: runtime/runtime_actions_common.py: No such file or directory (os error 2), and sed: logic_pure/action_telemetry.py: No such file or directory. Bounded exact reads recovered existing runtime_actions_production.py, logic_pure_telemetry.py and immutable Lost City test43c25e0d; no product edit preceded recovery.
