@@ -44,3 +44,11 @@ Disposition: record_only.
 Evidence: All three removed rows were byte-identical in the inherited archive. Original9bca Git delta supplies the complete Python path inventory; every corresponding current source blob remains unchanged. The merged34 existing behavior tests passed in original87717 terminal037dc5 actual0. Documentation and preservation rechecks follow.
 
 - 2026-10-09T20:29:31.941275+00:00 Blood/Monk merge: union resurrected three exact Tribal rows already archived by2a0028c1; preservation0abef6 exit1 reported three "open and fixed" rows, docs93828/c8b2b3 exit1 reported "startup_line_budget_exceeded: 3001 startup lines must stay under 3000: memory-bank/activeContext.md=42, memory-bank/progress.md=824, memory-bank/future-work-kanban.md=1580, memory-bank/goal-priority-matrix.md=221, memory-bank/loop-queue.md=0, memory-bank/papercuts.md=334". Remove only the byte-identical archived duplicates, then use the existing preservation check. Byte binding also guessed data/quest/stage_overrides/free/blood_pact.py and silently skipped that absent path; actual Git inventory identifies the_blood_pact.py. Bind every Python path in the reviewed Blood delta by Git inventory instead. No successful product run was repeated.
+
+## Underground Pass reader recovery
+
+Disposition: record_only.
+
+Evidence: The omitted skill section was recovered by a bounded read. The original 42-test focused pass remains intact; no product verification was rerun.
+
+- 2026-10-09T21:20:53Z — While reading Underground Pass integration startup, functions.exec combined output reported Warning: truncated output (original token count: 10831); recovered the omitted skill section with a bounded read; no product proof was rerun.

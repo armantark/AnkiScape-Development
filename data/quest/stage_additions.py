@@ -4,8 +4,10 @@ from .dependencies import *
 from .contract import *
 from .ids import *
 from .sources import *
+from .stage_overrides.members.later.underground_pass import UNDERGROUND_PASS_STAGE_ADDITIONS
 
 QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    "underground_pass": UNDERGROUND_PASS_STAGE_ADDITIONS,
     SWAN_SONG_ID: (
         _stage_req(
             5,
