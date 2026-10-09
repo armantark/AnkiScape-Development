@@ -3645,6 +3645,15 @@ class TestLogic(unittest.TestCase):
 
     def test_monks_friend_real_stage_emitters_complete_and_reward_once(self):
         quest_id = "monks_friend"
+        opening_actions = (
+            "Hear Brother Omad's request to recover the child's stolen blanket",
+            "Offer to recover the blanket and ask where the thieves hide",
+            "Travel west from the monastery to the stone ring near the Clock Tower",
+            "Enter the stone ring to reveal the hidden ladder",
+            "Descend into the thieves' hideout",
+            "Follow the southern path to the blanket table",
+            "Recover the child's blanket from the thieves' hideout",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"].update({"Jug of water": 1, "Logs": 1})
 
@@ -3657,20 +3666,20 @@ class TestLogic(unittest.TestCase):
             (
                 2,
                 False,
-                ("Recover the child's blanket from the thieves' hideout",),
+                opening_actions,
                 {"Child's blanket": 1, "Jug of water": 1, "Logs": 1},
             ),
             (
                 3,
                 False,
-                ("Recover the child's blanket from the thieves' hideout",),
+                opening_actions,
                 {"Child's blanket": 0, "Jug of water": 1, "Logs": 1},
             ),
             (
                 4,
                 False,
                 (
-                    "Recover the child's blanket from the thieves' hideout",
+                    *opening_actions,
                     "Ask Brother Omad about Brother Cedric and the party",
                 ),
                 {"Child's blanket": 0, "Jug of water": 1, "Logs": 1},
@@ -3679,7 +3688,7 @@ class TestLogic(unittest.TestCase):
                 5,
                 False,
                 (
-                    "Recover the child's blanket from the thieves' hideout",
+                    *opening_actions,
                     "Ask Brother Omad about Brother Cedric and the party",
                 ),
                 {"Child's blanket": 0, "Jug of water": 0, "Logs": 1},
@@ -3688,7 +3697,7 @@ class TestLogic(unittest.TestCase):
                 6,
                 False,
                 (
-                    "Recover the child's blanket from the thieves' hideout",
+                    *opening_actions,
                     "Ask Brother Omad about Brother Cedric and the party",
                 ),
                 {"Child's blanket": 0, "Jug of water": 0, "Logs": 0},
@@ -3697,7 +3706,7 @@ class TestLogic(unittest.TestCase):
                 7,
                 True,
                 (
-                    "Recover the child's blanket from the thieves' hideout",
+                    *opening_actions,
                     "Ask Brother Omad about Brother Cedric and the party",
                     "Return to Brother Omad and join the birthday party",
                 ),
@@ -3705,18 +3714,11 @@ class TestLogic(unittest.TestCase):
             ),
         )
         for progress, completed, actions, inventory in expected_steps:
-            player_data, ok, completed_now = apply_quest_progress_pure(
-                player_data,
-                quest_id,
-                QUEST_DATA,
-            )
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok)
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
-            self.assertEqual(
-                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
-                actions,
-            )
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
             self.assertEqual(
                 {
                     item_name: player_data["inventory"].get(item_name, 0)
@@ -3731,11 +3733,7 @@ class TestLogic(unittest.TestCase):
         self.assertNotIn("Law Rune", player_data["inventory"])
         self.assertEqual(player_data["woodcutting_exp"], 2000.0)
 
-        after_complete, ok, completed_again = apply_quest_progress_pure(
-            player_data,
-            quest_id,
-            QUEST_DATA,
-        )
+        after_complete, ok, completed_again = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)

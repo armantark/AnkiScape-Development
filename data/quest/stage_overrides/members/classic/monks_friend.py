@@ -22,9 +22,20 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
         _stage_req(
             1,
             "Recover the child's blanket from the thieves' hideout.",
-            f"{DARKAN_MONKS_FRIEND_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            (
+                "https://runescape.wiki/w/Monk%27s_Friend?oldid=6514084; "
+                f"{DARKAN_MONKS_FRIEND_SOURCE}; {DARKAN_MONKS_FRIEND_OMAD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
             produced_inventory=(("Child's blanket", 1),),
-            auto_actions=("Recover the child's blanket from the thieves' hideout",),
+            auto_actions=(
+                "Hear Brother Omad's request to recover the child's stolen blanket",
+                "Offer to recover the blanket and ask where the thieves hide",
+                "Travel west from the monastery to the stone ring near the Clock Tower",
+                "Enter the stone ring to reveal the hidden ladder",
+                "Descend into the thieves' hideout",
+                "Follow the southern path to the blanket table",
+                "Recover the child's blanket from the thieves' hideout",
+            ),
         ),
         _stage_req(
             2,

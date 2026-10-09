@@ -12,6 +12,7 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- In Quests, choose Monk's Friend. The first review follows Omad's request and the hidden-ladder route to recover one Child's blanket. The next returns exactly one blanket and stops before Cedric's task. Undo restores the blanket and earlier stage. (after native acceptance)
 - In Quests, choose As a First Resort with Zogre Flesh Eaters completed and the required skill levels. The first review follows Chief Tess and Balnea without later materials; the next uses exactly eight Achey and ten Eucalyptus logs. Undo restores those logs and the earlier stage; later unresolved stages stay held.
 
 - [ ] In a narrow main menu, scroll the tabs to Settings and back to Skills: each fully visible tab name stays complete. Repeat at a wider width with the same native scroll buttons. (after native acceptance)
