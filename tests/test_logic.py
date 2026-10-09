@@ -6512,6 +6512,15 @@ class TestLogic(unittest.TestCase):
 
     def test_tree_gnome_village_real_stage_emitters_complete_after_commanders_and_warlord(self):
         quest_id = "tree_gnome_village"
+        opening_actions = (
+            "Navigate the Gnome Maze and squeeze through the village fence",
+            "Hear King Bolren's request to recover the stolen Orb of protection",
+            "Agree to help King Bolren recover the stolen orb",
+            "Follow Elkoy out of the Gnome Maze",
+            "Reach Commander Montai on the battlefield",
+            "Ask Commander Montai how to help the gnome battlefield",
+            "Agree to gather six normal logs for Commander Montai",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"]["Logs"] = 6
 
@@ -6529,8 +6538,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
             ),
         )
 
@@ -6547,8 +6555,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
                 "Ask Commander Montai about the tracker gnomes",
             ),
         )
@@ -6560,8 +6567,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
                 "Ask Commander Montai about the tracker gnomes",
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",
@@ -6583,11 +6589,7 @@ class TestLogic(unittest.TestCase):
                 "prayer_level": 1,
             }
         )
-        player_data, ok, result = apply_quest_combat_encounter_pure(
-            player_data,
-            quest_id,
-            QUEST_DATA,
-        )
+        player_data, ok, result = apply_quest_combat_encounter_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(result["completed_quantity"], 1)
         self.assertEqual(result["remaining_quantity"], 1)
@@ -6617,8 +6619,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
                 "Ask Commander Montai about the tracker gnomes",
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",
@@ -6660,8 +6661,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
                 "Ask Commander Montai about the tracker gnomes",
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",

@@ -12,6 +12,7 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- In Quests, choose Tree Gnome Village. The first review reaches Montai after Bolren's stolen-orb request and leaves your Logs intact. Chop six normal Logs, then review Quests again: exactly six Logs are used before tracker work. Undo restores those Logs and Montai's request. (after native acceptance)
 - In Quests, choose As a First Resort with Zogre Flesh Eaters completed and the required skill levels. The first review follows Chief Tess and Balnea without later materials; the next uses exactly eight Achey and ten Eucalyptus logs. Undo restores those logs and the earlier stage; later unresolved stages stay held.
 
 - [ ] In a narrow main menu, scroll the tabs to Settings and back to Skills: each fully visible tab name stays complete. Repeat at a wider width with the same native scroll buttons. (after native acceptance)

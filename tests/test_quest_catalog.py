@@ -563,15 +563,17 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(
             by_stage[1]["auto_actions"],
             (
+                "Navigate the Gnome Maze and squeeze through the village fence",
+                "Hear King Bolren's request to recover the stolen Orb of protection",
+                "Agree to help King Bolren recover the stolen orb",
+                "Follow Elkoy out of the Gnome Maze",
                 "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
+                "Agree to gather six normal logs for Commander Montai",
             ),
         )
         self.assertEqual(by_stage[2]["consumed_inventory"], {"Logs": 6})
-        self.assertEqual(
-            by_stage[3]["auto_actions"],
-            ("Ask Commander Montai about the tracker gnomes",),
-        )
+        self.assertEqual(by_stage[3]["auto_actions"], ("Ask Commander Montai about the tracker gnomes",))
         self.assertEqual(
             by_stage[4]["auto_actions"],
             (
@@ -581,13 +583,10 @@ class TestQuestCatalog(unittest.TestCase):
                 "Fire the battlefield ballista at the Khazard stronghold",
             ),
         )
-        self.assertEqual(
-            by_stage[5]["auto_actions"],
-            (
-                "Enter the Khazard stronghold through the broken wall",
-                "Search the stronghold chest for the first Orb of protection",
-            ),
-        )
+        self.assertEqual(by_stage[5]["auto_actions"], (
+            "Enter the Khazard stronghold through the broken wall",
+            "Search the stronghold chest for the first Orb of protection",
+        ))
         self.assertEqual(
             by_stage[6]["auto_actions"],
             ("Return the first Orb of protection to King Bolren",),
