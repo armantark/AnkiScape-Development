@@ -52,3 +52,19 @@ Disposition: record_only.
 Evidence: The omitted skill section was recovered by a bounded read. The original 42-test focused pass remains intact; no product verification was rerun.
 
 - 2026-10-09T21:20:53Z — While reading Underground Pass integration startup, functions.exec combined output reported Warning: truncated output (original token count: 10831); recovered the omitted skill section with a bounded read; no product proof was rerun.
+
+## First Resort integration reader and registry friction, 2026-10-09
+
+Disposition: record_only.
+
+Evidence: The reader-output incident is retained verbatim without a repository-tool change. Targeted authority/source reads recovered the required bindings. The authorized adjacent registry resolution preserves both entries; no old documentation was imported. This transient integration incident closes as a record, with no claim that the underlying reader was repaired.
+
+- 2026-10-09T21:40:09Z — First Resort integration authority/startup reader output returned Warning: truncated output in chunks ed62a3 (14351 tokens), a4859d (2250 tokens), combined c741c8/read (12265 tokens), f44c98 (20863 tokens), and 32bc91 (58548 tokens); bounded source/authority recovery preserved the required bindings. Applying only the reviewed three-path delta with git apply --3way returned exit 1: Applied patch to data/quest/stage_additions.py with conflicts; the adjacent import/entry conflict was resolved by retaining both First Resort and Underground Pass.
+
+## First Resort receipt bookkeeping, 2026-10-09
+
+Disposition: record_only.
+
+Evidence: The malformed transient receipt command was replaced with multiline bookkeeping. Original product execution and raw log remain unchanged; no repository tool or product test was changed or repeated.
+
+- 2026-10-09T21:43:42Z — While saving First Resort focused results, exec chunk 158777 returned exit 1 with SyntaxError: closing parenthesis ')' does not match opening parenthesis '{'; multiline receipt bookkeeping then succeeded in chunk 39ea73, preserving original session 20160, terminal 3fcea6, actual exit 0 and Ran 50 tests in 4.818s with zero skips. No product test was rerun.
