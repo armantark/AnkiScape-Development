@@ -3756,7 +3756,14 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["current_quest"], quest_id)
         self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
-        cromperty_action = "Ask Wizard Cromperty about the teleportation block"
+        opening_actions = (
+            "Agree to recover the stolen Rantuki totem for Kangai Mau",
+            "Reach Handelmort Mansion in East Ardougne",
+            "Attempt to enter Handelmort Mansion",
+            "Ask Horacio about Handelmort Mansion security",
+            "Ask Wizard Cromperty about the teleportation block",
+            "Request Wizard Cromperty's initial crate teleport to locate the RPDT block",
+        )
         depot_actions = (
             "Reach the Ardougne RPDT depot",
             "Take Lord Handelmort's address label from the RPDT crate",
@@ -3770,23 +3777,19 @@ class TestLogic(unittest.TestCase):
         )
 
         expected_steps = (
-            (2, False, (cromperty_action,), {"Address label": 0, "Totem": 0}),
-            (3, False, (cromperty_action,) + depot_actions, {"Address label": 1, "Totem": 0}),
-            (4, False, (cromperty_action,) + depot_actions + switch_action, {"Address label": 0, "Totem": 0}),
+            (2, False, opening_actions, {"Address label": 0, "Totem": 0}),
+            (3, False, opening_actions + depot_actions, {"Address label": 1, "Totem": 0}),
+            (4, False, opening_actions + depot_actions + switch_action, {"Address label": 0, "Totem": 0}),
             (
                 5,
                 False,
-                (cromperty_action,) + depot_actions + switch_action + mansion_actions,
+                opening_actions + depot_actions + switch_action + mansion_actions,
                 {"Address label": 0, "Totem": 1},
             ),
             (6, True, None, {"Address label": 0, "Totem": 0}),
         )
         for progress, completed, actions, inventory in expected_steps:
-            player_data, ok, completed_now = apply_quest_progress_pure(
-                player_data,
-                quest_id,
-                QUEST_DATA,
-            )
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok)
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
@@ -3808,11 +3811,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["thieving_exp"], 1775.0)
         self.assertEqual(player_data["inventory"]["Swordfish"], 5)
 
-        after_complete, ok, completed_again = apply_quest_progress_pure(
-            player_data,
-            quest_id,
-            QUEST_DATA,
-        )
+        after_complete, ok, completed_again = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
