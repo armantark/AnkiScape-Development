@@ -88,7 +88,7 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
 )
 
 from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
-from .quest.combat_state import (
+from .quest.progress_state import (
     _quest_combat_completed_count,
     _quest_combat_remaining_count,
     _quest_combat_total_quantity,
