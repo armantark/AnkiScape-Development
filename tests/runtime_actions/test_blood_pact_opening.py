@@ -12,7 +12,7 @@ from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, QUEST_DATA
 from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
 from ankiscape.data.quest_action_proof_data import QUEST_ACTION_PROOF_RULES
 from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
-from ankiscape.logic_pure import quest_action_proofs
+from ankiscape.logic_pure import logic_pure_quest, quest_action_proofs
 from ankiscape.logic_pure.logic_pure_telemetry import (
     record_action_telemetry_pure, record_achievement_progress_pure,
 )
@@ -108,6 +108,23 @@ class BloodPactOpeningTest(unittest.TestCase):
             self.assertFalse(handle_quest_answer(_context(player)))
             self.assertEqual(player, held)
 
+    def test_explicit_caitlin_call_cannot_skip_held_kayle(self):
+        player = _player()
+        self.assertTrue(handle_quest_answer(_context(player)))
+        before = copy.deepcopy(player)
+        with patch.object(
+            logic_pure_quest, "apply_combat_burst_pure",
+            wraps=logic_pure_quest.apply_combat_burst_pure,
+        ) as combat:
+            result, ok, details = logic_pure_quest.apply_quest_combat_encounter_pure(
+                player, QUEST_ID, QUEST_DATA, "the_blood_pact_caitlin_3", ticks=1,
+            )
+        self.assertFalse(ok)
+        self.assertEqual(details["reason"], "combat_prerequisites_unmet")
+        self.assertIs(result, player)
+        self.assertEqual(player, before)
+        combat.assert_not_called()
+
     def test_journal_and_later_stage_contracts_retain_the_combat_boundary(self):
         quest = QUEST_DATA[QUEST_ID]
         generated = next(row for row in PRE_EOC_QUEST_CATALOG if row["id"] == QUEST_ID)
@@ -144,6 +161,9 @@ class BloodPactOpeningTest(unittest.TestCase):
             self.assertEqual(addon._state.player_data["quests"][QUEST_ID], saved["quests"][QUEST_ID])
             self.assertEqual(addon._state.player_data["quest_action_proofs"], saved["quest_action_proofs"])
             self.assertEqual(_resources(addon._state.player_data), _resources(before))
+            held = copy.deepcopy(addon._state.player_data)
+            self.assertFalse(handle_quest_answer(_context(addon._state.player_data)))
+            self.assertEqual(addon._state.player_data, held)
             addon._on_state_did_undo(SimpleNamespace(operation="Answer Card"))
             self.assertEqual(addon._state.player_data["quests"][QUEST_ID], before["quests"][QUEST_ID])
             self.assertEqual(addon._state.player_data["quest_action_proofs"], before["quest_action_proofs"])

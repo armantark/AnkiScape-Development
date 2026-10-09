@@ -21,6 +21,13 @@ THE_BLOOD_PACT_CLEANUPS = (
     ),
 )
 
+# The same period guide used by the journals places each cultist beyond the
+# previous fight: https://runescape.wiki/w/The_Blood_Pact?oldid=6538296
+THE_BLOOD_PACT_COMBAT_PREREQUISITES = {
+    "the_blood_pact_caitlin_3": ("the_blood_pact_kayle_3",),
+    "the_blood_pact_reese_3": ("the_blood_pact_caitlin_3",),
+}
+
 THE_BLOOD_PACT_STAGES = (
     QuestStage(1, THE_BLOOD_PACT_OPENING_ACTIONS),
     QuestStage(2, (

@@ -3,6 +3,7 @@
 from dataclasses import replace
 
 from .. import rum_deal_data, zogre_flesh_eaters_data
+from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_COMBAT_PREREQUISITES
 
 
 _RELOCATIONS_BY_QUEST_ID = {
@@ -19,7 +20,33 @@ _RELOCATIONS_BY_QUEST_ID = {
 }
 
 
+def _bind_combat_prerequisites(requirements, prerequisites, catalog_error):
+    encounter_ids = {
+        encounter.encounter_id
+        for requirement in requirements
+        for encounter in requirement.combat_encounters
+    }
+    required_ids = set(prerequisites) | {
+        encounter_id for ids in prerequisites.values() for encounter_id in ids
+    }
+    if not required_ids <= encounter_ids:
+        raise ValueError(catalog_error)
+    return tuple(
+        replace(requirement, combat_encounters=tuple(
+            replace(encounter, required_encounters=prerequisites[encounter.encounter_id])
+            if encounter.encounter_id in prerequisites else encounter
+            for encounter in requirement.combat_encounters
+        ))
+        for requirement in requirements
+    )
+
+
 def relocate_combat_encounters(quest_id, requirements):
+    if quest_id == "the_blood_pact":
+        return _bind_combat_prerequisites(
+            requirements, THE_BLOOD_PACT_COMBAT_PREREQUISITES,
+            "The Blood Pact combat encounter catalog changed",
+        )
     relocation = _RELOCATIONS_BY_QUEST_ID.get(quest_id)
     if relocation is None:
         return requirements

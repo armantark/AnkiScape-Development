@@ -88,6 +88,13 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
 )
 
 from .quest_action_proofs import quest_action_proof_completed_pure, record_quest_stage_action_proofs_pure
+from .quest.combat_state import (
+    _quest_combat_completed_count,
+    _quest_combat_remaining_count,
+    _quest_combat_total_quantity,
+    _quest_flag_completed,
+    quest_combat_prerequisites_completed_pure,
+)
 from .quest_runtime_rules import (  # noqa: F401  (re-export)
     _requirements_for_unlock_rule,
     _target_ids_for_unlock_rule,
@@ -248,21 +255,6 @@ def _quest_stage_strings(requirement, key):
     return tuple()
 
 
-def _quest_flag_completed(player_data, collection_key, quest_id, flag_id):
-    raw_collection = player_data.get(collection_key, {})
-    if isinstance(raw_collection, Mapping):
-        quest_flags = raw_collection.get(quest_id, ())
-        if isinstance(quest_flags, Mapping):
-            return bool(quest_flags.get(flag_id, False))
-        if isinstance(quest_flags, str):
-            return quest_flags == flag_id
-        if isinstance(quest_flags, Iterable):
-            return flag_id in {flag for flag in quest_flags if isinstance(flag, str)}
-    elif isinstance(raw_collection, Iterable) and not isinstance(raw_collection, str):
-        return flag_id in {flag for flag in raw_collection if isinstance(flag, str)}
-    return False
-
-
 _QUEST_ROUTE_INHERITANCE = {
     ("heroes_quest", "Join the Phoenix Gang"): ("shield_of_arrav",),
     ("heroes_quest", "Join the Black Arm Gang"): ("shield_of_arrav",),
@@ -403,28 +395,6 @@ def apply_quest_route_choice_pure(player_data, quest_id, quest_data, route_id):
         routes.append(route_id)
     data["quest_route_states"][quest_id] = routes
     return data, True
-
-
-def _quest_combat_total_quantity(encounter):
-    return _positive_int(encounter.get("quantity", 1), 1)
-
-
-def _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter):
-    quantity = _quest_combat_total_quantity(encounter)
-    if _quest_flag_completed(player_data, "quest_combat_encounters", quest_id, encounter_id):
-        return quantity
-    raw_counts = player_data.get("quest_combat_encounter_counts", {})
-    if not isinstance(raw_counts, Mapping):
-        return 0
-    quest_counts = raw_counts.get(quest_id, {})
-    if not isinstance(quest_counts, Mapping):
-        return 0
-    return min(quantity, _positive_int(quest_counts.get(encounter_id, 0), 0))
-
-
-def _quest_combat_remaining_count(player_data, quest_id, encounter_id, encounter):
-    quantity = _quest_combat_total_quantity(encounter)
-    return max(0, quantity - _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter))
 
 
 _GENERIC_TOOL_SUFFIXES = {"pickaxe": ("pickaxe",), "hatchet": ("hatchet", " axe"), "axe": ("hatchet", " axe")}
@@ -948,6 +918,9 @@ def quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, q
         blocker
         for blocker in blockers
         if blocker.get("kind") == "combat_encounter"
+        and "reason" not in _quest_current_stage_combat_admission_pure(
+            player_data, quest_id, quest_data, blocker["encounter_id"],
+        )
     )
 
 
@@ -1153,6 +1126,26 @@ def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, enco
     return None
 
 
+def _quest_current_stage_combat_admission_pure(player_data, quest_id, quest_data, encounter_id):
+    encounter = _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id)
+    if encounter is None:
+        return {"reason": "encounter_not_current_stage"}
+    if not quest_combat_prerequisites_completed_pure(player_data, quest_id, quest_data, encounter):
+        return {"reason": "combat_prerequisites_unmet"}
+    ready, reason = quest_combat_encounter_ready_pure(player_data, encounter)
+    if not ready:
+        return {"reason": reason}
+    quantity = _quest_combat_total_quantity(encounter)
+    completed_quantity = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
+    if completed_quantity >= quantity:
+        return {"reason": "combat_already_resolved"}
+    return {
+        "encounter": encounter,
+        "quantity": quantity,
+        "completed_quantity": completed_quantity,
+    }
+
+
 def _quest_combat_resumed_encounter(player_data, target_id, saved_lifepoints):
     """A quest fight resumes the encounter its last review carried, so in live
     pacing the attack clocks and spell effects run on as in an ordinary fight."""
@@ -1187,16 +1180,12 @@ def apply_quest_combat_encounter_pure(
         encounter_id = blockers[0].get("encounter_id")
     if not isinstance(encounter_id, str):
         return player_data, False, {"reason": "no_resolvable_combat"}
-    encounter = _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id)
-    if encounter is None:
-        return player_data, False, {"reason": "encounter_not_current_stage"}
-    ready, reason = quest_combat_encounter_ready_pure(player_data, encounter)
-    if not ready:
-        return player_data, False, {"reason": reason}
-    quantity = _quest_combat_total_quantity(encounter)
-    completed_quantity = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
-    if completed_quantity >= quantity:
-        return player_data, False, {"reason": "combat_already_resolved"}
+    admission = _quest_current_stage_combat_admission_pure(player_data, quest_id, quest_data, encounter_id)
+    if "reason" in admission:
+        return player_data, False, admission
+    encounter = admission["encounter"]
+    quantity = admission["quantity"]
+    completed_quantity = admission["completed_quantity"]
 
     quest_target_id = _quest_combat_target_id(quest_id, encounter_id)
     quest_enemy_data = {

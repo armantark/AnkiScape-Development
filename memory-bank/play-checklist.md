@@ -12,7 +12,7 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
-- [ ] In Quests, choose The Blood Pact and answer one card correctly: the journal records Xenia's rescue request, entry into the Catacombs, the cultists with Ilona, movement north, Xenia's injury and her instruction to fight alone; the next stage begins "Defeat Kayle." Your health, gear, supplies and XP stay unchanged, later combat stays held, and Undo restores the unstarted opening. (after native acceptance)
+- [ ] In Quests, choose The Blood Pact and answer one card correctly: the journal records Xenia's rescue request, entry into the Catacombs, the cultists with Ilona, movement north, Xenia's injury and her instruction to fight alone; the next stage begins "Defeat Kayle." Your health, gear, supplies and XP stay unchanged, further correct reviews stay held at Kayle without fighting Caitlin or Reese, and Undo restores the unstarted opening. (after native acceptance)
 
 - In Quests, choose As a First Resort with Zogre Flesh Eaters completed and the required skill levels. The first review follows Chief Tess and Balnea without later materials; the next uses exactly eight Achey and ten Eucalyptus logs. Undo restores those logs and the earlier stage; later unresolved stages stay held.
 

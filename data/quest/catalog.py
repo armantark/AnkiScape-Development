@@ -160,6 +160,7 @@ def _catalog_combat_encounters(value: object) -> Tuple[QuestCombatEncounter, ...
                 npc_configs=_catalog_object_pairs(raw.get("npc_configs", {})),
                 guaranteed_drops=_catalog_object_pairs(raw.get("guaranteed_drops", {})),
                 npc_stats_source=str(raw.get("npc_stats_source", "")),
+                required_encounters=_catalog_strings(raw.get("required_encounters", ())),
             )
         )
     return tuple(encounters)
