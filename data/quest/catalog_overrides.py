@@ -7,6 +7,7 @@ from .sources import *
 from .choices import *
 from .definitions import *
 from .stage_overrides import *
+from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_STAGES
 
 QUEST_REQUIRED_QUEST_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestPrerequisite, ...]] = {
     # Template:Questreq oldid=6552449 supplies the guide's transcluded prerequisite.
@@ -63,6 +64,7 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    "the_blood_pact": THE_BLOOD_PACT_STAGES,
     "icthlarins_little_helper": ICTHLARINS_LITTLE_HELPER_STAGES,
     SMOKING_KILLS_ID: SMOKING_KILLS_STAGES,
     DWARF_CANNON_ID: DWARF_CANNON_STAGES,
