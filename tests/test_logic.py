@@ -6535,12 +6535,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
-        self.assertEqual(
-            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
-            (
-                *opening_actions,
-            ),
-        )
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), opening_actions)
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -6589,7 +6584,11 @@ class TestLogic(unittest.TestCase):
                 "prayer_level": 1,
             }
         )
-        player_data, ok, result = apply_quest_combat_encounter_pure(player_data, quest_id, QUEST_DATA)
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+        )
         self.assertTrue(ok)
         self.assertEqual(result["completed_quantity"], 1)
         self.assertEqual(result["remaining_quantity"], 1)

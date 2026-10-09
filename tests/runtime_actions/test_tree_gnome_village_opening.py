@@ -193,6 +193,7 @@ class TreeGnomeVillageOpeningTest(unittest.TestCase):
             handoff = copy.deepcopy(handoff_control)
             handoff["quests"][QUEST_ID]["progress"] = 3
             handoff["inventory"]["Logs"] = 2
+            # Consuming quest supplies refreshes Bank metadata on the normal save.
             handoff["bank_layout"]["items"]["Logs"].update(quantity=2, used_review=2)
             handoff["action_telemetry"]["actions"][f"quest:{QUEST_ID}"].update(
                 attempts=2, successes=2, expected_successes=2.0,
