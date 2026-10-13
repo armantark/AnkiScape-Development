@@ -44,8 +44,10 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
         _stage_req(
             3,
             "Switch the RPDT crate address labels and request delivery.",
-            f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {DARKAN_TRIBAL_TOTEM_RPDT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {DARKAN_TRIBAL_TOTEM_RPDT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; https://runescape.wiki/w/Address_label?oldid=6430778",
             consumed_inventory=(("Address label", 1),),
+            produced_inventory=(("Address label", 1),),
+            repeatable_until_consumed=True,
             auto_actions=("Switch the RPDT crate address labels and request delivery",),
         ),
         _stage_req(
@@ -54,8 +56,8 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
             f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {DARKAN_TRIBAL_TOTEM_WIZARD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             auto_actions=(
                 "Teleport into Handelmort Mansion",
-                "Disarm Handelmort's trapped stairs",
                 "Solve Handelmort's lock with KURT",
+                "Investigate and climb Handelmort's trapped stairs",
                 "Loot the Rantuki totem",
             ),
             produced_inventory=(("Totem", 1),),
@@ -63,8 +65,10 @@ _STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ..
         _stage_req(
             5,
             "Return the Rantuki totem to Kangai Mau.",
-            f"{DARKAN_TRIBAL_TOTEM_KANGAI_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {DARKAN_TRIBAL_TOTEM_KANGAI_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; https://runescape.wiki/w/Tribal_Totem?oldid=6326240",
             consumed_inventory=(("Totem", 1),),
+            produced_inventory=(("Totem", 1),),
+            repeatable_until_consumed=True,
         ),
     ),
 }
