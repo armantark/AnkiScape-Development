@@ -687,10 +687,14 @@ class RemoteTestHostTests(unittest.TestCase):
 
     def test_sync_recreates_only_the_remote_interpreter_link_and_preserves_old_mirror(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            root = Path(temp_dir)
+            root = Path(temp_dir).resolve()
             source = root / "source"
             source.mkdir()
             (source / "tracked.txt").write_text("tracked\n", encoding="utf-8")
+            module = source / "tools/maintenance"
+            module.mkdir(parents=True)
+            shutil.copy2(Path(run_remote_tests.__file__).parent / "maintenance/report_retention.py",
+                         module / "report_retention.py")
             (source / ".venv-qt").symlink_to("/studio-only/.venv-qt")
             host_root = root / "remote host"
             mirror = host_root / run_remote_tests.REMOTE_REPO.name
@@ -700,6 +704,7 @@ class RemoteTestHostTests(unittest.TestCase):
             reports = host_root / "reports"
             reports.mkdir()
             (reports / "keep.log").write_text("old report\n", encoding="utf-8")
+            (reports / ".retained.json").write_text("[]\n", encoding="utf-8")
             venv = host_root / ".venv-qt"
             (venv / "bin").mkdir(parents=True)
             (venv / "bin" / "python").symlink_to(sys.executable)

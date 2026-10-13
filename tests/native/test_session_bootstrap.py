@@ -1,18 +1,23 @@
+import errno
 import hashlib
 import io
 import json
 import os
 import plistlib
 import shlex
+import shutil
+import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 import unittest
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import nullcontext, redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import Mock, patch
 
 from tools.native import session_guard as native
+from tools.native import freeze_source
 
 
 def fixture_environment():
@@ -222,6 +227,84 @@ class NativeSessionGuardTest(unittest.TestCase):
             self.assertEqual(native.main(["prepare"]), 0)
         prepare.assert_called_once_with(Path(__file__).resolve().parents[2])
 
+    def test_prepare_keeps_original_app_and_framework_links_unchanged(self):
+        app = native.ANKI_APP
+        plist = app / "Contents/Info.plist"
+        launcher = app / "Contents/MacOS/Anki"
+        original_plist = plist.read_bytes()
+        original_launcher = launcher.read_bytes()
+        framework = app / "Contents/Frameworks/Fixture.framework"
+        (framework / "Versions/A").mkdir(parents=True)
+        (framework / "Versions/A/Fixture").write_bytes(b"framework original")
+        (framework / "Versions/Current").symlink_to("A", target_is_directory=True)
+        (framework / "Fixture").symlink_to("Versions/Current/Fixture")
+
+        base, _ = self.prepare_session()
+        copied_app = base / native.TEST_APP
+        copied_framework = copied_app / "Contents/Frameworks/Fixture.framework"
+        self.assertEqual(os.readlink(copied_framework / "Versions/Current"), "A")
+        self.assertEqual(os.readlink(copied_framework / "Fixture"), "Versions/Current/Fixture")
+        (copied_framework / "Fixture").write_bytes(b"private framework mutation")
+        (base / "addons21/ankiscape_fork/__init__.py").write_bytes(b"PRIVATE = True\n")
+        self.assertEqual((framework / "Versions/A/Fixture").read_bytes(), b"framework original")
+        self.assertEqual((self.repo / "__init__.py").read_bytes(), b"ADDON = True\n")
+        self.assertEqual(plist.read_bytes(), original_plist)
+        self.assertEqual(launcher.read_bytes(), original_launcher)
+        self.assertEqual(plistlib.loads((copied_app / "Contents/Info.plist").read_bytes())["MainModule"],
+                         native.BOOTSTRAP)
+        self.assertNotEqual((copied_app / "Contents/MacOS/Anki").read_bytes(), original_launcher)
+        self.assertEqual((copied_app / "Contents/MacOS/Anki-runtime").read_bytes(), original_launcher)
+
+    @unittest.skipUnless(sys.platform == "darwin", "requires Darwin clonefile")
+    def test_clone_copies_preserve_modes_times_and_independent_contents(self):
+        for mode in (0o444, 0o755):
+            with self.subTest(mode=mode):
+                source = self.root / f"original-{mode:o}"
+                copied = self.root / f"copied-{mode:o}"
+                source.write_bytes(b"original bytes")
+                source.chmod(mode)
+                os.utime(source, ns=(1_700_000_000_000_000_000, 1_700_000_001_000_000_000))
+                before = source.stat()
+                native._copy_file(str(source), str(copied))
+                self.assertEqual(stat.S_IMODE(copied.stat().st_mode), mode)
+                self.assertEqual(copied.stat().st_mtime_ns, before.st_mtime_ns)
+                self.assertEqual(copied.stat().st_atime_ns, before.st_atime_ns)
+                self.assertNotEqual(copied.stat().st_ino, before.st_ino)
+                copied.chmod(0o644)
+                copied.write_bytes(b"private bytes")
+                self.assertEqual(source.read_bytes(), b"original bytes")
+                self.assertEqual(stat.S_IMODE(source.stat().st_mode), mode)
+                self.assertEqual(source.stat().st_mtime_ns, before.st_mtime_ns)
+
+    def test_clone_error_never_falls_back_to_a_full_copy(self):
+        source = self.repo / "__init__.py"
+        destination = self.root / "failed-clone.py"
+        with patch.object(native.sys, "platform", "darwin"), \
+                patch.object(native, "_clonefile", return_value=Mock(return_value=-1)), \
+                patch.object(native.ctypes, "get_errno", return_value=errno.ENOTSUP), \
+                patch.object(native.shutil, "copy2") as full_copy:
+            with self.assertRaises(OSError) as raised:
+                native._copy_file(str(source), str(destination))
+        self.assertEqual(raised.exception.errno, errno.ENOTSUP)
+        self.assertEqual(raised.exception.filename, str(source))
+        self.assertEqual(raised.exception.filename2, str(destination))
+        full_copy.assert_not_called()
+        self.assertFalse(destination.exists())
+        self.assertEqual(source.read_bytes(), b"ADDON = True\n")
+
+    def test_other_platforms_keep_copy2_metadata_and_independence(self):
+        source = self.repo / "__init__.py"
+        destination = self.root / "ordinary-copy.py"
+        source.chmod(0o444)
+        with patch.object(native.sys, "platform", "linux"), \
+                patch.object(native.shutil, "copy2", wraps=shutil.copy2) as full_copy:
+            native._copy_file(str(source), str(destination))
+        full_copy.assert_called_once_with(str(source), str(destination))
+        self.assertEqual(stat.S_IMODE(destination.stat().st_mode), 0o444)
+        destination.chmod(0o644)
+        destination.write_bytes(b"private bytes")
+        self.assertEqual(source.read_bytes(), b"ADDON = True\n")
+
     def test_prepare_refuses_running_anki_before_creating_a_session(self):
         self.process.return_value = Mock(returncode=0, stdout="123\n", stderr="")
         before = native.measure(self.collection)
@@ -336,3 +419,59 @@ class NativeSessionGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "cannot check.*probe denied"):
             native.prepare(self.repo)
         self.assertEqual(list(self.root.glob("ankiscape-native-*")), [])
+
+
+class NativeSourceFreezeTest(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.repo = self.root / "repo"
+        self.repo.mkdir()
+        (self.repo / "__init__.py").write_bytes(b"ADDON = True\n")
+        (self.repo / "asset.bin").write_bytes(bytes(range(256)))
+        (self.repo / "meta.json").write_text("ignored")
+        self.output = self.root / "packet"
+        self.commit = "a" * 40
+        self.enterContext(patch.object(freeze_source, "commit_at", return_value=self.commit))
+        self.enterContext(patch.object(freeze_source, "_git", return_value=Mock(stdout="")))
+        self.enterContext(patch.object(freeze_source, "commit_snapshot", return_value=nullcontext(self.repo)))
+
+    def freeze(self, *arguments):
+        with patch.object(sys, "argv", ["freeze_source", str(self.repo), self.commit,
+                                       str(self.output), *arguments]), redirect_stdout(io.StringIO()):
+            return freeze_source.main()
+
+    def test_packet_reconstructs_exact_source_without_retaining_unpacked_copy(self):
+        self.assertEqual(self.freeze(), 0)
+        manifest = json.loads((self.output / "manifest.json").read_text())
+        with tarfile.open(self.output / "source.tar.gz") as archive:
+            actual = {member.name.removeprefix("source/"): archive.extractfile(member).read()
+                      for member in archive.getmembers() if member.isfile()}
+        self.assertEqual(actual, {"__init__.py": b"ADDON = True\n",
+                                  "asset.bin": bytes(range(256))})
+        self.assertEqual(manifest["source_sha256"], native.source_digest(self.repo))
+        self.assertEqual(manifest["files"], [
+            {"path": name, "sha256": hashlib.sha256(data).hexdigest()}
+            for name, data in sorted(actual.items())])
+        self.assertEqual(manifest["archive_sha256"],
+                         hashlib.sha256((self.output / "source.tar.gz").read_bytes()).hexdigest())
+        self.assertEqual({p.name for p in self.output.iterdir()}, {"manifest.json", "source.tar.gz"})
+
+    def test_transfer_failure_preserves_verified_packet_for_retry_without_source_copy(self):
+        with patch.object(freeze_source, "_transfer_bundle", side_effect=RuntimeError("transfer failed")):
+            with self.assertRaisesRegex(RuntimeError, "transfer failed"):
+                self.freeze("--transfer")
+        self.assertEqual({p.name for p in self.output.iterdir()}, {"manifest.json", "source.tar.gz"})
+        with tarfile.open(self.output / "source.tar.gz") as archive:
+            self.assertEqual(archive.extractfile("source/__init__.py").read(), b"ADDON = True\n")
+
+    def test_dirty_or_existing_output_is_refused_before_replacing_evidence(self):
+        freeze_source._git.return_value.stdout = " M asset.bin\n"
+        with self.assertRaisesRegex(RuntimeError, "dirty"):
+            self.freeze()
+        self.assertFalse(self.output.exists())
+        freeze_source._git.return_value.stdout = ""
+        self.output.mkdir()
+        (self.output / "sentinel").write_bytes(b"preserve")
+        with self.assertRaises(FileExistsError):
+            self.freeze()
+        self.assertEqual((self.output / "sentinel").read_bytes(), b"preserve")

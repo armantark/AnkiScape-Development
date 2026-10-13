@@ -16,6 +16,8 @@ import json
 import os
 import re
 import shlex
+import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -25,6 +27,8 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, NoReturn, Sequence
+
+from tools.native.session_guard import _copy_file
 
 HOST = "armans-macbook-pro"
 REMOTE_HOME = Path("/Users/armantarkhanian")
@@ -45,8 +49,11 @@ MIN_PLAIN_ACTIVE_TESTS = 3_994
 MIN_QT_ACTIVE_TESTS = 4_503
 NETWORK_ATTEMPTS = 3
 PHASE_NAMES = ("Remote preparation", "Sync", "Test execution")
+MAX_PROOF_FILE_BYTES = 256 * 1024 * 1024
 LANE_GROUP_LEADER = (
-    "import os, sys; os.setpgid(0, 0); os.execv('/bin/sh', ('/bin/sh', '-c', sys.argv[1]))"
+    "import os, resource, sys; "
+    "resource.setrlimit(resource.RLIMIT_FSIZE, (int(sys.argv[2]), int(sys.argv[2]))); "
+    "os.setpgid(0, 0); os.execv('/bin/sh', ('/bin/sh', '-c', sys.argv[1]))"
 )
 # A lane owns its process group, every process with the lane's pid file (its stdin) or log
 # (its stdout and stderr) open for writing as a standard stream, and all their descendants.
@@ -388,6 +395,13 @@ def _sync(local_worktree: Path) -> None:
         label="remote Qt interpreter link",
         repeat_safe=True,
     )
+    _ssh(
+        f"cd {shlex.quote(str(REMOTE_REPO))} && "
+        f"{shlex.quote(str(REMOTE_VENV / 'bin/python'))} -m tools.maintenance.report_retention "
+        f"{shlex.quote(str(REMOTE_ROOT / 'reports'))} --apply",
+        label="remote report retention",
+        repeat_safe=True,
+    )
 
 
 def _remote_lane_command(
@@ -542,7 +556,8 @@ def _stream_remote_run(
     # file before the lane writes its group into it.
     launch = (
         f"nohup {shlex.quote(str(REMOTE_VENV / 'bin/python'))} -c {shlex.quote(LANE_GROUP_LEADER)} "
-        f"{shlex.quote(script)} <> {shlex.quote(str(pid_path))} > {shlex.quote(str(log_path))} 2>&1 &"
+        f"{shlex.quote(script)} {MAX_PROOF_FILE_BYTES} "
+        f"<> {shlex.quote(str(pid_path))} > {shlex.quote(str(log_path))} 2>&1 &"
     )
     pending = {
         "run_id": run_id, "log_path": str(log_path), "report_path": str(report_path),
@@ -786,6 +801,11 @@ def _validate_focused_summary(summary: TestSummary, expected_tests: int) -> None
 def _validated_summary_lines(
     args: argparse.Namespace, returncode: int, output: str,
 ) -> tuple[str, ...]:
+    if returncode == 128 + signal.SIGXFSZ:
+        raise RuntimeError(
+            f"remote {args.lane} lane exceeded its per-file storage limit "
+            f"of {MAX_PROOF_FILE_BYTES} bytes (SIGXFSZ)"
+        )
     if returncode != 0:
         raise RuntimeError(f"remote {args.lane} lane failed with exit {returncode}")
     if args.collect_only:
@@ -810,17 +830,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         file=sys.stderr,
     )
     try:
-        with tempfile.TemporaryDirectory(prefix="ankiscape-remote-sync-") as snapshot:
+        with tempfile.TemporaryDirectory(prefix="ankiscape-remote-sync-") as temporary:
+            snapshot = Path(temporary) / "source"
             with _measure_phase(timings, "Remote preparation"):
                 # The mirror lock wait is untimed; syncing the live tree after it would test
                 # whatever the author stashed or edited while the run queued.
-                _run_with_retries(
-                    _rsync_command(local_worktree, f"{snapshot}/"), label="worktree snapshot"
+                shutil.copytree(
+                    local_worktree, snapshot, symlinks=True, copy_function=_copy_file,
+                    ignore=shutil.ignore_patterns(".git", "__pycache__", ".venv-qt", "ankiscape_debug.log*"),
                 )
                 _preflight(args.lane)
             with _hold_mirror_lock():
                 with _measure_phase(timings, "Sync"):
-                    _sync(Path(snapshot))
+                    _sync(snapshot)
                 with _measure_phase(timings, "Test execution"):
                     returncode, output = _stream_remote_run(
                         args.lane,

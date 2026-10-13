@@ -34,6 +34,10 @@
   pending run before sync. Local static inspection does not establish runtime
   acceptance.
 - Tests use Python's built-in `unittest`, not pytest.
+- Test storage is bounded: lane descendants and the root proof wrapper enforce a 256 MiB per-file limit; new retained packets allow 256 MiB per file and 1 GiB total. Oversize output fails explicitly, without reducing test scenarios or acceptance requirements.
+- `tools.maintenance.report_retention` expires only unpinned successful stopped report groups after seven days, keeping at most 128 groups / 64 MiB of eligible reports. Missing pins, uncertain process scans, changed files, failures and unresolved groups refuse deletion or remain protected. Exact receipts, native packets and Git work are preserved.
+- Native add-on/app copies and launch-time test snapshots use independent APFS clones on Darwin; writes to either copy cannot change the other. Native freeze retains archive/manifest and disposes its temporary unpacked copy, deriving source identity from the already computed file hashes.
+- Use `python3 -m tools.maintenance.retain_evidence retain <repo> <revision> <destination> <sources>` for bounded retention. Its `compact <manifest> <scratch-root>` command defaults to a metadata dry-run; `--apply` verifies both existing copies against the original manifest before independently cloning duplicate storage. Receipt paths and bytes remain unchanged.
 - `tools/audit_docs.py` reads the Git index and runs only in a Git checkout; the Git-free MacBook mirror's `git ls-files ... exit status 128` is a runner failure, not an audit result.
 - `run_tests.py` adds the repository root to `sys.path`; tests and direct probes import `pkg_alias` before package-relative `ankiscape.*` modules.
 - `python3 tools/audit_item_reachability.py --json` emits a deterministic declared-route graph. `--rank-roots N` ranks roots by simulated transitive item/action gain, and `tests/test_item_reachability_audit.py` pins the instrument. The audit measures declared routes; check runtime access gates before a claim of player acquisition.

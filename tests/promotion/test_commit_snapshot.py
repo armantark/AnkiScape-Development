@@ -1,4 +1,6 @@
 import io
+import hashlib
+import json
 import subprocess
 import sys
 import tempfile
@@ -8,6 +10,7 @@ from unittest.mock import patch
 
 from tests.test_promotion_gate import PromotionRepo
 from tools import run_remote_tests
+from tools.maintenance import retain_evidence
 from tools.promotion.lane_execution import _run_bounded
 from tools.promotion.snapshot import commit_snapshot
 from tools.promotion_gate import GateError, evidence_path_for, run_gate
@@ -105,6 +108,92 @@ class CommitSnapshotTest(unittest.TestCase):
             self.assertEqual(
                 repo.git(repo.target, "show", ":state.txt").stdout, "staged edit\n",
             )
+
+
+class EvidenceRetentionTest(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.source_root = self.root / "scratch"
+        self.source_root.mkdir()
+        self.source = self.source_root / "trace.gz"
+        self.source.write_bytes(b"verified trace")
+        self.packet = self.root / "packet"
+        self.packet.mkdir()
+        self.retained = self.packet / "trace.gz"
+        self.retained.write_bytes(self.source.read_bytes())
+        self.manifest = self.packet / "retention-manifest.json"
+        self.manifest.write_text(json.dumps({"files": [{
+            "source": str(self.source), "retained": str(self.retained),
+            "bytes": self.source.stat().st_size,
+            "sha256": hashlib.sha256(self.source.read_bytes()).hexdigest(),
+        }]}))
+
+    def test_dry_run_and_compaction_preserve_receipt_paths_and_independent_bytes(self):
+        before = self.retained.stat().st_ino
+        receipt = self.manifest.read_bytes()
+        result = retain_evidence.compact(self.manifest, self.source_root, min_bytes=0)
+        self.assertEqual(result["eligible_bytes"], len(b"verified trace"))
+        self.assertEqual(self.retained.stat().st_ino, before)
+        retain_evidence.compact(self.manifest, self.source_root, min_bytes=0, apply=True)
+        self.assertNotEqual(self.retained.stat().st_ino, before)
+        self.assertEqual(self.manifest.read_bytes(), receipt)
+        self.source.write_bytes(b"private mutation")
+        self.assertEqual(self.retained.read_bytes(), b"verified trace")
+
+    def test_compaction_refuses_corruption_symlinks_and_escaping_paths(self):
+        row = json.loads(self.manifest.read_text())["files"][0]
+        for changed in ({**row, "sha256": "0" * 64},
+                        {**row, "source": str(self.retained)},
+                        {**row, "retained": str(self.source)}):
+            with self.subTest(changed=changed):
+                self.manifest.write_text(json.dumps({"files": [changed]}))
+                with self.assertRaises((ValueError, RuntimeError)):
+                    retain_evidence.compact(self.manifest, self.source_root, min_bytes=0, apply=True)
+                self.assertEqual(self.retained.read_bytes(), b"verified trace")
+        self.manifest.write_text(json.dumps({"files": [row]}))
+        self.source.unlink()
+        self.source.symlink_to(self.retained)
+        with self.assertRaises(ValueError):
+            retain_evidence.compact(self.manifest, self.source_root, min_bytes=0, apply=True)
+        self.assertEqual(self.retained.read_bytes(), b"verified trace")
+
+    def test_compaction_detects_a_changed_target_before_replacement(self):
+        copy = retain_evidence._copy_file
+
+        def concurrent_edit(source, destination):
+            copy(source, destination)
+            self.retained.write_bytes(b"concurrent edit")
+
+        with patch.object(retain_evidence, "_copy_file", side_effect=concurrent_edit):
+            with self.assertRaisesRegex(RuntimeError, "changed"):
+                retain_evidence.compact(self.manifest, self.source_root, min_bytes=0, apply=True)
+        self.assertEqual(self.retained.read_bytes(), b"concurrent edit")
+        self.assertEqual({p.name for p in self.packet.iterdir()},
+                         {"trace.gz", "retention-manifest.json"})
+
+    def test_retention_budget_and_dirty_revision_refuse_before_copying(self):
+        destination = self.root / "new-packet"
+        with patch.object(retain_evidence, "_git", side_effect=["a" * 40, ""]):
+            with self.assertRaisesRegex(ValueError, "budget"):
+                retain_evidence.retain(self.root, "a" * 40, destination,
+                                       [self.source], max_file_bytes=3)
+        self.assertFalse(destination.exists())
+        with patch.object(retain_evidence, "_git", side_effect=["a" * 40, " M source"]):
+            with self.assertRaisesRegex(ValueError, "dirty"):
+                retain_evidence.retain(self.root, "a" * 40, destination, [self.source])
+        self.assertFalse(destination.exists())
+
+    def test_retention_refuses_symlinked_inputs_and_destination_before_copying(self):
+        alias = self.root / "alias-packet"
+        alias.symlink_to(self.packet, target_is_directory=True)
+        for source, destination in ((self.source, alias), (alias, self.root / "new-packet")):
+            with self.subTest(source=source), \
+                    patch.object(retain_evidence, "_git", side_effect=["a" * 40, ""]):
+                with self.assertRaisesRegex(ValueError, "symlink"):
+                    retain_evidence.retain(self.root, "a" * 40, destination, [source])
+        self.assertEqual(self.retained.read_bytes(), b"verified trace")
+        self.assertEqual({p.name for p in self.packet.iterdir()},
+                         {"trace.gz", "retention-manifest.json"})
 
 
 if __name__ == "__main__":

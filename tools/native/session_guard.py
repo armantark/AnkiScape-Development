@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import hashlib
 import json
 import os
@@ -14,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from functools import cache
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -63,6 +65,24 @@ def require_anki_stopped(*, exclude_self: bool = False) -> None:
         raise RuntimeError(f"cannot check whether Anki is running: {result.stderr.strip()}")
 
 
+@cache
+def _clonefile():
+    clone = ctypes.CDLL(None, use_errno=True).clonefile
+    clone.argtypes = (ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int)
+    clone.restype = ctypes.c_int
+    return clone
+
+
+def _copy_file(source: str, destination: str) -> str:
+    if sys.platform != "darwin":
+        return shutil.copy2(source, destination)
+    if _clonefile()(os.fsencode(source), os.fsencode(destination), 0) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), source, None, destination)
+    shutil.copystat(source, destination)
+    return destination
+
+
 def copy_addon(repo: Path, destination: Path) -> None:
     def ignore(directory: str, names: list[str]) -> set[str]:
         ignored = set(shutil.ignore_patterns(
@@ -73,7 +93,7 @@ def copy_addon(repo: Path, destination: Path) -> None:
                 raise RuntimeError(f"refusing add-on symlink: {Path(directory) / name}")
         return ignored
 
-    shutil.copytree(repo, destination, ignore=ignore)
+    shutil.copytree(repo, destination, ignore=ignore, copy_function=_copy_file)
 
 
 def prepare(repo: Path) -> Path:
@@ -87,7 +107,7 @@ def prepare(repo: Path) -> Path:
     base = Path(tempfile.mkdtemp(prefix="ankiscape-native-")).resolve()
     copy_addon(repo, base / "addons21" / "ankiscape_fork")
     app = base / TEST_APP
-    shutil.copytree(ANKI_APP, app, symlinks=True)
+    shutil.copytree(ANKI_APP, app, symlinks=True, copy_function=_copy_file)
     plist_path = app / "Contents/Info.plist"
     info = plistlib.loads(plist_path.read_bytes())
     if info.get("MainModule") != "anki":
