@@ -78,6 +78,18 @@ class ReportRetentionTest(unittest.TestCase):
         self.assertEqual(byte_plan.kept, (newest,))
         self.assertEqual({group.run_id for group in byte_plan.remove}, set(names))
 
+    def test_oversized_recent_success_does_not_discard_older_groups_that_fit(self):
+        oversized = self.group(1, age=1, size=64)
+        middle = self.group(2, age=2, size=3)
+        oldest = self.group(3, age=3, size=3)
+        plan = self.plan(max_bytes=20)
+        self.assertEqual(plan.kept, (middle, oldest))
+        self.assertEqual([group.run_id for group in plan.remove], [oversized])
+        retention.apply_retention(plan)
+        self.assertFalse((self.root / f"{oversized}.log").exists())
+        self.assertTrue(all((self.root / f"{name}.{suffix}").exists()
+                            for name in (middle, oldest) for suffix in ("log", "report", "pid")))
+
     def test_pins_open_readers_and_symlinks_protect_the_whole_group(self):
         pinned = self.group(1, age=8)
         opened = self.group(2, age=9)

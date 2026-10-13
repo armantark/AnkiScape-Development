@@ -428,6 +428,8 @@ class NativeSourceFreezeTest(unittest.TestCase):
         self.repo.mkdir()
         (self.repo / "__init__.py").write_bytes(b"ADDON = True\n")
         (self.repo / "asset.bin").write_bytes(bytes(range(256)))
+        (self.repo / "nested").mkdir()
+        (self.repo / "nested/blob.bin").write_bytes(b"nested source bytes\n")
         (self.repo / "meta.json").write_text("ignored")
         self.output = self.root / "packet"
         self.commit = "a" * 40
@@ -447,7 +449,8 @@ class NativeSourceFreezeTest(unittest.TestCase):
             actual = {member.name.removeprefix("source/"): archive.extractfile(member).read()
                       for member in archive.getmembers() if member.isfile()}
         self.assertEqual(actual, {"__init__.py": b"ADDON = True\n",
-                                  "asset.bin": bytes(range(256))})
+                                  "asset.bin": bytes(range(256)),
+                                  "nested/blob.bin": b"nested source bytes\n"})
         self.assertEqual(manifest["source_sha256"], native.source_digest(self.repo))
         self.assertEqual(manifest["files"], [
             {"path": name, "sha256": hashlib.sha256(data).hexdigest()}

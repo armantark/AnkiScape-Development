@@ -139,12 +139,11 @@ def _qualify_groups(root: Path, pins: set[str], opened: set[Path]) -> tuple[list
 
 def _select_groups(eligible: list[ReportGroup], cutoff_ns: int, max_groups: int,
                    max_bytes: int) -> tuple[tuple[str, ...], tuple[ReportGroup, ...]]:
-    kept, remove, retained_bytes, overflow = [], [], 0, False
+    kept, remove, retained_bytes = [], [], 0
     for group in sorted(eligible, key=lambda group: (-group.modified_ns, group.run_id)):
-        if (overflow or group.modified_ns <= cutoff_ns or len(kept) >= max_groups
+        if (group.modified_ns <= cutoff_ns or len(kept) >= max_groups
                 or retained_bytes + group.size > max_bytes):
             remove.append(group)
-            overflow = True
         else:
             kept.append(group.run_id)
             retained_bytes += group.size

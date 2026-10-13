@@ -1,7 +1,8 @@
 import contextlib
+import errno
 import io
+import json
 import os
-import resource
 import shlex
 import signal
 import subprocess
@@ -60,27 +61,36 @@ class RemoteStorageTests(unittest.TestCase):
         ssh.assert_not_called()
 
     def test_lane_file_limit_stops_oversize_descendant_and_preserves_parent_and_diagnostics(self):
-        before = resource.getrlimit(resource.RLIMIT_FSIZE)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             owner = root / "owner-sentinel"
             owner.write_bytes(b"owner unchanged")
             proof = root / "proof.bin"
             log = root / "lane.log"
-            child = ("import os,signal,sys;signal.signal(signal.SIGXFSZ,signal.SIG_DFL);"
-                     "print('storage-limit canary',flush=True);"
-                     "fd=os.open(sys.argv[1],os.O_WRONLY|os.O_CREAT,0o600);"
-                     "os.write(fd,b'x'*2048);os.write(fd,b'x')")
-            script = shlex.join((sys.executable, "-c", child, str(proof)))
-            with patch.object(run_remote_tests, "MAX_PROOF_FILE_BYTES", 1024), log.open("wb") as output:
-                completed = subprocess.run((sys.executable, "-c", run_remote_tests.LANE_GROUP_LEADER,
-                                            script, str(run_remote_tests.MAX_PROOF_FILE_BYTES)),
-                                           stdout=output, stderr=subprocess.STDOUT, check=False)
-            self.assertNotEqual(completed.returncode, 0)
-            self.assertLessEqual(proof.stat().st_size, 1024)
-            self.assertIn("storage-limit canary", log.read_text())
-            self.assertEqual(owner.read_bytes(), b"owner unchanged")
-        self.assertEqual(resource.getrlimit(resource.RLIMIT_FSIZE), before)
+            child = "\n".join((
+                "import json,os,signal,sys",
+                "if sys.argv[2] == 'signal': signal.signal(signal.SIGXFSZ,signal.SIG_DFL)",
+                "fd=os.open(sys.argv[1],os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)",
+                "try:",
+                "    os.write(fd,b'x'*2048);os.write(fd,b'x')",
+                "except OSError as error:",
+                "    print(json.dumps({'errno':error.errno}),flush=True)",
+                "    raise",
+            ))
+            for mode in ("signal", "python"):
+                with self.subTest(mode=mode):
+                    script = shlex.join((sys.executable, "-c", child, str(proof), mode))
+                    with log.open("wb") as output:
+                        completed = subprocess.run(
+                            (sys.executable, "-c", run_remote_tests.LANE_GROUP_LEADER, script, "1024"),
+                            stdout=output, stderr=subprocess.STDOUT, check=False,
+                        )
+                    self.assertEqual(completed.returncode, -signal.SIGXFSZ if mode == "signal" else 1)
+                    self.assertLessEqual(proof.stat().st_size, 1024)
+                    if mode == "python":
+                        with log.open() as stream:
+                            self.assertEqual(json.loads(stream.readline()), {"errno": errno.EFBIG})
+                    self.assertEqual(owner.read_bytes(), b"owner unchanged")
 
     def test_only_sigxfsz_exit_is_labeled_as_the_storage_limit(self):
         arguments = run_remote_tests._parse_args([str(self._worktree()), "plain"])
