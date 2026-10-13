@@ -389,15 +389,11 @@ def _sync(local_worktree: Path) -> None:
     _run_with_retries(command, label="worktree sync")
     _ssh(
         f"ln -sfn {shlex.quote(str(REMOTE_VENV))} "
-        f"{shlex.quote(str(REMOTE_REPO / '.venv-qt'))}",
-        label="remote Qt interpreter link",
-        repeat_safe=True,
-    )
-    _ssh(
+        f"{shlex.quote(str(REMOTE_REPO / '.venv-qt'))} && "
         f"cd {shlex.quote(str(REMOTE_REPO))} && "
         f"{shlex.quote(str(REMOTE_VENV / 'bin/python'))} -m tools.maintenance.report_retention "
         f"{shlex.quote(str(REMOTE_ROOT / 'reports'))} --apply",
-        label="remote report retention",
+        label="remote interpreter and report retention",
         repeat_safe=True,
     )
 

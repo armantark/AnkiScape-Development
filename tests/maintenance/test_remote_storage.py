@@ -45,9 +45,10 @@ class RemoteStorageTests(unittest.TestCase):
                 patch.object(run_remote_tests, "_run_with_retries", side_effect=lambda *args, **kwargs: events.append("sync")), \
                 patch.object(run_remote_tests, "_ssh", side_effect=lambda *args, **kwargs: events.append(kwargs["label"])) as ssh:
             run_remote_tests._sync(Path("/disposable/source"))
-        self.assertEqual(events, ["pending", "remote mirror setup", "sync", "remote Qt interpreter link",
-                                  "remote report retention"])
+        self.assertEqual(events, ["pending", "remote mirror setup", "sync",
+                                  "remote interpreter and report retention"])
         command = ssh.call_args.args[0]
+        self.assertTrue(command.startswith("ln "))
         self.assertIn(f"cd {shlex.quote(str(run_remote_tests.REMOTE_REPO))} &&", command)
         self.assertIn(f"{shlex.quote(str(run_remote_tests.REMOTE_VENV / 'bin/python'))} -m tools.maintenance.report_retention", command)
         self.assertTrue(command.endswith(f"{shlex.quote(str(run_remote_tests.REMOTE_ROOT / 'reports'))} --apply"))
