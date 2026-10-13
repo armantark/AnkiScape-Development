@@ -6,6 +6,7 @@
 - Persistent data is stored in Anki collection config via `mw.col.get_config` and `mw.col.set_config`.
 
 ## Development Setup
+- A bookkeeping or presentation-parser failure does not justify rerunning successful product verification; check prerequisite results before dependent actions and reconcile failures explicitly.
 - Source lives directly in an Anki add-ons directory.
 - This working copy should live in `addons21/ankiscape_fork`, not the AnkiWeb-managed numeric folder `addons21/1808450369`.
 - The canonical checkout is the only AnkiScape checkout allowed inside

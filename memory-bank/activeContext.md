@@ -18,6 +18,8 @@ The owner authorized the prepared native dispatch, required notices and a bounde
 Last staleness sweep: 2026-10-01
 ## Decision Boundaries
 
+- The quota ceiling is a limit, not a spending target.
+- Finish and land already-authorized units before new cleanup; reuse existing checks and receipts, and add a runner, checker, retention layer, audit or plan only when a demonstrated blocker of the current unit requires a minimal repair.
 - The Darkan repository implements its quests and miniquests, including achievement task hooks; the thread split covers source harvesting only: for every subject, check pins and claims, doorbell, then record a claim before harvesting, with Darkan's 249 revisions already pinned; the one exception Darkan names to "AnkiScape writes no in-game quest code" is AnkiScape's 2026-08-31 `skippy_and_the_mogres` waiver, already used: that miniquest landed at `9b933084` (owner rulings 2026-09-25, [shared source ledger](shared-source-harvest-ledger.md)).
 - Live cadence is default-on. Only explicit boolean false takes the byte/RNG-identical legacy path.
 - Cadence residuals are integer-only per route. Inactive routes freeze, and the whole `cadence_profiles` mapping rides the existing review snapshot/undo path.
@@ -35,6 +37,7 @@ Last staleness sweep: 2026-10-01
 
 ## Verification Contract
 
+- Report the user-visible change, what actually landed and the precise remaining check or blocker; do not report a whole-goal percentage without a measured denominator.
 - Pure/data/unit/integration/end-to-end tests for behavior changes.
 - Real offscreen `.venv-qt` tests for UI changes.
 - Full `python3 run_tests.py` and full offscreen discovery before feature closure.
