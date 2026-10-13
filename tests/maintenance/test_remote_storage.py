@@ -1,5 +1,6 @@
 import contextlib
 import io
+import os
 import resource
 import shlex
 import signal
@@ -16,6 +17,27 @@ from tools import run_remote_tests
 
 class RemoteStorageTests(unittest.TestCase):
     _worktree = test_remote_test_host.RemoteTestHostTests._worktree
+
+    def test_direct_runner_reaches_preflight_from_an_unrelated_working_directory(self):
+        worktree = self._worktree()
+        root = self._worktree()
+        binary = root / "bin"
+        binary.mkdir()
+        ssh = binary / "ssh"
+        ssh.write_text("#!/bin/sh\necho TEST_PREFLIGHT_REFUSAL >&2\nexit 7\n")
+        ssh.chmod(0o755)
+        canary_env = dict(os.environ)
+        canary_env.pop("PYTHONPATH", None)
+        canary_env["PATH"] = str(binary) + ":/usr/bin:/bin"
+        completed = subprocess.run(
+            (sys.executable, run_remote_tests.__file__, str(worktree), "plain",
+             "--select", "tests.", "--collect-only"),
+            cwd=root, env=canary_env, text=True, capture_output=True, check=False,
+        )
+        self.assertEqual(completed.returncode, 1)
+        self.assertIn("TEST_PREFLIGHT_REFUSAL", completed.stderr)
+        self.assertNotIn("ModuleNotFoundError", completed.stderr)
+        self.assertEqual((worktree / "run_tests.py").read_text(), "launch\n")
 
     def test_report_retention_runs_only_after_pending_reconciliation_and_source_sync(self):
         events = []

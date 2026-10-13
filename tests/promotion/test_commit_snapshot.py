@@ -195,6 +195,61 @@ class EvidenceRetentionTest(unittest.TestCase):
         self.assertEqual({p.name for p in self.packet.iterdir()},
                          {"trace.gz", "retention-manifest.json"})
 
+    def test_reserved_manifest_name_is_rejected_before_retaining_any_input(self):
+        source = self.source_root / "retention-manifest.json"
+        source.write_bytes(b"source evidence")
+        destination = self.root / "new-packet"
+        with patch.object(retain_evidence, "_git", side_effect=["a" * 40, ""]):
+            with self.assertRaisesRegex(ValueError, "reserved"):
+                retain_evidence.retain(self.root, "a" * 40, destination, [source])
+        self.assertFalse(destination.exists())
+        self.assertEqual(source.read_bytes(), b"source evidence")
+
+    def test_reused_original_or_hardlink_is_refused_as_retained_evidence(self):
+        self.retained.unlink()
+        self.retained.hardlink_to(self.source)
+        for destination in (self.source_root, self.root / "linked-packet"):
+            destination.mkdir(exist_ok=True)
+            if destination != self.source_root:
+                (destination / self.source.name).hardlink_to(self.source)
+            with self.subTest(destination=destination), \
+                    patch.object(retain_evidence, "_git", side_effect=["a" * 40, ""]):
+                with self.assertRaisesRegex(ValueError, "independent"):
+                    retain_evidence.retain(self.root, "a" * 40, destination, [self.source])
+            self.assertFalse((destination / "retention-manifest.json").exists())
+        self.assertEqual(self.source.read_bytes(), b"verified trace")
+
+    def test_growth_after_budgeting_refuses_copy_and_receipt(self):
+        destination = self.root / "new-packet"
+        target = destination / self.source.name
+        create_target = retain_evidence._retained_target
+        planned_size = self.source.stat().st_size
+
+        def concurrent_growth(*arguments):
+            result = create_target(*arguments)
+            self.source.write_bytes(b"too large for the planned budget")
+            return result
+
+        with patch.object(retain_evidence, "_git", side_effect=["a" * 40, ""]), \
+                patch.object(retain_evidence, "_retained_target", side_effect=concurrent_growth):
+            with self.assertRaisesRegex(RuntimeError, "size changed"):
+                retain_evidence.retain(self.root, "a" * 40, destination, [self.source],
+                                       max_file_bytes=planned_size, max_packet_bytes=planned_size)
+        self.assertFalse(target.exists())
+        self.assertFalse((destination / "retention-manifest.json").exists())
+
+    def test_successful_packet_binds_independent_contents_and_exact_sizes(self):
+        destination = self.root / "new-packet"
+        with patch.object(retain_evidence, "_git", side_effect=["a" * 40, "", "a" * 40, ""]):
+            result = retain_evidence.retain(self.root, "a" * 40, destination, [self.source])
+        manifest = json.loads(Path(result["manifest"]).read_text())
+        row = manifest["files"][0]
+        target = Path(row["retained"])
+        self.assertEqual(row["bytes"], target.stat().st_size)
+        self.assertEqual(row["sha256"], hashlib.sha256(target.read_bytes()).hexdigest())
+        self.source.write_bytes(b"private mutation")
+        self.assertEqual(target.read_bytes(), b"verified trace")
+
 
 if __name__ == "__main__":
     unittest.main()

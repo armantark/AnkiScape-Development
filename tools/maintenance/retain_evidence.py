@@ -65,6 +65,8 @@ def _retention_inputs(sources: list[Path]) -> list[tuple[Path, Path, int]]:
 
 
 def _check_budget(files: list[tuple[Path, Path, int]], max_file: int, max_packet: int) -> None:
+    if any(relative.parts[0] == "retention-manifest.json" for _, relative, _ in files):
+        raise ValueError("retention-manifest.json is a reserved packet path")
     if len({relative for _, relative, _ in files}) != len(files):
         raise ValueError("evidence names collide")
     if any(size > max_file for _, _, size in files) or sum(size for _, _, size in files) > max_packet:
@@ -84,8 +86,12 @@ def _retained_target(destination: Path, relative: Path) -> Path:
 
 def _retain_file(path: Path, target: Path, size: int) -> dict:
     before = _fingerprint(path)
+    if before[2] != size:
+        raise RuntimeError(f"evidence size changed after budgeting: {path}")
     digest = _hash(path)
     if target.exists():
+        if _fingerprint(target)[:2] == before[:2] or target.stat().st_nlink != 1:
+            raise ValueError(f"retained evidence must be independent: {target}")
         if _hash(target) != digest:
             raise ValueError(f"refusing to replace distinct evidence: {target}")
     else:

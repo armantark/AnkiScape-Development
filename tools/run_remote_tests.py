@@ -28,8 +28,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, NoReturn, Sequence
 
-from tools.native.session_guard import _copy_file
-
 HOST = "armans-macbook-pro"
 REMOTE_HOME = Path("/Users/armantarkhanian")
 REMOTE_ROOT = REMOTE_HOME / "ankiscape-remote-test-host"
@@ -821,6 +819,9 @@ def _validated_summary_lines(
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from tools.native.session_guard import _copy_file
+
     args = _parse_args(argv)
     local_worktree = args.local_worktree
     timings: dict[str, PhaseTiming] = {}
