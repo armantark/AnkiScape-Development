@@ -21,5 +21,8 @@ Review: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/cit
 Verdict: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/citation-dirty-origins/correction-f1-f2/astra-review-2/verdict.json`; SHA-256 `487585bd60e995677898594d02c5dd3ec3a781bcc96b4e59b019d33930c2553b`.
 Original evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/citation-dirty-origins`; successful product proofs were preserved.
 The original intent-to-add/removal changed real index bytes after proof-08; later correction/review equality does not establish a whole-task invariant.
-Six final source audits exit 0, including exact papercut no-loss. Source only; exact merged full remote-lane gate and official land remain pending.
+Six final source audits exit 0, including exact papercut no-loss. Opus accepted the merged records.
+Exact `77e3b62aa785ebdecb2d70c03bdb97f053b404df` passed all nine full remote-lane checks and officially landed; main was clean.
+Original lanes: plain 5322 tests, 621.186s, skipped 580; Qt 5322 tests, 841.659s, skipped 5.
+Retained original gate/lanes/land: `.git/ankiscape-promotion-evidence/77e3b62aa785ebdecb2d70c03bdb97f053b404df/merged-citation-gate/retention-manifest.json`; 12 files; SHA-256 `ef0ffd54d21df6d89caec7dbe35a731b5c1c04db9dde2af9a7ff76335cf52f24`.
 No gameplay, existing UI, pinned baseline, audit threshold or acceptance waiver changes.
