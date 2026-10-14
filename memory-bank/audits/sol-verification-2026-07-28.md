@@ -32,7 +32,7 @@ Result: **13 findings** across the four newest activity families: 9 broken mecha
 
 ### 4. Gnome Restaurant — accepting a job can steal another persistent activity’s session
 
-- **Files:** `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/gnome_restaurant_logic.py:237-254`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/gnome_restaurant_logic.py:436-456`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/core/storage_pure.py:1895-1910`
+- **Files:** `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/gnome_restaurant_logic.py:237-254`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/logic/gnome_restaurant_logic.py:436-456`; `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/core/storage_pure.py:1893-1908`
 - **Severity:** broken-mechanic
 - **What is wrong:** `_accept_reason()` checks service state, outstanding orders, decline wait, and customer reachability, but not the exclusive `activity_session`. `accept_gnome_restaurant_order_pure()` then unconditionally overwrites `activity_session.active_id` with `gnome_restaurant`.
 - **Failure scenario:** Open Gnome Restaurant service, then start a real Temple Trekking session. While the trek is active, accept an easy Gnome Restaurant order. The Gnome command succeeds, replaces the owner, and the next save/load reconciliation deletes the live Temple Trekking session.

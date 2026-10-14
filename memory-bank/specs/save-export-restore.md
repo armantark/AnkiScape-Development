@@ -31,7 +31,7 @@ restore also rolls back every card, so it is not a game tool.
 The user interface (UI) entry point is two buttons, "Export game save…"
 and "Restore game save…".
 The recommended place is one "Game save" row at the bottom of the Settings
-tab, above Developer Mode (`ui/ui.py`, Settings tab near line 28083). Upstream
+tab, above Developer Mode (`ui/ui.py`, Settings tab near line 28039). Upstream
 uses the same place (Settings -> Advanced, `evolved/ui/settings.py:171-179` at upstream commit
 `97b79fb`).
 This changes an existing interface, so it needs owner approval (question 1).
@@ -129,7 +129,7 @@ no safety file.
 
 The newer-version refusal is necessary. Unknown keys survive the load and the
 save, but the normal load path keeps the higher `config_version`
-(`storage_pure.py:2594`, `max(...)`). Thus the save keeps the label of a
+(`storage_pure.py:2592`, `max(...)`). Thus the save keeps the label of a
 schema that this code did not migrate to. This code then writes its older
 shapes under that label. When the newer add-on loads the save again, the label
 tells it that its migrations above this `CURRENT_CONFIG_VERSION` are done. Those
@@ -158,7 +158,7 @@ Steps:
    `-3`, and so on, before `.json`, until the creation succeeds. Never
    replace an existing safety file. If this write fails, refuse the restore.
 5. Replace the game as one direct action through `commit_direct_action`
-   (`__init__.py:1003`). This creates one Anki undo entry,
+   (`__init__.py:1001`). This creates one Anki undo entry,
    "AnkiScape direct action", and one whole-save snapshot on the direct-action
    undo stack.
 6. Close the main menu dialog. The next open builds fresh from the restored
@@ -191,7 +191,7 @@ reads revlog with `SELECT` statements only. A profile load means
 
 The direct-action path runs the music refresh on every commit
 (`__init__.py:1038`), and a profile load runs it only for saves older than v89
-(`core/storage_pure.py:2316-2323`). The restore keeps this refresh. The refresh
+(`core/storage_pure.py:2314-2321`). The restore keeps this refresh. The refresh
 only adds tracks that the save's own levels, quests and diaries already earn,
 and a second run changes nothing. Thus it cannot bring state from the old game
 into the restored save.
@@ -202,7 +202,7 @@ current, and only a stale file changes. Two other parts of the normal
 direct-action path would break the rule above. The restore must bypass both:
 
 - The Bankstanding switch after a cleared activity session
-  (`__init__.py:1040-1051`) overwrites `current_utility` with the old game's
+  (`__init__.py:1038-1049`) overwrites `current_utility` with the old game's
   value.
 - `_select_review_action` (`__init__.py:988`) clears `combat_encounter` when
   the review action changes.

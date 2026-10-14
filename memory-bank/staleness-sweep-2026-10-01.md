@@ -56,7 +56,7 @@ After the first pass, these 18 rows stayed as written. The applied nominations b
 | `productContext.md` | 0 | 19 complete skill surfaces agree with `core/skill_registry.py`. |
 | `systemPatterns.md` | 18 | Magic was listed as a partial skill; `core/skill_registry.py` gives it a complete surface. |
 | `techContext.md` | 13 | Quest repairs were batched by line distance in `data/quest_data.py`, which is a re-export facade since `5c87ba05`. |
-| `future-work-kanban.md` head | 0 | The `__init__.py:5501` answer citation is correct. |
+| `future-work-kanban.md` head | 0 | The `cffc8788:__init__.py:5501` answer citation is correct. |
 | `goal-priority-matrix.md` head | 1 | Keep/Drop settlement got its own step at `6f0f0a03`. |
 
 The `systemPatterns.md` rewrites:

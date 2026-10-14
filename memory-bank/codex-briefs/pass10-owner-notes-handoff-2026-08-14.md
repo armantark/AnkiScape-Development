@@ -64,10 +64,10 @@ target design is one commit action, the same as the new Big Top flow.
 ### UI defect mechanics
 
 - Combat selector: the grouped `QTreeWidget` path sets the same green
-  background brush as the flat path (`ui/ui.py:5438-5501`), but the tree
+  background brush as the flat path (`ui/ui.py:5427-5490`), but the tree
   stylesheet (`ui/ui.py:5267-5276`) suppresses the item background role in
   native paint. The existing tests assert the brush role, not pixels
-  (`tests/test_main_menu_widget.py:6465-6490`, `:8469-8503`), so they pass
+  (`tests/test_main_menu_widget.py:6444-6469`, `:8469-8503`), so they pass
   while the screen is wrong.
 - Strip text: the line is one `QProgressBar` with `setFormat(...)` text and a
   12 px green chunk (`ui/ui.py:2344-2402`, `:2550-2576`). The fill clips

@@ -43,7 +43,7 @@ drafts for the other eight regions, Fable review of every drafted row.
 
 Owner: "it should still start a combat instance like any enemy. It's a quest
 boss." Code check: `apply_quest_combat_encounter_pure`
-(`logic_pure/logic_pure_quest.py:1273+`) builds a quest enemy spec, runs the
+(`logic_pure/logic_pure_quest.py:1160+`) builds a quest enemy spec, runs the
 shared combat engine with review ticks, persists progress in
 `quest_combat_active_encounters`, and handles death. S5 is steered to prove
 that path with tests (loadout, food, prayers, death, current target shown)
@@ -529,7 +529,7 @@ in 1,015 s, 10 failures and 1 error. Audits clean. Known: the module-surface
 digest for `core/constants.py` was re-pinned by two slices independently; S3's
 reason forwarding calls `deactivate_current_skill(reason)` against a test stub
 that takes no argument; a modal opened in the offscreen lane from
-`show_error_message` (ui/ui.py:4542). An integration-fix pass (Sol) runs on
+`show_error_message` (ui/ui.py:4539). An integration-fix pass (Sol) runs on
 the batch worktree now; S2's hardening commit merges after it. Log:
 `ankiscape_worktrees/gate-d2992b23.log`.
 

@@ -163,18 +163,18 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
 - **Rapid Restore analog:** recovery-step multiplier `(1 + uptime)` on the
   existing `COMBAT_STAT_DRAIN_RECOVERY_TICKS` 100-tick cadence
   (`_combat_recover_current_levels`,
-  `logic_pure/logic_pure_combat_supplies.py:1105`), excluding
+  `logic_pure/logic_pure_combat_supplies.py:1102`), excluding
   Constitution/Prayer/Summoning. Rapid Heal analog: natural LP trickle
   `×(1 + uptime)`. Rapid Renewal / Prayer renewal potion restore points
   gradually per tick (pin exact rate at implementation).
 - **Prayer points:** max = `prayer_level` (internally `level*10`). Bank-run
   refill = free full restore "as if stopping by an altar." Mid-burst restore =
   Prayer potions auto-drunk (existing stat-potion auto-drink,
-  `logic_pure/logic_pure_combat_supplies.py:1616`). At 0 points with no potion, prayers switch off until
+  `logic_pure/logic_pure_combat_supplies.py:1631`). At 0 points with no potion, prayers switch off until
   the next bank-run refill. Drain resistance `60 + 2×prayer equipment bonus`.
 - **Protect Item** is meaningful because PvM death has real costs
   (`_combat_apply_pvm_death`,
-  `logic_pure/logic_pure_combat_model.py:779`).
+  `logic_pure/logic_pure_combat_model.py:818`).
 - **Auto-bury/scatter during combat**: per-combat toggle spending extra
   simulated ticks per bone/ash, off by default.
 - **Piety/Chivalry gates:** pre-EOC these required King's Ransom + the Knight

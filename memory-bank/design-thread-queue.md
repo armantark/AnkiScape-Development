@@ -118,7 +118,7 @@ restating the beat counts.
 Raised 2026-08-22 while applying the one-clue ownership rule to quest rewards.
 This is an owner-only decision; the current behaviour is unchanged.
 
-At `logic_pure/logic_pure_quest.py:1476`, `apply_quest_progress_pure`
+At `logic_pure/logic_pure_quest.py:1363`, `apply_quest_progress_pure`
 filters Do No Evil's rewards against the post-stage player data. Reproduction:
 put the player at Do No Evil stage 9 with its required action complete and
 `{"Clue scroll (easy)": 1}` in the inventory, then call
@@ -626,7 +626,7 @@ hide inside the audit.
   `['Deliver the strange talisman to Sedridor']`.
 - **Direct downstream blocks:** the Wicked hood claim inherits
   `ClaimDefinition.required_quest = RUNE_MYSTERIES_ID` from
-  `data/quest/contract.py:135` because its row at `data/quest/ledger.py:307-313`
+  `data/quest/contract.py:136` because its row at `data/quest/ledger.py:321-327`
   does not override the field; the `rune_essence` Mining target is gated by the
   quest at `data/quest/ledger.py:77`; and Lunar Diplomacy requires Rune Mysteries
   at `data/quest/definitions/members/lunar_diplomacy.py:53`, which in turn withholds its Lunar Spellbook and
@@ -700,7 +700,7 @@ queue for quest slices, not a reason to relax the reachability gate.
     same search-and-read steps with Beaten book id `9717`, while Slashed book
     remains id `9715`; rev-727 and rev-742 cache definitions and game-main's
     item table preserve the same two identities. The cleanup row at
-    `data/quest/stage_cleanups.py:117` instead invents slashing the Beaten Book in the
+    `data/quest/stage_cleanups.py:126` instead invents slashing the Beaten Book in the
     workshop and produces `Slashed book`. This needs a source-correction slice,
     not reachability for the reported action.
 - **Elemental Workshop III** (`elemental_workshop_iii`)
@@ -791,10 +791,10 @@ an open design fork; it does not choose or implement a repair.
   `logic_pure/logic_pure_quest.py:427-459` is the only production writer of
   route values in `quest_route_states`. It accepts a route only when a
   registered `QuestChoice` for the current stage offers the same `route_id`;
-  otherwise `logic_pure/logic_pure_quest.py:385-393` returns
+  otherwise `logic_pure/logic_pure_quest.py:371-379` returns
   `(player_data, False)`. The Quests tab likewise creates a route button only
   inside the loop over a `QuestChoice` option at
-  `ui/ui_tab_quests.py:387-400`. A stage can therefore require a route that the
+  `ui/ui_tab_quests.py:389-402`. A stage can therefore require a route that the
   player can neither select nor cause the logic layer to record, so the quest
   stays blocked forever.
 - **Measured catalog class:** at `a23f80f3`, scanning `QUESTS` and subtracting
@@ -1178,9 +1178,9 @@ second desktop is lost with no message.
 What the code does:
 
 - The game reads the save from collection config key `ankiscape_player_data`
-  into memory once, on the legacy `profileLoaded` hook (`__init__.py:458-461`,
-  registered at `__init__.py:5621-5637` through `core/hooks.py:52-57`). Every
-  game write puts the memory copy back (`__init__.py:453-455`,
+  into memory once, on the legacy `profileLoaded` hook (`__init__.py:456-459`,
+  registered at `__init__.py:5552-5568` through `core/hooks.py:52-57`). Every
+  game write puts the memory copy back (`__init__.py:451-453`,
   `core/storage.py:51-54`). The add-on registers no sync or collection hook;
   its only other Anki hooks are reviewer, overview, undo and
   `profile_will_close` (HUD hide).
@@ -1753,7 +1753,7 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
 
 ### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17
 
-- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:675` for Herblore, `runtime/runtime_actions_gathering.py:662` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
+- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:669` for Herblore, `runtime/runtime_actions_gathering.py:662` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
 - **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:319`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
 
 ### 4.16 Jadinko secondary drops need independent tables — decided 2026-08-21
@@ -1816,7 +1816,7 @@ carries full authority.
    herb-protection exemption are removed together.
 4. **3.27 answered: shared hook.** Output-replacement eligibility moves into
    the shared hook at `logic/shattered_heart_logic.py:319`. The four callers
-   (`runtime/runtime_actions_production.py:675`,
+   (`runtime/runtime_actions_production.py:669`,
    `runtime/runtime_actions_gathering.py:668`, `:911`, `:1061`) route through
    it, so a future rock-eligible skill cannot silently regain the
    untradeable-output defect.
@@ -1887,8 +1887,8 @@ is **not scheduled work** and is not a quest-by-quest task list.
   The catalog also self-registers raw quest reward strings:
   `13b3edde:data/quest_data.py:10468-10480` emits each raw `item_name`,
   `13b3edde:core/constants.py:1413` loads that output,
-  `core/constants.py:337-349` merges it into extra item data, and
-  `core/constants.py:471` builds the final registry. The final registry is
+  `core/constants.py:338-350` merges it into extra item data, and
+  `core/constants.py:472` builds the final registry. The final registry is
   therefore not an independent validator of quest reward semantics.
 - **Semantic shape of the `275`-name candidate pool:** this is a manual,
   one-bucket-per-name classification of all final reward names on this base. It
@@ -1916,7 +1916,7 @@ is **not scheduled work** and is not a quest-by-quest task list.
   - **`2` prose fragments:** `A box trap.` and
     `20 noted Pure/Rune essence and the other items (from chasing Solus)`.
     These require a sourced replacement or removal, not an item definition.
-- **Runtime consequence:** `logic_pure/logic_pure_quest.py:1474-1481` obtains
+- **Runtime consequence:** `logic_pure/logic_pure_quest.py:1361-1368` obtains
   the completion reward mapping and grants every row with the bare assignment
   `inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)`.
   It performs no
@@ -1993,7 +1993,7 @@ stale against this base.
   (`memory-bank/design-thread-queue.md:1043`) — `fdbec823` is present and the
   live action is `Receive the animate rock scroll from Wizard Cromperty after recovering the Holy Grail`.
 - `### 5.1 Direct actions have no undo (breadth criterion 5)`
-  (`memory-bank/design-thread-queue.md:1424`) — `aefcc4ea` supplies the shared
+  (`memory-bank/design-thread-queue.md:1422`) — `aefcc4ea` supplies the shared
   seam. A fresh static scan finds `54` `def _apply_*_command` handlers in
   `__init__.py`. All `54` handlers call `commit_direct_action`. Zero handlers
   remain that do not route through the shared seam. The two `_apply_`
@@ -2001,7 +2001,7 @@ stale against this base.
   helpers, not direct command handlers. The plain lane exercises the migrated
   seams.
 - `### Open decisions queued by the pass-3 shop-UI work — 2026-07-26`
-  (`memory-bank/design-thread-queue.md:1521`) — the live registry measures all
+  (`memory-bank/design-thread-queue.md:1519`) — the live registry measures all
   `25` skillcapes and all `25` sourced master-shop rows; Dungeoneering is no
   longer latent.
 
@@ -2028,7 +2028,7 @@ stale against this base.
   (`memory-bank/design-thread-queue.md:391`) — the separately clocked timed spawn
   is the entry's declared catalog/depth pass.
 - `### 5.2 Post-cutoff art — measured, and mostly deliberate`
-  (`memory-bank/design-thread-queue.md:1440`) — wholesale modern-RS3 asset
+  (`memory-bank/design-thread-queue.md:1438`) — wholesale modern-RS3 asset
   replacement is the entry's own deferred slow-data harvest, not a breadth
   blocker.
 
@@ -2107,20 +2107,20 @@ forks, so the implemented recommendation is not authority to close them.
   `tools/audit_docs.py`, then repair the historical references against the live
   tests.
 - `### 3.26 Jungle Potion — retain the rock safeguard or restore source stage semantics — answered 2026-08-22 in 4.17`
-  (`memory-bank/design-thread-queue.md:1688`) — the owner chose the
+  (`memory-bank/design-thread-queue.md:1686`) — the owner chose the
   source-faithful search-until-turn-in model, but the catalog still alternates
   one-shot search and turn-in stages and
   `runtime/runtime_actions_production.py:694-700` still carries the pre-ruling
   Shattered Heart exemption. Reshape the five stage pairs and remove the
   exemption together.
 - `### 4.15 Grill of 2026-07-30 — design-gap answers`
-  (`memory-bank/design-thread-queue.md:1735`) — the requested Kinship party
+  (`memory-bank/design-thread-queue.md:1733`) — the requested Kinship party
   design packet does not exist, while the named Darkan dependency is available
   in current history at `d4d430606`, `fcad1e89d`, and `f2ed1d725`. Produce the
   flattened-port packet and per-class analog table; runtime implementation then
   waits for owner approval.
 - `### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17`
-  (`memory-bank/design-thread-queue.md:1756`) — the owner chose the shared hook,
+  (`memory-bank/design-thread-queue.md:1754`) — the owner chose the shared hook,
   but `apply_shattered_heart_skilling_hook_pure` still accepts caller-filtered
   `output_items` and the four runtime callers still own eligibility. Move the
   tradeability rule into the hook and route all four callers through it.
@@ -2387,7 +2387,7 @@ Recorded as an open sourcing gap, not as work to schedule.
   normal maximum hit of 312. This project's evidence order puts Darkan first, so
   the executable value must be 260. Registering the disagreement documents it;
   it does not authorise the wiki number.
-- The Dominion Tower fallback at memory-bank/placeholder-values.md:167 covers
+- The Dominion Tower fallback at memory-bank/placeholder-values.md:193 covers
   Dominion Tower content and four stats. It does not extend to Glacor, and it
   must not be stretched to Ranged.
 - Applying that fallback gave a level-475 Glacor 99 in every stat, below the
@@ -2783,7 +2783,7 @@ brief lands.
    new assignment.", button "OK". The fight continues. The review HUD gains one
    line "Slayer: {remaining} of {total} left". Today the text rides the
    1.4-second XP bubble and is swallowed into the event log on an XP-paying
-   kill (`__init__.py:622-660`); no dialog existed.
+   kill (`__init__.py:620-658`); no dialog existed.
 6. **Glossary.** Added Action and Encounter; Bankstanding amended to "the
    neutral action".
 

@@ -33,7 +33,7 @@ restoration has declared a newer milestone by implementation time.
   (100c) and oak (250c) logs to planks; `make_soft_clay` already exists and
   is the default utility.
 - Magic's Plank Make already produces all four plank tiers (the
-  `magic_data.py:412` cost path), so shipping Construction closes its
+  `magic_data.py:422` cost path), so shipping Construction closes its
   output-orphan note.
 - Teak/mahogany logs are live Woodcutting targets (levels 35/50); nails are
   smithable (`smithing_data.py` TYPE_NAILS family); limestone is mineable at

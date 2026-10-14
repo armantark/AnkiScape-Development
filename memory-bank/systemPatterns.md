@@ -523,7 +523,7 @@ expected file and provenance key in the asset test.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.
 - The Wicked hood claim is intentionally gated by Rune Mysteries only in AnkiScape. Do not re-add a Runecrafting level 5 claim gate; historical 2012 evidence shows that level prompt was not a reliable hard claim requirement, and the hood's actual altar use still remains constrained by Runecrafting target gates.
-- Generic target unlock locks are still exported as `QUEST_UNLOCK_RULES` for
+- Generic target unlock locks are exported as `QUEST_UNLOCK_RULES` for
   compatibility, but the rule shape supports both `quest_completed` and
   `ability_unlocked` requirements. This registry feeds Mining, Fishing,
   Cooking, Firemaking, Runecrafting, Fletching, and Utility/Activities lock
@@ -614,7 +614,7 @@ Adding many skills by copying the current pattern would increase duplication in:
 Backend modules own skill, item, review-action, runtime-handler, target-row,
 grouped target-tree, and achievement metadata.
 Keep these contracts separate from Anki and menu orchestration in `__init__.py` and `ui/ui.py`.
-Stats rendering, icon registration, and tests remain areas of shared architecture pressure.
+Stats rendering, icon registration, and tests are shared by many features.
 
 ## Skill Expansion Workflow
 Use the project skill at `.codex/skills/ankiscape-skill-expansion/SKILL.md` before adding or expanding any skill, Utility/Activity, target chain, item economy slice, or achievement set. It encodes the repeatable workflow: source audit first, playable scope cut, registry/item data, asset scraping, pure mechanics, UI surfacing, achievement patterns, tests, manual Anki checks, and memory updates.

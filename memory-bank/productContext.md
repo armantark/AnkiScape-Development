@@ -18,7 +18,7 @@ Anki already rewards consistency through memory gains, but that feedback is abst
 - Each skill's surface state (complete or partial) lives in `core/skill_registry.py`; read it there, not here.
 - Unified Combat trains the partial Combat skills through equipment/style choices, with real supplies, HP, food, Prayer/Magic configuration, death/recovery, drops, poison, potions, loadouts, and target-local carried inventory.
 - Quests, Utility/Activities, Bank, Equipment, NPC Shops, Stats, Achievements, Settings, Bank Claims, HUD feedback, and review undo share these foundations.
-- The quest catalog holds every pre-EOC quest row; quest-by-quest fidelity work is on `memory-bank/future-work-kanban.md`.
+- The quest catalog holds every pre-EOC quest row; `memory-bank/future-work-kanban.md` owns quest-by-quest fidelity work.
 
 ## Completion Direction
 
