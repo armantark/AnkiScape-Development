@@ -38,9 +38,7 @@ Cache CLI, carried integration and the accepted quest bundle are landed. The dea
 
 ## 2026-10-03 checkpoint (historical): active queue reconciliation
 
-The exact dated checkpoint is in [the October checkpoint archive](archive/progress-2026-10-checkpoints.md).
-
-The closed October 3 navigation review and exact receipts are in [the October checkpoint archive](archive/progress-2026-10-checkpoints.md).
+The dated checkpoint, closed October 3 navigation review and exact receipts are in [the October checkpoint archive](archive/progress-2026-10-checkpoints.md).
 
 ## Pass 15 owner notes — eight slices, 2026-09-30 to 2026-10-01
 

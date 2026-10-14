@@ -121,3 +121,11 @@ Disposition: fixed.
 Evidence: Root merged1f0976a3 preserves every nonempty line of both parent fixed ledgers; the three code files equal accepted source49bdf2e2.
 
 - 2026-10-14T21:04:56.555928+00:00 — Integrating direct-CLI source49bdf2e2 into Root26280f90: Git reported CONFLICT (content) in memory-bank/papercuts-fixed-2026-10-14.md. Removed only conflict markers, retained both parent sections and verified every original nonempty parent line survives; no successful product check was replayed.
+
+## Keep one complete archive pointer
+
+Disposition: fixed.
+
+Evidence: The existing October checkpoint archive retains the dated checkpoint, closed navigation review and exact receipts. The merged audit passes without a cap change.
+
+- 2026-10-14T21:12:01.922349+00:00 — Merged papercut documentation audit refused startup_line_budget_exceeded: 3000 startup lines must stay under 3000 (activeContext44, progress810, future-work-kanban1580, matrix176, loop0, papercuts390). Condensed the two duplicate links to the same existing October checkpoint archive into one complete pointer; the next audit passed. The cap and archived records are unchanged.
