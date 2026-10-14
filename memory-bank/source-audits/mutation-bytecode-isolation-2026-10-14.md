@@ -8,7 +8,10 @@ Configured focused receipt configured-focused.receipt.json: exit0, Ran13tests4.2
 Configured full plain original81591: exit0, Ran5327tests708.860s OK(skipped=580); final source hashes rechecked. Required audits exit0; final test-quality session13647.
 Original full54551 exit1 with failures2/errors6/skipped583 is retained with environment classification. Earlier invalid RED10158 and all corrected receipts remain preserved; no instrument was weakened.
 Fixed function measurements: CCN9, cognitive6, Halstead2; limits15/15/80 unchanged. No runtime/UI/native acceptance is needed for this tooling-only diff.
-Exact merged cross-lineage record review, both full remote lanes and official landing remain required. No push.
+Exact merged Opus record review ACCEPT; original gate66559 exit0, all9 remote-lane checks passed ond7bc03fe0a6c8ca3bf8ca3fb78f347e36ee8c7f2. Official land exits0; main clean at that revision. No push.
 
 Raw evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/mutation-bytecode-isolation
 Raw artifact digest index: raw-artifact-digests.json SHA256 35b21c6e4ba7750ec9d4af7f9a8d79bba0ffee33423952d18877ef42ebf53ebe; each indexed artifact retains its exact SHA256.
+
+Gate lanes: plain5327tests638.407s/580skip, Qt5327tests872.853s/5skip; original certificate completed_at 2026-10-14T09:32:26-07:00.
+Official landing packet: /Users/armantarkhanian/Documents/AnkiScape/.git/ankiscape-promotion-evidence/d7bc03fe0a6c8ca3bf8ca3fb78f347e36ee8c7f2/mutation-official-land/retention-manifest.json SHA256 8a26386e6fa7fa0852f61da77d7f3c141fd541dadd461a4a6bba483b22a01b34.

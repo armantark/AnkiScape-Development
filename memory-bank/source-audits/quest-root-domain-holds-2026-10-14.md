@@ -10,3 +10,4 @@ Later culprit RNG, Recruitment empty-carried representation/test selection and T
 Root owns monolithic shop access; leaf consumes bounded exact Empty pot projection. Repeated630939-token dump is preserved in review incident; no new framework or product replay.
 Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2
 Review verdict SHA256 2f8283a5e3a8778857acc31d0ff64f7439d9a60fced8f815f322a08e1dbb45dc
+Raw review report SHA256 5b496ab3e9b0137674b4f0d0ebbf68bcfa69720bf2c48179b8ff87d91c99e1e2; bounded input SHA256 200835407c7b6868baa38cf98a5a17f72f01020fc42406159857d22deb10b94d.
