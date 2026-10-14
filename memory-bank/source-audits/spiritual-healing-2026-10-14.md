@@ -24,5 +24,6 @@ Root adds only the exact source-160 curation question and qualified operator tra
 The unchanged normalized-seam validator accepts source 940 and refuses the proposed source-160 gain-gate duplication; the parked question does not block this source.
 No physical button click, native or visual acceptance is claimed. New-condition copy/taste, exact merged full remote-lane gate and official land remain open.
 The literal native criteria and source-160 existing wiring stay unchanged. No existing widget, layout, source value, cutoff, baseline or audit-limit change.
-Copy route accepts the new label with a final period; this punctuation-only delta follows source `872491521bb724ddb851fcb9fd4f52891878c458`.
-Copy verification: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/presentation-copy-1/verification.json`; SHA-256 `10aa5cbc89e744413abcafa3084991f563f3cf7a42f92ac3f934fa3f5aadea66`.
+Configured copy correction restores the original no-period label; executable source is again byte-identical to accepted `872491521bb724ddb851fcb9fd4f52891878c458`.
+Taste B1 is resolved under the reviewer’s conditional acceptance: required same12 recapture fits at 640/720/980 by560 in explicit light/dark; no horizontal scroll or clipped task text.
+Resolution: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/presentation-taste-1/root-resolution.json`; SHA-256 `79fbe720a771c128bf98b2f6f859788fe07170aa5788802f28c834fd70ea5289`.

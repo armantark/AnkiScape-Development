@@ -278,7 +278,7 @@ FAMILY = DiaryFamily(
                 'burthorpe_period_spiritual_healing',
                 'Spiritual Healing',
                 'Recharge your summoning points at an obelisk.',
-                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJyZXN0b3JlX3BvaW50cyIsInR5cGUiOiJzdW1tb25pbmdfY29tbWFuZCJ9LCJndGUiOnsic3VtbW9uaW5nX3BvaW50c19yZXN0b3JlZCI6MX19fQ', 1, 'Recharge Summoning points at an obelisk.'),),
+                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJyZXN0b3JlX3BvaW50cyIsInR5cGUiOiJzdW1tb25pbmdfY29tbWFuZCJ9LCJndGUiOnsic3VtbW9uaW5nX3BvaW50c19yZXN0b3JlZCI6MX19fQ', 1, 'Recharge Summoning points at an obelisk'),),
                 'Darkan BurthorpeTaverleyTasks; rev-727 cache enum 3483; corroborated by Burthorpe and Taverley Tasks oldid=6285467 (2012-09-23T22:23:44Z)',
                 940,
                 0,
