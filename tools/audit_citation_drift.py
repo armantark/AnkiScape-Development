@@ -150,11 +150,12 @@ class GitRepository:
         self._files: dict[tuple[str, str], tuple[str, ...] | None] = {}
         self._commits: dict[str, str | None] = {}
 
-    def _run(self, *args: str) -> subprocess.CompletedProcess[bytes]:
+    def _run(self, *args: str, stdin: bytes | None = None) -> subprocess.CompletedProcess[bytes]:
         return subprocess.run(
             ["git", "-C", str(self.root), *args],
             check=False,
             capture_output=True,
+            input=stdin,
         )
 
     def resolve_commit(self, commit: str) -> str | None:
@@ -190,46 +191,32 @@ class GitRepository:
             )
         return self._files[key]
 
-    def blame_commits(self, path: str, line_count: int) -> tuple[str | None, ...]:
-        result = self._run("blame", "--line-porcelain", "HEAD", "--", path)
-        if result.returncode != 0:
+    def blame_commits(self, path: str, contents: bytes, line_count: int) -> tuple[str | None, ...]:
+        # Blame the bytes the caller parsed, not HEAD or a second read of the file: a line
+        # absent from HEAD then has no committed origin instead of the origin of whichever
+        # HEAD line shared its offset. A record HEAD lacks has no committed origin at all, but
+        # only a HEAD tree Git read without error proves the record absent.
+        result = self._run("ls-tree", "--name-only", "HEAD", "--", path)
+        if result.returncode == 0 and not result.stdout:
             return (None,) * line_count
+        if result.returncode == 0:
+            result = self._run("blame", "--line-porcelain", "--contents", "-", "--", path, stdin=contents)
+        if result.returncode != 0:
+            raise RuntimeError(f"git cannot attribute {path} to HEAD: {result.stderr.decode(errors='replace').strip()}")
         commits: list[str | None] = []
         current: str | None = None
-        for raw_line in result.stdout.decode("utf-8", errors="replace").splitlines():
+        for raw_line in result.stdout.decode("utf-8", errors="replace").split("\n"):
             match = BLAME_HEADER_RE.match(raw_line)
             if match:
                 current = None if set(match.group(1)) == {"0"} else match.group(1)
             elif raw_line.startswith("\t"):
                 commits.append(current)
-        if len(commits) < line_count:
-            commits.extend([None] * (line_count - len(commits)))
-        return tuple(commits[:line_count])
-
-
-class WorkingTree:
-    def __init__(self, root: Path) -> None:
-        self.root = root.resolve()
-        result = subprocess.run(
-            ["git", "-C", str(self.root), "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
-            check=True,
-            capture_output=True,
-        )
-        self.paths = tuple(
-            item.decode("utf-8", errors="replace")
-            for item in result.stdout.split(b"\0")
-            if item and (self.root / item.decode("utf-8", errors="replace")).is_file()
-        )
-        self.top_levels = frozenset(Path(path).parts[0] for path in self.paths if Path(path).parts)
-        self._lines: dict[str, tuple[str, ...] | None] = {}
-
-    def file_lines(self, path: str) -> tuple[str, ...] | None:
-        if path not in self._lines:
-            try:
-                self._lines[path] = tuple((self.root / path).read_text(encoding="utf-8").splitlines())
-            except (OSError, UnicodeDecodeError):
-                self._lines[path] = None
-        return self._lines[path]
+        if len(commits) != line_count:
+            raise RuntimeError(
+                f"git blame counts {len(commits)} lines in {path}, but the citation parser reads {line_count}; "
+                "a line separator other than a newline cannot be attributed."
+            )
+        return tuple(commits)
 
 
 class FilesystemTree:
@@ -256,6 +243,22 @@ class FilesystemTree:
             except (OSError, UnicodeDecodeError):
                 self._lines[path] = None
         return self._lines[path]
+
+
+class WorkingTree(FilesystemTree):
+    def __init__(self, root: Path) -> None:
+        super().__init__("repository", root)
+        result = subprocess.run(
+            ["git", "-C", str(self.root), "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+            check=True,
+            capture_output=True,
+        )
+        self._paths = tuple(
+            item.decode("utf-8", errors="replace")
+            for item in result.stdout.split(b"\0")
+            if item and (self.root / item.decode("utf-8", errors="replace")).is_file()
+        )
+        self.top_levels = frozenset(Path(path).parts[0] for path in self.paths if Path(path).parts)
 
 
 def _tracked_markdown(root: Path, memory_bank: Path) -> tuple[Path, ...]:
@@ -349,8 +352,9 @@ def _parse_citations(root: Path, memory_bank: Path, git: GitRepository) -> tuple
     citations: list[Citation] = []
     markdown_paths = _tracked_markdown(root, memory_bank)
     for path in markdown_paths:
-        lines = path.read_text(encoding="utf-8").splitlines()
-        pending: list[tuple[int, str, int, int, str, tuple[str, ...], str]] = []
+        contents = path.read_bytes()
+        lines = contents.decode("utf-8").splitlines()
+        pending: list[tuple[int, str, int, int, tuple[str, ...], str]] = []
         fence: str | None = None
         previous_line: str | None = None
         continuation_path: str | None = None
@@ -400,24 +404,18 @@ def _parse_citations(root: Path, memory_bank: Path, git: GitRepository) -> tuple
             commits = _commit_candidates(lines, line_index)
             context = f"{_source_context(lines, line_index)}\nrecord:{path.name.lower()}"
             for target_path, start_line, end_line in sorted(_unpinned(line, found)):
-                target = f"{target_path}:{start_line}" + (f"-{end_line}" if end_line != start_line else "")
-                pending.append((line_index, target_path, start_line, end_line, target, commits, context))
+                pending.append((line_index, target_path, start_line, end_line, commits, context))
         if not pending:
             continue
         record_path = path.relative_to(root).as_posix()
-        blame = git.blame_commits(record_path, len(lines))
-        for line_index, target_path, start_line, end_line, target, commits, context in pending:
-            citations.append(Citation(
-                record_path=record_path,
-                record_line=line_index + 1,
-                target_path=target_path,
-                start_line=start_line,
-                end_line=end_line,
-                target=target,
-                origin_commit=blame[line_index] if line_index < len(blame) else None,
-                commit_candidates=commits,
-                context=context,
-            ))
+        blame = git.blame_commits(record_path, contents, len(lines))
+        citations.extend(
+            Citation(
+                record_path, line_index + 1, target_path, start_line, end_line,
+                _target(target_path, start_line, end_line), blame[line_index], commits, context,
+            )
+            for line_index, target_path, start_line, end_line, commits, context in pending
+        )
     return len(markdown_paths), tuple(citations)
 
 def _repo_relative_path(path: str, root: Path) -> str | None:
@@ -632,7 +630,8 @@ def _resolve_local(
             "repository", citation.origin_commit, None, (),
             _target(current_path, citation.start_line, citation.end_line), current_block or (),
             None, (),
-            "The current repository target exists, but the citation's introducing commit has no matching target."
+            # An uncommitted record line has no committed origin, so it reaches this branch too.
+            "The current repository target exists, but the record line has no committed origin with a matching target."
             if status == "ok" else "The cited line interval is outside the current file.",
         )
 

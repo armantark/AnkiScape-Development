@@ -5,7 +5,7 @@ Help and unsupported options now finish before any Git/index/gate operation. No-
 The two prepared CLI regressions fail on original source through a disposable fake Git refusal. That canary stops before any valuable index or gate is exposed.
 The complete existing/new focused suite has four tests, exit 0, no skips; the no-argument gate cases preserve real fixture index bytes and status.
 The exact original incident moves verbatim through the existing preservation utility. No cap, hook, audit, preset or baseline changes.
-Receipts bind the recorded dirty source by per-file digest. Opus round 2 accepts the source and records; the exact merged full remote-lane gate and official land remain pending.
+Receipts bind the recorded dirty source by per-file digest. Opus round 2 accepts the source and records. Exact merged `2523a42f715aaf297318a45034c7ddc38b1fe4fe` passed all nine full remote-lane checks and official land, exit 0; canonical main is clean.
 
 | Original artifact | SHA-256 |
 | --- | --- |
@@ -23,3 +23,6 @@ Receipts bind the recorded dirty source by per-file digest. Opus round 2 accepts
 | `verdict-round2.json` | `6725f561dfdcb1004df3288a12c7476343ef61acfc813274ddc800827fdbb719` |
 
 Raw evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/slop-preflight-args`.
+
+Full plain: 5319 tests, skipped 580, 628.177s; full Qt: 5319 tests, skipped 5, 857.493s. Certificate `/Users/armantarkhanian/Documents/AnkiScape/.git/ankiscape-promotion-evidence/2523a42f715aaf297318a45034c7ddc38b1fe4fe.json`; SHA-256 `42ced2fa107e7987fdedf7bffcef882ed2c301927fa0223b5389f4c4f9721015`.
+Original gate, original lane logs/pids/reports and land receipts: 12 retained files in `/Users/armantarkhanian/Documents/AnkiScape/.git/ankiscape-promotion-evidence/2523a42f715aaf297318a45034c7ddc38b1fe4fe/merged-preflight-gate/retention-manifest.json`; manifest SHA-256 `ccce228333626a753617315517cdf861f5a824b91fc7eed6c5aa8da1c010ca47`. No successful product proof was replayed for bookkeeping.

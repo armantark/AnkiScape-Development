@@ -9,6 +9,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
+from tools import fetch_agility_assets, fetch_big_chinchompa_assets, fetch_navigation_icons
+
 
 ROOT = Path(__file__).resolve().parents[1]
 FETCH_ASSETS_PATH = ROOT / "tools" / "fetch_assets.py"
@@ -52,6 +54,51 @@ class FakeWikiClient:
     def download_bytes(self, url):
         self.downloads.append(url)
         return b"not-used-in-dry-run-tests"
+
+
+class TestPeriodImageQueries(unittest.TestCase):
+    def test_period_fetchers_keep_their_cutoffs_without_the_unsupported_parameter(self):
+        for module, getter in (
+            (fetch_navigation_icons, fetch_navigation_icons.period_image_info),
+            (fetch_agility_assets, fetch_agility_assets._period_image_info),
+            (fetch_big_chinchompa_assets, fetch_big_chinchompa_assets._period_image_info),
+        ):
+            with self.subTest(caller=module.__name__):
+                queries = []
+
+                class Client:
+                    def _request_json(self, url):
+                        params = parse_qs(urlparse(url).query)
+                        queries.append(params)
+                        return {"query": {"pages": [{"title": "File:Redirected.png", "imageinfo": [{
+                            "url": "https://example.invalid/archive/Sprite.png",
+                            "timestamp": "2011-11-29T14:12:02Z", "sha1": "earlier", "size": 100,
+                        }]}]}, "warnings": {"main": {"*": "Unrecognized parameter: iidir."}}}
+
+                info = getter(Client(), "Sprite.png")
+                self.assertEqual(info.timestamp, "2011-11-29T14:12:02Z")
+                self.assertEqual(info.file_title, "Redirected.png")
+                self.assertEqual(len(queries), 1)
+                self.assertEqual(queries[0]["iistart"], [module.CUTOFF])
+                self.assertEqual(queries[0]["iilimit"], ["1"])
+                self.assertNotIn("iidir", queries[0])
+
+    def test_period_fetchers_refuse_a_newer_first_revision_even_in_a_mixed_response(self):
+        class Client:
+            def _request_json(self, _url):
+                return {"query": {"pages": [{"title": "File:Sprite.png", "imageinfo": [
+                    {"url": "https://example.invalid/new.png", "timestamp": "2026-10-14T00:00:00Z"},
+                    {"url": "https://example.invalid/period.png", "timestamp": "2011-11-29T14:12:02Z"},
+                ]}]}}
+
+        for module, getter in (
+            (fetch_navigation_icons, fetch_navigation_icons.period_image_info),
+            (fetch_agility_assets, fetch_agility_assets._period_image_info),
+            (fetch_big_chinchompa_assets, fetch_big_chinchompa_assets._period_image_info),
+        ):
+            with self.subTest(caller=module.__name__):
+                with self.assertRaisesRegex(module.AssetFetchError, "No revision at or before"):
+                    getter(Client(), "Sprite.png")
 
 
 class TestFetchAssets(unittest.TestCase):

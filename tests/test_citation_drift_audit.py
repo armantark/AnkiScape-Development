@@ -27,7 +27,7 @@ class CitationDriftAuditTests(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
 
-    def _commit(self, root: Path, message: str) -> None:
+    def _commit(self, root: Path, message: str) -> str:
         env = os.environ.copy()
         env.update({
             "GIT_AUTHOR_NAME": "Citation test",
@@ -39,6 +39,16 @@ class CitationDriftAuditTests(unittest.TestCase):
         })
         subprocess.run(["git", "add", "--all"], cwd=root, check=True, env=env)
         subprocess.run(["git", "commit", "-q", "-m", message], cwd=root, check=True, env=env)
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, text=True
+        ).stdout.strip()
+
+    def _git_state(self, root: Path) -> tuple[bytes, bytes]:
+        status = subprocess.run(
+            ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
+            cwd=root, check=True, capture_output=True,
+        ).stdout
+        return (root / ".git" / "index").read_bytes(), status
 
     def test_classifies_every_reported_result_without_rewriting_records(self) -> None:
         root = self._repo()
@@ -84,6 +94,66 @@ class CitationDriftAuditTests(unittest.TestCase):
         self.assertEqual(by_target["src/gone.py:1"].status, "missing_file")
         self.assertEqual(by_target["vendor/source.java:1"].status, "unresolved")
         self.assertEqual((root / "memory-bank/record.md").read_text(encoding="utf-8"), record)
+
+    def test_dirty_record_lines_keep_only_the_origins_of_their_own_bytes(self) -> None:
+        root = self._repo()
+        self._write(root, "src/a.py", "X = 1\nY = 2\n")
+        self._write(root, "src/b.py", "B = 1\n")
+        self._write(root, "memory-bank/record.md", "# R\n- `src/a.py:1`\n- `src/b.py:1`\n")
+        written = self._commit(root, "Record citations")
+        self._write(root, "src/a.py", "NEW = 0\nX = 1\nY = 2\n")
+        self._write(root, "src/b.py", "PRE = 0\nB = 1\n")
+        self._write(root, "memory-bank/record.md", "# R\n- `src/a.py:1`\n- `src/b.py:1`\n- tail\n")
+        self._commit(root, "Move cited targets and extend the record")
+        # The a.py citation is repointed to where X moved. The inserted pinned line shifts the
+        # stale b.py citation onto the HEAD offset of `- tail`, whose commit already has PRE at b.py:1.
+        record = f"# R\n- `src/a.py:2`\n- pinned `{written[:8]}:src/a.py:1`\n- `src/b.py:1`\n- tail\n"
+        self._write(root, "memory-bank/record.md", record)
+        self._write(root, "memory-bank/new.md", "- `src/b.py:9`\n")
+        state = self._git_state(root)
+
+        report = AUDIT.audit_citations(root)
+
+        by_target = {result.target: result for result in report.results}
+        self.assertNotIn("src/a.py:1", by_target)
+        repointed = by_target["src/a.py:2"]
+        self.assertEqual((repointed.status, repointed.origin_commit), ("ok", None))
+        stale = by_target["src/b.py:1"]
+        self.assertEqual((stale.status, stale.origin_commit, stale.real_target), ("moved", written, "src/b.py:2"))
+        untracked = by_target["src/b.py:9"]
+        self.assertEqual((untracked.record_path, untracked.status), ("memory-bank/new.md", "missing_lines"))
+        self.assertFalse(report.ok)
+        self.assertEqual((root / "memory-bank/record.md").read_text(encoding="utf-8"), record)
+        self.assertEqual(self._git_state(root), state)
+
+        self._write(root, "memory-bank/record.md", record.replace("`src/b.py:1`", "`src/b.py:2`"))
+        (root / "memory-bank/new.md").unlink()
+        self.assertTrue(AUDIT.audit_citations(root).ok)
+
+    def test_record_lines_git_cannot_count_fail_attribution(self) -> None:
+        root = self._repo()
+        self._write(root, "src/a.py", "A = 1\n")
+        self._write(root, "memory-bank/record.md", "- `src/a.py:1`\n")
+        self._commit(root, "Record citation")
+        # Python splits a form feed into two lines; Git blame counts one.
+        self._write(root, "memory-bank/record.md", "- `src/a.py:1`\x0cpage\n")
+
+        with self.assertRaisesRegex(RuntimeError, "memory-bank/record.md"):
+            AUDIT.audit_citations(root)
+
+    def test_head_tree_git_cannot_read_fails_attribution(self) -> None:
+        root = self._repo()
+        self._write(root, "src/a.py", "A = 1\n")
+        self._write(root, "memory-bank/record.md", "- `src/a.py:1`\n")
+        self._commit(root, "Record citation")
+        # The index still lists the record, so only the HEAD tree lookup can notice the lost history.
+        tree = subprocess.run(
+            ["git", "rev-parse", "HEAD:memory-bank"], cwd=root, check=True, capture_output=True, text=True
+        ).stdout.strip()
+        (root / ".git" / "objects" / tree[:2] / tree[2:]).unlink()
+
+        with self.assertRaisesRegex(RuntimeError, f"memory-bank/record.md.*{tree}"):
+            AUDIT.audit_citations(root)
 
     def test_unpinned_external_mismatch_is_not_actionable_drift(self) -> None:
         root = self._repo()

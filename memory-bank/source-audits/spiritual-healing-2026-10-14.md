@@ -22,7 +22,7 @@ Review: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/spi
 Verdict: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/spiritual-healing/astra-review-1/verdict.json`; SHA-256 `07025357f695c2b7768fe2eaf0e12ef0aa6b372a1e201df8f0aa0bedd6695b0e`.
 Root adds only the exact source-160 curation question and qualified operator transcriptions after author handback; those are outside the author manifest.
 The unchanged normalized-seam validator accepts source 940 and refuses the proposed source-160 gain-gate duplication; the parked question does not block this source.
-No physical button click, native or visual acceptance is claimed. New-condition copy/taste, exact merged full remote-lane gate and official land remain open.
+No native physical button click is claimed. Copy/taste passed their qualified component scopes; exact merged full remote-lane gate, native gameplay and official land remain open.
 The literal native criteria and source-160 existing wiring stay unchanged. No existing widget, layout, source value, cutoff, baseline or audit-limit change.
 Configured copy correction restores the original no-period label; executable source is again byte-identical to accepted `872491521bb724ddb851fcb9fd4f52891878c458`.
 Taste B1 is resolved under the reviewer’s conditional acceptance: required same12 recapture fits at 640/720/980 by560 in explicit light/dark; no horizontal scroll or clipped task text.
