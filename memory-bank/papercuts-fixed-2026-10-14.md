@@ -23,3 +23,11 @@ Disposition: fixed.
 Evidence: The accompanying CLI source parses arguments before any Git/index/gate operation, against main2e7b6378871e0096515e1aaab7a64061c7aff7bc. Two original CLI regressions fail before the fix; all four existing/new cases pass after it, preserving no-argument status, diagnostics and real index bytes. Original proof: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/slop-preflight-args/green.receipt.json. Independent source review and exact merged gate/official land remain pending.
 
 - 2026-10-07T05:45:44.248347+00:00 Root asked tools/maintenance/slop_gate_preflight.py --help; the script has no argument parser and began a second full gate with a disposable index. Stopped only root-owned PIDs 72670,70972,70925 with SIGTERM; normal commit gate, source/index and product proof runs were preserved. Read non-argparse utility source before requesting help.
+
+## Direct source-packet CLI startup
+
+Disposition: fixed.
+
+Evidence: The CLI bootstrap uses the script checkout before repository imports in tools/native/freeze_source.py and tools/maintenance/retain_evidence.py. Original direct --help receipts both returned exit 1 with ModuleNotFoundError: No module named tools. The existing test_source_packet_scripts_reach_argument_parser_from_unrelated_directory failed all four canaries before the repair, then passed one test with exit 0 and zero skips. Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-qualified-batch-1/original-receipts.json and /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-qualified-batch-1/final-cli-proof.json. Module commands and packet/retention safeguards retain the existing interfaces. Mixed incidents with guessed paths or host-key errors remain open. Full merged gates and landing remain Root-owned.
+
+- 2026-10-08T02:05:24.428137+00:00 Native freezer direct invocation `python3 tools/native/freeze_source.py --help` failed with `ModuleNotFoundError: No module named 'tools'`; the supported package invocation is `python3 -m tools.native.freeze_source`. No tool/source change or verification rerun.

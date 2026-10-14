@@ -11,3 +11,11 @@
 - Evidence stays under `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-qualified-batch-1`; source commits use normal hooks and exact receipts.
 - CHECK: focused original execution receipts prove each selected repair; docs, test-quality, reachability, worktree and diff audits pass; startup remains below3000 lines. EXPECT: no lost original lines, no unproved fixed closure, exact source hashes/counts/exits/skips.
 - Full branch/gate and independent cross-lineage review remain Root-owned before official landing; source preparation is not slice completion.
+
+## Bounded source result
+
+- Qualified one recurring failure class in two real CLI tools: direct source-packet startup failed before argparse. The repair derives the checkout from each script path; module imports keep the same interfaces.
+- The real isolated CLI test failed four canaries before repair, then passed with actual exit0, one test and zero skips. Help and missing arguments leave an unrelated sentinel directory unchanged. No native copy, transfer or shared mirror was used.
+- Closed only the standalone freezer incident `2026-10-08T02:05:24.428137+00:00`; mixed path/host-key incidents and the direct invocation of the quest reachability library remain open. The existing move utility proves no original line lost.
+- The original adjacent packet/retention run reports17 tests, OK and zero skips. Its outer exit is unverified because the first tool projection lost the session handle; retain the original log and use the Root exact merged gate for binding acceptance.
+- Evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-qualified-batch-1`. Source preparation does not claim review, native acceptance or official landing.

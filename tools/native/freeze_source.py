@@ -6,17 +6,20 @@ import argparse
 import hashlib
 import json
 import shlex
+import sys
 import tarfile
 import tempfile
 from pathlib import Path
 
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from tools.native.session_guard import copy_addon
 from tools.promotion.repository import _git, commit_at
 from tools.promotion.snapshot import commit_snapshot
 from tools.run_remote_tests import (
     HOST, REMOTE_ROOT, REMOTE_VENV, RSYNC_SSH, _on_test_host, _run_with_retries, _ssh,
 )
-
-from .session_guard import copy_addon
 
 
 def _transfer_bundle(output: Path, commit: str, archive_sha256: str) -> None:
