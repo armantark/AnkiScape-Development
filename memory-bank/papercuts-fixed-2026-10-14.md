@@ -106,3 +106,10 @@ Disposition: fixed.
 Evidence: bounded-shop-tool-verification/metrics-2.json passes the same installed instruments after _shops owns exact literal decoding and project owns row selection. Original metrics.json retains project cognitive17>15. The original entry timestamp19:00 was manually supplied and is not a measured event time; this closure is measured 2026-10-14T18:39:39.058749+00:00.
 
 - 2026-10-14T19:00:00+00:00 — New bounded shop projection metrics refused exit1: project cognitive17 >15. No grandfathered baseline applies to this new function. Preserve metrics.json and split the exact literal-catalog reader from row projection without changing limits.
+## Direct source-packet CLI startup
+
+Disposition: fixed.
+
+Evidence: The CLI bootstrap uses the script checkout before repository imports in tools/native/freeze_source.py and tools/maintenance/retain_evidence.py. Original direct --help receipts both returned exit 1 with ModuleNotFoundError: No module named tools. The existing test_source_packet_scripts_reach_argument_parser_from_unrelated_directory failed all four canaries before the repair, then passed one test with exit 0 and zero skips. Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-qualified-batch-1/original-receipts.json and /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-qualified-batch-1/final-cli-proof.json. Module commands and packet/retention safeguards retain the existing interfaces. Mixed incidents with guessed paths or host-key errors remain open. Full merged gates and landing remain Root-owned.
+
+- 2026-10-08T02:05:24.428137+00:00 Native freezer direct invocation `python3 tools/native/freeze_source.py --help` failed with `ModuleNotFoundError: No module named 'tools'`; the supported package invocation is `python3 -m tools.native.freeze_source`. No tool/source change or verification rerun.

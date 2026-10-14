@@ -111,6 +111,24 @@ class CommitSnapshotTest(unittest.TestCase):
 
 
 class EvidenceRetentionTest(unittest.TestCase):
+    def test_source_packet_scripts_reach_argument_parser_from_unrelated_directory(self):
+        repo = Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory() as temporary:
+            working = Path(temporary)
+            sentinel = working / "sentinel"
+            sentinel.write_bytes(b"unchanged")
+            for tool in ("native/freeze_source.py", "maintenance/retain_evidence.py"):
+                for arguments, expected_exit in ((["--help"], 0), ([], 2)):
+                    with self.subTest(tool=tool, arguments=arguments):
+                        result = subprocess.run(
+                            [sys.executable, "-I", str(repo / "tools" / tool), *arguments],
+                            cwd=working, capture_output=True, text=True, timeout=30,
+                        )
+                        self.assertEqual(result.returncode, expected_exit, result.stdout + result.stderr)
+                        self.assertIn("usage:", result.stdout + result.stderr)
+                        self.assertEqual(list(working.iterdir()), [sentinel])
+                        self.assertEqual(sentinel.read_bytes(), b"unchanged")
+
     def setUp(self):
         self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.source_root = self.root / "scratch"

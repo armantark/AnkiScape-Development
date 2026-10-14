@@ -11,6 +11,9 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from tools.native.session_guard import _copy_file
 
 MAX_FILE_BYTES = 256 * 1024 * 1024
