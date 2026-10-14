@@ -28,7 +28,7 @@ The Root documentation branch remains `codex/ernest-poison-pickup-2026-10-08` at
 
 `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/promote-tools-docs-2026-09-27b`
 
-No agent owns the test mirror or GUI. The last source review leaf completed. No proof process remains active from this turn.
+Root holds neither the test mirror nor the GUI. The last source review leaf completed. No proof process remains active from this turn.
 
 Confirm the real Git checkout and preserved refs after the owner moves the task. Do not use the rsynced test mirror as a Git checkout.
 
