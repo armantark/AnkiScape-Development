@@ -65,3 +65,44 @@ Disposition: fixed.
 Evidence: Codex proof2 checks actual provider stock rows before purchase and resumes hash-qualified earned checkpoints. P1/P2 terminal RED/GREEN now exit0 with real Farming53/combat/Priest/Vinesweeper/Undo/JSON/harvest proof. Original pending receipts, StopIteration logs and unbound exit markers remain unchanged.
 
 - 2026-10-14T17:14:36.825705+00:00 — Both original Bittercap earned-route logs end in "StopIteration" at earned_route.py:137 after farm_until calls buy_seeds; recorded PIDs 91891/91893/97512/97513 are absent. Original pending receipts and checkpoints stay preserved; no completion or exit code is inferred.
+
+## Preserve the two resolved integration conflicts
+
+Disposition: record_only.
+
+Evidence: Both original parent sections survive in the dated fixed log. Official citation77e3 and S15 2fe land receipts remain accepted. These conflicts required record reconciliation, not a product repair.
+
+- 2026-10-14T03:53:12.224684-07:00 — Citation integration had add/add conflict in memory-bank/papercuts-fixed-2026-10-14.md: citation closure and landed preflight closure each created the dated file. Combined both original sections under their identical header, preserved every nonempty original line, then used existing no-loss checks against both parents. Source/audit limits and original successful proofs were unchanged.
+- 2026-10-14T11:43:57.989729+00:00 — Integrating accepted S15 with citation landing: Git reported `CONFLICT (add/add): Merge conflict in memory-bank/papercuts-fixed-2026-10-14.md`; preserved both parent sections under their identical header and checked every parent line survives before staging.
+
+## Preserve the correctly refused lease release
+
+Disposition: record_only.
+
+Evidence: The original gate completed before guarded checkout12 release. The unchanged source checkout12 now holds lease32f64c336d0c00792badebbe61403a43; bittercap-seed-identity/codex-continuation/reconciliation.json retains that acquisition.
+
+- 2026-10-14T14:50:28.784955+00:00 — Releasing unchanged NPC reproduction checkout12 with worktree_guard release: error: Promotion landing lock held; stale recovery is disabled (exit2). Source8 original full gate owns that lock; no release occurred and no lock recovery/bypass was attempted. Retry the same guarded release only after the original gate finishes.
+
+## Use the canonical combat catalog for bounded inputs
+
+Disposition: fixed.
+
+Evidence: bittercap-seed-identity/codex-proof-2/qualified-beginner-combat-input-2.json uses COMBAT_ENEMY_DATA and records47 imported module hashes. The empty293-byte AST input stays disqualified. Successful real combat/quest routes consume the actual projected rows.
+
+- 2026-10-14T18:22:25.112737+00:00 — Root beginner combat AST projection wrote an empty293-byte input because _ENEMIES_BY_ID starts empty; the guessed subscript projection then raised "AssertionError: No selected canonical combat assignments". The existing Qt-free COMBAT_ENEMY_DATA API produced qualified-beginner-combat-input-2.json with actual rows and47 module hashes. Original empty input is explicitly disqualified and preserved.
+
+## Refill food through real shops in the earned combat proof
+
+Disposition: fixed.
+
+Evidence: bittercap-seed-identity/codex-proof-2/terminal-reconciliation.json binds actual zero exits for farming53, route-red-2 and route-green. The driver replaces the exhausted-food policy with genuine refills and Defense-first training. Original route-red exit-15 and assertion-stop-canary exit1 remain.
+
+- 2026-10-14T17:46:28.227805+00:00 — Earned combat proof bought only10 Lobsters with75% auto-eat and did not replenish supplies; at review36000 Attack4/XP277.6799999999998, current_skill Utilities, Lobster bank/loadout0, LP70. Terminated child48902 with SIGTERM, child exit-15 / wrapper241; saved review38000 checkpoint preserved. Proof-only policy now uses exact ungated stocked food rows, replenishes through real shops and callbacks, and trains Defense first.
+
+## Keep the bounded projection within fixed limits
+
+Disposition: fixed.
+
+Evidence: bounded-shop-tool-verification/metrics-2.json passes the same installed instruments after _shops owns exact literal decoding and project owns row selection. Original metrics.json retains project cognitive17>15. The original entry timestamp19:00 was manually supplied and is not a measured event time; this closure is measured 2026-10-14T18:39:39.058749+00:00.
+
+- 2026-10-14T19:00:00+00:00 — New bounded shop projection metrics refused exit1: project cognitive17 >15. No grandfathered baseline applies to this new function. Preserve metrics.json and split the exact literal-catalog reader from row projection without changing limits.
