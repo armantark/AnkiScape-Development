@@ -57,7 +57,7 @@ AGILITY_ITEM_WEIGHTS_KG = {
     "Shrimps": 0.5,
     "Crayfish": 0.1,
     "Small ninja monkey greegree": 0.0,
-    "Ring of charos": 0.0,
+    "Ring of Charos": 0.0,
     "Lit torch": 0.5,
     "Lit candle": 0.0,
     "Lit black candle": 0.0,

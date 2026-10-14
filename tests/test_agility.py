@@ -545,7 +545,7 @@ class TestAgilityPureEngine(unittest.TestCase):
             "current_agility": "werewolf_course",
             "agility_level": 60,
             "strength_level": 60,
-            "inventory": {"Ring of charos": 1, "Dragon bones": 20},
+            "inventory": {"Ring of Charos": 1, "Dragon bones": 20},
             "equipment": {},
             "quests": {"creature_of_fenkenstrain": {"completed": True}},
             "agility_carried_weight_kg": 999,
@@ -583,12 +583,12 @@ class TestAgilityPureEngine(unittest.TestCase):
             "current_agility": "werewolf_course",
             "agility_level": 60,
             "strength_level": 60,
-            "inventory": {"Ring of charos": 1},
+            "inventory": {"Ring of Charos": 1},
             "equipment": {},
             "quests": {"creature_of_fenkenstrain": {"completed": True}},
             "carried_inventory": {
                 "werewolf_course": {
-                    "Ring of charos": 1,
+                    "Ring of Charos": 1,
                     "Dragon bones": 20,
                 },
             },

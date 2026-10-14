@@ -1899,7 +1899,7 @@ class TestRuntimeActions(unittest.TestCase):
             "agility_level": 99,
             "strength_level": 99,
             "agility_exp": 0.0,
-            "inventory": {"Ring of charos": 1, "Shark": 27},
+            "inventory": {"Ring of Charos": 1, "Shark": 27},
             "equipment": {},
             "quests": {"creature_of_fenkenstrain": {"completed": True}},
             "completed_achievements": [],
@@ -1916,7 +1916,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
         self.assertTrue(calls["deactivated"])
-        self.assertIn("Ring of charos", calls["errors"][0][1])
+        self.assertIn("Ring of Charos", calls["errors"][0][1])
         self.assertEqual(player_data["agility_exp"], 0.0)
 
     def test_fatal_agility_failure_graves_only_the_active_pack_and_equipment(self):

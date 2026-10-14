@@ -2,7 +2,8 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.storage_pure import migrate_loaded_data, default_player_data, CURRENT_CONFIG_VERSION
-from ankiscape.core.constants import MINING_OUTPUT_ITEMS, ORE_DATA
+from ankiscape.core.constants import MINING_OUTPUT_ITEMS, ORE_DATA, QUEST_DATA
+from ankiscape.logic_pure.logic_pure_quest import quest_current_stage_blocker_reasons_pure
 
 
 class TestStorageMigrationExtra(unittest.TestCase):
@@ -77,6 +78,18 @@ class TestStorageMigrationExtra(unittest.TestCase):
         self.assertEqual(out["carried_inventory"], {})
         self.assertEqual(out["inventory"]["Coins"], 1000)
         self.assertEqual(out["inventory"]["Oak logs"], 5)
+
+    def test_legacy_ghostspeak_amulet_satisfies_nature_spirit(self):
+        data = {
+            "inventory": {"Amulet of ghostspeak": 1},
+            "quests": {"nature_spirit": {"started": True, "progress": 3, "completed": False}},
+        }
+        out = migrate_loaded_data(data, ORE_DATA)
+        self.assertNotIn("Amulet of ghostspeak", out["inventory"])
+        self.assertNotIn(
+            "Needs Ghostspeak amulet x1",
+            quest_current_stage_blocker_reasons_pure(out, "nature_spirit", QUEST_DATA),
+        )
 
 
 if __name__ == "__main__":

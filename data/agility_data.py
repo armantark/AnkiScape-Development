@@ -249,7 +249,7 @@ COURSE_TARGETS: Tuple[AgilityTarget, ...] = (
             _stage("stick_hand_in", "Return the fetched stick", 190.0),
         ),
         quest_gate="creature_of_fenkenstrain",
-        required_items=("Ring of charos",),
+        required_items=("Ring of Charos",),
     ),
     AgilityTarget(
         "dorgesh_kaan", "Dorgesh-Kaan Agility Course", "courses", 80,
@@ -304,7 +304,7 @@ COURSE_TARGETS: Tuple[AgilityTarget, ...] = (
 
 
 ACTIVITY_TARGETS: Tuple[AgilityTarget, ...] = (
-    AgilityTarget("werewolf_skullball", "Werewolf Skullball", "activities", 25, (), quest_gate="creature_of_fenkenstrain", required_items=("Ring of charos",), source_status="period_candidate", activity_kind="skullball"),
+    AgilityTarget("werewolf_skullball", "Werewolf Skullball", "activities", 25, (), quest_gate="creature_of_fenkenstrain", required_items=("Ring of Charos",), source_status="period_candidate", activity_kind="skullball"),
     AgilityTarget("gnome_ball", "Gnome Ball", "activities", 1, (), source_status="period_candidate", activity_kind="gnome_ball"),
     AgilityTarget("flash_powder_factory", "Flash Powder Factory", "activities", 75, (), source_status="period_candidate", activity_kind="flash_powder_factory"),
     AgilityTarget("the_pit", "The Pit", "activities", 1, (), source_status="period_candidate", activity_kind="pit"),
