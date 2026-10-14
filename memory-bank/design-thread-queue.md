@@ -2916,3 +2916,7 @@ The fresh death-partition native fixture at f570a15f showed the existing pre-ans
 ### Open owner UI scope — 2026-10-07: Myreque stage transition
 
 Complete In Search of the Myreque stage1 would expose generated stage2 instruction “Give him three Planks and then ten Coins.” despite the retained period contract placing the fare after completion; root and Astra park the opening until a source-correct journal change has recorded owner scope, without changing the UI, advancing incomplete persuasion or replacing the five-current-charge guard with a permanent proof.
+
+## Open native representation decision — 2026-10-14 MacBook Pro
+
+The fresh Tribal Totem source `9928e1213e50c090d437c528312567fd07fb5d21` reproduces the five startup differences in [the native refusal record](source-audits/native-startup-mbp-2026-10-14.md). The source gate stays accepted; native gameplay acceptance is false. Preserve the existing protected-field and literal saved-Undo-to-pre-Good-LIVE criteria. The owner must authorize a specific source/representation resolution before this hold can be cleared; no field coercion or acceptance exception is inferred. Root continues independent queue work.

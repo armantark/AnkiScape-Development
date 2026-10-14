@@ -330,3 +330,38 @@ Owner requests retention limits and less SSD write amplification. Root owns rete
 Retention contract: generated successful remote lane report groups expire after 7 days, with at most 128 completed success groups / 64 MiB eligible reports retained. Never delete failure, unresolved, unknown, pinned or open-file groups. Root will pin historical report names referenced by retained evidence/docs before production cleanup. Exact acceptance stores and all native packets remain protected. New proof subprocess files are limited to 256 MiB, with limit failures explicit and retained; do not lower scenario counts or verification requirements. Replace duplicated immutable evidence with independently writable APFS clones only after both copies match the existing manifest SHA-256; preserve paths and all receipt bytes. Native freeze keeps archive/manifest, not a permanent second unpacked tree, and computes source identity from the same per-file digests.
 
 2026-10-13 Root compaction completed: 9 duplicated immutable files totaling 25,105,785,277 bytes (23.4 GiB) now use independent APFS clones. Every source and retained copy matched its pre-existing manifest hash; paths and receipts are unchanged. Disposable compaction refusal and source-independence canaries passed (initial 4, expanded 5); sparse proof-limit canary changed original exit 3 / 268,435,457 logical bytes / zero allocated bytes to exit 0 with Errno 27, zero output size and unchanged parent limit/owner sentinel. First native-copy remote subset passed 27 tests / 4.967s / zero skips. Current source adds archive-only freeze and report retention; final combined checks and normal commit remain required. Physical free-space delta is not attributed to this unit because other threads also perform cleanup.
+
+## MacBook Pro continuation — 2026-10-14
+
+The owner moved execution to this MacBook Pro. Root does native checks on this machine.
+The external handoff is /Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-13-23793346/goal-mbp-handoff-2026-10-13.md.
+The source branch goal/test-log-io-2026-10-13 retains the prepared regression.
+Root owns documentation, promotion, the test mirror and the native GUI.
+The I/O author owns only tools/run_remote_tests.py and its existing transport/deadline tests in leased checkout 1.
+The author must obtain the baseline failure before an edit.
+CHECK: Run the prepared regression, then focused deadline, transport and storage tests with fresh counts.
+EXPECT: Baseline fails on repeated log reads; candidate reads the complete stopped log once and preserves every refusal.
+The root gate runs both full lanes on the exact merged commit. Branch-side Qt repetition is unnecessary.
+A separate cross-lineage reviewer owns only an out-of-tree verdict.
+Root resolves every finding before the exact remote promotion gate and official land command.
+Tribal Totem retains source acceptance. Native and visual acceptance remain pending.
+Preserve all prior successful checks and Studio-only captures.
+Reserved Magic, Dream, existing UI and owner decisions remain excluded. Never push.
+
+The selection audit leaf reads current main and all current queue entry points.
+The leaf owns only its out-of-tree report, not source, Git, native or mirror state.
+CHECK: Bind each candidate to current main, retained contracts and actual source/player-route gaps.
+EXPECT: Return priority-ordered independent authorized slices and exact per-slice blockers.
+Do not harvest new external sources, reopen reserved decisions or execute product checks.
+
+## Local test-host transport — 2026-10-14
+
+The owner confirmed all development runs on this MacBook Pro. Do not SSH back into this same machine.
+The current runner assumes a remote client. This blocks its unchanged remote-lanes gate with SSH authentication failure.
+Extend the existing transport to execute on the configured test host locally when the source runner is on that host.
+Preserve the separate mirror, snapshots, locks, serial lanes, stop/deadline/retry rules, test counts, skips and gate certificate shape.
+The local-host author owns tools/run_remote_tests.py and cohesive existing transport tests in checkout 5 only.
+Root owns the mirror, native GUI, documentation, source commits and exact promotion.
+CHECK: Prove local shell/sync behavior with disposable fixtures, source isolation and non-local SSH behavior.
+EXPECT: Local proof uses no SSH; distant clients retain SSH. No acceptance gate or pinned baseline changes.
+The exact full remote-lanes gate remains the landing proof; transport locality grants no exemption.

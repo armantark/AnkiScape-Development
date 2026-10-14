@@ -1,4 +1,12 @@
-# Goal resumed after the quota reset, 2026-10-06
+# Goal remains active on the MacBook Pro, 2026-10-14
+
+Current main is `06a86a98e767170da1e6c25451d03aff0bfde06b`. The shared owner ceiling is 70% Codex quota; the authenticated account read on 2026-10-14 returned 26% used. The older 100% grant below belongs to the prior reset. This file records per-slice blockers and does not satisfy or stop the active goal.
+
+The owner confirmed execution is on the test host itself. The runner's remote-client assumption caused three self-SSH authentication failures: `Permission denied (publickey,password,keyboard-interactive)`. Self-SSH is unnecessary. The accepted I/O source awaits the minimal local-host transport in the existing runner, then its unchanged exact `--remote-lanes` gate and official land. This is implementation work, not an external dependency or a goal stop. No SSH authorization, security configuration or acceptance requirement changes are authorized.
+
+Tribal Totem native startup on exact `9928e121` refused the protected list/tuple and XP int/float differences in [the current native record](source-audits/native-startup-mbp-2026-10-14.md). Original successful source checks remain preserved. A specific owner-authorized source/representation resolution under the unchanged literal criteria unblocks its native prerequisite. No game action occurred.
+
+## Historical resume and retained acceptance evidence
 
 On 2026-10-07, the owner raised the shared AnkiScape/Darkan Codex ceiling to 100% to use a banked reset, with worthwhile work required. Root recorded the grant with `quota-guard grant codex --to 100`. The earlier 70% ceiling is superseded. Increase useful parallel delivery while preserving native isolation, source qualifications, reserved decisions and all fixed gates. Claude remains OVER and receives no new work.
 
