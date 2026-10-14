@@ -292,6 +292,46 @@ class TestFetchAssets(unittest.TestCase):
 
         self.assertIsNone(info)
 
+    def test_historical_lookup_refuses_unqualified_timestamps_before_writing(self):
+        for fields in ({}, {"timestamp": ""}, {"timestamp": None}, {"timestamp": 123}, {"timestamp": []}):
+            with self.subTest(fields=fields), tempfile.TemporaryDirectory() as tmp_dir:
+                client = fetch_assets.HttpWikiClient(before_timestamp=fetch_assets.PRE_EOC_CUTOFF)
+                row = {"url": "https://example.invalid/Sprite.png", **fields}
+                payload = {"query": {"pages": [{"title": "File:Sprite.png", "imageinfo": [row]}]}}
+                output = Path(tmp_dir) / "Sprite.png"
+                provenance = Path(tmp_dir) / "provenance.json"
+                request = fetch_assets.AssetRequest("Sprite", "Sprite.png", output, provenance)
+                with (
+                    patch.object(client, "_request_json", return_value=payload),
+                    patch.object(client, "download_bytes", side_effect=AssertionError("unqualified download")) as download,
+                ):
+                    with self.assertRaisesRegex(fetch_assets.AssetFetchError, "Could not resolve"):
+                        fetch_assets.fetch_asset(request, client, sources=(fetch_assets.RS3_WIKI,))
+                download.assert_not_called()
+                self.assertFalse(output.exists())
+                self.assertFalse(provenance.exists())
+
+    def test_timestamp_refusal_preserves_cutoff_selection_and_current_lookup(self):
+        rows = [
+            {"url": "https://example.invalid/missing.png"},
+            {"url": "https://example.invalid/earlier.png", "timestamp": "2011-11-29T14:12:02Z"},
+            {"url": "https://example.invalid/cutoff.png", "timestamp": fetch_assets.PRE_EOC_CUTOFF},
+            {"url": "https://example.invalid/newer.png", "timestamp": "2012-11-20T00:00:00Z"},
+        ]
+        client = fetch_assets.HttpWikiClient(before_timestamp=fetch_assets.PRE_EOC_CUTOFF)
+        payload = {"query": {"pages": [{"title": "File:Sprite.png", "imageinfo": rows}]}}
+        with patch.object(client, "_request_json", return_value=payload):
+            info = client.query_image_info(fetch_assets.RS3_WIKI, "Sprite.png")
+        self.assertEqual(info.timestamp, fetch_assets.PRE_EOC_CUTOFF)
+        self.assertEqual(info.image_url, "https://example.invalid/cutoff.png")
+        client.before_timestamp = None
+        for row in (rows[0], {"timestamp": "", "url": "https://example.invalid/empty.png"}):
+            payload["query"]["pages"][0]["imageinfo"] = [row]
+            with self.subTest(row=row), patch.object(client, "_request_json", return_value=payload):
+                info = client.query_image_info(fetch_assets.RS3_WIKI, "Sprite.png")
+                self.assertEqual(info.timestamp, "")
+                self.assertEqual(info.image_url, row["url"])
+
     def test_wiki_title_mapping_uses_tree_log_overrides(self):
         self.assertEqual(fetch_assets.wiki_title_for_item("Tree"), "Logs.png")
         self.assertEqual(fetch_assets.wiki_title_for_item("Oak"), "Oak logs.png")

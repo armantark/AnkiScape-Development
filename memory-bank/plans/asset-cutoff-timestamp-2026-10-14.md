@@ -1,0 +1,8 @@
+# Historical asset provenance needs a timestamp — 2026-10-14
+
+Root owns guarded checkout16, branchgoal/asset-cutoff-timestamp-2026-10-14, lease7a20cf7d97ffa0238986a78c2b32b054 from mainfdb1ac49. Existing UI and assets stay unchanged.
+C1 is the independently recorded L1 in the original asset-query review: the shared HTTP client admits missing/empty timestamps under a historical cutoff. Current qualification is /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-current-requalification/qualification.json.
+Failure modes before code: missing/empty/nonstring historical timestamps could admit unqualified downloads/provenance; newer-only rows must refuse; valid older/exact-cutoff rows must select the newest eligible revision; lookup without a cutoff must preserve existing behavior.
+Use the existing fetch client and behavior suite; fake only the network boundary. Observe a red real fetch refusal before the production edit. Keep cutoffs, retries, request parameters, hashes, audit rules and classifications exact. Warnings need a separate response contract; no warning-policy change is in this slice.
+Source success requires the existing affected suites and fixed audits, independent cross-lineage review with every finding resolved, and source provenance. Root serializes full/QT work; the exact merged commit must pass the full gate with `--remote-lanes` and land through the official command. No direct canonical edit or push.
+No new framework, source harvest, icon replacement, UI change, config/hook/limit/baseline weakening, amend/reset or native retry. Stop at shared Codex70%; preserve exact pending state if reached.

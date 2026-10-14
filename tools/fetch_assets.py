@@ -159,7 +159,7 @@ class HttpWikiClient:
         if not isinstance(page, dict) or "missing" in page:
             return None
         imageinfo = page.get("imageinfo", [])
-        if not isinstance(imageinfo, list) or not imageinfo:
+        if not isinstance(imageinfo, list):
             return None
         eligible_info = [
             info
@@ -167,7 +167,11 @@ class HttpWikiClient:
             if isinstance(info, dict)
             and (
                 not self.before_timestamp
-                or str(info.get("timestamp") or "") <= self.before_timestamp
+                or (
+                    isinstance(timestamp := info.get("timestamp"), str)
+                    and timestamp
+                    and timestamp <= self.before_timestamp
+                )
             )
         ]
         if not eligible_info:
@@ -176,8 +180,6 @@ class HttpWikiClient:
             eligible_info,
             key=lambda candidate: str(candidate.get("timestamp") or ""),
         )
-        if not isinstance(info, dict):
-            return None
         image_url = str(info.get("url") or self._special_file_path(source, file_title))
         title = str(page.get("title") or f"File:{file_title}")
         return ImageInfo(
