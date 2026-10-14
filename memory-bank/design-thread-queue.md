@@ -2936,3 +2936,9 @@ The returned unaccepted candidate advances progress4 to5 after Snurgh's8 feather
 ## Open owner question — 2026-10-14T13:37:44.186051+00:00 — Giant Dwarf library load
 
 The first complete existing stage1 boundary requires climbing for Book on costumes under30kg. The retained sources establish the limit, but the Anki load abstraction is unset. Current Agility weight data cover only a subset and assign0 to unknown items. Settle the library load model before implementation; real weight also needs complete qualified item weights. Ferry travel is free;3000Coins is a route budget. No new navigation, journal or weight policy is approved.
+
+## Open shop reproduction contract — 2026-10-14T14:45:33.033317+00:00
+
+The unchanged full NPC-shop generator cannot reproduce the retained catalog and ledger simultaneously: each live price map has6827 entries while both summaries say6820;59 ledger names predate the landed lantern/arrow fixes. Six live price keys also differ from the full generator (Bullseye lantern, Mining helmet, Mithril arrow, Oil lamp, Oil lantern, Spiked gauntlets). [Exact source/evidence](source-audits/npc-shop-reproduction-mbp-2026-10-14.md) names all values and original inputs. The current slice does not authorize a runtime price/key change or a fabricated digest/header. The needed contract must identify permitted stale-record correction and how the six existing live keys regenerate. Current values stay preserved; independent queue work continues.
+
+Gunnar final-copy offscreen captures show existing top-tab ellipses Ch… at720 and Achieveme… at980 behind scroll arrows. The three new Dororan rows and actual tooltips are complete. Existing tab UI remains unchanged; this observation joins the pending owner design suggestions.
