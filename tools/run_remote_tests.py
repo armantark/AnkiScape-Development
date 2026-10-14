@@ -581,50 +581,34 @@ def _stream_remote_run(
     )
 
 
-def _print_log_addition(seen: str, output: str) -> str:
-    addition = output[len(seen) :] if output.startswith(seen) else output
-    if addition:
-        print(addition, end="", flush=True)
-    return output
-
-
-def _poll_remote_run(
-    log_path: Path, report_path: Path, seen: str, deadline: float,
-) -> tuple[str, int | None]:
-    output = _ssh(
-        f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
-        label="remote lane log poll", repeat_safe=True, deadline=deadline,
-    )
-    seen = _print_log_addition(seen, output)
-    return seen, _completion_report(str(report_path), deadline)
-
-
 def _finish_remote_run(
-    log_path: Path, skip_report_path: Path, seen: str, selectors: Sequence[str],
-    returncode: int, collect_only: bool,
+    log_path: Path, skip_report_path: Path, selectors: Sequence[str], returncode: int,
+    collect_only: bool,
 ) -> tuple[int, str]:
-    # The report precedes the lane's exit, and a detached helper can outlive it.
+    # The report precedes the lane's exit, and a detached helper can outlive it, so the
+    # complete log is read once, after the stop is confirmed.
     stop_pending_lane()
-    final_output = _ssh(
+    output = _ssh(
         f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
         label="remote lane final log read", repeat_safe=True,
         deadline=time.monotonic() + LANE_STOP_TIMEOUT,
     )
-    _print_log_addition(seen, final_output)
+    print(output, end="", flush=True)
     if not collect_only:
-        _print_skipped_tests(skip_report_path, selectors, returncode, final_output)
-    return returncode, final_output
+        _print_skipped_tests(skip_report_path, selectors, returncode, output)
+    return returncode, output
 
 
 def _wait_for_remote_run(
     lane: str, *, timeout: float, poll_interval: float, selectors: Sequence[str],
     collect_only: bool, log_path: Path, report_path: Path, skip_report_path: Path,
 ) -> tuple[int, str]:
+    # Polls read only the one-line report, because each reread of the growing log reads all
+    # of it again. A timed-out lane's output stays in the log announced at launch.
     deadline = time.monotonic() + timeout
-    seen = ""
     while True:
         try:
-            seen, returncode = _poll_remote_run(log_path, report_path, seen, deadline)
+            returncode = _completion_report(str(report_path), deadline)
         except SSHDeadlineExceeded as exc:
             _raise_lane_timeout(lane, timeout, report_path, exc)
         remaining = deadline - time.monotonic()
@@ -633,7 +617,7 @@ def _wait_for_remote_run(
             _raise_lane_timeout(lane, timeout, report_path)
         if returncode is not None:
             return _finish_remote_run(
-                log_path, skip_report_path, seen, selectors, returncode, collect_only,
+                log_path, skip_report_path, selectors, returncode, collect_only,
             )
         time.sleep(min(poll_interval, remaining))
 
