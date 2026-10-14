@@ -460,17 +460,17 @@ def apply_summoning_training_action_pure(
 
 def restore_summoning_points_pure(
     player_data: Mapping[str, Any],
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], bool, dict[str, int]]:
+    """Refill to the level; a sanitizing-only change restores zero points."""
     updated = _copy_player_data(player_data)
+    level = _clean_int(updated.get("summoning_level"), 1, minimum=1)
     state = sanitize_summoning_state_pure(
-        updated.get("summoning_state"),
-        summoning_level=_clean_int(updated.get("summoning_level"), 1, minimum=1),
+        updated.get("summoning_state"), summoning_level=level
     )
-    state["summoning_points_current"] = max(
-        1, _clean_int(updated.get("summoning_level"), 1, minimum=1)
-    )
+    restored = level - state["summoning_points_current"]
+    state["summoning_points_current"] = level
     updated["summoning_state"] = state
-    return updated
+    return updated, updated != player_data, {"summoning_points_restored": restored}
 
 
 def familiar_effective_roll_level_pure(
