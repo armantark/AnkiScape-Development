@@ -102,3 +102,11 @@ recruitment_drive blocked: source_and_owner_gated_tiffy_entry_model. Single firs
 tower_of_life blocked: owner_gated_missing_opening_journal_answers. Single first unblock: Recorded owner authorization to repair the omitted Black-eye answers and immediate Bonafido answer text in the existing journal.
 
 No product checks ran. Ordinary material/prerequisite writers are qualified within the report; missing backend implementation is not an external blocker. Later unresolved mechanics stay separate. All other roots remain uninspected, so these domain holds never stop the goal.
+
+## Ghosts Ahoy opening hold — 2026-10-14
+
+Blocked: complete ordinary Port-entry/Velorina opening. Tried: retained build727/pre-EOC pages, harvest, target contract, current prerequisites, Prayer writer and first journal. The fare has one inspected wiki lineage and no independently qualified rule; the journal is generic. Single first unblock: independent period-qualified standard Port entry charge and its pre-quest applicability. Existing-journal scope stays a separate owner hold. [Exact evidence](source-audits/quest-opening-boundaries-2026-10-14.md). Other independent work continues.
+
+## Horror from the Deep opening hold — 2026-10-14
+
+Blocked: faithful eligibility plus stage1 Larrissa/Barbarian handoff. Tried: ruling50, both retained period pages, target/cache records and live eligibility/readout consumers. Prayer43 is settled as optional; current hard gate and visible Requires text contradict that contract. Single unblock: recorded authorization to correct the existing requirement readout while applying ruling50. No Prayer-policy re-grill or UI authority is inferred. [Exact evidence](source-audits/quest-opening-boundaries-2026-10-14.md). Other independent work continues.

@@ -2952,3 +2952,11 @@ Independent Fenkenstrain review R1 cannot qualify purchase before the accepted i
 ## Open owner boundaries — 2026-10-14: three quest journals
 
 Murder Mystery needs authorization to replace its first table-of-contents-only block with the source-backed guard opening; later culprit selection remains separately source/model held. Recruitment Drive needs the test-selection/empty-entry model and a journal representation ruling at Tiffy; no empty-Bank substitute. Tower of Life needs authorization to show its sourced opening answers omitted by the current journal. Black Knights'12QP copy versus period13 remains an adjacent owner-UI repair; a genuine13QP route exists without it. No existing journal/widget/copy changes are authorized by these records. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2/verdict.json.
+
+## Open existing-readout scope — 2026-10-14: Horror from the Deep
+
+Ruling50 remains settled: Prayer43 is recommended, not required. The current kernel enforces43 and the Quest tab prints Requires: Agility35, Prayer43. The open scope is authorization to correct that existing readout while applying the settled eligibility contract; it is not a choice about Prayer policy. No widget, text or source change is authorized here. Preserve the stage1/source and later mother-combat boundaries. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+
+## Open first-journal scope — 2026-10-14: Ghosts Ahoy
+
+Both prerequisites remain settled under ruling35. The first journal is generic and its section-to-stage representation needs owner authorization. Independently qualified pre-quest Port entry fare remains the separate first source hold. Do not invent a charge, replace journal text or treat the existing worship writer as proof of every acquisition input. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
