@@ -384,3 +384,9 @@ CHECK: Drive real quest/review/Crafting paths for acquisition, identity refusal,
 EXPECT: Complete source-backed backend path and truthful new-feature metadata, with exact absent artwork/native checks explicit.
 Missing implementation remains authorized work. A source/owner conflict stops only its dependent part.
 Never weaken tests, audits, caps, pins, baselines or acceptance criteria; no new runner/checker/retention machinery.
+
+## MacBook continuation contract — 2026-10-14T11:39Z
+
+Root owns all checkout mutations, evidence reconciliation, gates and landings. Native review leaves own only their named out-of-tree reports. Current main is `77e3b62aa785ebdecb2d70c03bdb97f053b404df`. The citation slice is landed; S15 is the next integration. Keep existing UI, literal native criteria, reserved owner decisions, pins, caps, tests, hooks and no-push rules fixed.
+
+The Cold War review leaf audits the already-qualified stage 2 clockwork/table route against current code and settled contracts. Its deliverable is a bounded eligibility report: qualified inputs/values, existing acquisition seams, exact unresolved dependency, and either the smallest authorized implementation boundary or a blocker with one unblocking fact. It changes no checkout, fetches no source and runs no game/native/gate suite. Its only writable files are in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/cold-war-ring/ordinary-route-review-1`. Root verifies its references before dispatching code.

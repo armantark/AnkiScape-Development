@@ -9,9 +9,13 @@ The directory move preserved prior coverage. The `4369fc75` inventory has 110 ca
 Independent Astra found two defects at `4369fc75`. The safe boolean assertion keeps leak detection; the original credential-bearing mutation log is protected and a redacted copy is available.
 The wildcard regression failed for both unspecified addresses before the guard. The subsequent five-case suite passed; the environment mutation still fails with a fixed message and restores the source.
 Opus accepted the root native-transfer hunk; its optional `create=True` removal is applied. Final source `53811fa6` passed Astra round 2 and independent Opus review of the root fixes.
-The scope-suffix and mapped-address notes are dispositioned in `review-note-disposition.json`. The exact merged full gate must execute the shared neighbour suites; official landing remains pending. Native gameplay acceptance is separate.
+The scope-suffix and mapped-address notes are dispositioned in `review-note-disposition.json`. The exact merged full gate executed the shared neighbour suites and landed `2e7b6378871e0096515e1aaab7a64061c7aff7bc` through the official command. Native gameplay acceptance is separate.
 
 Retained non-secret artifact hashes: `/Users/armantarkhanian/Documents/AnkiScape/.git/ankiscape-promotion-evidence/53811fa6e378676f12fd2511fdbe011811670e90/local-test-host-source/retention-manifest.json`.
 Manifest SHA-256: `32c5febd0ad2038e9ad7eae1c08b34efc2afd6b91cef15b66a8ba5a89fb0e298`.
 
 Raw evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/local-test-host`. Secret-bearing originals are excluded from normal export; `secret-evidence-reconciliation.json` preserves their hashes and redacted paths.
+
+Official certificate SHA-256: `bdfb18c80dd5ea7aa8511640e0436c582b282849120ef836ddca9853f66c8df5`.
+Retained gate and landing evidence: `/Users/armantarkhanian/Documents/AnkiScape/.git/ankiscape-promotion-evidence/2e7b6378871e0096515e1aaab7a64061c7aff7bc/merged-local-runner-gate/retention-manifest.json`; manifest SHA-256: `21dca136f5b64476a52840f2be5b348162e6dcf51226c0cff6e88e7f6ccbc63a`.
+The certificate records all nine checks, `remote_lanes=true`, `plain_only=false`, completed at `2026-10-14T02:27:53-07:00`. Both full lanes ran 5317 tests; plain skipped 580, Qt skipped 5.

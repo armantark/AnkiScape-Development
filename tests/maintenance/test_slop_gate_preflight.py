@@ -81,5 +81,33 @@ class SlopGatePreflightTests(unittest.TestCase):
         self.assertEqual(self._git("status", "--porcelain=v1"), before_status)
 
 
+class SlopGatePreflightArgumentsTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.git = self.directory / "git"
+        self.git.write_text('#!/bin/sh\ntouch "$0.called"\nexit 73\n')
+        self.git.chmod(0o755)
+        self.marker = self.directory / "git.called"
+
+    def _run(self, argument):
+        return subprocess.run(
+            [sys.executable, str(TOOL), argument], cwd=self.directory,
+            env={**os.environ, "PATH": f"{self.directory}{os.pathsep}{os.environ['PATH']}"},
+            capture_output=True, text=True, check=False,
+        )
+
+    def test_help_returns_usage_before_any_git_or_gate_operation(self):
+        result = self._run("--help")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("usage:", result.stdout)
+        self.assertFalse(self.marker.exists())
+
+    def test_unknown_option_is_refused_before_any_git_or_gate_operation(self):
+        result = self._run("--unsupported-option")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("unrecognized arguments: --unsupported-option", result.stderr)
+        self.assertFalse(self.marker.exists())
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -400,7 +400,7 @@ Manual verification should happen inside Anki when runtime behavior changes. Bro
 
 ## Operator environment and evidence paths
 
-- The citation-drift audit uses committed HEAD blame; edit and revert commits change citation provenance, so audit committed trees (`tools/audit_citation_drift.py:193`).
+- The citation-drift audit blames the exact record bytes it parses against HEAD: unchanged lines keep their commit, and uncommitted record lines have no origin, so they are checked only against the current tree. Edit and revert commits still change citation provenance (`tools/audit_citation_drift.py:194`).
 - `/Users/ArmanTarkhanian1/Downloads/game-main` can be an extracted source archive without `.git`; check for `.git` and `data/cfg/items.yml` before relying on it, and retain file hashes when Git provenance is unavailable.
 - Every worktree test command must set its working directory explicitly; agent shell defaults can select the canonical checkout. For collection discrepancies, compare the imported module path and collected test IDs from the same checkout before attributing a cause (`tools/run_remote_tests.py` takes the source checkout as its first argument).
 - Do not assume `/opt/homebrew/bin/jq`; check `command -v jq` before relying on it, or use Python JSON parsing for source probes.
