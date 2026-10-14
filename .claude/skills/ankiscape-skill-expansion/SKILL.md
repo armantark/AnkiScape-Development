@@ -1,8 +1,6 @@
 ---
 name: ankiscape-skill-expansion
 description: Guides AnkiScape skill and action-family expansions. Use when adding or expanding AnkiScape skills, Utility/Activities, item chains, target lists, achievements, source audits, wiki scraping, asset scraping, XP balancing, or gameplay settings.
-targets:
-  - '*'
 ---
 # AnkiScape Skill Expansion
 

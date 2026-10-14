@@ -24,7 +24,7 @@ There is no AnkiWeb listing yet (see [Publishing to AnkiWeb](#publishing-to-anki
 1. Zip the **contents** of the code folder so that `__init__.py` sits at the root of the zip, not inside a subfolder. From inside the folder:
 
    ```
-   zip -r ../ankiscape.zip . -x '.git/*' '.claude/*' '.cursor/*' '.rulesync/*' '.venv*/*' '.vscode/*' '.pytest_cache/*' 'memory-bank/*' 'tests/*' 'tools/*' '__pycache__/*' '*/__pycache__/*' '*.log*'
+   zip -r ../ankiscape.zip . -x '.git/*' '.claude/*' '.cursor/*' '.venv*/*' '.vscode/*' '.pytest_cache/*' 'memory-bank/*' 'tests/*' 'tools/*' '__pycache__/*' '*/__pycache__/*' '*.log*'
    ```
 
    The game does not import anything from the excluded folders; they are development material and design notes.

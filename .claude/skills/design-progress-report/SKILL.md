@@ -1,8 +1,6 @@
 ---
 name: design-progress-report
 description: Builds the AnkiScape design progress report, an HTML page showing which owner-grilled designs and approved contracts are built, partly built, blocked or not started, with evidence per design. Use when the owner asks how much of the grilled designs is built, or for a big-picture progress update.
-targets:
-  - '*'
 ---
 # Design progress report
 
