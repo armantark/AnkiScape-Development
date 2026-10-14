@@ -18,4 +18,7 @@ Receipts bind the recorded dirty source by per-file digest. Independent source r
 | `green.receipt.json` | `41a7b64fa108d1f2a93d856738c2dd070551f36c2e48ac1c9dc112f690aeed20` |
 | `move-plan.json` | `7236f39eb0fd81cf9d4c4d3d5ecdb700adf12226647f15ae4a66cd1603e683b3` |
 
+| `record-structure-proof.json` | `b8e5af5d061491f64a7dbf431f33818217fbd6d8fbc6f7f56b5477a9f37b1e49` |
+| `prior-current-unit.txt` | `4add63ae6cda46517ef09a6abdaa17b83a27dff519ed22b7e307d259ea4bd6dc` |
+
 Raw evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/slop-preflight-args`.
