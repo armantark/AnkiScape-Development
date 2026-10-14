@@ -92,6 +92,10 @@ instruction is to stop status artifacts until the all-quest update is complete.
   reward. This batch preserves the generated/catalog `Swordfish` reward because
   the quest source reward text and catalog agree on swordfish.
 
+On 2026-10-13, candidate `b6a7789398df5ae6c18888743528160b42a297c7` corrects the mansion order to KURT, stair investigation/ascent, then chest search. It also uses the existing repeatable-stage helper to replace one missing Address label at stage 3 or Totem at stage 5. Recovery takes one review and keeps the same stage; the next review consumes the item. An owned item is never replaced during hand-in, and completed quests refuse recovery. Period quest oldid `6326240` (2012-09-30) identifies Totem as a quest item and permits repeat chest pickup before hand-in. Address label oldid `6430778` (2012-10-16) establishes its crate acquisition and quest-item status. Darkan `67615a3fde1e8141c9e0c916dd87ac2589a63b29` corroborates missing-item replacement in the relevant quest phases. Quest items remain outside the carried subset under the existing owner policy.
+
+Both existing icons match the normalized pixels of the recorded period originals: Address label SHA-1 `97a65d17ae0846332e2ca6c5eb3c873e24470097`, revision `2011-11-17T05:28:41Z`; Totem SHA-1 `43bd72adce660ffb6b33a30cf0b6fb8590e27d07`, revision `2011-11-30T01:10:54Z`. Source hashes differ from normalized PNG hashes as expected; no icon changed. The bounded source packet is [the retained manifest](</Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/.orchestrator/goal-resume-2026-10-06/reset-70/tribal-totem-recovery-2026-10-13/source/retention-manifest.json>). The original regression failed on unchanged quest data for both lost items and genuine review recovery. The repaired candidate passed 41 focused Qt checks with no skips; Opus approved without findings. These checks use the real quest/review kernel with fake Anki adapters. Full promotion checks and native/visual acceptance remain separate requirements; this candidate is not landed.
+
 ### Scorpion Catcher
 
 - Source files:
