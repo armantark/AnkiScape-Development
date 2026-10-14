@@ -171,7 +171,6 @@ def _request_batch(
         "prop": "imageinfo",
         "iiprop": "timestamp|sha1|url|size",
         "iistart": cutoff_timestamp,
-        "iidir": "older",
         "iilimit": "1",
         "maxlag": "5",
         "titles": "|".join(f"File:{title}" for title in titles),
