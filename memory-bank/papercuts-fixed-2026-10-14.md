@@ -113,3 +113,11 @@ Disposition: fixed.
 Evidence: The CLI bootstrap uses the script checkout before repository imports in tools/native/freeze_source.py and tools/maintenance/retain_evidence.py. Original direct --help receipts both returned exit 1 with ModuleNotFoundError: No module named tools. The existing test_source_packet_scripts_reach_argument_parser_from_unrelated_directory failed all four canaries before the repair, then passed one test with exit 0 and zero skips. Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-qualified-batch-1/original-receipts.json and /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-qualified-batch-1/final-cli-proof.json. Module commands and packet/retention safeguards retain the existing interfaces. Mixed incidents with guessed paths or host-key errors remain open. Full merged gates and landing remain Root-owned.
 
 - 2026-10-08T02:05:24.428137+00:00 Native freezer direct invocation `python3 tools/native/freeze_source.py --help` failed with `ModuleNotFoundError: No module named 'tools'`; the supported package invocation is `python3 -m tools.native.freeze_source`. No tool/source change or verification rerun.
+
+## Preserve both source-closure sections
+
+Disposition: fixed.
+
+Evidence: Root merged1f0976a3 preserves every nonempty line of both parent fixed ledgers; the three code files equal accepted source49bdf2e2.
+
+- 2026-10-14T21:04:56.555928+00:00 — Integrating direct-CLI source49bdf2e2 into Root26280f90: Git reported CONFLICT (content) in memory-bank/papercuts-fixed-2026-10-14.md. Removed only conflict markers, retained both parent sections and verified every original nonempty parent line survives; no successful product check was replayed.
