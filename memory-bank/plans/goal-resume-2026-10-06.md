@@ -365,3 +365,22 @@ Root owns the mirror, native GUI, documentation, source commits and exact promot
 CHECK: Prove local shell/sync behavior with disposable fixtures, source isolation and non-local SSH behavior.
 EXPECT: Local proof uses no SSH; distant clients retain SSH. No acceptance gate or pinned baseline changes.
 The exact full remote-lanes gate remains the landing proof; transport locality grants no exemption.
+
+## Gunnar’s Ground complete player path — 2026-10-14
+
+The handoff assigns Gunnar’s Ground after test I/O. The higher-priority ring and import repairs have source commits.
+Root can prepare this independent slice while local-host gate transport and prior reviews finish.
+The author owns quest definitions, quest-specific item identities, Crafting data/runtime/metadata consumers and cohesive behavior tests in checkout 7.
+Root owns documentation, Git, source qualifications, source coordination, native GUI, the test mirror and promotion.
+Implement the complete quest transactions and Dororan’s post-quest XP-only Crafting sequence under retained source contracts.
+Effective task levels are 42, 72 and 90; rewards are 2000, 10000 and 20000 Crafting XP once, in order.
+Dororan owns the jewellery. Tasks consume and produce no player jewellery; no zero-output or dummy-item workaround is permitted.
+The ordinary Gold ring cannot replace the quest-specific ring. Haakon remains optional.
+Extend the smallest coherent data/pure/runtime/metadata boundary; existing UI behavior and widgets remain unchanged.
+New-feature rows must state truthful availability and outputs and receive taste-qualified review before promotion.
+Read pinned local Darkan/wiki/cache records; do not start a new external harvest or alter source claims.
+Search bounded local asset/cache locations before recording a missing source file. Do not invent period artwork.
+CHECK: Drive real quest/review/Crafting paths for acquisition, identity refusal, ordered rewards, boosts, once-only state, Undo and persistence.
+EXPECT: Complete source-backed backend path and truthful new-feature metadata, with exact absent artwork/native checks explicit.
+Missing implementation remains authorized work. A source/owner conflict stops only its dependent part.
+Never weaken tests, audits, caps, pins, baselines or acceptance criteria; no new runner/checker/retention machinery.

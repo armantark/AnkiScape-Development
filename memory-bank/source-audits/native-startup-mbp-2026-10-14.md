@@ -4,8 +4,8 @@ Exact source: `9928e1213e50c090d437c528312567fd07fb5d21`; original nine-check so
 All copied add-on files match the frozen manifest. The shipped fixture prepared an empty disposable collection; normal quit/reopen followed.
 Literal startup refused: `/crucible_lessons_taken`, `/crucible_unlocks`, `/duel_arena_rule_ids`: saved list `[]`, live tuple `()`; `/dungeoneering_exp`, `/farming_exp`: saved int `0`, live float `0.0`.
 No real review or game action occurred. This is neither a complete equality pass nor acceptance of the old Salt case.
-Original setup and accepted reopen launches exited 0. An intermediate relaunch refused the still-open setup app with exit 2.
-Final guard: exit 0, `unchanged: true`, `changes: {}`. Anki stopped; GUI ownership is released.
+The operator observed setup `native-launch.log` and accepted `reopen-launch-2.log` exits 0; `reopen-launch.log` refused the still-open app with exit 2. Exit status comes from tool returns, not log content.
+The refused `setup-guard.json` is empty. Final guard: operator-observed exit 0, `unchanged: true`, `changes: {}`. Anki stopped; GUI ownership is released.
 Preserve protected fields and literal saved-Undo-to-pre-Good-LIVE. Native/visual gameplay acceptance is false; source representation resolution needs owner authorization.
 
 | Raw artifact | SHA-256 |
