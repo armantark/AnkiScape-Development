@@ -15,6 +15,17 @@ from unittest.mock import patch
 from tests import test_remote_test_host
 from tools import run_remote_tests
 
+# Runs the runner file as __main__ for a distant caller, whose HOST does not resolve to itself:
+# on the MacBook a resolving HOST would skip the fake ssh and sync into the live mirror.
+DISTANT_DIRECT_RUN = """\
+import runpy, socket, sys
+def unresolved(*_args, **_kwargs):
+    raise socket.gaierror(socket.EAI_NONAME, "distant caller")
+socket.getaddrinfo = unresolved
+sys.argv = sys.argv[1:]
+runpy.run_path(sys.argv[0], run_name="__main__")
+"""
+
 
 class RemoteStorageTests(unittest.TestCase):
     _worktree = test_remote_test_host.RemoteTestHostTests._worktree
@@ -31,7 +42,7 @@ class RemoteStorageTests(unittest.TestCase):
         canary_env.pop("PYTHONPATH", None)
         canary_env["PATH"] = str(binary) + ":/usr/bin:/bin"
         completed = subprocess.run(
-            (sys.executable, run_remote_tests.__file__, str(worktree), "plain",
+            (sys.executable, "-c", DISTANT_DIRECT_RUN, run_remote_tests.__file__, str(worktree), "plain",
              "--select", "tests.", "--collect-only"),
             cwd=root, env=canary_env, text=True, capture_output=True, check=False,
         )

@@ -174,13 +174,10 @@ class RemoteTestHostTests(unittest.TestCase):
                 self.assertTrue(full.endswith("run_tests.py"))
 
     def setUp(self):
-        temporary = tempfile.TemporaryDirectory()
-        self.addCleanup(temporary.cleanup)
-        lock_patch = patch.object(
-            run_remote_tests, "LOCAL_MIRROR_LOCK_PATH", Path(temporary.name) / "mirror.lock"
-        )
-        lock_patch.start()
-        self.addCleanup(lock_patch.stop)
+        temporary = self.enterContext(tempfile.TemporaryDirectory())
+        self.enterContext(patch.object(run_remote_tests, "LOCAL_MIRROR_LOCK_PATH", Path(temporary) / "mirror.lock"))
+        # A case models a distant caller unless it enters _local_host, the MacBook's own transport.
+        self.enterContext(patch.object(run_remote_tests, "_on_test_host", return_value=False))
 
     def test_ssh_does_not_replay_remote_failures_or_arbitrary_commands(self):
         for returncode, repeat_safe in ((1, False), (2, True), (255, False)):
@@ -407,7 +404,7 @@ class RemoteTestHostTests(unittest.TestCase):
 
     @contextlib.contextmanager
     def _local_host(self, lane_waits: bool = True) -> Iterator[Path]:
-        """Run the real launch, liveness and stop commands through zsh, the MacBook's login shell.
+        """Run the real launch, liveness and stop commands through the MacBook's local transport.
 
         The lane starts a test-like subprocess in its own session, outside the lane's group and
         without the lane's stdin, and records that subprocess's pid in `detached.child`.
@@ -426,7 +423,7 @@ class RemoteTestHostTests(unittest.TestCase):
                 str(host_root / "reports" / "detached.child"),
             ))
             with (
-                patch.object(run_remote_tests, "SSH", ("/bin/zsh", "-c")),
+                patch.object(run_remote_tests, "_on_test_host", return_value=True),
                 patch.object(run_remote_tests, "REMOTE_ROOT", host_root),
                 patch.object(run_remote_tests, "REMOTE_REPO", host_root / "ankiscape_fork"),
                 patch.object(run_remote_tests, "REMOTE_VENV", host_root / ".venv-qt"),
@@ -533,7 +530,10 @@ class RemoteTestHostTests(unittest.TestCase):
             broken_ps.chmod(0o755)
             # -f keeps a startup file from restoring the real ps to PATH.
             host_without_ps = ("/usr/bin/env", f"PATH={tools}:/usr/bin:/bin", "/bin/zsh", "-f", "-c")
-            with patch.object(run_remote_tests, "SSH", host_without_ps):
+            with (
+                patch.object(run_remote_tests, "_on_test_host", return_value=False),
+                patch.object(run_remote_tests, "SSH", host_without_ps),
+            ):
                 with self.assertRaisesRegex(RuntimeError, "liveness check failed with exit 1"):
                     run_remote_tests._reconcile_pending_run()
                 with self.assertRaisesRegex(RuntimeError, "qt-orphan stop failed with exit 1"):
