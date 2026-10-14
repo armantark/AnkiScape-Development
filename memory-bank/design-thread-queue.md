@@ -2948,3 +2948,7 @@ Gunnar final-copy offscreen captures show existing top-tab ellipses Ch… at720 
 ## Open source/owner boundary — 2026-10-14: Roavar early purchase
 
 Independent Fenkenstrain review R1 cannot qualify purchase before the accepted interview from retained period sources. Require the one period eligibility fact in GOAL-BLOCKED, or an explicit owner-approved AnkiScape abstraction. No implicit choice follows from Root contract silence; no Darkan numeric-stage copy or progress==2 restriction. Later filled-head4198/handoff guards wait for the later writer. Existing widgets and journal remain excluded. Current candidate 0a962cbcd5a4f16f252d57e32275616f4e18b0b1 is preserved, unaccepted and unlanded.
+
+## Open owner boundaries — 2026-10-14: three quest journals
+
+Murder Mystery needs authorization to replace its first table-of-contents-only block with the source-backed guard opening; later culprit selection remains separately source/model held. Recruitment Drive needs the test-selection/empty-entry model and a journal representation ruling at Tiffy; no empty-Bank substitute. Tower of Life needs authorization to show its sourced opening answers omitted by the current journal. Black Knights'12QP copy versus period13 remains an adjacent owner-UI repair; a genuine13QP route exists without it. No existing journal/widget/copy changes are authorized by these records. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2/verdict.json.

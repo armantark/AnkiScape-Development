@@ -90,3 +90,15 @@ The current prerequisite graph and retained source registry/period/Darkan record
 ## Fenkenstrain paid-route eligibility hold — 2026-10-14T16:10:19.388204+00:00
 
 Blocked: source acceptance of the separate50Coin Roavar purchase in correction0a962cbcd5a4f16f252d57e32275616f4e18b0b1. Tried: retained target contract, walkthrough6535792, Roavar6225365, Brain6174247, game-main shop and reconstructed Darkan dialogue/Git provenance. The candidate allows pre-interview purchase; Darkan refuses, and the inspected period packet corroborates neither exact boundary. Single unblocking fact: an independently corroborated pre-EOC statement whether Roavar sells before the accepted Fenkenstrain interview. Owner authorization of an explicit AnkiScape abstraction is a separate recorded resolution, never period parity. F1-F5 are addressed; final5335-test plain proof is preserved, seven neighbor skips are qualified, two stopped receipts remain pending/excluded, and no copy/taste/native/gate/land acceptance exists. Retained105-file packet: /Users/armantarkhanian/Documents/AnkiScape/.git/ankiscape-promotion-evidence/0a962cbcd5a4f16f252d57e32275616f4e18b0b1/fenkenstrain-source-blocked-correction/retention-manifest.json, SHA2564fce944155b4759cfdc2734b174ffbe368c73e00b9d5fa5f1f0c6c56d1142601. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/fenkenstrain-stage2/source-review-2/verdict.json. This per-slice hold does not stop independent work.
+
+## Remaining inspected quest boundaries — 2026-10-14T16:32:51.867892+00:00
+
+Tried: independent selected-quest/source/journal/prerequisite/material qualification in /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2, verdictSHA2562f8283a5e3a8778857acc31d0ff64f7439d9a60fced8f815f322a08e1dbb45dc.
+
+murder_mystery blocked: owner_gated_first_journal_boundary. Single first unblock: Recorded owner authorization to replace the table-of-contents-only first journal block with the sourced guard opening.
+
+recruitment_drive blocked: source_and_owner_gated_tiffy_entry_model. Single first unblock: An AnkiScape owner ruling names the permitted five-of-seven test-selection model at Tiffy entry and settles compatibility with the existing fixed journal.
+
+tower_of_life blocked: owner_gated_missing_opening_journal_answers. Single first unblock: Recorded owner authorization to repair the omitted Black-eye answers and immediate Bonafido answer text in the existing journal.
+
+No product checks ran. Ordinary material/prerequisite writers are qualified within the report; missing backend implementation is not an external blocker. Later unresolved mechanics stay separate. All other roots remain uninspected, so these domain holds never stop the goal.
