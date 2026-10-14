@@ -4,9 +4,9 @@ Baseline: `77e3b62aa785ebdecb2d70c03bdb97f053b404df`; read-only independent Astr
 This is an intermediate selection audit, not a final goal-closure audit; S15 later landed at `2fe9135819c85b04693f40ff5ed1a7ccd2973590`.
 The matrix and named kanban, gaps, placeholder/design consumers have per-entry dispositions in the complete raw inventory.
 Independent paths remain; the strict native startup hold does not establish a whole-goal blocker.
-Rank 1: First Resort stage 4 Snurgh/Kringk material handoffs; verify mixed regular/tatty fur debit and actual ordinary acquisition seams.
-Rank 2: Fenkenstrain stage 2; qualify both Brain routes, held Spade, exact head identities and amulet transactions.
-Rank 3: Giant Dwarf opening; qualify start gates/3000-Coin route budget and a genuine library weight/book action model before implementation.
+Rank1 First Resort stage4 candidate is now blocked by independent F1/F2/F3: mixed aggregation/debit authority and truthful journal completion are unsettled. The raw audit’s combined-fur assertion is a world-contract inference, not qualified Anki authority; preserve that dated raw report.
+Rank2 Fenkenstrain stage2 is qualified and assigned with both Brain routes, inventory-only Spade, empty head4197 and Star amulet4183; filled head4198 belongs to held stage3.
+Rank3 Giant Dwarf opening is blocked on an owner-approved library load model; a real-weight choice needs complete qualified weights. Ferry is free and3000Coins is route budget.
 Existing Polar, Razor-backed and Camouflaged tracker rows supersede older missing-target labels; no implementation from those stale labels.
 Root independently checked the First Resort period/retained-contract hashes and current reducer semantics.
 The audit’s `data/quest/stage_cleanups.py:69` First Resort reference is stale: the cleanup imports the actual `data/quest/stage_overrides/members/later/as_a_first_resort.py` module at lines 9/952.
