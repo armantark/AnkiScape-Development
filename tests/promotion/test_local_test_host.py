@@ -25,7 +25,7 @@ class Lane(unittest.TestCase):
     def test_lane_runs_isolated_in_the_mirror(self):
         self.assertEqual(Path.cwd(), Path({mirror!r}))
         self.assertEqual(Path("snapshot.txt").read_text(), "launched\\n")
-        self.assertNotIn("ANKISCAPE_RUNNER_ONLY", os.environ)
+        self.assertFalse("ANKISCAPE_RUNNER_ONLY" in os.environ, "runner environment leaked")
         self.assertEqual(os.environ["HOME"], {home!r})
         self.assertNotEqual(os.getpgrp(), {runner_group})
         lock = os.stat({lock!r})
@@ -127,7 +127,7 @@ class LocalTestHostTests(unittest.TestCase):
             with (
                 patch.object(freeze_source, "REMOTE_ROOT", run_remote_tests.REMOTE_ROOT),
                 patch.object(freeze_source, "REMOTE_VENV", run_remote_tests.REMOTE_VENV),
-                patch.object(freeze_source, "_on_test_host", return_value=True, create=True),
+                patch.object(freeze_source, "_on_test_host", return_value=True),
             ):
                 freeze_source._transfer_bundle(output, "local-proof", digest)
             self.assertFalse(ssh_calls.exists())
@@ -179,6 +179,7 @@ class LocalTestHostTests(unittest.TestCase):
         self.addCleanup(run_remote_tests._on_test_host.cache_clear)
         for host, local in (
             ("localhost", True), ("127.0.0.1", True),
+            ("0.0.0.0", False), ("::", False),
             ("192.0.2.1", False), ("ankiscape-test-host.invalid", False),
         ):
             with self.subTest(host=host), patch.object(run_remote_tests, "HOST", host):

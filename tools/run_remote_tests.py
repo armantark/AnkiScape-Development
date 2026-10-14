@@ -15,6 +15,7 @@ import argparse
 import errno
 import fcntl
 import functools
+import ipaddress
 import json
 import os
 import pwd
@@ -221,6 +222,8 @@ def _on_test_host() -> bool:
     except socket.gaierror:
         return False
     for family, _type, _protocol, _name, address in addresses:
+        if ipaddress.ip_address(address[0]).is_unspecified:
+            continue
         with socket.socket(family, socket.SOCK_STREAM) as probe:
             try:
                 probe.bind((address[0], 0, *address[2:]))
