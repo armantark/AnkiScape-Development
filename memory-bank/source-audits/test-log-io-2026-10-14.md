@@ -6,7 +6,7 @@ The prepared regression fails on the original source and passes on the candidate
 Independent Astra review returned ACCEPT with no findings; the saved diff matches the committed diff.
 The original focused suite reports 47 tests, exit 0, no skips.
 Branch-side documentation audit failed at 3001 startup lines; root preserved the closed navigation record in the existing archive.
-Exact merged full-lane gate and official landing remain pending; local-host transport is the current necessary execution dependency.
+Exact merged full-lane gate and official land passed at `2e7b6378871e0096515e1aaab7a64061c7aff7bc`; the local-host dependency is landed.
 
 | Raw artifact | SHA-256 |
 | --- | --- |
@@ -26,4 +26,4 @@ Exact merged full-lane gate and official landing remain pending; local-host tran
 | `verdict.json` | `e46bdcd4fd07e442582960c0b29b00660d8cc5951d62d74e6c7b66e0b3319381` |
 
 Raw originals: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/test-log-io`.
-The receipts bind the pre-commit dirty source; no exact merged gate or landing is inferred.
+The original focused receipts bind dirty source. The exact merged landing is established separately by the official certificate and [retained gate record](local-test-host-2026-10-14.md).
