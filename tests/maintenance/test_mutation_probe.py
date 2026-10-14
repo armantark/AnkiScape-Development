@@ -1,3 +1,4 @@
+import py_compile
 import shutil
 import signal
 import subprocess
@@ -41,6 +42,24 @@ class MutationProbeTests(unittest.TestCase):
 
                 self.assertEqual(result.returncode, probe_exit, result.stdout + result.stderr)
                 self.assertEqual(self.source.read_bytes(), self.original)
+
+    def test_valid_original_bytecode_cannot_hide_the_mutated_module(self):
+        self.original = b"VALUE = 'origin'\n"
+        self.source.write_bytes(self.original)
+        self.assertEqual(len(self.original), len(self.mutant.read_bytes()))
+        timestamp = int(self.source.stat().st_mtime)
+        py_compile.compile(
+            str(self.source.resolve()), doraise=True,
+            invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP,
+        )
+
+        result = self._probe(
+            f"import os; os.utime('target.py', ({timestamp}, {timestamp})); "
+            "import target; assert target.VALUE == 'origin'"
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.source.read_bytes(), self.original)
 
     def test_timeout_stops_the_command_restores_the_source_and_is_not_a_proof(self):
         started = time.monotonic()

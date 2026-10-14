@@ -48,13 +48,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     red = False
     try:
         source.write_bytes(mutation)
-        # A mutant .pyc written in the same second as the restore could outlive it.
-        environment = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
-        try:
-            completed = subprocess.run(args.command, cwd=ROOT, env=environment, timeout=args.timeout, check=False)
-            red = completed.returncode != 0
-        except subprocess.TimeoutExpired:
-            print(f"focused command exceeded {args.timeout:g} seconds", file=sys.stderr)
+        # Isolate bytecode reads; suppress writes so restoration cannot leave a mutant cache.
+        with tempfile.TemporaryDirectory(prefix="ankiscape-mutation-pycache-") as pycache:
+            environment = {
+                **os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONPYCACHEPREFIX": pycache,
+            }
+            try:
+                completed = subprocess.run(args.command, cwd=ROOT, env=environment, timeout=args.timeout, check=False)
+                red = completed.returncode != 0
+            except subprocess.TimeoutExpired:
+                print(f"focused command exceeded {args.timeout:g} seconds", file=sys.stderr)
     finally:
         source.write_bytes(original)
         signal.signal(signal.SIGTERM, previous_handler)
