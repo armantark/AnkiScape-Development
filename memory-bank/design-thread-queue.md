@@ -2920,3 +2920,7 @@ Complete In Search of the Myreque stage1 would expose generated stage2 instructi
 ## Open native representation decision — 2026-10-14 MacBook Pro
 
 The fresh Tribal Totem source `9928e1213e50c090d437c528312567fd07fb5d21` reproduces the five startup differences in [the native refusal record](source-audits/native-startup-mbp-2026-10-14.md). The source gate stays accepted; native gameplay acceptance is false. Preserve the existing protected-field and literal saved-Undo-to-pre-Good-LIVE criteria. The owner must authorize a specific source/representation resolution before this hold can be cleared; no field coercion or acceptance exception is inferred. Root continues independent queue work.
+
+### Open owner question — 2026-10-14: Cold War personal greeting
+
+The ordinary opening needs a representation of each player’s personal three-emote greeting that permits repeat observation and later checks. The retained world inference does not authorize an Anki algorithm/state/UI, and a generic auto-step loses that state. Choose that Anki representation before the opening can grant Larry’s book; the separate book-gate and suit-ID source disputes remain open. [Exact qualification and attempted paths](source-audits/cold-war-ordinary-route-2026-10-14.md) preserves the current evidence. The accepted activated-ring option stays accepted; no existing UI change is authorized.
