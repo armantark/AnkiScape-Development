@@ -2944,3 +2944,7 @@ The unchanged full NPC-shop generator cannot reproduce the retained catalog and 
 ### Open owner UI scope — 2026-10-14: Gunnar tab ellipses
 
 Gunnar final-copy offscreen captures show existing top-tab ellipses Ch… at720 and Achieveme… at980 behind scroll arrows. The three new Dororan rows and actual tooltips are complete. Existing tab UI remains unchanged; this observation joins the pending owner design suggestions.
+
+## Open source/owner boundary — 2026-10-14: Roavar early purchase
+
+Independent Fenkenstrain review R1 cannot qualify purchase before the accepted interview from retained period sources. Require the one period eligibility fact in GOAL-BLOCKED, or an explicit owner-approved AnkiScape abstraction. No implicit choice follows from Root contract silence; no Darkan numeric-stage copy or progress==2 restriction. Later filled-head4198/handoff guards wait for the later writer. Existing widgets and journal remain excluded. Current candidate 0a962cbcd5a4f16f252d57e32275616f4e18b0b1 is preserved, unaccepted and unlanded.
