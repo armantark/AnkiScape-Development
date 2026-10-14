@@ -2960,3 +2960,7 @@ Ruling50 remains settled: Prayer43 is recommended, not required. The current ker
 ## Open first-journal scope — 2026-10-14: Ghosts Ahoy
 
 Both prerequisites remain settled under ruling35. The first journal is generic and its section-to-stage representation needs owner authorization. Independently qualified pre-quest Port entry fare remains the separate first source hold. Do not invent a charge, replace journal text or treat the existing worship writer as proof of every acquisition input. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+
+## Open first-journal scope — 2026-10-14: Garden and Tail
+
+Garden of Tranquillity needs authorization to restore the seven sourced answers and settle the complete Wise Old Man quiz/retry representation. A Tail of Two Cats needs authorization for a source-backed first journal and its exact Unferth/Hild boundary. Each retains its own prerequisite and acquisition holds. No existing journal, UI or source reconstruction is authorized by this record. [Exact qualification](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md).

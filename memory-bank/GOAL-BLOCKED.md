@@ -110,3 +110,11 @@ Blocked: complete ordinary Port-entry/Velorina opening. Tried: retained build727
 ## Horror from the Deep opening hold — 2026-10-14
 
 Blocked: faithful eligibility plus stage1 Larrissa/Barbarian handoff. Tried: ruling50, both retained period pages, target/cache records and live eligibility/readout consumers. Prayer43 is settled as optional; current hard gate and visible Requires text contradict that contract. Single unblock: recorded authorization to correct the existing requirement readout while applying ruling50. No Prayer-policy re-grill or UI authority is inferred. [Exact evidence](source-audits/quest-opening-boundaries-2026-10-14.md). Other independent work continues.
+
+## Garden of Tranquillity opening hold — 2026-10-14
+
+Blocked: complete commission/list and Wise Old Man test/ring activation. Tried: retained oldid6541904, target contract, all seven source answers, live first journal, prerequisites and consumers. The journal omits all answers and no quiz/retry model is owner-approved. Single first unblock: recorded owner authorization for the answer repair and complete quiz representation. Fenkenstrain completion/ring custody and spare-ring ordering remain separate holds. [Evidence](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Other independent work continues.
+
+## A Tail of Two Cats opening hold — 2026-10-14
+
+Blocked: complete source-backed opening at Unferth/Hild. Tried: retained oldid6430177, target contract, live generic first journal, ordinary prerequisite/companion/amulet chain and journal consumers. Single first unblock: recorded owner authorization for the first journal and exact Unferth-only or included Hild boundary. Existing pet and prerequisite holds remain separate; no source-stage copy or spatial proxy is authorized. [Evidence](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Other independent work continues.
