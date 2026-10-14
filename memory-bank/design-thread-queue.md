@@ -2920,3 +2920,27 @@ Complete In Search of the Myreque stage1 would expose generated stage2 instructi
 ## Open native representation decision — 2026-10-14 MacBook Pro
 
 The fresh Tribal Totem source `9928e1213e50c090d437c528312567fd07fb5d21` reproduces the five startup differences in [the native refusal record](source-audits/native-startup-mbp-2026-10-14.md). The source gate stays accepted; native gameplay acceptance is false. Preserve the existing protected-field and literal saved-Undo-to-pre-Good-LIVE criteria. The owner must authorize a specific source/representation resolution before this hold can be cleared; no field coercion or acceptance exception is inferred. Root continues independent queue work.
+
+### Open owner question — 2026-10-14: Cold War personal greeting
+
+The ordinary opening needs a representation of each player’s personal three-emote greeting that permits repeat observation and later checks. The retained world inference does not authorize an Anki algorithm/state/UI, and a generic auto-step loses that state. Choose that Anki representation before the opening can grant Larry’s book; the separate book-gate and suit-ID source disputes remain open. [Exact qualification and attempted paths](source-audits/cold-war-ordinary-route-2026-10-14.md) preserves the current evidence. The accepted activated-ring option stays accepted; no existing UI change is authorized.
+
+### Open owner UI scope — 2026-10-14: contained-content taste observations
+
+[The new-content taste review](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/presentation-taste-1/report.md) accepts the engraving/Cabinet layouts conditionally on two configured-copy fixes. It proposes an owner design grill for existing Cabinet description/condition repetition, inherited rounded label borders (native confirmation still needed), unrelated diary panels retained during search, completed-versus-level-locked Crafting presentation, and clipped Challenges/Achievements navigation labels at the captured widths. These are observations/suggestions, not permission to change existing widgets, journal grouping, search, navigation or text. Root corrected only the new label/reason through the configured editor and retained the captures; native requirements remain open.
+
+## Open owner question — 2026-10-14T13:05:46.913976+00:00 — First Resort stage 4 journal and fur priority
+
+The returned unaccepted candidate advances progress4 to5 after Snurgh's8 feathers and Kringk's4 bones/8 furs. The existing stage4 journal also contains “Talk to Seegud.”, the bug-clearing note and “Collect the plants from outside of Oo'glog.”. The existing completed-stage display strikes these future actions despite no proofs. Existing journal changes are not authorized. Independent review will qualify whether this blocks the proposed complete boundary; no display correction is approved. The author also selected tatty-first mixed-fur debit to retain regular furs for Summoning, while the period source states no debit order. This choice is unaccepted; source review must first check any settled interchangeability policy. The owner may settle the needed journal scope and fur priority at a later design grill. Independent queue work continues.
+
+## Open owner question — 2026-10-14T13:37:44.186051+00:00 — Giant Dwarf library load
+
+The first complete existing stage1 boundary requires climbing for Book on costumes under30kg. The retained sources establish the limit, but the Anki load abstraction is unset. Current Agility weight data cover only a subset and assign0 to unknown items. Settle the library load model before implementation; real weight also needs complete qualified item weights. Ferry travel is free;3000Coins is a route budget. No new navigation, journal or weight policy is approved.
+
+## Open shop reproduction contract — 2026-10-14T14:45:33.033317+00:00
+
+The unchanged full NPC-shop generator cannot reproduce the retained catalog and ledger simultaneously: each live price map has6827 entries while both summaries say6820;59 ledger names predate the landed lantern/arrow fixes. Six live price keys also differ from the full generator (Bullseye lantern, Mining helmet, Mithril arrow, Oil lamp, Oil lantern, Spiked gauntlets). [Exact source/evidence](source-audits/npc-shop-reproduction-mbp-2026-10-14.md) names all values and original inputs. The current slice does not authorize a runtime price/key change or a fabricated digest/header. The needed contract must identify permitted stale-record correction and how the six existing live keys regenerate. Current values stay preserved; independent queue work continues.
+
+### Open owner UI scope — 2026-10-14: Gunnar tab ellipses
+
+Gunnar final-copy offscreen captures show existing top-tab ellipses Ch… at720 and Achieveme… at980 behind scroll arrows. The three new Dororan rows and actual tooltips are complete. Existing tab UI remains unchanged; this observation joins the pending owner design suggestions.

@@ -1,8 +1,7 @@
 # Supported image-history parameters: source audit — 2026-10-14
 
 Source: `d59568900e6cdcd14ca52db151e977256ffa4a70`; base `2e7b6378871e0096515e1aaab7a64061c7aff7bc`.
-Remove unsupported `iidir=older` from the auditor and the three affected period fetchers, including the original icon caller.
-Each fetcher validates its first revision against its existing cutoff; a newer-first mixed response refuses explicitly.
+Remove unsupported `iidir=older` from all four callers; each period fetcher validates the first revision against its existing cutoff and refuses a newer-first mixed response.
 Retained contract: [S15](../audits/papercut-fix-slices-2026-10-03.md#s15--the-asset-audit-sends-an-unsupported-imageinfo-parameter).
 Keep all configured cutoffs, iistart/iilimit, retries, classifications, aliases, checkpoints and provenance hashes.
 Fetcher cutoff constants differ from the auditor's cutoff and remain unchanged; no art or provenance is requalified.
@@ -25,5 +24,7 @@ Correction manifest: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2
 Opus round 2 accepts F1/F2; no binding finding remains. Root resolved record notes O1/O2/O5/O6 and disposed of optional O3/O4.
 Callers: `tools/audit_asset_cutoff.py`, `tools/fetch_navigation_icons.py`, `tools/fetch_agility_assets.py`, `tools/fetch_big_chinchompa_assets.py`.
 Disposition: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/asset-query-param/opus-review-2/root-disposition.json`; SHA-256 `9716c97ea9ac50208948ee69b819405b853f50ede108dc620f1b18f48651e2a8`.
-Exact merged full remote-lane gate and official land remain pending.
+Exact merged `2fe9135819c85b04693f40ff5ed1a7ccd2973590` passed all nine remote-lane checks and officially landed; main was clean.
+Original lanes: plain 5326 tests, 609.419s, skipped580; Qt 5326 tests, 842.283s, skipped5.
+Retained original12 gate/lanes/land: `.git/ankiscape-promotion-evidence/2fe9135819c85b04693f40ff5ed1a7ccd2973590/merged-s15-gate/retention-manifest.json`; SHA-256 `b3ec9583681b8eb3c8e0a0f9b64b795afa547dd6332a9d805b11bea198ddab2b`.
 No gameplay, existing UI, pinned baseline, audit limit or acceptance waiver change.
