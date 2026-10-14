@@ -2941,4 +2941,6 @@ The first complete existing stage1 boundary requires climbing for Book on costum
 
 The unchanged full NPC-shop generator cannot reproduce the retained catalog and ledger simultaneously: each live price map has6827 entries while both summaries say6820;59 ledger names predate the landed lantern/arrow fixes. Six live price keys also differ from the full generator (Bullseye lantern, Mining helmet, Mithril arrow, Oil lamp, Oil lantern, Spiked gauntlets). [Exact source/evidence](source-audits/npc-shop-reproduction-mbp-2026-10-14.md) names all values and original inputs. The current slice does not authorize a runtime price/key change or a fabricated digest/header. The needed contract must identify permitted stale-record correction and how the six existing live keys regenerate. Current values stay preserved; independent queue work continues.
 
+### Open owner UI scope — 2026-10-14: Gunnar tab ellipses
+
 Gunnar final-copy offscreen captures show existing top-tab ellipses Ch… at720 and Achieveme… at980 behind scroll arrows. The three new Dororan rows and actual tooltips are complete. Existing tab UI remains unchanged; this observation joins the pending owner design suggestions.
