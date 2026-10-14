@@ -5,7 +5,7 @@ Help and unsupported options now finish before any Git/index/gate operation. No-
 The two prepared CLI regressions fail on original source through a disposable fake Git refusal. That canary stops before any valuable index or gate is exposed.
 The complete existing/new focused suite has four tests, exit 0, no skips; the no-argument gate cases preserve real fixture index bytes and status.
 The exact original incident moves verbatim through the existing preservation utility. No cap, hook, audit, preset or baseline changes.
-Receipts bind the recorded dirty source by per-file digest. Independent source review, exact merged full remote-lane gate and official land remain pending.
+Receipts bind the recorded dirty source by per-file digest. Opus round 2 accepts the source and records; the exact merged full remote-lane gate and official land remain pending.
 
 | Original artifact | SHA-256 |
 | --- | --- |
@@ -17,8 +17,9 @@ Receipts bind the recorded dirty source by per-file digest. Independent source r
 | `green.log` | `bd2eba4a1aba0f8807e9d8258c30dcf3e40ae4617731a6d921be6e741dd38e89` |
 | `green.receipt.json` | `41a7b64fa108d1f2a93d856738c2dd070551f36c2e48ac1c9dc112f690aeed20` |
 | `move-plan.json` | `7236f39eb0fd81cf9d4c4d3d5ecdb700adf12226647f15ae4a66cd1603e683b3` |
-
 | `record-structure-proof.json` | `b8e5af5d061491f64a7dbf431f33818217fbd6d8fbc6f7f56b5477a9f37b1e49` |
 | `prior-current-unit.txt` | `4add63ae6cda46517ef09a6abdaa17b83a27dff519ed22b7e307d259ea4bd6dc` |
+| `opus-review-round2.md` | `4db2bf077cdf56cd8dfad5df038cf9e4310750d99a47adf0db26b16359ce58fc` |
+| `verdict-round2.json` | `6725f561dfdcb1004df3288a12c7476343ef61acfc813274ddc800827fdbb719` |
 
 Raw evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/slop-preflight-args`.
