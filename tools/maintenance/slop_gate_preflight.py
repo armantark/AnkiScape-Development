@@ -10,11 +10,13 @@ diagnostics and exit status are returned unchanged.
 
 from __future__ import annotations
 
+import argparse
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Sequence
 from pathlib import Path
 
 
@@ -25,7 +27,8 @@ def git_path(name: str) -> Path:
     ).stdout.strip())
 
 
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
+    argparse.ArgumentParser(description=__doc__).parse_args(argv)
     gate = git_path("hooks/slop_gate.py")
     with tempfile.TemporaryDirectory(prefix="slop-gate-preflight-") as temporary:
         index = Path(temporary) / "index"
