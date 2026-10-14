@@ -52,17 +52,21 @@ Before a focused run, follow `README-tests.md` for the remote `--collect-only`
 count, background launch, and launch-time snapshot rules, and keep the proof
 checkpoint the standing slice contract requires.
 
-The runner uses exactly
-`ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro '<remote command>'`,
-rsyncs to `/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork`, and excludes
+On another machine, the runner uses
+`ssh -o BatchMode=yes -o ConnectTimeout=10 armans-macbook-pro '<remote command>'`.
+On the configured test host itself, it runs the same commands and rsync locally,
+with an isolated shell environment and no self-SSH. It decides locality once from
+a concrete address of the configured host that this machine can bind; wildcard
+addresses are refused. Both routes rsync to
+`/Users/armantarkhanian/ankiscape-remote-test-host/ankiscape_fork`, and exclude
 `.git`, `__pycache__`, `.venv-qt`, and `ankiscape_debug.log*`. After sync, it links
 the mirror's `.venv-qt` to the existing remote environment at
 `/Users/armantarkhanian/ankiscape-remote-test-host/.venv-qt`. Both lanes check that
 interpreter before sync because the surface guard uses it in either lane. The
 old `repo` mirror and existing reports remain intact. It launches the
 lane through `nohup`, writes logs and completion reports under
-`/Users/armantarkhanian/ankiscape-remote-test-host/reports`, and polls those
-files. Dispatches started on this machine share the fixed mirror, so the runner
+`/Users/armantarkhanian/ankiscape-remote-test-host/reports`, and polls only the completion report. After a confirmed stop, it reads and prints
+the complete log once. Dispatches started on this machine share the fixed mirror, so the runner
 holds an exclusive local flock at `~/Library/Caches/ankiscape-remote-test-host.lock`
 through rsync and polling while the local dispatching process lives. A promotion
 gate with `--remote-lanes` takes that lock itself before its lanes, waits at most

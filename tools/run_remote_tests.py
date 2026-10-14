@@ -2,7 +2,8 @@
 """Sync an AnkiScape worktree to the MacBook test mirror and run one lane.
 
 Preparation snapshots the worktree and checks prerequisites; sync includes pending-run reconciliation and mirror
-setup; execution includes launch, polling and final log retrieval. Lock wait is untimed,
+setup; execution includes launch, polling and final log retrieval. A runner on the MacBook
+itself runs the same host commands and sync locally instead of over SSH. Lock wait is untimed,
 except that a promotion gate holds the lock itself and hands it to its lane runs. The
 pending JSON is transient coordination state: retain the announced exact-run log and
 report paths, and never infer success or relaunch solely because that record disappeared.
@@ -11,13 +12,18 @@ report paths, and never infer success or relaunch solely because that record dis
 from __future__ import annotations
 
 import argparse
+import errno
 import fcntl
+import functools
+import ipaddress
 import json
 import os
+import pwd
 import re
 import shlex
 import shutil
 import signal
+import socket
 import subprocess
 import sys
 import tempfile
@@ -204,13 +210,52 @@ class SSHDeadlineExceeded(RuntimeError):
     pass
 
 
+@functools.cache
+def _on_test_host() -> bool:
+    """Whether HOST names this machine, decided once so one run never changes transport.
+
+    Only an address of HOST that this machine can bind counts: the mirror's paths exist on
+    other machines too, and a name that does not resolve keeps SSH and its explicit failure.
+    """
+    try:
+        addresses = socket.getaddrinfo(HOST, None, type=socket.SOCK_STREAM)
+    except socket.gaierror:
+        return False
+    for family, _type, _protocol, _name, address in addresses:
+        if ipaddress.ip_address(address[0]).is_unspecified:
+            continue
+        with socket.socket(family, socket.SOCK_STREAM) as probe:
+            try:
+                probe.bind((address[0], 0, *address[2:]))
+            except OSError as exc:
+                if exc.errno != errno.EADDRNOTAVAIL:
+                    raise
+                continue
+        return True
+    return False
+
+
+def _host_shell() -> tuple[str, ...]:
+    if not _on_test_host():
+        return SSH
+    account = pwd.getpwuid(os.getuid())
+    # The session sshd would start: the account's login shell and sshd's environment, with
+    # the LANG and LC_* that ssh forwards, so no runner variable reaches a local lane.
+    session = {
+        "HOME": account.pw_dir, "USER": account.pw_name, "LOGNAME": account.pw_name,
+        "SHELL": account.pw_shell, "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+    } | {name: value for name, value in os.environ.items() if name == "LANG" or name.startswith("LC_")}
+    variables = (f"{name}={value}" for name, value in session.items())
+    return ("/usr/bin/env", "-i", *variables, account.pw_shell, "-c")
+
+
 def _ssh(
     remote_command: str, *, label: str, repeat_safe: bool = False, deadline: float | None = None,
 ) -> str:
     for attempt in range(1, NETWORK_ATTEMPTS + 1):
         try:
             result = subprocess.run(
-                (*SSH, remote_command), text=True, capture_output=True, check=False,
+                (*_host_shell(), remote_command), text=True, capture_output=True, check=False,
                 timeout=None if deadline is None else max(deadline - time.monotonic(), 0.0),
             )
         except subprocess.TimeoutExpired as exc:
@@ -385,7 +430,8 @@ def _sync(local_worktree: Path) -> None:
         label="remote mirror setup",
         repeat_safe=True,
     )
-    command = _rsync_command(local_worktree, f"{HOST}:{REMOTE_REPO}/")
+    destination = f"{REMOTE_REPO}/" if _on_test_host() else f"{HOST}:{REMOTE_REPO}/"
+    command = _rsync_command(local_worktree, destination)
     _run_with_retries(command, label="worktree sync")
     _ssh(
         f"ln -sfn {shlex.quote(str(REMOTE_VENV))} "
@@ -581,50 +627,34 @@ def _stream_remote_run(
     )
 
 
-def _print_log_addition(seen: str, output: str) -> str:
-    addition = output[len(seen) :] if output.startswith(seen) else output
-    if addition:
-        print(addition, end="", flush=True)
-    return output
-
-
-def _poll_remote_run(
-    log_path: Path, report_path: Path, seen: str, deadline: float,
-) -> tuple[str, int | None]:
-    output = _ssh(
-        f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
-        label="remote lane log poll", repeat_safe=True, deadline=deadline,
-    )
-    seen = _print_log_addition(seen, output)
-    return seen, _completion_report(str(report_path), deadline)
-
-
 def _finish_remote_run(
-    log_path: Path, skip_report_path: Path, seen: str, selectors: Sequence[str],
-    returncode: int, collect_only: bool,
+    log_path: Path, skip_report_path: Path, selectors: Sequence[str], returncode: int,
+    collect_only: bool,
 ) -> tuple[int, str]:
-    # The report precedes the lane's exit, and a detached helper can outlive it.
+    # The report precedes the lane's exit, and a detached helper can outlive it, so the
+    # complete log is read once, after the stop is confirmed.
     stop_pending_lane()
-    final_output = _ssh(
+    output = _ssh(
         f"cat {shlex.quote(str(log_path))} 2>/dev/null || true",
         label="remote lane final log read", repeat_safe=True,
         deadline=time.monotonic() + LANE_STOP_TIMEOUT,
     )
-    _print_log_addition(seen, final_output)
+    print(output, end="", flush=True)
     if not collect_only:
-        _print_skipped_tests(skip_report_path, selectors, returncode, final_output)
-    return returncode, final_output
+        _print_skipped_tests(skip_report_path, selectors, returncode, output)
+    return returncode, output
 
 
 def _wait_for_remote_run(
     lane: str, *, timeout: float, poll_interval: float, selectors: Sequence[str],
     collect_only: bool, log_path: Path, report_path: Path, skip_report_path: Path,
 ) -> tuple[int, str]:
+    # Polls read only the one-line report, because each reread of the growing log reads all
+    # of it again. A timed-out lane's output stays in the log announced at launch.
     deadline = time.monotonic() + timeout
-    seen = ""
     while True:
         try:
-            seen, returncode = _poll_remote_run(log_path, report_path, seen, deadline)
+            returncode = _completion_report(str(report_path), deadline)
         except SSHDeadlineExceeded as exc:
             _raise_lane_timeout(lane, timeout, report_path, exc)
         remaining = deadline - time.monotonic()
@@ -633,7 +663,7 @@ def _wait_for_remote_run(
             _raise_lane_timeout(lane, timeout, report_path)
         if returncode is not None:
             return _finish_remote_run(
-                log_path, skip_report_path, seen, selectors, returncode, collect_only,
+                log_path, skip_report_path, selectors, returncode, collect_only,
             )
         time.sleep(min(poll_interval, remaining))
 
@@ -861,7 +891,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     shlex.quote(pending[field])
                     for field in ("pid_path", "report_path", "log_path") if field in pending
                 )
-                print(f"Read-only inspection: {shlex.join((*SSH, f'cat {read_command}'))}", file=sys.stderr)
+                print(f"Read-only inspection: {shlex.join((*_host_shell(), f'cat {read_command}'))}", file=sys.stderr)
             except (OSError, ValueError, KeyError, TypeError):
                 print("Pending record is unreadable; preserve it for driver reconciliation of the exact run.", file=sys.stderr)
             print(
