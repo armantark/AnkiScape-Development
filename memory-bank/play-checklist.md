@@ -50,6 +50,7 @@ you are in the game, with the date the change reached main.
 
 ## Gathering and processing skills
 
+- [ ] Pickpocket Man for Coins, buy a Bronze hatchet at Bob's Brilliant Axes, chop Tree for Logs, then choose Utilities > Convert logs to planks and answer a review: one Logs and 100 Coins become one Plank, and Varrock Easy's Plank You Very Much completes once while the tier stays in progress; Undo restores the inputs and removes the deed, and replay completes it once. (after native acceptance)
 - [ ] At Spirits of the Elid stage 2, keep Thread and choose Magic > Pure casts > Telegrab Ancestral key with one Air rune and one Law rune: a successful review gives the key; the next quest review advances to stage 3; Undo returns to stage 2, and a second Undo restores both runes and the Telegrab proof blocker. (after the next batch)
 - [ ] Open Utility > Gathering, select Collect evergreen sap with two Buckets and a tool-belt Knife, and answer one review: one Bucket becomes Bucket of sap and The Eyes of Glouphrie stage 3 loses its sap blocker; Undo restores the Bucket and blocker. Chopping must not clear it. (after the next batch)
 - [ ] Magic: at Enakhra's Lament stage 5, select Crumble Undead: First Boneguard with Magic 39 and 2 Air, 2 Earth and 1 Chaos rune; answer a card and see the named quest proof and Big bones; Undo restores runes and removes the proof. (after the next batch)
