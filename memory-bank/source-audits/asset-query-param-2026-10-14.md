@@ -17,7 +17,7 @@ Primary API schema: https://www.mediawiki.org/wiki/API%3AImageinfo/en; no suppor
 | Live read-only S15 canary, report in evidence | 2011-11-29T14:12:02Z Telegrab revision; no API warnings; no image/provenance write |
 | Installed final metrics | All three fetchers CCN 15, cognitive 8; cap 15 preserved |
 
-The initial strict protocol fixture is a canary, not a newly observed live API refusal; live warning behavior is covered by the correction fixture.
+The initial strict protocol fixture is a canary, not a newly observed live API refusal. The correction models the original warning-plus-revision response and asserts outgoing parameter absence; no general API-warning handling is claimed.
 Resolved audit-checkpoint reuse remains unchanged by inspection; no execution coverage of that branch is claimed.
 The exact incident is preserved in the fixed archive. All 11 original manifest inputs still match their hashes.
 Original manifest: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/asset-query-param/source-manifest.json`; SHA-256 `1c2c885bc13a6d456bf28404495204c6b847f2d22f0c57f79c1dbf5399caf97a`.
