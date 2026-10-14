@@ -1,5 +1,6 @@
 import contextlib
 import io
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -24,6 +25,47 @@ class RemotePollDeadlineTests(unittest.TestCase):
         worktree = Path(self.enterContext(tempfile.TemporaryDirectory()))
         (worktree / "run_tests.py").write_text("launch\n", encoding="utf-8")
         return worktree
+
+    def test_wait_reads_complete_log_once_after_report_and_stop(self):
+        root = self._worktree()
+        log = root / 'lane.log'
+        report = root / 'lane.report'
+        log.write_text('running\n', encoding='utf-8')
+        complete = 'running\nfinished λ\nRan 1 test in 0.1s\n\nOK\n'
+        stopped = False
+        commands = []
+        execute = subprocess.run
+
+        def transport(command, **kwargs):
+            commands.append(command[-1])
+            if str(log) in command[-1]:
+                self.assertTrue(stopped, 'live log must not be reread while polling')
+            return execute(command, **kwargs)
+
+        def stop():
+            nonlocal stopped
+            stopped = True
+            log.write_text(complete, encoding='utf-8')
+            return 'Stopped'
+
+        with (
+            patch.object(run_remote_tests, 'SSH', ('/bin/sh', '-c')),
+            patch.object(run_remote_tests.subprocess, 'run', side_effect=transport),
+            patch.object(run_remote_tests.time, 'sleep', side_effect=lambda _: report.write_text('0\n')),
+            patch.object(run_remote_tests, 'stop_pending_lane', side_effect=stop) as stop_lane,
+            contextlib.redirect_stdout(io.StringIO()) as stdout,
+        ):
+            result = run_remote_tests._wait_for_remote_run(
+                'plain', timeout=5, poll_interval=0.01, selectors=('example.',),
+                collect_only=False, log_path=log, report_path=report,
+                skip_report_path=root / 'skips.json',
+            )
+
+        self.assertEqual(result, (0, complete))
+        self.assertEqual(stdout.getvalue(), complete)
+        self.assertEqual(sum(str(report) in command for command in commands), 2)
+        self.assertEqual(sum(str(log) in command for command in commands), 1)
+        stop_lane.assert_called_once_with()
 
     def test_remote_collect_only_reports_host_inventory_without_execution_summary(self):
         inventory = "Matching tests: 760\n"
