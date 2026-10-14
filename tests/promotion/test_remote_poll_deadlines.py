@@ -49,7 +49,7 @@ class RemotePollDeadlineTests(unittest.TestCase):
             return 'Stopped'
 
         with (
-            patch.object(run_remote_tests, 'SSH', ('/bin/sh', '-c')),
+            patch.object(run_remote_tests, '_on_test_host', return_value=True),
             patch.object(run_remote_tests.subprocess, 'run', side_effect=transport),
             patch.object(run_remote_tests.time, 'sleep', side_effect=lambda _: report.write_text('0\n')),
             patch.object(run_remote_tests, 'stop_pending_lane', side_effect=stop) as stop_lane,

@@ -12,7 +12,9 @@ from pathlib import Path
 
 from tools.promotion.repository import _git, commit_at
 from tools.promotion.snapshot import commit_snapshot
-from tools.run_remote_tests import HOST, REMOTE_ROOT, REMOTE_VENV, RSYNC_SSH, _run_with_retries, _ssh
+from tools.run_remote_tests import (
+    HOST, REMOTE_ROOT, REMOTE_VENV, RSYNC_SSH, _on_test_host, _run_with_retries, _ssh,
+)
 
 from .session_guard import copy_addon
 
@@ -20,9 +22,10 @@ from .session_guard import copy_addon
 def _transfer_bundle(output: Path, commit: str, archive_sha256: str) -> None:
     remote = REMOTE_ROOT / "native-input" / commit
     _ssh(f"mkdir -p {shlex.quote(str(remote))}", label="native packet directory", repeat_safe=True)
+    destination = f"{remote}/" if _on_test_host() else f"{HOST}:{remote}/"
     _run_with_retries(
         ("rsync", "-a", "-e", RSYNC_SSH, str(output / "source.tar.gz"),
-         str(output / "manifest.json"), f"{HOST}:{remote}/"),
+         str(output / "manifest.json"), destination),
         label="native packet transfer",
     )
     program = (
