@@ -299,7 +299,7 @@ class RemoteTestHostTests(unittest.TestCase):
                         launches.append(remote)
                         code = 2 if failure_at == "launch" else 255
                         return subprocess.CompletedProcess(command, code, "launch output", "launch error")
-                    if ".log " in remote and failure_at == "poll":
+                    if ".report " in remote and failure_at == "poll":
                         return subprocess.CompletedProcess(command, 255, "", "poll disconnected")
                     return subprocess.CompletedProcess(command, 0, "", "")
 
@@ -980,12 +980,12 @@ class RemoteTestHostTests(unittest.TestCase):
                     stderr.getvalue(),
                 )
 
-    def test_stream_reloads_log_after_completion_report_appears(self):
+    def test_stream_reads_log_after_completion_report_appears(self):
         complete = "....\nRan 4506 tests in 444.064s\n\nOK (skipped=3)\n"
         with patch.object(
             run_remote_tests,
             "_ssh",
-            side_effect=("", "....", "0\n", "4242\n", "", complete),
+            side_effect=("", "", "0\n", "4242\n", "", complete),
         ), contextlib.redirect_stdout(io.StringIO()):
             returncode, output = run_remote_tests._stream_remote_run(
                 "qt", timeout=1.0, poll_interval=0.01

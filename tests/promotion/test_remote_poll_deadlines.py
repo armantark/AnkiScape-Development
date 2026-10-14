@@ -103,13 +103,15 @@ class RemotePollDeadlineTests(unittest.TestCase):
 
         def ssh(_command: str, *, label: str, deadline=None, **_kwargs) -> str:
             deadlines.append((label, deadline))
-            if label == "remote lane log poll":
-                clock[0] = 13.1
             return ""
+
+        def report(_path: str, _deadline: float) -> int:
+            clock[0] = 13.1
+            return 0
 
         with (
             patch.object(run_remote_tests, "_ssh", side_effect=ssh),
-            patch.object(run_remote_tests, "_completion_report", return_value=0) as report,
+            patch.object(run_remote_tests, "_completion_report", side_effect=report) as report_poll,
             patch.object(run_remote_tests, "stop_pending_lane", return_value="Stopped") as stop_lane,
             patch.object(run_remote_tests.time, "monotonic", side_effect=lambda: clock[0]),
             contextlib.redirect_stdout(io.StringIO()),
@@ -118,40 +120,28 @@ class RemotePollDeadlineTests(unittest.TestCase):
         ):
             run_remote_tests._stream_remote_run("plain", timeout=3.0, poll_interval=5.0)
 
-        self.assertEqual(
-            deadlines,
-            [("remote lane launch", None), ("remote lane log poll", 13.0)],
-        )
-        self.assertEqual(report.call_args.args[1], 13.0)
+        self.assertEqual(deadlines, [("remote lane launch", None)])
+        self.assertEqual(report_poll.call_args.args[1], 13.0)
         stop_lane.assert_called_once_with()
 
-    def test_stalled_log_or_report_poll_stops_the_lane(self):
+    def test_stalled_report_poll_stops_the_lane(self):
         stall = run_remote_tests.SSHDeadlineExceeded("poll did not finish before its deadline")
-        for stalled in ("_ssh", "_completion_report"):
-            with self.subTest(stalled=stalled):
-                run_remote_tests._pending_path().unlink(missing_ok=True)
 
-                def ssh(_command: str, *, label: str, **_kwargs) -> str:
-                    if stalled == "_ssh" and label == "remote lane log poll":
-                        raise stall
-                    return ""
+        def ssh(_command: str, *, label: str, **_kwargs) -> str:
+            if label == "remote lane report poll":
+                raise stall
+            return ""
 
-                with (
-                    patch.object(run_remote_tests, "_ssh", side_effect=ssh),
-                    patch.object(
-                        run_remote_tests,
-                        "_completion_report",
-                        side_effect=stall if stalled == "_completion_report" else None,
-                        return_value=None,
-                    ),
-                    patch.object(run_remote_tests, "stop_pending_lane", return_value="Stopped") as stop_lane,
-                    contextlib.redirect_stdout(io.StringIO()),
-                    contextlib.redirect_stderr(io.StringIO()),
-                    self.assertRaises(TimeoutError),
-                ):
-                    run_remote_tests._stream_remote_run("qt", timeout=3.0, poll_interval=5.0)
+        with (
+            patch.object(run_remote_tests, "_ssh", side_effect=ssh),
+            patch.object(run_remote_tests, "stop_pending_lane", return_value="Stopped") as stop_lane,
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()),
+            self.assertRaises(TimeoutError),
+        ):
+            run_remote_tests._stream_remote_run("qt", timeout=3.0, poll_interval=5.0)
 
-                stop_lane.assert_called_once_with()
+        stop_lane.assert_called_once_with()
 
 
 if __name__ == "__main__":
