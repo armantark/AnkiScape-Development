@@ -3054,3 +3054,15 @@ The first journal is generic. Authorize a period-sourced replacement and exact c
 ## Open first-journal scope — 2026-10-15: Royal Trouble
 
 Period6542630 distinguishes Ghrim briefing, the heir cutscene/marriage suggestion and Vargas commission. The actual first journal is generic. Owner decision needed: authorize one sourced replacement first journal and its exact complete endpoint. The later Agility/Slayer/Prayer gate and visible-readout discrepancies stay separate. [Evidence](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). No partial endpoint is adopted.
+
+## Open first-journal scope — 2026-10-15: Elder Kiln
+
+The live first journal has five table-of-contents lines. Owner decision needed: authorize a period-sourced replacement journal and exact complete deed endpoint. Briefing, hatching and rooms are not interchangeable. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md). No partial stage or new UI is adopted.
+
+## Open requirement-readout scope — 2026-10-15: Wanted
+
+The live gate requires completed Lost Tribe and Ghosts Ahoy. Period6510622 says partial Lost Tribe and optional Ghosts Ahoy; cache also records33 quest points and omitted prerequisite slots. Owner decision needed: authorize correction of the existing requirement readout with source-qualified prerequisite repair. The exact partial Lost Tribe threshold remains source-unqualified; authorization grants no gate waiver. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md).
+
+## Open first-journal scope — 2026-10-15: Watchtower
+
+The actual first journal is generic. Period6525573 distinguishes Wizard briefing from the bush/fingernails investigation. Owner decision needed: authorize a sourced replacement and exact complete first-stage endpoint. [Evidence](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md). No silent endpoint or spatial proxy is selected.
