@@ -2,9 +2,9 @@
 
 The open incident at 2026-10-02T21:09:33-0700 records preflight exit1 with no output. Its original cause remains unexplained. The wrapper currently returns a child status without its own refusal context. No diagnostic appears when the gate emits none.
 
-Root will use an owned checkout after its current unit returns. The guarded pool refused another lease because all16 slots are in use or dirty. Preserve that cap and every other lease. Do not start this implementation in a frozen source reference or gate checkout.
+Root released the landed records checkout through the guard, then acquired checkout5 for this separate tool slice. Lease aa072814cf8ce6cf13a226029aca05c3 owns branch goal/preflight-failure-diagnostic-2026-10-15 at d9c6c2aa. Earlier pool refusal changed no cap or other lease. Root owns records and promotion. The author owns the two named executable files and one normal source commit on this goal branch.
 
-The author owns only tools/maintenance/slop_gate_preflight.py and focused coverage in tests/maintenance/test_slop_gate_preflight.py. Root owns Git, records and promotion. Read the standing slice contract before any edit.
+The author owns only tools/maintenance/slop_gate_preflight.py and focused coverage in tests/maintenance/test_slop_gate_preflight.py. The author stages only the two owned executable files and creates one normal source commit. Root owns records, integration and promotion. Read the standing slice contract before any edit.
 
 CHECK before code: use a disposable canary to show that a silent failing child produces no wrapper diagnostic. Never expose the real index. Verify failure status, detailed child diagnostics, successful silence and real-index preservation. EXPECT: a concise failure message with exact gate path and status, unchanged child output, unchanged exit status and no measuring-instrument change. Keep the repair minimal. Never suppress, catch or weaken gate failures.
 
