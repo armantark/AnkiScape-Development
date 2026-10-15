@@ -22,3 +22,7 @@ Obtain fresh supported focused inventory and a zero-skip execution. Keep both fu
 Resolve independent cross-lineage findings. Run the exact merged full remote gate, then its official land command.
 
 [Baseline observation](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/c2-warning-contract/baseline-observation.json): main fdb1ac49, actual0; both real boundaries accepted the2011 revision with empty stdout/stderr. Only transport returned fixture bytes; no network request occurred. This observation is not a red acceptance-test run or implementation acceptance.
+
+## Review ownership
+
+Root alone owns production code, tests, commits and promotion. Independent Astra and Zhipu reviewers inspect the final committed source and original receipts. Each reviewer owns only its separate external report folder. Both reviews cover standards, spec and diff-only simplification; full gate and official land remain Root obligations. No reviewer can change UI, source, tests, limits, baselines, Git state or another task.

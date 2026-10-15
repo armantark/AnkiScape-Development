@@ -4,12 +4,12 @@ import json
 import sys
 import tempfile
 import unittest
-from io import BytesIO
+from io import BytesIO, StringIO
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
-from tools import fetch_agility_assets, fetch_big_chinchompa_assets, fetch_navigation_icons
+from tools import audit_asset_cutoff, fetch_agility_assets, fetch_big_chinchompa_assets, fetch_navigation_icons
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -99,6 +99,49 @@ class TestPeriodImageQueries(unittest.TestCase):
             with self.subTest(caller=module.__name__):
                 with self.assertRaisesRegex(module.AssetFetchError, "No revision at or before"):
                     getter(Client(), "Sprite.png")
+
+
+class TestWikiApiWarnings(unittest.TestCase):
+    def test_json_warning_diagnostics_preserve_payload_and_silent_controls(self):
+        for warnings in (None, {}, {"main": {"*": "Unrecognized parameter: iidir."}, "imageinfo": {"*": "Additional warning."}}):
+            with self.subTest(warnings=warnings):
+                payload = {"query": {"pages": []}}
+                if warnings is not None:
+                    payload["warnings"] = warnings
+                client = fetch_assets.HttpWikiClient()
+                stdout, stderr = StringIO(), StringIO()
+                with patch.object(client, "_request_bytes", return_value=json.dumps(payload).encode()) as transport:
+                    with patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                        result = client._request_json("https://example.invalid/api.php")
+                self.assertEqual(result, payload)
+                transport.assert_called_once()
+                self.assertEqual(stdout.getvalue(), "")
+                if warnings:
+                    self.assertEqual(len(stderr.getvalue().splitlines()), 1)
+                    self.assertEqual(json.loads(stderr.getvalue().split(": ", 1)[1]), warnings)
+                else:
+                    self.assertEqual(stderr.getvalue(), "")
+
+    def test_warning_diagnostic_reaches_lookup_and_cutoff_auditor(self):
+        warnings = {"main": {"*": "Unrecognized parameter: iidir."}}
+        row = {"url": "https://example.invalid/archive/Sprite.png", "timestamp": "2011-11-29T14:12:02Z", "sha1": "period", "size": 100}
+        payload = {"query": {"pages": [{"title": "File:Sprite.png", "imageinfo": [row]}]}, "warnings": warnings}
+        client = audit_asset_cutoff.HttpWikiClient(before_timestamp=fetch_assets.PRE_EOC_CUTOFF)
+        for batch in (False, True):
+            with self.subTest(batch=batch):
+                stdout, stderr = StringIO(), StringIO()
+                with patch.object(client, "_request_bytes", return_value=json.dumps(payload).encode()) as transport:
+                    with patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                        if batch:
+                            result = audit_asset_cutoff._request_batch(client, fetch_assets.RS3_WIKI, ["Sprite.png"], fetch_assets.PRE_EOC_CUTOFF)
+                            self.assertEqual(result, payload)
+                        else:
+                            result = client.query_image_info(fetch_assets.RS3_WIKI, "Sprite.png")
+                            self.assertEqual((result.timestamp, result.image_url), (row["timestamp"], row["url"]))
+                transport.assert_called_once()
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertEqual(len(stderr.getvalue().splitlines()), 1)
+                self.assertEqual(json.loads(stderr.getvalue().split(": ", 1)[1]), warnings)
 
 
 class TestFetchAssets(unittest.TestCase):
@@ -291,6 +334,46 @@ class TestFetchAssets(unittest.TestCase):
         )
 
         self.assertIsNone(info)
+
+    def test_historical_lookup_refuses_unqualified_timestamps_before_writing(self):
+        for fields in ({}, {"timestamp": ""}, {"timestamp": None}, {"timestamp": 123}, {"timestamp": []}):
+            with self.subTest(fields=fields), tempfile.TemporaryDirectory() as tmp_dir:
+                client = fetch_assets.HttpWikiClient(before_timestamp=fetch_assets.PRE_EOC_CUTOFF)
+                row = {"url": "https://example.invalid/Sprite.png", **fields}
+                payload = {"query": {"pages": [{"title": "File:Sprite.png", "imageinfo": [row]}]}}
+                output = Path(tmp_dir) / "Sprite.png"
+                provenance = Path(tmp_dir) / "provenance.json"
+                request = fetch_assets.AssetRequest("Sprite", "Sprite.png", output, provenance)
+                with (
+                    patch.object(client, "_request_json", return_value=payload),
+                    patch.object(client, "download_bytes", side_effect=AssertionError("unqualified download")) as download,
+                ):
+                    with self.assertRaisesRegex(fetch_assets.AssetFetchError, "Could not resolve"):
+                        fetch_assets.fetch_asset(request, client, sources=(fetch_assets.RS3_WIKI,))
+                download.assert_not_called()
+                self.assertFalse(output.exists())
+                self.assertFalse(provenance.exists())
+
+    def test_timestamp_refusal_preserves_cutoff_selection_and_current_lookup(self):
+        rows = [
+            {"url": "https://example.invalid/missing.png"},
+            {"url": "https://example.invalid/earlier.png", "timestamp": "2011-11-29T14:12:02Z"},
+            {"url": "https://example.invalid/cutoff.png", "timestamp": fetch_assets.PRE_EOC_CUTOFF},
+            {"url": "https://example.invalid/newer.png", "timestamp": "2012-11-20T00:00:00Z"},
+        ]
+        client = fetch_assets.HttpWikiClient(before_timestamp=fetch_assets.PRE_EOC_CUTOFF)
+        payload = {"query": {"pages": [{"title": "File:Sprite.png", "imageinfo": rows}]}}
+        with patch.object(client, "_request_json", return_value=payload):
+            info = client.query_image_info(fetch_assets.RS3_WIKI, "Sprite.png")
+        self.assertEqual(info.timestamp, fetch_assets.PRE_EOC_CUTOFF)
+        self.assertEqual(info.image_url, "https://example.invalid/cutoff.png")
+        client.before_timestamp = None
+        for row in (rows[0], {"timestamp": "", "url": "https://example.invalid/empty.png"}):
+            payload["query"]["pages"][0]["imageinfo"] = [row]
+            with self.subTest(row=row), patch.object(client, "_request_json", return_value=payload):
+                info = client.query_image_info(fetch_assets.RS3_WIKI, "Sprite.png")
+                self.assertEqual(info.timestamp, "")
+                self.assertEqual(info.image_url, row["url"])
 
     def test_wiki_title_mapping_uses_tree_log_overrides(self):
         self.assertEqual(fetch_assets.wiki_title_for_item("Tree"), "Logs.png")

@@ -420,3 +420,4 @@
 - 2026-10-15T06:34:55.711117+00:00: Familiarisation focus-text removal invoked the normal giant-UI hook; pending Git process84743 showed elapsed14:31 at2026-10-15T06:33:12Z before the original commit returned0. Preserve the hook and fixed limits; do not infer a hang from its empty redirected log.
 
 - 2026-10-15T06:55:28.737994+00:00: Cold War source search used shell globs before rg; zsh refused `zsh:1: no matches found: logic/quest*`. Use quoted rg --glob patterns over explicit existing directories.
+- 2026-10-14T22:56:41.453772+00:00 — Historical timestamp repair commit refused: slop-gate reported `HttpWikiClient::query_image_info` cognitive16 (was15), above15. Remove the redundant empty-imageinfo branch already covered by empty eligible selection; retain every timestamp/type/cutoff guard and every fixed limit.
