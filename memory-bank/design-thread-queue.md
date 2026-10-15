@@ -2998,3 +2998,8 @@ The actual first Ritual of the Mahjarrat journal contains only contents headings
 ### Open owner question — 2026-10-15: Forgettable Tale first journal and endpoint
 
 The actual first Forgettable Tale journal is the generic pinned-guide objective. Period oldid6447452 separates Veldaban commission/transport from the beer exchange and first Kelda seed. The external target reconstruction grants no owner authority. The open decision is owner scope for a sourced first journal and its exact stage1 end. [The exact qualification](source-audits/forgettable-opening-boundary-2026-10-15.md) preserves both endpoints without selecting one. Continue independent work; Giant Dwarf's separate ordinary-route hold stays settled.
+
+
+## Open existing-readout scope — 2026-10-15: Legends' Quest
+
+Period oldid6529921 recommends Regicide and Combat75, requires Prayer42 rather than43, and allows several skills after start and temporary boosts. Current eligibility and visible Requires text hard-gate those recorded values at start. Needed owner scope: correct the existing requirement readout with the source-qualified eligibility repair. No journal redesign, guard-only stage, substituted prerequisite or backend-only discrepancy is authorized. True direct prerequisites and quest points remain to qualify. [Exact source qualification](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md).

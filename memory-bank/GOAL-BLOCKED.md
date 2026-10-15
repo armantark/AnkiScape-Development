@@ -148,3 +148,8 @@ Root tried retained final-composition, period-page, prerequisite and NPC-source 
 ## Forgettable Tale first-journal hold — 2026-10-15
 
 Tried final-composed journal/requirements, both retained period pages, external reconstruction and ordinary prerequisite evidence. The live journal remains a generic objective. Single first unblock: owner authorization for its sourced first journal and exact stage1 endpoint. [The exact record](source-audits/forgettable-opening-boundary-2026-10-15.md) binds the original evidence. Later roots remain uninspected; independent work continues.
+
+
+## Goblins and Legends openings — 2026-10-15
+
+Land of the Goblins is dependency-held by The Giant Dwarf's existing library-load owner decision. Tried: actual composed prose/cleanup, ordinary prerequisite list and period oldid6564799. Single first unblock: the existing owner-approved library-load model; no partial-weight substitute. Legends' Quest is held on its existing requirement-readout scope. Tried: composed eligibility/readout consumers and oldid6529921 lines27–40/110–115. Single first unblock: owner authorization for that readout correction with source-qualified eligibility repair. Ordinary prerequisite, material and quest-point qualification remains after these first holds. [Exact evidence](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md). These per-root holds do not establish exhaustion.
