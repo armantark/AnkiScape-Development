@@ -13,3 +13,14 @@ Otherwise preserve the exact blocker, what was inspected and the single required
 Never invent a new owner question where a ruling is settled, or infer a source value from identity alone.
 Do not rerun successful reproductions, accepted tests or closed native cases. Do not weaken any instrument or pinned baseline.
 Return exact paths, commands, original results and receipt qualifications. No product or whole-goal completion claim is authorized.
+
+## Round2: qualify NPC price origins before Root selects the reproduction contract
+
+The pin check completed without a new qualified local input. Construction's404 was a commit-retrieval refusal, not a source count.
+NPC reproduction remains a Root engineering contract to define; no new owner-reserved decision is inferred from that label.
+Trace the six live price-key origins and the generator's exact identity, selection, rounding and cache rules from existing local history.
+Check real runtime/UI consumers before Root permits a stale summary or ledger-label correction.
+Determine whether existing accepted source facts can reproduce every preserved live value through a legitimate generator correction.
+No runtime value/key change, synthetic price override, fabricated digest/header, changed source pin, new source harvest, generator run or test is authorized.
+The same read-only Sol leaf owns only a new external NPC-price-origin report and qualification JSON; the round1 files stay unchanged.
+Return per-key evidence, missing facts and the smallest complete source-backed next step. Name an owner gate only with its exact reserved ruling.
