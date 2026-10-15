@@ -5,7 +5,14 @@ import types
 import unittest
 
 from tests import test_farming_dispatch as farming
-from tests.test_gnome_restaurant import ITEM_DEFINITIONS, ORE_DATA, _deliverable, _on_job, migrate_loaded_data
+from tests.test_gnome_restaurant import _hired, _rng
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import migrate_loaded_data
+from ankiscape.logic.gnome_restaurant_logic import apply_gnome_restaurant_command_pure
+from ankiscape.data.gnome_restaurant_data import (
+    GNOME_RESTAURANT_TIPS,
+    GNOME_RESTAURANT_GOOD_TIP_GROUP,
+)
 from tests.test_integration_smoke import _FakeReviewer, _load_addon_as_package
 
 
@@ -18,7 +25,14 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
         addon = _load_addon_as_package("ankiscape_restaurant_review_clock")
         self._configure(addon)
         addon.show_error_message = lambda *_args: None
-        addon._state.player_data = _deliverable(_on_job(difficulty))
+        player = _hired()
+        player["inventory"]["Toad crunchies"] = 1
+        player, ok, info = apply_gnome_restaurant_command_pure(
+            player, "accept_order", {"difficulty": difficulty}, _rng([0.0])
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(player["gnome_restaurant"]["order"]["item"], "Toad crunchies")
+        addon._state.player_data = player
         addon._state.current_skill = "Utilities"
         addon.random.seed(17)
         return addon
@@ -52,6 +66,11 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
                 restaurant = delivered["gnome_restaurant"]
                 self.assertEqual(restaurant["deliveries"][difficulty], 1)
                 self.assertGreater(restaurant["points"], 0)
+                if difficulty == "easy":
+                    self.assertGreater(delivered["inventory"]["Coins"], 10)
+                else:
+                    good_tips = {row.id for row in GNOME_RESTAURANT_TIPS if row.group == GNOME_RESTAURANT_GOOD_TIP_GROUP}
+                    self.assertTrue(set(restaurant["tips_received"]) & good_tips)
                 self.assertEqual(restaurant["order"]["minutes_left"], 6 if difficulty == "easy" else 11)
                 self._undo(addon)
                 self.assertEqual(addon._state.player_data, saved)
@@ -65,7 +84,18 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
         addon._state.current_skill = "Woodcutting"
         before = copy.deepcopy(addon._state.player_data)
         for ease, minutes in ((1, 11), (2, 5), (1, 5), (4, 0), (3, 0)):
+            before_answer = copy.deepcopy(addon._state.player_data)
+            before_rng = addon.random.getstate()
             self._answer(addon, ease)
+            after_answer = copy.deepcopy(addon._state.player_data)
+            after_rng = addon.random.getstate()
+            if ease > 1:
+                self._undo(addon)
+                self.assertEqual(addon._state.player_data, before_answer)
+                self.assertEqual(addon.random.getstate(), before_rng)
+                self._answer(addon, ease)
+                self.assertEqual(addon._state.player_data, after_answer)
+                self.assertEqual(addon.random.getstate(), after_rng)
             order = addon._state.player_data["gnome_restaurant"]["order"]
             self.assertEqual(order["minutes_left"], minutes)
             self.assertEqual(order["customer"], before["gnome_restaurant"]["order"]["customer"])
@@ -81,3 +111,10 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
         self._answer(addon, 3)
         self.assertEqual(addon._state.player_data["gnome_restaurant"]["order"]["minutes_left"], 5)
         self.assertEqual(addon._state.player_data["gnome_restaurant"]["deliveries"]["hard"], 0)
+
+    def test_missing_food_refuses_without_charging_delivery_window(self):
+        addon = self._addon()
+        addon._state.player_data["inventory"].pop("Toad crunchies")
+        before = copy.deepcopy(addon._state.player_data["gnome_restaurant"])
+        self._answer(addon, 3)
+        self.assertEqual(addon._state.player_data["gnome_restaurant"], before)

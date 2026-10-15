@@ -107,8 +107,8 @@ Imblewyn and Professor Onglewip.
 
 - **One review is one delivery.** Fixed earlier by
   `activity-cadence-reconciliation-2026-07-18.md`: delivery is one no-skill-XP
-  activity action, and `Again` moves the punctuality state while the world clock
-  advances. The delivering review also accepts the next job, so the loop does not
+  activity action. The2026-10-14 owner rule makes Again idle; successful reviews
+  on other targets spend six minutes of the persistent delivery window. The delivering review also accepts the next job, so the loop does not
   need a direct action between deliveries.
 - **The six- and eleven-minute limits become a punctuality budget, not an
   expiry.** The owner settled in 2026-07-17 that an order never expires. The

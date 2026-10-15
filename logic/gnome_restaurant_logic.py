@@ -1,9 +1,9 @@
 """Pure Gnome Restaurant delivery jobs, punctuality, tips, and the reward token.
 
 One productive review delivers the outstanding order and takes the next job, which
-is the cadence settled in `activity-cadence-reconciliation-2026-07-18.md`. `Again`
-never destroys an order: it spends six world minutes of the order's own source time
-limit, and what survives becomes the chance of the good tip.
+is the cadence settled in `activity-cadence-reconciliation-2026-07-18.md`. Under the
+2026-10-14 owner ruling, Again pauses. Successful answers on other targets spend six
+minutes of the persistent order's window, which affects only tip quality.
 """
 
 from __future__ import annotations
@@ -607,7 +607,7 @@ def _roll_tip(
 def advance_gnome_restaurant_clock_pure(
     player_data: Mapping[str, Any], *, successful_answer: bool, delivering: bool
 ) -> dict[str, Any]:
-    data = copy.deepcopy(dict(player_data))
+    data = dict(player_data)
     if successful_answer and not delivering:
         state = sanitize_gnome_restaurant_state_pure(data.get("gnome_restaurant"))
         if order := state["order"]:
