@@ -416,3 +416,4 @@
 
 - 2026-10-15T05:53:06.734266+00:00: Recovered goal records with an oversized multi-file read; tool returned "Warning: truncated output (original token count: 13952)" and a later matrix read truncated7428 tokens. Bounded semantic projections replace whole-document output; no conclusion relies on omitted text.
 - 2026-10-15T05:53:39.103540+00:00: Restaurant caller discovery used an unqualified shell glob and failed with `zsh:1: no matches found: runtime/runtime_review*`; use repo_search names before exact-path content searches.
+- 2026-10-15T06:10:17.187285+00:00: Kimi Restaurant source review exited1 with `error: tool loop exceeded 24 turns` and an empty response; retain the failed call and use one self-contained source packet without tools for the replacement review.
