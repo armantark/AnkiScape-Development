@@ -2921,9 +2921,9 @@ Complete In Search of the Myreque stage1 would expose generated stage2 instructi
 
 The fresh Tribal Totem source `9928e1213e50c090d437c528312567fd07fb5d21` reproduces the five startup differences in [the native refusal record](source-audits/native-startup-mbp-2026-10-14.md). The source gate stays accepted; native gameplay acceptance is false. Preserve the existing protected-field and literal saved-Undo-to-pre-Good-LIVE criteria. The owner must authorize a specific source/representation resolution before this hold can be cleared; no field coercion or acceptance exception is inferred. Root continues independent queue work.
 
-### Open owner question — 2026-10-14: Cold War personal greeting
+### Answered owner decision — 2026-10-14: Cold War personal greeting
 
-The ordinary opening needs a representation of each player’s personal three-emote greeting that permits repeat observation and later checks. The retained world inference does not authorize an Anki algorithm/state/UI, and a generic auto-step loses that state. Choose that Anki representation before the opening can grant Larry’s book; the separate book-gate and suit-ID source disputes remain open. [Exact qualification and attempted paths](source-audits/cold-war-ordinary-route-2026-10-14.md) preserves the current evidence. The accepted activated-ring option stays accepted; no existing UI change is authorized.
+At22:49 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "Yeah that's just pedantry. It can save it to the quest journal. The user doesn't have to actually produce it". Save the assigned personal three-emote greeting and show one line in the Cold War journal. The player performs no emotes; every later greeting check passes. Only this journal addition is authorized. Book-gate and suit-ID10595/10596 source disputes remain open. Claude may neither author nor review this work.
 
 ### Open owner UI scope — 2026-10-14: contained-content taste observations
 
@@ -2968,3 +2968,9 @@ Garden of Tranquillity needs authorization to restore the seven sourced answers 
 ## Settled tooling response contract — 2026-10-14: MediaWiki warnings
 
 Root selects a nonfatal diagnostic at `HttpWikiClient._request_json`, the shared boundary used by the cutoff auditor. A nonempty `warnings` value must produce one stderr diagnostic per actual JSON response, with the complete warning content. Return the original payload unchanged. Preserve valid query results, stdout, transport/API retries, cutoff checks, classifications and provenance writes. Empty or absent warnings produce no diagnostic. This is a settled engineering scope choice, not an owner-reserved UI or source decision. Implementation starts after C1 lands. [The bounded contract](plans/mediawiki-warning-diagnostic-2026-10-14.md) contains the baseline and acceptance requirements.
+
+## Answered owner decisions — 2026-10-14: Again fairness
+
+At22:49 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "May as well make it more fair for those I guess". This extends Decision1 of [the simulation-time boundary](simulation-time-boundary-2026-07-16.md): Again earns nothing and cannot cost a reward that the next successful answer cannot recover.
+Restaurant: Again spends no window time. A successful review on another target spends the existing six minutes while an order is open. Food prepared and banked before acceptance delivers on time. Orders never expire; base points and prepared food are never lost. Only the required Again result-message change is authorized. Replace the earlier Again clause in the delivery-loop source audit and completion starter grill; source oldid6491107 permits food prepared and banked before assignment and better tips for fast delivery.
+Familiarisation: Again pauses with no segment, focus cost or shards. Four successful answers finish the session with60 shards. Remove focus, including its save field, with sanitizing migration; remove any visible focus pips and no other UI. Update systemPatterns and the kanban. Claude may neither author nor review either slice. Each slice requires normal independent cross-lineage review, standing checks and the exact full remote gate plus official land.

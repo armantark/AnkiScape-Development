@@ -763,3 +763,7 @@ Qt lane not run: no Qt import path changed; the orchestrator runs both lanes on 
 
 ## Source depth and exact opening holds — 2026-10-14
 Bittercap’s first full Qt source lane passed5337 tests/878.417s/5skips/actual0. Mogre repair0ea27c37 preserves four protected parents and319 other diary rows; independent code/earned-proof reviews,690 affected tests, six restored mutation probes and full plain5339/637.428s/580skips/actual0 pass; full Qt5339/870.925s/5skips/actual0 also passes. Garden and Tail retain [two verified owner-scope holds](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Native and official gameplay landing remain unproved. The later tooling-only main is[812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md); its complete closed summary stays in[the landed archive](archive/progress-landed-test-cleanup-2026-10-14.md).
+
+## MediaWiki warning diagnostic landed — 2026-10-14
+
+Exact69a22761 officially landed after independent Astra/Zhipu source acceptance and all9 full remote checks. [The source record](source-audits/mediawiki-warning-landed-2026-10-14.md) binds original focused/full receipts and retained evidence. Shared asset warnings are visible on stderr without changing successful results.
