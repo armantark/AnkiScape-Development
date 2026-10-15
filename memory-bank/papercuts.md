@@ -433,3 +433,6 @@
 - 2026-10-15T07:18:01.439423+00:00: Restaurant error-path inspection guessed runtime/review_dispatcher.py and runtime/review_lifecycle.py; repo_search refused both missing paths and supplied its --names instruction. Existing real handler runtime/runtime_actions_activities.py supplied the error; no result relies on guessed paths.
 
 - 2026-10-15T07:18:01.439674+00:00: next_tooling_qualification reported another aggregate-output truncation and a45-result search bound. Bounded follow-up recovered the evidence; the leaf returned four qualification holds and no executable defect.
+
+- 2026-10-15T07:47:29.022259+00:00: Root records merge with landeded10c2f0 hit an add/add conflict only in the navigation archive title ("Landed navigation and startup-budget evidence" versus "Landed navigation authority and startup-budget evidence"). Keep the complete main archive; the evidence body is identical. An earlier125-line bounded setup excerpt also exceeded2590tokens; use shorter excerpts.
+- 2026-10-15T07:53:33.764561+00:00: A combined Standing Slice Contract, Jad plan and diff read exceeded the aggregate output budget (original token count: 13264). Separate bounded reads recovered the contract and plan; no evidence conclusion uses truncated text.
