@@ -1,0 +1,7 @@
+# Remaining source-tool incidents — 2026-10-15
+
+The bounded read-only pass qualifies no new source defect. Four candidate holds remain: silent preflight evidence, the original locator helper, unsupported adapter invocation and configured-environment evidence. Correct invocation and source-bound original records must precede any repair.
+[The report](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-tooling-qualification-2026-10-15/report.md), SHA256 5073d78c484e7f28cce0970b74eb1133f8ec1dfbd11ea0a76f5a3a7c2d7a5484, preserves exact paths, source lines, historical incidents and each next action.
+[The qualification](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-tooling-qualification-2026-10-15/qualification.json), SHA256 98199cc5dc1774fccc26cb1475118e8f10e9588ef623813bfa8ebf3ec189ba4c, binds the ledger snapshot and12 source files. Root verifies11 unchanged files and the original plan prefix; a later audit-contract append is explicit in root-binding.json.
+C1 timestamps, C2 warnings and the earlier three ranked repairs remain landed. No accepted check was repeated. These four qualification limits are not new product failures or whole-goal blockers.
+The independent path audit now checks remaining gameplay and depth. The current owner-approved Jad protection rule has two real Fight Caves consumers to qualify; native holds do not prohibit implementation.
