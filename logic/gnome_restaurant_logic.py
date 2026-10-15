@@ -604,6 +604,20 @@ def _roll_tip(
     return {"tip_items": {row.item: quantity}, "good_tip": good, "tip_id": row.id}
 
 
+def advance_gnome_restaurant_clock_pure(
+    player_data: Mapping[str, Any], *, successful_answer: bool, delivering: bool
+) -> dict[str, Any]:
+    data = copy.deepcopy(dict(player_data))
+    if successful_answer and not delivering:
+        state = sanitize_gnome_restaurant_state_pure(data.get("gnome_restaurant"))
+        if order := state["order"]:
+            order["minutes_left"] = max(
+                0, _int(order["minutes_left"]) - GNOME_RESTAURANT_WORLD_MINUTES_PER_REVIEW
+            )
+            data["gnome_restaurant"] = state
+    return data
+
+
 def apply_gnome_restaurant_review_pure(
     player_data: Mapping[str, Any],
     rng: Callable[[], float] | None = None,
@@ -616,14 +630,9 @@ def apply_gnome_restaurant_review_pure(
     if not order:
         return data, False, {"reason": "Take a delivery job from Aluft Gianne Jr."}
     if not productive:
-        spent = min(
-            _int(order["minutes_left"]), GNOME_RESTAURANT_WORLD_MINUTES_PER_REVIEW
-        )
-        order["minutes_left"] = _int(order["minutes_left"]) - spent
         state["last_result"] = (
-            f"Again spent {spent} minute(s) of the delivery window; "
-            f"{order['minutes_left']} of "
-            f"{_LIMIT_MINUTES[str(order['difficulty'])]} left."
+            f"Again paused the delivery window; {order['minutes_left']} of "
+            f"{_LIMIT_MINUTES[str(order['difficulty'])]} minute(s) left."
         )
         data["gnome_restaurant"] = state
         return data, True, {

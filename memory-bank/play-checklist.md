@@ -72,3 +72,5 @@ you are in the game, with the date the change reached main.
 - [ ] A sold-out shop item comes back on schedule, also when you keep buying other things in that shop. (2026-09-28)
 - [ ] In the Shop tab, a shop you cannot use yet (Canifis General Store before Priest in Peril, Aaron's Archery Appendages below 40 Ranged) sits greyed at the end of the list and of a search, reads "Canifis General Store · Requires Priest in Peril", and still opens read-only. Buy something: a green "✓ Bought 1 x …" chip shows right under the Buy button and goes away after about 4 seconds or when you pick another item. (2026-09-30)
 - [ ] In the Bank, the Toolbelt panel lists the General, Fishing, Crafting and Farming belt tools under your pickaxe and hatchet, and a quest step that wants a belt tool, such as the Druidic Ritual fishing rod, goes ahead with none in the Bank. (2026-09-30)
+
+- Gnome Restaurant: accept an easy/hard order, answer Again repeatedly, then deliver banked food; the window stays intact, while successful answers on other targets spend six minutes. Undo restores the prior order, food and rewards.
