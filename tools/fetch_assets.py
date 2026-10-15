@@ -203,6 +203,8 @@ class HttpWikiClient:
         decoded = json.loads(data.decode("utf-8"))
         if not isinstance(decoded, dict):
             raise AssetFetchError("MediaWiki API returned a non-object JSON payload.")
+        if warnings := decoded.get("warnings"):
+            print(f"MediaWiki API warnings: {json.dumps(warnings)}", file=sys.stderr)
         return decoded
 
     def _request_bytes(self, url: str, accept: Optional[str] = None) -> bytes:

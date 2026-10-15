@@ -4,12 +4,12 @@ import json
 import sys
 import tempfile
 import unittest
-from io import BytesIO
+from io import BytesIO, StringIO
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
-from tools import fetch_agility_assets, fetch_big_chinchompa_assets, fetch_navigation_icons
+from tools import audit_asset_cutoff, fetch_agility_assets, fetch_big_chinchompa_assets, fetch_navigation_icons
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -99,6 +99,49 @@ class TestPeriodImageQueries(unittest.TestCase):
             with self.subTest(caller=module.__name__):
                 with self.assertRaisesRegex(module.AssetFetchError, "No revision at or before"):
                     getter(Client(), "Sprite.png")
+
+
+class TestWikiApiWarnings(unittest.TestCase):
+    def test_json_warning_diagnostics_preserve_payload_and_silent_controls(self):
+        for warnings in (None, {}, {"main": {"*": "Unrecognized parameter: iidir."}, "imageinfo": {"*": "Additional warning."}}):
+            with self.subTest(warnings=warnings):
+                payload = {"query": {"pages": []}}
+                if warnings is not None:
+                    payload["warnings"] = warnings
+                client = fetch_assets.HttpWikiClient()
+                stdout, stderr = StringIO(), StringIO()
+                with patch.object(client, "_request_bytes", return_value=json.dumps(payload).encode()) as transport:
+                    with patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                        result = client._request_json("https://example.invalid/api.php")
+                self.assertEqual(result, payload)
+                transport.assert_called_once()
+                self.assertEqual(stdout.getvalue(), "")
+                if warnings:
+                    self.assertEqual(len(stderr.getvalue().splitlines()), 1)
+                    self.assertEqual(json.loads(stderr.getvalue().split(": ", 1)[1]), warnings)
+                else:
+                    self.assertEqual(stderr.getvalue(), "")
+
+    def test_warning_diagnostic_reaches_lookup_and_cutoff_auditor(self):
+        warnings = {"main": {"*": "Unrecognized parameter: iidir."}}
+        row = {"url": "https://example.invalid/archive/Sprite.png", "timestamp": "2011-11-29T14:12:02Z", "sha1": "period", "size": 100}
+        payload = {"query": {"pages": [{"title": "File:Sprite.png", "imageinfo": [row]}]}, "warnings": warnings}
+        client = audit_asset_cutoff.HttpWikiClient(before_timestamp=fetch_assets.PRE_EOC_CUTOFF)
+        for batch in (False, True):
+            with self.subTest(batch=batch):
+                stdout, stderr = StringIO(), StringIO()
+                with patch.object(client, "_request_bytes", return_value=json.dumps(payload).encode()) as transport:
+                    with patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                        if batch:
+                            result = audit_asset_cutoff._request_batch(client, fetch_assets.RS3_WIKI, ["Sprite.png"], fetch_assets.PRE_EOC_CUTOFF)
+                            self.assertEqual(result, payload)
+                        else:
+                            result = client.query_image_info(fetch_assets.RS3_WIKI, "Sprite.png")
+                            self.assertEqual((result.timestamp, result.image_url), (row["timestamp"], row["url"]))
+                transport.assert_called_once()
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertEqual(len(stderr.getvalue().splitlines()), 1)
+                self.assertEqual(json.loads(stderr.getvalue().split(": ", 1)[1]), warnings)
 
 
 class TestFetchAssets(unittest.TestCase):
