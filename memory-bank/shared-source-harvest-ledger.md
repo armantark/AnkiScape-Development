@@ -74,7 +74,7 @@ Reused owner-relayed Darkan mature Moonlight mead pins at outer9f4a8121a: item57
 
 Both repositories’ ledgers were checked before the harvest. Original pre-restoration emulator commit`ca5e86a19d9a01c0269609ff53f0507679f968d4` supplies`/Users/armantarkhanian/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/items/combinations/CombinationItems.java`, lines56–62; Root verified the complete retained body`/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/ghosts-ahoy-mechanics-source-2026-10-15/raw/original-combinations.stdout` against the exact Git blob, SHA-256`859144e0b77bd795f04c5155ca9e1d416c27a0688464e620461fc4de85d8d5d2`. Its2025-02-06 timestamp does not prove period behavior. The two tea preparation steps are a lead; complete vessel returns, especially the empty bowl and bucket, lack independent historical binding. Full quest/producer/product acceptance remains blocked. Packet and Root byte check: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/ghosts-ahoy-mechanics-source-2026-10-15/qualification.json` and `root-byte-verification.json` alongside.
 
-One Root-only new-pin outbox item remains unsent under the hourly cap. Earliest next batch: `2026-10-15T19:02:16.568185+00:00`; do not send before that bound, duplicate earlier pins or announce this lead as parity closure.
+Root delivered this sole original-emulator lead in the authorized hourly batch, with receipt anchor `2026-10-15T19:06:07.005594+00:00`. No new pin remains pending. Do not echo incoming shared pins or announce this lead as parity closure.
 
 ## Reused Darkan mature-drink pins — 2026-10-15
 
