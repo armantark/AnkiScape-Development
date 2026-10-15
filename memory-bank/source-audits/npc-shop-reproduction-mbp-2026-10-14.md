@@ -1,6 +1,6 @@
 # NPC-shop local reproduction — 2026-10-14
 
-Status: full reproduction matches at70a614e3fce32fdc3b418ac8e3c42d7772db7b90 after the qualified identity correction. Exact merged full gate and official land remain pending; digest implementation is a separate next slice.
+Status: full reproduction matches at70a614e3fce32fdc3b418ac8e3c42d7772db7b90 after the qualified identity correction. Exact merged662e1f8f9610ee157f67bf055bd255012c018c3b passed all9 remote checks and officially landed, actual0; digest implementation is the separate next slice.
 Original reproduction source: 2fe9135819c85b04693f40ff5ed1a7ccd2973590; unchanged full generator, original exit0.
 Local shop revision: 63ddf5c31c15d3da77c64ea2cd25bad6a5db2ee5; tree40956e744d6f482d5bdf910ad2e9aaa6b65a0289.
 All274 top-level JSON blobs matched qualified hashes; snapshot SHA2564ca07f3b63d94f75489e2d41970b2597d62c92c15f8be76762c0ab4bb34ac742.
