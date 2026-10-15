@@ -93,7 +93,7 @@ I'm always open to feedback if something doesn't make sense. Just open up an iss
 
 No, there is no RNG when it comes to picking Again, Hard, Good, or Easy. I specifically decided against that because I think RNG would require too much micromanagement and I don't want to overly influence honest answering. "Again" simply interprets time as if you were idle (in the case of combat, a tick just lapses without any effect on you or the enemy), and the other three options just advance time normally, one simulated action.
 
-There are two levels of "time" in the game: world time, and active training time. Answering "Again" typically advances the world time and not the active training time. For example, say you're chopping wood. If you answer "Again," the world clock, with stuff like Grand Exchange, farming, shops, etc. will progress, but you don't have an action occur like a swing to the tree you're chopping. By default the world clock counts 10 answers as one in-game hour, so 240 answers make one in-game day.
+There are two levels of "time" in the game: world time, and active training time. Answering "Again" typically advances the world time and not the active training time. For example, say you're chopping wood. If you answer "Again," the world clock, with stuff like Grand Exchange, farming, shops, etc. will progress, but you don't have an action occur like a swing to the tree you're chopping. By default the world clock counts 10 answers as one in-game hour, so a study day of 240 cards moves the world forward one in-game day.
 
 ### Is it free?
 
