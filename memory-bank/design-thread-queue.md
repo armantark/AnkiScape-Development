@@ -2978,3 +2978,15 @@ Familiarisation: Again pauses with no segment, focus cost or shards. Four succes
 ## Answered owner decision — 2026-10-14: automatic boss telegraph prayer
 
 At23:05 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "Also good point about Jad, can fix that". When a boss telegraphs the next style, the game sets the matching protection prayer for that attack if unlocked and prayer points remain. Otherwise the attack lands unprotected. Supplies and damage output provide the challenge; manual switches between reviews are not required. The Style telegraphs bullet in [the boss contract](boss-instance-contract-2026-07-18.md) now states this rule; its other content is unchanged. This is a contract change only until a boss slice implements it. Combat grill decision47 remains binding.
+
+## Open existing-journal and readout scope — 2026-10-15: Monkey Madness
+
+The first journal is a generic sentinel; its infiltration cleanup is not a complete sourced opening. Period oldids5967528/6579359 call Prayer43 and Thieving10 recommendations, while live logic and the visible requirements make both mandatory. The needed owner scope is one sourced first-journal boundary and its requirement-readout correction. No puzzle abstraction, hidden state or full quest design is adopted. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Grand Tree and later acquisition remain separate.
+
+## Open existing-readout scope — 2026-10-15: Desert Treasure
+
+Period oldids5981512/6563639 make Mining50 optional. The live requirement readout makes it mandatory and omits four direct prerequisites from the retained Questreq/cache. Needed owner scope: the existing requirement-readout correction with the source-qualified gate repair. Keep the complete first journal through the650Coin brew and six mirrors; no talk-only advance. No other journal change or backend substitute is authorized. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Ordinary acquisitions remain to qualify after this first scope gate.
+
+## Open existing-journal scope — 2026-10-15: Do No Evil
+
+The actual first journal is a table of contents. Period oldid6587790 supplies Senliten/Leela and the later Jex/Sphinx exchanges, while the next live journal reaches further banana/wise-monkey deeds. Needed owner scope: a sourced replacement first journal and exact complete opening boundary. The later elite-clue decision stays separate. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). No hidden state, seeded restoration or companion is authorized.
