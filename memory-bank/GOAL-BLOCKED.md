@@ -221,3 +221,7 @@ Root verified 35 bindings, two exact period bodies and one original historical b
 ## Dream Mentor and Workshop IV — 2026-10-15
 
 [Round 24](source-audits/dream-and-workshop-iv-opening-boundaries-2026-10-15.md) retains two first holds. Dream Mentor needs owner scope for its omitted post-first-feed conversation and second four-food journal phase. Workshop IV inherits its actual Workshop III journal/endpoint owner hold. Root verified 27 original bindings, two literal bodies and 16 correction bindings. The original IV first-unblock priority was wrong; the correction preserves all original reports. IV's later book-grant corroboration and named game-main lookup remain independent source work. The consumed shortlist does not establish global exhaustion. Death's positive route remains the next independent qualification.
+
+## Death through Lost Tribe — 2026-10-15
+
+[The complete path](source-audits/death-complete-opening-boundaries-2026-10-15.md) is source-held on independent corroboration of Lost Tribe's initial enquiry/witness/report/Duke-permission branch. Root verified 54 original bindings, six period bodies, six historical blobs and 17 actual-archive follow-up bindings. The actual archive exists; its inspected presets do not supply this branch. No global absence is claimed. Positive Death deeds, the full Mistag brief, historical outfit handoff, real prerequisites and ordinary inputs remain independent work. Escort loss is not a blocker. The consumed shortlist authorizes a fresh bounded ranking, not exhaustion. Independent review remains pending.

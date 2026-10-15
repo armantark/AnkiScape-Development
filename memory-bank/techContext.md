@@ -88,7 +88,7 @@
 - Import `pkg_alias` before direct `ankiscape.*` probes, or set
   `PYTHONPATH="$PWD"` for a harness outside the checkout. Run the equipment
   generator directly or as a module; its `--game-root` is the external
-  `/Users/ArmanTarkhanian1/Downloads/game-main` checkout, and
+  `/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main` archive on the MacBook Pro, and
   `data/cfg/items.yml` is relative to that external root rather than this repo.
 
 ### Parallel quest and family work
@@ -229,7 +229,7 @@ Developer-only scripts can use `uv run` inline script metadata when optional too
 AnkiScape targets RuneScape immediately before EOC, with a strict cutoff of **2012-11-20**. The 2011Scape rev-667 source is a strong baseline for unchanged systems, but 2012 content is a substantial required layer rather than a negligible exception. The project-wide evidence and blocking rules live in `memory-bank/pre-eoc-source-verification-standard.md`; the `ankiscape-skill-expansion` skill supplies the working expansion workflow.
 
 - **The OSRS wiki is NOT a 2011 source.** OSRS branched from a 2007 backup; treat OSRS data as 2007 baseline + OSRS-only additions, useful only as a cross-check for 2007/2011-unchanged content.
-- **Baseline implementation evidence:** the local `2011Scape/game` emulator source (Apache-2.0, client rev 667 = Oct 4 2011; upstream `github.com/2011Scape/game`) at `/Users/ArmanTarkhanian1/Downloads/game-main`. It is authoritative only for mechanics unchanged between that snapshot and the cutoff; later content and changed mechanics require pre-EOC 2012 evidence.
+- **Baseline implementation evidence:** the local `2011Scape/game` emulator source (Apache-2.0, client rev 667 = Oct 4 2011; upstream `github.com/2011Scape/game`) at `/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main` on the MacBook Pro. It is authoritative only for mechanics unchanged between that snapshot and the cutoff; later content and changed mechanics require pre-EOC 2012 evidence.
 - **Historical semantics:** literal wikitext from exact pre-cutoff RuneScape Wiki `oldid` revisions, backed by dated Wayback captures where page histories or transcluded dependencies are unavailable.
 - **Dated cache cross-checks:** the six OpenRS2 disk caches listed in `memory-bank/pre-eoc-source-verification-standard.md` (revisions 727, 728, 729, 736, 741, 742; a seventh archive, revision 652, sits in the cache directory but is not part of the standard). They can prove client-side identities and configuration present in a particular build—item/NPC/object names and IDs, enum/struct/param rows, options, sprites/models, interfaces, scripts, varbits—but normally cannot prove server-side XP, random rolls, quest gates, drop rates, action timing, or economy behavior. `tools/query_openrs2_cache_configs.sh` and `tools/query_openrs2_interfaces.sh` read the Java launcher from `JAVA_BIN` (default `/opt/homebrew/opt/openjdk@25/bin/java`) and the Darkan core jars from the local Gradle cache; the scripts pin the Darkan core version and refuse to run when the Gradle cache lacks it.
 - **Darkan:** use the fidelity-revamped implementation as server-mechanics evidence only after reconciling it with pinned pre-EOC sources. A modern Darkan commit is a reconstruction, not automatically period proof. Wait when the necessary high-fidelity behavior or corroborating history does not yet exist.
@@ -401,7 +401,7 @@ Manual verification should happen inside Anki when runtime behavior changes. Bro
 ## Operator environment and evidence paths
 
 - The citation-drift audit blames the exact record bytes it parses against HEAD: unchanged lines keep their commit, and uncommitted record lines have no origin, so they are checked only against the current tree. Edit and revert commits still change citation provenance (`tools/audit_citation_drift.py:194`).
-- `/Users/ArmanTarkhanian1/Downloads/game-main` can be an extracted source archive without `.git`; check for `.git` and `data/cfg/items.yml` before relying on it, and retain file hashes when Git provenance is unavailable.
+- The MacBook Pro source archive is `/Users/armantarkhanian/ankiscape-remote-test-host/sources/game-main`; it has `data/cfg/items.yml` and no `.git`. Discover this path before a source lookup. Retain selected file hashes; its README identifies 2011Scape/game and rev667, but no exact upstream commit or identity with the former Studio Downloads copy is established. Historical input paths remain provenance, not current lookup instructions.
 - Every worktree test command must set its working directory explicitly; agent shell defaults can select the canonical checkout. For collection discrepancies, compare the imported module path and collected test IDs from the same checkout before attributing a cause (`tools/run_remote_tests.py` takes the source checkout as its first argument).
 - Do not assume `/opt/homebrew/bin/jq`; check `command -v jq` before relying on it, or use Python JSON parsing for source probes.
 - Raw quest-audit packets live under the common Git directory in `ankiscape-promotion-evidence/<producer-commit>/<original-path>`; each audit SUMMARY.md names its manifest (`source-audits/genuine-quest-actions-2026-09-05/SUMMARY.md`).
