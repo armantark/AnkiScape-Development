@@ -2,7 +2,9 @@ import json
 import runpy
 import tempfile
 import unittest
+from copy import deepcopy
 from pathlib import Path
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.shop_data import (
@@ -16,8 +18,11 @@ from ankiscape.data.shop_data import (
 )
 from ankiscape.data.summoning_data import SUMMONING_POUCHES
 from tools.generate_npc_shop_data import (
+    MANUAL_ITEM_METADATA,
     SHOP_ACCESS_RULES,
+    ItemMeta,
     build_catalog,
+    build_player_sell_prices,
     rewrite_stock_exclusions_from_generated,
 )
 
@@ -537,6 +542,233 @@ class TestShopData(unittest.TestCase):
                 if (audit_row["item_id"], audit_row["item_name"]) != (row["item_id"], row["item_name"]):
                     mismatches.append(row["id"])
         self.assertEqual(mismatches, [])
+
+
+class TestPlayerPriceIdentity(unittest.TestCase):
+    ARROW_GROUPS = (
+        (882, "Bronze arrow", "Bronze arrows"),
+        (884, "Iron arrow", "Iron arrows"),
+        (886, "Steel arrow", "Steel arrows"),
+        (888, "Mithril arrow", "Mithril arrows"),
+        (890, "Adamant arrow", "Adamant arrows"),
+        (892, "Rune arrow", "Rune arrows"),
+        (4160, "Broad arrow", "Broad arrows"),
+    )
+    PROJECTIONS = {
+        "Bullseye lantern": (4546, "Bullseye lantern (empty)"),
+        "Mining helmet": (5014, "Mining helmet (unlit)"),
+        "Oil lamp": (4525, "Oil lamp (empty)"),
+        "Oil lantern": (4535, "Oil lantern (empty)"),
+    }
+
+    # Cache values and collision metadata are synthetic identity sentinels,
+    # separate from the historical price assertions above.
+    def assert_price_identities(self, items, shops, expected_ids, cache_ids):
+        prices = {
+            item_id: {"value": 100_000 + item_id, "sell_price": 200_000 + item_id}
+            for item_id in cache_ids
+        }
+        actual = build_player_sell_prices(items, prices, shops)
+        expected = (
+            {name: 200_000 + item_id for name, item_id in expected_ids.items()},
+            {name: 100_000 + item_id for name, item_id in expected_ids.items()},
+        )
+        self.assertEqual(actual, expected)
+
+    def test_price_projections_retain_generic_and_exact_lamp_identities(self):
+        states = {
+            4522: ("Oil lamp", "Oil lamp (unlit)"),
+            4525: ("Oil lamp", "Oil lamp (empty)"),
+            4535: ("Oil lantern", "Oil lantern (empty)"),
+            4537: ("Oil lantern", "Oil lantern (unlit)"),
+            4546: ("Bullseye lantern", "Bullseye lantern (empty)"),
+            4548: ("Bullseye lantern", "Bullseye lantern (unlit)"),
+            5014: ("Mining helmet", "Mining helmet (unlit)"),
+        }
+        items = {
+            item_id: ItemMeta(item_id, legacy_name, True, None)
+            for item_id, (legacy_name, _state_name) in states.items()
+        }
+        expected_ids = {name: item_id for item_id, (_legacy, name) in states.items()}
+        expected_ids.update({name: item_id for name, (item_id, _state) in self.PROJECTIONS.items()})
+
+        self.assert_price_identities(
+            items, [deepcopy(SHOP_DATA["miltogs_lamps"])], expected_ids, states,
+        )
+
+    def test_projection_precedence_is_metadata_then_projection_then_live(self):
+        for name, (projection_id, state_name) in self.PROJECTIONS.items():
+            for has_live_row in (False, True):
+                with self.subTest(name=name, live=has_live_row):
+                    items = {
+                        373: ItemMeta(373, name, True, None),
+                        projection_id: ItemMeta(projection_id, name, True, None),
+                    }
+                    shops = [{"stock": [{
+                        "item_id": 373, "item_name": name, "disposition": "live",
+                    }]}] if has_live_row else []
+                    expected_ids = {
+                        name: 373 if has_live_row else projection_id,
+                        state_name: projection_id,
+                    }
+                    self.assert_price_identities(items, shops, expected_ids, items)
+
+    def test_arrow_aliases_merge_before_first_live_selection(self):
+        for item_id, legacy, canonical in self.ARROW_GROUPS:
+            with self.subTest(name=canonical):
+                items = {
+                    item_id: ItemMeta(item_id, legacy, True, None),
+                    7552: ItemMeta(7552, legacy, True, None),
+                    7553: ItemMeta(7553, legacy, False, None),
+                }
+                shops = [
+                    {"stock": [{"item_id": item_id, "item_name": canonical, "disposition": "blocked"}]},
+                    {"stock": [
+                        {"item_id": 7552, "item_name": legacy, "disposition": "live"},
+                        {"item_id": item_id, "item_name": canonical, "disposition": "live"},
+                    ]},
+                    {"stock": [{"item_id": 7553, "item_name": canonical, "disposition": "live"}]},
+                ]
+                self.assert_price_identities(items, shops, {canonical: 7552}, items)
+
+    def test_arrow_fallback_uses_lowest_tradeable_original_after_aliasing(self):
+        for item_id, legacy, canonical in self.ARROW_GROUPS:
+            for lower_tradeable in (True, False):
+                with self.subTest(name=canonical, lower_tradeable=lower_tradeable):
+                    items = {
+                        7553: ItemMeta(7553, legacy, True, None),
+                        7552: ItemMeta(7552, legacy, True, None),
+                        item_id: ItemMeta(item_id, legacy, lower_tradeable, None),
+                    }
+                    expected_id = item_id if lower_tradeable else 7552
+                    self.assert_price_identities(items, [], {canonical: expected_id}, items)
+
+    def test_mithril_price_keeps_live_888_over_singular_source_variants(self):
+        items = {
+            888: ItemMeta(888, "Mithril arrow", True, None),
+            7552: ItemMeta(7552, "Mithril arrow", True, None),
+            7553: ItemMeta(7553, "Mithril arrow", False, None),
+        }
+        shops = [{"stock": [{
+            "item_id": 888, "item_name": "Mithril arrows", "disposition": "live",
+        }]}]
+        self.assert_price_identities(items, shops, {"Mithril arrows": 888}, items)
+
+    def test_stock_precedence_preserves_shop_and_row_order(self):
+        items = {373: ItemMeta(373, "Swordfish", True, None)}
+        shops = [
+            {"stock": [
+                {"item_id": 373, "item_name": "Swordfish", "disposition": disposition}
+                for disposition in ("blocked", "locked", "hidden", "excluded")
+            ]},
+            {"stock": [
+                {"item_id": 7553, "item_name": "Swordfish", "disposition": "live"},
+                {"item_id": 7552, "item_name": "Swordfish", "disposition": "live"},
+            ]},
+            {"stock": [{"item_id": 373, "item_name": "Swordfish", "disposition": "live"}]},
+        ]
+        self.assert_price_identities(items, shops, {"Swordfish": 7553}, (373, 7552, 7553))
+
+    def test_manual_domain_requires_exact_false_and_absent_original(self):
+        cases = (
+            ("manual False", {"tradeable": False}, False, True, False),
+            ("manual True", {"tradeable": True}, False, False, True),
+            ("missing flag", {}, False, False, True),
+            ("unknown flag", {"tradeable": None}, False, False, True),
+            ("zero flag", {"tradeable": 0}, False, False, True),
+            ("string flag", {"tradeable": "false"}, False, False, True),
+            ("original nontradeable", {"tradeable": False}, True, False, True),
+            ("not manual", None, False, False, True),
+        )
+        for label, manual, original_present, row_tradeable, eligible in cases:
+            with self.subTest(case=label):
+                metadata = {} if manual is None else {23035: manual}
+                items = {23035: ItemMeta(23035, "Spiked gauntlets", False, None)} if original_present else {}
+                shops = [{"stock": [{
+                    "item_id": 23035, "item_name": "Spiked gauntlets",
+                    "disposition": "live", "tradeable": row_tradeable,
+                }]}]
+                expected_ids = {"Spiked gauntlets": 23035} if eligible else {}
+                with patch.dict(MANUAL_ITEM_METADATA, metadata, clear=True):
+                    self.assert_price_identities(items, shops, expected_ids, (23035,))
+
+    def test_excluded_manual_id_preserves_same_name_live_or_original_fallback(self):
+        items = {373: ItemMeta(373, "Spiked gauntlets", True, None)}
+        for has_eligible_live in (True, False):
+            with self.subTest(eligible_live=has_eligible_live):
+                rows = [{"item_id": 23035, "item_name": "Spiked gauntlets", "disposition": "live"}]
+                if has_eligible_live:
+                    rows.append({"item_id": 888, "item_name": "Spiked gauntlets", "disposition": "live"})
+                expected_id = 888 if has_eligible_live else 373
+                self.assert_price_identities(
+                    items, [{"stock": rows}], {"Spiked gauntlets": expected_id}, (373, 888, 23035),
+                )
+
+    def test_cache_fields_preserve_independent_floor_and_enum_semantics(self):
+        cases = (
+            ("independent", {"value": 11, "sell_price": 29}, 29, 11),
+            ("zero floor", {"value": 0, "sell_price": 0}, 1, 1),
+            ("enum zero", {"value": 0, "sell_price": 0, "coin_buy_override": 0, "coin_sell_override": 0}, 0, 0),
+            ("enum wins", {"value": 11, "sell_price": 29, "coin_buy_override": 5, "coin_sell_override": 7}, 7, 5),
+            ("enum absent", {"value": 11, "sell_price": 29, "coin_buy_override": -1, "coin_sell_override": -1}, 29, 11),
+            ("buy only", {"value": 31, "coin_sell_override": 97}, None, 31),
+            ("sell only", {"value": -1, "sell_price": 17, "coin_buy_override": 97}, 17, None),
+            ("negative sell", {"value": 19, "sell_price": -1, "coin_sell_override": 97}, None, 19),
+            ("override without base", {"coin_buy_override": 97, "coin_sell_override": 89}, None, None),
+            ("invalid base", {"value": "11", "sell_price": None}, None, None),
+        )
+        items = {373: ItemMeta(373, "Swordfish", True, None)}
+        for label, cache_row, sell, buy in cases:
+            with self.subTest(case=label):
+                expected = (
+                    {} if sell is None else {"Swordfish": sell},
+                    {} if buy is None else {"Swordfish": buy},
+                )
+                self.assertEqual(build_player_sell_prices(items, {373: cache_row}, []), expected)
+
+    def test_missing_selected_cache_does_not_choose_another_identity(self):
+        fallback = {"value": 100_373, "sell_price": 200_373}
+        cases = (
+            ("live missing", "Swordfish", None, [{"stock": [
+                {"item_id": 7552, "item_name": "Swordfish", "disposition": "live"},
+                {"item_id": 373, "item_name": "Swordfish", "disposition": "live"},
+            ]}], ({}, {})),
+            ("live empty", "Swordfish", {7552: {}}, [{"stock": [{
+                "item_id": 7552, "item_name": "Swordfish", "disposition": "live",
+            }]}], ({}, {})),
+            ("projection missing", "Oil lantern", None, [], ({}, {})),
+            ("projection buy only", "Oil lantern", {4535: {"value": 83}}, [], ({}, {"Oil lantern": 83})),
+        )
+        for label, name, extra_prices, shops, expected in cases:
+            with self.subTest(case=label):
+                items = {373: ItemMeta(373, name, True, None)}
+                prices = {373: fallback, **(extra_prices or {})}
+                self.assertEqual(build_player_sell_prices(items, prices, shops), expected)
+
+    def test_price_selection_preserves_complete_catalog_inputs_and_nontradeable_support(self):
+        shops = deepcopy(list(SHOP_DATA.values()))
+        rows = [row for shop in shops for row in shop["stock"]]
+        items = {
+            row["item_id"]: ItemMeta(row["item_id"], row["item_name"], row["tradeable"], None)
+            for row in rows if row["item_id"] != 23035
+        }
+        prices = {
+            row["item_id"]: {"value": 100_000 + row["item_id"], "sell_price": 200_000 + row["item_id"]}
+            for row in rows
+        }
+        original_inputs = deepcopy((items, prices, shops, MANUAL_ITEM_METADATA))
+
+        sell, buy = build_player_sell_prices(items, prices, shops)
+
+        self.assertEqual((items, prices, shops, MANUAL_ITEM_METADATA), original_inputs)
+        nontradeable_names = {
+            row["item_name"] for row in rows
+            if row["disposition"] == "live" and row["item_id"] in items and not row["tradeable"]
+        }
+        self.assertLessEqual(nontradeable_names, sell.keys())
+        self.assertLessEqual(nontradeable_names, buy.keys())
+        self.assertNotIn("Spiked gauntlets", sell)
+        self.assertNotIn("Spiked gauntlets", buy)
 
 
 if __name__ == "__main__":
