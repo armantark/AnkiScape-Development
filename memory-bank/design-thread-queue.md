@@ -3066,3 +3066,11 @@ The live gate requires completed Lost Tribe and Ghosts Ahoy. Period6510622 says 
 ## Open first-journal scope — 2026-10-15: Watchtower
 
 The actual first journal is generic. Period6525573 distinguishes Wizard briefing from the bush/fingernails investigation. Owner decision needed: authorize a sourced replacement and exact complete first-stage endpoint. [Evidence](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md). No silent endpoint or spatial proxy is selected.
+
+## Open existing-readout scope — 2026-10-15: Defender of Varrock
+
+The actual requirement readout lists four quests. The seven retained cache links also name Demon Slayer, Temple of Ikov and Garden of Tranquillity. Period oldid 6542570 requires the claimed Shield of Arrav museum reward. Authorize the existing requirement-readout correction with source-qualified eligibility repair. No other UI or reconstructed tracking route is proposed. [Evidence](source-audits/death-and-defender-opening-boundaries-2026-10-15.md). This is the first scope hold; later source and earned-route work remains.
+
+## Open existing-journal scope — 2026-10-15: Another Slice of H.A.M.
+
+Its actual Giant Dwarf dependency first inherits the settled open library-load decision. After that clears, the generic first journal needs a sourced complete endpoint. Period oldid 6548739 distinguishes the Ur-tag/Alvijar brief from Tegdak's tools, all six artefacts and their return. Authorize the complete first-journal replacement and its endpoint; no partial library or silent UI change is proposed. [Evidence](source-audits/another-slice-and-contact-opening-boundaries-2026-10-15.md).
