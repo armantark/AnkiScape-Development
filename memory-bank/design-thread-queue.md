@@ -3022,3 +3022,47 @@ The first journal omits the list after 'among the following'. The current first 
 ## Open owner question — 2026-10-15: Slug Menace first journal
 
 The live first journal is the generic “Complete The Slug Menace stage 1 objective using the pinned source guide.” Period guide6588246 describes Tiffy briefing/password and Commorb-v2 grant or upgrade, followed by O'Niall/Witchaven interviews/investigation. Authorize the sourced replacement journal and exact complete first-stage endpoint before code changes. The source grants Commorb v2 when the player lacks a Commorb; no mandatory seeded original is inferred. The [source qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md) records this single first scope hold. No existing UI change is authorized by this question.
+
+
+## Open owner question — 2026-10-15: TokTz-Ket-Dill first journal
+
+The first journal is the generic “Complete TokTz-Ket-Dill stage 1 objective using the pinned source guide.” Authorize a period-sourced replacement and exact endpoint: three-guard briefing versus the later Stone tablet/library/Reldo/Tourist Guide/translation/mine-permission chain. The [qualified source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) preserves the existing material/gate qualifications. No guards-only credit or existing UI change is authorized by recording this question.
+
+## Open owner question — 2026-10-15: Animal Magnetism first journal
+
+Stage1 is only contents headings; stage2 contains the Ava/Alice opening deeds. Authorize a sourced replacement first journal and its exact Ava-versus-undead-poultry endpoint while settling that stage2 overlap. The [source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) also retains the later Thieving15 readout qualification; no gate waiver, journal renumbering, partial credit or seeded acquisition is authorized.
+
+
+## Open owner question — 2026-10-15: Eadgar's Ruse requirement readout
+
+The current start gate and visible requirements require Prayer40, while the retained period guides describe Prayer40 or Agility47 as recommended. Authorize the existing readout correction while independent source qualification settles the exact eligibility repair. The [bounded qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) preserves null-cache-field limits, the complete Sanfew-to-Eadgar journal and ordinary route obligations. No automatic gate waiver is authorized by this question.
+
+## Open owner question — 2026-10-15: Elemental Workshop III first journal
+
+The first journal describes a later puzzle; the existing stage1 action instead finds/reads Ragged book “in the workshop”, with no produced book. The period source starts at the chapel bookcase, then preparation, then the puzzle. Authorize a sourced replacement first journal and exact complete opening endpoint. The [qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) retains the current stage/dependency/key/custody conflicts; no hidden book action, journal renumbering or partial puzzle credit is authorized.
+
+
+## Open owner question — 2026-10-15: Another Cook's Quest first journal
+
+Another Cook's Quest, an actual prerequisite for Freeing Evil Dave, has a generic first journal and a generated2025 fallback source pin. A retained period main-page source nominates commission/100-Coin advance, ingredient/Dirty-blast preparation and full handoff. Authorize the sourced replacement first journal and exact complete endpoint, distinguishing that commission from full preparation/feast access. The [dependency qualification](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md) retains source-pin repair as work; that repair alone grants no existing journal/UI authority. No seeded feast access or partial stage credit.
+
+
+## Open owner question — 2026-10-15: Freeing King Awowogei first journal
+
+The first journal is generic. Authorize a period-sourced replacement and exact complete first-stage endpoint. The source separates inspection/Aris from the Ape Atoll king/trio recipe sequence. The [qualification](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md) preserves the actual Another Cook, Monkey Madness and Grand Tree dependency holds. No coin alternative can seed monkey resources, greegrees or hazard proof.
+
+## Open first-journal scope — 2026-10-15: Royal Trouble
+
+Period6542630 distinguishes Ghrim briefing, the heir cutscene/marriage suggestion and Vargas commission. The actual first journal is generic. Owner decision needed: authorize one sourced replacement first journal and its exact complete endpoint. The later Agility/Slayer/Prayer gate and visible-readout discrepancies stay separate. [Evidence](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). No partial endpoint is adopted.
+
+## Open first-journal scope — 2026-10-15: Elder Kiln
+
+The live first journal has five table-of-contents lines. Owner decision needed: authorize a period-sourced replacement journal and exact complete deed endpoint. Briefing, hatching and rooms are not interchangeable. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md). No partial stage or new UI is adopted.
+
+## Open requirement-readout scope — 2026-10-15: Wanted
+
+The live gate requires completed Lost Tribe and Ghosts Ahoy. Period6510622 says partial Lost Tribe and optional Ghosts Ahoy; cache also records33 quest points and omitted prerequisite slots. Owner decision needed: authorize correction of the existing requirement readout with source-qualified prerequisite repair. The exact partial Lost Tribe threshold remains source-unqualified; authorization grants no gate waiver. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md).
+
+## Open first-journal scope — 2026-10-15: Watchtower
+
+The actual first journal is generic. Period6525573 distinguishes Wizard briefing from the bush/fingernails investigation. Owner decision needed: authorize a sourced replacement and exact complete first-stage endpoint. [Evidence](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md). No silent endpoint or spatial proxy is selected.

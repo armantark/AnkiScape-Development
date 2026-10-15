@@ -181,3 +181,27 @@ Blocked: complete Phoenix-to-Flint opening. Retained full/quick wiki guides are 
 ## Slug and Senntisten openings — 2026-10-15
 
 Root verified25 source bindings in [the bounded qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md). Slug Menace needs one owner ruling authorizing its sourced replacement first journal and exact Tiffy-versus-investigation endpoint; current materials/generic sentinel cannot choose it. Temple at Senntisten inherits the verified actual Desert Treasure dependency and its existing owner requirement-readout/start-gate hold. Neither has code, seeded ordinary acquisition or gameplay acceptance. The final two retained names remain uninspected; independent goal work continues.
+
+## TokTz and Animal Magnetism openings — 2026-10-15
+
+Root verified24 source bindings for [these first-journal scope holds](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md). TokTz needs one owner ruling for its sourced replacement first journal and exact briefing-versus-permission endpoint. Animal Magnetism needs one owner ruling for a sourced first-journal endpoint and existing stage2 overlap; its current stage1 is only contents headings. Later gate/custody/source qualifications remain. No implementation or whole-goal exhaustion follows; the consumed shortlist is not the full candidate set.
+
+## Eadgar and Workshop III openings — 2026-10-15
+
+Root verified26 source and10 prior-report bindings in [round15](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md). Eadgar needs one owner authorization for the Prayer40 requirement-readout correction, with independent exact gate qualification still open. WorkshopIII needs one owner ruling for a source-correct first journal and complete opening endpoint; its current journal and book action describe different boundaries. No seeded route, silent visible change or gameplay acceptance. The remaining18 retained candidates are order-only and independent work continues.
+
+## Love Story and Evil Dave dependencies — 2026-10-15
+
+Root verified29 bindings in [round16](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md). Love Story inherits One Small Favour's owner readout/source-qualified gate hold through the actual hand-authored Swan Song prerequisite. Evil Dave needs one owner ruling for the actual Another Cook generic first journal and exact complete sourced endpoint; its2025 pin is not period evidence, with retained2012 replacement-source qualification still work. Both selected first journals are concrete and must be performed completely. No code, seeded route, native or gameplay acceptance; later16 retained names remain order-only.
+
+## Awowogei and Rocking Out openings — 2026-10-15
+
+Root verified29 bindings and three exact source extracts in [round17](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md). Awowogei needs one owner ruling for its own sourced first journal and complete endpoint. Rocking Out actually requires Another Cook and inherits that generic-journal hold. All nine Rocking Out opening deeds remain necessary; its existing customs-office auto_action is incomplete. Variable/fixed customs-answer conflict and source-qualified gate/custody repairs remain later work. No new code or gameplay acceptance; later14 retained names are order-only.
+
+## Royal Trouble and The Dig Site openings — 2026-10-15
+
+Root verified37 bindings and both exact source bodies in [round18](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). Royal Trouble needs owner authorization for its sourced first journal and exact complete endpoint. The Dig Site initial-grant hold is resolved: original Darkan03ca4d17 plus the pinned period wiki corroborates that affirmative action. The iteration93 derivation premise was false. Broader custody, transaction and earned-route qualification remains work, with no invented replacement blocker. No global absence or goal stop follows. Later12 retained names remain order-only; independent qualification continues.
+
+## Elder Kiln, Wanted, Watchtower and While Guthix Sleeps — 2026-10-15
+
+Root verified round19's30 bindings/three literal bodies and round20's27 bindings/three bodies. [Elder Kiln and Wanted](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md): Elder Kiln needs owner first-journal/endpoint scope; Wanted needs owner requirement-readout correction scope with the exact partial Lost Tribe gate still source-unqualified. [Watchtower and WGS](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md): Watchtower needs owner first-journal/endpoint scope; WGS inherits its actual Wanted dependency hold. Single first unblocks remain per slice. No seeded route, implementation or global stop follows. Later retained names and complete Dig Site qualification remain independent work.

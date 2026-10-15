@@ -46,3 +46,55 @@ Root verified round12's29 bindings and the Firemaker follow-up25 bindings. Firem
 ## Reuse retained shortlist for round14
 
 Root verified all25 round13 bindings and recorded both first holds. Round14 reads only retained round10 entries9/10: toktz_ket_dill and animal_magnetism. Reuse frozen checkout2 at662e1f8f and all complete-boundary/ordinary-route criteria. The leaf owns only next-quest-root-qualification-14/report.md and qualification.json under the same external evidence root. No new registry import, census, decode, harvest or repeated upstream sweep; all original safety, ownership, source, UI and no-exhaustion limits remain. Root must verify this handback; consuming this retained shortlist does not establish exhaustion of later candidates or independent goal paths.
+
+
+## Continue the consumed shortlist — round15
+
+Root verified all24 round14 bindings and recorded both first-journal owner holds. Checkout2 returned to Root, then fast-forwarded from662 to6631064f to carry the current source-qualified records; this changes no quest/runtime product bytes. Root5 remains frozen at6631064f for independent NPC review, and Root2 owns only this independent records/qualification continuation. This is no gameplay or landing acceptance.
+
+After Root commits these Markdown records, freeze checkout2 at that exact new commit, named in the dispatch. Root owns its Git, all repository records, raw sources, proof/mirror/native resources and promotion. The Sol leaf owns only next-quest-root-qualification-15/report.md and qualification.json under /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14. Do not change prior reports.
+
+The old retained list is consumed. Authorize one read-only import of the actual composed QUESTS solely for the same descending sentinel-count/alphabetical tie continuation. Exclude every previously inspected root from the original plan5 exclusions and retained rounds5–14. Retain at most the next20 uninspected candidate IDs/names/counts as order-only data, preventing another selection-input gap. Qualify only the first two complete ordinary openings in that order. Preserve exact actual first journals and all deeds; source_kind labels alone do not prove deeds, as Animal Magnetism demonstrates. No full coverage-audit replay, generator/decoder, new source harvest or exhausted sweep. Already-qualified upstream holds may be inherited only after actual dependency verification. Missing code is work; first visible-journal/readout authority remains an owner boundary.
+
+CHECK/EXPECT remain a source-bound complete eligible-or-held verdict for each selected root, exact consumer/source hashes and the single first unblock. No partial stage credit, seeded prerequisites/items/levels/proofs, spatial proxies, changed UI or invented mechanics. All original safety, source2012-11-20, settled/reserved decisions, tests/audits/limits/pins and no-push rules apply. No repository/source/test/docs/index/Git/config/history/worktree/lease mutation, network/harvest/secrets, product probe/test/audit/generator/decoder, native/browser/profile/collection, Claude, child or sibling/session message. The single registry import is the only execution exception. Record exact friction and return outputs/frozen-source ownership to Root; conflict stops at Root only, never a peer ruling. Consuming20 more names cannot establish whole-goal exhaustion.
+
+
+## Reuse round15 shortlist for round16
+
+Root verified26 source and10 prior-report bindings, recording Eadgar and WorkshopIII's first owner holds. Round16 reuses next_twenty entries3/4 only: love_story and recipe_for_disaster_freeing_evil_dave. No new registry import, census, harvest, decode or repeated upstream sweep. Root freezes checkout2 at the next Markdown-only commit named in dispatch; quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-16/report.md and qualification.json under the same external root. All earlier complete-first-journal/ordinary-route CHECK/EXPECT, source hierarchy, exact evidence, safety, ownership and no-exhaustion conditions remain. Root verifies handback before another pair. Root5's NPC candidate remains unchanged and separate throughout.
+
+
+## Reuse round15 shortlist for round17
+
+Root verified all29 round16 bindings and recorded actual dependency holds. Round17 reuses next_twenty entries5/6 only: recipe_for_disaster_freeing_king_awowogei and rocking_out. No new import, census, harvest, decode or repeated upstream sweep. Frozen checkout2 is the next Markdown-only commit named in dispatch; quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-17/report.md and qualification.json under the same evidence root. All original complete-journal/ordinary-route/source-hierarchy CHECK/EXPECT, exact evidence, safety, UI exclusions, ownership and no-exhaustion limits apply. Root5 remains frozen on its exact full gate and is outside this leaf's workspace.
+
+
+## Reuse round15 shortlist for round18
+
+Root verified29 round17 bindings and three exact source extracts. Root recorded both first holds. Round18 uses next_twenty entries7/8: royal_trouble and the_dig_site. Do not import the registry again. Do not repeat a census, harvest, decode or upstream search.
+
+Root freezes checkout2 at the next Markdown-only commit named in dispatch. Quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-18/report.md and qualification.json under the same evidence root. All original complete-journal, ordinary-route, source, safety and ownership criteria apply. Root verifies the report before another pair. Root5 remains frozen on its exact full gate.
+
+## Reuse round15 shortlist for round19
+
+Root verified37 round18 bindings and two exact source extracts. Root recorded both first holds. Round19 uses next_twenty entries9/10: the_elder_kiln and wanted. Do not import the registry again. Do not repeat a census, harvest, decode or upstream search.
+
+Freeze checkout2 at the next Markdown-only commit named in dispatch. Quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-19/report.md and qualification.json under the same evidence root. All original complete-journal, ordinary-route, source, safety and ownership criteria apply. Root verifies the report before another pair.
+
+## Dig Site independent source qualification
+
+A second read-only Sol leaf owns only dig-site-initial-letter-source-qualification-2026-10-15/report.md and qualification.json under the same external evidence root. Read checkout5 at landedea74c5d0 as immutable reference. Root owns every checkout and raw source. Qualify only independent provenance/corroboration for the initial Examiner letter grant and ordinary custody. Use retained local material. Inspect Darkan provenance, independent game-main and named older implementation records in source-hierarchy order. Do not count wiki-derived restoration as an independent layer. Do not harvest, decode, import product code or change sources. A bounded failure must name the exact missing evidence without a global absence claim. Require exact source revisions, paths, line ranges, SHA256 and a decisive eligible-or-held result. All earlier safety, UI, fixed-rail, ownership and no-exhaustion prohibitions apply.
+
+## Initial Dig Site grant provenance — resolved correction
+
+Root verified the19-binding follow-up and three historical blobs. Astra found that the initial grant is unchanged original Darkan material, not iteration93 restoration. Original Darkan03ca4d17 plus pinned period wiki6487734 corroborates that narrow affirmative grant under the existing standard. The earlier source-only search contract is complete; its held conclusion remains historical and is superseded by this correction. No new owner policy or accepted product replay is required. Broader first-block qualification follows separately.
+
+## Qualify the complete Dig Site opening
+
+Root freezes checkout2 at the next Markdown-only commit named in dispatch. A read-only Sol leaf owns only dig-site-complete-opening-qualification-2026-10-15/report.md and qualification.json under the same external evidence root. Root owns all sources, repository records, Git, proof/mirror/native resources and promotion. Reuse Root-verified round18 and the historical initial-grant correction; do not repeat the exhausted source sweep.
+
+CHECK: qualify every mandatory deed in all six actual first-journal paragraphs, not only the initial grant. Cover the Examiner/Curator letter transformation and return, forced failed exam, Teddy bush grant and health/safety-answer handoff. Separate descriptive student advice from later two-student stage2 deeds. Inspect supplying commits for each behavior, frozen unit contracts and exact period source sections. Distinguish original Darkan from later wiki-derived restoration. Use the existing standard's primary-reconstruction plus independent-period-corroboration rule; do not demand a new provenance policy or let modern code alone close a fact.
+
+EXPECT: a source-bound complete implementation contract or the single first exact unresolved fact. Record real eligibility, required/consumed/produced items and proofs, capacity/refusal/duplicate/loss semantics only where attested. Unknown recovery cannot be invented. Trace the actual ordinary skill/material route and first acquisition gap without seeded levels/items/quests/proofs. Missing code is implementation work. No new UI or partial stage. Include exact source revisions, timestamps, line extracts, SHA256, existing consumers and failure modes needed before implementation tests.
+
+No source/test/docs/index/Git/config/history/worktree/lease mutation, network/harvest/secrets, product import/probe/test/audit/generator/decoder, native/browser/profile/collection, Claude, child or sibling/session message. Keep2012-11-20, all settled/reserved decisions, UI exclusions and fixed tests/audits/limits/pins/baselines. Use bounded names discovery and shape-first reads. Record exact friction. Return both outputs and frozen-reference ownership to Root. No whole-goal exhaustion or gameplay acceptance.
