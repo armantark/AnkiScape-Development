@@ -24,7 +24,6 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
     def _addon(self, difficulty="hard"):
         addon = _load_addon_as_package("ankiscape_restaurant_review_clock")
         self._configure(addon)
-        addon.show_error_message = lambda *_args: None
         player = _hired()
         player["inventory"]["Toad crunchies"] = 1
         player, ok, info = apply_gnome_restaurant_command_pure(
@@ -116,5 +115,10 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
         addon = self._addon()
         addon._state.player_data["inventory"].pop("Toad crunchies")
         before = copy.deepcopy(addon._state.player_data["gnome_restaurant"])
+        errors = []
+        addon.show_error_message = lambda title, message: errors.append((title, message))
         self._answer(addon, 3)
         self.assertEqual(addon._state.player_data["gnome_restaurant"], before)
+        self.assertEqual(errors, [(
+            "Gnome Restaurant unavailable", "Cook or bank 1 Toad crunchies for this delivery."
+        )])
