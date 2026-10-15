@@ -81,6 +81,71 @@ class SlopGatePreflightTests(unittest.TestCase):
         self.assertEqual(self._git("status", "--porcelain=v1"), before_status)
 
 
+class SlopGatePreflightChildTests(unittest.TestCase):
+    def setUp(self):
+        self.repo = Path(self.enterContext(tempfile.TemporaryDirectory())).resolve()
+        self.environment = {
+            **os.environ, "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1",
+        }
+        self._git("init", "-q")
+        source = self.repo / "staged.py"
+        source.write_text("value = 1\n", encoding="utf-8")
+        self._git("add", "-A")
+        source.write_text("value = 2\n", encoding="utf-8")
+        (self.repo / "untracked.py").write_text("value = 3\n", encoding="utf-8")
+        self.gate = self.repo / ".git" / "hooks" / "slop_gate.py"
+        self.index = self.repo / ".git" / "index"
+
+    def _git(self, *args):
+        return subprocess.run(
+            ["git", *args], cwd=self.repo, env=self.environment,
+            capture_output=True, text=True, check=True,
+        ).stdout
+
+    def _run(self, child):
+        self.gate.write_text(child, encoding="utf-8")
+        before_status = self._git("status", "--porcelain=v1")
+        before_index = self.index.read_bytes()
+
+        result = subprocess.run(
+            [sys.executable, str(TOOL)], cwd=self.repo, env=self.environment,
+            capture_output=True, text=True, check=False,
+        )
+
+        self.assertEqual(self.index.read_bytes(), before_index)
+        self.assertEqual(self._git("status", "--porcelain=v1"), before_status)
+        return result
+
+    def test_silent_child_failure_reports_gate_path_and_preserves_status(self):
+        result = self._run("raise SystemExit(37)\n")
+
+        self.assertEqual(result.returncode, 37)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(
+            result.stderr, f"slop-gate preflight: {self.gate} exited with status 37\n"
+        )
+
+    def test_child_failure_preserves_stdout_and_stderr(self):
+        result = self._run(
+            'import sys\nprint("child stdout")\n'
+            'print("child stderr", file=sys.stderr)\nraise SystemExit(23)\n'
+        )
+
+        self.assertEqual(result.returncode, 23)
+        self.assertEqual(result.stdout, "child stdout\n")
+        self.assertEqual(
+            result.stderr,
+            f"child stderr\nslop-gate preflight: {self.gate} exited with status 23\n",
+        )
+
+    def test_silent_child_success_stays_silent(self):
+        result = self._run("raise SystemExit(0)\n")
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stderr, "")
+
+
 class SlopGatePreflightArgumentsTests(unittest.TestCase):
     def setUp(self):
         self.directory = Path(self.enterContext(tempfile.TemporaryDirectory()))
