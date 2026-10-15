@@ -124,3 +124,19 @@ Blocked: complete commission/list and Wise Old Man test/ring activation. Tried: 
 ## A Tail of Two Cats opening hold — 2026-10-14
 
 Blocked: complete source-backed opening at Unferth/Hild. Tried: retained oldid6430177, target contract, live generic first journal, ordinary prerequisite/companion/amulet chain and journal consumers. Single first unblock: recorded owner authorization for the first journal and exact Unferth-only or included Hild boundary. Existing pet and prerequisite holds remain separate; no source-stage copy or spatial proxy is authorized. [Evidence](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Other independent work continues.
+
+## Monkey Madness first boundary — 2026-10-15
+
+Blocked: a faithful complete opening under unchanged existing UI. Tried: current journal/cleanup/start/readout consumers, both retained period pages and cache evidence; Root verified27 packet bindings. The first journal is generic and Prayer43/Thieving10 are falsely mandatory. Single unblock: owner authorization for the exact sourced first-journal boundary and requirement-readout correction. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Independent work continues.
+
+## Desert Treasure requirement readout — 2026-10-15
+
+Blocked: source-correct opening with the existing visible requirement list. Tried: current full first journal/start/readout, retained walkthroughs, Questreq and cache. Mining50 is optional and four direct prerequisites are omitted. Single unblock: owner authorization for the existing requirement-readout correction with the source-qualified gate repair. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). No later material/transport dependency is claimed solved; independent work continues.
+
+## Do No Evil first journal — 2026-10-15
+
+Blocked: an authentic opening under the existing contents-only first journal. Tried: final quest composition, retained oldid6587790 and actual journals, current owner records; Root verified25 round4 bindings. Single unblock: owner authorization for the sourced replacement first journal and exact complete opening boundary. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). Later clue and ordinary prerequisite routes remain separate; independent work continues.
+
+## Mourning's End Part II ordinary access — 2026-10-15
+
+Blocked: ordinary PartI completion/full disguise before the sourced New key handoff. Tried: final hand-authored override, period oldid6570956, cache6104 and existing Oronwen dependency record. Single first unblock: a period-qualified, independently corroborated combat block for required level62 Sir Harry. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). Preserve other trousers custody/timing qualifications; generic-journal replacement is not a current hold for this override.
