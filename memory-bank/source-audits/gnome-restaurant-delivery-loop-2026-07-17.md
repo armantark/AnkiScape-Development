@@ -41,15 +41,15 @@ transcribed rather than inferred from the modern page.
 
 The six- and eleven-minute source deadlines do not become literal wall-clock
 timers or one- and two-review hard expirations. An accepted order persists
-until it is delivered or deliberately declined. Each `Again` answered while
-the order is outstanding lowers a bounded, clamped punctuality state used only
-to determine the eventual tip quality. It never destroys the order, consumes
-the prepared food, or removes the source-authentic base delivery points.
+until it is delivered or deliberately declined. Under the owner ruling of
+2026-10-14 at22:49 PDT, Again earns nothing and spends no delivery window.
+Each successful answer on another target spends six minutes while an order
+is open. A dish prepared and banked before assignment delivers on time.
+Punctuality affects tip quality only: it never destroys the order, consumes
+prepared food, or removes the source-authentic base delivery points.
 
-This makes the established `Again`-as-AFK world-time rule visible without
-making a short source timer depend on frantic UI interaction. The reducer
-stores only the active order and its bounded punctuality state; it performs no
-background route simulation or per-minute replay.
+The reducer stores the active order and bounded punctuality. It performs no
+wall-clock expiry, background route simulation or per-minute replay.
 
 Easy and hard orders retain their source-distinct customer pools, requirements,
 base points, and reward tables. Cooking continues to own the gnome recipe

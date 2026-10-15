@@ -107,16 +107,16 @@ Imblewyn and Professor Onglewip.
 
 - **One review is one delivery.** Fixed earlier by
   `activity-cadence-reconciliation-2026-07-18.md`: delivery is one no-skill-XP
-  activity action, and `Again` moves the punctuality state while the world clock
-  advances. The delivering review also accepts the next job, so the loop does not
-  need a direct action between deliveries.
+  activity action. The2026-10-14 owner rule makes Again idle; successful reviews
+  on other targets spend six minutes of the persistent delivery window.
+  The delivering review also accepts the next job, so the loop does not need
+  a direct action between deliveries.
 - **The six- and eleven-minute limits become a punctuality budget, not an
   expiry.** The owner settled in 2026-07-17 that an order never expires. The
-  order therefore carries the source's own minutes as a bounded counter, and each
-  `Again` spends six world minutes of it, the same answered-card-to-world-minutes
-  convention Big Chinchompa already uses. An easy job has one slow beat of
-  tolerance and a hard job two, and at zero the tip is at its worst. Nothing is
-  destroyed and no points are lost.
+  order carries the source's own minutes as a bounded counter. Under the
+  2026-10-14 owner ruling, each successful review on another target spends six
+  minutes. Again and delivery spend none. At zero, the tip is at its worst;
+  the order, prepared food and source base points remain intact.
 - **The five-minute hard-order decline wait becomes one answered card**, by the
   same six-minutes-per-card convention.
 - **Declining an easy job is free.** Only the hard-order wait is sourced; the
