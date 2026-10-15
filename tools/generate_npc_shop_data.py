@@ -19,13 +19,26 @@ import runpy
 import subprocess
 import tempfile
 from collections import Counter
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
 if __package__:
+    from .npc_shop_generation.item_identity import (
+        ITEM_NAME_NORMALIZATIONS,
+        MANUAL_ITEM_METADATA,
+        ItemMeta,
+        _item_name,
+        select_player_price_ids,
+    )
     from .npc_shop_generation.service_rows import SERVICE_ROWS
 else:
+    from npc_shop_generation.item_identity import (
+        ITEM_NAME_NORMALIZATIONS,
+        MANUAL_ITEM_METADATA,
+        ItemMeta,
+        _item_name,
+        select_player_price_ids,
+    )
     from npc_shop_generation.service_rows import SERVICE_ROWS
 
 
@@ -265,14 +278,6 @@ VENDOR_ACTIONS = [
 ]
 
 
-@dataclass(frozen=True)
-class ItemMeta:
-    id: int
-    name: str
-    tradeable: bool
-    equipment: Any
-
-
 def _slug(text: str) -> str:
     parts = re.findall(r"[a-z0-9]+", text.lower())
     return "_".join(parts) or "unnamed"
@@ -327,55 +332,6 @@ def load_2011_items(path: Path) -> dict[int, ItemMeta]:
         )
         for item_id, spec in items.items()
     }
-
-
-# Storage-key normalizations where the items.yml cache name differs from the
-# storage key another AnkiScape system already registered for the same item.
-# 4600: items.yml spells it "Willow-blackjack" but The Feud quest catalog
-# registers the identical weapon as "Willow blackjack"; without normalization
-# the two keys slug-collide and the shop item silently loses its registry
-# entry, icon, and Bank category.
-ITEM_NAME_NORMALIZATIONS: dict[int, str] = {
-    882: "Bronze arrows",
-    884: "Iron arrows",
-    886: "Steel arrows",
-    888: "Mithril arrows",
-    890: "Adamant arrows",
-    892: "Rune arrows",
-    4160: "Broad arrows",
-    4522: "Oil lamp (unlit)",
-    4525: "Oil lamp (empty)",
-    4535: "Oil lantern (empty)",
-    4537: "Oil lantern (unlit)",
-    4544: "Bullseye lantern (unf)",
-    4546: "Bullseye lantern (empty)",
-    4548: "Bullseye lantern (unlit)",
-    4600: "Willow blackjack",
-    5014: "Mining helmet (unlit)",
-    23035: "Spiked gauntlets",
-}
-
-# Period items present in the rev-742/Darkan cache but absent from the older
-# rev-667 items.yml baseline. These are still real shop stock, not unknown rows.
-MANUAL_ITEM_METADATA: dict[int, dict[str, Any]] = {
-    23035: {
-        "name": "Spiked gauntlets",
-        "tradeable": False,
-        "source": "RuneScape Wiki Spiked gauntlets oldid 5827717; OpenRS2/Darkan item 23035",
-    },
-}
-
-
-def _item_name(items: dict[int, ItemMeta], item_id: int, fallback: str | None = None) -> str:
-    normalized = ITEM_NAME_NORMALIZATIONS.get(item_id)
-    if normalized:
-        return normalized
-    meta = items.get(item_id)
-    if meta:
-        return meta.name
-    if fallback:
-        return fallback
-    return f"Item {item_id}"
 
 
 def _currency_name(currency_id: int) -> str:
@@ -876,25 +832,7 @@ def build_player_sell_prices(
     floored 0->1 plus coin buy enum override) so buying back player-sold
     temporary stock prices exactly like the engine.
     """
-    stock_id_by_name: dict[str, int] = {}
-    for shop in shops:
-        for row in shop.get("stock", []):
-            name = row.get("item_name", "")
-            item_id = row.get("item_id")
-            if not name or not isinstance(item_id, int):
-                continue
-            if row.get("disposition") == "live" and name not in stock_id_by_name:
-                stock_id_by_name[name] = item_id
-
-    canonical: dict[str, int] = {}
-    for item_id, meta in sorted(items.items()):
-        if not meta.tradeable:
-            continue
-        name = _item_name(items, item_id)
-        if not name or name.startswith("Item ") or name.lower().startswith("null"):
-            continue
-        canonical.setdefault(name, item_id)
-    canonical.update(stock_id_by_name)
+    canonical = select_player_price_ids(items, shops, manual_metadata=MANUAL_ITEM_METADATA)
 
     sell_prices: dict[str, int] = {}
     buy_prices: dict[str, int] = {}
