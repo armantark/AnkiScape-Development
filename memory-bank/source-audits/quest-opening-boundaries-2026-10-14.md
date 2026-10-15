@@ -1,0 +1,11 @@
+# Two quest openings retain exact holds — 2026-10-14
+
+A bounded source qualification inspected Ghosts Ahoy and Horror from the Deep on fdb1ac49f986437c9b9fba6d8dd313146fb19124. Their gameplay runtime matched main325b4ecea4e032a942927825d5cf68e86ab6e6bf at dispatch. No implementation, product test or native action occurred.
+
+Ghosts Ahoy: both prerequisites remain settled under ruling35. Live Prayer code provides a5-token worship writer; its existence does not qualify every ordinary input route or the Port entry charge. The retained harvest expressly leaves fares unrecovered. First unblock: independently corroborated period-qualified standard Port Phasmatys entry-charge rule and pre-quest applicability. The generic first journal and section mapping also require separate owner authorization. Missing backend code alone is not a blocker.
+
+Horror from the Deep: ruling50 settles Prayer43 as recommended, not required. The live required_skills gate enforces43; the requirement list and existing Quest tab render Requires: Agility35, Prayer43. Keeping that false gate cannot qualify a faithful opening. First unblock: recorded owner authorization to correct the existing requirement readout under the settled recommendation contract. No new Prayer-policy decision is requested. The exact stage1 Larrissa/Barbarian handoff and later combat scope stay separate.
+
+Qualification: [/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-1/qualification.json](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-1/qualification.json), SHA256`23bd084bfd654449eefbd9eae3bd7e192d027101b94bdc50e1fd91c33378122c`. All six retained source files and authority hashes were independently rechecked by Root. Original sources and report are retained at [/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/retained-next-quest-roots-fdb1ac49/retention-manifest.json](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/retained-next-quest-roots-fdb1ac49/retention-manifest.json), SHA256`f6aa710e883765e011c7974046cbc6b447a7fbf72b4fd86da2bd9678fa2d2bb8`.
+
+These are two per-root holds. Neither is whole-goal closure or proof that other independent paths are blocked. The source/full-lane queue continues; existing UI remains excluded.
