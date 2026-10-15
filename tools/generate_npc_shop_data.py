@@ -823,9 +823,9 @@ def build_player_sell_prices(
     """Coin sell price per storage name — absolute Darkan parity (owner
     decision 2026-07-06): the price is Shop.java getSellPrice for the name's
     canonical item id, identical at every shop. AnkiScape's flat inventory
-    only has names, so the canonical id is the id live shop stock uses for
-    that name (what players actually buy), falling back to the lowest
-    tradeable id in items.yml. No clamping: buy-low/sell-high flips that the
+    only has names, so the selector prefers an eligible live stock id,
+    then a historical generic projection, then the lowest tradeable
+    original metadata id. No clamping: buy-low/sell-high flips that the
     Darkan engine allows (custom-priced stock vs cache sellPrice) stay, and
     are bounded the way the engine bounds them — stock per review-paced
     restock interval. Also returns the matching getBuyPrice table (cache value
