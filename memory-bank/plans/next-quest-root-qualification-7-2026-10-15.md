@@ -62,3 +62,8 @@ CHECK/EXPECT remain a source-bound complete eligible-or-held verdict for each se
 ## Reuse round15 shortlist for round16
 
 Root verified26 source and10 prior-report bindings, recording Eadgar and WorkshopIII's first owner holds. Round16 reuses next_twenty entries3/4 only: love_story and recipe_for_disaster_freeing_evil_dave. No new registry import, census, harvest, decode or repeated upstream sweep. Root freezes checkout2 at the next Markdown-only commit named in dispatch; quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-16/report.md and qualification.json under the same external root. All earlier complete-first-journal/ordinary-route CHECK/EXPECT, source hierarchy, exact evidence, safety, ownership and no-exhaustion conditions remain. Root verifies handback before another pair. Root5's NPC candidate remains unchanged and separate throughout.
+
+
+## Reuse round15 shortlist for round17
+
+Root verified all29 round16 bindings and recorded actual dependency holds. Round17 reuses next_twenty entries5/6 only: recipe_for_disaster_freeing_king_awowogei and rocking_out. No new import, census, harvest, decode or repeated upstream sweep. Frozen checkout2 is the next Markdown-only commit named in dispatch; quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-17/report.md and qualification.json under the same evidence root. All original complete-journal/ordinary-route/source-hierarchy CHECK/EXPECT, exact evidence, safety, UI exclusions, ownership and no-exhaustion limits apply. Root5 remains frozen on its exact full gate and is outside this leaf's workspace.

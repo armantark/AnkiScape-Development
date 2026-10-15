@@ -189,3 +189,7 @@ Root verified24 source bindings for [these first-journal scope holds](source-aud
 ## Eadgar and Workshop III openings — 2026-10-15
 
 Root verified26 source and10 prior-report bindings in [round15](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md). Eadgar needs one owner authorization for the Prayer40 requirement-readout correction, with independent exact gate qualification still open. WorkshopIII needs one owner ruling for a source-correct first journal and complete opening endpoint; its current journal and book action describe different boundaries. No seeded route, silent visible change or gameplay acceptance. The remaining18 retained candidates are order-only and independent work continues.
+
+## Love Story and Evil Dave dependencies — 2026-10-15
+
+Root verified29 bindings in [round16](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md). Love Story inherits One Small Favour's owner readout/source-qualified gate hold through the actual hand-authored Swan Song prerequisite. Evil Dave needs one owner ruling for the actual Another Cook generic first journal and exact complete sourced endpoint; its2025 pin is not period evidence, with retained2012 replacement-source qualification still work. Both selected first journals are concrete and must be performed completely. No code, seeded route, native or gameplay acceptance; later16 retained names remain order-only.

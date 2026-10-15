@@ -3040,3 +3040,8 @@ The current start gate and visible requirements require Prayer40, while the reta
 ## Open owner question — 2026-10-15: Elemental Workshop III first journal
 
 The first journal describes a later puzzle; the existing stage1 action instead finds/reads Ragged book “in the workshop”, with no produced book. The period source starts at the chapel bookcase, then preparation, then the puzzle. Authorize a sourced replacement first journal and exact complete opening endpoint. The [qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) retains the current stage/dependency/key/custody conflicts; no hidden book action, journal renumbering or partial puzzle credit is authorized.
+
+
+## Open owner question — 2026-10-15: Another Cook's Quest first journal
+
+Another Cook's Quest, an actual prerequisite for Freeing Evil Dave, has a generic first journal and a generated2025 fallback source pin. A retained period main-page source nominates commission/100-Coin advance, ingredient/Dirty-blast preparation and full handoff. Authorize the sourced replacement first journal and exact complete endpoint, distinguishing that commission from full preparation/feast access. The [dependency qualification](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md) retains source-pin repair as work; that repair alone grants no existing journal/UI authority. No seeded feast access or partial stage credit.
