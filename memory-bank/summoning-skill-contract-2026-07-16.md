@@ -417,13 +417,12 @@ Pinned period evidence in `source-audits/summoning-familiarisation-2026-07-16.md
 the once-weekly spirit-plane fiction, 60-shard/focus/20-minute stop conditions, and the
 choice between a shard-scaled ingredient box or shard-scaled triple eligible charm drops.
 The owner delegated the unfamiliar D&D's AnkiScape shape rather than reconstructing it
-from memory. It becomes a compact **four-answered-card session**, not a one-review roll.
+from memory. It becomes a compact **four-successful-answer session**, not a one-review roll.
 
-The run starts with three abstract focus pips and zero shards. Each successful answer
-gathers 15 shards; Hard, Good, and Easy are deliberately equivalent. Again consumes the
-segment, gathers nothing, and removes one focus pip as hunter pressure. The run ends at
-60 shards, zero focus, or four segments. These integers are labeled balance abstractions,
-not claims about period shard density or hunter hit rates.
+The2026-10-14 owner ruling removes focus from this translation and from sanitized saves.
+Each successful answer gathers15 shards; Hard, Good and Easy are equivalent.
+Again pauses with no segment or shard gain. Four successful answers finish with60 shards.
+These integers are balance abstractions, not period shard-density or hunter-hit claims.
 
 At the end, the player immediately chooses the source reward: a shard-scaled ingredient
 box or shard-scaled triple eligible charm drops. The reward command costs no review.

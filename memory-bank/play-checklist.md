@@ -74,3 +74,4 @@ you are in the game, with the date the change reached main.
 - [ ] In the Bank, the Toolbelt panel lists the General, Fishing, Crafting and Farming belt tools under your pickaxe and hatchet, and a quest step that wants a belt tool, such as the Druidic Ritual fishing rod, goes ahead with none in the Bank. (2026-09-30)
 
 - Gnome Restaurant: accept an easy/hard order, answer Again repeatedly, then deliver banked food; the window stays intact, while successful answers on other targets spend six minutes. Undo restores the prior order, food and rewards.
+- Familiarisation: start a session and interleave Again with Hard/Good/Easy. Again preserves segment/shard progress; the fourth success offers60 shards. Focus is absent from the activity summary and notification. Undo/reanswer preserves completion and a single reward claim.

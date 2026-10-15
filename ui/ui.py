@@ -8765,7 +8765,6 @@ def show_main_menu(
                 familiarisation_status.setText("IN PROGRESS")
                 familiarisation_summary.setText(
                     f"{int(view['segments'])}/{int(view['max_segments'])} segments · "
-                    f"{int(view['focus'])} focus · "
                     f"{int(view['raw_shards'])}/{int(view['shard_cap'])} shards"
                 )
             elif awaiting_reward:

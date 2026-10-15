@@ -819,8 +819,8 @@ Labels: `COMPLETE`, `SOURCE DEBT`, `DEPENDENCY: COMBAT/ACQUISITION`.
   that target, but it preserves an already-live global familiar and its paid duration.
 - Familiarisation is source-pinned as a once-weekly shard/focus D&D ending at 60 shards,
   zero focus, or its period time cap, followed by a shard-scaled ingredient-box or
-  triple-charm choice. The delegated translation is four answered cards, three focus
-  pips, 15 shards per success, and one lost pip/no shards on Again.
+  triple-charm choice. The2026-10-14 owner translation is four successful answers,
+  15 shards per success and no focus field. Again pauses with no progress or shard gain.
 - Ordinary training is source/app-pattern resolved under
   `source-audits/summoning-training-2026-07-16.md`: searchable pouch-infusion and scroll-
   creation families process one exact source unit per successful review; Wolf Whistle is
