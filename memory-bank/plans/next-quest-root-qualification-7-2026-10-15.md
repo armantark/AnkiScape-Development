@@ -36,3 +36,8 @@ Root verified all28 round10 source bindings and recorded the first pair. The ret
 ## Reuse retained shortlist for round12
 
 Root verified round11's complete source bindings and recorded both inherited route holds. Round12 reuses retained round10 shortlist entries5/6: the_firemakers_curse and the_path_of_glouphrie. No new registry import, census or repeated upstream source qualification. The leaf owns only next-quest-root-qualification-12/report.md and qualification.json under the same external evidence root; frozen source remains checkout2 at662e1f8f. All earlier complete-boundary criteria, ownership and prohibitions apply. Root must verify the handback before another pair. Sourceguard production authorship remains isolated to its four-file whitelist in checkout5.
+
+
+## Reuse retained shortlist for round13
+
+Root verified round12's29 bindings and the Firemaker follow-up25 bindings. Firemaker is source-held on independent corroboration of its unboosted74 start gate; Path inherits its existing Grand Tree journal hold. Round13 reuses retained round10 shortlist entries7/8: the_slug_menace and the_temple_at_senntisten. Qualify only these two complete ordinary first-journal boundaries at frozen checkout2/662e1f8f. The leaf owns only next-quest-root-qualification-13/report.md and qualification.json under the same external evidence root. No import/census, decode, harvest or repeated exhausted sweep; original CHECK/EXPECT, source hierarchy, UI exclusions, all ownership and standing prohibitions remain. Root verifies handback before the next pair; no whole-goal exhaustion follows.
