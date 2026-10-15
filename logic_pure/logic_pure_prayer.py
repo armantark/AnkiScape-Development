@@ -228,7 +228,7 @@ def active_prayer_selection_pure(data, *, automatic_protection_prayer=None):
     automatic = automatic_protection_prayer_pure(data, automatic_protection_prayer)
     if not automatic:
         return selected
-    ordinary = selected if enabled and PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0) > 0 else ()
+    ordinary = selected if PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0) > 0 else ()
     return sanitize_prayer_selection_pure(data, (automatic, *ordinary))
 
 
