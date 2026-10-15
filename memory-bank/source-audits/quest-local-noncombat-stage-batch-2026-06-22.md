@@ -191,3 +191,7 @@ statless_combat_encounters: 105
   backed by broad detail-page rows, puzzle/follower/branch state, route/location
   state, remaining quest item transformations, 105 non-resolver-ready combat
   rows, and the eventual real combat surface.
+
+## Tribal native integration preparation — 2026-10-15
+
+Root normally merged preserved9928e121 recovery into landed mainf2 in the reused clean Familiarisation checkout, preserving both prior branch refs and native/certificate evidence without a new worktree. The Tribal product handler is byte-identical to9928, and UI is byte-identical to mainf2. Original41Qt/source-review/full9 receipts remain; do not replay them for records. Canonical fixture901 is present. Native starts from an explicitly declared unstarted quest with legal Thieving eligibility, no quest stage/action/item-handoff/completion grant, and uses ordinary reviews plus the existing undoable Bank Discard action for real loss/recovery checks. Root is sole GUI owner; native acceptance, final merged review/full9/land remain pending.
