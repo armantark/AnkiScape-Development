@@ -974,8 +974,8 @@ def _advance_bunyip_heal(
 
 
 def _advance_familiarisation_world_tick(
-    player_data: dict[str, Any], state: dict[str, Any], successful_answer: bool | None
-) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    player_data: dict[str, Any], state: dict[str, Any], successful_answer: Optional[bool]
+) -> tuple[dict[str, Any], Optional[dict[str, Any]]]:
     activity = dict(state["familiarisation"])
     activity["cooldown_reviews_remaining"] = max(
         0, activity["cooldown_reviews_remaining"] - 1

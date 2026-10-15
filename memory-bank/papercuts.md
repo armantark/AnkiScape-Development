@@ -392,3 +392,5 @@
 
 - 2026-10-15T06:15:26.712415+00:00: Familiarisation metrics refused `advance_summoning_world_tick_pure: cognitive 24 > 15`; reuse the existing segment reducer behind the activity world-tick boundary, retaining independent clocks and the fixed15 limit.
 - 2026-10-15T06:17:29.650258+00:00: Familiarisation docs audit refused `startup_line_budget_exceeded: 3002 startup lines must stay under 3000: memory-bank/activeContext.md=44, memory-bank/progress.md=808, memory-bank/future-work-kanban.md=1580, memory-bank/goal-priority-matrix.md=179, memory-bank/loop-queue.md=0, memory-bank/papercuts.md=391`; retain the same complete linked navigation archive used by the Restaurant slice, without changing the cap.
+
+- 2026-10-15T06:50:30.470513+00:00: Familiarisation live-clock fixture set summoning_level=99 but retained default summoning_points_current=1; summon_familiar_pure returned False at test_familiarisation_fairness.py:34. Supply valid points before the real summon.
