@@ -3102,3 +3102,7 @@ Authorize the complete Drezel commission and ordinary six-pie custody in place o
 ## Open complete-branch journal scope — 2026-10-15: Hazeel Cult
 
 Authorize complete branch-specific first journals/endpoints through all five correct valve states for both existing choices. The current refusal journal cannot truthfully complete on the cult branch. Preserve the Carnillean briefing/refusal route and the cult acceptance/poison/family/Mark route before its valves. No choice removal, shortened stage or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).
+
+## Open owner question — 2026-10-15: Pirate’s hook catalog snapshot
+
+May the exact GE snapshot totals change from1442prices/1837limits to1443prices/1838limits solely for the sourced Pirate’s hook2997 row, with every prior row proven identical and all other assertions preserved? The unchanged tests/test_grand_exchange_data.py:235–236 fail `AssertionError: 1443 != 1442`; Astra found no green path preserving those exact totals, every old row and the added same-map item. Candidatefecac97b7d9f01ffc64e4e56c05d6168938bfe45 is parked. No instrument was changed. Source qualification, startup-budget compliance, native acceptance and the exact full gate remain separate requirements; an answer here does not waive them. [Independent review](</Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/pirates-hook-astra-review-2026-10-15/report.md>).
