@@ -505,3 +505,5 @@
 - 2026-10-15T04:25:16-07:00 — Polling corrected focused proof used finished predecessor session27870 and returned write_stdin failed: Unknown process id 27870; actual continuation25527 returned0. The retained execution-exit.txt and complete outer log establish success; no product replay.
 
 - 2026-10-15T11:20:51.956735+00:00 A selected quick-guide read assumed revisions existed and failed: KeyError: 'revisions'. Schema inspection showed both retained *_quick_guide_old pages contain only ns,pageid,title and no revisions. Neither empty payload was used as an oldid/body source. No repeated fetch/import or source change occurred. Root owns the papercut record.
+
+- 2026-10-15T04:45:23-07:00 — Astra closure found completed source-guard no-op/check entries still status pending despite actual_exit0, and a priority row retained Four later names remain uninspected plus a superseded Firemaker nomination. Corrected only receipt labels/current row, retained35 reconciled files with the existing retainer, preserved old packet and all successful product proofs without replay.

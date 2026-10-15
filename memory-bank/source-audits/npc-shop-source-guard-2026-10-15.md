@@ -24,6 +24,6 @@ Root verified13 targeted observations,74 supported cases in2.577s without skips,
 All13 catalog values, complete ledger and exact rendered triplet match after only permitted provenance adjustment; both6827-entry price maps retain exact order.
 Normal no-op and --check preserve all four target byte/mtime pairs and create no lock; all318 original source stats remain unchanged.
 Root added only the qualified318-input NPC map through the existing locked helper; all three prior manifest entries and runtime outputs remain exact.
-Accepted source proof: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/retained-npc-source-guard-proof-7dfde456/retention-manifest.json, SHA-256 c69cb2d5f1d38a9be4b41ab7f7ba25410fc9fc1fa378b4c6015e66857f517e9d.
+Accepted source proof: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/retained-npc-source-guard-proof-reconciled-6631064f/retention-manifest.json, SHA-256 7d37c04f56719a14c0e4a6ff303aa3cdcadbb57bdd2943727834285defa8a3a8.
 Root owns real-source acceptance, the manifest entry, reviews, both full lanes, native acceptance and promotion.
-Independent review closure and the exact merged full gate/land remain; no native or goal-completion claim.
+Astra and GLM accept source6631064f. The two record corrections are reconciled without product replay; final record closure and the exact merged full gate/land remain.
