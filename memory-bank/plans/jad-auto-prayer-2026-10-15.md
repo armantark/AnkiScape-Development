@@ -31,3 +31,8 @@ Fight Caves passes the legal automatic prayer for its engaged burst whenever liv
 ## Source checkpoint
 
 The opening69a22761 reference is the author baseline, not current main. Main subsequently landed the metadata-only NPC correction at ed10c2f0d21460e115ddfb370693fecb47b2f082. Root must preserve that landing during later integration. The amended boss bullet remains a prerequisite records slice; no source implementation is accepted or landed by this plan.
+
+
+## First merged gate preparation — 2026-10-15
+
+The amended boss contract and answered decision have landed. Source115b92d6 has accepted source reviews and Root's419-case supported proof. Root merged main662e1f8f normally atf851c88f; the seven accepted Jad product/checklist/checkpoint files remain byte-identical before this records update. Root will run the first full9 --remote-lanes gate while the higher-priority source guard is still in its tests-only author phase. This uses the otherwise idle serialized full slot and grants no native or landing waiver. Root owns the mirror until the original gate ends, then returns the slot to source-guard verification. No native run or product replay is authorized by this records preparation.
