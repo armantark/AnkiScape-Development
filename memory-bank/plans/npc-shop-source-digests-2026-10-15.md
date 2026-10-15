@@ -64,3 +64,8 @@ The first normal Phase1 commit returned1. The unchanged slop-gate measured asser
 ### Repaired test freeze
 
 The new module is now tests/shops/test_source_inputs.py,926 lines, SHA-256c0a2cedddb12eac64994023de7afb206334deb94b242eb00f75cba0166c251ff. Root independently compared the staged pre-repair AST: all32 test names and161 assertion calls are exact. Root reran the four changed/new function metrics, actual0. A fresh supported paired inventory counted2; execution returned1 with3 real preservation failures and0errors. The original primary still reaches decoder1/command0 and overwrites allthree output sentinel bytes. All12 qualified tracked hashes remain exact. Raw Root receipt: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/npc-shop-source-guard-root-red-after-hook-repair/result.json. This final package path/hash supersedes the earlier freeze. Retry the normal commit; only after success may the previously specified Phase2 production whitelist be dispatched. Tests remain byte-frozen during production.
+
+
+### Serialized full slot returned
+
+Jad's first exact mergedf403d127 full9 remote gate returned0 and its original product receipts were retained. Native/visual/land remain false. Root released the mirror/full slot to the higher-priority source-guard slice while its author continues local controlled-fixture work. No source-guard full check has started or passed.
