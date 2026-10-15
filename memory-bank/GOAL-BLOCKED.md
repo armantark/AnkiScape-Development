@@ -153,3 +153,8 @@ Tried final-composed journal/requirements, both retained period pages, external 
 ## Goblins and Legends openings — 2026-10-15
 
 Land of the Goblins is dependency-held by The Giant Dwarf's existing library-load owner decision. Tried: actual composed prose/cleanup, ordinary prerequisite list and period oldid6564799. Single first unblock: the existing owner-approved library-load model; no partial-weight substitute. Legends' Quest is held on its existing requirement-readout scope. Tried: composed eligibility/readout consumers and oldid6529921 lines27–40/110–115. Single first unblock: owner authorization for that readout correction with source-qualified eligibility repair. Ordinary prerequisite, material and quest-point qualification remains after these first holds. [Exact evidence](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md). These per-root holds do not establish exhaustion.
+
+
+## Favour and Summer openings — 2026-10-15
+
+One Small Favour is held on existing prerequisite-readout scope. Tried: actual full prose/gate/readout, period walkthrough6546338, Questreq6552449 and cache struct593 slots13/99. Single first unblock: owner authorization for the Rune Mysteries requirement-readout correction with the source-qualified gate. Summer's End is held on first-journal scope. Tried: generic actual journal, final supply alternatives and period6560166/6534090. Single first unblock: owner-approved sourced first journal and exact stage1 endpoint. Ordinary routes and supplies remain to qualify after these scope holds. [Exact evidence](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md). The eight other retained candidate names remain uninspected; no exhaustion claim.

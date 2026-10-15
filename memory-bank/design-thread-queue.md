@@ -3003,3 +3003,12 @@ The actual first Forgettable Tale journal is the generic pinned-guide objective.
 ## Open existing-readout scope — 2026-10-15: Legends' Quest
 
 Period oldid6529921 recommends Regicide and Combat75, requires Prayer42 rather than43, and allows several skills after start and temporary boosts. Current eligibility and visible Requires text hard-gate those recorded values at start. Needed owner scope: correct the existing requirement readout with the source-qualified eligibility repair. No journal redesign, guard-only stage, substituted prerequisite or backend-only discrepancy is authorized. True direct prerequisites and quest points remain to qualify. [Exact source qualification](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md).
+
+
+## Open existing-readout scope — 2026-10-15: One Small Favour
+
+Questreq6552449 and retained cache struct593 slots13/99 independently require Rune Mysteries and Shilo Village. Current gate/readout omits Rune Mysteries. Needed owner scope: correct the existing prerequisite readout with that source-qualified gate; no journal redesign or backend-only mismatch. The full Yanni-to-Johanhus contact chain and ordinary prerequisites remain implementation/acquisition work. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
+
+## Open first-journal scope — 2026-10-15: Summer's End
+
+The actual first journal is generic. Period oldids6560166/6534090 distinguish the portal/Void briefing from return, mine preparation and familiar lure, but do not assign AnkiScape stage1. Needed owner scope: one sourced first journal and its exact endpoint. Existing supply gates do not choose it. Ordinary Spirit of Summer/ring acquisition stays separate; no hidden state or partial later-stage credit is authorized. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
