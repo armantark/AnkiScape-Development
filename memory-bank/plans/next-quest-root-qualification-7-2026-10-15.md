@@ -41,3 +41,8 @@ Root verified round11's complete source bindings and recorded both inherited rou
 ## Reuse retained shortlist for round13
 
 Root verified round12's29 bindings and the Firemaker follow-up25 bindings. Firemaker is source-held on independent corroboration of its unboosted74 start gate; Path inherits its existing Grand Tree journal hold. Round13 reuses retained round10 shortlist entries7/8: the_slug_menace and the_temple_at_senntisten. Qualify only these two complete ordinary first-journal boundaries at frozen checkout2/662e1f8f. The leaf owns only next-quest-root-qualification-13/report.md and qualification.json under the same external evidence root. No import/census, decode, harvest or repeated exhausted sweep; original CHECK/EXPECT, source hierarchy, UI exclusions, all ownership and standing prohibitions remain. Root verifies handback before the next pair; no whole-goal exhaustion follows.
+
+
+## Reuse retained shortlist for round14
+
+Root verified all25 round13 bindings and recorded both first holds. Round14 reads only retained round10 entries9/10: toktz_ket_dill and animal_magnetism. Reuse frozen checkout2 at662e1f8f and all complete-boundary/ordinary-route criteria. The leaf owns only next-quest-root-qualification-14/report.md and qualification.json under the same external evidence root. No new registry import, census, decode, harvest or repeated upstream sweep; all original safety, ownership, source, UI and no-exhaustion limits remain. Root must verify this handback; consuming this retained shortlist does not establish exhaustion of later candidates or independent goal paths.

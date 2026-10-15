@@ -3017,3 +3017,8 @@ The actual first journal is generic. Period oldids6560166/6534090 distinguish th
 ## Open existing-journal copy scope — 2026-10-15: Chosen Commander food list
 
 The first journal omits the list after 'among the following'. The current first implementation hold remains The Giant Dwarf's library-load model. Before later implementation, the owner must authorize a source-qualified correction to that existing journal text; no food assignment, controlled scene or broader journal redesign is settled. [Exact qualification](source-audits/darkmeyer-and-commander-opening-boundaries-2026-10-15.md).
+
+
+## Open owner question — 2026-10-15: Slug Menace first journal
+
+The live first journal is the generic “Complete The Slug Menace stage 1 objective using the pinned source guide.” Period guide6588246 describes Tiffy briefing/password and Commorb-v2 grant or upgrade, followed by O'Niall/Witchaven interviews/investigation. Authorize the sourced replacement journal and exact complete first-stage endpoint before code changes. The source grants Commorb v2 when the player lacks a Commorb; no mandatory seeded original is inferred. The [source qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md) records this single first scope hold. No existing UI change is authorized by this question.

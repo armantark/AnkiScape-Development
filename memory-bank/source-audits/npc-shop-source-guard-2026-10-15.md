@@ -20,6 +20,10 @@ Lexical `Path.relative_to` now supports the current-directory root without histo
 Services/vendor parse and prepare a required audit ledger before output-parent creation or catalog publication; optional direct-call audit behavior remains.
 The three price helpers retain exactly the landed `662e1f8f9610ee157f67bf055bd255012c018c3b` abstract syntax trees; the pre-existing negative-price question remains outside this correction.
 Raw commands, original exits, hashes, metrics and all review criteria appear in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/npc-shop-source-guard-author/ordering-correction/report.md`.
-Root owns after-fix ordering, current-directory, invalid-ledger and authentic reproduction/no-op/check proofs, plus independent review closure.
+Root verified13 targeted observations,74 supported cases in2.577s without skips, and authentic full generation/no-op/check at source7dfde456; all returned0.
+All13 catalog values, complete ledger and exact rendered triplet match after only permitted provenance adjustment; both6827-entry price maps retain exact order.
+Normal no-op and --check preserve all four target byte/mtime pairs and create no lock; all318 original source stats remain unchanged.
+Root added only the qualified318-input NPC map through the existing locked helper; all three prior manifest entries and runtime outputs remain exact.
+Accepted source proof: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/retained-npc-source-guard-proof-7dfde456/retention-manifest.json, SHA-256 c69cb2d5f1d38a9be4b41ab7f7ba25410fc9fc1fa378b4c6015e66857f517e9d.
 Root owns real-source acceptance, the manifest entry, reviews, both full lanes, native acceptance and promotion.
-This checkpoint makes no authentic reproduction, final-gate, native, landing or goal-completion claim.
+Independent review closure and the exact merged full gate/land remain; no native or goal-completion claim.

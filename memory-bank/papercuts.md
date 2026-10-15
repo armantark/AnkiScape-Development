@@ -500,3 +500,8 @@
 - 2026-10-15T04:18:14-07:00 — Promotion preparation tried unobserved npc-price-identity-exact-merged-verification/launch.json and received FileNotFoundError: [Errno 2] No such file or directory; the existing promotion_gate.py run/land help supplies the authoritative arguments, so no prior successful product proof is replayed.
 
 - 2026-10-15T11:19:38.370823+00:00 — Source-guard correction author recovered an over-budget combined plan/review/startup read with separate bounded sections before editing; report and handback retain the exact scope, with no omitted-output absence claim.
+
+- 2026-10-15T04:25:16-07:00 — Corrected supported-proof inventory returned0 and printed Matching tests: 74 twice (raw and outer summary); Root's single-occurrence assertion failed before execution. Reused the successful inventory, required one distinct measured count and ran the original execution once:74/2.577s/0/no skips.
+- 2026-10-15T04:25:16-07:00 — Polling corrected focused proof used finished predecessor session27870 and returned write_stdin failed: Unknown process id 27870; actual continuation25527 returned0. The retained execution-exit.txt and complete outer log establish success; no product replay.
+
+- 2026-10-15T11:20:51.956735+00:00 A selected quick-guide read assumed revisions existed and failed: KeyError: 'revisions'. Schema inspection showed both retained *_quick_guide_old pages contain only ns,pageid,title and no revisions. Neither empty payload was used as an oldid/body source. No repeated fetch/import or source change occurred. Root owns the papercut record.
