@@ -48,6 +48,40 @@ def _player():
 
 
 class TribalTotemOpeningTest(unittest.TestCase):
+    def test_lost_handoff_items_recover_without_progress_or_early_rewards(self):
+        for item, stage in (("Address label", 3), ("Totem", 5)):
+            with self.subTest(item=item):
+                player = _player()
+                calls = {"xp": [], "saves": 0, "errors": []}
+                while player["quests"].get(QUEST_ID, {}).get("progress", 0) < stage:
+                    self.assertTrue(handle_quest_answer(_context(player, calls)))
+                for _ in range(2):
+                    player["inventory"].pop(item)
+                    before = copy.deepcopy(player)
+                    saves_before = calls["saves"]
+                    self.assertTrue(handle_quest_answer(_context(player, calls)))
+                    self.assertEqual(player["quests"], before["quests"])
+                    self.assertEqual(player["quest_action_proofs"], before["quest_action_proofs"])
+                    self.assertEqual(player["inventory"], {**before["inventory"], item: 1})
+                    self.assertEqual(player["quest_points"], before["quest_points"])
+                    self.assertEqual(
+                        {key: value for key, value in player.items() if key.endswith("_exp")},
+                        {key: value for key, value in before.items() if key.endswith("_exp")},
+                    )
+                    self.assertEqual(calls["saves"], saves_before + 1)
+                while not player["quests"][QUEST_ID]["completed"]:
+                    self.assertTrue(handle_quest_answer(_context(player, calls)))
+                self.assertEqual(player["inventory"]["Address label"], 0)
+                self.assertEqual(player["inventory"]["Totem"], 0)
+                self.assertEqual(player["inventory"]["Swordfish"], 5)
+                self.assertEqual(player["quest_points"], 1)
+                self.assertEqual(player["thieving_exp"], 1775.0)
+                completed = copy.deepcopy(player)
+                saves_before = calls["saves"]
+                self.assertFalse(handle_quest_answer(_context(player, calls)))
+                self.assertEqual(player, completed)
+                self.assertEqual(calls["saves"], saves_before)
+
     def test_thieving_twenty_refuses_before_any_opening_action_or_save(self):
         player = _player()
         player["thieving_level"] = 20
@@ -185,6 +219,41 @@ class TribalTotemOpeningTest(unittest.TestCase):
             addon._on_state_did_undo(SimpleNamespace(operation="Answer Card"))
             self.assertEqual(addon._state.player_data, after)
             self.assertEqual(collection._store, expected_config)
+            for item, stage in (("Address label", 3), ("Totem", 5)):
+                while addon._state.player_data["quests"][QUEST_ID]["progress"] < stage:
+                    _answer_review(addon)
+                addon._state.player_data["inventory"].pop(item)
+                addon.save_player_data()
+                addon.load_player_data()
+                addon.save_player_data()
+                recovery_before = copy.deepcopy(addon._state.player_data)
+                recovery_config = copy.deepcopy(collection._store)
+                recovery_random = random.getstate()
+                _answer_review(addon)
+                recovered = copy.deepcopy(addon._state.player_data)
+                recovered_config = copy.deepcopy(collection._store)
+                self.assertEqual(recovered["quests"], recovery_before["quests"])
+                self.assertEqual(recovered["inventory"][item], 1)
+                self.assertEqual(recovered["quest_points"], recovery_before["quest_points"])
+                self.assertEqual(recovered["thieving_exp"], recovery_before["thieving_exp"])
+                addon._on_state_did_undo(SimpleNamespace(operation="Answer Card"))
+                self.assertEqual(addon._state.player_data, recovery_before)
+                self.assertEqual(collection._store, recovery_config)
+                random.setstate(recovery_random)
+                _answer_review(addon)
+                self.assertEqual(addon._state.player_data, recovered)
+                self.assertEqual(collection._store, recovered_config)
+                addon._state.player_data = {}
+                addon._state.current_skill = "None"
+                addon.load_player_data()
+                self.assertEqual(addon._state.player_data, recovered)
+                self.assertEqual(collection._store, recovered_config)
+            _answer_review(addon)
+            completed = addon._state.player_data
+            self.assertTrue(completed["quests"][QUEST_ID]["completed"])
+            self.assertEqual(completed["quest_points"], 1)
+            self.assertEqual(completed["thieving_exp"], 1775.0)
+            self.assertEqual(completed["inventory"]["Swordfish"], 5)
         finally:
             random.setstate(original_random_state)
             sys.modules.clear()
