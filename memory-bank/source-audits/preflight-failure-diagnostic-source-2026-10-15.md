@@ -8,7 +8,7 @@ The configured local MacBook plain run `plain-1792077844-1434070d` passed 5379 t
 
 The original2026-10-02T21:09:33-0700 silent-child cause remains unexplained and its incident stays open. The new diagnostic closes only the missing wrapper context. Source verification does not grant merged-gate or landing acceptance.
 
-Astra Standards/Spec and simplification review passed the exact source with no findings. Cross-lineage closure, the exact merged full nine-check `--remote-lanes` gate and official `land` command remain required. No native check applies to this command-line tool.
+Astra and K3 Standards/Spec reviews closed all findings. Exact candidate `c74a1c8a5ba639f7cb19133283496c4788d0ad31` passed all nine `--remote-lanes` checks and official `land` exit0. Gate plain5379/603.730s/580 skips and Qt5379/833.913s/5 skips passed with original outer reports0. Canonical main was clean after landing. No gameplay or native acceptance is claimed.
 
 External evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/preflight-failure-diagnostic-source/`. Original files stay unchanged. `source-evidence-digests.json` binds the raw records:
 
@@ -25,3 +25,6 @@ External evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-202
 - `root-configured-source-plain-verification.json`: `c7bef52be16dc46c0ee325a6cba50f3f3456d951d613271bb770c14c15458bff`.
 - `handback-configured.json`: `0c06ee2b17f8a2d05ae525ba673adee07a4a525b44d1d4713383b2bd66b62141`.
 - `friction.txt`: `4ec278bc70d57322efd15ea1dec07ea06c8f53d6c02005c3ff4cf488d40e39e8`.
+
+Exact gate and land evidence is retained in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/preflight-diagnostic-exact-merged-verification/`: `official-certificate.json` SHA256`d51b69ec78ef5508a65719089390bd01d9b4d781a1ffa911aae165710009e178`; `original-gate-full.log` SHA256`f6ea90cc9c62375a6c21150e5bdc39b040c4e98e28d95b2647bc8ce15df88141`; `plain-original-outer.log` SHA256`0b6642cce0314aad501da0b3b29bacc7306dfb3fa97907459f2198c995cbf290`; `qt-original-outer.log` SHA256`5d2902bdc8c7e35c9f4f76e35707e9e075fe65be308d601d1c6be54490ee56b7`; `official-land.json` SHA256`842835aae21b7496d21d40fa52c83ca10a63fd6db53191aa6c2880cfd7a5c2d4`; `preflight-diagnostic-official-land-7rqd3qub.log` SHA256`f11f84e1eb9fce7455c37873c9162162c4bbf87294a5ea70dd114a8ac888e5fa`.
+The independent112-file retained packet is `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/retained-preflight-diagnostic-landed-c74a1c8a/retention-manifest.json`, SHA256`392caa31631819c0d523b18fdf3eacf503425b8b2e26c17cf399a69f07a98a57`. Root rehashed every retained file successfully. The manifest binds each original raw artifact; original failed receipts remain.
