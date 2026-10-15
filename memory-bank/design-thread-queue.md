@@ -3031,3 +3031,12 @@ The first journal is the generic “Complete TokTz-Ket-Dill stage 1 objective us
 ## Open owner question — 2026-10-15: Animal Magnetism first journal
 
 Stage1 is only contents headings; stage2 contains the Ava/Alice opening deeds. Authorize a sourced replacement first journal and its exact Ava-versus-undead-poultry endpoint while settling that stage2 overlap. The [source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) also retains the later Thieving15 readout qualification; no gate waiver, journal renumbering, partial credit or seeded acquisition is authorized.
+
+
+## Open owner question — 2026-10-15: Eadgar's Ruse requirement readout
+
+The current start gate and visible requirements require Prayer40, while the retained period guides describe Prayer40 or Agility47 as recommended. Authorize the existing readout correction while independent source qualification settles the exact eligibility repair. The [bounded qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) preserves null-cache-field limits, the complete Sanfew-to-Eadgar journal and ordinary route obligations. No automatic gate waiver is authorized by this question.
+
+## Open owner question — 2026-10-15: Elemental Workshop III first journal
+
+The first journal describes a later puzzle; the existing stage1 action instead finds/reads Ragged book “in the workshop”, with no produced book. The period source starts at the chapel bookcase, then preparation, then the puzzle. Authorize a sourced replacement first journal and exact complete opening endpoint. The [qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) retains the current stage/dependency/key/custody conflicts; no hidden book action, journal renumbering or partial puzzle credit is authorized.

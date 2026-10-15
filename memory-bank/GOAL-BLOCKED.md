@@ -185,3 +185,7 @@ Root verified25 source bindings in [the bounded qualification](source-audits/slu
 ## TokTz and Animal Magnetism openings — 2026-10-15
 
 Root verified24 source bindings for [these first-journal scope holds](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md). TokTz needs one owner ruling for its sourced replacement first journal and exact briefing-versus-permission endpoint. Animal Magnetism needs one owner ruling for a sourced first-journal endpoint and existing stage2 overlap; its current stage1 is only contents headings. Later gate/custody/source qualifications remain. No implementation or whole-goal exhaustion follows; the consumed shortlist is not the full candidate set.
+
+## Eadgar and Workshop III openings — 2026-10-15
+
+Root verified26 source and10 prior-report bindings in [round15](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md). Eadgar needs one owner authorization for the Prayer40 requirement-readout correction, with independent exact gate qualification still open. WorkshopIII needs one owner ruling for a source-correct first journal and complete opening endpoint; its current journal and book action describe different boundaries. No seeded route, silent visible change or gameplay acceptance. The remaining18 retained candidates are order-only and independent work continues.

@@ -505,3 +505,9 @@
 - 2026-10-15T04:25:16-07:00 — Polling corrected focused proof used finished predecessor session27870 and returned write_stdin failed: Unknown process id 27870; actual continuation25527 returned0. The retained execution-exit.txt and complete outer log establish success; no product replay.
 
 - 2026-10-15T11:20:51.956735+00:00 A selected quick-guide read assumed revisions existed and failed: KeyError: 'revisions'. Schema inspection showed both retained *_quick_guide_old pages contain only ns,pageid,title and no revisions. Neither empty payload was used as an oldid/body source. No repeated fetch/import or source change occurred. Root owns the papercut record.
+
+- 2026-10-15T11:39:35.569242+00:00 The ranking-instrument excerpt requested95 lines and the exec output was truncated at2700 tokens (original token count3297). The decisive rule at lines5-8,14-15 was visible and was also retained in round10.rule; no omitted content was interpreted as absent.
+
+- 2026-10-15T11:39:35.569242+00:00 The export search hit its explicit12-result cap; only already-observed QUESTS/quests_as_dict exports were used in the single authorized import. A later2-result ledger query also capped and previewed long JSONL rows; a selected JSON record projection supplied provenance without another product import.
+
+- 2026-10-15T11:39:35.569242+00:00 An87-line absolute-path EadgarsRuse.kt read exceeded the3800-token output budget (original token count4561). No truncated requirement inference was used; the named retained cache and selected restoration-ledger source record establish only the ceilings reported here.
