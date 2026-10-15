@@ -136,7 +136,7 @@ FAMILY = DiaryFamily(
                 'varrock_easy_plank_you_very_much',
                 'Plank You Very Much',
                 'Make a plank at the sawmill.',
-                (),
+                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJhY3Rpb25faWQiOiJjb252ZXJ0X2xvZ3NfdG9fcGxhbmtzIiwic2tpbGxfaWQiOiJ1dGlsaXR5Iiwic3VjY2VzcyI6dHJ1ZSwidHlwZSI6ImFjdGlvbiJ9LCJndGUiOnsib3V0cHV0cy5QbGFuayI6MX19fQ', 1, 'Make a plank at the sawmill'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 259,
                 0,
