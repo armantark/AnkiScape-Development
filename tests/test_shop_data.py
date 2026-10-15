@@ -7,6 +7,7 @@ from pathlib import Path
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.shop_data import (
     SHOP_COVERAGE_SUMMARY,
+    SHOP_PLAYER_SELL_PRICES,
     SHOP_DATA,
     SHOP_DATA_VERSION,
     SHOP_SERVICES,
@@ -513,6 +514,7 @@ class TestShopData(unittest.TestCase):
         ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
         self.assertEqual(ledger["shop_data_version"], SHOP_DATA_VERSION)
         self.assertEqual(ledger["summary"], SHOP_COVERAGE_SUMMARY)
+        self.assertEqual(SHOP_COVERAGE_SUMMARY["player_sell_price_count"], len(SHOP_PLAYER_SELL_PRICES))
         self.assertTrue(any(shop["id"] == "a_test_shop" and shop["disposition"] == "excluded" for shop in ledger["shops"]))
 
         papa_mambo = next(shop for shop in ledger["shops"] if shop["id"] == "papa_mambos_shop")
@@ -523,6 +525,18 @@ class TestShopData(unittest.TestCase):
         }
         self.assertEqual(set(excluded_rows), {19897, 19902, 19907, 19912, 19917})
         self.assertTrue(all(row["lock_reason"] == "period_source_exclusion" for row in excluded_rows.values()))
+
+    def test_coverage_names_identify_the_same_runtime_stock_rows(self):
+        ledger = json.loads(Path("memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json").read_text())
+        audit_rows = {row["id"]: row for shop in ledger["shops"] for row in shop["stock_rows"]}
+        self.assertEqual(len(audit_rows), sum(len(shop["stock_rows"]) for shop in ledger["shops"]))
+        mismatches = []
+        for shop in SHOP_DATA.values():
+            for row in shop["stock"]:
+                audit_row = audit_rows[row["id"]]
+                if (audit_row["item_id"], audit_row["item_name"]) != (row["item_id"], row["item_name"]):
+                    mismatches.append(row["id"])
+        self.assertEqual(mismatches, [])
 
 
 if __name__ == "__main__":
