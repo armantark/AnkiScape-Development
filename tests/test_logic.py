@@ -3769,8 +3769,8 @@ class TestLogic(unittest.TestCase):
         switch_action = ("Switch the RPDT crate address labels and request delivery",)
         mansion_actions = (
             "Teleport into Handelmort Mansion",
-            "Disarm Handelmort's trapped stairs",
             "Solve Handelmort's lock with KURT",
+            "Investigate and climb Handelmort's trapped stairs",
             "Loot the Rantuki totem",
         )
 
