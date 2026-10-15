@@ -425,3 +425,11 @@
 - 2026-10-15T06:58:55.798988+00:00: Root queue integration with main69a22761 hit `CONFLICT (add/add): Merge conflict in memory-bank/plans/mediawiki-warning-diagnostic-2026-10-14.md`; main adds only the review-ownership paragraph. Preserve the full main file and finish a normal merge.
 
 - 2026-10-15T07:03:15.477059+00:00: Root said both Familiarisation source votes were clear while familiarisation-fairness-glm-review-2/exit.txt did not exist and response.txt was empty. Root immediately corrected the user update; Astra alone is clear and GLM remains pending. No source acceptance or promotion follows that statement.
+
+- 2026-10-15T07:06:39.921856+00:00: Guarded return of clean merged slot12 refused `Promotion landing lock held; stale recovery is disabled` during Restaurant gate. A dependent lease command still ran and refused `all 16 worktrees are in use or dirty (max_trees = 16)`. No lease, pool cap or source changed. Retry return only after the active gate releases its lock; run dependent commands only after confirmed success.
+
+- 2026-10-15T07:13:11.918559+00:00: next_tooling_qualification reported an initial combined report/ledger read exceeded the output budget; the leaf switched to bounded projections. Root also overran a2300-token ledger projection with61matched incident lines. Use repo_search.py result and column bounds before output. No test or source result follows omitted text.
+
+- 2026-10-15T07:18:01.439423+00:00: Restaurant error-path inspection guessed runtime/review_dispatcher.py and runtime/review_lifecycle.py; repo_search refused both missing paths and supplied its --names instruction. Existing real handler runtime/runtime_actions_activities.py supplied the error; no result relies on guessed paths.
+
+- 2026-10-15T07:18:01.439674+00:00: next_tooling_qualification reported another aggregate-output truncation and a45-result search bound. Bounded follow-up recovered the evidence; the leaf returned four qualification holds and no executable defect.
