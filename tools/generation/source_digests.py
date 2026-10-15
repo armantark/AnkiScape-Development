@@ -23,6 +23,17 @@ def check_source_digests(
         path.resolve().relative_to(root).as_posix(): hashlib.sha256(content).hexdigest()
         for path, content in source_bytes.items()
     }
+    return check_source_digest_values(manifest_path, output_name, current, accept_source_change=accept_source_change)
+
+
+def check_source_digest_values(
+    manifest_path: Path,
+    output_name: str,
+    current: Mapping[str, str],
+    *,
+    accept_source_change: bool = False,
+) -> dict[str, str]:
+    current = dict(current)
     if not manifest_path.exists():
         return current
     previous = json.loads(manifest_path.read_text(encoding="utf-8")).get(output_name)

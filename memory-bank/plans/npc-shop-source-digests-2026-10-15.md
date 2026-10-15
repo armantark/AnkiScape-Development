@@ -69,3 +69,13 @@ The new module is now tests/shops/test_source_inputs.py,926 lines, SHA-256c0a2ce
 ### Serialized full slot returned
 
 Jad's first exact mergedf403d127 full9 remote gate returned0 and its original product receipts were retained. Native/visual/land remain false. Root released the mirror/full slot to the higher-priority source-guard slice while its author continues local controlled-fixture work. No source-guard full check has started or passed.
+
+
+## Production handback — 2026-10-15
+
+The author returned all four files with32 frozen tests green and22 function metrics within fixed caps. Root verified the exact four handback hashes, the final test hash and all ten other qualified tracked files. Generator1309 lines, source_inputs184 and checkpoint20 remain within their fixed caps. The39-case existing neighbor run has37 passes and two missing-source errors at /Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml. Root owns the available source-enabled supported rerun; no test is changed or excluded. The candidate has no authentic318-input proof, independent implementation review, final gate or land yet. Root records and commits source before those binding checks. Handoff receipt: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/npc-shop-source-guard-preparation/phase2-handback-binding.json.
+
+
+### Layout-only normal-hook correction
+
+The first source commit returned1 for E303 x1 in tools/generate_npc_shop_data.py. Root removed one excess blank line from the three-line gap353–355 before _cache_int, restoring the required two. The entire AST is identical before/after; generator1308 lines. Original32-test product proof and metrics remain retained. No assertion, source rule or cap changed. Root's layout-only-correction.json binds both hashes and the actual failed commit session. Root's supported proof and authentic acceptance remain pending; retry the normal hook.
