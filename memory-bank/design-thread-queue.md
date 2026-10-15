@@ -2964,3 +2964,7 @@ Both prerequisites remain settled under ruling35. The first journal is generic a
 ## Open first-journal scope — 2026-10-14: Garden and Tail
 
 Garden of Tranquillity needs authorization to restore the seven sourced answers and settle the complete Wise Old Man quiz/retry representation. A Tail of Two Cats needs authorization for a source-backed first journal and its exact Unferth/Hild boundary. Each retains its own prerequisite and acquisition holds. No existing journal, UI or source reconstruction is authorized by this record. [Exact qualification](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md).
+
+## Open tooling response contract — 2026-10-14: MediaWiki warnings
+
+The retained O6/S2 review permits a diagnostic or refusal for warning-plus-query replies; no current contract selects the policy for the shared client and cutoff auditor. Root must write that response contract before a separate implementation. This is an engineering scope choice, not a new owner-reserved UI or source decision. C1’s timestamp repair proceeds independently and changes no warning policy. [Bounded qualification](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/papercut-current-requalification/report.md).
