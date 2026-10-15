@@ -224,7 +224,7 @@ Root verified 35 bindings, two exact period bodies and one original historical b
 
 ## Death through Lost Tribe — 2026-10-15
 
-[The complete path](source-audits/death-complete-opening-boundaries-2026-10-15.md) is source-held on independent corroboration of Lost Tribe's initial enquiry/witness/report/Duke-permission branch. Root verified 54 original bindings, six period bodies, six historical blobs and 17 actual-archive follow-up bindings. The actual archive exists; its inspected presets do not supply this branch. No global absence is claimed. Positive Death deeds, the full Mistag brief, historical outfit handoff, real prerequisites and ordinary inputs remain independent work. Escort loss is not a blocker. The consumed shortlist authorizes a fresh bounded ranking, not exhaustion. Independent review remains pending.
+[The complete path](source-audits/death-complete-opening-boundaries-2026-10-15.md) is source-held on independent corroboration of Lost Tribe's initial enquiry/witness/report/Duke-permission branch. Root verified 54 original bindings, six period bodies, six historical blobs and 17 actual-archive follow-up bindings. The actual archive exists; its inspected presets do not supply this branch. No global absence is claimed. Positive Death deeds, the full Mistag brief, historical outfit handoff, real prerequisites and ordinary inputs remain independent work. Escort loss is not a blocker. The consumed shortlist authorizes the retained bounded continuation, not exhaustion. Astra closed P3 and accepted the positive-component holds; Kimi accepted the source dispositions at554227d1. Its required unchanged papercut check passed; exact merged full9 and official land remain.
 
 ## Enakhra's Lament and Grim Tales — 2026-10-15
 
