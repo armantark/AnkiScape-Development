@@ -1,6 +1,6 @@
 # Goal remains active on the MacBook Pro, 2026-10-14
 
-Current main is `2fe9135819c85b04693f40ff5ed1a7ccd2973590`. The shared owner ceiling is 70% Codex quota; the authenticated account read captured at Unix1791988701 returned43% of the weekly window used. The older 100% grant below belongs to the prior reset. This file records per-slice blockers and does not satisfy or stop the active goal.
+Current clean main is `812e0ec1a4378af5e1128edd4cd336116b4faa84`; the historical-asset timestamp repair passed both reviews, all nine exact full remote checks and official land. The owner lifted the shared70% Codex ceiling on2026-10-14: "Yes, continue past 70%". The authenticated reading at Unix1792040907 remained69%, with reset timestamp1792472328; no counter reset is claimed. Existing machine limits remain authoritative. This file records per-slice blockers and does not satisfy or stop the active goal.
 
 The owner confirmed execution is on the test host itself. The runner's remote-client assumption caused three self-SSH authentication failures: `Permission denied (publickey,password,keyboard-interactive)`. Self-SSH is unnecessary. The I/O and local-host transport slice passed all nine exact full `--remote-lanes` checks and landed through the official command at `2e7b6378871e0096515e1aaab7a64061c7aff7bc`. Independent queue work continues. No SSH authorization, security configuration or acceptance requirement changes are authorized.
 

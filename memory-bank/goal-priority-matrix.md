@@ -2,7 +2,7 @@
 
 ## Authority and selection
 
-[The exact governing goal](plans/goal-2026-10-03.md) and the owner resume on 2026-10-03 govern this queue. [The settled implementation goal](plans/goal-2026-09-05.md) retains the original scope. [The current pickup](pickup-2026-10-03.md) records the resume and exact acceptance boundaries. The October 7 grant of 100% applied only until the banked reset observed on 2026-10-09. The owner ceiling is 70% of the shared AnkiScape/Darkan Codex allowance, recorded with `quota-guard grant codex --to 70`. Preserve native isolation, source qualifications, reserved decisions and all fixed gates. Read the Claude quota signal at dispatch. The [earlier pause and older goal text](archive/2026-10/handoffs/goal-pause-2026-10-03-evidence.md) are history. The owner requires cleanup before feature work. Finish the approved responsibility splits, then simplify the exposed functions, largest first, while preserving behavior. Owner rulings §47, §48, §53, §55, §57 and §58 govern this work. The [complete scope inventory](source-audits/exposed-complexity-2026-09-05.md) covers fourteen source families; its measurements are historical, not current gate results. Untouched Farming is outside that scope.
+[The exact governing goal](plans/goal-2026-10-03.md) and the owner resume on 2026-10-03 govern this queue. [The settled implementation goal](plans/goal-2026-09-05.md) retains the original scope. [The current pickup](pickup-2026-10-03.md) records the resume and exact acceptance boundaries. The October 7 grant of 100% applied only until the banked reset observed on 2026-10-09. The owner lifted the shared AnkiScape/Darkan Codex70% ceiling on2026-10-14: "Yes, continue past 70%". Existing machine limits remain authoritative. Preserve native isolation, source qualifications, reserved decisions and all fixed gates. Read the Claude quota signal at dispatch. The [earlier pause and older goal text](archive/2026-10/handoffs/goal-pause-2026-10-03-evidence.md) are history. The owner requires cleanup before feature work. Finish the approved responsibility splits, then simplify the exposed functions, largest first, while preserving behavior. Owner rulings §47, §48, §53, §55, §57 and §58 govern this work. The [complete scope inventory](source-audits/exposed-complexity-2026-09-05.md) covers fourteen source families; its measurements are historical, not current gate results. Untouched Farming is outside that scope.
 
 The orchestrator selects slices and promotes verified merged trees. Dispatched authors work in leased `goal/*` worktrees. Keep tests, audits, limits and pinned baselines as fixed instruments. Require focused coverage, both full remote lanes, independent cross-lineage review and all promotion checks. Do not push. Existing UI changes remain excluded; contained new feature UI requires a taste-qualified author.
 
@@ -14,7 +14,7 @@ Disposition meanings: `eligible` has a settled action; `verification_pending` la
 
 ## Current selection
 
-The goal is active under the shared 70% owner ceiling. [The resume checkpoint](GOAL-BLOCKED.md) records the remaining acceptance checks.
+The goal is active; the owner explicitly lifted the shared70% ceiling on2026-10-14. [The resume checkpoint](GOAL-BLOCKED.md) records the remaining acceptance checks.
 
 | Priority | Unit | Disposition | Next action and acceptance boundary |
 | --- | --- | --- | --- |

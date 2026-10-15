@@ -789,5 +789,4 @@ Qt lane not run: no Qt import path changed; the orchestrator runs both lanes on 
 ## Source depth and exact opening holds — 2026-10-14
 Bittercap’s first full Qt source lane passed5337 tests/878.417s/5skips/actual0. Mogre repair0ea27c37 preserves four protected parents and319 other diary rows; independent code/earned-proof reviews,690 affected tests, six restored mutation probes and full plain5339/637.428s/580skips/actual0 pass; full Qt5339/870.925s/5skips/actual0 also passes. Garden and Tail retain [two verified owner-scope holds](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Native and official gameplay landing remain unproved; main staysfdb1ac49.
 
-## Historical asset timestamps — 2026-10-14
-[Repair812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md) officially landed through its exact full remote gate. Both independent reviews accept; plain5330/595.358s/580skips and Qt5330/804.317s/5skips passed. Main is clean; nothing was pushed.
+**Historical asset timestamps — 2026-10-14:** [Repair812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md) officially landed through its exact full remote gate. Both independent reviews accept; plain5330/595.358s/580skips and Qt5330/804.317s/5skips passed. Main is clean; nothing was pushed.
