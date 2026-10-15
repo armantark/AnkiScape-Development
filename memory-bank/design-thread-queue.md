@@ -3086,3 +3086,19 @@ Period oldid6548386 line34 marks Mining45 optional; the current start gate and R
 ## Open existing-gate and journal scope — 2026-10-15: Grim Tales
 
 Period oldid6542776 lines32–40 makes five action levels boostable and Prayer/Combat recommendations, without those start gates. The current gates/readout enforce all seven. The opening journal also contains six contents entries and omits the full Sylas commission. Authorize the corrected start gates/readout and complete conversation/both-task journal. Keep Witch's House prerequisite and all five action checks at their actions. No later task credit or other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md). Witch's House's actual diary/key gap remains separate work.
+
+## Open existing-journal and gate scope — 2026-10-15: Witch's House
+
+Authorize the complete diary/read/key path and source-correct glove gate before cupboard/Magnet in the existing journal/readout. The current journal places gloves after magnet and mouse acquisition. Preserve all ordinary producers, Cheese custody, patrol, four fights and the single Ball hand-in. No new interface is proposed. [Evidence](source-audits/witchs-house-complete-diary-key-boundary-2026-10-15.md). The original/restored diary-gate source distinction remains explicit.
+
+## Open first-journal and start-gate scope — 2026-10-15: Haunted Mine
+
+Authorize the complete Zealot briefing/pickpocket-key/two-cart/mine-entry journal and correct Requires/start gates: Priest in Peril complete, Nature Spirit started, Agility1 alternative and Crafting35. The current journal is a generic sentinel and catalog omits those quest prerequisites. No partial endpoint or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).
+
+## Open first-journal and start-gate scope — 2026-10-15: Nature Spirit
+
+Authorize the complete Drezel commission and ordinary six-pie custody in place of contents entries, with source-correct Crafting/Prayer start gates/readout. Crafting18 is conditional on making the later sickle; Prayer potions provide an alternative to Prayer10. Preserve real Priest in Peril and Restless Ghost prerequisites. Haunted Mine requires only this started state. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md). No later completion or other UI change is proposed.
+
+## Open complete-branch journal scope — 2026-10-15: Hazeel Cult
+
+Authorize complete branch-specific first journals/endpoints through all five correct valve states for both existing choices. The current refusal journal cannot truthfully complete on the cult branch. Preserve the Carnillean briefing/refusal route and the cult acceptance/poison/family/Mark route before its valves. No choice removal, shortened stage or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).

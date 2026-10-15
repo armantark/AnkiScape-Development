@@ -229,3 +229,7 @@ Root verified 35 bindings, two exact period bodies and one original historical b
 ## Enakhra's Lament and Grim Tales — 2026-10-15
 
 [Round25](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md) holds Enakhra on optional Mining45 becoming a mandatory start/readout gate. Grim Tales needs source-correct start/readout and full Sylas-journal scope. Both questions are queued. Its actual Witch's House prerequisite separately needs diary-before-key reconciliation and a complete earned path. Root verified30 bindings, five raw period bodies/selected lines and every actual prerequisite disposition. No source exhaustion, implementation or acceptance follows.
+
+## Witch's House, Haunted Mine and Hazeel Cult — 2026-10-15
+
+[Witch's House](source-audits/witchs-house-complete-diary-key-boundary-2026-10-15.md) first needs owner scope for its glove/journal order; diary source independence stays separate. [Round26](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md) holds Haunted Mine on complete journal and source-correct start/readout scope, and Hazeel on complete journals for both existing choices. Nature Spirit's required started state has its own journal/readout question. Root verified20/three and26/seven bindings/raw bodies, plus four historical blobs for round26. No product/native/promotion acceptance or global stop follows.
