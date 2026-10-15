@@ -1,0 +1,12 @@
+# Further quest-root qualification — 2026-10-14
+
+- Goal: qualify at most two further priority4 opening boundaries against the current matrix, after the two recorded Ghosts Ahoy/Horror holds. Read-only source qualification does not authorize implementation.
+- Root owns checkout2, all source/docs/index/branch mutations, promotion and the shared full/Qt slot. Mogre runs in frozen checkout15; the leaf does not access or affect that run.
+- The leaf reads the exact clean checkout2 revision sent after this contract commit; gameplay runtime matches canonical mainfdb1ac49f986437c9b9fba6d8dd313146fb19124. No checkout change, new lease or nested agent is needed.
+- The leaf exclusively writes report.md and qualification.json in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-2` and returns ownership afterward.
+- Choose from the retained ranking and current instrument. Skip every landed opening and previously inspected source/owner hold, including Ghosts Ahoy, Horror, Murder Mystery, Recruitment Drive, Tower of Life, First Resort4, Fenkenstrain later purchase, Giant Dwarf, Cold War, Myreque, Grand Tree, Gertrude and Oronwen. Do not repeat exhausted source sweeps.
+- CHECK: the selected boundary covers the complete existing first journal and a real ordinary acquisition/eligibility/dependency chain, with exact retained period pins and settled owner contracts. EXPECT: at most two evidence-bound eligible-or-held verdicts, plus the decisive next proof or one first unblocking fact/ruling.
+- No invented values, stage counters, seeded completions, spatial proxies or missing-code-only blockers. Do not preserve a known false gate to claim a faithful route. Existing journal/widget/copy changes require recorded owner authorization; settled rulings stay settled.
+- No source/code/docs/index/branch mutation, commits, pushes, config/reset/amend/hook bypass, worktree change, native/GUI/browser/profile/collection action, product/full/Qt tests, source harvest, secret-log reads, Claude, other agents or messages to sibling threads. Tests, audits, limits and pins stay fixed.
+- Use literal inventoried paths and bounded output. Bind every factual claim to source path/revision, hashes and exact consumer; Root independently verifies returned evidence.
+- Current shared Codex usage is61% in its weekly window. Owner ceiling70%; Root monitors the live account and the leaf stops immediately on a quota-stop message. One bounded pass only; no polling loop.

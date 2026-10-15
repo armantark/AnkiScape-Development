@@ -30,11 +30,12 @@ context assembled from existing contracts — no bespoke per-boss engines:
   closing the parked Summoning substrate in
   `summoning-skill-contract-2026-07-16.md`.
 - **Style telegraphs** (TzTok-Jad, Har'Aken, and any phase-signaled attack):
-  the result line visibly announces the next phase's incoming style; the
-  player's protection-prayer stance on the following review answers it. The
-  prayer choice survives translation; the wall-clock reflex test does not.
-  This also resolves the Jad item flagged in the multi-enemy contract's
-  harvest list.
+  the result line announces the next incoming style. The game automatically
+  sets its matching protection prayer for that attack if the player has
+  unlocked the prayer and has prayer points. Otherwise the attack lands
+  unprotected. Supplies and damage output, including prayer points, potions,
+  healers and kill speed, provide the challenge. No manual switch between
+  reviews is required (owner ruling2026-10-14 at23:05 PDT).
 
 ## Harvest work
 

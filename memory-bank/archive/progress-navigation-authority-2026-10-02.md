@@ -1,4 +1,4 @@
-# Landed navigation and startup-budget evidence
+# Landed navigation authority and startup-budget evidence
 
 ## 2026-10-02: Navigation authority and startup budget
 The goal matrix owns selection; the latest pickup owns the handoff; the Kanban remains the product backlog. Archived queues retain their contents with relative links rebased. Current focus names the audited main baseline and open owner gates.

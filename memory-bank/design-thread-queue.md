@@ -2939,7 +2939,7 @@ The first complete existing stage1 boundary requires climbing for Book on costum
 
 ## Open shop reproduction contract — 2026-10-14T14:45:33.033317+00:00
 
-The unchanged full NPC-shop generator cannot reproduce the retained catalog and ledger simultaneously: each live price map has6827 entries while both summaries say6820;59 ledger names predate the landed lantern/arrow fixes. Six live price keys also differ from the full generator (Bullseye lantern, Mining helmet, Mithril arrow, Oil lamp, Oil lantern, Spiked gauntlets). [Exact source/evidence](source-audits/npc-shop-reproduction-mbp-2026-10-14.md) names all values and original inputs. The current slice does not authorize a runtime price/key change or a fabricated digest/header. The needed contract must identify permitted stale-record correction and how the six existing live keys regenerate. Current values stay preserved; independent queue work continues.
+The full NPC-shop generator still differs at six preserved live price keys: Bullseye lantern, Mining helmet, Mithril arrow, Oil lamp, Oil lantern and Spiked gauntlets. The metadata correction landed ated10c2f0 after exact checks; both summaries now report6827 and59 ledger labels match runtime rows. [Original reproduction evidence](source-audits/npc-shop-reproduction-mbp-2026-10-14.md) retains the earlier inconsistent target. [The landed correction](source-audits/npc-shop-ledger-truth-2026-10-14.md) changes no runtime price/key, source pin or digest. Root qualified the six origins; the remaining source identity/precedence contract is engineering work, not a new owner-only question. Preserve every existing live price while that work continues. Independent queue work continues.
 
 ### Open owner UI scope — 2026-10-14: Gunnar tab ellipses
 
@@ -2953,8 +2953,28 @@ Independent Fenkenstrain review R1 cannot qualify purchase before the accepted i
 
 Murder Mystery needs authorization to replace its first table-of-contents-only block with the source-backed guard opening; later culprit selection remains separately source/model held. Recruitment Drive needs the test-selection/empty-entry model and a journal representation ruling at Tiffy; no empty-Bank substitute. Tower of Life needs authorization to show its sourced opening answers omitted by the current journal. Black Knights'12QP copy versus period13 remains an adjacent owner-UI repair; a genuine13QP route exists without it. No existing journal/widget/copy changes are authorized by these records. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2/verdict.json.
 
+## Open existing-readout scope — 2026-10-14: Horror from the Deep
+
+Ruling50 remains settled: Prayer43 is recommended, not required. The current kernel enforces43 and the Quest tab prints Requires: Agility35, Prayer43. The open scope is authorization to correct that existing readout while applying the settled eligibility contract; it is not a choice about Prayer policy. No widget, text or source change is authorized here. Preserve the stage1/source and later mother-combat boundaries. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+
+## Open first-journal scope — 2026-10-14: Ghosts Ahoy
+
+Both prerequisites remain settled under ruling35. The first journal is generic and its section-to-stage representation needs owner authorization. Independently qualified pre-quest Port entry fare remains the separate first source hold. Do not invent a charge, replace journal text or treat the existing worship writer as proof of every acquisition input. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+
+## Open first-journal scope — 2026-10-14: Garden and Tail
+
+Garden of Tranquillity needs authorization to restore the seven sourced answers and settle the complete Wise Old Man quiz/retry representation. A Tail of Two Cats needs authorization for a source-backed first journal and its exact Unferth/Hild boundary. Each retains its own prerequisite and acquisition holds. No existing journal, UI or source reconstruction is authorized by this record. [Exact qualification](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md).
+
+## Settled tooling response contract — 2026-10-14: MediaWiki warnings
+
+Root selects a nonfatal diagnostic at `HttpWikiClient._request_json`, the shared boundary used by the cutoff auditor. A nonempty `warnings` value must produce one stderr diagnostic per actual JSON response, with the complete warning content. Return the original payload unchanged. Preserve valid query results, stdout, transport/API retries, cutoff checks, classifications and provenance writes. Empty or absent warnings produce no diagnostic. This is a settled engineering scope choice, not an owner-reserved UI or source decision. Implementation starts after C1 lands. [The bounded contract](plans/mediawiki-warning-diagnostic-2026-10-14.md) contains the baseline and acceptance requirements.
+
 ## Answered owner decisions — 2026-10-14: Again fairness
 
 At22:49 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "May as well make it more fair for those I guess". This extends Decision1 of [the simulation-time boundary](simulation-time-boundary-2026-07-16.md): Again earns nothing and cannot cost a reward that the next successful answer cannot recover.
 Restaurant: Again spends no window time. A successful review on another target spends the existing six minutes while an order is open. Food prepared and banked before acceptance delivers on time. Orders never expire; base points and prepared food are never lost. Only the required Again result-message change is authorized. Replace the earlier Again clause in the delivery-loop source audit and completion starter grill; source oldid6491107 permits food prepared and banked before assignment and better tips for fast delivery.
 Familiarisation: Again pauses with no segment, focus cost or shards. Four successful answers finish the session with60 shards. Remove focus, including its save field, with sanitizing migration; remove any visible focus pips and no other UI. Update systemPatterns and the kanban. Claude may neither author nor review either slice. Each slice requires normal independent cross-lineage review, standing checks and the exact full remote gate plus official land.
+
+## Answered owner decision — 2026-10-14: automatic boss telegraph prayer
+
+At23:05 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "Also good point about Jad, can fix that". When a boss telegraphs the next style, the game sets the matching protection prayer for that attack if unlocked and prayer points remain. Otherwise the attack lands unprotected. Supplies and damage output provide the challenge; manual switches between reviews are not required. The Style telegraphs bullet in [the boss contract](boss-instance-contract-2026-07-18.md) now states this rule; its other content is unchanged. This is a contract change only until a boss slice implements it. Combat grill decision47 remains binding.

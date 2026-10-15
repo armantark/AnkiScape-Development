@@ -24,15 +24,7 @@ This log keeps the current month. Earlier months rotate into `memory-bank/archiv
 
 2026-10-07T22:01:49.978967+00:00 Root landed carried integration `7c7651e993236127c73ceae8cd98eab2e1dd4e92` through the official command. Main is clean. Its exact receipt records all nine checks, `remote_lanes=true` and `plain_only=false`. Plain ran 5222 tests in 474.107s with 582 skips; Qt ran 5222 tests in 679.355s with 7 skips. All four product files match native-accepted D71. The retained gate and landing records are in canonical `.git/ankiscape-promotion-evidence/7c7651e993236127c73ceae8cd98eab2e1dd4e92/carried-native-accepted-landed-2026-10-07/retention-manifest.json`. Ancestry confirms the carried trip schedule, bank gate, overflow and lifecycle sources are on main. Death and quest native acceptance remain separate.
 
-Root verified main `ca859eb0ef06a0b298d25bcedd9338a1120afabc` clean at 2026-10-04T04:24:05.550171+00:00. Seven October 3 landings are on main: documentation `06480995`, S01 `046d5f53`, S03 `da02e004`, S12 `58438c4d`, assertion trims `d2aa35d2`, covered-method deletions `28481d9295db918396d5d0188f69c1ea36f102b5` and documentation `ca859eb0ef06a0b298d25bcedd9338a1120afabc`.
-
-The ten assertion trims landed at `d2aa35d20d7b8ef18f2af42f88018641b439a8c8` through the official land command after all nine promotion checks passed. The exact receipt records `remote_lanes=true` and `plain_only=false`. Both lanes ran 5223 tests: plain 453.956s with 581 skips; Qt 673.591s with 7 skips. Root verified all nine final test-file hashes on main. No test method was removed in that slice.
-
-Current review of all 614 historical nominations yields 601 keep, 10 landed assertion trims and 3 landed method deletions. Sol and GLM agree on each deletion; root verified the actual methods, fixtures and surviving fault assertions. Of 35 covered nominations, 32 stay. Firemaking stays because its independent fixture and lane gap remain.
-
-The deletion operator passed ten refusal canaries without writes. It removed three methods across three files, with 24 net lines removed. Whole-module AST comparisons show only these method deletions. All three broader methods and the Firemaking file remain unchanged. The three-method deletion slice landed at `28481d9295db918396d5d0188f69c1ea36f102b5` through the official land command. All nine promotion checks passed. Both lanes ran 5220 tests: plain 461.986s with 581 skips; Qt 677.356s with 7 skips. The exact receipt records `remote_lanes=true` and `plain_only=false`. Root verified all three final test-file hashes on clean main.
-
-The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skips. Independent raw-map verification passed. This subset is not a whole-suite coverage map.
+[The complete landed assertion/method cleanup checkpoint and exact original counts are retained in the archive](archive/progress-landed-test-cleanup-2026-10-14.md).
 
 Cache CLI, carried integration and the accepted quest bundle are landed. The death-model blob is on main; its separate native acceptance is pending. The historical four-cleanup `1ec3427b` receipt and repaired death proof remain retained in [the source checkpoint](source-audits/cleanup-source-checkpoint-2026-10-04.md). The goal is active under the owner's recorded 100% shared Codex ceiling. Current native and gate states are recorded above; earlier attempts are historical. No fresh closure audit is claimed.
 
@@ -42,20 +34,7 @@ The dated checkpoint, closed October 3 navigation review and exact receipts are 
 
 ## Pass 15 owner notes — eight slices, 2026-09-30 to 2026-10-01
 
-Ten notes from `~/Downloads/ankiscape notes.rtfd` (Pass 15, 2026-09-15 to 2026-09-30); rulings `design-thread-queue.md` §4.28, brief `codex-briefs/pass15-owner-notes-handoff-2026-09-30.md`. Opus 5.5 authored every slice at the owner's request; Kimi K3 reviewed five diffs and GPT-6.1 Sol the other three after Kimi's 5-hour limit (`403 You've reached your 5-hour usage limit`). Integration branch `goal/pass15-integration`.
-
-- Finisher notice (`goal/pass15-finisher-notice`, 54196a1d, 416c2a86): "Wear Spiked gauntlets to finish" on its own amber HUD line; one event-log line per encounter, marked on the encounter record after the review found a missed warning on a new spawn and a repeat on Gargoyle regeneration.
-- Bank trip target switch (ccba1926, e830d5b4, 01457f45): a target switch cancels a pending trip for another target.
-- Fishing guide levels (a526d1b1): one guide row per fish at its own level; slimy eel 28; 2012 eel and frog spawn spots; the Lumbridge "Eel of Fortune" deed now counts a Raw cave eel.
-- Silverlight and quest fights (9a2b4fc2, 9d03bf68, f244471b): every equippable quest reward is wearable (equipment count 994 to 1049); quest fights take ordinary ticks per review; Delrith needs a wielded Silverlight; the HUD names the boss.
-- Barcrawl steps (a953836b): ten automatic stages at 2012 prices (208 coins); the shop drink rows and proofs are gone; quest-blocked dialogs list one reason per line.
-- Belt tools (7bca9f86): the 2012 tool belt is one constant and one predicate for quests, Farming and Vinesweeper; ten bare-ground spade digs and the period exceptions stay held; the Bank Toolbelt panel lists the belt.
-- Shop locks and purchase (1d401116, 5e3000e4): locked shops sort last, dim and name their reason; a purchase chip under Buy, green for success, amber for a refusal.
-- Skill target search (eda7c2ed, 06fa2da4): every Skills-tab target list has the Combat search bar through `ui/ui_target_search.py`.
-
-Merge repair (42adb030): eight module-surface digests, the root Qt digest and the equipment count re-pinned on the merged tree; the locked-shop wrap test fixed to a 240 px list because the test host's font fit the longest label (`382 not greater than 392`). First merged gate on a22202c6 failed only on those pins, that test, and three video status pages (fixed on main at 6637e281). Second gate on 231cdd1a with `--remote-lanes`: plain `Ran 5097 tests in 471.671s`, `OK (skipped=558)`; offscreen Qt `Ran 5097 tests in 686.769s`, `OK (skipped=5)`; documentation, test-quality, reachability, worktree, diff and papercut checks passed. Landed on main as 231cdd1a on 2026-10-01 01:30; the owner must restart Anki to load it.
-
-Second level, not fixed: the combat chips line "Kills: N · Trains ..." clips at 192 px beside Bank run for aggressive and controlled styles on main today; Phoenix Lair still asks for Knife, Secateurs and Tinderbox in the bank; the flat target list clips long locked-row labels behind a horizontal scrollbar; skill guide rows dim only by level, not by quest lock; Count Draynor's garlic, Spiked gauntlets price, Do No Evil and Fremennik Isles purchase proofs, 90 of 293 quest encounters without stats.
+The complete historical owner notes, source identifiers, receipts and adjacent issues are in [the retained checkpoint](archive/progress-pass15-owner-notes-2026-10-14.md).
 
 ## Carried-overlay forced-restock cleanup — 2026-10-02
 
@@ -456,38 +435,13 @@ OK (skipped=6)
 ```
 - Captured logs and verification-results.json: /Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/pass15b-logic-followups/review-finish/
 
-## Quest catalog retained inputs — 2026-10-02
+## Quest catalog tooling history — 2026-10-02
 
-Assigned tooling slice `goal/quest-catalog-reproducible-2026-10-02`, base `60d7bd83`. The builder reads checked-in `tools/generation/quest_sources.json.gz`: retained wiki responses and parsed emulator journals, wearable-item flags and NPC lookup tables. Reviewed quest-specific variants still come from `tools/combat/quest_stat_sources.json`. No generated catalog row changed. Missing retained inputs fail without fetching replacements. Live Darkan parsing helpers remain available to the combat-gap audit.
-
-Both required rebuild commands exited 0 with no catalog diff. The offline regression passed with absent emulator roots and denied network; the equipment control rebuild also reproduced its checked-in file. The count command is `python3 run_tests.py --count tests.test_pre_eoc_quest_catalog_builder tests.test_quest_catalog` because `tools/run_tests.py` does not exist. It selected 49 tests. MacBook focused plain: `Ran 49 tests in 1.632s`, `OK`, exit 0. The final full plain command and its result are recorded in `remote-full-plain.log` in the evidence directory below.
-
-Commands, complete output, snapshot manifest and input/output hashes are under `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-quest-catalog-reproducible-2026-10-02/`.
-
-## Quest catalog review fixes — 2026-10-02
-
-NPC pins use paths relative to game-main and the Darkan world server; rendering restores canonical provenance and original field order. The builder remains offline. The pin is 6,805,262 bytes, down from 6,895,694 bytes. Retained tables: 16 local NPCs, 133 Darkan NPCs, 159 wearable entries and 9 journals; local rejected ambiguities remain.
-`tools/generation/refresh_quest_sources.py` restores wiki, Kotlin NPC, Darkan ambiguity, journal and wearable extraction. It records emulator commits and hashes for contributing files. Offline regeneration with an absent input pin and blocked sockets produced identical pin bytes. Canary requests verified the anonymous User-Agent, cutoff and retry; missing cache and mismatched catalog gates refused publication.
-Both required rebuild commands exited 0 with no catalog diff. The focused count is 49 from `python3 run_tests.py --count tests.test_pre_eoc_quest_catalog_builder tests.test_quest_catalog`; MacBook execution uses `--expected-tests 49`. The socket-level network guard replaces the ineffective urllib patch. Remote-host notes now describe provenance roots accurately.
-All 19 inherited post-cutoff citations are listed in `tools/generation/quest_sources.md`; `memory-bank/papercuts.md` retains this source debt. Catalog rows and fixed test baselines did not change.
-Review verification commands, reproduction logs, source manifest, safety probes and MacBook focused/full plain results use `review-*` files under `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-quest-catalog-reproducible-2026-10-02/`.
-The unchanged pre-commit gate rejects a new root tools file; the refresh CLI lives under tools/generation, beside the pin loader. Parser control flow is flat; the builder is smaller than the reviewed slice.
-Canonical NPC and journal paths precede pprint so mirror-path lengths and spaces cannot change bytes. The offline regression and refreshes through emulator-root aliases reproduce the catalog and pin with sockets blocked.
-MacBook focused plain, with `--expected-tests 49`: `Ran 49 tests in 1.583s`, `OK`, exit 0 (plain-1790998782-f42118f5). The initial failed mirror regression and the source-root canaries remain in the review evidence; tests and baselines were not weakened.
-Final MacBook full plain ran once: `Ran 5159 tests in 458.033s`, `OK (skipped=579)`, exit 0 (plain-1790999517-29e0d72a).
-
-## Quest refresh error handling and retained provenance — 2026-10-02
-
-MediaWiki error bodies now fail before cache publication, including cached errors. Transport retries cover connection resets or refusals, timeouts, incomplete reads, HTTP 429 and HTTP 5xx; all other failures raise immediately. Current-revision fallbacks emit the page title.
-The manifest records only contributing-file hashes and emulator commits; complete scan digests, counts, trimming and the second scan are removed. The pin changed only in source_revisions: 6,805,262 to 6,805,024 bytes. A second offline refresh with denied sockets reproduced every pin byte.
-Both catalog rebuilds passed git diff --exit-code with no generated catalog change. The socket guard has a positive connection control in the same patch context. Nested item reward and stage requirement citations are documented.
-Local builder and refresh controls passed 16 tests. The focused MacBook selection includes the existing builder/catalog tests and new refresh controls; python3 run_tests.py --count reports 52. MacBook focused plain passed with --expected-tests 52: `Ran 52 tests in 1.621s`, `OK`, exit 0 (plain-1791004624-5c47395c). The full plain lane ran once: `Ran 5162 tests in 455.744s`, `OK (skipped=579)`, exit 0 (plain-1791006058-4cdd154c). Complete evidence uses review2-* in the established promotion evidence folder.
-The code fix is c1b0a9dbc648fa0133991895e8e7001de9e6fd39; its unchanged pre-commit hook passed. Source hashes remained identical across both MacBook lanes. Shared mirror queue delay is recorded in papercuts.md.
+The dated retained-input, review and error-handling records are in[the tooling archive](archive/progress-landed-test-cleanup-2026-10-14.md). Original run qualifications and inherited citation debt remain intact.
 
 ## Quest refresh retry allowlist — 2026-10-03
 
-The retry allowlist and concrete transient-error fixtures are committed at `2592a56d2e95d20c0927a09f4db8452df814524f`. PermissionError and certificate-validation URLError raise after one request with no sleep or cache publication. Generic OSError and URLError reasons do not qualify as transient failures. The behavior and recount probe passed on the current tree; complete output is `retry2-retry-recount-probe.log` in the established promotion evidence folder.
-The catalog remains unchanged against base `60d7bd83`. Recounting the documented oldids found 6 `item_rewards[].source` references and 4 `stage_requirements[].source` references, as recorded in `tools/generation/quest_sources.md`. The unchanged remote inventory selects 53 tests for the builder, catalog and refresh controls; final MacBook execution requires `--expected-tests 53`.
+The historical source record and unchanged qualifications are in[the landed tooling archive](archive/progress-landed-test-cleanup-2026-10-14.md).
 
 ## Spirits of the Elid Telegrab emitter — 2026-10-02
 
@@ -792,3 +746,10 @@ Evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/an
 - full-plain: `/opt/homebrew/bin/python3 tools/run_remote_tests.py '/Users/ArmanTarkhanian1/Library/Application Support/Anki2/ankiscape_worktrees/goal-combat-winter-storage-2026-10-03' plain` → `Ran 5170 tests in 448.363s | OK (skipped=581); runner exit 0`; log: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-winter-storage-2026-10-03/full-plain.log`.
 - diff-check: `git diff --check` → `exit 0; no output`; log: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/goal-combat-winter-storage-2026-10-03/diff-check.log`.
 - Both full lanes are required because Qt imports the combat logic facade; full plain is the last remote invocation. Native reviewer acceptance and promotion remain with the orchestrator; this slice does not land runtime code.
+
+## Source depth and exact opening holds — 2026-10-14
+Bittercap’s first full Qt source lane passed5337 tests/878.417s/5skips/actual0. Mogre repair0ea27c37 preserves four protected parents and319 other diary rows; independent code/earned-proof reviews,690 affected tests, six restored mutation probes and full plain5339/637.428s/580skips/actual0 pass; full Qt5339/870.925s/5skips/actual0 also passes. Garden and Tail retain [two verified owner-scope holds](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Native and official gameplay landing remain unproved. The later tooling-only main is[812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md); its complete closed summary stays in[the landed archive](archive/progress-landed-test-cleanup-2026-10-14.md).
+
+## MediaWiki warning diagnostic landed — 2026-10-14
+
+Exact69a22761 officially landed after independent Astra/Zhipu source acceptance and all9 full remote checks. [The source record](source-audits/mediawiki-warning-landed-2026-10-14.md) binds original focused/full receipts and retained evidence. Shared asset warnings are visible on stderr without changing successful results.

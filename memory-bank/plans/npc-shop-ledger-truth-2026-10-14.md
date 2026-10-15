@@ -1,0 +1,11 @@
+# NPC shop coverage must describe the shipped catalog — 2026-10-14
+
+Root selects a metadata-honesty correction under the open reproduction engineering contract. Both current summary counts must equal the shipped player-sale map length. Existing ledger stock names must match their runtime rows by stable row ID. Do not alter runtime stocks, IDs, names, price keys/values, visibility, access, source paths or any other ledger field.
+
+Root independently searched all production core/logic/logic_pure/runtime/ui and the package entrypoint. No direct reader of SHOP_COVERAGE_SUMMARY, player_sell_price_count or this coverage ledger appeared. Runtime/shop/UI consumers use the distinct unchanged catalog and price maps. The scope therefore changes audit metadata only. No existing UI, native case, assets, source pin or external data is changed.
+
+Before metadata edits, add load-bearing census and stable-ID/name consistency coverage to the existing shop-data suite. Record the baseline failure. Bind the change to the exact baseline with AST comparisons of every runtime table and a semantic ledger diff. Permit only one summary count per record and the qualified matching-row labels; preserve generated_at and all source roots.
+
+Root owns this guarded checkout, all writes, serialized focused/full proofs, reviews and official promotion. Use normal hooks, a fresh supported focused inventory, both independent source reviews and all standing audits. Both full lanes run at the exact merged --remote-lanes gate before official land. No new runner/checker/generator, accepted full-reproduction replay, numeric override, test/audit/limit/pin weakening, Git config/history rewrite, push, source harvest or sibling messages. The six economic-identity differences still hold the full generator/digest contract; this slice cannot claim that reproduction complete. No owner-only gate is inferred.
+
+Review boundary — 2026-10-15: Root freezes the three executable/data changes during an independent Astra review. The reviewer owns only external report files. Root keeps all source writes and proof launches. Review the metadata-only contract, census/name tests, preserved table hashes and minimality. Return exact findings and source bindings; do not execute remote lanes or claim full reproduction.
