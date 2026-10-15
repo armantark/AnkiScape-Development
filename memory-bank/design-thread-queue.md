@@ -2990,3 +2990,7 @@ Period oldids5981512/6563639 make Mining50 optional. The live requirement readou
 ## Open existing-journal scope — 2026-10-15: Do No Evil
 
 The actual first journal is a table of contents. Period oldid6587790 supplies Senliten/Leela and the later Jex/Sphinx exchanges, while the next live journal reaches further banana/wise-monkey deeds. Needed owner scope: a sourced replacement first journal and exact complete opening boundary. The later elite-clue decision stays separate. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). No hidden state, seeded restoration or companion is authorized.
+
+### Open owner question — 2026-10-15: Ritual first journal and complete boundary
+
+The actual first Ritual of the Mahjarrat journal contains only contents headings. No live override replaces it. Period oldid6564051 separates Tiffy assignment and optional teleport, Tendeth briefing, the attack/inquiry and jungle investigation. Existing UI changes need owner scope. The open decision is the source-backed first journal and its exact stage1 end. No talk-only or spatial proxy is proposed as settled. [The exact source qualification](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) preserves the evidence. Continue independent work; this question does not reopen settled quest or combat rules.

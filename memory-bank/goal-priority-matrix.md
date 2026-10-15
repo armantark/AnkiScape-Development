@@ -178,3 +178,5 @@ A read-only GPT-6 Astra queue audit of main `d0904603` sorted every queue record
 ## Completion rule
 
 The root must obtain a fresh queue audit before goal closure. It must show no eligible implementation and no accepted unmerged slice. Missing native reviewer acceptance remains explicit. If a genuine common blocker prevents all eligible work, create a new exact-evidence blocker record. Do not revive the removed stale whole-goal claim.
+
+The [next four opening qualifications](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) add exact per-root holds. Ritual needs first-journal scope. Hallowvale inherits the ordinary Myreque journal/fare hold. Clockwork requires independently corroborated level188 MkII combat data. Blood inherits Horror readout scope; its prose journal is already live. No generic-journal hold is imposed on either prose opening, and no whole-queue exhaustion follows.

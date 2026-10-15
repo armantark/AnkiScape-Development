@@ -140,3 +140,7 @@ Blocked: an authentic opening under the existing contents-only first journal. Tr
 ## Mourning's End Part II ordinary access — 2026-10-15
 
 Blocked: ordinary PartI completion/full disguise before the sourced New key handoff. Tried: final hand-authored override, period oldid6570956, cache6104 and existing Oronwen dependency record. Single first unblock: a period-qualified, independently corroborated combat block for required level62 Sir Harry. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). Preserve other trousers custody/timing qualifications; generic-journal replacement is not a current hold for this override.
+
+## Four later quest opening holds — 2026-10-15
+
+Root tried retained final-composition, period-page, prerequisite and NPC-source qualification. [The exact record](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) binds all reports and first unblocks. Ritual: owner-authorized first journal and exact stage1 boundary. Hallowvale: owner-authorized source-correct ordinary In Search journal boundary. Clockwork: independently corroborated level188 Barrelchest MkII combat block. Blood: owner-authorized Horror requirement readout correction under settled ruling50. These are per-root holds; independent tooling and remaining authorized depth continue.
