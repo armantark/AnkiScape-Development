@@ -2994,3 +2994,7 @@ The actual first journal is a table of contents. Period oldid6587790 supplies Se
 ### Open owner question — 2026-10-15: Ritual first journal and complete boundary
 
 The actual first Ritual of the Mahjarrat journal contains only contents headings. No live override replaces it. Period oldid6564051 separates Tiffy assignment and optional teleport, Tendeth briefing, the attack/inquiry and jungle investigation. Existing UI changes need owner scope. The open decision is the source-backed first journal and its exact stage1 end. No talk-only or spatial proxy is proposed as settled. [The exact source qualification](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) preserves the evidence. Continue independent work; this question does not reopen settled quest or combat rules.
+
+### Open owner question — 2026-10-15: Forgettable Tale first journal and endpoint
+
+The actual first Forgettable Tale journal is the generic pinned-guide objective. Period oldid6447452 separates Veldaban commission/transport from the beer exchange and first Kelda seed. The external target reconstruction grants no owner authority. The open decision is owner scope for a sourced first journal and its exact stage1 end. [The exact qualification](source-audits/forgettable-opening-boundary-2026-10-15.md) preserves both endpoints without selecting one. Continue independent work; Giant Dwarf's separate ordinary-route hold stays settled.

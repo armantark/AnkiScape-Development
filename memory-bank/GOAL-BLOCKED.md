@@ -144,3 +144,7 @@ Blocked: ordinary PartI completion/full disguise before the sourced New key hand
 ## Four later quest opening holds — 2026-10-15
 
 Root tried retained final-composition, period-page, prerequisite and NPC-source qualification. [The exact record](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) binds all reports and first unblocks. Ritual: owner-authorized first journal and exact stage1 boundary. Hallowvale: owner-authorized source-correct ordinary In Search journal boundary. Clockwork: independently corroborated level188 Barrelchest MkII combat block. Blood: owner-authorized Horror requirement readout correction under settled ruling50. These are per-root holds; independent tooling and remaining authorized depth continue.
+
+## Forgettable Tale first-journal hold — 2026-10-15
+
+Tried final-composed journal/requirements, both retained period pages, external reconstruction and ordinary prerequisite evidence. The live journal remains a generic objective. Single first unblock: owner authorization for its sourced first journal and exact stage1 endpoint. [The exact record](source-audits/forgettable-opening-boundary-2026-10-15.md) binds the original evidence. Later roots remain uninspected; independent work continues.
