@@ -235,8 +235,7 @@ def fight_caves_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     state = sanitize_fight_caves_state_pure(player_data.get("fight_caves"))
     if state["active"] and not state["roster"]:
         _spawn_wave(state)
-    display_state = copy.deepcopy(state)
-    display_engaged = _engaged_member(display_state)
+    display_engaged = _engaged_member(state)
     display_engaged_id = (
         str(display_engaged["instance_id"]) if display_engaged is not None else ""
     )
@@ -677,6 +676,7 @@ def apply_fight_caves_review_pure(
         except (TypeError, ValueError):
             state["jad_next_style"] = "ranged"
 
+    _engaged_member(state)
     engaged_name = enemy["display_name"]
     status = (
         f"Wave {state['wave'] - 1} complete · wave {state['wave']} ready"

@@ -120,6 +120,85 @@ def _combat_result(*, killed=False, died=False, lifepoints=None):
     return _apply
 
 
+class FightCavesTargetSuccessorTests(unittest.TestCase):
+    def setUp(self):
+        self.data = _jad_player(
+            "ranged", healer=True, attack_level=99, strength_level=99,
+            defense_level=99, equipment={"weapon": "Abyssal whip"},
+        )
+        state = self.data["fight_caves"]
+        healer = state["roster"][1]
+        healer.update(instance_id="fight-caves-2", lifepoints=120)
+        state["roster"].extend(
+            {**copy.deepcopy(healer), "instance_id": f"fight-caves-{index}",
+             "lifepoints": 600}
+            for index in (3, 4, 5)
+        )
+        state.update(
+            engaged_instance_id="fight-caves-2", next_instance_id=6,
+            healer_generation=1, jad_healed_full=True,
+        )
+
+    def test_real_healer_kill_persists_the_next_live_target(self):
+        before = copy.deepcopy(self.data)
+        updated, ok, result = apply_fight_caves_review_pure(
+            self.data, lambda: 0.25, equipment_data=EQUIPMENT_DATA,
+        )
+        self.assertTrue(ok, result)
+        self.assertTrue(result["killed"], result)
+        state = updated["fight_caves"]
+        self.assertNotIn("fight-caves-2", [member["instance_id"] for member in state["roster"]])
+        self.assertEqual((state["total_kills"], state["wave_kills"]), (1, 1))
+        self.assertEqual(result["engaged_instance_id"], "fight-caves-2")
+        self.assertEqual(result["engaged_enemy_id"], "yt_hurkot")
+        self.assertEqual(result["pressure_styles"], ("ranged", "melee", "melee", "melee"))
+        self.assertEqual(state["engaged_instance_id"], "fight-caves-3")
+        view = fight_caves_view_pure(updated)
+        self.assertEqual(view["engaged_instance_id"], "fight-caves-3")
+        self.assertEqual(
+            [member["instance_id"] for member in view["roster_view"] if member["engaged"]],
+            [view["engaged_instance_id"]],
+        )
+        self.assertEqual(self.data, before)
+
+    def test_view_resolves_stale_targets_with_the_existing_policy(self):
+        state = self.data["fight_caves"]
+        state["roster"].pop(1)
+        for mode, selected, expected in (
+            ("advanced", "fight-caves-2", "fight-caves-3"),
+            ("advanced", "", "fight-caves-3"),
+            ("advanced", "tztok_jad", "tztok_jad"),
+            ("casual", "tztok_jad", "fight-caves-3"),
+        ):
+            with self.subTest(mode=mode, selected=selected):
+                state.update(automation_mode=mode, engaged_instance_id=selected)
+                before = copy.deepcopy(self.data)
+                view = fight_caves_view_pure(self.data)
+                self.assertEqual(view["engaged_instance_id"], expected)
+                self.assertEqual(
+                    [member["instance_id"] for member in view["roster_view"] if member["engaged"]],
+                    [expected],
+                )
+                self.assertEqual(self.data, before)
+
+    def test_explicit_jad_selection_survives_the_next_review(self):
+        self.data["fight_caves"]["roster"].pop(1)
+        selected, ok, info = apply_fight_caves_command_pure(
+            self.data, "select_target", {"instance_id": "tztok_jad"},
+        )
+        self.assertTrue(ok, info)
+        self.assertEqual(fight_caves_view_pure(selected)["engaged_instance_id"], "tztok_jad")
+        before = copy.deepcopy(selected)
+        updated, ok, result = apply_fight_caves_review_pure(
+            selected, lambda: 0.25, equipment_data=EQUIPMENT_DATA,
+        )
+        self.assertTrue(ok, result)
+        self.assertFalse(result["killed"])
+        self.assertEqual(result["engaged_instance_id"], "tztok_jad")
+        self.assertEqual(updated["fight_caves"]["engaged_instance_id"], "tztok_jad")
+        self.assertEqual(selected, before)
+
+
 class FightCavesDataTests(unittest.TestCase):
     def test_period_wave_table_and_rewards_are_registered(self):
         self.assertEqual(len(FIGHT_CAVES_WAVES), 63)
