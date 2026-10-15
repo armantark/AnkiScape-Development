@@ -189,7 +189,7 @@ from .data.mobilising_armies_data import MOBILISING_ARMIES_ACTIVITY_ID
 from .logic.mobilising_armies_logic import apply_mobilising_armies_command_pure
 from .data.item_values import ITEM_VALUES
 from .data.gnome_restaurant_data import GNOME_RESTAURANT_ACTIVITY_ID
-from .logic.gnome_restaurant_logic import apply_gnome_restaurant_command_pure
+from .logic.gnome_restaurant_logic import apply_gnome_restaurant_command_pure, advance_gnome_restaurant_clock_pure
 from .data.dominion_tower_data import DOMINION_TOWER_ACTIVITY_ID
 from .logic.dominion_tower_logic import apply_dominion_tower_command_pure
 from .data.crucible_data import CRUCIBLE_ACTIVITY_ID
@@ -5203,14 +5203,7 @@ def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> 
 
 
 def _advance_world_events_after_review() -> None:
-    """Advance all review-clock world events inside the answer transaction.
-
-    The clocks advance silently, following the Managing Miscellania precedent:
-    these events cannot be acted on from the reviewer, and because this runs
-    after _finish_review_feedback_context() every message here escaped the
-    per-review coalescing and became its own popup. The live state now lives on
-    the reviewer D&D badge and the Activities "Live world events" strip.
-    """
+    """Advance silent world events inside the persisted answer transaction."""
 
     spawn_due = evil_tree_spawn_due_pure(_state.player_data)
     updated, _events = advance_evil_tree_world_clock_pure(
@@ -5329,6 +5322,12 @@ def _active_review_carried_target():
 
 
 def _advance_clocks_for_answer(successful_answer) -> None:
+    _state.player_data.update(advance_gnome_restaurant_clock_pure(
+        _state.player_data, successful_answer=successful_answer,
+        delivering=not _state.player_data.get("farm_queue")
+        and review_action_handler_key(_state.current_skill) == "utility"
+        and _state.player_data.get("current_utility") == GNOME_RESTAURANT_ACTIVITY_ID,
+    ))
     runtime_actions.advance_shared_review_state_for_review(_runtime_action_context())
     _state.player_data.update(advance_livid_farm_wish_effects_pure(_state.player_data, 1))
     try:
