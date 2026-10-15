@@ -21,3 +21,5 @@ Root checks source contracts and returned bindings, then uses normal hooks, inde
 - Restaurant source80475a0f is clean;38 focused cases passed18.322s/0skip. Independent Astra and Kimi K3 source reviews are running; source16 stays frozen. Native/visual/land remain false under the existing literal startup hold.
 
 - Familiarisation migration choice: active sessions derive successful segments from earned shards divided by15. This removes old failed-answer segments without granting shards or resetting cooldown. Completed reward-ready sessions retain their existing partial rewards and counters. This is Root's engineering migration under the owner's four-success rule, not a new owner gate.
+
+- Restaurant3df31bc6 closes every source-review finding. Its accepted39-case proof remains bound to unchanged executable/test bytes; final source gate is next. Familiarisationf600c0b5 is clean after its original normal hook and passes103 exact focused cases. Its Qt and source votes remain pending. Both keep strict native/land holds.
