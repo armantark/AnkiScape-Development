@@ -325,10 +325,10 @@ expected file and provenance key in the asset test.
 - Target automation `Off` is not a global dismissal command. It spends no further
   familiar resources for that target but preserves an already-live global familiar;
   manual Dismiss remains the explicit way to discard paid remaining duration.
-- Compact D&D sessions may use explicit answered-card segments when the activity loop
-  is the content. Familiarisation uses four segments and three focus pips: success gains
-  15 shards, Again gains none and loses one pip, ending at 60 shards, zero focus, or four
-  answers. Its rolling weekly cooldown uses world ticks and never the wall clock.
+- Familiarisation uses four successful-answer segments under the2026-10-14 owner rule.
+  Each success gains15 shards; Again pauses without progress or cost. Four successes
+  finish with60 shards. Focus is absent from the model and sanitized saves.
+  Its rolling weekly cooldown uses world ticks and never the wall clock.
 - Optional combat exposure is fail-closed to source evidence. An attacking
   Summoning familiar is not a generic second damage target; only a pinned
   retaliation, area, enemy, or explicit aggro/tanking mechanic may reach its LP.

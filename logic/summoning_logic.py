@@ -30,7 +30,6 @@ CARGO_RECLAIM_REVIEWS = math.ceil(
 )
 FAMILIARISATION_COOLDOWN_REVIEWS = 1680
 FAMILIARISATION_MAX_SEGMENTS = 4
-FAMILIARISATION_STARTING_FOCUS = 3
 FAMILIARISATION_SHARDS_PER_SUCCESS = 15
 FAMILIARISATION_SHARD_CAP = 60
 FAMILIARISATION_ACTIVITY_ID = "familiarisation"
@@ -91,7 +90,6 @@ def default_familiarisation_state_pure() -> dict[str, Any]:
     return {
         "active": False,
         "segments": 0,
-        "focus": FAMILIARISATION_STARTING_FOCUS,
         "raw_shards": 0,
         "awaiting_reward": False,
         "cooldown_reviews_remaining": 0,
@@ -194,12 +192,6 @@ def _sanitize_familiarisation(raw: Any) -> dict[str, Any]:
     segments = _clean_int(
         raw.get("segments"), 0, minimum=0, maximum=FAMILIARISATION_MAX_SEGMENTS
     )
-    focus = _clean_int(
-        raw.get("focus"),
-        FAMILIARISATION_STARTING_FOCUS,
-        minimum=0,
-        maximum=FAMILIARISATION_STARTING_FOCUS,
-    )
     shards = _clean_int(
         raw.get("raw_shards"),
         0,
@@ -207,17 +199,15 @@ def _sanitize_familiarisation(raw: Any) -> dict[str, Any]:
         maximum=FAMILIARISATION_SHARD_CAP,
     )
     awaiting = bool(raw.get("awaiting_reward", False))
-    if active and (
-        segments >= FAMILIARISATION_MAX_SEGMENTS
-        or focus <= 0
-        or shards >= FAMILIARISATION_SHARD_CAP
-    ):
+    if active:
+        # Older sessions counted Again as a segment; only earned shards record success.
+        segments = shards // FAMILIARISATION_SHARDS_PER_SUCCESS
+    if active and segments >= FAMILIARISATION_MAX_SEGMENTS:
         active = False
         awaiting = True
     return {
         "active": active,
         "segments": segments,
-        "focus": focus,
         "raw_shards": shards,
         "awaiting_reward": awaiting,
         "cooldown_reviews_remaining": _clean_int(
@@ -837,7 +827,6 @@ def start_familiarisation_pure(
     state["familiarisation"] = {
         "active": True,
         "segments": 0,
-        "focus": FAMILIARISATION_STARTING_FOCUS,
         "raw_shards": 0,
         "awaiting_reward": False,
         "cooldown_reviews_remaining": FAMILIARISATION_COOLDOWN_REVIEWS,
@@ -937,19 +926,13 @@ def apply_familiarisation_segment_pure(
     )
     if active_activity_id not in {"", FAMILIARISATION_ACTIVITY_ID}:
         return dict(player_data), False, {"reason": "activity_conflict"}
-    activity["segments"] += 1
     if successful_answer:
+        activity["segments"] += 1
         activity["raw_shards"] = min(
             FAMILIARISATION_SHARD_CAP,
             activity["raw_shards"] + FAMILIARISATION_SHARDS_PER_SUCCESS,
         )
-    else:
-        activity["focus"] = max(0, activity["focus"] - 1)
-    ended = (
-        activity["segments"] >= FAMILIARISATION_MAX_SEGMENTS
-        or activity["focus"] <= 0
-        or activity["raw_shards"] >= FAMILIARISATION_SHARD_CAP
-    )
+    ended = activity["segments"] >= FAMILIARISATION_MAX_SEGMENTS
     if ended:
         activity["active"] = False
         activity["awaiting_reward"] = True
@@ -960,7 +943,6 @@ def apply_familiarisation_segment_pure(
         "reason": "segment",
         "ended": ended,
         "segments": activity["segments"],
-        "focus": activity["focus"],
         "raw_shards": activity["raw_shards"],
     }
 
@@ -989,6 +971,25 @@ def _advance_bunyip_heal(
         maximum, before + heal_steps * BUNYIP_HEAL_LIFEPOINTS
     )
     return updated["combat_lifepoints"] - before
+
+
+def _advance_familiarisation_world_tick(
+    player_data: dict[str, Any], state: dict[str, Any], successful_answer: bool | None
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    activity = dict(state["familiarisation"])
+    activity["cooldown_reviews_remaining"] = max(
+        0, activity["cooldown_reviews_remaining"] - 1
+    )
+    state["familiarisation"] = activity
+    player_data["summoning_state"] = state
+    if not activity["active"] or successful_answer is None:
+        return player_data, None
+    updated, ok, result = apply_familiarisation_segment_pure(
+        player_data, successful_answer=successful_answer
+    )
+    if ok:
+        del result["reason"]
+    return updated, result
 
 
 def advance_summoning_world_tick_pure(
@@ -1021,47 +1022,12 @@ def advance_summoning_world_tick_pure(
             retained_events.append(event)
     state["cargo_events"] = retained_events
 
-    activity = dict(state["familiarisation"])
-    activity["cooldown_reviews_remaining"] = max(
-        0, activity["cooldown_reviews_remaining"] - 1
+    updated, familiarisation_result = _advance_familiarisation_world_tick(
+        updated, state, successful_answer
     )
-    if activity["active"] and successful_answer is not None:
-        activity_session = updated.get("activity_session")
-        active_activity_id = (
-            str(activity_session.get("active_id", ""))
-            if isinstance(activity_session, Mapping)
-            else ""
-        )
-        if active_activity_id not in {"", FAMILIARISATION_ACTIVITY_ID}:
-            result["familiarisation"] = {"reason": "activity_conflict"}
-        else:
-            updated["activity_session"] = {
-                "active_id": FAMILIARISATION_ACTIVITY_ID
-            }
-            activity["segments"] += 1
-            if successful_answer:
-                activity["raw_shards"] = min(
-                    FAMILIARISATION_SHARD_CAP,
-                    activity["raw_shards"]
-                    + FAMILIARISATION_SHARDS_PER_SUCCESS,
-                )
-            else:
-                activity["focus"] = max(0, activity["focus"] - 1)
-            ended = (
-                activity["segments"] >= FAMILIARISATION_MAX_SEGMENTS
-                or activity["focus"] <= 0
-                or activity["raw_shards"] >= FAMILIARISATION_SHARD_CAP
-            )
-            if ended:
-                activity["active"] = False
-                activity["awaiting_reward"] = True
-            result["familiarisation"] = {
-                "ended": ended,
-                "segments": activity["segments"],
-                "focus": activity["focus"],
-                "raw_shards": activity["raw_shards"],
-            }
-    state["familiarisation"] = activity
+    state = updated["summoning_state"]
+    if familiarisation_result is not None:
+        result["familiarisation"] = familiarisation_result
     recharge_ticks = (
         state["special_move_recharge_residual"] + ANSWER_EFFECT_TICKS
     )

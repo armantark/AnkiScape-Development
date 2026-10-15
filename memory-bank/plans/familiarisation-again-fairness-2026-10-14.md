@@ -1,0 +1,11 @@
+# Familiarisation Again fairness — 2026-10-14
+
+The answered owner decision at22:49 PDT requires four successful answers and60 shards. Again pauses with no segment, focus cost or shard gain. Remove focus from the model and saved state through the existing sanitizer. Only removal of visible focus text is authorized UI work. No Claude authorship or review.
+
+Root owns this guarded checkout and all writes. The existing pure and live-world reducers must obey the same success rule. Preserve independent world clocks, cooldown, activity ownership, source rewards and claim/Undo safety. Remove the focus constant and all model/default/result/view reads. The sanitizer already runs for every save version; use it without a new migration framework or version bump.
+
+Root's migration choice: derive active-session successful segments from earned shards divided by15. Old Again segments no longer shorten an active run. Grant no shards, restart no cooldown and preserve completed reward-ready partial claims. Current valid sessions are unchanged. Malformed inputs keep existing clamps. This is an engineering choice within the owner's migration instruction, not an owner-only gate.
+
+Before production edits, cover repeated Again, all success grades, both reducers, four-success completion, inactive/foreign-owner refusal, active legacy failed segments and focus0, completed partial rewards, current/old-version migration idempotence and source immutability. Drive the loaded review hook through completion, Undo/reanswer and independent clock progress. Cover both visible focus consumers. Preserve reward-claim coverage and real command Undo.
+
+Root runs fresh supported focused inventory/execution and fixed docs/quality/reachability/worktree checks. Independent cross-lineage source reviews resolve findings and valid simplifications. Both full lanes are serialized at the exact merged --remote-lanes promotion gate before official land. The known strict native startup hold remains; no closed case retry, coercion or saved-to-saved substitute is allowed. Until native/visual acceptance, land is false. No push, config/history rewrite, weaker checks/pins/limits, source harvest, new runner/checker or unrelated UI work. Evidence stays outside the worktrees.

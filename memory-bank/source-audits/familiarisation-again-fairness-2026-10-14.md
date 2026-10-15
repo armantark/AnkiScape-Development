@@ -1,0 +1,8 @@
+# Familiarisation fairness source checkpoint — 2026-10-14
+
+The answered22:49 PDT owner ruling makes Again idle. Four successful answers yield60 shards. Focus is absent from defaults, sanitized state, results, views and the two authorized text fragments. No other UI or source reward changes.
+Active legacy sessions derive successful segments from earned shards divided by15. Failed-answer segments no longer shorten the run. Migration grants no shards, restarts no cooldown and preserves completed partial rewards. The existing all-version sanitizer removes the field; no version bump or migration framework is needed.
+
+[Original red](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/familiarisation-again-fairness/red.json): three tests/six failures/actual1 before production edits. The first local candidate passed34 tests/1.073s; this precedes the final world-clock extraction and is not final-source acceptance.
+[Final metrics](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/familiarisation-again-fairness/function-metrics-final.json) pass unchanged15/15 limits: sanitizer5/4, segment6/5, activity world tick4/3 and Summoning world tick8/12. The initial world function refused cognitive24; the cohesive activity boundary now delegates to the existing segment reducer, preserving independent clocks.
+Final supported focused and Qt proofs, independent cross-lineage reviews and both exact full promotion lanes remain pending. Their original receipts belong under the same external evidence directory. Required native/visual acceptance and official land remain false under [the existing literal startup hold](native-startup-mbp-2026-10-14.md). No closed case was retried, criterion coerced or source pin changed.
