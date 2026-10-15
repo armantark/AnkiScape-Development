@@ -418,3 +418,5 @@
 - 2026-10-15T05:53:39.103540+00:00: Restaurant caller discovery used an unqualified shell glob and failed with `zsh:1: no matches found: runtime/runtime_review*`; use repo_search names before exact-path content searches.
 - 2026-10-15T06:10:17.187285+00:00: Kimi Restaurant source review exited1 with `error: tool loop exceeded 24 turns` and an empty response; retain the failed call and use one self-contained source packet without tools for the replacement review.
 - 2026-10-15T06:34:55.711117+00:00: Familiarisation focus-text removal invoked the normal giant-UI hook; pending Git process84743 showed elapsed14:31 at2026-10-15T06:33:12Z before the original commit returned0. Preserve the hook and fixed limits; do not infer a hang from its empty redirected log.
+
+- 2026-10-15T06:55:28.737994+00:00: Cold War source search used shell globs before rg; zsh refused `zsh:1: no matches found: logic/quest*`. Use quoted rg --glob patterns over explicit existing directories.
