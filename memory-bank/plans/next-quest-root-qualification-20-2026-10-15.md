@@ -61,3 +61,7 @@ CHECK: actionable Standards/Spec findings, exact source/incident dispositions, u
 ## Preserve startup evidence under the fixed cap
 
 The stock audit refused 3013 startup lines after required incidents were recorded. Root preserved the complete retired Rulesync history in archive/worktree-rules-history-2026-10-03.md. All three original progress headings remain as linked anchors. Removal commit 7f2b9efbec7a87d8079e8ae2ecd3b476a6f76a51 and current tracked AGENTS.md establish the live successor. No unique open owner decision moved. The original section hash and exact-byte comparison are in records-startup-history-move/archive-binding.json under the external evidence root. The 3000-line cap and every nonempty incident stay unchanged. Review this records-only repair before promotion.
+
+## Cross-lineage records vote
+
+Kimi K3 gives one bounded independent review of the exact records delta and the two named old closure candidates. Root supplies the full diff, decisive source extracts and bound evidence through the vetted ask-kimi route. T3 has no callable Kimi provider. The model gets no filesystem, child or side-effect tools. Root owns quest-opening-records-21-to-24-kimi-review outputs under the external evidence root. Prior accepted source qualifications stay settled. No static vote substitutes for the exact full gate or official land. Root resolves every finding and retains unproved incident lines.
