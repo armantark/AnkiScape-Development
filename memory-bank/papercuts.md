@@ -440,3 +440,5 @@
 
 - 2026-10-15T07:47:29.022259+00:00: Root records merge with landeded10c2f0 hit an add/add conflict only in the navigation archive title ("Landed navigation and startup-budget evidence" versus "Landed navigation authority and startup-budget evidence"). Keep the complete main archive; the evidence body is identical. An earlier125-line bounded setup excerpt also exceeded2590tokens; use shorter excerpts.
 - 2026-10-15T07:53:33.764561+00:00: A combined Standing Slice Contract, Jad plan and diff read exceeded the aggregate output budget (original token count: 13264). Separate bounded reads recovered the contract and plan; no evidence conclusion uses truncated text.
+
+- 2026-10-15T09:02:40.588793+00:00 — Familiarisation exact gatea06454c4e14c3b4e0a5339ab6b893c94f3745391 returned actual2 after both full lanes passed; `startup_line_budget_exceeded: 3001 startup lines must stay under 3000`. The reviewed69-nonempty-line remote-mirror archive repairs records only; original product receipts remain accepted, native/visual/land remain false. Root recovery reads also exceeded output budgets; bounded projections replace full diff/log reads.
