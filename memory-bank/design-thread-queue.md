@@ -2917,9 +2917,9 @@ The fresh death-partition native fixture at f570a15f showed the existing pre-ans
 
 Complete In Search of the Myreque stage1 would expose generated stage2 instruction “Give him three Planks and then ten Coins.” despite the retained period contract placing the fare after completion; root and Astra park the opening until a source-correct journal change has recorded owner scope, without changing the UI, advancing incomplete persuasion or replacing the five-current-charge guard with a permanent proof.
 
-## Open native representation decision — 2026-10-14 MacBook Pro
+## Answered owner decision — 2026-10-15 native startup representation
 
-The fresh Tribal Totem source `9928e1213e50c090d437c528312567fd07fb5d21` reproduces the five startup differences in [the native refusal record](source-audits/native-startup-mbp-2026-10-14.md). The source gate stays accepted; native gameplay acceptance is false. Preserve the existing protected-field and literal saved-Undo-to-pre-Good-LIVE criteria. The owner must authorize a specific source/representation resolution before this hold can be cleared; no field coercion or acceptance exception is inferred. Root continues independent queue work.
+The owner ruled that the five refused startup fields are intentional product representations, not product defects: saved lists load as tuples and XP numbers as floats in logic/crucible_logic.py and logic/farming_logic.py; JSON cannot store a tuple. Compare the saved file by value with live state after one round trip through the product’s own save encoding. Every other part of the check stays exact, including protected fields and the separate saved-Undo-to-pre-Good-LIVE criteria. This clears the representation hold, authorizes the pending native checks and replaces the external October13 handoff’s “do not coerce values” instruction; it does not claim native acceptance. Preserve [the original refused observations](source-audits/native-startup-mbp-2026-10-14.md).
 
 ### Answered owner decision — 2026-10-14: Cold War personal greeting
 
