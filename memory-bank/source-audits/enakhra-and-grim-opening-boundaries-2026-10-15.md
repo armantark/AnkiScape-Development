@@ -1,0 +1,11 @@
+# Enakhra and Grim Tales complete openings — 2026-10-15
+
+Round25 retains two owner scope holds. Root verified30 bindings, five raw period bodies and selected lines, the66-ID exclusion union,20 retained names and exact prerequisite sets. The single import persisted its result before a diagnostic KeyError; Root repeated no import. Raw bodies stay in original retained sources.
+
+Enakhra's Lament oldid6548386, dated2012-11-11T21:18:24Z, line34 marks Mining45 optional. Current start gates and Requires text make it mandatory. Authorize the source-correct gate/readout before implementation. Preserve the complete first five journal paragraphs through the placed sandstone base. Lazim's offer,32kg mining/hand-in, conditional coal, block receipt, chiseling, further talk and placement remain mandatory deeds. Optional Desert Treasure travel adds no quest prerequisite. Missing custody and action transactions remain work.
+
+Grim Tales oldid6542776, dated2012-11-08T11:18:59Z, lines32–40 separates five boostable action levels from Prayer/Combat recommendations; none gates start. Current gates enforce all seven. Its first journal has six contents entries before the Sylas sentence. Authorize the corrected start gates/readout and the complete opening journal: conversation and both feather/helmet tasks. Later item collection remains later. The exact actual quest prerequisite is Witch's House.
+
+Witch's House has a separate positive-source gap. Period oldid6474931, dated2012-10-26T12:16:36Z, line43 requires diary reading before the fountain key. Current stage7 produces the key without diary proof. The restored Darkan check agrees; the old2026-06-22 audit said no such requirement existed. Reconcile that assertion and qualify the complete ordinary diary/key path. Existing items, encounters and auto-actions remain; no manual proof injection or seeded completion is accepted. First determine whether the unchanged journal already authorizes the complete deed.
+
+Evidence and Root binding: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-25. Independent records review remains pending. No product, native, promotion or exhaustion acceptance is claimed. Entries3/4, Haunted Mine and Hazeel Cult, remain order-only until separately qualified.

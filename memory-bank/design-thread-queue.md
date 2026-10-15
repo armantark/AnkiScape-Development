@@ -3078,3 +3078,11 @@ Its actual Giant Dwarf dependency first inherits the settled open library-load d
 ## Open existing-journal scope — 2026-10-15: Dream Mentor
 
 The actual first journal omits two steps: the conversation after the first four foods, before Spirit encouragement (period oldid 6550965 line 72), and four more foods after that encouragement, before Cyrisus stands (line 76). Authorize these two source-correct journal insertions within the complete opening through Jack's chest and initial five-category armour selection. No partial first-aid endpoint or other UI change is proposed. [Evidence](source-audits/dream-and-workshop-iv-opening-boundaries-2026-10-15.md). Ordinary eligibility, food/Spirit/armour qualification and earned routes remain work.
+
+## Open existing-gate scope — 2026-10-15: Enakhra's Lament
+
+Period oldid6548386 line34 marks Mining45 optional; the current start gate and Requires text make it mandatory. Authorize that source-correct gate/readout correction. Preserve the complete opening through sandstone-base placement and every earned deed/input. No other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md).
+
+## Open existing-gate and journal scope — 2026-10-15: Grim Tales
+
+Period oldid6542776 lines32–40 makes five action levels boostable and Prayer/Combat recommendations, without those start gates. The current gates/readout enforce all seven. The opening journal also contains six contents entries and omits the full Sylas commission. Authorize the corrected start gates/readout and complete conversation/both-task journal. Keep Witch's House prerequisite and all five action checks at their actions. No later task credit or other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md). Witch's House's actual diary/key gap remains separate work.

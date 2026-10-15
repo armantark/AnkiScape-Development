@@ -21,3 +21,17 @@ A separate Sol leaf owns only death-positive-brief-handoff-2026-10-15/report.md 
 CHECK: qualify the complete Mistag commission and the initial Zanik one-set handoff from retained independent layers. Separate the period guide and transcript from original implementation supply. Inspect retained supplying commits and original handlers before treating a restoration as independent. EXPECT: each positive component has an evidence-bound source verdict and one exact remaining source need, if any. Retain literal period extracts, original blob hashes and timestamps. Modern supply dates alone reject nothing. No global absence or copied-source claim follows without evidence.
 
 Keep two earned seven-piece outfits, one atomic set loss and no repeat stage2 charge. Preserve settled target-local escort context and accepted Kazgar scope. Missing implementation remains work. All read-only source, output ownership, cutoff, UI, no-seed and safety limits above apply. No new registry import, network, harvest, decoder, product or native check is authorized. Return disputes only to Root through the handback.
+
+## Keep source manifests separate from raw bodies
+
+Repeated nested packet projections exceeded output budgets. Future qualification JSON stores source paths, revisions, timestamps, SHA256 values and selected lines. Raw literal bodies stay in their original retained source files. Do not embed complete bodies, prior packets or nested cache payloads. This preserves exact verification while removing duplicated large payloads from each continuation. Original packets remain immutable. Root compares each selected source against its raw file.
+
+## Reuse the retained order — round26
+
+Root verified round25's30 bindings, five original bodies/selected lines and all actual prerequisite sets. The66 exclusions and20 retained names match. Both first holds need owner UI scope. Round26 qualifies only next_twenty entries3/4: haunted_mine and hazeel_cult. The Sol leaf owns only next-quest-root-qualification-26/report.md and qualification.json under the external root. Use the next exact commit named in dispatch. No new registry import or source sweep. All complete-path, manifest-shape, source, ownership, safety and no-exhaustion criteria above apply. Root verifies before another pair.
+
+## Qualify Witch's House diary and key independently
+
+The Sol leaf owns only witchs-house-diary-key-qualification-2026-10-15/report.md and qualification.json under the external root. Root owns every mutable resource. Use the exact revision in dispatch.
+
+CHECK: reconcile the old no-diary assertion with literal period source and original/supplying Darkan behavior. Inspect the complete actual journal and ordinary item/deed path through diary reading and key custody. Determine whether a complete source-qualified implementation can preserve existing UI. EXPECT: an evidence-bound eligible-or-held verdict, exact next implementation contract or single first unblock, and source/consumer/actual-prerequisite bindings. Missing code remains work. Do not infer owner authorization from a source. No partial stage or seeded item/completion/proof. All source, manifest-shape and read-only safety limits above apply; no registry import or product proof.
