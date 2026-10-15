@@ -222,10 +222,14 @@ def sanitize_prayer_selection_pure(player_data, selected, book=None):
     return tuple(clean)
 
 
-def active_prayer_selection_pure(data):
-    if not bool(data.get("combat_prayers_enabled", True)):
-        return ()
-    return sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ()))
+def active_prayer_selection_pure(data, *, automatic_protection_prayer=None):
+    enabled = bool(data.get("combat_prayers_enabled", True))
+    selected = sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ())) if enabled else ()
+    automatic = automatic_protection_prayer_pure(data, automatic_protection_prayer)
+    if not automatic:
+        return selected
+    ordinary = selected if PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0) > 0 else ()
+    return sanitize_prayer_selection_pure(data, (automatic, *ordinary))
 
 
 def prayer_uptime_fraction_pure(data):
@@ -237,16 +241,40 @@ def prayer_uptime_fraction_pure(data):
     return float(PRAYER_UPTIME_POLICIES.get(policy, 0.0))
 
 
-def prayer_effect_state_pure(data, uptime_override=None):
-    selected = active_prayer_selection_pure(data)
+def automatic_protection_prayer_pure(data, prayer_id):
+    if prayer_id is None:
+        return None
+    selected = sanitize_prayer_selection_pure(data, (prayer_id,))
+    if selected and "protection_overhead" in COMBAT_PRAYERS_BY_ID[selected[0]].groups:
+        return selected[0]
+    return None
+
+
+def _prayer_effect_uptimes(data, uptime_override, automatic):
     uptime = prayer_uptime_fraction_pure(data) if uptime_override is None else max(0.0, min(1.0, float(uptime_override)))
+    if not automatic:
+        return uptime, uptime
+    ordinary = float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0)) if bool(data.get("combat_prayers_enabled", True)) else 0.0
+    if ordinary:
+        return uptime, min(1.0, uptime / ordinary)
+    if uptime_override is None:
+        uptime = 1.0 if _non_negative_int(data.get("combat_prayer_points", 0), 0) > 0 else 0.0
+    return uptime, uptime
+
+
+def prayer_effect_state_pure(data, uptime_override=None, *, automatic_protection_prayer=None):
+    selected = active_prayer_selection_pure(data, automatic_protection_prayer=automatic_protection_prayer)
+    automatic = automatic_protection_prayer_pure(data, automatic_protection_prayer)
+    uptime, automatic_uptime = _prayer_effect_uptimes(data, uptime_override, automatic)
     effects = {}
     for prayer_id in selected:
+        # Keep the ordinary scalar for live curse ramps; only this overhead is full-time.
+        effect_uptime = automatic_uptime if prayer_id == automatic else uptime
         for effect, value in COMBAT_PRAYERS_BY_ID[prayer_id].effects:
             if effect in ("attack", "strength", "defence", "ranged", "ranged_attack", "ranged_strength", "magic"):
-                effects[effect] = max(float(effects.get(effect, 1.0)), 1.0 + (float(value) - 1.0) * uptime)
+                effects[effect] = max(float(effects.get(effect, 1.0)), 1.0 + (float(value) - 1.0) * effect_uptime)
             else:
-                effects[effect] = max(float(effects.get(effect, 0.0)), float(value) * uptime)
+                effects[effect] = max(float(effects.get(effect, 0.0)), float(value) * effect_uptime)
     effects["uptime"] = uptime
     effects["selected"] = selected
     return effects
