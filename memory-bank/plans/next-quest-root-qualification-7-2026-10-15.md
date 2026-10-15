@@ -31,3 +31,8 @@ Root verified all27 round9 bindings and recorded Land of the Goblins and Legends
 ## Reuse retained shortlist for round11
 
 Root verified all28 round10 source bindings and recorded the first pair. The retained remaining list starts the_branches_of_darkmeyer, then the_chosen_commander. Round11 qualifies only those two under the same complete-boundary criteria and frozen checkout2 at662e1f8f. Reuse next_ten and continuation_reuse in round10 qualification.json; no new registry import or census. The leaf owns only next-quest-root-qualification-11/report.md and qualification.json under the same external evidence root. An already-qualified decisive upstream hold can be inherited after verifying the actual dependency; do not repeat its source sweep. All original ownership, safety, source, UI and no-exhaustion limits remain. Root must verify this handback before any further pair.
+
+
+## Reuse retained shortlist for round12
+
+Root verified round11's complete source bindings and recorded both inherited route holds. Round12 reuses retained round10 shortlist entries5/6: the_firemakers_curse and the_path_of_glouphrie. No new registry import, census or repeated upstream source qualification. The leaf owns only next-quest-root-qualification-12/report.md and qualification.json under the same external evidence root; frozen source remains checkout2 at662e1f8f. All earlier complete-boundary criteria, ownership and prohibitions apply. Root must verify the handback before another pair. Sourceguard production authorship remains isolated to its four-file whitelist in checkout5.

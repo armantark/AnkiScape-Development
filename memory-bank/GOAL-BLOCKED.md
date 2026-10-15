@@ -158,3 +158,8 @@ Land of the Goblins is dependency-held by The Giant Dwarf's existing library-loa
 ## Favour and Summer openings — 2026-10-15
 
 One Small Favour is held on existing prerequisite-readout scope. Tried: actual full prose/gate/readout, period walkthrough6546338, Questreq6552449 and cache struct593 slots13/99. Single first unblock: owner authorization for the Rune Mysteries requirement-readout correction with the source-qualified gate. Summer's End is held on first-journal scope. Tried: generic actual journal, final supply alternatives and period6560166/6534090. Single first unblock: owner-approved sourced first journal and exact stage1 endpoint. Ordinary routes and supplies remain to qualify after these scope holds. [Exact evidence](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md). The eight other retained candidate names remain uninspected; no exhaustion claim.
+
+
+## Darkmeyer and Commander openings — 2026-10-15
+
+Darkmeyer inherits the Myreque route scope hold. Tried: actual complete checklist/prerequisite consumers, oldid6588545/6382275 and the retained fare-boundary qualification. Single first unblock: the existing owner-approved source-correct In Search stage1-to2 journal boundary. Chosen Commander inherits the Giant Dwarf route hold. Tried: actual complete investigation/prerequisite consumers, oldid6556184 and the already-qualified Land/Giant Dwarf decision. Single first unblock: the existing owner-approved library-load model. Later exact mechanics, custody and journal copy remain unaccepted. [Exact evidence](source-audits/darkmeyer-and-commander-opening-boundaries-2026-10-15.md). No whole-goal exhaustion.

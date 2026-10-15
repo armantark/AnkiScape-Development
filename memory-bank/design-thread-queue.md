@@ -3012,3 +3012,8 @@ Questreq6552449 and retained cache struct593 slots13/99 independently require Ru
 ## Open first-journal scope — 2026-10-15: Summer's End
 
 The actual first journal is generic. Period oldids6560166/6534090 distinguish the portal/Void briefing from return, mine preparation and familiar lure, but do not assign AnkiScape stage1. Needed owner scope: one sourced first journal and its exact endpoint. Existing supply gates do not choose it. Ordinary Spirit of Summer/ring acquisition stays separate; no hidden state or partial later-stage credit is authorized. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
+
+
+## Open existing-journal copy scope — 2026-10-15: Chosen Commander food list
+
+The first journal omits the list after 'among the following'. The current first implementation hold remains The Giant Dwarf's library-load model. Before later implementation, the owner must authorize a source-qualified correction to that existing journal text; no food assignment, controlled scene or broader journal redesign is settled. [Exact qualification](source-audits/darkmeyer-and-commander-opening-boundaries-2026-10-15.md).
