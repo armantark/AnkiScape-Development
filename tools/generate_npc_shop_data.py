@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import runpy
 import shutil
@@ -29,6 +28,7 @@ if __package__:
         MANUAL_ITEM_METADATA,
         ItemMeta,
         _item_name,
+        order_player_price_map,
         select_player_price_ids,
     )
     from .npc_shop_generation.service_rows import SERVICE_ROWS
@@ -44,6 +44,7 @@ else:
         MANUAL_ITEM_METADATA,
         ItemMeta,
         _item_name,
+        order_player_price_map,
         select_player_price_ids,
     )
     from npc_shop_generation.service_rows import SERVICE_ROWS
@@ -756,7 +757,7 @@ def build_player_sell_prices(
         buy_price = _darkan_get_buy_price(cache_row)
         if buy_price is not None:
             buy_prices[name] = buy_price
-    return dict(sorted(sell_prices.items())), dict(sorted(buy_prices.items()))
+    return order_player_price_map(sell_prices), order_player_price_map(buy_prices)
 
 
 def _py_repr(value: Any) -> str:
@@ -930,21 +931,21 @@ def rewrite_services_from_generated(
         "player_buy_prices": dict(generated["SHOP_PLAYER_BUY_PRICES"]),
     }
     catalog[rows_key] = rows
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    write_shop_data(catalog, output_path)
-
     if ledger_output_path is not None or summary_output_path is not None:
         if existing_ledger_path is None:
             raise ValueError("existing_ledger_path is required for audit output")
         ledger = json.loads(existing_ledger_path.read_text(encoding="utf-8"))
         ledger[rows_key] = rows
         ledger["summary"] = dict(summary)
-        if ledger_output_path is not None:
-            ledger_output_path.parent.mkdir(parents=True, exist_ok=True)
-            ledger_output_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        if summary_output_path is not None:
-            summary_output_path.parent.mkdir(parents=True, exist_ok=True)
-            write_summary(ledger, summary_output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    write_shop_data(catalog, output_path)
+
+    if ledger_output_path is not None:
+        ledger_output_path.parent.mkdir(parents=True, exist_ok=True)
+        ledger_output_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if summary_output_path is not None:
+        summary_output_path.parent.mkdir(parents=True, exist_ok=True)
+        write_summary(ledger, summary_output_path)
     return summary
 
 
@@ -1141,10 +1142,7 @@ def _render_outputs(catalog: dict[str, Any], ledger: dict[str, Any], directory: 
 
 
 def _relocate_shop_path(path: str, previous_root: str, current_root: str) -> str:
-    prefix = previous_root if previous_root.endswith(os.sep) else previous_root + os.sep
-    if not path.startswith(prefix):
-        raise ValueError(f"Shop source path is outside its declared root: {path}")
-    return str(Path(current_root) / path[len(prefix):])
+    return str(Path(current_root) / Path(path).relative_to(previous_root))
 
 
 def _set_source_roots(catalog: dict[str, Any], ledger: dict[str, Any], roots: dict[str, str]) -> None:

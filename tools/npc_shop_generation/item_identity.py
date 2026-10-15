@@ -73,6 +73,21 @@ HISTORICAL_PLAYER_PRICE_IDS: dict[str, int] = {
 }
 
 
+PLAYER_PRICE_EMISSION_TAIL = (
+    "Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows",
+    "Adamant arrows", "Rune arrows", "Broad arrows",
+    "Oil lamp (empty)", "Oil lamp (unlit)", "Oil lantern (empty)", "Oil lantern (unlit)",
+    "Bullseye lantern (empty)", "Bullseye lantern (unlit)", "Mining helmet (unlit)",
+)
+
+
+def order_player_price_map(prices: Mapping[str, int]) -> dict[str, int]:
+    # Preserve the catalog's appended storage names without requiring their presence.
+    ordered = {name: prices[name] for name in sorted(prices) if name not in PLAYER_PRICE_EMISSION_TAIL}
+    ordered.update((name, prices[name]) for name in PLAYER_PRICE_EMISSION_TAIL if name in prices)
+    return ordered
+
+
 def _item_name(items: Mapping[int, ItemMeta], item_id: int, fallback: str | None = None) -> str:
     normalized = ITEM_NAME_NORMALIZATIONS.get(item_id)
     if normalized:
