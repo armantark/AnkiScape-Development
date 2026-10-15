@@ -193,3 +193,7 @@ Root verified26 source and10 prior-report bindings in [round15](source-audits/ea
 ## Love Story and Evil Dave dependencies — 2026-10-15
 
 Root verified29 bindings in [round16](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md). Love Story inherits One Small Favour's owner readout/source-qualified gate hold through the actual hand-authored Swan Song prerequisite. Evil Dave needs one owner ruling for the actual Another Cook generic first journal and exact complete sourced endpoint; its2025 pin is not period evidence, with retained2012 replacement-source qualification still work. Both selected first journals are concrete and must be performed completely. No code, seeded route, native or gameplay acceptance; later16 retained names remain order-only.
+
+## Awowogei and Rocking Out openings — 2026-10-15
+
+Root verified29 bindings and three exact source extracts in [round17](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md). Awowogei needs one owner ruling for its own sourced first journal and complete endpoint. Rocking Out actually requires Another Cook and inherits that generic-journal hold. All nine Rocking Out opening deeds remain necessary; its existing customs-office auto_action is incomplete. Variable/fixed customs-answer conflict and source-qualified gate/custody repairs remain later work. No new code or gameplay acceptance; later14 retained names are order-only.

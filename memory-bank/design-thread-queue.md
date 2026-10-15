@@ -3045,3 +3045,8 @@ The first journal describes a later puzzle; the existing stage1 action instead f
 ## Open owner question — 2026-10-15: Another Cook's Quest first journal
 
 Another Cook's Quest, an actual prerequisite for Freeing Evil Dave, has a generic first journal and a generated2025 fallback source pin. A retained period main-page source nominates commission/100-Coin advance, ingredient/Dirty-blast preparation and full handoff. Authorize the sourced replacement first journal and exact complete endpoint, distinguishing that commission from full preparation/feast access. The [dependency qualification](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md) retains source-pin repair as work; that repair alone grants no existing journal/UI authority. No seeded feast access or partial stage credit.
+
+
+## Open owner question — 2026-10-15: Freeing King Awowogei first journal
+
+The first journal is generic. Authorize a period-sourced replacement and exact complete first-stage endpoint. The source separates inspection/Aris from the Ape Atoll king/trio recipe sequence. The [qualification](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md) preserves the actual Another Cook, Monkey Madness and Grand Tree dependency holds. No coin alternative can seed monkey resources, greegrees or hazard proof.

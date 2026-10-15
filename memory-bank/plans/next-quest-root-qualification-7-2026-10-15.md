@@ -67,3 +67,10 @@ Root verified26 source and10 prior-report bindings, recording Eadgar and Worksho
 ## Reuse round15 shortlist for round17
 
 Root verified all29 round16 bindings and recorded actual dependency holds. Round17 reuses next_twenty entries5/6 only: recipe_for_disaster_freeing_king_awowogei and rocking_out. No new import, census, harvest, decode or repeated upstream sweep. Frozen checkout2 is the next Markdown-only commit named in dispatch; quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-17/report.md and qualification.json under the same evidence root. All original complete-journal/ordinary-route/source-hierarchy CHECK/EXPECT, exact evidence, safety, UI exclusions, ownership and no-exhaustion limits apply. Root5 remains frozen on its exact full gate and is outside this leaf's workspace.
+
+
+## Reuse round15 shortlist for round18
+
+Root verified29 round17 bindings and three exact source extracts. Root recorded both first holds. Round18 uses next_twenty entries7/8: royal_trouble and the_dig_site. Do not import the registry again. Do not repeat a census, harvest, decode or upstream search.
+
+Root freezes checkout2 at the next Markdown-only commit named in dispatch. Quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-18/report.md and qualification.json under the same evidence root. All original complete-journal, ordinary-route, source, safety and ownership criteria apply. Root verifies the report before another pair. Root5 remains frozen on its exact full gate.
