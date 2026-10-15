@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import copy
+import types
 import unittest
+from itertools import product
 from pathlib import Path
 from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from tests import test_farming_dispatch as farming_dispatch
 from ankiscape.core.constants import (
     EQUIPMENT_DATA,
     ITEM_DEFINITIONS,
@@ -27,6 +30,12 @@ from ankiscape.logic.fight_caves_logic import (
 )
 from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure
+from ankiscape.logic_pure.logic_pure_prayer import (
+    CASTLE_WARS_HALO_DRAIN_PRAYERS,
+    prayer_drain_for_ticks_pure,
+    prayer_effect_state_pure,
+)
 
 
 def _player(**overrides):
@@ -56,6 +65,37 @@ def _player(**overrides):
 def _entered(**overrides):
     data, ok, info = apply_fight_caves_command_pure(_player(**overrides), "enter")
     assert ok, info
+    return data
+
+
+def _jad_player(style, healer=False, **overrides):
+    data = _entered(
+        **{
+            "attack_level": 80,
+            "strength_level": 20,
+            "defense_level": 1,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "equipment": {},
+            "combat_prayers_enabled": False,
+            "combat_prayer_uptime": "off",
+            "combat_selected_prayers": ["protect_from_melee", "ultimate_strength"],
+            **overrides,
+        }
+    )
+    roster = [
+        {
+            "instance_id": enemy, "enemy_id": enemy,
+            "lifepoints": FIGHT_CAVES_ENEMY_DATA[enemy]["stats"]["hitpoints"],
+            "encounter": {"enemy_attack_ticks_remaining": 2},
+        }
+        for enemy in (("tztok_jad", "yt_hurkot") if healer else ("tztok_jad",))
+    ]
+    data["fight_caves"].update(
+        wave=63, roster=roster, automation_mode="advanced",
+        engaged_instance_id="yt_hurkot" if healer else "tztok_jad",
+        jad_next_style=style,
+    )
     return data
 
 
@@ -523,6 +563,241 @@ class FightCavesRuntimeTests(unittest.TestCase):
         self.assertEqual(saved, [True])
         self.assertEqual(deactivated, [])
         self.assertTrue(any("Wave 1" in str(value) for value in gains))
+
+
+class FightCavesJadProtectionTests(unittest.TestCase):
+    def test_matching_overhead_protects_both_consumers_and_books_with_master_off(self):
+        for style, protection in (("ranged", "missiles"), ("magic", "magic")):
+            for healer in (False, True):
+                for book in ("standard", "curses"):
+                    with self.subTest(style=style, healer=healer, book=book):
+                        data = _jad_player(
+                            style, healer, combat_prayer_book=book,
+                            combat_prayer_drain_counter=17,
+                            combat_selected_prayers=(
+                                ["deflect_melee", "sap_warrior"] if book == "curses"
+                                else ["protect_from_melee", "ultimate_strength"]
+                            ),
+                            quests={"the_temple_at_senntisten": {"completed": True}},
+                        )
+                        before = copy.deepcopy(data)
+                        updated, ok, result = apply_fight_caves_review_pure(
+                            data, lambda: 0.25, equipment_data=EQUIPMENT_DATA
+                        )
+                        self.assertTrue(ok, result)
+                        damage = result["pressure_damage"] if healer else result["enemy_damage"]
+                        self.assertEqual(damage, 0)
+                        prayer = ("deflect_" if book == "curses" else "protect_from_") + protection
+                        self.assertEqual(result["prayers"], (prayer,))
+                        expected = prayer_drain_for_ticks_pure(
+                            800, 17, (prayer,), 0, result["ticks_elapsed"], 1
+                        )
+                        self.assertEqual(
+                            (updated["combat_prayer_points"], updated["combat_prayer_drain_counter"]), expected
+                        )
+                        for key in ("combat_prayers_enabled", "combat_prayer_uptime", "combat_selected_prayers"):
+                            self.assertEqual(updated[key], before[key])
+                        self.assertEqual(data, before)
+
+    def test_auto_protection_respects_unlocks_and_empty_points(self):
+        limits = ({"prayer_level": 1}, {"combat_prayer_points": 0},
+                  {"combat_prayer_book": "curses", "quests": {}})
+        for style, healer, limit in product(("ranged", "magic"), (False, True), limits):
+            with self.subTest(style=style, healer=healer, limit=limit):
+                updated, ok, result = apply_fight_caves_review_pure(
+                    _jad_player(style, healer, **limit), lambda: 0.25,
+                    equipment_data=EQUIPMENT_DATA,
+                )
+                self.assertTrue(ok, result)
+                damage = result["pressure_damage"] if healer else result["enemy_damage"]
+                self.assertGreater(damage, 0)
+                if "combat_prayer_points" in limit:
+                    self.assertEqual(updated["combat_prayer_points"], 0)
+                    self.assertEqual(updated["combat_selected_prayers"], [])
+
+    def test_auto_protection_stops_after_points_deplete(self):
+        limits = ({"combat_prayer_points": 0},
+                  {"combat_prayer_points": 1, "combat_prayer_drain_counter": 59},
+                  {"combat_prayer_points": 3, "combat_prayer_drain_counter": 59})
+        for style, healer in product(("ranged", "magic"), (False, True)):
+            damage_by_points = {}
+            for limit in limits:
+                with self.subTest(style=style, healer=healer, limit=limit):
+                    updated, ok, result = apply_fight_caves_review_pure(
+                        _jad_player(style, healer, **limit), lambda: 0.25,
+                        equipment_data=EQUIPMENT_DATA,
+                    )
+                    self.assertTrue(ok, result)
+                    damage = result["pressure_damage"] if healer else result["enemy_damage"]
+                    damage_by_points[limit["combat_prayer_points"]] = damage
+                    self.assertGreater(damage, 0)
+                    self.assertEqual(updated["combat_prayer_points"], 0)
+                    self.assertEqual(updated["combat_selected_prayers"], [])
+            if not healer:
+                self.assertEqual(damage_by_points[3] * 2, damage_by_points[0])
+
+    def test_existing_partial_prayers_keep_their_effects_and_target_policy(self):
+        setups = (
+            ("standard", ["ultimate_strength", "incredible_reflexes", "steel_skin"], "accurate", {}, {}),
+            ("standard", ["eagle_eye"], "ranged_accurate", {"weapon": "Shortbow"}, {"ammo": {"Bronze arrows": 100}}),
+            ("standard", ["mystic_might"], "magic_standard", {"weapon": "Staff of air"}, {"runes": {"Mind rune": 100}}),
+            ("curses", ["sap_warrior", "berserker"], "accurate", {}, {}),
+            ("curses", ["leech_attack", "leech_strength", "leech_defence"], "accurate", {}, {}),
+            ("curses", ["turmoil"], "accurate", {}, {}),
+        )
+        bonus = EQUIPMENT_DATA["Saradomin halo"].bonuses.prayer
+        counter = 60 + 2 * bonus - 1
+        for policy, enabled, setup in product(("40", "70"), (False, True), setups):
+            book, prayers, style, weapon, supplies = setup
+            with self.subTest(policy=policy, enabled=enabled, prayers=prayers):
+                data = _jad_player(
+                    "magic", combat_prayer_book=book,
+                    quests={"the_temple_at_senntisten": {"completed": True}},
+                    prayer_level=99, combat_attack_style=style,
+                    equipment={"head": "Saradomin halo", **weapon},
+                    combat_prayer_drain_counter=counter,
+                    combat_supply_loadout=supplies, current_combat_spell="wind_strike",
+                )
+                settings = {
+                    "combat_prayers_enabled": enabled,
+                    "combat_prayer_uptime": policy,
+                    "combat_selected_prayers": [("deflect_melee" if book == "curses" else "protect_from_melee"), *prayers],
+                }
+                data.update(settings)
+                data["combat_presets"] = {"Jad": settings.copy()}
+                data["combat_target_presets"] = {"fight_caves": "Jad"}
+                data["combat_target_overrides"] = {"fight_caves": settings.copy()}
+                baseline = copy.deepcopy(data)
+                # A mismatched Deflect can add recoil to player_damage.
+                ordinary_settings = {
+                    **settings, "combat_selected_prayers": settings["combat_selected_prayers"][1:],
+                }
+                baseline["combat_presets"] = {"Jad": ordinary_settings}
+                baseline["combat_target_overrides"] = {"fight_caves": ordinary_settings}
+                baseline["current_combat_target"] = "fight_caves"
+                baseline["combat_encounter"] = {
+                    **data["fight_caves"]["roster"][0]["encounter"],
+                    "enemy_lifepoints": 2550, "target_id": "fight_caves",
+                }
+                enemy = {**FIGHT_CAVES_ENEMY_DATA["tztok_jad"], "attack_style": "magic", "max_hit": 970}
+                _ordinary, ok, ordinary = apply_combat_burst_pure(
+                    baseline, {"fight_caves": enemy}, EQUIPMENT_DATA,
+                    ticks=6, rng=lambda: 0.25, live_cadence=True,
+                    stop_after_first_kill=True, safe_death=True, allow_bank_run=False,
+                )
+                self.assertTrue(ok, ordinary)
+                updated, ok, result = apply_fight_caves_review_pure(
+                    data, lambda: 0.25, equipment_data=EQUIPMENT_DATA
+                )
+                self.assertTrue(ok, result)
+                self.assertEqual(result["enemy_damage"], 0)
+                self.assertEqual(result["player_accuracy"], ordinary["player_accuracy"])
+                self.assertEqual(result["player_damage"], ordinary["player_damage"])
+                self.assertEqual(result["enemy_accuracy"], ordinary["enemy_accuracy"])
+                other_prayers = tuple(settings["combat_selected_prayers"][1:]) if enabled else ()
+                protection = "deflect_magic" if book == "curses" else "protect_from_magic"
+                expected = prayer_drain_for_ticks_pure(
+                    800, counter, (protection, *other_prayers), bonus,
+                    result["ticks_elapsed"], 1,
+                    {prayer: int(policy) / 100 * (2 / 3 if prayer in CASTLE_WARS_HALO_DRAIN_PRAYERS else 1) for prayer in other_prayers},
+                )
+                self.assertEqual(
+                    (updated["combat_prayer_points"], updated["combat_prayer_drain_counter"]), expected
+                )
+                for key in (*settings, "combat_presets", "combat_target_presets", "combat_target_overrides"):
+                    self.assertEqual(updated[key], data[key])
+                effects = prayer_effect_state_pure(
+                    {**data, "combat_prayer_points": 0}, int(policy) / 200,
+                    automatic_protection_prayer=protection,
+                )
+                fraction = 0.5 if enabled else int(policy) / 200
+                self.assertEqual(effects["protect_magic"], fraction)
+                if book == "curses":
+                    self.assertEqual(effects["deflect"], 0.06 * fraction)
+
+    def test_non_jad_and_refusal_preserve_ordinary_prayer_behavior(self):
+        data = _entered(combat_prayers_enabled=False, combat_selected_prayers=["ultimate_strength"])
+        updated, ok, result = apply_fight_caves_review_pure(
+            data, lambda: 0.25, equipment_data=EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["prayers"], ())
+        self.assertEqual(updated["combat_prayer_points"], data["combat_prayer_points"])
+        self.assertEqual(updated["combat_selected_prayers"], data["combat_selected_prayers"])
+        inactive = _player(combat_prayers_enabled=False)
+        unchanged, ok, result = apply_fight_caves_review_pure(
+            inactive, lambda: self.fail("refusal drew RNG")
+        )
+        self.assertFalse(ok)
+        self.assertEqual(result, {"reason": "Enter the Fight Cave before training it."})
+        self.assertEqual(unchanged, inactive)
+
+    def test_only_existing_potion_policy_restores_before_jad_prayer_setup(self):
+        for healer, enabled in product((False, True), (False, True)):
+            with self.subTest(healer=healer, enabled=enabled):
+                data = _jad_player(
+                    "magic", healer, combat_prayer_points=0,
+                    combat_prayers_enabled=enabled, combat_prayer_uptime="100",
+                    combat_supply_loadout={"stat_potions": {"Prayer potion (4)": 1}},
+                )
+                updated, ok, result = apply_fight_caves_review_pure(
+                    data, lambda: 0.25, equipment_data=EQUIPMENT_DATA
+                )
+                self.assertTrue(ok, result)
+                damage = result["pressure_damage"] if healer else result["enemy_damage"]
+                self.assertEqual(damage == 0, enabled)
+                potion = "Prayer potion (3)" if enabled else "Prayer potion (4)"
+                self.assertEqual(updated["combat_supply_loadout"]["stat_potions"], {potion: 1})
+                self.assertEqual(updated["combat_prayers_enabled"], enabled)
+
+
+class FightCavesJadReviewTransactionTests(unittest.TestCase):
+    setUp = farming_dispatch.TestFarmingReviewDispatch.setUp
+    tearDown = farming_dispatch.TestFarmingReviewDispatch.tearDown
+    _configure = farming_dispatch.TestFarmingReviewDispatch._configure
+
+    def test_loaded_review_undo_and_reanswer_restore_whole_state_and_rng(self):
+        for healer in (False, True):
+            with self.subTest(healer=healer):
+                addon = farming_dispatch._load_addon_as_package(f"ankiscape_jad_undo_{healer}")
+                self._configure(addon)
+                self.addCleanup(addon.random.setstate, addon.random.getstate())
+                addon._state.player_data = _jad_player("magic", healer)
+                addon._state.current_skill = "Utilities"
+                addon.random.seed(41)
+                before = copy.deepcopy(addon._state.player_data)
+                before_rng = addon.random.getstate()
+                for attempt in range(2):
+                    addon._state.card_turned = addon._state.answer_shown = True
+                    addon._state.exp_awarded = False
+                    addon.on_answer_card(
+                        farming_dispatch._FakeReviewer(), 4, lambda _self, _ease: "answered"
+                    )
+                    after = copy.deepcopy(addon._state.player_data)
+                    after_rng = addon.random.getstate()
+                    self.assertNotEqual(after_rng, before_rng)
+                    self.assertLess(after["combat_prayer_points"], before["combat_prayer_points"])
+                    self.assertEqual(after["combat_prayers_enabled"], False)
+                    self.assertEqual(len(addon._state.review_undo_stack), 1)
+                    if attempt:
+                        self.assertEqual(after, first_answer)
+                        self.assertEqual(after_rng, first_rng)
+                    first_answer, first_rng = after, after_rng
+                    addon._on_state_did_undo(types.SimpleNamespace(
+                        operation="Answer Card", changes=types.SimpleNamespace(study_queues=True, card=True),
+                    ))
+                    self.assertEqual(addon._state.player_data, before)
+                    self.assertEqual(addon.random.getstate(), before_rng)
+                addon._state.card_turned = addon._state.answer_shown = True
+                addon._state.exp_awarded = False
+                addon.on_answer_card(
+                    farming_dispatch._FakeReviewer(), 1, lambda _self, _ease: "answered"
+                )
+                for key in (
+                    "fight_caves", "combat_prayer_points", "combat_prayer_drain_counter",
+                    "combat_selected_prayers", "combat_prayers_enabled", "combat_prayer_uptime",
+                ):
+                    self.assertEqual(addon._state.player_data[key], before[key])
 
 
 class FightCavesAutoFleeSuppressionTests(unittest.TestCase):

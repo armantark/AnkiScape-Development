@@ -45,6 +45,7 @@ you are in the game, with the date the change reached main.
 
 ## Minigames
 
+- [ ] In Fight Caves, fight Jad and the healers with Prayer off. Confirm automatic matching protection uses points. With no unlock or points, attacks hurt. Undo restores the attack and points. (after native acceptance)
 - [ ] Castle Wars, Pest Control, Soul Wars and Barbarian Assault fights give their XP once per fight, not twice. (2026-09-28)
 - [ ] Barbarian Advanced course: a failed log costs that lap's bonus XP, and the next clean lap earns it again. (2026-09-28)
 
