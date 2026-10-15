@@ -74,3 +74,13 @@ Root verified all29 round16 bindings and recorded actual dependency holds. Round
 Root verified29 round17 bindings and three exact source extracts. Root recorded both first holds. Round18 uses next_twenty entries7/8: royal_trouble and the_dig_site. Do not import the registry again. Do not repeat a census, harvest, decode or upstream search.
 
 Root freezes checkout2 at the next Markdown-only commit named in dispatch. Quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-18/report.md and qualification.json under the same evidence root. All original complete-journal, ordinary-route, source, safety and ownership criteria apply. Root verifies the report before another pair. Root5 remains frozen on its exact full gate.
+
+## Reuse round15 shortlist for round19
+
+Root verified37 round18 bindings and two exact source extracts. Root recorded both first holds. Round19 uses next_twenty entries9/10: the_elder_kiln and wanted. Do not import the registry again. Do not repeat a census, harvest, decode or upstream search.
+
+Freeze checkout2 at the next Markdown-only commit named in dispatch. Quest/runtime product bytes remain662-derived. The leaf owns only next-quest-root-qualification-19/report.md and qualification.json under the same evidence root. All original complete-journal, ordinary-route, source, safety and ownership criteria apply. Root verifies the report before another pair.
+
+## Dig Site independent source qualification
+
+A second read-only Sol leaf owns only dig-site-initial-letter-source-qualification-2026-10-15/report.md and qualification.json under the same external evidence root. Read checkout5 at landedea74c5d0 as immutable reference. Root owns every checkout and raw source. Qualify only independent provenance/corroboration for the initial Examiner letter grant and ordinary custody. Use retained local material. Inspect Darkan provenance, independent game-main and named older implementation records in source-hierarchy order. Do not count wiki-derived restoration as an independent layer. Do not harvest, decode, import product code or change sources. A bounded failure must name the exact missing evidence without a global absence claim. Require exact source revisions, paths, line ranges, SHA256 and a decisive eligible-or-held result. All earlier safety, UI, fixed-rail, ownership and no-exhaustion prohibitions apply.

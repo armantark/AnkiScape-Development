@@ -3050,3 +3050,7 @@ Another Cook's Quest, an actual prerequisite for Freeing Evil Dave, has a generi
 ## Open owner question — 2026-10-15: Freeing King Awowogei first journal
 
 The first journal is generic. Authorize a period-sourced replacement and exact complete first-stage endpoint. The source separates inspection/Aris from the Ape Atoll king/trio recipe sequence. The [qualification](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md) preserves the actual Another Cook, Monkey Madness and Grand Tree dependency holds. No coin alternative can seed monkey resources, greegrees or hazard proof.
+
+## Open first-journal scope — 2026-10-15: Royal Trouble
+
+Period6542630 distinguishes Ghrim briefing, the heir cutscene/marriage suggestion and Vargas commission. The actual first journal is generic. Owner decision needed: authorize one sourced replacement first journal and its exact complete endpoint. The later Agility/Slayer/Prayer gate and visible-readout discrepancies stay separate. [Evidence](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). No partial endpoint is adopted.

@@ -197,3 +197,7 @@ Root verified29 bindings in [round16](source-audits/love-story-and-evil-dave-ope
 ## Awowogei and Rocking Out openings — 2026-10-15
 
 Root verified29 bindings and three exact source extracts in [round17](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md). Awowogei needs one owner ruling for its own sourced first journal and complete endpoint. Rocking Out actually requires Another Cook and inherits that generic-journal hold. All nine Rocking Out opening deeds remain necessary; its existing customs-office auto_action is incomplete. Variable/fixed customs-answer conflict and source-qualified gate/custody repairs remain later work. No new code or gameplay acceptance; later14 retained names are order-only.
+
+## Royal Trouble and The Dig Site openings — 2026-10-15
+
+Root verified37 bindings and both exact source bodies in [round18](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). Royal Trouble needs owner authorization for its sourced first journal and exact complete endpoint. The Dig Site needs independent corroboration/provenance for the Examiner's initial Unstamped letter grant to an ordinary eligible player. Current restoration provenance cites the same wiki/cache and does not establish independence. No global absence or goal stop follows. Later12 retained names remain order-only; independent qualification continues.

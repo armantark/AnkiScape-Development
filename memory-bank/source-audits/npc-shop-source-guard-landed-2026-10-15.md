@@ -1,0 +1,5 @@
+# NPC source guard landed — 2026-10-15
+
+Exactea74c5d0af80aaeae9134ee10be84875ef23e2b0 passed all nine remote checks and officially landed on main at2026-10-15T12:20:28.153801+00:00, actual exit0. Main and source were clean. The original plain run passed5376 tests/595.914s/skipped580; original Qt passed5376/813.096s/skipped5. Source and review hashes remained unchanged. Certificate SHA256:d0375440bba320079676863963ab2c986bb0ffa533b98079ee3811c7ef1ee94a. Astra source and records closure plus GLM closed all findings before promotion. Runtime values and existing UI stayed unchanged; native is not applicable to tooling.
+
+Root retained and independently verified27 files. Packet: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/retained-npc-source-guard-landed-ea74c5d0/retention-manifest.json. Manifest SHA256:7ae38ef91e115035827b321ceb8ab12fbbd549a195ef046249242f492e86fc64. It includes the original full gate, both original lane logs/exits, certificate, official land command/log/exit and review closure. The reconciled authentic proof packet remains separately retained. Successful checks were not repeated for bookkeeping.
