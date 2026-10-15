@@ -132,3 +132,11 @@ Blocked: a faithful complete opening under unchanged existing UI. Tried: current
 ## Desert Treasure requirement readout — 2026-10-15
 
 Blocked: source-correct opening with the existing visible requirement list. Tried: current full first journal/start/readout, retained walkthroughs, Questreq and cache. Mining50 is optional and four direct prerequisites are omitted. Single unblock: owner authorization for the existing requirement-readout correction with the source-qualified gate repair. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). No later material/transport dependency is claimed solved; independent work continues.
+
+## Do No Evil first journal — 2026-10-15
+
+Blocked: an authentic opening under the existing contents-only first journal. Tried: final quest composition, retained oldid6587790 and actual journals, current owner records; Root verified25 round4 bindings. Single unblock: owner authorization for the sourced replacement first journal and exact complete opening boundary. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). Later clue and ordinary prerequisite routes remain separate; independent work continues.
+
+## Mourning's End Part II ordinary access — 2026-10-15
+
+Blocked: ordinary PartI completion/full disguise before the sourced New key handoff. Tried: final hand-authored override, period oldid6570956, cache6104 and existing Oronwen dependency record. Single first unblock: a period-qualified, independently corroborated combat block for required level62 Sir Harry. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). Preserve other trousers custody/timing qualifications; generic-journal replacement is not a current hold for this override.
