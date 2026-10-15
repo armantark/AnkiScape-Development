@@ -33,7 +33,7 @@ def prepare_state_fixture(mw, *, disposable_base: str) -> dict:
         raise ValueError("The fixture requires the standard Basic note type")
 
     from ...core.constants import ITEM_DEFINITIONS, ORE_DATA
-    from ...core.storage_pure import default_player_data
+    from ...core.storage_pure import default_player_data, migrate_loaded_data
 
     seed = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
     seed["inventory"]["Logs"] = 1
@@ -42,6 +42,8 @@ def prepare_state_fixture(mw, *, disposable_base: str) -> dict:
     seed["firemaking_level"] = 1
     seed["firemaking_exp"] = 0
     seed["current_firemaking"] = "logs"
+    # Persist the same values that the normal profile load will expose.
+    seed = migrate_loaded_data(seed, ORE_DATA, ITEM_DEFINITIONS)
 
     deck_id = collection.decks.id("AnkiScape native state acceptance")
     note_ids = []
