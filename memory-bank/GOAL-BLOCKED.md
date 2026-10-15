@@ -181,3 +181,7 @@ Blocked: complete Phoenix-to-Flint opening. Retained full/quick wiki guides are 
 ## Slug and Senntisten openings — 2026-10-15
 
 Root verified25 source bindings in [the bounded qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md). Slug Menace needs one owner ruling authorizing its sourced replacement first journal and exact Tiffy-versus-investigation endpoint; current materials/generic sentinel cannot choose it. Temple at Senntisten inherits the verified actual Desert Treasure dependency and its existing owner requirement-readout/start-gate hold. Neither has code, seeded ordinary acquisition or gameplay acceptance. The final two retained names remain uninspected; independent goal work continues.
+
+## TokTz and Animal Magnetism openings — 2026-10-15
+
+Root verified24 source bindings for [these first-journal scope holds](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md). TokTz needs one owner ruling for its sourced replacement first journal and exact briefing-versus-permission endpoint. Animal Magnetism needs one owner ruling for a sourced first-journal endpoint and existing stage2 overlap; its current stage1 is only contents headings. Later gate/custody/source qualifications remain. No implementation or whole-goal exhaustion follows; the consumed shortlist is not the full candidate set.

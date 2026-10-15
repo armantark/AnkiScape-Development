@@ -3022,3 +3022,12 @@ The first journal omits the list after 'among the following'. The current first 
 ## Open owner question — 2026-10-15: Slug Menace first journal
 
 The live first journal is the generic “Complete The Slug Menace stage 1 objective using the pinned source guide.” Period guide6588246 describes Tiffy briefing/password and Commorb-v2 grant or upgrade, followed by O'Niall/Witchaven interviews/investigation. Authorize the sourced replacement journal and exact complete first-stage endpoint before code changes. The source grants Commorb v2 when the player lacks a Commorb; no mandatory seeded original is inferred. The [source qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md) records this single first scope hold. No existing UI change is authorized by this question.
+
+
+## Open owner question — 2026-10-15: TokTz-Ket-Dill first journal
+
+The first journal is the generic “Complete TokTz-Ket-Dill stage 1 objective using the pinned source guide.” Authorize a period-sourced replacement and exact endpoint: three-guard briefing versus the later Stone tablet/library/Reldo/Tourist Guide/translation/mine-permission chain. The [qualified source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) preserves the existing material/gate qualifications. No guards-only credit or existing UI change is authorized by recording this question.
+
+## Open owner question — 2026-10-15: Animal Magnetism first journal
+
+Stage1 is only contents headings; stage2 contains the Ava/Alice opening deeds. Authorize a sourced replacement first journal and its exact Ava-versus-undead-poultry endpoint while settling that stage2 overlap. The [source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) also retains the later Thieving15 readout qualification; no gate waiver, journal renumbering, partial credit or seeded acquisition is authorized.
