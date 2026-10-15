@@ -421,3 +421,5 @@
 
 - 2026-10-15T06:55:28.737994+00:00: Cold War source search used shell globs before rg; zsh refused `zsh:1: no matches found: logic/quest*`. Use quoted rg --glob patterns over explicit existing directories.
 - 2026-10-14T22:56:41.453772+00:00 — Historical timestamp repair commit refused: slop-gate reported `HttpWikiClient::query_image_info` cognitive16 (was15), above15. Remove the redundant empty-imageinfo branch already covered by empty eligible selection; retain every timestamp/type/cutoff guard and every fixed limit.
+
+- 2026-10-15T06:58:55.798988+00:00: Root queue integration with main69a22761 hit `CONFLICT (add/add): Merge conflict in memory-bank/plans/mediawiki-warning-diagnostic-2026-10-14.md`; main adds only the review-ownership paragraph. Preserve the full main file and finish a normal merge.
