@@ -4136,8 +4136,7 @@ def _on_main_menu(
             elif action_id == "renew":
                 updated, ok, info = renew_familiar_pure(current)
             elif action_id == "restore_points":
-                updated = restore_summoning_points_pure(current)
-                ok = updated != current
+                updated, ok, info = restore_summoning_points_pure(current)
             elif action_id == "reclaim_cargo":
                 updated, ok, reclaimed = reclaim_familiar_cargo_pure(
                     current, int(payload.get("event_id", 0) or 0)
@@ -4183,6 +4182,7 @@ def _on_main_menu(
                 "summoning_command",
                 action_id=str(action_id),
                 familiar_id=str(payload.get("familiar_id", "")),
+                summoning_points_restored=info.get("summoning_points_restored", 0),
             )
             return updated, ok
 
@@ -4681,7 +4681,7 @@ def _request_active_bank_run_state(data):
         )
     elif handler_key is not None or (skill is not None and skill.implemented):
         # Registry-backed surfaces without a review handler are already bank-side.
-        new_data = restore_summoning_points_pure(data)
+        new_data = restore_summoning_points_pure(data)[0]
         ok, reason = True, ""
         completes_immediately = True
     else:

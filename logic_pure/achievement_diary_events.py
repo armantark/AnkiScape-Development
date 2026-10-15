@@ -45,6 +45,7 @@ _ALLOWED_EVENT_FIELDS = frozenset({
     "reason",
     "skill_id",
     "success",
+    "summoning_points_restored",
     "target_id",
     "type",
 })

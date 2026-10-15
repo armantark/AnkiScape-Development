@@ -479,7 +479,7 @@ def _run_without_carried_overlay(ctx: RuntimeActionContext, handler_key: str, ha
         == handler_key
     ):
         player_data.pop("review_bank_run_requested_handler", None)
-        player_data.update(restore_summoning_points_pure(player_data))
+        player_data.update(restore_summoning_points_pure(player_data)[0])
         ctx.show_activity_gain("Bank run — arrived at the bank")
         ctx.save_player_data()
         return True
@@ -491,7 +491,7 @@ def _run_without_carried_overlay(ctx: RuntimeActionContext, handler_key: str, ha
     )
     if player_data.get("skilling_bank_run_requested") == target_id:
         player_data.pop("skilling_bank_run_requested", None)
-        player_data.update(restore_summoning_points_pure(player_data))
+        player_data.update(restore_summoning_points_pure(player_data)[0])
         ctx.show_activity_gain("Bank run — arrived and ready")
         ctx.save_player_data()
     return handler(ctx)
