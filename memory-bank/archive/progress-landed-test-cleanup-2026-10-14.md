@@ -12,3 +12,14 @@ The deletion operator passed ten refusal canaries without writes. It removed thr
 
 The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skips. Independent raw-map verification passed. This subset is not a whole-suite coverage map.
 
+
+## Official historical-asset timestamp landing — 2026-10-14
+
+**Historical asset timestamps — 2026-10-14:** [Repair812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md) officially landed through its exact full remote gate. Both independent reviews accept; plain5330/595.358s/580skips and Qt5330/804.317s/5skips passed. Main is clean; nothing was pushed.
+
+## Quest refresh retry allowlist — 2026-10-03
+
+The retry allowlist and concrete transient-error fixtures are committed at `2592a56d2e95d20c0927a09f4db8452df814524f`. PermissionError and certificate-validation URLError raise after one request with no sleep or cache publication. Generic OSError and URLError reasons do not qualify as transient failures. The behavior and recount probe passed on the current tree; complete output is `retry2-retry-recount-probe.log` in the established promotion evidence folder.
+The catalog remains unchanged against base `60d7bd83`. Recounting the documented oldids found 6 `item_rewards[].source` references and 4 `stage_requirements[].source` references, as recorded in `tools/generation/quest_sources.md`. The unchanged remote inventory selects 53 tests for the builder, catalog and refresh controls; final MacBook execution requires `--expected-tests 53`.
+
+Source2592 is not a main ancestor. Root verified both production and behavior-test blobs identical to fully gated main812e0ec1 on2026-10-14; [the byte binding](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-refresh-allowlist-main-binding.json) closes the tooling implementation history without claiming the original53-case focused execution.

@@ -465,8 +465,7 @@ The code fix is c1b0a9dbc648fa0133991895e8e7001de9e6fd39; its unchanged pre-comm
 
 ## Quest refresh retry allowlist — 2026-10-03
 
-The retry allowlist and concrete transient-error fixtures are committed at `2592a56d2e95d20c0927a09f4db8452df814524f`. PermissionError and certificate-validation URLError raise after one request with no sleep or cache publication. Generic OSError and URLError reasons do not qualify as transient failures. The behavior and recount probe passed on the current tree; complete output is `retry2-retry-recount-probe.log` in the established promotion evidence folder.
-The catalog remains unchanged against base `60d7bd83`. Recounting the documented oldids found 6 `item_rewards[].source` references and 4 `stage_requirements[].source` references, as recorded in `tools/generation/quest_sources.md`. The unchanged remote inventory selects 53 tests for the builder, catalog and refresh controls; final MacBook execution requires `--expected-tests 53`.
+The historical source record and unchanged qualifications are in[the landed tooling archive](archive/progress-landed-test-cleanup-2026-10-14.md).
 
 ## Spirits of the Elid Telegrab emitter — 2026-10-02
 
@@ -787,6 +786,5 @@ Qt lane not run: no Qt import path changed; the orchestrator runs both lanes on 
 - Both full lanes are required because Qt imports the combat logic facade; full plain is the last remote invocation. Native reviewer acceptance and promotion remain with the orchestrator; this slice does not land runtime code.
 
 ## Source depth and exact opening holds — 2026-10-14
-Bittercap’s first full Qt source lane passed5337 tests/878.417s/5skips/actual0. Mogre repair0ea27c37 preserves four protected parents and319 other diary rows; independent code/earned-proof reviews,690 affected tests, six restored mutation probes and full plain5339/637.428s/580skips/actual0 pass; full Qt5339/870.925s/5skips/actual0 also passes. Garden and Tail retain [two verified owner-scope holds](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Native and official gameplay landing remain unproved; main staysfdb1ac49.
+Bittercap’s first full Qt source lane passed5337 tests/878.417s/5skips/actual0. Mogre repair0ea27c37 preserves four protected parents and319 other diary rows; independent code/earned-proof reviews,690 affected tests, six restored mutation probes and full plain5339/637.428s/580skips/actual0 pass; full Qt5339/870.925s/5skips/actual0 also passes. Garden and Tail retain [two verified owner-scope holds](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Native and official gameplay landing remain unproved. The later tooling-only main is[812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md); its complete closed summary stays in[the landed archive](archive/progress-landed-test-cleanup-2026-10-14.md).
 
-**Historical asset timestamps — 2026-10-14:** [Repair812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md) officially landed through its exact full remote gate. Both independent reviews accept; plain5330/595.358s/580skips and Qt5330/804.317s/5skips passed. Main is clean; nothing was pushed.
