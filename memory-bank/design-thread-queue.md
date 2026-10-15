@@ -3074,3 +3074,7 @@ The actual requirement readout lists four quests. The seven retained cache links
 ## Open existing-journal scope — 2026-10-15: Another Slice of H.A.M.
 
 Its actual Giant Dwarf dependency first inherits the settled open library-load decision. After that clears, the generic first journal needs a sourced complete endpoint. Period oldid 6548739 distinguishes the Ur-tag/Alvijar brief from Tegdak's tools, all six artefacts and their return. Authorize the complete first-journal replacement and its endpoint; no partial library or silent UI change is proposed. [Evidence](source-audits/another-slice-and-contact-opening-boundaries-2026-10-15.md).
+
+## Open existing-journal scope — 2026-10-15: Dream Mentor
+
+The actual first journal omits the second four-food phase after the first Spirit encouragement. Period oldid 6550965 line 76 requires that phase before Cyrisus stands. Authorize this source-correct journal insertion within the complete opening through Jack's chest and initial armour selection. No partial first-aid endpoint or other UI change is proposed. [Evidence](source-audits/dream-and-workshop-iv-opening-boundaries-2026-10-15.md). Ordinary eligibility, food/Spirit/armour qualification and earned routes remain work.
