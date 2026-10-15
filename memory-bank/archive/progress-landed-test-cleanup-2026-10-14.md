@@ -15,7 +15,7 @@ The fresh coverage subset contains 146 cases, with 21 plain skips and no Qt skip
 
 ## Official historical-asset timestamp landing — 2026-10-14
 
-**Historical asset timestamps — 2026-10-14:** [Repair812e0ec1](source-audits/asset-cutoff-landed-2026-10-14.md) officially landed through its exact full remote gate. Both independent reviews accept; plain5330/595.358s/580skips and Qt5330/804.317s/5skips passed. Main is clean; nothing was pushed.
+**Historical asset timestamps — 2026-10-14:** [Repair812e0ec1](../source-audits/asset-cutoff-landed-2026-10-14.md) officially landed through its exact full remote gate. Both independent reviews accept; plain5330/595.358s/580skips and Qt5330/804.317s/5skips passed. Main is clean; nothing was pushed.
 
 ## Quest refresh retry allowlist — 2026-10-03
 
