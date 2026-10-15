@@ -1,5 +1,6 @@
 """Safety stops and real Collection persistence for the native fixture helper."""
 
+import copy
 import json
 from pathlib import Path
 import tempfile
@@ -12,6 +13,7 @@ from ankiscape.tools.native.review_fixture import prepare_state_fixture
 
 try:
     from anki.collection import Collection
+    from anki.utils import from_json_bytes, to_json_bytes
 except ImportError:
     Collection = None
 
@@ -68,12 +70,20 @@ class NativeReviewFixtureTests(unittest.TestCase):
 
             collection = Collection(str(path))
             try:
+                saved = collection.get_config("ankiscape_player_data")
+                loaded = storage_pure.migrate_loaded_data(
+                    copy.deepcopy(saved), constants.ORE_DATA, constants.ITEM_DEFINITIONS
+                )
+                self.assertEqual(saved, from_json_bytes(to_json_bytes(loaded)))
                 expected = storage_pure.default_player_data(constants.ORE_DATA, constants.ITEM_DEFINITIONS)
                 expected["inventory"]["Logs"] = 1
                 expected["inventory"]["Ashes"] = 0
                 expected["firemaking_level"] = 1
                 expected["firemaking_exp"] = 0
                 expected["current_firemaking"] = "logs"
+                expected = storage_pure.migrate_loaded_data(
+                    expected, constants.ORE_DATA, constants.ITEM_DEFINITIONS
+                )
                 # Collection.set_config persists the complete state as JSON.
                 expected = json.loads(json.dumps(expected))
                 self.assertEqual(collection.get_config("ankiscape_player_data"), expected)
