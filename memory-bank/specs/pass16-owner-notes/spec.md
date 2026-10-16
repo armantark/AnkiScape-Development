@@ -104,8 +104,11 @@ Mogres, Runecrafting and Prayer, and hit eleven separate problems:
   queries do not flood the list. Every search bar uses it: the shared filter
   bar, the Skills target lists, the quest list, Bank, Grand Exchange, shops,
   Help, Achievements and Collections. While a query is present, results sort
-  by tier first and by the chosen Sort inside each tier. Help keeps its own
-  title ranking only where the shared tiers cannot express it.
+  by tier first and by the chosen Sort inside each tier, within the list's
+  existing groups: quests keep one Quests section before one Miniquests
+  section, Utilities and Activities keep their groups, and locked shop rows
+  stay after open ones (Pass 15 ruling, play checklist). Help ranks an
+  authored alias match first, because the shared tiers cannot express it.
 - **Utilities and Activities search.** The list builder that draws both lists
   gets the shared filter bar above its tree. Filtering never changes the
   current utility or activity. Favourites, the context menu, the details
@@ -117,7 +120,8 @@ Mogres, Runecrafting and Prayer, and hit eleven separate problems:
   ticket recaptures every surface that uses them.
 - **Snape grass.** One gathering Utility row, "Gather snape grass", models the
   2012 Hobgoblin Peninsula spawn: 3 clumps a trip, no requirement, the
-  existing snape grass icon, and the site named in its text. Source: Snape
+  existing snape grass icon, and the site named in its row description, not
+  in the action name, because messages insert the name into sentences. Source: Snape
   grass oldid 6269500 and the Darkan spawn list.
 - **Nettle tea.** The Cooking row that turns nettle-water into nettle tea is
   named for its product, as the other Cooking rows are, and the drinks family
@@ -132,8 +136,10 @@ Mogres, Runecrafting and Prayer, and hit eleven separate problems:
   cannot grow.
 - **Slayer masters.** This builds the recorded owner decision 6 in the Slayer
   contract (progression-visible master roster): one card per live master, in
-  roster order, with name and chathead from the master persona; ineligible
-  masters greyed with each unmet requirement stated. A pure locked-reasons
+  roster order, with name and chathead from the master persona; eligible
+  cards show the point schedule, an assignment-range summary and challenge
+  availability where the game has that data; ineligible masters greyed,
+  chathead included, with each unmet requirement stated. A pure locked-reasons
   function owns eligibility, and the assignment command refuses a locked
   master. "Get assignment" on the Assignment tab and its empty state use the
   last master the player used who is still eligible, else the default. The
