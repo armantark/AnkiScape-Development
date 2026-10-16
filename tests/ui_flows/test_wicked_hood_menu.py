@@ -1,15 +1,13 @@
 """The real Bank and Equipment menus operate the hood and explain command refusals."""
 
 import copy
-import os
-from pathlib import Path
 import unittest
 
 import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as main
 
 if main.HAS_AQT:
-    from aqt.qt import QApplication, QColor, QPalette, QPoint
+    from aqt.qt import QApplication, QPoint
     from ankiscape.logic.wicked_hood_logic import apply_wicked_hood_command_pure
     from tests.ui_flows.qt_text_fit import text_fit_defects
 
@@ -124,55 +122,31 @@ class WickedHoodMenuTest(unittest.TestCase):
         self.assertTrue(all(not a.isEnabled() for a in teleports.actions()))
         self.assertEqual(teleports.actions()[0].toolTip(), "A teleport to Air altar is already queued.")
 
-    def _capture_submenus(self, menu, path, stem):
-        for action in menu.actions():
-            submenu = action.menu()
-            if submenu is None or not action.text().startswith(("Withdraw runes", "Teleport")):
-                continue
-            submenu.popup(menu.mapToGlobal(QPoint(menu.width(), 0)))
-            _pump()
-            self.assertEqual(text_fit_defects(submenu), [])
-            for entry in submenu.actions():
-                self.assertGreaterEqual(submenu.actionGeometry(entry).width(), submenu.fontMetrics().horizontalAdvance(entry.text()))
-            submenu.grab().save(str(path / f"{stem}-{action.text().split()[0].lower()}.png"))
-            submenu.close()
-
-    def _assert_menu_fit_and_capture(self, destination, worn):
-        _, dialog = self._open(worn)
-        if worn:
-            main._open_equipment_tab(dialog)
-        else:
-            main._open_bank_tab(dialog)
-        _pump()
-        menu = self._menu(dialog, worn)
-        menu.popup(dialog.mapToGlobal(QPoint(20, 80)))
-        _pump()
+    def _assert_menu_fits(self, menu):
         self.assertEqual(text_fit_defects(menu), [])
         for action in menu.actions():
             if not action.isSeparator():
                 self.assertGreaterEqual(menu.actionGeometry(action).width(), menu.fontMetrics().horizontalAdvance(action.text()))
-        if destination:
-            path = Path(destination)
-            path.mkdir(parents=True, exist_ok=True)
-            stem = "equipment" if worn else "bank"
-            dialog.grab().save(str(path / f"{stem}-dialog.png"))
-            menu.grab().save(str(path / f"{stem}-menu.png"))
-            self._capture_submenus(menu, path, stem)
-        menu.close()
-        dialog.close()
 
-    def test_capture_menus_at_owner_size(self):
-        destination = os.environ.get("PASS16_HOOD_CAPTURE_DIR")
-        if os.environ.get("PASS16_HOOD_DARK"):
-            app = QApplication.instance()
-            old_palette = app.palette()
-            self.addCleanup(app.setPalette, old_palette)
-            app.setStyle("Fusion")
-            palette = QPalette()
-            for role, color in ((QPalette.ColorRole.Window, "#353535"), (QPalette.ColorRole.Base, "#252525"),
-                                (QPalette.ColorRole.Text, "#eeeeee"), (QPalette.ColorRole.WindowText, "#eeeeee"),
-                                (QPalette.ColorRole.Button, "#353535"), (QPalette.ColorRole.ButtonText, "#eeeeee")):
-                palette.setColor(role, QColor(color))
-            app.setPalette(palette)
+    def test_menus_fit_at_owner_size(self):
         for worn in (False, True):
-            self._assert_menu_fit_and_capture(destination, worn)
+            _, dialog = self._open(worn)
+            if worn:
+                main._open_equipment_tab(dialog)
+            else:
+                main._open_bank_tab(dialog)
+            _pump()
+            menu = self._menu(dialog, worn)
+            menu.popup(dialog.mapToGlobal(QPoint(20, 80)))
+            _pump()
+            self._assert_menu_fits(menu)
+            for action in menu.actions():
+                submenu = action.menu()
+                if submenu is None or not action.text().startswith(("Withdraw runes", "Teleport")):
+                    continue
+                submenu.popup(menu.mapToGlobal(QPoint(menu.width(), 0)))
+                _pump()
+                self._assert_menu_fits(submenu)
+                submenu.close()
+            menu.close()
+            dialog.close()
