@@ -59,4 +59,3 @@ def apply_wicked_hood_command(addon, action_id, payload):
     except AttributeError:
         pass
     return {"ok": True, **info}
-
