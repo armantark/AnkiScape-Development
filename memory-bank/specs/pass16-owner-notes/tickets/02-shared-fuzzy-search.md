@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by sol-02
+**Status:** done by sol-02
 
-- [ ] Typing "tara" in the Crafting target search shows "Tiara"; in Runecrafting it shows the tiara rows.
-- [ ] Typing "Stolen Hearts" in the Quests tab shows Stolen Hearts first; quests that only list it as a requirement follow.
-- [ ] With a query present, the chosen quest Sort orders results inside each match tier; with no query, the Sort alone orders them.
-- [ ] Tokens shorter than four characters match only as substrings; a near miss outside the fuzzy rule is not shown.
-- [ ] Bank, Grand Exchange and shop searches use the same matcher; no second matcher remains.
-- [ ] Each search still updates on every keystroke without a visible delay on the largest list.
+- [x] Typing "tara" in the Crafting target search shows "Tiara"; in Runecrafting it shows the tiara rows.
+- [x] Typing "Stolen Hearts" in the Quests tab shows Stolen Hearts first; quests that only list it as a requirement follow.
+- [x] With a query present, the chosen quest Sort orders results inside each match tier; with no query, the Sort alone orders them.
+- [x] Tokens shorter than four characters match only as substrings; a near miss outside the fuzzy rule is not shown.
+- [x] Bank, Grand Exchange and shop searches use the same matcher; no second matcher remains.
+- [x] Each search still updates on every keystroke without a visible delay on the largest list.

@@ -10,6 +10,8 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from ..core.search_match import match_rank
+
 from ..data.music_log_data import MUSIC_TRACKS, MusicTrack
 from .achievement_diary_logic import MUSIC_UNLOCK_TASK_COUNT, diary_totals_pure
 
@@ -188,7 +190,6 @@ def music_log_view_pure(
 
     state = sanitize_music_log_state_pure(player_data)["music_log"]
     unlocked = set(state["unlocked_tracks"])
-    needle = search.strip().lower()
     rows: list[dict[str, Any]] = []
     for track in MUSIC_TRACKS:
         done = track.id in unlocked
@@ -200,7 +201,7 @@ def music_log_view_pure(
             continue
         if completion_filter == "latent" and not latent:
             continue
-        if needle and needle not in label.lower():
+        if match_rank(search, label) is None:
             continue
         rows.append(
             {
@@ -214,5 +215,6 @@ def music_log_view_pure(
                 "status": "Unlocked" if done else ("Latent" if latent else "Locked"),
             }
         )
+    rows.sort(key=lambda row: match_rank(search, row["label"]))
     totals = music_log_totals_pure(player_data)
     return {"tracks": tuple(rows), **totals}

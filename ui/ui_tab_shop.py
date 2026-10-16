@@ -45,6 +45,7 @@ from ..logic.shop_logic import (
     shop_view_model_pure,
 )
 from ..logic.cape_logic import cape_view_pure
+from ..core.search_match import match_rank
 from .ui import (
     CatalogFilterBar,
     _clear_layout,
@@ -1670,13 +1671,12 @@ def build_shop_tab(ctx) -> "QWidget":
 
     def _populate_reward_selector() -> None:
         current_target = shop_state.get("reward_target", "")
-        query = shop_search.text().strip().lower()
+        query = shop_search.text().strip()
         reward_selector.clear()
-        visible_targets = [
-            target
-            for target in reward_targets
-            if not query or query in str(target["display_name"]).lower()
-        ]
+        visible_targets = sorted(
+            (target for target in reward_targets if shop_filter_bar.matches_text(target["display_name"])),
+            key=lambda target: match_rank(query, target["display_name"]),
+        )
         if not visible_targets:
             empty = QListWidgetItem("No reward shop matches this search.")
             empty.setFlags(Qt.ItemFlag.NoItemFlags)

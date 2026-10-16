@@ -12,6 +12,8 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- [ ] In Crafting and Runecrafting, search "tara" and see tiaras without changing the active target; in Quests, search "Stolen Hearts" and see it first while Sort orders the following matches; try the same typo in Bank, Grand Exchange and Shop. (Pass 16 ticket 02, after promotion)
+
 - [ ] In Quests, choose The Blood Pact and answer one card correctly: the journal records Xenia's rescue request, entry into the Catacombs, the cultists with Ilona, movement north, Xenia's injury and her instruction to fight alone; the next stage begins "Defeat Kayle." Your health, gear, supplies and XP stay unchanged, further correct reviews stay held at Kayle without fighting Caitlin or Reese, and Undo restores the unstarted opening. (after native acceptance)
 - In Quests, choose Monk's Friend. The first review follows Omad's request and the hidden-ladder route to recover one Child's blanket. The next returns exactly one blanket and stops before Cedric's task. Undo restores the blanket and earlier stage. (after native acceptance)
 - In Quests, choose Tree Gnome Village. The first review reaches Montai after Bolren's stolen-orb request and leaves your Logs intact. Chop six normal Logs, then review Quests again: exactly six Logs are used before tracker work. Undo restores those Logs and Montai's request. (after native acceptance)

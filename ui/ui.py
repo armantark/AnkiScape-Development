@@ -8,6 +8,8 @@ from copy import deepcopy
 from typing import Any, Optional
 import datetime
 
+from ..core.search_match import match_rank
+
 try:
     from aqt import mw  # type: ignore
     from aqt.qt import *  # type: ignore
@@ -139,6 +141,7 @@ from ..core.constants import (
     UTILITY_ACTIVITY_DATA,
     ACTIVITY_SURFACE_ID,
     FAMILIARISATION_ACTIVITY_ID,
+    VINESWEEPER_ACTIVITY_ID,
     DEFAULT_FIREMAKING_TARGET,
     DEFAULT_FISHING_TARGET,
     DEFAULT_HUNTER_TARGET,
@@ -230,7 +233,6 @@ from ..logic.penguin_hide_and_seek_logic import (
     penguin_view_pure,
 )
 
-from ..data.vinesweeper_data import VINESWEEPER_ACTIVITY_ID
 from ..logic.vinesweeper_logic import vinesweeper_view_pure
 
 from ..data.fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
@@ -1759,11 +1761,7 @@ if HAS_QT:
             return self.search_input.text().strip().casefold()
 
         def matches_text(self, *values: object) -> bool:
-            query = self.query()
-            if not query:
-                return True
-            searchable = " ".join(str(value) for value in values if value is not None).casefold()
-            return all(token in searchable for token in query.split())
+            return match_rank(self.query(), *values) is not None
 
         def set_count(self, visible: int, total: int) -> None:
             self.summary_label.setText(f"Showing {int(visible)}/{int(total)}")
@@ -23389,15 +23387,14 @@ def show_main_menu(
         ge_item_list.blockSignals(True)
         ge_item_list.clear()
         selected_widget_item = None
-        for row in ge_state["projection"].get("items", ()):
+        ranked = [(tier, row) for row in ge_state["projection"].get("items", ())
+                  if (tier := match_rank(query, row["item_name"], row.get("category", ""))) is not None]
+        for _tier, row in sorted(ranked, key=lambda entry: entry[0]):
             if (
                 side == "sell"
                 and int(row.get("owned", 0) or 0) <= 0
                 and not (editing and row.get("item_name") == selected_name)
             ):
-                continue
-            haystack = f"{row.get('item_name', '')} {row.get('category', '')}".casefold()
-            if query and query not in haystack:
                 continue
             owned = int(row.get("owned", 0) or 0)
             item = QListWidgetItem(
@@ -25545,23 +25542,20 @@ def show_main_menu(
             values=values,
         )
         total_count = sum(len(section["items"]) for section in sections)
-        query_tokens = bank_search.text().strip().casefold().split()
+        query = bank_search.text().strip()
         filtered_sections = []
         for section in sections:
             rows = [
                 row
                 for row in section["items"]
-                if not query_tokens
-                or all(
-                    token in f"{row['name']} {section['label']}".casefold()
-                    for token in query_tokens
-                )
+                if match_rank(query, row["name"], section["label"]) is not None
             ]
+            rows.sort(key=lambda row: match_rank(query, row["name"], section["label"]))
             if rows:
                 filtered_sections.append({"label": section["label"], "items": rows})
         visible_count = sum(len(section["items"]) for section in filtered_sections)
         bank_search_summary.setText(f"Showing {visible_count}/{total_count}")
-        _render_bank_surface(filtered_sections, bool(query_tokens), rebuild_tabs)
+        _render_bank_surface(filtered_sections, bool(query), rebuild_tabs)
 
     def _bank_category_and_value_maps() -> tuple[dict[str, str], dict[str, int]]:
         categories = {}

@@ -19,6 +19,8 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from ..core.search_match import match_rank
+
 from ..data.achievement_diary_data import (
     ACHIEVEMENT_DIARY_CATALOG,
     BASE_CONDITION_KINDS,
@@ -645,7 +647,6 @@ def achievement_cabinet_view_pure(
     state = _state(player_data)
     completed = set(state["completed_tasks"]) & _ACTIVE_TASK_IDS
     pinned = state["pinned_task"]
-    needle = search.strip().lower()
     families: list[dict[str, Any]] = []
     for family in ACHIEVEMENT_DIARY_CATALOG:
         if family_filter and family.id != family_filter:
@@ -662,7 +663,7 @@ def achievement_cabinet_view_pure(
                 if completion_filter == "incomplete" and done:
                     continue
                 _satisfied, have, need = task_progress_pure(player_data, task)
-                if needle and needle not in f"{task.name} {task.description}".lower():
+                if match_rank(search, task.name, task.description) is None:
                     continue
                 rows.append(
                     {
@@ -688,7 +689,7 @@ def achievement_cabinet_view_pure(
                         "source": task.source,
                     }
                 )
-            rows.sort(key=lambda row: (not row["pinned"],))
+            rows.sort(key=lambda row: (match_rank(search, row["name"], row["description"]), not row["pinned"]))
             claim = tier_claim_state_pure(player_data, family, tier)
             tiers.append(
                 {

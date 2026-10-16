@@ -6,6 +6,8 @@ import copy
 import random
 from typing import Any, Dict, Iterable, Mapping, Optional
 
+from ..core.search_match import match_rank
+
 from ..data.shop_data import (
     SHOP_DATA,
     SHOP_DATA_VERSION,
@@ -227,9 +229,8 @@ def search_shop_catalog_pure(
         include_hidden=include_hidden,
     )
     results.extend(_search_services(normalized))
-    # Locked rows go last before the cut, so a common word ("fish") cannot fill
-    # the limit with shops the save cannot buy from and push open ones out.
-    results.sort(key=lambda result: bool(result["lock_reason"]))
+    # Within a search tier, accessible stock precedes locked rows before the cut.
+    results.sort(key=lambda result: (result.pop("_match_tier"), bool(result["lock_reason"])))
     return {"query": query, "results": results[: max(0, limit)]}
 
 
@@ -248,11 +249,12 @@ def _search_stock_rows(
             continue
         view = _shop_view_model_from_state(data, shop["id"])
         for row in view["rows"]:
-            haystack = f"{row['item_name']} {shop['display_name']}".lower()
-            if normalized and normalized not in haystack:
+            tier = match_rank(normalized, row["item_name"], shop["display_name"])
+            if tier is None:
                 continue
             results.append(
                 {
+                    "_match_tier": tier,
                     "kind": "stock",
                     "shop_id": shop["id"],
                     "shop_name": shop["display_name"],
@@ -272,15 +274,17 @@ def _search_stock_rows(
 def _search_services(normalized: str) -> list[Dict[str, Any]]:
     results = []
     for service in list(SHOP_SERVICES.values()) + list(SHOP_VENDOR_ACTIONS.values()):
-        haystack = " ".join(
+        metadata = " ".join(
             [service["display_name"], service.get("provider", "")]
             + [item["item_name"] for item in service.get("inputs", [])]
             + [item["item_name"] for item in service.get("outputs", [])]
-        ).lower()
-        if normalized and normalized not in haystack:
+        )
+        tier = match_rank(normalized, service["display_name"], metadata)
+        if tier is None:
             continue
         results.append(
             {
+                "_match_tier": tier,
                 "kind": "service" if service["id"] in SHOP_SERVICES else "vendor_action",
                 "id": service["id"],
                 "display_name": service["display_name"],

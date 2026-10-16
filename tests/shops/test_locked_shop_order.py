@@ -1,9 +1,10 @@
-"""A shop the save cannot use yet sorts after every open shop, in the browse
-list and in search, and names the wall that locks it."""
+"""Locked shops follow open shops within a search tier and name their wall."""
 
 import unittest
+from itertools import groupby
 
 import pkg_alias  # noqa: F401
+from ankiscape.core.search_match import match_rank
 from ankiscape.data.shop_data import SHOP_DATA
 from ankiscape.logic.shop_fixtures import build_shop_fixture_player_data
 from ankiscape.logic.shop_logic import search_shop_catalog_pure, shop_selector_entries_pure
@@ -42,9 +43,18 @@ class LockedShopOrderTest(unittest.TestCase):
             ("Etceteria Fish", "Requires The Fremennik Trials"),
             [(row.get("shop_name"), row["lock_reason"]) for row in locked_rows],
         )
-        self.assertEqual(everything, open_rows + locked_rows)
+
+        def rank(row):
+            return match_rank("fish", row.get("item_name", row.get("display_name", "")),
+                              row.get("shop_name", ""), row.get("provider", ""))
+
+        tiers = [rank(row) for row in everything]
+        self.assertEqual(tiers, sorted(tiers))
+        for _tier, rows in groupby(everything, key=rank):
+            locked = [bool(row["lock_reason"]) for row in rows]
+            self.assertEqual(locked, sorted(locked))
         cut = search_shop_catalog_pure(data, "fish", limit=len(open_rows))["results"]
-        self.assertEqual(cut, open_rows)
+        self.assertEqual(cut, everything[:len(open_rows)])
 
 
 if __name__ == "__main__":

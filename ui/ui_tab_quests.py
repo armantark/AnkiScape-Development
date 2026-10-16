@@ -4,6 +4,8 @@ Built on first show by ``show_main_menu``: a card per quest in the catalog is
 the single largest widget population in the menu. See ui_menu_ctx.MainMenuCtx
 for the contract.
 """
+from itertools import groupby
+
 try:
     from aqt.qt import (  # type: ignore
         Qt,
@@ -20,6 +22,7 @@ except Exception:  # pragma: no cover - non-Qt environment keeps the module impo
     pass
 
 from ..core.constants import QUEST_DATA
+from ..core.search_match import match_rank
 from ..logic_pure.logic_pure import (
     apply_quest_route_choice_pure,
     can_attempt_quest_review_pure,
@@ -32,6 +35,22 @@ from ..logic_pure.logic_pure import (
     quest_state_pure,
 )
 from .ui import CatalogFilterBar, dim_text_css
+
+
+def _quest_match_rank(query: str, item: tuple[str, dict]) -> int | None:
+    quest_id, quest = item
+    return match_rank(
+        query, quest.get("display_name", quest_id), quest_id,
+        quest.get("start_point", ""),
+        quest.get("requirements", ()),
+        quest.get("unlocks", ()),
+    )
+
+
+def _quest_search_sections(rows, query: str):
+    tiers = groupby(rows, key=lambda item: _quest_match_rank(query, item))
+    return tuple(section for _tier, matches in tiers
+                 for section in quest_catalog_sections_pure(tuple(matches)))
 
 
 def build_quests_tab(ctx) -> "QWidget":
@@ -214,13 +233,7 @@ def build_quests_tab(ctx) -> "QWidget":
         return "Requires: " + ", ".join(shown)
 
     def _quest_matches_filters(quest_id: str, quest: dict) -> bool:
-        if not quest_filter_bar.matches_text(
-            quest_id,
-            quest.get("display_name", ""),
-            quest.get("start_point", ""),
-            quest.get("requirements", ()),
-            quest.get("unlocks", ()),
-        ):
+        if _quest_match_rank(quest_filter_bar.query(), (quest_id, quest)) is None:
             return False
         availability = quest_availability_state_pure(player_data, quest_id, QUEST_DATA)
         if hide_completed_cb.isChecked() and availability == "completed":
@@ -443,13 +456,13 @@ def build_quests_tab(ctx) -> "QWidget":
     def _rebuild_quest_cards() -> None:
         _clear_quest_cards()
         mode = quest_sort_combo.currentText() or "Release Order"
-        visible_rows = tuple(
-            (quest_id, quest)
-            for quest_id, quest in sorted(QUEST_DATA.items(), key=lambda item: _quest_sort_key(item, mode))
-            if _quest_matches_filters(quest_id, quest)
+        query = quest_filter_bar.query()
+        visible_rows = sorted(
+            (item for item in QUEST_DATA.items() if _quest_matches_filters(*item)),
+            key=lambda item: (_quest_match_rank(query, item), _quest_sort_key(item, mode)),
         )
         visible_count = len(visible_rows)
-        for section in quest_catalog_sections_pure(visible_rows):
+        for section in _quest_search_sections(visible_rows, query):
             if section["title"]:
                 _add_section_heading(section["title"])
             for quest_id, quest in section["rows"]:
