@@ -279,9 +279,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   at 34 families with a provisional 388-point denominator; Sumona is reconciled
   at 37 families with a provisional 407-point denominator; Duradel/Lapalok are
   reconciled at 35 families with a provisional 334-point denominator; Kuradal
-  is reconciled at 36 families with a provisional 322-point denominator. All
-  seven roles remain hidden until their full Combat families and distinctive
-  protection/finishing/context mechanics are executable. See the dated
+  is reconciled at 36 families with a provisional 322-point denominator.
+  Turael, Mazchna and Vannaka are live; the other four roles stay out of
+  rolls until their full pools are executable. See the dated
   `slayer-turael-spria-pool`, `slayer-mazchna-achtryn-pool`,
   `slayer-vannaka-pool`, `slayer-chaeldar-pool`, `slayer-sumona-pool`, and
   `slayer-duradel-lapalok-pool` audits, plus `slayer-kuradal-pool`.
@@ -294,8 +294,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Mazchna/Achtryn is now the second completely encoded pool. Stable family
   identities are separate from its 27 master-specific roll rows and provisional
   325-point denominator. `tools/audit_slayer_readiness.py` derives the live
-  readiness ledger: 26/27 families are ready, while Mogres remains the sole
-  exact quest blocker. Vampyres are closed through the
+  readiness ledger: 27/27 families are ready since Mogres landed (`adb2f935`),
+  and Mazchna needs Combat 20 only. Vampyres are closed through the
   ordinary level-61 Feral vampyre with its Priest in Peril gate, guaranteed
   Vampyre dust, Holy-symbol weakness, bite effect, and losslessly normalized
   100,000-slot table. Wall beasts are closed through
@@ -304,13 +304,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   through the ordinary level-85 Soldier with its period poison risk and exact
   128-slot drop table.
   Pyrefiends are closed through the ordinary level-43 representative with
-  source-faithful magic-based-melee semantics. The role stays hidden; stale
+  source-faithful magic-based-melee semantics. The role is live; stale
   prose blockers for protection,
   poison, finishers, Dogs, Grotworms, and Hobgoblin XP no longer control
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
-  rows preserve the provisional 460-point denominator and remain hidden at
-  34/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
+  rows preserve the provisional 460-point denominator and are live at
+  35/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
   Slayer-bell, and real lit-source gates, exact 100,000-slot Darkan selector,
   and independent easy clue. Ordinary Brine rat closes Brine rats with its sourced
   Slayer/Olaf's-Quest/Spade gates, exact 512-slot ordinary selector, exact

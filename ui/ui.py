@@ -465,17 +465,8 @@ from ..data.summoning_data import (
     SUMMONING_POUCHES_BY_ID,
 )
 from ..data.pet_data import OBTAINABLE_PETS, PETS_BY_ID
-from ..data.slayer_data import (
-    DEFAULT_SLAYER_MASTER_ID,
-    SLAYER_FAMILIES_BY_ID,
-    TURAEL_MASTER,
-)
-from ..logic.slayer_logic import (
-    sanitize_slayer_state_pure,
-    slayer_master_display_name_pure,
-    slayer_master_persona_pure,
-    slayer_target_ids_for_assignment_pure,
-)
+from ..data.slayer_data import SLAYER_FAMILIES_BY_ID
+from ..logic.slayer_logic import slayer_target_ids_for_assignment_pure
 from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, _skill_level_for_reward, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
@@ -8322,199 +8313,15 @@ def show_main_menu(
         tabs.setCurrentWidget(skills_tab)
 
     def _build_slayer_list() -> QWidget:
-        data = sanitize_slayer_state_pure(player_data)
-        assignment = data.get("slayer_assignment") or {}
-        family = SLAYER_FAMILIES_BY_ID.get(
-            str(assignment.get("family_id", "") or "")
+        from .ui_slayer_panel import build_slayer_panel
+
+        return build_slayer_panel(
+            player_data,
+            run_command=_run_slayer_command,
+            commands_enabled=on_slayer_command is not None,
+            on_assigned=_render_panel,
+            open_in_combat=_open_slayer_assignment_in_combat,
         )
-        remaining = int(assignment.get("remaining", 0) or 0)
-
-        container = QWidget()
-        layout = QVBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
-
-        slayer_tabs = QTabWidget()
-        slayer_tabs.setObjectName("slayerManagementTabs")
-        slayer_tabs.setDocumentMode(True)
-
-        assignment_tab = QWidget()
-        assignment_layout = QVBoxLayout(assignment_tab)
-        assignment_layout.setContentsMargins(10, 10, 10, 10)
-        assignment_layout.setSpacing(10)
-        if family is not None and remaining > 0:
-            card = QWidget()
-            card.setObjectName("slayerActiveAssignmentCard")
-            card.setStyleSheet(
-                "QWidget#slayerActiveAssignmentCard {"
-                " border: 1px solid #4CAF50; border-radius: 9px;"
-                " background: rgba(76,175,80,0.10); }"
-            )
-            card_layout = QVBoxLayout(card)
-            card_layout.setContentsMargins(12, 10, 12, 10)
-            speaker_row = QHBoxLayout()
-            speaker_row.setContentsMargins(0, 0, 0, 0)
-            speaker_row.setSpacing(10)
-            master_name, chathead_asset_path = slayer_master_persona_pure(
-                data, str(assignment.get("master_id", DEFAULT_SLAYER_MASTER_ID))
-            )
-            assignment_chathead = QLabel()
-            assignment_chathead.setObjectName("slayerAssignmentChathead")
-            _set_slayer_master_chathead(assignment_chathead, chathead_asset_path)
-            speaker_row.addWidget(assignment_chathead, 0, Qt.AlignmentFlag.AlignTop)
-            title = QLabel(family.display_name)
-            title.setStyleSheet("color: palette(text); font-size: 14px; font-weight: 700;")
-            speaker_row.addWidget(title, 1, Qt.AlignmentFlag.AlignVCenter)
-            card_layout.addLayout(speaker_row)
-            progress = QLabel(
-                f"{remaining} of {int(assignment.get('initial_count', remaining) or remaining)} remaining"
-                f" · assigned by {master_name}"
-            )
-            progress.setObjectName("slayerAssignmentProgress")
-            progress.setStyleSheet(f"color: {dim_text_css(progress)};")
-            card_layout.addWidget(progress)
-            assignment_layout.addWidget(card)
-
-            open_combat = QPushButton("Open in Combat")
-            open_combat.setObjectName("slayerOpenCombatButton")
-            open_combat.setToolTip(
-                "Open Combat with Current Slayer task only enabled. No encounter starts."
-            )
-            open_combat.clicked.connect(
-                lambda _=False: _open_slayer_assignment_in_combat()
-            )
-            assignment_layout.addWidget(open_combat)
-        else:
-            active_master_name = slayer_master_display_name_pure(
-                data, DEFAULT_SLAYER_MASTER_ID
-            )
-            succession_note = (
-                "; after While Guthix Sleeps, Spria fills this role"
-                if active_master_name == "Turael"
-                else ""
-            )
-            empty = QLabel(
-                "You do not have an active assignment.\n"
-                f"Ask {active_master_name} for a beginner task{succession_note}."
-            )
-            empty.setObjectName("slayerAssignmentEmptyState")
-            empty.setWordWrap(True)
-            empty.setStyleSheet(f"color: {dim_text_css(empty)};")
-            assignment_layout.addWidget(empty)
-            get_assignment = QPushButton("Get assignment")
-            get_assignment.setObjectName("slayerGetAssignmentButton")
-            get_assignment.setEnabled(on_slayer_command is not None)
-
-            def _get_assignment(_checked=False) -> None:
-                result = _run_slayer_command(
-                    "get_assignment",
-                    {"master_id": DEFAULT_SLAYER_MASTER_ID},
-                )
-                if result.get("ok", False):
-                    _render_panel()
-
-            get_assignment.clicked.connect(_get_assignment)
-            assignment_layout.addWidget(get_assignment)
-        completed = QLabel(
-            f"Assignments completed: {int(data.get('slayer_tasks_completed', 0) or 0)}"
-        )
-        completed.setObjectName("slayerCompletedCount")
-        completed.setStyleSheet(f"color: {dim_text_css(completed)};")
-        assignment_layout.addWidget(completed)
-        assignment_layout.addStretch(1)
-        slayer_tabs.addTab(assignment_tab, "Assignment")
-
-        masters_tab = QWidget()
-        masters_layout = QVBoxLayout(masters_tab)
-        masters_layout.setContentsMargins(10, 10, 10, 10)
-        masters_layout.setSpacing(8)
-        master_card = QWidget()
-        master_card.setObjectName("slayerMaster_turael_spria")
-        master_card.setStyleSheet(
-            "QWidget#slayerMaster_turael_spria {"
-            " border: 1px solid palette(mid); border-radius: 9px;"
-            " background: palette(base); }"
-        )
-        master_layout = QHBoxLayout(master_card)
-        master_layout.setContentsMargins(12, 10, 12, 10)
-        master_name, chathead_asset_path = slayer_master_persona_pure(
-            data, TURAEL_MASTER.id
-        )
-        master_chathead = QLabel()
-        master_chathead.setObjectName("slayerMasterChathead")
-        _set_slayer_master_chathead(master_chathead, chathead_asset_path)
-        master_layout.addWidget(master_chathead, 0, Qt.AlignmentFlag.AlignTop)
-        master_copy = QVBoxLayout()
-        master_title = QLabel(master_name)
-        master_title.setStyleSheet("color: palette(text); font-weight: 700;")
-        master_copy.addWidget(master_title)
-        master_note = QLabel(
-            f"Beginner master · {len(TURAEL_MASTER.family_ids)} possible assignments"
-        )
-        master_note.setStyleSheet(f"color: {dim_text_css(master_note)};")
-        master_copy.addWidget(master_note)
-        master_layout.addLayout(master_copy, 1)
-        master_button = QPushButton("Active task" if remaining > 0 else "Get assignment")
-        master_button.setObjectName("slayerMasterAssignmentButton")
-        master_button.setEnabled(on_slayer_command is not None and remaining <= 0)
-
-        def _get_master_assignment(_checked=False) -> None:
-            result = _run_slayer_command(
-                "get_assignment", {"master_id": DEFAULT_SLAYER_MASTER_ID}
-            )
-            if result.get("ok", False):
-                _render_panel()
-
-        master_button.clicked.connect(_get_master_assignment)
-        master_layout.addWidget(master_button)
-        masters_layout.addWidget(master_card)
-        masters_note = QLabel(
-            "More masters unlock as their assignments and requirements become available."
-        )
-        masters_note.setWordWrap(True)
-        masters_note.setStyleSheet(f"color: {dim_text_css(masters_note)};")
-        masters_layout.addWidget(masters_note)
-        masters_layout.addStretch(1)
-        slayer_tabs.addTab(masters_tab, "Masters")
-
-        rewards_tab = QWidget()
-        rewards_layout = QVBoxLayout(rewards_tab)
-        rewards_layout.setContentsMargins(10, 10, 10, 10)
-        rewards_layout.setSpacing(8)
-        smoking_complete = bool(
-            ((data.get("quests", {}) or {}).get("smoking_kills", {}) or {}).get(
-                "completed"
-            )
-        )
-        if not smoking_complete:
-            lock = QLabel(
-                "Complete Smoking Kills to activate Slayer points, streak rewards, "
-                "assignment skips and blocks, and the reward shop."
-            )
-            lock.setObjectName("slayerRewardsSmokingKillsLock")
-            lock.setWordWrap(True)
-            lock.setStyleSheet(
-                "color: palette(text); border: 1px solid rgba(255,183,77,0.55);"
-                " border-radius: 8px; background: rgba(255,183,77,0.08);"
-                " padding: 10px;"
-            )
-            rewards_layout.addWidget(lock)
-        else:
-            points = QLabel(f"Slayer points: {int(data.get('slayer_points', 0) or 0)}")
-            points.setObjectName("slayerPointsBalance")
-            points.setStyleSheet("color: palette(text); font-weight: 700;")
-            rewards_layout.addWidget(points)
-            availability = QLabel(
-                "Reward purchases will appear here as they become available."
-            )
-            availability.setWordWrap(True)
-            availability.setStyleSheet(f"color: {dim_text_css(availability)};")
-            rewards_layout.addWidget(availability)
-        rewards_layout.addStretch(1)
-        slayer_tabs.addTab(rewards_tab, "Rewards")
-
-        layout.addWidget(slayer_tabs, 1)
-        return container
 
     def _build_combat_list() -> QWidget:
         container = QWidget()

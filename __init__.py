@@ -4295,11 +4295,10 @@ def _on_main_menu(
             _change, after_apply=lambda: check_achievements(_state.player_data)
         )
         if not pure_ok:
+            reason = str(info.get("reason", "That action is unavailable."))
             return {
                 "ok": False,
-                "message": str(info.get("reason", "That action is unavailable."))
-                .replace("_", " ")
-                .capitalize(),
+                "message": info.get("message", reason.replace("_", " ").capitalize()),
             }
         if not committed:
             return {"ok": False, "message": "Anki could not create an undo entry."}

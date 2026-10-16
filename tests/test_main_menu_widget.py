@@ -1763,8 +1763,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         # The master gets a chathead so the player can tell who is speaking.
         tabs.setCurrentIndex(1)
         QApplication.processEvents()
-        chathead = dialog.findChild(QLabel, "slayerMasterChathead")
-        self.assertIsNotNone(chathead)
+        card = dialog.findChild(QWidget, "slayerMaster_turael_spria")
+        chathead = card.findChild(QLabel, "slayerMasterChathead")
         self.assertIsNotNone(chathead.pixmap())
         self.assertFalse(chathead.pixmap().isNull())
 
@@ -1786,10 +1786,9 @@ class MainMenuWidgetTest(unittest.TestCase):
                 tabs.setCurrentIndex(1)
                 QApplication.processEvents()
 
-                chathead = dialog.findChild(QLabel, "slayerMasterChathead")
-                self.assertTrue(
-                    any(label.text() == display_name for label in dialog.findChildren(QLabel))
-                )
+                card = dialog.findChild(QWidget, "slayerMaster_turael_spria")
+                chathead = card.findChild(QLabel, "slayerMasterChathead")
+                self.assertIn(display_name, [label.text() for label in card.findChildren(QLabel)])
                 self.assertIsNotNone(chathead.pixmap())
                 expected = self._ui._pixel_path_icon(
                     os.path.join(self._ui.current_dir, "activityicons", filename), 48

@@ -4,12 +4,12 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by opus-07
+**Status:** done
 
-- [ ] At combat level 20 or more, the Mazchna card is enabled and gives a Mazchna task through real reviews.
-- [ ] Below combat 20, Mazchna is greyed with "Combat level 20"; Vannaka is greyed with "Combat level 40" below 40.
-- [ ] The assignment command refuses a locked master even when called directly.
-- [ ] The Assignment tab button and empty state name and use the last eligible master, else Turael.
-- [ ] The stale "More masters unlock..." note is gone.
-- [ ] Mazchna's Priest in Peril requirement is removed; the source audit and its test cite Priest in Peril oldid 6487728 and Mazchna oldid 6548393. The stale "remain hidden" Kanban text is corrected.
-- [ ] Offscreen Qt capture of the Masters tab at 560 px with clean text-fit checks; one play-checklist line.
+- [x] At combat level 20 or more, the Mazchna card is enabled and gives a Mazchna task through real reviews.
+- [x] Below combat 20, Mazchna is greyed with "Combat level 20"; Vannaka is greyed with "Combat level 40" below 40.
+- [x] The assignment command refuses a locked master even when called directly.
+- [x] The Assignment tab button and empty state name and use the last eligible master, else Turael.
+- [x] The stale "More masters unlock..." note is gone.
+- [x] Mazchna's Priest in Peril requirement is removed; the source audit and its test cite Priest in Peril oldid 6487728 and Mazchna oldid 6548393. The stale "remain hidden" Kanban text is corrected.
+- [x] Offscreen Qt capture of the Masters tab at 560 px with clean text-fit checks; one play-checklist line.

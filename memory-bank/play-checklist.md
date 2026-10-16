@@ -46,6 +46,7 @@ you are in the game, with the date the change reached main.
 - [ ] Underground Pass stage 6, after the prior fights: keep reviewing Othanian; LP falls over reviews and the fight records "Defeated Othanian". The new quest fight values are registered placeholders. (after the next batch)
 - [ ] Wanted! stage 5 with a lit light source and the Black Knight already down: keep reviewing Solus Dellagar; he hits for at most 40, LP falls from 540 over reviews, and the fight records "Defeated Solus Dellagar". (after the next batch)
 - [ ] In Aid of the Myreque stage 6: the four level-50 Juvinates still read "This fight is not modelled yet (combat stats missing)", because the source review found no period stats for that variant. The two Vampyre Juvinates in the same stage stay fightable: that is a separate, older generated encounter, and this slice left it alone. (after the next batch)
+- [ ] Skills, Support, Slayer, Masters: Turael, Mazchna and Vannaka each show a card with a chathead. Below combat level 20 Mazchna is greyed with "Requires: Combat level 20"; from 20 his "Get assignment" gives a Mazchna task. After that task, the Assignment tab says "Ask Mazchna for a new task." and its button asks Mazchna. (after the next batch)
 
 ## Minigames
 

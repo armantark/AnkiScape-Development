@@ -10,7 +10,9 @@ from ..data.slayer_data import (
     SLAYER_FAMILIES_BY_ID,
     SLAYER_MASTERS_BY_ID,
     SlayerAssignmentFamily,
+    SlayerMaster,
 )
+from ..logic_pure.logic_pure_combat_engine import player_combat_level_pure
 from ..logic_pure.logic_pure_state import quest_completed_pure, quest_state_pure
 
 
@@ -40,6 +42,12 @@ def _quest_started(player_data: Mapping[str, Any], quest_id: str) -> bool:
 _QUEST_DISPLAY_NAMES = {
     "priest_in_peril": "Priest in Peril",
 }
+
+
+def _complete_quest_reason(quest_id: str) -> str:
+    return "Complete " + _QUEST_DISPLAY_NAMES.get(
+        quest_id, quest_id.replace("_", " ").title()
+    )
 
 
 def slayer_master_persona_pure(
@@ -80,13 +88,7 @@ def slayer_family_locked_reasons_pure(
     if family.required_quest_id and not quest_completed_pure(
         player_data, family.required_quest_id
     ):
-        reasons.append(
-            "Complete "
-            + _QUEST_DISPLAY_NAMES.get(
-                family.required_quest_id,
-                family.required_quest_id.replace("_", " ").title(),
-            )
-        )
+        reasons.append(_complete_quest_reason(family.required_quest_id))
     for skill_id, required_level in family.required_skill_levels:
         if _positive_int(player_data.get(f"{skill_id}_level", 1), 1) < required_level:
             reasons.append(f"{skill_id.replace('_', ' ').title()} level {required_level}")
@@ -99,6 +101,54 @@ def slayer_family_locked_reasons_pure(
             names = " + ".join(skill_id.replace("_", " ").title() for skill_id in skill_ids)
             reasons.append(f"{names} total {required_total}")
     return tuple(reasons)
+
+
+def slayer_master_locked_reasons_pure(
+    player_data: Mapping[str, Any],
+    master: SlayerMaster,
+) -> Tuple[str, ...]:
+    reasons = []
+    if player_combat_level_pure(player_data) < master.required_combat_level:
+        reasons.append(f"Combat level {master.required_combat_level}")
+    if _positive_int(player_data.get("slayer_level", 1), 1) < master.required_slayer_level:
+        reasons.append(f"Slayer level {master.required_slayer_level}")
+    if master.required_quest_id and not quest_completed_pure(
+        player_data, master.required_quest_id
+    ):
+        reasons.append(_complete_quest_reason(master.required_quest_id))
+    return tuple(reasons)
+
+
+def slayer_masters_view_pure(player_data: Mapping[str, Any]) -> dict:
+    """Every live master in roster order, each with its unmet requirements, and
+    the master that `Get assignment` asks: the last one used while still
+    eligible, else the default."""
+    data = sanitize_slayer_state_pure(player_data)
+    assignment = data["slayer_assignment"]
+    assignment_active = _non_negative_int(assignment.get("remaining", 0)) > 0
+    rows = []
+    for master in SLAYER_MASTERS_BY_ID.values():
+        if not master.runtime_enabled:
+            continue
+        display_name, chathead_asset_path = slayer_master_persona_pure(data, master.id)
+        locked_reasons = slayer_master_locked_reasons_pure(data, master)
+        rows.append(
+            {
+                "id": master.id,
+                "display_name": display_name,
+                "chathead_asset_path": chathead_asset_path,
+                "family_count": len(master.assignments),
+                "locked_reasons": locked_reasons,
+                "enabled": not locked_reasons and not assignment_active,
+            }
+        )
+    eligible = {row["id"]: row for row in rows if not row["locked_reasons"]}
+    last_master_id = assignment.get("master_id", "")
+    return {
+        "masters": tuple(rows),
+        "assignment_active": assignment_active,
+        "selected": eligible.get(last_master_id, eligible[DEFAULT_SLAYER_MASTER_ID]),
+    }
 
 
 def eligible_slayer_families_pure(
@@ -179,6 +229,15 @@ def get_slayer_assignment_pure(
     current = data.get("slayer_assignment") or {}
     if _non_negative_int(current.get("remaining", 0)) > 0:
         return data, False, {"reason": "assignment_active"}
+    master = SLAYER_MASTERS_BY_ID.get(master_id)
+    locked_reasons = slayer_master_locked_reasons_pure(data, master) if master else ()
+    if locked_reasons:
+        return data, False, {
+            "reason": "master_locked",
+            "message": f"{slayer_master_display_name_pure(data, master_id)} requires "
+            + " · ".join(locked_reasons)
+            + ".",
+        }
 
     families = list(eligible_slayer_families_pure(data, master_id))
     if not families:
