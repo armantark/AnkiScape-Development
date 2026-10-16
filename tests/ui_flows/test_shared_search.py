@@ -7,7 +7,7 @@ import unittest
 from tests import test_main_menu_widget as menu_tests
 
 if menu_tests.HAS_AQT:
-    from aqt.qt import QApplication, QComboBox, QLineEdit, QListWidget, Qt, QToolButton, QTreeWidget, QWidget
+    from aqt.qt import QApplication, QComboBox, QLineEdit, QLabel, QListWidget, Qt, QToolButton, QTreeWidget, QWidget
     from tests.ui_flows.qt_text_fit import text_fit_defects
 
 
@@ -87,6 +87,29 @@ class SharedSearchWidgetTest(unittest.TestCase):
             self.assertEqual(found[1:], [key for key in unfiltered if key in found[1:]])
             search.setText("Stolen Hearts")
             pump()
+
+    def test_quest_search_preserves_one_heading_per_section(self):
+        from ankiscape.core.constants import QUEST_DATA
+        from ankiscape.ui.ui_tab_quests import _quest_match_rank
+
+        dialog, _ = self.open()
+        menu_tests._open_quests_tab(dialog)
+        search = dialog.findChild(QLineEdit, "questSearchInput")
+        for query in ("the", "mogre"):
+            search.setText(query)
+            pump()
+            headings = [label.text() for label in dialog.findChildren(QLabel)
+                        if label.objectName().startswith("questSection_")]
+            self.assertEqual(headings, ["Quests", "Miniquests"], query)
+            cards = [w.objectName().removeprefix("questCard_") for w in dialog.findChildren(QWidget)
+                     if w.objectName().startswith("questCard_")]
+            sections = [bool(QUEST_DATA[key].get("miniquest")) for key in cards]
+            self.assertEqual(sections, sorted(sections))
+            for miniquest in (False, True):
+                ranks = [_quest_match_rank(query, (key, QUEST_DATA[key])) for key in cards
+                         if bool(QUEST_DATA[key].get("miniquest")) == miniquest]
+                self.assertEqual(ranks, sorted(ranks))
+            self.capture(dialog, f"quests-{query}")
 
     def test_bank_and_shop_accept_the_same_missing_letter(self):
         dialog, _ = self.open()

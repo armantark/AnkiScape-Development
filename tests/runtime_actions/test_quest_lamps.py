@@ -110,6 +110,20 @@ class LampClaimAndDestroyTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(claimed["attack_exp"] - player["attack_exp"], 100_000)
 
+    def test_claim_projection_owns_eligibility_and_fixed_skill_display(self):
+        player = _player_with_completed("stolen_hearts", "the_elder_kiln")
+        player.update(attack_level=75, strength_level=74)
+        rows = {row["claim_id"]: row for row in claim_rows_pure(player, CLAIM_DATA)}
+        elder = rows[ELDER_KILN_LAMP]
+        self.assertEqual(elder["eligible_skill_ids"], ("attack",))
+        self.assertEqual(elder["action_label"], "Choose skill")
+        agility = rows["stolen_hearts_xp_lamp_2"]
+        self.assertEqual(agility["eligible_skill_ids"], ("agility",))
+        self.assertEqual(agility["title"], "Stolen Hearts: Agility lamp (250 XP)")
+        self.assertEqual(agility["metadata"], "250 XP lamp · Pays Agility.")
+        self.assertEqual(agility["action_label"], "Claim")
+        self.assertEqual(agility["tooltip"], "Pays Agility.")
+
     def test_destroy_forfeits_for_good_and_undo_restores_the_lamp(self):
         player = _player_with_completed("stolen_hearts")
         self.addon._state.player_data = player

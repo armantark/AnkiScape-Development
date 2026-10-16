@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import unittest
 from unittest import mock
 
@@ -10,7 +11,7 @@ from tests import test_main_menu_widget as _main_menu
 from tests.test_main_menu_widget import HAS_AQT, _make_player_data, _open_bank_tab
 
 if HAS_AQT:
-    from aqt.qt import QApplication, QLabel, QMessageBox, QPushButton, QTimer, QWidget
+    from aqt.qt import QApplication, QLabel, QMessageBox, QPushButton, QTimer, QToolButton, QWidget
 
 
 def _pump() -> None:
@@ -109,16 +110,46 @@ class BankClaimLampsTest(unittest.TestCase):
             [label.text() for label in dialog.findChildren(QLabel, "bankClaimMetadata") if not label.isHidden()],
         )
 
+    def _choose_lamp(self, row, *, cancel=False):
+        seen = {}
+
+        def _answer():
+            modal = QApplication.activeModalWidget()
+            skills = modal.findChildren(QToolButton, "xpLampSkillButton")
+            seen["skills"] = [button.property("skillId") for button in skills]
+            claim = modal.findChild(QPushButton, "xpLampClaimButton")
+            seen["initially_enabled"] = claim.isEnabled()
+            next(button for button in skills if button.property("skillId") == "attack").click()
+            seen["selected_enabled"] = claim.isEnabled()
+            action = modal.findChild(QPushButton, "xpLampCancelButton") if cancel else claim
+            action.click()
+
+        QTimer.singleShot(0, _answer)
+        with mock.patch.object(self.menu._ui, "QDialog", self.menu._orig_dialog), allow_modal_dialogs():
+            _button(row, "Choose skill").click()
+        _pump()
+        return seen
+
     def test_a_choice_lamp_opens_the_grid_even_with_one_eligible_skill(self) -> None:
-        dialog = self._open_bank()
+        dialog = self._open_bank(720)
         elder_kiln = _rows(dialog)["The Elder Kiln: XP lamp (100,000 XP)"]
         self.assertIn("Minimum level: 75.", elder_kiln.findChild(QLabel, "bankClaimMetadata").text())
-        with mock.patch.object(self.menu._ui, "_choose_xp_lamp_skill", return_value="attack") as chooser:
-            _button(elder_kiln, "Choose skill").click()
-            _pump()
+        before = self.data.get("attack_exp", 0)
+        other_xp = {key: value for key, value in self.data.items() if key.endswith("_exp") and key != "attack_exp"}
+        seen = self._choose_lamp(elder_kiln)
 
-        self.assertEqual(chooser.call_args.args[2], ["attack"])
+        self.assertEqual(seen, {"skills": ["attack"], "initially_enabled": False, "selected_enabled": True})
+        self.assertEqual(self.data["attack_exp"] - before, 100_000)
+        self.assertEqual({key: self.data[key] for key in other_xp}, other_xp)
         self.assertTrue(self.data["claims"]["the_elder_kiln_xp_lamp_1"]["claimed"])
+
+    def test_cancelling_the_real_choice_grid_preserves_the_lamp_and_xp(self) -> None:
+        dialog = self._open_bank(720)
+        before = copy.deepcopy(self.data)
+        seen = self._choose_lamp(_rows(dialog)["The Elder Kiln: XP lamp (100,000 XP)"], cancel=True)
+        self.assertEqual(seen["skills"], ["attack"])
+        self.assertEqual(self.data, before)
+        self.assertIn("The Elder Kiln: XP lamp (100,000 XP)", _rows(dialog))
 
     def test_destroy_warns_then_removes_the_lamp_for_good(self) -> None:
         from tests.ui_flows.qt_text_fit import text_fit_defects

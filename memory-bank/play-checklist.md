@@ -12,8 +12,7 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
-- [ ] In Crafting and Runecrafting, search "tara" and see tiaras without changing the active target; in Quests, search "Stolen Hearts" and see it first while Sort orders the following matches; try the same typo in Bank, Grand Exchange and Shop. (Pass 16 ticket 02, after promotion)
-
+- [ ] In Crafting and Runecrafting, search "tara" and see tiaras without changing the active target; in Quests, search "Stolen Hearts" and see it first while Sort orders the following matches; search "the" and "mogre" and see one Quests heading followed by one Miniquests heading; try the same typo in Bank, Grand Exchange and Shop. (Pass 16 ticket 02, after promotion)
 - [ ] In Quests, choose The Blood Pact and answer one card correctly: the journal records Xenia's rescue request, entry into the Catacombs, the cultists with Ilona, movement north, Xenia's injury and her instruction to fight alone; the next stage begins "Defeat Kayle." Your health, gear, supplies and XP stay unchanged, further correct reviews stay held at Kayle without fighting Caitlin or Reese, and Undo restores the unstarted opening. (after native acceptance)
 - In Quests, choose Monk's Friend. The first review follows Omad's request and the hidden-ladder route to recover one Child's blanket. The next returns exactly one blanket and stops before Cedric's task. Undo restores the blanket and earlier stage. (after native acceptance)
 - In Quests, choose Tree Gnome Village. The first review reaches Montai after Bolren's stolen-orb request and leaves your Logs intact. Chop six normal Logs, then review Quests again: exactly six Logs are used before tracker work. Undo restores those Logs and Montai's request. (after native acceptance)
@@ -58,8 +57,7 @@ you are in the game, with the date the change reached main.
 ## Gathering and processing skills
 
 - [ ] In Prayer, choose Bury Bones with a whole-number XP total and answer four cards: the drops and event log show +4, +5, +4, +5 XP, and Prayer gains exactly 18.0 XP. Undo the last card and answer again: the drop is still +5. (Pass 16 ticket 09)
-- [ ] In Utilities > Gathering, select Gather snape grass (Hobgoblin Peninsula) and answer a review: gain three Snape grass without combat. In Cooking, search "nettle tea": Make nettle tea appears, and its group reads Drinks when the search is clear. Use the gathered grass to finish Skippy and the Mogres. (after Pass 16 landing)
-
+- [ ] In Utilities > Gathering, select Gather snape grass, hover to see Hobgoblin Peninsula, and answer a review: gain three Snape grass without combat. In Cooking, search "nettle tea": Make nettle tea appears, and its group reads Drinks when the search is clear. Use the gathered grass to finish Skippy and the Mogres. (after Pass 16 landing)
 - [ ] At Spirits of the Elid stage 2, keep Thread and choose Magic > Pure casts > Telegrab Ancestral key with one Air rune and one Law rune: a successful review gives the key; the next quest review advances to stage 3; Undo returns to stage 2, and a second Undo restores both runes and the Telegrab proof blocker. (after the next batch)
 - [ ] Open Utility > Gathering, select Collect evergreen sap with two Buckets and a tool-belt Knife, and answer one review: one Bucket becomes Bucket of sap and The Eyes of Glouphrie stage 3 loses its sap blocker; Undo restores the Bucket and blocker. Chopping must not clear it. (after the next batch)
 - [ ] Magic: at Enakhra's Lament stage 5, select Crumble Undead: First Boneguard with Magic 39 and 2 Air, 2 Earth and 1 Chaos rune; answer a card and see the named quest proof and Big bones; Undo restores runes and removes the proof. (after the next batch)
@@ -87,6 +85,5 @@ you are in the game, with the date the change reached main.
 - [ ] In the Bank, the Toolbelt panel lists the General, Fishing, Crafting and Farming belt tools under your pickaxe and hatchet, and a quest step that wants a belt tool, such as the Druidic Ritual fishing rod, goes ahead with none in the Bank. (2026-09-30)
 - [ ] In the Bank, right-click a Tiara mould: disabled "On tool belt" explains that the Bank copy is not needed; hover any on-belt Toolbelt chip to see "Always on your tool belt.", and right-click an unadded quest mould chip to keep its Add action. (2026-10-15)
 - [ ] Finish a quest with XP lamps, such as Stolen Hearts: the "Quest complete" window says how many lamps wait in Bank Claims and their XP. In Bank Claims, the Agility and Thieving lamps pay on "Claim" with no skill grid, the combat lamp still opens the grid, and "Destroy" on a lamp asks first, then removes it for good; Undo brings it back. (2026-10-15)
-
 - Gnome Restaurant: accept an easy/hard order, answer Again repeatedly, then deliver banked food; the window stays intact, while successful answers on other targets spend six minutes. Undo restores the prior order, food and rewards.
 - Familiarisation: start a session and interleave Again with Hard/Good/Easy. Again preserves segment/shard progress; the fourth success offers60 shards. Focus is absent from the activity summary and notification. Undo/reanswer preserves completion and a single reward claim.

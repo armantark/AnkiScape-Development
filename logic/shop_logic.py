@@ -229,8 +229,11 @@ def search_shop_catalog_pure(
         include_hidden=include_hidden,
     )
     results.extend(_search_services(normalized))
-    # Within a search tier, accessible stock precedes locked rows before the cut.
-    results.sort(key=lambda result: (result.pop("_match_tier"), bool(result["lock_reason"])))
+    results.sort(key=lambda result: (
+        bool(result["lock_reason"]), result.pop("_match_tier"),
+        str(result.get("item_name", result.get("display_name", ""))).casefold(),
+        str(result.get("shop_name", "")).casefold(),
+    ))
     return {"query": query, "results": results[: max(0, limit)]}
 
 

@@ -138,6 +138,12 @@ def slayer_masters_view_pure(player_data: Mapping[str, Any]) -> dict:
                 "display_name": display_name,
                 "chathead_asset_path": chathead_asset_path,
                 "family_count": len(master.assignments),
+                "assignment_range": (
+                    min(family.count_min for family in master.assignments),
+                    max(family.count_max for family in master.assignments),
+                ),
+                "point_schedule": "No Slayer points" if master.id == DEFAULT_SLAYER_MASTER_ID else "",
+                "challenge_availability": "",
                 "locked_reasons": locked_reasons,
                 "enabled": not locked_reasons and not assignment_active,
             }
@@ -147,6 +153,7 @@ def slayer_masters_view_pure(player_data: Mapping[str, Any]) -> dict:
     return {
         "masters": tuple(rows),
         "assignment_active": assignment_active,
+        "rewards_unlocked": quest_completed_pure(data, "smoking_kills"),
         "selected": eligible.get(last_master_id, eligible[DEFAULT_SLAYER_MASTER_ID]),
     }
 

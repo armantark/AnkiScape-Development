@@ -11,7 +11,7 @@ if _main_menu.HAS_AQT:
     from tests.ui_flows.qt_text_fit import text_fit_defects
 
 # The owner's laptop dialog height.
-_OWNER_SIZE = (900, 560)
+_OWNER_SIZE = (720, 560)
 
 
 def _pump() -> None:
@@ -54,6 +54,21 @@ class PrayerPanelTest(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.menu.tearDown()
+
+    def test_unavailable_method_tooltip_names_only_its_materials(self) -> None:
+        for target, expected in (
+            ("bury_bones", "Check the bones required for Bury."),
+            ("scatter_impious_ashes", "Check the ashes required for Scatter."),
+            ("ectofuntus_bones", "Check the bonemeal and buckets of slime required for Ectofuntus."),
+            ("gilded_altar_bones", "Check the bones required for the hosted gilded altar."),
+        ):
+            player = _main_menu._make_player_data()
+            player.update(current_prayer=target, prayer_level=99, inventory={})
+            dialog = _open_prayer_panel(self.menu, player)
+            button = dialog.findChild(QPushButton, "prayerTrainButton")
+            self.assertFalse(button.isEnabled())
+            self.assertEqual(button.toolTip(), expected)
+            dialog.close()
 
     def test_bury_hides_the_altar_box_until_a_gilded_target_is_chosen(self) -> None:
         player = _main_menu._make_player_data()

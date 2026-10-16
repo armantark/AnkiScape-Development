@@ -142,6 +142,43 @@ class UtilityActivitySearchTest(unittest.TestCase):
         self.assertEqual(self.menu._utility_calls, [])
         dialog.deleteLater()
 
+    def test_utilities_search_ranks_within_group_and_clearing_restores_order(self) -> None:
+        from ankiscape.core.search_match import match_rank
+
+        dialog = self.menu._open(_make_player_data())
+        tree = self.menu._open_utility(dialog)
+        search, _summary = _search_bar(tree)
+        original = _shown_rows(tree)
+        search.setText("gather")
+        _pump()
+        group = _header(tree, "gathering")
+        shown = [group.child(index) for index in range(group.childCount()) if not group.child(index).isHidden()]
+        ranks = [match_rank("gather", row.text(0), "gathering") for row in shown]
+        self.assertEqual(ranks, sorted(ranks))
+        keys = [row.data(0, Qt.ItemDataRole.UserRole) for row in shown]
+        self.assertLess(keys.index("gather_snape_grass"), keys.index("pick_nettles"))
+        search.clear()
+        _pump()
+        self.assertEqual(_shown_rows(tree), original)
+        self.assertEqual(self.menu._utility_calls, [])
+
+    def test_activities_search_ranks_within_flat_group_and_clearing_restores_order(self) -> None:
+        dialog = self.menu._open(_make_player_data())
+        tree = self.menu._open_activities(dialog)
+        selection = _find_named_widget(dialog, "skillListWidget")
+        selection.setCurrentItem(selection.item(2))
+        _pump()
+        search, _summary = _search_bar(tree)
+        original = _shown_rows(tree)
+        search.setText("and")
+        _pump()
+        self.assertEqual(_shown_rows(tree)[0], "penguin_hide_and_seek")
+        self.assertEqual(set(_shown_rows(tree)), set(original))
+        search.clear()
+        _pump()
+        self.assertEqual(_shown_rows(tree), original)
+        self.assertEqual(self.menu._utility_calls, [])
+
     def test_activities_search_keeps_slices_menus_cards_and_saved_collapses(self) -> None:
         from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
         from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure

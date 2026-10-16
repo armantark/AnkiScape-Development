@@ -130,7 +130,8 @@ UTILITY_ACTIVITY_DATA = {
         ),
     },
     "gather_snape_grass": {
-        "display_name": "Gather snape grass\n(Hobgoblin Peninsula)",
+        "display_name": "Gather snape grass",
+        "description": "Gather three clumps per trip at Hobgoblin Peninsula.",
         "requirements": {},
         "output_item": "Snape grass",
         "output_qty": 1,
@@ -140,7 +141,8 @@ UTILITY_ACTIVITY_DATA = {
         "source": (
             "https://runescape.wiki/w/Snape_grass?oldid=6269500; "
             "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
-            "darkan-world-server/data/items/spawns/spawns.json (itemId 231, Hobgoblin Peninsula)"
+            "darkan-world-server/data/items/spawns/spawns.json at commit "
+            "7387f34cff5c638d1c29d024329a9f80667add5f (itemId 231, Hobgoblin Peninsula)"
         ),
     },
     "gather_blue_dragon_scales": {

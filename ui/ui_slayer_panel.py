@@ -7,6 +7,7 @@ assign now, and which master `Get assignment` asks all come from
 
 try:
     from aqt.qt import (  # type: ignore
+        QGraphicsColorizeEffect,
         QHBoxLayout,
         QLabel,
         QPushButton,
@@ -54,7 +55,7 @@ def build_slayer_panel(
         "Assignment",
     )
     slayer_tabs.addTab(_masters_tab(view, commands_enabled, _get_assignment), "Masters")
-    slayer_tabs.addTab(_rewards_tab(data), "Rewards")
+    slayer_tabs.addTab(_rewards_tab(data, view), "Rewards")
     layout.addWidget(slayer_tabs, 1)
     return container
 
@@ -68,7 +69,7 @@ def _assignment_tab(data, view, commands_enabled, get_assignment, open_in_combat
     assignment_layout = QVBoxLayout(assignment_tab)
     assignment_layout.setContentsMargins(10, 10, 10, 10)
     assignment_layout.setSpacing(10)
-    if family is not None and remaining > 0:
+    if view["assignment_active"]:
         card = QWidget()
         card.setObjectName("slayerActiveAssignmentCard")
         card.setStyleSheet(
@@ -158,6 +159,15 @@ def _masters_tab(view, commands_enabled, get_assignment) -> "QWidget":
     return scroll
 
 
+def _master_context(row) -> str:
+    lines = [f"{row['family_count']} possible assignments"]
+    if not row["locked_reasons"]:
+        low, high = row["assignment_range"]
+        lines.append(f"Assignment range: {low}–{high} creatures")
+        lines.extend(text for text in (row["point_schedule"], row["challenge_availability"]) if text)
+    return "\n".join(lines)
+
+
 def _master_card(row, assignment_active, commands_enabled, get_assignment) -> "QWidget":
     card = QWidget()
     card.setObjectName(f"slayerMaster_{row['id']}")
@@ -172,6 +182,11 @@ def _master_card(row, assignment_active, commands_enabled, get_assignment) -> "Q
     chathead = QLabel()
     chathead.setObjectName("slayerMasterChathead")
     _set_slayer_master_chathead(chathead, row["chathead_asset_path"])
+    if row["locked_reasons"]:
+        effect = QGraphicsColorizeEffect(chathead)
+        effect.setColor(Qt.GlobalColor.gray)
+        effect.setStrength(1)
+        chathead.setGraphicsEffect(effect)
     card_layout.addWidget(chathead, 0, Qt.AlignmentFlag.AlignTop)
 
     copy = QVBoxLayout()
@@ -182,7 +197,7 @@ def _master_card(row, assignment_active, commands_enabled, get_assignment) -> "Q
     title_color = dim_text_css(title) if locked_reasons else "palette(text)"
     title.setStyleSheet(f"color: {title_color}; font-weight: 700;")
     copy.addWidget(title)
-    note = QLabel(f"{row['family_count']} possible assignments")
+    note = QLabel(_master_context(row))
     note.setWordWrap(True)
     note.setStyleSheet(f"color: {dim_text_css(note)};")
     copy.addWidget(note)
@@ -201,15 +216,12 @@ def _master_card(row, assignment_active, commands_enabled, get_assignment) -> "Q
     return card
 
 
-def _rewards_tab(data) -> "QWidget":
+def _rewards_tab(data, view) -> "QWidget":
     rewards_tab = QWidget()
     rewards_layout = QVBoxLayout(rewards_tab)
     rewards_layout.setContentsMargins(10, 10, 10, 10)
     rewards_layout.setSpacing(8)
-    smoking_complete = bool(
-        ((data.get("quests", {}) or {}).get("smoking_kills", {}) or {}).get("completed")
-    )
-    if not smoking_complete:
+    if not view["rewards_unlocked"]:
         lock = QLabel(
             "Complete Smoking Kills to activate Slayer points, streak rewards, "
             "assignment skips and blocks, and the reward shop."

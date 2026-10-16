@@ -4,8 +4,6 @@ Built on first show by ``show_main_menu``: a card per quest in the catalog is
 the single largest widget population in the menu. See ui_menu_ctx.MainMenuCtx
 for the contract.
 """
-from itertools import groupby
-
 try:
     from aqt.qt import (  # type: ignore
         Qt,
@@ -45,12 +43,6 @@ def _quest_match_rank(query: str, item: tuple[str, dict]) -> int | None:
         quest.get("requirements", ()),
         quest.get("unlocks", ()),
     )
-
-
-def _quest_search_sections(rows, query: str):
-    tiers = groupby(rows, key=lambda item: _quest_match_rank(query, item))
-    return tuple(section for _tier, matches in tiers
-                 for section in quest_catalog_sections_pure(tuple(matches)))
 
 
 def build_quests_tab(ctx) -> "QWidget":
@@ -463,7 +455,7 @@ def build_quests_tab(ctx) -> "QWidget":
             key=lambda item: (_quest_match_rank(query, item), _quest_sort_key(item, mode)),
         )
         visible_count = len(visible_rows)
-        for section in _quest_search_sections(visible_rows, query):
+        for section in quest_catalog_sections_pure(visible_rows):
             if section["title"]:
                 _add_section_heading(section["title"])
             for quest_id, quest in section["rows"]:

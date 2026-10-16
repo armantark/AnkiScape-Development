@@ -1,7 +1,6 @@
-"""Locked shops follow open shops within a search tier and name their wall."""
+"""Locked shops follow open shops throughout a search and name their wall."""
 
 import unittest
-from itertools import groupby
 
 import pkg_alias  # noqa: F401
 from ankiscape.core.search_match import match_rank
@@ -48,13 +47,14 @@ class LockedShopOrderTest(unittest.TestCase):
             return match_rank("fish", row.get("item_name", row.get("display_name", "")),
                               row.get("shop_name", ""), row.get("provider", ""))
 
-        tiers = [rank(row) for row in everything]
-        self.assertEqual(tiers, sorted(tiers))
-        for _tier, rows in groupby(everything, key=rank):
-            locked = [bool(row["lock_reason"]) for row in rows]
-            self.assertEqual(locked, sorted(locked))
+        locked = [bool(row["lock_reason"]) for row in everything]
+        self.assertEqual(locked, sorted(locked), "a locked row sits among open stock")
+        for rows in (open_rows, locked_rows):
+            keys = [(rank(row), row.get("item_name", row.get("display_name", "")).casefold(),
+                     row.get("shop_name", "").casefold()) for row in rows]
+            self.assertEqual(keys, sorted(keys))
         cut = search_shop_catalog_pure(data, "fish", limit=len(open_rows))["results"]
-        self.assertEqual(cut, everything[:len(open_rows)])
+        self.assertEqual(cut, open_rows)
 
 
 if __name__ == "__main__":

@@ -280,7 +280,9 @@ def search_help_topics(topics: Iterable[HelpTopic], query: str) -> tuple[HelpTop
         aliases = tuple(alias.casefold() for alias in topic.aliases)
         exact = int(normalized_query == title or normalized_query in aliases)
         prefix = int(title.startswith(normalized_query) or any(alias.startswith(normalized_query) for alias in aliases))
-        return (match_rank(normalized_query, topic.title, topic.search_text), -exact, -prefix, title)
+        alias_match = normalized_query in aliases
+        tier = 0 if alias_match else match_rank(normalized_query, topic.title, topic.search_text)
+        return (-int(alias_match), tier, -exact, -prefix, title)
 
     return tuple(sorted(matches, key=_rank))
 

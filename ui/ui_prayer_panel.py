@@ -5,7 +5,7 @@ altar mode box shows; this module only draws it.
 """
 
 try:
-    from aqt.qt import QComboBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget  # type: ignore
+    from aqt.qt import QComboBox, QLabel, QVBoxLayout, QWidget  # type: ignore
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
@@ -15,8 +15,8 @@ from ..data.prayer_data import prayer_selection_from_target_pure
 from ..logic_pure.logic_pure_prayer import prayer_panel_view_pure
 
 
-def _gilded_mode_row(view: dict, apply_selection) -> "QHBoxLayout":
-    row = QHBoxLayout()
+def _gilded_mode_row(view: dict, apply_selection) -> "QVBoxLayout":
+    row = QVBoxLayout()
     label = QLabel("Gilded altar mode")
     label.setObjectName("prayerGildedModeLabel")
     row.addWidget(label)

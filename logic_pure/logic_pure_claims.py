@@ -2,6 +2,7 @@
 
 from typing import Iterable, Mapping, Optional
 
+from ..core.claim_display import claim_display_fields
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
 from .logic_pure_quest import (  # noqa: F401  (re-export)
@@ -242,6 +243,12 @@ def claim_rows_pure(player_data, claim_data):
                 "locked_reasons": reasons,
             }
         )
+    for row in rows:
+        row["eligible_skill_ids"] = tuple(
+            skill_id for skill_id in row["skill_options"]
+            if _skill_level_for_reward(player_data, skill_id) >= row["minimum_level"]
+        )
+        row.update(claim_display_fields(row))
     return tuple(rows)
 
 

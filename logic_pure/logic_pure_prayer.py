@@ -127,6 +127,17 @@ _PRAYER_METHOD_MULTIPLIERS = {
 }
 
 
+def _prayer_requirements_hint(method: str, mode: str) -> str:
+    if method == "gilded_altar" and mode == "owned":
+        return "Check the materials and owned altar required for this method."
+    return {
+        "bury": "Check the bones required for Bury.",
+        "scatter": "Check the ashes required for Scatter.",
+        "ectofuntus": "Check the bonemeal and buckets of slime required for Ectofuntus.",
+        "gilded_altar": "Check the bones required for the hosted gilded altar.",
+    }[method]
+
+
 def prayer_panel_view_pure(player_data, prayer_data):
     """The Prayer panel's method line and its gilded altar mode box.
 
@@ -148,6 +159,8 @@ def prayer_panel_view_pure(player_data, prayer_data):
     owned_burners = owned_gilded_altar_effective_burners_pure(player_data, altar_target)
     return {
         "material_id": material_id,
+        "requirements_hint": _prayer_requirements_hint(spec["method"], mode),
+        "unavailable_warning": "The selected Prayer method is not ready. " + _prayer_requirements_hint(spec["method"], mode),
         "status": f"{method}: {spec['display_name']} · {multiplier:g}x XP",
         "show_gilded_mode": gilded,
         "gilded_mode": mode,

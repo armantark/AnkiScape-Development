@@ -3,7 +3,7 @@
 One builder draws both no-XP lists. The search bar is the shared
 CatalogFilterBar the Skills target lists use, and a query goes through that
 bar's matcher with the same fields: a row's name, its group and the group's
-label. The tree is built once and a query only hides rows, because the
+label. A query hides and ranks the existing rows within groups, because the
 Activities panel outlives each visit and the hub's Minigames and D&D entries
 show slices of the same items. Typing never selects or activates a row, so the
 current utility or activity never changes while the player searches.
@@ -22,6 +22,10 @@ try:
         QTreeWidgetItem,
     )
 
+    class _SearchItem(QTreeWidgetItem):
+        def __lt__(self, other):
+            return self.search_order < other.search_order
+
     # Flat activity rows have no group parent, so each row carries its group.
     _ACTIVITY_GROUP_ROLE = int(Qt.ItemDataRole.UserRole) + 1
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
@@ -38,13 +42,9 @@ from ..core.constants import (
     UTILITY_SURFACE_ID,
     current_dir,
 )
-from ..core.target_metadata import TargetRowMetadata, utility_activity_rows
+from ..core.search_match import match_rank
+from ..core.target_metadata import TargetRowMetadata, mage_arena_attunement_rows_pure, utility_activity_rows
 from ..data.evil_tree_data import EVIL_TREE_UTILITY_ID
-from ..data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
-from ..data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
-from ..data.great_orb_project_data import GREAT_ORB_PROJECT_ACTIVITY_ID
-from ..data.managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
-from ..data.werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID
 from ..logic.dnd_favourites_logic import dnd_activity_display_name_pure
 from ..logic_pure.logic_pure import (
     KNIGHT_WAVES_TOTAL_STEPS,
@@ -73,16 +73,6 @@ from .ui import (
 )
 
 _GROUP_ROLE_PREFIX = "__utility_group__:"
-# A locked row of these stays enabled, so a click still opens its detail card.
-_LOCKED_ROWS_OPEN_THEIR_CARD = frozenset(
-    {
-        WEREWOLF_SKULLBALL_ACTIVITY_ID,
-        GNOME_BALL_ACTIVITY_ID,
-        FISHING_TRAWLER_ACTIVITY_ID,
-        GREAT_ORB_PROJECT_ACTIVITY_ID,
-        MANAGING_MISCELLANIA_ACTIVITY_ID,
-    }
-)
 
 
 class UtilityActivityList:
@@ -106,6 +96,7 @@ class UtilityActivityList:
         self.tree = _styled_tree()
         marked = _fill_tree(self.tree, player_data, self._current, is_activities)
         self.marked_id = self._current if marked is not None else ""
+        _remember_order(self.tree)
         self._apply_view()
         if marked is not None:
             _mark_row(self.tree, marked)
@@ -136,6 +127,7 @@ class UtilityActivityList:
         self.tree.blockSignals(True)
         self._drop_empty_row()
         self._hold_expansion(filtering)
+        _rank_tree(self.tree, self.filter_bar.query())
         shown = total = 0
         for item in _top_level_items(self.tree):
             in_view = _in_group_view(item, self._group)
@@ -164,7 +156,7 @@ class UtilityActivityList:
             self._held_expansion = None
 
     def _add_empty_row(self) -> None:
-        empty = QTreeWidgetItem([f"No {self._noun} match this search."])
+        empty = _SearchItem([f"No {self._noun} match this search."])
         empty.setFlags(Qt.ItemFlag.NoItemFlags)
         empty.setForeground(0, dim_text_color(self.tree))
         self.tree.addTopLevelItem(empty)
@@ -248,6 +240,7 @@ def _surface_rows(player_data: dict, current: str, is_activities: bool) -> tuple
                 "tree, blessing, and participation status."
             ),
             current=current == EVIL_TREE_UTILITY_ID,
+            navigation_enabled=True,
             icon_path=_ACTIVITY_GROUP_ICONS["distractions_and_diversions"],
             group="distractions_and_diversions",
         ),
@@ -288,7 +281,7 @@ def _add_row_group(tree, group: str, rows: list, current: str, is_activities: bo
 
 def _group_header(tree, group: str) -> "QTreeWidgetItem":
     # The view writes the visible-row count after the label.
-    header = QTreeWidgetItem([_group_label(group)])
+    header = _SearchItem([_group_label(group)])
     header.setData(0, Qt.ItemDataRole.UserRole, f"{_GROUP_ROLE_PREFIX}{group}")
     header.setFlags(Qt.ItemFlag.ItemIsEnabled)
     font = header.font(0)
@@ -301,13 +294,13 @@ def _group_header(tree, group: str) -> "QTreeWidgetItem":
 def _group_row_item(row, group: str) -> "QTreeWidgetItem":
     item = _row_item(row.label, row.target_id, row.tooltip, row.icon_path)
     item.setData(0, _ACTIVITY_GROUP_ROLE, group)
-    if not row.enabled and row.target_id not in _LOCKED_ROWS_OPEN_THEIR_CARD:
+    if not row.navigation_enabled:
         item.setDisabled(True)
     return item
 
 
 def _row_item(label: str, row_id: str, tooltip: str, icon_path=None) -> "QTreeWidgetItem":
-    item = QTreeWidgetItem([label])
+    item = _SearchItem([label])
     item.setData(0, Qt.ItemDataRole.UserRole, row_id)
     item.setToolTip(0, tooltip)
     icon = _pixel_path_icon(icon_path, 28) if icon_path else None
@@ -427,7 +420,7 @@ def _mage_arena_item(player_data: dict, state: dict) -> "QTreeWidgetItem":
 
 
 def _sub_group(parent, title: str) -> "QTreeWidgetItem":
-    item = QTreeWidgetItem([title])
+    item = _SearchItem([title])
     item.setFlags(Qt.ItemFlag.ItemIsEnabled)
     parent.addChild(item)
     return item
@@ -449,7 +442,7 @@ def _add_alignment_choices(parent) -> None:
 def _add_mage_arena_statues(parent, player_data: dict, state: dict, current: str) -> None:
     statues = _sub_group(parent, "Mage Arena statues")
     alignment = str(state.get("alignment", "") or "")
-    attuned = set(state.get("attuned_spells", ()))
+    attunements = {row.target_id: row for row in mage_arena_attunement_rows_pure(player_data)}
     for god_id, row in MAGE_ARENA_GOD_DATA.items():
         statues.addChild(
             _row_item(
@@ -458,8 +451,9 @@ def _add_mage_arena_statues(parent, player_data: dict, state: dict, current: str
                 "Instant statue action. Any other god cape is destroyed or replaced; only one may be owned.",
             )
         )
-        if row["spell_id"] not in attuned:
-            statues.addChild(_attune_item(player_data, god_id, row))
+        attunement = attunements.get(f"mage_arena_attune:{god_id}")
+        if attunement is not None:
+            statues.addChild(_group_row_item(attunement, "landmarks"))
     statues.setExpanded(str(current).startswith("mage_arena_attune:"))
 
 
@@ -467,23 +461,6 @@ def _cape_label(cape: str, god_id: str, alignment: str) -> str:
     if not alignment:
         return f"Choose {cape}"
     return f"Reclaim {cape}" if god_id == alignment else f"Switch to {cape}"
-
-
-def _attune_item(player_data: dict, god_id: str, row: dict) -> "QTreeWidgetItem":
-    inventory = player_data.get("inventory", {}) or {}
-    equipment = player_data.get("equipment", {}) or {}
-    staff_owned = (
-        int(inventory.get(row["staff"], 0) or 0) > 0
-        or row["staff"] in equipment.values()
-    )
-    item = _row_item(
-        f"Attune {row['spell_name']} · one review",
-        f"mage_arena_attune:{god_id}",
-        f"Represents 100 arena casts. Requires owning {row['staff']}."
-        + ("" if staff_owned else f"\nMissing {row['staff']}."),
-    )
-    item.setDisabled(not staff_owned)
-    return item
 
 
 def _top_level_items(tree) -> list:
@@ -531,6 +508,41 @@ def _flat_row_context(item) -> tuple:
     # A flat activity row matches on its group the way a row under a header does.
     group = str(item.data(0, _ACTIVITY_GROUP_ROLE) or "")
     return (group, _group_label(group)) if group else ()
+
+
+def _remember_order(tree) -> None:
+    group_positions = {}
+    for index, item in enumerate(_top_level_items(tree)):
+        group = item.data(0, _ACTIVITY_GROUP_ROLE)
+        item.group_position = group_positions.setdefault(group, index) if group else index
+        _remember_branch_order(item, index)
+
+
+def _remember_branch_order(item, index) -> None:
+    item.original_position = index
+    item.search_order = (index,)
+    for child_index, child in enumerate(_children(item)):
+        _remember_branch_order(child, child_index)
+
+
+def _rank_tree(tree, query: str) -> None:
+    for item in _top_level_items(tree):
+        rank = _rank_branch(item, query, _flat_row_context(item))
+        item.search_order = (item.group_position, rank, item.original_position)
+    tree.sortItems(0, Qt.SortOrder.AscendingOrder)
+
+
+def _rank_branch(item, query: str, context: tuple) -> int:
+    rank = match_rank(query, item.text(0), *context)
+    tier = 5 if rank is None else rank
+    if item.childCount():
+        group = _group_id(item)
+        inner = (*context, group, _group_label(group)) if group else (*context, item.text(0))
+        for child in _children(item):
+            child_tier = _rank_branch(child, query, inner)
+            child.search_order = (child_tier, child.original_position)
+        return 0
+    return tier
 
 
 def _filter_branch(filter_bar, item, context: tuple, filtering: bool) -> tuple:

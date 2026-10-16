@@ -467,7 +467,7 @@ from ..data.summoning_data import (
 from ..data.pet_data import OBTAINABLE_PETS, PETS_BY_ID
 from ..data.slayer_data import SLAYER_FAMILIES_BY_ID
 from ..logic.slayer_logic import slayer_target_ids_for_assignment_pure
-from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, _skill_level_for_reward, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
+from ..logic_pure.logic_pure import claim_rows_pure, compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
 from ..logic.wicked_hood_logic import wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
@@ -486,7 +486,7 @@ from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS
 
 from ..core.skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
 
-from ..core.skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill, trainable_skill_definitions
+from ..core.skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill
 
 from ..core.help_system import (
     HELP_HOME_ID,
@@ -5238,7 +5238,7 @@ def show_main_menu(
             warn.setText("You can't do any Herblore yet. Gather grimy herbs, vials, and secondaries, or level up first!")
             return
         if display_name == "Prayer" and not _prayer_available():
-            warn.setText("The selected Prayer method is not ready. Check its materials and altar requirements.")
+            warn.setText(prayer_panel_view_pure(player_data, PRAYER_DATA)["unavailable_warning"])
             return
         if display_name == "Thieving" and not _thieving_available():
             warn.setText("The selected Thieving target is locked. Check its level and quest requirements.")
@@ -5277,7 +5277,7 @@ def show_main_menu(
     # ---- target list builders (one per implemented skill) ----
     from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
     from .ui_utility_activity_list import UtilityActivityList
-    from .ui_prayer_panel import build_prayer_panel
+    from .ui_prayer_panel import build_prayer_panel, prayer_panel_view_pure
 
     def _build_flat_target_list(
         rows: tuple[TargetRowMetadata, ...],
@@ -17831,22 +17831,11 @@ def show_main_menu(
         def _claim_stronghold_lamp() -> None:
             view = stronghold_player_safety_view_pure(player_data)
             claim_id = str(view.get("next_lamp_claim_id") or "")
-            claim = CLAIM_DATA.get(claim_id)
-            if not isinstance(claim, Mapping) or on_claim_reward is None:
+            row = next((row for row in claim_rows_pure(player_data, CLAIM_DATA)
+                        if row["claim_id"] == claim_id), None)
+            if row is None or on_claim_reward is None:
                 return
-            minimum_level = int(claim.get("minimum_level", 1) or 1)
-            configured_skill_ids = frozenset(
-                map(str, claim.get("skill_options", ()) or ())
-            )
-            eligible_skill_ids = [
-                skill.id
-                for skill in trainable_skill_definitions()
-                if (
-                    not configured_skill_ids
-                    or skill.id in configured_skill_ids
-                )
-                and _skill_level_for_reward(player_data, skill.id) >= minimum_level
-            ]
+            eligible_skill_ids = row["eligible_skill_ids"]
             if not eligible_skill_ids:
                 return
             skill_id = _choose_xp_lamp_skill(
@@ -22195,7 +22184,7 @@ def show_main_menu(
                     elif name == "Runecrafting":
                         train_btn.setToolTip("Complete Rune Mysteries and gather essence plus altar access.")
                     elif name == "Prayer":
-                        train_btn.setToolTip("Check the selected Prayer method's materials and altar requirements.")
+                        train_btn.setToolTip(prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"])
                     elif name == "Thieving":
                         train_btn.setToolTip("Choose an unlocked target before training Thieving.")
                     elif name == "Agility":

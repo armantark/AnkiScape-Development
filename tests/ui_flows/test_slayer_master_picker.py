@@ -7,7 +7,7 @@ import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
 
 if _main_menu.HAS_AQT:
-    from aqt.qt import QApplication, QLabel, QPushButton, QTabWidget, QWidget
+    from aqt.qt import QApplication, QGraphicsColorizeEffect, QLabel, QPushButton, QTabWidget, QWidget
 
     from tests.ui_flows.qt_text_fit import text_fit_defects
 
@@ -70,6 +70,11 @@ class SlayerMasterPickerTest(unittest.TestCase):
         self.assertIsNone(mazchna.findChild(QLabel, "slayerMasterLockedReasons"))
         vannaka = self._card(dialog, "vannaka")
         self.assertFalse(vannaka.findChild(QPushButton).isEnabled())
+        opacity = vannaka.findChild(QLabel, "slayerMasterChathead").graphicsEffect()
+        self.assertIsInstance(opacity, QGraphicsColorizeEffect)
+        self.assertEqual(opacity.strength(), 1)
+        self.assertIn("Assignment range: 10–70 creatures", "\n".join(self._card_texts(mazchna)))
+        self.assertIn("No Slayer points", "\n".join(self._card_texts(self._card(dialog, "turael_spria"))))
         self.assertEqual(
             vannaka.findChild(QLabel, "slayerMasterLockedReasons").text(),
             "Requires: Combat level 40",
@@ -101,6 +106,19 @@ class SlayerMasterPickerTest(unittest.TestCase):
         )
         self.assertTrue(self._card(dialog, "turael_spria").findChild(QPushButton).isEnabled())
         self.assertEqual(text_fit_defects(tabs.currentWidget()), [])
+
+    def test_assignment_and_rewards_follow_the_view_after_state_sanitization(self) -> None:
+        data = _main_menu._make_player_data()
+        data["slayer_assignment"] = {"master_id": "mazchna_achtryn", "family_id": "bats", "remaining": 12, "initial_count": 40}
+        data["quests"]["smoking_kills"] = {"completed": True}
+        data["slayer_points"] = 25
+        dialog, tabs = self._open_tab(data, 0)
+        self.assertIsNotNone(dialog.findChild(QWidget, "slayerActiveAssignmentCard"))
+        self.assertIsNone(dialog.findChild(QLabel, "slayerAssignmentEmptyState"))
+        tabs.setCurrentIndex(2)
+        _pump()
+        self.assertEqual(dialog.findChild(QLabel, "slayerPointsBalance").text(), "Slayer points: 25")
+        self.assertIsNone(dialog.findChild(QLabel, "slayerRewardsSmokingKillsLock"))
 
     def test_get_assignment_asks_the_last_eligible_master(self) -> None:
         for magic, expected_id, expected_text in (
