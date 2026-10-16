@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by sol-02
 
 - [ ] Typing "tara" in the Crafting target search shows "Tiara"; in Runecrafting it shows the tiara rows.
 - [ ] Typing "Stolen Hearts" in the Quests tab shows Stolen Hearts first; quests that only list it as a requirement follow.

@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by opus-10
 
 - [ ] Completing Stolen Hearts through real reviews shows a message that names its waiting lamps.
 - [ ] The Stolen Hearts Agility and Thieving lamps and the Myths of the White Lands Agility reward pay on "Claim" with no dialog.

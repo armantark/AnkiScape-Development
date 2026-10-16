@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by opus-08
 
 - [ ] With Bury selected, the altar mode box is hidden and the panel names Bury at 1x; with a gilded altar target, the box shows.
 - [ ] A Bury session that empties its 28-bone pack refills with no travel reviews and no "Running to the altar" text, through real reviews.

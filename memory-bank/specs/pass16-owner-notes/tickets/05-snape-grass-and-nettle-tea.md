@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by sol-05
 
 - [ ] Answering reviews on "Gather snape grass" adds Snape grass to the player's items; the row cites Snape grass oldid 6269500 and the Darkan spawn list.
 - [ ] The row text names the Hobgoblin Peninsula.

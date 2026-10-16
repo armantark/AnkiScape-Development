@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by opus-07
 
 - [ ] At combat level 20 or more, the Mazchna card is enabled and gives a Mazchna task through real reviews.
 - [ ] Below combat 20, Mazchna is greyed with "Combat level 20"; Vannaka is greyed with "Combat level 40" below 40.

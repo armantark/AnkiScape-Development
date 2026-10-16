@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by sol-01
 
 - [ ] The Bank right-click menu for every item kind (equip, eat or drink, break, open, loot, start trail, tool belt attach, rogue kit) shows the same entries in the same order as before.
 - [ ] The main UI module shrinks by the moved block; the new module holds only the menu builder and its private helpers.

@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by opus-03
 
 - [ ] Typing "bowl" in Utilities shows "Fill bowl with water" and hides non-matching rows; clearing the query restores the full tree.
 - [ ] The Activities list has the same bar and behavior.
