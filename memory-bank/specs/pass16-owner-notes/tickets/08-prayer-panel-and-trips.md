@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by opus-08
+**Status:** done
 
-- [ ] With Bury selected, the altar mode box is hidden and the panel names Bury at 1x; with a gilded altar target, the box shows.
-- [ ] A Bury session that empties its 28-bone pack refills with no travel reviews and no "Running to the altar" text, through real reviews.
-- [ ] A gilded altar session keeps its existing trip cost and route text.
-- [ ] The trip-cost source audit records why Bury and Scatter have no travel.
-- [ ] Offscreen Qt capture of the Prayer panel at 560 px for Bury and for a gilded target, with clean text-fit checks; one play-checklist line.
+- [x] With Bury selected, the altar mode box is hidden and the panel names Bury at 1x; with a gilded altar target, the box shows.
+- [x] A Bury session that empties its 28-bone pack refills with no travel reviews and no "Running to the altar" text, through real reviews.
+- [x] A gilded altar session keeps its existing trip cost and route text.
+- [x] The trip-cost source audit records why Bury and Scatter have no travel.
+- [x] Offscreen Qt capture of the Prayer panel at 560 px for Bury and for a gilded target, with clean text-fit checks; one play-checklist line.

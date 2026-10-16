@@ -100,8 +100,8 @@ from ..core.constants import (
     FLETCHING_GROUP_ORDER,
     HERBLORE_DATA,
     PRAYER_DATA,
+    COMBAT_PRAYERS,
     DEFAULT_PRAYER_TARGET,
-    PRAYER_GROUP_ORDER,
     PRAYER_ITEM_IMAGES,
     MAGIC_DATA,
     DEFAULT_MAGIC_TARGET,
@@ -475,14 +475,9 @@ from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic_pure.logic_pure import combat_grave_banner_view_pure, combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
 from ..logic_pure.logic_pure_combat_card import review_combat_card_view_pure
 
-from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
-
 from ..logic_pure.logic_pure import (
-    effective_gilded_altar_multiplier_pure,
     full_urn_teleport_info_pure,
     owned_altar_id_pure,
-    owned_gilded_altar_effective_burners_pure,
-    prayer_selection_locked_reasons_pure,
 )
 
 from ..logic_pure.logic_pure import STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, landmark_hud_progress_pure
@@ -5282,6 +5277,7 @@ def show_main_menu(
     # ---- target list builders (one per implemented skill) ----
     from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
     from .ui_utility_activity_list import UtilityActivityList
+    from .ui_prayer_panel import build_prayer_panel
 
     def _build_flat_target_list(
         rows: tuple[TargetRowMetadata, ...],
@@ -5655,77 +5651,12 @@ def show_main_menu(
         )
 
     def _build_prayer_list() -> QWidget:
-        panel = QWidget()
-        panel.setObjectName("prayerSkillPanel")
-        panel_layout = QVBoxLayout(panel)
-        panel_layout.setContentsMargins(0, 0, 0, 0)
-
-        current_target = str(player_data.get("current_prayer", DEFAULT_PRAYER_TARGET))
-        saved_mode = str(player_data.get("prayer_gilded_mode", "hosted"))
-        current_selection = prayer_selection_from_target_pure(current_target, saved_mode)
-        default_selection = prayer_selection_from_target_pure(DEFAULT_PRAYER_TARGET, saved_mode)
-        material_id = (current_selection or default_selection or ("bones", "base"))[0]
-        altar_target = f"gilded_altar_{material_id}"
-        owned_burners = owned_gilded_altar_effective_burners_pure(player_data, altar_target)
-        owned_multiplier = effective_gilded_altar_multiplier_pure(player_data, "owned", altar_target)
-
-        mode_row = QHBoxLayout()
-        mode_label = QLabel("Gilded altar mode")
-        mode_label.setObjectName("prayerGildedModeLabel")
-        mode_row.addWidget(mode_label)
-        mode = QComboBox()
-        mode.setObjectName("prayerGildedModeCombo")
-        mode.addItem("Hosted - 350% XP", "hosted")
-        mode.addItem(f"Owned - {owned_multiplier * 100:g}% XP ({owned_burners}/2 burners)", "owned")
-        for index, ui_method_id in enumerate(("gilded_hosted", "gilded_owned")):
-            reasons = prayer_selection_locked_reasons_pure(player_data, material_id, ui_method_id, PRAYER_DATA)
-            item = mode.model().item(index)
-            if item is not None:
-                item.setEnabled(not reasons)
-                if reasons:
-                    item.setToolTip("Locked due to: " + ", ".join(reasons))
-        selected = mode.findData(saved_mode)
-        mode.setCurrentIndex(max(0, selected))
-
-        def _apply_prayer_selection(material: str, ui_method: str) -> bool:
-            if on_set_prayer_selection is None:
-                return False
-            if not on_set_prayer_selection(material, ui_method):
-                return False
-            _render_panel()
-            return True
-
-        def _on_mode_changed(_index: int) -> None:
-            selected_mode = str(mode.currentData() or "hosted")
-            ui_method = "gilded_owned" if selected_mode == "owned" else "gilded_hosted"
-            if not _apply_prayer_selection(material_id, ui_method):
-                mode.blockSignals(True)
-                mode.setCurrentIndex(max(0, mode.findData(str(player_data.get("prayer_gilded_mode", "hosted")))))
-                mode.blockSignals(False)
-
-        mode.currentIndexChanged.connect(_on_mode_changed)
-        mode_row.addWidget(mode, 1)
-        panel_layout.addLayout(mode_row)
-
-        def _select_prayer_target(target_id: str) -> None:
-            selection = prayer_selection_from_target_pure(
-                target_id,
-                str(player_data.get("prayer_gilded_mode", "hosted")),
-            )
-            if selection is not None:
-                _apply_prayer_selection(*selection)
-
-        panel_layout.addWidget(build_searchable_target_selector(
-            _build_target_selector,
-            prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET),
-            key="prayer",
-            noun="bones and ashes",
-            group_labels={group: group for group in PRAYER_GROUP_ORDER},
-            group_role_prefix="__prayer_group__:",
-            on_select=_select_prayer_target,
-            group_order=list(PRAYER_GROUP_ORDER),
-        ), 1)
-        return panel
+        return build_prayer_panel(
+            player_data,
+            lambda rows, **options: build_searchable_target_selector(_build_target_selector, rows, **options),
+            on_set_prayer_selection,
+            _render_panel,
+        )
 
     construction_feedback = {"message": ""}
 
