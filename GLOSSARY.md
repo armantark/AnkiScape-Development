@@ -42,3 +42,10 @@ Domain terms with one settled meaning each. Implementation detail stays out.
   same target. A kill, a death, a flee, a bank run, or any action change ends
   it, and the next fight starts a fresh enemy. Nothing is locked while an
   encounter is alive.
+- **XP lamp** — a Bank Claim that pays XP. A fixed-skill lamp pays its one
+  skill when claimed; a choice lamp opens the skill grid first. Destroying a
+  lamp forfeits it for good.
+- **XP drop** — the line that shows the XP one review gained, per skill, as
+  the popup and in the event log. It shows the change in each skill's
+  whole-number total, so tenths carry forward: four 4.5 XP burials read +4,
+  +5, +4, +5. A skill whose whole number did not change is left out.
