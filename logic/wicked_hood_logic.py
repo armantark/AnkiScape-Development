@@ -8,8 +8,12 @@ from typing import Any
 
 from .inventory_pure import CARRIED_CAPACITY, carried_slots_used
 from ..data.item_values import STACKABLE_ITEM_NAMES
+from ..data.quest.serializers import quest_unlock_rules_as_dict
+from ..logic_pure.quest_runtime_rules import quest_unlock_locked_reasons_pure
 from ..data.runecrafting_data import ALTARS_BY_ID, STANDARD_RUNE_TARGETS_BY_ID
 
+
+_QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
 
 WICKED_HOOD_ITEM = "Wicked hood"
 WICKED_HOOD_WORLD_DAY_REVIEWS = 240
@@ -265,14 +269,9 @@ def wicked_hood_operable_pure(
     equipment = player_data.get("equipment")
     if isinstance(equipment, Mapping) and equipment.get("head") == WICKED_HOOD_ITEM:
         return True
-    target = str(target_id or player_data.get("current_runecrafting", "") or "")
-    carried = player_data.get("carried_inventory")
-    view = carried.get(target) if isinstance(carried, Mapping) else None
     inventory = player_data.get("inventory")
     return bool(
-        isinstance(view, Mapping)
-        and _non_negative_int(view.get(WICKED_HOOD_ITEM))
-        and isinstance(inventory, Mapping)
+        isinstance(inventory, Mapping)
         and _non_negative_int(inventory.get(WICKED_HOOD_ITEM))
     )
 
@@ -362,6 +361,23 @@ def wicked_hood_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             for target_id, target in STANDARD_RUNE_TARGETS_BY_ID.items()
         },
     )
+    commands = [("essence", {}, projection)]
+    for row in projection["altars"]:
+        commands.append(("runes", {"altar_id": row["altar_id"]}, row))
+        reasons = quest_unlock_locked_reasons_pure(
+            player_data, "runecrafting", row["target_id"], _QUEST_UNLOCK_RULES
+        )
+        commands.append(("teleport", {
+            "altar_id": row["altar_id"],
+            "locked_reason": str(reasons[0]) if reasons else "",
+        }, row))
+    # Commands mutate nested inventory, so previews need isolated saves.
+    for action, payload, row in commands:
+        _, enabled, info = apply_wicked_hood_command_pure(
+            copy.deepcopy(player_data), action, payload
+        )
+        row[action + "_enabled"] = enabled
+        row[action + "_reason"] = str(info.get("reason", ""))
     return {
         **projection,
         "caps": {

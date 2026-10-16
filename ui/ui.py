@@ -25885,7 +25885,7 @@ def show_main_menu(
         menu.addSeparator()
 
     from functools import partial
-    from .ui_bank_menu import BankMenuContext, build_bank_item_menu
+    from .ui_bank_menu import BankMenuContext, build_bank_item_menu, _add_wicked_hood
 
     bank_menu_context = BankMenuContext(
         player_data=player_data,
@@ -25893,6 +25893,7 @@ def show_main_menu(
         on_treasure_trails_command=on_treasure_trails_command,
         on_attach_tool=on_attach_tool,
         add_cooking_gauntlet_conversion_action=_add_cooking_gauntlet_conversion_action,
+        on_wicked_hood_command=on_wicked_hood_command,
         on_equip_item=on_equip_item,
         on_consume_item=on_consume_item,
         on_drink_trouble_brewing_rum=on_drink_trouble_brewing_rum,
@@ -26644,13 +26645,12 @@ def show_main_menu(
         if not isinstance(item_name, str) or not item_name:
             return None
         menu = QMenu(equip_list)
+        menu.setToolTipsVisible(True)
+        _add_wicked_hood(menu, bank_menu_context, item_name)
         _add_cooking_gauntlet_conversion_action(
-            menu,
-            item_name,
-            "convertWornCookingGauntletsAction",
-            equip_list,
+            menu, item_name, "convertWornCookingGauntletsAction", equip_list,
         )
-        action = menu.addAction(f"Unequip {item_name}")
+        action = menu.addAction({"Wicked hood": "Remove"}.get(item_name, f"Unequip {item_name}"))
         action.setEnabled(on_unequip_slot is not None)
 
         def _do_unequip(_checked: bool = False) -> None:

@@ -15,6 +15,7 @@ from ..data.great_orb_project_data import GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_
 from ..data.impling_jar_data import IMPLING_JAR_DATA
 from ..data.pack_data import ITEM_PACK_DATA
 from ..data.trouble_brewing_data import TROUBLE_BREWING_RUMS_BY_ITEM
+from ..logic.wicked_hood_logic import WICKED_HOOD_ITEM, wicked_hood_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic.trouble_brewing_logic import trouble_brewing_view_pure
 from ..logic_pure.logic_pure import can_equip_item_pure, full_urn_teleport_info_pure
@@ -27,6 +28,7 @@ class BankMenuContext:
     on_treasure_trails_command: Callable | None
     on_attach_tool: Callable | None
     add_cooking_gauntlet_conversion_action: Callable
+    on_wicked_hood_command: Callable | None
     on_equip_item: Callable | None
     on_consume_item: Callable | None
     on_drink_trouble_brewing_rum: Callable | None
@@ -141,10 +143,44 @@ def _add_toolbelt_attachment(menu: "QMenu", ctx: BankMenuContext, item_name: str
         menu.addSeparator()
 
 
+def _add_wicked_hood(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
+    if item_name != WICKED_HOOD_ITEM:
+        return
+    hood = wicked_hood_view_pure(ctx.player_data)
+    essence = menu.addAction(f"Withdraw essence ({hood['essence_remaining']} left)")
+    rune_menu = menu.addMenu(f"Withdraw runes ({hood['rune_withdrawals_remaining']} left)")
+    teleport_menu = menu.addMenu(f"Teleport ({hood['teleports_remaining']} left)")
+    rune_menu.setToolTipsVisible(True)
+    teleport_menu.setToolTipsVisible(True)
+    entries = [(essence, "essence", {}, hood)]
+    for row in hood["altar_options"]:
+        rune = rune_menu.addAction(f"{row['rune_item']} ×{row['rune_quantity']}")
+        label = row["display_name"]
+        if not row["level_met"]:
+            label += f" (Requires level {row['level']} Runecrafting)"
+        teleport = teleport_menu.addAction(label)
+        for action, command in ((rune, "runes"), (teleport, "teleport")):
+            action.setData(row["altar_id"])
+            entries.append((action, command, {"altar_id": row["altar_id"]}, row))
+    for action, command, payload, state in entries:
+        action.setEnabled(state[command + "_enabled"] and ctx.on_wicked_hood_command is not None)
+        action.setToolTip(state[command + "_reason"])
+
+        def operate(_checked=False, command=command, payload=payload):
+            result = ctx.on_wicked_hood_command(command, payload) or {}
+            ctx.refresh_equipment_views(refresh_visible_skill=True)
+            if not result.get("ok"):
+                QMessageBox.information(ctx.bank_frame, "Wicked hood", str(result.get("message", result.get("reason", ""))))
+
+        action.triggered.connect(operate)
+    menu.addSeparator()
+
+
 def _add_equip(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
     if ctx.is_equippable_item(item_name):
         ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, ctx.player_data)
-        action = menu.addAction("Equip" if ok else f"Equip ({reason})")
+        verb = "Wear" if item_name == WICKED_HOOD_ITEM else "Equip"
+        action = menu.addAction(verb if ok else f"{verb} ({reason})")
         action.setEnabled(bool(ok) and ctx.on_equip_item is not None)
         if not ok and reason:
             action.setToolTip(reason)
@@ -428,6 +464,7 @@ def build_bank_item_menu(ctx: BankMenuContext, item_name: str) -> "QMenu":
         ctx.bank_frame,
     )
 
+    _add_wicked_hood(menu, ctx, item_name)
     _add_equip(menu, ctx, item_name)
     _add_consumable(menu, ctx, item_name)
     _add_trouble_brewing_rum(menu, ctx, item_name)

@@ -90,6 +90,8 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
 
     def test_essence_is_undoable_and_restores_the_whole_save(self):
         addon = self.addon
+        addon._state.player_data["equipment"] = {}
+        addon._state.player_data["inventory"]["Wicked hood"] = 1
 
         class _Col:
             def __init__(self):
