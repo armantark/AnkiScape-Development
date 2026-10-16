@@ -331,6 +331,7 @@ from .runtime import runtime_actions
 from .runtime.runtime_actions import BIG_CHINCHOMPA_UTILITY_ID, EVIL_TREE_UTILITY_ID, RuntimeActionContext
 from .logic.cadence_coverage import SINGLE_TICK_UTILITY_IDS
 from .runtime.dispatcher_state import state as _state
+from .core.xp_drops import whole_number_xp_breakdown
 
 
 def _normalize_legacy_utility_skill(skill) -> str:
@@ -425,7 +426,8 @@ class _NamedExperience(float):
                 f"{name} +{amount_text(amount)} XP"
                 for name, amount in self.breakdown
             )
-        message = f"+{amount_text(self)} XP"
+        amount = self.breakdown[0][1] if self.breakdown else self
+        message = f"+{amount_text(amount)} XP"
         if self.skill_names:
             message += f" · {', '.join(self.skill_names)}"
         return message
@@ -571,14 +573,12 @@ def _show_activity_gain(text: str) -> None:
         pass
 
 
-def _begin_review_feedback_context() -> None:
+def _begin_review_feedback_context(initial_exp=None) -> None:
     initial_xp = _state.review_feedback_initial_xp
-    initial_exp = _implemented_exp_keys_snapshot()
+    initial_exp = _implemented_exp_keys_snapshot() if initial_exp is None else initial_exp
     _state.review_feedback_context = {
         "xp": float(initial_xp or 0.0),
-        "skills": list(getattr(initial_xp, "skill_names", ())),
         "initial_exp": initial_exp,
-        "recorded_exp": initial_exp,
         "combat_level_before": player_combat_level_pure(_state.player_data),
         "activity": [],
     }
@@ -589,27 +589,23 @@ def _record_pending_review_xp_event() -> None:
     context = _state.review_feedback_context
     if context is None:
         return
-    recorded_exp = context.get("recorded_exp", {})
-    breakdown = []
-    for skill in trainable_skill_definitions():
-        gained = float(_state.player_data.get(skill.exp_key, 0) or 0) - float(
-            recorded_exp.get(skill.exp_key, 0) or 0
-        )
-        if gained > 0:
-            breakdown.append((skill.display_name, gained))
+    breakdown = whole_number_xp_breakdown(context["initial_exp"], _state.player_data)
     if not breakdown:
         return
     total = sum(amount for _name, amount in breakdown)
-    _record_review_event(
-        "xp",
-        _NamedExperience(
-            total,
-            (name for name, _amount in breakdown),
-            breakdown,
-        ).display_text,
-        persist=False,
-    )
-    context["recorded_exp"] = _implemented_exp_keys_snapshot()
+    message = _NamedExperience(
+        total, (name for name, _amount in breakdown), breakdown,
+    ).display_text
+    if context.get("xp_recorded"):
+        # Level-up events can replace the log's dictionaries between awards.
+        row = next(
+            row for row in reversed(_state.player_data["review_event_log"])
+            if row["kind"] == "xp"
+        )
+        row["text"] = message
+    else:
+        _record_review_event("xp", message, persist=False)
+        context["xp_recorded"] = True
 
 
 def level_up_check(skill, data) -> None:
@@ -620,7 +616,6 @@ def level_up_check(skill, data) -> None:
 def _finish_review_feedback_context() -> None:
     context = _state.review_feedback_context or {
         "xp": 0.0,
-        "skills": [],
         "initial_exp": {},
         "activity": [],
     }
@@ -628,24 +623,11 @@ def _finish_review_feedback_context() -> None:
     _state.review_feedback_context = None
     _state.review_feedback_flushing = True
     try:
-        xp_total = context.get("xp", 0.0)
-        try:
-            xp_total = float(xp_total)
-        except (TypeError, ValueError):
-            xp_total = 0.0
-        skill_names = list(context.get("skills", ()))
-        initial_exp = context.get("initial_exp", {})
-        breakdown = []
-        for skill in trainable_skill_definitions():
-            gained = float(_state.player_data.get(skill.exp_key, 0) or 0) - float(
-                initial_exp.get(skill.exp_key, 0) or 0
-            )
-            if gained > 0:
-                breakdown.append((skill.display_name, gained))
-                if skill.display_name not in skill_names:
-                    skill_names.append(skill.display_name)
+        breakdown = whole_number_xp_breakdown(context["initial_exp"], _state.player_data)
+        xp_total = float(context.get("xp", 0.0))
+        skill_names = [name for name, _amount in breakdown]
         activity_messages = context.get("activity", [])
-        if xp_total > 0:
+        if xp_total > 0 and breakdown:
             _show_exp(
                 _NamedExperience(xp_total, skill_names, breakdown),
                 record_event=False,
@@ -5280,7 +5262,7 @@ def on_good_answer(before_state=None, *, defer_commit=False):
         handler_key = review_action_handler_key(_state.current_skill)
         review_ctx = _runtime_action_context()
         review_ctx.save_player_data = lambda: None
-        _begin_review_feedback_context()
+        _begin_review_feedback_context(before_state.get("player_data", before_state))
         try:
             if has_farm_step:
                 # A consumed or execution-time-invalid Farming step owns this

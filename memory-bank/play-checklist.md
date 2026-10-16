@@ -52,6 +52,7 @@ you are in the game, with the date the change reached main.
 
 ## Gathering and processing skills
 
+- [ ] In Prayer, choose Bury Bones with a whole-number XP total and answer four cards: the drops and event log show +4, +5, +4, +5 XP, and Prayer gains exactly 18.0 XP. Undo the last card and answer again: the drop is still +5. (Pass 16 ticket 09)
 - [ ] At Spirits of the Elid stage 2, keep Thread and choose Magic > Pure casts > Telegrab Ancestral key with one Air rune and one Law rune: a successful review gives the key; the next quest review advances to stage 3; Undo returns to stage 2, and a second Undo restores both runes and the Telegrab proof blocker. (after the next batch)
 - [ ] Open Utility > Gathering, select Collect evergreen sap with two Buckets and a tool-belt Knife, and answer one review: one Bucket becomes Bucket of sap and The Eyes of Glouphrie stage 3 loses its sap blocker; Undo restores the Bucket and blocker. Chopping must not clear it. (after the next batch)
 - [ ] Magic: at Enakhra's Lament stage 5, select Crumble Undead: First Boneguard with Magic 39 and 2 Air, 2 Earth and 1 Chaos rune; answer a card and see the named quest proof and Big bones; Undo restores runes and removes the proof. (after the next batch)

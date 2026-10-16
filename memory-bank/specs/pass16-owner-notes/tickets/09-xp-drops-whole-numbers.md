@@ -4,9 +4,9 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by sol-09
+**Status:** done by sol-09
 
-- [ ] Four real Bury reviews from a total ending in .0 show +4, +5, +4, +5, and the stored Prayer XP grows by 18.0.
-- [ ] A combat review that gains 0.8 Attack XP without crossing a whole number shows no Attack entry.
-- [ ] Multi-skill drops keep their per-skill breakdown with whole numbers.
-- [ ] The event log entry equals the popup text.
+- [x] Four real Bury reviews from a total ending in .0 show +4, +5, +4, +5, and the stored Prayer XP grows by 18.0.
+- [x] A combat review that gains 0.8 Attack XP without crossing a whole number shows no Attack entry.
+- [x] Multi-skill drops keep their per-skill breakdown with whole numbers.
+- [x] The event log entry equals the popup text.
