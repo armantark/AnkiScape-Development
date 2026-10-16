@@ -227,14 +227,20 @@ Mogres, Runecrafting and Prayer, and hit eleven separate problems:
 - The parked notes, on the Kanban: one-off item uses such as filling a water
   jug, with a manual cap per card, and a queue of actions so a run of
   resources does not end in Bankstanding.
-- 12 other 2012 quest choice rewards that the game lacks, among them Legends'
-  Quest, While Guthix Sleeps, Ritual of the Mahjarrat, and the Myths of the
-  White Lands 500 XP Antique lamp. On the Kanban.
-- The Waterbirth Island snape grass site, which needs The Fremennik Trials.
+- 12 other 2012 quest choice rewards that the game lacks, on the Kanban. Reward
+  revisions: A Tail of Two Cats 6430177, Legends' Quest 6529921, Shadow of the
+  Storm 6555496, Meeting History 6534402, Blood Runs Deep 6558062, While
+  Guthix Sleeps 6584290, The Void Stares Back 6549183, Ritual of the Mahjarrat
+  6564051, Branches of Darkmeyer 6588545, the third 23,000 XP Temple at
+  Senntisten lamp 6516464, Death Plateau 6547020, and the Myths of the White
+  Lands 500 XP Antique lamp 6555850.
+- The Waterbirth Island snape grass site: 27 clumps in 2012 (16 in Darkan),
+  needs The Fremennik Trials or a 1,000-coin trip (Snape grass oldid 6269500).
 - Glove protection when picking nettles and the second nettle the Skippy step
   consumes; both are qualified limits in the Mogre source audit.
 - Slayer task families gated on Priest in Peril for Morytania access; they may
-  rest on the same stale reading as Mazchna's gate. Surfaced, not fixed.
+  rest on the same stale reading as Mazchna's gate (Morytania oldid 6309115).
+  Surfaced, not fixed.
 - A Bank right-click "Bury" on bones (owner, 2026-10-15: it does not matter).
 
 ## Further Notes

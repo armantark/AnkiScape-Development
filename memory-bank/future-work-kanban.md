@@ -106,30 +106,17 @@ holds both lists.
 
 ### Pass 16 follow-ups — 2026-10-15
 
-From the Pass 16 grill; the build is `memory-bank/specs/pass16-owner-notes/`.
-Fact-finding citations: `/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/facts.md`.
+Sources and oldids: `memory-bank/specs/pass16-owner-notes/spec.md`, Out of Scope.
 
-- `PARKED` One-off item uses. Owner: "I think we should have some ability to
-  use/process items on each other one by one, although doing >28 manually in
-  a single 'tick' (i.e. card) should drag it out. and/or an automatic process
-  for some of these one-off items." His example is filling a water jug, not
-  bulk work such as burying bones, which targets already do.
-- `PARKED` Action queue. Owner: "be able to set up a queue of actions so
-  you're not stuck with bankstanding and can just focus on studying instead
-  of fiddling with the menu once you run out of resources on something".
-- `IMPLEMENT` 12 missing 2012 quest choice rewards (owner approved the card on
-  2026-10-15): A Tail of Two Cats 6430177, Legends' Quest 6529921, Shadow of
-  the Storm 6555496, Meeting History 6534402, Blood Runs Deep 6558062, While
-  Guthix Sleeps 6584290, The Void Stares Back 6549183, Ritual of the Mahjarrat
-  6564051, Branches of Darkmeyer 6588545, the third 23,000 XP Temple at
-  Senntisten lamp 6516464, Death Plateau 6547020, and the Myths of the White
-  Lands 500 XP Antique lamp 6555850 (oldids are the reward revisions). The
-  catalog parser drops choice XP not worded as a lamp.
-- `IMPLEMENT` Waterbirth Island snape grass: 27 clumps in 2012 (16 in Darkan),
-  needs The Fremennik Trials or a 1,000-coin trip (Snape grass oldid 6269500).
-- `SOURCE AUDIT` Slayer families gated on Priest in Peril for Morytania
-  access, for example banshees. Priest in Peril stopped gating Morytania in
-  March 2012 (Priest in Peril oldid 6487728, Morytania oldid 6309115).
+- `PARKED` One-off item uses, owner's example a water jug; >28 manual uses in
+  one card "should drag it out". Bulk work such as burying stays on targets.
+- `PARKED` An action queue, so a run out of resources does not end in Bankstanding.
+- `IMPLEMENT` 12 missing 2012 quest choice rewards (owner approved 2026-10-15);
+  the catalog parser drops choice XP not worded as a lamp.
+- `IMPLEMENT` Waterbirth Island snape grass, gated on The Fremennik Trials.
+- `SOURCE AUDIT` Slayer families gated on Priest in Peril for Morytania access.
+
+### Pass 14 follow-up — 2026-09-13
 
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 

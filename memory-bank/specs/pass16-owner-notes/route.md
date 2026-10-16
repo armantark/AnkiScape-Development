@@ -11,8 +11,9 @@ skip reason.
   Skip `prototype`: the one ungrillable question, quest filter spacing, is settled by before and after captures in its ticket, and the owner delegated it to Opus 5.5.
 - [ ] 3. **Branch: is this a multi-session build?** Yes → **`to-spec`** turns the thread into `memory-bank/specs/<slug>/spec.md`, then **`to-tickets`** cuts it into tracer-bullet tickets beside it, each with its blockers and a status line.
   `to-spec` done 2026-10-15: `spec.md`.
+  `to-tickets` done 2026-10-15: 12 tickets in `tickets/`, approved by the owner as proposed. They sit in `tickets/` because `ready.py` reads only that folder.
   - [ ] **`implement-spec`** for the whole spec in one run: it reads the tickets as a task graph, runs implementer agents in worktrees on every ready ticket in parallel, lands each on main, and ends with one `review`.
-    Repo adaptation: worktrees come from `tools/worktree_guard.py lease`, never raw `treehouse`; each landing goes through `tools/promotion_gate.py`.
+    Repo adaptation: worktrees come from `tools/worktree_guard.py lease`, never raw `treehouse`. Each ticket lands by fast-forward on the integration branch `goal/pass16-integration`, not on main, because main moves only through `tools/promotion_gate.py` and one full gate costs about 25 minutes of the shared MacBook mirror. After the final `review`, one gate with `--remote-lanes` lands the integration branch on main.
   - [ ] Each ticket is claimed, built at the seams and layers the spec names, and reviewed with **`review`**. The last ticket moves the spec directory to `specs/done/`.
   - Skip: **`implement`** per ticket in fresh windows; `implement-spec` covers the same tickets in one run.
   - Skip: **`arena`**; no ticket is a one-shot artifact whose shape is in doubt.
