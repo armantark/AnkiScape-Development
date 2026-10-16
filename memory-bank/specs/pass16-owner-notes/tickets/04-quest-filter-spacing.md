@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** open
+**Status:** claimed by opus-04
 
 - [ ] A before capture of the Quests tab at 720 px wide and 560 px tall is saved with the ticket evidence.
 - [ ] After the change, the checkboxes and label-and-box pairs share one baseline per line, and the gaps follow one scale.

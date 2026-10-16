@@ -43,6 +43,11 @@ integration branch, runs the final review and the promotion gate.
 - Before you commit, run the full plain lane once:
   `python3 run_tests.py` from your worktree. The promotion gate runs the full
   offscreen Qt lane later; you run the Qt tests your change touches.
+  Homebrew `python3` has no Pillow, so three tests fail in the local plain
+  lane on the base too: `test_every_small_ui_asset_is_tight_cropped`,
+  `test_shop_outputs_and_period_activity_icon_are_reachable` and
+  `test_vinesweeper_logic_does_not_mutate_input`. Report them as known; any
+  other failure is yours.
 - A ticket that changes what the player sees: build the main menu offscreen at
   560 px tall (and 720 px wide where the ticket says so) after `show()`,
   `resize()` and several `processEvents()` passes, check `text_fit_defects`,
