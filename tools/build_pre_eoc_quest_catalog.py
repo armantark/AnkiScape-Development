@@ -2047,7 +2047,7 @@ def _lamp_minimum_level(line: str) -> int:
         r"at least level\s+(\d+)",
         r"at or over level\s+(\d+)",
         r"level\s+(\d+)\s+or (?:above|higher|over)",
-        r"level\s+(\d+)\+",
+        r"level\s+(\d+)(?:\+|\s+required)",
     ):
         match = re.search(pattern, lower)
         if match:

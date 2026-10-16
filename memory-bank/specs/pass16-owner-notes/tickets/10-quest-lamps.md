@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by opus-10
+**Status:** done
 
-- [ ] Completing Stolen Hearts through real reviews shows a message that names its waiting lamps.
-- [ ] The Stolen Hearts Agility and Thieving lamps and the Myths of the White Lands Agility reward pay on "Claim" with no dialog.
-- [ ] A choice lamp opens the grid even when only one allowed skill meets the minimum.
-- [ ] Destroy asks for confirmation; on confirm the row leaves Bank Claims and never returns; Undo restores it.
-- [ ] The Elder Kiln lamp needs level 75.
-- [ ] Offscreen Qt capture of Bank Claims rows and the confirmation at 560 px with clean text-fit checks; one play-checklist line.
+- [x] Completing Stolen Hearts through real reviews shows a message that names its waiting lamps.
+- [x] The Stolen Hearts Agility and Thieving lamps and the Myths of the White Lands Agility reward pay on "Claim" with no dialog.
+- [x] A choice lamp opens the grid even when only one allowed skill meets the minimum.
+- [x] Destroy asks for confirmation; on confirm the row leaves Bank Claims and never returns; Undo restores it.
+- [x] The Elder Kiln lamp needs level 75.
+- [x] Offscreen Qt capture of Bank Claims rows and the confirmation at 560 px with clean text-fit checks; one play-checklist line.

@@ -33423,7 +33423,7 @@ PRE_EOC_QUEST_CATALOG = ({'id': 'cooks_assistant',
                     'quantity': 1,
                     'amount': 100000,
                     'skill_options': ('attack', 'defense', 'magic', 'ranged', 'strength'),
-                    'minimum_level': 1,
+                    'minimum_level': 75,
                     'source': 'https://runescape.wiki/w/The_Elder_Kiln?oldid=6579162',
                     'source_text': 'One 100,000 experience lamp for either Attack, Strength, Defence, Magic or Ranged '
                                    '(Level 75 required; not bankable; cannot be reobtained after destroying)'},),

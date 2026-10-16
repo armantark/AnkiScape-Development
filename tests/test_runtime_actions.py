@@ -22,7 +22,7 @@ from ankiscape.runtime import runtime_actions
 from ankiscape.runtime import runtime_actions_activities
 from ankiscape.runtime import runtime_actions_carried
 from ankiscape.runtime import runtime_actions_combat
-from ankiscape.runtime import runtime_actions_production
+from ankiscape.runtime import runtime_actions_quest
 
 from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
@@ -3457,7 +3457,7 @@ class TestRuntimeActions(unittest.TestCase):
 
     def test_quest_completion_reports_a_clue_produced_by_its_final_stage(self):
         quest_id = "do_no_evil"
-        quest_data = copy.deepcopy(runtime_actions_production.QUEST_DATA)
+        quest_data = copy.deepcopy(runtime_actions_quest.QUEST_DATA)
         quest = quest_data[quest_id]
         final_stage = int(quest["stages"]) - 1
         final_requirement = next(
@@ -3487,7 +3487,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
 
-        with patch.object(runtime_actions_production, "QUEST_DATA", quest_data):
+        with patch.object(runtime_actions_quest, "QUEST_DATA", quest_data):
             self.assertTrue(handle_quest_answer(_context(player_data, calls)))
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])

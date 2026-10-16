@@ -55,6 +55,7 @@ from .logic_pure.logic_pure import (
     start_quest_pure,
     apply_quest_route_choice_pure,
     apply_claim_pure,
+    apply_destroy_claim_pure,
     apply_safe_combat_recovery_pure,
     advance_temporary_effects_pure,
     combat_dream_thrift_locked_reasons_pure,
@@ -4473,6 +4474,7 @@ def _on_main_menu(
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
+        on_destroy_claim=on_destroy_claim,
         on_claim_stronghold_reward=_claim_stronghold_reward,
         on_mage_arena_action=_apply_mage_arena_action,
         on_set_floating_enabled=_set_floating_enabled,
@@ -4752,34 +4754,31 @@ def on_set_quest_route_choice(quest_id, route_id):
 
 
 def on_claim_reward(claim_id, selected_skill_id=None):
-    before = {"player_data": copy.deepcopy(_state.player_data), "random_state": random.getstate()}
     exp_before = _implemented_exp_keys_snapshot()
-    new_data, ok = apply_claim_pure(_state.player_data, claim_id, CLAIM_DATA, selected_skill_id)
-    if not ok:
+
+    def _after_apply():
+        _show_quest_exp_delta(exp_before)
+        check_achievements(_state.player_data)
+
+    if not commit_direct_action(
+        lambda current: apply_claim_pure(current, claim_id, CLAIM_DATA, selected_skill_id),
+        after_apply=_after_apply,
+    ):
         show_error_message("Cannot claim reward", "That claim is not available right now.")
         return False
-    try:
-        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-    except (AttributeError, RuntimeError):
-        return False
-    _state.direct_action_undo_stack.append(before)
-    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    _state.player_data.clear()
-    _state.player_data.update(new_data)
-    _show_quest_exp_delta(exp_before)
-    check_achievements(_state.player_data)
-    save_player_data()
     _refresh_skill_availability()
-    try:
-        mw.update_undo_actions()
-    except AttributeError:
-        pass
     try:
         update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
+
+
+def on_destroy_claim(claim_id):
+    if commit_direct_action(lambda current: apply_destroy_claim_pure(current, claim_id, CLAIM_DATA)):
+        return True
+    show_error_message("Cannot destroy lamp", "That lamp is no longer in Bank Claims.")
+    return False
 
 
 def _claim_stronghold_reward() -> bool:

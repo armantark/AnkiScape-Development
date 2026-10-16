@@ -420,9 +420,9 @@ class DialogLifecycleTest(unittest.TestCase):
                 constants.ORE_DATA,
                 constants.ITEM_DEFINITIONS,
             )
-            player["quests"]["the_elder_kiln"] = {
+            player["quests"]["dream_mentor"] = {
                 "started": True,
-                "progress": constants.QUEST_DATA["the_elder_kiln"]["stages"],
+                "progress": constants.QUEST_DATA["dream_mentor"]["stages"],
                 "completed": True,
             }
             addon._state.player_data = player
@@ -439,15 +439,15 @@ class DialogLifecycleTest(unittest.TestCase):
             addon.ui.QDialog = ClosingDialog
             with allow_modal_dialogs():
                 self.assertTrue(
-                    addon.on_claim_reward("the_elder_kiln_xp_lamp_1", "attack")
+                    addon.on_claim_reward("dream_mentor_xp_lamp_1", "strength")
                 )
 
-        self.assertEqual(player["attack_exp"], 100_000)
-        self.assertEqual(player["attack_level"], 49)
-        self.assertEqual(transitions, ["Level 1 → 49"])
+        self.assertEqual(player["strength_exp"], 15_000)
+        self.assertEqual(player["strength_level"], 31)
+        self.assertEqual(transitions, ["Level 1 → 31"])
         self.assertEqual(
             [event["text"] for event in player["review_event_log"]],
-            [f"Attack advanced to level {level}" for level in range(2, 50)],
+            [f"Strength advanced to level {level}" for level in range(2, 32)],
         )
 
     def test_slayer_completion_dialog_uses_the_level_up_surface(self) -> None:

@@ -1089,30 +1089,30 @@ def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
     data["pending_skill_exp_rewards"] = clean_pending
 
 
+def _clean_claim_state(raw_state: Any, default_state: Dict[str, Any]) -> Dict[str, Any]:
+    if isinstance(raw_state, bool):
+        raw_state = {"claimed": raw_state, "delivered": raw_state}
+    if not isinstance(raw_state, dict):
+        return default_state
+    claimed = bool(raw_state.get("claimed", default_state["claimed"]))
+    clean_state = {"claimed": claimed}
+    if "delivered" in default_state:
+        clean_state["delivered"] = claimed or bool(raw_state.get("delivered", default_state["delivered"]))
+    # A destroyed lamp must stay gone after a reload.
+    if raw_state.get("forfeited"):
+        clean_state["forfeited"] = True
+    return clean_state
+
+
 def _migrate_claim_state(data: Dict[str, Any]) -> None:
     claims = data.get("claims")
     clean_claims = default_claim_states()
     if isinstance(claims, dict):
         for claim_id, default_state in clean_claims.items():
-            raw_state = claims.get(claim_id)
-            if isinstance(raw_state, dict):
-                claimed = bool(raw_state.get("claimed", default_state["claimed"]))
-                clean_state = {"claimed": claimed}
-                if "delivered" in default_state:
-                    clean_state["delivered"] = claimed or bool(
-                        raw_state.get("delivered", default_state["delivered"])
-                    )
-                clean_claims[claim_id] = clean_state
-            elif isinstance(raw_state, bool):
-                clean_claims[claim_id] = {"claimed": raw_state}
-                if "delivered" in default_state:
-                    clean_claims[claim_id]["delivered"] = raw_state
+            clean_claims[claim_id] = _clean_claim_state(claims.get(claim_id), default_state)
         for claim_id in DIARY_LAMP_CLAIM_IDS_BY_TIER.values():
-            raw_state = claims.get(claim_id)
-            if isinstance(raw_state, dict):
-                clean_claims[claim_id] = {"claimed": bool(raw_state.get("claimed", False))}
-            elif isinstance(raw_state, bool):
-                clean_claims[claim_id] = {"claimed": raw_state}
+            if isinstance(claims.get(claim_id), (bool, dict)):
+                clean_claims[claim_id] = _clean_claim_state(claims[claim_id], {"claimed": False})
     data["claims"] = clean_claims
 
 

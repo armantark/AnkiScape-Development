@@ -84,7 +84,8 @@ def _stronghold_lamp_claim_status(
         raw_claim_state = claims.get(claim_id)
         claim_state = raw_claim_state if isinstance(raw_claim_state, Mapping) else {}
         delivered = bool(claim_state.get("delivered"))
-        claimed = delivered and bool(claim_state.get("claimed"))
+        # A destroyed lamp is settled for the route just as a claimed one is.
+        claimed = delivered and bool(claim_state.get("claimed") or claim_state.get("forfeited"))
         if delivered and not claimed:
             pending_claim_ids.append(claim_id)
         claimed_count += int(claimed)

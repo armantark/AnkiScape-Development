@@ -258,8 +258,10 @@ from .logic_pure_claims import (  # noqa: F401  (re-export)
     _claim_bundle_items,
     _skill_level_for_reward,
     apply_claim_pure,
+    apply_destroy_claim_pure,
     claim_locked_reasons_pure,
     claim_rows_pure,
+    quest_lamps_waiting_text_pure,
 )
 
 from .logic_pure_quest import (  # noqa: F401  (re-export)
@@ -741,8 +743,6 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
     quest_state_pure,
     sanitize_quest_combat_active_encounters_pure,
 )
-
-
 
 
 
