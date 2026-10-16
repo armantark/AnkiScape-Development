@@ -68,6 +68,7 @@ you are in the game, with the date the change reached main.
 - [ ] Runecrafting: Astral runes open after Lunar Diplomacy with level 40 and Pure essence; no Astral talisman is asked for. (2026-09-28)
 - [ ] Runecrafting: combination runes use only what is in your pack, and Magic Imbue still saves the talisman. (2026-09-28)
 - [ ] Bank/Equipment: right-click the Wicked hood, withdraw essence into the Runecrafting pack, check fed rune and teleport choices and lock reasons; Auto Runecrafting packs a fed unworn hood. (2026-10-15)
+- [ ] Bank: right-click an Air talisman or Air tiara, choose Feed to Wicked hood, see the item consumed and Air altar unlocked, then Undo to restore the item, hood state and Runecrafting XP; Runecrafting has no Hood feeding group. (Pass 16 ticket 12)
 - [ ] Runecrafting: a Wicked hood teleport to the altar gives your Summoning points back, as a walk there does. (2026-09-28)
 - [ ] Cooking: with the fish's Gauntlets setting on Casual, you keep your Brawling gloves when Cooking gauntlets would not stop a burn. (2026-09-28)
 - [ ] Fletching headless arrows answers quickly, also with a very large bank. (2026-09-28)

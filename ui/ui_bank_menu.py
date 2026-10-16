@@ -15,7 +15,7 @@ from ..data.great_orb_project_data import GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_
 from ..data.impling_jar_data import IMPLING_JAR_DATA
 from ..data.pack_data import ITEM_PACK_DATA
 from ..data.trouble_brewing_data import TROUBLE_BREWING_RUMS_BY_ITEM
-from ..logic.wicked_hood_logic import WICKED_HOOD_ITEM, wicked_hood_view_pure
+from ..logic.wicked_hood_logic import WICKED_HOOD_ITEM, wicked_hood_feed_view_pure, wicked_hood_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic.trouble_brewing_logic import trouble_brewing_view_pure
 from ..logic_pure.logic_pure import can_equip_item_pure, full_urn_teleport_info_pure
@@ -173,6 +173,24 @@ def _add_wicked_hood(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> Non
                 QMessageBox.information(ctx.bank_frame, "Wicked hood", str(result.get("message", result.get("reason", ""))))
 
         action.triggered.connect(operate)
+    menu.addSeparator()
+
+
+def _add_hood_feed(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
+    view = wicked_hood_feed_view_pure(ctx.player_data, item_name)
+    if view is None:
+        return
+    action = menu.addAction("Feed to Wicked hood")
+    action.setEnabled(view["enabled"] and ctx.on_wicked_hood_command is not None)
+    action.setToolTip(view["reason"])
+
+    def feed(_checked=False):
+        result = ctx.on_wicked_hood_command("feed", {"item": item_name}) or {}
+        ctx.refresh_equipment_views(refresh_visible_skill=True)
+        if not result.get("ok"):
+            QMessageBox.information(ctx.bank_frame, "Wicked hood", str(result.get("message", result.get("reason", ""))))
+
+    action.triggered.connect(feed)
     menu.addSeparator()
 
 
@@ -465,6 +483,7 @@ def build_bank_item_menu(ctx: BankMenuContext, item_name: str) -> "QMenu":
     )
 
     _add_wicked_hood(menu, ctx, item_name)
+    _add_hood_feed(menu, ctx, item_name)
     _add_equip(menu, ctx, item_name)
     _add_consumable(menu, ctx, item_name)
     _add_trouble_brewing_rum(menu, ctx, item_name)

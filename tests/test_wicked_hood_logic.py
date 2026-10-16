@@ -3,8 +3,7 @@ import unittest
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.logic.inventory_pure import sanitize_bank_run_state
-from ankiscape.logic_pure.logic_pure import apply_runecrafting_action_pure
-from ankiscape.core.constants import RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA
+from ankiscape.core.constants import RUNECRAFTING_DATA
 from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
 from ankiscape.logic.wicked_hood_logic import (
     advance_wicked_hood_review_day_pure,
@@ -32,6 +31,33 @@ def _player():
 
 
 class TestWickedHoodLogic(unittest.TestCase):
+    def test_retired_feeding_targets_load_as_air_runes(self):
+        for target in ("feed_air_talisman_to_hood", "feed_omni_tiara_to_hood"):
+            with self.subTest(target=target):
+                player = _player()
+                player["current_runecrafting"] = target
+                loaded = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
+                self.assertEqual(loaded["current_runecrafting"], "craft_air_runes")
+                self.assertNotIn(target, RUNECRAFTING_DATA)
+
+    def test_tiara_elemental_and_omni_feeds_keep_existing_upgrade_rules(self):
+        player = _player()
+        for item, key, value in (("Air tiara", "fed_altars", ["air"]),
+                                 ("Elemental talisman", "elemental_fed", True),
+                                 ("Omni-tiara", "omni_fed", True)):
+            with self.subTest(item=item):
+                player["inventory"][item] = 1
+                player, ok, info = apply_wicked_hood_command_pure(player, "feed", {"item": item})
+                self.assertTrue(ok, info)
+                self.assertEqual(player["inventory"][item], 0)
+                self.assertEqual(player["wicked_hood"][key], value)
+                self.assertEqual(info["feed_xp"], 50)
+        self.assertEqual(player["wicked_hood"]["rune_withdrawals_remaining"], 2)
+        player["inventory"]["Omni-talisman"] = 1
+        _, ok, info = apply_wicked_hood_command_pure(player, "feed", {"item": "Omni-talisman"})
+        self.assertFalse(ok)
+        self.assertEqual(info["reason"], "The Wicked hood has already been fed this altar's talisman or tiara.")
+
     def test_route_partition_preserves_baseline_and_skips_only_outbound(self):
         full = runecrafting_route_phases_pure(20)
         teleported = runecrafting_route_phases_pure(20, skip_outbound=True)
@@ -165,11 +191,8 @@ class TestWickedHoodLogic(unittest.TestCase):
         player = _player()
         player["inventory"]["Omni-talisman"] = 1
 
-        fed, _xp, ok, _message = apply_runecrafting_action_pure(
-            player,
-            "feed_omni_talisman_to_hood",
-            RUNECRAFTING_DATA,
-            RUNECRAFTING_POUCH_DATA,
+        fed, ok, _info = apply_wicked_hood_command_pure(
+            player, "feed", {"item": "Omni-talisman"},
         )
         self.assertTrue(ok)
         self.assertTrue(fed["wicked_hood"]["omni_fed"])

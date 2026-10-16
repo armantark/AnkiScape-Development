@@ -4,11 +4,25 @@
 
 **Blocked by:** 01 (Bank right-click menu in its own module), 11 (Wicked hood right-click menu)
 
-**Status:** claimed by sol-12
+**Status:** done
 
-- [ ] Right-clicking an air talisman with a hood owned offers "Feed to Wicked hood"; feeding unlocks the Air altar in the hood menu and consumes the talisman.
-- [ ] Undo restores the talisman and the hood's previous state.
-- [ ] An already-fed talisman or one the hood cannot take shows no feed entry, or a disabled one with the reason.
-- [ ] The "Hood feeding" target group is gone, with no stale save pointing at it.
-- [ ] The feed XP is sourced, or registered as a placeholder.
-- [ ] Offscreen Qt capture of the talisman menu at 560 px with clean text-fit checks; one play-checklist line.
+- [x] Right-clicking an air talisman with a hood owned offers "Feed to Wicked hood"; feeding unlocks the Air altar in the hood menu and consumes the talisman.
+- [x] Undo restores the talisman and the hood's previous state.
+- [x] An already-fed talisman or one the hood cannot take shows no feed entry, or a disabled one with the reason.
+- [x] The "Hood feeding" target group is gone, with no stale save pointing at it.
+- [x] The feed XP is sourced, or registered as a placeholder.
+- [x] Offscreen Qt capture of the talisman menu at 560 px with clean text-fit checks; one play-checklist line.
+
+## Feed XP source
+
+Darkan checkout `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server`, commit `1912a55cb245cc4410e51b200f9ad4c5e480510f`, awards 50 Runecrafting XP at `src/main/java/com/rs/net/decoders/handlers/InventoryOptionsHandler.java:115`, immediately after consuming the item at line 114. The feed branch spans lines 97–131. `git blame` attributes the XP line to original Darkan commit `bc2a69e481`, not a restoration probe. The ticket explicitly selects Darkan's amount when found; this is implementation evidence, not independent closure of the unknown amount in Talk:Wicked hood oldid 6341451 (2012-10-03T14:41:48Z). No placeholder value is needed.
+
+Retired feed IDs use the existing unknown-target sanitation in `core/storage_pure.py` (`_migrate_runecrafting_target`) and become `craft_air_runes`. The Bank menu renders the feed view; the direct hood command owns refusal, consumption and upgrades. The shared direct-action transaction awards XP and restores the complete save on Undo.
+
+## Verification
+
+- Focused plain: 90 tests passed. Registry suite after its retired-target count was updated: 69 tests passed.
+- Offscreen Qt: 13 tests passed, including talisman feeding, tiara feeding, disabled repeated feeds, the removed group and text fit at 720 × 560. Before/after captures and clean fit records are under `/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/evidence/12/`.
+- Real review-handler probe: instant feed awards 50 XP without a card-clock change; the next review crafts all 28 essence using the fed hood, reaching 190 Runecrafting XP. Rune count follows the existing probabilistic multiplier.
+- Full plain: `Ran 5453 tests in 1152.025s`; `FAILED (failures=2, errors=2, skipped=608)`. Three are the brief's known local failures. The fourth was the obsolete 76-target registry assertion; it now expects the 49 remaining targets, and the complete registry suite passed. No gameplay code changed after that full run.
+- Documentation, test-quality, item-reachability and worktree audits passed; the diff has no whitespace errors. The integration promotion gate owns the full Qt and native checks.

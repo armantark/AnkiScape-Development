@@ -245,7 +245,6 @@ from .core.skill_registry import get_skill, trainable_skill_definitions
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .logic.wicked_hood_logic import (
     advance_wicked_hood_review_day_pure,
-    apply_wicked_hood_command_pure,
 )
 from .data.grand_exchange_data import GE_ITEM_CATALOG
 from .logic.grand_exchange_logic import (
@@ -1709,6 +1708,7 @@ def _on_main_menu(
     import sys
 
     from .core.menu_cooking import set_cooking_equipment_choice, set_cooking_target
+    from .core.menu_wicked_hood import apply_wicked_hood_command
     from .core.menu_loot import (
         current_combat_loot_rows,
         current_gathering_keep_drop_state,
@@ -4205,65 +4205,6 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
-    def _apply_wicked_hood_command(action_id, payload):
-        payload = dict(payload) if isinstance(payload, dict) else {}
-        if action_id == "teleport":
-            altar_id = str(payload.get("altar_id", "") or "")
-            target_id = next(
-                (
-                    candidate
-                    for candidate, spec in RUNECRAFTING_DATA.items()
-                    if spec.get("kind") == "standard"
-                    and spec.get("altar_id") == altar_id
-                ),
-                "",
-            )
-            quest_reasons = quest_unlock_locked_reasons_pure(
-                _state.player_data,
-                "runecrafting",
-                target_id,
-                QUEST_UNLOCK_RULES,
-            )
-            if quest_reasons:
-                payload["locked_reason"] = str(quest_reasons[0])
-        info = {}
-        # Scalar captured inside _change so a refusal is distinguishable from an
-        # undo-entry failure once commit_direct_action has reported False.
-        pure_ok = True
-
-        def _change(current):
-            nonlocal info, pure_ok
-            # The pure function edits its input in place, so hand it a copy:
-            # a refusal or an undo-entry failure must leave the live save
-            # untouched.
-            updated, ok, info = apply_wicked_hood_command_pure(
-                _capture_player_data_snapshot()["player_data"],
-                str(action_id),
-                payload,
-            )
-            pure_ok = bool(ok)
-            return updated, ok
-
-        if not commit_direct_action(
-            _change, after_apply=lambda: check_achievements(_state.player_data)
-        ):
-            if not pure_ok:
-                return {
-                    "ok": False,
-                    "message": str(
-                        info.get("reason", "That Wicked hood action is unavailable.")
-                    ),
-                }
-            return {"ok": False, "message": "Anki could not create an undo entry."}
-        _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
-        try:
-            update_review_hud(_state.player_data, _state.current_skill)
-        except AttributeError:
-            pass
-        return {"ok": True, **info}
-
     def _apply_slayer_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_combat_filter":
@@ -4368,7 +4309,7 @@ def _on_main_menu(
             "current_summoning", target
         ),
         on_summoning_command=_apply_summoning_command,
-        on_wicked_hood_command=_apply_wicked_hood_command,
+        on_wicked_hood_command=partial(apply_wicked_hood_command, sys.modules[__name__]),
         on_slayer_command=_apply_slayer_command,
         on_agility_command=_apply_agility_command,
         on_achievement_diary_command=_apply_achievement_diary_command,

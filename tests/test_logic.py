@@ -12297,15 +12297,13 @@ class TestLogic(unittest.TestCase):
         player_data["inventory"]["Air talisman"] = 1
         player_data["inventory"]["Rune essence"] = 28
 
-        fed_data, exp, ok, message = apply_runecrafting_action_pure(
-            player_data,
-            "feed_air_talisman_to_hood",
-            RUNECRAFTING_DATA,
-            RUNECRAFTING_POUCH_DATA,
+        from ankiscape.logic.wicked_hood_logic import apply_wicked_hood_command_pure
+        fed_data, ok, info = apply_wicked_hood_command_pure(
+            player_data, "feed", {"item": "Air talisman"},
         )
         self.assertTrue(ok)
-        self.assertEqual(exp, 0)
-        self.assertEqual(message, "Air talisman fed")
+        self.assertEqual(info["feed_xp"], 50)
+        self.assertEqual(info["message"], "Air talisman fed to the Wicked hood.")
         self.assertEqual(fed_data["inventory"]["Air talisman"], 0)
         self.assertEqual(fed_data["wicked_hood"]["fed_altars"], ["air"])
 

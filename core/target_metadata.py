@@ -1958,12 +1958,6 @@ def runecrafting_target_rows(
                 f"Materials: Runecrafting staff ({inventory.get('Runecrafting staff', 0)}), "
                 f"{talisman} ({inventory.get(talisman, 0)})"
             )
-        else:
-            input_item = str(spec.get("input_item", ""))
-            tooltip = (
-                f"Consumes {input_item} and stores its altar access in the Wicked hood.\n"
-                f"Materials: {input_item} ({inventory.get(input_item, 0)})"
-            )
 
         reasons = runecrafting_locked_reasons_pure(
             player_data,
