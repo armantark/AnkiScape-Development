@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 (Bank right-click menu in its own module)
 
-**Status:** open
+**Status:** claimed by sol-11
 
 - [ ] A Bank-held fed hood's menu withdraws essence into the current Runecrafting pack and the count drops.
 - [ ] The rune and teleport submenus list only fed altars, with counts and level locks.

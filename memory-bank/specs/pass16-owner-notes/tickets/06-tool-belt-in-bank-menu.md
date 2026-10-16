@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 (Bank right-click menu in its own module)
 
-**Status:** open
+**Status:** claimed by sol-06
 
 - [ ] Right-clicking a Bank Tiara mould shows "On tool belt" with the tooltip.
 - [ ] A tool that still needs adding keeps its existing "Add to tool belt" entry.
