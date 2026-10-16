@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by opus-03
+**Status:** done
 
-- [ ] Typing "bowl" in Utilities shows "Fill bowl with water" and hides non-matching rows; clearing the query restores the full tree.
-- [ ] The Activities list has the same bar and behavior.
-- [ ] Favourites, the context menu, the details stack and the landmarks group work on a filtered tree.
-- [ ] Filtering leaves the selected action unchanged.
-- [ ] Offscreen Qt capture at 560 px with clean text-fit checks; one play-checklist line.
+- [x] Typing "bowl" in Utilities shows "Fill bowl with water" and hides non-matching rows; clearing the query restores the full tree.
+- [x] The Activities list has the same bar and behavior.
+- [x] Favourites, the context menu, the details stack and the landmarks group work on a filtered tree.
+- [x] Filtering leaves the selected action unchanged.
+- [x] Offscreen Qt capture at 560 px with clean text-fit checks; one play-checklist line.

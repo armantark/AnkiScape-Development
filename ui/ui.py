@@ -87,7 +87,6 @@ from ..core.constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
     DEFAULT_WOODCUTTING_TARGET,
-    BIRD_NEST_OPEN_TABLES,
     BAR_DATA,
     SMITHING_DATA,
     DEFAULT_SMITHING_TARGET,
@@ -138,7 +137,6 @@ from ..core.constants import (
     FISHING_OUTPUT_ITEMS,
     RUNECRAFTING_GROUP_LABELS,
     UTILITY_ACTIVITY_DATA,
-    UTILITY_SURFACE_ID,
     ACTIVITY_SURFACE_ID,
     FAMILIARISATION_ACTIVITY_ID,
     DEFAULT_FIREMAKING_TARGET,
@@ -163,7 +161,6 @@ from ..core.constants import (
     HERBLORE_OUTPUT_ITEMS,
     SUMMONING_ITEM_IMAGES,
     TROUBLE_BREWING_ITEM_IMAGES,
-    UTILITY_ITEM_IMAGES,
     ACHIEVEMENTS,
     EQUIPMENT_SLOTS,
     EQUIPMENT_ITEM_DATA,
@@ -495,7 +492,7 @@ from ..logic_pure.logic_pure import (
     prayer_selection_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure
+from ..logic_pure.logic_pure import STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, landmark_hud_progress_pure
 
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS
 
@@ -535,7 +532,6 @@ from ..core.target_metadata import (
     thieving_target_rows,
     agility_target_rows,
     summoning_target_rows,
-    utility_activity_rows,
     woodcutting_target_rows,
 )
 
@@ -622,7 +618,6 @@ from ..logic.farming_logic import (
     farming_frontend_projection_pure,
 )
 from ..logic.dnd_favourites_logic import (
-    dnd_activity_display_name_pure,
     dnd_favourite_context_menu_view_pure,
     dnd_favourite_detail_button_view_pure,
 )
@@ -5301,6 +5296,7 @@ def show_main_menu(
 
     # ---- target list builders (one per implemented skill) ----
     from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
+    from .ui_utility_activity_list import UtilityActivityList
 
     def _build_flat_target_list(
         rows: tuple[TargetRowMetadata, ...],
@@ -8628,7 +8624,6 @@ def show_main_menu(
 
     def _build_utility_list(surface_name: str) -> QWidget:
         is_activities = surface_name == _ACTIVITIES_HUB_NAME
-        activity_group_role = int(Qt.ItemDataRole.UserRole) + 1
         container = QWidget()
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
@@ -20053,355 +20048,8 @@ def show_main_menu(
         )
         _refresh_livid_panel()
 
-        tree = QTreeWidget()
-        tree.setObjectName("utilityActivityTree")
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree_base = tree.palette().color(QPalette.ColorRole.Base)
-        activity_selection = QColor(
-            round((tree_base.red() * 0.70) + (76 * 0.30)),
-            round((tree_base.green() * 0.70) + (175 * 0.30)),
-            round((tree_base.blue() * 0.70) + (80 * 0.30)),
-        ).name()
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { min-height: 32px; padding: 5px;"
-            " border-radius: 6px; }"
-            f" QTreeWidget::item:selected {{ background: {activity_selection};"
-            " color: palette(text); }"
-            f" QTreeWidget::branch:selected {{ background: {activity_selection}; }}"
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
-        )
-        rows = utility_activity_rows(
-            player_data,
-            UTILITY_ACTIVITY_DATA,
-            {**UTILITY_ITEM_IMAGES, **COOKING_ITEM_IMAGES},
-            BIRD_NEST_OPEN_TABLES,
-            DEFAULT_UTILITY_ACTIVITY,
-            QUEST_UNLOCK_RULES,
-        )
-        surface_id = ACTIVITY_SURFACE_ID if is_activities else UTILITY_SURFACE_ID
-        rows = tuple(
-            row
-            for row in rows
-            if UTILITY_ACTIVITY_DATA.get(row.target_id, {}).get("surface")
-            == surface_id
-        )
-        current = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
-        if is_activities:
-            rows = (
-                *rows,
-                TargetRowMetadata(
-                    target_id=EVIL_TREE_UTILITY_ID,
-                    label=dnd_activity_display_name_pure(EVIL_TREE_UTILITY_ID),
-                    tooltip=(
-                        "A review-clock world event. Open its panel for the live "
-                        "tree, blessing, and participation status."
-                    ),
-                    current=current == EVIL_TREE_UTILITY_ID,
-                    icon_path=_ACTIVITY_GROUP_ICONS["distractions_and_diversions"],
-                    group="distractions_and_diversions",
-                ),
-            )
-        ordered_groups = list(_UTILITY_GROUP_LABELS)
-        groups = {group: [] for group in ordered_groups}
-        for row in rows:
-            spec = UTILITY_ACTIVITY_DATA.get(row.target_id, {})
-            group = str(spec.get("group") or row.group or "material_processing")
-            if group not in groups:
-                groups[group] = []
-                ordered_groups.append(group)
-            groups[group].append(row)
-
-        collapsed_activity_groups = (
-            activity_collapsed_groups() if is_activities else set()
-        )
-        selected_child = None
-        for group in ordered_groups:
-            group_rows = groups.get(group, [])
-            if not group_rows or (is_activities and group == "landmarks"):
-                continue
-            if is_activities:
-                group_rows = sorted(
-                    group_rows,
-                    key=lambda row: str(row.label).casefold(),
-                )
-            flat_activity_group = (
-                is_activities and group in _ACTIVITY_SELECTION_GROUPS
-            )
-            parent = None
-            if not flat_activity_group:
-                label = _UTILITY_GROUP_LABELS.get(
-                    group, group.replace("_", " ").title()
-                )
-                parent_text = f"{label}  ({len(group_rows)})"
-                parent = QTreeWidgetItem([parent_text])
-                parent.setData(
-                    0,
-                    Qt.ItemDataRole.UserRole,
-                    f"__utility_group__:{group}",
-                )
-                parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-                font = parent.font(0)
-                font.setBold(True)
-                parent.setFont(0, font)
-                tree.addTopLevelItem(parent)
-            group_has_current = False
-            for row in group_rows:
-                child = QTreeWidgetItem([row.label])
-                child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
-                child.setData(0, activity_group_role, group)
-                if row.icon_path and os.path.exists(row.icon_path):
-                    icon = _pixel_path_icon(row.icon_path, 28)
-                    if icon is not None:
-                        child.setIcon(0, icon)
-                if (
-                    not row.enabled
-                    and row.target_id
-                    not in {
-                        WEREWOLF_SKULLBALL_ACTIVITY_ID,
-                        GNOME_BALL_ACTIVITY_ID,
-                        FISHING_TRAWLER_ACTIVITY_ID,
-                        GREAT_ORB_PROJECT_ACTIVITY_ID,
-                        MANAGING_MISCELLANIA_ACTIVITY_ID,
-                    }
-                ):
-                    child.setDisabled(True)
-                child.setToolTip(0, row.tooltip)
-                if parent is None:
-                    tree.addTopLevelItem(child)
-                else:
-                    parent.addChild(child)
-                if row.target_id == current:
-                    selected_child = child
-                    group_has_current = True
-            if is_activities and parent is not None:
-                parent.setExpanded(group not in collapsed_activity_groups)
-            elif parent is not None:
-                parent.setExpanded(group_has_current)
-
-        # Landmarks: the one-time Stronghold of Security. Injected by hand because
-        # it is a step counter, not a repeatable UTILITY_ACTIVITY_DATA activity.
-        sh_state = player_data.get("stronghold_of_security") or {}
-        sh_completed = bool(sh_state.get("completed"))
-        sh_claimed = sh_state.get("boots_choice") is not None
-        sh_step = max(0, min(int(sh_state.get("step", 0) or 0), STRONGHOLD_TOTAL_STEPS))
-        if sh_completed and not sh_claimed:
-            sh_label = "Stronghold of Security — Claim your reward ✨"
-            sh_tooltip = (
-                f"Cleared! Click to choose your boots and collect {STRONGHOLD_REWARD_COINS:,} coins."
-            )
-        elif sh_completed:
-            sh_label = f"Stronghold of Security ✓  ({sh_state.get('boots_choice')})"
-            sh_tooltip = "Completed. Reward already claimed."
-        else:
-            next_name = STRONGHOLD_STEP_NAMES[sh_step] if sh_step < STRONGHOLD_TOTAL_STEPS else STRONGHOLD_STEP_NAMES[-1]
-            sh_label = f"Stronghold of Security — {sh_step}/{STRONGHOLD_TOTAL_STEPS}  (next: {next_name})"
-            sh_tooltip = (
-                "A one-time landmark. Set it as your activity and each review clears "
-                "one level. No XP along the way, but coins and boots at the end."
-            )
-        landmark_rows = groups.get("landmarks", []) if is_activities else []
-        landmark_count = 3 + len(landmark_rows)
-        landmark_parent = QTreeWidgetItem([f"Landmarks  ({landmark_count})"])
-        landmark_parent.setData(0, Qt.ItemDataRole.UserRole, "__utility_group__:landmarks")
-        landmark_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-        lm_font = landmark_parent.font(0)
-        lm_font.setBold(True)
-        landmark_parent.setFont(0, lm_font)
-        if is_activities:
-            tree.addTopLevelItem(landmark_parent)
-        sh_child = QTreeWidgetItem([sh_label])
-        sh_child.setData(0, Qt.ItemDataRole.UserRole, _STRONGHOLD_UTILITY_KEY)
-        sh_child.setToolTip(0, sh_tooltip)
-        sh_icon = os.path.join(current_dir, "icon", "attack_icon.png")
-        if os.path.exists(sh_icon):
-            icon = _pixel_path_icon(sh_icon, 28)
-            if icon is not None:
-                sh_child.setIcon(0, icon)
-        if sh_completed and sh_claimed:
-            sh_child.setDisabled(True)
-        landmark_parent.addChild(sh_child)
-        for row in landmark_rows:
-            child = QTreeWidgetItem([row.label])
-            child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
-            if row.icon_path and os.path.exists(row.icon_path):
-                icon = _pixel_path_icon(row.icon_path, 28)
-                if icon is not None:
-                    child.setIcon(0, icon)
-            child.setToolTip(0, row.tooltip)
-            landmark_parent.addChild(child)
-            if row.target_id == current:
-                selected_child = child
-                landmark_parent.setExpanded(True)
-
-        kw_state = player_data.get("knight_waves") or {}
-        kw_step = max(0, min(int(kw_state.get("step", 0) or 0), KNIGHT_WAVES_TOTAL_STEPS))
-        kw_completed = bool(kw_state.get("completed"))
-        kw_locked = knight_waves_locked_reasons_pure(player_data)
-        kw_label = "Knight Waves Training Ground ✓" if kw_completed else f"Knight Waves Training Ground — {kw_step}/{KNIGHT_WAVES_TOTAL_STEPS}"
-        kw_child = QTreeWidgetItem([kw_label])
-        kw_child.setData(0, Qt.ItemDataRole.UserRole, _KNIGHT_WAVES_UTILITY_KEY)
-        kw_child.setToolTip(
-            0,
-            "Defeat eight knights, one per review. Completion grants 20,000 XP in Attack, Strength, Defence, and Constitution and unlocks Chivalry/Piety."
-            + (f"\nLocked due to: {', '.join(kw_locked)}" if kw_locked and not kw_completed else ""),
-        )
-        kw_icon = os.path.join(current_dir, "icon", "prayer_icon.png")
-        if os.path.exists(kw_icon):
-            icon = _pixel_path_icon(kw_icon, 28)
-            if icon is not None:
-                kw_child.setIcon(0, icon)
-        if kw_completed or kw_locked:
-            kw_child.setDisabled(True)
-        landmark_parent.addChild(kw_child)
-        ma_state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
-        ma_step = max(0, min(int(ma_state.get("step", 0) or 0), MAGE_ARENA_TOTAL_STEPS))
-        ma_completed = bool(ma_state.get("completed"))
-        ma_alignment = str(ma_state.get("alignment", "") or "")
-        ma_locked = mage_arena_locked_reasons_pure(player_data)
-        alignment_label = (
-            MAGE_ARENA_GOD_DATA[ma_alignment]["display_name"]
-            if ma_alignment in MAGE_ARENA_GOD_DATA
-            else ""
-        )
-        ma_label = (
-            f"Mage Arena ✓ · {alignment_label or 'choose alignment'}"
-            if ma_completed
-            else f"Mage Arena — {ma_step}/{MAGE_ARENA_TOTAL_STEPS} Kolodion forms"
-        )
-        ma_child = QTreeWidgetItem([ma_label])
-        ma_child.setData(0, Qt.ItemDataRole.UserRole, _MAGE_ARENA_UTILITY_KEY)
-        ma_child.setToolTip(0, "Defeat Kolodion's five forms, one per review. Choose an alignment before the final form; completion grants its cape, staff, and attunement."
-                            + (f"\nLocked due to: {', '.join(ma_locked)}" if ma_locked and not ma_completed else ""))
-        ma_icon = os.path.join(current_dir, "icon", "magic_icon.png")
-        if os.path.exists(ma_icon):
-            icon = _pixel_path_icon(ma_icon, 28)
-            if icon is not None:
-                ma_child.setIcon(0, icon)
-        if ma_completed or ma_locked:
-            ma_child.setDisabled(True)
-        landmark_parent.addChild(ma_child)
-        if ma_step == MAGE_ARENA_TOTAL_STEPS - 1 and not ma_completed:
-            alignment_parent = QTreeWidgetItem(["Choose alignment for the final form"])
-            alignment_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            landmark_parent.addChild(alignment_parent)
-            for god_id, row in MAGE_ARENA_GOD_DATA.items():
-                alignment_item = QTreeWidgetItem([row["display_name"]])
-                alignment_item.setData(
-                    0,
-                    Qt.ItemDataRole.UserRole,
-                    f"__mage_alignment__:{god_id}",
-                )
-                alignment_item.setToolTip(
-                    0,
-                    f"Final victory grants the {row['cape']} and {row['staff']} and attunes {row['spell_name']}.",
-                )
-                alignment_parent.addChild(alignment_item)
-            alignment_parent.setExpanded(True)
-        if ma_completed:
-            statue_parent = QTreeWidgetItem(["Mage Arena statues"])
-            statue_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            landmark_parent.addChild(statue_parent)
-            inventory = player_data.get("inventory", {}) or {}
-            equipment = player_data.get("equipment", {}) or {}
-            attuned = set(ma_state.get("attuned_spells", ()))
-            for god_id, row in MAGE_ARENA_GOD_DATA.items():
-                cape_label = (
-                    f"Choose {row['cape']}"
-                    if not ma_alignment
-                    else (
-                        f"Reclaim {row['cape']}"
-                        if god_id == ma_alignment
-                        else f"Switch to {row['cape']}"
-                    )
-                )
-                cape_item = QTreeWidgetItem([cape_label])
-                cape_item.setData(
-                    0,
-                    Qt.ItemDataRole.UserRole,
-                    f"__mage_cape__:{god_id}",
-                )
-                cape_item.setToolTip(
-                    0,
-                    "Instant statue action. Any other god cape is destroyed or replaced; only one may be owned.",
-                )
-                statue_parent.addChild(cape_item)
-                if row["spell_id"] not in attuned:
-                    staff_owned = (
-                        int(inventory.get(row["staff"], 0) or 0) > 0
-                        or row["staff"] in equipment.values()
-                    )
-                    attune_item = QTreeWidgetItem(
-                        [f"Attune {row['spell_name']} · one review"]
-                    )
-                    attune_item.setData(
-                        0,
-                        Qt.ItemDataRole.UserRole,
-                        f"mage_arena_attune:{god_id}",
-                    )
-                    attune_item.setToolTip(
-                        0,
-                        f"Represents 100 arena casts. Requires owning {row['staff']}."
-                        + ("" if staff_owned else f"\nMissing {row['staff']}."),
-                    )
-                    attune_item.setDisabled(not staff_owned)
-                    statue_parent.addChild(attune_item)
-            statue_parent.setExpanded(
-                str(current).startswith("mage_arena_attune:")
-            )
-        landmark_active = False
-        if current == _KNIGHT_WAVES_UTILITY_KEY and not kw_completed:
-            selected_child = kw_child
-            landmark_active = True
-        if current == _MAGE_ARENA_UTILITY_KEY and not ma_completed:
-            selected_child = ma_child
-            landmark_active = True
-        if current == _STRONGHOLD_UTILITY_KEY and not sh_completed:
-            selected_child = sh_child
-            landmark_active = True
-        if is_activities:
-            landmark_parent.setExpanded("landmarks" not in collapsed_activity_groups)
-        else:
-            landmark_parent.setExpanded(
-                landmark_active or (sh_completed and not sh_claimed)
-            )
-
-        if selected_child is not None:
-            ancestor = selected_child.parent()
-            while ancestor is not None:
-                ancestor.setExpanded(True)
-                ancestor = ancestor.parent()
-            tree.setCurrentItem(selected_child)
-            tree.scrollToItem(
-                selected_child,
-                QAbstractItemView.ScrollHint.PositionAtCenter,
-            )
-
-        def _activity_group_id(item) -> Optional[str]:
-            role = item.data(0, Qt.ItemDataRole.UserRole)
-            prefix = "__utility_group__:"
-            if isinstance(role, str) and role.startswith(prefix):
-                return role[len(prefix):]
-            return None
-
-        if is_activities:
-            tree.itemExpanded.connect(
-                lambda item: (
-                    _activity_group_id(item)
-                    and set_activity_group_collapsed(_activity_group_id(item), False)
-                )
-            )
-            tree.itemCollapsed.connect(
-                lambda item: (
-                    _activity_group_id(item)
-                    and set_activity_group_collapsed(_activity_group_id(item), True)
-                )
-            )
+        activity_list = UtilityActivityList(player_data, is_activities=is_activities)
+        tree = activity_list.tree
 
         def _set_utility_selection(
             activity_id: str, *, activate: bool = False
@@ -21465,6 +21113,7 @@ def show_main_menu(
             cards_stack.setVisible(show_detail)
             activity_change_button.setVisible(show_detail)
             _refresh_activity_favourite(activity_id, show_detail)
+            activity_list.filter_bar.setVisible(not show_detail)
             tree.setVisible(not show_detail)
             if not show_detail and tree.currentItem() is not None:
                 tree.scrollToItem(
@@ -21483,39 +21132,8 @@ def show_main_menu(
             world_events_refresher["call"]()
 
         def _show_activity_group(group: object) -> None:
-            selected_group = str(group or "")
-            if selected_group not in _ACTIVITY_SELECTION_GROUPS:
-                selected_group = ""
             _show_activity_detail("")
-            for index in range(tree.topLevelItemCount()):
-                item = tree.topLevelItem(index)
-                item_group = str(
-                    item.data(0, activity_group_role) or ""
-                )
-                is_selection_group = (
-                    item_group in _ACTIVITY_SELECTION_GROUPS
-                )
-                item.setHidden(
-                    item_group != selected_group
-                    if selected_group
-                    else is_selection_group
-                )
-            current_item = tree.currentItem()
-            if current_item is not None and current_item.isHidden():
-                tree.clearSelection()
-            if selected_group:
-                for index in range(tree.topLevelItemCount()):
-                    item = tree.topLevelItem(index)
-                    if (
-                        not item.isHidden()
-                        and item.data(0, Qt.ItemDataRole.UserRole) == current
-                    ):
-                        tree.setCurrentItem(item)
-                        tree.scrollToItem(
-                            item,
-                            QAbstractItemView.ScrollHint.PositionAtCenter,
-                        )
-                        break
+            activity_list.show_group(group)
 
         if is_activities:
             world_events_box = QtFrame()
@@ -21664,9 +21282,11 @@ def show_main_menu(
 
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)
-        _show_activity_detail(current if selected_child is not None else "")
-        tree.setMinimumHeight(140)
+        # Laid out before the first visibility call, which would otherwise show
+        # the parentless bar and tree as windows of their own.
+        container_layout.addWidget(activity_list.filter_bar)
         container_layout.addWidget(tree, 1)
+        _show_activity_detail(activity_list.marked_id)
         return container
 
     def _build_dungeoneering_panel() -> QScrollArea:
