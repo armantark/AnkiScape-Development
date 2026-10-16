@@ -8232,7 +8232,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("__runecrafting_group__:combination", group_roles)
         self.assertIn("__runecrafting_group__:tiara", group_roles)
         self.assertIn("__runecrafting_group__:staff", group_roles)
-        self.assertIn("__runecrafting_group__:hood", group_roles)
+        self.assertNotIn("__runecrafting_group__:hood", group_roles)
 
         air = _runecrafting_row(tree, "craft_air_runes")
         lava = _runecrafting_row(tree, "combo_lava_at_earth")
