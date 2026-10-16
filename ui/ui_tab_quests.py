@@ -71,6 +71,7 @@ def build_quests_tab(ctx) -> "QWidget":
     quest_top = QWidget()
     quest_top_layout = QHBoxLayout(quest_top)
     quest_top_layout.setContentsMargins(0, 0, 0, 0)
+    quest_top_layout.setSpacing(4)
     quest_points_label = QLabel(f"Quest points: {int(player_data.get('quest_points', 0) or 0)}")
     quest_points_label.setStyleSheet("font-weight: 600; color: palette(text);")
     sort_label = QLabel("Sort")
@@ -150,7 +151,7 @@ def build_quests_tab(ctx) -> "QWidget":
     quest_content = QWidget()
     quest_content_layout = QVBoxLayout(quest_content)
     quest_content_layout.setContentsMargins(0, 0, 0, 0)
-    quest_content_layout.setSpacing(10)
+    quest_content_layout.setSpacing(8)
 
     def _short_stage_blocker_text(reasons: tuple) -> str:
         if not reasons:
@@ -450,7 +451,7 @@ def build_quests_tab(ctx) -> "QWidget":
     def _add_section_heading(title: str) -> None:
         heading = QLabel(title)
         heading.setObjectName(f"questSection_{title}")
-        heading.setStyleSheet("font-weight: 700; color: palette(text); margin-top: 6px;")
+        heading.setStyleSheet("font-weight: 700; color: palette(text); margin-top: 8px;")
         quest_content_layout.addWidget(heading)
 
     def _rebuild_quest_cards() -> None:

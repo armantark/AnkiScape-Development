@@ -1680,7 +1680,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, stacked_pair, vertical_scroll, wrapped_label
+    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, side_pair, stacked_pair, vertical_scroll, wrapped_label
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -1702,7 +1702,7 @@ if HAS_QT:
             self.setObjectName(f"{search_object_name}Bar")
             root = QVBoxLayout(self)
             root.setContentsMargins(0, 0, 0, 0)
-            root.setSpacing(6)
+            root.setSpacing(8)
 
             search_row = LeadRowLayout()
             search_row.setContentsMargins(0, 0, 0, 0)
@@ -1727,8 +1727,10 @@ if HAS_QT:
             root.addLayout(search_row)
 
             self.filter_row = QWidget()
-            # Filters wrap onto more lines rather than squeezing at 720 px.
-            self.filter_layout = WidgetFlowLayout(self.filter_row, h_spacing=8, v_spacing=6)
+            # Filters wrap onto more lines rather than squeezing at 720 px. The
+            # gap between filters is three times a label's gap to its own box,
+            # so each label reads as part of its box, not of the filter before.
+            self.filter_layout = WidgetFlowLayout(self.filter_row, h_spacing=12, v_spacing=8)
             self.filter_row.setVisible(False)
             root.addWidget(self.filter_row)
 
@@ -1747,14 +1749,7 @@ if HAS_QT:
         def add_filter(self, widget: QWidget, label: str = "") -> None:
             self.filter_row.setVisible(True)
             if label:
-                pair = QWidget()
-                pair_layout = QHBoxLayout(pair)
-                pair_layout.setContentsMargins(0, 0, 0, 0)
-                label_widget = QLabel(label)
-                label_widget.setStyleSheet(f"color: {dim_text_css(label_widget)};")
-                pair_layout.addWidget(label_widget)
-                pair_layout.addWidget(widget)
-                widget = pair
+                widget = side_pair(label, widget, f"color: {dim_text_css(widget)};")
             self.filter_layout.addWidget(widget)
 
         def query(self) -> str:

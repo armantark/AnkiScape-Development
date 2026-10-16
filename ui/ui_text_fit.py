@@ -12,6 +12,7 @@ a width change settles after one extra layout pass.
 from aqt.qt import (  # type: ignore
     QCheckBox,
     QFrame,
+    QHBoxLayout,
     QLabel,
     QLayout,
     QRect,
@@ -176,6 +177,19 @@ class LeadRowLayout(_RowLayout):
             placed += _place_run(row, width - _run_width(row, gap), y, band, gap)
             y += band + gap
         return placed
+
+
+def side_pair(text, widget, label_style):
+    """A label just left of `widget`, as one item a FlowLayout can wrap."""
+    pair = QWidget()
+    layout = QHBoxLayout(pair)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.setSpacing(4)
+    caption = QLabel(text)
+    caption.setStyleSheet(label_style)
+    layout.addWidget(caption)
+    layout.addWidget(widget)
+    return pair
 
 
 def stacked_pair(text, widget, label_style):

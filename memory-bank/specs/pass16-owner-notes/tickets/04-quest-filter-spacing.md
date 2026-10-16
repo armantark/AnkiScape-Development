@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by opus-04
+**Status:** built; the owner's look in Anki waits
 
-- [ ] A before capture of the Quests tab at 720 px wide and 560 px tall is saved with the ticket evidence.
-- [ ] After the change, the checkboxes and label-and-box pairs share one baseline per line, and the gaps follow one scale.
-- [ ] Every other surface that uses the shared filter bar or flow layout (Shop, Grand Exchange, Achievements, Help, skill target bars) is recaptured and shows no regression.
-- [ ] The Bank and Quests 720 px fit test still passes; text-fit checks are clean.
-- [ ] Ends `built; the owner's look in Anki waits` once the automated layers pass.
+- [x] A before capture of the Quests tab at 720 px wide and 560 px tall is saved with the ticket evidence.
+- [x] After the change, the checkboxes and label-and-box pairs share one baseline per line, and the gaps follow one scale.
+- [x] Every other surface that uses the shared filter bar or flow layout (Shop, Grand Exchange, Achievements, Help, skill target bars) is recaptured and shows no regression.
+- [x] The Bank and Quests 720 px fit test still passes; text-fit checks are clean.
+- [x] Ends `built; the owner's look in Anki waits` once the automated layers pass.
