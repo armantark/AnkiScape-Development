@@ -179,6 +179,33 @@ class UtilityActivitySearchTest(unittest.TestCase):
         self.assertEqual(_shown_rows(tree), original)
         self.assertEqual(self.menu._utility_calls, [])
 
+    def test_mage_arena_nested_rows_rank_and_restore_without_changing_activity(self) -> None:
+        from ankiscape.core.search_match import match_rank
+        pd = _make_player_data()
+        pd["current_utility"] = "bankstanding"
+        pd["mage_arena"] = {"completed": True, "step": 5, "alignment": "guthix"}
+        pd["magic_level"] = 60
+        dialog = self.menu._open(pd)
+        tree = self.menu._open_activities(dialog)
+        dialog.show()
+        dialog.resize(720, 560)
+        _pump(8)
+        group = next(item for item in _tree_items(tree) if item.text(0) == "Mage Arena statues")
+        original = [group.child(i).text(0) for i in range(group.childCount())]
+        search, _summary = _search_bar(tree)
+        search.setText("s")
+        _pump()
+        shown = [group.child(i) for i in range(group.childCount()) if _is_shown(group.child(i))]
+        ranks = [match_rank("s", item.text(0), "landmarks", "Landmarks", "Mage Arena statues") for item in shown]
+        self.assertGreater(len(set(ranks)), 1)
+        self.assertEqual(ranks, sorted(ranks))
+        self.assertEqual(shown[0].data(0, Qt.ItemDataRole.UserRole), "__mage_cape__:saradomin")
+        search.clear()
+        _pump()
+        self.assertEqual([group.child(i).text(0) for i in range(group.childCount())], original)
+        self.assertEqual(self.menu._utility_calls, [])
+        self.assertEqual(pd["current_utility"], "bankstanding")
+
     def test_activities_search_keeps_slices_menus_cards_and_saved_collapses(self) -> None:
         from ankiscape.data.evil_tree_data import EVIL_TREE_UTILITY_ID
         from ankiscape.logic.dnd_favourites_logic import toggle_dnd_favourite_pure

@@ -97,7 +97,7 @@ class BankClaimLampsTest(unittest.TestCase):
         )
         agility = next(
             row for row in dialog.findChildren(QWidget, "bankClaimRow")
-            if row.findChild(QLabel, "bankClaimMetadata").text() == "250 XP lamp · Pays Agility."
+            if row.findChild(QLabel, "bankClaimMetadata").text() == "250 XP · Agility"
         )
         agility_before = self.data["agility_exp"]
         with mock.patch.object(self.menu._ui, "_choose_xp_lamp_skill", side_effect=AssertionError("grid opened")):
@@ -106,7 +106,7 @@ class BankClaimLampsTest(unittest.TestCase):
 
         self.assertEqual(self.data["agility_exp"] - agility_before, 250)
         self.assertNotIn(
-            "250 XP lamp · Pays Agility.",
+            "250 XP · Agility",
             [label.text() for label in dialog.findChildren(QLabel, "bankClaimMetadata") if not label.isHidden()],
         )
 
@@ -133,7 +133,7 @@ class BankClaimLampsTest(unittest.TestCase):
     def test_a_choice_lamp_opens_the_grid_even_with_one_eligible_skill(self) -> None:
         dialog = self._open_bank(720)
         elder_kiln = _rows(dialog)["The Elder Kiln: XP lamp (100,000 XP)"]
-        self.assertIn("Minimum level: 75.", elder_kiln.findChild(QLabel, "bankClaimMetadata").text())
+        self.assertNotIn("Minimum level", elder_kiln.findChild(QLabel, "bankClaimMetadata").text())
         before = self.data.get("attack_exp", 0)
         other_xp = {key: value for key, value in self.data.items() if key.endswith("_exp") and key != "attack_exp"}
         seen = self._choose_lamp(elder_kiln)

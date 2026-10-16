@@ -469,7 +469,7 @@ from ..data.slayer_data import SLAYER_FAMILIES_BY_ID
 from ..logic.slayer_logic import slayer_target_ids_for_assignment_pure
 from ..logic_pure.logic_pure import claim_rows_pure, compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
-from ..logic.wicked_hood_logic import wicked_hood_view_pure
+from ..logic.wicked_hood_logic import WICKED_HOOD_REQUIRED_MESSAGE, wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic_pure.logic_pure import combat_grave_banner_view_pure, combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
@@ -6997,11 +6997,11 @@ def show_main_menu(
         if hood["claimed"] and not hood["owned"]:
             guidance_text = "Reclaim the hood to restore its saved upgrades and allowances."
         elif not hood["operable"]:
-            guidance_text = "Equip the hood or place it in this target's carried pack."
+            guidance_text = WICKED_HOOD_REQUIRED_MESSAGE
         elif pending_option:
             guidance_text = (
                 f"Queued for {pending_option['display_name']} · "
-                "the next matching outbound route is skipped"
+                "your next trip there skips the walk"
             )
         elif allowances_exhausted:
             guidance_text = "Allowances exhausted · refills every 240 answered cards"
@@ -7077,8 +7077,8 @@ def show_main_menu(
         teleport_choice.setEnabled(
             bool(altar_options) and bool(hood["operable"]) and not pending_altar
         )
-        controls.addWidget(rune_choice, 1, 0)
-        rune_button = QPushButton("Withdraw")
+        controls.addWidget(rune_choice, 1, 0, 1, 2)
+        rune_button = QPushButton("Withdraw runes")
         rune_button.setObjectName("wickedHoodRunesButton")
         rune_button.setAccessibleName("Withdraw Wicked hood runes")
         rune_button.setToolTip(
@@ -7090,8 +7090,8 @@ def show_main_menu(
             and bool(altar_options)
             and int(hood["rune_withdrawals_remaining"]) > 0
         )
-        controls.addWidget(rune_button, 1, 1)
-        controls.addWidget(teleport_choice, 2, 0)
+        controls.addWidget(rune_button, 2, 0, 1, 2)
+        controls.addWidget(teleport_choice, 3, 0, 1, 2)
         teleport_button = QPushButton("Teleport")
         teleport_button.setObjectName("wickedHoodTeleportButton")
         teleport_button.setAccessibleName("Use Wicked hood altar teleport")
@@ -7118,14 +7118,14 @@ def show_main_menu(
                 teleport_button.setToolTip("Feed a talisman or tiara to unlock an altar.")
             else:
                 teleport_button.setToolTip(
-                    "Spend one teleport to skip the selected altar route's outbound leg."
+                    "Spend one teleport so your next trip to this altar skips the walk."
                 )
 
         _refresh_teleport_gate()
         teleport_choice.currentIndexChanged.connect(
             lambda _index: _refresh_teleport_gate()
         )
-        controls.addWidget(teleport_button, 2, 1)
+        controls.addWidget(teleport_button, 4, 0, 1, 2)
 
         claimed = bool(hood["claimed"])
         owns_hood = bool(hood["owned"])
@@ -7137,7 +7137,7 @@ def show_main_menu(
         )
         reclaim_button.setVisible(claimed and not owns_hood)
         reclaim_button.setEnabled(on_wicked_hood_command is not None and claimed and not owns_hood)
-        controls.addWidget(reclaim_button, 3, 0, 1, 2)
+        controls.addWidget(reclaim_button, 5, 0, 1, 2)
         hood_layout.addLayout(controls)
 
         def _run_hood_action(action_id: str, payload: dict | None = None) -> None:
@@ -7180,7 +7180,7 @@ def show_main_menu(
             on_select=on_set_runecrafting,
             group_order=list(RUNECRAFTING_GROUP_LABELS),
         ), 1)
-        return panel
+        return vertical_scroll(panel)
 
     def _build_thieving_list() -> QWidget:
         panel = QWidget()
@@ -26639,7 +26639,7 @@ def show_main_menu(
         _add_cooking_gauntlet_conversion_action(
             menu, item_name, "convertWornCookingGauntletsAction", equip_list,
         )
-        action = menu.addAction({"Wicked hood": "Remove"}.get(item_name, f"Unequip {item_name}"))
+        action = menu.addAction(f"Unequip {item_name}")
         action.setEnabled(on_unequip_slot is not None)
 
         def _do_unequip(_checked: bool = False) -> None:

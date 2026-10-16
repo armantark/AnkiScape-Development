@@ -116,6 +116,22 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
         self.assertEqual(addon._state.player_data, before)
         self.assertEqual(random.getstate(), before_random)
 
+    def test_elemental_upgrade_after_omni_gives_no_xp_and_undo_restores_it(self):
+        addon = self.addon
+        addon._state.player_data["wicked_hood"] = {"omni_fed": True}
+        addon._state.player_data["inventory"]["Elemental talisman"] = 1
+        self._install_collection(types.SimpleNamespace(add_custom_undo_entry=lambda name: None))
+        before = copy.deepcopy(addon._state.player_data)
+        result = self.command("feed", {"item": "Elemental talisman"})
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(addon._state.player_data["inventory"]["Elemental talisman"], 0)
+        self.assertTrue(addon._state.player_data["wicked_hood"]["elemental_fed"])
+        self.assertEqual(addon._state.player_data["wicked_hood"]["rune_withdrawals_remaining"], 2)
+        self.assertEqual(addon._state.player_data["runecrafting_exp"], before["runecrafting_exp"])
+        self.assertEqual(len(self.saves), 1)
+        addon._on_state_did_undo(types.SimpleNamespace(operation="ankiscape direct action"))
+        self.assertEqual(addon._state.player_data, before)
+
     def test_feed_refuses_missing_hood_missing_item_and_unsupported_item(self):
         self._install_collection(types.SimpleNamespace(add_custom_undo_entry=lambda name: None))
         for inventory, item in (({"Air talisman": 1}, "Air talisman"),

@@ -197,8 +197,7 @@ def _add_hood_feed(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
 def _add_equip(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
     if ctx.is_equippable_item(item_name):
         ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, ctx.player_data)
-        verb = "Wear" if item_name == WICKED_HOOD_ITEM else "Equip"
-        action = menu.addAction(verb if ok else f"{verb} ({reason})")
+        action = menu.addAction("Equip" if ok else f"Equip ({reason})")
         action.setEnabled(bool(ok) and ctx.on_equip_item is not None)
         if not ok and reason:
             action.setToolTip(reason)

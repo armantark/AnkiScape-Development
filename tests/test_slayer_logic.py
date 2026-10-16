@@ -647,6 +647,13 @@ class SlayerMasterRosterTest(unittest.TestCase):
             for row in slayer_masters_view_pure(player)["masters"]
         }
 
+    def test_master_context_is_projected_only_for_eligible_masters(self):
+        rows = {row["id"]: row for row in slayer_masters_view_pure(_melee_player(1))["masters"]}
+        self.assertIn("Assignment range:", rows["turael_spria"]["context"])
+        self.assertIn("No Slayer points", rows["turael_spria"]["context"])
+        self.assertNotIn("Assignment range:", rows["mazchna_achtryn"]["context"])
+        self.assertNotIn("points", rows["mazchna_achtryn"]["context"])
+
     def test_roster_lists_live_masters_in_order_and_locks_on_combat_level(self):
         for attack_and_strength, mazchna, vannaka in (
             (26, ("Combat level 20",), ("Combat level 40",)),

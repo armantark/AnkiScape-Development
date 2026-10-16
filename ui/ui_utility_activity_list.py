@@ -175,7 +175,9 @@ def _styled_tree() -> "QTreeWidget":
     tree.setIconSize(QSize(28, 28))
     tree.setRootIsDecorated(True)
     tree.setIndentation(14)
-    tree.setUniformRowHeights(True)
+    tree.setUniformRowHeights(False)
+    tree.setWordWrap(True)
+    tree.setTextElideMode(Qt.TextElideMode.ElideNone)
     tree.setMinimumHeight(140)
     tree_base = tree.palette().color(QPalette.ColorRole.Base)
     activity_selection = QColor(

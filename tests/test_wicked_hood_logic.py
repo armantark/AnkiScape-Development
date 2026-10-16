@@ -31,14 +31,70 @@ def _player():
 
 
 class TestWickedHoodLogic(unittest.TestCase):
-    def test_retired_feeding_targets_load_as_air_runes(self):
-        for target in ("feed_air_talisman_to_hood", "feed_omni_tiara_to_hood"):
+    def test_retired_feeding_targets_leave_no_saved_target_references(self):
+        for target in ("feed_air_talisman_to_hood", "feed_elemental_talisman_to_hood", "feed_omni_tiara_to_hood"):
             with self.subTest(target=target):
                 player = _player()
                 player["current_runecrafting"] = target
+                player["inventory"]["Air talisman"] = 3
+                saved = {
+                    "carried_inventory": {"Air talisman": 1},
+                    "carried_layout": {"Air talisman": 1},
+                    "carried_churn": 2,
+                    "carried_keep_drop": "drop",
+                    "carried_advanced_targets": True,
+                    "carried_primed_targets": True,
+                }
+                for key, value in saved.items():
+                    player[key] = {target: value, "craft_air_runes": value}
+                player["skilling_bank_run"] = {"target_id": target, "reviews_remaining": 2}
+                player["skilling_bank_run_requested"] = target
                 loaded = migrate_loaded_data(player, ORE_DATA, ITEM_DEFINITIONS)
                 self.assertEqual(loaded["current_runecrafting"], "craft_air_runes")
                 self.assertNotIn(target, RUNECRAFTING_DATA)
+                for key, value in saved.items():
+                    self.assertEqual(loaded[key], {"craft_air_runes": value}, key)
+                self.assertEqual(loaded["skilling_bank_run"], {})
+                self.assertEqual(loaded["skilling_bank_run_requested"], "")
+                self.assertEqual(loaded["inventory"]["Air talisman"], 3)
+                self.assertEqual(migrate_loaded_data(loaded, ORE_DATA, ITEM_DEFINITIONS), loaded)
+
+    def test_elemental_after_omni_consumes_the_upgrade_without_feed_xp(self):
+        player = _player()
+        player["inventory"].update({"Omni-talisman": 1, "Elemental talisman": 2, "Air tiara": 1})
+        player, ok, info = apply_wicked_hood_command_pure(player, "feed", {"item": "Omni-talisman"})
+        self.assertTrue(ok, info)
+        self.assertEqual(info["feed_xp"], 50)
+        self.assertFalse(player["wicked_hood"]["elemental_fed"])
+        player, ok, info = apply_wicked_hood_command_pure(player, "feed", {"item": "Elemental talisman"})
+        self.assertTrue(ok, info)
+        self.assertEqual(info["feed_xp"], 0)
+        self.assertEqual(player["inventory"]["Elemental talisman"], 1)
+        self.assertTrue(player["wicked_hood"]["elemental_fed"])
+        self.assertEqual(player["wicked_hood"]["rune_withdrawals_remaining"], 2)
+        for item in ("Elemental talisman", "Air tiara"):
+            _, ok, info = apply_wicked_hood_command_pure(player, "feed", {"item": item})
+            self.assertFalse(ok)
+            self.assertEqual(info["reason"], "The Wicked hood has already been fed this altar's talisman or tiara.")
+            self.assertEqual(player["inventory"][item], 1)
+
+    def test_separate_elemental_altars_still_pay_for_the_elemental_talisman(self):
+        player = _player()
+        player["wicked_hood"] = {"fed_altars": ["air", "water", "earth", "fire"]}
+        player["inventory"]["Elemental talisman"] = 1
+        player, ok, info = apply_wicked_hood_command_pure(player, "feed", {"item": "Elemental talisman"})
+        self.assertTrue(ok, info)
+        self.assertEqual(info["feed_xp"], 50)
+        self.assertTrue(player["wicked_hood"]["elemental_fed"])
+
+    def test_missing_hood_uses_the_same_refusal_for_feeding_and_withdrawal(self):
+        player = _player()
+        player["equipment"] = {}
+        player["inventory"]["Air talisman"] = 1
+        for action, payload in (("feed", {"item": "Air talisman"}), ("essence", {})):
+            _, ok, info = apply_wicked_hood_command_pure(player, action, payload)
+            self.assertFalse(ok)
+            self.assertEqual(info["reason"], "You need a Wicked hood in your Bank or worn on your head.")
 
     def test_tiara_elemental_and_omni_feeds_keep_existing_upgrade_rules(self):
         player = _player()
@@ -227,6 +283,7 @@ class TestWickedHoodLogic(unittest.TestCase):
             {"altar_id": "air", "required_level": 1},
         )
         self.assertTrue(ok)
+        self.assertEqual(_info["message"], "Teleported to Air altar. Your next trip there skips the walk.")
         self.assertEqual(teleported["wicked_hood"]["teleports_remaining"], 1)
 
         unchanged, ok, info = apply_wicked_hood_command_pure(

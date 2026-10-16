@@ -93,7 +93,7 @@ from .constants import (
 )
 from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states, default_quest_states
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
-from ..data.runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
+from .target_retirement import migrate_runecrafting_target as _migrate_runecrafting_target
 from ..logic.wicked_hood_logic import (
     default_wicked_hood_state_pure,
     sanitize_wicked_hood_state_pure,
@@ -890,13 +890,6 @@ def _migrate_cooking_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_cooking, str) or current_cooking not in COOKING_TARGETS_BY_ID:
         current_cooking = DEFAULT_COOKING_TARGET
     data["current_cooking"] = current_cooking
-
-
-def _migrate_runecrafting_target(data: Dict[str, Any]) -> None:
-    current_runecrafting = data.get("current_runecrafting")
-    if not isinstance(current_runecrafting, str) or current_runecrafting not in RUNECRAFTING_TARGETS_BY_ID:
-        current_runecrafting = DEFAULT_RUNECRAFTING_TARGET
-    data["current_runecrafting"] = current_runecrafting
 
 
 def _migrate_herblore_target(data: Dict[str, Any]) -> None:

@@ -20,8 +20,8 @@ def _player():
     }
 
 
-def _review(player):
-    return run_answer_with_carried_overlay(_context(player, random_values=[1.0] * 300), "runecrafting", handle_runecrafting_answer)
+def _review(player, calls=None):
+    return run_answer_with_carried_overlay(_context(player, calls, random_values=[1.0] * 300), "runecrafting", handle_runecrafting_answer)
 
 
 class WickedHoodPackTest(unittest.TestCase):
@@ -57,7 +57,13 @@ class WickedHoodPackTest(unittest.TestCase):
                     player["carried_layout"] = {"craft_air_runes": {"Rune essence": 28}}
                 else:
                     player["wicked_hood"]["fed_altars"] = ["water"]
-                _review(player)
+                calls = {"xp": [], "saves": 0, "errors": []}
+                self.assertFalse(_review(player, calls))
+                self.assertEqual(calls["errors"], [(
+                    "Runecrafting unavailable",
+                    "Air runes cannot run right now, so Runecrafting has been switched off.",
+                )])
+                self.assertTrue(calls["deactivated"])
                 self.assertEqual(player["inventory"].get("Air rune", 0), 0)
                 self.assertEqual(player["runecrafting_exp"], 0)
 

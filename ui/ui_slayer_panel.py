@@ -159,15 +159,6 @@ def _masters_tab(view, commands_enabled, get_assignment) -> "QWidget":
     return scroll
 
 
-def _master_context(row) -> str:
-    lines = [f"{row['family_count']} possible assignments"]
-    if not row["locked_reasons"]:
-        low, high = row["assignment_range"]
-        lines.append(f"Assignment range: {low}–{high} creatures")
-        lines.extend(text for text in (row["point_schedule"], row["challenge_availability"]) if text)
-    return "\n".join(lines)
-
-
 def _master_card(row, assignment_active, commands_enabled, get_assignment) -> "QWidget":
     card = QWidget()
     card.setObjectName(f"slayerMaster_{row['id']}")
@@ -197,7 +188,7 @@ def _master_card(row, assignment_active, commands_enabled, get_assignment) -> "Q
     title_color = dim_text_css(title) if locked_reasons else "palette(text)"
     title.setStyleSheet(f"color: {title_color}; font-weight: 700;")
     copy.addWidget(title)
-    note = QLabel(_master_context(row))
+    note = QLabel(row["context"])
     note.setWordWrap(True)
     note.setStyleSheet(f"color: {dim_text_css(note)};")
     copy.addWidget(note)

@@ -119,6 +119,17 @@ def slayer_master_locked_reasons_pure(
     return tuple(reasons)
 
 
+def _slayer_master_context(master, locked_reasons) -> str:
+    lines = [f"{len(master.assignments)} possible assignments"]
+    if not locked_reasons:
+        low = min(family.count_min for family in master.assignments)
+        high = max(family.count_max for family in master.assignments)
+        lines.append(f"Assignment range: {low}–{high} creatures")
+        if master.id == DEFAULT_SLAYER_MASTER_ID:
+            lines.append("No Slayer points")
+    return "\n".join(lines)
+
+
 def slayer_masters_view_pure(player_data: Mapping[str, Any]) -> dict:
     """Every live master in roster order, each with its unmet requirements, and
     the master that `Get assignment` asks: the last one used while still
@@ -138,12 +149,7 @@ def slayer_masters_view_pure(player_data: Mapping[str, Any]) -> dict:
                 "display_name": display_name,
                 "chathead_asset_path": chathead_asset_path,
                 "family_count": len(master.assignments),
-                "assignment_range": (
-                    min(family.count_min for family in master.assignments),
-                    max(family.count_max for family in master.assignments),
-                ),
-                "point_schedule": "No Slayer points" if master.id == DEFAULT_SLAYER_MASTER_ID else "",
-                "challenge_availability": "",
+                "context": _slayer_master_context(master, locked_reasons),
                 "locked_reasons": locked_reasons,
                 "enabled": not locked_reasons and not assignment_active,
             }

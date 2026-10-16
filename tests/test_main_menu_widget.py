@@ -10332,7 +10332,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn(title, labels)
         self.assertTrue(
-            any(label.startswith(f"{tier.lamp.experience:,} XP lamp") for label in labels)
+            any(label.startswith(f"{tier.lamp.experience:,} XP ·") for label in labels)
         )
         choose = next(
             button

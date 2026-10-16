@@ -120,7 +120,7 @@ class LampClaimAndDestroyTest(unittest.TestCase):
         agility = rows["stolen_hearts_xp_lamp_2"]
         self.assertEqual(agility["eligible_skill_ids"], ("agility",))
         self.assertEqual(agility["title"], "Stolen Hearts: Agility lamp (250 XP)")
-        self.assertEqual(agility["metadata"], "250 XP lamp · Pays Agility.")
+        self.assertEqual(agility["metadata"], "250 XP · Agility")
         self.assertEqual(agility["action_label"], "Claim")
         self.assertEqual(agility["tooltip"], "Pays Agility.")
 

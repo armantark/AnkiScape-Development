@@ -28,7 +28,9 @@ WICKED_HOOD_F2P_ALTARS = frozenset(
 WICKED_HOOD_ELEMENTAL_ALTARS = frozenset({"air", "water", "earth", "fire"})
 # Darkan 1912a55cb245cc4410e51b200f9ad4c5e480510f,
 # src/main/java/com/rs/net/decoders/handlers/InventoryOptionsHandler.java:115.
+# PLACEHOLDER(wicked_hood.feed_xp): independent period corroboration of Darkan's amount.
 WICKED_HOOD_FEED_XP = 50.0
+WICKED_HOOD_REQUIRED_MESSAGE = "You need a Wicked hood in your Bank or worn on your head."
 _FEED_ALTARS_BY_ITEM = {
     item: altar.id
     for altar in ALTARS_BY_ID.values()
@@ -441,7 +443,7 @@ def wicked_hood_feed_view_pure(player_data: Mapping[str, Any], item: str) -> dic
     )
     reason = ""
     if not wicked_hood_operable_pure(data):
-        reason = "You need a Wicked hood in your Bank or head slot."
+        reason = WICKED_HOOD_REQUIRED_MESSAGE
     elif not (data.get("quests", {}).get("rune_mysteries", {}) or {}).get("completed"):
         reason = "Complete Rune Mysteries first."
     elif quest_reasons:
@@ -460,6 +462,8 @@ def _feed_wicked_hood(data: dict[str, Any], item: str) -> tuple[dict[str, Any], 
     if not view["enabled"]:
         return data, False, {"reason": view["reason"]}
     altar_id = view["altar_id"]
+    # Darkan consumes this post-Omni upgrade before its XP-award branch.
+    extra_withdrawal_only = altar_id == "elemental" and data["wicked_hood"]["omni_fed"]
     data = apply_wicked_hood_upgrade_pure(
         data,
         fed_altars=(altar_id,) if altar_id not in {"elemental", "omni"} else (),
@@ -467,7 +471,7 @@ def _feed_wicked_hood(data: dict[str, Any], item: str) -> tuple[dict[str, Any], 
         omni_fed=altar_id == "omni",
     )
     data["inventory"][item] -= 1
-    return data, True, {"message": f"{item} fed to the Wicked hood.", "feed_xp": WICKED_HOOD_FEED_XP}
+    return data, True, {"message": f"{item} fed to the Wicked hood.", "feed_xp": 0.0 if extra_withdrawal_only else WICKED_HOOD_FEED_XP}
 
 
 def _withdraw_hood_essence(data, stackable_items):
@@ -554,7 +558,7 @@ def _teleport_hood(data, altar_id, payload, altars, standard_targets):
     state["pending_altar_teleport"] = altar_id
     data["current_runecrafting"] = target
     return data, True, {
-        "message": f"Teleported to {altar.get('display_name', altar_id.title())}; the next outbound route is skipped.",
+        "message": f"Teleported to {altar.get('display_name', altar_id.title())}. Your next trip there skips the walk.",
         "target_id": target,
         "altar_id": altar_id,
     }
@@ -600,7 +604,7 @@ def apply_wicked_hood_command_pure(
 
     if not wicked_hood_operable_pure(data):
         return data, False, {
-            "reason": "Equip the Wicked hood or carry it in this Runecrafting pack."
+            "reason": WICKED_HOOD_REQUIRED_MESSAGE
         }
 
     if action_id == "essence":

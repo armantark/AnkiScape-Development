@@ -108,6 +108,7 @@ class WickedHoodMenuTest(unittest.TestCase):
                 before = copy.deepcopy(player)
                 menu = self._menu(dialog, worn)
                 self.assertEqual(player, before, "Building the menu must not execute a command")
+                self.assertIn("Unequip Wicked hood" if worn else "Equip", [a.text() for a in menu.actions()])
                 essence = next(a for a in menu.actions() if a.text().startswith("Withdraw essence"))
                 self.assertEqual(essence.text(), "Withdraw essence (100 left)")
                 essence.trigger()

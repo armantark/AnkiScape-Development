@@ -1,6 +1,6 @@
 """Player-facing display fields for the pure Bank Claims projection."""
 
-from .skill_registry import get_skill
+from .skill_registry import get_skill, trainable_skill_definitions
 
 
 def _skill_display(skill_id: str) -> str:
@@ -8,32 +8,43 @@ def _skill_display(skill_id: str) -> str:
     return skill.display_name if skill is not None else skill_id.replace("_", " ").title()
 
 
+def _lamp_skills(row: dict) -> str:
+    if row["fixed_skill_id"]:
+        return _skill_display(row["fixed_skill_id"])
+    options = tuple(row["skill_options"])
+    if set(options) == {skill.id for skill in trainable_skill_definitions()}:
+        return "Any skill"
+    return ", ".join(_skill_display(skill_id) for skill_id in options)
+
+
 def _claim_skill_tooltip(row: dict) -> str:
-    options = tuple(str(skill_id) for skill_id in row.get("skill_options", ()) or ())
-    minimum_level = int(row.get("minimum_level", 1) or 1)
-    if not options:
-        return ""
-    if row.get("fixed_skill_id"):
-        label = f"Pays {_skill_display(str(row['fixed_skill_id']))}"
-    elif len(options) > 8:
-        label = "Choose: Any listed skill"
+    skills = _lamp_skills(row)
+    if row["fixed_skill_id"]:
+        label = f"Pays {skills}"
     else:
-        label = "Choose: " + ", ".join(_skill_display(skill_id) for skill_id in options[:8])
+        label = "Choose any skill" if skills == "Any skill" else f"Choose: {skills}"
+    minimum_level = row["minimum_level"]
     if minimum_level > 1:
         return f"{label}. Minimum level: {minimum_level}."
     return f"{label}."
 
 
-def _xp_claim_metadata(row: dict) -> str:
+def _amount_text(row: dict) -> str:
     amount = float(row.get("xp_amount", 0) or 0)
-    amount_text = f"{int(amount):,}" if amount.is_integer() else f"{amount:,.1f}"
-    if str(row.get("claim_type")) == "xp_lamp":
-        tooltip = _claim_skill_tooltip(row)
-        return f"{amount_text} XP lamp" + (f" · {tooltip}" if tooltip else "")
-    skill_options = tuple(row.get("skill_options", ()) or ())
-    skill_name = _skill_display(str(skill_options[0])) if skill_options else "Skill"
-    items = tuple(row.get("items", ()) or ())
-    return f"{amount_text} {skill_name} XP · {len(items)} item rewards"
+    return f"{int(amount):,}" if amount.is_integer() else f"{amount:,.1f}"
+
+
+def _lamp_metadata(row: dict) -> str:
+    text = f"{_amount_text(row)} XP · {_lamp_skills(row)}"
+    if row["minimum_level"] > 1 and not row["eligible_skill_ids"]:
+        text += f" · Minimum level: {row['minimum_level']}"
+    return text
+
+
+def _skill_reward_metadata(row: dict) -> str:
+    options = tuple(row.get("skill_options", ()) or ())
+    skill_name = _skill_display(str(options[0])) if options else "Skill"
+    return f"{_amount_text(row)} {skill_name} XP · {len(row['items'])} item rewards"
 
 
 def _bundle_metadata(row: dict) -> str:
@@ -49,15 +60,6 @@ def _bundle_metadata(row: dict) -> str:
     return f"{item_count} item stack{'s' if item_count != 1 else ''}{suffix}"
 
 
-def _claim_metadata(row: dict) -> str:
-    claim_type = str(row.get("claim_type", "item"))
-    if claim_type in {"xp_lamp", "skill_reward"}:
-        return _xp_claim_metadata(row)
-    if claim_type == "item_bundle":
-        return _bundle_metadata(row)
-    return "Ready to claim"
-
-
 def _claim_bundle_tooltip(row: dict) -> str:
     items = tuple(row.get("items", ()) or ())
     lines = []
@@ -67,35 +69,58 @@ def _claim_bundle_tooltip(row: dict) -> str:
     return "\n".join(lines)
 
 
-def _claim_icon_name(row: dict) -> str:
-    item_name = str(row.get("item_name", row.get("display_name", "")))
-    if str(row.get("claim_type", "item")) in {"item_bundle", "skill_reward"}:
-        items = tuple(row.get("items", ()) or ())
-        first = items[0] if items else ()
-        if isinstance(first, (tuple, list)) and first and isinstance(first[0], str):
-            item_name = first[0]
-    return item_name
+def _item_icon(row: dict) -> str:
+    return str(row.get("item_name", row.get("display_name", "")))
 
 
-def _claim_title(row: dict) -> str:
-    item_name = str(row.get("item_name", row.get("display_name", "")))
-    if str(row.get("claim_type", "item")) in {"xp_lamp", "item_bundle", "skill_reward"}:
-        return str(row.get("display_name", item_name))
-    return f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}"
+def _bundle_icon(row: dict) -> str:
+    items = tuple(row.get("items", ()) or ())
+    first = items[0] if items else ()
+    if isinstance(first, (tuple, list)) and first and isinstance(first[0], str):
+        return first[0]
+    return _item_icon(row)
+
+
+def _display_name(row: dict) -> str:
+    return str(row.get("display_name", _item_icon(row)))
+
+
+def _lamp_title(row: dict) -> str:
+    title = _display_name(row)
+    if row["fixed_skill_id"]:
+        title = title.replace("XP lamp", f"{_skill_display(row['fixed_skill_id'])} lamp")
+    return title
+
+
+_CLAIM_FORMATS = {
+    "item": {
+        "metadata": lambda row: "Ready to claim", "icon": _item_icon,
+        "title": lambda row: f"{_display_name(row)} x{row.get('quantity', 1)}",
+        "tooltip": _claim_bundle_tooltip, "choose_skill": False,
+    },
+    "xp_lamp": {
+        "metadata": _lamp_metadata, "icon": _item_icon, "title": _lamp_title,
+        "tooltip": _claim_skill_tooltip, "choose_skill": True,
+    },
+    "item_bundle": {
+        "metadata": _bundle_metadata, "icon": _bundle_icon, "title": _display_name,
+        "tooltip": _claim_bundle_tooltip, "choose_skill": False,
+    },
+    "skill_reward": {
+        "metadata": _skill_reward_metadata, "icon": _bundle_icon, "title": _display_name,
+        "tooltip": _claim_bundle_tooltip, "choose_skill": False,
+    },
+}
 
 
 def claim_display_fields(row: dict) -> dict:
-    claim_type = row["claim_type"]
-    title = _claim_title(row)
-    if row["fixed_skill_id"] and claim_type == "xp_lamp":
-        title = title.replace("XP lamp", f"{_skill_display(row['fixed_skill_id'])} lamp")
-    tooltip = _claim_skill_tooltip(row) if claim_type == "xp_lamp" else _claim_bundle_tooltip(row)
-    choose_skill = claim_type == "xp_lamp" and not row["fixed_skill_id"]
+    format_rules = _CLAIM_FORMATS[row["claim_type"]]
+    choose_skill = format_rules["choose_skill"] and not row["fixed_skill_id"]
     return {
-        "title": title,
-        "metadata": _claim_metadata(row),
+        "title": format_rules["title"](row),
+        "metadata": format_rules["metadata"](row),
         "action_label": "Choose skill" if choose_skill else "Claim",
-        "tooltip": tooltip,
-        "icon_name": _claim_icon_name(row),
+        "tooltip": format_rules["tooltip"](row),
+        "icon_name": format_rules["icon"](row),
         "choose_skill": choose_skill,
     }
