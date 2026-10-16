@@ -129,6 +129,20 @@ UTILITY_ACTIVITY_DATA = {
             "darkan-world-server/src/main/java/com/rs/game/content/world/Pickables.kt:24,60-66"
         ),
     },
+    "gather_snape_grass": {
+        "display_name": "Gather snape grass\n(Hobgoblin Peninsula)",
+        "requirements": {},
+        "output_item": "Snape grass",
+        "output_qty": 1,
+        "batch_size": 3,
+        "icon_path": os.path.join(QUEST_ITEMS_FOLDER, "snape_grass.png"),
+        "group": "gathering",
+        "source": (
+            "https://runescape.wiki/w/Snape_grass?oldid=6269500; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/items/spawns/spawns.json (itemId 231, Hobgoblin Peninsula)"
+        ),
+    },
     "gather_blue_dragon_scales": {
         "display_name": "Gather blue dragon scales",
         "requirements": {},

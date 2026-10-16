@@ -4,10 +4,14 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** claimed by sol-05
+**Status:** done by sol-05
 
-- [ ] Answering reviews on "Gather snape grass" adds Snape grass to the player's items; the row cites Snape grass oldid 6269500 and the Darkan spawn list.
-- [ ] The row text names the Hobgoblin Peninsula.
-- [ ] The Cooking row that makes Nettle tea is labelled by its product, following the other Cooking rows' naming; a search for "nettle tea" finds it.
-- [ ] The drinks group header reads as a word, not the raw family key.
-- [ ] Skippy and the Mogres completes end to end with gathered snape grass and no combat drop.
+- [x] Answering reviews on "Gather snape grass" adds Snape grass to the player's items; the row cites Snape grass oldid 6269500 and the Darkan spawn list.
+- [x] The row text names the Hobgoblin Peninsula.
+- [x] The Cooking row that makes Nettle tea is labelled by its product, following the other Cooking rows' naming; a search for "nettle tea" finds it.
+- [x] The drinks group header reads as a word, not the raw family key.
+- [x] Skippy and the Mogres completes end to end with gathered snape grass and no combat drop.
+
+The existing selector supplies the readable Drinks header from the family key; the Qt check covers it.
+
+Verification note: tree item text needs direct width and height checks as well as `text_fit_defects`. The site is on a second line so the full row fits at 720 by 560 px.
