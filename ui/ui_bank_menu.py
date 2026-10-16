@@ -9,6 +9,7 @@ except Exception:  # pragma: no cover - non-Qt environment keeps imports safe
     pass
 
 from ..core.constants import EQUIPMENT_ITEM_DATA, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA
+from ..core.tool_belt import tool_on_belt
 from ..data.flash_powder_factory_data import ROGUE_KIT_OUTPUTS
 from ..data.great_orb_project_data import GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM
 from ..data.impling_jar_data import IMPLING_JAR_DATA
@@ -105,6 +106,14 @@ def _add_start_trail(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> Non
                 ctx.refresh_equipment_views()
 
         start_trail_action.triggered.connect(_do_start_trail)
+        menu.addSeparator()
+
+
+def _add_toolbelt_status(menu: "QMenu", ctx: BankMenuContext, item_name: str) -> None:
+    if tool_on_belt(ctx.player_data, item_name):
+        action = menu.addAction("On tool belt")
+        action.setEnabled(False)
+        action.setToolTip("Already on your tool belt. The belt copy is used, so this Bank copy isn't needed.")
         menu.addSeparator()
 
 
@@ -410,6 +419,7 @@ def build_bank_item_menu(ctx: BankMenuContext, item_name: str) -> "QMenu":
     menu = QMenu(ctx.bank_frame)
     menu.setToolTipsVisible(True)
     _add_start_trail(menu, ctx, item_name)
+    _add_toolbelt_status(menu, ctx, item_name)
     _add_toolbelt_attachment(menu, ctx, item_name)
     ctx.add_cooking_gauntlet_conversion_action(
         menu,

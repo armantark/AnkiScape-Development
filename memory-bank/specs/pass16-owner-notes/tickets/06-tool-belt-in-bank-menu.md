@@ -4,9 +4,9 @@
 
 **Blocked by:** 01 (Bank right-click menu in its own module)
 
-**Status:** claimed by sol-06
+**Status:** done
 
-- [ ] Right-clicking a Bank Tiara mould shows "On tool belt" with the tooltip.
-- [ ] A tool that still needs adding keeps its existing "Add to tool belt" entry.
-- [ ] Every on-belt chip carries the always-on tooltip; the panel hint no longer names only hatchets and pickaxes.
-- [ ] Offscreen Qt capture of the Bank menu and Toolbelt panel at 560 px with clean text-fit checks; one play-checklist line.
+- [x] Right-clicking a Bank Tiara mould shows "On tool belt" with the tooltip.
+- [x] A tool that still needs adding keeps its existing "Add to tool belt" entry.
+- [x] Every on-belt chip carries the always-on tooltip; the panel hint no longer names only hatchets and pickaxes.
+- [x] Offscreen Qt capture of the Bank menu and Toolbelt panel at 560 px with clean text-fit checks; one play-checklist line.
