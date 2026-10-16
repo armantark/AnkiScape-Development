@@ -1205,22 +1205,6 @@ Suggested order, highest aggregate value first:
 4. Re-walk the parity ledger for items marked blocked on *client-side* grounds
    and clear the ones this now reaches. Leave server-side blocks alone.
 
-### Shared modular list search and filters
-
-Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.
-
-- `CatalogFilterBar` now supplies one dark-mode-safe text/filter seam to Shop,
-  Quests, Combat, and Bank while each page retains its own searchable metadata,
-  predicates, and result renderer.
-- Combat search preserves the exact saved target, expands matching groups,
-  never activates an absent/empty row, restores the current row after clear,
-  and shares the same clear-button/Escape behavior as the other catalogs.
-- Bank search matches item names and category labels without mutating inventory
-  or the saved first-come-first-served carried-queue order.
-- Add `Current Slayer task only` when the first authentic assignment state
-  lands. It must intersect with text search and leave exact monster choice to
-  the player; do not expose a disabled placeholder or invent task state early.
-
 ### In-product help and mechanics reference
 
 Labels: `SHIPPED: HELP CENTER`, `SHIPPED: DETAILS`, `QA: FABLE BLOCKED`.
