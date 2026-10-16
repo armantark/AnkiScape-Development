@@ -54,7 +54,8 @@ integration branch, runs the final review and the promotion gate.
   and save before and after PNGs under
   `/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/evidence/<NN>/`. Check
   dark mode with a Fusion dark palette for any new text color. Add one line to
-  `memory-bank/play-checklist.md`.
+  `memory-bank/play-checklist.md`. Capture scripts stay in that evidence
+  folder; never commit them to the repository.
 - slop-gate (the commit hook) refuses: growth of any code or test file already
   above 1000 lines, a touched function above cyclomatic or cognitive
   complexity 15 or Halstead difficulty 80, and a new code file in a directory
