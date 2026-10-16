@@ -1,4 +1,6 @@
-# Goal course correction on the MacBook Pro, 2026-10-15
+# Goal paused by the owner, 2026-10-15
+
+The owner requested a pause on 2026-10-15. No owner answer is requested. Tribal Totem at 839b86a7 is landed. Sawmill at 8749ddc6 retains accepted native/source proof; its detached official gate can finish but must not land automatically. Spiritual Healing at ec6bb1c5 has committed accepted native records; final merged review/full9/land remain. Exact native control blockers for Mogre, Bittercap and Gunnar remain per slice. Resume from the pause results artifact and retained evidence; do not repeat accepted source or native checks.
 
 ## Shared Undo representation resolved; native acceptance continues — 2026-10-15
 

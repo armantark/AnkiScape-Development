@@ -14,7 +14,7 @@ Disposition meanings: `eligible` has a settled action; `verification_pending` la
 
 ## Current selection
 
-The goal is active under the October15 owner course correction: stop on the project Codex OVER signal or when all merge-bound lanes require an owner decision; ask one recorded question at that stop. Harvest source_blocked items in matrix order, stop quest-root rounds, and run harvesting, implementation, code review and local manual lanes only on different items that can reach main. Manual order is Restaurant Again, Familiarisation Again, Jad, Cold War activated ring, Tribal Totem. No preflight/gate repair or records cleanup unless a named merge is blocked. [The resume checkpoint](GOAL-BLOCKED.md) records the remaining acceptance checks.
+The owner paused the goal on2026-10-15. On resume, the October15 owner course correction applies: stop on the project Codex OVER signal or when all merge-bound lanes require an owner decision; ask one recorded question at that stop. Harvest source_blocked items in matrix order, stop quest-root rounds, and run harvesting, implementation, code review and local manual lanes only on different items that can reach main. Manual order is Restaurant Again, Familiarisation Again, Jad, Cold War activated ring, Tribal Totem. No preflight/gate repair or records cleanup unless a named merge is blocked. [The resume checkpoint](GOAL-BLOCKED.md) records the remaining acceptance checks.
 
 | Priority | Unit | Disposition | Next action and acceptance boundary |
 | --- | --- | --- | --- |
