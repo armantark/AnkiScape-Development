@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 (Bank right-click menu in its own module), 11 (Wicked hood right-click menu)
 
-**Status:** open
+**Status:** claimed by sol-12
 
 - [ ] Right-clicking an air talisman with a hood owned offers "Feed to Wicked hood"; feeding unlocks the Air altar in the hood menu and consumes the talisman.
 - [ ] Undo restores the talisman and the hood's previous state.
