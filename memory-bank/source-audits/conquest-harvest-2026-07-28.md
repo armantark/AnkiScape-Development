@@ -400,10 +400,10 @@ rewards. The six pest troops are quest encounter units, not troop skins.
 | map count/names/weights | Unresolved | No pre-cutoff table recovered |
 | obstacle coordinates/shapes | Unresolved | No pre-cutoff table recovered |
 
-The `20×20`/`22×22` conflict may be playable squares versus a border-inclusive
-measurement, but no period source proves that explanation. The settled engine
-uses `20×20`; `conquest.board_size` remains a placeholder candidate so a decoded
-interface grid or period map can replace the disputed value cleanly.
+The [2026-10-17 board-size contract](conquest-board-size-contract-2026-10-17.md)
+pins `20×20` from the later period article and the complete rev-742 floor
+footprint. The older Scout article still says `22×22`; no cited source explains
+the discrepancy, including whether borders account for it.
 
 ## Regular and staked modes
 
@@ -448,7 +448,6 @@ closure.
 
 | proposed id | temporary value or shape | confidence | what it unblocks | what would settle it |
 | --- | --- | --- | --- | --- |
-| `conquest.board_size` | `20×20` playable squares | high | Board allocation and coordinate bounds | Decoded period board interface/map showing whether the `22×22` statement includes borders |
 | `conquest.squad_unit_cap` | `10` troops per side | medium | Setup validation and bounded heuristic work | Period setup interface operand or server-side squad validator |
 | `conquest.foot_soldier_cost` | `50` setup points | medium | Exact `1,000`-point loadout validation | Period client troop config or patch note resolving the `30` UI image against the nearer-cutoff `50` wikitext |
 | `conquest.starting_command_points` | `0` | medium | Initial command availability | Server start-state routine or decoded interface varp/CS2 operand |
@@ -463,9 +462,10 @@ closure.
 | `conquest.battlefield_layouts` | Small seeded fixed obstacle-layout pool on the bounded board | low | Authentic range/pathing interaction | Period map-region data, interface tile grid, or dated screenshots sufficient to reconstruct obstacle coordinates |
 | `conquest.pest_movement_range_cost` | Torcher movement `4`, range `6`, cost `75`; keep quest-only | low | Complete `The Void Stares Back` pest roster only | Pre-cutoff Torcher details image, quest server table, or period client config |
 
-The unknown ratio curve and exact rating formula must not be described as
-period-accurate. The Foot Soldier and board-size rows are source conflicts, not
-permission to invent a third value.
+Board size is resolved by the [2026-10-17 contract](conquest-board-size-contract-2026-10-17.md)
+and is no longer a placeholder. The unknown ratio curve and exact rating formula
+must not be described as period-accurate. The Foot Soldier source conflict
+remains open; it is not permission to invent a third value.
 
 ## Conflicts and exclusions
 
@@ -473,8 +473,10 @@ permission to invent a third value.
   implementation. Wiki values are therefore the primary supplier, with the
   byte-identical rev-727/rev-742 client interfaces as corroboration where they
   expose a value.
-- **Board size:** main page `20×20`; Scout page `22×22`. Use the settled `20×20`
-  board under a placeholder marker until client geometry resolves the count.
+- **Board size:** the later main article and independent complete floor footprint
+  pin `20×20`, per the [2026-10-17 contract](conquest-board-size-contract-2026-10-17.md).
+  The older Scout article says `22×22`; the reason remains unexplained. The
+  dimension is sourced, so its marker and register row are removed together.
 - **Foot Soldier cost:** cutoff wikitext `50`; release-era details image `30`.
   Use the nearer-cutoff `50` under a placeholder marker.
 - **Knight range:** bad infobox `4`; in-game image and melee-range prose prove
@@ -501,3 +503,12 @@ are source values suitable for explicit placeholders, not taste calls.
 Staked Conquest remains period data depth. Adding simulated-opponent stakes would
 require a separate economy contract; it is not part of the settled regular-mode
 mechanical completion and is not decided here.
+
+## Board-size implementation — 2026-10-17
+
+`CONQUEST_BOARD_SIZE` remains exactly `20`; only its placeholder status changes.
+The real-entry test independently asserts `20` before checking troop bounds.
+Placement, sanitation and pathfinding use the shared dimension; movement and
+attack ranges retain their existing rules. `conquest_view_pure` projects status
+and setup rows, and `ConquestPanel` renders no board, so dimensions add no widget
+geometry or text. No existing UI change or other placeholder closure is needed.
