@@ -37,9 +37,10 @@ class FamilyGauntletDiaryTest(unittest.TestCase):
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         addon.update_review_hud = lambda *_args: None
-        popups = patch.object(sys.modules[f"{addon.__name__}.core.logic"], "_popups_enabled", return_value=False)
-        popups.start()
-        self.addCleanup(popups.stop)
+        for package in ("ankiscape", addon.__name__):
+            popups = patch.object(sys.modules[f"{package}.core.logic"], "_popups_enabled", return_value=False)
+            popups.start()
+            self.addCleanup(popups.stop)
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         addon._on_main_menu(initial_skill="Bank")
