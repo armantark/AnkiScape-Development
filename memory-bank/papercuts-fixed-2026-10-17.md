@@ -161,23 +161,6 @@ Evidence: memory-bank/source-audits/dream-and-workshop-iv-opening-boundaries-202
 - 2026-10-15T13:41:48.645307+00:00: R24 projection contained the real elemental_workshop_iii prerequisite, but the verdict skipped its retained owner hold and selected IV's later book-source question as first. This was a qualification error. Correction adds an explicit disposition for every actual IV prerequisite, with record/effect/first-unblock fields, rather than a new source/tool framework.
 - 2026-10-15T14:21:57.765533+00:00 — Cross-lineage K3 review identified source line 72 as a separate required post-first-four-feed conversation. The initial review read that conversation as subsumed by the following Spirit encouragement. The final verdict records R1 and requires the owner-scope record to cover both lines 72 and 76. No product code or original qualification packet changed.
 
-## Tribal replay diagnostics derive the actual deck comparison
-
-Disposition: fixed.
-
-Evidence: Commit c08cd480 records the truthful replay correction. /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/manual-tribal-canonical-native-2026-10-15/compare_packets.py:14 excludes distinct-answer deck metadata from exact replay claims and :16 derives the raw diagnostic from decks_equal. The false raw deck results remain retained; no gameplay check is repeated.
-
-- 2026-10-15: Independent Tribal review caught compare_packets.py assigning replay complete_decks_by_id=True without comparison. All five real deck maps differ in distinct-answer mod/timeToday; complete player/save/RNG replay passes. Original helper/result are retained; the repaired helper derives raw false diagnostics, with distinct-answer metadata equality explicitly unclaimed. No native/product check, source, pin or measuring requirement changed.
-
-## Post-gate reporting uses the official receipt instead of fragile summary parsing
-
-Disposition: fixed.
-
-Evidence: Commits 16ddfae5 and b40f6c7a record the corrected diagnostic/acceptance path: anchored exact lane summaries supply display numbers, while the source-bound official all-nine JSON receipt and command exit determine acceptance. The broken blank-line/end-of-log parser is retired from that reporting path. The original gate receipts and logs remain unchanged; no passed gate is rerun.
-
-- 2026-10-07T04:46:32.172297+00:00 Root projected the documentation gate result: three inline parsers raised `AssertionError` while matching duplicated wrapper summaries and a timestamp after `=== GATE DONE ===`; anchored summary-line parsing plus the official nine-check receipt resolved the record without rerunning the passed gate.
-- 2026-10-07T05:33:57.095346+00:00 Post-gate presentation parser raised AssertionError before saving the control update: the log repeats raw and summary Ran/OK lines and ends with === GATE DONE ===. Official all-nine JSON receipt and official land command succeeded. Acceptance now uses only the source-bound official JSON receipt and command exit; named Remote plain/qt lane summary sections supply optional display numbers, never acceptance.
-
 ## Sawmill fixture migration and ledger binding repaired
 
 Disposition: fixed.
