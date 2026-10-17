@@ -1,6 +1,6 @@
 # Mystic hat variants GE contract — 2026-10-17
 
-Status: qualified for backend implementation. Base: `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`.
+Status: implemented on `goal/source-harvest-9-2026-10-17`; Root promotion and native acceptance pending. Source qualification base: `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`.
 Cutoff: `2012-11-20T00:00:00Z`. Backend scope only.
 Preserve the current storage keys, interface, icons, equipment stats, Slayer drops and review rates.
 Root owns promotion, native verification and peer notices.
@@ -72,4 +72,25 @@ Run `python3 run_tests.py` and the standing documentation, test-quality, item-re
 Root runs both full lanes on the merged commit through the promotion gate.
 Check the real catalog, buy/sell offer flow, buy-limit enforcement and nonstackable capacity for both exact names; prove the blue row and existing rows remain intact.
 Check save/reload and review Undo. Add behavior coverage only for a real coverage gap.
-This research contract does not claim implementation, native proof or gameplay acceptance.
+The source qualification above does not establish native proof or gameplay acceptance.
+
+## Implementation and consumer checks — 2026-10-17
+
+The implementation starts at `b7768ff3b96de25383cb98ce1905863fb05ef679` and follows the unlit Mining helmet `5014` source/generator path inspected at `3160e5a2`; that branch was not merged.
+`data/item_values.py` supplies exact dark/light aliases for the shared cache name `Mystic hat`, with value `15000` and GE eligibility.
+The two literal Exchange rows above enter `data/grand_exchange_period_source.json`; the existing generator writes `generated/grand_exchange_period_generated.py` without a new harvest.
+The exact price-count assertion changes from `1443` to `1445` and the exact limit-count assertion from `1838` to `1840` because two already registered, distinct period hats now have sourced market rows. Both assertions remain equalities.
+The real catalog changes from `1858` to `1860` rows: only `4099` and `4109` are added; every existing row compares equal to the implementation base. The blue `4089` market remains unchanged.
+
+The GE rows now expose low/high alchemy metadata `6000`/`9000`, derived from value `15000`, and the item-value consumer recognizes each hat at `15000`.
+The actual Magic picker and runtime alchemy handler use `SHOP_PLAYER_BUY_PRICES`, not GE metadata or `ITEM_VALUES`; neither variant has a resolved entry there. Both remain unavailable to alchemy.
+General-store sales still return `sell_price_unresolved`, with inventory and coins unchanged, because `SHOP_PLAYER_SELL_PRICES` has no exact dark/light entry. No shop or alchemy price is invented by this slice.
+The blue hat retains shop sale `4500` and alchemy value `15000`. Equipment, icons, drop producers and nonstackable flags are unchanged.
+
+`tests/item_tradeability/test_mystic_hat_markets.py` drives ordinary main-menu GE callbacks for both hats and both offer sides, cancellation and collection, actual review-driven fills, and whole-player/current-skill Undo comparisons.
+The same lifecycle saves and loads through the production functions and closes/reopens a real temporary Anki collection in the focused Qt lane.
+An additional review-driven scenario reaches each 100-item buy limit, retains the unfilled remainder, then cancels and collects it without loss.
+The catalog/consumer test failed on both missing names before implementation. `tests/test_grand_exchange_data.py` also checks offline generator reproducibility.
+Proof inventories, commands, full logs, before/after consumers and the complete catalog comparison are under `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-9/implementation/`.
+Full branch verification is recorded there; Root still owns merged promotion and native acceptance.
+Relicym's mix is unchanged and remains deferred until the shared fix on `goal/pyramid-pack-capacity-2026-10-17` resolves the reproduced `Pack 29/28` defect.

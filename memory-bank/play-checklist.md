@@ -83,6 +83,7 @@ you are in the game, with the date the change reached main.
 
 ## Bank, shops and items
 
+- [ ] In Grand Exchange, buy and sell Mystic hat (dark) and Mystic hat (light), answer cards for fills, cancel an offer and collect its remainder, then reload; each variant keeps its identity, each buy limit is 100, and Undo restores the complete prior state. (after promotion)
 - [ ] Buy an unattached hatchet from Bob and attach it in the Bank: My Axe Is My Buddy completes once; Undo restores the hatchet and removes the deed, replay restores it, and reopening keeps it. A refused attachment gives no credit. (2026-10-17)
 - [ ] After Family Crest, discard your only gauntlet pair in Bank, open Cooking > Shark Target Details and recover the pair from Dimintheis: the remembered gauntlets return free and Varrock Hard's Hand-Me-Downs completes once; Undo removes both, replay restores both, and reopening keeps the deed. (after native acceptance)
 - [ ] Earn 800 Brimhaven tickets, exchange for Pirate's hook, sell it through the GE, collect the coins, then reload; Undo of the exchange and offer restores custody. (after promotion)

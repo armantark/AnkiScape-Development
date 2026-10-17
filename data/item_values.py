@@ -79,7 +79,7 @@ def _add_plural_aliases(
             exchangeable.add(alias)
 
 
-def _add_pouch_aliases(values: Dict[str, int], exchangeable: set) -> None:
+def _add_cache_name_aliases(values: Dict[str, int], exchangeable: set) -> None:
     for pouch in _SUMMONING_POUCHES:
         cache_name = _POUCH_CACHE_NAMES_BY_ID.get(pouch.pouch_item_id)
         if (
@@ -90,6 +90,10 @@ def _add_pouch_aliases(values: Dict[str, int], exchangeable: set) -> None:
             values[pouch.pouch_name] = ITEM_VALUES_GENERATED[cache_name]
             if cache_name in exchangeable:
                 exchangeable.add(pouch.pouch_name)
+    # Rev-727/742 worn variants share their cache name and value with the blue hat.
+    for name in ("Mystic hat (dark)", "Mystic hat (light)"):
+        values[name] = ITEM_VALUES_GENERATED["Mystic hat"]
+        exchangeable.add(name)
 
 
 def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str]]":
@@ -116,7 +120,7 @@ def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str
             values.setdefault(f"{name.removesuffix(' (deg)')} 100", value)
     stackable |= set(STACKABLE_ITEM_NAMES_GENERATED)
     _add_plural_aliases(values, stackable, exchangeable)
-    _add_pouch_aliases(values, exchangeable)
+    _add_cache_name_aliases(values, exchangeable)
     stackable.difference_update(_FORCED_UNSTACKABLE_ITEM_NAMES)
     return values, frozenset(stackable), frozenset(exchangeable)
 
