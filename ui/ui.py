@@ -8,6 +8,8 @@ from copy import deepcopy
 from typing import Any, Optional
 import datetime
 
+from ..core.search_match import match_rank
+
 try:
     from aqt import mw  # type: ignore
     from aqt.qt import *  # type: ignore
@@ -87,7 +89,6 @@ from ..core.constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
     DEFAULT_WOODCUTTING_TARGET,
-    BIRD_NEST_OPEN_TABLES,
     BAR_DATA,
     SMITHING_DATA,
     DEFAULT_SMITHING_TARGET,
@@ -99,8 +100,8 @@ from ..core.constants import (
     FLETCHING_GROUP_ORDER,
     HERBLORE_DATA,
     PRAYER_DATA,
+    COMBAT_PRAYERS,
     DEFAULT_PRAYER_TARGET,
-    PRAYER_GROUP_ORDER,
     PRAYER_ITEM_IMAGES,
     MAGIC_DATA,
     DEFAULT_MAGIC_TARGET,
@@ -138,9 +139,9 @@ from ..core.constants import (
     FISHING_OUTPUT_ITEMS,
     RUNECRAFTING_GROUP_LABELS,
     UTILITY_ACTIVITY_DATA,
-    UTILITY_SURFACE_ID,
     ACTIVITY_SURFACE_ID,
     FAMILIARISATION_ACTIVITY_ID,
+    VINESWEEPER_ACTIVITY_ID,
     DEFAULT_FIREMAKING_TARGET,
     DEFAULT_FISHING_TARGET,
     DEFAULT_HUNTER_TARGET,
@@ -163,7 +164,6 @@ from ..core.constants import (
     HERBLORE_OUTPUT_ITEMS,
     SUMMONING_ITEM_IMAGES,
     TROUBLE_BREWING_ITEM_IMAGES,
-    UTILITY_ITEM_IMAGES,
     ACHIEVEMENTS,
     EQUIPMENT_SLOTS,
     EQUIPMENT_ITEM_DATA,
@@ -197,9 +197,6 @@ from ..data.evil_tree_data import EVIL_TREE_TIERS
 from ..data.dungeoneering_data import DUNGEONEERING_REWARDS
 from ..data.bork_data import BORK_EFFIGY_ITEM
 from ..data.achievement_cape_data import SKILLCAPES
-
-from ..data.impling_jar_data import IMPLING_JAR_DATA
-from ..data.pack_data import ITEM_PACK_DATA
 
 from ..data.evil_tree_data import EVIL_TREE_KINDLING, EVIL_TREE_UTILITY_ID
 from ..logic.evil_tree_logic import evil_tree_view_pure
@@ -236,7 +233,6 @@ from ..logic.penguin_hide_and_seek_logic import (
     penguin_view_pure,
 )
 
-from ..data.vinesweeper_data import VINESWEEPER_ACTIVITY_ID
 from ..logic.vinesweeper_logic import vinesweeper_view_pure
 
 from ..data.fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
@@ -289,7 +285,6 @@ from ..data.flash_powder_factory_data import (
     FLASH_POWDER_FACTORY_APPARATUS_POLICIES,
     FLASH_POWDER_FACTORY_STRATEGIES,
     FLASH_POWDER_FACTORY_XP_LOTS,
-    ROGUE_KIT_OUTPUTS,
 )
 from ..logic.flash_powder_factory_logic import flash_powder_factory_view_pure
 
@@ -326,7 +321,6 @@ from ..data.great_orb_project_data import (
     GREAT_ORB_PROJECT_CRAFTING_POLICIES,
     GREAT_ORB_PROJECT_DOCTRINES,
     GREAT_ORB_PROJECT_ROUNDS,
-    GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM,
 )
 from ..logic.great_orb_project_logic import great_orb_project_view_pure
 
@@ -345,7 +339,6 @@ from ..data.trouble_brewing_data import (
     TROUBLE_BREWING_ACTIVITY_ID,
     TROUBLE_BREWING_DUTIES,
     TROUBLE_BREWING_EVENT_REVIEWS,
-    TROUBLE_BREWING_RUMS_BY_ITEM,
 )
 from ..logic.trouble_brewing_logic import trouble_brewing_view_pure
 
@@ -472,42 +465,28 @@ from ..data.summoning_data import (
     SUMMONING_POUCHES_BY_ID,
 )
 from ..data.pet_data import OBTAINABLE_PETS, PETS_BY_ID
-from ..data.slayer_data import (
-    DEFAULT_SLAYER_MASTER_ID,
-    SLAYER_FAMILIES_BY_ID,
-    TURAEL_MASTER,
-)
-from ..logic.slayer_logic import (
-    sanitize_slayer_state_pure,
-    slayer_master_display_name_pure,
-    slayer_master_persona_pure,
-    slayer_target_ids_for_assignment_pure,
-)
-from ..logic_pure.logic_pure import compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
+from ..data.slayer_data import SLAYER_FAMILIES_BY_ID
+from ..logic.slayer_logic import slayer_target_ids_for_assignment_pure
+from ..logic_pure.logic_pure import claim_rows_pure, compute_level_progress, can_cut_tree_pure, can_mine_ore_pure, can_smelt_any_bar_pure, can_smith_item_pure, smithing_target_locked_reasons_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_dream_thrift_locked_reasons_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
 from ..core.skill_registry import get_skill
-from ..logic.wicked_hood_logic import wicked_hood_view_pure
+from ..logic.wicked_hood_logic import WICKED_HOOD_REQUIRED_MESSAGE, wicked_hood_view_pure
 from ..logic.daily_challenges_logic import daily_challenges_view_pure
 from ..logic.treasure_trails_logic import treasure_trails_view_pure
 from ..logic_pure.logic_pure import combat_grave_banner_view_pure, combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
 from ..logic_pure.logic_pure_combat_card import review_combat_card_view_pure
 
-from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
-
 from ..logic_pure.logic_pure import (
-    effective_gilded_altar_multiplier_pure,
     full_urn_teleport_info_pure,
     owned_altar_id_pure,
-    owned_gilded_altar_effective_burners_pure,
-    prayer_selection_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure
+from ..logic_pure.logic_pure import STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, landmark_hud_progress_pure
 
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS
 
 from ..core.skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
 
-from ..core.skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill, trainable_skill_definitions
+from ..core.skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill
 
 from ..core.help_system import (
     HELP_HOME_ID,
@@ -541,7 +520,6 @@ from ..core.target_metadata import (
     thieving_target_rows,
     agility_target_rows,
     summoning_target_rows,
-    utility_activity_rows,
     woodcutting_target_rows,
 )
 
@@ -628,7 +606,6 @@ from ..logic.farming_logic import (
     farming_frontend_projection_pure,
 )
 from ..logic.dnd_favourites_logic import (
-    dnd_activity_display_name_pure,
     dnd_favourite_context_menu_view_pure,
     dnd_favourite_detail_button_view_pure,
 )
@@ -1689,7 +1666,7 @@ if HAS_QT:
                 return
             super().keyPressEvent(event)
 
-    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, stacked_pair, vertical_scroll, wrapped_label
+    from .ui_text_fit import FlowLayout, LeadRowLayout, WrappingCheckBox, side_pair, stacked_pair, vertical_scroll, wrapped_label
 
     class CatalogFilterBar(QWidget):
         """Shared search/filter chrome for catalog-like pages.
@@ -1711,7 +1688,7 @@ if HAS_QT:
             self.setObjectName(f"{search_object_name}Bar")
             root = QVBoxLayout(self)
             root.setContentsMargins(0, 0, 0, 0)
-            root.setSpacing(6)
+            root.setSpacing(8)
 
             search_row = LeadRowLayout()
             search_row.setContentsMargins(0, 0, 0, 0)
@@ -1736,8 +1713,10 @@ if HAS_QT:
             root.addLayout(search_row)
 
             self.filter_row = QWidget()
-            # Filters wrap onto more lines rather than squeezing at 720 px.
-            self.filter_layout = WidgetFlowLayout(self.filter_row, h_spacing=8, v_spacing=6)
+            # Filters wrap onto more lines rather than squeezing at 720 px. The
+            # gap between filters is three times a label's gap to its own box,
+            # so each label reads as part of its box, not of the filter before.
+            self.filter_layout = WidgetFlowLayout(self.filter_row, h_spacing=12, v_spacing=8)
             self.filter_row.setVisible(False)
             root.addWidget(self.filter_row)
 
@@ -1756,25 +1735,14 @@ if HAS_QT:
         def add_filter(self, widget: QWidget, label: str = "") -> None:
             self.filter_row.setVisible(True)
             if label:
-                pair = QWidget()
-                pair_layout = QHBoxLayout(pair)
-                pair_layout.setContentsMargins(0, 0, 0, 0)
-                label_widget = QLabel(label)
-                label_widget.setStyleSheet(f"color: {dim_text_css(label_widget)};")
-                pair_layout.addWidget(label_widget)
-                pair_layout.addWidget(widget)
-                widget = pair
+                widget = side_pair(label, widget, f"color: {dim_text_css(widget)};")
             self.filter_layout.addWidget(widget)
 
         def query(self) -> str:
             return self.search_input.text().strip().casefold()
 
         def matches_text(self, *values: object) -> bool:
-            query = self.query()
-            if not query:
-                return True
-            searchable = " ".join(str(value) for value in values if value is not None).casefold()
-            return all(token in searchable for token in query.split())
+            return match_rank(self.query(), *values) is not None
 
         def set_count(self, visible: int, total: int) -> None:
             self.summary_label.setText(f"Showing {int(visible)}/{int(total)}")
@@ -4863,6 +4831,7 @@ def show_main_menu(
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
+    on_destroy_claim=None,
     on_claim_stronghold_reward=None,
     on_mage_arena_action=None,
     on_set_floating_enabled=None,
@@ -5269,7 +5238,7 @@ def show_main_menu(
             warn.setText("You can't do any Herblore yet. Gather grimy herbs, vials, and secondaries, or level up first!")
             return
         if display_name == "Prayer" and not _prayer_available():
-            warn.setText("The selected Prayer method is not ready. Check its materials and altar requirements.")
+            warn.setText(prayer_panel_view_pure(player_data, PRAYER_DATA)["unavailable_warning"])
             return
         if display_name == "Thieving" and not _thieving_available():
             warn.setText("The selected Thieving target is locked. Check its level and quest requirements.")
@@ -5307,6 +5276,8 @@ def show_main_menu(
 
     # ---- target list builders (one per implemented skill) ----
     from .ui_target_search import build_searchable_target_selector, short_target_row_label, style_flat_target_list
+    from .ui_utility_activity_list import UtilityActivityList
+    from .ui_prayer_panel import build_prayer_panel, prayer_panel_view_pure
 
     def _build_flat_target_list(
         rows: tuple[TargetRowMetadata, ...],
@@ -5680,77 +5651,12 @@ def show_main_menu(
         )
 
     def _build_prayer_list() -> QWidget:
-        panel = QWidget()
-        panel.setObjectName("prayerSkillPanel")
-        panel_layout = QVBoxLayout(panel)
-        panel_layout.setContentsMargins(0, 0, 0, 0)
-
-        current_target = str(player_data.get("current_prayer", DEFAULT_PRAYER_TARGET))
-        saved_mode = str(player_data.get("prayer_gilded_mode", "hosted"))
-        current_selection = prayer_selection_from_target_pure(current_target, saved_mode)
-        default_selection = prayer_selection_from_target_pure(DEFAULT_PRAYER_TARGET, saved_mode)
-        material_id = (current_selection or default_selection or ("bones", "base"))[0]
-        altar_target = f"gilded_altar_{material_id}"
-        owned_burners = owned_gilded_altar_effective_burners_pure(player_data, altar_target)
-        owned_multiplier = effective_gilded_altar_multiplier_pure(player_data, "owned", altar_target)
-
-        mode_row = QHBoxLayout()
-        mode_label = QLabel("Gilded altar mode")
-        mode_label.setObjectName("prayerGildedModeLabel")
-        mode_row.addWidget(mode_label)
-        mode = QComboBox()
-        mode.setObjectName("prayerGildedModeCombo")
-        mode.addItem("Hosted - 350% XP", "hosted")
-        mode.addItem(f"Owned - {owned_multiplier * 100:g}% XP ({owned_burners}/2 burners)", "owned")
-        for index, ui_method_id in enumerate(("gilded_hosted", "gilded_owned")):
-            reasons = prayer_selection_locked_reasons_pure(player_data, material_id, ui_method_id, PRAYER_DATA)
-            item = mode.model().item(index)
-            if item is not None:
-                item.setEnabled(not reasons)
-                if reasons:
-                    item.setToolTip("Locked due to: " + ", ".join(reasons))
-        selected = mode.findData(saved_mode)
-        mode.setCurrentIndex(max(0, selected))
-
-        def _apply_prayer_selection(material: str, ui_method: str) -> bool:
-            if on_set_prayer_selection is None:
-                return False
-            if not on_set_prayer_selection(material, ui_method):
-                return False
-            _render_panel()
-            return True
-
-        def _on_mode_changed(_index: int) -> None:
-            selected_mode = str(mode.currentData() or "hosted")
-            ui_method = "gilded_owned" if selected_mode == "owned" else "gilded_hosted"
-            if not _apply_prayer_selection(material_id, ui_method):
-                mode.blockSignals(True)
-                mode.setCurrentIndex(max(0, mode.findData(str(player_data.get("prayer_gilded_mode", "hosted")))))
-                mode.blockSignals(False)
-
-        mode.currentIndexChanged.connect(_on_mode_changed)
-        mode_row.addWidget(mode, 1)
-        panel_layout.addLayout(mode_row)
-
-        def _select_prayer_target(target_id: str) -> None:
-            selection = prayer_selection_from_target_pure(
-                target_id,
-                str(player_data.get("prayer_gilded_mode", "hosted")),
-            )
-            if selection is not None:
-                _apply_prayer_selection(*selection)
-
-        panel_layout.addWidget(build_searchable_target_selector(
-            _build_target_selector,
-            prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET),
-            key="prayer",
-            noun="bones and ashes",
-            group_labels={group: group for group in PRAYER_GROUP_ORDER},
-            group_role_prefix="__prayer_group__:",
-            on_select=_select_prayer_target,
-            group_order=list(PRAYER_GROUP_ORDER),
-        ), 1)
-        return panel
+        return build_prayer_panel(
+            player_data,
+            lambda rows, **options: build_searchable_target_selector(_build_target_selector, rows, **options),
+            on_set_prayer_selection,
+            _render_panel,
+        )
 
     construction_feedback = {"message": ""}
 
@@ -7091,11 +6997,11 @@ def show_main_menu(
         if hood["claimed"] and not hood["owned"]:
             guidance_text = "Reclaim the hood to restore its saved upgrades and allowances."
         elif not hood["operable"]:
-            guidance_text = "Equip the hood or place it in this target's carried pack."
+            guidance_text = WICKED_HOOD_REQUIRED_MESSAGE
         elif pending_option:
             guidance_text = (
                 f"Queued for {pending_option['display_name']} · "
-                "the next matching outbound route is skipped"
+                "your next trip there skips the walk"
             )
         elif allowances_exhausted:
             guidance_text = "Allowances exhausted · refills every 240 answered cards"
@@ -7171,8 +7077,8 @@ def show_main_menu(
         teleport_choice.setEnabled(
             bool(altar_options) and bool(hood["operable"]) and not pending_altar
         )
-        controls.addWidget(rune_choice, 1, 0)
-        rune_button = QPushButton("Withdraw")
+        controls.addWidget(rune_choice, 1, 0, 1, 2)
+        rune_button = QPushButton("Withdraw runes")
         rune_button.setObjectName("wickedHoodRunesButton")
         rune_button.setAccessibleName("Withdraw Wicked hood runes")
         rune_button.setToolTip(
@@ -7184,8 +7090,8 @@ def show_main_menu(
             and bool(altar_options)
             and int(hood["rune_withdrawals_remaining"]) > 0
         )
-        controls.addWidget(rune_button, 1, 1)
-        controls.addWidget(teleport_choice, 2, 0)
+        controls.addWidget(rune_button, 2, 0, 1, 2)
+        controls.addWidget(teleport_choice, 3, 0, 1, 2)
         teleport_button = QPushButton("Teleport")
         teleport_button.setObjectName("wickedHoodTeleportButton")
         teleport_button.setAccessibleName("Use Wicked hood altar teleport")
@@ -7212,14 +7118,14 @@ def show_main_menu(
                 teleport_button.setToolTip("Feed a talisman or tiara to unlock an altar.")
             else:
                 teleport_button.setToolTip(
-                    "Spend one teleport to skip the selected altar route's outbound leg."
+                    "Spend one teleport so your next trip to this altar skips the walk."
                 )
 
         _refresh_teleport_gate()
         teleport_choice.currentIndexChanged.connect(
             lambda _index: _refresh_teleport_gate()
         )
-        controls.addWidget(teleport_button, 2, 1)
+        controls.addWidget(teleport_button, 4, 0, 1, 2)
 
         claimed = bool(hood["claimed"])
         owns_hood = bool(hood["owned"])
@@ -7231,7 +7137,7 @@ def show_main_menu(
         )
         reclaim_button.setVisible(claimed and not owns_hood)
         reclaim_button.setEnabled(on_wicked_hood_command is not None and claimed and not owns_hood)
-        controls.addWidget(reclaim_button, 3, 0, 1, 2)
+        controls.addWidget(reclaim_button, 5, 0, 1, 2)
         hood_layout.addLayout(controls)
 
         def _run_hood_action(action_id: str, payload: dict | None = None) -> None:
@@ -7274,7 +7180,7 @@ def show_main_menu(
             on_select=on_set_runecrafting,
             group_order=list(RUNECRAFTING_GROUP_LABELS),
         ), 1)
-        return panel
+        return vertical_scroll(panel)
 
     def _build_thieving_list() -> QWidget:
         panel = QWidget()
@@ -8338,199 +8244,15 @@ def show_main_menu(
         tabs.setCurrentWidget(skills_tab)
 
     def _build_slayer_list() -> QWidget:
-        data = sanitize_slayer_state_pure(player_data)
-        assignment = data.get("slayer_assignment") or {}
-        family = SLAYER_FAMILIES_BY_ID.get(
-            str(assignment.get("family_id", "") or "")
+        from .ui_slayer_panel import build_slayer_panel
+
+        return build_slayer_panel(
+            player_data,
+            run_command=_run_slayer_command,
+            commands_enabled=on_slayer_command is not None,
+            on_assigned=_render_panel,
+            open_in_combat=_open_slayer_assignment_in_combat,
         )
-        remaining = int(assignment.get("remaining", 0) or 0)
-
-        container = QWidget()
-        layout = QVBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
-
-        slayer_tabs = QTabWidget()
-        slayer_tabs.setObjectName("slayerManagementTabs")
-        slayer_tabs.setDocumentMode(True)
-
-        assignment_tab = QWidget()
-        assignment_layout = QVBoxLayout(assignment_tab)
-        assignment_layout.setContentsMargins(10, 10, 10, 10)
-        assignment_layout.setSpacing(10)
-        if family is not None and remaining > 0:
-            card = QWidget()
-            card.setObjectName("slayerActiveAssignmentCard")
-            card.setStyleSheet(
-                "QWidget#slayerActiveAssignmentCard {"
-                " border: 1px solid #4CAF50; border-radius: 9px;"
-                " background: rgba(76,175,80,0.10); }"
-            )
-            card_layout = QVBoxLayout(card)
-            card_layout.setContentsMargins(12, 10, 12, 10)
-            speaker_row = QHBoxLayout()
-            speaker_row.setContentsMargins(0, 0, 0, 0)
-            speaker_row.setSpacing(10)
-            master_name, chathead_asset_path = slayer_master_persona_pure(
-                data, str(assignment.get("master_id", DEFAULT_SLAYER_MASTER_ID))
-            )
-            assignment_chathead = QLabel()
-            assignment_chathead.setObjectName("slayerAssignmentChathead")
-            _set_slayer_master_chathead(assignment_chathead, chathead_asset_path)
-            speaker_row.addWidget(assignment_chathead, 0, Qt.AlignmentFlag.AlignTop)
-            title = QLabel(family.display_name)
-            title.setStyleSheet("color: palette(text); font-size: 14px; font-weight: 700;")
-            speaker_row.addWidget(title, 1, Qt.AlignmentFlag.AlignVCenter)
-            card_layout.addLayout(speaker_row)
-            progress = QLabel(
-                f"{remaining} of {int(assignment.get('initial_count', remaining) or remaining)} remaining"
-                f" · assigned by {master_name}"
-            )
-            progress.setObjectName("slayerAssignmentProgress")
-            progress.setStyleSheet(f"color: {dim_text_css(progress)};")
-            card_layout.addWidget(progress)
-            assignment_layout.addWidget(card)
-
-            open_combat = QPushButton("Open in Combat")
-            open_combat.setObjectName("slayerOpenCombatButton")
-            open_combat.setToolTip(
-                "Open Combat with Current Slayer task only enabled. No encounter starts."
-            )
-            open_combat.clicked.connect(
-                lambda _=False: _open_slayer_assignment_in_combat()
-            )
-            assignment_layout.addWidget(open_combat)
-        else:
-            active_master_name = slayer_master_display_name_pure(
-                data, DEFAULT_SLAYER_MASTER_ID
-            )
-            succession_note = (
-                "; after While Guthix Sleeps, Spria fills this role"
-                if active_master_name == "Turael"
-                else ""
-            )
-            empty = QLabel(
-                "You do not have an active assignment.\n"
-                f"Ask {active_master_name} for a beginner task{succession_note}."
-            )
-            empty.setObjectName("slayerAssignmentEmptyState")
-            empty.setWordWrap(True)
-            empty.setStyleSheet(f"color: {dim_text_css(empty)};")
-            assignment_layout.addWidget(empty)
-            get_assignment = QPushButton("Get assignment")
-            get_assignment.setObjectName("slayerGetAssignmentButton")
-            get_assignment.setEnabled(on_slayer_command is not None)
-
-            def _get_assignment(_checked=False) -> None:
-                result = _run_slayer_command(
-                    "get_assignment",
-                    {"master_id": DEFAULT_SLAYER_MASTER_ID},
-                )
-                if result.get("ok", False):
-                    _render_panel()
-
-            get_assignment.clicked.connect(_get_assignment)
-            assignment_layout.addWidget(get_assignment)
-        completed = QLabel(
-            f"Assignments completed: {int(data.get('slayer_tasks_completed', 0) or 0)}"
-        )
-        completed.setObjectName("slayerCompletedCount")
-        completed.setStyleSheet(f"color: {dim_text_css(completed)};")
-        assignment_layout.addWidget(completed)
-        assignment_layout.addStretch(1)
-        slayer_tabs.addTab(assignment_tab, "Assignment")
-
-        masters_tab = QWidget()
-        masters_layout = QVBoxLayout(masters_tab)
-        masters_layout.setContentsMargins(10, 10, 10, 10)
-        masters_layout.setSpacing(8)
-        master_card = QWidget()
-        master_card.setObjectName("slayerMaster_turael_spria")
-        master_card.setStyleSheet(
-            "QWidget#slayerMaster_turael_spria {"
-            " border: 1px solid palette(mid); border-radius: 9px;"
-            " background: palette(base); }"
-        )
-        master_layout = QHBoxLayout(master_card)
-        master_layout.setContentsMargins(12, 10, 12, 10)
-        master_name, chathead_asset_path = slayer_master_persona_pure(
-            data, TURAEL_MASTER.id
-        )
-        master_chathead = QLabel()
-        master_chathead.setObjectName("slayerMasterChathead")
-        _set_slayer_master_chathead(master_chathead, chathead_asset_path)
-        master_layout.addWidget(master_chathead, 0, Qt.AlignmentFlag.AlignTop)
-        master_copy = QVBoxLayout()
-        master_title = QLabel(master_name)
-        master_title.setStyleSheet("color: palette(text); font-weight: 700;")
-        master_copy.addWidget(master_title)
-        master_note = QLabel(
-            f"Beginner master · {len(TURAEL_MASTER.family_ids)} possible assignments"
-        )
-        master_note.setStyleSheet(f"color: {dim_text_css(master_note)};")
-        master_copy.addWidget(master_note)
-        master_layout.addLayout(master_copy, 1)
-        master_button = QPushButton("Active task" if remaining > 0 else "Get assignment")
-        master_button.setObjectName("slayerMasterAssignmentButton")
-        master_button.setEnabled(on_slayer_command is not None and remaining <= 0)
-
-        def _get_master_assignment(_checked=False) -> None:
-            result = _run_slayer_command(
-                "get_assignment", {"master_id": DEFAULT_SLAYER_MASTER_ID}
-            )
-            if result.get("ok", False):
-                _render_panel()
-
-        master_button.clicked.connect(_get_master_assignment)
-        master_layout.addWidget(master_button)
-        masters_layout.addWidget(master_card)
-        masters_note = QLabel(
-            "More masters unlock as their assignments and requirements become available."
-        )
-        masters_note.setWordWrap(True)
-        masters_note.setStyleSheet(f"color: {dim_text_css(masters_note)};")
-        masters_layout.addWidget(masters_note)
-        masters_layout.addStretch(1)
-        slayer_tabs.addTab(masters_tab, "Masters")
-
-        rewards_tab = QWidget()
-        rewards_layout = QVBoxLayout(rewards_tab)
-        rewards_layout.setContentsMargins(10, 10, 10, 10)
-        rewards_layout.setSpacing(8)
-        smoking_complete = bool(
-            ((data.get("quests", {}) or {}).get("smoking_kills", {}) or {}).get(
-                "completed"
-            )
-        )
-        if not smoking_complete:
-            lock = QLabel(
-                "Complete Smoking Kills to activate Slayer points, streak rewards, "
-                "assignment skips and blocks, and the reward shop."
-            )
-            lock.setObjectName("slayerRewardsSmokingKillsLock")
-            lock.setWordWrap(True)
-            lock.setStyleSheet(
-                "color: palette(text); border: 1px solid rgba(255,183,77,0.55);"
-                " border-radius: 8px; background: rgba(255,183,77,0.08);"
-                " padding: 10px;"
-            )
-            rewards_layout.addWidget(lock)
-        else:
-            points = QLabel(f"Slayer points: {int(data.get('slayer_points', 0) or 0)}")
-            points.setObjectName("slayerPointsBalance")
-            points.setStyleSheet("color: palette(text); font-weight: 700;")
-            rewards_layout.addWidget(points)
-            availability = QLabel(
-                "Reward purchases will appear here as they become available."
-            )
-            availability.setWordWrap(True)
-            availability.setStyleSheet(f"color: {dim_text_css(availability)};")
-            rewards_layout.addWidget(availability)
-        rewards_layout.addStretch(1)
-        slayer_tabs.addTab(rewards_tab, "Rewards")
-
-        layout.addWidget(slayer_tabs, 1)
-        return container
 
     def _build_combat_list() -> QWidget:
         container = QWidget()
@@ -8634,7 +8356,6 @@ def show_main_menu(
 
     def _build_utility_list(surface_name: str) -> QWidget:
         is_activities = surface_name == _ACTIVITIES_HUB_NAME
-        activity_group_role = int(Qt.ItemDataRole.UserRole) + 1
         container = QWidget()
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
@@ -18110,22 +17831,11 @@ def show_main_menu(
         def _claim_stronghold_lamp() -> None:
             view = stronghold_player_safety_view_pure(player_data)
             claim_id = str(view.get("next_lamp_claim_id") or "")
-            claim = CLAIM_DATA.get(claim_id)
-            if not isinstance(claim, Mapping) or on_claim_reward is None:
+            row = next((row for row in claim_rows_pure(player_data, CLAIM_DATA)
+                        if row["claim_id"] == claim_id), None)
+            if row is None or on_claim_reward is None:
                 return
-            minimum_level = int(claim.get("minimum_level", 1) or 1)
-            configured_skill_ids = frozenset(
-                map(str, claim.get("skill_options", ()) or ())
-            )
-            eligible_skill_ids = [
-                skill.id
-                for skill in trainable_skill_definitions()
-                if (
-                    not configured_skill_ids
-                    or skill.id in configured_skill_ids
-                )
-                and _skill_level(skill.id) >= minimum_level
-            ]
+            eligible_skill_ids = row["eligible_skill_ids"]
             if not eligible_skill_ids:
                 return
             skill_id = _choose_xp_lamp_skill(
@@ -20059,355 +19769,8 @@ def show_main_menu(
         )
         _refresh_livid_panel()
 
-        tree = QTreeWidget()
-        tree.setObjectName("utilityActivityTree")
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree_base = tree.palette().color(QPalette.ColorRole.Base)
-        activity_selection = QColor(
-            round((tree_base.red() * 0.70) + (76 * 0.30)),
-            round((tree_base.green() * 0.70) + (175 * 0.30)),
-            round((tree_base.blue() * 0.70) + (80 * 0.30)),
-        ).name()
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { min-height: 32px; padding: 5px;"
-            " border-radius: 6px; }"
-            f" QTreeWidget::item:selected {{ background: {activity_selection};"
-            " color: palette(text); }"
-            f" QTreeWidget::branch:selected {{ background: {activity_selection}; }}"
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
-        )
-        rows = utility_activity_rows(
-            player_data,
-            UTILITY_ACTIVITY_DATA,
-            {**UTILITY_ITEM_IMAGES, **COOKING_ITEM_IMAGES},
-            BIRD_NEST_OPEN_TABLES,
-            DEFAULT_UTILITY_ACTIVITY,
-            QUEST_UNLOCK_RULES,
-        )
-        surface_id = ACTIVITY_SURFACE_ID if is_activities else UTILITY_SURFACE_ID
-        rows = tuple(
-            row
-            for row in rows
-            if UTILITY_ACTIVITY_DATA.get(row.target_id, {}).get("surface")
-            == surface_id
-        )
-        current = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
-        if is_activities:
-            rows = (
-                *rows,
-                TargetRowMetadata(
-                    target_id=EVIL_TREE_UTILITY_ID,
-                    label=dnd_activity_display_name_pure(EVIL_TREE_UTILITY_ID),
-                    tooltip=(
-                        "A review-clock world event. Open its panel for the live "
-                        "tree, blessing, and participation status."
-                    ),
-                    current=current == EVIL_TREE_UTILITY_ID,
-                    icon_path=_ACTIVITY_GROUP_ICONS["distractions_and_diversions"],
-                    group="distractions_and_diversions",
-                ),
-            )
-        ordered_groups = list(_UTILITY_GROUP_LABELS)
-        groups = {group: [] for group in ordered_groups}
-        for row in rows:
-            spec = UTILITY_ACTIVITY_DATA.get(row.target_id, {})
-            group = str(spec.get("group") or row.group or "material_processing")
-            if group not in groups:
-                groups[group] = []
-                ordered_groups.append(group)
-            groups[group].append(row)
-
-        collapsed_activity_groups = (
-            activity_collapsed_groups() if is_activities else set()
-        )
-        selected_child = None
-        for group in ordered_groups:
-            group_rows = groups.get(group, [])
-            if not group_rows or (is_activities and group == "landmarks"):
-                continue
-            if is_activities:
-                group_rows = sorted(
-                    group_rows,
-                    key=lambda row: str(row.label).casefold(),
-                )
-            flat_activity_group = (
-                is_activities and group in _ACTIVITY_SELECTION_GROUPS
-            )
-            parent = None
-            if not flat_activity_group:
-                label = _UTILITY_GROUP_LABELS.get(
-                    group, group.replace("_", " ").title()
-                )
-                parent_text = f"{label}  ({len(group_rows)})"
-                parent = QTreeWidgetItem([parent_text])
-                parent.setData(
-                    0,
-                    Qt.ItemDataRole.UserRole,
-                    f"__utility_group__:{group}",
-                )
-                parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-                font = parent.font(0)
-                font.setBold(True)
-                parent.setFont(0, font)
-                tree.addTopLevelItem(parent)
-            group_has_current = False
-            for row in group_rows:
-                child = QTreeWidgetItem([row.label])
-                child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
-                child.setData(0, activity_group_role, group)
-                if row.icon_path and os.path.exists(row.icon_path):
-                    icon = _pixel_path_icon(row.icon_path, 28)
-                    if icon is not None:
-                        child.setIcon(0, icon)
-                if (
-                    not row.enabled
-                    and row.target_id
-                    not in {
-                        WEREWOLF_SKULLBALL_ACTIVITY_ID,
-                        GNOME_BALL_ACTIVITY_ID,
-                        FISHING_TRAWLER_ACTIVITY_ID,
-                        GREAT_ORB_PROJECT_ACTIVITY_ID,
-                        MANAGING_MISCELLANIA_ACTIVITY_ID,
-                    }
-                ):
-                    child.setDisabled(True)
-                child.setToolTip(0, row.tooltip)
-                if parent is None:
-                    tree.addTopLevelItem(child)
-                else:
-                    parent.addChild(child)
-                if row.target_id == current:
-                    selected_child = child
-                    group_has_current = True
-            if is_activities and parent is not None:
-                parent.setExpanded(group not in collapsed_activity_groups)
-            elif parent is not None:
-                parent.setExpanded(group_has_current)
-
-        # Landmarks: the one-time Stronghold of Security. Injected by hand because
-        # it is a step counter, not a repeatable UTILITY_ACTIVITY_DATA activity.
-        sh_state = player_data.get("stronghold_of_security") or {}
-        sh_completed = bool(sh_state.get("completed"))
-        sh_claimed = sh_state.get("boots_choice") is not None
-        sh_step = max(0, min(int(sh_state.get("step", 0) or 0), STRONGHOLD_TOTAL_STEPS))
-        if sh_completed and not sh_claimed:
-            sh_label = "Stronghold of Security — Claim your reward ✨"
-            sh_tooltip = (
-                f"Cleared! Click to choose your boots and collect {STRONGHOLD_REWARD_COINS:,} coins."
-            )
-        elif sh_completed:
-            sh_label = f"Stronghold of Security ✓  ({sh_state.get('boots_choice')})"
-            sh_tooltip = "Completed. Reward already claimed."
-        else:
-            next_name = STRONGHOLD_STEP_NAMES[sh_step] if sh_step < STRONGHOLD_TOTAL_STEPS else STRONGHOLD_STEP_NAMES[-1]
-            sh_label = f"Stronghold of Security — {sh_step}/{STRONGHOLD_TOTAL_STEPS}  (next: {next_name})"
-            sh_tooltip = (
-                "A one-time landmark. Set it as your activity and each review clears "
-                "one level. No XP along the way, but coins and boots at the end."
-            )
-        landmark_rows = groups.get("landmarks", []) if is_activities else []
-        landmark_count = 3 + len(landmark_rows)
-        landmark_parent = QTreeWidgetItem([f"Landmarks  ({landmark_count})"])
-        landmark_parent.setData(0, Qt.ItemDataRole.UserRole, "__utility_group__:landmarks")
-        landmark_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-        lm_font = landmark_parent.font(0)
-        lm_font.setBold(True)
-        landmark_parent.setFont(0, lm_font)
-        if is_activities:
-            tree.addTopLevelItem(landmark_parent)
-        sh_child = QTreeWidgetItem([sh_label])
-        sh_child.setData(0, Qt.ItemDataRole.UserRole, _STRONGHOLD_UTILITY_KEY)
-        sh_child.setToolTip(0, sh_tooltip)
-        sh_icon = os.path.join(current_dir, "icon", "attack_icon.png")
-        if os.path.exists(sh_icon):
-            icon = _pixel_path_icon(sh_icon, 28)
-            if icon is not None:
-                sh_child.setIcon(0, icon)
-        if sh_completed and sh_claimed:
-            sh_child.setDisabled(True)
-        landmark_parent.addChild(sh_child)
-        for row in landmark_rows:
-            child = QTreeWidgetItem([row.label])
-            child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
-            if row.icon_path and os.path.exists(row.icon_path):
-                icon = _pixel_path_icon(row.icon_path, 28)
-                if icon is not None:
-                    child.setIcon(0, icon)
-            child.setToolTip(0, row.tooltip)
-            landmark_parent.addChild(child)
-            if row.target_id == current:
-                selected_child = child
-                landmark_parent.setExpanded(True)
-
-        kw_state = player_data.get("knight_waves") or {}
-        kw_step = max(0, min(int(kw_state.get("step", 0) or 0), KNIGHT_WAVES_TOTAL_STEPS))
-        kw_completed = bool(kw_state.get("completed"))
-        kw_locked = knight_waves_locked_reasons_pure(player_data)
-        kw_label = "Knight Waves Training Ground ✓" if kw_completed else f"Knight Waves Training Ground — {kw_step}/{KNIGHT_WAVES_TOTAL_STEPS}"
-        kw_child = QTreeWidgetItem([kw_label])
-        kw_child.setData(0, Qt.ItemDataRole.UserRole, _KNIGHT_WAVES_UTILITY_KEY)
-        kw_child.setToolTip(
-            0,
-            "Defeat eight knights, one per review. Completion grants 20,000 XP in Attack, Strength, Defence, and Constitution and unlocks Chivalry/Piety."
-            + (f"\nLocked due to: {', '.join(kw_locked)}" if kw_locked and not kw_completed else ""),
-        )
-        kw_icon = os.path.join(current_dir, "icon", "prayer_icon.png")
-        if os.path.exists(kw_icon):
-            icon = _pixel_path_icon(kw_icon, 28)
-            if icon is not None:
-                kw_child.setIcon(0, icon)
-        if kw_completed or kw_locked:
-            kw_child.setDisabled(True)
-        landmark_parent.addChild(kw_child)
-        ma_state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
-        ma_step = max(0, min(int(ma_state.get("step", 0) or 0), MAGE_ARENA_TOTAL_STEPS))
-        ma_completed = bool(ma_state.get("completed"))
-        ma_alignment = str(ma_state.get("alignment", "") or "")
-        ma_locked = mage_arena_locked_reasons_pure(player_data)
-        alignment_label = (
-            MAGE_ARENA_GOD_DATA[ma_alignment]["display_name"]
-            if ma_alignment in MAGE_ARENA_GOD_DATA
-            else ""
-        )
-        ma_label = (
-            f"Mage Arena ✓ · {alignment_label or 'choose alignment'}"
-            if ma_completed
-            else f"Mage Arena — {ma_step}/{MAGE_ARENA_TOTAL_STEPS} Kolodion forms"
-        )
-        ma_child = QTreeWidgetItem([ma_label])
-        ma_child.setData(0, Qt.ItemDataRole.UserRole, _MAGE_ARENA_UTILITY_KEY)
-        ma_child.setToolTip(0, "Defeat Kolodion's five forms, one per review. Choose an alignment before the final form; completion grants its cape, staff, and attunement."
-                            + (f"\nLocked due to: {', '.join(ma_locked)}" if ma_locked and not ma_completed else ""))
-        ma_icon = os.path.join(current_dir, "icon", "magic_icon.png")
-        if os.path.exists(ma_icon):
-            icon = _pixel_path_icon(ma_icon, 28)
-            if icon is not None:
-                ma_child.setIcon(0, icon)
-        if ma_completed or ma_locked:
-            ma_child.setDisabled(True)
-        landmark_parent.addChild(ma_child)
-        if ma_step == MAGE_ARENA_TOTAL_STEPS - 1 and not ma_completed:
-            alignment_parent = QTreeWidgetItem(["Choose alignment for the final form"])
-            alignment_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            landmark_parent.addChild(alignment_parent)
-            for god_id, row in MAGE_ARENA_GOD_DATA.items():
-                alignment_item = QTreeWidgetItem([row["display_name"]])
-                alignment_item.setData(
-                    0,
-                    Qt.ItemDataRole.UserRole,
-                    f"__mage_alignment__:{god_id}",
-                )
-                alignment_item.setToolTip(
-                    0,
-                    f"Final victory grants the {row['cape']} and {row['staff']} and attunes {row['spell_name']}.",
-                )
-                alignment_parent.addChild(alignment_item)
-            alignment_parent.setExpanded(True)
-        if ma_completed:
-            statue_parent = QTreeWidgetItem(["Mage Arena statues"])
-            statue_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            landmark_parent.addChild(statue_parent)
-            inventory = player_data.get("inventory", {}) or {}
-            equipment = player_data.get("equipment", {}) or {}
-            attuned = set(ma_state.get("attuned_spells", ()))
-            for god_id, row in MAGE_ARENA_GOD_DATA.items():
-                cape_label = (
-                    f"Choose {row['cape']}"
-                    if not ma_alignment
-                    else (
-                        f"Reclaim {row['cape']}"
-                        if god_id == ma_alignment
-                        else f"Switch to {row['cape']}"
-                    )
-                )
-                cape_item = QTreeWidgetItem([cape_label])
-                cape_item.setData(
-                    0,
-                    Qt.ItemDataRole.UserRole,
-                    f"__mage_cape__:{god_id}",
-                )
-                cape_item.setToolTip(
-                    0,
-                    "Instant statue action. Any other god cape is destroyed or replaced; only one may be owned.",
-                )
-                statue_parent.addChild(cape_item)
-                if row["spell_id"] not in attuned:
-                    staff_owned = (
-                        int(inventory.get(row["staff"], 0) or 0) > 0
-                        or row["staff"] in equipment.values()
-                    )
-                    attune_item = QTreeWidgetItem(
-                        [f"Attune {row['spell_name']} · one review"]
-                    )
-                    attune_item.setData(
-                        0,
-                        Qt.ItemDataRole.UserRole,
-                        f"mage_arena_attune:{god_id}",
-                    )
-                    attune_item.setToolTip(
-                        0,
-                        f"Represents 100 arena casts. Requires owning {row['staff']}."
-                        + ("" if staff_owned else f"\nMissing {row['staff']}."),
-                    )
-                    attune_item.setDisabled(not staff_owned)
-                    statue_parent.addChild(attune_item)
-            statue_parent.setExpanded(
-                str(current).startswith("mage_arena_attune:")
-            )
-        landmark_active = False
-        if current == _KNIGHT_WAVES_UTILITY_KEY and not kw_completed:
-            selected_child = kw_child
-            landmark_active = True
-        if current == _MAGE_ARENA_UTILITY_KEY and not ma_completed:
-            selected_child = ma_child
-            landmark_active = True
-        if current == _STRONGHOLD_UTILITY_KEY and not sh_completed:
-            selected_child = sh_child
-            landmark_active = True
-        if is_activities:
-            landmark_parent.setExpanded("landmarks" not in collapsed_activity_groups)
-        else:
-            landmark_parent.setExpanded(
-                landmark_active or (sh_completed and not sh_claimed)
-            )
-
-        if selected_child is not None:
-            ancestor = selected_child.parent()
-            while ancestor is not None:
-                ancestor.setExpanded(True)
-                ancestor = ancestor.parent()
-            tree.setCurrentItem(selected_child)
-            tree.scrollToItem(
-                selected_child,
-                QAbstractItemView.ScrollHint.PositionAtCenter,
-            )
-
-        def _activity_group_id(item) -> Optional[str]:
-            role = item.data(0, Qt.ItemDataRole.UserRole)
-            prefix = "__utility_group__:"
-            if isinstance(role, str) and role.startswith(prefix):
-                return role[len(prefix):]
-            return None
-
-        if is_activities:
-            tree.itemExpanded.connect(
-                lambda item: (
-                    _activity_group_id(item)
-                    and set_activity_group_collapsed(_activity_group_id(item), False)
-                )
-            )
-            tree.itemCollapsed.connect(
-                lambda item: (
-                    _activity_group_id(item)
-                    and set_activity_group_collapsed(_activity_group_id(item), True)
-                )
-            )
+        activity_list = UtilityActivityList(player_data, is_activities=is_activities)
+        tree = activity_list.tree
 
         def _set_utility_selection(
             activity_id: str, *, activate: bool = False
@@ -21471,6 +20834,7 @@ def show_main_menu(
             cards_stack.setVisible(show_detail)
             activity_change_button.setVisible(show_detail)
             _refresh_activity_favourite(activity_id, show_detail)
+            activity_list.filter_bar.setVisible(not show_detail)
             tree.setVisible(not show_detail)
             if not show_detail and tree.currentItem() is not None:
                 tree.scrollToItem(
@@ -21489,39 +20853,8 @@ def show_main_menu(
             world_events_refresher["call"]()
 
         def _show_activity_group(group: object) -> None:
-            selected_group = str(group or "")
-            if selected_group not in _ACTIVITY_SELECTION_GROUPS:
-                selected_group = ""
             _show_activity_detail("")
-            for index in range(tree.topLevelItemCount()):
-                item = tree.topLevelItem(index)
-                item_group = str(
-                    item.data(0, activity_group_role) or ""
-                )
-                is_selection_group = (
-                    item_group in _ACTIVITY_SELECTION_GROUPS
-                )
-                item.setHidden(
-                    item_group != selected_group
-                    if selected_group
-                    else is_selection_group
-                )
-            current_item = tree.currentItem()
-            if current_item is not None and current_item.isHidden():
-                tree.clearSelection()
-            if selected_group:
-                for index in range(tree.topLevelItemCount()):
-                    item = tree.topLevelItem(index)
-                    if (
-                        not item.isHidden()
-                        and item.data(0, Qt.ItemDataRole.UserRole) == current
-                    ):
-                        tree.setCurrentItem(item)
-                        tree.scrollToItem(
-                            item,
-                            QAbstractItemView.ScrollHint.PositionAtCenter,
-                        )
-                        break
+            activity_list.show_group(group)
 
         if is_activities:
             world_events_box = QtFrame()
@@ -21670,9 +21003,11 @@ def show_main_menu(
 
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)
-        _show_activity_detail(current if selected_child is not None else "")
-        tree.setMinimumHeight(140)
+        # Laid out before the first visibility call, which would otherwise show
+        # the parentless bar and tree as windows of their own.
+        container_layout.addWidget(activity_list.filter_bar)
         container_layout.addWidget(tree, 1)
+        _show_activity_detail(activity_list.marked_id)
         return container
 
     def _build_dungeoneering_panel() -> QScrollArea:
@@ -22849,7 +22184,7 @@ def show_main_menu(
                     elif name == "Runecrafting":
                         train_btn.setToolTip("Complete Rune Mysteries and gather essence plus altar access.")
                     elif name == "Prayer":
-                        train_btn.setToolTip("Check the selected Prayer method's materials and altar requirements.")
+                        train_btn.setToolTip(prayer_panel_view_pure(player_data, PRAYER_DATA)["requirements_hint"])
                     elif name == "Thieving":
                         train_btn.setToolTip("Choose an unlocked target before training Thieving.")
                     elif name == "Agility":
@@ -23775,15 +23110,14 @@ def show_main_menu(
         ge_item_list.blockSignals(True)
         ge_item_list.clear()
         selected_widget_item = None
-        for row in ge_state["projection"].get("items", ()):
+        ranked = [(tier, row) for row in ge_state["projection"].get("items", ())
+                  if (tier := match_rank(query, row["item_name"], row.get("category", ""))) is not None]
+        for _tier, row in sorted(ranked, key=lambda entry: entry[0]):
             if (
                 side == "sell"
                 and int(row.get("owned", 0) or 0) <= 0
                 and not (editing and row.get("item_name") == selected_name)
             ):
-                continue
-            haystack = f"{row.get('item_name', '')} {row.get('category', '')}".casefold()
-            if query and query not in haystack:
                 continue
             owned = int(row.get("owned", 0) or 0)
             item = QListWidgetItem(
@@ -25931,23 +25265,20 @@ def show_main_menu(
             values=values,
         )
         total_count = sum(len(section["items"]) for section in sections)
-        query_tokens = bank_search.text().strip().casefold().split()
+        query = bank_search.text().strip()
         filtered_sections = []
         for section in sections:
             rows = [
                 row
                 for row in section["items"]
-                if not query_tokens
-                or all(
-                    token in f"{row['name']} {section['label']}".casefold()
-                    for token in query_tokens
-                )
+                if match_rank(query, row["name"], section["label"]) is not None
             ]
+            rows.sort(key=lambda row: match_rank(query, row["name"], section["label"]))
             if rows:
                 filtered_sections.append({"label": section["label"], "items": rows})
         visible_count = sum(len(section["items"]) for section in filtered_sections)
         bank_search_summary.setText(f"Showing {visible_count}/{total_count}")
-        _render_bank_surface(filtered_sections, bool(query_tokens), rebuild_tabs)
+        _render_bank_surface(filtered_sections, bool(query), rebuild_tabs)
 
     def _bank_category_and_value_maps() -> tuple[dict[str, str], dict[str, int]]:
         categories = {}
@@ -26405,12 +25736,11 @@ def show_main_menu(
         tab_id, bank_frame
     )
 
-    claims_box = QWidget()
-    claims_box.setObjectName("bankClaimsBox")
-    claims_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
-    claims_layout = QVBoxLayout(claims_box)
-    claims_layout.setContentsMargins(0, 0, 0, 0)
-    claims_layout.setSpacing(6)
+    from .ui_bank_claims import build_bank_claims_box
+
+    claims_box, _populate_claims = build_bank_claims_box(
+        player_data, _item_icon_path, on_claim_reward, on_destroy_claim, _refresh_equipment_views
+    )
 
     death_office_box = QWidget()
     death_office_box.setObjectName("deathOfficeBox")
@@ -26418,205 +25748,6 @@ def show_main_menu(
     death_office_layout = QVBoxLayout(death_office_box)
     death_office_layout.setContentsMargins(0, 0, 0, 0)
     death_office_layout.setSpacing(6)
-
-    def _skill_display(skill_id: str) -> str:
-        skill = get_skill(skill_id)
-        return skill.display_name if skill is not None else skill_id.replace("_", " ").title()
-
-    def _skill_level(skill_id: str) -> int:
-        skill = get_skill(skill_id)
-        level_key = skill.level_key if skill is not None else f"{skill_id}_level"
-        try:
-            return int(player_data.get(level_key, 1))
-        except (TypeError, ValueError):
-            return 1
-
-    def _claim_skill_tooltip(row: dict) -> str:
-        options = tuple(str(skill_id) for skill_id in row.get("skill_options", ()) or ())
-        minimum_level = int(row.get("minimum_level", 1) or 1)
-        if not options:
-            return ""
-        if len(options) > 8:
-            label = "Any listed skill"
-        else:
-            label = ", ".join(_skill_display(skill_id) for skill_id in options[:8])
-        if minimum_level > 1:
-            return f"Choose: {label}. Minimum level: {minimum_level}."
-        return f"Choose: {label}."
-
-    def _claim_metadata(row: dict) -> str:
-        claim_type = str(row.get("claim_type", "item"))
-        if claim_type in {"xp_lamp", "skill_reward"}:
-            amount = row.get("xp_amount", 0)
-            amount_text = f"{int(amount):,}" if float(amount or 0).is_integer() else f"{float(amount or 0):,.1f}"
-            if claim_type == "xp_lamp":
-                tooltip = _claim_skill_tooltip(row)
-                return f"{amount_text} XP lamp" + (f" · {tooltip}" if tooltip else "")
-            skill_options = tuple(row.get("skill_options", ()) or ())
-            skill_name = _skill_display(str(skill_options[0])) if skill_options else "Skill"
-            items = tuple(row.get("items", ()) or ())
-            return f"{amount_text} {skill_name} XP · {len(items)} item rewards"
-        if claim_type == "item_bundle":
-            items = tuple(row.get("items", ()) or ())
-            preview = []
-            for item in items[:3]:
-                if isinstance(item, (tuple, list)) and len(item) >= 2:
-                    preview.append(f"{item[0]} x{item[1]}")
-            if len(items) > len(preview):
-                preview.append(f"+{len(items) - len(preview)} more")
-            item_count = len(items)
-            suffix = f" - {', '.join(preview)}" if preview else ""
-            return f"{item_count} item stack{'s' if item_count != 1 else ''}{suffix}"
-        return "Ready to claim"
-
-    def _claim_bundle_tooltip(row: dict) -> str:
-        items = tuple(row.get("items", ()) or ())
-        lines = []
-        for item in items:
-            if isinstance(item, (tuple, list)) and len(item) >= 2:
-                lines.append(f"{item[0]} x{item[1]}")
-        return "\n".join(lines)
-
-    def _claim_item_icon_path(row: dict) -> Optional[str]:
-        item_name = str(row.get("item_name", row.get("display_name", "")))
-        if str(row.get("claim_type", "item")) in {"item_bundle", "skill_reward"}:
-            items = tuple(row.get("items", ()) or ())
-            first = items[0] if items else ()
-            if isinstance(first, (tuple, list)) and first and isinstance(first[0], str):
-                item_name = first[0]
-        definition = _item_def_for(item_name)
-        asset_path = definition.asset_path if definition is not None else None
-        return _bank_icon_path(item_name, asset_path)
-
-    def _choose_claim_skill(row: dict) -> Optional[str]:
-        options = tuple(str(skill_id) for skill_id in row.get("skill_options", ()) or ())
-        minimum_level = int(row.get("minimum_level", 1) or 1)
-        eligible = [skill_id for skill_id in options if _skill_level(skill_id) >= minimum_level]
-        if not eligible:
-            QMessageBox.warning(claims_box, "No eligible skill", f"This lamp requires level {minimum_level} in an allowed skill.")
-            return None
-        return _choose_xp_lamp_skill(
-            claims_box,
-            str(row.get("display_name", "Claim XP lamp")),
-            eligible,
-        )
-
-    def _populate_claims() -> None:
-        _clear_layout(claims_layout)
-        rows = claim_rows_pure(player_data, CLAIM_DATA)
-        unclaimed = [row for row in rows if not row.get("claimed")]
-        actionable = [row for row in unclaimed if row.get("eligible")]
-        if not rows:
-            claims_box.setVisible(False)
-            return
-        claims_box.setVisible(True)
-        header = QLabel("Bank Claims")
-        header.setObjectName("bankClaimsHeader")
-        header.setStyleSheet("font-weight: 600; color: palette(text);")
-        claims_layout.addWidget(header)
-        max_claim_height = header.sizeHint().height()
-
-        # Locked claims render nothing at all: a reward the player cannot claim
-        # is not actionable, so a locked-only save is "caught up" here.
-        if not actionable:
-            empty = QLabel("All Bank Claims caught up.")
-            empty.setObjectName("bankClaimsCaughtUp")
-            empty.setStyleSheet(f"color: {dim_text_css(empty)};")
-            claims_layout.addWidget(empty)
-            claims_box.setMaximumHeight(max_claim_height + claims_layout.spacing() + empty.sizeHint().height() + 4)
-            return
-
-        rows_host = QWidget()
-        rows_host.setObjectName("bankClaimsRows")
-        rows_layout = QVBoxLayout(rows_host)
-        rows_layout.setContentsMargins(0, 0, 0, 0)
-        rows_layout.setSpacing(4)
-        rendered_rows = 0
-
-        for row in actionable:
-            claim_row = QWidget()
-            claim_row.setObjectName("bankClaimRow")
-            crl = QHBoxLayout(claim_row)
-            crl.setContentsMargins(6, 4, 6, 4)
-            crl.setSpacing(8)
-            item_name = str(row.get("item_name", row.get("display_name", "")))
-            claim_type = str(row.get("claim_type", "item"))
-            icon_label = QLabel()
-            icon_label.setObjectName("bankClaimIcon")
-            icon_label.setFixedSize(28, 28)
-            icon_label.setStyleSheet("background: rgba(255, 255, 255, 0.08); border: 1px solid palette(mid); border-radius: 4px;")
-            icon_path = _claim_item_icon_path(row)
-            if icon_path:
-                icon_label.setPixmap(QIcon(icon_path).pixmap(24, 24))
-                icon_label.setStyleSheet("")
-            if claim_type == "xp_lamp":
-                title_text = str(row.get("display_name", item_name))
-            elif claim_type in {"item_bundle", "skill_reward"}:
-                title_text = str(row.get("display_name", item_name))
-            else:
-                title_text = f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}"
-            copy = QWidget()
-            copy_layout = QVBoxLayout(copy)
-            copy_layout.setContentsMargins(0, 0, 0, 0)
-            copy_layout.setSpacing(1)
-            label = QLabel(title_text)
-            label.setObjectName("bankClaimTitle")
-            label.setStyleSheet("color: palette(text); font-weight: 600;")
-            if claim_type == "xp_lamp":
-                label.setToolTip(_claim_skill_tooltip(row))
-            metadata = QLabel(_claim_metadata(row))
-            metadata.setObjectName("bankClaimMetadata")
-            metadata.setStyleSheet(f"color: {dim_text_css(metadata)};")
-            if claim_type == "xp_lamp":
-                metadata.setToolTip(_claim_skill_tooltip(row))
-            elif claim_type in {"item_bundle", "skill_reward"}:
-                bundle_tooltip = _claim_bundle_tooltip(row)
-                label.setToolTip(bundle_tooltip)
-                metadata.setToolTip(bundle_tooltip)
-            copy_layout.addWidget(label)
-            copy_layout.addWidget(metadata)
-            claim_btn = QPushButton("Claim")
-            claim_btn.setObjectName("bankClaimAction")
-            if claim_type == "xp_lamp":
-                claim_btn.setText("Choose skill")
-                claim_btn.setToolTip(_claim_skill_tooltip(row))
-
-            def _do_claim(_checked: bool = False, claim_id=row.get("claim_id"), claim_row=row) -> None:
-                if on_claim_reward is None or not isinstance(claim_id, str):
-                    return
-                selected_skill_id = None
-                if str(claim_row.get("claim_type", "item")) == "xp_lamp":
-                    selected_skill_id = _choose_claim_skill(claim_row)
-                    if selected_skill_id is None:
-                        return
-                if on_claim_reward(claim_id, selected_skill_id):
-                    _populate_claims()
-                    _refresh_equipment_views()
-
-            claim_btn.clicked.connect(_do_claim)
-            crl.addWidget(icon_label)
-            crl.addWidget(copy)
-            crl.addStretch(1)
-            crl.addWidget(claim_btn)
-            rows_layout.addWidget(claim_row)
-            rendered_rows += 1
-
-        if rendered_rows:
-            scroll = QScrollArea()
-            scroll.setObjectName("bankClaimsScrollArea")
-            scroll.setWidgetResizable(True)
-            scroll.setStyleSheet("QScrollArea#bankClaimsScrollArea { border: none; }")
-            scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-            scroll.setWidget(rows_host)
-            row_height = max(rows_host.sizeHint().height() // rendered_rows, 42)
-            scroll_height = (row_height * 3) + 10
-            scroll.setMaximumHeight(scroll_height)
-            claims_layout.addWidget(scroll)
-            max_claim_height += claims_layout.spacing() + scroll_height
-        else:
-            rows_host.deleteLater()
-
-        claims_box.setMaximumHeight(max_claim_height + 4)
 
     def _death_office_items_tooltip(items: tuple) -> str:
         if not items:
@@ -26702,32 +25833,6 @@ def show_main_menu(
             header.sizeHint().height() + death_office_layout.spacing() + row.sizeHint().height() + 4
         )
 
-    def _toolbelt_attachment(item_name: str):
-        """(slot label, already attached) for a Bank tool, or None if it is not one.
-
-        The Inferno adze belongs to both families, so it reads as "Tool" and is
-        only "attached" once every family holds it.
-        """
-        toolbelt = player_data.get("toolbelt", {}) or {}
-        labels: list[str] = []
-        attached: list[bool] = []
-        for skill_id, slot_label, tool_data in (
-            ("mining", "Pickaxe", MINING_PICKAXE_DATA),
-            ("woodcutting", "Hatchet", WOODCUTTING_AXE_DATA),
-        ):
-            bound_ids = toolbelt.get(skill_id) or ()
-            for tool_id, spec in tool_data.items():
-                if spec.get("status", "implemented") != "implemented":
-                    continue
-                if str(spec.get("display_name", tool_id)) != item_name:
-                    continue
-                labels.append(slot_label)
-                attached.append(tool_id in bound_ids)
-                break
-        if not labels:
-            return None
-        return labels[0] if len(labels) == 1 else "Tool", all(attached)
-
     def _add_cooking_gauntlet_conversion_action(
         menu: "QMenu",
         item_name: str,
@@ -26768,312 +25873,38 @@ def show_main_menu(
         action.triggered.connect(_convert)
         menu.addSeparator()
 
-    def _build_bank_equip_menu(item_name: str) -> "QMenu":
-        """Right-click menu for an inventory row.
+    from functools import partial
+    from .ui_bank_menu import BankMenuContext, build_bank_item_menu, _add_wicked_hood
 
-        Exposed as a builder (rather than only an inline exec) so the offscreen
-        tests can assert action state without spawning a native popup.
-        """
-        menu = QMenu(bank_frame)
-        menu.setToolTipsVisible(True)
-        trail_view = treasure_trails_view_pure(player_data)
-        clue_row = next(
-            (row for row in trail_view["clue_rows"] if row["item"] == item_name),
-            None,
-        )
-        if clue_row is not None:
-            start_trail_action = menu.addAction("Start trail")
-            start_trail_action.setObjectName("startTreasureTrailAction")
-            start_trail_action.setData(clue_row["tier"])
-            start_trail_action.setEnabled(
-                bool(clue_row["can_start_from_bank"])
-                and on_treasure_trails_command is not None
-            )
-            locked_reason = str(
-                clue_row["locked_reason"] or clue_row["bank_start_locked_reason"]
-            )
-            if locked_reason:
-                start_trail_action.setToolTip(locked_reason)
-
-            def _do_start_trail(_checked: bool = False) -> None:
-                if on_treasure_trails_command is None:
-                    return
-                result = on_treasure_trails_command(
-                    "start_from_bank", {"tier": clue_row["tier"]}
-                ) or {}
-                if result.get("ok"):
-                    _refresh_equipment_views()
-
-            start_trail_action.triggered.connect(_do_start_trail)
-            menu.addSeparator()
-
-        tool_attachment = _toolbelt_attachment(item_name)
-        if tool_attachment is not None:
-            slot_label, attached = tool_attachment
-            attach_action = menu.addAction(
-                f"{slot_label} attached"
-                if attached
-                else f"Attach {item_name} to toolbelt"
-            )
-            attach_action.setObjectName("attachToolbeltAction")
-            attach_action.setEnabled(not attached and on_attach_tool is not None)
-            if attached:
-                attach_action.setToolTip("This tool is already attached.")
-
-            def _do_attach(_checked: bool = False) -> None:
-                if on_attach_tool is None:
-                    return
-                if on_attach_tool(item_name):
-                    _refresh_equipment_views(refresh_visible_skill=True)
-
-            attach_action.triggered.connect(_do_attach)
-            menu.addSeparator()
-
-        _add_cooking_gauntlet_conversion_action(
-            menu,
-            item_name,
-            "convertCookingGauntletsAction",
-            bank_frame,
-        )
-
-        if is_equippable_item(item_name):
-            ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
-            action = menu.addAction("Equip" if ok else f"Equip ({reason})")
-            action.setEnabled(bool(ok) and on_equip_item is not None)
-            if not ok and reason:
-                action.setToolTip(reason)
-
-            def _do_equip(_checked: bool = False) -> None:
-                if on_equip_item is None:
-                    return
-                if on_equip_item(item_name):
-                    _refresh_equipment_views()
-
-            action.triggered.connect(_do_equip)
-            menu.addSeparator()
-
-        amount = int((player_data.get("inventory", {}) or {}).get(item_name, 0) or 0)
-
-        try:
-            from ..core.constants import CONSUMABLE_DATA  # type: ignore
-        except Exception:
-            CONSUMABLE_DATA = {}
-        if item_name in CONSUMABLE_DATA:
-            verb = str(CONSUMABLE_DATA[item_name].get("verb", "Drink"))
-            consume_action = menu.addAction(f"{verb} {item_name}")
-            consume_action.setEnabled(amount > 0 and on_consume_item is not None)
-
-            def _do_consume(_checked: bool = False) -> None:
-                if on_consume_item is None:
-                    return
-                result = on_consume_item(item_name)
-                if result:
-                    _refresh_equipment_views()
-                    message = str(result.get("message", ""))
-                    if message:
-                        QMessageBox.information(bank_frame, item_name, message)
-
-            consume_action.triggered.connect(_do_consume)
-            menu.addSeparator()
-
-        trouble_rum = TROUBLE_BREWING_RUMS_BY_ITEM.get(item_name)
-        if trouble_rum is not None:
-            rum_action = menu.addAction(f"Drink {item_name}")
-            rum_action.setObjectName("drinkTroubleBrewingRumAction")
-            rum_blocked = bool(trouble_brewing_view_pure(player_data)["active"])
-            rum_action.setEnabled(
-                amount > 0
-                and not rum_blocked
-                and on_drink_trouble_brewing_rum is not None
-            )
-            rum_action.setToolTip(
-                "Finish or leave the current Trouble Brewing game first."
-                if rum_blocked
-                else f"Teleport to {trouble_rum.teleport_destination}. Consumes one bottle."
-            )
-
-            def _do_rum(_checked: bool = False) -> None:
-                if on_drink_trouble_brewing_rum is None:
-                    return
-                result = on_drink_trouble_brewing_rum(item_name)
-                if result:
-                    _refresh_equipment_views(refresh_visible_skill=True)
-
-            rum_action.triggered.connect(_do_rum)
-            menu.addSeparator()
-
-        teleport_tablet = GREAT_ORB_PROJECT_TELEPORT_TABLETS_BY_ITEM.get(
-            item_name
-        )
-        if teleport_tablet is not None:
-            tablet_action = menu.addAction(f"Break {item_name}")
-            tablet_action.setObjectName("breakRunecraftingTeleportTabletAction")
-            tablet_action.setEnabled(
-                amount > 0
-                and on_use_great_orb_project_teleport_tablet is not None
-            )
-            tablet_action.setToolTip(
-                f"Teleport to {teleport_tablet['destination']}."
-                + (
-                    " The next matching Runecrafting route skips its outbound leg."
-                    if teleport_tablet["altar_id"]
-                    else ""
-                )
-            )
-
-            def _do_tablet(_checked: bool = False) -> None:
-                if on_use_great_orb_project_teleport_tablet is None:
-                    return
-                result = on_use_great_orb_project_teleport_tablet(item_name)
-                if result:
-                    _refresh_equipment_views(refresh_visible_skill=True)
-
-            tablet_action.triggered.connect(_do_tablet)
-            menu.addSeparator()
-
-        if item_name in ITEM_PACK_DATA:
-            content_item = str(ITEM_PACK_DATA[item_name]["content_item"])
-            per_pack = int(ITEM_PACK_DATA[item_name]["content_quantity"])
-            open_action = menu.addAction(f"Open {item_name}")
-            open_action.setEnabled(amount > 0 and on_open_item_pack is not None)
-            open_action.setToolTip(f"Receive {per_pack:,} {content_item}.")
-
-            def _do_open(_checked: bool = False, open_all: bool = False) -> None:
-                if on_open_item_pack is None:
-                    return
-                if on_open_item_pack(item_name, open_all):
-                    _refresh_equipment_views()
-
-            open_action.triggered.connect(_do_open)
-            if amount > 1:
-                open_all_action = menu.addAction(f"Open all ({amount})")
-                open_all_action.setEnabled(on_open_item_pack is not None)
-                open_all_action.setToolTip(f"Receive {amount * per_pack:,} {content_item}.")
-                open_all_action.triggered.connect(lambda _checked=False: _do_open(open_all=True))
-            menu.addSeparator()
-
-        if item_name in IMPLING_JAR_DATA:
-            loot_action = menu.addAction(f"Loot {item_name}")
-            loot_action.setObjectName("lootImplingJarAction")
-            loot_action.setEnabled(amount > 0 and on_open_impling_jar is not None)
-            loot_action.setToolTip("Break the jar and receive one reward from its loot table.")
-
-            def _do_loot(_checked: bool = False) -> None:
-                if on_open_impling_jar is None:
-                    return
-                result = on_open_impling_jar(item_name)
-                if result:
-                    _refresh_equipment_views()
-                    message = str(result.get("message", ""))
-                    if message:
-                        QMessageBox.information(bank_frame, item_name, message)
-
-            loot_action.triggered.connect(_do_loot)
-            menu.addSeparator()
-
-        if item_name == "Rogue kit":
-            convert_menu = menu.addMenu("Convert Rogue kit to")
-            convert_menu.setEnabled(
-                amount > 0 and on_convert_rogue_kit is not None
-            )
-            for output_item in ROGUE_KIT_OUTPUTS:
-                convert_action = convert_menu.addAction(output_item)
-                convert_action.setObjectName(
-                    "rogueKit" + output_item.replace(" ", "") + "Action"
-                )
-
-                def _do_convert(
-                    _checked: bool = False,
-                    chosen_item: str = output_item,
-                ) -> None:
-                    if on_convert_rogue_kit is None:
-                        return
-                    if on_convert_rogue_kit(chosen_item):
-                        _refresh_equipment_views()
-
-                convert_action.triggered.connect(_do_convert)
-            menu.addSeparator()
-
-        urn_info = full_urn_teleport_info_pure(player_data, item_name)
-        if urn_info is not None:
-            teleport_action = menu.addAction("Teleport urn")
-            teleport_action.setObjectName("teleportTrainingUrnAction")
-            teleport_action.setData(urn_info["urn_id"])
-            teleport_action.setToolTip(_full_urn_tooltip(urn_info))
-            teleport_action.setEnabled(bool(urn_info["eligible"]) and on_teleport_training_urn is not None)
-
-            def _do_teleport(_checked: bool = False, urn_id=str(urn_info["urn_id"])) -> None:
-                if on_teleport_training_urn is None:
-                    return
-                if on_teleport_training_urn(urn_id):
-                    _refresh_equipment_views(refresh_visible_skill=True)
-
-            teleport_action.triggered.connect(_do_teleport)
-            menu.addSeparator()
-
-        if carried_mode_state["advanced"] and on_set_carried_layout_quantity is not None:
-            set_layout_action = menu.addAction("Set carried quantity…")
-            set_layout_action.triggered.connect(
-                lambda _checked=False, name=item_name: _prompt_set_pack_quantity(name, bank_frame)
-            )
-            menu.addSeparator()
-
-        discard_action = menu.addAction("Discard X…")
-        discard_action.setEnabled(amount > 0 and on_discard_item is not None)
-        discard_action.setToolTip(f"Choose how many of the {amount} in your Bank to discard.")
-
-        def _do_discard(_checked: bool = False) -> None:
-            if on_discard_item is None:
-                return
-            quantity, ok = QInputDialog.getInt(
-                bank_frame,
-                "Discard from Bank",
-                f"{item_name} quantity:",
-                amount,
-                1,
-                amount,
-                1,
-            )
-            if ok and on_discard_item(item_name, quantity):
-                _refresh_equipment_views()
-
-        discard_action.triggered.connect(_do_discard)
-        layout_state = bank_layout_state["value"]
-        saved_row = layout_state["items"].get(item_name)
-        if isinstance(saved_row, dict):
-            menu.addSeparator()
-            organize_menu = menu.addMenu("Organize")
-            organize_menu.setObjectName("bankOrganizeMenu")
-            manual = layout_state["sort_mode"] == "manual"
-            tab_id = str(saved_row["tab_id"])
-            visible_names = _bank_item_visible_order(item_name)
-            visible_index = visible_names.index(item_name)
-            move_earlier = organize_menu.addAction("Move earlier")
-            move_earlier.setEnabled(manual and visible_index > 0)
-            move_earlier.triggered.connect(
-                lambda _checked=False: _move_bank_item_by_step(item_name, -1)
-            )
-            move_later = organize_menu.addAction("Move later")
-            move_later.setEnabled(manual and visible_index < len(visible_names) - 1)
-            move_later.triggered.connect(
-                lambda _checked=False: _move_bank_item_by_step(item_name, 1)
-            )
-            organize_menu.addSeparator()
-            for tab in layout_state["tabs"]:
-                destination_tab_id = str(tab["id"])
-                if destination_tab_id == tab_id:
-                    continue
-                move_to = organize_menu.addAction(f"Move to {tab['name']}")
-                move_to.triggered.connect(
-                    lambda _checked=False, target=destination_tab_id: _drop_item_on_tab(
-                        item_name, target
-                    )
-                )
-            move_new = organize_menu.addAction("Move to new tab")
-            move_new.triggered.connect(
-                lambda _checked=False: _drop_item_on_new_tab(item_name)
-            )
-        return menu
+    bank_menu_context = BankMenuContext(
+        player_data=player_data,
+        bank_frame=bank_frame,
+        on_treasure_trails_command=on_treasure_trails_command,
+        on_attach_tool=on_attach_tool,
+        add_cooking_gauntlet_conversion_action=_add_cooking_gauntlet_conversion_action,
+        on_wicked_hood_command=on_wicked_hood_command,
+        on_equip_item=on_equip_item,
+        on_consume_item=on_consume_item,
+        on_drink_trouble_brewing_rum=on_drink_trouble_brewing_rum,
+        on_use_great_orb_project_teleport_tablet=on_use_great_orb_project_teleport_tablet,
+        on_open_item_pack=on_open_item_pack,
+        on_open_impling_jar=on_open_impling_jar,
+        on_convert_rogue_kit=on_convert_rogue_kit,
+        on_teleport_training_urn=on_teleport_training_urn,
+        carried_mode_state=carried_mode_state,
+        on_set_carried_layout_quantity=on_set_carried_layout_quantity,
+        prompt_set_pack_quantity=_prompt_set_pack_quantity,
+        on_discard_item=on_discard_item,
+        bank_layout_state=bank_layout_state,
+        bank_item_visible_order=_bank_item_visible_order,
+        move_bank_item_by_step=_move_bank_item_by_step,
+        drop_item_on_tab=_drop_item_on_tab,
+        drop_item_on_new_tab=_drop_item_on_new_tab,
+        full_urn_tooltip=_full_urn_tooltip,
+        refresh_equipment_views=_refresh_equipment_views,
+        is_equippable_item=is_equippable_item,
+    )
+    _build_bank_equip_menu = partial(build_bank_item_menu, bank_menu_context)
     bk_layout.addWidget(death_office_box)
     bk_layout.addWidget(claims_box)
 
@@ -27803,11 +26634,10 @@ def show_main_menu(
         if not isinstance(item_name, str) or not item_name:
             return None
         menu = QMenu(equip_list)
+        menu.setToolTipsVisible(True)
+        _add_wicked_hood(menu, bank_menu_context, item_name)
         _add_cooking_gauntlet_conversion_action(
-            menu,
-            item_name,
-            "convertWornCookingGauntletsAction",
-            equip_list,
+            menu, item_name, "convertWornCookingGauntletsAction", equip_list,
         )
         action = menu.addAction(f"Unequip {item_name}")
         action.setEnabled(on_unequip_slot is not None)

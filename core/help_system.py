@@ -14,6 +14,8 @@ from pathlib import Path
 import re
 from typing import Iterable, Mapping, Sequence
 
+from .search_match import match_rank
+
 
 HELP_HOME_ID = "home"
 HELP_TOPICS_DIR = Path(__file__).resolve().parents[1] / "help_topics"
@@ -270,15 +272,17 @@ def search_help_topics(topics: Iterable[HelpTopic], query: str) -> tuple[HelpTop
         return tuple(
             sorted(candidates, key=lambda topic: (topic.help_id != HELP_HOME_ID, topic.title.casefold()))
         )
-    tokens = normalized_query.split()
-    matches = [topic for topic in candidates if all(token in topic.search_text for token in tokens)]
+    matches = [topic for topic in candidates
+               if match_rank(normalized_query, topic.title, topic.search_text) is not None]
 
-    def _rank(topic: HelpTopic) -> tuple[int, int, str]:
+    def _rank(topic: HelpTopic) -> tuple:
         title = topic.title.casefold()
         aliases = tuple(alias.casefold() for alias in topic.aliases)
         exact = int(normalized_query == title or normalized_query in aliases)
         prefix = int(title.startswith(normalized_query) or any(alias.startswith(normalized_query) for alias in aliases))
-        return (-exact, -prefix, title)
+        alias_match = normalized_query in aliases
+        tier = 0 if alias_match else match_rank(normalized_query, topic.title, topic.search_text)
+        return (-int(alias_match), tier, -exact, -prefix, title)
 
     return tuple(sorted(matches, key=_rank))
 

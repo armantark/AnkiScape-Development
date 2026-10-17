@@ -5,6 +5,9 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
+
+from tools.maintenance.function_metrics import load_gate
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -57,6 +60,25 @@ class FunctionMetricsTests(unittest.TestCase):
              "--output", str(output or self.output), "--slop-gate", str(gate)],
             cwd=self.source_root, env=env, capture_output=True, text=True,
         )
+
+    def test_hook_siblings_import_without_leaking_search_paths_even_on_failure(self):
+        (self.source_root / "metrics_sibling.py").write_text("value = 7\n", encoding="utf-8")
+        gate = self.source_root / "gate.py"
+        source = (
+            "from metrics_sibling import value\n"
+            "ccn_by_function = cognitive_by_function = halstead_by_function = simple_name = lambda: None\n"
+            "CCN_MAX = COGNITIVE_MAX = HALSTEAD_MAX = 15\n"
+        )
+        before = sys.path.copy()
+        for raises in (False, True):
+            with self.subTest(raises=raises), patch.dict(sys.modules):
+                gate.write_text(source + ("raise RuntimeError('hook failed')\n" if raises else ""), encoding="utf-8")
+                if raises:
+                    with self.assertRaisesRegex(RuntimeError, "hook failed"):
+                        load_gate(gate)
+                else:
+                    self.assertEqual(load_gate(gate).value, 7)
+                self.assertEqual(sys.path, before)
 
     def test_safe_selection_ignores_legacy_hotspots_and_leaves_only_named_evidence(self):
         before = {p.relative_to(self.root): p.read_bytes() if p.is_file() else None for p in self.root.rglob("*")}

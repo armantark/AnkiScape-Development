@@ -26,6 +26,7 @@ try:
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
+from ..core.search_match import match_rank
 from .ui import CatalogFilterBar, dim_text_color
 
 # Written by the Agility, Thieving and Summoning row builders in core/target_metadata.py.
@@ -59,11 +60,11 @@ def _scroll_saved_target_into_view(selector, live: dict) -> None:
         return
 
 
-def _row_matches(filter_bar, row, group_labels: dict, match_tooltip: bool) -> bool:
+def _row_rank(filter_bar, row, group_labels: dict, match_tooltip: bool) -> int | None:
     group = row.group or ""
     details = (row.target_id, row.tooltip) if match_tooltip else ()
-    return filter_bar.matches_text(
-        row.label,
+    return match_rank(
+        filter_bar.query(), row.label,
         group,
         group_labels.get(group, group.replace("_", " ")),
         *details,
@@ -76,12 +77,11 @@ def _ticked(extra_filter) -> bool:
 
 def _visible_rows(rows, filter_bar, group_labels: dict, match_tooltip: bool, extra_filter) -> tuple:
     ticked = _ticked(extra_filter)
-    return tuple(
-        row
-        for row in rows
-        if (not ticked or extra_filter[1](row))
-        and _row_matches(filter_bar, row, group_labels, match_tooltip)
-    )
+    ranked = [(_row_rank(filter_bar, row, group_labels, match_tooltip), row)
+              for row in rows if not ticked or extra_filter[1](row)]
+    return tuple(row for _tier, row in sorted(
+        (entry for entry in ranked if entry[0] is not None), key=lambda entry: entry[0]
+    ))
 
 
 def _opened_groups(saved_groups, visible: tuple, filtering: bool) -> set:

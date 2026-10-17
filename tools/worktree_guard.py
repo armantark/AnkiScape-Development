@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -192,15 +194,7 @@ def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: 
     if not (qt_environment / "bin/python").exists():
         raise RuntimeError(f"Qt test interpreter not found: {qt_environment / 'bin/python'}")
     require_branch_available(canonical, branch)
-    result = _treehouse(
-        canonical,
-        "get",
-        "--lease",
-        "--no-fetch",
-        "--json",
-        "--lease-holder",
-        holder or "worktree_guard",
-    )
+    result = _get_lease(repo, canonical, holder)
     try:
         lease = json.loads(result.stdout)
         destination = Path(lease["path"]).resolve()
@@ -239,6 +233,75 @@ def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: 
     print(json.dumps({"path": str(destination), "lease_id": lease_id, "branch": branch}))
 
 
+def _get_lease(repo: Path, canonical: Path, holder: Optional[str]) -> subprocess.CompletedProcess[str]:
+    get = ("get", "--lease", "--no-fetch", "--json", "--lease-holder", holder or "worktree_guard")
+    try:
+        return _treehouse(canonical, *get)
+    except RuntimeError as exc:
+        # treehouse refuses this way when every slot is leased; stale leases are the usual cause.
+        if "in use or dirty" not in str(exc) or not reclaim_stale_leases(repo):
+            raise
+    return _treehouse(canonical, *get)
+
+
+STALE_LEASE_DAYS = 14
+
+
+def reclaim_stale_leases(repo: Path, *, dry_run: bool = False) -> int:
+    """Return every old lease that holds nothing; name the old leases kept, and why.
+
+    An agent that stops mid-run never returns its lease: on 2026-10-15 all 16
+    slots were leased, most since September. A slot holds nothing when no
+    process runs in it and its checkout is clean and already on main.
+    """
+    canonical, _ = canonical_and_paths(repo)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=STALE_LEASE_DAYS)
+    returned = 0
+    for row in json.loads(_treehouse(canonical, "status", "--json").stdout):
+        if row["status"] != "leased" or datetime.fromisoformat(row["leased_at"]) > cutoff:
+            continue
+        path = Path(row["path"])
+        reason = lease_hold_reason(path, row["processes"])
+        label = f"{path} ({row['branch']}, leased {row['leased_at'][:10]})"
+        if reason:
+            print(f"Kept {label}: {reason}")
+        elif dry_run:
+            print(f"Would return {label}")
+        else:
+            release_worktree(repo, path, row["lease_id"], reclaiming=True)
+            returned += 1
+    return returned
+
+
+def lease_hold_reason(path: Path, processes: list) -> Optional[str]:
+    if processes:
+        return "a process runs in it"
+    if any(directory.is_relative_to(path.resolve()) for directory in caller_directories()):
+        return "the caller works in it"
+    if _git(path, "status", "--porcelain", capture=True).stdout.strip():
+        return "uncommitted work"
+    if _git(path, "merge-base", "--is-ancestor", "HEAD", "main", check=False).returncode:
+        return "commits not on main"
+    return None
+
+
+def caller_directories() -> set[Path]:
+    """The working directories of this process and every process above it.
+
+    treehouse leaves the caller and its ancestors out of a slot's process
+    list, so the slot an agent works in looks idle to that agent's own reclaim.
+    """
+    table = subprocess.run(("ps", "-axo", "pid=,ppid="), check=True, text=True, capture_output=True).stdout
+    parents = dict(line.split() for line in table.splitlines())
+    chain, pid = [], str(os.getpid())
+    while pid in parents and pid not in chain:
+        chain.append(pid)
+        pid = parents[pid]
+    # lsof exits 1 when it cannot read a system process; the readable rows still come back.
+    listing = subprocess.run(("lsof", "-a", "-d", "cwd", "-p", ",".join(chain), "-Fn"), text=True, capture_output=True)
+    return {Path(line[1:]).resolve() for line in listing.stdout.splitlines() if line.startswith("n")}
+
+
 def require_no_gate_markers(repo: Path, destination: Path) -> None:
     directory = locking.active_gate_dir_for(repo)
     try:
@@ -272,7 +335,7 @@ def require_clean_worktree(destination: Path) -> None:
         )
 
 
-def require_matching_lease(canonical: Path, destination: Path, lease_id: str) -> None:
+def require_matching_lease(canonical: Path, destination: Path, lease_id: str) -> dict:
     result = _treehouse(canonical, "status", "--json")
     try:
         rows = json.loads(result.stdout)
@@ -291,9 +354,10 @@ def require_matching_lease(canonical: Path, destination: Path, lease_id: str) ->
             matches.append(row)
     if not lease_id or len(matches) != 1 or matches[0].get("status") != "leased" or matches[0].get("lease_id") != lease_id:
         raise RuntimeError(f"refusing return: pool status does not confirm lease {lease_id} for {destination}")
+    return matches[0]
 
 
-def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
+def release_worktree(repo: Path, path: Path, lease_id: str, *, reclaiming: bool = False) -> None:
     canonical, _ = canonical_and_paths(repo)
     destination = path.resolve()
     if not destination.is_relative_to(pool_root(canonical)):
@@ -308,7 +372,10 @@ def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
     try:
         require_no_gate_markers(canonical, destination)
         require_clean_worktree(destination)
-        require_matching_lease(canonical, destination, lease_id)
+        lease = require_matching_lease(canonical, destination, lease_id)
+        # A reclaimed slot's holder can come back after the pool-wide scan.
+        if reclaiming and (reason := lease_hold_reason(destination, lease.get("processes", []))):
+            raise RuntimeError(f"refusing reclaim: {destination}: {reason}")
         # Keep gate registration excluded until the lease has been returned.
         _git(destination, "checkout", "--detach", capture=True)
         _treehouse(canonical, "return", "--force", "--if-lease-id", lease_id, str(destination))
@@ -392,6 +459,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     release_parser = subparsers.add_parser("release")
     release_parser.add_argument("path", type=Path)
     release_parser.add_argument("--lease-id", required=True)
+    reclaim_parser = subparsers.add_parser(
+        "reclaim",
+        description=f"Return leases older than {STALE_LEASE_DAYS} days whose clean checkout is already on main.",
+    )
+    reclaim_parser.add_argument("--dry-run", action="store_true")
     preserved_parser = subparsers.add_parser("preserved")
     preserved_subparsers = preserved_parser.add_subparsers(
         dest="preserved_command", required=True
@@ -411,6 +483,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             lease_worktree(args.repo, args.branch, args.holder, args.start_point)
         elif args.command == "release":
             release_worktree(args.repo, args.path, args.lease_id)
+        elif args.command == "reclaim":
+            reclaim_stale_leases(args.repo, dry_run=args.dry_run)
         elif args.command == "preserved" and args.preserved_command == "list":
             list_preserved(args.repo)
         else:

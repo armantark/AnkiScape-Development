@@ -181,6 +181,24 @@ over 284,000 XP/hour. Its three figures are not arithmetically exact:
 `43 × 252 × 30 = 325,080`, not 284,000. Preserve the observation; do not choose
 one implied time silently.
 
+### Bury and Scatter have no travel (Pass 16, 2026-10-15)
+
+Burying bones and scattering ashes need no altar. Darkan buries from the
+inventory item click (`InventoryOptionsHandler.java:407-409` calls
+`Burying.Bone.bury`, which checks only the `canBury()` tick delay at
+`Burying.java:98`; commit `1912a55cb245cc4410e51b200f9ad4c5e480510f`), and
+`Bones` oldid [`6477812`](https://runescape.wiki/w/Bones?oldid=6477812) says
+"Normal bones give 4.5 Prayer experience when buried". The optimal route
+therefore buries beside the bank, like the Crafting and Herblore bank methods:
+every `bury_*` and `scatter_*` target costs `0.0` travel reviews
+(`period_route`, "Working at the bank") in `logic/agility_travel.py`.
+
+The `2.678` lead above came from the gilded altar rate, so it stays with the
+altar methods only: `gilded_altar_*` targets, and the Ectofuntus, which already
+took the same lead from the Prayer handler default and keeps it because its
+multi-stage cycle still isolates no travel cost. Owner decision: Pass 16 spec,
+"Prayer bank trips".
+
 ## Shipping consequence
 
 The source-safe input shape is:

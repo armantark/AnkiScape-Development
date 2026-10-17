@@ -112,21 +112,6 @@ class TalismanStaffBindingTarget:
 
 
 @dataclass(frozen=True)
-class HoodFeedTarget:
-    id: str
-    display_name: str
-    altar_id: str
-    input_item: str
-    input_kind: str
-    source_item_id: int
-    source: str = "https://runescape.wiki/w/Wicked_hood"
-    group: str = "hood"
-    kind: str = "hood_feed"
-    level: int = 1
-    base_exp: float = 0.0
-
-
-@dataclass(frozen=True)
 class PouchDefinition:
     id: str
     display_name: str
@@ -247,50 +232,6 @@ TALISMAN_STAFF_BINDING_TARGETS_BY_ID: Dict[
 ] = {target.id: target for target in TALISMAN_STAFF_BINDING_TARGETS}
 
 
-HOOD_FEED_TARGETS: Tuple[HoodFeedTarget, ...] = tuple(
-    HoodFeedTarget(
-        id=f"feed_{altar.id}_{kind}_to_hood",
-        display_name=f"Feed {altar.display_name.replace(' altar', '')} {kind} to hood",
-        altar_id=altar.id,
-        input_item=item,
-        input_kind=kind,
-        source_item_id=0,
-    )
-    for altar in ALTARS
-    for kind, item in (("talisman", altar.talisman_item), ("tiara", altar.tiara_item))
-    if item is not None
-) + (
-    HoodFeedTarget(
-        "feed_elemental_talisman_to_hood",
-        "Feed Elemental talisman to hood",
-        "elemental",
-        "Elemental talisman",
-        "talisman",
-        5516,
-        source="https://runescape.wiki/w/Wicked_hood?oldid=6564747",
-    ),
-    HoodFeedTarget(
-        "feed_omni_talisman_to_hood",
-        "Feed Omni-talisman to hood",
-        "omni",
-        "Omni-talisman",
-        "talisman",
-        13649,
-        source="https://runescape.wiki/w/Wicked_hood?oldid=6564747",
-    ),
-    HoodFeedTarget(
-        "feed_omni_tiara_to_hood",
-        "Feed Omni-tiara to hood",
-        "omni",
-        "Omni-tiara",
-        "tiara",
-        13655,
-        source="https://runescape.wiki/w/Wicked_hood?oldid=6564747",
-    ),
-)
-HOOD_FEED_TARGETS_BY_ID: Dict[str, HoodFeedTarget] = {target.id: target for target in HOOD_FEED_TARGETS}
-
-
 POUCHES: Tuple[PouchDefinition, ...] = (
     PouchDefinition("small", "Small pouch", None, 3, 1, None, 5509),
     PouchDefinition("medium", "Medium pouch", "Medium pouch (worn)", 6, 25, 44, 5510, 5511),
@@ -305,7 +246,6 @@ RUNECRAFTING_TARGETS = (
     + COMBINATION_RUNE_TARGETS
     + TIARA_BINDING_TARGETS
     + TALISMAN_STAFF_BINDING_TARGETS
-    + HOOD_FEED_TARGETS
 )
 RUNECRAFTING_TARGETS_BY_ID = {target.id: target for target in RUNECRAFTING_TARGETS}
 
@@ -314,10 +254,9 @@ RUNECRAFTING_GROUP_LABELS: Dict[str, str] = {
     "combination": "Combination runes",
     "tiara": "Tiara binding",
     "staff": "Talisman staves",
-    "hood": "Hood feeding",
 }
 
-_TARGET_GROUP_ORDER = ("standard", "combination", "tiara", "staff", "hood")
+_TARGET_GROUP_ORDER = ("standard", "combination", "tiara", "staff")
 
 
 def _target_as_dict(target) -> Dict[str, object]:

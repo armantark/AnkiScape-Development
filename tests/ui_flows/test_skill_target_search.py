@@ -63,6 +63,57 @@ class SkillTargetSearchTest(unittest.TestCase):
                 self.assertEqual(selector.item(0).flags(), Qt.ItemFlag.NoItemFlags)
                 dialog.deleteLater()
 
+    def test_nettle_tea_search_names_the_product_and_readable_drinks_group(self) -> None:
+        from tests.test_main_menu_widget import _cooking_family_node, _goto_cooking
+        from tests.ui_flows.qt_text_fit import text_fit_defects
+
+        data = _make_player_data()
+        data["cooking_level"] = 20
+        data["inventory"]["Nettle-water"] = 1
+        dialog = self.menu._open(data, current_skill="Cooking")
+        dialog.show()
+        dialog.resize(720, 560)
+        tree = _goto_cooking(dialog)
+        self.assertEqual(_cooking_family_node(tree, "drinks").text(0), "Drinks  (1)")
+        search = _find_named_line_edit(dialog, "cookingTargetSearchInput")
+        search.setText("nettle tea")
+        for _ in range(6):
+            QApplication.processEvents()
+        selector = dialog.findChild(QListWidget, "cookingTargetTree")
+        self.assertEqual(selector.count(), 1)
+        row = selector.item(0)
+        self.assertEqual(row.data(Qt.ItemDataRole.UserRole), "cook_nettle_tea")
+        self.assertEqual(row.text(), "Make nettle tea (Lvl 20)")
+        self.assertTrue(row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertEqual(text_fit_defects(selector.parentWidget()), [])
+
+    def test_snape_grass_gathering_names_the_site_and_is_selectable(self) -> None:
+        from tests.test_main_menu_widget import _utility_row
+        from tests.ui_flows.qt_text_fit import text_fit_defects
+
+        dialog = self.menu._open(_make_player_data())
+        dialog.show()
+        dialog.resize(720, 560)
+        tree = self.menu._open_utility(dialog)
+        row = _utility_row(tree, "gather_snape_grass")
+        row.parent().setExpanded(True)
+        tree.scrollToItem(row)
+        for _ in range(6):
+            QApplication.processEvents()
+        self.assertEqual(row.text(0), "Gather snape grass")
+        self.assertIn("Hobgoblin Peninsula", row.toolTip(0))
+        self.assertTrue(row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertFalse(row.icon(0).isNull())
+        rect = tree.visualItemRect(row)
+        metrics = tree.fontMetrics()
+        text_width = max(metrics.horizontalAdvance(line) for line in row.text(0).splitlines())
+        self.assertLessEqual(text_width + tree.iconSize().width() + 12, rect.width())
+        self.assertIn("Processes up to 3 per successful card. No skill XP.", row.toolTip(0))
+        self.assertIn("No materials required", row.toolTip(0))
+        self.assertEqual(text_fit_defects(tree.parentWidget()), [])
+        tree.itemClicked.emit(row, 0)
+        self.assertEqual(self.menu._utility_calls, ["gather_snape_grass"])
+
     def test_crafting_search_opens_matching_families_without_selecting_or_saving(self) -> None:
         ui = self.menu._ui
 

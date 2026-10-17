@@ -165,3 +165,11 @@ Evidence: Main 8749ddc6: memory-bank/source-audits/sawmill-mbp-source-acceptance
 
 - 2026-10-15T23:50:30.437824+00:00 — First Sawmill fixture refused startup at `bank_layout` with `startup_equal: false`, `native_accepted: false`, `reviews: 0`: Declared Coins augmentation followed the shipped helper migration. The saved Bank layout therefore omitted Coins; normal load reconciled it. Fixture preparation error, not a product-defect claim. Fixture/gameplay/owner-guard actual exits were0 and owner_unchanged true; original evidence remains at /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/manual-sawmill-canonical-native-2026-10-15/first-case-unaccepted.json.
 - 2026-10-15T23:51:50.785331+00:00 — Sawmill native binding looked for the canonical ledger in the shipped source manifest and raised `KeyError: 'memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl'`; the freezer excludes Memory Bank records. Bind that ledger against the exact accepted/native Git revisions, and bind its generated Varrock runtime consumer against the shipped manifest. No product source changed.
+
+## Hook sibling imports during function metrics loading
+
+Disposition: fixed.
+
+Evidence: tools/maintenance/function_metrics.py load_gate temporarily adds the hook directory and restores sys.path in finally. Both plain and offscreen Qt tests.maintenance.test_function_metrics pass 11 tests; the regression first failed with ModuleNotFoundError for metrics_sibling and now verifies import success and path restoration on success and failure. Evidence directory: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/studio-merge.
+
+- 2026-10-17T15:06:28-07:00 — Studio merge gate f2f84ab0fbd05768df77cdd20dad3ee410f06f80: Qt tests.maintenance.test_function_metrics had 3 failures and 1 error because tools/maintenance/function_metrics.py load_gate executed /Users/armantarkhanian/fleet/config/git/hooks/slop_gate.py without its sibling directory on sys.path: "ModuleNotFoundError: No module named 'slop_js'" at slop_gate.py:59; the same defect exists at main 452f325d. Gate log: /Users/armantarkhanian/ankiscape_worktrees/gate-f2f84ab0.log:867-953.

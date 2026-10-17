@@ -55,6 +55,7 @@ from .logic_pure.logic_pure import (
     start_quest_pure,
     apply_quest_route_choice_pure,
     apply_claim_pure,
+    apply_destroy_claim_pure,
     apply_safe_combat_recovery_pure,
     advance_temporary_effects_pure,
     combat_dream_thrift_locked_reasons_pure,
@@ -244,7 +245,6 @@ from .core.skill_registry import get_skill, trainable_skill_definitions
 from .logic.shop_logic import advance_shop_market_clock_pure
 from .logic.wicked_hood_logic import (
     advance_wicked_hood_review_day_pure,
-    apply_wicked_hood_command_pure,
 )
 from .data.grand_exchange_data import GE_ITEM_CATALOG
 from .logic.grand_exchange_logic import (
@@ -331,6 +331,7 @@ from .runtime import runtime_actions
 from .runtime.runtime_actions import BIG_CHINCHOMPA_UTILITY_ID, EVIL_TREE_UTILITY_ID, RuntimeActionContext
 from .logic.cadence_coverage import SINGLE_TICK_UTILITY_IDS
 from .runtime.dispatcher_state import state as _state
+from .core.xp_drops import whole_number_xp_breakdown
 
 
 def _normalize_legacy_utility_skill(skill) -> str:
@@ -425,7 +426,8 @@ class _NamedExperience(float):
                 f"{name} +{amount_text(amount)} XP"
                 for name, amount in self.breakdown
             )
-        message = f"+{amount_text(self)} XP"
+        amount = self.breakdown[0][1] if self.breakdown else self
+        message = f"+{amount_text(amount)} XP"
         if self.skill_names:
             message += f" · {', '.join(self.skill_names)}"
         return message
@@ -571,14 +573,12 @@ def _show_activity_gain(text: str) -> None:
         pass
 
 
-def _begin_review_feedback_context() -> None:
+def _begin_review_feedback_context(initial_exp=None) -> None:
     initial_xp = _state.review_feedback_initial_xp
-    initial_exp = _implemented_exp_keys_snapshot()
+    initial_exp = _implemented_exp_keys_snapshot() if initial_exp is None else initial_exp
     _state.review_feedback_context = {
         "xp": float(initial_xp or 0.0),
-        "skills": list(getattr(initial_xp, "skill_names", ())),
         "initial_exp": initial_exp,
-        "recorded_exp": initial_exp,
         "combat_level_before": player_combat_level_pure(_state.player_data),
         "activity": [],
     }
@@ -589,27 +589,23 @@ def _record_pending_review_xp_event() -> None:
     context = _state.review_feedback_context
     if context is None:
         return
-    recorded_exp = context.get("recorded_exp", {})
-    breakdown = []
-    for skill in trainable_skill_definitions():
-        gained = float(_state.player_data.get(skill.exp_key, 0) or 0) - float(
-            recorded_exp.get(skill.exp_key, 0) or 0
-        )
-        if gained > 0:
-            breakdown.append((skill.display_name, gained))
+    breakdown = whole_number_xp_breakdown(context["initial_exp"], _state.player_data)
     if not breakdown:
         return
     total = sum(amount for _name, amount in breakdown)
-    _record_review_event(
-        "xp",
-        _NamedExperience(
-            total,
-            (name for name, _amount in breakdown),
-            breakdown,
-        ).display_text,
-        persist=False,
-    )
-    context["recorded_exp"] = _implemented_exp_keys_snapshot()
+    message = _NamedExperience(
+        total, (name for name, _amount in breakdown), breakdown,
+    ).display_text
+    if context.get("xp_recorded"):
+        # Level-up events can replace the log's dictionaries between awards.
+        row = next(
+            row for row in reversed(_state.player_data["review_event_log"])
+            if row["kind"] == "xp"
+        )
+        row["text"] = message
+    else:
+        _record_review_event("xp", message, persist=False)
+        context["xp_recorded"] = True
 
 
 def level_up_check(skill, data) -> None:
@@ -620,7 +616,6 @@ def level_up_check(skill, data) -> None:
 def _finish_review_feedback_context() -> None:
     context = _state.review_feedback_context or {
         "xp": 0.0,
-        "skills": [],
         "initial_exp": {},
         "activity": [],
     }
@@ -628,24 +623,11 @@ def _finish_review_feedback_context() -> None:
     _state.review_feedback_context = None
     _state.review_feedback_flushing = True
     try:
-        xp_total = context.get("xp", 0.0)
-        try:
-            xp_total = float(xp_total)
-        except (TypeError, ValueError):
-            xp_total = 0.0
-        skill_names = list(context.get("skills", ()))
-        initial_exp = context.get("initial_exp", {})
-        breakdown = []
-        for skill in trainable_skill_definitions():
-            gained = float(_state.player_data.get(skill.exp_key, 0) or 0) - float(
-                initial_exp.get(skill.exp_key, 0) or 0
-            )
-            if gained > 0:
-                breakdown.append((skill.display_name, gained))
-                if skill.display_name not in skill_names:
-                    skill_names.append(skill.display_name)
+        breakdown = whole_number_xp_breakdown(context["initial_exp"], _state.player_data)
+        xp_total = float(context.get("xp", 0.0))
+        skill_names = [name for name, _amount in breakdown]
         activity_messages = context.get("activity", [])
-        if xp_total > 0:
+        if xp_total > 0 and breakdown:
             _show_exp(
                 _NamedExperience(xp_total, skill_names, breakdown),
                 record_event=False,
@@ -1726,6 +1708,7 @@ def _on_main_menu(
     import sys
 
     from .core.menu_cooking import set_cooking_equipment_choice, set_cooking_target
+    from .core.menu_wicked_hood import apply_wicked_hood_command
     from .core.menu_loot import (
         current_combat_loot_rows,
         current_gathering_keep_drop_state,
@@ -4222,65 +4205,6 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
-    def _apply_wicked_hood_command(action_id, payload):
-        payload = dict(payload) if isinstance(payload, dict) else {}
-        if action_id == "teleport":
-            altar_id = str(payload.get("altar_id", "") or "")
-            target_id = next(
-                (
-                    candidate
-                    for candidate, spec in RUNECRAFTING_DATA.items()
-                    if spec.get("kind") == "standard"
-                    and spec.get("altar_id") == altar_id
-                ),
-                "",
-            )
-            quest_reasons = quest_unlock_locked_reasons_pure(
-                _state.player_data,
-                "runecrafting",
-                target_id,
-                QUEST_UNLOCK_RULES,
-            )
-            if quest_reasons:
-                payload["locked_reason"] = str(quest_reasons[0])
-        info = {}
-        # Scalar captured inside _change so a refusal is distinguishable from an
-        # undo-entry failure once commit_direct_action has reported False.
-        pure_ok = True
-
-        def _change(current):
-            nonlocal info, pure_ok
-            # The pure function edits its input in place, so hand it a copy:
-            # a refusal or an undo-entry failure must leave the live save
-            # untouched.
-            updated, ok, info = apply_wicked_hood_command_pure(
-                _capture_player_data_snapshot()["player_data"],
-                str(action_id),
-                payload,
-            )
-            pure_ok = bool(ok)
-            return updated, ok
-
-        if not commit_direct_action(
-            _change, after_apply=lambda: check_achievements(_state.player_data)
-        ):
-            if not pure_ok:
-                return {
-                    "ok": False,
-                    "message": str(
-                        info.get("reason", "That Wicked hood action is unavailable.")
-                    ),
-                }
-            return {"ok": False, "message": "Anki could not create an undo entry."}
-        _refresh_skill_availability()
-        if info.get("message"):
-            _show_activity_gain(str(info["message"]))
-        try:
-            update_review_hud(_state.player_data, _state.current_skill)
-        except AttributeError:
-            pass
-        return {"ok": True, **info}
-
     def _apply_slayer_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_combat_filter":
@@ -4312,11 +4236,10 @@ def _on_main_menu(
             _change, after_apply=lambda: check_achievements(_state.player_data)
         )
         if not pure_ok:
+            reason = str(info.get("reason", "That action is unavailable."))
             return {
                 "ok": False,
-                "message": str(info.get("reason", "That action is unavailable."))
-                .replace("_", " ")
-                .capitalize(),
+                "message": info.get("message", reason.replace("_", " ").capitalize()),
             }
         if not committed:
             return {"ok": False, "message": "Anki could not create an undo entry."}
@@ -4386,7 +4309,7 @@ def _on_main_menu(
             "current_summoning", target
         ),
         on_summoning_command=_apply_summoning_command,
-        on_wicked_hood_command=_apply_wicked_hood_command,
+        on_wicked_hood_command=partial(apply_wicked_hood_command, sys.modules[__name__]),
         on_slayer_command=_apply_slayer_command,
         on_agility_command=_apply_agility_command,
         on_achievement_diary_command=_apply_achievement_diary_command,
@@ -4491,6 +4414,7 @@ def _on_main_menu(
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
+        on_destroy_claim=on_destroy_claim,
         on_claim_stronghold_reward=_claim_stronghold_reward,
         on_mage_arena_action=_apply_mage_arena_action,
         on_set_floating_enabled=_set_floating_enabled,
@@ -4770,34 +4694,31 @@ def on_set_quest_route_choice(quest_id, route_id):
 
 
 def on_claim_reward(claim_id, selected_skill_id=None):
-    before = {"player_data": copy.deepcopy(_state.player_data), "random_state": random.getstate()}
     exp_before = _implemented_exp_keys_snapshot()
-    new_data, ok = apply_claim_pure(_state.player_data, claim_id, CLAIM_DATA, selected_skill_id)
-    if not ok:
+
+    def _after_apply():
+        _show_quest_exp_delta(exp_before)
+        check_achievements(_state.player_data)
+
+    if not commit_direct_action(
+        lambda current: apply_claim_pure(current, claim_id, CLAIM_DATA, selected_skill_id),
+        after_apply=_after_apply,
+    ):
         show_error_message("Cannot claim reward", "That claim is not available right now.")
         return False
-    try:
-        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-    except (AttributeError, RuntimeError):
-        return False
-    _state.direct_action_undo_stack.append(before)
-    if len(_state.direct_action_undo_stack) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-        del _state.direct_action_undo_stack[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    _state.player_data.clear()
-    _state.player_data.update(new_data)
-    _show_quest_exp_delta(exp_before)
-    check_achievements(_state.player_data)
-    save_player_data()
     _refresh_skill_availability()
-    try:
-        mw.update_undo_actions()
-    except AttributeError:
-        pass
     try:
         update_review_hud(_state.player_data, _state.current_skill)
     except Exception:
         pass
     return True
+
+
+def on_destroy_claim(claim_id):
+    if commit_direct_action(lambda current: apply_destroy_claim_pure(current, claim_id, CLAIM_DATA)):
+        return True
+    show_error_message("Cannot destroy lamp", "That lamp is no longer in Bank Claims.")
+    return False
 
 
 def _claim_stronghold_reward() -> bool:
@@ -5279,7 +5200,7 @@ def on_good_answer(before_state=None, *, defer_commit=False):
         handler_key = review_action_handler_key(_state.current_skill)
         review_ctx = _runtime_action_context()
         review_ctx.save_player_data = lambda: None
-        _begin_review_feedback_context()
+        _begin_review_feedback_context(before_state.get("player_data", before_state))
         try:
             if has_farm_step:
                 # A consumed or execution-time-invalid Farming step owns this

@@ -2248,7 +2248,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_runecrafting_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(RUNECRAFTING_DATA), 76)
+        self.assertEqual(len(RUNECRAFTING_DATA), 49)
         self.assertEqual(RUNECRAFTING_DATA["craft_air_runes"]["output_item"], "Air rune")
         self.assertEqual(RUNECRAFTING_DATA["combo_lava_at_earth"]["consumed_talisman"], "Fire talisman")
         self.assertEqual(RUNECRAFTING_POUCH_DATA["small"]["capacity"], 3)

@@ -93,7 +93,7 @@ from .constants import (
 )
 from ..data.quest_data import DEFAULT_QUEST_TARGET, QUEST_REWARD_ITEM_NAME_OVERRIDES, default_claim_states, default_quest_states
 from ..data.stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_LAMP_CLAIM_IDS
-from ..data.runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
+from .target_retirement import migrate_runecrafting_target as _migrate_runecrafting_target
 from ..logic.wicked_hood_logic import (
     default_wicked_hood_state_pure,
     sanitize_wicked_hood_state_pure,
@@ -892,13 +892,6 @@ def _migrate_cooking_target(data: Dict[str, Any]) -> None:
     data["current_cooking"] = current_cooking
 
 
-def _migrate_runecrafting_target(data: Dict[str, Any]) -> None:
-    current_runecrafting = data.get("current_runecrafting")
-    if not isinstance(current_runecrafting, str) or current_runecrafting not in RUNECRAFTING_TARGETS_BY_ID:
-        current_runecrafting = DEFAULT_RUNECRAFTING_TARGET
-    data["current_runecrafting"] = current_runecrafting
-
-
 def _migrate_herblore_target(data: Dict[str, Any]) -> None:
     current_herblore = data.get("current_herblore")
     if not isinstance(current_herblore, str) or current_herblore not in HERBLORE_TARGETS_BY_ID:
@@ -1089,30 +1082,30 @@ def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
     data["pending_skill_exp_rewards"] = clean_pending
 
 
+def _clean_claim_state(raw_state: Any, default_state: Dict[str, Any]) -> Dict[str, Any]:
+    if isinstance(raw_state, bool):
+        raw_state = {"claimed": raw_state, "delivered": raw_state}
+    if not isinstance(raw_state, dict):
+        return default_state
+    claimed = bool(raw_state.get("claimed", default_state["claimed"]))
+    clean_state = {"claimed": claimed}
+    if "delivered" in default_state:
+        clean_state["delivered"] = claimed or bool(raw_state.get("delivered", default_state["delivered"]))
+    # A destroyed lamp must stay gone after a reload.
+    if raw_state.get("forfeited"):
+        clean_state["forfeited"] = True
+    return clean_state
+
+
 def _migrate_claim_state(data: Dict[str, Any]) -> None:
     claims = data.get("claims")
     clean_claims = default_claim_states()
     if isinstance(claims, dict):
         for claim_id, default_state in clean_claims.items():
-            raw_state = claims.get(claim_id)
-            if isinstance(raw_state, dict):
-                claimed = bool(raw_state.get("claimed", default_state["claimed"]))
-                clean_state = {"claimed": claimed}
-                if "delivered" in default_state:
-                    clean_state["delivered"] = claimed or bool(
-                        raw_state.get("delivered", default_state["delivered"])
-                    )
-                clean_claims[claim_id] = clean_state
-            elif isinstance(raw_state, bool):
-                clean_claims[claim_id] = {"claimed": raw_state}
-                if "delivered" in default_state:
-                    clean_claims[claim_id]["delivered"] = raw_state
+            clean_claims[claim_id] = _clean_claim_state(claims.get(claim_id), default_state)
         for claim_id in DIARY_LAMP_CLAIM_IDS_BY_TIER.values():
-            raw_state = claims.get(claim_id)
-            if isinstance(raw_state, dict):
-                clean_claims[claim_id] = {"claimed": bool(raw_state.get("claimed", False))}
-            elif isinstance(raw_state, bool):
-                clean_claims[claim_id] = {"claimed": raw_state}
+            if isinstance(claims.get(claim_id), (bool, dict)):
+                clean_claims[claim_id] = _clean_claim_state(claims[claim_id], {"claimed": False})
     data["claims"] = clean_claims
 
 
