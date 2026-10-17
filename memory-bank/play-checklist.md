@@ -58,6 +58,8 @@ you are in the game, with the date the change reached main.
 
 ## Gathering and processing skills
 
+- [ ] Buy an unlit Mining helmet in GE, light it at Firemaking 65, Undo, replay and extinguish it: only the unlit helmet can be offered or sold; collect its GE sale, reopen and retain the result. A Rat Catchers reward stays one untradeable Rat pole; older saves with several poles retain every copy. (after native acceptance)
+
 - [x] In Utilities, choose Convert logs to planks: Logs1 and Coins100 become Plank1 and one visible Varrock Easy deed; the tier stays unclaimable. Good at Coins99 or Logs0 refuses. Direct Undo restores discarded inputs; review Undo retracts the deed; replay and normal reopen retain one Plank and the deed. (isolated native/presentation accepted at7ef2a5f8; acquisition and a second distinct retained success remain source-only; Again unobserved; merged-record review/full9/land pending)
 - [ ] In Prayer, choose Bury Bones with a whole-number XP total and answer four cards: the drops and event log show +4, +5, +4, +5 XP, and Prayer gains exactly 18.0 XP. Undo the last card and answer again: the drop is still +5. (Pass 16 ticket 09) (2026-10-16)
 - [ ] In Utilities > Gathering, select Gather snape grass, hover to see Hobgoblin Peninsula, and answer a review: gain three Snape grass without combat. In Cooking, search "nettle tea": Make nettle tea appears, and its group reads Drinks when the search is clear. Use the gathered grass to finish Skippy and the Mogres. (after Pass 16 landing) (2026-10-16)

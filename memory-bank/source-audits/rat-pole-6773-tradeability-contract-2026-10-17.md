@@ -1,6 +1,6 @@
 # Rat pole tradeability contract — 2026-10-17
 
-Status: qualified for backend implementation. Exact empty ID `6773`, storage key `Rat pole`.
+Status: backend implemented; branch verification recorded below. Exact empty ID `6773`, storage key `Rat pole`.
 Base: `452f325d3b62c2247ad990181578c20284265f8a`. Cutoff: `2012-11-20T00:00:00Z`.
 Backend scope only. This source contract changes no product code. Keep the current interface, storage keys, icons, quest rewards, levels and review quantities.
 Evidence directory: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-6`. Root owns promotion, native verification and peer notices.
@@ -32,4 +32,12 @@ Exchange price and buy-limit rows: not applicable. The explicit item-page prohib
 
 Run `python3 run_tests.py` and the standing documentation, test-quality, reachability, worktree and diff audits. Root runs both full promotion lanes.
 Use the real item registry and catalog. Do not stub either. Add behavior coverage only where existing coverage has a real gap.
-This contract claims no implementation, native proof or gameplay acceptance.
+This contract claims no native proof or gameplay acceptance.
+
+## Implementation — 2026-10-17
+The existing reward-fragment assembly now supplies equipment identity 6773, stackable=false, tradeable=false and item oldid 5671031. QUEST_REWARD_ITEM_DATA, EXTRA_ITEM_DATA and ITEM_DEFINITIONS retain those fields. Filled variants and the GE maps are unchanged.
+Reward proof starts from a saved runtime stage 9 of 10 with the existing stage-9 action proof. A real review awards one Rat pole, review Undo restores the complete earlier state, replay and real save/load retain one, and another reward attempt cannot duplicate it. This is a final-stage reward delivery proof: generated Rat Catchers checkpoints have no playable action producers; the test does not claim a playable whole-quest route.
+A saved bank count of 3 and a carried view of 3 survive real save/load unchanged. The cache STACKABLE_ITEM_NAMES already excludes Rat pole, so carried accounting was already three slots; the registry correction does not repack, clamp or delete old quantities. No migration is added. The ordinary Shop controls refuse sale; alchemy and Shattered Heart replacement exclude the pole. Its pre-existing missing asset remains unchanged under the no-icon-change scope.
+Native verification and exact merged promotion lanes remain Root-owned.
+
+Final focused proof: `tests.item_tradeability.test_mining_helmet_rat_pole` and `tests.skills.test_summoning_market` pass 8 plain tests. These modules, the Shop proof `tests.item_tradeability.test_helmet_rat_pole_shop` and `tests.test_grand_exchange_data` pass 25 offscreen Qt tests with zero skips. All listed audits exit 0. Full plain output and the final commit are recorded in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-6/report.md`.

@@ -1,6 +1,6 @@
 # Unlit mining helmet GE contract — 2026-10-17
 
-Status: qualified for backend implementation. Exact ID `5014`, storage key `Mining helmet (unlit)`.
+Status: backend implemented; branch verification recorded below. Exact ID `5014`, storage key `Mining helmet (unlit)`.
 Base: `452f325d3b62c2247ad990181578c20284265f8a`. Cutoff: `2012-11-20T00:00:00Z`.
 Backend scope only. This source contract changes no product code. Keep the current interface, storage keys, icons, quest rewards, levels and review quantities.
 Evidence directory: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-6`. Root owns promotion, native verification and peer notices.
@@ -43,4 +43,12 @@ The title resolves directly and its dated ItemId matches 5014; no missing-title 
 
 Run `python3 run_tests.py` and the standing documentation, test-quality, reachability, worktree and diff audits. Root runs both full promotion lanes.
 Use the real item registry and catalog. Do not stub either. Add behavior coverage only where existing coverage has a real gap.
-This contract claims no implementation, native proof or gameplay acceptance.
+This contract claims no native proof or gameplay acceptance.
+
+## Implementation — 2026-10-17
+The exact storage key enters the exchangeable set. The committed source row retains every pinned Exchange field, including price 466, limit 100 and literal price date. Offline generator: `python3 tools/generate_ge_period_data.py generated/grand_exchange_period_generated.py`; no harvest.
+Exact price/limit equalities increase from 1443/1838 to 1444/1839 solely for 5014. The lit state and note 5015 receive no period row.
+The kernel proof covers buy escrow and offer Undo, collection, light/extinguish reviews and review Undo, sell escrow, settlement, collection and complete-state save/reload. The deterministic market pays 482 coins on the one-item sale at submitted price 466; the real Shop controls sell one unlit helmet for the existing price 270 coins. Neither simulation price is a new historical price pin.
+Native verification and exact merged promotion lanes remain Root-owned; no existing UI changed.
+
+Final focused proof: `tests.item_tradeability.test_mining_helmet_rat_pole` and `tests.skills.test_summoning_market` pass 8 plain tests. These modules, the Shop proof `tests.item_tradeability.test_helmet_rat_pole_shop` and `tests.test_grand_exchange_data` pass 25 offscreen Qt tests with zero skips. All listed audits exit 0. Full plain output and the final commit are recorded in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-6/report.md`.
