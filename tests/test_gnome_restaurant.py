@@ -322,27 +322,22 @@ class GnomeRestaurantEntryAndOrderTests(unittest.TestCase):
 
 
 class GnomeRestaurantDeliveryRewardTests(unittest.TestCase):
-    def test_again_spends_the_window_without_destroying_the_order(self):
-        data = _deliverable(_on_job("hard"))
-        before = copy.deepcopy(data["gnome_restaurant"]["order"])
-        self.assertEqual(before["minutes_left"], 11)
-        updated, ok, result = apply_gnome_restaurant_review_pure(
-            data, _rng([0.0]), productive=False
-        )
-        self.assertTrue(ok, result)
-        self.assertFalse(result["advanced"])
-        order = updated["gnome_restaurant"]["order"]
-        self.assertEqual(order["minutes_left"], 5)
-        self.assertEqual(order["item"], before["item"])
-        self.assertEqual(order["customer"], before["customer"])
-        self.assertEqual(updated["gnome_restaurant"]["points"], 0)
-
-        twice, ok, _result = apply_gnome_restaurant_review_pure(
-            updated, _rng([0.0]), productive=False
-        )
-        self.assertTrue(ok)
-        self.assertEqual(twice["gnome_restaurant"]["order"]["minutes_left"], 0)
-        self.assertTrue(twice["gnome_restaurant"]["order"])
+    def test_again_pauses_both_windows_without_spending_food_or_reward_rng(self):
+        for difficulty in ("easy", "hard"):
+            with self.subTest(difficulty=difficulty):
+                data = _deliverable(_on_job(difficulty))
+                before = copy.deepcopy(data)
+                for _answer in range(3):
+                    data, ok, result = apply_gnome_restaurant_review_pure(
+                        data, lambda: self.fail("Again rolled a reward"), productive=False
+                    )
+                    self.assertTrue(ok, result)
+                    self.assertFalse(result["advanced"])
+                    self.assertFalse(result["terminal"])
+                    self.assertEqual(data["gnome_restaurant"]["order"], before["gnome_restaurant"]["order"])
+                    self.assertEqual(data["inventory"], before["inventory"])
+                    self.assertEqual(data["gnome_restaurant"]["points"], 0)
+                self.assertIn("Again paused", result["message"])
 
     def test_a_delivery_needs_the_food_and_pays_source_points(self):
         data = _on_job("easy")
@@ -374,8 +369,10 @@ class GnomeRestaurantDeliveryRewardTests(unittest.TestCase):
         self.assertTrue(ok, result)
         self.assertEqual(result["tip_items"], {"Coins": 500})
 
-        late, _ok, _result = apply_gnome_restaurant_review_pure(
-            _deliverable(_on_job("easy")), _rng([0.0]), productive=False
+        from ankiscape.logic.gnome_restaurant_logic import advance_gnome_restaurant_clock_pure
+
+        late = advance_gnome_restaurant_clock_pure(
+            _deliverable(_on_job("easy")), successful_answer=True, delivering=False
         )
         updated, ok, result = apply_gnome_restaurant_review_pure(
             _deliverable(late), _rng([0.999])
@@ -398,13 +395,12 @@ class GnomeRestaurantDeliveryRewardTests(unittest.TestCase):
                     )
                     self.assertTrue(ok)
                     if not punctual:
-                        # Two Again answers spend the whole eleven-minute window,
-                        # which is what pushes the tip out of the good group.
+                        from ankiscape.logic.gnome_restaurant_logic import advance_gnome_restaurant_clock_pure
+
                         for _beat in range(2):
-                            data, ok, _result = apply_gnome_restaurant_review_pure(
-                                data, _rng([0.0]), productive=False
+                            data = advance_gnome_restaurant_clock_pure(
+                                data, successful_answer=True, delivering=False
                             )
-                            self.assertTrue(ok)
                     data = _deliverable(data)
                     customer = str(data["gnome_restaurant"]["order"]["customer"])
                     _updated, ok, result = apply_gnome_restaurant_review_pure(

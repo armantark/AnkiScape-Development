@@ -22,3 +22,9 @@ File SHA-256 values:
 - `data/grand_exchange_period_source.json`: `2592afde9976702fe9ee77b151a108225bc99cd3ee80ac113a491ba54b560361`
 - `generated/grand_exchange_period_generated.py`: `8b2b01c1369b899cc5e2e268f4ed7d922b36eecb5256be85b13a8c1fde4f9c1d`
 - `tests/item_tradeability/test_pirates_hook_tradeability.py`: `9337ee041216789047255b00a0a12296d5ac588f46097c477dcde1203809a8f7`
+
+## Integration resolution — 2026-10-17
+
+Root authorized the intended Pirate’s hook data addition and resolved the exact-count blocker: `tests/test_grand_exchange_data.py` now requires exactly 1443 prices and exactly 1838 limits, replacing exactly 1442 and 1837. The single new Pirate’s hook row accounts for each increment. Both assertions remain exact equality assertions; no other instrument or product data changes in this integration.
+Main `8749ddc60555a5c62f64d8dfbcc04f64f207bcc1` merged normally without conflicts. Independent source acceptance, the exact-commit promotion gate with both full lanes, and landing remain Root-owned.
+Integration evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pirates-hook-integration`.

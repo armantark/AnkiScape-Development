@@ -466,8 +466,9 @@ recorded in
 
 Gnome Restaurant keeps accepted orders persistent rather than mapping the
 source six- and eleven-minute limits onto brittle one- and two-review
-expirations. Each `Again` answered before delivery lowers a bounded, clamped
-punctuality state that affects only eventual tip quality. It cannot destroy the
+expirations. Under the2026-10-14 owner ruling, Again earns nothing and spends
+no window time. Successful answers on other targets spend six minutes while
+the order is open. Punctuality affects only tip quality; it cannot destroy the
 order, consume prepared food, or remove the source base points. Easy and hard
 orders retain their distinct customer pools, requirements, points, and rewards;
 the activity reuses player-prepared gnome food from Cooking, including eligible

@@ -1,9 +1,9 @@
 """Pure Gnome Restaurant delivery jobs, punctuality, tips, and the reward token.
 
 One productive review delivers the outstanding order and takes the next job, which
-is the cadence settled in `activity-cadence-reconciliation-2026-07-18.md`. `Again`
-never destroys an order: it spends six world minutes of the order's own source time
-limit, and what survives becomes the chance of the good tip.
+is the cadence settled in `activity-cadence-reconciliation-2026-07-18.md`. Under the
+2026-10-14 owner ruling, Again pauses. Successful answers on other targets spend six
+minutes of the persistent order's window, which affects only tip quality.
 """
 
 from __future__ import annotations
@@ -604,6 +604,20 @@ def _roll_tip(
     return {"tip_items": {row.item: quantity}, "good_tip": good, "tip_id": row.id}
 
 
+def advance_gnome_restaurant_clock_pure(
+    player_data: Mapping[str, Any], *, successful_answer: bool, delivering: bool
+) -> dict[str, Any]:
+    data = dict(player_data)
+    if successful_answer and not delivering:
+        state = sanitize_gnome_restaurant_state_pure(data.get("gnome_restaurant"))
+        if order := state["order"]:
+            order["minutes_left"] = max(
+                0, _int(order["minutes_left"]) - GNOME_RESTAURANT_WORLD_MINUTES_PER_REVIEW
+            )
+            data["gnome_restaurant"] = state
+    return data
+
+
 def apply_gnome_restaurant_review_pure(
     player_data: Mapping[str, Any],
     rng: Callable[[], float] | None = None,
@@ -616,14 +630,9 @@ def apply_gnome_restaurant_review_pure(
     if not order:
         return data, False, {"reason": "Take a delivery job from Aluft Gianne Jr."}
     if not productive:
-        spent = min(
-            _int(order["minutes_left"]), GNOME_RESTAURANT_WORLD_MINUTES_PER_REVIEW
-        )
-        order["minutes_left"] = _int(order["minutes_left"]) - spent
         state["last_result"] = (
-            f"Again spent {spent} minute(s) of the delivery window; "
-            f"{order['minutes_left']} of "
-            f"{_LIMIT_MINUTES[str(order['difficulty'])]} left."
+            f"Again paused the delivery window; {order['minutes_left']} of "
+            f"{_LIMIT_MINUTES[str(order['difficulty'])]} minute(s) left."
         )
         data["gnome_restaurant"] = state
         return data, True, {

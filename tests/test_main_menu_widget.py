@@ -8064,8 +8064,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(
             pd["summoning_state"]["familiarisation"]["active"]
         )
-        self.assertIn(
-            "0/4 segments",
+        self.assertEqual(
+            "0/4 segments · 0/60 shards",
             _find_named_label(dialog, "familiarisationSummary").text(),
         )
         dialog.deleteLater()

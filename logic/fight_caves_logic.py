@@ -22,6 +22,7 @@ from ..logic_pure.logic_pure import (
     combat_enemy_pressure_attack_pure,
     combat_max_lifepoints_pure,
 )
+from ..logic_pure.logic_pure_prayer import automatic_protection_prayer_pure
 from .pet_logic import store_active_pet_pure
 from .summoning_logic import dismiss_familiar_pure
 
@@ -234,8 +235,7 @@ def fight_caves_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     state = sanitize_fight_caves_state_pure(player_data.get("fight_caves"))
     if state["active"] and not state["roster"]:
         _spawn_wave(state)
-    display_state = copy.deepcopy(state)
-    display_engaged = _engaged_member(display_state)
+    display_engaged = _engaged_member(state)
     display_engaged_id = (
         str(display_engaged["instance_id"]) if display_engaged is not None else ""
     )
@@ -481,6 +481,14 @@ def _apply_roster_healing(state: dict[str, Any]) -> int:
     return healed
 
 
+def _jad_protection_prayer(data, state):
+    if not any(member["enemy_id"] == "tztok_jad" for member in state["roster"]):
+        return None
+    prefix = "deflect_" if data.get("combat_prayer_book", "standard") == "curses" else "protect_from_"
+    protection = "missiles" if state["jad_next_style"] == "ranged" else "magic"
+    return automatic_protection_prayer_pure(data, prefix + protection)
+
+
 def apply_fight_caves_review_pure(
     player_data: Mapping[str, Any],
     rng,
@@ -503,6 +511,7 @@ def apply_fight_caves_review_pure(
         return data, False, {"reason": "The current Fight Cave wave has no target."}
 
     enemy_id = engaged["enemy_id"]
+    jad_prayer = _jad_protection_prayer(data, state)
     enemy = copy.deepcopy(FIGHT_CAVES_ENEMY_DATA[enemy_id])
     if enemy_id == "tztok_jad":
         enemy["attack_style"] = state["jad_next_style"]
@@ -527,6 +536,7 @@ def apply_fight_caves_review_pure(
         stop_after_first_kill=True,
         safe_death=True,
         allow_bank_run=False,
+        automatic_protection_prayer=jad_prayer,
     )
     data["combat_auto_flee"] = auto_flee
     if not ok:
@@ -605,11 +615,14 @@ def apply_fight_caves_review_pure(
         ):
             continue
         pressure_enemy = copy.deepcopy(FIGHT_CAVES_ENEMY_DATA[member["enemy_id"]])
+        pressure_prayer = None
         if member["enemy_id"] == "tztok_jad":
             pressure_enemy["attack_style"] = state["jad_next_style"]
             pressure_enemy["max_hit"] = 970
+            pressure_prayer = jad_prayer
         pressure = combat_enemy_pressure_attack_pure(
-            data, pressure_enemy, equipment_data or {}, rng
+            data, pressure_enemy, equipment_data or {}, rng,
+            automatic_protection_prayer=pressure_prayer,
         )
         pressure_damage += _int(pressure.get("damage"))
         pressure_styles.append(str(pressure.get("attack_style", "melee")))
@@ -663,6 +676,7 @@ def apply_fight_caves_review_pure(
         except (TypeError, ValueError):
             state["jad_next_style"] = "ranged"
 
+    _engaged_member(state)
     engaged_name = enemy["display_name"]
     status = (
         f"Wave {state['wave'] - 1} complete · wave {state['wave']} ready"

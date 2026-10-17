@@ -1,3 +1,4 @@
+import copy
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
@@ -359,7 +360,7 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(dismissed["inventory"]["War tortoise pouch"], 0)
         self.assertEqual(result["cargo_event"]["items"], {"Coal": 2})
 
-    def test_familiarisation_is_four_answer_persistent_session(self):
+    def test_familiarisation_is_four_success_persistent_session(self):
         started, ok = start_familiarisation_pure(player())
         self.assertTrue(ok)
         self.assertEqual(
@@ -373,16 +374,22 @@ class SummoningLogicTests(unittest.TestCase):
         )
 
         current = started
-        outcomes = (True, False, True, True)
+        outcomes = (False, True, False, True, True, False, True)
+        successes = 0
         for successful in outcomes:
+            successes += int(successful)
             current, ok, result = apply_familiarisation_segment_pure(
                 current, successful_answer=successful
             )
             self.assertTrue(ok)
+            self.assertEqual(result["segments"], successes)
+            self.assertEqual(result["raw_shards"], successes * 15)
+            self.assertEqual(result["ended"], successes == 4)
+            self.assertNotIn("focus", result)
+            self.assertNotIn("focus", current["summoning_state"]["familiarisation"])
         self.assertTrue(result["ended"])
         self.assertEqual(result["segments"], 4)
-        self.assertEqual(result["focus"], 2)
-        self.assertEqual(result["raw_shards"], 45)
+        self.assertEqual(result["raw_shards"], 60)
         self.assertTrue(
             current["summoning_state"]["familiarisation"]["awaiting_reward"]
         )
@@ -417,7 +424,50 @@ class SummoningLogicTests(unittest.TestCase):
             unchanged["activity_session"], {"active_id": "pest_control"}
         )
 
-    def test_world_tick_advances_familiarisation_on_success_and_again(self):
+    def test_migration_removes_focus_and_discounts_only_unearned_active_segments(self):
+        for version in (CURRENT_CONFIG_VERSION - 1, CURRENT_CONFIG_VERSION):
+            for active in (False, True):
+                with self.subTest(version=version, active=active):
+                    data = default_player_data(ORE_DATA)
+                    data["config_version"] = version
+                    data["activity_session"] = {"active_id": FAMILIARISATION_ACTIVITY_ID}
+                    data["summoning_state"]["familiarisation"].update(
+                        active=active, segments=3, raw_shards=15, focus=0,
+                        awaiting_reward=not active, cooldown_reviews_remaining=42,
+                        reward_sequence=7,
+                    )
+                    before = copy.deepcopy(data)
+                    migrated = migrate_loaded_data(data, ORE_DATA)
+                    state = migrated["summoning_state"]["familiarisation"]
+                    self.assertNotIn("focus", state)
+                    self.assertEqual(state["active"], active)
+                    self.assertEqual(state["segments"], 1 if active else 3)
+                    self.assertEqual(state["raw_shards"], 15)
+                    self.assertEqual(state["awaiting_reward"], not active)
+                    self.assertEqual(state["cooldown_reviews_remaining"], 42)
+                    self.assertEqual(state["reward_sequence"], 7)
+                    self.assertEqual(migrate_loaded_data(migrated, ORE_DATA), migrated)
+                    self.assertEqual(data, before)
+                    if active:
+                        for _answer in range(3):
+                            migrated, ok, result = apply_familiarisation_segment_pure(
+                                migrated, successful_answer=True
+                            )
+                            self.assertTrue(ok, result)
+                        self.assertTrue(result["ended"])
+                        self.assertEqual(result["raw_shards"], 60)
+
+    def test_familiarisation_notification_has_segments_and_shards_without_focus(self):
+        from ankiscape.logic.review_strip_logic import dnd_notification_rows_pure
+
+        data, ok = start_familiarisation_pure(player())
+        self.assertTrue(ok)
+        self.assertEqual(
+            dnd_notification_rows_pure(data, activity_ids=(FAMILIARISATION_ACTIVITY_ID,)),
+            ((FAMILIARISATION_ACTIVITY_ID, "0/4 segments · 0/60 shards"),),
+        )
+
+    def test_world_tick_advances_familiarisation_only_on_success(self):
         started, ok = start_familiarisation_pure(player())
         self.assertTrue(ok)
 
@@ -426,14 +476,14 @@ class SummoningLogicTests(unittest.TestCase):
         )
         self.assertEqual(result["familiarisation"]["segments"], 1)
         self.assertEqual(result["familiarisation"]["raw_shards"], 15)
-        self.assertEqual(result["familiarisation"]["focus"], 3)
+        self.assertNotIn("focus", result["familiarisation"])
 
         again, result = advance_summoning_world_tick_pure(
             success, successful_answer=False
         )
-        self.assertEqual(result["familiarisation"]["segments"], 2)
+        self.assertEqual(result["familiarisation"]["segments"], 1)
         self.assertEqual(result["familiarisation"]["raw_shards"], 15)
-        self.assertEqual(result["familiarisation"]["focus"], 2)
+        self.assertNotIn("focus", result["familiarisation"])
 
     def test_familiarisation_rewards_are_immediate_scaled_and_duplicate_safe(self):
         started, ok = start_familiarisation_pure(player())
