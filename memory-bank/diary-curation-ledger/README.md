@@ -18,7 +18,7 @@ At the base SHA, the generated catalog contains:
 
 The 154 condition-bearing rows are the 129 ordinary deed rows, 3 quest deeds, and 22 anchors. The canonical JSONL contains the 320 rows that were empty at the base SHA. It excludes all 22 anchors.
 
-The 320 curation rows classify as 42 `active`, 123 `translated`, 39 `invented`, 0 `swapped`, and 116 `dormant`. All 204 live rows carry compiled wiring. The checked-in catalog reflects all 162 translated and invented designs, so no ledger row carries a regeneration marker. The 116 dormant rows keep `conditions == ()`.
+The 320 curation rows classify as 45 `active`, 123 `translated`, 39 `invented`, 0 `swapped`, and 113 `dormant`. All 207 live rows carry compiled wiring. The checked-in catalog reflects all 162 translated and invented designs, so no ledger row carries a regeneration marker. The 113 dormant rows keep `conditions == ()`.
 
 ## Canonical file
 
@@ -101,4 +101,4 @@ The assembly and review slice did not run `tools/generate_achievement_diary_data
 
 The cross-lineage review and its resolutions are recorded in `cross-lineage-review.md`.
 
-**Gate 2 passed by owner ruling of 2026-08-31** (`memory-bank/design-thread-queue.md` §4.22 ruling 3): conformance to the settled contracts, verified row-by-row by the gate-1 review, substitutes for an owner read of all 320 rows. Interpretation corrections land as ledger-row edits plus regeneration through `tools/generate_achievement_diary_data.py`, never hand edits of the generated catalog. Row 135 (Fire cape) uses the closer equipped-item candidate; the owner can veto it as a patch. Ledger wiring is complete for all 204 live rows. The checked-in catalog is generated through its sharded package layout, and its catalog-parity test compares every task row exactly.
+**Gate 2 passed by owner ruling of 2026-08-31** (`memory-bank/design-thread-queue.md` §4.22 ruling 3): conformance to the settled contracts, verified row-by-row by the gate-1 review, substitutes for an owner read of all 320 rows. Interpretation corrections land as ledger-row edits plus regeneration through `tools/generate_achievement_diary_data.py`, never hand edits of the generated catalog. Row 135 (Fire cape) uses the closer equipped-item candidate; the owner can veto it as a patch. Ledger wiring is complete for all 207 live rows. The checked-in catalog is generated through its sharded package layout, and its catalog-parity test compares every task row exactly.

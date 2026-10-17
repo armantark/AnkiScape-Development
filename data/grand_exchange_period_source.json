@@ -1116,6 +1116,7 @@
     "Pink skirt": 100,
     "Pirate boots": 100,
     "Pirate impling jar": 1000,
+    "Pirate's hook": 10,
     "Pitta bread": 1000,
     "Pitta dough": 1000,
     "Pizza base": 1000,
@@ -2715,6 +2716,7 @@
     "Pink skirt": 159,
     "Pirate boots": 1403,
     "Pirate impling jar": 6961,
+    "Pirate's hook": 1726388,
     "Pitta bread": 24,
     "Pitta dough": 139,
     "Pizza base": 289,
@@ -12868,6 +12870,17 @@
       "item_id": 13337,
       "cache_value": 50,
       "page_limit": 1000
+    },
+    "Pirate's hook": {
+      "price": 1726388,
+      "page_title": "Exchange:Pirate hook (left)",
+      "oldid": 6112017,
+      "timestamp": "2012-08-19T05:22:56Z",
+      "price_date": "21:59, August 18, 2012 (UTC)",
+      "page_item": "Pirate's hook",
+      "item_id": 2997,
+      "cache_value": 89,
+      "page_limit": 10
     },
     "Pitta bread": {
       "price": 24,

@@ -1,0 +1,12 @@
+# Sawmill diary source 259 — 2026-10-14
+
+Scope: activate only `varrock_easy_plank_you_very_much` through the existing paid normal-log Utility service. The cutoff is `2012-11-20`.
+Authority: owner rulings in `memory-bank/design-thread-queue.md` §4.21.1, §4.22.3 and §4.23; the closed slice contract is `memory-bank/plans/sawmill-diary-259-2026-10-14.md`.
+Pinned source: Varrock achievements, oldid `6476032`, `2012-10-26T14:55:51Z`, https://runescape.wiki/w/Special:PermanentLink/6476032; Darkan `VarrockTasks.PLANK_YOU_VERY_MUCH`, rev-727 enum `3483`, source ID `259`. Existing harvest: `memory-bank/source-audits/achievement-diary-harvest-2026-07-26.json`.
+Mapping: `core/constants_parts/activity_updates.py::convert_logs_to_planks` is the settled Sawmill service: one Logs and 100 Coins produce one Plank. This model has no location or processor ID; neither is asserted. Other paid wood conversions and Magic Plank Make do not count.
+Writer: `logic_pure/logic_pure_production.py::apply_utility_activity_pure` refuses before consumption if an input is absent. `runtime/runtime_actions_utility.py::handle_utility_answer` commits the successful inventory, records the actual output through `runtime/runtime_actions_shared.py::_record_action`, then checks achievements.
+Consumer: the canonical ledger matches one live `action` with `skill_id=utility`, `action_id=convert_logs_to_planks`, `success=true` and `outputs.Plank>=1`. The existing generator derives the Varrock condition. Held Planks and old cumulative counters cannot supply that event.
+Preservation: source/task identity, title, description, access conditions, rewards, tier conjunction and every other ledger/catalog row remain exact. The deed keeps its produced Plank for existing material consumers. One deed does not make the tier claimable.
+Proof: `tests/runtime_actions/test_sawmill_plank_diary.py` earns the paid route through Man pickpocket, Bob's Bronze hatchet purchase and ordinary Tree chopping; it drives real conversion, refusals, wrong methods, old records, repeat, review Undo/replay and core storage save/load across literal JSON.
+Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/sawmill-diary-259/codex-continuation/report.md. The preserved original RED receipt stays in the parent evidence directory.
+Acceptance: root owns independent review, native/presentation checks and both full lanes on the exact merged promotion tree. This source record claims no native or promotion acceptance.
