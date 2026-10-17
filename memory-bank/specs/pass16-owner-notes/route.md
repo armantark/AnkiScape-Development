@@ -20,5 +20,5 @@ skip reason.
   - Skip: **`arena`**; no ticket is a one-shot artifact whose shape is in doubt.
 - [x] 4. **`retro`** closes the loop. After a build, it suggests changes to the agent's environment, not the code.
   Done 2026-10-16: five candidates, each with a recommended answer, wait for the owner on the results page `memory-bank/status-updates/pass16-results-2026-10-16.html`; the retro edits nothing itself.
-  Owner answers 2026-10-16, all as proposed: pool reclaim, text-fit rows, UI save-read test and hook cache are built; the to-tickets line is a patch for the owner to apply.
+  Owner answers 2026-10-16, all as proposed: pool reclaim, text-fit rows, UI save-read test and hook cache are built; the owner audited the to-tickets line, applied in fleet 390d065.
 - Skip: **`split-to-prs`** and **`babysit`**; this solo repo lands on local main through the promotion gate, with no remote PRs.
