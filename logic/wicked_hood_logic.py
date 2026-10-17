@@ -8,8 +8,12 @@ from typing import Any
 
 from .inventory_pure import CARRIED_CAPACITY, carried_slots_used
 from ..data.item_values import STACKABLE_ITEM_NAMES
+from ..data.quest.serializers import quest_unlock_rules_as_dict
+from ..logic_pure.quest_runtime_rules import quest_unlock_locked_reasons_pure
 from ..data.runecrafting_data import ALTARS_BY_ID, STANDARD_RUNE_TARGETS_BY_ID
 
+
+_QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
 
 WICKED_HOOD_ITEM = "Wicked hood"
 WICKED_HOOD_WORLD_DAY_REVIEWS = 240
@@ -22,6 +26,17 @@ WICKED_HOOD_F2P_ALTARS = frozenset(
     {"air", "mind", "water", "earth", "fire", "body"}
 )
 WICKED_HOOD_ELEMENTAL_ALTARS = frozenset({"air", "water", "earth", "fire"})
+# Darkan 1912a55cb245cc4410e51b200f9ad4c5e480510f,
+# src/main/java/com/rs/net/decoders/handlers/InventoryOptionsHandler.java:115.
+# PLACEHOLDER(wicked_hood.feed_xp): independent period corroboration of Darkan's amount.
+WICKED_HOOD_FEED_XP = 50.0
+WICKED_HOOD_REQUIRED_MESSAGE = "You need a Wicked hood in your Bank or worn on your head."
+_FEED_ALTARS_BY_ITEM = {
+    item: altar.id
+    for altar in ALTARS_BY_ID.values()
+    for item in (altar.talisman_item, altar.tiara_item)
+    if item is not None
+} | {"Elemental talisman": "elemental", "Omni-talisman": "omni", "Omni-tiara": "omni"}
 
 
 def runecrafting_route_phases_pure(
@@ -265,14 +280,9 @@ def wicked_hood_operable_pure(
     equipment = player_data.get("equipment")
     if isinstance(equipment, Mapping) and equipment.get("head") == WICKED_HOOD_ITEM:
         return True
-    target = str(target_id or player_data.get("current_runecrafting", "") or "")
-    carried = player_data.get("carried_inventory")
-    view = carried.get(target) if isinstance(carried, Mapping) else None
     inventory = player_data.get("inventory")
     return bool(
-        isinstance(view, Mapping)
-        and _non_negative_int(view.get(WICKED_HOOD_ITEM))
-        and isinstance(inventory, Mapping)
+        isinstance(inventory, Mapping)
         and _non_negative_int(inventory.get(WICKED_HOOD_ITEM))
     )
 
@@ -362,6 +372,23 @@ def wicked_hood_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             for target_id, target in STANDARD_RUNE_TARGETS_BY_ID.items()
         },
     )
+    commands = [("essence", {}, projection)]
+    for row in projection["altars"]:
+        commands.append(("runes", {"altar_id": row["altar_id"]}, row))
+        reasons = quest_unlock_locked_reasons_pure(
+            player_data, "runecrafting", row["target_id"], _QUEST_UNLOCK_RULES
+        )
+        commands.append(("teleport", {
+            "altar_id": row["altar_id"],
+            "locked_reason": str(reasons[0]) if reasons else "",
+        }, row))
+    # Commands mutate nested inventory, so previews need isolated saves.
+    for action, payload, row in commands:
+        _, enabled, info = apply_wicked_hood_command_pure(
+            copy.deepcopy(player_data), action, payload
+        )
+        row[action + "_enabled"] = enabled
+        row[action + "_reason"] = str(info.get("reason", ""))
     return {
         **projection,
         "caps": {
@@ -400,6 +427,154 @@ def apply_wicked_hood_upgrade_pure(
     return data
 
 
+def wicked_hood_feed_view_pure(player_data: Mapping[str, Any], item: str) -> dict[str, Any] | None:
+    altar_id = _FEED_ALTARS_BY_ITEM.get(item)
+    if altar_id is None:
+        return None
+    data = ensure_wicked_hood_state_pure(player_data)
+    state = data["wicked_hood"]
+    already_fed = (
+        bool(state["elemental_fed"]) if altar_id == "elemental"
+        else bool(state["omni_fed"]) if altar_id == "omni"
+        else altar_id in wicked_hood_fed_altars_pure(data)
+    )
+    quest_reasons = quest_unlock_locked_reasons_pure(
+        data, "runecrafting", f"craft_{altar_id}_runes", _QUEST_UNLOCK_RULES
+    )
+    reason = ""
+    if not wicked_hood_operable_pure(data):
+        reason = WICKED_HOOD_REQUIRED_MESSAGE
+    elif not (data.get("quests", {}).get("rune_mysteries", {}) or {}).get("completed"):
+        reason = "Complete Rune Mysteries first."
+    elif quest_reasons:
+        reason = str(quest_reasons[0])
+    elif already_fed:
+        reason = "The Wicked hood has already been fed this altar's talisman or tiara."
+    elif _non_negative_int((data.get("inventory") or {}).get(item)) <= 0:
+        reason = f"You need {item}."
+    return {"altar_id": altar_id, "enabled": not reason, "reason": reason}
+
+
+def _feed_wicked_hood(data: dict[str, Any], item: str) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    view = wicked_hood_feed_view_pure(data, item)
+    if view is None:
+        return data, False, {"reason": "The Wicked hood cannot take that item."}
+    if not view["enabled"]:
+        return data, False, {"reason": view["reason"]}
+    altar_id = view["altar_id"]
+    # Darkan consumes this post-Omni upgrade before its XP-award branch.
+    extra_withdrawal_only = altar_id == "elemental" and data["wicked_hood"]["omni_fed"]
+    data = apply_wicked_hood_upgrade_pure(
+        data,
+        fed_altars=(altar_id,) if altar_id not in {"elemental", "omni"} else (),
+        elemental_fed=altar_id == "elemental",
+        omni_fed=altar_id == "omni",
+    )
+    data["inventory"][item] -= 1
+    return data, True, {"message": f"{item} fed to the Wicked hood.", "feed_xp": 0.0 if extra_withdrawal_only else WICKED_HOOD_FEED_XP}
+
+
+def _withdraw_hood_essence(data, stackable_items):
+    state = data["wicked_hood"]
+    target_id = str(data.get("current_runecrafting", "") or "")
+    carried_root = dict(data.get("carried_inventory", {}) or {})
+    view = dict(carried_root.get(target_id, {}) or {})
+    inventory = data.setdefault("inventory", {})
+    remaining = state["essence_remaining"]
+    free_slots = max(0, CARRIED_CAPACITY - carried_slots_used(view, stackable_items))
+    quantity = min(remaining, free_slots)
+    if quantity <= 0:
+        return data, False, {"reason": "No carried-pack space or essence allowance remains."}
+    item = "Pure essence" if state.get("omni_fed") else "Rune essence"
+    inventory[item] = _non_negative_int(inventory.get(item)) + quantity
+    view[item] = _non_negative_int(view.get(item)) + quantity
+    carried_root[target_id] = view
+    data["carried_inventory"] = carried_root
+    state["essence_remaining"] -= quantity
+    return data, True, {"message": f"Withdrew {quantity} {item}.", "quantity": quantity, "item": item}
+
+
+def _withdraw_hood_runes(data, altar_id, altar, stackable_items):
+    state = data["wicked_hood"]
+    target_id = str(data.get("current_runecrafting", "") or "")
+    carried_root = dict(data.get("carried_inventory", {}) or {})
+    view = dict(carried_root.get(target_id, {}) or {})
+    inventory = data.setdefault("inventory", {})
+    if state["rune_withdrawals_remaining"] <= 0:
+        return data, False, {"reason": "No rune withdrawals remain this review day."}
+    rune_item = str(altar.get("rune_item", "") or "")
+    if not rune_item:
+        return data, False, {"reason": "That altar has no withdrawable rune."}
+    if rune_item not in view and carried_slots_used(view, stackable_items) >= CARRIED_CAPACITY:
+        return data, False, {"reason": "The carried pack has no room for that rune stack."}
+    quantity = 100 if altar_id in WICKED_HOOD_F2P_ALTARS else 5
+    inventory[rune_item] = _non_negative_int(inventory.get(rune_item)) + quantity
+    view[rune_item] = _non_negative_int(view.get(rune_item)) + quantity
+    carried_root[target_id] = view
+    data["carried_inventory"] = carried_root
+    state["rune_withdrawals_remaining"] -= 1
+    return data, True, {"message": f"Withdrew {quantity} {rune_item}.", "quantity": quantity, "item": rune_item}
+
+
+def _teleport_hood(data, altar_id, payload, altars, standard_targets):
+    state = data["wicked_hood"]
+    target_id = str(data.get("current_runecrafting", "") or "")
+    altar = altars.get(altar_id, {})
+    if state["teleports_remaining"] <= 0:
+        return data, False, {"reason": "No altar teleports remain this review day."}
+    pending_altar = str(state.get("pending_altar_teleport", "") or "")
+    if pending_altar:
+        pending_name = str(
+            altars.get(pending_altar, {}).get("display_name", pending_altar.title())
+        )
+        return data, False, {
+            "reason": f"A teleport to {pending_name} is already queued."
+        }
+    active_run = data.get("skilling_bank_run")
+    if (
+        isinstance(active_run, Mapping)
+        and active_run.get("target_id") in (None, target_id)
+        and _non_negative_int(active_run.get("reviews_remaining")) > 0
+        and active_run.get("outbound_teleport_used") is True
+    ):
+        return data, False, {
+            "reason": "This route's outbound leg has already been teleported."
+        }
+    locked_reason = str(payload.get("locked_reason", "") or "")
+    if locked_reason:
+        return data, False, {"reason": locked_reason}
+    target, spec = next(
+        (
+            (candidate, row)
+            for candidate, row in standard_targets.items()
+            if str(row.get("altar_id")) == altar_id
+        ),
+        ("", {}),
+    )
+    required_level = _non_negative_int(spec.get("level"), 1)
+    if not target or _non_negative_int(data.get("runecrafting_level"), 1) < required_level:
+        return data, False, {"reason": f"Requires level {required_level} Runecrafting."}
+    state["teleports_remaining"] -= 1
+    state["pending_altar_teleport"] = altar_id
+    data["current_runecrafting"] = target
+    return data, True, {
+        "message": f"Teleported to {altar.get('display_name', altar_id.title())}. Your next trip there skips the walk.",
+        "target_id": target,
+        "altar_id": altar_id,
+    }
+
+
+def _reclaim_hood(data, altars, standard_targets):
+    projection = wicked_hood_projection_pure(data, altars, standard_targets)
+    if not projection["claimed"]:
+        return data, False, {"reason": "Claim the Wicked hood first."}
+    if wicked_hood_owned_pure(data):
+        return data, False, {"reason": "You already own a Wicked hood."}
+    inventory = data.setdefault("inventory", {})
+    inventory[WICKED_HOOD_ITEM] = 1
+    return data, True, {"message": "Wicked hood reclaimed; its progress was preserved."}
+
+
 def apply_wicked_hood_command_pure(
     player_data: Mapping[str, Any],
     action_id: str,
@@ -420,107 +595,29 @@ def apply_wicked_hood_command_pure(
     payload = payload if isinstance(payload, Mapping) else {}
     data = ensure_wicked_hood_state_pure(player_data)
     state = data["wicked_hood"]
-    target_id = str(data.get("current_runecrafting", "") or "")
+
+    if action_id == "feed":
+        return _feed_wicked_hood(data, str(payload.get("item", "")))
 
     if action_id == "reclaim":
-        projection = wicked_hood_projection_pure(data, altars, standard_targets)
-        if not projection["claimed"]:
-            return data, False, {"reason": "Claim the Wicked hood first."}
-        if wicked_hood_owned_pure(data):
-            return data, False, {"reason": "You already own a Wicked hood."}
-        inventory = data.setdefault("inventory", {})
-        inventory[WICKED_HOOD_ITEM] = 1
-        return data, True, {"message": "Wicked hood reclaimed; its progress was preserved."}
+        return _reclaim_hood(data, altars, standard_targets)
 
-    if not wicked_hood_operable_pure(data, target_id):
+    if not wicked_hood_operable_pure(data):
         return data, False, {
-            "reason": "Equip the Wicked hood or carry it in this Runecrafting pack."
+            "reason": WICKED_HOOD_REQUIRED_MESSAGE
         }
 
-    carried_root = dict(data.get("carried_inventory", {}) or {})
-    view = dict(carried_root.get(target_id, {}) or {})
-    inventory = data.setdefault("inventory", {})
-
     if action_id == "essence":
-        remaining = state["essence_remaining"]
-        free_slots = max(0, CARRIED_CAPACITY - carried_slots_used(view, stackable_items))
-        quantity = min(remaining, free_slots)
-        if quantity <= 0:
-            return data, False, {"reason": "No carried-pack space or essence allowance remains."}
-        item = "Pure essence" if state.get("omni_fed") else "Rune essence"
-        inventory[item] = _non_negative_int(inventory.get(item)) + quantity
-        view[item] = _non_negative_int(view.get(item)) + quantity
-        carried_root[target_id] = view
-        data["carried_inventory"] = carried_root
-        state["essence_remaining"] -= quantity
-        return data, True, {"message": f"Withdrew {quantity} {item}.", "quantity": quantity, "item": item}
+        return _withdraw_hood_essence(data, stackable_items)
 
     altar_id = str(payload.get("altar_id", "") or "")
     accessible = wicked_hood_accessible_altars_pure(state, list(altars))
     if altar_id not in accessible:
         return data, False, {"reason": "That altar has not been unlocked in the hood."}
-
-    altar = altars.get(altar_id, {})
     if action_id == "runes":
-        if state["rune_withdrawals_remaining"] <= 0:
-            return data, False, {"reason": "No rune withdrawals remain this review day."}
-        rune_item = str(altar.get("rune_item", "") or "")
-        if not rune_item:
-            return data, False, {"reason": "That altar has no withdrawable rune."}
-        if rune_item not in view and carried_slots_used(view, stackable_items) >= CARRIED_CAPACITY:
-            return data, False, {"reason": "The carried pack has no room for that rune stack."}
-        quantity = 100 if altar_id in WICKED_HOOD_F2P_ALTARS else 5
-        inventory[rune_item] = _non_negative_int(inventory.get(rune_item)) + quantity
-        view[rune_item] = _non_negative_int(view.get(rune_item)) + quantity
-        carried_root[target_id] = view
-        data["carried_inventory"] = carried_root
-        state["rune_withdrawals_remaining"] -= 1
-        return data, True, {"message": f"Withdrew {quantity} {rune_item}.", "quantity": quantity, "item": rune_item}
-
+        return _withdraw_hood_runes(data, altar_id, altars.get(altar_id, {}), stackable_items)
     if action_id == "teleport":
-        if state["teleports_remaining"] <= 0:
-            return data, False, {"reason": "No altar teleports remain this review day."}
-        pending_altar = str(state.get("pending_altar_teleport", "") or "")
-        if pending_altar:
-            pending_name = str(
-                altars.get(pending_altar, {}).get("display_name", pending_altar.title())
-            )
-            return data, False, {
-                "reason": f"A teleport to {pending_name} is already queued."
-            }
-        active_run = data.get("skilling_bank_run")
-        if (
-            isinstance(active_run, Mapping)
-            and active_run.get("target_id") in (None, target_id)
-            and _non_negative_int(active_run.get("reviews_remaining")) > 0
-            and active_run.get("outbound_teleport_used") is True
-        ):
-            return data, False, {
-                "reason": "This route's outbound leg has already been teleported."
-            }
-        locked_reason = str(payload.get("locked_reason", "") or "")
-        if locked_reason:
-            return data, False, {"reason": locked_reason}
-        target, spec = next(
-            (
-                (candidate, row)
-                for candidate, row in standard_targets.items()
-                if str(row.get("altar_id")) == altar_id
-            ),
-            ("", {}),
-        )
-        required_level = _non_negative_int(spec.get("level"), 1)
-        if not target or _non_negative_int(data.get("runecrafting_level"), 1) < required_level:
-            return data, False, {"reason": f"Requires level {required_level} Runecrafting."}
-        state["teleports_remaining"] -= 1
-        state["pending_altar_teleport"] = altar_id
-        data["current_runecrafting"] = target
-        return data, True, {
-            "message": f"Teleported to {altar.get('display_name', altar_id.title())}; the next outbound route is skipped.",
-            "target_id": target,
-            "altar_id": altar_id,
-        }
-
+        return _teleport_hood(data, altar_id, payload, altars, standard_targets)
     return data, False, {"reason": "Unknown Wicked hood action."}
 
 

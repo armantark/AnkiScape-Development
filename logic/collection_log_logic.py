@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any, Optional
 
+from ..core.search_match import match_rank
+
 from ..logic_pure.logic_pure_combat_model import (
     combat_enemy_drop_item_names_pure,
     combat_observed_drops_for_target_pure,
@@ -65,7 +67,6 @@ def drop_log_view_pure(
     total = 0
     collected = 0
     selected_rows: tuple[dict[str, Any], ...] = ()
-    needle = search.strip().casefold()
 
     for current_id, enemy, item_names in all_rows:
         observed = combat_observed_drops_for_target_pure(
@@ -91,7 +92,7 @@ def drop_log_view_pure(
             "total": target_total,
         }
         if target_id is None and (
-            not needle or needle in target_name.casefold()
+            match_rank(search, target_name) is not None
         ):
             targets.append(target_row)
 
@@ -109,7 +110,7 @@ def drop_log_view_pure(
                 else "discovered"
             )
             label = item_name if discovered else "???"
-            if needle and needle not in label.casefold():
+            if match_rank(search, label) is None:
                 continue
             rows.append(
                 {
@@ -122,8 +123,9 @@ def drop_log_view_pure(
                     ),
                 }
             )
-        selected_rows = tuple(rows)
+        selected_rows = tuple(sorted(rows, key=lambda row: match_rank(search, row["label"])))
 
+    targets.sort(key=lambda row: match_rank(search, row["name"]))
     return {
         "targets": tuple(targets),
         "rows": selected_rows,

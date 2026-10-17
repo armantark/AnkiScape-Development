@@ -5,6 +5,8 @@ from typing import Iterable, Mapping, Optional
 from ..data.prayer_data import (
     COMBAT_PRAYERS_BY_ID,
     AUTO_PRAYER_TICKS_PER_ITEM,
+    DEFAULT_PRAYER_TARGET,
+    ECTOFUNTUS_MULTIPLIER,
     PRAYER_MATERIALS,
     PRAYER_UPTIME_POLICIES,
     SAP_SOURCE,
@@ -116,6 +118,59 @@ def apply_prayer_selection_pure(player_data, material_id, ui_method_id, prayer_d
         data["prayer_gilded_house_search"] = {}
         data["prayer_owned_altar_stint"] = {}
     return data, True, ()
+
+
+_PRAYER_METHOD_MULTIPLIERS = {
+    "bury": ("Bury", 1.0),
+    "scatter": ("Scatter", 1.0),
+    "ectofuntus": ("Ectofuntus", ECTOFUNTUS_MULTIPLIER),
+}
+
+
+def _prayer_requirements_hint(method: str, mode: str) -> str:
+    if method == "gilded_altar" and mode == "owned":
+        return "Check the materials and owned altar required for this method."
+    return {
+        "bury": "Check the bones required for Bury.",
+        "scatter": "Check the ashes required for Scatter.",
+        "ectofuntus": "Check the bonemeal and buckets of slime required for Ectofuntus.",
+        "gilded_altar": "Check the bones required for the hosted gilded altar.",
+    }[method]
+
+
+def prayer_panel_view_pure(player_data, prayer_data):
+    """The Prayer panel's method line and its gilded altar mode box.
+
+    The box appears only for a gilded altar target: shown above plain Bury, its
+    350% read as Bury's own rate.
+    """
+    target_id = str(player_data.get("current_prayer", DEFAULT_PRAYER_TARGET))
+    spec = prayer_data.get(target_id) or prayer_data[DEFAULT_PRAYER_TARGET]
+    material_id = str(spec["material_id"])
+    gilded = spec["method"] == "gilded_altar"
+    mode = "owned" if player_data.get("prayer_gilded_mode") == "owned" else "hosted"
+    altar_target = f"gilded_altar_{material_id}"
+    if gilded:
+        method = f"Gilded altar ({mode})"
+        multiplier = effective_gilded_altar_multiplier_pure(player_data, mode, altar_target)
+    else:
+        method, multiplier = _PRAYER_METHOD_MULTIPLIERS[spec["method"]]
+    owned_multiplier = effective_gilded_altar_multiplier_pure(player_data, "owned", altar_target)
+    owned_burners = owned_gilded_altar_effective_burners_pure(player_data, altar_target)
+    return {
+        "material_id": material_id,
+        "requirements_hint": _prayer_requirements_hint(spec["method"], mode),
+        "unavailable_warning": "The selected Prayer method is not ready. " + _prayer_requirements_hint(spec["method"], mode),
+        "status": f"{method}: {spec['display_name']} · {multiplier:g}x XP",
+        "show_gilded_mode": gilded,
+        "gilded_mode": mode,
+        "gilded_mode_options": (
+            ("hosted", "Hosted - 350% XP",
+             prayer_selection_locked_reasons_pure(player_data, material_id, "gilded_hosted", prayer_data)),
+            ("owned", f"Owned - {owned_multiplier * 100:g}% XP ({owned_burners}/2 burners)",
+             prayer_selection_locked_reasons_pure(player_data, material_id, "gilded_owned", prayer_data)),
+        ),
+    }
 
 
 def apply_prayer_action_pure(target_id, inventory, prayer_data):

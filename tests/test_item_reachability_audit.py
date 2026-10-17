@@ -1391,7 +1391,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
     def test_report_matches_player_finishable_quest_baseline(self):
         report = live_reachability_report()
 
-        self.assertEqual(report["action_count"], 1674)
+        self.assertEqual(report["action_count"], 1675)
         self.assertEqual(report["reachable_item_count"], 2356)
         self.assertEqual(report["routes"].get("Living water"), "quest-stage:druidic_ritual:2")
         self.assertEqual(report["routes"].get("Wandering wyrmwood"), "quest-stage:druidic_ritual:3")

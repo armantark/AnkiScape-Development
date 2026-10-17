@@ -1763,8 +1763,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         # The master gets a chathead so the player can tell who is speaking.
         tabs.setCurrentIndex(1)
         QApplication.processEvents()
-        chathead = dialog.findChild(QLabel, "slayerMasterChathead")
-        self.assertIsNotNone(chathead)
+        card = dialog.findChild(QWidget, "slayerMaster_turael_spria")
+        chathead = card.findChild(QLabel, "slayerMasterChathead")
         self.assertIsNotNone(chathead.pixmap())
         self.assertFalse(chathead.pixmap().isNull())
 
@@ -1786,10 +1786,9 @@ class MainMenuWidgetTest(unittest.TestCase):
                 tabs.setCurrentIndex(1)
                 QApplication.processEvents()
 
-                chathead = dialog.findChild(QLabel, "slayerMasterChathead")
-                self.assertTrue(
-                    any(label.text() == display_name for label in dialog.findChildren(QLabel))
-                )
+                card = dialog.findChild(QWidget, "slayerMaster_turael_spria")
+                chathead = card.findChild(QLabel, "slayerMasterChathead")
+                self.assertIn(display_name, [label.text() for label in card.findChildren(QLabel)])
                 self.assertIsNotNone(chathead.pixmap())
                 expected = self._ui._pixel_path_icon(
                     os.path.join(self._ui.current_dir, "activityicons", filename), 48
@@ -8233,7 +8232,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("__runecrafting_group__:combination", group_roles)
         self.assertIn("__runecrafting_group__:tiara", group_roles)
         self.assertIn("__runecrafting_group__:staff", group_roles)
-        self.assertIn("__runecrafting_group__:hood", group_roles)
+        self.assertNotIn("__runecrafting_group__:hood", group_roles)
 
         air = _runecrafting_row(tree, "craft_air_runes")
         lava = _runecrafting_row(tree, "combo_lava_at_earth")
@@ -10333,7 +10332,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn(title, labels)
         self.assertTrue(
-            any(label.startswith(f"{tier.lamp.experience:,} XP lamp") for label in labels)
+            any(label.startswith(f"{tier.lamp.experience:,} XP ·") for label in labels)
         )
         choose = next(
             button

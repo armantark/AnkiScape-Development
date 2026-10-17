@@ -20,6 +20,7 @@ except Exception:  # pragma: no cover - non-Qt environment keeps the module impo
     pass
 
 from ..core.constants import QUEST_DATA
+from ..core.search_match import match_rank
 from ..logic_pure.logic_pure import (
     apply_quest_route_choice_pure,
     can_attempt_quest_review_pure,
@@ -32,6 +33,16 @@ from ..logic_pure.logic_pure import (
     quest_state_pure,
 )
 from .ui import CatalogFilterBar, dim_text_css
+
+
+def _quest_match_rank(query: str, item: tuple[str, dict]) -> int | None:
+    quest_id, quest = item
+    return match_rank(
+        query, quest.get("display_name", quest_id), quest_id,
+        quest.get("start_point", ""),
+        quest.get("requirements", ()),
+        quest.get("unlocks", ()),
+    )
 
 
 def build_quests_tab(ctx) -> "QWidget":
@@ -52,6 +63,7 @@ def build_quests_tab(ctx) -> "QWidget":
     quest_top = QWidget()
     quest_top_layout = QHBoxLayout(quest_top)
     quest_top_layout.setContentsMargins(0, 0, 0, 0)
+    quest_top_layout.setSpacing(4)
     quest_points_label = QLabel(f"Quest points: {int(player_data.get('quest_points', 0) or 0)}")
     quest_points_label.setStyleSheet("font-weight: 600; color: palette(text);")
     sort_label = QLabel("Sort")
@@ -131,7 +143,7 @@ def build_quests_tab(ctx) -> "QWidget":
     quest_content = QWidget()
     quest_content_layout = QVBoxLayout(quest_content)
     quest_content_layout.setContentsMargins(0, 0, 0, 0)
-    quest_content_layout.setSpacing(10)
+    quest_content_layout.setSpacing(8)
 
     def _short_stage_blocker_text(reasons: tuple) -> str:
         if not reasons:
@@ -214,13 +226,7 @@ def build_quests_tab(ctx) -> "QWidget":
         return "Requires: " + ", ".join(shown)
 
     def _quest_matches_filters(quest_id: str, quest: dict) -> bool:
-        if not quest_filter_bar.matches_text(
-            quest_id,
-            quest.get("display_name", ""),
-            quest.get("start_point", ""),
-            quest.get("requirements", ()),
-            quest.get("unlocks", ()),
-        ):
+        if _quest_match_rank(quest_filter_bar.query(), (quest_id, quest)) is None:
             return False
         availability = quest_availability_state_pure(player_data, quest_id, QUEST_DATA)
         if hide_completed_cb.isChecked() and availability == "completed":
@@ -437,16 +443,16 @@ def build_quests_tab(ctx) -> "QWidget":
     def _add_section_heading(title: str) -> None:
         heading = QLabel(title)
         heading.setObjectName(f"questSection_{title}")
-        heading.setStyleSheet("font-weight: 700; color: palette(text); margin-top: 6px;")
+        heading.setStyleSheet("font-weight: 700; color: palette(text); margin-top: 8px;")
         quest_content_layout.addWidget(heading)
 
     def _rebuild_quest_cards() -> None:
         _clear_quest_cards()
         mode = quest_sort_combo.currentText() or "Release Order"
-        visible_rows = tuple(
-            (quest_id, quest)
-            for quest_id, quest in sorted(QUEST_DATA.items(), key=lambda item: _quest_sort_key(item, mode))
-            if _quest_matches_filters(quest_id, quest)
+        query = quest_filter_bar.query()
+        visible_rows = sorted(
+            (item for item in QUEST_DATA.items() if _quest_matches_filters(*item)),
+            key=lambda item: (_quest_match_rank(query, item), _quest_sort_key(item, mode)),
         )
         visible_count = len(visible_rows)
         for section in quest_catalog_sections_pure(visible_rows):

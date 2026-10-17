@@ -5,19 +5,28 @@ Callers must show, resize and pump events before probing, per
 geometry, and these probes trust widget geometry, not pixels.
 """
 
+import itertools
+
 from aqt.qt import (
     QAbstractButton,
+    QAbstractItemView,
     QAbstractScrollArea,
     QCheckBox,
     QComboBox,
+    QHeaderView,
     QLabel,
     QLineEdit,
+    QModelIndex,
     QPoint,
     QPushButton,
     QRadioButton,
     QRect,
+    QSize,
     QStyle,
     QStyleOptionButton,
+    QStyleOptionViewItem,
+    QStyledItemDelegate,
+    QTreeView,
     Qt,
 )
 
@@ -35,8 +44,7 @@ def _text_fits(widget) -> bool:
     if isinstance(widget, QPushButton):
         # A push button's size hint adds style margins the text never needs, so
         # measure the style's content rectangle instead.
-        option = QStyleOptionButton()
-        widget.initStyleOption(option)
+        option = _button_option(widget)
         contents = widget.style().subElementRect(
             QStyle.SubElement.SE_PushButtonContents,
             option,
@@ -66,6 +74,91 @@ def _text_fits(widget) -> bool:
     )
 
 
+def _button_option(button) -> QStyleOptionButton:
+    # initStyleOption is protected, and PyQt refuses protected calls on widgets
+    # Qt created itself, such as a QMessageBox's buttons; this mirrors it.
+    option = QStyleOptionButton()
+    option.initFrom(button)
+    option.text = button.text()
+    option.icon = button.icon()
+    option.iconSize = button.iconSize()
+    feature = QStyleOptionButton.ButtonFeature
+    for enabled, flag in (
+        (button.isFlat(), feature.Flat),
+        (button.menu() is not None, feature.HasMenu),
+        (button.autoDefault(), feature.AutoDefaultButton),
+        (button.isDefault(), feature.DefaultButton),
+    ):
+        if enabled:
+            option.features |= flag
+    return option
+
+
+def _view_item_option(view) -> QStyleOptionViewItem:
+    # The same mirror of the protected initViewItemOption.
+    option = QStyleOptionViewItem()
+    option.initFrom(view)
+    option.widget = view
+    option.font = view.font()  # initFrom sets only the metrics; an item's partial font resolves against this
+    metric = view.style().pixelMetric(QStyle.PixelMetric.PM_SmallIconSize, None, view)
+    option.decorationSize = view.iconSize() if view.iconSize().isValid() else QSize(metric, metric)
+    option.textElideMode = view.textElideMode()
+    if view.wordWrap():
+        option.features |= QStyleOptionViewItem.ViewItemFeature.WrapText
+    return option
+
+
+def _laid_out_indexes(view, parent=QModelIndex()):
+    """Every cell the view lays out: expanded tree branches, shown rows and columns."""
+    model = view.model()
+    for row in range(model.rowCount(parent)):
+        # QAbstractListModel keeps columnCount private, so walk to the first invalid column.
+        cells = (model.index(row, column, parent) for column in itertools.count())
+        for index in itertools.takewhile(QModelIndex.isValid, cells):
+            if view.visualRect(index).width() > 0:
+                yield index
+        first = model.index(row, 0, parent)
+        if isinstance(view, QTreeView) and view.isExpanded(first):
+            yield from _laid_out_indexes(view, first)
+
+
+def _cell_text_clipped(view, option, index) -> bool:
+    """Measure the text in the rectangle the style paints it in.
+
+    A delegate's size hint is no proof: QStyleSheetStyle wraps the hint's text
+    at the full cell width and adds the stylesheet padding afterwards, while
+    painting wraps inside the padding (see WrappedRowDelegate).
+    """
+    cell = QStyleOptionViewItem(option)
+    cell.rect = view.visualRect(index)
+    # Only a Python-created delegate may call the protected initStyleOption.
+    QStyledItemDelegate().initStyleOption(cell, index)
+    style = view.style()
+    text_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, cell, view)
+    width = text_rect.width() - 2 * (style.pixelMetric(QStyle.PixelMetric.PM_FocusFrameHMargin, cell, view) + 1)
+    wraps = cell.features & QStyleOptionViewItem.ViewItemFeature.WrapText
+    flags = Qt.TextFlag.TextWordWrap if wraps else Qt.TextFlag.TextSingleLine
+    needed = cell.fontMetrics.boundingRect(QRect(0, 0, width, 1 << 20), flags, cell.text)
+    return needed.width() > width or needed.height() > text_rect.height()
+
+
+def _item_view_defects(root) -> list[str]:
+    """Name each tree, list or table cell whose text its cell cuts short.
+
+    Rows scrolled out of view count too: a column is as wide for them as for
+    the rows on screen.
+    """
+    defects = []
+    for view in root.findChildren(QAbstractItemView):
+        if isinstance(view, QHeaderView) or not view.isVisibleTo(root):
+            continue
+        option = _view_item_option(view)
+        for index in _laid_out_indexes(view):
+            if _cell_text_clipped(view, option, index):
+                defects.append(f"row {index.data()!r} is clipped in {view.visualRect(index).size()}")
+    return defects
+
+
 def _scrolled_out(widget, root) -> bool:
     """True when a scroller inside root has scrolled the widget out of its viewport.
 
@@ -92,10 +185,10 @@ def _shown_text_widgets(root) -> list:
 
 
 def text_fit_defects(root) -> list[str]:
-    """Name each visible label or control text that is clipped, leaves root, or overlaps another."""
+    """Name each visible label, control or item-view row whose text is clipped, leaves root, or overlaps another."""
     widgets = _shown_text_widgets(root)
     rects = [QRect(widget.mapTo(root, QPoint(0, 0)), widget.size()) for widget in widgets]
-    defects = []
+    defects = _item_view_defects(root)
     for widget, rect in zip(widgets, rects):
         if not root.rect().contains(rect):
             defects.append(f"{_text(widget)!r} at {rect} leaves {root.rect()}")

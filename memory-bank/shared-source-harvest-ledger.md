@@ -108,6 +108,8 @@ Owner-authorized incoming batch; both ledgers were checked by the sender before 
 - Slayer’s respite(m): revision6241745, 2012-09-13T11:30:56Z, BETA temporal-only; `/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/sources/slayers-respite-m-oldid-6241745-20120913T113056Z.json`, SHA256`f3284325bfd92ab575a577ae9f3a6cb6aa4cb6984b882f060fc99db5ffe0bf27`.
 - Dwarven stout(m): revision6129965, 2012-08-22T23:12:39Z, BETA temporal-only; `/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/sources/dwarven-stout-m-oldid-6129965-20120822T231239Z.json`, SHA256`c5bec9e56ea052445b3f8f21852adb1ba4e37a9b3892881a192e1d2a4babf300`.
 
+- Snape grass, Hobgoblin Peninsula: Darkan `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/items/spawns/spawns.json` at supplying commit `7387f34cff5c638d1c29d024329a9f80667add5f` (last file change, confirmed from checkout `1912a55cb245cc4410e51b200f9ad4c5e480510f`); itemId 231, three-clump trip, corroborated by Snape grass oldid 6269500.
+
 ## Remaining item tradeability harvest 6 — 2026-10-17
 
 - 2026-10-17T21:52:01.660767+00:00: harvest-6 reuses Darkan item pins for Amulet of glory, Black mask, Mining helmet, Adamant/Rune spikeshield and berserker shield, Bird snare and Rat pole; both ledgers and harvest-5 commit c0558de4 checked. Claims only missing exact period Exchange qualification for Mining helmet ID5014. Item pins and retained cache probes are reused, not reharvested. Root owns peer notices.

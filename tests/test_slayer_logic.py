@@ -30,6 +30,7 @@ from ankiscape.logic.slayer_logic import (
     slayer_assignment_progress_pure,
     slayer_master_display_name_pure,
     slayer_master_persona_pure,
+    slayer_masters_view_pure,
     slayer_target_ids_for_assignment_pure,
 )
 from ankiscape.logic.slayer_readiness import (
@@ -83,7 +84,10 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             (10, 20),
         )
         self.assertEqual(MAZCHNA_MASTER.required_combat_level, 20)
-        self.assertEqual(MAZCHNA_MASTER.required_quest_id, "priest_in_peril")
+        # Combat 20 only: Mazchna oldid 6548393 names no quest, and Priest in
+        # Peril stopped gating Morytania in March 2012 (Priest in Peril oldid
+        # 6487728).
+        self.assertEqual(MAZCHNA_MASTER.required_quest_id, "")
         self.assertEqual(MAZCHNA_MASTER.alternate_display_name, "Achtryn")
         self.assertEqual(
             slayer_master_display_name_pure(
@@ -622,6 +626,89 @@ class SlayerAssignmentLogicTest(unittest.TestCase):
                 {"quests": {"while_guthix_sleeps": {"completed": True}}}
             ),
             "Spria",
+        )
+
+
+def _melee_player(attack_and_strength: int, **state) -> dict:
+    """Attack and Strength 26 make combat level 19, 27 make 20, 57 make 39 and
+    58 make 40; every other combat skill stays at its starting level."""
+    return {
+        "attack_level": attack_and_strength,
+        "strength_level": attack_and_strength,
+        "quests": {},
+        **state,
+    }
+
+
+class SlayerMasterRosterTest(unittest.TestCase):
+    def _locks(self, player) -> dict:
+        return {
+            row["id"]: row["locked_reasons"]
+            for row in slayer_masters_view_pure(player)["masters"]
+        }
+
+    def test_master_context_is_projected_only_for_eligible_masters(self):
+        rows = {row["id"]: row for row in slayer_masters_view_pure(_melee_player(1))["masters"]}
+        self.assertIn("Assignment range:", rows["turael_spria"]["context"])
+        self.assertIn("No Slayer points", rows["turael_spria"]["context"])
+        self.assertNotIn("Assignment range:", rows["mazchna_achtryn"]["context"])
+        self.assertNotIn("points", rows["mazchna_achtryn"]["context"])
+
+    def test_roster_lists_live_masters_in_order_and_locks_on_combat_level(self):
+        for attack_and_strength, mazchna, vannaka in (
+            (26, ("Combat level 20",), ("Combat level 40",)),
+            (27, (), ("Combat level 40",)),
+            (57, (), ("Combat level 40",)),
+            (58, (), ()),
+        ):
+            with self.subTest(attack_and_strength=attack_and_strength):
+                self.assertEqual(
+                    self._locks(_melee_player(attack_and_strength)),
+                    {"turael_spria": (), "mazchna_achtryn": mazchna, "vannaka": vannaka},
+                )
+
+    def test_get_assignment_asks_the_last_master_used_while_still_eligible(self):
+        def last_used(master_id: str) -> dict:
+            master = {m.id: m for m in (MAZCHNA_MASTER, VANNAKA_MASTER)}[master_id]
+            return {
+                "master_id": master_id,
+                "family_id": master.family_ids[0],
+                "initial_count": 40,
+                "remaining": 0,
+            }
+
+        for attack_and_strength, master_id, expected in (
+            (27, "", "turael_spria"),
+            (27, "mazchna_achtryn", "mazchna_achtryn"),
+            (26, "mazchna_achtryn", "turael_spria"),
+            (58, "vannaka", "vannaka"),
+        ):
+            with self.subTest(master_id=master_id, level=attack_and_strength):
+                player = _melee_player(
+                    attack_and_strength,
+                    slayer_assignment=last_used(master_id) if master_id else {},
+                )
+                self.assertEqual(
+                    slayer_masters_view_pure(player)["selected"]["id"], expected
+                )
+
+    def test_locked_master_refuses_an_assignment_and_writes_nothing(self):
+        player = _melee_player(26)
+        data, ok, info = get_slayer_assignment_pure(
+            player, master_id=MAZCHNA_MASTER.id, rng=lambda: 0.0
+        )
+
+        self.assertFalse(ok)
+        self.assertEqual(info["message"], "Mazchna requires Combat level 20.")
+        self.assertEqual(data["slayer_assignment"], {})
+
+        data, ok, info = get_slayer_assignment_pure(
+            _melee_player(27), master_id=MAZCHNA_MASTER.id, rng=lambda: 0.0
+        )
+        self.assertTrue(ok)
+        self.assertEqual(data["slayer_assignment"]["master_id"], MAZCHNA_MASTER.id)
+        self.assertIn(
+            data["slayer_assignment"]["family_id"], MAZCHNA_MASTER.family_ids
         )
 
 
