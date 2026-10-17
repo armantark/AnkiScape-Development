@@ -1,13 +1,13 @@
 # Fly fishing rod value contract — 2026-10-17
 
-Status: qualified for backend implementation. Base: `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`.
+Status: backend implementation recorded below; promotion remains with Root. Base: `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`.
 Cutoff: `2012-11-20T00:00:00Z`. Backend scope only.
 Preserve the current storage key, interface, icons, reward quantities and review rates.
 Root owns promotion, native verification and peer notices.
 
 ## Required result
 
-The live ordinary `Fly fishing rod` row is source ID309, tradeable=true and stackable=false; those flags are correct.
+The base live ordinary `Fly fishing rod` row is source ID309, tradeable=true and stackable=false; those flags are correct.
 Its live store/cache value is50, which also makes its GE catalog low/high alchemy values20/30.
 The period ordinary item has value5, low alchemy2 and high alchemy3. Correct those three values.
 Preserve its existing GE guide price20, buy limit100, tradeability, stackability and source ID309.
@@ -53,4 +53,13 @@ No new Exchange query or missing-title inference is used. The page supplies dire
 Run `python3 run_tests.py` and the standing documentation, test-quality, item-reachability, worktree and diff audits.
 Root runs both full lanes on the merged commit through the promotion gate.
 Check the real registered ordinary rod's value and GE alchemy amounts, with its retained price and limit. Check an existing value consumer and the generated-data repeatability requirement.
-Add behavior coverage only for a real gap. This research contract does not claim implementation, native proof or gameplay acceptance.
+Add behavior coverage only for a real gap. Native proof and gameplay acceptance remain with Root.
+
+## Implementation and consumer check — 2026-10-17
+
+The generator selects ordinary ID309 when the fly-fishing-rod name collides with17794. Other names keep the existing maximum-value rule. The generated rod value is5 and flows through `data/item_values.py` without a runtime override. A duplicate-order regression proves the generator retains5 in either source order.
+The base static `ALCH_VALUES` and runtime `_magic_alch_values` already read shop buy price5; only the GE catalog's displayed low/high alchemy values inherited20/30 from cache value50. The real ordinary Magic review route now has explicit proof of coin payouts2/3, exact rune consumption, complete-state Undo and save/load in a temporary Anki collection, including close/reopen after each payout. Default cadence stays enabled.
+Shops retain buy5/sell1. GE retains guide20/limit100 and now exposes cache5/low2/high3. Loot filtering uses high-alch3; unsafe-death ranking uses5. Mobilising Armies offers2 investment credits per rod. Shattered Heart checks tradeability rather than value, so the rod remains replaceable while the three corrected nests are excluded.
+The value consumers are `logic/inventory_pure.py`, `runtime/runtime_actions_combat.py`, `logic_pure/logic_pure_combat_model.py`, `logic/mobilising_armies_logic.py`, `data/grand_exchange_data.py` and the item-value exports; static/runtime Magic, shop pricing and Shattered Heart are independent consumers checked by the focused regression. No shop price or unrelated duplicate name changes.
+`tests/item_tradeability/test_nest_and_rod_contracts.py` owns the behavior proof. GE price1443 and buy-limit1838 count pins remain exact: these corrections change values and metadata, not the catalog census.
+Branch proof and command receipts are in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-10/implementation/`. Root owns merged promotion and native checks.

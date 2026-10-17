@@ -1,13 +1,13 @@
 # Bird's nest (empty) tradeability contract — 2026-10-17
 
-Status: qualified for backend implementation. Base: `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`.
+Status: backend implementation recorded below; promotion remains with Root. Base: `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`.
 Cutoff: `2012-11-20T00:00:00Z`. Backend scope only.
 Preserve the current storage key, interface, icons, reward quantities and review rates.
 Root owns promotion, native verification and peer notices.
 
 ## Required result
 
-The live `Bird's nest (empty)` row has tradeable=true, stackable=true and source_item_id=None.
+The base live `Bird's nest (empty)` row has tradeable=true, stackable=true and source_item_id=None.
 The period item is ID `5075`, tradeable=false and stackable=false. Preserve its GE exclusion.
 
 ## Period evidence
@@ -42,4 +42,12 @@ Exchange price and Calculator oldid6457777 buy limit are not applicable. Do not 
 Run `python3 run_tests.py` and the standing documentation, test-quality, item-reachability, worktree and diff audits.
 Root runs both full lanes on the merged commit through the promotion gate.
 Drive the existing nest producer and consumer with the real registry; check nonstackable carried capacity, GE exclusion, save/reload and review Undo.
-Add behavior coverage only for a real gap. This research contract does not claim implementation, native proof or gameplay acceptance.
+Add behavior coverage only for a real gap. Native proof and gameplay acceptance remain with Root.
+
+## Implementation — 2026-10-17
+
+`woodcutting_extra_items_as_dict` applies the exact item metadata after assembling every opening table, so later empty-nest writes cannot erase it. Existing assets, storage keys, quantities and RNG tables stay intact.
+The ordinary review dispatcher is tested with default cadence enabled. Complete player state is compared after Undo for earning/opening seed and ring nests and grinding empty nests.
+For this exact nest, a saved active prepared pack containing two nests plus27 Shark reloads at28 slots with two nests and26 Shark carried. Complete bank ownership and the requested layout remain unchanged. The shared Pyramid Plunder fix is merged from `8936d93baba43734d37212def0931d699f93fea4`; no second capacity fix exists.
+`tests/item_tradeability/test_nest_and_rod_contracts.py` covers the metadata, shop/GE/alchemy exclusion, rock replacement, custody, load and Undo paths. The existing period-price count1443 and buy-limit count1838 remain exact equalities because no GE entry is added or removed.
+Branch proof and command receipts are in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-10/implementation/`. Root owns merged promotion and native checks.

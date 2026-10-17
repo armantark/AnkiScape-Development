@@ -339,4 +339,9 @@ def woodcutting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
                 "category": "material",
                 "source": table.source,
             }
+    # Period Bird's nests oldid6550484; 5073 is the ordinary tree-seed variant.
+    for name, item_id in (("Bird's nest (seeds)", 5073), ("Bird's nest (ring)", 5074),
+                          ("Bird's nest (empty)", 5075)):
+        items[name].update(item_id=item_id, tradeable=False, stackable=False,
+                           source=f"{BIRD_NEST_SOURCE_PATH}; https://runescape.wiki/w/Bird%27s_nests?oldid=6550484")
     return items
