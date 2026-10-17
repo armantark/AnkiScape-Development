@@ -1,6 +1,6 @@
 # Conquest board size: implementation contract
 
-Status: **contract ready; product change pending.** Register row: `conquest.board_size`.
+Status: **implementation accepted; exact merged gate and official land pending.** Former register row: `conquest.board_size`.
 Cutoff: `2012-11-20T00:00:00Z`. AnkiScape research base: `8749ddc60555a5c62f64d8dfbcc04f64f207bcc1`.
 
 ## Value and pins
@@ -32,4 +32,9 @@ This contract settles dimensions only. It does not settle collision, diagonal mo
 3. Strengthen `tests/test_conquest.py:224`, `ConquestEntryAndSetupTests.test_entry_builds_a_bounded_board_and_unlocks_both_tracks`, with the independent exact assertion `CONQUEST_BOARD_SIZE == 20`. Its current bound check reads the constant and would accept an incorrect larger board. Keep the real entry path and coordinate checks.
 4. Run the Conquest suite and `tests.test_placeholder_register`; preserve exact marker/register agreement and all audit baselines.
 
-No product, register, or test file was changed by this research slice.
+The research slice changed no product, register, or test file. Implementation acceptance follows.
+
+## Acceptance — 2026-10-17
+Astra ACCEPT: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/conquest-review/report.md`; Kimi ACCEPT: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/conquest-kimi-vote/kimi-vote.md`.
+Main already used 20: this slice changes no game behaviour; it removes the placeholder marker and register row and pins the value with a test, so no native check applies.
+Exact merged gate and official land pending.

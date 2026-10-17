@@ -1,0 +1,20 @@
+# Family gauntlet diary source 306 — 2026-10-17
+
+Scope: activate only `varrock_hard_hand_me_downs`, Hand-Me-Downs, under matrix priority 5: Dormant diary systems / Remaining catalog depth. The cutoff is `2012-11-20`.
+Authority: design-thread-queue §4.21.1, §4.22.3 and §4.23; no open owner question covers this deed. No UI, place, transport, item, reward or new gameplay system is added.
+Selection: the first eligible dormant row in canonical ledger order; 85 earlier dormant rows and individual reasons are in /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/diary-deed-1/skipped-rows.txt. The ledger's source306 no-writer note is stale against the shipped gauntlet lifecycle.
+Pinned deed: Varrock achievements oldid `6476032`, `2012-10-26T14:55:51Z`, https://runescape.wiki/w/Special:PermanentLink/6476032; Darkan `VarrockTasks.HANDMEDOWNS`, rev-727 enum `3483`, source ID `306`. Existing harvest: achievement-diary-harvest-2026-07-26.json.
+Existing service evidence: cooking-gauntlets-runtime-closure-2026-08-09.md pins Cooking gauntlets oldid `6556123`, `2012-11-15T02:31:56Z`, https://runescape.wiki/w/Special:PermanentLink/6556123: Dimintheis freely replaces a lost pair in its remembered enchantment. No new harvest was needed.
+Writer: logic/cooking_gauntlets_logic.py::recover_family_gauntlets_pure emits `family_gauntlets_recovery`, target_id `dimintheis`, only after granting the replacement. Failed access, bank/worn ownership and conversions do not emit it.
+Consumer: canonical source306 ledger event rule, compiled by the existing generator into data/achievement_diaries/varrock.py. Only the successful forward action earns credit; old ownership and quest completion remain insufficient.
+Transaction: the existing recovery command checks achievements after its Anki Undo entry exists and before saving. The shared direct-action seam owns full-state Undo and rollback; the event writer copies diary maps before changing them.
+Census: exactly one dormant task becomes a real deed: 115→114 dormant, 334→335 real_deed; ledger active 43→44 and live 205→206. Exact equality pins remain exact. IDs, text, access gate, tier and rewards remain unchanged.
+Proof: tests/runtime_actions/test_family_gauntlet_diary.py drives the ordinary Family Crest quest reviews through Chronozon and the original reward from an unstarted quest, then conversion/discard/recovery, refusals, repeat, actual JSON persistence, full saved-state Undo and replay. Starting skills, weapon and raw supplies are an explicit prepared fixture; no skill/material acquisition is claimed. Quest state, proofs and gauntlets are earned by real handlers.
+Startup budget: net zero; five timestamped papercut records replace five blank lines in papercuts.md. All implementation detail stays outside startup files.
+Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/diary-deed-1/result.json and report.md retain commands, counts and exits. Root owns the merged promotion gate and landing; accepted reviews are recorded below.
+
+Native PASS on frozen `340a711e28add8ef125e0d181284593109c2a50b`: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/native-lane-3/diary-306/.
+Independent native review ACCEPT, items 1–3: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/native-review-306-mogre/report.md.
+Code review ACCEPT by Astra: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/diary-306-review/report.md; Kimi: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/diary-306-kimi-vote/kimi-vote.md.
+Merged census includes both source940 and source306: 45 active, 123 translated, 39 invented, 0 swapped, 113 dormant; 207 live ledger rows; 474 catalog tasks, 336 real deeds, 22 anchors, 3 quest deeds. Exact equality pins count both authorized activations.
+306-specific product blobs remain identical to frozen `340a711e`; shared runtime/event files add only accepted source940 changes, and census pins count the merged deeds. Startup total: 2943 lines, below 3000.

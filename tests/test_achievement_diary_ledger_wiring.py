@@ -115,8 +115,8 @@ class CurationLedgerWiringTest(unittest.TestCase):
                 )
             },
             {
-                "active": 43, "translated": 123, "swapped": 0,
-                "invented": 39, "dormant": 115,
+                "active": 45, "translated": 123, "swapped": 0,
+                "invented": 39, "dormant": 113,
             },
         )
         self.assertEqual([row["task_id"] for row in rows if row["task_id"] not in task_ids], [])

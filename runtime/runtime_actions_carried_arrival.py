@@ -35,7 +35,7 @@ def _settle_bank_run_requests(
     if skilling_bank_run_requested and event.get("active"):
         player_data.pop("skilling_bank_run_requested", None)
     if event.get("completed"):
-        player_data.update(restore_summoning_points_pure(player_data))
+        player_data.update(restore_summoning_points_pure(player_data)[0])
         record_bank_run_diary_event_pure(player_data, True, view)
 
 
