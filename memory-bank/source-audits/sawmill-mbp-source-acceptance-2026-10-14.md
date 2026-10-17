@@ -8,7 +8,13 @@ Astra source-review2 and the bounded GLM source vote accept this source. The REA
 
 The original focused run passed39 cases without skips. Neighbors passed365 without skips. Original full session84527 passed5330 tests, skipped580, exit0; later README records changed no product/test bytes.
 
-Native acceptance is unproved. The shared literal-representation owner question remains in [the native startup audit](native-startup-mbp-2026-10-14.md). This source has no failed native case and no waiver. The exact merged full gate and official land are also unproved.
+Native and new-row presentation acceptance passed on 2026-10-15 at `7ef2a5f8f8e5f9886d50c9cd648286e5b509a07f`. The [independent Astra report](/Users/armantarkhanian/ankiscape_worktrees/goal-recovery-evidence-2026-10-15/sawmill-native-acceptance/report.md) accepts actual Coins99 and Logs0 refusals, direct Undo, paid conversion, review Undo/replay, the visible deed and normal reopen. Complete same-representation player values, installed-Anki save values and required Undo RNG/scheduler/config values match. Every complete deck dictionary matches by ID. Source acquisition and the second distinct retained success remain source-only proof; no native Again claim applies.
+
+Raw deck-list order, encoded byte/member order, restart RNG and loaded-module membership differences remain in the report. These diagnostics do not support whole-raw-packet equality. The first [unaccepted fixture](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/manual-sawmill-canonical-native-2026-10-15/first-case-unaccepted.json) differed at `bank_layout` after declared Coins augmentation, before any review. The fresh case applies product migration after the saved-only augmentation; the first case remains a fixture error, not a product-defect claim.
+
+The accepted case records actual exit0 for fixture60166, gameplay10191 and reopen40148. Its final owner guard returned0 with `unchanged: true` and `changes: {}`; final `pgrep -ix 'anki|anki-runtime'` returned1 with empty stdout. The inherited navigation ellipses and repeated condition description remain outside this slice's UI scope. The Sawmill row and material-refusal modals passed the supplied native dark-mode presentation check.
+
+Current main `839b86a7b3803433a11d04721bac2d169a5ae6ae` includes the [official Tribal landing](/Users/armantarkhanian/ankiscape_worktrees/goal-recovery-evidence-2026-10-15/tribal-current-main-gate/execution.json), with all nine exact remote checks and actual gate/land exits0. This Sawmill candidate preserves the accepted native consumer and UI bytes. Independent merged-record review, the exact final merged full9 and official Sawmill land remain pending. No accepted source, native or product check was repeated.
 
 Independent retained packets:
 
