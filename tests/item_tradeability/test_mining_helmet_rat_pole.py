@@ -2,6 +2,7 @@
 import copy
 import json
 import math
+from pathlib import Path
 import sys
 import types
 import unittest
@@ -207,3 +208,28 @@ class MiningHelmetRatPoleTest(unittest.TestCase):
         inventory = sys.modules[f"{addon.__name__}.logic.inventory_pure"]
         self.assertNotIn("Rat pole", values.STACKABLE_ITEM_NAMES)
         self.assertEqual(inventory.carried_slots_used({"Rat pole": 3}, values.STACKABLE_ITEM_NAMES), 3)
+
+    def test_base_stackable_pyramid_saves_load_at_capacity_without_losing_bank_items(self):
+        # The fixture retains the pack and ownership fields from Astra's real
+        # saves on 3c1f481e, before all three registry stackability corrections.
+        saves = json.loads(Path(__file__).with_name("pyramid_plunder_base_saves.json").read_text())["saves"]
+        addon = self.addon
+        plunder = sys.modules[f"{addon.__name__}.logic.pyramid_plunder_logic"]
+        target = plunder.PYRAMID_PLUNDER_ACTIVITY_ID
+        definitions = {item.storage_key: item for item in self.constants.ITEM_DEFINITIONS}
+        for name in (LIT, RAW, "Rat pole"):
+            with self.subTest(item=name):
+                self.collection._store = copy.deepcopy(saves[name])
+                saved = self.collection._store["ankiscape_player_data"]
+                self.assertEqual(saved["carried_inventory"][target], {name: 2, "Shark": 27})
+                self.assertFalse(definitions[name].stackable)
+                addon._state.player_data, addon._state.current_skill = addon.storage_load_player_data()
+                loaded = addon._state.player_data
+                self.assertEqual(plunder.pyramid_plunder_view_pure(loaded)["pack_slots"], 28)
+                self.assertEqual(loaded["carried_inventory"][target], {name: 2, "Shark": 26})
+                self.assertEqual({key: amount for key, amount in loaded["inventory"].items() if amount},
+                                 {name: 2, "Shark": 27})
+                self.assertEqual(loaded["carried_layout"][target], {name: 2, "Shark": 27})
+                self.assertEqual(loaded["pyramid_plunder"], saved["pyramid_plunder"])
+                self.assertEqual(loaded["activity_session"], {"active_id": target})
+                self._reload()
