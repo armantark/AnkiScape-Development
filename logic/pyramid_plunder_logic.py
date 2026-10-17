@@ -12,7 +12,6 @@ from .inventory_pure import (
     apply_carried_layout_pure,
     carried_has_room_for,
     carried_slots_used,
-    clamp_carried_view_to_bank,
 )
 from ..logic_pure.logic_pure import (
     apply_combat_poison_effect_pure,
@@ -133,7 +132,7 @@ def sanitize_pyramid_plunder_state_pure(player_data: Mapping[str, Any] | None) -
     active_id = str(active_session.get("active_id", "")) if isinstance(active_session, Mapping) else ""
     if session and active_id not in {"", PYRAMID_PLUNDER_ACTIVITY_ID}:
         session = {}
-    return {
+    state = {
         "pyramid_plunder": session,
         "pyramid_plunder_priority": priority,
         "pyramid_plunder_runs_completed": _int(source.get("pyramid_plunder_runs_completed")),
@@ -142,6 +141,13 @@ def sanitize_pyramid_plunder_state_pure(player_data: Mapping[str, Any] | None) -
             or defaults["pyramid_plunder_last_result"]
         )[:320],
     }
+    carried = source.get("carried_inventory")
+    if session and isinstance(carried, Mapping):
+        raw_pack = carried.get(PYRAMID_PLUNDER_ACTIVITY_ID, {})
+        if carried_slots_used(raw_pack, _stackable_names()) > CARRIED_CAPACITY:
+            state["carried_inventory"] = dict(carried)
+            _write_carried_view(state, _carried_view(source))
+    return state
 
 
 def _owns_item(player_data: Mapping[str, Any], item_name: str) -> bool:
@@ -317,7 +323,9 @@ def _retains(priority: str, item_name: str) -> bool:
 def _carried_view(data: Mapping[str, Any]) -> dict[str, int]:
     carried = data.get("carried_inventory")
     raw = carried.get(PYRAMID_PLUNDER_ACTIVITY_ID, {}) if isinstance(carried, Mapping) else {}
-    return clamp_carried_view_to_bank(raw, data.get("inventory", {}))
+    return apply_carried_layout_pure(
+        data.get("inventory", {}), raw, CARRIED_CAPACITY, _stackable_names(),
+    )
 
 
 def _write_carried_view(data: dict[str, Any], view: Mapping[str, int]) -> None:
@@ -520,6 +528,9 @@ def apply_pyramid_plunder_review_pure(
     session = sanitize_pyramid_plunder_session_pure(data.get("pyramid_plunder"))
     if not session:
         return data, {"allowed": False, "reason": "Enter Pyramid Plunder before training."}
+    # Saved packs can predate item stackability corrections; hazards must use
+    # the same capped view as entry and display without removing bank ownership.
+    _write_carried_view(data, _carried_view(data))
     total_xp = {"thieving": 0.0, "strength": 0.0, "runecrafting": 0.0}
     outputs: dict[str, int] = {}
     hazards: list[dict[str, Any]] = []
