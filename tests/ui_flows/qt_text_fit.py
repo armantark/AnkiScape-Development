@@ -99,6 +99,7 @@ def _view_item_option(view) -> QStyleOptionViewItem:
     option = QStyleOptionViewItem()
     option.initFrom(view)
     option.widget = view
+    option.font = view.font()  # initFrom sets only the metrics; an item's partial font resolves against this
     metric = view.style().pixelMetric(QStyle.PixelMetric.PM_SmallIconSize, None, view)
     option.decorationSize = view.iconSize() if view.iconSize().isValid() else QSize(metric, metric)
     option.textElideMode = view.textElideMode()

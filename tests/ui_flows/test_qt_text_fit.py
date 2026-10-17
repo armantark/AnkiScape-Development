@@ -75,6 +75,25 @@ class QtTextFitTest(unittest.TestCase):
                 if expected:
                     self.assertIn("'Gather snape grass at the Hobgoblin Peninsula' is clipped", defects[0])
 
+    def test_tree_row_is_measured_in_the_view_font(self) -> None:
+        from tests.ui_flows.qt_text_fit import text_fit_defects
+
+        tree = QTreeWidget(self.root)
+        tree.setHeaderHidden(True)
+        tree.setGeometry(0, 0, 480, 80)
+        row = QTreeWidgetItem(tree, ["Gather snape grass at the Hobgoblin Peninsula"])
+        font = row.font(0)
+        font.setBold(True)
+        row.setFont(0, font)
+        tree.show()
+        self._settle()
+        self.assertEqual(text_fit_defects(self.root), [])
+        view_font = tree.font()
+        view_font.setPointSize(view_font.pointSize() * 2)
+        tree.setFont(view_font)
+        self._settle()
+        self.assertEqual(len(text_fit_defects(self.root)), 1)
+
     def test_message_box_buttons_are_measured(self) -> None:
         from tests.ui_flows.qt_text_fit import text_fit_defects
 
