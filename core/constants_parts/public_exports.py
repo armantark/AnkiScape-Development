@@ -297,6 +297,7 @@ _PUBLIC_EXPORT_ORDER = (
     'summoning_extra_items_as_dict',
     'potion_items_as_dict',
     'potion_item_names',
+    'COMBAT_PRAYERS',
     'DEFAULT_PRAYER_TARGET',
     'GILDED_ALTAR_MULTIPLIER',
     'PRAYER_GROUP_ORDER',

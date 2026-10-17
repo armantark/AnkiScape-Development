@@ -114,6 +114,7 @@ from ...data.summoning_data import summoning_extra_items_as_dict
 from ...data.potion_data import potion_items_as_dict, potion_item_names
 
 from ...data.prayer_data import (
+    COMBAT_PRAYERS,
     DEFAULT_PRAYER_TARGET,
     GILDED_ALTAR_MULTIPLIER,
     PRAYER_GROUP_ORDER,
@@ -252,6 +253,7 @@ __all__ = [
     'summoning_extra_items_as_dict',
     'potion_items_as_dict',
     'potion_item_names',
+    'COMBAT_PRAYERS',
     'DEFAULT_PRAYER_TARGET',
     'GILDED_ALTAR_MULTIPLIER',
     'PRAYER_GROUP_ORDER',

@@ -12,6 +12,7 @@ you are in the game, with the date the change reached main.
 
 ## Any skill
 
+- [ ] In Crafting and Runecrafting, search "tara" and see tiaras without changing the active target; in Quests, search "Stolen Hearts" and see it first while Sort orders the following matches; search "the" and "mogre" and see one Quests heading followed by one Miniquests heading; try the same typo in Bank, Grand Exchange and Shop. (Pass 16 ticket 02, after promotion) (2026-10-16)
 - [ ] In Quests, choose The Blood Pact and answer one card correctly: the journal records Xenia's rescue request, entry into the Catacombs, the cultists with Ilona, movement north, Xenia's injury and her instruction to fight alone; the next stage begins "Defeat Kayle." Your health, gear, supplies and XP stay unchanged, further correct reviews stay held at Kayle without fighting Caitlin or Reese, and Undo restores the unstarted opening. (after native acceptance)
 - In Quests, choose Monk's Friend. The first review follows Omad's request and the hidden-ladder route to recover one Child's blanket. The next returns exactly one blanket and stops before Cedric's task. Undo restores the blanket and earlier stage. (after native acceptance)
 - In Quests, choose Tree Gnome Village. The first review reaches Montai after Bolren's stolen-orb request and leaves your Logs intact. Chop six normal Logs, then review Quests again: exactly six Logs are used before tracker work. Undo restores those Logs and Montai's request. (after native acceptance)
@@ -25,6 +26,8 @@ you are in the game, with the date the change reached main.
 - [ ] Put on or take off gear right after a review, then press Undo: the gear change goes back first, and the item is not both worn and in the bank. (2026-09-28)
 - [x] Spiritual Healing native accepted on7aa78ad4ef35056b3e6c6de5ee0b6ea923425021: Equipment Summon/Good/Visit gives4→3→2→4, full direct Undo/replay restores the whole capture, second Good/Visit4→2→4 adds no deed/event credit, and normal reopen shows the full completed deed. Full-points disabled control is native; Bank/potion/defensive full-point exclusions are source-only. Source160 remains held; final merged review/full9/land remain. [Exact scope](source-audits/spiritual-healing-2026-10-14.md#accepted-native-scope--2026-10-15).
 - [ ] Open Skills > Artisan > Crafting and type "combinations" in the search box above the list: only the Combinations group shows, opened, with "Showing 30/233"; your current target does not change, and Escape brings back the full list with your target still marked. Every other skill list has the same box. (2026-09-30)
+- [ ] Open Skills > Utilities and type "bowl" in the new search box above the list: Cooking prep opens with "Fill bowl with water" and the other bowl rows, and nothing else shows; your current utility stays the same, and Escape brings back the full list with the same groups open. Activities has the same box: a search there still opens detail cards and the right-click notifications menu, and Minigames and D&D search only their own rows. (after the next batch) (2026-10-16)
+- [ ] Open Quests in the narrowest main menu: under the search box, the two check boxes and the Access, Difficulty, Length and Timeline boxes line up on one centre line per row, each label sits close to its own box with a wider gap before the next filter, and the rows sit evenly apart. (after the next batch) (2026-10-16)
 - [ ] Quest Alfred Grimhand's Barcrawl with coins in the bank: each review drinks at the next bar and pays its price (Blue Moon Inn first, 50 coins), the Shop tab sells no Barcrawl drinks, and the last review returns the card. With too few coins, the "Quest blocked" window lists each reason on its own line. (2026-09-30)
 
 ## Combat
@@ -43,6 +46,7 @@ you are in the game, with the date the change reached main.
 - [ ] Underground Pass stage 6, after the prior fights: keep reviewing Othanian; LP falls over reviews and the fight records "Defeated Othanian". The new quest fight values are registered placeholders. (after the next batch)
 - [ ] Wanted! stage 5 with a lit light source and the Black Knight already down: keep reviewing Solus Dellagar; he hits for at most 40, LP falls from 540 over reviews, and the fight records "Defeated Solus Dellagar". (after the next batch)
 - [ ] In Aid of the Myreque stage 6: the four level-50 Juvinates still read "This fight is not modelled yet (combat stats missing)", because the source review found no period stats for that variant. The two Vampyre Juvinates in the same stage stay fightable: that is a separate, older generated encounter, and this slice left it alone. (after the next batch)
+- [ ] Skills, Support, Slayer, Masters: Turael, Mazchna and Vannaka each show a card with a chathead. Below combat level 20 Mazchna is greyed with "Requires: Combat level 20"; from 20 his "Get assignment" gives a Mazchna task. After that task, the Assignment tab says "Ask Mazchna for a new task." and its button asks Mazchna. (after the next batch) (2026-10-16)
 
 ## Minigames
 
@@ -55,6 +59,8 @@ you are in the game, with the date the change reached main.
 ## Gathering and processing skills
 
 - [x] In Utilities, choose Convert logs to planks: Logs1 and Coins100 become Plank1 and one visible Varrock Easy deed; the tier stays unclaimable. Good at Coins99 or Logs0 refuses. Direct Undo restores discarded inputs; review Undo retracts the deed; replay and normal reopen retain one Plank and the deed. (isolated native/presentation accepted at7ef2a5f8; acquisition and a second distinct retained success remain source-only; Again unobserved; merged-record review/full9/land pending)
+- [ ] In Prayer, choose Bury Bones with a whole-number XP total and answer four cards: the drops and event log show +4, +5, +4, +5 XP, and Prayer gains exactly 18.0 XP. Undo the last card and answer again: the drop is still +5. (Pass 16 ticket 09) (2026-10-16)
+- [ ] In Utilities > Gathering, select Gather snape grass, hover to see Hobgoblin Peninsula, and answer a review: gain three Snape grass without combat. In Cooking, search "nettle tea": Make nettle tea appears, and its group reads Drinks when the search is clear. Use the gathered grass to finish Skippy and the Mogres. (after Pass 16 landing) (2026-10-16)
 - [ ] At Spirits of the Elid stage 2, keep Thread and choose Magic > Pure casts > Telegrab Ancestral key with one Air rune and one Law rune: a successful review gives the key; the next quest review advances to stage 3; Undo returns to stage 2, and a second Undo restores both runes and the Telegrab proof blocker. (after the next batch)
 - [ ] Open Utility > Gathering, select Collect evergreen sap with two Buckets and a tool-belt Knife, and answer one review: one Bucket becomes Bucket of sap and The Eyes of Glouphrie stage 3 loses its sap blocker; Undo restores the Bucket and blocker. Chopping must not clear it. (after the next batch)
 - [ ] Magic: at Enakhra's Lament stage 5, select Crumble Undead: First Boneguard with Magic 39 and 2 Air, 2 Earth and 1 Chaos rune; answer a card and see the named quest proof and Big bones; Undo restores runes and removes the proof. (after the next batch)
@@ -62,6 +68,8 @@ you are in the game, with the date the change reached main.
 
 - [ ] Runecrafting: Astral runes open after Lunar Diplomacy with level 40 and Pure essence; no Astral talisman is asked for. (2026-09-28)
 - [ ] Runecrafting: combination runes use only what is in your pack, and Magic Imbue still saves the talisman. (2026-09-28)
+- [ ] Bank/Equipment: right-click the Wicked hood, withdraw essence into the Runecrafting pack, check fed rune and teleport choices and lock reasons; Auto Runecrafting packs a fed unworn hood. (2026-10-16)
+- [ ] Bank: right-click an Air talisman or Air tiara, choose Feed to Wicked hood, see the item consumed and Air altar unlocked, then Undo to restore the item, hood state and Runecrafting XP; Runecrafting has no Hood feeding group. (Pass 16 ticket 12) (2026-10-16)
 - [ ] Runecrafting: a Wicked hood teleport to the altar gives your Summoning points back, as a walk there does. (2026-09-28)
 - [ ] Cooking: with the fish's Gauntlets setting on Casual, you keep your Brawling gloves when Cooking gauntlets would not stop a burn. (2026-09-28)
 - [ ] Fletching headless arrows answers quickly, also with a very large bank. (2026-09-28)
@@ -71,6 +79,7 @@ you are in the game, with the date the change reached main.
 - [ ] Fishing: press Bank run on one fish, switch to another fish before the next review, then later switch back; no bank trip starts by surprise on the first fish. (2026-09-30)
 - [ ] Fishing: Stats > Fishing lists each fish once at its own level (16 Catch mackerel, 23 Catch cod, 46 Catch bass, 28 Catch slimy eel). In Skills > Fishing, the Lumbridge Swamp Caves eel spot gives slimy eels from level 28 and cave eels from 38, the Mort Myre spot opens after Priest in Peril, and frog spawn needs no bait. (2026-09-30)
 - [ ] Farming: after Priest in Peril, buy a Bittercap mushroom spore from Vinesweeper, then plan Bittercap on the West Canifis mushroom patch with no Mushroom spore in the Bank. Queue Plant is enabled, the next review plants it, only the Bittercap mushroom spore count drops by one, and Undo puts the spore back. (after the next batch)
+- [ ] Prayer: with Bury Bones selected, Skills > Combat > Prayer reads "Bury: Bones · 1x XP" and shows no Gilded altar mode box; pick a Gilded altar row and the box appears. After 28 burials the next review buries again, with no "Running to the altar" bank run. (after the next batch) (2026-10-16)
 
 ## Bank, shops and items
 
@@ -82,6 +91,8 @@ you are in the game, with the date the change reached main.
 - [ ] A sold-out shop item comes back on schedule, also when you keep buying other things in that shop. (2026-09-28)
 - [ ] In the Shop tab, a shop you cannot use yet (Canifis General Store before Priest in Peril, Aaron's Archery Appendages below 40 Ranged) sits greyed at the end of the list and of a search, reads "Canifis General Store · Requires Priest in Peril", and still opens read-only. Buy something: a green "✓ Bought 1 x …" chip shows right under the Buy button and goes away after about 4 seconds or when you pick another item. (2026-09-30)
 - [ ] In the Bank, the Toolbelt panel lists the General, Fishing, Crafting and Farming belt tools under your pickaxe and hatchet, and a quest step that wants a belt tool, such as the Druidic Ritual fishing rod, goes ahead with none in the Bank. (2026-09-30)
-
+- [ ] In the Bank, right-click a Tiara mould: disabled "On tool belt" explains that the Bank copy is not needed; hover any on-belt Toolbelt chip to see "Always on your tool belt.", and right-click an unadded quest mould chip to keep its Add action. (2026-10-16)
+- [ ] Finish a quest with XP lamps, such as Stolen Hearts: the "Quest complete" window says how many lamps wait in Bank Claims and their XP. In Bank Claims, the Agility and Thieving lamps pay on "Claim" with no skill grid, the combat lamp still opens the grid, and "Destroy" on a lamp asks first, then removes it for good; Undo brings it back. (2026-10-16)
 - Gnome Restaurant: accept an easy/hard order, answer Again repeatedly, then deliver banked food; the window stays intact, while successful answers on other targets spend six minutes. Undo restores the prior order, food and rewards.
 - Familiarisation: start a session and interleave Again with Hard/Good/Easy. Again preserves segment/shard progress; the fourth success offers60 shards. Focus is absent from the activity summary and notification. Undo/reanswer preserves completion and a single reward claim.
+- [ ] At the narrowest main menu: Bank Claims rows show the amount and skill, with the full rules on hover; right-click the Bank Wicked hood (Equip) and the worn head slot (Unequip Wicked hood); feed an Elemental talisman after an Omni talisman and see it add a rune withdrawal with no XP; in Activities, search the Mage Arena statues and see the closest name first. (2026-10-16)

@@ -123,7 +123,30 @@ class ToolBeltPanelTest(unittest.TestCase):
         # Only the two quest moulds a new 2012 account lacked start greyed.
         self.assertEqual(_greyed_tools(groups["Crafting"]), {"Ammo mould", "Chain link mould"})
         self.assertEqual(_greyed_tools(groups["General"]), set())
+        for group in groups.values():
+            for chip in _chips(group):
+                if not chip.property("greyed"):
+                    self.assertEqual(chip.toolTip(), "Always on your tool belt.")
         self.assertEqual(text_fit_defects(dialog.findChild(QWidget, "toolbeltPanel")), [])
+
+    def test_bank_menu_explains_default_and_added_belt_tools(self) -> None:
+        data = _make_player_data()
+        data["inventory"] = {"Tiara mould": 1, "Chain link mould": 1, "Ammo mould": 1, "Logs": 3}
+        data["toolbelt_added"] = ["Chain link mould"]
+        dialog = self._open_with_belt_backend(data)
+        for tool in ("Tiara mould", "Chain link mould"):
+            with self.subTest(tool=tool):
+                menu = dialog._ankiscape_equip_menu_for(tool)
+                action = next(action for action in menu.actions() if action.text() == "On tool belt")
+                self.assertFalse(action.isEnabled())
+                self.assertTrue(menu.toolTipsVisible())
+                self.assertIn("belt copy is used", action.toolTip())
+                self.assertIn("Bank copy isn't needed", action.toolTip())
+                action.trigger()
+                self.assertEqual(data["inventory"][tool], 1)
+        for item in ("Ammo mould", "Logs"):
+            menu = dialog._ankiscape_equip_menu_for(item)
+            self.assertNotIn("On tool belt", [action.text() for action in menu.actions()])
 
     def test_collapsed_panel_stays_collapsed_when_the_bank_reopens(self) -> None:
         ui = self.menu._ui

@@ -24,7 +24,8 @@ from ankiscape.logic_pure.logic_pure import (
 )
 from ankiscape.runtime.runtime_actions import RuntimeActionContext
 from ankiscape.runtime.runtime_actions_combat import handle_combat_answer
-from ankiscape.runtime.runtime_actions_production import handle_quest_answer
+from ankiscape.runtime.runtime_actions_production import handle_cooking_answer, handle_quest_answer
+from ankiscape.runtime.runtime_actions_utility import handle_utility_answer
 
 
 QUEST_ID = "skippy_and_the_mogres"
@@ -232,28 +233,47 @@ class MogreMiniquestFlowTest(unittest.TestCase):
         self.assertEqual(player["quest_points"], 0)
         self.assertEqual(player["inventory"].get("Hangover cure", 0), 0)
 
-    def test_runtime_quest_handler_reaches_the_same_completion_state(self):
+    def test_review_handlers_gather_ingredients_and_complete_the_miniquest(self):
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player.update({"current_quest": QUEST_ID, "cooking_level": 20})
         player["inventory"].update(
             {
                 "Bucket of water": 1,
-                "Nettles": 1,
-                "Nettle tea": 1,
+                "Bowl": 1,
                 "Chocolate dust": 1,
                 "Bucket of milk": 1,
-                "Snape grass": 1,
-                "Pestle and mortar": 1,
                 "Leather gloves": 1,
             }
         )
         calls = {"errors": [], "saves": 0}
         ctx = _runtime_context(player, calls)
-        for _ in range(5):
+        player["current_utility"] = "gather_snape_grass"
+        self.assertTrue(handle_utility_answer(ctx), calls)
+        self.assertEqual(player["inventory"]["Snape grass"], 3)
+        self.assertIn("+3 Snape grass", calls["activity"][-1])
+        self.assertNotIn("xp", calls)
+
+        started_player, started = start_quest_pure(player, QUEST_ID, QUEST_DATA)
+        self.assertTrue(started)
+        player.update(started_player)
+        self.assertTrue(handle_quest_answer(ctx), calls)
+        player["current_utility"] = "pick_nettles"
+        self.assertTrue(handle_utility_answer(ctx), calls)
+        self.assertTrue(handle_quest_answer(ctx), calls)
+        for activity in ("pick_nettles", "fill_bowl_of_water", "prepare_nettle_water"):
+            player["current_utility"] = activity
+            self.assertTrue(handle_utility_answer(ctx), calls)
+        player["current_cooking"] = "cook_nettle_tea"
+        self.assertTrue(handle_cooking_answer(ctx), calls)
+        self.assertEqual(player["inventory"]["Nettle tea"], 1)
+        for _ in range(3):
             self.assertTrue(handle_quest_answer(ctx), calls)
         self.assertTrue(player["quests"][QUEST_ID]["completed"])
         self.assertEqual(player["quest_points"], 0)
-        self.assertEqual(calls["saves"], 5)
+        self.assertEqual(player["inventory"]["Snape grass"], 2)
+        self.assertEqual(player["inventory"].get("Hangover cure", 0), 0)
+        self.assertEqual([title for title, _ in calls["errors"]], ["Quest complete"])
+        self.assertEqual(calls["saves"], 11)
 
 
 class MogreLureTransactionTest(unittest.TestCase):

@@ -1,4 +1,5 @@
-"""Slayer assignments must be undoable through the shared direct-action seam.
+"""Slayer assignments must be undoable through the shared direct-action seam,
+and a locked master must refuse one there.
 
 These tests drive the real main-menu handler through the real
 ``commit_direct_action`` seam. Only display side effects are stubbed.
@@ -145,6 +146,30 @@ class SlayerUndoSeamTest(unittest.TestCase):
         self.assertEqual(self.collection.entries, [])
         self.assertEqual(addon._state.direct_action_undo_stack, [])
         self.assertEqual(random.getstate(), before_random)
+
+    def test_mazchna_assigns_from_combat_level_20_and_refuses_below_it(self):
+        addon = self.addon
+        # Attack and Strength 26 on a new save make combat level 19; 27 make 20.
+        addon._state.player_data.update(attack_level=26, strength_level=26)
+        before = copy.deepcopy(addon._state.player_data)
+
+        refused = self.command("get_assignment", {"master_id": "mazchna_achtryn"})
+
+        self.assertEqual(
+            refused, {"ok": False, "message": "Mazchna requires Combat level 20."}
+        )
+        self.assertEqual(addon._state.player_data, before, "a refusal must write nothing")
+        self.assertEqual(self.collection.entries, [])
+
+        addon._state.player_data.update(attack_level=27, strength_level=27)
+        assigned = self.command("get_assignment", {"master_id": "mazchna_achtryn"})
+
+        self.assertTrue(assigned["ok"], assigned)
+        self.assertEqual(assigned["master_display_name"], "Mazchna")
+        assignment = addon._state.player_data["slayer_assignment"]
+        self.assertEqual(assignment["master_id"], "mazchna_achtryn")
+        self.assertGreater(assignment["remaining"], 0)
+        self.assertEqual(self.collection.entries, ["AnkiScape direct action"])
 
 
 if __name__ == "__main__":

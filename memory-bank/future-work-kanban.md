@@ -104,6 +104,18 @@ holds both lists.
   belt spade today; add them to `QUEST_STAGES_NEEDING_HELD_TOOLS` if a source
   says it does not.
 
+### Pass 16 follow-ups — 2026-10-15
+
+Sources and oldids: `memory-bank/specs/pass16-owner-notes/spec.md`, Out of Scope.
+
+- `PARKED` One-off item uses, owner's example a water jug; >28 manual uses in
+  one card "should drag it out". Bulk work such as burying stays on targets.
+- `PARKED` An action queue, so a run out of resources does not end in Bankstanding.
+- `IMPLEMENT` 12 missing 2012 quest choice rewards (owner approved 2026-10-15);
+  the catalog parser drops choice XP not worded as a lamp.
+- `IMPLEMENT` Waterbirth Island snape grass, gated on The Fremennik Trials.
+- `SOURCE AUDIT` Slayer families gated on Priest in Peril for Morytania access.
+
 ### Pass 14 follow-up — 2026-09-13
 
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
@@ -267,9 +279,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   at 34 families with a provisional 388-point denominator; Sumona is reconciled
   at 37 families with a provisional 407-point denominator; Duradel/Lapalok are
   reconciled at 35 families with a provisional 334-point denominator; Kuradal
-  is reconciled at 36 families with a provisional 322-point denominator. All
-  seven roles remain hidden until their full Combat families and distinctive
-  protection/finishing/context mechanics are executable. See the dated
+  is reconciled at 36 families with a provisional 322-point denominator.
+  Turael, Mazchna and Vannaka are live; the other four roles stay out of
+  rolls until their full pools are executable. See the dated
   `slayer-turael-spria-pool`, `slayer-mazchna-achtryn-pool`,
   `slayer-vannaka-pool`, `slayer-chaeldar-pool`, `slayer-sumona-pool`, and
   `slayer-duradel-lapalok-pool` audits, plus `slayer-kuradal-pool`.
@@ -282,8 +294,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Mazchna/Achtryn is now the second completely encoded pool. Stable family
   identities are separate from its 27 master-specific roll rows and provisional
   325-point denominator. `tools/audit_slayer_readiness.py` derives the live
-  readiness ledger: 26/27 families are ready, while Mogres remains the sole
-  exact quest blocker. Vampyres are closed through the
+  readiness ledger: 27/27 families are ready since Mogres landed (`adb2f935`),
+  and Mazchna needs Combat 20 only. Vampyres are closed through the
   ordinary level-61 Feral vampyre with its Priest in Peril gate, guaranteed
   Vampyre dust, Holy-symbol weakness, bite effect, and losslessly normalized
   100,000-slot table. Wall beasts are closed through
@@ -292,13 +304,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   through the ordinary level-85 Soldier with its period poison risk and exact
   128-slot drop table.
   Pyrefiends are closed through the ordinary level-43 representative with
-  source-faithful magic-based-melee semantics. The role stays hidden; stale
+  source-faithful magic-based-melee semantics. The role is live; stale
   prose blockers for protection,
   poison, finishers, Dogs, Grotworms, and Hobgoblin XP no longer control
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
-  rows preserve the provisional 460-point denominator and remain hidden at
-  34/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
+  rows preserve the provisional 460-point denominator and are live at
+  35/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
   Slayer-bell, and real lit-source gates, exact 100,000-slot Darkan selector,
   and independent easy clue. Ordinary Brine rat closes Brine rats with its sourced
   Slayer/Olaf's-Quest/Spade gates, exact 512-slot ordinary selector, exact
@@ -1192,22 +1204,6 @@ Suggested order, highest aggregate value first:
    and settle the price-button arithmetic as the first real test.
 4. Re-walk the parity ledger for items marked blocked on *client-side* grounds
    and clear the ones this now reaches. Leave server-side blocks alone.
-
-### Shared modular list search and filters
-
-Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.
-
-- `CatalogFilterBar` now supplies one dark-mode-safe text/filter seam to Shop,
-  Quests, Combat, and Bank while each page retains its own searchable metadata,
-  predicates, and result renderer.
-- Combat search preserves the exact saved target, expands matching groups,
-  never activates an absent/empty row, restores the current row after clear,
-  and shares the same clear-button/Escape behavior as the other catalogs.
-- Bank search matches item names and category labels without mutating inventory
-  or the saved first-come-first-served carried-queue order.
-- Add `Current Slayer task only` when the first authentic assignment state
-  lands. It must intersect with text search and leave exact monster choice to
-  the player; do not expose a disabled placeholder or invent task state early.
 
 ### In-product help and mechanics reference
 

@@ -1,6 +1,6 @@
 # Slayer Mazchna/Achtryn assignment-pool audit — 2026-07-17
 
-Status: **functional source contract provisionally closed; runtime hidden**.
+Status: **functional source contract provisionally closed; runtime live**.
 Cutoff: `2012-11-20T23:59:59Z`.
 
 ## Finding
@@ -142,10 +142,16 @@ cross-table row, not a 28th executable family.
 
 ## Role and variant gates
 
-Mazchna requires Combat 20. RuneScape Wiki, `Mazchna`, oldid `6112475`,
-timestamp `2012-08-19T12:36:05Z`, also preserves Priest in Peril as the Canifis
-access requirement before later infobox housekeeping removed that field:
-<https://runescape.wiki/w/Mazchna?oldid=6112475>. Achtryn occupies the same
+Mazchna requires Combat 20 and nothing else. RuneScape Wiki, `Mazchna`, oldid
+`6548393`, timestamp `2012-11-11T21:24:57Z`: "He will give slayer assignments
+to any player at combat with level 20 or higher", with no quest requirement:
+<https://runescape.wiki/w/Mazchna?oldid=6548393>. The earlier oldid `6112475`
+(`2012-08-19T12:36:05Z`) still carried `questrequired = Priest in Peril`, a
+leftover from when that quest gated Morytania. Corrected 2026-10-15: Priest in
+Peril, oldid `6487728` (`2012-10-28`), trivia: "Before the release of the
+Morytania Tasks on 27 March 2012, Priest in Peril used to be a requirement to
+enter Morytania, but this is no longer the case":
+<https://runescape.wiki/w/Priest_in_Peril?oldid=6487728>. Achtryn occupies the same
 functional role only during the While Guthix Sleeps interval already closed in
 the master-succession audit.
 

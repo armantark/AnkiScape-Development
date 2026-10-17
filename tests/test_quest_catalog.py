@@ -2566,10 +2566,10 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn("extra fine flour", joined_cook_journal)
         self.assertIn("super large egg", joined_cook_journal)
 
-        one_small_favour = data["one_small_favour"]
-        self.assertEqual(one_small_favour["lamp_rewards"][0]["quantity"], 2)
-        self.assertEqual(one_small_favour["lamp_rewards"][0]["amount"], 10000)
-        self.assertEqual(one_small_favour["lamp_rewards"][0]["minimum_level"], 30)
+        # The Elder Kiln's "Level 75 required" (oldid 6579162) is a minimum too.
+        for quest_id, quantity, amount, minimum_level in (("one_small_favour", 2, 10000, 30), ("the_elder_kiln", 1, 100000, 75)):
+            lamp = data[quest_id]["lamp_rewards"][0]
+            self.assertEqual((lamp["quantity"], lamp["amount"], lamp["minimum_level"]), (quantity, amount, minimum_level), quest_id)
 
         final_rfd = data["recipe_for_disaster_defeating_the_culinaromancer"]
         rfd_requirements = {req["quest_id"] for req in final_rfd["required_quests"]}

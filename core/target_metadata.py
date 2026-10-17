@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
 from typing import Optional
+
+from .target_row import TargetRowMetadata, TargetDetails, target_details_from_row_pure
 
 from ..logic_pure.logic_pure import (
     best_mining_pickaxe_pure,
@@ -46,6 +47,12 @@ from ..logic_pure.logic_pure import (
 
 from ..logic_pure.logic_pure_combat_finishers import combat_finisher_supply_pure
 from .tool_belt import without_belt_tools
+from ..data.werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID
+from ..data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
+from ..data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
+from ..data.great_orb_project_data import GREAT_ORB_PROJECT_ACTIVITY_ID
+from ..data.managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
+from ..logic_pure.logic_pure import MAGE_ARENA_GOD_DATA, sanitize_mage_arena_state_pure
 from ..logic.agility_logic import agility_target_locked_reasons_pure
 from ..logic.skilling_boost_logic import skilling_effective_level_pure
 from ..logic.cooking_gauntlets_logic import cooking_gauntlets_worn_pure
@@ -66,52 +73,6 @@ from ..logic.livid_farm_logic import (
     livid_farm_locked_reasons_pure,
     sanitize_livid_farm_state_pure,
 )
-
-
-@dataclass(frozen=True)
-class TargetRowMetadata:
-    """Shared contract for one selectable flat target-list row."""
-
-    target_id: str
-    label: str
-    tooltip: str
-    enabled: bool = True
-    current: bool = False
-    icon_path: Optional[str] = None
-    group: str = ""
-    locked_reasons: tuple[str, ...] = ()
-    sort_key: tuple[object, ...] = ()
-    requires_confirmation: bool = False
-    confirmation_title: str = ""
-    confirmation_message: str = ""
-
-
-@dataclass(frozen=True)
-class TargetDetails:
-    """Player-facing mechanics copied from one live target row."""
-
-    target_id: str
-    title: str
-    lines: tuple[str, ...]
-    enabled: bool
-
-
-def target_details_from_row_pure(row: TargetRowMetadata) -> TargetDetails:
-    """Build optional details without exposing provenance or inventing values."""
-
-    lines = tuple(
-        line.rstrip()
-        for line in row.tooltip.splitlines()
-        if line.strip() and not line.strip().startswith("Source:")
-    )
-    if not lines:
-        lines = ("No extra mechanics to show for this target.",)
-    return TargetDetails(
-        target_id=row.target_id,
-        title=row.label,
-        lines=lines,
-        enabled=row.enabled,
-    )
 
 
 def summoning_target_rows(
@@ -1708,6 +1669,18 @@ def combat_target_rows(
     return tuple(rows)
 
 
+# These locked actions still allow navigation to their detail cards.
+_UTILITY_DETAIL_ROWS = frozenset(
+    {
+        WEREWOLF_SKULLBALL_ACTIVITY_ID,
+        GNOME_BALL_ACTIVITY_ID,
+        FISHING_TRAWLER_ACTIVITY_ID,
+        GREAT_ORB_PROJECT_ACTIVITY_ID,
+        MANAGING_MISCELLANIA_ACTIVITY_ID,
+    }
+)
+
+
 def utility_activity_rows(
     player_data: Mapping[str, object],
     utility_activity_data: Mapping[str, Mapping[str, object]],
@@ -1887,18 +1860,44 @@ def utility_activity_rows(
                 else:
                     tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 
+        tooltip = "\n".join(filter(None, (str(spec.get("description", "")), tooltip)))
         rows.append(
             TargetRowMetadata(
                 target_id=activity_key,
                 label=label,
                 tooltip=tooltip,
                 enabled=enabled,
+                navigation_enabled=any((enabled, activity_key in _UTILITY_DETAIL_ROWS)),
                 current=activity_key == current_activity,
                 icon_path=icon_path,
                 locked_reasons=locked_reasons,
                 sort_key=(label,),
             )
         )
+    return tuple(rows)
+
+
+def mage_arena_attunement_rows_pure(player_data) -> tuple[TargetRowMetadata, ...]:
+    state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
+    inventory = player_data.get("inventory", {}) or {}
+    equipment = player_data.get("equipment", {}) or {}
+    rows = []
+    for god_id, spec in MAGE_ARENA_GOD_DATA.items():
+        if spec["spell_id"] in state["attuned_spells"]:
+            continue
+        staff = spec["staff"]
+        owned = int(inventory.get(staff, 0) or 0) > 0 or staff in equipment.values()
+        tooltip = f"Represents 100 arena casts. Requires owning {staff}."
+        if not owned:
+            tooltip += f"\nMissing {staff}."
+        rows.append(TargetRowMetadata(
+            target_id=f"mage_arena_attune:{god_id}",
+            label=f"Attune {spec['spell_name']} · one review",
+            tooltip=tooltip,
+            enabled=owned,
+            navigation_enabled=owned,
+            locked_reasons=() if owned else (f"Missing {staff}",),
+        ))
     return tuple(rows)
 
 
@@ -1957,12 +1956,6 @@ def runecrafting_target_rows(
                 "Permanently binds one talisman to one Runecrafting staff.\n"
                 f"Materials: Runecrafting staff ({inventory.get('Runecrafting staff', 0)}), "
                 f"{talisman} ({inventory.get(talisman, 0)})"
-            )
-        else:
-            input_item = str(spec.get("input_item", ""))
-            tooltip = (
-                f"Consumes {input_item} and stores its altar access in the Wicked hood.\n"
-                f"Materials: {input_item} ({inventory.get(input_item, 0)})"
             )
 
         reasons = runecrafting_locked_reasons_pure(
