@@ -186,11 +186,3 @@ Evidence: Main 8749ddc6: memory-bank/source-audits/sawmill-mbp-source-acceptance
 
 - 2026-10-15T23:50:30.437824+00:00 — First Sawmill fixture refused startup at `bank_layout` with `startup_equal: false`, `native_accepted: false`, `reviews: 0`: Declared Coins augmentation followed the shipped helper migration. The saved Bank layout therefore omitted Coins; normal load reconciled it. Fixture preparation error, not a product-defect claim. Fixture/gameplay/owner-guard actual exits were0 and owner_unchanged true; original evidence remains at /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/manual-sawmill-canonical-native-2026-10-15/first-case-unaccepted.json.
 - 2026-10-15T23:51:50.785331+00:00 — Sawmill native binding looked for the canonical ledger in the shipped source manifest and raised `KeyError: 'memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl'`; the freezer excludes Memory Bank records. Bind that ledger against the exact accepted/native Git revisions, and bind its generated Varrock runtime consumer against the shipped manifest. No product source changed.
-
-## Duplicate combat imports removed
-
-Disposition: fixed.
-
-Evidence: This batch removes the second imports of _combat_review_ticks, _record_action, _refresh_combat_levels and RuntimeActionContext from runtime/runtime_actions_combat.py; the original re-export imports at :395-410 retain all bindings. Existing Slayer completion, finisher, ranged finisher, bankstanding and auto-bury handler suites pass. Focused proof: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/papercut-batch-1/focused-final-receipt.json and focused-final.log, 107 tests, exit 0, no skips.
-
-- 2026-10-13 audit: runtime/runtime_actions_combat.py still imports _combat_review_ticks, _record_action and _refresh_combat_levels at both lines 389 and 413, and RuntimeActionContext at both lines 409 and 419; this Pass 14 follow-up remains open.

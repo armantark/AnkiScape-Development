@@ -410,6 +410,16 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
     RuntimeActionContext,
 )
 
+from .runtime_actions_shared import (
+    _combat_review_ticks,
+    _record_action,
+    _refresh_combat_levels,
+)
+
+from .runtime_actions_context import (
+    RuntimeActionContext,
+)
+
 
 def _apply_slayer_kill_credit(
     ctx: RuntimeActionContext,
