@@ -9,6 +9,7 @@ from ..data.cooking_gauntlets_data import (
     FAMILY_GAUNTLET_ENCHANTMENTS,
     FAMILY_GAUNTLET_ITEMS,
 )
+from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
 from ..logic_pure.logic_pure_production import (
     calculate_cooking_success_probability_pure,
     cooking_source_roll_chance_pure,
@@ -300,6 +301,9 @@ def recover_family_gauntlets_pure(
     inventory = dict(data["inventory"])
     inventory[item_name] = int(inventory.get(item_name, 0) or 0) + 1
     data["inventory"] = inventory
+    record_direct_diary_event_pure(
+        data, True, "family_gauntlets_recovery", target_id="dimintheis",
+    )
     return data, True, f"Dimintheis replaced your {item_name} for free."
 
 

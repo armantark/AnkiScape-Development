@@ -405,7 +405,7 @@ FAMILY = DiaryFamily(
                 'varrock_hard_hand_me_downs',
                 'Hand-Me-Downs',
                 'Obtain a new set of Family Crest gauntlets from Dimintheis.',
-                (),
+                (DiaryCondition('counter', 'achievement_diaries.event_counts.eyJtYXRjaCI6eyJlcSI6eyJ0YXJnZXRfaWQiOiJkaW1pbnRoZWlzIiwidHlwZSI6ImZhbWlseV9nYXVudGxldHNfcmVjb3ZlcnkifX19', 1, 'Recover Family Crest gauntlets from Dimintheis'),),
                 'Darkan VarrockTasks; rev-727 cache enum 3483; corroborated by Varrock achievements oldid=6476032 (2012-10-26T14:55:51Z)',
                 306,
                 0,

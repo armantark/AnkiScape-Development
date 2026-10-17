@@ -563,7 +563,7 @@ AGILITY_EXTRA_ITEM_DATA = {
         "tradeable": (
             item_name in {
                 "Pyramid top", "Gnomeball", "Toy mouse", "Mith grapple",
-                "Spotted cape", "Spottier cape",
+                "Spotted cape", "Spottier cape", "Pirate's hook",
             }
             or item_name in _AGILITY_CONSUMABLE_IDS
         ),
@@ -573,6 +573,7 @@ AGILITY_EXTRA_ITEM_DATA = {
             "Gnomeball": 751,
             "Spotted cape": 10069,
             "Spottier cape": 10071,
+            "Pirate's hook": 2997,
             **_AGILITY_CONSUMABLE_IDS,
         }.get(item_name),
     }

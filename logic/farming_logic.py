@@ -26,6 +26,7 @@ from ..data.farming_data import (
 )
 from ..logic_pure.logic_pure import apply_combat_burst_pure, apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
 from ..data.quest_data import QUEST_DISPLAY_NAMES
+from .farming.materials import _consume, _has_items, _int, _missing_items_reason
 
 
 FIELD_STEP_KINDS = frozenset({
@@ -121,16 +122,6 @@ FARM_COUNTER_DEFAULTS = {
     "compost_bins_filled": 0,
     "compost_bins_collected": 0,
 }
-
-
-def _int(value: Any, default: int = 0, minimum: int = 0) -> int:
-    try:
-        number = float(value)
-        if not math.isfinite(number):
-            return default
-        return max(minimum, int(number))
-    except (TypeError, ValueError, OverflowError):
-        return default
 
 
 def _number(value: Any, default: float = 0.0, minimum: float = 0.0) -> float:
@@ -846,15 +837,6 @@ def _patch_crop_for_step(updated: Mapping[str, Any], step: Mapping[str, Any]) ->
     if crop is None:
         return patch_id, patch, None, "no valid crop"
     return patch_id, patch, crop, None
-
-
-def _has_items(inventory: Mapping[str, Any], requirements: Mapping[str, int]) -> bool:
-    return all(_int(inventory.get(item)) >= amount for item, amount in requirements.items())
-
-
-def _consume(inventory: dict[str, Any], requirements: Mapping[str, int]) -> None:
-    for item, amount in requirements.items():
-        inventory[item] = _int(inventory.get(item)) - amount
 
 
 def _queued_protection_payment(step: Mapping[str, Any]) -> dict[str, int]:
@@ -2414,15 +2396,6 @@ def _access_reason(gate: Any) -> str:
     if gate.kind == "all":
         return " ".join(reason for reason in (_access_reason(child) for child in gate.gates) if reason)
     return "This patch is locked."
-
-
-def _missing_items_reason(inventory: Mapping[str, Any], requirements: Mapping[str, int]) -> str:
-    missing = [
-        f"{amount} {item} ({_int(inventory.get(item))} in Bank)"
-        for item, amount in requirements.items()
-        if _int(inventory.get(item)) < amount
-    ]
-    return f"Needs {', '.join(missing)}." if missing else ""
 
 
 def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str, Any], crop: Any) -> tuple[str, str, int]:

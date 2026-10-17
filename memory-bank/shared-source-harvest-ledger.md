@@ -1,5 +1,10 @@
 # Shared source-harvest ledger — pointer
 
+- 2026-10-17 claim: `harvest-2`, branch `goal/source-harvest-2-2026-10-17`, reuses Darkan's Conquest pins to qualify only `conquest.board_size`; both ledgers checked, no fresh harvest, no product change. Contract: `memory-bank/source-audits/conquest-board-size-contract-2026-10-17.md`.
+- 2026-10-17 reused pin: Conquest board dimensions | RuneScape Wiki `Conquest` | oldid `6450144`, `2012-10-21T19:17:00Z`, wikitext line 8 | `/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/sources/conquest-oldid-6450144.json`.
+- 2026-10-17 reused pin: Conquest playable floor geometry | OpenRS2 cache map | builds `727/741/742`, build-742 date `2012-11-07`, projected contract `a1c749a7bea92c07e4fd65112b2e8dc9e0b28d8adce7397eb09864ddd0476d13` | `/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/evidence/static/openrs2-cache-727-742-conquest.json`; accepted qualification `/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/reports/conquest-iteration-424-contract.md`, outer commit `222566f9fddae8490dbdd140b86ea7a78578a273`.
+- 2026-10-17 reused conflict pin: Conquest older board-size statement | RuneScape Wiki `Scout (Conquest)` | oldid `4877028`, `2011-10-27T08:36:23Z`, wikitext line 17 | `/Users/armantarkhanian/Documents/2012scape with bots/memory-bank/audit/sources/conquest-scout-oldid-4877028.json`; `22x22` conflicts with the later main article and complete 20-by-20 map footprint.
+
 Date: `2026-07-25`
 
 Status: **the canonical file is a historical pinned-result index; its live

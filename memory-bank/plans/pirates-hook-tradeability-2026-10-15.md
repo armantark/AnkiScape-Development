@@ -1,6 +1,6 @@
 # Pirate’s hook ordinary trade route — 2026-10-15
 
-Owner newest goal resumes independent merge-bound lanes; native capture holds only the manual lane. Stop on project quota-guard Codex OVER. Root owns coordination/promotion; implementation worker owns this checkout after transfer, and no worker uses native GUI or gate mirror.
+Owner newest goal resumes independent merge-bound lanes; manual verification runs independently; its historical capture hold does not block this slice. Stop on project quota-guard Codex OVER. Root owns coordination/promotion; implementation worker owns this checkout after transfer, and no worker uses native GUI or gate mirror.
 
 Implement only the source-qualified Pirate’s hook2997 tradeability/source identity and exact period GE row through existing offline generator. Preserve Brimhaven800-ticket earning/exchange, equipment stats, current UI and every unrelated catalog/source row. Source packet: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/harvest-merge-bound-source-2026-10-15/remaining-priority-items/source-facts.json`; Root verified each new raw response, revision, timestamp and literal body. Wiki is one lineage, dated rev727/742 exchangeability is independent cache evidence; game-main byte-bound tradeable:true lacks a verified upstream commit and must not be overstated.
 

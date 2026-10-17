@@ -475,8 +475,8 @@ class CatalogIntegrityTest(unittest.TestCase):
         ]
 
         self.assertEqual(len(tasks), 474)
-        self.assertEqual(classifications.count("dormant"), 114)
-        self.assertEqual(classifications.count("real_deed"), 335)
+        self.assertEqual(classifications.count("dormant"), 112)
+        self.assertEqual(classifications.count("real_deed"), 337)
         self.assertEqual(classifications.count("anchor"), 22)
         self.assertEqual(classifications.count("quest_deed"), 3)
         self.assertEqual(quest_deed_source_ids, {440, 441, 451})
