@@ -121,7 +121,12 @@ def load_gate(path: Path):
     if spec is None or spec.loader is None:
         raise ValueError("--slop-gate must name a Python module")
     gate = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(gate)
+    previous_path = sys.path.copy()
+    sys.path.insert(0, str(path.resolve().parent))
+    try:
+        spec.loader.exec_module(gate)
+    finally:
+        sys.path[:] = previous_path
     functions = ("ccn_by_function", "cognitive_by_function", "halstead_by_function", "simple_name")
     missing = [name for name in functions if not callable(getattr(gate, name, None))]
     missing.extend(name for name in ("CCN_MAX", "COGNITIVE_MAX", "HALSTEAD_MAX") if not hasattr(gate, name))
