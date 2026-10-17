@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from contextlib import ExitStack, redirect_stdout
 from dataclasses import asdict, replace
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -218,6 +219,41 @@ class WorktreeReleaseSafetyTest(unittest.TestCase):
         self.assertEqual([args for args in calls if args[0] == "checkout"],
                          [("checkout", "goal/available")])
         self.assertEqual(json.loads(output.getvalue())["branch"], "goal/available")
+
+    def test_reclaim_returns_only_old_idle_clean_landed_leases(self):
+        old = "2026-09-05T17:38:51.83575-07:00"
+        leases = {
+            "fresh": (datetime.now(timezone.utc).isoformat(), []),
+            "running": (old, [{"pid": 4242}]),
+            "dirty": (old, []),
+            "unlanded": (old, []),
+            "idle": (old, []),
+        }
+        status = [
+            {"path": str(self.root / name), "status": "leased", "lease_id": name,
+             "branch": name, "leased_at": leased_at, "processes": processes}
+            for name, (leased_at, processes) in leases.items()
+        ]
+
+        def git(path, *args, **_kwargs):
+            name = Path(path).name
+            return Mock(
+                stdout=" M a.py\n" if (name, args[0]) == ("dirty", "status") else "",
+                returncode=int((name, args[0]) == ("unlanded", "merge-base")),
+            )
+
+        self.pool.side_effect = None
+        self.pool.return_value = Mock(stdout=json.dumps(status))
+        self.git.side_effect = git
+        with patch.object(guard, "release_worktree") as release, redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(guard.reclaim_stale_leases(self.canonical), 1)
+
+        release.assert_called_once_with(self.canonical, self.root / "idle", "idle")
+        report = out.getvalue()
+        for name, reason in (("running", "a process runs in it"), ("dirty", "uncommitted work"),
+                             ("unlanded", "commits not on main")):
+            self.assertIn(f"({name}, leased 2026-09-05): {reason}", report)
+        self.assertNotIn("fresh", report)
 
     def test_status_cli_pins_pool_root_and_forwards_json_without_mutation(self):
         # Exercise the real subprocess argv construction, replacing only execution.
