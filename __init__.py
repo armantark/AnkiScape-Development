@@ -4916,14 +4916,13 @@ def on_mining_answer():
 def on_attach_tool(item_name):
     return _commit_equipment_change(
         lambda current: put_tool_on_belt_pure(current, item_name, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA),
-        "Cannot attach tool",
-        f"You need an unattached {item_name} in your Bank.",
+        "Cannot attach tool", f"You need an unattached {item_name} in your Bank.",
+        check_achievements_after=item_name in {spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()},
     )
 
 
-def _commit_equipment_change(apply_change, title, refusal):
-    """Commit one gear move as its own Undo step; a refused undo entry writes
-    nothing, so it must not be reported as the move's own refusal."""
+def _commit_equipment_change(apply_change, title, refusal, *, check_achievements_after=False):
+    """A refused Undo entry writes nothing and must not report the gear move's refusal."""
     weapon = (_state.player_data.get("equipment", {}) or {}).get("weapon")
     refused = False
 
@@ -4934,7 +4933,8 @@ def _commit_equipment_change(apply_change, title, refusal):
         return updated, changed
 
     def _after_apply():
-        check_achievements(_state.player_data)
+        if check_achievements_after or weapon != (_state.player_data.get("equipment", {}) or {}).get("weapon"):
+            check_achievements(_state.player_data)
 
     if not commit_direct_action(_change, after_apply=_after_apply):
         reason = refusal if refused else "Anki could not create an undo entry, so nothing changed."

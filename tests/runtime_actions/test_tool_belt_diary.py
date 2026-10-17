@@ -12,6 +12,7 @@ import pkg_alias  # noqa: F401
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
 from ankiscape.core.logic import check_achievements
 from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
+from ankiscape.core.tool_belt import tool_on_belt
 from ankiscape.logic.achievement_diary_logic import diary_tier_by_id_pure
 from ankiscape.logic.shop_logic import apply_shop_buy_pure
 from ankiscape.runtime.runtime_actions import handle_thieving_answer
@@ -121,6 +122,32 @@ class ToolBeltDiaryTest(unittest.TestCase):
             self.assertFalse(addon.on_attach_tool(tool))
             self.assertEqual(addon._state.player_data, before)
             self.assertEqual(self.collection.path.read_bytes(), saved)
+
+    def test_non_weapon_equip_does_not_complete_or_save_the_gauntlets_deed(self):
+        addon = self.addon
+        player = addon._state.player_data
+        player["inventory"].update({"Spiked gauntlets": 1, "Iron pickaxe": 1, "Chain link mould": 1})
+        task = "burthorpe_period_these_aren_t_oven_gloves"
+        self.assertIsNone(player["equipment"].get("weapon"))
+        self.assertNotIn(task, player["achievement_diaries"]["completed_tasks"])
+        self.assertTrue(addon.on_equip_item("Spiked gauntlets"))
+        self.assertEqual(self.errors, [])
+        self.assertEqual(player["equipment"]["hands"], "Spiked gauntlets")
+        self.assertIsNone(player["equipment"].get("weapon"))
+        self.assertNotIn(task, player["achievement_diaries"]["completed_tasks"])
+        for tool in (None, "Iron pickaxe", "Chain link mould"):
+            if tool is not None:
+                self.assertTrue(addon.on_attach_tool(tool))
+            loaded, _ = addon.storage_load_player_data()
+            self.assertEqual(loaded["equipment"], player["equipment"])
+            self.assertNotIn(task, addon._state.player_data["achievement_diaries"]["completed_tasks"])
+            self.assertNotIn(task, loaded["achievement_diaries"]["completed_tasks"])
+
+    def test_knife_and_tinderbox_are_present_without_any_saved_belt_state(self):
+        for player in ({}, {"toolbelt": {}, "toolbelt_added": []}):
+            for tool in ("Knife", "Tinderbox"):
+                with self.subTest(player=player, tool=tool):
+                    self.assertTrue(tool_on_belt(player, tool))
 
     def test_undo_entry_refusal_cannot_record_or_save_a_successful_pure_attachment(self):
         self._earn_hatchet()
