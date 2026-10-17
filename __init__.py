@@ -1766,7 +1766,7 @@ def _on_main_menu(
             result = {"message": message}
             return updated, ok
 
-        committed = commit_direct_action(_change)
+        committed = commit_direct_action(_change, after_apply=lambda: check_achievements(_state.player_data))
         if committed:
             _refresh_skill_availability()
         return {"ok": committed, **result}

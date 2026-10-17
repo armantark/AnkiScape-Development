@@ -71,6 +71,8 @@ you are in the game, with the date the change reached main.
 
 ## Bank, shops and items
 
+- [ ] After Family Crest, discard your only gauntlet pair in Bank, open Cooking > Shark Target Details and recover the pair from Dimintheis: the remembered gauntlets return free and Varrock Hard's Hand-Me-Downs completes once; Undo removes both, replay restores both, and reopening keeps the deed. (after native acceptance)
+
 - [ ] A half-full urn in a grave or Death's Office keeps its progress across a reload, and fills again once you carry it. (2026-09-28)
 - [ ] A sold-out shop item comes back on schedule, also when you keep buying other things in that shop. (2026-09-28)
 - [ ] In the Shop tab, a shop you cannot use yet (Canifis General Store before Priest in Peril, Aaron's Archery Appendages below 40 Ranged) sits greyed at the end of the list and of a search, reads "Canifis General Store · Requires Priest in Peril", and still opens read-only. Buy something: a green "✓ Bought 1 x …" chip shows right under the Buy button and goes away after about 4 seconds or when you pick another item. (2026-09-30)
