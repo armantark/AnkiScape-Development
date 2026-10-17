@@ -11,6 +11,8 @@ from ..core.tool_belt import (
 )
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
+from .achievement_diary_events import record_direct_diary_event_pure
+
 from .logic_pure_landmarks import (  # noqa: F401  (re-export)
     KNIGHT_WAVES_TOTAL_STEPS,
     KNIGHT_WAVES_XP_REWARD,
@@ -134,7 +136,14 @@ def put_tool_on_belt_pure(player_data, item_name, pickaxe_data, axe_data):
             pickaxe_data,
             axe_data,
         )
-        return {**player_data, "inventory": inventory, "toolbelt": toolbelt}, attached
+        updated = {**player_data, "inventory": inventory, "toolbelt": toolbelt}
+        if (
+            attached
+            and _toolbelt_ids(toolbelt, "woodcutting") - _toolbelt_ids(player_data.get("toolbelt"), "woodcutting")
+            and all(tool_on_belt(updated, tool) for tool in ("Hatchet", "Knife", "Tinderbox"))
+        ):
+            record_direct_diary_event_pure(updated, True, "tool_belt_update", action_id="attach_hatchet")
+        return updated, attached
     if tool_belt_add_refusal_pure(player_data, item_name):
         return player_data, False
     inventory = dict(player_data["inventory"])

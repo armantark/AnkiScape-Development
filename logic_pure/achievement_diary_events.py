@@ -24,6 +24,7 @@ _ALLOWED_EVENT_TYPES = frozenset({
     "slayer_command",
     "summoning_command",
     "temple_trekking_command",
+    "tool_belt_update",
 })
 _ALLOWED_MATCH_KEYS = frozenset({
     "any", "eq", "gte", "in", "state_contains", "state_eq",

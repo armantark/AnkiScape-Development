@@ -71,6 +71,8 @@ you are in the game, with the date the change reached main.
 
 ## Bank, shops and items
 
+- [ ] Buy an unattached hatchet from Bob and attach it in the Bank: My Axe Is My Buddy completes once; Undo restores the hatchet and removes the deed, replay restores it, and reopening keeps it. A refused attachment gives no credit. (2026-10-17)
+
 - [ ] A half-full urn in a grave or Death's Office keeps its progress across a reload, and fills again once you carry it. (2026-09-28)
 - [ ] A sold-out shop item comes back on schedule, also when you keep buying other things in that shop. (2026-09-28)
 - [ ] In the Shop tab, a shop you cannot use yet (Canifis General Store before Priest in Peril, Aaron's Archery Appendages below 40 Ranged) sits greyed at the end of the list and of a search, reads "Canifis General Store · Requires Priest in Peril", and still opens read-only. Buy something: a green "✓ Bought 1 x …" chip shows right under the Buy button and goes away after about 4 seconds or when you pick another item. (2026-09-30)

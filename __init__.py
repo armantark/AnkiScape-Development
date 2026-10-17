@@ -4934,8 +4934,7 @@ def _commit_equipment_change(apply_change, title, refusal):
         return updated, changed
 
     def _after_apply():
-        if weapon != (_state.player_data.get("equipment", {}) or {}).get("weapon"):
-            check_achievements(_state.player_data)
+        check_achievements(_state.player_data)
 
     if not commit_direct_action(_change, after_apply=_after_apply):
         reason = refusal if refused else "Anki could not create an undo entry, so nothing changed."
