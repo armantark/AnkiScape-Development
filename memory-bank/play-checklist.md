@@ -23,6 +23,7 @@ you are in the game, with the date the change reached main.
 - [ ] In a narrow main menu, scroll the tabs to Settings and back to Skills: each fully visible tab name stays complete. Repeat at a wider width with the same native scroll buttons. (after native acceptance)
 - [ ] A big XP lamp or a quest that gives many levels shows one level-up window from the old level to the new one. (2026-09-28)
 - [ ] Put on or take off gear right after a review, then press Undo: the gear change goes back first, and the item is not both worn and in the bank. (2026-09-28)
+- [x] Spiritual Healing native accepted on7aa78ad4ef35056b3e6c6de5ee0b6ea923425021: Equipment Summon/Good/Visit gives4→3→2→4, full direct Undo/replay restores the whole capture, second Good/Visit4→2→4 adds no deed/event credit, and normal reopen shows the full completed deed. Full-points disabled control is native; Bank/potion/defensive full-point exclusions are source-only. Source160 remains held; final merged review/full9/land remain. [Exact scope](source-audits/spiritual-healing-2026-10-14.md#accepted-native-scope--2026-10-15).
 - [ ] Open Skills > Artisan > Crafting and type "combinations" in the search box above the list: only the Combinations group shows, opened, with "Showing 30/233"; your current target does not change, and Escape brings back the full list with your target still marked. Every other skill list has the same box. (2026-09-30)
 - [ ] Quest Alfred Grimhand's Barcrawl with coins in the bank: each review drinks at the next bar and pays its price (Blue Moon Inn first, 50 coins), the Shop tab sells no Barcrawl drinks, and the last review returns the card. With too few coins, the "Quest blocked" window lists each reason on its own line. (2026-09-30)
 
@@ -72,6 +73,7 @@ you are in the game, with the date the change reached main.
 ## Bank, shops and items
 
 - [ ] After Family Crest, discard your only gauntlet pair in Bank, open Cooking > Shark Target Details and recover the pair from Dimintheis: the remembered gauntlets return free and Varrock Hard's Hand-Me-Downs completes once; Undo removes both, replay restores both, and reopening keeps the deed. (after native acceptance)
+- [ ] Earn 800 Brimhaven tickets, exchange for Pirate's hook, sell it through the GE, collect the coins, then reload; Undo of the exchange and offer restores custody. (after promotion)
 
 - [ ] A half-full urn in a grave or Death's Office keeps its progress across a reload, and fills again once you carry it. (2026-09-28)
 - [ ] A sold-out shop item comes back on schedule, also when you keep buying other things in that shop. (2026-09-28)
