@@ -1,15 +1,15 @@
 # Green egg bird nest tradeability contract — 2026-10-17
 
-Status: qualified for backend implementation. Exact ID `5071`, storage key `Bird's nest (Guthix egg)`.
+Status: backend implemented; root promotion and native acceptance remain. Exact ID `5071`, storage key `Bird's nest (Guthix egg)`.
 Base: `452f325d3b62c2247ad990181578c20284265f8a`. Cutoff: `2012-11-20T00:00:00Z`.
-Backend scope only. No product code changes in this research commit. Preserve storage keys, current interface, icons, producers, reward quantities and review rates.
+Backend scope only. Preserve storage keys, current interface, icons, producers, reward quantities and review rates.
 Evidence directory: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-7`. Root owns promotion, native verification and peer notices.
 
 ## Required result
 
-Live `Bird's nest (Guthix egg)`: tradeable=true, stackable=true, source_item_id=None, GE absent.
+Before implementation at the recorded base, `Bird's nest (Guthix egg)`: tradeable=true, stackable=true, source_item_id=None, GE absent.
 Period ID 5071: tradeable=false, stackable=false, GE absent. Bind the existing named egg nest to source_item_id=5071.
-The Woodcutting extra-item builder supplies only category/source for this key, so registry defaults lose the identity and flags.
+At the recorded base, the Woodcutting extra-item builder supplied only category/source for this key, so registry defaults lost the identity and flags.
 
 ## Period evidence and exact identity
 
@@ -39,4 +39,14 @@ Exchange price and Calculator6457777 buy limit: not applicable. Explicit item-pa
 4. Drive the existing earned nest and Open bird nests route with the real registry: preserve the Guthix egg reward and empty nest result, quantities, save/reload, and review Undo. Require no GE listing. Check nonstackable inventory capacity through the existing inventory path; add behavior coverage only for a demonstrated gap.
 
 Run `python3 run_tests.py` and the standing documentation, test-quality, reachability, worktree and diff audits. Root runs both full promotion lanes.
-This contract claims no implementation, native proof, acquisition qualification or gameplay acceptance.
+## Backend proof — 2026-10-17
+
+The Woodcutting extra-item metadata now binds the exact egg nest ID with tradeable=false and stackable=false. The registry projects both flags unchanged. The generic Restaurant `Bird's nest` registered5070 is also untradeable under the Zamorak contract; its reward key, ID and quantity stay intact. Seed, ring and empty nest metadata are unchanged. No existing interface, art, producer, drop weight or opening quantity changed.
+
+`tests/item_tradeability/test_egg_nest_tradeability.py` drives real review acquisition, opening, Undo and real save/load with complete-state assertions. The existing configurable legacy cadence path is selected; only RNG and presentation are controlled. Each egg nest opens to exactly one matching egg and one empty nest. Reload performs its existing clamp of a consumed nest out of the old Woodcutting carried view; the complete expected state includes that exact removal.
+
+Shops reject all three egg nests and generic5070 as `item_not_tradeable`. Both alchemy maps omit them and unchanged seed nests; both spells return exactly `Choose a tradeable bank item`. Shattered Heart leaves each egg nest and generic5070 intact while replacing exactly one unchanged seed-nest output with one Woodcutting strange rock. GE already omitted the egg nests: new buy/sell offers return `unknown_item`. Storage can retain historical offers despite catalog absence, so tests preserve buy/sell escrow through real reload, prove no fill at both random extremes, cancel and collect exact111 coins or3 items once.
+
+Ordinary carried behavior already used nonstackable slots: `data.item_values.STACKABLE_ITEM_NAMES` already excludes the named egg nests. Existing Bank counts, saved layouts and carried views holding30 survive reload as30. Slot accounting uses30 slots, the grid shows28 individual nests, and the next pack fill caps at28 without deleting Bank ownership. Pyramid Plunder derives stackability from the registry; the correction now caps its custom entry pack at28 from30 owned nests, and its view reports28 slots. No migration was added. UI projections use that same carried stackable set; shop and GE views delegate eligibility to the checked logic.
+
+The exact period guide-price/buy-limit pins remain1443/1838; this change adds zero entries to either map. Verification commands, counts and exit statuses are in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-7/implementation/result.json`. Root owns full merged Qt promotion and native acceptance; this record claims neither.
