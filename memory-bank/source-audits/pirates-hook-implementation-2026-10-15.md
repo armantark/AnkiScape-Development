@@ -28,3 +28,9 @@ File SHA-256 values:
 Root authorized the intended Pirate’s hook data addition and resolved the exact-count blocker: `tests/test_grand_exchange_data.py` now requires exactly 1443 prices and exactly 1838 limits, replacing exactly 1442 and 1837. The single new Pirate’s hook row accounts for each increment. Both assertions remain exact equality assertions; no other instrument or product data changes in this integration.
 Main `8749ddc60555a5c62f64d8dfbcc04f64f207bcc1` merged normally without conflicts. Independent source acceptance, the exact-commit promotion gate with both full lanes, and landing remain Root-owned.
 Integration evidence: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pirates-hook-integration`.
+
+## Acceptance — 2026-10-17
+Native PASS on frozen `632ae7c9f023b28b2802df730b6b019424d30980`: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/native-lane-2/pirates-hook/`.
+Independent native review ACCEPT round 2: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pirates-native-review/report-round2.md`.
+Source review ACCEPT round 2: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pirates-hook-source-review/report-round2.md`.
+Kimi ACCEPT: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pirates-hook-kimi-vote/kimi-vote-2.md`; exact merged promotion gate and landing remain Root-owned.
