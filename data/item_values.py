@@ -92,8 +92,10 @@ def _add_cache_name_aliases(values: Dict[str, int], exchangeable: set) -> None:
                 exchangeable.add(pouch.pouch_name)
     # Rev-727/742 worn variants share their cache name and value with the blue hat.
     for name in ("Mystic hat (dark)", "Mystic hat (light)"):
-        values[name] = ITEM_VALUES_GENERATED["Mystic hat"]
-        exchangeable.add(name)
+        if "Mystic hat" in ITEM_VALUES_GENERATED and name not in ITEM_VALUES_GENERATED:
+            values[name] = ITEM_VALUES_GENERATED["Mystic hat"]
+            if "Mystic hat" in exchangeable:
+                exchangeable.add(name)
 
 
 def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str]]":

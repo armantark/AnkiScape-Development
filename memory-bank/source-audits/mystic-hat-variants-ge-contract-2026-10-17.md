@@ -78,6 +78,7 @@ The source qualification above does not establish native proof or gameplay accep
 
 The implementation starts at `b7768ff3b96de25383cb98ce1905863fb05ef679` and follows the unlit Mining helmet `5014` source/generator path inspected at `3160e5a2`; that branch was not merged.
 `data/item_values.py` supplies exact dark/light aliases for the shared cache name `Mystic hat`, with value `15000` and GE eligibility.
+The aliases retain the existing optional-cache contract and preserve any exact generated entry; `tests/skills/test_summoning_market.py` covers those boundaries.
 The two literal Exchange rows above enter `data/grand_exchange_period_source.json`; the existing generator writes `generated/grand_exchange_period_generated.py` without a new harvest.
 The exact price-count assertion changes from `1443` to `1445` and the exact limit-count assertion from `1838` to `1840` because two already registered, distinct period hats now have sourced market rows. Both assertions remain equalities.
 The real catalog changes from `1858` to `1860` rows: only `4099` and `4109` are added; every existing row compares equal to the implementation base. The blue `4089` market remains unchanged.
@@ -94,3 +95,5 @@ The catalog/consumer test failed on both missing names before implementation. `t
 Proof inventories, commands, full logs, before/after consumers and the complete catalog comparison are under `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-9/implementation/`.
 Full branch verification is recorded there; Root still owns merged promotion and native acceptance.
 Relicym's mix is unchanged and remains deferred until the shared fix on `goal/pyramid-pack-capacity-2026-10-17` resolves the reproduced `Pack 29/28` defect.
+
+Offscreen inspection at900×560 confirms both new names and price/limit labels fit in light/dark palettes. The price/quantity inputs are13px high with a15px font (22px size hint), also with the pre-change catalog; Root native acceptance must check this existing compression. UI code is unchanged under COMMON-BRIEF.
