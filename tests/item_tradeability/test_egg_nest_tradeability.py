@@ -1,11 +1,13 @@
 """Period egg nests preserve their contents and custody without being tradeable."""
 import copy
 import dataclasses
+import lzma
 import json
 import sys
 import types
 import unittest
 from unittest.mock import patch
+from pathlib import Path
 
 from tests import test_integration_smoke as runtime_fixture
 
@@ -24,7 +26,6 @@ class EggNestTradeabilityTest(unittest.TestCase):
         self.addCleanup(modules.stop)
         runtime_fixture._install_runtime_fakes()
         self.collection = runtime_fixture._DummyCol()
-        self.collection.set_config("ankiscape_cadence_kernel", False)
         sys.modules["aqt"].mw = runtime_fixture._DummyMW(self.collection)
         self.addon = runtime_fixture._load_addon_as_package("ankiscape_egg_nest_tradeability")
         addon = self.addon
@@ -82,41 +83,68 @@ class EggNestTradeabilityTest(unittest.TestCase):
                               definitions[name].stackable), (None, True, True))
 
     def test_review_earns_each_egg_nest_then_opens_undoes_and_reloads(self):
+        for cadence in (None, False):
+            if cadence is not None:
+                self.collection.set_config("ankiscape_cadence_kernel", cadence)
+            for name, _item_id, egg, nest_roll in EGG_NESTS:
+                with self.subTest(item=name, cadence=cadence):
+                    self.assert_review_lifecycle(name, egg, nest_roll, cadence is not False)
+
+    def assert_review_lifecycle(self, name, egg, nest_roll, live_cadence):
         addon = self.addon
+        addon._state.player_data = copy.deepcopy(self.initial)
+        addon._state.player_data.update(woodcutting_level=99, current_tree="tree")
+        addon._state.player_data["toolbelt"]["woodcutting"] = ["bronze_hatchet"]
+        addon._state.player_data["shattered_heart"]["auto_discard"] = True
+        addon._state.current_skill = "Woodcutting"
         original_context = addon._runtime_action_context
-        for name, _item_id, egg, nest_roll in EGG_NESTS:
+        draws = (0.0, nest_roll) if live_cadence else (0.0, 0.0, nest_roll)
+        rolls = iter(draws)
+        before = copy.deepcopy(addon._state.player_data)
+        with patch.object(addon, "_runtime_action_context", side_effect=lambda: dataclasses.replace(
+            original_context(), random_random=lambda: next(rolls), review_action_multiplier=1)):
+            self.answer()
+        self.assertEqual(addon._state.player_data["inventory"], {**before["inventory"], "Logs": 1, name: 1})
+        self.undo()
+        self.assertEqual(addon._state.player_data, before)
+        rolls = iter(draws)
+        with patch.object(addon, "_runtime_action_context", side_effect=lambda: dataclasses.replace(
+            original_context(), random_random=lambda: next(rolls), review_action_multiplier=1)):
+            self.answer()
+        self.reload()
+        addon._state.player_data["current_utility"] = "open_bird_nest"
+        addon._state.current_skill = "Utility / Activities"
+        before = copy.deepcopy(addon._state.player_data)
+        self.answer()
+        expected = {**before["inventory"], "Logs": 1, name: 0, "Bird's nest (empty)": 1, egg: 1}
+        self.assertEqual(addon._state.player_data["inventory"], expected)
+        self.undo()
+        self.assertEqual(addon._state.player_data, before)
+        self.answer()
+        self.assertEqual(addon._state.player_data["inventory"], expected)
+        self.reload(expected_carried={"tree": {"Logs": 1}})
+
+    def test_base_saved_active_egg_nest_packs_reload_at_capacity_without_losing_ownership(self):
+        fixture = Path(__file__).parent / "fixtures/egg_nest_pyramid_packs_3c1f481e.json.xz"
+        captures = json.loads(lzma.decompress(fixture.read_bytes()))["captures"]
+        addon = self.addon
+        plunder = self.module("logic.pyramid_plunder_logic")
+        for name, _item_id, _egg, _roll in EGG_NESTS:
             with self.subTest(item=name):
-                addon._state.player_data = copy.deepcopy(self.initial)
-                addon._state.player_data.update({
-                    "woodcutting_level": 99, "current_tree": "tree",
-                })
-                addon._state.player_data["toolbelt"]["woodcutting"] = ["bronze_hatchet"]
-                addon._state.player_data["shattered_heart"]["auto_discard"] = True
-                addon._state.current_skill = "Woodcutting"
-                rolls = iter((0.0, 0.0, nest_roll))
-                with patch.object(addon, "_runtime_action_context", side_effect=lambda: dataclasses.replace(
-                    original_context(), random_random=lambda: next(rolls), review_action_multiplier=1)):
-                    before = copy.deepcopy(addon._state.player_data["inventory"])
-                    self.answer()
-                self.assertEqual(addon._state.player_data["inventory"], {**before, "Logs": 1, name: 1})
-                self.undo()
-                self.assertEqual(addon._state.player_data["inventory"], before)
-                rolls = iter((0.0, 0.0, nest_roll))
-                with patch.object(addon, "_runtime_action_context", side_effect=lambda: dataclasses.replace(
-                    original_context(), random_random=lambda: next(rolls), review_action_multiplier=1)):
-                    self.answer()
+                self.collection._store = copy.deepcopy(captures[name])
+                saved = self.collection._store["ankiscape_player_data"]
+                self.assertEqual(saved["carried_inventory"]["pyramid_plunder"], {name: 2, "Shark": 27})
+                addon._state.player_data, addon._state.current_skill = addon.storage_load_player_data()
+                self.assertEqual(addon._state.player_data["carried_inventory"]["pyramid_plunder"],
+                                 {name: 2, "Shark": 26})
+                self.assertEqual(addon._state.player_data["carried_layout"]["pyramid_plunder"],
+                                 {name: 2, "Shark": 27})
+                expected = copy.deepcopy(addon._state.player_data)
+                self.assertEqual(addon._state.player_data["inventory"][name], 2)
+                self.assertEqual(addon._state.player_data["inventory"]["Shark"], 27)
+                self.assertEqual(plunder.pyramid_plunder_view_pure(addon._state.player_data)["pack_slots"], 28)
+                self.assertEqual(addon._state.player_data, expected)
                 self.reload()
-                addon._state.player_data["current_utility"] = "open_bird_nest"
-                addon._state.current_skill = "Utility / Activities"
-                before = copy.deepcopy(addon._state.player_data["inventory"])
-                self.answer()
-                expected = {**before, "Logs": 1, name: 0, "Bird's nest (empty)": 1, egg: 1}
-                self.assertEqual(addon._state.player_data["inventory"], expected)
-                self.undo()
-                self.assertEqual(addon._state.player_data["inventory"], before)
-                self.answer()
-                self.assertEqual(addon._state.player_data["inventory"], expected)
-                self.reload(expected_carried={"tree": {"Logs": 1}})
 
     def test_multiple_saved_nests_keep_counts_and_use_one_carried_slot_each(self):
         addon = self.addon

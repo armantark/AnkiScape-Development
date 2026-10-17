@@ -58,7 +58,7 @@ you are in the game, with the date the change reached main.
 
 ## Gathering and processing skills
 
-- [ ] Earn a Zamorak, Guthix or Saradomin egg nest while Woodcutting; Open bird nests gives one matching egg and one empty nest, Undo restores the unopened nest, and reopen preserves counts. Egg nests refuse shop sales and GE offers; each uses one carried slot. (after native acceptance, 2026-10-17)
+- [ ] Earn a Zamorak, Guthix or Saradomin egg nest while Woodcutting; Open bird nests gives one matching egg and one empty nest, Undo restores the unopened nest, and reopen preserves counts. Egg nests refuse shop sales and GE offers; each uses one carried slot. Reopen an Advanced Pyramid Plunder save with two egg nests and27 Shark: the pack shows28/28 while all two nests and27 Shark remain owned. (after native acceptance, 2026-10-17)
 
 - [x] In Utilities, choose Convert logs to planks: Logs1 and Coins100 become Plank1 and one visible Varrock Easy deed; the tier stays unclaimable. Good at Coins99 or Logs0 refuses. Direct Undo restores discarded inputs; review Undo retracts the deed; replay and normal reopen retain one Plank and the deed. (isolated native/presentation accepted at7ef2a5f8; acquisition and a second distinct retained success remain source-only; Again unobserved; merged-record review/full9/land pending)
 - [ ] In Prayer, choose Bury Bones with a whole-number XP total and answer four cards: the drops and event log show +4, +5, +4, +5 XP, and Prayer gains exactly 18.0 XP. Undo the last card and answer again: the drop is still +5. (Pass 16 ticket 09) (2026-10-16)
