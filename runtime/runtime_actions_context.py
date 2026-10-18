@@ -15,6 +15,12 @@ from typing import Any, Callable, Mapping, Optional
 
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
 
+# Quests and Dungeoneering already run faster than 2012 at speed 1, so they keep
+# one stage or one room per card at every speed (assumption 5). Thieving's stun
+# still costs a whole card and Agility obstacles have no tick time yet, so both
+# keep one attempt per card until they can be charged in ticks.
+ONE_PER_CARD_HANDLER_KEYS = frozenset({"quest", "dungeoneering", "thieving", "agility"})
+
 
 @dataclass
 class CardBudget:
@@ -93,7 +99,6 @@ def spend_card_budget(
     handler_key: str,
     step: Callable[[RuntimeActionContext], Any],
     *,
-    one_per_card: bool,
     can_continue: Callable[[], bool],
 ) -> bool:
     """Spend the card on the selected action; return whether any step progressed.
@@ -110,7 +115,7 @@ def spend_card_budget(
         result = step(ctx)
         budget.ticks_remaining = (
             0
-            if one_per_card or handler_key == "combat"
+            if handler_key == "combat" or handler_key in ONE_PER_CARD_HANDLER_KEYS
             else budget.ticks_remaining - LIVE_COMBAT_TICKS_PER_REVIEW
         )
         if result is False:

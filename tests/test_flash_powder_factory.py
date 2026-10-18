@@ -517,12 +517,14 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
         self.assertEqual(session["batches"], 0)
         self.assertEqual(session["score"], 0)
 
-    def test_good_answer_is_one_slot_under_a_large_review_multiplier(self):
+    def test_a_speed_ten_card_runs_circuits_until_the_session_ends(self):
         addon = _load_addon_as_package("ankiscape_flash_powder_factory_multiplier")
         factory_logic = sys.modules[f"{addon.__name__}.logic.flash_powder_factory_logic"]
         player = _player()
         player, ok, _info = factory_logic.enter_flash_powder_factory_pure(player)
         self.assertTrue(ok)
+        slots = player["agility_activity_state"][FLASH_POWDER_FACTORY_ACTIVITY_ID]["total_slots"]
+        self.assertLess(slots, 10)
         addon._state.player_data = player
         addon._state.current_skill = "Utility / Activities"
         addon._state.exp_awarded = False
@@ -535,10 +537,15 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
         addon._save_player_data_if_anki_ready = lambda: None
         addon._remember_review_award_snapshot = lambda _before: None
         addon.on_good_answer()
-        session = addon._state.player_data["agility_activity_state"][
-            FLASH_POWDER_FACTORY_ACTIVITY_ID
-        ]
-        self.assertEqual(session["slots_used"], 1)
+        # Ten six-tick steps outlast the session, so the card ends on its last
+        # circuit and never starts a second session.
+        data = addon._state.player_data
+        self.assertIn(f"circuit {slots}/{slots}", data["agility_status"])
+        self.assertEqual(
+            data["agility_activity_completions"][FLASH_POWDER_FACTORY_ACTIVITY_ID], 1
+        )
+        self.assertNotIn(FLASH_POWDER_FACTORY_ACTIVITY_ID, data["agility_activity_state"])
+        self.assertEqual(data["current_utility"], "bankstanding")
 
     def test_legacy_agility_dispatch_uses_the_factory_handler_without_double_loot(self):
         addon = _load_addon_as_package("ankiscape_flash_powder_factory_agility_route")

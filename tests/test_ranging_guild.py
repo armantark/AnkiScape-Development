@@ -36,7 +36,6 @@ from ankiscape.logic.ranging_guild_logic import (
 )
 from ankiscape.logic.achievement_diary_logic import refresh_achievement_diaries_pure
 from ankiscape.logic.cadence_coverage import (
-    SINGLE_TICK_UTILITY_IDS,
     cadence_coverage_rows_pure,
 )
 from ankiscape.logic.review_strip_logic import activity_trained_skills_pure
@@ -138,7 +137,6 @@ class RangingGuildDataAndAssetTests(unittest.TestCase):
         )
         self.assertEqual(row["mode"], "activity_group")
         self.assertIn("Never foreground-multiplied", row["multiplier_behavior"])
-        self.assertIn(RANGING_GUILD_ACTIVITY_ID, SINGLE_TICK_UTILITY_IDS)
         self.assertEqual(
             activity_trained_skills_pure({}, RANGING_GUILD_ACTIVITY_ID),
             ("Ranged",),

@@ -6,65 +6,7 @@ from collections import Counter
 from typing import Any, Iterable, Mapping
 
 from ..data.agility_data import AGILITY_TARGETS_BY_ID
-from ..data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
-from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
-from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
-from ..data.evil_tree_data import EVIL_TREE_UTILITY_ID
-from ..data.flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
-from ..data.penguin_hide_and_seek_data import PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
-from ..data.pyramid_plunder_data import PYRAMID_PLUNDER_ACTIVITY_ID
 from ..data.ranging_guild_data import RANGING_GUILD_ACTIVITY_ID
-from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
-from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
-from ..data.sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
-from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
-from ..data.werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID
-
-# Utility-handler activities whose cadence contract declares one answered card
-# = one interval, so the foreground multiplier must never repeat their slice.
-# The runtime reads this set; the coverage test cross-checks it against every
-# "Never foreground-multiplied" declaration below. Bork and Skeletal Horror
-# both shipped multiplied because the runtime set and these contracts had no
-# shared source of truth.
-SINGLE_TICK_UTILITY_IDS = frozenset({
-    EVIL_TREE_UTILITY_ID,
-    BIG_CHINCHOMPA_UTILITY_ID,
-    SHOOTING_STAR_ACTIVITY_ID,
-    SORCERESS_GARDEN_ACTIVITY_ID,
-    PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
-    FLASH_POWDER_FACTORY_ACTIVITY_ID,
-    PYRAMID_PLUNDER_ACTIVITY_ID,
-    WEREWOLF_SKULLBALL_ACTIVITY_ID,
-    DUEL_ARENA_ACTIVITY_ID,
-    CLAN_WARS_ACTIVITY_ID,
-    TROLL_INVASION_ACTIVITY_ID,
-    SKELETAL_HORROR_ACTIVITY_ID,
-    # The drift test surfaced these fourteen the day it was written: every
-    # one declares a never-multiplied contract below and none was in the
-    # runtime set, so at multiplier M one answer ran M full intervals.
-    "fist_of_guthix",
-    "court_cases",
-    "big_top_bonanza",
-    "trouble_brewing",
-    "castle_wars",
-    "pest_control",
-    "barbarian_assault",
-    "stronghold_player_safety",
-    "soul_wars",
-    "varrock_museum",
-    "fight_caves",
-    "dagannoth_kings",
-    "phoenix_lair",
-    "enchanted_key",
-    "managing_miscellania",
-    # Caught by this very drift test on its second day: one Conquest turn per
-    # answer, never multiplied.
-    "conquest",
-    # Bork's cross-lineage finding was the case that exposed this whole
-    # class: one six-tick daily encounter per answer.
-    "bork",
-    RANGING_GUILD_ACTIVITY_ID,
-})
 from .cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
 from ..core.constants import (
     COMBAT_ENEMY_DATA,

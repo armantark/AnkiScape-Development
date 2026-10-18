@@ -327,7 +327,6 @@ from .logic.pet_logic import (
 )
 from .runtime import runtime_actions
 from .runtime.runtime_actions import BIG_CHINCHOMPA_UTILITY_ID, EVIL_TREE_UTILITY_ID, RuntimeActionContext
-from .logic.cadence_coverage import SINGLE_TICK_UTILITY_IDS
 from .runtime.dispatcher_state import state as _state
 from .core.xp_drops import whole_number_xp_breakdown
 
@@ -5141,21 +5140,14 @@ def _advance_world_events_after_review() -> None:
     _state.player_data.update(goblin_updated)
 
 
-def _review_action_ticks(handler_key) -> int:
-    single_tick = (
-        handler_key in {"thieving", "agility", "dungeoneering"}
-        or (
-            handler_key == "utility"
-            and _state.player_data.get("current_utility")
-            in SINGLE_TICK_UTILITY_IDS
-        )
-        or (handler_key == "quest" and _cadence_kernel_enabled())
-    )
-    return 1 if single_tick else _review_action_multiplier()
+def _selected_review_action() -> tuple:
+    return _state.current_skill, _state.player_data.get("current_utility")
 
 
 def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
-    reviewed_skill = _state.current_skill
+    # The card's steps belong to the action selected when it began: switching
+    # to Bankstanding, or to any other action, ends the card.
+    reviewed_action = _selected_review_action()
     # Combat carries no skilling pack: its engine owns supplies and bank trips.
     step = handler if handler_key == "combat" else (
         lambda ctx: runtime_actions.run_answer_with_carried_overlay(ctx, handler_key, handler)
@@ -5164,8 +5156,7 @@ def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
         review_ctx,
         handler_key,
         step,
-        one_per_card=_review_action_ticks(handler_key) == 1,
-        can_continue=lambda: _state.current_skill == reviewed_skill
+        can_continue=lambda: _selected_review_action() == reviewed_action
         and _can_start_current_action(),
     )
     if progressed and handler_key not in ("combat", "quest", "thieving", "agility"):

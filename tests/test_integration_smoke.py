@@ -8648,7 +8648,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.player_data, initial)
         self.assertEqual(addon._state.direct_action_undo_stack, [])
 
-    def test_duel_arena_uses_one_exchange_per_review_at_high_multiplier(self):
+    def test_a_speed_ten_card_runs_duel_exchanges_until_the_duel_ends(self):
         addon = _load_addon_as_package("ankiscape_duel_arena_multiplier")
         logic = sys.modules[f"{addon.__name__}.logic.duel_arena_logic"]
         storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
@@ -8676,9 +8676,9 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_good_answer(before)
 
-        self.assertEqual(addon._state.player_data["duel_arena"]["review"], 1)
-        self.assertEqual(addon._state.player_data["duel_arena"]["player_points"], 1)
-        self.assertEqual(addon._state.player_data["duel_arena_wins"], 0)
+        self.assertEqual(addon._state.player_data["duel_arena_wins"], 1)
+        self.assertEqual(addon._state.player_data["duel_arena"], {})
+        self.assertEqual(addon._state.player_data["current_utility"], "bankstanding")
 
     def test_clan_wars_red_portal_entry_is_reachable_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_clan_wars_integration")

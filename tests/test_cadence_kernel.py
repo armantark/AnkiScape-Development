@@ -414,7 +414,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         self.assertEqual(off_output, baseline_output)
         self.assertEqual(off_rng, baseline_rng)
 
-    def test_quest_multiplier_is_legacy_only_when_live_cadence_is_disabled(self):
+    def test_quest_takes_one_stage_per_card_whatever_the_cadence_flag(self):
         def run(module_name, enabled):
             addon = _load_addon_as_package(module_name)
             runtime = sys.modules[f"{module_name}.runtime.runtime_actions"]
@@ -442,14 +442,9 @@ class TestCadenceKernelIntegration(unittest.TestCase):
             addon.on_good_answer({})
             return calls
 
-        self.assertEqual(
-            run("ankiscape_cadence_quest_legacy", False),
-            ["quest", "quest", "quest"],
-        )
-        self.assertEqual(
-            run("ankiscape_cadence_quest_live", True),
-            ["quest"],
-        )
+        for enabled in (False, True):
+            with self.subTest(cadence_kernel=enabled):
+                self.assertEqual(run(f"ankiscape_cadence_quest_{enabled}", enabled), ["quest"])
 
     def _run_legacy_review(self, module_name, config):
         addon = _load_addon_as_package(module_name)
