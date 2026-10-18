@@ -93,6 +93,12 @@ def _add_cache_name_aliases(values: Dict[str, int], exchangeable: set) -> None:
     # Rev-727/742 item 5014 uses this state-qualified storage key.
     if "Mining helmet" in exchangeable:
         exchangeable.add("Mining helmet (unlit)")
+    # Rev-727/742 worn variants share their cache name and value with the blue hat.
+    for name in ("Mystic hat (dark)", "Mystic hat (light)"):
+        if "Mystic hat" in ITEM_VALUES_GENERATED and name not in ITEM_VALUES_GENERATED:
+            values[name] = ITEM_VALUES_GENERATED["Mystic hat"]
+            if "Mystic hat" in exchangeable:
+                exchangeable.add(name)
 
 
 def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str]]":

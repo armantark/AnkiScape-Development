@@ -606,6 +606,7 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Agility potion (3)": 3034,
         "Agility potion (2)": 3036,
         "Agility mix (2)": 11461,
+        "Relicym's mix (2)": 11437,
         "Desert goat horn": 9735,
         "Goat horn dust": 9736,
         "Blue dragon scale": 243,
@@ -625,6 +626,7 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Clean rogue's purse": 1534,
     }
     canonical_item_sources = {
+        "Relicym's mix (2)": "https://runescape.wiki/w/Relicym%27s_mix?oldid=5503026",
         "Desert goat horn": "RuneScape Wiki Desert goat horn oldid=6555637",
         "Goat horn dust": "RuneScape Wiki Goat horn dust oldid=6404814",
         "Blue dragon scale": "RuneScape Wiki Blue dragon scale oldid=6169064",
@@ -703,6 +705,7 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "Potato cactus",
             "Swamp toad",
             "Toad's legs",
+            "Relicym's mix (2)",
         }:
             item["stackable"] = False
         if name in {"Black mushroom", "Black mushroom ink"}:

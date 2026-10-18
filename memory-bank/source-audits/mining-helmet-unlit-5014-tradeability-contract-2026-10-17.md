@@ -58,3 +58,7 @@ Astra found a separate registry-based consumer: a saved active pack of two corre
 `test_base_stackable_pyramid_saves_load_at_capacity_without_losing_bank_items` reuses the relevant fields from Astra's real base saves on `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`. The committed fixture preserves the saved pack, layout, session and positive inventory fields; unrelated defaults are omitted. On the rejected head, all three subtests fail with `AssertionError: 29 != 28`.
 With the shared fix, each saved pack loads as two items and 26 Shark in 28 slots. The bank retains two items and all 27 Shark; the desired layout and active session stay intact. Real save/load then preserves the complete current state. No registry or storage mock supplies these results.
 The regression, shared test and existing Pyramid Plunder suite pass 19 plain and 19 offscreen Qt tests with zero skips. The non-blocking Rat Catchers route limitation remains unchanged. Round-1 evidence and final verification: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-6/review-round-1/`.
+
+## Current-main integration — 2026-10-18
+
+Main `b841cc373090657505eac0fe88e2838c859cccff` already includes the two qualified Mystic hat GE rows. Together with unlit helmet 5014, the exact catalog totals are 1446 prices and 1841 limits. The census tests retain exact equalities at those totals; the three sourced additions explain the increase from base 1443/1838. Both accepted cache-alias blocks remain intact. No price, limit, identity or consumer rule changes during this merge.

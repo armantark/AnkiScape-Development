@@ -1,4 +1,11 @@
+import copy
+import json
+import sys
+import tempfile
+import types
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.herblore_data import (
@@ -14,9 +21,32 @@ from ankiscape.data.herblore_data import (
     herblore_targets_as_dict,
 )
 from ankiscape.logic_pure.logic_pure import apply_herblore_action_pure, can_herblore_target_pure
+from tests import test_integration_smoke as runtime_fixture
+from tests.test_combat_quest_gate import _answer_review
+from tests.test_storage_runtime import Collection
 
 
 class HerbloreDataTests(unittest.TestCase):
+    def test_relicyms_drinkable_mix_reaches_registry_and_market_unchanged(self):
+        from ankiscape.core.constants import EXTRA_ITEM_DATA, HERBLORE_EXTRA_ITEM_DATA, ITEM_DEFINITIONS
+        from ankiscape.data.grand_exchange_data import GE_ITEM_CATALOG
+        from ankiscape.data.item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
+
+        name = "Relicym's mix (2)"
+        for items in (HERBLORE_EXTRA_ITEM_DATA, EXTRA_ITEM_DATA):
+            self.assertEqual((items[name]["item_id"], items[name]["tradeable"], items[name]["stackable"]),
+                             (11437, True, False))
+        item = next(item for item in ITEM_DEFINITIONS if item.storage_key == name)
+        self.assertEqual((item.source_item_id, item.tradeable, item.stackable), (11437, True, False))
+        spec = GE_ITEM_CATALOG[name]
+        self.assertEqual((spec["source_item_id"], spec["guide_price"], spec["buy_limit"]), (11437, 268, 1000))
+        self.assertEqual(spec["guide_price_provenance"]["oldid"], 6095907)
+        self.assertEqual(spec["buy_limit_source"]["oldid"], 6457777)
+        self.assertEqual(ITEM_VALUES[name], 150)
+        self.assertNotIn(name, STACKABLE_ITEM_NAMES)
+        self.assertEqual({item.storage_key for item in ITEM_DEFINITIONS
+                          if item.storage_key.startswith("Relicym's mix")}, {name})
+
     def test_magic_essence_mix_preserves_its_distinct_item_identity(self):
         target = next(target for target in FINISHED_TARGETS if target.id == "finished_magic_essence_mix")
         self.assertEqual(target.display_name, "Magic essence mix (2)")
@@ -159,6 +189,103 @@ class HerbloreDataTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(exp, 0)
         self.assertIs(result, inventory)
+
+
+class RelicymReviewPersistenceTests(unittest.TestCase):
+    def setUp(self):
+        modules = patch.dict(sys.modules)
+        modules.start()
+        self.addCleanup(modules.stop)
+        runtime_fixture._install_runtime_fakes()
+
+    def _open(self, collection):
+        self.collection = collection
+        sys.modules["aqt"].mw = runtime_fixture._DummyMW(collection)
+        self.addon = runtime_fixture._load_addon_as_package("ankiscape_relicym_review")
+        addon = self.addon
+        addon.load_player_data()
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._update_review_context_surface = lambda: None
+        addon._show_exp = lambda *_args: None
+        addon.check_achievements = lambda _data: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+    def _reload(self):
+        addon = self.addon
+        addon.save_player_data()
+        if isinstance(self.collection, runtime_fixture._DummyCol):
+            self.collection._store = json.loads(json.dumps(self.collection._store))
+        else:
+            self.collection.close()
+            self.collection.reopen()
+        addon.load_player_data()
+
+    def _assert_recipe_at_capacity(self):
+        addon = self.addon
+        target, name = "finished_relicyms_mix", "Relicym's mix (2)"
+        pack = {name: 26, "Relicym's balm (2)": 1, "Roe": 1}
+        player = addon._state.player_data
+        player.update(inventory={name: 30, "Relicym's balm (2)": 10, "Roe": 10, "Coins": 7},
+                      herblore_level=99, herblore_exp=13034431, current_herblore=target,
+                      carried_advanced_targets={target: True}, carried_layout={target: pack})
+        addon._state.current_skill = "Herblore"
+        self._reload()
+        before = copy.deepcopy(addon._state.player_data), addon._state.current_skill
+        _answer_review(addon)
+        after = copy.deepcopy(addon._state.player_data), addon._state.current_skill
+        self.assertEqual(after[0]["inventory"], before[0]["inventory"]
+                         | {name: 31, "Relicym's balm (2)": 9, "Roe": 9})
+        self.assertEqual(after[0]["herblore_exp"], 13034445)
+        self.assertEqual(after[0]["carried_inventory"][target], {name: 26})
+        self.assertEqual(after[0]["carried_churn"][target], 2)
+        self._reload()
+        self.assertEqual((addon._state.player_data, addon._state.current_skill), after)
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+        self.assertEqual((addon._state.player_data, addon._state.current_skill), before)
+        _answer_review(addon)
+        self.assertEqual((addon._state.player_data, addon._state.current_skill), after)
+
+    def _assert_saved_active_pack(self):
+        addon = self.addon
+        plunder = sys.modules[f"{addon.__name__}.logic.pyramid_plunder_logic"]
+        target, name = plunder.PYRAMID_PLUNDER_ACTIVITY_ID, "Relicym's mix (2)"
+        player = addon._state.player_data
+        player.update(thieving_level=91, inventory={name: 30, "Shark": 2, "Coins": 7},
+                      carried_advanced_targets={target: True}, carried_layout={target: {name: 30}})
+        player["quests"]["icthlarins_little_helper"] = {"started": True, "completed": False}
+        player, entered, info = plunder.enter_pyramid_plunder_pure(player)
+        self.assertTrue(entered, info)
+        self.assertEqual(info["pack"], {name: 28})
+        player["carried_inventory"] = {target: {name: 30}, "other_target": {"Shark": 1}}
+        addon._state.player_data, addon._state.current_skill = player, "Activities"
+        before = copy.deepcopy(player)
+        self.assertEqual(plunder.pyramid_plunder_view_pure(player)["pack_slots"], 28)
+        self.assertEqual(player, before)
+        self._reload()
+        loaded = copy.deepcopy(addon._state.player_data)
+        self.assertEqual(loaded["carried_inventory"], {target: {name: 28}, "other_target": {"Shark": 1}})
+        self.assertEqual(loaded["carried_layout"][target], {name: 30})
+        self.assertEqual({item: qty for item, qty in loaded["inventory"].items() if qty > 0},
+                         before["inventory"])
+        self._reload()
+        self.assertEqual((addon._state.player_data, addon._state.current_skill), (loaded, "Activities"))
+
+    def test_recipe_and_old_pack_preserve_ownership_undo_and_reload(self):
+        self._open(runtime_fixture._DummyCol())
+        self._assert_recipe_at_capacity()
+        self._assert_saved_active_pack()
+
+    @unittest.skipIf(Collection is None, "Anki runtime is not installed")
+    def test_recipe_and_old_pack_survive_real_collection_close_and_reopen(self):
+        with tempfile.TemporaryDirectory() as directory:
+            collection = Collection(str(Path(directory) / "collection.anki2"))
+            try:
+                self._open(collection)
+                self._assert_recipe_at_capacity()
+                self._assert_saved_active_pack()
+            finally:
+                collection.close()
 
 
 if __name__ == "__main__":

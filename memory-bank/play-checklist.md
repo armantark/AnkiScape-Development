@@ -59,6 +59,7 @@ you are in the game, with the date the change reached main.
 ## Gathering and processing skills
 
 - [ ] Buy an unlit Mining helmet in GE, light it at Firemaking 65, Undo, replay and extinguish it: only the unlit helmet can be offered or sold; collect its GE sale, reopen and retain the result. A Rat Catchers reward stays one untradeable Rat pole; older saves with several poles retain every copy. Reopen an old active Pyramid Plunder pack with two helmets or Rat poles and 27 Shark: the pack shows 28 slots, and the bank still owns both items and all 27 Shark. (after native acceptance)
+- [ ] In Herblore, make Relicym's mix (2): one balm (2) and one Roe give one mix and14 XP per action; each drinkable mix takes one pack slot. Reload an old active Pyramid Plunder pack with more than28 mixes: the pack caps at28, every owned mix remains in Bank, and review Undo restores the full state. (after promotion and native acceptance)
 
 - [x] In Utilities, choose Convert logs to planks: Logs1 and Coins100 become Plank1 and one visible Varrock Easy deed; the tier stays unclaimable. Good at Coins99 or Logs0 refuses. Direct Undo restores discarded inputs; review Undo retracts the deed; replay and normal reopen retain one Plank and the deed. (isolated native/presentation accepted at7ef2a5f8; acquisition and a second distinct retained success remain source-only; Again unobserved; merged-record review/full9/land pending)
 - [ ] In Prayer, choose Bury Bones with a whole-number XP total and answer four cards: the drops and event log show +4, +5, +4, +5 XP, and Prayer gains exactly 18.0 XP. Undo the last card and answer again: the drop is still +5. (Pass 16 ticket 09) (2026-10-16)
@@ -85,6 +86,7 @@ you are in the game, with the date the change reached main.
 
 ## Bank, shops and items
 
+- [ ] In Grand Exchange, buy and sell Mystic hat (dark) and Mystic hat (light), answer cards for fills, cancel an offer and collect its remainder, then reload; each variant keeps its identity, each buy limit is 100, and Undo restores the complete prior state. (after promotion)
 - [ ] Buy an unattached hatchet from Bob and attach it in the Bank: My Axe Is My Buddy completes once; Undo restores the hatchet and removes the deed, replay restores it, and reopening keeps it. A refused attachment gives no credit. (2026-10-17)
 - [ ] After Family Crest, discard your only gauntlet pair in Bank, open Cooking > Shark Target Details and recover the pair from Dimintheis: the remembered gauntlets return free and Varrock Hard's Hand-Me-Downs completes once; Undo removes both, replay restores both, and reopening keeps the deed. (after native acceptance)
 - [ ] Earn 800 Brimhaven tickets, exchange for Pirate's hook, sell it through the GE, collect the coins, then reload; Undo of the exchange and offer restores custody. (after promotion)
