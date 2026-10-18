@@ -125,7 +125,7 @@ class TestCadenceLiveCoverage(unittest.TestCase):
             ("one stardust attempt", "one public-crowd boundary"),
         )
         self.assertIn(
-            "Never foreground-multiplied",
+            "depletion boundary still advances once per card",
             row["multiplier_behavior"],
         )
 
@@ -164,7 +164,7 @@ class TestCadenceLiveCoverage(unittest.TestCase):
                 "wave points, safe restart, and terminal Queen settlement",
             ),
         )
-        self.assertIn("Never foreground-multiplied", row["multiplier_behavior"])
+        self.assertIn("wave boundary ends the card", row["multiplier_behavior"])
 
     def test_declared_multiplier_behavior_matches_single_step_exemptions(self):
         thieving = resolve_live_cadence_route_pure(

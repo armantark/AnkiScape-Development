@@ -102,6 +102,13 @@ def _uses_fire_staff(player_data: Mapping[str, Any] | None) -> bool:
     return any("fire staff" in item.lower() or "staff of fire" in item.lower() for item in _equipment_names(player_data))
 
 
+# Handlers the dispatcher calls once per card instead of once per six-tick step.
+_ONE_PER_CARD_BEHAVIOR = {
+    "agility": "one established Agility stage; never foreground-multiplied",
+    "dungeoneering": "one room per card at every speed (assumption 5)",
+}
+
+
 def resolve_live_cadence_route_pure(
     handler_key: str,
     action_id: str,
@@ -115,14 +122,14 @@ def resolve_live_cadence_route_pure(
     common = {
         "handler_key": skill_id,
         "action_id": target_id,
-        "multiplier_behavior": "M complete kernel steps",
+        "multiplier_behavior": "M six-tick steps of the card's budget",
         "undo_boundary": "one answered-card transaction",
         "flag_off_behavior": "legacy handler and RNG order",
     }
 
     if skill_id == "combat":
         return CadenceRouteDeclaration(
-            **{**common, "multiplier_behavior": "6 * M immediate game ticks"},
+            **{**common, "multiplier_behavior": "the card's whole 6 * M tick budget in one call"},
             mode=COMBAT_TICKS,
             source_status=SOURCE_READY,
             source_row="cadence-kernel R=1000 / 6 ticks",
@@ -278,12 +285,12 @@ def resolve_live_cadence_route_pure(
             includes=(),
         )
 
-    fallback_common = common
-    if skill_id == "agility":
-        fallback_common = {
-            **common,
-            "multiplier_behavior": "one established Agility stage; never foreground-multiplied",
-        }
+    fallback_common = {
+        **common,
+        "multiplier_behavior": _ONE_PER_CARD_BEHAVIOR.get(
+            skill_id, common["multiplier_behavior"]
+        ),
+    }
     return CadenceRouteDeclaration(
         **fallback_common,
         mode=PASSTHROUGH,

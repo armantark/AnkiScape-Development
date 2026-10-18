@@ -136,7 +136,7 @@ class RangingGuildDataAndAssetTests(unittest.TestCase):
             and row["action_id"] == RANGING_GUILD_ACTIVITY_ID
         )
         self.assertEqual(row["mode"], "activity_group")
-        self.assertIn("Never foreground-multiplied", row["multiplier_behavior"])
+        self.assertIn("stopping after the tenth arrow", row["multiplier_behavior"])
         self.assertEqual(
             activity_trained_skills_pure({}, RANGING_GUILD_ACTIVITY_ID),
             ("Ranged",),

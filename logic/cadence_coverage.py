@@ -102,8 +102,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one safe arena-state transaction",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one six-tick arena interval"
+                        "Up to M six-tick arena slices per card; a kill, death or round "
+                        "boundary ends the card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same six-tick activity handler",
@@ -131,8 +131,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one atomic wave-state transaction",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one six-tick Fight Cave interval"
+                        "Up to M six-tick Fight Cave slices per card; a kill or death "
+                        "ends the card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same six-tick activity handler",
@@ -160,8 +160,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one review-driven respawn-state transaction",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one six-tick Dagannoth Kings room interval"
+                        "Up to M six-tick Dagannoth Kings room slices per card; a kill or "
+                        "death ends the card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same six-tick activity handler",
@@ -190,8 +190,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one atomic completion and daily-charge boundary",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one Phoenix Lair interval"
+                        "Up to M Phoenix Lair slices or preparation beats per card; a kill "
+                        "or death ends the card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same six-tick activity handler",
@@ -219,8 +219,7 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "the key's melt boundary on the eleventh find",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one search"
+                        "Up to M searches per card, stopping at the key's melt"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same treasure-search activity handler",
@@ -277,8 +276,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one safe failure or weekly completion transaction",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one six-tick Skeletal Horror interval"
+                        "Up to M six-tick Skeletal Horror slices per card; the kill or a "
+                        "death ends the card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same six-tick activity handler",
@@ -306,8 +305,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one atomic drop payout and daily-kill boundary",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one six-tick Bork interval"
+                        "Up to M six-tick Bork slices per card; a kill or death ends "
+                        "the card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same six-tick activity handler",
@@ -334,8 +333,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one public-crowd boundary",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; each answered card "
-                        "preserves one communal depletion boundary"
+                        "Up to M stardust attempts per card; the communal depletion "
+                        "boundary still advances once per card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same single-attempt activity handler",
@@ -359,8 +358,7 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                     ),
                     "includes": ("one seasonal route", "one harvest"),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one complete garden attempt"
+                        "Up to M complete garden attempts per card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same single-attempt activity handler",
@@ -387,8 +385,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one bounded obstacle and public-floor boundary",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one consequential factory circuit"
+                        "Up to M factory circuits per card, stopping when the session's "
+                        "slots run out"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same single-circuit activity handler",
@@ -445,8 +443,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one terminal Agility XP award",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card completes exactly "
-                        "one run and cannot begin a second run"
+                        "One complete run per card at every speed; the same card "
+                        "cannot begin a second run"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same atomic ten-goal run handler",
@@ -592,8 +590,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one answered-card transaction while selected",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; passive kingdom days are owned "
-                        "by the answered-card world clock"
+                        "Up to M approval chores per card; passive kingdom days stay "
+                        "on the world clock"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same approval-work handler",
@@ -621,8 +619,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one atomic retry or reward boundary",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one consequential court beat"
+                        "Up to M court beats per card, stopping at the verdict or a "
+                        "pending Advanced choice"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same one-beat court handler",
@@ -652,8 +650,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one atomic XP, audience-score, and costume-reward boundary",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; the same answer cannot begin "
-                        "a second performance"
+                        "Up to M tricks per card; a finished performance ends the card, "
+                        "so the same card cannot begin a second performance"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same atomic whole-performance handler",
@@ -681,8 +679,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one terminal rum score, multi-skill XP, and currency payout",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one race beat and cannot begin a second match"
+                        "Up to M race beats per card; the match end stops the card "
+                        "before a second match"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same sixteen-beat race handler",
@@ -710,8 +708,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one crowd-pressure step and terminal 2/1/0 ticket settlement",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one match beat and cannot start a second match"
+                        "Up to M match beats per card; a kill or death ends the card, "
+                        "and the match end stops it before a second match"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same ten-beat match handler",
@@ -739,8 +737,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one crowd-pressure step and terminal reward settlement",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one assault beat and cannot start a second game"
+                        "Up to M assault beats per card; a kill or death ends the card, "
+                        "and the game end stops it before a second game"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same twelve-beat shared-assault handler",
@@ -769,8 +767,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "wave points, safe restart, and terminal Queen settlement",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains one "
-                        "wave or Queen beat and cannot begin a second run"
+                        "Up to M wave or Queen beats per card; a kill, death or wave "
+                        "boundary ends the card, so it cannot begin a second run"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same ten-wave and eight-egg activity handler",
@@ -798,8 +796,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one persistent route-state transaction",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains one "
-                        "landmark and cannot claim a direct reward"
+                        "Up to M landmarks per card; the last landmark ends the route "
+                        "and cannot claim a direct reward"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same one-landmark activity handler",
@@ -827,8 +825,7 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one persistent match-state transaction",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains one "
-                        "match beat"
+                        "Up to M match beats per card; a kill or death ends the card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same one-beat activity handler",
@@ -856,8 +853,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one persistent board-state transaction",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one productive answered "
-                        "card remains one complete turn exchange"
+                        "Up to M complete turn exchanges per productive card, stopping "
+                        "at the game end"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same one-exchange activity handler",
@@ -1006,8 +1003,7 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one direct one-time reward or story claim outside reviews",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one museum landmark beat"
+                        "Up to M museum landmark beats per card"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same single-landmark review handler",
@@ -1031,8 +1027,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                     ),
                     "includes": ("one roster entry", "one point award"),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one selected spy action"
+                        "Up to M spy actions per card, stopping when no listed penguin "
+                        "is left to spy"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same single-spy activity handler",
@@ -1208,8 +1204,8 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                         "one Ranged XP award",
                     ),
                     "multiplier_behavior": (
-                        "Never foreground-multiplied; one answered card remains "
-                        "one competition shot"
+                        "Up to M competition shots per card, stopping after the tenth "
+                        "arrow"
                     ),
                     "undo_boundary": "one answered-card transaction",
                     "flag_off_behavior": "same one-shot activity handler",
@@ -1321,7 +1317,10 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 "source_row": "",
                 "source_reason": "answered-card background clock and explicit queue preemption",
                 "includes": ("growth clock", "farm queue"),
-                "multiplier_behavior": "one queue/world step; never foreground-multiplied",
+                "multiplier_behavior": (
+                    "queued steps take the card's first six-tick steps; the rest "
+                    "goes to the selected action"
+                ),
                 "undo_boundary": "one answered-card transaction",
                 "flag_off_behavior": "same Farming simulation",
                 "profile": None,
