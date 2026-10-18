@@ -137,7 +137,6 @@ from .logic.phoenix_lair_logic import (
     apply_phoenix_lair_command_pure,
     resolve_phoenix_egg_choice_pure,
 )
-from .data.bork_data import BORK_ACTIVITY_ID
 from .logic.bork_logic import apply_bork_command_pure
 from .logic.skeletal_horror_logic import apply_skeletal_horror_command_pure
 from .logic.tears_of_guthix_logic import apply_tears_of_guthix_command_pure
@@ -243,9 +242,8 @@ from .core.action_registry import (
 )
 from .core.skill_registry import get_skill, trainable_skill_definitions
 from .logic.shop_logic import advance_shop_market_clock_pure
-from .logic.wicked_hood_logic import (
-    advance_wicked_hood_review_day_pure,
-)
+from .logic.pace.world_clock import advance_world_clock_pure
+from .logic.wicked_hood_logic import advance_wicked_hood_review_day_pure
 from .data.grand_exchange_data import GE_ITEM_CATALOG
 from .logic.grand_exchange_logic import (
     ge_guide_prices_pure,
@@ -5250,8 +5248,9 @@ def _advance_clocks_for_answer(successful_answer) -> None:
     ))
     runtime_actions.advance_shared_review_state_for_review(_runtime_action_context())
     _state.player_data.update(advance_livid_farm_wish_effects_pure(_state.player_data, 1))
+    _state.player_data.update(advance_shop_market_clock_pure(_state.player_data))
+    _state.player_data.update(advance_world_clock_pure(_state.player_data))
     try:
-        _state.player_data.update(advance_shop_market_clock_pure(_state.player_data))
         _state.player_data.update(advance_wicked_hood_review_day_pure(_state.player_data))
     except Exception:
         pass

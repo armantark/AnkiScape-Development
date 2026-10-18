@@ -1,6 +1,8 @@
 """The shared world clock keeps today's 240-card calendar exactly."""
 
 import copy
+import sys
+import types
 import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
@@ -14,6 +16,13 @@ from ankiscape.logic.pace.world_clock import (
     world_day_start_ticks_pure,
     world_month_index_pure,
     world_week_index_pure,
+)
+from tests.test_integration_smoke import (
+    _DummyCol,
+    _DummyMW,
+    _FakeReviewer,
+    _install_runtime_fakes,
+    _load_addon_as_package,
 )
 
 
@@ -98,6 +107,57 @@ class WorldClockTest(unittest.TestCase):
         self.assertEqual(player, baseline)
         self.assertEqual(advanced["world_clock"]["day"], 1)
         self.assertIsNot(advanced["world_clock"], player["world_clock"])
+
+
+class WorldClockAnswerHookTest(unittest.TestCase):
+    def setUp(self):
+        self._orig_modules = dict(sys.modules)
+        _install_runtime_fakes()
+
+    def tearDown(self):
+        sys.modules.clear()
+        sys.modules.update(self._orig_modules)
+
+    def _addon(self):
+        addon = _load_addon_as_package("ankiscape_world_clock_answer_hook")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_status_badge = lambda *_args: None
+        addon.update_review_fill_drawer = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _message: None
+        return addon
+
+    def _answer(self, addon, ease):
+        addon._state.card_turned = addon._state.answer_shown = True
+        addon._state.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), ease, lambda _self, _ease: "answered")
+
+    def test_the_last_card_of_a_day_rolls_the_shared_day_and_undoes_with_it(self):
+        addon = self._addon()
+        initial = {"inventory": {}, **_save(238)}
+        addon._state.player_data = copy.deepcopy(initial)
+        addon._state.current_skill = "None"
+
+        self._answer(addon, 1)
+        self.assertEqual(
+            addon._state.player_data["world_clock"],
+            {"day": 0, "day_start_card": 0, "day_length": 240, "in_day_ticks": 143_400},
+        )
+        self._answer(addon, 3)
+        self.assertEqual(
+            addon._state.player_data["world_clock"],
+            {"day": 1, "day_start_card": 240, "day_length": 240, "in_day_ticks": 0},
+        )
+        # The daily challenge queue reads the same day on the same card.
+        self.assertEqual(addon._state.player_data["daily_challenge_day"], 1)
+
+        undo = types.SimpleNamespace(operation="Answer Card")
+        addon._on_state_did_undo(undo)
+        self.assertEqual(addon._state.player_data["world_clock"]["day"], 0)
+        addon._on_state_did_undo(undo)
+        self.assertEqual(addon._state.player_data, initial)
 
 
 if __name__ == "__main__":
