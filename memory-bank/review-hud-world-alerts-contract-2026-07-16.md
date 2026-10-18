@@ -37,7 +37,7 @@ The initial alert kinds are:
 2. **Dropped familiar cargo** — projects one expiring BoB cargo event. Label:
    `Familiar cargo`. It uses period `Beast of burden-icon.png` or the closest verified
    familiar-inventory sprite rather than grave artwork. Countdown is the source's five
-   minutes translated through the settled short-duration answered-card mapping.
+   minutes as 500 game ticks, spent by each answered card's time budget.
 3. **Pet capability transition** — projects only a pending source-timed growth transition
    that removes a gameplay capability, such as an adult cat becoming overgrown and losing
    **Chase-vermin**. It appears once inside the source-calibrated advance-warning window,
@@ -107,12 +107,11 @@ positioning heuristic.
 
 Do not overload `combat_grave`. Store a bounded collection of cargo-drop events so a
 second familiar expiry cannot overwrite the first. Every event contains its own stable
-ID, familiar ID, item counts, created answered-card tick, remaining short-duration ticks,
-and source.
+ID, familiar ID, item counts, remaining game ticks (`remaining_ticks`), and source.
 
 - Familiar expiry or death moves its separate BoB inventory atomically into a new event.
-- Every answered card, including Again, decrements every cargo event once through the
-  short-duration clock.
+- Every answered card, including Again, spends its time budget (`6 × speed` ticks)
+  from every cargo event.
 - Reclaim removes that event and restores its exact items without creating a duplicate.
 - At the source-equivalent five-minute boundary, unclaimed items are destroyed and the
   alert disappears. Review undo restores the cargo event and its items.
