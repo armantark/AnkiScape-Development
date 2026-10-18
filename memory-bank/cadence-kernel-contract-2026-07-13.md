@@ -25,9 +25,14 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
    period record (gilded altar 913/hr, dragonhide 1,000/hr, High Alchemy 1,200/hr —
    the last stated outright by the 2012 page). `R = 1800` has no support.
 2. **Pace is the player's, via the existing `ankiscape_review_action_multiplier`**
-   (`__init__.py:393`). All parity claims are defined at multiplier 1. `M > 1`
-   executes M complete kernel steps; ratios are preserved. It is a game-speed
-   override and is explicitly **not** part of source parity.
+   (`__init__.py:391`). All parity claims are defined at multiplier 1. A
+   successful card buys `6 × M` game ticks (owner decision 4, 2026-10-15): Combat
+   spends them in one engine call, and every other handler takes one six-tick
+   kernel step per call until the card is spent or a boundary stops it; ratios are
+   preserved. Quests and Dungeoneering keep one stage or room per card at every
+   speed, a deliberate divergence because they already outpace 2012 at `M = 1`
+   (owner-accepted assumption, 2026-10-15). The speed is a game-speed override
+   and is explicitly **not** part of source parity.
 3. **The `0.20 + 0.72·√p` adapter is a BUG, not a feature.** It was intended to
    make the no-Grand-Exchange ironman experience less miserable (you must mine your
    own runite for runite gear). But it fixes *acquisition* by inflating *XP*, and
@@ -200,13 +205,15 @@ has no classification.
 | Runtime family | Live classification |
 |---|---|
 | Combat | `combat_ticks`: `6 × M` immediate ticks with continuous encounter state |
-| Thieving | Existing exact canary scheduler; no second admission gate |
+| Thieving | Existing exact canary scheduler; no second admission gate; one attempt per card while a stun still costs a whole card |
+| Agility | Approved passthrough; one obstacle stage per card while obstacles have no tick time |
 | Source-compatible gathering | `rate_limited` exact residual using the conservative lower endpoint of a sourced range |
 | Source-compatible Cooking/Firemaking | `embedded_probability`: one authentic attempt and roll, no second gate |
 | Exact deterministic artisan rows | `rate_limited` when the runtime conditions match the cited row |
 | Source-incompatible or unsourced routes | Approved passthrough behavior with `source_blocked` evidence status |
-| Quests | Finite stage progression; one collapsed stage per eligible review, never multiplied |
-| Utility/Activities and Farming | Explicit cadence exemptions owned by their activity or world-clock contracts |
+| Quests | Finite stage progression; one collapsed stage per card at every speed |
+| Utility/Activities | One six-tick step per call; a kill, death, flee, wave, round or finished performance ends the card, and a grouped activity never starts a second run in it |
+| Farming | Queued steps take the card's first six-tick steps and the selected action the rest; the growth clock stays on the world clock |
 
 Shadow state remains observational history only and is never promoted into
 `cadence_profiles`.
