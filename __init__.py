@@ -1431,16 +1431,8 @@ def _activity_session_end_reason(session) -> str:
 
 
 def _activity_session_cleared(before, after=None) -> bool:
-    """True when an active activity session ended (active_id -> empty).
-
-    The shared transition predicate for every boundary that finalizes an undo
-    snapshot after a session completes: the surface must land on Bankstanding
-    before the snapshot is taken so undo restores the former activity whole.
-    """
-    before_active = str((before or {}).get("active_id", "") or "")
     after = after if after is not None else _state.player_data.get("activity_session")
-    after_active = str((after or {}).get("active_id", "") or "")
-    return bool(before_active) and not after_active
+    return runtime_actions.activity_session_cleared(before, after)
 
 
 def _missing_materials_text(requirements, inventory) -> str:
@@ -5162,28 +5154,21 @@ def _review_action_ticks(handler_key) -> int:
     return 1 if single_tick else _review_action_multiplier()
 
 
-def _run_review_action_ticks(review_ctx, handler_key, handler) -> None:
-    review_progressed = False
-    action_ticks = _review_action_ticks(handler_key)
+def _spend_card_on_action(review_ctx, handler_key, handler) -> None:
     reviewed_skill = _state.current_skill
-    for tick_index in range(action_ticks):
-        if tick_index > 0 and not _can_start_current_action():
-            break
-        before_tick_session = dict(
-            _state.player_data.get("activity_session") or {}
-        )
-        result = runtime_actions.run_answer_with_carried_overlay(
-            review_ctx, handler_key, handler
-        )
-        if result is not False:
-            review_progressed = True
-        if (
-            result is False
-            or _state.current_skill != reviewed_skill
-            or _activity_session_cleared(before_tick_session)
-        ):
-            break
-    if review_progressed and handler_key not in ("quest", "thieving", "agility"):
+    # Combat carries no skilling pack: its engine owns supplies and bank trips.
+    step = handler if handler_key == "combat" else (
+        lambda ctx: runtime_actions.run_answer_with_carried_overlay(ctx, handler_key, handler)
+    )
+    progressed = runtime_actions.spend_card_budget(
+        review_ctx,
+        handler_key,
+        step,
+        one_per_card=_review_action_ticks(handler_key) == 1,
+        can_continue=lambda: _state.current_skill == reviewed_skill
+        and _can_start_current_action(),
+    )
+    if progressed and handler_key not in ("combat", "quest", "thieving", "agility"):
         _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
 
 
@@ -5204,10 +5189,8 @@ def on_good_answer(before_state=None, *, defer_commit=False):
                 # A consumed or execution-time-invalid Farming step owns this
                 # successful review and is never multiplied by skill bonuses.
                 runtime_actions.handle_farming_queue_answer(review_ctx)
-            elif handler_key == "combat":
-                handler(review_ctx)
             else:
-                _run_review_action_ticks(review_ctx, handler_key, handler)
+                _spend_card_on_action(review_ctx, handler_key, handler)
         finally:
             _finish_review_feedback_context()
             # The background clock and active action form one persisted review

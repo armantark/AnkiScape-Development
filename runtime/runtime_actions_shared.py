@@ -295,7 +295,6 @@ from ..logic.wicked_hood_logic import (
 )
 from ..logic.cadence_kernel import EMBEDDED_PROBABILITY, RATE_LIMITED, advance_cadence_pure, default_cadence_profile_state_pure
 from ..logic.cadence_live import (
-    LIVE_COMBAT_TICKS_PER_REVIEW,
     advance_live_cadence_route_pure,
     resolve_live_cadence_route_pure,
 )
@@ -888,16 +887,13 @@ _COMBAT_EXP_SKILLS = {
 
 
 def _combat_review_ticks(ctx: RuntimeActionContext) -> int:
+    if ctx.cadence_live_enabled:
+        return ctx.card.ticks_remaining
     try:
         multiplier = int(ctx.review_action_multiplier)
     except (TypeError, ValueError):
         multiplier = 1
-    ticks_per_review = (
-        LIVE_COMBAT_TICKS_PER_REVIEW
-        if ctx.cadence_live_enabled
-        else COMBAT_BURST_TICKS
-    )
-    return ticks_per_review * max(1, multiplier)
+    return COMBAT_BURST_TICKS * max(1, multiplier)
 
 
 def _refresh_combat_levels(ctx: RuntimeActionContext, xp_rewards: Any) -> None:

@@ -1,10 +1,32 @@
-"""runtime_actions_context.py - split out of runtime_actions.py; see that module's header."""
+"""The per-card runtime context and the time budget a successful card buys.
+
+Decision 4: a card buys six game ticks per unit of game speed. Combat receives
+the whole budget in one call and spends it inside its own tick loop; every other
+handler takes one six-tick kernel step per call until the card is spent, the
+action stops, or a step ends the card through ``stop_card``. Split out of
+runtime_actions.py; see that module's header.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Mapping, Optional
+
+from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
+
+
+@dataclass
+class CardBudget:
+    """The game ticks left on one successful card.
+
+    Scoped copies of a context (``dataclasses.replace``) share this object, so a
+    step that ends the card inside the carried overlay ends it for the
+    dispatcher too.
+    """
+
+    ticks_remaining: int
+    stop_reason: str = ""
 
 
 @dataclass
@@ -38,3 +60,62 @@ class RuntimeActionContext:
     switch_to_bankstanding: Optional[Callable[..., None]] = None
     select_review_action: Optional[Callable[[str], bool]] = None
     refresh_carried_inventory: Optional[Callable[[], None]] = None
+    card: Optional[CardBudget] = None
+
+    def __post_init__(self) -> None:
+        if self.card is None:
+            speed = max(1, int(self.review_action_multiplier or 1))
+            self.card = CardBudget(LIVE_COMBAT_TICKS_PER_REVIEW * speed)
+
+
+def stop_card(ctx: RuntimeActionContext, reason: str) -> None:
+    """End the card after this step; its unspent ticks lapse."""
+    ctx.card.stop_reason = reason
+
+
+def activity_session_cleared(
+    before: Optional[Mapping[str, Any]],
+    after: Optional[Mapping[str, Any]],
+) -> bool:
+    """True when an active activity session ended (active_id -> empty).
+
+    The shared transition predicate for every boundary that finalizes an undo
+    snapshot after a session completes: the surface must land on Bankstanding
+    before the snapshot is taken so undo restores the former activity whole.
+    """
+    before_active = str((before or {}).get("active_id", "") or "")
+    after_active = str((after or {}).get("active_id", "") or "")
+    return bool(before_active) and not after_active
+
+
+def spend_card_budget(
+    ctx: RuntimeActionContext,
+    handler_key: str,
+    step: Callable[[RuntimeActionContext], Any],
+    *,
+    one_per_card: bool,
+    can_continue: Callable[[], bool],
+) -> bool:
+    """Spend the card on the selected action; return whether any step progressed.
+
+    ``can_continue`` reports, before every step after the first, whether the
+    same action is still selected and can start again.
+    """
+    budget = ctx.card
+    progressed = False
+    while budget.ticks_remaining >= LIVE_COMBAT_TICKS_PER_REVIEW and not budget.stop_reason:
+        if progressed and not can_continue():
+            break
+        before_session = dict(ctx.player_data.get("activity_session") or {})
+        result = step(ctx)
+        budget.ticks_remaining = (
+            0
+            if one_per_card or handler_key == "combat"
+            else budget.ticks_remaining - LIVE_COMBAT_TICKS_PER_REVIEW
+        )
+        if result is False:
+            break
+        progressed = True
+        if activity_session_cleared(before_session, ctx.player_data.get("activity_session")):
+            break
+    return progressed
