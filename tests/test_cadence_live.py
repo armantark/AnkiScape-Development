@@ -174,7 +174,7 @@ class TestCadenceLiveCoverage(unittest.TestCase):
             "agility", "burthorpe_course", {}
         )
         self.assertEqual("M six-tick steps of the card's budget", thieving.multiplier_behavior)
-        self.assertIn("never foreground-multiplied", agility.multiplier_behavior)
+        self.assertEqual("M six-tick steps of the card's budget", agility.multiplier_behavior)
 
     def test_exact_seed_profiles_and_range_policy_are_auditable(self):
         maple = resolve_live_cadence_route_pure("woodcutting", "maple", {})

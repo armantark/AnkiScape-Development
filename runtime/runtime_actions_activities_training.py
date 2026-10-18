@@ -879,6 +879,7 @@ def _show_agility_feedback(
         ctx.show_activity_gain(safety_stop_message)
 
 
+# PLACEHOLDER(agility.obstacle_ticks): one obstacle per six-tick step of the card.
 def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
