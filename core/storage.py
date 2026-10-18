@@ -7,6 +7,7 @@
 from aqt import mw
 from .constants import ITEM_DEFINITIONS, ORE_DATA
 from .storage_pure import default_player_data, migrate_loaded_data
+from ..logic.inventory_pure import clamp_carried_view_to_bank
 
 
 _PLAYER_DATA_KEY = "ankiscape_player_data"
@@ -50,5 +51,11 @@ def load_player_data():
 
 def save_player_data(player_data: dict, current_skill: str) -> None:
     """Persist player data and current skill to Anki config."""
+    if carried := player_data.get("carried_inventory"):
+        player_data["carried_inventory"] = {
+            target_id: clamped
+            for target_id, view in carried.items()
+            if (clamped := clamp_carried_view_to_bank(view, player_data.get("inventory")))
+        }
     _save_player_data_config(player_data)
     mw.col.set_config("ankiscape_current_skill", current_skill)

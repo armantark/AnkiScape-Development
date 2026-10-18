@@ -134,7 +134,7 @@ LIGHT_SOURCE_ACTIVITIES: Tuple[LightSourceActivity, ...] = (
     LightSourceActivity("light_bullseye_lantern", "Light bullseye lantern", "Bullseye lantern (unlit)", 4548, "Bullseye lantern (lit)", 4550, 49, "BULLSEYE_LANTERN", False, False),
     LightSourceActivity("light_sapphire_lantern", "Light sapphire lantern", "Sapphire lantern (unlit)", 4701, "Sapphire lantern (lit)", 4702, 49, "SAPPHIRE_LANTERN", False, False),
     LightSourceActivity("light_emerald_lantern", "Light emerald lantern", "Emerald lantern (unlit)", 9064, "Emerald lantern (lit)", 9065, 49, "EMERALD_LANTERN", False, False),
-    LightSourceActivity("light_mining_helmet", "Light mining helmet", "Mining helmet (unlit)", 5014, "Mining helmet (lit)", 5013, 65, "MINING_HELMET", True, True),
+    LightSourceActivity("light_mining_helmet", "Light mining helmet", "Mining helmet (unlit)", 5014, "Mining helmet (lit)", 5013, 65, "MINING_HELMET", True, False),
 )
 
 LIT_LIGHT_SOURCE_ITEMS: Tuple[str, ...] = tuple(
@@ -305,6 +305,9 @@ def firemaking_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "item_id": activity.lit_item_id,
             "tradeable": activity.lit_tradeable,
         }
+    # Rev-727/742 distinguish the wearable helmets from note item 5015.
+    items["Mining helmet (unlit)"]["stackable"] = False
+    items["Mining helmet (lit)"]["stackable"] = False
     return items
 
 

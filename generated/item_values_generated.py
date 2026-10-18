@@ -3798,7 +3798,7 @@ ITEM_VALUES_GENERATED = {
     'Flour': 2,
     'Flowers': 100,
     'Flowers of the dead': 1,
-    'Fly fishing rod': 50,
+    'Fly fishing rod': 5,
     'Flying Goblin Hat': 100,
     'Flypaper': 1,
     'Focus sight': 3000,

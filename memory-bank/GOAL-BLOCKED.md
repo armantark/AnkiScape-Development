@@ -43,9 +43,9 @@ The documented coordinate follow-up also failed on frozen source `84a5fd0d215dce
 
 The follow-up report, guard and all indexed artifacts were complete when the desktop thread-status connector became unavailable. Root recovered the sealed report over read-only SSH, verified all 32 indexed artifact hashes and the original frozen manifest bytes, and confirmed the input coordinates were inside the visible Collections label. The report explicitly released GUI and mirror ownership. Root then ran the unchanged shipped guard: exit 0, `unchanged: true`, empty changes and Anki stopped. The required after notice was sent. Retained follow-up evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/84a5fd0d215dcea7d433db092fc988cb8b278ed4/native-collections-coordinate-followup/retention-manifest.json`.
 
-The menu candidate now integrates main `b40f6c7af4f5adce580db1c1cc14efbc1e82f147`. Its runtime files remain identical to frozen native source `84a5fd0d215dcea7d433db092fc988cb8b278ed4`; only Memory Bank records changed. Exact merged candidate `8d8888be054424ad68e1b156523b25edc1d32ed1` passed all nine official promotion checks at `2026-10-07T01:56:44-07:00`. Its receipt records `remote_lanes=true` and `plain_only=false`. Astra and Kimi approved the new evidence record. Retained gate evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/8d8888be054424ad68e1b156523b25edc1d32ed1/merged-runtime-gate/retention-manifest.json`. Root released the mirror after the gate. Native acceptance remains incomplete. Runtime promotion is blocked on [the owner decision](design-thread-queue.md#open-owner-question--2026-10-07-collections-native-acceptance). The owner must permit this candidate with Collections proof open, or retain complete Collections proof as a prerequisite. No exception or broader UI repair is authorized. Existing successful product verification must not repeat for this record update.
+The menu candidate now integrates main `b40f6c7af4f5adce580db1c1cc14efbc1e82f147`. Its runtime files remain identical to frozen native source `84a5fd0d215dcea7d433db092fc988cb8b278ed4`; only Memory Bank records changed. Exact merged candidate `8d8888be054424ad68e1b156523b25edc1d32ed1` passed all nine official promotion checks at `2026-10-07T01:56:44-07:00`. Its receipt records `remote_lanes=true` and `plain_only=false`. Astra and Kimi approved the new evidence record. Retained gate evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/8d8888be054424ad68e1b156523b25edc1d32ed1/merged-runtime-gate/retention-manifest.json`. Root released the mirror after the gate. Native acceptance remains incomplete. The owner answered the acceptance question on2026-10-15: ruling 2906 excuses Collections content for this candidate only, after a fresh merge onto current main and a new full gate. The separate Collections crash has high priority. No broader UI repair is authorized. Existing successful product verification must not repeat for this record update.
 
-Retained native evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/84a5fd0d215dcea7d433db092fc988cb8b278ed4/native-menu-check/retention-manifest.json`. The unchanged native report is in that directory under `native-result-menu84/native-check-report.md`. The single missing item is native selected-content proof for Collections at both widths on the frozen source through a working GUI capture route, under the unchanged guard. Existing successful behavior proof stays valid and will not be rerun for bookkeeping. No broader UI repair is authorized. Other runtime slices retain their own native and promotion gates.
+Retained native evidence: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/84a5fd0d215dcea7d433db092fc988cb8b278ed4/native-menu-check/retention-manifest.json`. The unchanged native report is in that directory under `native-result-menu84/native-check-report.md`. Ruling2906 now excuses the missing selected-content proof for Collections for this candidate only. Fresh merge and full gate remain required; the crash is separate work. Existing successful behavior proof stays valid and will not be rerun for bookkeeping. No broader UI repair is authorized. Other runtime slices retain their own native and promotion gates.
 
 The historical documentation promotion gate for `3e714e2e15dba3281b46422ff6490b8821e798cf` exited 2: `audit_docs` exited 1 and reported `Documentation audit found 6 issue(s).` The log identifies an unbulleted papercut and `broken_html_target: shared-cap-results-2026-10-03.mp4`. Both remote lanes completed, but the documentation gate failed. That failed candidate did not land. The exact logs and failed execution record are retained at `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/ankiscape-promotion-evidence/3e714e2e15dba3281b46422ff6490b8821e798cf/documentation-gate-failure-2026-10-06/retention-manifest.json`. The documentation issues were repaired. Documentation source `cdf04546d0e155670ceb33abb69ba46893f025ec` then passed all nine checks and landed through the official gate; its receipt records `remote_lanes=true` and `plain_only=false`. No runtime source landed in that documentation slice.
 
@@ -82,7 +82,11 @@ Historical 2026-10-13 Salt startup evidence in dc4036df83a2f95146c0f2748833e5c42
 
 ## Cold War ordinary route — current per-slice hold, 2026-10-14
 
-The [fresh source qualification](source-audits/cold-war-ordinary-route-2026-10-14.md) verifies table and recipe values but finds no ordinary stage-1 emitter. Period pins, existing state/action/Construction/Crafting seams and retained world contracts were checked. The first unblocking item is the owner’s Anki representation for the personal greeting. Book prerequisite and manufactured suit identity remain separate source disputes. This blocks the complete dependent route, preserves the accepted ring option and does not stop independent goal work.
+Current disposition after the owner rulings, 2026-10-15: The owner settled the greeting on 2026-10-14: retain it in the quest journal; the player need not produce it. The book prerequisite and suit IDs 10595/10596 remain source disputes. The absent ordinary stage-1 emitter also blocks the complete dependent route. The greeting ruling does not qualify that route or supply an emitter. The personal greeting is no longer an owner blocker. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> The [fresh source qualification](source-audits/cold-war-ordinary-route-2026-10-14.md) verifies table and recipe values but finds no ordinary stage-1 emitter. Period pins, existing state/action/Construction/Crafting seams and retained world contracts were checked. The first unblocking item is the owner’s Anki representation for the personal greeting. Book prerequisite and manufactured suit identity remain separate source disputes. This blocks the complete dependent route, preserves the accepted ring option and does not stop independent goal work.
 
 ## Current import native hold — 2026-10-14T13:37:44.186051+00:00
 
@@ -90,11 +94,19 @@ Exact merged e3ba45acff9669e1ffed7589ca8ec201463cd94b passed all nine full remot
 
 ## First Resort stage4 hold — 2026-10-14T13:37:44.186051+00:00
 
-Independent Astra review BLOCKED the returned candidate based on `77e3b62aa785ebdecb2d70c03bdb97f053b404df`, now preserved at `96a0aa6ffa933038aaf131bb8f6c9e66b5012859`: F1 mixed-fur aggregation has no explicit qualified authority; F2 tatty-first debit selects an unapproved surplus policy; F3 progress5 strikes future Seegud/plant journal actions without performing them. Existing UI/journal changes remain excluded. Original full plain receipt and all10 dirty hashes match; exact helper moves and the stage3 test retain qualified coverage. F4 identifies three audit readers that omit pool gates/debits. Those repairs must follow the settled pool contract, with caps and pinned baselines unchanged. Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/first-resort-stage4/source-review-1/verdict.json. One unblocking item for the held representation: an owner-approved stage4 handoff contract that settles fur aggregation/debit and truthful journal completion. Candidate preserved; no source acceptance, native/gate/landing or UI authority.
+Current disposition after the owner rulings, 2026-10-15: The 2026-10-15 ruling clears F2 and F3: spend tatty furs first as a declared abstraction, and correct the completed-stage text under R1. Qualify any remaining F1 mixed-fur aggregation policy and complete the F4 audit-reader repairs under the existing pool contract. No native, source or promotion acceptance is inferred. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Independent Astra review BLOCKED the returned candidate based on `77e3b62aa785ebdecb2d70c03bdb97f053b404df`, now preserved at `96a0aa6ffa933038aaf131bb8f6c9e66b5012859`: F1 mixed-fur aggregation has no explicit qualified authority; F2 tatty-first debit selects an unapproved surplus policy; F3 progress5 strikes future Seegud/plant journal actions without performing them. Existing UI/journal changes remain excluded. Original full plain receipt and all10 dirty hashes match; exact helper moves and the stage3 test retain qualified coverage. F4 identifies three audit readers that omit pool gates/debits. Those repairs must follow the settled pool contract, with caps and pinned baselines unchanged. Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/first-resort-stage4/source-review-1/verdict.json. One unblocking item for the held representation: an owner-approved stage4 handoff contract that settles fur aggregation/debit and truthful journal completion. Candidate preserved; no source acceptance, native/gate/landing or UI authority.
 
 ## Giant Dwarf opening hold — 2026-10-14T13:37:44.186051+00:00
 
-Fresh qualification finds the first complete stage1 journal boundary includes the library climb, whose less-than30kg gate has no settled Anki load representation. The current helper treats unknown item weights as0; no complete real-weight source table is qualified. Reused local pins qualify the ferry as free and3000Coins as route budget, not a start payment. NW/NE bookcase disagreement is conditional on exact geometry. Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/giant-dwarf-opening-qualification-1/verdict.json. One first unblocking item: the owner-approved library load model. A real-weight choice additionally requires the complete qualified weight source; no default-zero substitute or partial stage1 claim. Independent Fenkenstrain implementation continues.
+Current disposition after the owner rulings, 2026-10-15: The owner settled the load model under R3 on 2026-10-15. Check every carried and worn item; above 30 kg, refuse and show the reason. Complete qualified item weights remain engineering/source work. Unknown weight must never count as zero. Another Slice and Chosen Commander retain this dependency. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Fresh qualification finds the first complete stage1 journal boundary includes the library climb, whose less-than30kg gate has no settled Anki load representation. The current helper treats unknown item weights as0; no complete real-weight source table is qualified. Reused local pins qualify the ferry as free and3000Coins as route budget, not a start payment. NW/NE bookcase disagreement is conditional on exact geometry. Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/giant-dwarf-opening-qualification-1/verdict.json. One first unblocking item: the owner-approved library load model. A real-weight choice additionally requires the complete qualified weight source; no default-zero substitute or partial stage1 claim. Independent Fenkenstrain implementation continues.
 
 ## NPC-shop original reproduction hold resolved — 2026-10-15
 
@@ -106,47 +118,83 @@ The current prerequisite graph and retained source registry/period/Darkan record
 
 ## Fenkenstrain paid-route eligibility hold — 2026-10-14T16:10:19.388204+00:00
 
-Blocked: source acceptance of the separate50Coin Roavar purchase in correction0a962cbcd5a4f16f252d57e32275616f4e18b0b1. Tried: retained target contract, walkthrough6535792, Roavar6225365, Brain6174247, game-main shop and reconstructed Darkan dialogue/Git provenance. The candidate allows pre-interview purchase; Darkan refuses, and the inspected period packet corroborates neither exact boundary. Single unblocking fact: an independently corroborated pre-EOC statement whether Roavar sells before the accepted Fenkenstrain interview. Owner authorization of an explicit AnkiScape abstraction is a separate recorded resolution, never period parity. F1-F5 are addressed; final5335-test plain proof is preserved, seven neighbor skips are qualified, two stopped receipts remain pending/excluded, and no copy/taste/native/gate/land acceptance exists. Retained105-file packet: /Users/armantarkhanian/Documents/AnkiScape/.git/ankiscape-promotion-evidence/0a962cbcd5a4f16f252d57e32275616f4e18b0b1/fenkenstrain-source-blocked-correction/retention-manifest.json, SHA2564fce944155b4759cfdc2734b174ffbe368c73e00b9d5fa5f1f0c6c56d1142601. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/fenkenstrain-stage2/source-review-2/verdict.json. This per-slice hold does not stop independent work.
+Current disposition after the owner rulings, 2026-10-15: The owner settled the missing timing as an AnkiScape abstraction on 2026-10-15: Roavar sells at the stage that asks for the purchase, after the accepted interview. Implement and register that abstraction; do not claim recovered period timing. Preserve all existing custody, guard and acceptance requirements. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Blocked: source acceptance of the separate50Coin Roavar purchase in correction0a962cbcd5a4f16f252d57e32275616f4e18b0b1. Tried: retained target contract, walkthrough6535792, Roavar6225365, Brain6174247, game-main shop and reconstructed Darkan dialogue/Git provenance. The candidate allows pre-interview purchase; Darkan refuses, and the inspected period packet corroborates neither exact boundary. Single unblocking fact: an independently corroborated pre-EOC statement whether Roavar sells before the accepted Fenkenstrain interview. Owner authorization of an explicit AnkiScape abstraction is a separate recorded resolution, never period parity. F1-F5 are addressed; final5335-test plain proof is preserved, seven neighbor skips are qualified, two stopped receipts remain pending/excluded, and no copy/taste/native/gate/land acceptance exists. Retained105-file packet: /Users/armantarkhanian/Documents/AnkiScape/.git/ankiscape-promotion-evidence/0a962cbcd5a4f16f252d57e32275616f4e18b0b1/fenkenstrain-source-blocked-correction/retention-manifest.json, SHA2564fce944155b4759cfdc2734b174ffbe368c73e00b9d5fa5f1f0c6c56d1142601. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/fenkenstrain-stage2/source-review-2/verdict.json. This per-slice hold does not stop independent work.
 
 ## Remaining inspected quest boundaries — 2026-10-14T16:32:51.867892+00:00
 
-Tried: independent selected-quest/source/journal/prerequisite/material qualification in /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2, verdictSHA2562f8283a5e3a8778857acc31d0ff64f7439d9a60fced8f815f322a08e1dbb45dc.
+Current disposition after the owner rulings, 2026-10-15: The 2026-10-15 rulings clear the listed owner scope holds. Murder Mystery uses R1/R2; Tower of Life uses R1. Recruitment Drive uses R3: no carried or worn items at entry, a nonempty Bank is allowed, and the period test set uses the game’s seeded random source. Source disputes and ordinary route implementation remain work. See [the answered decisions](design-thread-queue.md).
 
-murder_mystery blocked: owner_gated_first_journal_boundary. Single first unblock: Recorded owner authorization to replace the table-of-contents-only first journal block with the sourced guard opening.
+Evidence before these rulings:
 
-recruitment_drive blocked: source_and_owner_gated_tiffy_entry_model. Single first unblock: An AnkiScape owner ruling names the permitted five-of-seven test-selection model at Tiffy entry and settles compatibility with the existing fixed journal.
-
-tower_of_life blocked: owner_gated_missing_opening_journal_answers. Single first unblock: Recorded owner authorization to repair the omitted Black-eye answers and immediate Bonafido answer text in the existing journal.
-
-No product checks ran. Ordinary material/prerequisite writers are qualified within the report; missing backend implementation is not an external blocker. Later unresolved mechanics stay separate. All other roots remain uninspected, so these domain holds never stop the goal.
+> Tried: independent selected-quest/source/journal/prerequisite/material qualification in /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2, verdictSHA2562f8283a5e3a8778857acc31d0ff64f7439d9a60fced8f815f322a08e1dbb45dc.
+>
+> murder_mystery blocked: owner_gated_first_journal_boundary. Single first unblock: Recorded owner authorization to replace the table-of-contents-only first journal block with the sourced guard opening.
+>
+> recruitment_drive blocked: source_and_owner_gated_tiffy_entry_model. Single first unblock: An AnkiScape owner ruling names the permitted five-of-seven test-selection model at Tiffy entry and settles compatibility with the existing fixed journal.
+>
+> tower_of_life blocked: owner_gated_missing_opening_journal_answers. Single first unblock: Recorded owner authorization to repair the omitted Black-eye answers and immediate Bonafido answer text in the existing journal.
+>
+> No product checks ran. Ordinary material/prerequisite writers are qualified within the report; missing backend implementation is not an external blocker. Later unresolved mechanics stay separate. All other roots remain uninspected, so these domain holds never stop the goal.
 
 ## Ghosts Ahoy opening hold — 2026-10-14
 
-Blocked: complete ordinary Port-entry/Velorina opening. Tried: retained build727/pre-EOC pages, harvest, target contract, current prerequisites, Prayer writer and first journal. The fare has one inspected wiki lineage and no independently qualified rule; the journal is generic. Single first unblock: independent period-qualified standard Port entry charge and its pre-quest applicability. Existing-journal scope stays a separate owner hold. [Exact evidence](source-audits/quest-opening-boundaries-2026-10-14.md). Other independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 settle the first-journal authority and first performed-deed endpoint. The independent period Port-entry fare and its pre-quest applicability remain the source hold. No fee is invented. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Blocked: complete ordinary Port-entry/Velorina opening. Tried: retained build727/pre-EOC pages, harvest, target contract, current prerequisites, Prayer writer and first journal. The fare has one inspected wiki lineage and no independently qualified rule; the journal is generic. Single first unblock: independent period-qualified standard Port entry charge and its pre-quest applicability. Existing-journal scope stays a separate owner hold. [Exact evidence](source-audits/quest-opening-boundaries-2026-10-14.md). Other independent work continues.
 
 ## Horror from the Deep opening hold — 2026-10-14
 
-Blocked: faithful eligibility plus stage1 Larrissa/Barbarian handoff. Tried: ruling50, both retained period pages, target/cache records and live eligibility/readout consumers. Prayer43 is settled as optional; current hard gate and visible Requires text contradict that contract. Single unblock: recorded authorization to correct the existing requirement readout while applying ruling50. No Prayer-policy re-grill or UI authority is inferred. [Exact evidence](source-audits/quest-opening-boundaries-2026-10-14.md). Other independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1 settles the readout authority under ruling 50: Prayer43 is recommended. Apply the qualified eligibility repair and complete the ordinary stage-1 route. No owner scope question remains here. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Blocked: faithful eligibility plus stage1 Larrissa/Barbarian handoff. Tried: ruling50, both retained period pages, target/cache records and live eligibility/readout consumers. Prayer43 is settled as optional; current hard gate and visible Requires text contradict that contract. Single unblock: recorded authorization to correct the existing requirement readout while applying ruling50. No Prayer-policy re-grill or UI authority is inferred. [Exact evidence](source-audits/quest-opening-boundaries-2026-10-14.md). Other independent work continues.
 
 ## Garden of Tranquillity opening hold — 2026-10-14
 
-Blocked: complete commission/list and Wise Old Man test/ring activation. Tried: retained oldid6541904, target contract, all seven source answers, live first journal, prerequisites and consumers. The journal omits all answers and no quiz/retry model is owner-approved. Single first unblock: recorded owner authorization for the answer repair and complete quiz representation. Fenkenstrain completion/ring custody and spare-ring ordering remain separate holds. [Evidence](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Other independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1 authorizes the seven sourced answers. R3 requires the actual Wise Old Man quiz and period wrong-answer retry rule. Opus authors the new interaction and a frontend-taste model reviews it. Fenkenstrain, ring custody and spare-ring ordering remain separate dependencies. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Blocked: complete commission/list and Wise Old Man test/ring activation. Tried: retained oldid6541904, target contract, all seven source answers, live first journal, prerequisites and consumers. The journal omits all answers and no quiz/retry model is owner-approved. Single first unblock: recorded owner authorization for the answer repair and complete quiz representation. Fenkenstrain completion/ring custody and spare-ring ordering remain separate holds. [Evidence](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Other independent work continues.
 
 ## A Tail of Two Cats opening hold — 2026-10-14
 
-Blocked: complete source-backed opening at Unferth/Hild. Tried: retained oldid6430177, target contract, live generic first journal, ordinary prerequisite/companion/amulet chain and journal consumers. Single first unblock: recorded owner authorization for the first journal and exact Unferth-only or included Hild boundary. Existing pet and prerequisite holds remain separate; no source-stage copy or spatial proxy is authorized. [Evidence](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Other independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 settle the sourced journal and first performed-deed endpoint. Existing pet, prerequisite and ordinary acquisition holds remain. Do not copy a source section number into a stage endpoint. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Blocked: complete source-backed opening at Unferth/Hild. Tried: retained oldid6430177, target contract, live generic first journal, ordinary prerequisite/companion/amulet chain and journal consumers. Single first unblock: recorded owner authorization for the first journal and exact Unferth-only or included Hild boundary. Existing pet and prerequisite holds remain separate; no source-stage copy or spatial proxy is authorized. [Evidence](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md). Other independent work continues.
 
 ## Monkey Madness first boundary — 2026-10-15
 
-Blocked: a faithful complete opening under unchanged existing UI. Tried: current journal/cleanup/start/readout consumers, both retained period pages and cache evidence; Root verified27 packet bindings. The first journal is generic and Prayer43/Thieving10 are falsely mandatory. Single unblock: owner authorization for the exact sourced first-journal boundary and requirement-readout correction. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 settle the sourced first journal and readout/gate authority. Prayer43 and Thieving10 recommendations must not be start gates. Complete source-qualified deeds and ordinary inputs remain implementation work. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Blocked: a faithful complete opening under unchanged existing UI. Tried: current journal/cleanup/start/readout consumers, both retained period pages and cache evidence; Root verified27 packet bindings. The first journal is generic and Prayer43/Thieving10 are falsely mandatory. Single unblock: owner authorization for the exact sourced first-journal boundary and requirement-readout correction. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Independent work continues.
 
 ## Desert Treasure requirement readout — 2026-10-15
 
-Blocked: source-correct opening with the existing visible requirement list. Tried: current full first journal/start/readout, retained walkthroughs, Questreq and cache. Mining50 is optional and four direct prerequisites are omitted. Single unblock: owner authorization for the existing requirement-readout correction with the source-qualified gate repair. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). No later material/transport dependency is claimed solved; independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1 settles the requirement readout and qualified gate repair. Mining50 is optional; retain the qualified direct prerequisites. Later materials and transport remain independent source/route work. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Blocked: source-correct opening with the existing visible requirement list. Tried: current full first journal/start/readout, retained walkthroughs, Questreq and cache. Mining50 is optional and four direct prerequisites are omitted. Single unblock: owner authorization for the existing requirement-readout correction with the source-qualified gate repair. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). No later material/transport dependency is claimed solved; independent work continues.
 
 ## Do No Evil first journal — 2026-10-15
 
-Blocked: an authentic opening under the existing contents-only first journal. Tried: final quest composition, retained oldid6587790 and actual journals, current owner records; Root verified25 round4 bindings. Single unblock: owner authorization for the sourced replacement first journal and exact complete opening boundary. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). Later clue and ordinary prerequisite routes remain separate; independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 settle the sourced journal and first performed-deed endpoint. The elite-clue owner decision and ordinary prerequisite routes remain separate; no later deed or restoration is seeded. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Blocked: an authentic opening under the existing contents-only first journal. Tried: final quest composition, retained oldid6587790 and actual journals, current owner records; Root verified25 round4 bindings. Single unblock: owner authorization for the sourced replacement first journal and exact complete opening boundary. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). Later clue and ordinary prerequisite routes remain separate; independent work continues.
 
 ## Mourning's End Part II ordinary access — 2026-10-15
 
@@ -154,27 +202,43 @@ Blocked: ordinary PartI completion/full disguise before the sourced New key hand
 
 ## Four later quest opening holds — 2026-10-15
 
-Root tried retained final-composition, period-page, prerequisite and NPC-source qualification. [The exact record](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) binds all reports and first unblocks. Ritual: owner-authorized first journal and exact stage1 boundary. Hallowvale: owner-authorized source-correct ordinary In Search journal boundary. Clockwork: independently corroborated level188 Barrelchest MkII combat block. Blood: owner-authorized Horror requirement readout correction under settled ruling50. These are per-root holds; independent tooling and remaining authorized depth continue.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 clear Ritual journal scope, the Myreque journal scope inherited by Hallowvale, and the Horror readout scope inherited by Blood. The independent level188 Barrelchest MkII combat block remains the Clockwork source hold. Ordinary route and source work remain per root. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root tried retained final-composition, period-page, prerequisite and NPC-source qualification. [The exact record](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) binds all reports and first unblocks. Ritual: owner-authorized first journal and exact stage1 boundary. Hallowvale: owner-authorized source-correct ordinary In Search journal boundary. Clockwork: independently corroborated level188 Barrelchest MkII combat block. Blood: owner-authorized Horror requirement readout correction under settled ruling50. These are per-root holds; independent tooling and remaining authorized depth continue.
 
 ## Forgettable Tale first-journal hold — 2026-10-15
 
-Tried final-composed journal/requirements, both retained period pages, external reconstruction and ordinary prerequisite evidence. The live journal remains a generic objective. Single first unblock: owner authorization for its sourced first journal and exact stage1 endpoint. [The exact record](source-audits/forgettable-opening-boundary-2026-10-15.md) binds the original evidence. Later roots remain uninspected; independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 authorize the sourced journal and first performed-deed endpoint. A talk-only commission does not end stage 1. The actual Giant Dwarf weight-source dependency remains separate. See [the answered decisions](design-thread-queue.md).
 
+Evidence before these rulings:
+
+> Tried final-composed journal/requirements, both retained period pages, external reconstruction and ordinary prerequisite evidence. The live journal remains a generic objective. Single first unblock: owner authorization for its sourced first journal and exact stage1 endpoint. [The exact record](source-audits/forgettable-opening-boundary-2026-10-15.md) binds the original evidence. Later roots remain uninspected; independent work continues.
 
 ## Goblins and Legends openings — 2026-10-15
 
-Land of the Goblins is dependency-held by The Giant Dwarf's existing library-load owner decision. Tried: actual composed prose/cleanup, ordinary prerequisite list and period oldid6564799. Single first unblock: the existing owner-approved library-load model; no partial-weight substitute. Legends' Quest is held on its existing requirement-readout scope. Tried: composed eligibility/readout consumers and oldid6529921 lines27–40/110–115. Single first unblock: owner authorization for that readout correction with source-qualified eligibility repair. Ordinary prerequisite, material and quest-point qualification remains after these first holds. [Exact evidence](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md). These per-root holds do not establish exhaustion.
+Current disposition after the owner rulings, 2026-10-15: R3 settles the Giant Dwarf load model; complete item weights still block that dependency. R1 settles Legends readout and qualified gate repair. Real prerequisites, materials and quest points remain to qualify. See [the answered decisions](design-thread-queue.md).
 
+Evidence before these rulings:
+
+> Land of the Goblins is dependency-held by The Giant Dwarf's existing library-load owner decision. Tried: actual composed prose/cleanup, ordinary prerequisite list and period oldid6564799. Single first unblock: the existing owner-approved library-load model; no partial-weight substitute. Legends' Quest is held on its existing requirement-readout scope. Tried: composed eligibility/readout consumers and oldid6529921 lines27–40/110–115. Single first unblock: owner authorization for that readout correction with source-qualified eligibility repair. Ordinary prerequisite, material and quest-point qualification remains after these first holds. [Exact evidence](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md). These per-root holds do not establish exhaustion.
 
 ## Favour and Summer openings — 2026-10-15
 
-One Small Favour is held on existing prerequisite-readout scope. Tried: actual full prose/gate/readout, period walkthrough6546338, Questreq6552449 and cache struct593 slots13/99. Single first unblock: owner authorization for the Rune Mysteries requirement-readout correction with the source-qualified gate. Summer's End is held on first-journal scope. Tried: generic actual journal, final supply alternatives and period6560166/6534090. Single first unblock: owner-approved sourced first journal and exact stage1 endpoint. Ordinary routes and supplies remain to qualify after these scope holds. [Exact evidence](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md). The eight other retained candidate names remain uninspected; no exhaustion claim.
+Current disposition after the owner rulings, 2026-10-15: R1 settles One Small Favour readout authority, including qualified Rune Mysteries eligibility. R1/R2 settle Summer’s End first journal and performed-deed endpoint. Ordinary routes and supplies remain to qualify. See [the answered decisions](design-thread-queue.md).
 
+Evidence before these rulings:
+
+> One Small Favour is held on existing prerequisite-readout scope. Tried: actual full prose/gate/readout, period walkthrough6546338, Questreq6552449 and cache struct593 slots13/99. Single first unblock: owner authorization for the Rune Mysteries requirement-readout correction with the source-qualified gate. Summer's End is held on first-journal scope. Tried: generic actual journal, final supply alternatives and period6560166/6534090. Single first unblock: owner-approved sourced first journal and exact stage1 endpoint. Ordinary routes and supplies remain to qualify after these scope holds. [Exact evidence](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md). The eight other retained candidate names remain uninspected; no exhaustion claim.
 
 ## Darkmeyer and Commander openings — 2026-10-15
 
-Darkmeyer inherits the Myreque route scope hold. Tried: actual complete checklist/prerequisite consumers, oldid6588545/6382275 and the retained fare-boundary qualification. Single first unblock: the existing owner-approved source-correct In Search stage1-to2 journal boundary. Chosen Commander inherits the Giant Dwarf route hold. Tried: actual complete investigation/prerequisite consumers, oldid6556184 and the already-qualified Land/Giant Dwarf decision. Single first unblock: the existing owner-approved library-load model. Later exact mechanics, custody and journal copy remain unaccepted. [Exact evidence](source-audits/darkmeyer-and-commander-opening-boundaries-2026-10-15.md). No whole-goal exhaustion.
+Current disposition after the owner rulings, 2026-10-15: R1 clears the inherited Myreque journal authority and Chosen Commander food-list copy authority. R3 settles Giant Dwarf weight semantics; missing item weights remain a dependency. Exact mechanics, ordinary custody and complete route implementation remain work. See [the answered decisions](design-thread-queue.md).
 
+Evidence before these rulings:
+
+> Darkmeyer inherits the Myreque route scope hold. Tried: actual complete checklist/prerequisite consumers, oldid6588545/6382275 and the retained fare-boundary qualification. Single first unblock: the existing owner-approved source-correct In Search stage1-to2 journal boundary. Chosen Commander inherits the Giant Dwarf route hold. Tried: actual complete investigation/prerequisite consumers, oldid6556184 and the already-qualified Land/Giant Dwarf decision. Single first unblock: the existing owner-approved library-load model. Later exact mechanics, custody and journal copy remain unaccepted. [Exact evidence](source-audits/darkmeyer-and-commander-opening-boundaries-2026-10-15.md). No whole-goal exhaustion.
 
 ## Jad first full merged verification — 2026-10-15
 
@@ -191,35 +255,67 @@ Blocked: complete Phoenix-to-Flint opening. Retained full/quick wiki guides are 
 
 ## Slug and Senntisten openings — 2026-10-15
 
-Root verified25 source bindings in [the bounded qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md). Slug Menace needs one owner ruling authorizing its sourced replacement first journal and exact Tiffy-versus-investigation endpoint; current materials/generic sentinel cannot choose it. Temple at Senntisten inherits the verified actual Desert Treasure dependency and its existing owner requirement-readout/start-gate hold. Neither has code, seeded ordinary acquisition or gameplay acceptance. The final two retained names remain uninspected; independent goal work continues.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 settle Slug Menace first-journal authority and performed-deed endpoint. R1 clears the Desert Treasure readout scope inherited by Senntisten. Source-qualified prerequisites, materials and complete ordinary deeds remain work. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified25 source bindings in [the bounded qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md). Slug Menace needs one owner ruling authorizing its sourced replacement first journal and exact Tiffy-versus-investigation endpoint; current materials/generic sentinel cannot choose it. Temple at Senntisten inherits the verified actual Desert Treasure dependency and its existing owner requirement-readout/start-gate hold. Neither has code, seeded ordinary acquisition or gameplay acceptance. The final two retained names remain uninspected; independent goal work continues.
 
 ## TokTz and Animal Magnetism openings — 2026-10-15
 
-Root verified24 source bindings for [these first-journal scope holds](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md). TokTz needs one owner ruling for its sourced replacement first journal and exact briefing-versus-permission endpoint. Animal Magnetism needs one owner ruling for a sourced first-journal endpoint and existing stage2 overlap; its current stage1 is only contents headings. Later gate/custody/source qualifications remain. No implementation or whole-goal exhaustion follows; the consumed shortlist is not the full candidate set.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 settle both sourced first journals and first performed-deed endpoints. Move opening deeds into stage 1. Preserve later material, gate, custody and source qualifications; no talk-only stage credit. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified24 source bindings for [these first-journal scope holds](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md). TokTz needs one owner ruling for its sourced replacement first journal and exact briefing-versus-permission endpoint. Animal Magnetism needs one owner ruling for a sourced first-journal endpoint and existing stage2 overlap; its current stage1 is only contents headings. Later gate/custody/source qualifications remain. No implementation or whole-goal exhaustion follows; the consumed shortlist is not the full candidate set.
 
 ## Eadgar and Workshop III openings — 2026-10-15
 
-Root verified26 source and10 prior-report bindings in [round15](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md). Eadgar needs one owner authorization for the Prayer40 requirement-readout correction, with independent exact gate qualification still open. WorkshopIII needs one owner ruling for a source-correct first journal and complete opening endpoint; its current journal and book action describe different boundaries. No seeded route, silent visible change or gameplay acceptance. The remaining18 retained candidates are order-only and independent work continues.
+Current disposition after the owner rulings, 2026-10-15: R1 clears Eadgar’s recommended-level readout/gate scope. R1/R2 clear Workshop III journal/endpoint authority. Independent eligibility, book identity, custody and ordinary route qualification remain work. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified26 source and10 prior-report bindings in [round15](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md). Eadgar needs one owner authorization for the Prayer40 requirement-readout correction, with independent exact gate qualification still open. WorkshopIII needs one owner ruling for a source-correct first journal and complete opening endpoint; its current journal and book action describe different boundaries. No seeded route, silent visible change or gameplay acceptance. The remaining18 retained candidates are order-only and independent work continues.
 
 ## Love Story and Evil Dave dependencies — 2026-10-15
 
-Root verified29 bindings in [round16](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md). Love Story inherits One Small Favour's owner readout/source-qualified gate hold through the actual hand-authored Swan Song prerequisite. Evil Dave needs one owner ruling for the actual Another Cook generic first journal and exact complete sourced endpoint; its2025 pin is not period evidence, with retained2012 replacement-source qualification still work. Both selected first journals are concrete and must be performed completely. No code, seeded route, native or gameplay acceptance; later16 retained names remain order-only.
+Current disposition after the owner rulings, 2026-10-15: R1 clears the One Small Favour readout scope inherited by Love Story. R1/R2 clear Another Cook journal/endpoint scope inherited by Evil Dave. Replace the 2025 source pin with qualified period evidence before a parity claim; all complete deeds remain necessary. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified29 bindings in [round16](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md). Love Story inherits One Small Favour's owner readout/source-qualified gate hold through the actual hand-authored Swan Song prerequisite. Evil Dave needs one owner ruling for the actual Another Cook generic first journal and exact complete sourced endpoint; its2025 pin is not period evidence, with retained2012 replacement-source qualification still work. Both selected first journals are concrete and must be performed completely. No code, seeded route, native or gameplay acceptance; later16 retained names remain order-only.
 
 ## Awowogei and Rocking Out openings — 2026-10-15
 
-Root verified29 bindings and three exact source extracts in [round17](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md). Awowogei needs one owner ruling for its own sourced first journal and complete endpoint. Rocking Out actually requires Another Cook and inherits that generic-journal hold. All nine Rocking Out opening deeds remain necessary; its existing customs-office auto_action is incomplete. Variable/fixed customs-answer conflict and source-qualified gate/custody repairs remain later work. No new code or gameplay acceptance; later14 retained names are order-only.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 settle Awowogei and Another Cook first-journal authority. Rocking Out still requires all nine opening deeds; its incomplete customs action and variable/fixed-answer source conflict remain work. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified29 bindings and three exact source extracts in [round17](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md). Awowogei needs one owner ruling for its own sourced first journal and complete endpoint. Rocking Out actually requires Another Cook and inherits that generic-journal hold. All nine Rocking Out opening deeds remain necessary; its existing customs-office auto_action is incomplete. Variable/fixed customs-answer conflict and source-qualified gate/custody repairs remain later work. No new code or gameplay acceptance; later14 retained names are order-only.
 
 ## Royal Trouble and The Dig Site openings — 2026-10-15
 
-Root verified37 bindings and both exact source bodies in [round18](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). Royal Trouble needs owner authorization for its sourced first journal and exact complete endpoint. The Dig Site initial-grant hold is resolved: original Darkan03ca4d17 plus the pinned period wiki corroborates that affirmative action. The iteration93 derivation premise was false. Broader custody, transaction and earned-route qualification remains work, with no invented replacement blocker. No global absence or goal stop follows. Later12 retained names remain order-only; independent qualification continues.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 clear Royal Trouble journal and performed-deed endpoint scope. Dig Site initial grant remains source-qualified; broader custody, transactions and ordinary routes remain work. Do not invent a replacement blocker. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified37 bindings and both exact source bodies in [round18](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). Royal Trouble needs owner authorization for its sourced first journal and exact complete endpoint. The Dig Site initial-grant hold is resolved: original Darkan03ca4d17 plus the pinned period wiki corroborates that affirmative action. The iteration93 derivation premise was false. Broader custody, transaction and earned-route qualification remains work, with no invented replacement blocker. No global absence or goal stop follows. Later12 retained names remain order-only; independent qualification continues.
 
 ## Elder Kiln, Wanted, Watchtower and While Guthix Sleeps — 2026-10-15
 
-Root verified round19's30 bindings/three literal bodies and round20's27 bindings/three bodies. [Elder Kiln and Wanted](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md): Elder Kiln needs owner first-journal/endpoint scope; Wanted needs owner requirement-readout correction scope with the exact partial Lost Tribe gate still source-unqualified. [Watchtower and WGS](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md): Watchtower needs owner first-journal/endpoint scope; WGS inherits its actual Wanted dependency hold. Single first unblocks remain per slice. No seeded route, implementation or global stop follows. Later retained names and complete Dig Site qualification remain independent work.
+Current disposition after the owner rulings, 2026-10-15: R1/R2 clear Elder Kiln and Watchtower journal scope. R1 clears Wanted readout authority, but the exact partial Lost Tribe threshold stays source-held. While Guthix Sleeps retains that actual dependency. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified round19's30 bindings/three literal bodies and round20's27 bindings/three bodies. [Elder Kiln and Wanted](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md): Elder Kiln needs owner first-journal/endpoint scope; Wanted needs owner requirement-readout correction scope with the exact partial Lost Tribe gate still source-unqualified. [Watchtower and WGS](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md): Watchtower needs owner first-journal/endpoint scope; WGS inherits its actual Wanted dependency hold. Single first unblocks remain per slice. No seeded route, implementation or global stop follows. Later retained names and complete Dig Site qualification remain independent work.
 
 ## FairyIII, Void Dance, Another Slice and Contact — 2026-10-15
 
-Root verified round21's28 bindings/two literal sources and round22's29/two. [FairyIII](source-audits/fairy-iii-and-void-dance-opening-boundaries-2026-10-15.md) needs independent pre-completion Sparse Plane entry corroboration; inspected BIR proves post-completion only. Void Dance inherits its actual Wanted hold. [Another Slice/Contact](source-audits/another-slice-and-contact-opening-boundaries-2026-10-15.md) inherit actual Giant Dwarf owner-load and Gertrude ordinary-variant source holds. Existing owner questions stay open; no re-grill or seeded workaround. Later4 retained names remain independent qualification work.
+Current disposition after the owner rulings, 2026-10-15: R3 settles Giant Dwarf load semantics for Another Slice; complete qualified weights remain required. R1/R2 clear its journal scope. Void Dance retains Wanted’s partial Lost Tribe source hold. FairyIII pre-completion Sparse Plane entry and Contact’s Gertrude variant source holds remain. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified round21's28 bindings/two literal sources and round22's29/two. [FairyIII](source-audits/fairy-iii-and-void-dance-opening-boundaries-2026-10-15.md) needs independent pre-completion Sparse Plane entry corroboration; inspected BIR proves post-completion only. Void Dance inherits its actual Wanted hold. [Another Slice/Contact](source-audits/another-slice-and-contact-opening-boundaries-2026-10-15.md) inherit actual Giant Dwarf owner-load and Gertrude ordinary-variant source holds. Existing owner questions stay open; no re-grill or seeded workaround. Later4 retained names remain independent qualification work.
 
 ## Dig Site reachable letter loss — 2026-10-15
 
@@ -227,11 +323,19 @@ Blocked: the complete six-paragraph opening, after the affirmative initial grant
 
 ## Defender requirement scope; Death positive route remains work — 2026-10-15
 
-Root verified 35 bindings, two exact period bodies and one original historical blob in [round 23](source-audits/death-and-defender-opening-boundaries-2026-10-15.md). Defender needs owner scope for its existing requirement readout and source-qualified eligibility repair. The seven cache prerequisites and claimed museum reward differ from live eligibility. That recorded authorization is its single first unblock. Independent review rejected Death's proposed lost-escort hold under the settled target-local contract. Preserve the conditional journal paragraph and qualify all positive deeds and ordinary inputs. Both complete openings retain ordinary-route work. The final two retained names remain independent qualification work. No global stop follows.
+Current disposition after the owner rulings, 2026-10-15: R1 settles Defender readout and source-qualified gate authority. Qualify the actual prerequisites and claimed museum reward. Death’s positive deeds and ordinary inputs remain work; lost escort is not a blocker. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> Root verified 35 bindings, two exact period bodies and one original historical blob in [round 23](source-audits/death-and-defender-opening-boundaries-2026-10-15.md). Defender needs owner scope for its existing requirement readout and source-qualified eligibility repair. The seven cache prerequisites and claimed museum reward differ from live eligibility. That recorded authorization is its single first unblock. Independent review rejected Death's proposed lost-escort hold under the settled target-local contract. Preserve the conditional journal paragraph and qualify all positive deeds and ordinary inputs. Both complete openings retain ordinary-route work. The final two retained names remain independent qualification work. No global stop follows.
 
 ## Dream Mentor and Workshop IV — 2026-10-15
 
-[Round 24](source-audits/dream-and-workshop-iv-opening-boundaries-2026-10-15.md) retains two first holds. Dream Mentor needs owner scope for its omitted post-first-feed conversation and second four-food journal phase. Workshop IV inherits its actual Workshop III journal/endpoint owner hold. Root verified 27 original bindings, two literal bodies and 16 correction bindings. The original IV first-unblock priority was wrong; the correction preserves all original reports. IV's later book-grant corroboration and named game-main lookup remain independent source work. The consumed shortlist does not establish global exhaustion. Death's positive route remains the next independent qualification.
+Current disposition after the owner rulings, 2026-10-15: R1 authorizes Dream Mentor’s omitted conversation and second four-food journal phase. R1/R2 clear the Workshop III journal authority inherited by IV. IV’s later book-grant corroboration and named archive lookup remain source work. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> [Round 24](source-audits/dream-and-workshop-iv-opening-boundaries-2026-10-15.md) retains two first holds. Dream Mentor needs owner scope for its omitted post-first-feed conversation and second four-food journal phase. Workshop IV inherits its actual Workshop III journal/endpoint owner hold. Root verified 27 original bindings, two literal bodies and 16 correction bindings. The original IV first-unblock priority was wrong; the correction preserves all original reports. IV's later book-grant corroboration and named game-main lookup remain independent source work. The consumed shortlist does not establish global exhaustion. Death's positive route remains the next independent qualification.
 
 ## Death through Lost Tribe — 2026-10-15
 
@@ -239,8 +343,16 @@ Root verified 35 bindings, two exact period bodies and one original historical b
 
 ## Enakhra's Lament and Grim Tales — 2026-10-15
 
-[Round25](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md) holds Enakhra on optional Mining45 becoming a mandatory start/readout gate. Grim Tales needs source-correct start/readout and full Sylas-journal scope. Both questions are queued. Its actual Witch's House prerequisite separately needs diary-before-key reconciliation and a complete earned path. Root verified30 bindings, five raw period bodies/selected lines and every actual prerequisite disposition. No source exhaustion, implementation or acceptance follows.
+Current disposition after the owner rulings, 2026-10-15: R1 clears optional Mining45 and Grim Tales recommended-level/start/readout scope. R1/R2 authorize the complete Sylas journal and performed-deed endpoint. Witch’s House diary/key independence and complete earned routes remain separate. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> [Round25](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md) holds Enakhra on optional Mining45 becoming a mandatory start/readout gate. Grim Tales needs source-correct start/readout and full Sylas-journal scope. Both questions are queued. Its actual Witch's House prerequisite separately needs diary-before-key reconciliation and a complete earned path. Root verified30 bindings, five raw period bodies/selected lines and every actual prerequisite disposition. No source exhaustion, implementation or acceptance follows.
 
 ## Witch's House, Haunted Mine and Hazeel Cult — 2026-10-15
 
-[Witch's House](source-audits/witchs-house-complete-diary-key-boundary-2026-10-15.md) first needs owner scope for its glove/journal order; diary source independence stays separate. [Round26](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md) holds Haunted Mine on complete journal and source-correct start/readout scope, and Hazeel on complete journals for both existing choices. Nature Spirit's required started state has its own journal/readout question. Root verified20/three and26/seven bindings/raw bodies, plus four historical blobs for round26. No product/native/promotion acceptance or global stop follows.
+Current disposition after the owner rulings, 2026-10-15: R1 authorizes Witch’s House glove/journal order and the qualified Haunted Mine/Nature Spirit readouts. R1/R2 authorize the complete first journals. Hazeel gets a separate journal and endpoint for each branch. Source independence and ordinary deeds remain unproved until implementation and verification. See [the answered decisions](design-thread-queue.md).
+
+Evidence before these rulings:
+
+> [Witch's House](source-audits/witchs-house-complete-diary-key-boundary-2026-10-15.md) first needs owner scope for its glove/journal order; diary source independence stays separate. [Round26](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md) holds Haunted Mine on complete journal and source-correct start/readout scope, and Hazeel on complete journals for both existing choices. Nature Spirit's required started state has its own journal/readout question. Root verified20/three and26/seven bindings/raw bodies, plus four historical blobs for round26. No product/native/promotion acceptance or global stop follows.

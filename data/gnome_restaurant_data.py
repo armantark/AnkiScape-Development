@@ -258,7 +258,8 @@ _EXTRA_ITEM_IDS = {
     "Snake charm": 4605,
     "Bird's nest": 5070,
 }
-_UNTRADEABLE_EXTRA_ITEMS = frozenset({GNOME_RESTAURANT_TOKEN_ITEM, GNOME_RESTAURANT_BOX_ITEM})
+# Nest5070 is untradeable: https://runescape.wiki/w/Bird%27s_nests?oldid=6550484
+_UNTRADEABLE_EXTRA_ITEMS = frozenset({GNOME_RESTAURANT_TOKEN_ITEM, GNOME_RESTAURANT_BOX_ITEM, "Bird's nest"})
 
 
 def gnome_restaurant_activity_as_dict() -> dict[str, dict[str, Any]]:

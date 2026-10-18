@@ -45,4 +45,14 @@ _EAGLES_PEAK_FRAGMENT = {
         },
 }
 
+_RATCATCHERS_FRAGMENT = {
+    "Rat pole": {
+        "category": "equipment",
+        "item_id": 6773,
+        "stackable": False,
+        "tradeable": False,
+        "source": "https://runescape.wiki/w/Rat_pole?oldid=5671031",
+    },
+}
+
 __all__: tuple[str, ...] = ()

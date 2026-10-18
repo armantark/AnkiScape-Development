@@ -1516,22 +1516,26 @@ simulation produces is the star you mine.
 `leave_activity` command while every other family uses its own `abandon`. This is
 a behaviour inconsistency, not only a visual one.
 
-### Open decisions queued by the pass-3 shop-UI work — 2026-07-26
+### Answered owner decision — 2026-07-26
 
-1. **Where do the other skillcapes come from?** The pass-3 record moves every
-   skillcape into the shop interface, but Agility's is the only cape purchase
-   that exists (`purchase_agility_cape`); no other cape is obtainable today.
-   Recommendation: as each cape becomes obtainable, give it a sourced master
-   seller in the Shop tab's Skillcapes subsection (period: the skill's master,
-   99,000 coins, cape and hood), and keep the Agility row as the template.
-   The section is built and labelled; only Agility has a row.
+Owner ruling, 2026-10-15: Adopt the recommendation: each obtainable skillcape comes from its skill master in Shop > Skillcapes for 99,000 Coins with the hood. This is the 2012 rule. The Spria item stays resolved. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-2. **Resolved — the Spria chathead exists before the cutoff.** The complete
-   MediaWiki upload history for canonical `File:Spria chathead.png` includes
-   revision `2012-01-29T12:46:43Z` with SHA-1
-   `ee75d74b7f4d6f979914593b2c4c015ec0d301ee`. The card now swaps to Spria's
-   own registered face after While Guthix Sleeps; it never retains Turael's
-   face while naming Spria.
+Evidence before this ruling:
+
+> 1. **Where do the other skillcapes come from?** The pass-3 record moves every
+>    skillcape into the shop interface, but Agility's is the only cape purchase
+>    that exists (`purchase_agility_cape`); no other cape is obtainable today.
+>    Recommendation: as each cape becomes obtainable, give it a sourced master
+>    seller in the Shop tab's Skillcapes subsection (period: the skill's master,
+>    99,000 coins, cape and hood), and keep the Agility row as the template.
+>    The section is built and labelled; only Agility has a row.
+>
+> 2. **Resolved — the Spria chathead exists before the cutoff.** The complete
+>    MediaWiki upload history for canonical `File:Spria chathead.png` includes
+>    revision `2012-01-29T12:46:43Z` with SHA-1
+>    `ee75d74b7f4d6f979914593b2c4c015ec0d301ee`. The card now swaps to Spria's
+>    own registered face after While Guthix Sleeps; it never retains Turael's
+>    face while naming Spria.
 
 ### 4.9 Post-diary grill — answered 2026-07-27
 
@@ -1569,28 +1573,36 @@ semantics clauses and the v88 migration read, not player-visible content.
 - Authority:
   `memory-bank/source-audits/skillcape-mechanics-verification-2026-07-27.md`.
 
-### 4.12 Gravestone expiry consequence — implemented recommendation, owner review pending
+### 4.12 Gravestone expiry consequence — answered 2026-10-15
 
-- **Fork:** At the 2012-11-20 cutoff, an unretrieved gravestone ultimately exposed/dropped its contents and then deleted them; the paid Death's Office item-reclaim system is a later mechanic and is not the period expiry consequence.
-- **Recommendation implemented:** Expired AnkiScape gravestones permanently lose their held items. Keep the existing Death's Office bridge isolated to its pre-existing stacked-grave behavior until that subsystem receives its own source-parity replacement.
-- **Evidence:** Darkan `GraveStone` expiry adjusts remaining public/delete time and finishes the grave rather than transferring items to paid reclaim; `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` records that 2011Scape has no full gravestone plugin and that the current Death's Office fee is explicitly an AnkiScape bridge. The rev-727/game-main local evidence supplies no paid expiry reclaim path.
+Owner ruling, 2026-10-15: Accept the implemented recommendation. It matches period expiry at the cutoff. Preserve the existing isolated Death’s Office bridge. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-### 3.22 Dominion Tower — the tower-only reward items are obtainable but thin — implemented recommendation, owner review pending
+Evidence before this ruling:
 
-- **Fork:** The three dominion weapons, the four two-dose tower potions, the
-  three bombs and the help horn are all real period rewards, but the period
-  record describes their effects and never quantifies most of them. The
-  crossbow's hundred shots, the sword's five minutes of combat, the diminutive
-  bomb's tenth of current lifepoints, the horn's five charges and the scorpion
-  meat's 220 healing are exact; the weapons' combat bonuses, the massive and
-  colossal bombs' damage, and the staff's hit budget are stated nowhere.
-- **Recommendation implemented:** the weapons are power-ups a player activates
-  for a match rather than equipment with a slot, because no source gives them a
-  bonus block to equip. They carry their sourced charge budgets and a single
-  registered damage multiplier, and every one of them keeps the sourced
-  Xp-book exchange as a second real sink.
-- **What would change it:** a period item revision with a bonus block, or a
-  decoded interface script for the arena weapon rack.
+> - **Fork:** At the 2012-11-20 cutoff, an unretrieved gravestone ultimately exposed/dropped its contents and then deleted them; the paid Death's Office item-reclaim system is a later mechanic and is not the period expiry consequence.
+> - **Recommendation implemented:** Expired AnkiScape gravestones permanently lose their held items. Keep the existing Death's Office bridge isolated to its pre-existing stacked-grave behavior until that subsystem receives its own source-parity replacement.
+> - **Evidence:** Darkan `GraveStone` expiry adjusts remaining public/delete time and finishes the grave rather than transferring items to paid reclaim; `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` records that 2011Scape has no full gravestone plugin and that the current Death's Office fee is explicitly an AnkiScape bridge. The rev-727/game-main local evidence supplies no paid expiry reclaim path.
+
+### 3.22 Dominion Tower — the tower-only reward items are obtainable but thin — answered 2026-10-15
+
+Owner ruling, 2026-10-15: Accept the implemented recommendation. No source gives the reward weapons an equipment bonus block; the existing power-up treatment is the smallest invention. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> - **Fork:** The three dominion weapons, the four two-dose tower potions, the
+>   three bombs and the help horn are all real period rewards, but the period
+>   record describes their effects and never quantifies most of them. The
+>   crossbow's hundred shots, the sword's five minutes of combat, the diminutive
+>   bomb's tenth of current lifepoints, the horn's five charges and the scorpion
+>   meat's 220 healing are exact; the weapons' combat bonuses, the massive and
+>   colossal bombs' damage, and the staff's hit budget are stated nowhere.
+> - **Recommendation implemented:** the weapons are power-ups a player activates
+>   for a match rather than equipment with a slot, because no source gives them a
+>   bonus block to equip. They carry their sourced charge budgets and a single
+>   registered damage multiplier, and every one of them keeps the sourced
+>   Xp-book exchange as a second real sink.
+> - **What would change it:** a period item revision with a bonus block, or a
+>   decoded interface script for the arena weapon rack.
 
 ### 3.23 Dominion Tower — Tarn Razorlor is gated on a miniquest the ledger has no room for — closed 2026-07-29, the ledger landed
 
@@ -1616,18 +1628,22 @@ semantics clauses and the v88 migration read, not player-visible content.
   `test_the_dominion_tower_class_h_gate_now_resolves` in the same test class
   pins that the Lair is not required.
 
-### 3.24 Dominion Tower — a defeat's Dominion Factor cost is nowhere in the record — implemented recommendation, owner review pending
+### 3.24 Dominion Tower — a defeat's Dominion Factor cost is nowhere in the record — answered 2026-10-15
 
-- **Fork:** The tower page says plainly that "Losing a fight reduces the
-  player's dominion factor" and advises cashing out before a fight you expect to
-  lose. No pre-cutoff revision, no guide page and no Darkan code gives the
-  amount; Darkan's own loss path reduces nothing at all.
-- **Recommendation implemented:** a defeat forfeits the factor the last won
-  round paid, which is the smallest reduction that makes the article's own
-  advice rational, and it is registered as
-  `dominion_tower.loss_factor_penalty`.
-- **Alternatives if you prefer:** a flat percentage of the banked factor, or a
-  reset to zero. Both are inventions of the same size; this one is the least.
+Owner ruling, 2026-10-15: Accept the implemented recommendation: a defeat forfeits the factor paid by the last won round. This is the smallest reduction that makes the source advice correct. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> - **Fork:** The tower page says plainly that "Losing a fight reduces the
+>   player's dominion factor" and advises cashing out before a fight you expect to
+>   lose. No pre-cutoff revision, no guide page and no Darkan code gives the
+>   amount; Darkan's own loss path reduces nothing at all.
+> - **Recommendation implemented:** a defeat forfeits the factor the last won
+>   round paid, which is the smallest reduction that makes the article's own
+>   advice rational, and it is registered as
+>   `dominion_tower.loss_factor_penalty`.
+> - **Alternatives if you prefer:** a flat percentage of the banked factor, or a
+>   reset to zero. Both are inventions of the same size; this one is the least.
 
 ### 4.13 Pass 4 of the playtest notes — owner directives, 2026-07-28
 
@@ -2899,29 +2915,47 @@ tests whose lines contain a small test's lines; a per-chunk rubric call then
 judges whether the broader test's assertions catch the small test's failure;
 GLM gives a second vote; both must agree before a deletion.
 
-### Open owner question — 2026-10-02: Fremennik shield Woodcutting
+### Answered owner decision — 2026-10-02: Fremennik shield Woodcutting
 
-54: shield oldids 5641898 (2012-05-22, no beta marker) and 5827384 (2012-06-25, beta). 56: The Fremennik Isles oldid 6540919 (2012-11-07) and Darkan `craftShield` restoration commit `a7e91cb9769642e3e833a523fd5f0688eef21924`. Current branch uses 54; the evidence standard does not automatically resolve this conflict. Owner decision remains open.
+Owner ruling, 2026-10-15: Use Woodcutting 56. The 2012-11-07 source is the newest before the cutoff, and the Darkan restoration agrees. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-### Open owner question — 2026-10-07: Collections native acceptance
+Evidence before this ruling:
 
-The shallow cleanup and approved main-menu repair await the owner's native acceptance decision. Exact merged candidate `8d8888be054424ad68e1b156523b25edc1d32ed1` passed all nine official promotion checks. Independent reviews passed. Native behavior, full tab names and scroll buttons passed on frozen source `84a5fd0d215dcea7d433db092fc988cb8b278ed4`. The shipped files match the merged candidate.
+> 54: shield oldids 5641898 (2012-05-22, no beta marker) and 5827384 (2012-06-25, beta). 56: The Fremennik Isles oldid 6540919 (2012-11-07) and Darkan `craftShield` restoration commit `a7e91cb9769642e3e833a523fd5f0688eef21924`. Current branch uses 54; the evidence standard does not automatically resolve this conflict. Owner decision remains open.
 
-Collections selected content remains unverified at both required widths. Candidate, frozen control and coordinate-route attempts crashed before capture. [The blocker record](GOAL-BLOCKED.md) retains exact evidence. Root asked the owner to permit this candidate with Collections proof open, or retain complete Collections proof as a prerequisite. No answer exists. This exception would apply only to this candidate; other native gates and the wider UI boundary remain binding.
+### Answered owner decision — 2026-10-07: Collections native acceptance
 
-### Open owner UI scope — 2026-10-07: poison status text
+Owner ruling, 2026-10-15: Owner at 2026-10-15 18:46 PDT: "12 a". Ship the full-name/standard-scroll-button main-menu repair after a fresh merge onto current main and a new full gate. Excuse Collections content proof for this candidate only. Treat the crash as a separate high-priority defect. Preserve all other native requirements and accepted evidence. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-The fresh death-partition native fixture at f570a15f showed the existing pre-answer and Undo HUD ending at `Poisoned: 110 LP in 30 t`, while AX contains `Poisoned: 110 LP in 30 ticks`. Pixel proof: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/worktrees/promote-runner-fairness-2026-10-03/ankiscape-promotion-evidence/f570a15fefde7e037313f20dad91eed990b031f2/native-death-partition-accepted-2026-10-07/native-result-death-equipment-partition-f570a15f/answer-001-before.jpg`. The governing goal excludes existing UI without recorded owner authorization; the approved main-menu tab repair does not cover this HUD. Preserve the current UI and park this text repair for an owner scope decision; it does not change acceptance of the backend partition.
+Evidence before this ruling:
 
-### Open owner UI scope — 2026-10-07: Myreque stage transition
+> The shallow cleanup and approved main-menu repair await the owner's native acceptance decision. Exact merged candidate `8d8888be054424ad68e1b156523b25edc1d32ed1` passed all nine official promotion checks. Independent reviews passed. Native behavior, full tab names and scroll buttons passed on frozen source `84a5fd0d215dcea7d433db092fc988cb8b278ed4`. The shipped files match the merged candidate.
+>
+> Collections selected content remains unverified at both required widths. Candidate, frozen control and coordinate-route attempts crashed before capture. [The blocker record](GOAL-BLOCKED.md) retains exact evidence. Root asked the owner to permit this candidate with Collections proof open, or retain complete Collections proof as a prerequisite. No answer exists. This exception would apply only to this candidate; other native gates and the wider UI boundary remain binding.
 
-Complete In Search of the Myreque stage1 would expose generated stage2 instruction “Give him three Planks and then ten Coins.” despite the retained period contract placing the fare after completion; root and Astra park the opening until a source-correct journal change has recorded owner scope, without changing the UI, advancing incomplete persuasion or replacing the five-current-charge guard with a permanent proof.
+### Answered owner decision — 2026-10-07: poison status text
+
+Owner ruling, 2026-10-15: R4 authorizes the defect repair. Show the full HUD text, including "30 ticks". Truncation is a defect under the standing rule; no separate scope approval is required. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> The fresh death-partition native fixture at f570a15f showed the existing pre-answer and Undo HUD ending at `Poisoned: 110 LP in 30 t`, while AX contains `Poisoned: 110 LP in 30 ticks`. Pixel proof: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/worktrees/promote-runner-fairness-2026-10-03/ankiscape-promotion-evidence/f570a15fefde7e037313f20dad91eed990b031f2/native-death-partition-accepted-2026-10-07/native-result-death-equipment-partition-f570a15f/answer-001-before.jpg`. The governing goal excludes existing UI without recorded owner authorization; the approved main-menu tab repair does not cover this HUD. Preserve the current UI and park this text repair for an owner scope decision; it does not change acceptance of the backend partition.
+
+### Answered owner decision — 2026-10-07: Myreque stage transition
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text. The fare comes after completion. Preserve genuine deeds, current-charge checks and ordinary route requirements. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Complete In Search of the Myreque stage1 would expose generated stage2 instruction “Give him three Planks and then ten Coins.” despite the retained period contract placing the fare after completion; root and Astra park the opening until a source-correct journal change has recorded owner scope, without changing the UI, advancing incomplete persuasion or replacing the five-current-charge guard with a permanent proof.
 
 ## Answered owner decision — 2026-10-15 native startup representation
 
 The owner ruled that the five refused startup fields are intentional product representations, not product defects: saved lists load as tuples and XP numbers as floats in logic/crucible_logic.py and logic/farming_logic.py; JSON cannot store a tuple. Compare the saved file by value with live state after one round trip through the product’s own save encoding. Every other part of the check stays exact, including protected fields and the separate saved-Undo-to-pre-Good-LIVE criteria. This clears the representation hold, authorizes the pending native checks and replaces the external October13 handoff’s “do not coerce values” instruction; it does not claim native acceptance. Preserve [the original refused observations](source-audits/native-startup-mbp-2026-10-14.md).
 
 ## Open owner question — 2026-10-14 Summoning restore deed curation
+
+Scope check,2026-10-18: the 2026-10-15 table does not name this distinct-seam curation choice. R1–R4 do not select a new curated distinction. This question remains open; no constraint or generator rule is waived.
 
 Recorded 2026-10-14T04:07:50.152516-07:00 during Spiritual Healing source work. Preserve its settled positive-gain contract and existing geography exceptions. The current `fremennik_easy_a_familiar_feeling` design requires a successful restore that increases points, but its wiring checks only `summoning_command` / `restore_points`; sanitation-only state changes can therefore earn it. The new source-940 deed `burthorpe_period_spiritual_healing` adds `summoning_points_restored >= 1` on the same existing Visit obelisk command. The author reports that adding this gate to Familiar Feeling would fail the generator's distinct-seam rule; that rejected alternative is not a permission to change the rule or invent geography.
 
@@ -2930,45 +2964,85 @@ Owner decision needed for the Familiar Feeling correction: choose a curated dist
 
 At22:49 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "Yeah that's just pedantry. It can save it to the quest journal. The user doesn't have to actually produce it". Save the assigned personal three-emote greeting and show one line in the Cold War journal. The player performs no emotes; every later greeting check passes. Only this journal addition is authorized. Book-gate and suit-ID10595/10596 source disputes remain open. Claude may neither author nor review this work.
 
-### Open owner UI scope — 2026-10-14: contained-content taste observations
+### Answered owner decision — 2026-10-14: contained-content taste observations
 
-[The new-content taste review](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/presentation-taste-1/report.md) accepts the engraving/Cabinet layouts conditionally on two configured-copy fixes. It proposes an owner design grill for existing Cabinet description/condition repetition, inherited rounded label borders (native confirmation still needed), unrelated diary panels retained during search, completed-versus-level-locked Crafting presentation, and clipped Challenges/Achievements navigation labels at the captured widths. These are observations/suggestions, not permission to change existing widgets, journal grouping, search, navigation or text. Root corrected only the new label/reason through the configured editor and retained the captures; native requirements remain open.
+Owner ruling, 2026-10-15: Move the taste suggestions to a later design grill. R4 authorizes repair of the clipped Challenges and Achievements labels. It does not authorize Cabinet search, grouping or other layout changes. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open owner question — 2026-10-14T13:05:46.913976+00:00 — First Resort stage 4 journal and fur priority
+Evidence before this ruling:
 
-The returned unaccepted candidate advances progress4 to5 after Snurgh's8 feathers and Kringk's4 bones/8 furs. The existing stage4 journal also contains “Talk to Seegud.”, the bug-clearing note and “Collect the plants from outside of Oo'glog.”. The existing completed-stage display strikes these future actions despite no proofs. Existing journal changes are not authorized. Independent review will qualify whether this blocks the proposed complete boundary; no display correction is approved. The author also selected tatty-first mixed-fur debit to retain regular furs for Summoning, while the period source states no debit order. This choice is unaccepted; source review must first check any settled interchangeability policy. The owner may settle the needed journal scope and fur priority at a later design grill. Independent queue work continues.
+> [The new-content taste review](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/presentation-taste-1/report.md) accepts the engraving/Cabinet layouts conditionally on two configured-copy fixes. It proposes an owner design grill for existing Cabinet description/condition repetition, inherited rounded label borders (native confirmation still needed), unrelated diary panels retained during search, completed-versus-level-locked Crafting presentation, and clipped Challenges/Achievements navigation labels at the captured widths. These are observations/suggestions, not permission to change existing widgets, journal grouping, search, navigation or text. Root corrected only the new label/reason through the configured editor and retained the captures; native requirements remain open.
 
-## Open owner question — 2026-10-14T13:37:44.186051+00:00 — Giant Dwarf library load
+## Answered owner decision — 2026-10-14T13:05:46.913976+00:00 — First Resort stage 4 journal and fur priority
 
-The first complete existing stage1 boundary requires climbing for Book on costumes under30kg. The retained sources establish the limit, but the Anki load abstraction is unset. Current Agility weight data cover only a subset and assign0 to unknown items. Settle the library load model before implementation; real weight also needs complete qualified item weights. Ferry travel is free;3000Coins is a route budget. No new navigation, journal or weight policy is approved.
+Owner ruling, 2026-10-15: R1 requires truthful completed-stage text: do not strike future Seegud or plant actions. Spend tatty furs before regular furs and register that order as a declared abstraction. No source gives a debit order; tatty-first preserves regular furs for Summoning and changes no XP. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open shop reproduction contract — 2026-10-14T14:45:33.033317+00:00
+Evidence before this ruling:
 
-The full NPC-shop generator still differs at six preserved live price keys: Bullseye lantern, Mining helmet, Mithril arrow, Oil lamp, Oil lantern and Spiked gauntlets. The metadata correction landed ated10c2f0 after exact checks; both summaries now report6827 and59 ledger labels match runtime rows. [Original reproduction evidence](source-audits/npc-shop-reproduction-mbp-2026-10-14.md) retains the earlier inconsistent target. [The landed correction](source-audits/npc-shop-ledger-truth-2026-10-14.md) changes no runtime price/key, source pin or digest. Root qualified the six origins; the remaining source identity/precedence contract is engineering work, not a new owner-only question. Preserve every existing live price while that work continues. Independent queue work continues.
+> The returned unaccepted candidate advances progress4 to5 after Snurgh's8 feathers and Kringk's4 bones/8 furs. The existing stage4 journal also contains “Talk to Seegud.”, the bug-clearing note and “Collect the plants from outside of Oo'glog.”. The existing completed-stage display strikes these future actions despite no proofs. Existing journal changes are not authorized. Independent review will qualify whether this blocks the proposed complete boundary; no display correction is approved. The author also selected tatty-first mixed-fur debit to retain regular furs for Summoning, while the period source states no debit order. This choice is unaccepted; source review must first check any settled interchangeability policy. The owner may settle the needed journal scope and fur priority at a later design grill. Independent queue work continues.
 
-### Open owner UI scope — 2026-10-14: Gunnar tab ellipses
+## Answered owner decision — 2026-10-14T13:37:44.186051+00:00 — Giant Dwarf library load
 
-Gunnar final-copy offscreen captures show existing top-tab ellipses Ch… at720 and Achieveme… at980 behind scroll arrows. The three new Dororan rows and actual tooltips are complete. Existing tab UI remains unchanged; this observation joins the pending owner design suggestions.
+Owner ruling, 2026-10-15: R3 requires a real weight check for everything carried and worn. Above 30 kg, refuse the quest step and say the player is too heavy. Source missing weights as engineering work; never count an unknown weight as 0. Another Slice of H.A.M. and The Chosen Commander keep this dependency. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open source/owner boundary — 2026-10-14: Roavar early purchase
+Evidence before this ruling:
 
-Independent Fenkenstrain review R1 cannot qualify purchase before the accepted interview from retained period sources. Require the one period eligibility fact in GOAL-BLOCKED, or an explicit owner-approved AnkiScape abstraction. No implicit choice follows from Root contract silence; no Darkan numeric-stage copy or progress==2 restriction. Later filled-head4198/handoff guards wait for the later writer. Existing widgets and journal remain excluded. Current candidate 0a962cbcd5a4f16f252d57e32275616f4e18b0b1 is preserved, unaccepted and unlanded.
+> The first complete existing stage1 boundary requires climbing for Book on costumes under30kg. The retained sources establish the limit, but the Anki load abstraction is unset. Current Agility weight data cover only a subset and assign0 to unknown items. Settle the library load model before implementation; real weight also needs complete qualified item weights. Ferry travel is free;3000Coins is a route budget. No new navigation, journal or weight policy is approved.
 
-## Open owner boundaries — 2026-10-14: three quest journals
+## Answered owner decision — 2026-10-14T14:45:33.033317+00:00
 
-Murder Mystery needs authorization to replace its first table-of-contents-only block with the source-backed guard opening; later culprit selection remains separately source/model held. Recruitment Drive needs the test-selection/empty-entry model and a journal representation ruling at Tiffy; no empty-Bank substitute. Tower of Life needs authorization to show its sourced opening answers omitted by the current journal. Black Knights'12QP copy versus period13 remains an adjacent owner-UI repair; a genuine13QP route exists without it. No existing journal/widget/copy changes are authorized by these records. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2/verdict.json.
+Owner ruling, 2026-10-15: Remove this item from the owner queue. Continue source identity and precedence as engineering work; preserve existing prices. The recorded item already classifies this as engineering work. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open existing-readout scope — 2026-10-14: Horror from the Deep
+Evidence before this ruling:
 
-Ruling50 remains settled: Prayer43 is recommended, not required. The current kernel enforces43 and the Quest tab prints Requires: Agility35, Prayer43. The open scope is authorization to correct that existing readout while applying the settled eligibility contract; it is not a choice about Prayer policy. No widget, text or source change is authorized here. Preserve the stage1/source and later mother-combat boundaries. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+> The full NPC-shop generator still differs at six preserved live price keys: Bullseye lantern, Mining helmet, Mithril arrow, Oil lamp, Oil lantern and Spiked gauntlets. The metadata correction landed ated10c2f0 after exact checks; both summaries now report6827 and59 ledger labels match runtime rows. [Original reproduction evidence](source-audits/npc-shop-reproduction-mbp-2026-10-14.md) retains the earlier inconsistent target. [The landed correction](source-audits/npc-shop-ledger-truth-2026-10-14.md) changes no runtime price/key, source pin or digest. Root qualified the six origins; the remaining source identity/precedence contract is engineering work, not a new owner-only question. Preserve every existing live price while that work continues. Independent queue work continues.
 
-## Open first-journal scope — 2026-10-14: Ghosts Ahoy
+### Answered owner decision — 2026-10-14: Gunnar tab ellipses
 
-Both prerequisites remain settled under ruling35. The first journal is generic and its section-to-stage representation needs owner authorization. Independently qualified pre-quest Port entry fare remains the separate first source hold. Do not invent a charge, replace journal text or treat the existing worship writer as proof of every acquisition input. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+Owner ruling, 2026-10-15: R4 authorizes repair of the clipped tab names. The main-menu candidate still needs the fresh merge and full gate under ruling 2906. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open first-journal scope — 2026-10-14: Garden and Tail
+Evidence before this ruling:
 
-Garden of Tranquillity needs authorization to restore the seven sourced answers and settle the complete Wise Old Man quiz/retry representation. A Tail of Two Cats needs authorization for a source-backed first journal and its exact Unferth/Hild boundary. Each retains its own prerequisite and acquisition holds. No existing journal, UI or source reconstruction is authorized by this record. [Exact qualification](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md).
+> Gunnar final-copy offscreen captures show existing top-tab ellipses Ch… at720 and Achieveme… at980 behind scroll arrows. The three new Dororan rows and actual tooltips are complete. Existing tab UI remains unchanged; this observation joins the pending owner design suggestions.
+
+## Answered owner decision — 2026-10-14: Roavar early purchase
+
+Owner ruling, 2026-10-15: Make the purchase available at the stage that asks for it, after the accepted interview. Register this as an AnkiScape abstraction, not recovered period timing. No period source proves earlier access; quest order is the smaller assumption. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Independent Fenkenstrain review R1 cannot qualify purchase before the accepted interview from retained period sources. Require the one period eligibility fact in GOAL-BLOCKED, or an explicit owner-approved AnkiScape abstraction. No implicit choice follows from Root contract silence; no Darkan numeric-stage copy or progress==2 restriction. Later filled-head4198/handoff guards wait for the later writer. Existing widgets and journal remain excluded. Current candidate 0a962cbcd5a4f16f252d57e32275616f4e18b0b1 is preserved, unaccepted and unlanded.
+
+## Answered owner decision — 2026-10-14: three quest journals
+
+Owner ruling, 2026-10-15: Murder Mystery uses R1/R2. Recruitment Drive uses R3: entry requires no carried or worn items; the Bank can contain items. Refuse invalid entry with the reason. Use the period test set and the game’s seeded random source. Tower of Life uses R1. Black Knights’ Fortress copy must say 13 quest points. These are source-correct text and preparation constraints, not new layout authority. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Murder Mystery needs authorization to replace its first table-of-contents-only block with the source-backed guard opening; later culprit selection remains separately source/model held. Recruitment Drive needs the test-selection/empty-entry model and a journal representation ruling at Tiffy; no empty-Bank substitute. Tower of Life needs authorization to show its sourced opening answers omitted by the current journal. Black Knights'12QP copy versus period13 remains an adjacent owner-UI repair; a genuine13QP route exists without it. No existing journal/widget/copy changes are authorized by these records. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2/verdict.json.
+
+## Answered owner decision — 2026-10-14: Horror from the Deep
+
+Owner ruling, 2026-10-15: R1 authorizes the requirement readout correction under ruling 50: Prayer43 is recommended. Preserve source-qualified eligibility and complete deeds. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Ruling50 remains settled: Prayer43 is recommended, not required. The current kernel enforces43 and the Quest tab prints Requires: Agility35, Prayer43. The open scope is authorization to correct that existing readout while applying the settled eligibility contract; it is not a choice about Prayer policy. No widget, text or source change is authorized here. Preserve the stage1/source and later mother-combat boundaries. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+
+## Answered owner decision — 2026-10-14: Ghosts Ahoy
+
+Owner ruling, 2026-10-15: R1/R2 authorize the sourced first journal and first performed-deed endpoint. The Port entry fare remains source-held. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Both prerequisites remain settled under ruling35. The first journal is generic and its section-to-stage representation needs owner authorization. Independently qualified pre-quest Port entry fare remains the separate first source hold. Do not invent a charge, replace journal text or treat the existing worship writer as proof of every acquisition input. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+
+## Answered owner decision — 2026-10-14: Garden and Tail
+
+Owner ruling, 2026-10-15: Garden uses R1 for the seven sourced answers and R3 for a real Wise Old Man quiz. A wrong answer follows the period retry rule. Opus builds the new quiz interaction; a frontend-taste model reviews it. A Tail of Two Cats uses R1/R2. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Garden of Tranquillity needs authorization to restore the seven sourced answers and settle the complete Wise Old Man quiz/retry representation. A Tail of Two Cats needs authorization for a source-backed first journal and its exact Unferth/Hild boundary. Each retains its own prerequisite and acquisition holds. No existing journal, UI or source reconstruction is authorized by this record. [Exact qualification](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md).
 
 ## Settled tooling response contract — 2026-10-14: MediaWiki warnings
 
@@ -2984,133 +3058,245 @@ Familiarisation: Again pauses with no segment, focus cost or shards. Four succes
 
 At23:05 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "Also good point about Jad, can fix that". When a boss telegraphs the next style, the game sets the matching protection prayer for that attack if unlocked and prayer points remain. Otherwise the attack lands unprotected. Supplies and damage output provide the challenge; manual switches between reviews are not required. The Style telegraphs bullet in [the boss contract](boss-instance-contract-2026-07-18.md) now states this rule; its other content is unchanged. This is a contract change only until a boss slice implements it. Combat grill decision47 remains binding.
 
-## Open existing-journal and readout scope — 2026-10-15: Monkey Madness
+## Answered owner decision — 2026-10-15: Monkey Madness
 
-The first journal is a generic sentinel; its infiltration cleanup is not a complete sourced opening. Period oldids5967528/6579359 call Prayer43 and Thieving10 recommendations, while live logic and the visible requirements make both mandatory. The needed owner scope is one sourced first-journal boundary and its requirement-readout correction. No puzzle abstraction, hidden state or full quest design is adopted. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Grand Tree and later acquisition remain separate.
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open existing-readout scope — 2026-10-15: Desert Treasure
+Evidence before this ruling:
 
-Period oldids5981512/6563639 make Mining50 optional. The live requirement readout makes it mandatory and omits four direct prerequisites from the retained Questreq/cache. Needed owner scope: the existing requirement-readout correction with the source-qualified gate repair. Keep the complete first journal through the650Coin brew and six mirrors; no talk-only advance. No other journal change or backend substitute is authorized. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Ordinary acquisitions remain to qualify after this first scope gate.
+> The first journal is a generic sentinel; its infiltration cleanup is not a complete sourced opening. Period oldids5967528/6579359 call Prayer43 and Thieving10 recommendations, while live logic and the visible requirements make both mandatory. The needed owner scope is one sourced first-journal boundary and its requirement-readout correction. No puzzle abstraction, hidden state or full quest design is adopted. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Grand Tree and later acquisition remain separate.
 
-## Open existing-journal scope — 2026-10-15: Do No Evil
+## Answered owner decision — 2026-10-15: Desert Treasure
 
-The actual first journal is a table of contents. Period oldid6587790 supplies Senliten/Leela and the later Jex/Sphinx exchanges, while the next live journal reaches further banana/wise-monkey deeds. Needed owner scope: a sourced replacement first journal and exact complete opening boundary. The later elite-clue decision stays separate. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). No hidden state, seeded restoration or companion is authorized.
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-### Open owner question — 2026-10-15: Ritual first journal and complete boundary
+Evidence before this ruling:
 
-The actual first Ritual of the Mahjarrat journal contains only contents headings. No live override replaces it. Period oldid6564051 separates Tiffy assignment and optional teleport, Tendeth briefing, the attack/inquiry and jungle investigation. Existing UI changes need owner scope. The open decision is the source-backed first journal and its exact stage1 end. No talk-only or spatial proxy is proposed as settled. [The exact source qualification](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) preserves the evidence. Continue independent work; this question does not reopen settled quest or combat rules.
+> Period oldids5981512/6563639 make Mining50 optional. The live requirement readout makes it mandatory and omits four direct prerequisites from the retained Questreq/cache. Needed owner scope: the existing requirement-readout correction with the source-qualified gate repair. Keep the complete first journal through the650Coin brew and six mirrors; no talk-only advance. No other journal change or backend substitute is authorized. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Ordinary acquisitions remain to qualify after this first scope gate.
 
-### Open owner question — 2026-10-15: Forgettable Tale first journal and endpoint
+## Answered owner decision — 2026-10-15: Do No Evil
 
-The actual first Forgettable Tale journal is the generic pinned-guide objective. Period oldid6447452 separates Veldaban commission/transport from the beer exchange and first Kelda seed. The external target reconstruction grants no owner authority. The open decision is owner scope for a sourced first journal and its exact stage1 end. [The exact qualification](source-audits/forgettable-opening-boundary-2026-10-15.md) preserves both endpoints without selecting one. Continue independent work; Giant Dwarf's separate ordinary-route hold stays settled.
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
+Evidence before this ruling:
 
-## Open existing-readout scope — 2026-10-15: Legends' Quest
+> The actual first journal is a table of contents. Period oldid6587790 supplies Senliten/Leela and the later Jex/Sphinx exchanges, while the next live journal reaches further banana/wise-monkey deeds. Needed owner scope: a sourced replacement first journal and exact complete opening boundary. The later elite-clue decision stays separate. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). No hidden state, seeded restoration or companion is authorized.
 
-Period oldid6529921 recommends Regicide and Combat75, requires Prayer42 rather than43, and allows several skills after start and temporary boosts. Current eligibility and visible Requires text hard-gate those recorded values at start. Needed owner scope: correct the existing requirement readout with the source-qualified eligibility repair. No journal redesign, guard-only stage, substituted prerequisite or backend-only discrepancy is authorized. True direct prerequisites and quest points remain to qualify. [Exact source qualification](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md).
+### Answered owner decision — 2026-10-15: Ritual first journal and complete boundary
 
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open existing-readout scope — 2026-10-15: One Small Favour
+Evidence before this ruling:
 
-Questreq6552449 and retained cache struct593 slots13/99 independently require Rune Mysteries and Shilo Village. Current gate/readout omits Rune Mysteries. Needed owner scope: correct the existing prerequisite readout with that source-qualified gate; no journal redesign or backend-only mismatch. The full Yanni-to-Johanhus contact chain and ordinary prerequisites remain implementation/acquisition work. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
+> The actual first Ritual of the Mahjarrat journal contains only contents headings. No live override replaces it. Period oldid6564051 separates Tiffy assignment and optional teleport, Tendeth briefing, the attack/inquiry and jungle investigation. Existing UI changes need owner scope. The open decision is the source-backed first journal and its exact stage1 end. No talk-only or spatial proxy is proposed as settled. [The exact source qualification](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) preserves the evidence. Continue independent work; this question does not reopen settled quest or combat rules.
 
-## Open first-journal scope — 2026-10-15: Summer's End
+### Answered owner decision — 2026-10-15: Forgettable Tale first journal and endpoint
 
-The actual first journal is generic. Period oldids6560166/6534090 distinguish the portal/Void briefing from return, mine preparation and familiar lure, but do not assign AnkiScape stage1. Needed owner scope: one sourced first journal and its exact endpoint. Existing supply gates do not choose it. Ordinary Spirit of Summer/ring acquisition stays separate; no hidden state or partial later-stage credit is authorized. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
+Evidence before this ruling:
 
-## Open existing-journal copy scope — 2026-10-15: Chosen Commander food list
+> The actual first Forgettable Tale journal is the generic pinned-guide objective. Period oldid6447452 separates Veldaban commission/transport from the beer exchange and first Kelda seed. The external target reconstruction grants no owner authority. The open decision is owner scope for a sourced first journal and its exact stage1 end. [The exact qualification](source-audits/forgettable-opening-boundary-2026-10-15.md) preserves both endpoints without selecting one. Continue independent work; Giant Dwarf's separate ordinary-route hold stays settled.
 
-The first journal omits the list after 'among the following'. The current first implementation hold remains The Giant Dwarf's library-load model. Before later implementation, the owner must authorize a source-qualified correction to that existing journal text; no food assignment, controlled scene or broader journal redesign is settled. [Exact qualification](source-audits/darkmeyer-and-commander-opening-boundaries-2026-10-15.md).
+## Answered owner decision — 2026-10-15: Legends' Quest
 
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open owner question — 2026-10-15: Slug Menace first journal
+Evidence before this ruling:
 
-The live first journal is the generic “Complete The Slug Menace stage 1 objective using the pinned source guide.” Period guide6588246 describes Tiffy briefing/password and Commorb-v2 grant or upgrade, followed by O'Niall/Witchaven interviews/investigation. Authorize the sourced replacement journal and exact complete first-stage endpoint before code changes. The source grants Commorb v2 when the player lacks a Commorb; no mandatory seeded original is inferred. The [source qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md) records this single first scope hold. No existing UI change is authorized by this question.
+> Period oldid6529921 recommends Regicide and Combat75, requires Prayer42 rather than43, and allows several skills after start and temporary boosts. Current eligibility and visible Requires text hard-gate those recorded values at start. Needed owner scope: correct the existing requirement readout with the source-qualified eligibility repair. No journal redesign, guard-only stage, substituted prerequisite or backend-only discrepancy is authorized. True direct prerequisites and quest points remain to qualify. [Exact source qualification](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md).
 
+## Answered owner decision — 2026-10-15: One Small Favour
 
-## Open owner question — 2026-10-15: TokTz-Ket-Dill first journal
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-The first journal is the generic “Complete TokTz-Ket-Dill stage 1 objective using the pinned source guide.” Authorize a period-sourced replacement and exact endpoint: three-guard briefing versus the later Stone tablet/library/Reldo/Tourist Guide/translation/mine-permission chain. The [qualified source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) preserves the existing material/gate qualifications. No guards-only credit or existing UI change is authorized by recording this question.
+Evidence before this ruling:
 
-## Open owner question — 2026-10-15: Animal Magnetism first journal
+> Questreq6552449 and retained cache struct593 slots13/99 independently require Rune Mysteries and Shilo Village. Current gate/readout omits Rune Mysteries. Needed owner scope: correct the existing prerequisite readout with that source-qualified gate; no journal redesign or backend-only mismatch. The full Yanni-to-Johanhus contact chain and ordinary prerequisites remain implementation/acquisition work. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
 
-Stage1 is only contents headings; stage2 contains the Ava/Alice opening deeds. Authorize a sourced replacement first journal and its exact Ava-versus-undead-poultry endpoint while settling that stage2 overlap. The [source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) also retains the later Thieving15 readout qualification; no gate waiver, journal renumbering, partial credit or seeded acquisition is authorized.
+## Answered owner decision — 2026-10-15: Summer's End
 
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open owner question — 2026-10-15: Eadgar's Ruse requirement readout
+Evidence before this ruling:
 
-The current start gate and visible requirements require Prayer40, while the retained period guides describe Prayer40 or Agility47 as recommended. Authorize the existing readout correction while independent source qualification settles the exact eligibility repair. The [bounded qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) preserves null-cache-field limits, the complete Sanfew-to-Eadgar journal and ordinary route obligations. No automatic gate waiver is authorized by this question.
+> The actual first journal is generic. Period oldids6560166/6534090 distinguish the portal/Void briefing from return, mine preparation and familiar lure, but do not assign AnkiScape stage1. Needed owner scope: one sourced first journal and its exact endpoint. Existing supply gates do not choose it. Ordinary Spirit of Summer/ring acquisition stays separate; no hidden state or partial later-stage credit is authorized. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
 
-## Open owner question — 2026-10-15: Elemental Workshop III first journal
+## Answered owner decision — 2026-10-15: Chosen Commander food list
 
-The first journal describes a later puzzle; the existing stage1 action instead finds/reads Ragged book “in the workshop”, with no produced book. The period source starts at the chapel bookcase, then preparation, then the puzzle. Authorize a sourced replacement first journal and exact complete opening endpoint. The [qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) retains the current stage/dependency/key/custody conflicts; no hidden book action, journal renumbering or partial puzzle credit is authorized.
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
+Evidence before this ruling:
 
-## Open owner question — 2026-10-15: Another Cook's Quest first journal
+> The first journal omits the list after 'among the following'. The current first implementation hold remains The Giant Dwarf's library-load model. Before later implementation, the owner must authorize a source-qualified correction to that existing journal text; no food assignment, controlled scene or broader journal redesign is settled. [Exact qualification](source-audits/darkmeyer-and-commander-opening-boundaries-2026-10-15.md).
 
-Another Cook's Quest, an actual prerequisite for Freeing Evil Dave, has a generic first journal and a generated2025 fallback source pin. A retained period main-page source nominates commission/100-Coin advance, ingredient/Dirty-blast preparation and full handoff. Authorize the sourced replacement first journal and exact complete endpoint, distinguishing that commission from full preparation/feast access. The [dependency qualification](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md) retains source-pin repair as work; that repair alone grants no existing journal/UI authority. No seeded feast access or partial stage credit.
+## Answered owner decision — 2026-10-15: Slug Menace first journal
 
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open owner question — 2026-10-15: Freeing King Awowogei first journal
+Evidence before this ruling:
 
-The first journal is generic. Authorize a period-sourced replacement and exact complete first-stage endpoint. The source separates inspection/Aris from the Ape Atoll king/trio recipe sequence. The [qualification](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md) preserves the actual Another Cook, Monkey Madness and Grand Tree dependency holds. No coin alternative can seed monkey resources, greegrees or hazard proof.
+> The live first journal is the generic “Complete The Slug Menace stage 1 objective using the pinned source guide.” Period guide6588246 describes Tiffy briefing/password and Commorb-v2 grant or upgrade, followed by O'Niall/Witchaven interviews/investigation. Authorize the sourced replacement journal and exact complete first-stage endpoint before code changes. The source grants Commorb v2 when the player lacks a Commorb; no mandatory seeded original is inferred. The [source qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md) records this single first scope hold. No existing UI change is authorized by this question.
 
-## Open first-journal scope — 2026-10-15: Royal Trouble
+## Answered owner decision — 2026-10-15: TokTz-Ket-Dill first journal
 
-Period6542630 distinguishes Ghrim briefing, the heir cutscene/marriage suggestion and Vargas commission. The actual first journal is generic. Owner decision needed: authorize one sourced replacement first journal and its exact complete endpoint. The later Agility/Slayer/Prayer gate and visible-readout discrepancies stay separate. [Evidence](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). No partial endpoint is adopted.
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open first-journal scope — 2026-10-15: Elder Kiln
+Evidence before this ruling:
 
-The live first journal has five table-of-contents lines. Owner decision needed: authorize a period-sourced replacement journal and exact complete deed endpoint. Briefing, hatching and rooms are not interchangeable. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md). No partial stage or new UI is adopted.
+> The first journal is the generic “Complete TokTz-Ket-Dill stage 1 objective using the pinned source guide.” Authorize a period-sourced replacement and exact endpoint: three-guard briefing versus the later Stone tablet/library/Reldo/Tourist Guide/translation/mine-permission chain. The [qualified source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) preserves the existing material/gate qualifications. No guards-only credit or existing UI change is authorized by recording this question.
 
-## Open requirement-readout scope — 2026-10-15: Wanted
+## Answered owner decision — 2026-10-15: Animal Magnetism first journal
 
-The live gate requires completed Lost Tribe and Ghosts Ahoy. Period6510622 says partial Lost Tribe and optional Ghosts Ahoy; cache also records33 quest points and omitted prerequisite slots. Owner decision needed: authorize correction of the existing requirement readout with source-qualified prerequisite repair. The exact partial Lost Tribe threshold remains source-unqualified; authorization grants no gate waiver. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md).
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open first-journal scope — 2026-10-15: Watchtower
+Evidence before this ruling:
 
-The actual first journal is generic. Period6525573 distinguishes Wizard briefing from the bush/fingernails investigation. Owner decision needed: authorize a sourced replacement and exact complete first-stage endpoint. [Evidence](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md). No silent endpoint or spatial proxy is selected.
+> Stage1 is only contents headings; stage2 contains the Ava/Alice opening deeds. Authorize a sourced replacement first journal and its exact Ava-versus-undead-poultry endpoint while settling that stage2 overlap. The [source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) also retains the later Thieving15 readout qualification; no gate waiver, journal renumbering, partial credit or seeded acquisition is authorized.
 
-## Open existing-readout scope — 2026-10-15: Defender of Varrock
+## Answered owner decision — 2026-10-15: Eadgar's Ruse requirement readout
 
-The actual requirement readout lists four quests. The seven retained cache links also name Demon Slayer, Temple of Ikov and Garden of Tranquillity. Period oldid 6542570 requires the claimed Shield of Arrav museum reward. Authorize the existing requirement-readout correction with source-qualified eligibility repair. No other UI or reconstructed tracking route is proposed. [Evidence](source-audits/death-and-defender-opening-boundaries-2026-10-15.md). This is the first scope hold; later source and earned-route work remains.
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open existing-journal scope — 2026-10-15: Another Slice of H.A.M.
+Evidence before this ruling:
 
-Its actual Giant Dwarf dependency first inherits the settled open library-load decision. After that clears, the generic first journal needs a sourced complete endpoint. Period oldid 6548739 distinguishes the Ur-tag/Alvijar brief from Tegdak's tools, all six artefacts and their return. Authorize the complete first-journal replacement and its endpoint; no partial library or silent UI change is proposed. [Evidence](source-audits/another-slice-and-contact-opening-boundaries-2026-10-15.md).
+> The current start gate and visible requirements require Prayer40, while the retained period guides describe Prayer40 or Agility47 as recommended. Authorize the existing readout correction while independent source qualification settles the exact eligibility repair. The [bounded qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) preserves null-cache-field limits, the complete Sanfew-to-Eadgar journal and ordinary route obligations. No automatic gate waiver is authorized by this question.
 
-## Open existing-journal scope — 2026-10-15: Dream Mentor
+## Answered owner decision — 2026-10-15: Elemental Workshop III first journal
 
-The actual first journal omits two steps: the conversation after the first four foods, before Spirit encouragement (period oldid 6550965 line 72), and four more foods after that encouragement, before Cyrisus stands (line 76). Authorize these two source-correct journal insertions within the complete opening through Jack's chest and initial five-category armour selection. No partial first-aid endpoint or other UI change is proposed. [Evidence](source-audits/dream-and-workshop-iv-opening-boundaries-2026-10-15.md). Ordinary eligibility, food/Spirit/armour qualification and earned routes remain work.
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open existing-gate scope — 2026-10-15: Enakhra's Lament
+Evidence before this ruling:
 
-Period oldid6548386 line34 marks Mining45 optional; the current start gate and Requires text make it mandatory. Authorize that source-correct gate/readout correction. Preserve the complete opening through sandstone-base placement and every earned deed/input. No other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md).
+> The first journal describes a later puzzle; the existing stage1 action instead finds/reads Ragged book “in the workshop”, with no produced book. The period source starts at the chapel bookcase, then preparation, then the puzzle. Authorize a sourced replacement first journal and exact complete opening endpoint. The [qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) retains the current stage/dependency/key/custody conflicts; no hidden book action, journal renumbering or partial puzzle credit is authorized.
 
-## Open existing-gate and journal scope — 2026-10-15: Grim Tales
+## Answered owner decision — 2026-10-15: Another Cook's Quest first journal
 
-Period oldid6542776 lines32–40 makes five action levels boostable and Prayer/Combat recommendations, without those start gates. The current gates/readout enforce all seven. The opening journal also contains six contents entries and omits the full Sylas commission. Authorize the corrected start gates/readout and complete conversation/both-task journal. Keep Witch's House prerequisite and all five action checks at their actions. No later task credit or other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md). Witch's House's actual diary/key gap remains separate work.
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open existing-journal and gate scope — 2026-10-15: Witch's House
+Evidence before this ruling:
 
-Authorize the complete diary/read/key path and source-correct glove gate before cupboard/Magnet in the existing journal/readout. The current journal places gloves after magnet and mouse acquisition. Preserve all ordinary producers, Cheese custody, patrol, four fights and the single Ball hand-in. No new interface is proposed. [Evidence](source-audits/witchs-house-complete-diary-key-boundary-2026-10-15.md). The original/restored diary-gate source distinction remains explicit.
+> Another Cook's Quest, an actual prerequisite for Freeing Evil Dave, has a generic first journal and a generated2025 fallback source pin. A retained period main-page source nominates commission/100-Coin advance, ingredient/Dirty-blast preparation and full handoff. Authorize the sourced replacement first journal and exact complete endpoint, distinguishing that commission from full preparation/feast access. The [dependency qualification](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md) retains source-pin repair as work; that repair alone grants no existing journal/UI authority. No seeded feast access or partial stage credit.
 
-## Open first-journal and start-gate scope — 2026-10-15: Haunted Mine
+## Answered owner decision — 2026-10-15: Freeing King Awowogei first journal
 
-Authorize the complete Zealot briefing/pickpocket-key/two-cart/mine-entry journal and correct Requires/start gates: Priest in Peril complete, Nature Spirit started, Agility1 alternative and Crafting35. The current journal is a generic sentinel and catalog omits those quest prerequisites. No partial endpoint or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open first-journal and start-gate scope — 2026-10-15: Nature Spirit
+Evidence before this ruling:
 
-Authorize the complete Drezel commission and ordinary six-pie custody in place of contents entries, with source-correct Crafting/Prayer start gates/readout. Crafting18 is conditional on making the later sickle; Prayer potions provide an alternative to Prayer10. Preserve real Priest in Peril and Restless Ghost prerequisites. Haunted Mine requires only this started state. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md). No later completion or other UI change is proposed.
+> The first journal is generic. Authorize a period-sourced replacement and exact complete first-stage endpoint. The source separates inspection/Aris from the Ape Atoll king/trio recipe sequence. The [qualification](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md) preserves the actual Another Cook, Monkey Madness and Grand Tree dependency holds. No coin alternative can seed monkey resources, greegrees or hazard proof.
 
-## Open complete-branch journal scope — 2026-10-15: Hazeel Cult
+## Answered owner decision — 2026-10-15: Royal Trouble
 
-Authorize complete branch-specific first journals/endpoints through all five correct valve states for both existing choices. The current refusal journal cannot truthfully complete on the cult branch. Preserve the Carnillean briefing/refusal route and the cult acceptance/poison/family/Mark route before its valves. No choice removal, shortened stage or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
-## Open owner question — 2026-10-15: Pirate’s hook catalog snapshot
+Evidence before this ruling:
 
-May the exact GE snapshot totals change from1442prices/1837limits to1443prices/1838limits solely for the sourced Pirate’s hook2997 row, with every prior row proven identical and all other assertions preserved? The unchanged tests/test_grand_exchange_data.py:235–236 fail `AssertionError: 1443 != 1442`; Astra found no green path preserving those exact totals, every old row and the added same-map item. Candidatefecac97b7d9f01ffc64e4e56c05d6168938bfe45 is parked. No instrument was changed. Source qualification, startup-budget compliance, native acceptance and the exact full gate remain separate requirements; an answer here does not waive them. [Independent review](</Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/pirates-hook-astra-review-2026-10-15/report.md>).
+> Period6542630 distinguishes Ghrim briefing, the heir cutscene/marriage suggestion and Vargas commission. The actual first journal is generic. Owner decision needed: authorize one sourced replacement first journal and its exact complete endpoint. The later Agility/Slayer/Prayer gate and visible-readout discrepancies stay separate. [Evidence](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). No partial endpoint is adopted.
+
+## Answered owner decision — 2026-10-15: Elder Kiln
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> The live first journal has five table-of-contents lines. Owner decision needed: authorize a period-sourced replacement journal and exact complete deed endpoint. Briefing, hatching and rooms are not interchangeable. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md). No partial stage or new UI is adopted.
+
+## Answered owner decision — 2026-10-15: Wanted
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. The exact partial Lost Tribe threshold remains source-held. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> The live gate requires completed Lost Tribe and Ghosts Ahoy. Period6510622 says partial Lost Tribe and optional Ghosts Ahoy; cache also records33 quest points and omitted prerequisite slots. Owner decision needed: authorize correction of the existing requirement readout with source-qualified prerequisite repair. The exact partial Lost Tribe threshold remains source-unqualified; authorization grants no gate waiver. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md).
+
+## Answered owner decision — 2026-10-15: Watchtower
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> The actual first journal is generic. Period6525573 distinguishes Wizard briefing from the bush/fingernails investigation. Owner decision needed: authorize a sourced replacement and exact complete first-stage endpoint. [Evidence](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md). No silent endpoint or spatial proxy is selected.
+
+## Answered owner decision — 2026-10-15: Defender of Varrock
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> The actual requirement readout lists four quests. The seven retained cache links also name Demon Slayer, Temple of Ikov and Garden of Tranquillity. Period oldid 6542570 requires the claimed Shield of Arrav museum reward. Authorize the existing requirement-readout correction with source-qualified eligibility repair. No other UI or reconstructed tracking route is proposed. [Evidence](source-audits/death-and-defender-opening-boundaries-2026-10-15.md). This is the first scope hold; later source and earned-route work remains.
+
+## Answered owner decision — 2026-10-15: Another Slice of H.A.M.
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Its actual Giant Dwarf dependency first inherits the settled open library-load decision. After that clears, the generic first journal needs a sourced complete endpoint. Period oldid 6548739 distinguishes the Ur-tag/Alvijar brief from Tegdak's tools, all six artefacts and their return. Authorize the complete first-journal replacement and its endpoint; no partial library or silent UI change is proposed. [Evidence](source-audits/another-slice-and-contact-opening-boundaries-2026-10-15.md).
+
+## Answered owner decision — 2026-10-15: Dream Mentor
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> The actual first journal omits two steps: the conversation after the first four foods, before Spirit encouragement (period oldid 6550965 line 72), and four more foods after that encouragement, before Cyrisus stands (line 76). Authorize these two source-correct journal insertions within the complete opening through Jack's chest and initial five-category armour selection. No partial first-aid endpoint or other UI change is proposed. [Evidence](source-audits/dream-and-workshop-iv-opening-boundaries-2026-10-15.md). Ordinary eligibility, food/Spirit/armour qualification and earned routes remain work.
+
+## Answered owner decision — 2026-10-15: Enakhra's Lament
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Period oldid6548386 line34 marks Mining45 optional; the current start gate and Requires text make it mandatory. Authorize that source-correct gate/readout correction. Preserve the complete opening through sandstone-base placement and every earned deed/input. No other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md).
+
+## Answered owner decision — 2026-10-15: Grim Tales
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Period oldid6542776 lines32–40 makes five action levels boostable and Prayer/Combat recommendations, without those start gates. The current gates/readout enforce all seven. The opening journal also contains six contents entries and omits the full Sylas commission. Authorize the corrected start gates/readout and complete conversation/both-task journal. Keep Witch's House prerequisite and all five action checks at their actions. No later task credit or other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md). Witch's House's actual diary/key gap remains separate work.
+
+## Answered owner decision — 2026-10-15: Witch's House
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Authorize the complete diary/read/key path and source-correct glove gate before cupboard/Magnet in the existing journal/readout. The current journal places gloves after magnet and mouse acquisition. Preserve all ordinary producers, Cheese custody, patrol, four fights and the single Ball hand-in. No new interface is proposed. [Evidence](source-audits/witchs-house-complete-diary-key-boundary-2026-10-15.md). The original/restored diary-gate source distinction remains explicit.
+
+## Answered owner decision — 2026-10-15: Haunted Mine
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Authorize the complete Zealot briefing/pickpocket-key/two-cart/mine-entry journal and correct Requires/start gates: Priest in Peril complete, Nature Spirit started, Agility1 alternative and Crafting35. The current journal is a generic sentinel and catalog omits those quest prerequisites. No partial endpoint or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).
+
+## Answered owner decision — 2026-10-15: Nature Spirit
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Authorize the complete Drezel commission and ordinary six-pie custody in place of contents entries, with source-correct Crafting/Prayer start gates/readout. Crafting18 is conditional on making the later sickle; Prayer potions provide an alternative to Prayer10. Preserve real Priest in Peril and Restless Ghost prerequisites. Haunted Mine requires only this started state. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md). No later completion or other UI change is proposed.
+
+## Answered owner decision — 2026-10-15: Hazeel Cult
+
+Owner ruling, 2026-10-15: R1 authorizes source-correct journal text, readouts and gates. Recommended levels stop being start gates. Where this item asks for an endpoint, R2 ends stage 1 at the first performed period deed, never talk alone. Move opening deeds into stage 1. Preserve real acquisition, source disputes and later unperformed deeds; no new widget or layout is authorized. Give each branch its own journal and endpoint. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> Authorize complete branch-specific first journals/endpoints through all five correct valve states for both existing choices. The current refusal journal cannot truthfully complete on the cult branch. Preserve the Carnillean briefing/refusal route and the cult acceptance/poison/family/Mark route before its valves. No choice removal, shortened stage or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).
+
+## Answered owner decision — 2026-10-15: Pirate’s hook catalog snapshot
+
+Owner ruling, 2026-10-15: Approve exact totals of 1,443 prices and 1,838 limits for the sourced added row, with every previous row identical. This updates the baseline for correct content; all other assertions stay intact. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+
+Evidence before this ruling:
+
+> May the exact GE snapshot totals change from1442prices/1837limits to1443prices/1838limits solely for the sourced Pirate’s hook2997 row, with every prior row proven identical and all other assertions preserved? The unchanged tests/test_grand_exchange_data.py:235–236 fail `AssertionError: 1443 != 1442`; Astra found no green path preserving those exact totals, every old row and the added same-map item. Candidatefecac97b7d9f01ffc64e4e56c05d6168938bfe45 is parked. No instrument was changed. Source qualification, startup-budget compliance, native acceptance and the exact full gate remain separate requirements; an answer here does not waive them. [Independent review](</Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/pirates-hook-astra-review-2026-10-15/report.md>).
 
 ## Answered owner correction — 2026-10-15: save representation is engineering work
 
@@ -3126,3 +3312,31 @@ Bittercap promotion requests every incident exactly once, but `move_papercuts.py
 ## Open owner question — 2026-10-17: Cabinet diary search and Mogre Mash acceptance
 
 Cabinet diary search shows “Showing 1/534” but still renders unrelated Capes and Distinctions rows (observed natively 2026-10-17, evidence /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/native-lane-5/mogre/ and native-review-561/report.md item 1; pre-existing on main). The Cabinet is existing UI that the goal excludes. Decision needed: authorize a bounded Cabinet search fix, or drop the Cabinet diary-row inspection from the Mogre Mash (source 148) native acceptance. Mogre’s landing waits on this answer.
+
+## Answered owner decisions — 2026-10-15: game speed and world day
+
+Authority: [the pace and calendar handoff](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/pace-and-calendar-handoff-2026-10-15.md), from owner thread ea1723e0-072e-47ba-a6bc-bcb2d551734f. Record only; the product change is not built or shipped.
+
+1. Default game speed is ×10; Settings range is ×1–×20.
+2. Replace "Actions per review" with "Game speed". The configured copy model writes its tooltip.
+3. Reverse the deferred Global Training-Rate Rule for global speed only. Per-method balancing stays deferred.
+4. A card buys 6 game ticks × speed. Action handlers spend that budget; remove the once-per-review list. Owner: "10. A, frick it".
+5. Danger ends the card: auto-eat threshold with no food, stun, poison onset, familiar expiry, no ammunition, no runes, zero Prayer, death, flee, bank trip, or the last Slayer-task kill.
+6. Combat chains into another enemy of the same target until the budget ends or danger stops it.
+7. Fish Flingers must use its period duration. The code comment suggests ten minutes, or 17 cards at ×10. Confirm that duration against a period source or register a placeholder before the build claims source parity. Do not roll back past game XP.
+8. Follow the median answered cards per active study day over the last60 days, bounded 100–1,000. Default on. Provide "Follow my study volume" and a cards field. When off, allow a fixed100–1,000 and show the suggestion.
+9. Within a world day, advance 3.6 seconds × speed per card. At its boundary, skip the rest of 24 hours as logged-out time.
+10. Show the pace dialog at first launch for a new player, or once after this update for an existing player. Preselect recommendations, show current values and2012 hours/day, and offer "Keep my current settings". Closing uses recommendations for new players and current values for existing players. Never show it again.
+11. The owner’s save uses the same path as every save. Preselect recommended values.
+
+Accepted assumptions: count only days with answered reviews, excluding manual reschedules. Fewer than 7 study days uses 240 cards. Change day length only at a boundary. All daily/weekly resets, crops and restocks use one shared day value. Short timers spend the card budget; the Restaurant six-minute window takes10 reviews at ×10, and Again-fairness uses the actual card budget. Quests and Dungeoneering retain one stage/room per card as a deliberate divergence. Agility and Thieving spend time; a stun costs its stun_ticks. Scale Fish Flingers discoveries with game length. Again advances the clock without a foreground action.
+
+Deliver the complete pace/calendar change in one promotion. Do not change sourced XP or the parallel foreground/calendar design. UI authorization covers only Settings label/range/world-day row and the pace dialog. Opus builds interfaces; a frontend-taste model reviews them. Required proofs cover rate equivalence at ×1/×10, equal lump rewards, the catalog-based daily share, every danger stop, combat chains, boundary/adaptive Undo, and native dark-mode dialog/Settings checks.
+
+## Answered owner decision — 2026-10-18: Sol closeout and temporary Claude exception
+
+Owner words at 08:58 PDT: "Do the switch now and tell it to clean up all its loose ends so it can be a clean swap". Then: "Actually there was a set of high prio changes I needed it to make".
+
+The owner selected: "Claude until Oct 24 (Recommended): The Sol head does part 1, the 4 gates and a handoff of every open item, then stops. You lift the Claude rule for this list until Oct 24. Opus builds parts 2 to 4 with tests, and Kimi reviews. Part 3 can land this week. Native Anki checks need Codex, so they and the pace promotion wait for Oct 24."
+
+This is a dated exception to the 2026-10-14 model rule for pace handoff parts 2–4 only, through 2026-10-24. Sol records decisions, runs the four accepted gates, returns safe leases, writes the handoff and stops. No new child or native review. The Collections crash precedes the approved menu repair; the complete pace/calendar build follows. Do not infer permission for other Claude backend or record work.
