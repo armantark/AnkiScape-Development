@@ -66,8 +66,8 @@ class EggNestTradeabilityTest(unittest.TestCase):
         constants = self.module("core.constants")
         definitions = {item.storage_key: item for item in constants.ITEM_DEFINITIONS}
         ge = self.module("data.grand_exchange_data")
-        self.assertEqual(len(ge.PERIOD_GE_GUIDE_PRICES), 1443)
-        self.assertEqual(len(ge.PERIOD_GE_BUY_LIMITS), 1838)
+        self.assertEqual(len(ge.PERIOD_GE_GUIDE_PRICES), 1446)
+        self.assertEqual(len(ge.PERIOD_GE_BUY_LIMITS), 1841)
         for name, item_id, _egg, _roll in EGG_NESTS:
             for catalog in (constants.WOODCUTTING_EXTRA_ITEM_DATA, constants.EXTRA_ITEM_DATA):
                 self.assertEqual((catalog[name]["item_id"], catalog[name]["tradeable"],

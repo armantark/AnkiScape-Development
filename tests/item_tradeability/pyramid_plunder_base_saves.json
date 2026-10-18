@@ -1,0 +1,158 @@
+{
+  "source_revision": "3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7",
+  "saves": {
+    "Mining helmet (lit)": {
+      "ankiscape_player_data": {
+        "config_version": 124,
+        "thieving_level": 21,
+        "thieving_exp": 0,
+        "activity_session": {
+          "active_id": "pyramid_plunder"
+        },
+        "current_utility": "pyramid_plunder",
+        "pyramid_plunder": {
+          "version": 1,
+          "room": 1,
+          "max_room": 1,
+          "priority": "max_xp",
+          "xp": {
+            "thieving": 0.0,
+            "strength": 0.0,
+            "runecrafting": 0.0
+          },
+          "haul": {}
+        },
+        "pyramid_plunder_priority": "max_xp",
+        "pyramid_plunder_runs_completed": 0,
+        "pyramid_plunder_last_result": "Entered Pyramid Plunder · Max XP · rooms 1-1",
+        "carried_inventory": {
+          "pyramid_plunder": {
+            "Mining helmet (lit)": 2,
+            "Shark": 27
+          }
+        },
+        "carried_layout": {
+          "pyramid_plunder": {
+            "Mining helmet (lit)": 2,
+            "Shark": 27
+          }
+        },
+        "carried_advanced_targets": {
+          "pyramid_plunder": true
+        },
+        "inventory": {
+          "Mining helmet (lit)": 2,
+          "Shark": 27
+        },
+        "quests": {
+          "icthlarins_little_helper": {
+            "started": true
+          }
+        }
+      },
+      "ankiscape_current_skill": "None"
+    },
+    "Mining helmet (unlit)": {
+      "ankiscape_player_data": {
+        "config_version": 124,
+        "thieving_level": 21,
+        "thieving_exp": 0,
+        "activity_session": {
+          "active_id": "pyramid_plunder"
+        },
+        "current_utility": "pyramid_plunder",
+        "pyramid_plunder": {
+          "version": 1,
+          "room": 1,
+          "max_room": 1,
+          "priority": "max_xp",
+          "xp": {
+            "thieving": 0.0,
+            "strength": 0.0,
+            "runecrafting": 0.0
+          },
+          "haul": {}
+        },
+        "pyramid_plunder_priority": "max_xp",
+        "pyramid_plunder_runs_completed": 0,
+        "pyramid_plunder_last_result": "Entered Pyramid Plunder · Max XP · rooms 1-1",
+        "carried_inventory": {
+          "pyramid_plunder": {
+            "Mining helmet (unlit)": 2,
+            "Shark": 27
+          }
+        },
+        "carried_layout": {
+          "pyramid_plunder": {
+            "Mining helmet (unlit)": 2,
+            "Shark": 27
+          }
+        },
+        "carried_advanced_targets": {
+          "pyramid_plunder": true
+        },
+        "inventory": {
+          "Mining helmet (unlit)": 2,
+          "Shark": 27
+        },
+        "quests": {
+          "icthlarins_little_helper": {
+            "started": true
+          }
+        }
+      },
+      "ankiscape_current_skill": "None"
+    },
+    "Rat pole": {
+      "ankiscape_player_data": {
+        "config_version": 124,
+        "thieving_level": 21,
+        "thieving_exp": 0,
+        "activity_session": {
+          "active_id": "pyramid_plunder"
+        },
+        "current_utility": "pyramid_plunder",
+        "pyramid_plunder": {
+          "version": 1,
+          "room": 1,
+          "max_room": 1,
+          "priority": "max_xp",
+          "xp": {
+            "thieving": 0.0,
+            "strength": 0.0,
+            "runecrafting": 0.0
+          },
+          "haul": {}
+        },
+        "pyramid_plunder_priority": "max_xp",
+        "pyramid_plunder_runs_completed": 0,
+        "pyramid_plunder_last_result": "Entered Pyramid Plunder · Max XP · rooms 1-1",
+        "carried_inventory": {
+          "pyramid_plunder": {
+            "Rat pole": 2,
+            "Shark": 27
+          }
+        },
+        "carried_layout": {
+          "pyramid_plunder": {
+            "Rat pole": 2,
+            "Shark": 27
+          }
+        },
+        "carried_advanced_targets": {
+          "pyramid_plunder": true
+        },
+        "inventory": {
+          "Rat pole": 2,
+          "Shark": 27
+        },
+        "quests": {
+          "icthlarins_little_helper": {
+            "started": true
+          }
+        }
+      },
+      "ankiscape_current_skill": "None"
+    }
+  }
+}

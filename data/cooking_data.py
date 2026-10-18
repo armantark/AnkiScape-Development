@@ -550,6 +550,7 @@ SOURCE_NONSTACKABLE_ITEMS = frozenset(
         "Barley malt",
         "Ale yeast",
         "Onion",
+        "Cabbage",  # Ordinary ID1965: https://runescape.wiki/w/Cabbage?oldid=5743345
         "Redberries",
         "Nettle-water",
         "Nettle tea",
