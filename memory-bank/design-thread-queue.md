@@ -2927,6 +2927,8 @@ Evidence before this ruling:
 
 Owner ruling, 2026-10-15: Owner at 2026-10-15 18:46 PDT: "12 a". Ship the full-name/standard-scroll-button main-menu repair after a fresh merge onto current main and a new full gate. Excuse Collections content proof for this candidate only. Treat the crash as a separate high-priority defect. Preserve all other native requirements and accepted evidence. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
+Outcome, 2026-10-18: Kimi K3 voted SHIP in the [frontend-taste review](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pace-list/p3-tab-repair/taste/kimi-k3-taste-review.md). The candidate and its shallow cleanup landed with this record after a fresh merge onto main `07704b95c4ca74d4c4cd4b4fd835a31a3728c2f7`, the exact full nine-check gate and official land. The crash is a Qt 6.11.0 accessibility use-after-free [under diagnosis](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/pace-list/p2-collections-crash/report.md).
+
 Evidence before this ruling:
 
 > The shallow cleanup and approved main-menu repair await the owner's native acceptance decision. Exact merged candidate `8d8888be054424ad68e1b156523b25edc1d32ed1` passed all nine official promotion checks. Independent reviews passed. Native behavior, full tab names and scroll buttons passed on frozen source `84a5fd0d215dcea7d433db092fc988cb8b278ed4`. The shipped files match the merged candidate.
@@ -2998,7 +3000,7 @@ Evidence before this ruling:
 
 ### Answered owner decision — 2026-10-14: Gunnar tab ellipses
 
-Owner ruling, 2026-10-15: R4 authorizes repair of the clipped tab names. The main-menu candidate still needs the fresh merge and full gate under ruling 2906. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
+Owner ruling, 2026-10-15: R4 authorizes repair of the clipped tab names. The main-menu repair landed under ruling 2906 on 2026-10-18. Authority: [the owner rulings](/Users/armantarkhanian/Documents/ankiscape-goal-handoff-2026-10-15-pace/design-queue-nit-rulings-2026-10-15.md).
 
 Evidence before this ruling:
 
