@@ -19,6 +19,7 @@ from ..data.big_chinchompa_data import (
     BIG_CHINCHOMPA_TICKET_BY_TARGET,
     BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW,
 )
+from .pace.world_clock import DEFAULT_WORLD_DAY_CARDS
 from .world_population_logic import (
     naturalized_population_target_bps_pure,
     seeded_unit_pure,
@@ -190,7 +191,7 @@ def big_chinchompa_crowd_target_bps_pure(
     ) / BIG_CHINCHOMPA_EVENT_MINUTES
     return naturalized_population_target_bps_pure(
         phase=phase,
-        day_phase=(slot_card % 240) / 240.0,
+        day_phase=(slot_card % DEFAULT_WORLD_DAY_CARDS) / DEFAULT_WORLD_DAY_CARDS,
         seed=seed,
         base_ceiling=BIG_CHINCHOMPA_POPULATION_BASE_CEILING,
     )
