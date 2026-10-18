@@ -89,11 +89,11 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
                 "magic_charge_active": True,
                 "magic_charge_ticks_remaining": MAGIC_CHARGE_DURATION_TICKS,
             },
-            action_ticks=2,
+            12,
         )
         self.assertEqual(
             advanced["magic_charge_ticks_remaining"],
-            MAGIC_CHARGE_DURATION_TICKS - 100,
+            MAGIC_CHARGE_DURATION_TICKS - 12,
         )
         self.assertTrue(advanced["magic_charge_active"])
 
@@ -102,7 +102,7 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
                 "magic_charge_active": True,
                 "magic_charge_ticks_remaining": 50,
             },
-            action_ticks=1,
+            60,
         )
         self.assertEqual(expired["magic_charge_ticks_remaining"], 0)
         self.assertFalse(expired["magic_charge_active"])

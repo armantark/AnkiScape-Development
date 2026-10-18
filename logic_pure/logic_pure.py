@@ -628,7 +628,6 @@ from .logic_pure_construction import (  # noqa: F401  (re-export)
 
 from .logic_pure_magic import (  # noqa: F401  (re-export)
     MAGIC_CHARGE_DURATION_TICKS,
-    TEMPORARY_EFFECT_TICKS_PER_ACTION,
     _HUMIDIFY_OUTPUTS,
     _LEATHER_OUTPUTS,
     _PIE_OUTPUTS,

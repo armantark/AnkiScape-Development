@@ -205,5 +205,20 @@ class GnomeRestaurantWindowTests(_HostCase):
         self.assertNotIn("minutes_left", state["order"])
 
 
+class TemporaryEffectTests(_HostCase):
+    def test_magic_charge_lasts_twelve_successful_non_combat_cards_at_speed_ten(self):
+        # 700 ticks at 60 a card; Again spends none of it.
+        addon = self._addon(
+            10, {"magic_charge_active": True, "magic_charge_ticks_remaining": 700}
+        )
+        for card in range(1, 13):
+            self.assertTrue(self._answer(addon, 1)["magic_charge_active"])
+            player = self._answer(addon, 3)
+            self.assertEqual(
+                player["magic_charge_ticks_remaining"], max(0, 700 - 60 * card)
+            )
+            self.assertEqual(player["magic_charge_active"], card < 12)
+
+
 if __name__ == "__main__":
     unittest.main()

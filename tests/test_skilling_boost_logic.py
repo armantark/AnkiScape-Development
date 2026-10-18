@@ -85,10 +85,10 @@ class SkillingBoostLogicTest(unittest.TestCase):
             "skilling_current_levels": {"crafting": 53},
             "skilling_level_decay_ticks": 0,
         }
-        halfway = advance_temporary_effects_pure(boosted, action_ticks=1)
+        halfway = advance_temporary_effects_pure(boosted, 50)
         self.assertEqual(skilling_effective_level_pure(halfway, "crafting"), 53)
         self.assertEqual(halfway["skilling_level_decay_ticks"], 50)
-        restored = advance_temporary_effects_pure(halfway, action_ticks=1)
+        restored = advance_temporary_effects_pure(halfway, 50)
         self.assertEqual(skilling_effective_level_pure(restored, "crafting"), 52)
         self.assertEqual(restored["skilling_level_decay_ticks"], 0)
 

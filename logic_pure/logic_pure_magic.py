@@ -107,10 +107,6 @@ from .logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from .logic_pure_progression import (
-    sanitize_review_action_multiplier,
-)
-
 from .logic_pure_landmarks import (
     MAGE_ARENA_GOD_DATA,
     MAGE_ARENA_SPELL_TO_GOD,
@@ -160,22 +156,19 @@ def _livid_spell_locked_reasons_pure(player_data, unlock_id):
 MAGIC_CHARGE_DURATION_TICKS = 700
 
 
-TEMPORARY_EFFECT_TICKS_PER_ACTION = 50
-
-
 def advance_temporary_effects_pure(
     player_data,
-    action_ticks=1,
+    elapsed_ticks,
     *,
-    elapsed_ticks=None,
     advance_dragonfire=True,
 ):
-    """Advance review-paced temporary effects without reading wall time."""
+    """Spend ``elapsed_ticks`` of play from every temporary effect.
+
+    A successful non-Combat card spends its time budget; live Combat spends the
+    ticks it fought. No wall time is read.
+    """
     data = dict(player_data)
-    ticks = max(0, int(elapsed_ticks)) if elapsed_ticks is not None else (
-        TEMPORARY_EFFECT_TICKS_PER_ACTION
-        * sanitize_review_action_multiplier(action_ticks)
-    )
+    ticks = max(0, int(elapsed_ticks))
     remaining = _non_negative_int(
         data.get(
             "magic_charge_ticks_remaining",

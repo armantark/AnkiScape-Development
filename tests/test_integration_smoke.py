@@ -3896,7 +3896,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_fletch": "arrow_shafts",
             "completed_achievements": [],
             "magic_charge_active": True,
-            "magic_charge_ticks_remaining": 100,
+            "magic_charge_ticks_remaining": 12,  # one speed-2 card
         }
         initial_state = copy.deepcopy(addon._state.player_data)
         addon._state.current_skill = "Fletching"

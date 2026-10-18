@@ -5268,7 +5268,7 @@ def _advance_effects_for_answer(successful_answer) -> None:
     )
     if successful_answer and not live_combat:
         _state.player_data.update(
-            advance_temporary_effects_pure(_state.player_data, _review_action_multiplier())
+            advance_temporary_effects_pure(_state.player_data, runtime_actions.card_ticks_pure(_review_action_multiplier()))
         )
     elif not successful_answer and live_combat:
         encounter = _state.player_data.get("combat_encounter", {}) or {}
