@@ -168,6 +168,7 @@ from ..logic.brawling_gloves_logic import (
 )
 from ..logic.farming_logic import (
     advance_farm_clock_pure,
+    JADE_VINE_BIND_TICKS,
     apply_farming_review_with_queue_pure,
     consume_next_farm_queue_step_pure,
 )
@@ -391,6 +392,7 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
 from .runtime_actions_context import (
     RuntimeActionContext,
     stop_card,
+    stun_card,
 )
 
 
@@ -764,11 +766,12 @@ def _stop_card_at_farm_danger(ctx: RuntimeActionContext, info: Mapping[str, Any]
     """A Wild jade vine bind is a stun; it, a death or a flee ends the card (decision 5).
 
     The vine's step details carry the bind flag and the Combat engine's result.
+    The bind owes its ticks to the running budget like any stun.
     """
     combat = info.get("combat_result")
     combat = combat if isinstance(combat, Mapping) else {}
     if info.get("bound"):
-        stop_card(ctx, "stun")
+        stun_card(ctx, JADE_VINE_BIND_TICKS)
     elif combat.get("died"):
         stop_card(ctx, "died")
     elif combat.get("fled"):

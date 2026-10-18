@@ -623,10 +623,10 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         self.assertEqual(addon._state.review_undo_stack, [])
 
     # A Wild jade vine bind, death or flee in a queued step ends the card (decision 5).
-    def _fight_wild_jade_vine(self, lifepoints):
+    def _fight_wild_jade_vine(self, lifepoints, speed=3):
         addon = _load_addon_as_package("ankiscape_jade_vine_danger_stop")
         self._configure(addon)
-        addon._review_action_multiplier = lambda: 3
+        addon._review_action_multiplier = lambda: speed
         # At this fixed roll the vine first hits in the second six-tick slice,
         # and every hit rolls the one-in-six bind.
         self.enterContext(patch.object(addon.random, "random", lambda: 0.05))
@@ -666,16 +666,32 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
         return addon._state.player_data
 
-    def test_a_bind_ends_the_card_and_holds_one_step_of_the_next(self):
+    def test_a_bind_ends_the_card_and_is_paid_inside_a_speed_three_card(self):
         addon = self._fight_wild_jade_vine(990)
 
         data = self._answer_card(addon)
-        self.assertEqual(data["farm_patches"]["handelmort_jade_vine"]["jade_bound_reviews_remaining"], 1)
         self.assertEqual(data["combat_lifepoints"], 982)
+        self.assertNotIn("card_tick_debt", data)
 
-        # The hold takes the next card's first step; the fight goes on in the rest.
+        # Nothing carried, so the next card fights from its first step.
         data = self._answer_card(addon)
-        self.assertEqual(data["farm_patches"]["handelmort_jade_vine"]["jade_bound_reviews_remaining"], 1)
+        self.assertEqual(data["combat_lifepoints"], 974)
+        self.assertEqual(data["inventory"]["Logs"], 1)
+
+    def test_at_speed_one_a_bind_holds_exactly_the_next_card(self):
+        addon = self._fight_wild_jade_vine(990, speed=1)
+        self._answer_card(addon)
+        data = self._answer_card(addon)
+        self.assertEqual((data["combat_lifepoints"], data["card_tick_debt"]), (982, 6))
+        clock = data["farm_clock_minutes"]
+
+        # The held card neither fights nor fletches, but the farm clock moves.
+        data = self._answer_card(addon)
+        self.assertEqual(data["combat_lifepoints"], 982)
+        self.assertNotIn("card_tick_debt", data)
+        self.assertGreater(data["farm_clock_minutes"], clock)
+
+        data = self._answer_card(addon)
         self.assertEqual(data["combat_lifepoints"], 974)
         self.assertEqual(data["inventory"]["Logs"], 1)
 

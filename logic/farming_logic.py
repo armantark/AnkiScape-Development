@@ -64,6 +64,8 @@ JADE_VINE_POLICIES = (
 )
 JADE_VINE_COMBAT_TARGET_ID = "wild_jade_vine"
 JADE_VINE_COMBAT_TICKS = 6
+# The disclosed one-review bind, owed as ticks to the card's running budget.
+JADE_VINE_BIND_TICKS = 6
 JADE_VINE_WILD_BRANCH = 6
 JADE_VINE_VISIBLE_BRANCHES = 5
 JADE_VINE_REPLANT_PAYMENT = {"Coconut": 5, "Watermelon": 5}
@@ -155,7 +157,6 @@ def _default_patch_record() -> dict[str, Any]:
         "jade_state": None,
         "jade_prunes": 0,
         "jade_combat_encounter": {},
-        "jade_bound_reviews_remaining": 0,
         "jade_attack_style_index": 0,
         "plan": None,
     }
@@ -298,7 +299,7 @@ def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
     record["jade_prunes"] = _int(record.get("jade_prunes"))
     encounter = record.get("jade_combat_encounter")
     record["jade_combat_encounter"] = dict(encounter) if isinstance(encounter, Mapping) else {}
-    record["jade_bound_reviews_remaining"] = _int(record.get("jade_bound_reviews_remaining"))
+    record.pop("jade_bound_reviews_remaining", None)
     record["jade_attack_style_index"] = _int(record.get("jade_attack_style_index")) % 3
     record["plan"] = _sanitize_plan(record.get("plan"))
     if crop_id is None:
@@ -311,7 +312,6 @@ def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
         record["jade_state"] = None
         record["jade_prunes"] = 0
         record["jade_combat_encounter"] = {}
-        record["jade_bound_reviews_remaining"] = 0
         record["jade_attack_style_index"] = 0
     return record
 
@@ -1377,15 +1377,6 @@ def _jade_vine_combat(
         return False, "equip a usable hatchet", {}
     if not tool_on_belt(updated, "Secateurs"):
         return False, "requires Secateurs", {}
-    if _int(record.get("jade_bound_reviews_remaining")) > 0:
-        record["jade_bound_reviews_remaining"] -= 1
-        return True, "The Wild jade vine's bind holds you for this review.", {
-            "repeat_queue_step": True,
-            "combat_continuing": True,
-            "ticks_elapsed": 0,
-            "outputs": {},
-        }
-
     ordinary_target = updated.get("current_combat_target")
     ordinary_encounter = copy.deepcopy(updated.get("combat_encounter", {}))
     updated["current_combat_target"] = JADE_VINE_COMBAT_TARGET_ID
@@ -1452,16 +1443,13 @@ def _jade_vine_combat(
     if died:
         updated["combat_encounter"] = {}
         record["jade_combat_encounter"] = {}
-        record["jade_bound_reviews_remaining"] = 0
         return True, "You died; the Wild jade vine remains and will be at full health next time.", details
     if fled:
         record["jade_combat_encounter"] = {}
-        record["jade_bound_reviews_remaining"] = 0
         return True, "You fled; the Wild jade vine returned to full health.", details
 
     record["jade_combat_encounter"] = synthetic_encounter
     if _int(result.get("enemy_damage")) > 0 and random_random() < (1.0 / 6.0):
-        record["jade_bound_reviews_remaining"] = 1
         details["bound"] = True
     details["repeat_queue_step"] = True
     details["combat_continuing"] = True
