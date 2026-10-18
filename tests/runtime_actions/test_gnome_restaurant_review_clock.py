@@ -70,7 +70,7 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
                 else:
                     good_tips = {row.id for row in GNOME_RESTAURANT_TIPS if row.group == GNOME_RESTAURANT_GOOD_TIP_GROUP}
                     self.assertTrue(set(restaurant["tips_received"]) & good_tips)
-                self.assertEqual(restaurant["order"]["minutes_left"], 6 if difficulty == "easy" else 11)
+                self.assertEqual(restaurant["order"]["ticks_left"], 600 if difficulty == "easy" else 1_100)
                 self._undo(addon)
                 self.assertEqual(addon._state.player_data, saved)
                 self.assertEqual(addon.random.getstate(), before_rng)
@@ -82,7 +82,8 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
         addon = self._addon()
         addon._state.current_skill = "Woodcutting"
         before = copy.deepcopy(addon._state.player_data)
-        for ease, minutes in ((1, 11), (2, 5), (1, 5), (4, 0), (3, 0)):
+        # Speed 1: a successful card on another target spends six ticks.
+        for ease, ticks in ((1, 1_100), (2, 1_094), (1, 1_094), (4, 1_088), (3, 1_082)):
             before_answer = copy.deepcopy(addon._state.player_data)
             before_rng = addon.random.getstate()
             self._answer(addon, ease)
@@ -96,7 +97,7 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
                 self.assertEqual(addon._state.player_data, after_answer)
                 self.assertEqual(addon.random.getstate(), after_rng)
             order = addon._state.player_data["gnome_restaurant"]["order"]
-            self.assertEqual(order["minutes_left"], minutes)
+            self.assertEqual(order["ticks_left"], ticks)
             self.assertEqual(order["customer"], before["gnome_restaurant"]["order"]["customer"])
             self.assertEqual(addon._state.player_data["gnome_restaurant"]["points"], 0)
         migrated = migrate_loaded_data(
@@ -108,7 +109,7 @@ class GnomeRestaurantReviewClockTests(unittest.TestCase):
         addon = self._addon()
         addon._state.player_data["farm_queue"] = [{"kind": "plant", "patch_id": "invalid"}]
         self._answer(addon, 3)
-        self.assertEqual(addon._state.player_data["gnome_restaurant"]["order"]["minutes_left"], 5)
+        self.assertEqual(addon._state.player_data["gnome_restaurant"]["order"]["ticks_left"], 1_094)
         self.assertEqual(addon._state.player_data["gnome_restaurant"]["deliveries"]["hard"], 0)
 
     def test_missing_food_refuses_without_charging_delivery_window(self):

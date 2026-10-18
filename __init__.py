@@ -5220,7 +5220,7 @@ def _advance_clocks_for_answer(successful_answer) -> None:
         delivering=not _state.player_data.get("farm_queue")
         and review_action_handler_key(_state.current_skill) == "utility"
         and _state.player_data.get("current_utility") == GNOME_RESTAURANT_ACTIVITY_ID,
-    ))
+        card_ticks=card_ticks))
     runtime_actions.advance_shared_review_state_for_review(_runtime_action_context())
     _state.player_data.update(advance_livid_farm_wish_effects_pure(_state.player_data, 1))
     _state.player_data.update(advance_shop_market_clock_pure(_state.player_data))

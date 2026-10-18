@@ -10,12 +10,18 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.summoning_data import SUMMONING_POUCHES_BY_ID
+from ankiscape.logic.gnome_restaurant_logic import (
+    apply_gnome_restaurant_command_pure,
+    gnome_restaurant_view_pure,
+    sanitize_gnome_restaurant_state_pure,
+)
 from ankiscape.logic.summoning_logic import (
     advance_summoning_world_tick_pure,
     default_summoning_state_pure,
     sanitize_summoning_state_pure,
     summon_familiar_pure,
 )
+from tests.test_gnome_restaurant import _hired, _rng
 from tests.test_integration_smoke import (
     _DummyCol,
     _DummyMW,
@@ -155,6 +161,48 @@ class SummoningMigrationTests(unittest.TestCase):
         self.assertEqual(state["triple_charm_ticks_remaining"], 600)
         self.assertEqual(state["cargo_events"][0]["remaining_ticks"], 400)
         self.assertNotIn("triple_charm_reviews_remaining", state)
+
+
+class GnomeRestaurantWindowTests(_HostCase):
+    def test_the_easy_window_lasts_ten_successful_other_target_cards_at_speed_ten(self):
+        player, ok, info = apply_gnome_restaurant_command_pure(
+            _hired(), "accept_order", {"difficulty": "easy"}, _rng([0.0])
+        )
+        self.assertTrue(ok, info)
+        addon = self._addon(10, player)
+        for card in range(1, 11):
+            self._answer(addon, 1)
+            order = addon._state.player_data["gnome_restaurant"]["order"]
+            self.assertEqual(order["ticks_left"], 600 - 60 * (card - 1), "Again pauses")
+            self._answer(addon, 3)
+            self.assertEqual(
+                addon._state.player_data["gnome_restaurant"]["order"]["ticks_left"],
+                600 - 60 * card,
+            )
+        view = gnome_restaurant_view_pure(addon._state.player_data)
+        self.assertEqual((view["order_minutes_left"], view["punctuality_pct"]), (0, 0))
+
+    def test_shown_minutes_round_up_from_the_ticks_left(self):
+        player, _ok, _info = apply_gnome_restaurant_command_pure(
+            _hired(), "accept_order", {"difficulty": "hard"}, _rng([0.0])
+        )
+        player["gnome_restaurant"]["order"]["ticks_left"] = 1_040
+        view = gnome_restaurant_view_pure(player)
+        self.assertEqual((view["order_minutes_left"], view["order_limit_minutes"]), (11, 11))
+        self.assertEqual(view["punctuality_pct"], 95)
+
+    def test_a_saved_minutes_window_keeps_its_remaining_minutes(self):
+        player, _ok, _info = apply_gnome_restaurant_command_pure(
+            _hired(), "accept_order", {"difficulty": "hard"}, _rng([0.0])
+        )
+        order = dict(player["gnome_restaurant"]["order"])
+        del order["ticks_left"]
+        order["minutes_left"] = 5
+        state = sanitize_gnome_restaurant_state_pure(
+            {**player["gnome_restaurant"], "order": order}
+        )
+        self.assertEqual(state["order"]["ticks_left"], 500)
+        self.assertNotIn("minutes_left", state["order"])
 
 
 if __name__ == "__main__":

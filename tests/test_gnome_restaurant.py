@@ -36,6 +36,7 @@ from ankiscape.data.gnome_restaurant_data import (
 from ankiscape.data.temple_trekking_data import TEMPLE_TREKKING_ACTIVITY_ID
 from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
 from ankiscape.logic.gnome_restaurant_logic import (
+    advance_gnome_restaurant_clock_pure,
     apply_gnome_restaurant_command_pure,
     apply_gnome_restaurant_review_pure,
     default_gnome_restaurant_state_pure,
@@ -238,20 +239,26 @@ class GnomeRestaurantEntryAndOrderTests(unittest.TestCase):
         self.assertEqual(hired["inventory"]["Gianne dough"], 100)
         self.assertTrue(hired["gnome_restaurant"]["service_open"])
 
-    def test_hard_declines_wait_a_review_and_easy_declines_do_not(self):
+    def test_hard_declines_wait_five_minutes_and_easy_declines_do_not(self):
         data = _on_job("hard")
-        data["shop_market_clock"] = {"answered_cards": 40}
         declined, ok, info = apply_gnome_restaurant_command_pure(
             data, "decline_order", {}, _rng([0.0])
         )
         self.assertTrue(ok, info)
-        self.assertEqual(declined["gnome_restaurant"]["hard_decline_ready_card"], 41)
+        self.assertEqual(declined["gnome_restaurant"]["hard_decline_ticks_left"], 500)
         self.assertEqual(declined["gnome_restaurant"]["order"], {})
+        # Every answer spends the wait: eight speed-10 cards leave 20 ticks.
+        for _ in range(8):
+            declined = advance_gnome_restaurant_clock_pure(
+                declined, successful_answer=False, delivering=False, card_ticks=60
+            )
         blocked = gnome_restaurant_view_pure(declined)["difficulty_options"][1]
         self.assertFalse(blocked["accept_enabled"])
         self.assertIn("hold another hard job", blocked["accept_reason"])
 
-        declined["shop_market_clock"] = {"answered_cards": 41}
+        declined = advance_gnome_restaurant_clock_pure(
+            declined, successful_answer=False, delivering=False, card_ticks=60
+        )
         again, ok, info = apply_gnome_restaurant_command_pure(
             declined, "accept_order", {"difficulty": "hard"}, _rng([0.0])
         )
@@ -262,7 +269,7 @@ class GnomeRestaurantEntryAndOrderTests(unittest.TestCase):
             easy, "decline_order", {}, _rng([0.3])
         )
         self.assertTrue(ok, info)
-        self.assertEqual(swapped["gnome_restaurant"]["hard_decline_ready_card"], 0)
+        self.assertEqual(swapped["gnome_restaurant"]["hard_decline_ticks_left"], 0)
         self.assertTrue(swapped["gnome_restaurant"]["order"])
 
     def test_accepting_a_job_cannot_steal_a_temple_trekking_session(self):
@@ -369,11 +376,12 @@ class GnomeRestaurantDeliveryRewardTests(unittest.TestCase):
         self.assertTrue(ok, result)
         self.assertEqual(result["tip_items"], {"Coins": 500})
 
-        from ankiscape.logic.gnome_restaurant_logic import advance_gnome_restaurant_clock_pure
-
-        late = advance_gnome_restaurant_clock_pure(
-            _deliverable(_on_job("easy")), successful_answer=True, delivering=False
-        )
+        # Ten successful speed-10 cards on another target spend the whole window.
+        late = _deliverable(_on_job("easy"))
+        for _ in range(10):
+            late = advance_gnome_restaurant_clock_pure(
+                late, successful_answer=True, delivering=False, card_ticks=60
+            )
         updated, ok, result = apply_gnome_restaurant_review_pure(
             _deliverable(late), _rng([0.999])
         )
@@ -395,11 +403,10 @@ class GnomeRestaurantDeliveryRewardTests(unittest.TestCase):
                     )
                     self.assertTrue(ok)
                     if not punctual:
-                        from ankiscape.logic.gnome_restaurant_logic import advance_gnome_restaurant_clock_pure
-
-                        for _beat in range(2):
+                        # Nineteen speed-10 cards spend the hard job's 1,100 ticks.
+                        for _beat in range(19):
                             data = advance_gnome_restaurant_clock_pure(
-                                data, successful_answer=True, delivering=False
+                                data, successful_answer=True, delivering=False, card_ticks=60
                             )
                     data = _deliverable(data)
                     customer = str(data["gnome_restaurant"]["order"]["customer"])

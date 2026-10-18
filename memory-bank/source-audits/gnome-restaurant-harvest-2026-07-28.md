@@ -107,18 +107,20 @@ Imblewyn and Professor Onglewip.
 
 - **One review is one delivery.** Fixed earlier by
   `activity-cadence-reconciliation-2026-07-18.md`: delivery is one no-skill-XP
-  activity action. The2026-10-14 owner rule makes Again idle; successful reviews
-  on other targets spend six minutes of the persistent delivery window.
+  activity action. The 2026-10-14 owner rule makes Again idle; successful reviews
+  on other targets spend their card's time budget (six ticks per unit of game
+  speed, owner assumption 4 of 2026-10-15) from the persistent delivery window.
   The delivering review also accepts the next job, so the loop does not need
   a direct action between deliveries.
 - **The six- and eleven-minute limits become a punctuality budget, not an
   expiry.** The owner settled in 2026-07-17 that an order never expires. The
-  order carries the source's own minutes as a bounded counter. Under the
-  2026-10-14 owner ruling, each successful review on another target spends six
-  minutes. Again and delivery spend none. At zero, the tip is at its worst;
+  order carries the source's own minutes as a bounded counter of game ticks
+  (600 and 1,100). Under the 2026-10-14 owner ruling, each successful review on
+  another target spends its card's ticks, so the easy window is ten cards at
+  x10. Again and delivery spend none. At zero, the tip is at its worst;
   the order, prepared food and source base points remain intact.
-- **The five-minute hard-order decline wait becomes one answered card**, by the
-  same six-minutes-per-card convention.
+- **The five-minute hard-order decline wait is 500 ticks**, spent by every
+  answered card's time budget.
 - **Declining an easy job is free.** Only the hard-order wait is sourced; the
   page's own advice to take an easy job while waiting for a hard one implies easy
   jobs can be swapped freely.

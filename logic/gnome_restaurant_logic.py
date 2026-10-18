@@ -2,8 +2,9 @@
 
 One productive review delivers the outstanding order and takes the next job, which
 is the cadence settled in `activity-cadence-reconciliation-2026-07-18.md`. Under the
-2026-10-14 owner ruling, Again pauses. Successful answers on other targets spend six
-minutes of the persistent order's window, which affects only tip quality.
+2026-10-14 owner ruling, Again pauses. A successful answer on another target spends
+its card's time budget from the persistent order's window, which affects only tip
+quality; the window counts game ticks, so it lasts the same play time at every speed.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ from ..data.gnome_restaurant_data import (
     GNOME_RESTAURANT_EASY_POINTS,
     GNOME_RESTAURANT_EASY_TIP_COINS,
     GNOME_RESTAURANT_GOOD_TIP_GROUP,
-    GNOME_RESTAURANT_HARD_DECLINE_WAIT_REVIEWS,
+    GNOME_RESTAURANT_HARD_DECLINE_WAIT_MINUTES,
     GNOME_RESTAURANT_HARD_MINUTES,
     GNOME_RESTAURANT_HARD_POINTS,
     GNOME_RESTAURANT_REQUEST_ITEMS,
@@ -37,9 +38,14 @@ from ..data.gnome_restaurant_data import (
     GNOME_RESTAURANT_TOKEN_POINTS,
     GNOME_RESTAURANT_TUTORIAL_COCKTAILS,
     GNOME_RESTAURANT_TUTORIAL_DISHES,
-    GNOME_RESTAURANT_WORLD_MINUTES_PER_REVIEW,
     gnome_restaurant_customers_for_pure,
     gnome_restaurant_tips_for_pure,
+)
+from .pace.short_timers import (
+    STEP_TICKS,
+    TICKS_PER_SOURCE_MINUTE,
+    minutes_for_ticks_pure,
+    steps_for_ticks_pure,
 )
 
 
@@ -49,6 +55,11 @@ _LIMIT_MINUTES = {
     "easy": GNOME_RESTAURANT_EASY_MINUTES,
     "hard": GNOME_RESTAURANT_HARD_MINUTES,
 }
+_LIMIT_TICKS = {
+    difficulty: minutes * TICKS_PER_SOURCE_MINUTE
+    for difficulty, minutes in _LIMIT_MINUTES.items()
+}
+_HARD_DECLINE_WAIT_TICKS = GNOME_RESTAURANT_HARD_DECLINE_WAIT_MINUTES * TICKS_PER_SOURCE_MINUTE
 _DELIVERY_POINTS = {
     "easy": GNOME_RESTAURANT_EASY_POINTS,
     "hard": GNOME_RESTAURANT_HARD_POINTS,
@@ -93,11 +104,6 @@ def _grant_item(data: dict[str, Any], item: str, amount: int = 1) -> None:
     inventory[item] = _int(inventory.get(item)) + amount
 
 
-def _answered_cards(data: Mapping[str, Any]) -> int:
-    clock = data.get("shop_market_clock")
-    return _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-
-
 def _completed_quests(data: Mapping[str, Any]) -> frozenset[str]:
     quests = data.get("quests")
     if not isinstance(quests, Mapping):
@@ -139,10 +145,17 @@ def default_gnome_restaurant_state_pure() -> dict[str, Any]:
         "deliveries": {"easy": 0, "hard": 0},
         "token_claimed": False,
         "token_meals": 0,
-        "hard_decline_ready_card": 0,
+        "hard_decline_ticks_left": 0,
         "tips_received": {},
         "last_result": "",
     }
+
+
+def _order_ticks_left(order_raw: Mapping[str, Any], difficulty: str) -> int:
+    if "ticks_left" in order_raw or "minutes_left" not in order_raw:
+        return _int(order_raw.get("ticks_left"), _LIMIT_TICKS[difficulty])
+    # An order saved before ticks counted its window in whole source minutes.
+    return _int(order_raw.get("minutes_left")) * TICKS_PER_SOURCE_MINUTE
 
 
 def sanitize_gnome_restaurant_state_pure(raw: Any) -> dict[str, Any]:
@@ -170,10 +183,7 @@ def sanitize_gnome_restaurant_state_pure(raw: Any) -> dict[str, Any]:
             "difficulty": difficulty,
             "customer": customer,
             "item": item,
-            "minutes_left": min(
-                _LIMIT_MINUTES[difficulty],
-                _int(order_raw.get("minutes_left"), _LIMIT_MINUTES[difficulty]),
-            ),
+            "ticks_left": min(_LIMIT_TICKS[difficulty], _order_ticks_left(order_raw, difficulty)),
         }
     return {
         **defaults,
@@ -186,7 +196,10 @@ def sanitize_gnome_restaurant_state_pure(raw: Any) -> dict[str, Any]:
         "token_meals": min(
             GNOME_RESTAURANT_TOKEN_MEAL_CAP, _int(source.get("token_meals"))
         ),
-        "hard_decline_ready_card": _int(source.get("hard_decline_ready_card")),
+        # A wait saved as a ready card is forgiven: it spanned at most one card.
+        "hard_decline_ticks_left": min(
+            _HARD_DECLINE_WAIT_TICKS, _int(source.get("hard_decline_ticks_left"))
+        ),
         "tips_received": {
             str(tip_id): _int(count) for tip_id, count in tips_raw.items()
         },
@@ -247,10 +260,9 @@ def _accept_reason(
     )
     if active_id and active_id != GNOME_RESTAURANT_ACTIVITY_ID:
         return "Finish the active persistent activity."
-    if difficulty == "hard":
-        waiting = state["hard_decline_ready_card"] - _answered_cards(player_data)
-        if waiting > 0:
-            return f"Aluft Gianne Jr will hold another hard job for {waiting} more review(s)."
+    if difficulty == "hard" and state["hard_decline_ticks_left"] > 0:
+        waiting = steps_for_ticks_pure(state["hard_decline_ticks_left"])
+        return f"Aluft Gianne Jr will hold another hard job for {waiting} more review(s)."
     if not gnome_restaurant_customers_for_pure(
         difficulty,
         _completed_quests(player_data),
@@ -277,7 +289,7 @@ def _assign_order(
         "difficulty": difficulty,
         "customer": customer.id,
         "item": str(item),
-        "minutes_left": _LIMIT_MINUTES[difficulty],
+        "ticks_left": _LIMIT_TICKS[difficulty],
     }
     state["order"] = order
     return order
@@ -339,11 +351,9 @@ def gnome_restaurant_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]
         "entry_reasons": entry_reasons,
         "order_text": _order_text(state),
         "order_item_held": held,
-        "order_minutes_left": _int(order.get("minutes_left")) if order else 0,
+        "order_minutes_left": minutes_for_ticks_pure(order["ticks_left"]) if order else 0,
         "order_limit_minutes": limit,
-        "punctuality_pct": (
-            int(round(100 * _int(order.get("minutes_left")) / limit)) if order else 0
-        ),
+        "punctuality_pct": int(round(100 * _punctuality(order))) if order else 0,
         "difficulty_options": difficulty_rows,
         "can_review": bool(order) and held > 0,
         "review_reasons": review_reasons,
@@ -469,9 +479,7 @@ def decline_gnome_restaurant_order_pure(
     state["order"] = {}
     waited = False
     if difficulty == "hard":
-        state["hard_decline_ready_card"] = (
-            _answered_cards(data) + GNOME_RESTAURANT_HARD_DECLINE_WAIT_REVIEWS
-        )
+        state["hard_decline_ticks_left"] = _HARD_DECLINE_WAIT_TICKS
         waited = True
     replacement_reason = _accept_reason(data, state, state["difficulty_policy"])
     if replacement_reason:
@@ -570,6 +578,10 @@ def apply_gnome_restaurant_command_pure(
     )
 
 
+def _punctuality(order: Mapping[str, Any]) -> float:
+    return _int(order.get("ticks_left")) / _LIMIT_TICKS[str(order["difficulty"])]
+
+
 def _roll_tip(
     data: dict[str, Any],
     state: dict[str, Any],
@@ -577,9 +589,7 @@ def _roll_tip(
     rng: Callable[[], float] | None,
 ) -> dict[str, Any]:
     """One delivery's tip. Punctuality is the chance of the good-tip group."""
-    minutes_left = _int(order.get("minutes_left"))
-    limit = _LIMIT_MINUTES[str(order["difficulty"])]
-    punctuality = minutes_left / limit if limit else 0.0
+    punctuality = _punctuality(order)
     if str(order["difficulty"]) == "easy":
         low, high = GNOME_RESTAURANT_EASY_TIP_COINS
         best = low + int(round((high - low) * punctuality))
@@ -605,16 +615,25 @@ def _roll_tip(
 
 
 def advance_gnome_restaurant_clock_pure(
-    player_data: Mapping[str, Any], *, successful_answer: bool, delivering: bool
+    player_data: Mapping[str, Any],
+    *,
+    successful_answer: bool,
+    delivering: bool,
+    card_ticks: int = STEP_TICKS,
 ) -> dict[str, Any]:
+    """Spend one answered card's time budget from the restaurant's timers.
+
+    Every answer spends the hard-decline wait; only a successful answer on
+    another target spends the order's window.
+    """
     data = dict(player_data)
-    if successful_answer and not delivering:
-        state = sanitize_gnome_restaurant_state_pure(data.get("gnome_restaurant"))
-        if order := state["order"]:
-            order["minutes_left"] = max(
-                0, _int(order["minutes_left"]) - GNOME_RESTAURANT_WORLD_MINUTES_PER_REVIEW
-            )
-            data["gnome_restaurant"] = state
+    if not isinstance(data.get("gnome_restaurant"), Mapping):
+        return data
+    state = sanitize_gnome_restaurant_state_pure(data["gnome_restaurant"])
+    state["hard_decline_ticks_left"] = max(0, state["hard_decline_ticks_left"] - card_ticks)
+    if (order := state["order"]) and successful_answer and not delivering:
+        order["ticks_left"] = max(0, order["ticks_left"] - card_ticks)
+    data["gnome_restaurant"] = state
     return data
 
 
@@ -630,15 +649,16 @@ def apply_gnome_restaurant_review_pure(
     if not order:
         return data, False, {"reason": "Take a delivery job from Aluft Gianne Jr."}
     if not productive:
+        minutes_left = minutes_for_ticks_pure(order["ticks_left"])
         state["last_result"] = (
-            f"Again paused the delivery window; {order['minutes_left']} of "
+            f"Again paused the delivery window; {minutes_left} of "
             f"{_LIMIT_MINUTES[str(order['difficulty'])]} minute(s) left."
         )
         data["gnome_restaurant"] = state
         return data, True, {
             "advanced": False,
             "terminal": False,
-            "minutes_left": order["minutes_left"],
+            "minutes_left": minutes_left,
             "message": state["last_result"],
         }
     item = str(order["item"])

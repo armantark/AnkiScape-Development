@@ -938,7 +938,7 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                     "notes": (
                         "One productive review delivers the outstanding order and "
                         "takes the next job. Again pauses the delivery window; "
-                        "successful reviews on other targets spend six minutes. "
+                        "successful reviews on other targets spend their card's ticks. "
                         "Again never destroys it; cooking uses ordinary Cooking cadence."
                     ),
                 }
