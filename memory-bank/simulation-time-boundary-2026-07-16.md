@@ -27,7 +27,8 @@ the same literal span of RuneScape time:
 
 - **Calendar/economy consumers** keep the shipped scale: ten answers per simulated hour,
   240 per day, and 1,680 per week. Farming growth, shop restock, and calendar resets use
-  this band.
+  this band. Daily, weekly and monthly resets read their day from the one shared world
+  clock, `logic/pace/world_clock.py`, which owns the day's length (2026-10-18).
 - **Short activity-duration consumers** need a separate documented conversion. Reusing
   six minutes per answer literally would make a four-minute familiar expire within one
   card and a 44-minute Bunyip last about eight cards. The conversion must preserve
