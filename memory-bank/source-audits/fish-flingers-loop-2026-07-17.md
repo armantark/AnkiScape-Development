@@ -175,3 +175,34 @@ medal is reachable and no sourced value changed.
 The discovery ramp is untouched: bait, hook and weight still land on the first
 three reviews, and the two extra reviews run at full efficiency. Rewards scale
 with fish caught, so the longer event pays proportionally more.
+
+## The 2012 competition length (`2026-10-18`)
+
+Owner decision 7 (2026-10-15): a Fish Flingers game lasts its 2012 length. The
+search followed the standing contract's order:
+
+| Source | Result |
+|---|---|
+| Darkan, `FishFlingersDomain.kt:50-52` and `FishFlingers.kt:345` | Confirms ten minutes: `ACTIVE_MILLIS = 10L * 60L * 1000L` in a 20-minute cycle, and the fisherman's line "Competitions run for ten minutes every twenty minutes." Darkan's own audit measured this against the page below with no gap. |
+| rev-727 cache and the other OpenRS2 caches | Not decoded. The competition length is a server timer, which a client cache does not hold. |
+| game-main (rev 667) | No Fish Flingers implementation; item names only. |
+| Wiki oldid `6529096` (`2012-11-03T16:37:15Z`, Darkan's pin, sha1 `72e9a6486a70c93dd00d321c83ac38dee75f9965`) | Confirms ten minutes: "during a 10 minute competition" (wikitext line 9), "10 minutes being competition time" (line 40), "After 10 minutes of gameplay, each player is given a score" (line 435). |
+
+The ten minutes is therefore a sourced value: 1,000 game ticks of 0.6 seconds.
+At six ticks per card per unit of game speed, one game takes 17 cards at ×10
+and 167 cards at ×1. The data module's earlier citation dated this revision
+`19:53:36Z`; the revision's own timestamp is `16:37:15Z`.
+
+Owner answer on Q4 (2026-10-18), with the owner's change at 09:58 PDT ("ok
+then make it automatic"): the event keeps its eight catches and their catch
+math, and catch k lands when the event's ticks cross k × 125. Score, tokens,
+medals and the registered payout `fish_flingers.xp_payout` are the same for the
+same catch rolls at every speed. There is no XP rollback for games played
+before this change.
+
+Master Angler stays automatic, as a declared abstraction. Perfect tackles are
+the catches after the automatic discovery ramp, so a completed game always
+earns six of them and with them Master Angler. The source gives no failure rate
+for a perfect tackle, and an invented one would be a mechanic advertised as
+settled. Assumption 6 is reversed for Master Angler only; the discovery ramp
+still scales with the length, because it is indexed by catch.

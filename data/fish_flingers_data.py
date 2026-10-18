@@ -10,7 +10,7 @@ from .equipment_data import EquipmentBonuses, EquipmentItem
 FISH_FLINGERS_ACTIVITY_ID = "fish_flingers"
 FISH_FLINGERS_SOURCE = (
     "RuneScape Wiki Fish Flingers oldid=6529096 "
-    "(2012-11-03T19:53:36Z)"
+    "(2012-11-03T16:37:15Z)"
 )
 
 # Eight, not six. The medal table is sourced (three perfect tackles for Junior
