@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import copy
-import math
 from collections.abc import Mapping
 from typing import Any, Callable, Optional
 
@@ -11,23 +10,25 @@ from ..data.item_values import STACKABLE_ITEM_NAMES
 from .pet_logic import advance_active_pet_pure, sanitize_pet_instances_pure
 from ..data.summoning_data import (
     DEFAULT_SUMMONING_TARGET,
-    SOURCE_DURATION_UNITS_PER_REVIEW,
     SUMMONING_ACTIONS_BY_ID,
     SUMMONING_POUCHES_BY_ID,
     SUMMONING_POUCHES_BY_NAME,
 )
-
-
-SPECIAL_MOVE_POINTS_MAX = 60
-ANSWER_EFFECT_TICKS = 6
-SPECIAL_MOVE_RECHARGE_TICKS = 50
-SPECIAL_MOVE_RECHARGE_POINTS = 15
-BUNYIP_HEAL_TICKS = 25
-BUNYIP_HEAL_LIFEPOINTS = 20
-CARGO_RECLAIM_SOURCE_MINUTES = 5
-CARGO_RECLAIM_REVIEWS = math.ceil(
-    CARGO_RECLAIM_SOURCE_MINUTES / SOURCE_DURATION_UNITS_PER_REVIEW
+from .pace.summoning_clock import (
+    CARGO_RECLAIM_REVIEWS,
+    SPECIAL_MOVE_POINTS_MAX,
+    TRIPLE_CHARM_TIMER_KEY,
+    advance_summoning_timers,
+    drop_familiar_storage,
+    familiar_lifetime,
+    renewal_window_open,
+    sanitize_cargo_events,
+    sanitize_familiar_timers,
+    sanitize_summoning_timers,
+    triple_charm_duration,
 )
+
+
 FAMILIARISATION_COOLDOWN_REVIEWS = 1680
 FAMILIARISATION_MAX_SEGMENTS = 4
 FAMILIARISATION_SHARDS_PER_SUCCESS = 15
@@ -108,7 +109,7 @@ def default_summoning_state_pure() -> dict[str, Any]:
         "cargo_next_event_id": 1,
         "pet_instances": {},
         "pet_next_instance_id": 1,
-        "triple_charm_reviews_remaining": 0,
+        TRIPLE_CHARM_TIMER_KEY: 0,
         "familiarisation": default_familiarisation_state_pure(),
         "event_log": [],
     }
@@ -126,12 +127,7 @@ def _sanitize_active_follower(raw: Any) -> dict[str, Any]:
     clean = dict(raw)
     clean["kind"] = kind
     clean["entity_id"] = entity_id
-    clean["remaining_reviews"] = _clean_int(
-        raw.get("remaining_reviews"), 0, minimum=0
-    )
-    clean["max_reviews"] = _clean_int(
-        raw.get("max_reviews"), clean["remaining_reviews"], minimum=0
-    )
+    sanitize_familiar_timers(clean)
     clean["lifepoints"] = _clean_int(raw.get("lifepoints"), 0, minimum=0)
     clean["max_lifepoints"] = _clean_int(
         raw.get("max_lifepoints"), clean["lifepoints"], minimum=0
@@ -139,49 +135,7 @@ def _sanitize_active_follower(raw: Any) -> dict[str, Any]:
     clean["storage"] = _clean_inventory(raw.get("storage"))
     clean["hidden_in_spirit_plane"] = bool(raw.get("hidden_in_spirit_plane", False))
     clean["policy_lapse_reason"] = str(raw.get("policy_lapse_reason", ""))
-    clean["bunyip_heal_residual"] = _clean_int(
-        raw.get("bunyip_heal_residual"),
-        0,
-        minimum=0,
-        maximum=BUNYIP_HEAL_TICKS - 1,
-    )
-    pouch = SUMMONING_POUCHES_BY_ID.get(str(clean.get("entity_id", "")))
-    drain_period = pouch.lifetime_reviews if pouch is not None else clean["max_reviews"]
-    clean["summoning_point_drain_residual"] = _clean_int(
-        raw.get("summoning_point_drain_residual"),
-        0,
-        minimum=0,
-        maximum=max(0, drain_period - 1),
-    )
     return clean
-
-
-def _sanitize_cargo_events(raw: Any) -> list[dict[str, Any]]:
-    if not isinstance(raw, (list, tuple)):
-        return []
-    events: list[dict[str, Any]] = []
-    seen: set[int] = set()
-    for candidate in raw:
-        if not isinstance(candidate, Mapping):
-            continue
-        event_id = _clean_int(candidate.get("event_id"), 0, minimum=1)
-        items = _clean_inventory(candidate.get("items"))
-        remaining = _clean_int(
-            candidate.get("remaining_reviews"), 0, minimum=0
-        )
-        if event_id in seen or not items or remaining <= 0:
-            continue
-        seen.add(event_id)
-        events.append(
-            {
-                "event_id": event_id,
-                "familiar_id": str(candidate.get("familiar_id", "")),
-                "items": items,
-                "remaining_reviews": remaining,
-                "source": str(candidate.get("source", "expiry")),
-            }
-        )
-    return sorted(events, key=lambda event: event["event_id"])[-20:]
 
 
 def _sanitize_familiarisation(raw: Any) -> dict[str, Any]:
@@ -227,7 +181,7 @@ def sanitize_summoning_state_pure(
     default = default_summoning_state_pure()
     source = raw if isinstance(raw, Mapping) else {}
     maximum = max(1, _clean_int(summoning_level, 1, minimum=1))
-    events = _sanitize_cargo_events(source.get("cargo_events"))
+    events = sanitize_cargo_events(source.get("cargo_events"))
     next_event = max(
         _clean_int(source.get("cargo_next_event_id"), 1, minimum=1),
         max((event["event_id"] for event in events), default=0) + 1,
@@ -260,12 +214,7 @@ def sanitize_summoning_state_pure(
             minimum=0,
             maximum=SPECIAL_MOVE_POINTS_MAX,
         ),
-        "special_move_recharge_residual": _clean_int(
-            source.get("special_move_recharge_residual"),
-            0,
-            minimum=0,
-            maximum=SPECIAL_MOVE_RECHARGE_TICKS - 1,
-        ),
+        **sanitize_summoning_timers(source),
         "active_follower": active_follower,
         "target_policies": {
             str(target): dict(policy)
@@ -277,9 +226,6 @@ def sanitize_summoning_state_pure(
         "pet_instances": instances,
         "pet_next_instance_id": _clean_int(
             source.get("pet_next_instance_id"), 1, minimum=1
-        ),
-        "triple_charm_reviews_remaining": _clean_int(
-            source.get("triple_charm_reviews_remaining"), 0, minimum=0
         ),
         "familiarisation": _sanitize_familiarisation(
             source.get("familiarisation")
@@ -308,9 +254,7 @@ def familiarisation_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             and not activity["awaiting_reward"]
             and activity["cooldown_reviews_remaining"] <= 0
         ),
-        "triple_charm_reviews_remaining": state[
-            "triple_charm_reviews_remaining"
-        ],
+        TRIPLE_CHARM_TIMER_KEY: state[TRIPLE_CHARM_TIMER_KEY],
         "max_segments": FAMILIARISATION_MAX_SEGMENTS,
         "shard_cap": FAMILIARISATION_SHARD_CAP,
     }
@@ -555,15 +499,13 @@ def summon_familiar_pure(
     state["active_follower"] = {
         "kind": "familiar",
         "entity_id": pouch.id,
-        "remaining_reviews": pouch.lifetime_reviews,
-        "max_reviews": pouch.lifetime_reviews,
+        **familiar_lifetime(pouch),
         "lifepoints": pouch.lifepoints or 0,
         "max_lifepoints": pouch.lifepoints or 0,
         "storage": {},
         "hidden_in_spirit_plane": False,
         "policy_lapse_reason": "",
         "bunyip_heal_residual": 0,
-        "summoning_point_drain_residual": 0,
     }
     updated["inventory"] = inventory
     updated["summoning_state"] = state
@@ -572,28 +514,6 @@ def summon_familiar_pure(
         "familiar_id": pouch.id,
         "summon_xp": pouch.summon_xp,
     }
-
-
-def _drop_familiar_storage(
-    state: dict[str, Any],
-    follower: Mapping[str, Any],
-    *,
-    source: str,
-) -> Optional[dict[str, Any]]:
-    storage = _clean_inventory(follower.get("storage"))
-    if not storage:
-        return None
-    event = {
-        "event_id": state["cargo_next_event_id"],
-        "familiar_id": str(follower.get("entity_id", "")),
-        "items": storage,
-        "remaining_reviews": CARGO_RECLAIM_REVIEWS,
-        "source": source,
-    }
-    state["cargo_next_event_id"] += 1
-    state["cargo_events"].append(event)
-    state["cargo_events"] = state["cargo_events"][-20:]
-    return event
 
 
 def dismiss_familiar_pure(
@@ -607,7 +527,7 @@ def dismiss_familiar_pure(
     follower = state["active_follower"]
     if follower.get("kind") != "familiar":
         return dict(player_data), False, {"reason": "no_active_familiar"}
-    cargo_event = _drop_familiar_storage(state, follower, source="dismissal")
+    cargo_event = drop_familiar_storage(state, follower, source="dismissal")
     familiar_id = str(follower["entity_id"])
     state["active_follower"] = {}
     updated["summoning_state"] = state
@@ -644,7 +564,7 @@ def apply_follower_player_death_pure(
             result["lost_pet_ids"].append(instance_id)
     elif follower.get("kind") == "familiar":
         result["familiar_id"] = str(follower.get("entity_id", ""))
-        result["cargo_event"] = _drop_familiar_storage(
+        result["cargo_event"] = drop_familiar_storage(
             state, follower, source="player_death"
         )
     for instance_id, instance in tuple(instances.items()):
@@ -685,16 +605,14 @@ def renew_familiar_pure(
     pouch = SUMMONING_POUCHES_BY_ID.get(str(follower["entity_id"]))
     if pouch is None:
         return dict(player_data), False, {"reason": "unknown_familiar"}
-    if follower["remaining_reviews"] > pouch.renewal_window_reviews:
+    if not renewal_window_open(follower, pouch):
         return dict(player_data), False, {"reason": "too_early"}
     inventory = dict(updated.get("inventory", {}) or {})
     if _clean_int(inventory.get(pouch.pouch_name), 0, minimum=0) <= 0:
         return dict(player_data), False, {"reason": "missing_pouch"}
     inventory[pouch.pouch_name] -= 1
-    follower["remaining_reviews"] = pouch.lifetime_reviews
-    follower["max_reviews"] = pouch.lifetime_reviews
+    follower.update(familiar_lifetime(pouch))
     follower["lifepoints"] = follower.get("max_lifepoints", pouch.lifepoints or 0)
-    follower["summoning_point_drain_residual"] = 0
     state["active_follower"] = follower
     updated["inventory"] = inventory
     updated["summoning_state"] = state
@@ -859,14 +777,8 @@ def claim_familiarisation_reward_pure(
         "raw_shards": shards,
     }
     if choice == "triple_charms":
-        source_minutes = round(shards * 40.0 / 60.0)
-        reviews = max(
-            1,
-            math.ceil(source_minutes / SOURCE_DURATION_UNITS_PER_REVIEW),
-        )
-        state["triple_charm_reviews_remaining"] = max(
-            state["triple_charm_reviews_remaining"], reviews
-        )
+        reviews = triple_charm_duration(shards)
+        state[TRIPLE_CHARM_TIMER_KEY] = max(state[TRIPLE_CHARM_TIMER_KEY], reviews)
         result["reviews"] = reviews
     else:
         reward_row = max(
@@ -947,32 +859,6 @@ def apply_familiarisation_segment_pure(
     }
 
 
-def _advance_bunyip_heal(
-    updated: dict[str, Any], follower: dict[str, Any]
-) -> int:
-    # An ordinary familiar stays summoned through a Frozen floor, but its heal
-    # must not reach Daemonheim, where survival rests on floor supplies alone.
-    dungeon = updated.get("dungeoneering")
-    in_floor = isinstance(dungeon, Mapping) and bool(dungeon.get("active"))
-    if follower.get("entity_id") != "bunyip" or in_floor:
-        return 0
-    heal_steps, follower["bunyip_heal_residual"] = divmod(
-        _clean_int(follower.get("bunyip_heal_residual"), 0, minimum=0)
-        + ANSWER_EFFECT_TICKS,
-        BUNYIP_HEAL_TICKS,
-    )
-    maximum = max(
-        10, _clean_int(updated.get("constitution_level"), 10, minimum=1) * 10
-    )
-    before = _clean_int(
-        updated.get("combat_lifepoints"), maximum, minimum=0, maximum=maximum
-    )
-    updated["combat_lifepoints"] = min(
-        maximum, before + heal_steps * BUNYIP_HEAL_LIFEPOINTS
-    )
-    return updated["combat_lifepoints"] - before
-
-
 def _advance_familiarisation_world_tick(
     player_data: dict[str, Any], state: dict[str, Any], successful_answer: Optional[bool]
 ) -> tuple[dict[str, Any], Optional[dict[str, Any]]]:
@@ -1012,71 +898,21 @@ def advance_summoning_world_tick_pure(
         "pet": None,
     }
 
-    retained_events: list[dict[str, Any]] = []
-    for event in state["cargo_events"]:
-        event = dict(event)
-        event["remaining_reviews"] -= 1
-        if event["remaining_reviews"] <= 0:
-            result["lost_cargo_events"].append(event)
-        else:
-            retained_events.append(event)
-    state["cargo_events"] = retained_events
-
     updated, familiarisation_result = _advance_familiarisation_world_tick(
         updated, state, successful_answer
     )
     state = updated["summoning_state"]
     if familiarisation_result is not None:
         result["familiarisation"] = familiarisation_result
-    recharge_ticks = (
-        state["special_move_recharge_residual"] + ANSWER_EFFECT_TICKS
-    )
-    recharge_steps, state["special_move_recharge_residual"] = divmod(
-        recharge_ticks, SPECIAL_MOVE_RECHARGE_TICKS
-    )
-    state["special_move_points_current"] = min(
-        SPECIAL_MOVE_POINTS_MAX,
-        state["special_move_points_current"]
-        + recharge_steps * SPECIAL_MOVE_RECHARGE_POINTS,
-    )
-    state["triple_charm_reviews_remaining"] = max(
-        0, state["triple_charm_reviews_remaining"] - 1
-    )
-
-    follower = state["active_follower"]
-    if follower.get("kind") == "familiar":
-        follower = dict(follower)
-        result["passive_healing"] = _advance_bunyip_heal(updated, follower)
-        follower["remaining_reviews"] = max(
-            0, _clean_int(follower.get("remaining_reviews"), 0) - 1
+    timers = advance_summoning_timers(updated, state)
+    result["lost_cargo_events"] = timers["lost_cargo_events"]
+    result["passive_healing"] = timers["passive_healing"]
+    if expired := timers["expired"]:
+        result["expired_familiar"] = expired["entity_id"]
+        result["expired_cargo_event"] = drop_familiar_storage(
+            state, expired, source="expiry"
         )
-        pouch = SUMMONING_POUCHES_BY_ID.get(str(follower["entity_id"]))
-        if pouch is not None:
-            lifetime_reviews = max(1, pouch.lifetime_reviews)
-            drain_per_lifetime = max(
-                0, pouch.level - pouch.summoning_point_cost
-            )
-            drain_steps, follower["summoning_point_drain_residual"] = divmod(
-                _clean_int(
-                    follower.get("summoning_point_drain_residual"),
-                    0,
-                    minimum=0,
-                    maximum=lifetime_reviews - 1,
-                )
-                + drain_per_lifetime,
-                lifetime_reviews,
-            )
-            state["summoning_points_current"] = max(
-                0, state["summoning_points_current"] - drain_steps
-            )
-        if follower["remaining_reviews"] <= 0:
-            result["expired_familiar"] = follower["entity_id"]
-            result["expired_cargo_event"] = _drop_familiar_storage(
-                state, follower, source="expiry"
-            )
-            state["active_follower"] = {}
-        else:
-            state["active_follower"] = follower
+        state["active_follower"] = {}
 
     updated["summoning_state"] = state
     if state["active_follower"].get("kind") == "pet":

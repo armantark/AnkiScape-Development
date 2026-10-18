@@ -3,16 +3,18 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.summoning_data import SUMMONING_POUCHES_BY_ID
-from ankiscape.logic.summoning_logic import (
+from ankiscape.logic.pace.summoning_clock import (
     ANSWER_EFFECT_TICKS,
     BUNYIP_HEAL_LIFEPOINTS,
     BUNYIP_HEAL_TICKS,
+    SPECIAL_MOVE_RECHARGE_POINTS,
+    SPECIAL_MOVE_RECHARGE_TICKS,
+)
+from ankiscape.logic.summoning_logic import (
     CARGO_RECLAIM_REVIEWS,
     FAMILIARISATION_ACTIVITY_ID,
     FAMILIARISATION_COOLDOWN_REVIEWS,
     FAMILIARISATION_INGREDIENT_REWARD_ROWS,
-    SPECIAL_MOVE_RECHARGE_POINTS,
-    SPECIAL_MOVE_RECHARGE_TICKS,
     SPECIAL_MOVE_POINTS_MAX,
     advance_summoning_world_tick_pure,
     apply_familiarisation_segment_pure,
