@@ -770,9 +770,9 @@ def _stop_card_at_farm_danger(ctx: RuntimeActionContext, info: Mapping[str, Any]
     if info.get("bound"):
         stop_card(ctx, "stun")
     elif combat.get("died"):
-        stop_card(ctx, "death")
+        stop_card(ctx, "died")
     elif combat.get("fled"):
-        stop_card(ctx, "flee")
+        stop_card(ctx, "fled")
 
 
 def _apply_farming_queue_result(
