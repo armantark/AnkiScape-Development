@@ -1558,7 +1558,7 @@ polished away while the Codex block runs down:
    shipped defect.
 2. `ui/ui.py:1465` — the seven unavailable-tooltip strings are duplicated
    verbatim between `refresh_skill_availability` and the panel render path at
-   `ui/ui.py:22883-22900`, so editing one leaves the other emitting old text.
+   `ui/ui.py:22859-22876`, so editing one leaves the other emitting old text.
    The available branch also sets the tooltip to the bare skill name while the
    render path sets none, so an enabled button silently acquires a tooltip
    after the first refresh.

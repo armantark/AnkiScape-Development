@@ -23,6 +23,7 @@ class QuestCombatEncounter:
     npc_configs: Tuple[Tuple[str, object], ...] = ()
     guaranteed_drops: Tuple[Tuple[str, int], ...] = ()
     npc_stats_source: str = ""
+    required_encounters: Tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -244,6 +245,7 @@ def _combat(
     npc_configs: Tuple[Tuple[str, object], ...] = (),
     guaranteed_drops: Tuple[Tuple[str, int], ...] = (),
     npc_stats_source: str = "",
+    required_encounters: Tuple[str, ...] = (),
 ) -> QuestCombatEncounter:
     return QuestCombatEncounter(
         encounter_id=f"{quest_id}_{encounter_id}",
@@ -257,6 +259,7 @@ def _combat(
         npc_configs=npc_configs,
         guaranteed_drops=guaranteed_drops,
         npc_stats_source=npc_stats_source,
+        required_encounters=required_encounters,
     )
 
 

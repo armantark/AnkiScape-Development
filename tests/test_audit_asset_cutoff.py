@@ -3,7 +3,9 @@ import json
 import sys
 import tempfile
 import unittest
+import urllib.parse
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,6 +18,50 @@ SPEC.loader.exec_module(audit_asset_cutoff)
 
 
 class AuditAssetCutoffTest(unittest.TestCase):
+    def test_history_request_uses_supported_cutoff_parameters(self):
+        queries = []
+        earlier = {
+            "timestamp": "2011-11-29T14:12:02Z", "sha1": "earlier", "size": 100,
+            "url": "https://example.invalid/archive/Sprite.png",
+        }
+
+        class Client:
+            def _request_json(self, url):
+                params = urllib.parse.parse_qs(urllib.parse.urlsplit(url).query)
+                queries.append(params)
+                if "iidir" in params:
+                    return {"error": {"code": "unrecognizedparam", "info": "Unrecognized parameter: iidir."}}
+                return {"query": {"pages": [{"title": "File:Sprite.png", "imageinfo": [earlier]}]}}
+
+        with patch.object(audit_asset_cutoff.time, "sleep", return_value=None):
+            payload = audit_asset_cutoff._request_batch(
+                Client(), audit_asset_cutoff.RS3_WIKI, ["Sprite.png"], audit_asset_cutoff.PRE_EOC_CUTOFF,
+            )
+        result = audit_asset_cutoff._batch_results(payload, ["Sprite.png"], audit_asset_cutoff.PRE_EOC_CUTOFF)
+        self.assertEqual(result["Sprite.png"]["status"], "revision")
+        self.assertEqual(result["Sprite.png"]["earlier_revision"]["timestamp"], earlier["timestamp"])
+        self.assertEqual(len(queries), 1)
+        self.assertEqual(queries[0]["iistart"], [audit_asset_cutoff.PRE_EOC_CUTOFF])
+        self.assertEqual(queries[0]["iilimit"], ["1"])
+        self.assertNotIn("iidir", queries[0])
+
+    def test_history_api_error_remains_unresolved_after_four_attempts(self):
+        calls = []
+
+        class Client:
+            def _request_json(self, url):
+                calls.append(url)
+                return {"error": {"code": "maxlag", "info": "lagged"}}
+
+        with (
+            patch.object(audit_asset_cutoff.time, "sleep", return_value=None),
+            self.assertRaisesRegex(audit_asset_cutoff.AssetFetchError, "after 4 attempts:.*maxlag: lagged"),
+        ):
+            audit_asset_cutoff._request_batch(
+                Client(), audit_asset_cutoff.RS3_WIKI, ["Sprite.png"], audit_asset_cutoff.PRE_EOC_CUTOFF,
+            )
+        self.assertEqual(len(calls), 4)
+
     @staticmethod
     def _missing_cross_wiki_paths(report):
         assets = report.get("assets")

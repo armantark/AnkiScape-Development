@@ -1,0 +1,29 @@
+# Owner-settled fairness and Cold War greeting slices — 2026-10-14
+
+Authority: owner rulings relayed at22:49 PDT from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, recorded as answered decisions in design-thread-queue. This plan appends events; settled scope does not change.
+
+## Interfaces and ownership
+
+Root owns implementation, worktree leases, all repository writes, serialized proof lanes and official landing. Two read-only Sol leaves each own only their named external report directory. No leaf owns shared source, GUI, mirror, Git refs or another report. Existing pure reducer/state and dispatcher conventions remain; no new runner/checker/framework. Retired2011 expansion-skill baseline is overridden by the binding2012-11-20 source standard. No new assets or source harvest are needed for the fairness rules.
+
+Restaurant is the first implementation slice: Again is idle, successful other-target answers spend six minutes while an order is open, prebanked food delivers promptly, orders never expire and base points/food are preserved. Only the necessary Again result-message change is authorized. Before implementation enumerate failure scenarios and add meaningful behavior coverage where absent. Prove real dispatcher behavior, save/Undo and visible result text under the existing isolation rules. Root retains the native requirement; successful old product proofs are not replayed for record repair.
+
+Familiarisation follows as an atomic slice. Four successful answers yield60 shards; Again consumes no segment and earns none. Remove focus and its save field through the normal sanitizing migration, with only visible focus-pip removal authorized. The familiarisation qualification leaf reads the current reducer, sanitation/load/export/Undo consumers and visible focus references, and returns exact paths, failure scenarios and an implementation boundary. CHECK: bounded static source/consumer inspection, source hashes and git status before/after. EXPECT: every focus consumer and relevant save migration is identified, with no invented migration policy or code edits.
+
+Cold War greeting qualification is independent read-only work. The leaf reads the existing pinned contracts and actual quest/journal architecture to identify the complete greeting boundary. Save the assigned three-emote greeting, show one journal line, require no player emotes and pass later greeting checks. Book-gate and10595/10596 source disputes stay open. CHECK: bounded existing-source and consumer inspection with exact source hashes and before/after git status. EXPECT: either an independently implementable complete greeting slice or exact dependencies/evidence and the single unblock; no fabricated greeting distribution or source identity.
+
+## Verification and stop rules
+
+All leaves read AGENTS.md and STANDING-SLICE-CONTRACT completely. No Claude, child agents, sibling messages, network/harvest, source mutation, live Anki/browser, generators, tests, cache decoders or accepted-proof replay. Write only report.md and qualification.json under the assigned evidence directory, including exact commands/hashes and any operator friction. Missing evidence is a report finding, not permission to infer an owner decision. When blocked, stop and write the blocker into your report with the exact items in dispute; never message another session; the return value is the only escalation channel.
+
+Root checks source contracts and returned bindings, then uses normal hooks, independent cross-lineage source review, all standing audits and an exact merged --remote-lanes gate followed by official land. Root runs branch-focused checks and reserves both full lanes for the exact promotion gate; the source branch is frozen during that gate. No weakened checks, limits, pins, source qualifiers, existing UI beyond the owner's precise scopes, Git config, push, force/reset/amend or manual-main edits. Evidence lives outside the worktrees. Stop the whole goal only under the current quota authority or when all authorized independent paths are demonstrably blocked.
+
+- Restaurant source80475a0f is clean;38 focused cases passed18.322s/0skip. Independent Astra and Kimi K3 source reviews are running; source16 stays frozen. Native/visual/land remain false under the existing literal startup hold.
+
+- Familiarisation migration choice: active sessions derive successful segments from earned shards divided by15. This removes old failed-answer segments without granting shards or resetting cooldown. Completed reward-ready sessions retain their existing partial rewards and counters. This is Root's engineering migration under the owner's four-success rule, not a new owner gate.
+
+- Restaurant3df31bc6 closes every source-review finding. Its accepted39-case proof remains bound to unchanged executable/test bytes; final source gate is next. Familiarisationf600c0b5 is clean after its original normal hook and passes103 exact focused cases. Its Qt and source votes remain pending. Both keep strict native/land holds.
+
+2026-10-15 records review contract: Root merged current main69a22761 without a runtime delta. A fresh read-only Astra review covers all Memory Bank differences against main, including the three owner rulings, current acceptance limits and archived records. A separate Zhipu review checks the same records. Each reviewer owns only external reports. Root owns source writes, both serialized full remote lanes and official land. The contract-only boss change adds no implementation. Native/visual holds stay exact; no closed case retry or new owner-only gate.
+
+2026-10-15: Astra reviewed all28 changed Markdown paths at9764bb61 and found no blocking issue. Root changes six Undo/replay pairs to six whole-state comparisons across two cycles, matching the original six named checks. Later append-only friction and fresh source-proof status are explicit corrective records. No accepted product check is replayed for these records.

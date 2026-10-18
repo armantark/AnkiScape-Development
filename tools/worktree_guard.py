@@ -4,11 +4,10 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import shutil
+import os
 import subprocess
-import tempfile
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -135,110 +134,6 @@ def audit(repo: Path) -> None:
         print(f"WARNING: repo-local landing freeze hook missing: {repo_local_hook_path(repo)}")
 
 
-RULESYNC_TIMEOUT_SECONDS = 60
-RULE_OUTPUT_MANIFEST = ".claude/rules/.rulesync-managed.json"
-
-
-def contained_rule_path(destination: Path, relative: str) -> Path:
-    root = destination.resolve()
-    path = root / relative
-    if not path.is_relative_to(root) or any(
-        not parent.resolve().is_relative_to(root)
-        for parent in (path, *path.parents)
-        if parent.is_relative_to(root)
-    ):
-        raise RuntimeError(f"rulesync output resolves outside the destination: {path}")
-    if any(parent.is_symlink() for parent in (path, *path.parents) if parent.is_relative_to(root)):
-        raise RuntimeError(f"refusing rulesync publication through a symlink: {path}")
-    return path
-
-
-def run_rulesync(executable: str, destination: Path, *, preview: bool = False) -> dict:
-    command = (executable, "--json", "generate", "--config", "rulesync.jsonc", "--features", "rules")
-    try:
-        result = subprocess.run(
-            (*command, "--dry-run") if preview else (*command, "--output-roots", ".", "--input-root", "."),
-            cwd=destination, text=True, capture_output=True, timeout=RULESYNC_TIMEOUT_SECONDS,
-        )
-    except subprocess.TimeoutExpired as exc:
-        raise RuntimeError(f"rulesync generation timed out after {RULESYNC_TIMEOUT_SECONDS}s in {destination}") from exc
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"rulesync generation failed in {destination}:\n{result.stderr.strip() or result.stdout.strip()}"
-        )
-    return json.loads(result.stdout)
-
-
-def tracked_rule_files(destination: Path) -> set[str]:
-    return set(_git(destination, "ls-files", "-z", capture=True).stdout.split("\0"))
-
-
-def managed_rule_files(manifest: Path) -> dict[str, str | None]:
-    if not manifest.exists():
-        return {}
-    paths = json.loads(manifest.read_text(encoding="utf-8"))
-    # Filename-only manifests cannot establish ownership of current bytes.
-    if isinstance(paths, list) and all(isinstance(path, str) for path in paths):
-        paths = dict.fromkeys(paths)
-    if not isinstance(paths, dict) or any(
-        not isinstance(path, str) or Path(path).parent != Path(".claude/rules") or Path(path).suffix != ".md"
-        or (digest is not None and not isinstance(digest, str))
-        for path, digest in paths.items()
-    ):
-        raise RuntimeError(f"invalid rulesync managed-file manifest: {manifest}")
-    return paths
-
-
-def publish_worktree_rules(destination: Path, staged: Path, outputs: set[str]) -> None:
-    manifest = contained_rule_path(destination, RULE_OUTPUT_MANIFEST)
-    previous = managed_rule_files(manifest)
-    for relative in outputs | previous.keys():
-        contained_rule_path(destination, relative)
-    tracked = tracked_rule_files(destination)
-    for relative in previous.keys() - outputs:
-        path = contained_rule_path(destination, relative)
-        if path.resolve().relative_to(destination.resolve()).as_posix() in tracked:
-            continue
-        if previous[relative] is not None and path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == previous[relative]:
-            path.unlink()
-    for relative in outputs:
-        path = contained_rule_path(destination, relative)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(staged / relative, path)
-    manifest.parent.mkdir(parents=True, exist_ok=True)
-    sidecars = sorted(path for path in outputs if Path(path).parent == Path(".claude/rules") and Path(path).suffix == ".md")
-    hashes = {path: hashlib.sha256((staged / path).read_bytes()).hexdigest() for path in sidecars}
-    manifest.write_text(json.dumps(hashes, indent=2) + "\n", encoding="utf-8")
-
-
-def generate_worktree_rules(destination: Path) -> None:
-    local_config = destination / "rulesync.local.jsonc"
-    if local_config.exists() or local_config.is_symlink():
-        raise RuntimeError(f"refusing rulesync local override: {local_config}")
-    if not (destination / "rulesync.jsonc").is_file():
-        return
-    executable = shutil.which("rulesync")
-    if executable is None:
-        raise RuntimeError("rulesync CLI not found on PATH")
-    # A clean staging directory exposes the complete output set, including files
-    # that Rulesync would omit from a preview because their content is unchanged.
-    # The write pass pins both roots to staging, so config cannot redirect writes.
-    with tempfile.TemporaryDirectory(prefix="ankiscape-rules-") as temporary:
-        staged = Path(temporary).resolve()
-        shutil.copyfile(destination / "rulesync.jsonc", staged / "rulesync.jsonc")
-        shutil.copytree(destination / ".rulesync/rules", staged / ".rulesync/rules")
-        preview = run_rulesync(executable, staged, preview=True)
-        outputs = set(preview["data"]["features"]["rules"]["paths"])
-        for relative in outputs:
-            contained_rule_path(staged, relative)
-            contained_rule_path(destination, relative)
-        generated = run_rulesync(executable, staged)
-        actual = set(generated["data"]["features"]["rules"]["paths"])
-        if actual != outputs:
-            raise RuntimeError("rulesync output set changed during generation; refusing publication")
-        publish_worktree_rules(destination, staged, outputs)
-
-
 def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str) -> None:
     audit(repo)
     canonical, _ = canonical_and_paths(repo)
@@ -266,7 +161,6 @@ def add_worktree(repo: Path, branch: str, name: Optional[str], start_point: str)
         _git(canonical, "worktree", "add", "-b", branch, str(destination), start_point)
     try:
         (destination / ".venv-qt").symlink_to(qt_environment, target_is_directory=True)
-        generate_worktree_rules(destination)
         audit(repo)
     except BaseException:
         _git(canonical, "worktree", "remove", "--force", str(destination))
@@ -300,15 +194,7 @@ def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: 
     if not (qt_environment / "bin/python").exists():
         raise RuntimeError(f"Qt test interpreter not found: {qt_environment / 'bin/python'}")
     require_branch_available(canonical, branch)
-    result = _treehouse(
-        canonical,
-        "get",
-        "--lease",
-        "--no-fetch",
-        "--json",
-        "--lease-holder",
-        holder or "worktree_guard",
-    )
+    result = _get_lease(repo, canonical, holder)
     try:
         lease = json.loads(result.stdout)
         destination = Path(lease["path"]).resolve()
@@ -340,12 +226,80 @@ def lease_worktree(repo: Path, branch: str, holder: Optional[str], start_point: 
         link = destination / ".venv-qt"
         if not link.is_symlink():
             link.symlink_to(qt_environment, target_is_directory=True)
-        generate_worktree_rules(destination)
         audit(repo)
     except BaseException:
         _treehouse(canonical, "return", "--force", "--if-lease-id", lease_id, str(destination))
         raise
     print(json.dumps({"path": str(destination), "lease_id": lease_id, "branch": branch}))
+
+
+def _get_lease(repo: Path, canonical: Path, holder: Optional[str]) -> subprocess.CompletedProcess[str]:
+    get = ("get", "--lease", "--no-fetch", "--json", "--lease-holder", holder or "worktree_guard")
+    try:
+        return _treehouse(canonical, *get)
+    except RuntimeError as exc:
+        # treehouse refuses this way when every slot is leased; stale leases are the usual cause.
+        if "in use or dirty" not in str(exc) or not reclaim_stale_leases(repo):
+            raise
+    return _treehouse(canonical, *get)
+
+
+STALE_LEASE_DAYS = 14
+
+
+def reclaim_stale_leases(repo: Path, *, dry_run: bool = False) -> int:
+    """Return every old lease that holds nothing; name the old leases kept, and why.
+
+    An agent that stops mid-run never returns its lease: on 2026-10-15 all 16
+    slots were leased, most since September. A slot holds nothing when no
+    process runs in it and its checkout is clean and already on main.
+    """
+    canonical, _ = canonical_and_paths(repo)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=STALE_LEASE_DAYS)
+    returned = 0
+    for row in json.loads(_treehouse(canonical, "status", "--json").stdout):
+        if row["status"] != "leased" or datetime.fromisoformat(row["leased_at"]) > cutoff:
+            continue
+        path = Path(row["path"])
+        reason = lease_hold_reason(path, row["processes"])
+        label = f"{path} ({row['branch']}, leased {row['leased_at'][:10]})"
+        if reason:
+            print(f"Kept {label}: {reason}")
+        elif dry_run:
+            print(f"Would return {label}")
+        else:
+            release_worktree(repo, path, row["lease_id"], reclaiming=True)
+            returned += 1
+    return returned
+
+
+def lease_hold_reason(path: Path, processes: list) -> Optional[str]:
+    if processes:
+        return "a process runs in it"
+    if any(directory.is_relative_to(path.resolve()) for directory in caller_directories()):
+        return "the caller works in it"
+    if _git(path, "status", "--porcelain", capture=True).stdout.strip():
+        return "uncommitted work"
+    if _git(path, "merge-base", "--is-ancestor", "HEAD", "main", check=False).returncode:
+        return "commits not on main"
+    return None
+
+
+def caller_directories() -> set[Path]:
+    """The working directories of this process and every process above it.
+
+    treehouse leaves the caller and its ancestors out of a slot's process
+    list, so the slot an agent works in looks idle to that agent's own reclaim.
+    """
+    table = subprocess.run(("ps", "-axo", "pid=,ppid="), check=True, text=True, capture_output=True).stdout
+    parents = dict(line.split() for line in table.splitlines())
+    chain, pid = [], str(os.getpid())
+    while pid in parents and pid not in chain:
+        chain.append(pid)
+        pid = parents[pid]
+    # lsof exits 1 when it cannot read a system process; the readable rows still come back.
+    listing = subprocess.run(("lsof", "-a", "-d", "cwd", "-p", ",".join(chain), "-Fn"), text=True, capture_output=True)
+    return {Path(line[1:]).resolve() for line in listing.stdout.splitlines() if line.startswith("n")}
 
 
 def require_no_gate_markers(repo: Path, destination: Path) -> None:
@@ -381,7 +335,7 @@ def require_clean_worktree(destination: Path) -> None:
         )
 
 
-def require_matching_lease(canonical: Path, destination: Path, lease_id: str) -> None:
+def require_matching_lease(canonical: Path, destination: Path, lease_id: str) -> dict:
     result = _treehouse(canonical, "status", "--json")
     try:
         rows = json.loads(result.stdout)
@@ -400,9 +354,10 @@ def require_matching_lease(canonical: Path, destination: Path, lease_id: str) ->
             matches.append(row)
     if not lease_id or len(matches) != 1 or matches[0].get("status") != "leased" or matches[0].get("lease_id") != lease_id:
         raise RuntimeError(f"refusing return: pool status does not confirm lease {lease_id} for {destination}")
+    return matches[0]
 
 
-def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
+def release_worktree(repo: Path, path: Path, lease_id: str, *, reclaiming: bool = False) -> None:
     canonical, _ = canonical_and_paths(repo)
     destination = path.resolve()
     if not destination.is_relative_to(pool_root(canonical)):
@@ -417,7 +372,10 @@ def release_worktree(repo: Path, path: Path, lease_id: str) -> None:
     try:
         require_no_gate_markers(canonical, destination)
         require_clean_worktree(destination)
-        require_matching_lease(canonical, destination, lease_id)
+        lease = require_matching_lease(canonical, destination, lease_id)
+        # A reclaimed slot's holder can come back after the pool-wide scan.
+        if reclaiming and (reason := lease_hold_reason(destination, lease.get("processes", []))):
+            raise RuntimeError(f"refusing reclaim: {destination}: {reason}")
         # Keep gate registration excluded until the lease has been returned.
         _git(destination, "checkout", "--detach", capture=True)
         _treehouse(canonical, "return", "--force", "--if-lease-id", lease_id, str(destination))
@@ -501,6 +459,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     release_parser = subparsers.add_parser("release")
     release_parser.add_argument("path", type=Path)
     release_parser.add_argument("--lease-id", required=True)
+    reclaim_parser = subparsers.add_parser(
+        "reclaim",
+        description=f"Return leases older than {STALE_LEASE_DAYS} days whose clean checkout is already on main.",
+    )
+    reclaim_parser.add_argument("--dry-run", action="store_true")
     preserved_parser = subparsers.add_parser("preserved")
     preserved_subparsers = preserved_parser.add_subparsers(
         dest="preserved_command", required=True
@@ -520,6 +483,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             lease_worktree(args.repo, args.branch, args.holder, args.start_point)
         elif args.command == "release":
             release_worktree(args.repo, args.path, args.lease_id)
+        elif args.command == "reclaim":
+            reclaim_stale_leases(args.repo, dry_run=args.dry_run)
         elif args.command == "preserved" and args.preserved_command == "list":
             list_preserved(args.repo)
         else:

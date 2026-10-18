@@ -28,7 +28,7 @@ copies the rows to the desktop. The game never reads that table:
 
 ## 3. Facts from the real code
 
-1. The live path is `on_answer_card` in `__init__.py` (around line 5648). It
+1. The live path is `on_answer_card` in `__init__.py` (line 5430). It
    wraps `Reviewer._answerCard`. It processes an answer only when the
    reviewer showed the question and the answer (`card_turned` and
    `answer_shown`).

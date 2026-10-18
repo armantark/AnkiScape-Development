@@ -28,8 +28,8 @@ GNOME_RESTAURANT_TOKEN_MEAL_CAP = 10
 
 # Exact: an easy job allows six source minutes and a hard job eleven. The owner
 # settled on 2026-07-17 that these bound tip quality rather than expiring the
-# order, so the order carries the source minutes and each `Again` spends six world
-# minutes of them, the answered-card convention Big Chinchompa already uses.
+# order. Under the2026-10-14 ruling, Again pauses; successful other-target answers
+# spend six world minutes. Delivery itself spends none of the order's window.
 GNOME_RESTAURANT_EASY_MINUTES = 6
 GNOME_RESTAURANT_HARD_MINUTES = 11
 GNOME_RESTAURANT_WORLD_MINUTES_PER_REVIEW = 6

@@ -71,7 +71,7 @@ Three defects. The loadout summary is truthful (it projects the persisted
   The supplemental loop at `logic_pure/logic_pure_combat_model.py:2438-2449`
   sits outside the magic gate; `_combat_required_rune_cost_pure()` must return
   no rune cost when `combat_class != "magic"`. `Max output` enables Vengeance
-  through `data/magic_data.py:622-625`; that must stop producing rune loads
+  through `data/magic_data.py:632-635`; that must stop producing rune loads
   for melee and ranged.
 - Route weapon, action, attack-style, and spell mutations
   (`__init__.py:4560-4626`, equip at `:5065-5073`, unequip at `:5100-5108`)
@@ -80,7 +80,7 @@ Three defects. The loadout summary is truthful (it projects the persisted
   Reuse the unload/refill sequence at
   `16112e59:logic_pure/logic_pure_combat_engine.py:2709-2720`. Apply ruling 6 for live
   encounters.
-- Move the "Current inventory" label and scroll area (`ui/ui.py:25520-25526`)
+- Move the "Current inventory" label and scroll area (`ui/ui.py:25496-25502`)
   inside `custom_view` so Auto mode stops showing the unrelated
   `carried_inventory` overlay (`__init__.py:1991-2000`) next to the combat
   loadout summary.
@@ -120,8 +120,8 @@ runes. Auto mode renders no Current inventory grid.
 - Profile bootstrap (`__init__.py:335`) stays `"None"`. Out of scope.
 
 Focused tests: `tests/test_integration_smoke.py:2234`, `:2111`, `:2472`,
-`:2762`, `tests/test_runtime_actions.py:819-859`, `tests/test_logic.py:963`,
-`tests/test_main_menu_widget.py:12213`. Neighbours:
+`:2762`, `tests/test_runtime_actions.py:819-859`, `tests/test_logic.py:959`,
+`tests/test_main_menu_widget.py:12192`. Neighbours:
 `tests/test_direct_action_undo_seam.py`, the `test_undo_seam_*.py` family.
 
 Acceptance: explicit Stop, a level/quest invalidation, a review-driven
@@ -153,7 +153,7 @@ Depends on nothing in part 1; both call seams already exist.
   and the Brimhaven Stop path (`ui/ui.py:5194-5207`, coordinate with the
   `bankstand-seam` slice owner if the hunk overlaps).
 
-Focused tests: `tests/test_shooting_star_logic.py:100`, `:195`,
+Focused tests: `tests/test_shooting_star_logic.py:99`, `:195`,
 `tests/test_thieving.py:763`, plus each `tests/test_<activity>.py` suite whose
 module you touch. Neighbours: `tests/test_runtime_actions.py`,
 `tests/test_direct_action_undo_seam.py`.
@@ -183,7 +183,7 @@ lands on Bankstanding.
   progress area. Hide stale `second_progress`, `second_progress_lbl`,
   `combat_resources`, `enemy_progress`, `chips_lbl`, and unrelated labels.
   Render the existing `progress_lbl` and thin `progress` bar
-  (`ui/ui.py:2402-2415`) as the travel status. Ruling 2: this replaces
+  (`ui/ui.py:2392-2405`) as the travel status. Ruling 2: this replaces
   combat's player/enemy presentation (`ui/ui.py:2792-2839`) during the run.
   When the state clears, ordinary branch rendering returns by itself.
 - Replace the button-only refresher (`__init__.py:1729-1738`) with one shared
@@ -226,7 +226,7 @@ rebuilds all 600 carried-picker buttons even for a zero-result query.
   model/view rewrite in this slice; each cell owns drag/drop, menus, icons,
   quantity text, accessibility, and tooltips.
 
-Focused tests: `tests/test_main_menu_widget.py:10520`, `:10356`, `:10411`,
+Focused tests: `tests/test_main_menu_widget.py:10499`, `:10356`, `:10411`,
 `:10546`, `:3518`, `:1383`. Add a coalescing regression: several `setText()`
 calls inside one debounce interval produce one completed render, and
 carried-picker plus bank-tab button identities survive query changes.
@@ -249,7 +249,7 @@ Coordination: this slice and `runes` edit nearby `ui/ui.py` regions
   state) and do not globally change `_request_utility_selection`.
 - Big Top does not share this defect; leave it alone.
 
-Focused tests: `tests/test_main_menu_widget.py:14921` (currently expects the
+Focused tests: `tests/test_main_menu_widget.py:14900` (currently expects the
 non-activating callback; correct it), `:12575`, `:12680`, `:12706`, `:17361`,
 `tests/test_integration_smoke.py:3717`, `tests/test_fish_flingers.py:177`,
 `tests/test_circus.py:339`.

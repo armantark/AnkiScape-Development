@@ -10,7 +10,6 @@ from ..data.runecrafting_data import (
     RUNECRAFTING_STAFF_ITEM,
 )
 from ..logic.wicked_hood_logic import (
-    apply_wicked_hood_upgrade_pure,
     wicked_hood_fed_altars_pure,
     wicked_hood_operable_pure,
 )
@@ -346,25 +345,6 @@ def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, 
         for item_name in (RUNECRAFTING_STAFF_ITEM, target.get("talisman_item")):
             if item_name and inventory.get(item_name, 0) <= 0:
                 reasons.append(str(item_name))
-    elif kind == "hood_feed":
-        equipment = player_data.get("equipment", {}) or {}
-        has_hood = inventory.get("Wicked hood", 0) > 0 or equipment.get("head") == "Wicked hood"
-        if not has_hood:
-            reasons.append("Wicked hood")
-        hood = player_data.get("wicked_hood", {}) or {}
-        altar_id = target.get("altar_id")
-        already_fed = (
-            bool(hood.get("elemental_fed"))
-            if altar_id == "elemental"
-            else bool(hood.get("omni_fed"))
-            if altar_id == "omni"
-            else altar_id in _fed_altars(player_data)
-        )
-        if already_fed:
-            reasons.append("already fed")
-        input_item = target.get("input_item")
-        if input_item and inventory.get(input_item, 0) <= 0:
-            reasons.append(str(input_item))
     return tuple(dict.fromkeys(reasons))
 
 
@@ -483,21 +463,5 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
         output_item = str(target.get("output_item"))
         inventory[output_item] = inventory.get(output_item, 0) + 1
         return data, 0, True, f"+1 {output_item}"
-
-    if kind == "hood_feed":
-        input_item = str(target.get("input_item"))
-        altar_id = str(target.get("altar_id"))
-        inventory[input_item] = inventory.get(input_item, 0) - 1
-        if altar_id == "elemental":
-            data = apply_wicked_hood_upgrade_pure(
-                data, elemental_fed=True
-            )
-        elif altar_id == "omni":
-            data = apply_wicked_hood_upgrade_pure(data, omni_fed=True)
-        else:
-            data = apply_wicked_hood_upgrade_pure(
-                data, fed_altars=(altar_id,)
-            )
-        return data, 0, True, f"{input_item} fed"
 
     return player_data, 0, False, "Unsupported Runecrafting target"

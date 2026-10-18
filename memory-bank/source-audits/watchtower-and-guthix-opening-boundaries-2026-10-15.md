@@ -1,0 +1,7 @@
+# Watchtower and While Guthix Sleeps openings — 2026-10-15
+
+Root verified27 bindings and three literal period bodies in /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-20/root-binding.json. Source166ff6a0 changes no quest/runtime bytes. Retained entries11/12 alone were qualified; later8 were order-only. No census or exhaustion follows.
+
+Watchtower: the actual first journal is generic. Full6525573/2012-11-03T08:25:45Z distinguishes Wizard briefing from the bush/fingernails investigation. First unblock is owner authorization for a sourced replacement and exact complete endpoint. Actual skills Agility25/Herblore14/Magic15/Mining40/Thieving15 need the earned route. No quest prerequisites are present; a hypothetical Herblore quest hold is not inherited. Existing materials/tools are not deed proofs.
+
+While Guthix Sleeps: actual wanted dependency inherits Wanted's owner requirement-readout/source-qualified gate hold. Every concrete first-block talk, both level38 assassin kills, three ordered Thaerisk questions and baited pitfall trap remain mandatory; NPC Contact cannot substitute. Index/caption text does not demand the whole quest or a generic-journal replacement. Stage2 Broav capture stays separate. Full6584290/2012-11-19T10:55:09Z and quick6356780/2012-10-06T13:32:01Z are one wiki layer. Hunting-expert fungus grant, combat values, trap/custody, all26 prerequisites,270 quest points and seven skills need further qualification and earned proof. No seeded route or gameplay acceptance.

@@ -122,6 +122,7 @@ passes and were caught only by execution.
 3. An inert row: a reward or action gated on a state no player reaches.
 4. A panel re-deriving a rule the logic layer owns. The `*_view_pure` function
    owns every enable and visibility decision.
+   `tests/ui_flows/test_ui_save_access.py` refuses new direct save reads in `ui/`.
 5. An unlabelled reconstruction, invisible to the placeholder register test
    because it carries no `PLACEHOLDER(...)` marker.
 

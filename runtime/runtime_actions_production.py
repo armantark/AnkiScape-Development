@@ -25,7 +25,6 @@ from ..core.constants import (
     DEFAULT_RUNECRAFTING_TARGET,
     DEFAULT_UTILITY_ACTIVITY,
     DEFAULT_WOODCUTTING_TARGET,
-    EQUIPMENT_DATA,
     EXP_TABLE,
     FIREMAKING_DATA,
     FISHING_DATA,
@@ -44,7 +43,6 @@ from ..core.constants import (
     PRAYER_DATA,
     DEFAULT_PRAYER_TARGET,
     GILDED_ALTAR_MULTIPLIER,
-    QUEST_DATA,
     QUEST_UNLOCK_RULES,
     RUNECRAFTING_DATA,
     RUNECRAFTING_POUCH_DATA,
@@ -65,7 +63,6 @@ from ..logic_pure.logic_pure import (
     apply_fletching_pure,
     apply_herblore_action_pure,
     apply_hunter_action_pure,
-    apply_quest_combat_encounter_pure,
     apply_mining_action_pure,
     apply_magic_action_pure,
     apply_open_bird_nests_pure,
@@ -81,7 +78,6 @@ from ..logic_pure.logic_pure import (
     prayer_gilded_search_step_pure,
     clear_prayer_gilded_stint_pure,
     prayer_target_locked_reasons_pure,
-    apply_quest_progress_pure,
     apply_runecrafting_action_pure,
     runecrafting_locked_reasons_pure,
     apply_smithing_action_pure,
@@ -111,7 +107,6 @@ from ..logic_pure.logic_pure import (
     can_progress_quest_pure,
     can_runecraft_target_pure,
     can_smith_item_pure,
-    can_start_quest_pure,
     cooking_target_locked_reasons_pure,
     combat_target_locked_reasons_pure,
     eligible_fishing_fish_pure,
@@ -133,9 +128,6 @@ from ..logic_pure.logic_pure import (
     red_sandstone_daily_state_pure,
     magic_target_locked_reasons_pure,
     normalize_xp_rewards_pure,
-    quest_current_stage_blocker_reasons_pure,
-    quest_current_stage_blockers_pure,
-    quest_current_stage_resolvable_combat_blockers_pure,
     record_action_telemetry_pure,
     record_cadence_wait_telemetry_pure,
     record_achievement_progress_pure,
@@ -415,6 +407,7 @@ from .runtime_actions_shared import (  # noqa: F401  (re-export)
 from .runtime_actions_context import (  # noqa: F401  (re-export)
     RuntimeActionContext,
 )
+from .runtime_actions_quest import handle_quest_answer  # noqa: F401  (re-export)
 
 
 def _spec_output_items(spec: dict[str, Any], fallback_item: Optional[str] = None) -> dict[str, int]:
@@ -1220,118 +1213,6 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(exp_gained)
     elif message:
         ctx.show_activity_gain(str(message))
-    return True
-
-
-def _switch_off_blocked_quest(ctx: RuntimeActionContext, quest_name: str, reasons: tuple[str, ...]) -> None:
-    ctx.deactivate_current_skill()
-    reason_lines = "\n".join(f"• {reason}" for reason in reasons)
-    ctx.show_error_message("Quest blocked", f"{quest_name} is blocked:\n{reason_lines}\n\nQuesting has been switched off until this is resolved.")
-
-
-def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
-    player_data = ctx.player_data
-    quest_id = player_data.get("current_quest", "rune_mysteries")
-    if quest_id not in QUEST_DATA:
-        _switch_material_failure_to_bankstanding(ctx)
-        return False
-    quest = QUEST_DATA[quest_id]
-    stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
-    combat_blockers = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, QUEST_DATA)
-    if combat_blockers:
-        new_data, ok, result = apply_quest_combat_encounter_pure(
-            player_data,
-            quest_id,
-            QUEST_DATA,
-            combat_blockers[0].get("encounter_id"),
-            rng=ctx.random_random,
-            equipment_data=EQUIPMENT_DATA,
-            ticks=_combat_review_ticks(ctx),
-            live_cadence=ctx.cadence_live_enabled,
-        )
-        if not ok:
-            ctx.deactivate_current_skill()
-            ctx.show_error_message(
-                "Quest combat blocked",
-                f"{quest.get('display_name', quest_id)} cannot resolve this battle yet.",
-            )
-            return False
-        player_data.update(new_data)
-        _record_action(ctx, "quest", f"{quest_id}:{result.get('encounter_id', 'combat')}", True, expected_success_chance=1.0)
-        _refresh_combat_levels(ctx, result.get("xp_rewards", {}))
-        ctx.check_achievements(player_data)
-        ctx.save_player_data()
-        ctx.refresh_skill_availability()
-        xp_total = 0.0
-        for amount in (result.get("xp_rewards", {}) or {}).values():
-            try:
-                xp_total += float(amount or 0.0)
-            except (TypeError, ValueError):
-                pass
-        if xp_total > 0:
-            ctx.show_exp(xp_total)
-        display_name = str(result.get("display_name") or "combat encounter")
-        quantity_text = str(result.get("quantity_text") or "")
-        if result.get("reason") == "quest_combat_bank_run":
-            remaining = int(result.get("bank_run_reviews_remaining", 0) or 0)
-            ctx.show_activity_gain(f"{display_name}: bank run ({remaining} reviews remaining)")
-        elif result.get("died"):
-            ctx.show_activity_gain(f"☠ YOU DIED — killed by {display_name}; gear moved to grave")
-        elif result.get("killed"):
-            ctx.show_activity_gain(f"Defeated {display_name}{quantity_text}")
-        else:
-            ctx.show_activity_gain(
-                f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "
-                f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
-            )
-        return True
-    stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
-    if stage_blocker_reasons:
-        _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
-        return False
-    if not can_start_quest_pure(player_data, quest_id, QUEST_DATA):
-        ctx.deactivate_current_skill()
-        ctx.show_error_message(
-            "Quest unavailable",
-            f"{quest.get('display_name', quest_id)} cannot progress right now, so questing has been switched off.",
-        )
-        return False
-
-    exp_before = ctx.implemented_exp_keys_snapshot()
-    new_data, ok, completed_now, clue_reward_refusal_reason = (
-        apply_quest_progress_pure(
-            player_data,
-            quest_id,
-            QUEST_DATA,
-            include_clue_refusal=True,
-        )
-    )
-    if not ok:
-        stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
-        if stage_blocker_reasons:
-            _switch_off_blocked_quest(ctx, quest.get("display_name", quest_id), stage_blocker_reasons)
-        return False
-    player_data.update(new_data)
-    _record_action(ctx, "quest", quest_id, True, expected_success_chance=1.0)
-    if completed_now:
-        ctx.show_quest_exp_delta(exp_before)
-        ctx.deactivate_current_skill()
-    ctx.check_achievements(player_data)
-    ctx.save_player_data()
-    ctx.refresh_skill_availability()
-    if completed_now:
-        display_name = str(quest.get("display_name", quest_id))
-        ctx.show_activity_gain(f"{display_name} complete")
-        if clue_reward_refusal_reason:
-            ctx.show_activity_gain(clue_reward_refusal_reason)
-        ctx.show_error_message(
-            "Quest complete",
-            f"{display_name} is complete, so questing has been switched off. "
-            "Open the AnkiScape menu to pick another quest.",
-        )
-    else:
-        state = player_data.get("quests", {}).get(quest_id, {})
-        ctx.show_activity_gain(f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}")
     return True
 
 

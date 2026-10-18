@@ -5,9 +5,18 @@ from .contract import *
 from .ids import *
 from .sources import *
 from .stage_additions import CAT_FOLLOWER_STATE_NAMES
+from .stage_overrides.free.the_blood_pact import THE_BLOOD_PACT_CLEANUPS
+from .stage_overrides.members.later.as_a_first_resort import AS_A_FIRST_RESORT_STAGE_CLEANUPS
+from .stage_overrides.members.later.creature_of_fenkenstrain import CREATURE_OF_FENKENSTRAIN_CLEANUPS
+from .stage_overrides.members.later.underground_pass import UNDERGROUND_PASS_CLEANUPS
+from .stage_overrides.members.classic.observatory_quest import OBSERVATORY_QUEST_CLEANUPS
 
 QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {BIG_CHOMPY_BIRD_HUNTING_ID: tuple(QuestStageRequirementCleanup(**row) for row in chompy_hunting_data.BIG_CHOMPY_STAGE_REQUIREMENT_CLEANUPS),
     "zogre_flesh_eaters": tuple(QuestStageRequirementCleanup(**row) for row in zogre_flesh_eaters_data.ZOGRE_FLESH_EATERS_STAGE_REQUIREMENT_CLEANUPS),
+    "creature_of_fenkenstrain": CREATURE_OF_FENKENSTRAIN_CLEANUPS,
+    "underground_pass": UNDERGROUND_PASS_CLEANUPS,
+    "the_blood_pact": THE_BLOOD_PACT_CLEANUPS,
+    "observatory_quest": OBSERVATORY_QUEST_CLEANUPS,
     "the_lost_tribe": (
         QuestStageRequirementCleanup(
             stage=1,
@@ -940,11 +949,7 @@ QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCle
             add_required_tools=(("Hatchet", 1),),
         ),
     ),
-    "as_a_first_resort": (
-        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Hatchet",)),
-        QuestStageRequirementCleanup(stage=3, remove_required_inventory=("Spears",)),
-        QuestStageRequirementCleanup(stage=4, remove_required_inventory=("Larupia furs",)),
-    ),
+    "as_a_first_resort": AS_A_FIRST_RESORT_STAGE_CLEANUPS,
     "the_branches_of_darkmeyer": (
         QuestStageRequirementCleanup(
             stage=1,

@@ -277,7 +277,6 @@ MAZCHNA_MASTER = SlayerMaster(
     assignments=MAZCHNA_FAMILIES,
     runtime_enabled=True,
     required_combat_level=20,
-    required_quest_id="priest_in_peril",
     chathead_asset_path="activityicons/mazchna_chathead.png",
     alternate_display_name="Achtryn",
     alternate_display_condition="while_guthix_sleeps_in_progress",

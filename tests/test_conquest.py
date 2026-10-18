@@ -222,6 +222,7 @@ class ConquestEntryAndSetupTests(unittest.TestCase):
                 )
 
     def test_entry_builds_a_bounded_board_and_unlocks_both_tracks(self):
+        self.assertEqual(CONQUEST_BOARD_SIZE, 20)
         player = _entered()
         session = player["conquest"]
         self.assertEqual(player["activity_session"], {"active_id": "conquest"})

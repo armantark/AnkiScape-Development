@@ -22,7 +22,7 @@ Two builders make the target lists today. They are in `ui/ui.py`:
 | Builder | Line | Returns |
 |---|---|---|
 | `_build_flat_target_list` | `ui/ui.py:4759` | `QListWidget` |
-| `_build_grouped_target_tree` | `ui/ui.py:5402` | `QTreeWidget` |
+| `_build_grouped_target_tree` | `ui/ui.py:5391` | `QTreeWidget` |
 
 Each skill calls one builder directly. Examples: `_build_ore_list` at `ui/ui.py:4968`
 calls the flat builder, and `_build_craft_list` at `ui/ui.py:5021` calls the tree

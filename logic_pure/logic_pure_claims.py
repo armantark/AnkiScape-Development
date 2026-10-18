@@ -2,6 +2,7 @@
 
 from typing import Iterable, Mapping, Optional
 
+from ..core.claim_display import claim_display_fields
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
 from .logic_pure_quest import (  # noqa: F401  (re-export)
@@ -136,7 +137,9 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
     if not claim:
         return ("unknown claim",)
     state = (player_data.get("claims", {}) or {}).get(claim_id, {})
-    if isinstance(state, Mapping) and state.get("claimed"):
+    # A destroyed lamp is forfeited for good, so it leaves the inbox exactly as
+    # a claimed one does.
+    if isinstance(state, Mapping) and (state.get("claimed") or state.get("forfeited")):
         return ("claimed",)
     reasons = []
     if claim.get("delivery_required") and not (
@@ -150,15 +153,13 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
     required_level = _positive_int(claim.get("required_runecrafting_level", 1), 1)
     if required_level > 1 and _positive_int(player_data.get("runecrafting_level", 1), 1) < required_level:
         reasons.append(f"Runecrafting level {required_level}")
-    if str(claim.get("claim_type", "item")) == "skill_reward":
-        skill_options = tuple(claim.get("skill_options", ()) or ())
-        if len(skill_options) == 1:
-            skill_id = str(skill_options[0])
-            minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
-            if _skill_level_for_reward(player_data, skill_id) < minimum_level:
-                skill = get_skill(skill_id)
-                display_name = skill.display_name if skill is not None else skill_id.replace("_", " ").title()
-                reasons.append(f"{display_name} level {minimum_level}")
+    skill_id = _fixed_claim_skill(claim)
+    if skill_id is not None:
+        minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
+        if _skill_level_for_reward(player_data, skill_id) < minimum_level:
+            skill = get_skill(skill_id)
+            display_name = skill.display_name if skill is not None else skill_id.replace("_", " ").title()
+            reasons.append(f"{display_name} level {minimum_level}")
     required_diary_tier = claim.get("required_diary_tier")
     if isinstance(required_diary_tier, str) and required_diary_tier:
         diary_state = player_data.get("achievement_diaries", {})
@@ -198,6 +199,14 @@ def _claim_bundle_items(claim):
     return tuple(items)
 
 
+def _fixed_claim_skill(claim):
+    """The one skill an XP claim pays, or None when the player chooses."""
+    if str(claim.get("claim_type", "item")) not in {"xp_lamp", "skill_reward"}:
+        return None
+    skill_options = tuple(claim.get("skill_options", ()) or ())
+    return str(skill_options[0]) if len(skill_options) == 1 else None
+
+
 def _claim_skill_options(claim):
     configured = tuple(claim.get("skill_options", ()) or ())
     if configured:
@@ -227,11 +236,19 @@ def claim_rows_pure(player_data, claim_data):
                     else ()
                 ),
                 "minimum_level": _positive_int(claim.get("minimum_level", 1), 1),
+                "fixed_skill_id": _fixed_claim_skill(claim),
+                "destroyable": claim.get("claim_type") == "xp_lamp",
                 "eligible": eligible,
                 "claimed": claimed,
                 "locked_reasons": reasons,
             }
         )
+    for row in rows:
+        row["eligible_skill_ids"] = tuple(
+            skill_id for skill_id in row["skill_options"]
+            if _skill_level_for_reward(player_data, skill_id) >= row["minimum_level"]
+        )
+        row.update(claim_display_fields(row))
     return tuple(rows)
 
 
@@ -250,16 +267,11 @@ def apply_claim_pure(player_data, claim_id, claim_data, selected_skill_id=None):
     data = _copy_player_data_with_nested(player_data)
     claim_type = str(claim.get("claim_type", "item"))
     if claim_type in {"xp_lamp", "skill_reward"}:
-        if claim_type == "xp_lamp":
+        skill_id = _fixed_claim_skill(claim)
+        if skill_id is None:
             skill_id = selected_skill_id
-            skill_options = _claim_skill_options(claim)
-            if not isinstance(skill_id, str) or skill_id not in skill_options:
+            if claim_type != "xp_lamp" or not isinstance(skill_id, str) or skill_id not in _claim_skill_options(claim):
                 return player_data, False
-        else:
-            skill_options = tuple(claim.get("skill_options", ()) or ())
-            if len(skill_options) != 1:
-                return player_data, False
-            skill_id = str(skill_options[0])
         minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
         if _skill_level_for_reward(player_data, skill_id) < minimum_level:
             return player_data, False
@@ -284,3 +296,35 @@ def apply_claim_pure(player_data, claim_id, claim_data, selected_skill_id=None):
         data["inventory"][item_name] = data["inventory"].get(item_name, 0) + quantity
     data.setdefault("claims", {}).setdefault(claim_id, {})["claimed"] = True
     return data, True
+
+
+def apply_destroy_claim_pure(player_data, claim_id, claim_data):
+    claim = claim_data.get(claim_id)
+    if not claim or claim.get("claim_type") != "xp_lamp":
+        return player_data, False
+    if claim_locked_reasons_pure(player_data, claim_id, claim_data):
+        return player_data, False
+    data = _copy_player_data_with_nested(player_data)
+    data.setdefault("claims", {}).setdefault(claim_id, {})["forfeited"] = True
+    return data, True
+
+
+def quest_lamps_waiting_text_pure(player_data, quest_id, claim_data):
+    """The quest-complete sentence that points at the lamps the quest just unlocked."""
+    amounts = [
+        float(claim.get("xp_amount", 0) or 0)
+        for claim_id, claim in claim_data.items()
+        if claim.get("claim_type") == "xp_lamp"
+        and claim.get("required_quest") == quest_id
+        and not claim_locked_reasons_pure(player_data, claim_id, claim_data)
+    ]
+    if not amounts:
+        return ""
+    amount_texts = [f"{int(amount):,}" if amount.is_integer() else f"{amount:,.1f}" for amount in amounts]
+    if len(set(amount_texts)) == 1:
+        xp_text = f"{amount_texts[0]} XP" + (" each" if len(amounts) > 1 else "")
+    else:
+        xp_text = f"{', '.join(amount_texts[:-1])} and {amount_texts[-1]} XP"
+    if len(amounts) == 1:
+        return f"An XP lamp ({xp_text}) is waiting in Bank Claims."
+    return f"{len(amounts)} XP lamps ({xp_text}) are waiting in Bank Claims."

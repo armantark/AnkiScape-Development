@@ -39,6 +39,8 @@ from ..logic.skilling_boost_logic import (
     skilling_potion_target_enabled_pure,
 )
 from ..logic.summoning_logic import summoning_action_requirements_pure
+from ..logic.wicked_hood_logic import wicked_hood_fed_altars_pure
+from ..logic_pure.logic_pure_runecrafting import runecrafting_altar_access_source_pure
 from ..logic_pure.logic_pure import (
     coal_bag_coal_pure,
     fletching_material_requirements_pure,
@@ -272,9 +274,23 @@ def _processing_consumable_requirements_for(
     if handler_key == "runecrafting":
         spec = RUNECRAFTING_DATA.get(target_id, {})
         talisman = spec.get("consumed_talisman")
+        requirements = {}
         if talisman and not player_data.get("magic_imbue_active", False):
-            return {str(talisman): 1}
-        return {}
+            requirements[str(talisman)] = 1
+        altar = spec.get("altar_id")
+        equipment = player_data.get("equipment", {}) or {}
+        bank = player_data.get("inventory", {}) or {}
+        if (
+            spec.get("kind") in {"standard", "combination"}
+            and altar in wicked_hood_fed_altars_pure(player_data)
+            and bank.get("Wicked hood", 0) > 0
+            and equipment.get("head") != "Wicked hood"
+            and runecrafting_altar_access_source_pure(player_data, altar) not in {"open", "tiara", "staff"}
+        ):
+            # An absent Custom hood is scoped out, but must not force a refill
+            # when the pack carries another access item.
+            requirements["Wicked hood"] = int(not advanced or carried_inventory.get("Wicked hood", 0) > 0)
+        return requirements
     return _skilling_potion_requirement_for(
         handler_key, player_data, target_id, carried_inventory, advanced=advanced
     )

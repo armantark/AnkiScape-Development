@@ -48,6 +48,7 @@ def _belt_tool_chip(tool_name: str, icon_path, on_belt: bool, show_add_menu) -> 
     chip.setObjectName(f"toolBeltTool::{tool_name}")
     chip.setProperty("toolName", tool_name)
     chip.setProperty("greyed", not on_belt)
+    chip.setToolTip(_ON_BELT_TIP if on_belt else _ADDABLE_TIP)
     chip_layout = QHBoxLayout(chip)
     chip_layout.setContentsMargins(0, 0, 0, 0)
     chip_layout.setSpacing(4)
@@ -63,7 +64,6 @@ def _belt_tool_chip(tool_name: str, icon_path, on_belt: bool, show_add_menu) -> 
     chip_layout.addWidget(name)
     if not on_belt:
         name.setStyleSheet(f"color: {dim_text_css(name)};")
-        chip.setToolTip(_ADDABLE_TIP)
         chip.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         chip.customContextMenuRequested.connect(lambda pos: show_add_menu(chip, tool_name, pos))
     return chip
@@ -147,7 +147,10 @@ def build_bank_tool_belt_panel(gear_rows, item_icon_path, on_attach_tool, refres
     changes through its own right-click Add action, which also uses
     ``on_attach_tool`` and then ``refresh_views`` to redraw the Bank.
     """
-    hint = QLabel("Right-click a Bank hatchet or pickaxe to attach it to the toolbelt.")
+    hint = QLabel(
+        "Most tools are always on the belt. Right-click a hatchet or pickaxe in the Bank to attach it. "
+        "For quest moulds not yet added, right-click their chip on this panel and choose Add to tool belt."
+    )
     hint.setObjectName("toolbeltAttachHint")
     hint.setWordWrap(True)
     hint.setStyleSheet(f"color: {dim_text_css(hint)}; font-size: 10px;")

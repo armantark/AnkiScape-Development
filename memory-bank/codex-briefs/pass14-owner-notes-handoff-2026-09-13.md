@@ -48,7 +48,7 @@ pass.
 - The encounter predicate is `combat_has_active_encounter_pure`
   (`logic_pure/logic_pure_combat_engine.py:1959-1965`): a mapping with a string
   `target_id` and no `disengaged` flag. Weaker copies of the test exist at
-  `logic_pure_combat_engine.py:1336-1395` and `core/target_metadata.py:1386-1472`.
+  `logic_pure_combat_engine.py:1336-1395` and `core/target_metadata.py:1382-1468`.
 - Kill, death, flee, and exhausted enemy LP clear the record with
   `data["combat_encounter"] = {}` (`66be9ee8:logic_pure/logic_pure_combat_engine.py:2250-2277,
   2340-2352`; `66be9ee8:logic_pure/logic_pure_combat_model.py:840-896, 941-974, 2773-2840`).
@@ -59,7 +59,7 @@ pass.
   and "Cannot unequip item" (`__init__.py:5244-5343`). The style combo restores
   the old value after a refusal (`ui/ui.py:7693-7710`).
 - Utilities selection sets `player_data["current_utility"]` with no encounter
-  branch (`ui/ui.py:20531-21193`). `_switch_to_bankstanding`
+  branch (`ui/ui.py:20513-21175`). `_switch_to_bankstanding`
   (`__init__.py:1553-1601`) and Stop (`__init__.py:4596-4620`) do not touch
   `combat_encounter`. A bank run returns before combat ticks
   (`logic_pure_combat_engine.py:1218-1314`) and preserves the encounter
@@ -69,8 +69,8 @@ pass.
   combat handler builds "Defeated {kill_phrase} · Slayer assignment complete"
   (`runtime/runtime_actions_combat.py:828-860`) and sends it through
   `show_activity_gain`, which on an XP-paying review only records the event
-  (`__init__.py:622-660`). The XP bubble `ExpPopup` holds 900 ms and fades
-  500 ms (`ui/ui.py:3589-3702`). No dialog exists.
+  (`__init__.py:620-658`). The XP bubble `ExpPopup` holds 900 ms and fades
+  500 ms (`ui/ui.py:3586-3699`). No dialog exists.
 - The Level Up surface is `show_level_up_dialog` (`ui/ui.py:4513-4547`), a
   blocking custom `QDialog` with "OK". The diary dialogs queue during review
   and flush after it with `QTimer.singleShot(0, ...)` (`core/logic.py:81-113`;

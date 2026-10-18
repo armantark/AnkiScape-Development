@@ -132,14 +132,14 @@ class TestAgilityCourseData(unittest.TestCase):
         self.assertEqual(profile.weight_gain, 0.0)
 
     def test_fractional_travel_schedule_uses_only_the_due_trip_roll(self):
-        profile = agility_travel_profile_pure("prayer", "dragon_bones_gilded", 99, {"Dragon bones": 28}, {})
+        profile = agility_travel_profile_pure("prayer", "gilded_altar_dragon_bones", 99, {"Dragon bones": 28}, {})
         self.assertEqual(scheduled_travel_reviews_pure(profile, 0.0), 3)
         self.assertEqual(scheduled_travel_reviews_pure(profile, 0.999), 2)
 
     def test_partial_run_energy_restore_reduces_only_a_moving_trip(self):
         moving = agility_travel_profile_pure(
             "prayer",
-            "dragon_bones_gilded",
+            "gilded_altar_dragon_bones",
             1,
             {"Dragon bones": 28},
             {},
@@ -545,7 +545,7 @@ class TestAgilityPureEngine(unittest.TestCase):
             "current_agility": "werewolf_course",
             "agility_level": 60,
             "strength_level": 60,
-            "inventory": {"Ring of charos": 1, "Dragon bones": 20},
+            "inventory": {"Ring of Charos": 1, "Dragon bones": 20},
             "equipment": {},
             "quests": {"creature_of_fenkenstrain": {"completed": True}},
             "agility_carried_weight_kg": 999,
@@ -583,12 +583,12 @@ class TestAgilityPureEngine(unittest.TestCase):
             "current_agility": "werewolf_course",
             "agility_level": 60,
             "strength_level": 60,
-            "inventory": {"Ring of charos": 1},
+            "inventory": {"Ring of Charos": 1},
             "equipment": {},
             "quests": {"creature_of_fenkenstrain": {"completed": True}},
             "carried_inventory": {
                 "werewolf_course": {
-                    "Ring of charos": 1,
+                    "Ring of Charos": 1,
                     "Dragon bones": 20,
                 },
             },

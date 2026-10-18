@@ -88,8 +88,76 @@ class UndoSeamWickedHoodTest(unittest.TestCase):
     def _install_collection(self, col):
         self.addon.mw = _DummyMW(col)
 
+    def test_feed_is_immediate_awards_xp_and_undo_restores_the_whole_save(self):
+        addon = self.addon
+        addon._state.current_skill = "Mining"
+        addon._state.player_data["equipment"] = {}
+        addon._state.player_data["inventory"].update({"Wicked hood": 1, "Air talisman": 1})
+        self._install_collection(types.SimpleNamespace(add_custom_undo_entry=lambda name: None))
+        before = copy.deepcopy(addon._state.player_data)
+        before_random = random.getstate()
+
+        result = self.command("feed", {"item": "Air talisman"})
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(addon._state.player_data["inventory"]["Air talisman"], 0)
+        self.assertEqual(addon._state.player_data["wicked_hood"]["fed_altars"], ["air"])
+        self.assertEqual(addon._state.player_data["runecrafting_exp"], before["runecrafting_exp"] + 50)
+        self.assertEqual(addon._state.player_data["shop_market_clock"], before["shop_market_clock"])
+        self.assertEqual(addon._state.current_skill, "Mining")
+        self.assertEqual(len(self.saves), 1)
+        addon._state.player_data["inventory"]["Air talisman"] = 1
+        refused_before = copy.deepcopy(addon._state.player_data)
+        self.assertFalse(self.command("feed", {"item": "Air talisman"})["ok"])
+        self.assertEqual(addon._state.player_data, refused_before)
+        self.assertEqual(len(self.saves), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="ankiscape direct action"))
+        self.assertEqual(addon._state.player_data, before)
+        self.assertEqual(random.getstate(), before_random)
+
+    def test_elemental_upgrade_after_omni_gives_no_xp_and_undo_restores_it(self):
+        addon = self.addon
+        addon._state.player_data["wicked_hood"] = {"omni_fed": True}
+        addon._state.player_data["inventory"]["Elemental talisman"] = 1
+        self._install_collection(types.SimpleNamespace(add_custom_undo_entry=lambda name: None))
+        before = copy.deepcopy(addon._state.player_data)
+        result = self.command("feed", {"item": "Elemental talisman"})
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(addon._state.player_data["inventory"]["Elemental talisman"], 0)
+        self.assertTrue(addon._state.player_data["wicked_hood"]["elemental_fed"])
+        self.assertEqual(addon._state.player_data["wicked_hood"]["rune_withdrawals_remaining"], 2)
+        self.assertEqual(addon._state.player_data["runecrafting_exp"], before["runecrafting_exp"])
+        self.assertEqual(len(self.saves), 1)
+        addon._on_state_did_undo(types.SimpleNamespace(operation="ankiscape direct action"))
+        self.assertEqual(addon._state.player_data, before)
+
+    def test_feed_refuses_missing_hood_missing_item_and_unsupported_item(self):
+        self._install_collection(types.SimpleNamespace(add_custom_undo_entry=lambda name: None))
+        for inventory, item in (({"Air talisman": 1}, "Air talisman"),
+                                ({"Wicked hood": 1}, "Air talisman"),
+                                ({"Wicked hood": 1, "Tiara": 1}, "Tiara")):
+            with self.subTest(item=item, inventory=inventory):
+                self.addon._state.player_data["equipment"] = {}
+                self.addon._state.player_data["inventory"] = inventory
+                before = copy.deepcopy(self.addon._state.player_data)
+                self.assertFalse(self.command("feed", {"item": item})["ok"])
+                self.assertEqual(self.addon._state.player_data, before)
+        self.assertEqual(self.saves, [])
+
+    def test_feed_cannot_consume_an_item_without_an_undo_entry(self):
+        self.addon._state.player_data["inventory"]["Air tiara"] = 1
+        self._install_collection(_RaisingCol())
+        before = copy.deepcopy(self.addon._state.player_data)
+        result = self.command("feed", {"item": "Air tiara"})
+        self.assertEqual(result, {"ok": False, "message": "Anki could not create an undo entry."})
+        self.assertEqual(self.addon._state.player_data, before)
+        self.assertEqual(self.saves, [])
+
     def test_essence_is_undoable_and_restores_the_whole_save(self):
         addon = self.addon
+        addon._state.player_data["equipment"] = {}
+        addon._state.player_data["inventory"]["Wicked hood"] = 1
 
         class _Col:
             def __init__(self):

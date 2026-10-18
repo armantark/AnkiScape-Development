@@ -5,16 +5,19 @@ The gate judges staged changes against HEAD, so every working-tree change,
 untracked files included, is staged into a disposable copy of the index first.
 Run it before approving a review, and after sketching a new module to see the
 directory, fan-out, and line-growth refusals before implementing it. The gate's
-diagnostics and exit status are returned unchanged.
+diagnostics and exit status are returned unchanged. Failures also name the gate
+path and status on stderr.
 """
 
 from __future__ import annotations
 
+import argparse
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Sequence
 from pathlib import Path
 
 
@@ -25,7 +28,8 @@ def git_path(name: str) -> Path:
     ).stdout.strip())
 
 
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
+    argparse.ArgumentParser(description=__doc__).parse_args(argv)
     gate = git_path("hooks/slop_gate.py")
     with tempfile.TemporaryDirectory(prefix="slop-gate-preflight-") as temporary:
         index = Path(temporary) / "index"
@@ -37,7 +41,10 @@ def main() -> int:
             "PATH": f"{Path.home() / '.local/bin'}{os.pathsep}{os.environ['PATH']}",
         }
         subprocess.run(["git", "add", "-A"], env=environment, check=True)
-        return subprocess.run([sys.executable, str(gate)], env=environment, check=False).returncode
+        returncode = subprocess.run([sys.executable, str(gate)], env=environment, check=False).returncode
+        if returncode:
+            print(f"slop-gate preflight: {gate} exited with status {returncode}", file=sys.stderr)
+        return returncode
 
 
 if __name__ == "__main__":

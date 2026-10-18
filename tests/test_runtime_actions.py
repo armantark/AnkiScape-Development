@@ -22,7 +22,7 @@ from ankiscape.runtime import runtime_actions
 from ankiscape.runtime import runtime_actions_activities
 from ankiscape.runtime import runtime_actions_carried_overlay
 from ankiscape.runtime import runtime_actions_combat
-from ankiscape.runtime import runtime_actions_production
+from ankiscape.runtime import runtime_actions_quest
 
 from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
@@ -1899,7 +1899,7 @@ class TestRuntimeActions(unittest.TestCase):
             "agility_level": 99,
             "strength_level": 99,
             "agility_exp": 0.0,
-            "inventory": {"Ring of charos": 1, "Shark": 27},
+            "inventory": {"Ring of Charos": 1, "Shark": 27},
             "equipment": {},
             "quests": {"creature_of_fenkenstrain": {"completed": True}},
             "completed_achievements": [],
@@ -1916,7 +1916,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
         self.assertTrue(calls["deactivated"])
-        self.assertIn("Ring of charos", calls["errors"][0][1])
+        self.assertIn("Ring of Charos", calls["errors"][0][1])
         self.assertEqual(player_data["agility_exp"], 0.0)
 
     def test_fatal_agility_failure_graves_only_the_active_pack_and_equipment(self):
@@ -3457,7 +3457,7 @@ class TestRuntimeActions(unittest.TestCase):
 
     def test_quest_completion_reports_a_clue_produced_by_its_final_stage(self):
         quest_id = "do_no_evil"
-        quest_data = copy.deepcopy(runtime_actions_production.QUEST_DATA)
+        quest_data = copy.deepcopy(runtime_actions_quest.QUEST_DATA)
         quest = quest_data[quest_id]
         final_stage = int(quest["stages"]) - 1
         final_requirement = next(
@@ -3487,7 +3487,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
 
-        with patch.object(runtime_actions_production, "QUEST_DATA", quest_data):
+        with patch.object(runtime_actions_quest, "QUEST_DATA", quest_data):
             self.assertTrue(handle_quest_answer(_context(player_data, calls)))
 
         self.assertTrue(player_data["quests"][quest_id]["completed"])

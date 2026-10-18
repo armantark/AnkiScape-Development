@@ -74,7 +74,7 @@ This prevents an old sentence from resurrecting closed work. For example, the
 starter packet once called Warriors' Guild unowned
 (`memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:704-705`), but the
 current board records its executable closure
-(`memory-bank/future-work-kanban.md:381-387`) and the focused implementation
+(`memory-bank/future-work-kanban.md:395-401`) and the focused implementation
 audit supplies pinned period citations
 (`memory-bank/source-audits/warriors-guild-live-implementation-2026-07-18.md:1-23`).
 
@@ -125,7 +125,7 @@ The named family anchors are at
 `memory-bank/ankiscape-completion-starter-grill-2026-07-17.md:631-680,682-744`.
 The canonical forward cards for special methods, activities, bosses,
 diaries/collections, random content, and exclusions are at
-`memory-bank/future-work-kanban.md:685-797,928-933`.
+`memory-bank/future-work-kanban.md:697-809,940-945`.
 
 ## Baseline ledger reconciliation
 

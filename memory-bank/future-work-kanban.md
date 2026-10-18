@@ -19,20 +19,12 @@ Shipped cards older than 30 days rotate monthly into [the shipped-card archive](
 Current goal selection, next action and branch disposition:
 `memory-bank/goal-priority-matrix.md`. Existing UI changes are excluded by this goal.
 
-### README FAQ — 2026-09-19
+### README FAQ — shipped and closed 2026-10-15
 
-Label: `PARKED`. Owner will write it ("I'll do this later I guess. Probably
-could answer them myself"). Goes after "What you get", before "Roadmap".
-Verified answers for the non-mechanics questions: any ease above Again runs
-one action (`__init__.py:5501`, `successful_answer = ease > 1`); no runtime
-network calls and no note, card, or scheduler edits (grep over
-`__init__.py core runtime logic ui`); desktop only, phone reviews earn
-nothing; no reset action exists; Ironman is an account type that locks the
-Grand Exchange. Unverified: whether a save survives an Anki config sync
-conflict between two desktops. Mechanics questions to add in the same vein:
-what one action is per skill, how bank runs and carried inventory work, what
-happens on Undo, why 2012 and no Old School content, how combat picks a
-target, what `Actions per review` changes.
+The owner wrote the FAQ, and it sits in `README.md` after "What you get"
+(commit `62beff7d`). Its facts were checked against the code on 2026-10-15.
+Still unverified, so the FAQ makes no claim about it: which save wins when two
+desktops play before an AnkiWeb sync.
 
 ### Upstream ideas from AnkiScape 3.0 — 2026-09-19
 
@@ -74,7 +66,7 @@ Check, then close or fix:
 
 - One dialog for a multi-level gain. Upstream fixed a nineteen-dialog burst
   on 2026-09-19 (`fix(classic): summarise a multi-level gain in one dialog`).
-  Confirm `level_up_check` (`__init__.py:617`) and the core check behave the
+  Confirm `level_up_check` (`__init__.py:615`) and the core check behave the
   same after a large XP change. Fixed 2026-09-25: the runtime check only
   delegates to the core one, which showed one popup per level (the Elder Kiln
   100,000 XP lamp on level-1 Attack showed 48); it now shows one popup naming
@@ -112,15 +104,27 @@ holds both lists.
   belt spade today; add them to `QUEST_STAGES_NEEDING_HELD_TOOLS` if a source
   says it does not.
 
+### Pass 16 follow-ups — 2026-10-15
+
+Sources and oldids: `memory-bank/specs/pass16-owner-notes/spec.md`, Out of Scope.
+
+- `PARKED` One-off item uses, owner's example a water jug; >28 manual uses in
+  one card "should drag it out". Bulk work such as burying stays on targets.
+- `PARKED` An action queue, so a run out of resources does not end in Bankstanding.
+- `IMPLEMENT` 12 missing 2012 quest choice rewards (owner approved 2026-10-15);
+  the catalog parser drops choice XP not worded as a lamp.
+- `IMPLEMENT` Waterbirth Island snape grass, gated on The Fremennik Trials.
+- `SOURCE AUDIT` Slayer families gated on Priest in Peril for Morytania access.
+
 ### Pass 14 follow-up — 2026-09-13
 
 Label: `IMPLEMENT`. Owner parked it: "throw it on the longer-term kanban".
 
 - Main menu open time from the review screen. Facts (fact-finder 2026-09-13):
-  a new `QDialog` per open (`ui/ui.py:4902-4907`); Skills, Grand Exchange,
-  Equipment, Stats, Settings build at open (`ui/ui.py:23424-23426`); the Bank
+  a new `QDialog` per open (`ui/ui.py:4899-4904`); Skills, Grand Exchange,
+  Equipment, Stats, Settings build at open (`ui/ui.py:23400-23402`); the Bank
   widget tree also builds at open and only attaches behind a placeholder
-  (`ui/ui.py:24794-24805,27139-27152`); Shop, Quests, Challenges, Achievements,
+  (`ui/ui.py:24770-24781,27095-27108`); Shop, Quests, Challenges, Achievements,
   Collections are truly deferred. Last measurement about 1.2 s per open on a
   real save (`66be9ee8:memory-bank/systemPatterns.md:944-971`); no profiler in `tools/`.
   Target: under 300 ms click-to-visible on the owner's save, measured before
@@ -275,9 +279,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   at 34 families with a provisional 388-point denominator; Sumona is reconciled
   at 37 families with a provisional 407-point denominator; Duradel/Lapalok are
   reconciled at 35 families with a provisional 334-point denominator; Kuradal
-  is reconciled at 36 families with a provisional 322-point denominator. All
-  seven roles remain hidden until their full Combat families and distinctive
-  protection/finishing/context mechanics are executable. See the dated
+  is reconciled at 36 families with a provisional 322-point denominator.
+  Turael, Mazchna and Vannaka are live; the other four roles stay out of
+  rolls until their full pools are executable. See the dated
   `slayer-turael-spria-pool`, `slayer-mazchna-achtryn-pool`,
   `slayer-vannaka-pool`, `slayer-chaeldar-pool`, `slayer-sumona-pool`, and
   `slayer-duradel-lapalok-pool` audits, plus `slayer-kuradal-pool`.
@@ -290,8 +294,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Mazchna/Achtryn is now the second completely encoded pool. Stable family
   identities are separate from its 27 master-specific roll rows and provisional
   325-point denominator. `tools/audit_slayer_readiness.py` derives the live
-  readiness ledger: 26/27 families are ready, while Mogres remains the sole
-  exact quest blocker. Vampyres are closed through the
+  readiness ledger: 27/27 families are ready since Mogres landed (`adb2f935`),
+  and Mazchna needs Combat 20 only. Vampyres are closed through the
   ordinary level-61 Feral vampyre with its Priest in Peril gate, guaranteed
   Vampyre dust, Holy-symbol weakness, bite effect, and losslessly normalized
   100,000-slot table. Wall beasts are closed through
@@ -300,13 +304,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   through the ordinary level-85 Soldier with its period poison risk and exact
   128-slot drop table.
   Pyrefiends are closed through the ordinary level-43 representative with
-  source-faithful magic-based-melee semantics. The role stays hidden; stale
+  source-faithful magic-based-melee semantics. The role is live; stale
   prose blockers for protection,
   poison, finishers, Dogs, Grotworms, and Hobgoblin XP no longer control
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
-  rows preserve the provisional 460-point denominator and remain hidden at
-  34/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
+  rows preserve the provisional 460-point denominator and are live at
+  35/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
   Slayer-bell, and real lit-source gates, exact 100,000-slot Darkan selector,
   and independent easy clue. Ordinary Brine rat closes Brine rats with its sourced
   Slayer/Olaf's-Quest/Spade gates, exact 512-slot ordinary selector, exact
@@ -819,8 +823,8 @@ Labels: `COMPLETE`, `SOURCE DEBT`, `DEPENDENCY: COMBAT/ACQUISITION`.
   that target, but it preserves an already-live global familiar and its paid duration.
 - Familiarisation is source-pinned as a once-weekly shard/focus D&D ending at 60 shards,
   zero focus, or its period time cap, followed by a shard-scaled ingredient-box or
-  triple-charm choice. The delegated translation is four answered cards, three focus
-  pips, 15 shards per success, and one lost pip/no shards on Again.
+  triple-charm choice. The2026-10-14 owner translation is four successful answers,
+  15 shards per success and no focus field. Again pauses with no progress or shard gain.
 - Ordinary training is source/app-pattern resolved under
   `source-audits/summoning-training-2026-07-16.md`: searchable pouch-infusion and scroll-
   creation families process one exact source unit per successful review; Wolf Whistle is
@@ -1200,22 +1204,6 @@ Suggested order, highest aggregate value first:
    and settle the price-button arithmetic as the first real test.
 4. Re-walk the parity ledger for items marked blocked on *client-side* grounds
    and clear the ones this now reaches. Leave server-side blocks alone.
-
-### Shared modular list search and filters
-
-Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.
-
-- `CatalogFilterBar` now supplies one dark-mode-safe text/filter seam to Shop,
-  Quests, Combat, and Bank while each page retains its own searchable metadata,
-  predicates, and result renderer.
-- Combat search preserves the exact saved target, expands matching groups,
-  never activates an absent/empty row, restores the current row after clear,
-  and shares the same clear-button/Escape behavior as the other catalogs.
-- Bank search matches item names and category labels without mutating inventory
-  or the saved first-come-first-served carried-queue order.
-- Add `Current Slayer task only` when the first authentic assignment state
-  lands. It must intersect with text search and leave exact monster choice to
-  the player; do not expose a disabled placeholder or invent task state early.
 
 ### In-product help and mechanics reference
 

@@ -17,6 +17,7 @@ _ALLOWED_EVENT_TYPES = frozenset({
     "castle_wars_review",
     "construction_command",
     "court_cases_command",
+    "family_gauntlets_recovery",
     "farming_result",
     "great_orb_project_teleport",
     "managing_miscellania_command",
@@ -24,6 +25,7 @@ _ALLOWED_EVENT_TYPES = frozenset({
     "slayer_command",
     "summoning_command",
     "temple_trekking_command",
+    "tool_belt_update",
 })
 _ALLOWED_MATCH_KEYS = frozenset({
     "any", "eq", "gte", "in", "state_contains", "state_eq",
@@ -45,6 +47,7 @@ _ALLOWED_EVENT_FIELDS = frozenset({
     "reason",
     "skill_id",
     "success",
+    "summoning_points_restored",
     "target_id",
     "type",
 })

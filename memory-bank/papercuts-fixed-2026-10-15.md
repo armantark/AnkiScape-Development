@@ -1,0 +1,18 @@
+# Papercuts fixed — 2026-10-15
+
+## NPC source-guard corrections — 2026-10-15
+
+The four original notes below are preserved verbatim. Test-placement/complexity was fixed in975980aa; one-blank layout and summary order in3a2ab0b3; the complete price-map suffix in7dfde456. Normal hooks passed, frozen32 tests stayed exact, Root74 supported cases/authentic strict-byte/no-op/check passed, and Astra/GLM source reviews closed the findings. The source checkpoint and retained proof packets preserve exact receipts. These are resolved defects, not discarded failures.
+
+- 2026-10-15T10:19:43.897979+00:00: Preparing NPC source-guard strict-byte comparison found a retained full-generator catalog mismatch at line25: SHOP_COVERAGE_SUMMARY puts excluded_stock_row_count after stock_row_count, but pinned output puts it last. Both files2521314bytes; all13 values, ledger and summary match. Fix generator ordering with failure-first no-op coverage; keep exact comparison and pinned bytes.
+- 2026-10-15T10:26:56.721165+00:00: Sourceguard Phase1 normal commit returned1: "slop-gate: cognitive complexity above 15 was introduced" for TestNpcShopSourceInputs::assert_partial_change22 and test_full_check_preserves_exact_nonprovenance_bytes_and_relative_filenames16; "slop-gate: code files were added to directories already at 40 files: tests:237 code files(was236)". Production dispatch held; author moves the32-test module into existing tests/shops/ and simplifies helpers under unchanged caps.
+- 2026-10-15T10:53:17.407017+00:00: Sourceguard normal source commit returned1: "slop-gate: PEP 8 layout violations were introduced: tools/generate_npc_shop_data.py: E303 x1 (was 0)". Three blank lines353–355 before _cache_int became the required two; entire AST unchanged and successful32-test proof retained. No line budget, test or cap was weakened.
+- 2026-10-15T11:03:13.710500+00:00: Root authentic3a2ab0b3 generation returned0 and all13 catalog values/full ledger matched, but independent strict-byte check raised "AssertionError: shop_data.py" at <stdin>:25. Remaining lines32/36 differ only in price-map insertion order for14 established appended storage names. Earlier Root first-difference probe at line25 did not establish summary-only differences; that wording is corrected. Fixed pins/comparison stay unchanged; bounded generator-format correction is authorized.
+
+## Mirror waiters retain arrival order
+
+Disposition: fixed.
+
+Evidence: Landed d6f2e09a1e99961b036f5387ba788f14bb3d9948 and 21e3d5cae5c1b6c22c60fb931af2093356703932 repair registration-order queue admission and inherited mirror locking. Independent Astra and Kimi K3 accept whole-incident closure. root-mirror-existing-full-gate-binding-2026-10-15.json under /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14 binds the unchanged ten default-discovered non-skipped fixtures to the accepted exact 77b2c1f79b8fb82f8ab1c75569534a0ebb6ef4a3 full gate: plain 5376/601.609s/580 skips and Qt 5376/816.730s/5 skips, both outer exit 0. No new product run. Original logs have no per-test names; inclusion is established by unchanged discovery and fixture bytes.
+
+- 2026-10-02T19:26:23-07:00 — First-Boneguard MacBook verification: the focused runner remained in `Remote mirror busy; waiting without a deadline for /Users/ArmanTarkhanian1/Library/Caches/ankiscape-remote-test-host.lock.` while later dispatches acquired the shared flock (observed remote runs `plain-1790993727-3c05fd6f` and `plain-1790994189-94d199d9`); retain the official runner mirror lock across the remaining serial selections and lanes, with blocking acquisition and the validated inherited descriptor, to prevent further interleaving.

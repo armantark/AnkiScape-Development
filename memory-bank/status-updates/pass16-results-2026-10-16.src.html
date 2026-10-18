@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pass 16 results</title>
+<link rel="stylesheet" href="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.css">
+<script src="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/htmlplan.js" defer></script>
+<link rel="stylesheet" href="/Users/ArmanTarkhanian1/.claude/skills/status-artifact/vendor/html-plan/runtime/fleet-theme.css">
+<body>
+<header>
+  <h1>Pass 16 notes in the game</h1>
+  <doc-changes new="25" changed="53"></doc-changes>
+  <div class="tldr">Eleven Pass 16 notes are in your game after you restart Anki. One check waits for you: the quest filter spacing. The retro offers five setup changes; the checked answers are what I would do.</div>
+  <details class="thread"><summary>Why · your Pass 16 notes</summary>
+    <doc-quote via="doc" from="Pass 16 notes">Fuzzy search please. I tried “tara”; tiara should have turned up</doc-quote>
+    <doc-quote via="doc" from="Pass 16 notes">Also where is it to gather snape grass?</doc-quote>
+    <doc-quote via="doc" from="Pass 16 notes">The phase 2 guide told me to get a task from Mazchna but I can only select Turael</doc-quote>
+    <doc-quote via="doc" from="Pass 16 notes">Just make wicked hood options right-click options.</doc-quote>
+    <doc-quote via="doc" from="Pass 16 notes">And I’m getting 4 XP, not 4.5? Shouldn’t the remainders be added together?</doc-quote>
+  </details>
+</header>
+<main>
+<doc-plan>
+
+<doc-claim>
+  <p><b>Held.</b> You find what you type and what you need.</p>
+  <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/search-tara.jpg" caption="Crafting search for “tara” shows Tiara."></doc-shot>
+  <doc-note tone="info">Every search box in the menu uses one matching rule now. It forgives one wrong or missing letter and puts name matches first.</doc-note>
+
+  <doc-claim>
+    <p>A typo still finds the item, and exact names rank first.</p>
+    <doc-code src="../../core/search_match.py" lines="23-44" hl="35-44"></doc-code>
+  </doc-claim>
+  <doc-claim>
+    <p>The Utilities and Activities lists have a search box.</p>
+    <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/utilities-snape.jpg" caption="“gather” shows the 27 gathering rows, Gather snape grass among them."></doc-shot>
+  </doc-claim>
+  <doc-claim>
+    <p><b>Built.</b> Quest filters share one line, each label beside its box.</p>
+    <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/quests-filters.jpg" caption="Quests tab at 720 × 560 with one Quests heading."></doc-shot>
+    <doc-note tone="warn">This one waits for your look in Anki, because only you can judge the spacing. Open Quests at the narrowest window and say if it reads cleanly.</doc-note>
+  </doc-claim>
+  <doc-claim>
+    <p>Snape grass has a gathering row, and nettle tea has its own name.</p>
+    <doc-code src="../../core/constants_parts/activity_updates.py" lines="132-148"></doc-code>
+    <doc-note tone="info">The row models the 2012 Hobgoblin Peninsula spawn: 3 clumps a trip, no requirement. Its tooltip names the site. The Cooking row is now “Make nettle tea”.</doc-note>
+  </doc-claim>
+  <doc-claim>
+    <p>A Bank tool that is on your tool belt says so.</p>
+    <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/toolbelt-menu.jpg" caption="Right-click on a Bank Tiara mould."></doc-shot>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim>
+  <p><b>Held.</b> Slayer masters and quest lamps work as in 2012.</p>
+  <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/slayer-masters.jpg" caption="Masters tab at combat 26: Turael and Mazchna open."></doc-shot>
+  <doc-note tone="info">Mazchna and Vannaka were ready in the data but hidden behind a Turael-only card. Quest lamps arrived silently and always opened the skill grid.</doc-note>
+
+  <doc-claim>
+    <p>Mazchna gives tasks from combat 20; a locked master says why.</p>
+    <doc-code src="../../logic/slayer_logic.py" lines="106-118"></doc-code>
+    <doc-note tone="info">2012 sources name combat 20 as Mazchna’s only gate. Priest in Peril stopped gating Morytania in March 2012, so that requirement went.</doc-note>
+  </doc-claim>
+  <doc-claim>
+    <p>The quest-complete message names the lamps that wait in Bank Claims.</p>
+    <doc-code src="../../logic_pure/logic_pure_claims.py" lines="318-330"></doc-code>
+  </doc-claim>
+  <doc-claim>
+    <p>A fixed-skill lamp pays on Claim, and any lamp can be destroyed.</p>
+    <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/bank-claims.jpg" caption="Choice lamps keep “Choose skill”; the Agility lamp says “Claim”."></doc-shot>
+    <doc-note tone="info">Destroy asks first, with the 2012 lamp warning. Undo brings a destroyed lamp back. The Elder Kiln lamp now needs level 75.</doc-note>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim>
+  <p><b>Held.</b> The Wicked hood works from its right-click menu.</p>
+  <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/hood-menu.jpg" caption="Bank right-click on a fed Wicked hood."></doc-shot>
+  <doc-note tone="info">The same menu is on the Equipment head slot. The Runecrafting card stays, as you asked. A hood in the Bank works from the menu, and its output goes to the current Runecrafting pack.</doc-note>
+
+  <doc-claim>
+    <p>A talisman feeds the hood at once, and Undo reverses it.</p>
+    <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/feed-menu.jpg" caption="Right-click on an Air talisman."></doc-shot>
+    <doc-note tone="info">The old “Hood feeding” review targets are gone. Saves that pointed at them are repaired on load.</doc-note>
+  </doc-claim>
+  <doc-claim>
+    <p>Each feed gives 50 Runecrafting XP, marked for a second source.</p>
+    <doc-code src="../../logic/wicked_hood_logic.py" lines="31-32"></doc-code>
+    <doc-note tone="warn">The 50 XP comes from the Darkan server code only. The 2012 wiki says feeding gave XP but gives no amount, so the value carries a placeholder mark until a second source confirms it.</doc-note>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim>
+  <p><b>Changed.</b> Prayer shows your chosen method, and XP drops add up.</p>
+  <doc-shot src="/Users/ArmanTarkhanian1/Documents/ankiscape-pass16/artifact-img/prayer-bury.jpg" caption="Bury selected: “Bury: Bones · 1x XP”, no altar box."></doc-shot>
+  <doc-note tone="info">Changed from the plan: plain Bury also lost its altar trip. Every Prayer target paid a 2–3 review “Running to the altar” trip each time 28 bones ran out.</doc-note>
+
+  <doc-claim>
+    <p>Bury and Scatter refill at the bank with no travel.</p>
+    <doc-code src="../../logic/agility_travel.py" lines="116-124"></doc-code>
+  </doc-claim>
+  <doc-claim>
+    <p>XP drops show whole numbers and carry the tenths: +4, then +5.</p>
+    <doc-code src="../../core/xp_drops.py" lines="1-16"></doc-code>
+    <doc-note tone="info">The save still holds the exact 4.5. A skill whose whole number did not change is left out of the drop, so you never see “+0 XP”.</doc-note>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim>
+  <p>The retro proposes five changes to the agents’ setup.</p>
+  <doc-code title="What slowed or tripped the run" lang="text"><script type="text/plain">Truncation the text-fit check missed: the snape grass row
+Commit hook: 18-26 minutes per commit touching ui/ui.py
+Panels deciding rules themselves: found by review in 3 panels
+Ticket folder: to-tickets and ready.py disagree
+Worktree pool: 16 of 16 slots leased, most since September</script></doc-code>
+  <doc-note tone="info">Each item names the cheapest fix that removes the problem, not a new rule. Pick in each question below; the checked answer is my recommendation.</doc-note>
+
+  <doc-claim>
+    <p>The text-fit check misses tree rows and message boxes.</p>
+    <doc-code title="Observed" lang="text"><script type="text/plain">text_fit_defects skips QTreeWidget item text
+text_fit_defects raises "no access to protected functions" on QMessageBox children</script></doc-code>
+    <doc-ask id="retro-textfit">
+      <p>Extend the repository's text-fit check to tree rows and dialogs?</p>
+      <p>The check finds clipped text in offscreen screenshots. The snape grass row clipped and the check stayed silent. A wider check catches the truncation you watch for.</p>
+      <label><input type="radio" name="retro-textfit" value="extend" checked> Extend it <small>A repository change, tested like any other.</small></label>
+      <label><input type="radio" name="retro-textfit" value="leave"> Leave it <small>Agents keep measuring widths by hand.</small></label>
+    </doc-ask>
+  </doc-claim>
+  <doc-claim>
+    <p>The commit hook re-measures the whole main UI file each time.</p>
+    <doc-code title="Observed" lang="text"><script type="text/plain">slop-gate per commit touching ui/ui.py: 18-26 minutes
+load average near 300 with 8 agents
+10-minute foreground and 30-minute background command caps exceeded</script></doc-code>
+    <doc-ask id="retro-hook">
+      <p>Cache the hook's measurements of unchanged files?</p>
+      <p>The hook is your fleet-wide commit check. It measures the old copy of every touched file again on each commit. A cache keyed by file content keeps every limit and removes the repeat work.</p>
+      <label><input type="radio" name="retro-hook" value="cache" checked> Cache them <small>A fleet hook change; every repo gets faster.</small></label>
+      <label><input type="radio" name="retro-hook" value="leave"> Leave it <small>Long commits stay; agents keep detaching them.</small></label>
+    </doc-ask>
+  </doc-claim>
+  <doc-claim>
+    <p>Moved panels kept deciding game rules themselves.</p>
+    <doc-code title="Found by review, missed by implementers" lang="text"><script type="text/plain">ui/ui_bank_claims.py: lamp skill eligibility
+ui/ui_slayer_panel.py: task and detail visibility
+ui/ui_utility_activity_list.py: a hard-coded ID list over row data</script></doc-code>
+    <doc-ask id="retro-panels">
+      <p>Add a test that stops new UI panels reading save data directly?</p>
+      <p>Your contract says the logic decides what is enabled and the panel only draws it. A test with a list of today's exceptions fails on any new panel that reads the save itself.</p>
+      <label><input type="radio" name="retro-panels" value="test" checked> Add the test <small>Catches it at commit, before review.</small></label>
+      <label><input type="radio" name="retro-panels" value="review"> Keep it a review rule <small>Reviewers keep catching it later.</small></label>
+    </doc-ask>
+  </doc-claim>
+  <doc-claim>
+    <p>Two skills disagree about where ticket files go.</p>
+    <doc-code title="Observed" lang="text"><script type="text/plain">to-tickets: memory-bank/specs/<slug>/NN-<ticket-slug>.md
+implement-spec ready.py: reads only <spec-dir>/tickets/[0-9]*-*.md</script></doc-code>
+    <doc-ask id="retro-tickets">
+      <p>Change to-tickets to write tickets into a tickets folder?</p>
+      <p>Skills are yours to edit or audit. Tickets beside the spec make the ready script print “0 tickets”. One path line in to-tickets fixes it.</p>
+      <label><input type="radio" name="retro-tickets" value="draft" checked> I draft the line <small>You audit the one-line diff before it applies.</small></label>
+      <label><input type="radio" name="retro-tickets" value="self"> You edit it <small>I change nothing in the skill.</small></label>
+    </doc-ask>
+  </doc-claim>
+  <doc-claim>
+    <p>Every pooled worktree is leased, most since September.</p>
+    <doc-code title="Observed" lang="text"><script type="text/plain">worktree_guard.py lease: "all 16 worktrees are in use or dirty (max_trees = 16)"
+example holder: goal/cape-tradeability-2026-09-05</script></doc-code>
+    <doc-ask id="retro-pool">
+      <p>Release pool leases older than 14 days with clean, merged work?</p>
+      <p>Pooled worktrees keep build caches between agents. A stale lease blocks reuse but can hold work. The release refuses any worktree with uncommitted or unmerged changes.</p>
+      <label><input type="radio" name="retro-pool" value="release" checked> Release them <small>Only clean, merged leases; the rest stay listed.</small></label>
+      <label><input type="radio" name="retro-pool" value="leave"> Leave them <small>Agents keep making fresh worktrees.</small></label>
+    </doc-ask>
+  </doc-claim>
+</doc-claim>
+
+<doc-claim aux="scope">
+  <p>These stay outside Pass 16, on the Kanban or for your call.</p>
+  <doc-code title="Not changed" lang="text"><script type="text/plain">Parked by you: one-off item uses (water jug); an action queue
+Kanban: 12 missing 2012 quest choice rewards; Waterbirth snape grass
+Slayer points: no master pays points yet; the contract keeps them behind Smoking Kills
+Slayer cards: point schedule and challenge availability wait for that point economy
+Found, not fixed: Grand Exchange offer editor has 10 clipped texts at 720 x 560
+Found, not fixed: Help beside Skills clips "Currently training" at 720 px
+Found, not fixed: Slayer tasks gated on Priest in Peril may rest on the old Morytania rule
+Found, not fixed: an Air talisman staff changes altar access without a skill refresh</script></doc-code>
+</doc-claim>
+
+</doc-plan>
+</main>
+</body>
+</html>

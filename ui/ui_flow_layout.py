@@ -54,16 +54,28 @@ class FlowLayout(QLayout):
         margins = self.contentsMargins()
         return size + QSize(margins.left() + margins.right(), margins.top() + margins.bottom())
 
+    def _lines(self, width: int) -> list:
+        """(item, size hint) pairs grouped into the lines they wrap into at `width`."""
+        lines, x = [[]], 0
+        for item in self._items:
+            hint = item.sizeHint()
+            if lines[-1] and x + hint.width() > width:
+                lines.append([])
+                x = 0
+            lines[-1].append((item, hint))
+            x += hint.width() + self._h_spacing
+        return lines
+
     def _arrange(self, rect, move: bool) -> int:
         margins = self.contentsMargins()
         area = rect.adjusted(margins.left(), margins.top(), -margins.right(), -margins.bottom())
-        x, y, line_height = area.x(), area.y(), 0
-        for item in self._items:
-            hint = item.sizeHint()
-            if x > area.x() and x + hint.width() > area.right() + 1:
-                x, y, line_height = area.x(), y + line_height + self._v_spacing, 0
-            if move:
-                item.setGeometry(QRect(QPoint(x, y), hint))
-            x += hint.width() + self._h_spacing
-            line_height = max(line_height, hint.height())
-        return y + line_height - rect.y() + margins.bottom()
+        y = area.y()
+        for line in self._lines(area.width()):
+            line_height = max((hint.height() for _item, hint in line), default=0)
+            x = area.x()
+            for item, hint in line if move else ():
+                # Centred on its line, so a check box's text lines up with the taller combo beside it.
+                item.setGeometry(QRect(QPoint(x, y + (line_height - hint.height()) // 2), hint))
+                x += hint.width() + self._h_spacing
+            y += line_height + self._v_spacing
+        return y - self._v_spacing - rect.y() + margins.bottom()

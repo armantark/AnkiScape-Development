@@ -588,7 +588,6 @@ def _familiarisation_notification_statuses(
     if view["active"]:
         return (
             f"{int(view['segments'])}/{int(view['max_segments'])} segments · "
-            f"{int(view['focus'])} focus · "
             f"{int(view['raw_shards'])}/{int(view['shard_cap'])} shards",
         )
     if view["awaiting_reward"]:

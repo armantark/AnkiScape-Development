@@ -118,7 +118,7 @@ restating the beat counts.
 Raised 2026-08-22 while applying the one-clue ownership rule to quest rewards.
 This is an owner-only decision; the current behaviour is unchanged.
 
-At `logic_pure/logic_pure_quest.py:1476`, `apply_quest_progress_pure`
+At `logic_pure/logic_pure_quest.py:1363`, `apply_quest_progress_pure`
 filters Do No Evil's rewards against the post-stage player data. Reproduction:
 put the player at Do No Evil stage 9 with its required action complete and
 `{"Clue scroll (easy)": 1}` in the inventory, then call
@@ -626,7 +626,7 @@ hide inside the audit.
   `['Deliver the strange talisman to Sedridor']`.
 - **Direct downstream blocks:** the Wicked hood claim inherits
   `ClaimDefinition.required_quest = RUNE_MYSTERIES_ID` from
-  `data/quest/contract.py:135` because its row at `data/quest/ledger.py:307-313`
+  `data/quest/contract.py:136` because its row at `data/quest/ledger.py:321-327`
   does not override the field; the `rune_essence` Mining target is gated by the
   quest at `data/quest/ledger.py:77`; and Lunar Diplomacy requires Rune Mysteries
   at `data/quest/definitions/members/lunar_diplomacy.py:53`, which in turn withholds its Lunar Spellbook and
@@ -700,7 +700,7 @@ queue for quest slices, not a reason to relax the reachability gate.
     same search-and-read steps with Beaten book id `9717`, while Slashed book
     remains id `9715`; rev-727 and rev-742 cache definitions and game-main's
     item table preserve the same two identities. The cleanup row at
-    `data/quest/stage_cleanups.py:117` instead invents slashing the Beaten Book in the
+    `data/quest/stage_cleanups.py:126` instead invents slashing the Beaten Book in the
     workshop and produces `Slashed book`. This needs a source-correction slice,
     not reachability for the reported action.
 - **Elemental Workshop III** (`elemental_workshop_iii`)
@@ -791,10 +791,10 @@ an open design fork; it does not choose or implement a repair.
   `logic_pure/logic_pure_quest.py:427-459` is the only production writer of
   route values in `quest_route_states`. It accepts a route only when a
   registered `QuestChoice` for the current stage offers the same `route_id`;
-  otherwise `logic_pure/logic_pure_quest.py:385-393` returns
+  otherwise `logic_pure/logic_pure_quest.py:371-379` returns
   `(player_data, False)`. The Quests tab likewise creates a route button only
   inside the loop over a `QuestChoice` option at
-  `ui/ui_tab_quests.py:387-400`. A stage can therefore require a route that the
+  `ui/ui_tab_quests.py:389-402`. A stage can therefore require a route that the
   player can neither select nor cause the logic layer to record, so the quest
   stays blocked forever.
 - **Measured catalog class:** at `a23f80f3`, scanning `QUESTS` and subtracting
@@ -1166,9 +1166,7 @@ plain `Ran 5053 tests in 443.588s`, `OK (skipped=549)`; Qt `Ran 5053 tests in
 the 18 runtime-batch slices, so their old hashes are not ancestors of main;
 each one has a landed commit with the same subject.
 
-Remaining step: the one in-game check of the whole landed batch at `279be965`
-by the owner or task `01a0c67a-3e19-76c2-804c-65d993c9dddc`. Never run it while
-a gate lane runs, and doorbell the Darkan restoration seat before and after it.
+Completed 2026-10-07: the dedicated task proved the current shared reviewer, dispatcher and deferred Willow diary popup on source-qualified descendant `0e770066`; root verified raw Undo/reopen, guards and release, and Astra confirmed the shared obligation is satisfied. [The existing source checkpoint](source-audits/cleanup-source-checkpoint-2026-10-04.md) retains the exact observed scope and unobserved advanced-Barbarian/historical branches. The required before/after notices succeeded. Later runtime slices keep their own native requirements.
 
 ### 3.39 A sync that brings another desktop's save is overwritten by the next game write
 
@@ -1180,9 +1178,9 @@ second desktop is lost with no message.
 What the code does:
 
 - The game reads the save from collection config key `ankiscape_player_data`
-  into memory once, on the legacy `profileLoaded` hook (`__init__.py:458-461`,
-  registered at `__init__.py:5621-5637` through `core/hooks.py:52-57`). Every
-  game write puts the memory copy back (`__init__.py:453-455`,
+  into memory once, on the legacy `profileLoaded` hook (`__init__.py:456-459`,
+  registered at `__init__.py:5552-5568` through `core/hooks.py:52-57`). Every
+  game write puts the memory copy back (`__init__.py:451-453`,
   `core/storage.py:51-54`). The add-on registers no sync or collection hook;
   its only other Anki hooks are reviewer, overview, undo and
   `profile_will_close` (HUD hide).
@@ -1755,7 +1753,7 @@ the miniquest ledger with its two rows, and the 3.25 guardian-drop reshape.
 
 ### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17
 
-- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:675` for Herblore, `runtime/runtime_actions_gathering.py:662` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
+- **Current layering:** the four `shattered_heart_output_items=` call sites are `runtime/runtime_actions_production.py:669` for Herblore, `runtime/runtime_actions_gathering.py:662` for Hunter, `runtime/runtime_actions_gathering.py:911` for Woodcutting, and `runtime/runtime_actions_gathering.py:1061` for Mining. Hunter derives tradeability eligibility, Woodcutting and Mining pass `primary_outputs` raw, and Herblore carries the hand-written Jungle Potion exception.
 - **Decision:** determine whether output-replacement eligibility belongs in `logic/shattered_heart_logic.py:319`'s shared hook rather than in each caller. A future untradeable output under any other rock-eligible skill would otherwise silently regain the defect. This slice keeps the wider shared-hook change out of scope.
 
 ### 4.16 Jadinko secondary drops need independent tables — decided 2026-08-21
@@ -1818,7 +1816,7 @@ carries full authority.
    herb-protection exemption are removed together.
 4. **3.27 answered: shared hook.** Output-replacement eligibility moves into
    the shared hook at `logic/shattered_heart_logic.py:319`. The four callers
-   (`runtime/runtime_actions_production.py:675`,
+   (`runtime/runtime_actions_production.py:669`,
    `runtime/runtime_actions_gathering.py:668`, `:911`, `:1061`) route through
    it, so a future rock-eligible skill cannot silently regain the
    untradeable-output defect.
@@ -1889,8 +1887,8 @@ is **not scheduled work** and is not a quest-by-quest task list.
   The catalog also self-registers raw quest reward strings:
   `13b3edde:data/quest_data.py:10468-10480` emits each raw `item_name`,
   `13b3edde:core/constants.py:1413` loads that output,
-  `core/constants.py:337-349` merges it into extra item data, and
-  `core/constants.py:471` builds the final registry. The final registry is
+  `core/constants.py:338-350` merges it into extra item data, and
+  `core/constants.py:472` builds the final registry. The final registry is
   therefore not an independent validator of quest reward semantics.
 - **Semantic shape of the `275`-name candidate pool:** this is a manual,
   one-bucket-per-name classification of all final reward names on this base. It
@@ -1918,7 +1916,7 @@ is **not scheduled work** and is not a quest-by-quest task list.
   - **`2` prose fragments:** `A box trap.` and
     `20 noted Pure/Rune essence and the other items (from chasing Solus)`.
     These require a sourced replacement or removal, not an item definition.
-- **Runtime consequence:** `logic_pure/logic_pure_quest.py:1474-1481` obtains
+- **Runtime consequence:** `logic_pure/logic_pure_quest.py:1361-1368` obtains
   the completion reward mapping and grants every row with the bare assignment
   `inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)`.
   It performs no
@@ -1995,7 +1993,7 @@ stale against this base.
   (`memory-bank/design-thread-queue.md:1043`) — `fdbec823` is present and the
   live action is `Receive the animate rock scroll from Wizard Cromperty after recovering the Holy Grail`.
 - `### 5.1 Direct actions have no undo (breadth criterion 5)`
-  (`memory-bank/design-thread-queue.md:1424`) — `aefcc4ea` supplies the shared
+  (`memory-bank/design-thread-queue.md:1422`) — `aefcc4ea` supplies the shared
   seam. A fresh static scan finds `54` `def _apply_*_command` handlers in
   `__init__.py`. All `54` handlers call `commit_direct_action`. Zero handlers
   remain that do not route through the shared seam. The two `_apply_`
@@ -2003,7 +2001,7 @@ stale against this base.
   helpers, not direct command handlers. The plain lane exercises the migrated
   seams.
 - `### Open decisions queued by the pass-3 shop-UI work — 2026-07-26`
-  (`memory-bank/design-thread-queue.md:1521`) — the live registry measures all
+  (`memory-bank/design-thread-queue.md:1519`) — the live registry measures all
   `25` skillcapes and all `25` sourced master-shop rows; Dungeoneering is no
   longer latent.
 
@@ -2030,7 +2028,7 @@ stale against this base.
   (`memory-bank/design-thread-queue.md:391`) — the separately clocked timed spawn
   is the entry's declared catalog/depth pass.
 - `### 5.2 Post-cutoff art — measured, and mostly deliberate`
-  (`memory-bank/design-thread-queue.md:1440`) — wholesale modern-RS3 asset
+  (`memory-bank/design-thread-queue.md:1438`) — wholesale modern-RS3 asset
   replacement is the entry's own deferred slow-data harvest, not a breadth
   blocker.
 
@@ -2109,20 +2107,20 @@ forks, so the implemented recommendation is not authority to close them.
   `tools/audit_docs.py`, then repair the historical references against the live
   tests.
 - `### 3.26 Jungle Potion — retain the rock safeguard or restore source stage semantics — answered 2026-08-22 in 4.17`
-  (`memory-bank/design-thread-queue.md:1688`) — the owner chose the
+  (`memory-bank/design-thread-queue.md:1686`) — the owner chose the
   source-faithful search-until-turn-in model, but the catalog still alternates
   one-shot search and turn-in stages and
   `runtime/runtime_actions_production.py:694-700` still carries the pre-ruling
   Shattered Heart exemption. Reshape the five stage pairs and remove the
   exemption together.
 - `### 4.15 Grill of 2026-07-30 — design-gap answers`
-  (`memory-bank/design-thread-queue.md:1735`) — the requested Kinship party
+  (`memory-bank/design-thread-queue.md:1733`) — the requested Kinship party
   design packet does not exist, while the named Darkan dependency is available
   in current history at `d4d430606`, `fcad1e89d`, and `f2ed1d725`. Produce the
   flattened-port packet and per-class analog table; runtime implementation then
   waits for owner approval.
 - `### 3.27 Shattered Heart output-replacement eligibility — answered 2026-08-22 in 4.17`
-  (`memory-bank/design-thread-queue.md:1756`) — the owner chose the shared hook,
+  (`memory-bank/design-thread-queue.md:1754`) — the owner chose the shared hook,
   but `apply_shattered_heart_skilling_hook_pure` still accepts caller-filtered
   `output_items` and the four runtime callers still own eligibility. Move the
   tradeability rule into the hook and route all four callers through it.
@@ -2389,7 +2387,7 @@ Recorded as an open sourcing gap, not as work to schedule.
   normal maximum hit of 312. This project's evidence order puts Darkan first, so
   the executable value must be 260. Registering the disagreement documents it;
   it does not authorise the wiki number.
-- The Dominion Tower fallback at memory-bank/placeholder-values.md:167 covers
+- The Dominion Tower fallback at memory-bank/placeholder-values.md:193 covers
   Dominion Tower content and four stats. It does not extend to Glacor, and it
   must not be stretched to Ranged.
 - Applying that fallback gave a level-475 Glacor 99 in every stat, below the
@@ -2785,7 +2783,7 @@ brief lands.
    new assignment.", button "OK". The fight continues. The review HUD gains one
    line "Slayer: {remaining} of {total} left". Today the text rides the
    1.4-second XP bubble and is swallowed into the event log on an XP-paying
-   kill (`__init__.py:622-660`); no dialog existed.
+   kill (`__init__.py:620-658`); no dialog existed.
 6. **Glossary.** Added Action and Encounter; Bankstanding amended to "the
    neutral action".
 
@@ -2904,3 +2902,227 @@ GLM gives a second vote; both must agree before a deletion.
 ### Open owner question — 2026-10-02: Fremennik shield Woodcutting
 
 54: shield oldids 5641898 (2012-05-22, no beta marker) and 5827384 (2012-06-25, beta). 56: The Fremennik Isles oldid 6540919 (2012-11-07) and Darkan `craftShield` restoration commit `a7e91cb9769642e3e833a523fd5f0688eef21924`. Current branch uses 54; the evidence standard does not automatically resolve this conflict. Owner decision remains open.
+
+### Open owner question — 2026-10-07: Collections native acceptance
+
+The shallow cleanup and approved main-menu repair await the owner's native acceptance decision. Exact merged candidate `8d8888be054424ad68e1b156523b25edc1d32ed1` passed all nine official promotion checks. Independent reviews passed. Native behavior, full tab names and scroll buttons passed on frozen source `84a5fd0d215dcea7d433db092fc988cb8b278ed4`. The shipped files match the merged candidate.
+
+Collections selected content remains unverified at both required widths. Candidate, frozen control and coordinate-route attempts crashed before capture. [The blocker record](GOAL-BLOCKED.md) retains exact evidence. Root asked the owner to permit this candidate with Collections proof open, or retain complete Collections proof as a prerequisite. No answer exists. This exception would apply only to this candidate; other native gates and the wider UI boundary remain binding.
+
+### Open owner UI scope — 2026-10-07: poison status text
+
+The fresh death-partition native fixture at f570a15f showed the existing pre-answer and Undo HUD ending at `Poisoned: 110 LP in 30 t`, while AX contains `Poisoned: 110 LP in 30 ticks`. Pixel proof: `/Users/ArmanTarkhanian1/Library/Application Support/Anki2/addons21/ankiscape_fork/.git/worktrees/promote-runner-fairness-2026-10-03/ankiscape-promotion-evidence/f570a15fefde7e037313f20dad91eed990b031f2/native-death-partition-accepted-2026-10-07/native-result-death-equipment-partition-f570a15f/answer-001-before.jpg`. The governing goal excludes existing UI without recorded owner authorization; the approved main-menu tab repair does not cover this HUD. Preserve the current UI and park this text repair for an owner scope decision; it does not change acceptance of the backend partition.
+
+### Open owner UI scope — 2026-10-07: Myreque stage transition
+
+Complete In Search of the Myreque stage1 would expose generated stage2 instruction “Give him three Planks and then ten Coins.” despite the retained period contract placing the fare after completion; root and Astra park the opening until a source-correct journal change has recorded owner scope, without changing the UI, advancing incomplete persuasion or replacing the five-current-charge guard with a permanent proof.
+
+## Answered owner decision — 2026-10-15 native startup representation
+
+The owner ruled that the five refused startup fields are intentional product representations, not product defects: saved lists load as tuples and XP numbers as floats in logic/crucible_logic.py and logic/farming_logic.py; JSON cannot store a tuple. Compare the saved file by value with live state after one round trip through the product’s own save encoding. Every other part of the check stays exact, including protected fields and the separate saved-Undo-to-pre-Good-LIVE criteria. This clears the representation hold, authorizes the pending native checks and replaces the external October13 handoff’s “do not coerce values” instruction; it does not claim native acceptance. Preserve [the original refused observations](source-audits/native-startup-mbp-2026-10-14.md).
+
+## Open owner question — 2026-10-14 Summoning restore deed curation
+
+Recorded 2026-10-14T04:07:50.152516-07:00 during Spiritual Healing source work. Preserve its settled positive-gain contract and existing geography exceptions. The current `fremennik_easy_a_familiar_feeling` design requires a successful restore that increases points, but its wiring checks only `summoning_command` / `restore_points`; sanitation-only state changes can therefore earn it. The new source-940 deed `burthorpe_period_spiritual_healing` adds `summoning_points_restored >= 1` on the same existing Visit obelisk command. The author reports that adding this gate to Familiar Feeling would fail the generator's distinct-seam rule; that rejected alternative is not a permission to change the rule or invent geography.
+
+Owner decision needed for the Familiar Feeling correction: choose a curated distinction that preserves genuine point restoration and the existing distinct-seam contract. Exact rows: `memory-bank/diary-curation-ledger/dormant-task-ledger.jsonl`, source IDs 160 and 940. Raw candidate and proofs: `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/spiritual-healing`. The independent source review will determine whether this existing-row question also blocks Spiritual Healing promotion. No existing UI, location substitute, threshold or duplicate-rule change is authorized or implemented. Continue independent work.
+### Answered owner decision — 2026-10-14: Cold War personal greeting
+
+At22:49 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "Yeah that's just pedantry. It can save it to the quest journal. The user doesn't have to actually produce it". Save the assigned personal three-emote greeting and show one line in the Cold War journal. The player performs no emotes; every later greeting check passes. Only this journal addition is authorized. Book-gate and suit-ID10595/10596 source disputes remain open. Claude may neither author nor review this work.
+
+### Open owner UI scope — 2026-10-14: contained-content taste observations
+
+[The new-content taste review](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/presentation-taste-1/report.md) accepts the engraving/Cabinet layouts conditionally on two configured-copy fixes. It proposes an owner design grill for existing Cabinet description/condition repetition, inherited rounded label borders (native confirmation still needed), unrelated diary panels retained during search, completed-versus-level-locked Crafting presentation, and clipped Challenges/Achievements navigation labels at the captured widths. These are observations/suggestions, not permission to change existing widgets, journal grouping, search, navigation or text. Root corrected only the new label/reason through the configured editor and retained the captures; native requirements remain open.
+
+## Open owner question — 2026-10-14T13:05:46.913976+00:00 — First Resort stage 4 journal and fur priority
+
+The returned unaccepted candidate advances progress4 to5 after Snurgh's8 feathers and Kringk's4 bones/8 furs. The existing stage4 journal also contains “Talk to Seegud.”, the bug-clearing note and “Collect the plants from outside of Oo'glog.”. The existing completed-stage display strikes these future actions despite no proofs. Existing journal changes are not authorized. Independent review will qualify whether this blocks the proposed complete boundary; no display correction is approved. The author also selected tatty-first mixed-fur debit to retain regular furs for Summoning, while the period source states no debit order. This choice is unaccepted; source review must first check any settled interchangeability policy. The owner may settle the needed journal scope and fur priority at a later design grill. Independent queue work continues.
+
+## Open owner question — 2026-10-14T13:37:44.186051+00:00 — Giant Dwarf library load
+
+The first complete existing stage1 boundary requires climbing for Book on costumes under30kg. The retained sources establish the limit, but the Anki load abstraction is unset. Current Agility weight data cover only a subset and assign0 to unknown items. Settle the library load model before implementation; real weight also needs complete qualified item weights. Ferry travel is free;3000Coins is a route budget. No new navigation, journal or weight policy is approved.
+
+## Open shop reproduction contract — 2026-10-14T14:45:33.033317+00:00
+
+The full NPC-shop generator still differs at six preserved live price keys: Bullseye lantern, Mining helmet, Mithril arrow, Oil lamp, Oil lantern and Spiked gauntlets. The metadata correction landed ated10c2f0 after exact checks; both summaries now report6827 and59 ledger labels match runtime rows. [Original reproduction evidence](source-audits/npc-shop-reproduction-mbp-2026-10-14.md) retains the earlier inconsistent target. [The landed correction](source-audits/npc-shop-ledger-truth-2026-10-14.md) changes no runtime price/key, source pin or digest. Root qualified the six origins; the remaining source identity/precedence contract is engineering work, not a new owner-only question. Preserve every existing live price while that work continues. Independent queue work continues.
+
+### Open owner UI scope — 2026-10-14: Gunnar tab ellipses
+
+Gunnar final-copy offscreen captures show existing top-tab ellipses Ch… at720 and Achieveme… at980 behind scroll arrows. The three new Dororan rows and actual tooltips are complete. Existing tab UI remains unchanged; this observation joins the pending owner design suggestions.
+
+## Open source/owner boundary — 2026-10-14: Roavar early purchase
+
+Independent Fenkenstrain review R1 cannot qualify purchase before the accepted interview from retained period sources. Require the one period eligibility fact in GOAL-BLOCKED, or an explicit owner-approved AnkiScape abstraction. No implicit choice follows from Root contract silence; no Darkan numeric-stage copy or progress==2 restriction. Later filled-head4198/handoff guards wait for the later writer. Existing widgets and journal remain excluded. Current candidate 0a962cbcd5a4f16f252d57e32275616f4e18b0b1 is preserved, unaccepted and unlanded.
+
+## Open owner boundaries — 2026-10-14: three quest journals
+
+Murder Mystery needs authorization to replace its first table-of-contents-only block with the source-backed guard opening; later culprit selection remains separately source/model held. Recruitment Drive needs the test-selection/empty-entry model and a journal representation ruling at Tiffy; no empty-Bank substitute. Tower of Life needs authorization to show its sourced opening answers omitted by the current journal. Black Knights'12QP copy versus period13 remains an adjacent owner-UI repair; a genuine13QP route exists without it. No existing journal/widget/copy changes are authorized by these records. Exact evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-root-qualification-2/verdict.json.
+
+## Open existing-readout scope — 2026-10-14: Horror from the Deep
+
+Ruling50 remains settled: Prayer43 is recommended, not required. The current kernel enforces43 and the Quest tab prints Requires: Agility35, Prayer43. The open scope is authorization to correct that existing readout while applying the settled eligibility contract; it is not a choice about Prayer policy. No widget, text or source change is authorized here. Preserve the stage1/source and later mother-combat boundaries. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+
+## Open first-journal scope — 2026-10-14: Ghosts Ahoy
+
+Both prerequisites remain settled under ruling35. The first journal is generic and its section-to-stage representation needs owner authorization. Independently qualified pre-quest Port entry fare remains the separate first source hold. Do not invent a charge, replace journal text or treat the existing worship writer as proof of every acquisition input. [Exact qualification](source-audits/quest-opening-boundaries-2026-10-14.md).
+
+## Open first-journal scope — 2026-10-14: Garden and Tail
+
+Garden of Tranquillity needs authorization to restore the seven sourced answers and settle the complete Wise Old Man quiz/retry representation. A Tail of Two Cats needs authorization for a source-backed first journal and its exact Unferth/Hild boundary. Each retains its own prerequisite and acquisition holds. No existing journal, UI or source reconstruction is authorized by this record. [Exact qualification](source-audits/garden-and-tail-opening-boundaries-2026-10-14.md).
+
+## Settled tooling response contract — 2026-10-14: MediaWiki warnings
+
+Root selects a nonfatal diagnostic at `HttpWikiClient._request_json`, the shared boundary used by the cutoff auditor. A nonempty `warnings` value must produce one stderr diagnostic per actual JSON response, with the complete warning content. Return the original payload unchanged. Preserve valid query results, stdout, transport/API retries, cutoff checks, classifications and provenance writes. Empty or absent warnings produce no diagnostic. This is a settled engineering scope choice, not an owner-reserved UI or source decision. Implementation starts after C1 lands. [The bounded contract](plans/mediawiki-warning-diagnostic-2026-10-14.md) contains the baseline and acceptance requirements.
+
+## Answered owner decisions — 2026-10-14: Again fairness
+
+At22:49 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "May as well make it more fair for those I guess". This extends Decision1 of [the simulation-time boundary](simulation-time-boundary-2026-07-16.md): Again earns nothing and cannot cost a reward that the next successful answer cannot recover.
+Restaurant: Again spends no window time. A successful review on another target spends the existing six minutes while an order is open. Food prepared and banked before acceptance delivers on time. Orders never expire; base points and prepared food are never lost. Only the required Again result-message change is authorized. Replace the earlier Again clause in the delivery-loop source audit and completion starter grill; source oldid6491107 permits food prepared and banked before assignment and better tips for fast delivery.
+Familiarisation: Again pauses with no segment, focus cost or shards. Four successful answers finish the session with60 shards. Remove focus, including its save field, with sanitizing migration; remove any visible focus pips and no other UI. Update systemPatterns and the kanban. Claude may neither author nor review either slice. Each slice requires normal independent cross-lineage review, standing checks and the exact full remote gate plus official land.
+
+## Answered owner decision — 2026-10-14: automatic boss telegraph prayer
+
+At23:05 PDT, relayed from T3 thread ea1723e0-072e-47ba-a6bc-bcb2d551734f, the owner ruled: "Also good point about Jad, can fix that". When a boss telegraphs the next style, the game sets the matching protection prayer for that attack if unlocked and prayer points remain. Otherwise the attack lands unprotected. Supplies and damage output provide the challenge; manual switches between reviews are not required. The Style telegraphs bullet in [the boss contract](boss-instance-contract-2026-07-18.md) now states this rule; its other content is unchanged. This is a contract change only until a boss slice implements it. Combat grill decision47 remains binding.
+
+## Open existing-journal and readout scope — 2026-10-15: Monkey Madness
+
+The first journal is a generic sentinel; its infiltration cleanup is not a complete sourced opening. Period oldids5967528/6579359 call Prayer43 and Thieving10 recommendations, while live logic and the visible requirements make both mandatory. The needed owner scope is one sourced first-journal boundary and its requirement-readout correction. No puzzle abstraction, hidden state or full quest design is adopted. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Grand Tree and later acquisition remain separate.
+
+## Open existing-readout scope — 2026-10-15: Desert Treasure
+
+Period oldids5981512/6563639 make Mining50 optional. The live requirement readout makes it mandatory and omits four direct prerequisites from the retained Questreq/cache. Needed owner scope: the existing requirement-readout correction with the source-qualified gate repair. Keep the complete first journal through the650Coin brew and six mirrors; no talk-only advance. No other journal change or backend substitute is authorized. [Evidence](source-audits/monkey-and-desert-opening-boundaries-2026-10-15.md). Ordinary acquisitions remain to qualify after this first scope gate.
+
+## Open existing-journal scope — 2026-10-15: Do No Evil
+
+The actual first journal is a table of contents. Period oldid6587790 supplies Senliten/Leela and the later Jex/Sphinx exchanges, while the next live journal reaches further banana/wise-monkey deeds. Needed owner scope: a sourced replacement first journal and exact complete opening boundary. The later elite-clue decision stays separate. [Evidence](source-audits/do-no-evil-and-mourning-opening-boundaries-2026-10-15.md). No hidden state, seeded restoration or companion is authorized.
+
+### Open owner question — 2026-10-15: Ritual first journal and complete boundary
+
+The actual first Ritual of the Mahjarrat journal contains only contents headings. No live override replaces it. Period oldid6564051 separates Tiffy assignment and optional teleport, Tendeth briefing, the attack/inquiry and jungle investigation. Existing UI changes need owner scope. The open decision is the source-backed first journal and its exact stage1 end. No talk-only or spatial proxy is proposed as settled. [The exact source qualification](source-audits/ritual-hallowvale-clockwork-blood-openings-2026-10-15.md) preserves the evidence. Continue independent work; this question does not reopen settled quest or combat rules.
+
+### Open owner question — 2026-10-15: Forgettable Tale first journal and endpoint
+
+The actual first Forgettable Tale journal is the generic pinned-guide objective. Period oldid6447452 separates Veldaban commission/transport from the beer exchange and first Kelda seed. The external target reconstruction grants no owner authority. The open decision is owner scope for a sourced first journal and its exact stage1 end. [The exact qualification](source-audits/forgettable-opening-boundary-2026-10-15.md) preserves both endpoints without selecting one. Continue independent work; Giant Dwarf's separate ordinary-route hold stays settled.
+
+
+## Open existing-readout scope — 2026-10-15: Legends' Quest
+
+Period oldid6529921 recommends Regicide and Combat75, requires Prayer42 rather than43, and allows several skills after start and temporary boosts. Current eligibility and visible Requires text hard-gate those recorded values at start. Needed owner scope: correct the existing requirement readout with the source-qualified eligibility repair. No journal redesign, guard-only stage, substituted prerequisite or backend-only discrepancy is authorized. True direct prerequisites and quest points remain to qualify. [Exact source qualification](source-audits/goblins-and-legends-opening-boundaries-2026-10-15.md).
+
+
+## Open existing-readout scope — 2026-10-15: One Small Favour
+
+Questreq6552449 and retained cache struct593 slots13/99 independently require Rune Mysteries and Shilo Village. Current gate/readout omits Rune Mysteries. Needed owner scope: correct the existing prerequisite readout with that source-qualified gate; no journal redesign or backend-only mismatch. The full Yanni-to-Johanhus contact chain and ordinary prerequisites remain implementation/acquisition work. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
+
+## Open first-journal scope — 2026-10-15: Summer's End
+
+The actual first journal is generic. Period oldids6560166/6534090 distinguish the portal/Void briefing from return, mine preparation and familiar lure, but do not assign AnkiScape stage1. Needed owner scope: one sourced first journal and its exact endpoint. Existing supply gates do not choose it. Ordinary Spirit of Summer/ring acquisition stays separate; no hidden state or partial later-stage credit is authorized. [Exact qualification](source-audits/favour-and-summer-opening-boundaries-2026-10-15.md).
+
+
+## Open existing-journal copy scope — 2026-10-15: Chosen Commander food list
+
+The first journal omits the list after 'among the following'. The current first implementation hold remains The Giant Dwarf's library-load model. Before later implementation, the owner must authorize a source-qualified correction to that existing journal text; no food assignment, controlled scene or broader journal redesign is settled. [Exact qualification](source-audits/darkmeyer-and-commander-opening-boundaries-2026-10-15.md).
+
+
+## Open owner question — 2026-10-15: Slug Menace first journal
+
+The live first journal is the generic “Complete The Slug Menace stage 1 objective using the pinned source guide.” Period guide6588246 describes Tiffy briefing/password and Commorb-v2 grant or upgrade, followed by O'Niall/Witchaven interviews/investigation. Authorize the sourced replacement journal and exact complete first-stage endpoint before code changes. The source grants Commorb v2 when the player lacks a Commorb; no mandatory seeded original is inferred. The [source qualification](source-audits/slug-and-senntisten-opening-boundaries-2026-10-15.md) records this single first scope hold. No existing UI change is authorized by this question.
+
+
+## Open owner question — 2026-10-15: TokTz-Ket-Dill first journal
+
+The first journal is the generic “Complete TokTz-Ket-Dill stage 1 objective using the pinned source guide.” Authorize a period-sourced replacement and exact endpoint: three-guard briefing versus the later Stone tablet/library/Reldo/Tourist Guide/translation/mine-permission chain. The [qualified source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) preserves the existing material/gate qualifications. No guards-only credit or existing UI change is authorized by recording this question.
+
+## Open owner question — 2026-10-15: Animal Magnetism first journal
+
+Stage1 is only contents headings; stage2 contains the Ava/Alice opening deeds. Authorize a sourced replacement first journal and its exact Ava-versus-undead-poultry endpoint while settling that stage2 overlap. The [source boundary](source-audits/toktz-and-animal-opening-boundaries-2026-10-15.md) also retains the later Thieving15 readout qualification; no gate waiver, journal renumbering, partial credit or seeded acquisition is authorized.
+
+
+## Open owner question — 2026-10-15: Eadgar's Ruse requirement readout
+
+The current start gate and visible requirements require Prayer40, while the retained period guides describe Prayer40 or Agility47 as recommended. Authorize the existing readout correction while independent source qualification settles the exact eligibility repair. The [bounded qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) preserves null-cache-field limits, the complete Sanfew-to-Eadgar journal and ordinary route obligations. No automatic gate waiver is authorized by this question.
+
+## Open owner question — 2026-10-15: Elemental Workshop III first journal
+
+The first journal describes a later puzzle; the existing stage1 action instead finds/reads Ragged book “in the workshop”, with no produced book. The period source starts at the chapel bookcase, then preparation, then the puzzle. Authorize a sourced replacement first journal and exact complete opening endpoint. The [qualification](source-audits/eadgar-and-workshop-iii-opening-boundaries-2026-10-15.md) retains the current stage/dependency/key/custody conflicts; no hidden book action, journal renumbering or partial puzzle credit is authorized.
+
+
+## Open owner question — 2026-10-15: Another Cook's Quest first journal
+
+Another Cook's Quest, an actual prerequisite for Freeing Evil Dave, has a generic first journal and a generated2025 fallback source pin. A retained period main-page source nominates commission/100-Coin advance, ingredient/Dirty-blast preparation and full handoff. Authorize the sourced replacement first journal and exact complete endpoint, distinguishing that commission from full preparation/feast access. The [dependency qualification](source-audits/love-story-and-evil-dave-opening-boundaries-2026-10-15.md) retains source-pin repair as work; that repair alone grants no existing journal/UI authority. No seeded feast access or partial stage credit.
+
+
+## Open owner question — 2026-10-15: Freeing King Awowogei first journal
+
+The first journal is generic. Authorize a period-sourced replacement and exact complete first-stage endpoint. The source separates inspection/Aris from the Ape Atoll king/trio recipe sequence. The [qualification](source-audits/awowogei-and-rocking-out-opening-boundaries-2026-10-15.md) preserves the actual Another Cook, Monkey Madness and Grand Tree dependency holds. No coin alternative can seed monkey resources, greegrees or hazard proof.
+
+## Open first-journal scope — 2026-10-15: Royal Trouble
+
+Period6542630 distinguishes Ghrim briefing, the heir cutscene/marriage suggestion and Vargas commission. The actual first journal is generic. Owner decision needed: authorize one sourced replacement first journal and its exact complete endpoint. The later Agility/Slayer/Prayer gate and visible-readout discrepancies stay separate. [Evidence](source-audits/royal-trouble-and-dig-site-opening-boundaries-2026-10-15.md). No partial endpoint is adopted.
+
+## Open first-journal scope — 2026-10-15: Elder Kiln
+
+The live first journal has five table-of-contents lines. Owner decision needed: authorize a period-sourced replacement journal and exact complete deed endpoint. Briefing, hatching and rooms are not interchangeable. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md). No partial stage or new UI is adopted.
+
+## Open requirement-readout scope — 2026-10-15: Wanted
+
+The live gate requires completed Lost Tribe and Ghosts Ahoy. Period6510622 says partial Lost Tribe and optional Ghosts Ahoy; cache also records33 quest points and omitted prerequisite slots. Owner decision needed: authorize correction of the existing requirement readout with source-qualified prerequisite repair. The exact partial Lost Tribe threshold remains source-unqualified; authorization grants no gate waiver. [Evidence](source-audits/elder-kiln-and-wanted-opening-boundaries-2026-10-15.md).
+
+## Open first-journal scope — 2026-10-15: Watchtower
+
+The actual first journal is generic. Period6525573 distinguishes Wizard briefing from the bush/fingernails investigation. Owner decision needed: authorize a sourced replacement and exact complete first-stage endpoint. [Evidence](source-audits/watchtower-and-guthix-opening-boundaries-2026-10-15.md). No silent endpoint or spatial proxy is selected.
+
+## Open existing-readout scope — 2026-10-15: Defender of Varrock
+
+The actual requirement readout lists four quests. The seven retained cache links also name Demon Slayer, Temple of Ikov and Garden of Tranquillity. Period oldid 6542570 requires the claimed Shield of Arrav museum reward. Authorize the existing requirement-readout correction with source-qualified eligibility repair. No other UI or reconstructed tracking route is proposed. [Evidence](source-audits/death-and-defender-opening-boundaries-2026-10-15.md). This is the first scope hold; later source and earned-route work remains.
+
+## Open existing-journal scope — 2026-10-15: Another Slice of H.A.M.
+
+Its actual Giant Dwarf dependency first inherits the settled open library-load decision. After that clears, the generic first journal needs a sourced complete endpoint. Period oldid 6548739 distinguishes the Ur-tag/Alvijar brief from Tegdak's tools, all six artefacts and their return. Authorize the complete first-journal replacement and its endpoint; no partial library or silent UI change is proposed. [Evidence](source-audits/another-slice-and-contact-opening-boundaries-2026-10-15.md).
+
+## Open existing-journal scope — 2026-10-15: Dream Mentor
+
+The actual first journal omits two steps: the conversation after the first four foods, before Spirit encouragement (period oldid 6550965 line 72), and four more foods after that encouragement, before Cyrisus stands (line 76). Authorize these two source-correct journal insertions within the complete opening through Jack's chest and initial five-category armour selection. No partial first-aid endpoint or other UI change is proposed. [Evidence](source-audits/dream-and-workshop-iv-opening-boundaries-2026-10-15.md). Ordinary eligibility, food/Spirit/armour qualification and earned routes remain work.
+
+## Open existing-gate scope — 2026-10-15: Enakhra's Lament
+
+Period oldid6548386 line34 marks Mining45 optional; the current start gate and Requires text make it mandatory. Authorize that source-correct gate/readout correction. Preserve the complete opening through sandstone-base placement and every earned deed/input. No other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md).
+
+## Open existing-gate and journal scope — 2026-10-15: Grim Tales
+
+Period oldid6542776 lines32–40 makes five action levels boostable and Prayer/Combat recommendations, without those start gates. The current gates/readout enforce all seven. The opening journal also contains six contents entries and omits the full Sylas commission. Authorize the corrected start gates/readout and complete conversation/both-task journal. Keep Witch's House prerequisite and all five action checks at their actions. No later task credit or other UI change is proposed. [Evidence](source-audits/enakhra-and-grim-opening-boundaries-2026-10-15.md). Witch's House's actual diary/key gap remains separate work.
+
+## Open existing-journal and gate scope — 2026-10-15: Witch's House
+
+Authorize the complete diary/read/key path and source-correct glove gate before cupboard/Magnet in the existing journal/readout. The current journal places gloves after magnet and mouse acquisition. Preserve all ordinary producers, Cheese custody, patrol, four fights and the single Ball hand-in. No new interface is proposed. [Evidence](source-audits/witchs-house-complete-diary-key-boundary-2026-10-15.md). The original/restored diary-gate source distinction remains explicit.
+
+## Open first-journal and start-gate scope — 2026-10-15: Haunted Mine
+
+Authorize the complete Zealot briefing/pickpocket-key/two-cart/mine-entry journal and correct Requires/start gates: Priest in Peril complete, Nature Spirit started, Agility1 alternative and Crafting35. The current journal is a generic sentinel and catalog omits those quest prerequisites. No partial endpoint or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).
+
+## Open first-journal and start-gate scope — 2026-10-15: Nature Spirit
+
+Authorize the complete Drezel commission and ordinary six-pie custody in place of contents entries, with source-correct Crafting/Prayer start gates/readout. Crafting18 is conditional on making the later sickle; Prayer potions provide an alternative to Prayer10. Preserve real Priest in Peril and Restless Ghost prerequisites. Haunted Mine requires only this started state. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md). No later completion or other UI change is proposed.
+
+## Open complete-branch journal scope — 2026-10-15: Hazeel Cult
+
+Authorize complete branch-specific first journals/endpoints through all five correct valve states for both existing choices. The current refusal journal cannot truthfully complete on the cult branch. Preserve the Carnillean briefing/refusal route and the cult acceptance/poison/family/Mark route before its valves. No choice removal, shortened stage or other UI change is proposed. [Evidence](source-audits/haunted-mine-and-hazeel-opening-boundaries-2026-10-15.md).
+
+## Open owner question — 2026-10-15: Pirate’s hook catalog snapshot
+
+May the exact GE snapshot totals change from1442prices/1837limits to1443prices/1838limits solely for the sourced Pirate’s hook2997 row, with every prior row proven identical and all other assertions preserved? The unchanged tests/test_grand_exchange_data.py:235–236 fail `AssertionError: 1443 != 1442`; Astra found no green path preserving those exact totals, every old row and the added same-map item. Candidatefecac97b7d9f01ffc64e4e56c05d6168938bfe45 is parked. No instrument was changed. Source qualification, startup-budget compliance, native acceptance and the exact full gate remain separate requirements; an answer here does not waive them. [Independent review](</Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/pirates-hook-astra-review-2026-10-15/report.md>).
+
+## Answered owner correction — 2026-10-15: save representation is engineering work
+
+Owner words: "This is not something I need to care about as the owner". The owner closed the classification of this representation check as an owner decision. Engineering must resolve the comparison; no further owner question is required.
+
+Operator resolution: compare complete Undo SAVED with complete pre-action LIVE after exactly one normal installed-Anki persistence pass, by value. This includes `to_json_bytes`, backend storage and `from_json_bytes`; the separate scratch Collection canary proves the complete boundary. Keep every field, complete raw live/live and saved/saved restoration, RNG, cards, review log, scheduler, configuration, skill and isolation exact. Use the actual already-captured encoding; do not filter fields, substitute a codec, modify product normalization, or claim that the owner chose a particular algorithm. This applies to review Undo and direct-command Undo.
+
+The three tuple/list differences remain preserved as raw observations, not gameplay defects. Existing Restaurant and Familiarisation captures already pass the resolved complete cross-representation comparison, with complete same-representation restoration. Root rechecked both full pickle pairs and the retained actual-Anki encoded bytes at `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/owner-course-correction-2026-10-15/undo-encoding-engineering-resolution.json`. Overall native acceptance remains false until each slice’s remaining observations pass. Independent Jad/Tribal source proof is preserved; it no longer creates an owner gate. Continue the ordered manual lane. No product, existing UI, test, audit, limit, pin or reserved decision changed.
+
+## Papercut baseline multiplicity conflict — 2026-10-17
+Bittercap promotion requests every incident exactly once, but `move_papercuts.py check 6c2fd870048d6738c96548659962edbe03cf2a29` requires eight historical duplicate fixed-log copies; deleting those copies reports `lost:` for each incident. Preserve the baseline and measuring instrument pending root resolution; merge-created duplicates are removed. Evidence: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/bittercap-promotion-merge/deduplicated.json.
+
+## Open owner question — 2026-10-17: Cabinet diary search and Mogre Mash acceptance
+
+Cabinet diary search shows “Showing 1/534” but still renders unrelated Capes and Distinctions rows (observed natively 2026-10-17, evidence /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/native-lane-5/mogre/ and native-review-561/report.md item 1; pre-existing on main). The Cabinet is existing UI that the goal excludes. Decision needed: authorize a bounded Cabinet search fix, or drop the Cabinet diary-row inspection from the Mogre Mash (source 148) native acceptance. Mogre’s landing waits on this answer.

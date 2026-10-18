@@ -55,6 +55,7 @@ def _combat_encounter_dict(encounter: QuestCombatEncounter) -> Dict[str, object]
         "npc_configs": dict(encounter.npc_configs),
         "guaranteed_drops": dict(encounter.guaranteed_drops),
         "npc_stats_source": encounter.npc_stats_source,
+        "required_encounters": encounter.required_encounters,
     }
 
 

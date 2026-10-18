@@ -7,6 +7,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from typing import Any
 
+from ..data.prayer_data import PRAYER_TARGETS
+
 
 @dataclass(frozen=True)
 class AgilityTravelProfile:
@@ -57,7 +59,7 @@ AGILITY_ITEM_WEIGHTS_KG = {
     "Shrimps": 0.5,
     "Crayfish": 0.1,
     "Small ninja monkey greegree": 0.0,
-    "Ring of charos": 0.0,
+    "Ring of Charos": 0.0,
     "Lit torch": 0.5,
     "Lit candle": 0.0,
     "Lit black candle": 0.0,
@@ -112,6 +114,16 @@ _HANDLER_DEFAULTS = {
     "agility": (1.0, "weak", "Running to the course bank", "ankiscape_trip_abstraction"),
 }
 
+# Burying and scattering are inventory clicks with no altar, so Prayer's bank
+# loop buries beside the bank like Crafting and Herblore. The handler's altar
+# lead was derived from the gilded altar rate and stays with the altar methods
+# (agility-trip-cost-inputs-2026-07-15.md, section 4).
+_TARGET_DEFAULTS = {
+    ("prayer", target_id): (0.0, "none", "Working at the bank", "period_route")
+    for target_id, spec in PRAYER_TARGETS.items()
+    if spec["method"] in {"bury", "scatter"}
+}
+
 _TIER_CEILINGS = {"strong": 0.11, "weak": 0.07, "marginal": 0.03, "none": 0.0}
 
 
@@ -146,7 +158,10 @@ def agility_travel_profile_pure(
     carried: Any,
     equipment: Any,
 ) -> AgilityTravelProfile:
-    default = _HANDLER_DEFAULTS.get(handler_key, (0.0, "none", "Working on site", "not_applicable"))
+    default = _TARGET_DEFAULTS.get(
+        (handler_key, target_id),
+        _HANDLER_DEFAULTS.get(handler_key, (0.0, "none", "Working on site", "not_applicable")),
+    )
     base_reviews, tier, route_label, source_status = default
     route = _ROUTE_COSTS.get((handler_key, target_id))
     if route is not None:

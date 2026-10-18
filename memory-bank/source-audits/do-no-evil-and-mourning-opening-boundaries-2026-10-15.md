@@ -1,0 +1,9 @@
+# Two further quest openings retain exact holds — 2026-10-15
+
+Read-only round4 at2e8ed483 selects Do No Evil and Mourning's End Part II from the retained ranking. Root verified all25 source/evidence bindings. No product check, harvest or UI change occurred.
+
+Do No Evil's actual first journal is seven contents headings, not an executable opening. Oldid6587790,2012-11-19T14:55:38Z, supplies Senliten restoration, Leela's escort/briefing and later Jex/Sphinx information exchanges. First unblock: owner scope for the sourced replacement journal and exact complete first boundary. Garden, Fenkenstrain, Monkey Madness and ordinary cat/restoration routes remain separate obligations. The later elite-clue decision is not an opening gate.
+
+Mourning's End Part II uses a hand-authored override: "The head mourner has opened the route toward the excavation below West Ardougne." The generated generic journal is not live. Oldid6570956,2012-11-18T04:36:59Z, supports the Arianwyn/Head Mourner briefings and New key6104 grant; later entry/beam work belongs to later journals. First unblock: the accepted ordinary PartI route's period-qualified, independently corroborated level62 Sir Harry combat block. Oronwen trousers/full-disguise custody and timing remain separate upstream obligations. Missing key/sentinel backend work is implementation work, not a new source blocker.
+
+[Report](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-4/report.md), [qualification](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-4/qualification.json) and [Root binding](/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-4/root-binding.json) retain final composition, literal journals, requirements, source pins and next transaction proofs. External reconstruction supplies no owner authority. No universal block, native acceptance or landing follows.

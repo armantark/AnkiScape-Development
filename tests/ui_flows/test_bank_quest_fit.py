@@ -6,7 +6,7 @@ import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
 
 if _main_menu.HAS_AQT:
-    from aqt.qt import QApplication, QCheckBox, QLineEdit, QPoint, QScrollArea, QToolButton, QWidget
+    from aqt.qt import QApplication, QCheckBox, QLabel, QLineEdit, QPoint, QScrollArea, QToolButton, QWidget
 
     from tests.ui_flows.qt_text_fit import text_fit_defects
 
@@ -111,6 +111,29 @@ class BankQuestFitTest(unittest.TestCase):
                 self.assertEqual(text_fit_defects(page), [])
                 self.assertEqual(text_fit_defects(page.findChild(QScrollArea).widget()), [])
                 dialog.close()
+
+    def test_quest_filters_share_a_centre_line_and_each_label_hugs_its_box(self) -> None:
+        dialog = self._open(_main_menu._make_player_data(), _OWNER_SIZE)
+        _main_menu._open_quests_tab(dialog)
+        _pump()
+        flow = dialog.findChild(QWidget, "questSearchInputBar").filter_layout
+        lines = []
+        for widget in (flow.itemAt(index).widget() for index in range(flow.count())):
+            if not lines or widget.x() <= lines[-1][-1].x():
+                lines.append([])
+            lines[-1].append(widget)
+        self.assertGreater(len(lines), 1, "720 px wraps the quest filters")
+        for line in lines:
+            centres = [widget.y() + widget.height() / 2 for widget in line]
+            self.assertLessEqual(max(centres) - min(centres), 1, [widget.geometry() for widget in line])
+            for before, widget in zip(line, line[1:]):
+                label = widget.findChild(QLabel)
+                if label is None:
+                    continue
+                box = widget.layout().itemAt(1).widget()
+                to_own_box = box.x() - label.geometry().right() - 1
+                to_filter_before = widget.x() - before.geometry().right() - 1
+                self.assertLess(to_own_box * 2, to_filter_before, label.text())
 
 
 if __name__ == "__main__":

@@ -63,6 +63,7 @@ QUEST_STAGE_ITEM_NAME_OVERRIDES = {
     "Planks": "Plank",
     "Pot of Flour": "Pot of flour",
     "Potatoes": "Potato",
+    "Ring of charos": "Ring of Charos",
     "Rock Climbing boots": "Rock climbing boots",
     "Rogue's purse": "Clean rogue's purse",
     "Rune Pickaxe": "Rune pickaxe",

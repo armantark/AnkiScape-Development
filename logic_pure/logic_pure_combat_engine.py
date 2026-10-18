@@ -630,10 +630,8 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
 
 
 def combat_enemy_pressure_attack_pure(
-    player_data,
-    enemy,
-    equipment_data=None,
-    rng=None,
+    player_data, enemy, equipment_data=None, rng=None, *,
+    automatic_protection_prayer=None,
 ):
     """Resolve one bounded incoming-only attack through ordinary Combat maths."""
     equipment_data = equipment_data or {}
@@ -661,7 +659,7 @@ def combat_enemy_pressure_attack_pure(
         if enemy_style == "magic_melee"
         else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
     )
-    prayer_effects = prayer_effect_state_pure(data)
+    prayer_effects = prayer_effect_state_pure(data, automatic_protection_prayer=automatic_protection_prayer)
     enemy_attack_roll = (
         _positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8
     ) * (enemy_attack_bonus + 64)
@@ -1066,6 +1064,7 @@ def apply_combat_burst_pure(
     no_grave=False,
     allow_bank_run=True,
     player_damage_multiplier=1.0,
+    automatic_protection_prayer=None,
 ):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     equipment_data = equipment_data or {}
@@ -1229,7 +1228,7 @@ def apply_combat_burst_pure(
         player_attack_speed = max(1, _positive_int(spell_spec.get("attack_speed", 5), 5))
     enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
     selected_prayers, halo_drain_multipliers, requested_prayer_uptime = (
-        _combat_prayer_request(data, live_cadence)
+        _combat_prayer_request(data, live_cadence, automatic_protection_prayer)
     )
     prayer_bonus = _equipment_bonus_value(player_totals, "prayer")
     total_ticks = (
@@ -1253,7 +1252,7 @@ def apply_combat_burst_pure(
         prayer_effects,
     ) = _combat_start_prayer(
         data, selected_prayers, prayer_bonus, total_ticks,
-        requested_prayer_uptime, halo_drain_multipliers, live_cadence,
+        requested_prayer_uptime, halo_drain_multipliers, live_cadence, automatic_protection_prayer,
     )
 
     spell_effect = str(spell_spec.get("effect", "")) if combat_class == "magic" else ""

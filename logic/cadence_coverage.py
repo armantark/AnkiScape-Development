@@ -998,9 +998,9 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                     "probability_mode": "embedded",
                     "notes": (
                         "One productive review delivers the outstanding order and "
-                        "takes the next job. Again spends six world minutes of the "
-                        "order's source delivery window and never destroys it; "
-                        "cooking the food uses ordinary Cooking cadence."
+                        "takes the next job. Again pauses the delivery window; "
+                        "successful reviews on other targets spend six minutes. "
+                        "Again never destroys it; cooking uses ordinary Cooking cadence."
                     ),
                 }
             )

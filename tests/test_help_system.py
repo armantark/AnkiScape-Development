@@ -93,6 +93,10 @@ class HelpCorpusTests(unittest.TestCase):
         )
         self.assertEqual(search_help_topics(topics, "training coins"), ())
 
+    def test_authored_bank_run_alias_opens_bank_and_inventory_actions(self) -> None:
+        matches = search_help_topics(load_help_topics(), "bank run")
+        self.assertEqual(matches[0].title, "Bank and inventory actions")
+
     def test_validation_reports_links_anchors_relations_and_registry_blocks(self) -> None:
         home = _topic(
             "home",

@@ -115,6 +115,31 @@ class SummoningUndoSeamTest(unittest.TestCase):
         )
         self.assertEqual(addon._state.direct_action_undo_stack, [])
 
+    def test_familiarisation_start_and_claim_each_undo_without_duplicate_reward(self):
+        from ankiscape.logic.summoning_logic import apply_familiarisation_segment_pure
+
+        before_start = copy.deepcopy(self.addon._state.player_data)
+        self.assertTrue(self.handler("start_familiarisation", {})["ok"])
+        self.addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(self.addon._state.player_data, before_start)
+        self.assertTrue(self.handler("start_familiarisation", {})["ok"])
+        for _answer in range(4):
+            updated, ok, result = apply_familiarisation_segment_pure(
+                self.addon._state.player_data, successful_answer=True
+            )
+            self.assertTrue(ok, result)
+            self.addon._state.player_data = updated
+        before_claim = copy.deepcopy(self.addon._state.player_data)
+        self.assertTrue(self.handler("claim_familiarisation", {"choice": "triple_charms"})["ok"])
+        claimed = copy.deepcopy(self.addon._state.player_data)
+        self.assertEqual(claimed["summoning_state"]["triple_charm_reviews_remaining"], 20)
+        self.assertEqual(claimed["activity_session"], {"active_id": ""})
+        self.assertFalse(self.handler("claim_familiarisation", {"choice": "triple_charms"})["ok"])
+        self.addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(self.addon._state.player_data, before_claim)
+        self.assertTrue(self.handler("claim_familiarisation", {"choice": "triple_charms"})["ok"])
+        self.assertEqual(self.addon._state.player_data, claimed)
+
     def test_refused_command_reports_refusal_and_writes_nothing(self):
         addon = self.addon
         # No pouch in inventory, so "summon" refuses.

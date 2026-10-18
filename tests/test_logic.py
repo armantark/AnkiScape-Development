@@ -3645,6 +3645,15 @@ class TestLogic(unittest.TestCase):
 
     def test_monks_friend_real_stage_emitters_complete_and_reward_once(self):
         quest_id = "monks_friend"
+        opening_actions = (
+            "Hear Brother Omad's request to recover the child's stolen blanket",
+            "Offer to recover the blanket and ask where the thieves hide",
+            "Travel west from the monastery to the stone ring near the Clock Tower",
+            "Enter the stone ring to reveal the hidden ladder",
+            "Descend into the thieves' hideout",
+            "Follow the southern path to the blanket table",
+            "Recover the child's blanket from the thieves' hideout",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"].update({"Jug of water": 1, "Logs": 1})
 
@@ -3657,20 +3666,20 @@ class TestLogic(unittest.TestCase):
             (
                 2,
                 False,
-                ("Recover the child's blanket from the thieves' hideout",),
+                opening_actions,
                 {"Child's blanket": 1, "Jug of water": 1, "Logs": 1},
             ),
             (
                 3,
                 False,
-                ("Recover the child's blanket from the thieves' hideout",),
+                opening_actions,
                 {"Child's blanket": 0, "Jug of water": 1, "Logs": 1},
             ),
             (
                 4,
                 False,
                 (
-                    "Recover the child's blanket from the thieves' hideout",
+                    *opening_actions,
                     "Ask Brother Omad about Brother Cedric and the party",
                 ),
                 {"Child's blanket": 0, "Jug of water": 1, "Logs": 1},
@@ -3679,7 +3688,7 @@ class TestLogic(unittest.TestCase):
                 5,
                 False,
                 (
-                    "Recover the child's blanket from the thieves' hideout",
+                    *opening_actions,
                     "Ask Brother Omad about Brother Cedric and the party",
                 ),
                 {"Child's blanket": 0, "Jug of water": 0, "Logs": 1},
@@ -3688,7 +3697,7 @@ class TestLogic(unittest.TestCase):
                 6,
                 False,
                 (
-                    "Recover the child's blanket from the thieves' hideout",
+                    *opening_actions,
                     "Ask Brother Omad about Brother Cedric and the party",
                 ),
                 {"Child's blanket": 0, "Jug of water": 0, "Logs": 0},
@@ -3697,7 +3706,7 @@ class TestLogic(unittest.TestCase):
                 7,
                 True,
                 (
-                    "Recover the child's blanket from the thieves' hideout",
+                    *opening_actions,
                     "Ask Brother Omad about Brother Cedric and the party",
                     "Return to Brother Omad and join the birthday party",
                 ),
@@ -3705,18 +3714,11 @@ class TestLogic(unittest.TestCase):
             ),
         )
         for progress, completed, actions, inventory in expected_steps:
-            player_data, ok, completed_now = apply_quest_progress_pure(
-                player_data,
-                quest_id,
-                QUEST_DATA,
-            )
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok)
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
-            self.assertEqual(
-                quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
-                actions,
-            )
+            self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), actions)
             self.assertEqual(
                 {
                     item_name: player_data["inventory"].get(item_name, 0)
@@ -3731,11 +3733,7 @@ class TestLogic(unittest.TestCase):
         self.assertNotIn("Law Rune", player_data["inventory"])
         self.assertEqual(player_data["woodcutting_exp"], 2000.0)
 
-        after_complete, ok, completed_again = apply_quest_progress_pure(
-            player_data,
-            quest_id,
-            QUEST_DATA,
-        )
+        after_complete, ok, completed_again = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
@@ -3756,7 +3754,14 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["current_quest"], quest_id)
         self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), ())
 
-        cromperty_action = "Ask Wizard Cromperty about the teleportation block"
+        opening_actions = (
+            "Agree to recover the stolen Rantuki totem for Kangai Mau",
+            "Reach Handelmort Mansion in East Ardougne",
+            "Attempt to enter Handelmort Mansion",
+            "Ask Horacio about Handelmort Mansion security",
+            "Ask Wizard Cromperty about the teleportation block",
+            "Request Wizard Cromperty's initial crate teleport to locate the RPDT block",
+        )
         depot_actions = (
             "Reach the Ardougne RPDT depot",
             "Take Lord Handelmort's address label from the RPDT crate",
@@ -3764,29 +3769,25 @@ class TestLogic(unittest.TestCase):
         switch_action = ("Switch the RPDT crate address labels and request delivery",)
         mansion_actions = (
             "Teleport into Handelmort Mansion",
-            "Disarm Handelmort's trapped stairs",
             "Solve Handelmort's lock with KURT",
+            "Investigate and climb Handelmort's trapped stairs",
             "Loot the Rantuki totem",
         )
 
         expected_steps = (
-            (2, False, (cromperty_action,), {"Address label": 0, "Totem": 0}),
-            (3, False, (cromperty_action,) + depot_actions, {"Address label": 1, "Totem": 0}),
-            (4, False, (cromperty_action,) + depot_actions + switch_action, {"Address label": 0, "Totem": 0}),
+            (2, False, opening_actions, {"Address label": 0, "Totem": 0}),
+            (3, False, opening_actions + depot_actions, {"Address label": 1, "Totem": 0}),
+            (4, False, opening_actions + depot_actions + switch_action, {"Address label": 0, "Totem": 0}),
             (
                 5,
                 False,
-                (cromperty_action,) + depot_actions + switch_action + mansion_actions,
+                opening_actions + depot_actions + switch_action + mansion_actions,
                 {"Address label": 0, "Totem": 1},
             ),
             (6, True, None, {"Address label": 0, "Totem": 0}),
         )
         for progress, completed, actions, inventory in expected_steps:
-            player_data, ok, completed_now = apply_quest_progress_pure(
-                player_data,
-                quest_id,
-                QUEST_DATA,
-            )
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
             self.assertTrue(ok)
             self.assertEqual(completed_now, completed)
             self.assertEqual(player_data["quests"][quest_id]["progress"], progress)
@@ -3808,11 +3809,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["thieving_exp"], 1775.0)
         self.assertEqual(player_data["inventory"]["Swordfish"], 5)
 
-        after_complete, ok, completed_again = apply_quest_progress_pure(
-            player_data,
-            quest_id,
-            QUEST_DATA,
-        )
+        after_complete, ok, completed_again = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertFalse(ok)
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
@@ -6512,6 +6509,15 @@ class TestLogic(unittest.TestCase):
 
     def test_tree_gnome_village_real_stage_emitters_complete_after_commanders_and_warlord(self):
         quest_id = "tree_gnome_village"
+        opening_actions = (
+            "Navigate the Gnome Maze and squeeze through the village fence",
+            "Hear King Bolren's request to recover the stolen Orb of protection",
+            "Agree to help King Bolren recover the stolen orb",
+            "Follow Elkoy out of the Gnome Maze",
+            "Reach Commander Montai on the battlefield",
+            "Ask Commander Montai how to help the gnome battlefield",
+            "Agree to gather six normal logs for Commander Montai",
+        )
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"]["Logs"] = 6
 
@@ -6526,13 +6532,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"][quest_id]["progress"], 2)
-        self.assertEqual(
-            quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
-            (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
-            ),
-        )
+        self.assertEqual(quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA), opening_actions)
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
         self.assertTrue(ok)
@@ -6547,8 +6547,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
                 "Ask Commander Montai about the tracker gnomes",
             ),
         )
@@ -6560,8 +6559,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
                 "Ask Commander Montai about the tracker gnomes",
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",
@@ -6617,8 +6615,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
                 "Ask Commander Montai about the tracker gnomes",
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",
@@ -6660,8 +6657,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             quest_action_proofs_for_quest(player_data, quest_id, QUEST_DATA),
             (
-                "Reach Commander Montai on the battlefield",
-                "Ask Commander Montai how to help the gnome battlefield",
+                *opening_actions,
                 "Ask Commander Montai about the tracker gnomes",
                 "Get the first tracker coordinate",
                 "Get the second tracker coordinate",
@@ -12301,15 +12297,13 @@ class TestLogic(unittest.TestCase):
         player_data["inventory"]["Air talisman"] = 1
         player_data["inventory"]["Rune essence"] = 28
 
-        fed_data, exp, ok, message = apply_runecrafting_action_pure(
-            player_data,
-            "feed_air_talisman_to_hood",
-            RUNECRAFTING_DATA,
-            RUNECRAFTING_POUCH_DATA,
+        from ankiscape.logic.wicked_hood_logic import apply_wicked_hood_command_pure
+        fed_data, ok, info = apply_wicked_hood_command_pure(
+            player_data, "feed", {"item": "Air talisman"},
         )
         self.assertTrue(ok)
-        self.assertEqual(exp, 0)
-        self.assertEqual(message, "Air talisman fed")
+        self.assertEqual(info["feed_xp"], 50)
+        self.assertEqual(info["message"], "Air talisman fed to the Wicked hood.")
         self.assertEqual(fed_data["inventory"]["Air talisman"], 0)
         self.assertEqual(fed_data["wicked_hood"]["fed_altars"], ["air"])
 

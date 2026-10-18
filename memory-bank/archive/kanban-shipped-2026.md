@@ -703,3 +703,21 @@ answer a question about a minigame match.
 - Remaining costume variants and hidden success/score curves are data depth,
   not missing mechanics. See
   `source-audits/circus-horizontal-implementation-2026-07-21.md`.
+
+### Shared modular list search and filters — shipped and closed 2026-10-16
+
+Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.
+
+- `CatalogFilterBar` now supplies one dark-mode-safe text/filter seam to Shop,
+  Quests, Combat, and Bank while each page retains its own searchable metadata,
+  predicates, and result renderer.
+- Combat search preserves the exact saved target, expands matching groups,
+  never activates an absent/empty row, restores the current row after clear,
+  and shares the same clear-button/Escape behavior as the other catalogs.
+- Bank search matches item names and category labels without mutating inventory
+  or the saved first-come-first-served carried-queue order.
+- Add `Current Slayer task only` when the first authentic assignment state
+  lands. It must intersect with text search and leave exact monster choice to
+  the player; do not expose a disabled placeholder or invent task state early.
+- Closed 2026-10-16: the Combat "Current Slayer task only" filter is live, and
+  Pass 16 gave every search bar one fuzzy, ranked matcher (`core/search_match.py`).

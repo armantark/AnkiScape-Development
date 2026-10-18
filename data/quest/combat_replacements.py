@@ -5,7 +5,180 @@ from .contract import *
 from .ids import *
 from .sources import *
 
+_UNDERGROUND_PASS_COMBAT_SOURCE = (
+    "https://runescape.wiki/w/Othainian?oldid=6110941; "
+    "https://runescape.wiki/w/Othainian?oldid=5373309; "
+    "/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/data/npcs/combatdefs/uncategorized/othainian (noanims).json"
+)
+
+_RECRUITMENT_DRIVE_COMBAT_SOURCE = (
+    "https://runescape.wiki/w/Sir_Leye?oldid=6430968; "
+    "https://runescape.wiki/w/Sir_Leye?oldid=5380553; "
+    "/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/data/npcs/combatdefs/uncategorized/sir_leye (nostats) (noanims).json"
+)
+
+_WANTED_COMBAT_SOURCE = (
+    "https://runescape.wiki/w/Solus_Dellagar?oldid=5587768; "
+    "https://runescape.wiki/w/Solus_Dellagar?oldid=6342730; "
+    "/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/data/npcs/combatdefs/uncategorized/solus_dellagar (nostats) (noanims).json; "
+    "/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/src/main/java/com/rs/game/content/quests/wanted/WantedState.kt:15 (WantedIds.SOLUS_ATTACK = 2780); "
+    "/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/src/main/java/com/rs/game/content/quests/wanted/Wanted.kt:284-294 (startSolusFight, hitpoints = 540 at :289)"
+)
+
+_THE_FREMENNIK_ISLES_COMBAT_SOURCE = (
+    "https://runescape.wiki/w/Ice_troll_male?oldid=6288801; "
+    "https://runescape.wiki/w/Ice_troll_male?oldid=5669851; "
+    "/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/data/npcs/combatdefs/uncategorized/ice_troll_male (noanims).json"
+)
+
+_DREAM_MENTOR_COMBAT_SOURCE = (
+    "https://runescape.wiki/w/The_Illusive?oldid=5908075; "
+    "https://runescape.wiki/w/The_Illusive?oldid=5668876; "
+    "/Users/ArmanTarkhanian1/Documents/CodexWorktrees/darkan-master-integration/data/npcs/combatdefs/uncategorized/the_illusive (nostats) (noanims).json"
+)
+
 QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncounterReplacement]] = {
+    "underground_pass": {
+        "underground_pass_othanian_91": _combat(
+            "underground_pass",
+            "othanian_91",
+            "Othanian",
+            91,
+            "https://runescape.wiki/w/Underground_Pass?oldid=6582023" + "; " + _UNDERGROUND_PASS_COMBAT_SOURCE,
+            "Othanian (Level 91)",
+            npc_stats=(
+                ("hitpoints", 900),
+                # PLACEHOLDER(quests.underground_pass.othanian_91.attack): independent period combat data would settle this retained Darkan value.
+                ("attack", 76),
+                # PLACEHOLDER(quests.underground_pass.othanian_91.strength): independent period combat data would settle this retained Darkan value.
+                ("strength", 78),
+                # PLACEHOLDER(quests.underground_pass.othanian_91.defence): independent period combat data would settle this retained Darkan value.
+                ("defence", 77),
+                # PLACEHOLDER(quests.underground_pass.othanian_91.magic): independent period combat data would settle this retained Darkan value.
+                ("magic", 1),
+                # PLACEHOLDER(quests.underground_pass.othanian_91.ranged): independent period combat data would settle this retained Darkan value.
+                ("ranged", 1),
+            ),
+            npc_configs=(
+                ("attack_style", "melee"),
+                ("max_hit", 93),
+            ),
+            npc_stats_source=_UNDERGROUND_PASS_COMBAT_SOURCE,
+        ),
+    },
+    "recruitment_drive": {
+        "recruitment_drive_sir_leye_20": _combat(
+            "recruitment_drive",
+            "sir_leye_20",
+            "Sir Leye",
+            20,
+            "https://runescape.wiki/w/Recruitment_Drive?oldid=6571928" + "; " + _RECRUITMENT_DRIVE_COMBAT_SOURCE,
+            "Sir Leye (level 20) without weapons or armour.",
+            npc_stats=(
+                ("hitpoints", 210),
+                # PLACEHOLDER(quests.recruitment_drive.sir_leye_20.attack): independent period combat data would settle this retained Darkan value.
+                ("attack", 0),
+                # PLACEHOLDER(quests.recruitment_drive.sir_leye_20.strength): independent period combat data would settle this retained Darkan value.
+                ("strength", 0),
+                # PLACEHOLDER(quests.recruitment_drive.sir_leye_20.defence): independent period combat data would settle this retained Darkan value.
+                ("defence", 0),
+                # PLACEHOLDER(quests.recruitment_drive.sir_leye_20.magic): independent period combat data would settle this retained Darkan value.
+                ("magic", 0),
+                # PLACEHOLDER(quests.recruitment_drive.sir_leye_20.ranged): independent period combat data would settle this retained Darkan value.
+                ("ranged", 0),
+            ),
+            npc_configs=(
+                ("attack_style", "melee"),
+                ("max_hit", 20),
+            ),
+            npc_stats_source=_RECRUITMENT_DRIVE_COMBAT_SOURCE,
+        ),
+    },
+    "wanted": {
+        "wanted_solus_dellagar_2": _combat(
+            "wanted",
+            "solus_dellagar_2",
+            "Solus Dellagar",
+            0,
+            "https://runescape.wiki/w/Wanted%21?oldid=6510622" + "; " + _WANTED_COMBAT_SOURCE,
+            "Solus Dellagar (no combat level, but is about as strong as a Black Knight)",
+            npc_stats=(
+                ("hitpoints", 540),
+                # PLACEHOLDER(quests.wanted.solus_dellagar_2.attack): independent period combat data would settle this retained Darkan value.
+                ("attack", 0),
+                # PLACEHOLDER(quests.wanted.solus_dellagar_2.strength): independent period combat data would settle this retained Darkan value.
+                ("strength", 0),
+                # PLACEHOLDER(quests.wanted.solus_dellagar_2.defence): independent period combat data would settle this retained Darkan value.
+                ("defence", 0),
+                # PLACEHOLDER(quests.wanted.solus_dellagar_2.magic): independent period combat data would settle this retained Darkan value.
+                ("magic", 0),
+                # PLACEHOLDER(quests.wanted.solus_dellagar_2.ranged): independent period combat data would settle this retained Darkan value.
+                ("ranged", 0),
+            ),
+            npc_configs=(
+                ("attack_style", "melee"),
+                ("max_hit", 40),
+            ),
+            npc_stats_source="https://runescape.wiki/w/Wanted%21?oldid=6510622" + "; " + _WANTED_COMBAT_SOURCE,
+        ),
+    },
+    "the_fremennik_isles": {
+        "the_fremennik_isles_ice_troll_82": _combat(
+            "the_fremennik_isles",
+            "ice_troll_82",
+            "Ice troll",
+            82,
+            "https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919" + "; " + _THE_FREMENNIK_ISLES_COMBAT_SOURCE,
+            "10 Ice trolls (level 82)",
+            quantity=10,
+            npc_stats=(
+                ("hitpoints", 800),
+                # PLACEHOLDER(quests.the_fremennik_isles.ice_troll_82.attack): independent period combat data would settle this retained Darkan value.
+                ("attack", 80),
+                # PLACEHOLDER(quests.the_fremennik_isles.ice_troll_82.strength): independent period combat data would settle this retained Darkan value.
+                ("strength", 80),
+                # PLACEHOLDER(quests.the_fremennik_isles.ice_troll_82.defence): independent period combat data would settle this retained Darkan value.
+                ("defence", 40),
+                # PLACEHOLDER(quests.the_fremennik_isles.ice_troll_82.magic): independent period combat data would settle this retained Darkan value.
+                ("magic", 1),
+                # PLACEHOLDER(quests.the_fremennik_isles.ice_troll_82.ranged): independent period combat data would settle this retained Darkan value.
+                ("ranged", 1),
+            ),
+            npc_configs=(
+                ("attack_style", "melee"),
+                ("max_hit", 177),
+            ),
+            npc_stats_source=_THE_FREMENNIK_ISLES_COMBAT_SOURCE,
+        ),
+    },
+    "dream_mentor": {
+        "dream_mentor_the_illusive_108": _combat(
+            "dream_mentor",
+            "the_illusive_108",
+            "The Illusive",
+            108,
+            "https://runescape.wiki/w/Dream_Mentor?oldid=6550965" + "; " + _DREAM_MENTOR_COMBAT_SOURCE,
+            "The Illusive (level 108)",
+            npc_stats=(
+                ("hitpoints", 1400),
+                # PLACEHOLDER(quests.dream_mentor.the_illusive_108.attack): independent period combat data would settle this retained Darkan value.
+                ("attack", 0),
+                # PLACEHOLDER(quests.dream_mentor.the_illusive_108.strength): independent period combat data would settle this retained Darkan value.
+                ("strength", 0),
+                # PLACEHOLDER(quests.dream_mentor.the_illusive_108.defence): independent period combat data would settle this retained Darkan value.
+                ("defence", 0),
+                # PLACEHOLDER(quests.dream_mentor.the_illusive_108.magic): independent period combat data would settle this retained Darkan value.
+                ("magic", 0),
+                # PLACEHOLDER(quests.dream_mentor.the_illusive_108.ranged): independent period combat data would settle this retained Darkan value.
+                ("ranged", 0),
+            ),
+            npc_configs=(
+                ("attack_style", "melee"),
+                ("max_hit", 85),
+            ),
+            npc_stats_source=_DREAM_MENTOR_COMBAT_SOURCE,
+        ),
+    },
     SHILO_VILLAGE_ID: {
         "shilo_village_nazastarool_91": (
             _combat(

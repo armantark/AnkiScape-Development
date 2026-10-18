@@ -47,7 +47,7 @@ sys.path.insert(0, {project_root!r})
 from tools import run_remote_tests as runner
 host = Path({host_root!r})
 runner.LOCAL_MIRROR_LOCK_PATH = Path({lock_path!r})
-runner.SSH = ("/bin/sh", "-c")
+runner._on_test_host = lambda: True
 runner.REMOTE_ROOT, runner.REMOTE_REPO, runner.REMOTE_VENV = host, host / "ankiscape_fork", host / ".venv-qt"
 runner._preflight = lambda lane: time.sleep({work_seconds!r})
 runner._sync = lambda worktree: None
@@ -133,7 +133,7 @@ class RemoteMirrorLockTimingTest(unittest.TestCase):
     def test_lane_timeout_stops_the_killed_runner_s_detached_lane(self):
         with tempfile.TemporaryDirectory() as host_dir:
             host = self._local_host(host_dir)
-            with patch.object(run_remote_tests, "SSH", ("/bin/sh", "-c")):
+            with patch.object(run_remote_tests, "_on_test_host", return_value=True):
                 passed, failures, log = self.run_plain_gate(
                     focused_run_seconds=None, work_seconds=0.0,
                     runner=REMOTE_RUNNER_WITH_LOCAL_HOST, host_root=host,
@@ -160,7 +160,7 @@ class RemoteMirrorLockTimingTest(unittest.TestCase):
             })
             pending_path = host / "mirror.pending.json"
             pending_path.write_text(record)
-            with patch.object(run_remote_tests, "SSH", ("/bin/sh", "-c")):
+            with patch.object(run_remote_tests, "_on_test_host", return_value=True):
                 passed, failures, log = self.run_plain_gate(
                     focused_run_seconds=None, work_seconds=5.0,
                     runner=REMOTE_RUNNER_WITH_LOCAL_HOST, host_root=host,

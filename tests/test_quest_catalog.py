@@ -563,15 +563,17 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(
             by_stage[1]["auto_actions"],
             (
+                "Navigate the Gnome Maze and squeeze through the village fence",
+                "Hear King Bolren's request to recover the stolen Orb of protection",
+                "Agree to help King Bolren recover the stolen orb",
+                "Follow Elkoy out of the Gnome Maze",
                 "Reach Commander Montai on the battlefield",
                 "Ask Commander Montai how to help the gnome battlefield",
+                "Agree to gather six normal logs for Commander Montai",
             ),
         )
         self.assertEqual(by_stage[2]["consumed_inventory"], {"Logs": 6})
-        self.assertEqual(
-            by_stage[3]["auto_actions"],
-            ("Ask Commander Montai about the tracker gnomes",),
-        )
+        self.assertEqual(by_stage[3]["auto_actions"], ("Ask Commander Montai about the tracker gnomes",))
         self.assertEqual(
             by_stage[4]["auto_actions"],
             (
@@ -581,13 +583,10 @@ class TestQuestCatalog(unittest.TestCase):
                 "Fire the battlefield ballista at the Khazard stronghold",
             ),
         )
-        self.assertEqual(
-            by_stage[5]["auto_actions"],
-            (
-                "Enter the Khazard stronghold through the broken wall",
-                "Search the stronghold chest for the first Orb of protection",
-            ),
-        )
+        self.assertEqual(by_stage[5]["auto_actions"], (
+            "Enter the Khazard stronghold through the broken wall",
+            "Search the stronghold chest for the first Orb of protection",
+        ))
         self.assertEqual(
             by_stage[6]["auto_actions"],
             ("Return the first Orb of protection to King Bolren",),
@@ -2567,10 +2566,10 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn("extra fine flour", joined_cook_journal)
         self.assertIn("super large egg", joined_cook_journal)
 
-        one_small_favour = data["one_small_favour"]
-        self.assertEqual(one_small_favour["lamp_rewards"][0]["quantity"], 2)
-        self.assertEqual(one_small_favour["lamp_rewards"][0]["amount"], 10000)
-        self.assertEqual(one_small_favour["lamp_rewards"][0]["minimum_level"], 30)
+        # The Elder Kiln's "Level 75 required" (oldid 6579162) is a minimum too.
+        for quest_id, quantity, amount, minimum_level in (("one_small_favour", 2, 10000, 30), ("the_elder_kiln", 1, 100000, 75)):
+            lamp = data[quest_id]["lamp_rewards"][0]
+            self.assertEqual((lamp["quantity"], lamp["amount"], lamp["minimum_level"]), (quantity, amount, minimum_level), quest_id)
 
         final_rfd = data["recipe_for_disaster_defeating_the_culinaromancer"]
         rfd_requirements = {req["quest_id"] for req in final_rfd["required_quests"]}

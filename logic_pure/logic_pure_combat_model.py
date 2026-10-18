@@ -799,6 +799,22 @@ def _combat_settle_carried_death(data, carried_counts, protected_carried, grave_
             data[map_key] = container
 
 
+def _combat_transfer_old_grave_to_office(data):
+    existing_grave = data.get("combat_grave", {}) or {}
+    existing_grave_items = _combat_grave_items(existing_grave)
+    if existing_grave_items:
+        existing_office = data.get("death_office", {}) or {}
+        existing_office_items = _combat_death_office_items(existing_office)
+        # A second death before the first grave is reclaimed pushes the old grave
+        # to Death's Office; carry both loadouts so either set still re-equips.
+        loadout = {
+            **_combat_stored_loadout(existing_grave),
+            **_combat_stored_loadout(existing_office),
+        }
+        items = existing_office_items + existing_grave_items
+        _set_combat_death_office_items(data, items, "combat_stacked_grave", loadout)
+
+
 def _combat_apply_pvm_death(
     data,
     max_player_lifepoints,
@@ -830,37 +846,16 @@ def _combat_apply_pvm_death(
     data.clear()
     data.update(discharged)
     discharged_equipment = dict(data.get("equipment", {}) or {})
-    protected_equipment = {
-        slot: item_name
-        for slot, item_name in discharged_equipment.items()
-        if slot in protected_slots
-    }
-    equipment = {
-        slot: item_name
-        for slot, item_name in discharged_equipment.items()
-        if slot not in protected_slots
-    }
+    protected_equipment = {}
+    equipment = {}
+    for slot, item_name in discharged_equipment.items():
+        target_equipment = protected_equipment if slot in protected_slots else equipment
+        target_equipment[slot] = item_name
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
     active_target = carried_target_id if isinstance(carried_target_id, str) else data.get("current_combat_target")
     _combat_settle_carried_death(data, carried_counts, protected_carried, grave_items, active_target, no_grave)
     if not no_grave:
-        existing_grave = data.get("combat_grave", {}) or {}
-        existing_grave_items = _combat_grave_items(existing_grave)
-        if existing_grave_items:
-            existing_office = data.get("death_office", {}) or {}
-            existing_office_items = _combat_death_office_items(existing_office)
-            # A second death before the first grave is reclaimed pushes the old grave
-            # to Death's Office; carry both loadouts so either set still re-equips.
-            stacked_loadout = {
-                **_combat_stored_loadout(existing_grave),
-                **_combat_stored_loadout(existing_office),
-            }
-            _set_combat_death_office_items(
-                data,
-                existing_office_items + existing_grave_items,
-                "combat_stacked_grave",
-                stacked_loadout,
-            )
+        _combat_transfer_old_grave_to_office(data)
     data["equipment"] = protected_equipment
     if not no_grave:
         data["combat_grave"] = {
@@ -1026,28 +1021,28 @@ def _sanitize_combat_observed_drops(raw_log):
             break
         if not isinstance(target_id, str) or not target_id or not isinstance(raw_items, Mapping):
             continue
-        items = {}
-        for item_name, raw_observation in raw_items.items():
-            if len(items) >= COMBAT_OBSERVED_DROP_ITEM_LIMIT:
-                break
-            if not isinstance(item_name, str) or not item_name or not isinstance(raw_observation, Mapping):
-                continue
-            times_seen = min(
-                COMBAT_OBSERVED_DROP_COUNT_LIMIT,
-                _non_negative_int(raw_observation.get("times_seen", 0), 0),
-            )
-            quantity_seen = min(
-                COMBAT_OBSERVED_DROP_COUNT_LIMIT,
-                _non_negative_int(raw_observation.get("quantity_seen", 0), 0),
-            )
-            if times_seen > 0 and quantity_seen > 0:
-                items[item_name] = {
-                    "times_seen": times_seen,
-                    "quantity_seen": quantity_seen,
-                }
+        items = _sanitize_combat_observed_items(raw_items)
         if items:
             cleaned[target_id] = items
     return cleaned
+
+
+def _sanitize_combat_observed_items(raw_items):
+    items = {}
+    for item_name, raw_observation in raw_items.items():
+        if len(items) >= COMBAT_OBSERVED_DROP_ITEM_LIMIT:
+            break
+        if not isinstance(item_name, str) or not item_name or not isinstance(raw_observation, Mapping):
+            continue
+        times_seen = min(
+            COMBAT_OBSERVED_DROP_COUNT_LIMIT, _non_negative_int(raw_observation.get("times_seen", 0), 0),
+        )
+        quantity_seen = min(
+            COMBAT_OBSERVED_DROP_COUNT_LIMIT, _non_negative_int(raw_observation.get("quantity_seen", 0), 0),
+        )
+        if times_seen > 0 and quantity_seen > 0:
+            items[item_name] = {"times_seen": times_seen, "quantity_seen": quantity_seen}
+    return items
 
 
 def _sanitize_combat_examined_monsters(raw_targets, enemy_data):
@@ -2186,22 +2181,11 @@ def _combat_ranged_ammo_count(player_data, ammo_name, target_id):
     return loaded + banked
 
 
-def _combat_selected_ranged_ammo(
-    player_data,
-    weapon_spec,
-    target_id,
-    allowed_ammo=None,
-):
-    if not isinstance(weapon_spec, Mapping):
-        return None
+def _combat_compatible_ranged_ammo(weapon_spec, target_id, allowed_ammo):
     compatible_ammo = tuple(weapon_spec.get("compatible_ammo", ()) or ())
     if allowed_ammo is None:
         enemy = COMBAT_ENEMY_DATA.get(target_id, {})
-        restriction = (
-            enemy.get("restricted_weapon")
-            if isinstance(enemy, Mapping)
-            else None
-        )
+        restriction = enemy.get("restricted_weapon") if isinstance(enemy, Mapping) else None
         if isinstance(restriction, Mapping):
             allowed_ammo = restriction.get("ranged_ammunition")
     if allowed_ammo:
@@ -2209,6 +2193,13 @@ def _combat_selected_ranged_ammo(
         compatible_ammo = tuple(
             ammo_name for ammo_name in compatible_ammo if ammo_name in allowed
         )
+    return compatible_ammo
+
+
+def _combat_selected_ranged_ammo(player_data, weapon_spec, target_id, allowed_ammo=None):
+    if not isinstance(weapon_spec, Mapping):
+        return None
+    compatible_ammo = _combat_compatible_ranged_ammo(weapon_spec, target_id, allowed_ammo)
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
     loaded_ammo = loadout.get("ammo", {}) or {}
     for ammo_name in compatible_ammo:

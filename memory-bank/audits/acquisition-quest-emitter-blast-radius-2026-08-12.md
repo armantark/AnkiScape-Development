@@ -249,9 +249,9 @@ rows, 994 rows with action blockers, and 185 quests with action blockers. The
 runtime reads quest-scoped action flags in
 `logic_pure/logic_pure_quest.py:263-311`, records `auto_actions` only after a
 blocker-free stage in `logic_pure/logic_pure_quest.py:1239-1255`, and rejects
-progress while any blocker remains in `logic_pure/logic_pure_quest.py:1436-1461`.
+progress while any blocker remains in `9eb91701:logic_pure/logic_pure_quest.py:1436-1461`.
 The catalog builder creates the placeholder action form at
-`tools/build_pre_eoc_quest_catalog.py:2030-2065`.
+`tools/build_pre_eoc_quest_catalog.py:1825-1860`.
 
 A positive-control runtime probe used Druidic Ritual stage 1. Without the known
 action flag, it returned `Action required: Speak to Sanfew about the ritual

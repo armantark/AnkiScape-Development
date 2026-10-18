@@ -1,0 +1,7 @@
+# Another Slice and Contact openings — 2026-10-15
+
+Root verified29 bindings and two literal period bodies at163e2d35. Packet: /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/next-quest-root-qualification-22/root-binding.json. Retained entries15/16 only; later4 were order-only. No census or exhaustion follows.
+
+Another Slice: actual Giant Dwarf prerequisite inherits its existing O1 owner load-representation/load-reduction-action hold. No default-zero weight or partial library stage. Its own generic first journal later needs a sourced complete endpoint; full6548739/2012-11-12T01:11:00Z distinguishes briefing, Tegdak's tools, all six artefacts and return. The malformed HAM inventory alternatives do not prove combat. Missing source-backed actions and ordinary prerequisites remain work.
+
+Contact: actual Gertrude/Icthlarin dependencies inherit the ordinary kitten reward-variant mapping/source rule. Current eight variants do not establish the six ordinary period names and random-versus-active-Charos selection. No default0, all-eight roll or seeded generic kitten. The actual Icthlarin override accepts Kitten/Cat/Overgrown cat/Hellcat; no adult-only rule is inferred from generated data. Full6556227/2012-11-15T04:20:08Z requires the complete Priest/Jex/light/ladder/dungeon route. Optional torch200/tinderbox50 charges are conditional, not a mandatory250Coins. Lighting, hazards, prayers, retaliation and any abstraction remain separate qualifications. No new UI or partial first block.

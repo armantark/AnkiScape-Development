@@ -6,22 +6,29 @@ import argparse
 import hashlib
 import json
 import shlex
+import sys
 import tarfile
+import tempfile
 from pathlib import Path
 
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from tools.native.session_guard import copy_addon
 from tools.promotion.repository import _git, commit_at
 from tools.promotion.snapshot import commit_snapshot
-from tools.run_remote_tests import HOST, REMOTE_ROOT, REMOTE_VENV, RSYNC_SSH, _run_with_retries, _ssh
-
-from .session_guard import copy_addon, source_digest
+from tools.run_remote_tests import (
+    HOST, REMOTE_ROOT, REMOTE_VENV, RSYNC_SSH, _on_test_host, _run_with_retries, _ssh,
+)
 
 
 def _transfer_bundle(output: Path, commit: str, archive_sha256: str) -> None:
     remote = REMOTE_ROOT / "native-input" / commit
     _ssh(f"mkdir -p {shlex.quote(str(remote))}", label="native packet directory", repeat_safe=True)
+    destination = f"{remote}/" if _on_test_host() else f"{HOST}:{remote}/"
     _run_with_retries(
         ("rsync", "-a", "-e", RSYNC_SSH, str(output / "source.tar.gz"),
-         str(output / "manifest.json"), f"{HOST}:{remote}/"),
+         str(output / "manifest.json"), destination),
         label="native packet transfer",
     )
     program = (
@@ -56,21 +63,28 @@ def main() -> int:
     if _git(worktree, "status", "--porcelain").stdout:
         raise RuntimeError("source checkout is dirty")
     args.output.mkdir(parents=True)
-    addon = args.output / "source"
-    with commit_snapshot(worktree, args.commit) as snapshot:
-        copy_addon(snapshot, addon)
-    files = [
-        {"path": path.relative_to(addon).as_posix(),
-         "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
-        for path in sorted(addon.rglob("*")) if path.is_file()
-    ]
     archive = args.output / "source.tar.gz"
-    with tarfile.open(archive, "w:gz") as stream:
-        stream.add(addon, arcname="source")
+    with tempfile.TemporaryDirectory(prefix=".source-", dir=args.output) as temporary:
+        addon = Path(temporary) / "source"
+        with commit_snapshot(worktree, args.commit) as snapshot:
+            copy_addon(snapshot, addon)
+        files = [
+            {"path": path.relative_to(addon).as_posix(),
+             "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+            for path in sorted(addon.rglob("*")) if path.is_file()
+        ]
+        with tarfile.open(archive, "w:gz") as stream:
+            stream.add(addon, arcname="source")
+    digest = hashlib.sha256()
+    for row in files:
+        digest.update(row["path"].encode("utf-8") + b"\0")
+        digest.update(bytes.fromhex(row["sha256"]))
+    with archive.open("rb") as stream:
+        archive_digest = hashlib.file_digest(stream, "sha256").hexdigest()
     manifest = {
         "commit": args.commit,
-        "source_sha256": source_digest(addon),
-        "archive_sha256": hashlib.sha256(archive.read_bytes()).hexdigest(),
+        "source_sha256": digest.hexdigest(),
+        "archive_sha256": archive_digest,
         "files": files,
     }
     (args.output / "manifest.json").write_text(

@@ -747,6 +747,26 @@ def _combat_target_supply_bank_run_needed(data, enemy):
     )
 
 
+def _combat_enemy_supply_bank_run_needed(data, enemy):
+    if (
+        isinstance(enemy, Mapping)
+        and isinstance(enemy.get("dragonfire"), Mapping)
+        and _combat_loaded_dragonfire_potion_count(data) <= 0
+        and _combat_banked_dragonfire_potion_count(data) > 0
+        and _non_negative_int(data.get("combat_antifire_ticks_remaining", 0), 0) <= 0
+        and _non_negative_int(data.get("combat_super_antifire_ticks_remaining", 0), 0) <= 0
+    ):
+        return True
+    if _combat_target_supply_bank_run_needed(data, enemy):
+        return True
+    target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
+    effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
+    if (target_poison > 0 or "poison" in effects) and _combat_loaded_antipoison_count(data) <= 0:
+        if _combat_banked_antipoison_count(data) > 0:
+            return True
+    return False
+
+
 def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
     # Supplies and loot share one 28-slot inventory. Eating food frees loot room.
     # Only loot is deposited, so a full supply-only pack cannot be relieved by
@@ -759,28 +779,8 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
         return True
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
     enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
-    if (
-        isinstance(enemy, Mapping)
-        and isinstance(enemy.get("dragonfire"), Mapping)
-        and _combat_loaded_dragonfire_potion_count(data) <= 0
-        and _combat_banked_dragonfire_potion_count(data) > 0
-        and _non_negative_int(
-            data.get("combat_antifire_ticks_remaining", 0), 0
-        )
-        <= 0
-        and _non_negative_int(
-            data.get("combat_super_antifire_ticks_remaining", 0), 0
-        )
-        <= 0
-    ):
+    if _combat_enemy_supply_bank_run_needed(data, enemy):
         return True
-    if _combat_target_supply_bank_run_needed(data, enemy):
-        return True
-    target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
-    effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
-    if (target_poison > 0 or "poison" in effects) and _combat_loaded_antipoison_count(data) <= 0:
-        if _combat_banked_antipoison_count(data) > 0:
-            return True
     if combat_class == "ranged":
         return _combat_loaded_ranged_ammo(data, ranged_weapon_spec) is None and _combat_banked_ranged_ammo_count(data, ranged_weapon_spec) > 0
     rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data)

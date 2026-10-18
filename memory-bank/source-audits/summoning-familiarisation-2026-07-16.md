@@ -48,13 +48,14 @@ Standing project rules settle the outer shell without owner input:
 
 ## Settled AnkiScape translation
 
-The owner delegated this unfamiliar D&D's product shape. AnkiScape uses a four-answer
-session with three abstract focus pips. A successful answer collects 15 shards; Again
-collects none and removes one focus pip. The session ends at 60 shards, zero focus, or
-four segments, then exposes the period ingredient-box/triple-charm choice as a free
-direct command. These discrete magnitudes are labeled balance abstractions rather than
-period claims. Cooldown starts at entry, partial sessions persist without wall-clock
-resolution, and every review/reward mutation is undo-safe.
+The2026-10-14 owner ruling replaces the earlier focus translation. AnkiScape uses
+four successful answers, each with15 shards. Again pauses with no segment or shard
+gain. The model and sanitized save contain no focus. The session finishes at60
+shards and exposes the period ingredient-box/triple-charm choice as a free command.
+These magnitudes are balance abstractions, not period claims. Cooldown starts at
+entry, partial sessions persist without wall-clock resolution, and review/reward
+mutations remain undo-safe. Active legacy sessions count successes from earned
+shards; completed partial rewards remain unchanged.
 
 ## Horizontal reward and session correction — 2026-07-22
 

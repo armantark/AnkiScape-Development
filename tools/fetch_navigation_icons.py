@@ -153,7 +153,6 @@ def period_image_info(
             "url|sha1|size|mime|timestamp|mediatype|extmetadata"
         ),
         "iistart": CUTOFF,
-        "iidir": "older",
         "iilimit": "1",
         "titles": f"File:{file_title}",
     }
@@ -169,6 +168,9 @@ def period_image_info(
             f"No revision at or before {CUTOFF} for {file_title}"
         )
     row = rows[0]
+    timestamp = str(row.get("timestamp") or "")
+    if not timestamp or timestamp > CUTOFF:
+        raise AssetFetchError(f"No revision at or before {CUTOFF} for {file_title}")
     title = str(page.get("title") or f"File:{file_title}")
     return ImageInfo(
         source_wiki="rs3-period",
@@ -178,7 +180,7 @@ def period_image_info(
         sha1=str(row.get("sha1") or ""),
         size=int(row.get("size") or 0),
         mime=str(row.get("mime") or ""),
-        timestamp=str(row.get("timestamp") or ""),
+        timestamp=timestamp,
         mediatype=str(row.get("mediatype") or ""),
         license_string=_extract_license_string(row.get("extmetadata")),
     )

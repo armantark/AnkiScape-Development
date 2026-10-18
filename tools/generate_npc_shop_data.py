@@ -13,39 +13,54 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import runpy
-import subprocess
+import shutil
 import tempfile
 from collections import Counter
-from dataclasses import dataclass
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable
 
 if __package__:
+    from .npc_shop_generation.item_identity import (
+        ITEM_NAME_NORMALIZATIONS,
+        MANUAL_ITEM_METADATA,
+        ItemMeta,
+        _item_name,
+        order_player_price_map,
+        select_player_price_ids,
+    )
     from .npc_shop_generation.service_rows import SERVICE_ROWS
+    from .npc_shop_generation.source_inputs import (
+        DEFAULT_2011_ITEMS, DEFAULT_DARKAN_CACHE, DEFAULT_DARKAN_CONTENT, DEFAULT_DARKAN_CORE_JAR,
+        DEFAULT_DARKAN_DEPENDENCY_JARS, DEFAULT_DARKAN_JAVA_HOME, DEFAULT_DARKAN_SHOPS, DARKAN_PRICE_HELPER,
+        CapturedShopInputs, capture_source_inputs, collect_source_shop_item_ids, load_darkan_shop_price_inputs,
+    )
+    from .generation.source_digests import check_source_digest_values, save_source_digests, source_digest_manifest
 else:
+    from npc_shop_generation.item_identity import (
+        ITEM_NAME_NORMALIZATIONS,
+        MANUAL_ITEM_METADATA,
+        ItemMeta,
+        _item_name,
+        order_player_price_map,
+        select_player_price_ids,
+    )
     from npc_shop_generation.service_rows import SERVICE_ROWS
+    from npc_shop_generation.source_inputs import (
+        DEFAULT_2011_ITEMS, DEFAULT_DARKAN_CACHE, DEFAULT_DARKAN_CONTENT, DEFAULT_DARKAN_CORE_JAR,
+        DEFAULT_DARKAN_DEPENDENCY_JARS, DEFAULT_DARKAN_JAVA_HOME, DEFAULT_DARKAN_SHOPS, DARKAN_PRICE_HELPER,
+        CapturedShopInputs, capture_source_inputs, collect_source_shop_item_ids, load_darkan_shop_price_inputs,
+    )
+    from generation.source_digests import check_source_digest_values, save_source_digests, source_digest_manifest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DARKAN_SHOPS = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/items/shops")
-DEFAULT_DARKAN_CONTENT = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content")
-DEFAULT_DARKAN_CACHE = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-cache")
-DEFAULT_DARKAN_JAVA_HOME = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/.jdks/jdk-24.0.2+12/Contents/Home")
-DEFAULT_DARKAN_CORE_JAR = Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/rs.darkan/core/2.0.5/5a13ad7bada8a9b1587bfa72fb013283102c6b7d/core-2.0.5.jar")
-DEFAULT_DARKAN_DEPENDENCY_JARS = (
-    Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/it.unimi.dsi/fastutil/8.5.15/1e885b40c9563ab0d3899b871fd0b30e958705dc/fastutil-8.5.15.jar"),
-    Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.20.0/1fe6082e660daf07c689a89c94dc0f49c26b44bb/log4j-api-2.20.0.jar"),
-    Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-core/2.20.0/eb2a9a47b1396e00b5eee1264296729a70565cc0/log4j-core-2.20.0.jar"),
-)
-DEFAULT_2011_ITEMS = Path("/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml")
 
 SHOP_DATA_PATH = REPO_ROOT / "data" / "shop_data.py"
 LEDGER_PATH = REPO_ROOT / "memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json"
 SUMMARY_PATH = REPO_ROOT / "memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md"
-DARKAN_PRICE_HELPER = REPO_ROOT / "tools/DumpDarkanShopPriceInputs.java"
 
 SHOP_DATA_VERSION = 1
 DARKAN_DEFAULT_RESTOCK_TICKS = 50
@@ -265,14 +280,6 @@ VENDOR_ACTIONS = [
 ]
 
 
-@dataclass(frozen=True)
-class ItemMeta:
-    id: int
-    name: str
-    tradeable: bool
-    equipment: Any
-
-
 def _slug(text: str) -> str:
     parts = re.findall(r"[a-z0-9]+", text.lower())
     return "_".join(parts) or "unnamed"
@@ -329,55 +336,6 @@ def load_2011_items(path: Path) -> dict[int, ItemMeta]:
     }
 
 
-# Storage-key normalizations where the items.yml cache name differs from the
-# storage key another AnkiScape system already registered for the same item.
-# 4600: items.yml spells it "Willow-blackjack" but The Feud quest catalog
-# registers the identical weapon as "Willow blackjack"; without normalization
-# the two keys slug-collide and the shop item silently loses its registry
-# entry, icon, and Bank category.
-ITEM_NAME_NORMALIZATIONS: dict[int, str] = {
-    882: "Bronze arrows",
-    884: "Iron arrows",
-    886: "Steel arrows",
-    888: "Mithril arrows",
-    890: "Adamant arrows",
-    892: "Rune arrows",
-    4160: "Broad arrows",
-    4522: "Oil lamp (unlit)",
-    4525: "Oil lamp (empty)",
-    4535: "Oil lantern (empty)",
-    4537: "Oil lantern (unlit)",
-    4544: "Bullseye lantern (unf)",
-    4546: "Bullseye lantern (empty)",
-    4548: "Bullseye lantern (unlit)",
-    4600: "Willow blackjack",
-    5014: "Mining helmet (unlit)",
-    23035: "Spiked gauntlets",
-}
-
-# Period items present in the rev-742/Darkan cache but absent from the older
-# rev-667 items.yml baseline. These are still real shop stock, not unknown rows.
-MANUAL_ITEM_METADATA: dict[int, dict[str, Any]] = {
-    23035: {
-        "name": "Spiked gauntlets",
-        "tradeable": False,
-        "source": "RuneScape Wiki Spiked gauntlets oldid 5827717; OpenRS2/Darkan item 23035",
-    },
-}
-
-
-def _item_name(items: dict[int, ItemMeta], item_id: int, fallback: str | None = None) -> str:
-    normalized = ITEM_NAME_NORMALIZATIONS.get(item_id)
-    if normalized:
-        return normalized
-    meta = items.get(item_id)
-    if meta:
-        return meta.name
-    if fallback:
-        return fallback
-    return f"Item {item_id}"
-
-
 def _currency_name(currency_id: int) -> str:
     return {
         995: "Coins",
@@ -393,97 +351,6 @@ def _visibility_for_shop(shop_id: str, currency_id: int) -> tuple[str, str]:
     if currency_id not in IMPLEMENTED_SHOP_CURRENCY_IDS:
         return "visible_locked", "currency_not_implemented"
     return "visible", ""
-
-
-def _raw_item_id(raw_item: dict[str, Any]) -> int:
-    raw_item_ref = raw_item.get("item", -1)
-    if isinstance(raw_item_ref, dict):
-        return int(raw_item_ref.get("id", -1) or -1)
-    return int(raw_item_ref)
-
-
-def collect_source_shop_item_ids(darkan_shops: Path) -> set[int]:
-    item_ids: set[int] = set()
-    for path in sorted(darkan_shops.glob("*.json")):
-        raw = json.loads(path.read_text(encoding="utf-8"))
-        for raw_item in raw.get("items", []):
-            if isinstance(raw_item, dict):
-                item_id = _raw_item_id(raw_item)
-                if item_id >= 0:
-                    item_ids.add(item_id)
-    return item_ids
-
-
-def _java_tool(java_home: Path, name: str) -> str:
-    tool_path = java_home / "bin" / name
-    return str(tool_path if tool_path.exists() else name)
-
-
-def _darkan_cache_arg(cache_path: Path) -> str:
-    raw = str(cache_path)
-    return raw if raw.endswith(os.sep) else raw + os.sep
-
-
-def load_darkan_shop_price_inputs(
-    cache_path: Path,
-    item_ids: Iterable[int],
-    *,
-    core_jar: Path,
-    dependency_jars: Iterable[Path],
-    java_home: Path,
-) -> dict[int, dict[str, Any]]:
-    ids = sorted({int(item_id) for item_id in item_ids if int(item_id) >= 0})
-    if not ids:
-        return {}
-    required_paths = [cache_path, core_jar, DARKAN_PRICE_HELPER, *dependency_jars]
-    missing = [str(path) for path in required_paths if not path.exists()]
-    if missing:
-        raise FileNotFoundError("Missing Darkan price extraction input(s): " + ", ".join(missing))
-
-    classpath = os.pathsep.join(str(path) for path in [core_jar, *dependency_jars])
-    with tempfile.TemporaryDirectory(prefix="ankiscape-shop-prices-") as temp_dir:
-        temp = Path(temp_dir)
-        class_dir = temp / "classes"
-        class_dir.mkdir()
-        ids_path = temp / "item_ids.txt"
-        output_path = temp / "prices.json"
-        ids_path.write_text("\n".join(str(item_id) for item_id in ids) + "\n", encoding="utf-8")
-
-        try:
-            subprocess.run(
-                [
-                    _java_tool(java_home, "javac"),
-                    "-cp",
-                    classpath,
-                    "-d",
-                    str(class_dir),
-                    str(DARKAN_PRICE_HELPER),
-                ],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            subprocess.run(
-                [
-                    _java_tool(java_home, "java"),
-                    "-cp",
-                    os.pathsep.join([str(class_dir), classpath]),
-                    "DumpDarkanShopPriceInputs",
-                    _darkan_cache_arg(cache_path),
-                    str(ids_path),
-                    str(output_path),
-                ],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-        except subprocess.CalledProcessError as exc:
-            detail = (exc.stderr or exc.stdout or str(exc)).strip()
-            raise RuntimeError(f"Darkan shop price extraction failed: {detail}") from exc
-
-        parsed = json.loads(output_path.read_text(encoding="utf-8"))
-    rows = parsed.get("items", {})
-    return {int(item_id): dict(row) for item_id, row in rows.items() if isinstance(row, dict)}
 
 
 def _cache_int(price_inputs: dict[str, Any], key: str) -> int | None:
@@ -867,34 +734,16 @@ def build_player_sell_prices(
     """Coin sell price per storage name — absolute Darkan parity (owner
     decision 2026-07-06): the price is Shop.java getSellPrice for the name's
     canonical item id, identical at every shop. AnkiScape's flat inventory
-    only has names, so the canonical id is the id live shop stock uses for
-    that name (what players actually buy), falling back to the lowest
-    tradeable id in items.yml. No clamping: buy-low/sell-high flips that the
+    only has names, so the selector prefers an eligible live stock id,
+    then a historical generic projection, then the lowest tradeable
+    original metadata id. No clamping: buy-low/sell-high flips that the
     Darkan engine allows (custom-priced stock vs cache sellPrice) stay, and
     are bounded the way the engine bounds them — stock per review-paced
     restock interval. Also returns the matching getBuyPrice table (cache value
     floored 0->1 plus coin buy enum override) so buying back player-sold
     temporary stock prices exactly like the engine.
     """
-    stock_id_by_name: dict[str, int] = {}
-    for shop in shops:
-        for row in shop.get("stock", []):
-            name = row.get("item_name", "")
-            item_id = row.get("item_id")
-            if not name or not isinstance(item_id, int):
-                continue
-            if row.get("disposition") == "live" and name not in stock_id_by_name:
-                stock_id_by_name[name] = item_id
-
-    canonical: dict[str, int] = {}
-    for item_id, meta in sorted(items.items()):
-        if not meta.tradeable:
-            continue
-        name = _item_name(items, item_id)
-        if not name or name.startswith("Item ") or name.lower().startswith("null"):
-            continue
-        canonical.setdefault(name, item_id)
-    canonical.update(stock_id_by_name)
+    canonical = select_player_price_ids(items, shops, manual_metadata=MANUAL_ITEM_METADATA)
 
     sell_prices: dict[str, int] = {}
     buy_prices: dict[str, int] = {}
@@ -908,7 +757,7 @@ def build_player_sell_prices(
         buy_price = _darkan_get_buy_price(cache_row)
         if buy_price is not None:
             buy_prices[name] = buy_price
-    return dict(sorted(sell_prices.items())), dict(sorted(buy_prices.items()))
+    return order_player_price_map(sell_prices), order_player_price_map(buy_prices)
 
 
 def _py_repr(value: Any) -> str:
@@ -1082,21 +931,21 @@ def rewrite_services_from_generated(
         "player_buy_prices": dict(generated["SHOP_PLAYER_BUY_PRICES"]),
     }
     catalog[rows_key] = rows
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    write_shop_data(catalog, output_path)
-
     if ledger_output_path is not None or summary_output_path is not None:
         if existing_ledger_path is None:
             raise ValueError("existing_ledger_path is required for audit output")
         ledger = json.loads(existing_ledger_path.read_text(encoding="utf-8"))
         ledger[rows_key] = rows
         ledger["summary"] = dict(summary)
-        if ledger_output_path is not None:
-            ledger_output_path.parent.mkdir(parents=True, exist_ok=True)
-            ledger_output_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        if summary_output_path is not None:
-            summary_output_path.parent.mkdir(parents=True, exist_ok=True)
-            write_summary(ledger, summary_output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    write_shop_data(catalog, output_path)
+
+    if ledger_output_path is not None:
+        ledger_output_path.parent.mkdir(parents=True, exist_ok=True)
+        ledger_output_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if summary_output_path is not None:
+        summary_output_path.parent.mkdir(parents=True, exist_ok=True)
+        write_summary(ledger, summary_output_path)
     return summary
 
 
@@ -1266,6 +1115,139 @@ def write_summary(ledger: dict[str, Any], path: Path) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _existing_bytes(path: Path) -> bytes | None:
+    try:
+        return path.read_bytes()
+    except FileNotFoundError:
+        return None
+
+
+def _output_bytes(paths: tuple[Path, ...]) -> tuple[bytes | None, ...]:
+    return tuple(_existing_bytes(path) for path in paths)
+
+
+def _check_outputs(paths: tuple[Path, ...], matches: Iterable[bool]) -> None:
+    same = all(matches)
+    print(f"OUTPUT_CHECK: {'unchanged' if same else 'differs'}: {', '.join(map(str, paths))}")
+    raise SystemExit(0 if same else 1)
+
+
+def _render_outputs(catalog: dict[str, Any], ledger: dict[str, Any], directory: Path) -> tuple[Path, ...]:
+    directory.mkdir(parents=True, exist_ok=True)
+    paths = (directory / "shop_data.py", directory / "ledger.json", directory / "summary.md")
+    write_shop_data(catalog, paths[0])
+    paths[1].write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_summary(ledger, paths[2])
+    return paths
+
+
+def _relocate_shop_path(path: str, previous_root: str, current_root: str) -> str:
+    return str(Path(current_root) / Path(path).relative_to(previous_root))
+
+
+def _set_source_roots(catalog: dict[str, Any], ledger: dict[str, Any], roots: dict[str, str]) -> None:
+    previous_root = ledger["source_roots"]["darkan_shops"]
+    for shop in [*catalog["shops"], *ledger["shops"]]:
+        shop["source_path"] = _relocate_shop_path(shop["source_path"], previous_root, roots["darkan_shops"])
+        for row in shop.get("stock", []):
+            row["source_path"] = _relocate_shop_path(row["source_path"], previous_root, roots["darkan_shops"])
+    ledger["source_roots"] = dict(roots)
+
+
+def _prior_source_roots(content: bytes | None) -> dict[str, str] | None:
+    if content is None:
+        return None
+    try:
+        previous = json.loads(content)
+    except ValueError:
+        return None
+    roots = previous.get("source_roots") if isinstance(previous, dict) else None
+    if not isinstance(roots, dict) or roots.keys() != {"darkan_shops", "darkan_cache", "items_2011scape"}:
+        return None
+    return roots if all(isinstance(value, str) for value in roots.values()) else None
+
+
+def _equivalent_outputs(catalog: dict[str, Any], ledger: dict[str, Any], staged: tuple[Path, ...], final: tuple[Path, ...]) -> bool:
+    previous = _output_bytes(final)
+    if _output_bytes(staged) == previous:
+        return True
+    roots = _prior_source_roots(previous[1])
+    if roots is None:
+        return False
+    comparison_catalog, comparison_ledger = deepcopy((catalog, ledger))
+    _set_source_roots(comparison_catalog, comparison_ledger, roots)
+    comparison = _render_outputs(comparison_catalog, comparison_ledger, staged[0].parent.parent / "comparison")
+    return _output_bytes(comparison) == previous
+
+
+def _rewrite_partial(args: argparse.Namespace, outputs: tuple[Path, ...]) -> dict[str, Any]:
+    audit_outputs = dict(existing_ledger_path=args.existing_ledger, ledger_output_path=outputs[1], summary_output_path=outputs[2])
+    if args.stock_exclusions_only:
+        return rewrite_stock_exclusions_from_generated(args.existing_shop_data, outputs[0], **audit_outputs)
+    if args.services_only or args.vendor_actions_only:
+        return rewrite_services_from_generated(
+            args.existing_shop_data, outputs[0], args.items_2011, vendor_actions_only=args.vendor_actions_only, **audit_outputs,
+        )
+    return rewrite_currency_activation_from_generated(args.existing_shop_data, outputs[0], **audit_outputs)
+
+
+def _build_full_catalog(args: argparse.Namespace, inputs: CapturedShopInputs) -> tuple[dict[str, Any], dict[str, Any]]:
+    items = load_2011_items(inputs.items)
+    item_ids = set(collect_source_shop_item_ids(inputs.shops))
+    # Player sales at general stores follow the same Shop.java sell math as
+    # stock rows, but for ANY tradeable item the player holds — so the cache
+    # dump covers every tradeable 2011 item, not just shop stock.
+    tradeable_ids = {item_id for item_id, meta in items.items() if meta.tradeable}
+    price_inputs = load_darkan_shop_price_inputs(
+        inputs.cache,
+        item_ids | tradeable_ids,
+        core_jar=inputs.core_jar,
+        dependency_jars=inputs.dependency_jars,
+        java_home=args.darkan_java_home,
+    )
+    catalog, ledger = build_catalog(inputs.shops, inputs.items, price_inputs, inputs.cache)
+    access_counts: dict[str, int] = {}
+    for shop in catalog["shops"]:
+        rule = SHOP_ACCESS_RULES.get(shop["id"])
+        shop["access"] = dict(rule) if rule else None
+        access_counts[rule["kind"] if rule else "open"] = access_counts.get(rule["kind"] if rule else "open", 0) + 1
+    catalog["summary"]["access_gate_counts"] = dict(sorted(access_counts.items()))
+    ledger["summary"]["access_gate_counts"] = dict(sorted(access_counts.items()))
+    catalog["player_sell_prices"], catalog["player_buy_prices"] = build_player_sell_prices(
+        items, price_inputs, catalog["shops"]
+    )
+    catalog["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
+    ledger["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
+    # The pinned catalog emits this total after the full-generation totals.
+    catalog["summary"]["excluded_stock_row_count"] = catalog["summary"].pop("excluded_stock_row_count")
+    return catalog, ledger
+
+
+def _generate_full(args: argparse.Namespace, outputs: tuple[Path, ...]) -> dict[str, Any]:
+    dependencies = tuple(args.darkan_dependency_jar or DEFAULT_DARKAN_DEPENDENCY_JARS)
+    with capture_source_inputs(args.darkan_shops, args.items_2011, args.darkan_cache, args.darkan_core_jar, dependencies) as inputs:
+        digests = check_source_digest_values(
+            args.digest_manifest, "data/shop_data.py", inputs.digests, accept_source_change=args.accept_source_change,
+        )
+        catalog, ledger = _build_full_catalog(args, inputs)
+        _set_source_roots(catalog, ledger, {
+            "darkan_shops": str(args.darkan_shops), "darkan_cache": str(args.darkan_cache), "items_2011scape": str(args.items_2011),
+        })
+        staged = _render_outputs(catalog, ledger, inputs.directory / "candidate")
+        same_outputs = _equivalent_outputs(catalog, ledger, staged, outputs)
+        same_manifest = _existing_bytes(args.digest_manifest) == source_digest_manifest(args.digest_manifest, "data/shop_data.py", digests).encode("utf-8")
+        if args.check:
+            _check_outputs((*outputs, args.digest_manifest), (same_outputs, same_manifest))
+        if not same_outputs:
+            for captured, destination in zip(staged, outputs):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(captured, destination)
+        if not same_manifest:
+            args.digest_manifest.parent.mkdir(parents=True, exist_ok=True)
+            save_source_digests(args.digest_manifest, "data/shop_data.py", digests)
+        return catalog["summary"]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--darkan-shops", type=Path, default=DEFAULT_DARKAN_SHOPS)
@@ -1300,76 +1282,24 @@ def main() -> None:
         action="store_true",
         help="rewrite vendor actions without refreshing the pinned shop/source snapshot",
     )
+    parser.add_argument("--digest-manifest", type=Path, default=REPO_ROOT / "generated/source_digests.json")
+    parser.add_argument("--accept-source-change", action="store_true")
+    parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
 
-    if args.stock_exclusions_only:
-        summary = rewrite_stock_exclusions_from_generated(
-            args.existing_shop_data,
-            args.shop_data_out,
-            existing_ledger_path=args.existing_ledger,
-            ledger_output_path=args.ledger_out,
-            summary_output_path=args.summary_out,
-        )
-        print(json.dumps(summary, sort_keys=True))
-        return
-
-    if args.services_only or args.vendor_actions_only:
-        summary = rewrite_services_from_generated(
-            args.existing_shop_data,
-            args.shop_data_out,
-            args.items_2011,
-            vendor_actions_only=args.vendor_actions_only,
-            existing_ledger_path=args.existing_ledger,
-            ledger_output_path=args.ledger_out,
-            summary_output_path=args.summary_out,
-        )
-        print(json.dumps(summary, sort_keys=True))
-        return
-
-    if args.currency_activation_only:
-        summary = rewrite_currency_activation_from_generated(
-            args.existing_shop_data,
-            args.shop_data_out,
-            existing_ledger_path=args.existing_ledger,
-            ledger_output_path=args.ledger_out,
-            summary_output_path=args.summary_out,
-        )
-        print(json.dumps(summary, sort_keys=True))
-        return
-
-    items = load_2011_items(args.items_2011)
-    item_ids = set(collect_source_shop_item_ids(args.darkan_shops))
-    # Player sales at general stores follow the same Shop.java sell math as
-    # stock rows, but for ANY tradeable item the player holds — so the cache
-    # dump covers every tradeable 2011 item, not just shop stock.
-    tradeable_ids = {item_id for item_id, meta in items.items() if meta.tradeable}
-    price_inputs = load_darkan_shop_price_inputs(
-        args.darkan_cache,
-        item_ids | tradeable_ids,
-        core_jar=args.darkan_core_jar,
-        dependency_jars=tuple(args.darkan_dependency_jar or DEFAULT_DARKAN_DEPENDENCY_JARS),
-        java_home=args.darkan_java_home,
-    )
-    catalog, ledger = build_catalog(args.darkan_shops, args.items_2011, price_inputs, args.darkan_cache)
-    access_counts: dict[str, int] = {}
-    for shop in catalog["shops"]:
-        rule = SHOP_ACCESS_RULES.get(shop["id"])
-        shop["access"] = dict(rule) if rule else None
-        access_counts[rule["kind"] if rule else "open"] = access_counts.get(rule["kind"] if rule else "open", 0) + 1
-    catalog["summary"]["access_gate_counts"] = dict(sorted(access_counts.items()))
-    ledger["summary"]["access_gate_counts"] = dict(sorted(access_counts.items()))
-    catalog["player_sell_prices"], catalog["player_buy_prices"] = build_player_sell_prices(
-        items, price_inputs, catalog["shops"]
-    )
-    catalog["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
-    ledger["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
-    args.shop_data_out.parent.mkdir(parents=True, exist_ok=True)
-    args.ledger_out.parent.mkdir(parents=True, exist_ok=True)
-    args.summary_out.parent.mkdir(parents=True, exist_ok=True)
-    write_shop_data(catalog, args.shop_data_out)
-    args.ledger_out.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    write_summary(ledger, args.summary_out)
-    print(json.dumps(catalog["summary"], sort_keys=True))
+    outputs = (args.shop_data_out, args.ledger_out, args.summary_out)
+    partial = args.stock_exclusions_only or args.services_only or args.vendor_actions_only or args.currency_activation_only
+    if partial and args.accept_source_change:
+        parser.error("--accept-source-change cannot be combined with a partial mode")
+    if partial:
+        with tempfile.TemporaryDirectory(prefix="ankiscape-shop-partial-") as directory:
+            staged = tuple(Path(directory) / name for name in ("shop_data.py", "ledger.json", "summary.md")) if args.check else outputs
+            summary = _rewrite_partial(args, staged)
+            if args.check:
+                _check_outputs(outputs, (left == right for left, right in zip(_output_bytes(staged), _output_bytes(outputs))))
+    else:
+        summary = _generate_full(args, outputs)
+    print(json.dumps(summary, sort_keys=True))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,7 @@
+# Quest records rounds21–24 landed — 2026-10-15
+
+Exact d9c6c2aa5ca125ed7530ee66d57cc28d7e62ebc3 landed through tools/promotion_gate.py land, exit0. Root observed clean canonical main at 2026-10-15T15:03:05.295282+00:00. Both independent closure votes resolved every finding. No gameplay or existing UI changed. Dream Mentor's owner scope covers source lines72/76; Death escort loss remains rejected; the mixed cache incident stays open. The exact mirror incident moved verbatim to the dated fixed log.
+
+All nine exact checks passed with remote_lanes=true and plain_only=false. Plain: 5376 tests/602.855s/580 skips, outer report0. Qt: 5376 tests/817.08s/5 skips, outer report0. Certificate SHA256 31301264fde182430fd7799edc8eec2dae6ca9e5dd905a1655f4035c16231f90. Original logs, reports, certificate and land receipt remain in /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/quest-records-21-to-24-exact-merged-verification.
+
+Root rehashed all 60 retained files. Manifest /Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-14/retained-quest-records-21-to-24-landed-d9c6c2aa/retention-manifest.json; SHA256 e0d4d2a8a2c22724a4db38706b9f6e4b89c62d28843f5c4ba84f157af3b4c5e8. The original source outputs and review findings remain immutable. Root returned lease d42de4c25fd8327acea784e091342908 through the guard after landing; layout audits passed. Root2's later Death/R25/R26 and Witch records are separate unlanded work.

@@ -5,6 +5,8 @@ from typing import Iterable, Mapping, Optional
 from ..data.prayer_data import (
     COMBAT_PRAYERS_BY_ID,
     AUTO_PRAYER_TICKS_PER_ITEM,
+    DEFAULT_PRAYER_TARGET,
+    ECTOFUNTUS_MULTIPLIER,
     PRAYER_MATERIALS,
     PRAYER_UPTIME_POLICIES,
     SAP_SOURCE,
@@ -118,6 +120,59 @@ def apply_prayer_selection_pure(player_data, material_id, ui_method_id, prayer_d
     return data, True, ()
 
 
+_PRAYER_METHOD_MULTIPLIERS = {
+    "bury": ("Bury", 1.0),
+    "scatter": ("Scatter", 1.0),
+    "ectofuntus": ("Ectofuntus", ECTOFUNTUS_MULTIPLIER),
+}
+
+
+def _prayer_requirements_hint(method: str, mode: str) -> str:
+    if method == "gilded_altar" and mode == "owned":
+        return "Check the materials and owned altar required for this method."
+    return {
+        "bury": "Check the bones required for Bury.",
+        "scatter": "Check the ashes required for Scatter.",
+        "ectofuntus": "Check the bonemeal and buckets of slime required for Ectofuntus.",
+        "gilded_altar": "Check the bones required for the hosted gilded altar.",
+    }[method]
+
+
+def prayer_panel_view_pure(player_data, prayer_data):
+    """The Prayer panel's method line and its gilded altar mode box.
+
+    The box appears only for a gilded altar target: shown above plain Bury, its
+    350% read as Bury's own rate.
+    """
+    target_id = str(player_data.get("current_prayer", DEFAULT_PRAYER_TARGET))
+    spec = prayer_data.get(target_id) or prayer_data[DEFAULT_PRAYER_TARGET]
+    material_id = str(spec["material_id"])
+    gilded = spec["method"] == "gilded_altar"
+    mode = "owned" if player_data.get("prayer_gilded_mode") == "owned" else "hosted"
+    altar_target = f"gilded_altar_{material_id}"
+    if gilded:
+        method = f"Gilded altar ({mode})"
+        multiplier = effective_gilded_altar_multiplier_pure(player_data, mode, altar_target)
+    else:
+        method, multiplier = _PRAYER_METHOD_MULTIPLIERS[spec["method"]]
+    owned_multiplier = effective_gilded_altar_multiplier_pure(player_data, "owned", altar_target)
+    owned_burners = owned_gilded_altar_effective_burners_pure(player_data, altar_target)
+    return {
+        "material_id": material_id,
+        "requirements_hint": _prayer_requirements_hint(spec["method"], mode),
+        "unavailable_warning": "The selected Prayer method is not ready. " + _prayer_requirements_hint(spec["method"], mode),
+        "status": f"{method}: {spec['display_name']} · {multiplier:g}x XP",
+        "show_gilded_mode": gilded,
+        "gilded_mode": mode,
+        "gilded_mode_options": (
+            ("hosted", "Hosted - 350% XP",
+             prayer_selection_locked_reasons_pure(player_data, material_id, "gilded_hosted", prayer_data)),
+            ("owned", f"Owned - {owned_multiplier * 100:g}% XP ({owned_burners}/2 burners)",
+             prayer_selection_locked_reasons_pure(player_data, material_id, "gilded_owned", prayer_data)),
+        ),
+    }
+
+
 def apply_prayer_action_pure(target_id, inventory, prayer_data):
     """Apply one normal Prayer training action; pacing/friction stays runtime-side."""
     spec = prayer_data.get(target_id)
@@ -222,10 +277,14 @@ def sanitize_prayer_selection_pure(player_data, selected, book=None):
     return tuple(clean)
 
 
-def active_prayer_selection_pure(data):
-    if not bool(data.get("combat_prayers_enabled", True)):
-        return ()
-    return sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ()))
+def active_prayer_selection_pure(data, *, automatic_protection_prayer=None):
+    enabled = bool(data.get("combat_prayers_enabled", True))
+    selected = sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ())) if enabled else ()
+    automatic = automatic_protection_prayer_pure(data, automatic_protection_prayer)
+    if not automatic:
+        return selected
+    ordinary = selected if PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0) > 0 else ()
+    return sanitize_prayer_selection_pure(data, (automatic, *ordinary))
 
 
 def prayer_uptime_fraction_pure(data):
@@ -237,16 +296,40 @@ def prayer_uptime_fraction_pure(data):
     return float(PRAYER_UPTIME_POLICIES.get(policy, 0.0))
 
 
-def prayer_effect_state_pure(data, uptime_override=None):
-    selected = active_prayer_selection_pure(data)
+def automatic_protection_prayer_pure(data, prayer_id):
+    if prayer_id is None:
+        return None
+    selected = sanitize_prayer_selection_pure(data, (prayer_id,))
+    if selected and "protection_overhead" in COMBAT_PRAYERS_BY_ID[selected[0]].groups:
+        return selected[0]
+    return None
+
+
+def _prayer_effect_uptimes(data, uptime_override, automatic):
     uptime = prayer_uptime_fraction_pure(data) if uptime_override is None else max(0.0, min(1.0, float(uptime_override)))
+    if not automatic:
+        return uptime, uptime
+    ordinary = float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0)) if bool(data.get("combat_prayers_enabled", True)) else 0.0
+    if ordinary:
+        return uptime, min(1.0, uptime / ordinary)
+    if uptime_override is None:
+        uptime = 1.0 if _non_negative_int(data.get("combat_prayer_points", 0), 0) > 0 else 0.0
+    return uptime, uptime
+
+
+def prayer_effect_state_pure(data, uptime_override=None, *, automatic_protection_prayer=None):
+    selected = active_prayer_selection_pure(data, automatic_protection_prayer=automatic_protection_prayer)
+    automatic = automatic_protection_prayer_pure(data, automatic_protection_prayer)
+    uptime, automatic_uptime = _prayer_effect_uptimes(data, uptime_override, automatic)
     effects = {}
     for prayer_id in selected:
+        # Keep the ordinary scalar for live curse ramps; only this overhead is full-time.
+        effect_uptime = automatic_uptime if prayer_id == automatic else uptime
         for effect, value in COMBAT_PRAYERS_BY_ID[prayer_id].effects:
             if effect in ("attack", "strength", "defence", "ranged", "ranged_attack", "ranged_strength", "magic"):
-                effects[effect] = max(float(effects.get(effect, 1.0)), 1.0 + (float(value) - 1.0) * uptime)
+                effects[effect] = max(float(effects.get(effect, 1.0)), 1.0 + (float(value) - 1.0) * effect_uptime)
             else:
-                effects[effect] = max(float(effects.get(effect, 0.0)), float(value) * uptime)
+                effects[effect] = max(float(effects.get(effect, 0.0)), float(value) * effect_uptime)
     effects["uptime"] = uptime
     effects["selected"] = selected
     return effects

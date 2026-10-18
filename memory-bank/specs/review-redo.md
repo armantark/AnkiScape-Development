@@ -355,7 +355,7 @@ steps, and the save hash after each step, under `memory-bank/evidence/`.
 4. Today, Undo of any `Answer Card` pops the top snapshot, even if that
    snapshot belongs to a different answer. An answer that the add-on does
    not process makes no snapshot (`review_answered` is false in
-   `on_answer_card`, `__init__.py:5690`). Its undo pops the snapshot of the
+   `on_answer_card`, `__init__.py:5435-5436`). Its undo pops the snapshot of the
    answer before it.
 
    Section 4.2.1 matches by revlog id: it pops a tagged snapshot only when
@@ -369,7 +369,7 @@ steps, and the save hash after each step, under `memory-bank/evidence/`.
 
 ## 10. Conflicts and findings
 
-- Conflict: `memory-bank/systemPatterns.md` line 557 says review undo
+- Conflict: `memory-bank/systemPatterns.md` line 558 says review undo
   "restores those values and saves config". This spec delays the write
   (4.2.4). The owner must accept that change; update the line when it lands.
 - Finding: Anki Redo is unavailable after every AnkiScape review undo and
