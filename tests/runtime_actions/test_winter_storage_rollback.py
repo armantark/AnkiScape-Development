@@ -1,4 +1,4 @@
-"""A failed review gives back its Winter Storage use, but not a real Thieving action."""
+"""A rejected review gives back its Winter Storage use, but not a real Thieving action."""
 
 import copy
 import dataclasses
@@ -23,7 +23,6 @@ def _player(target="pickpocket_man"):
         "thieving_attempt_count": 0,
         "thieving_success_count": 0,
         "thieving_failure_count": 0,
-        "thieving_stunned": False,
         "constitution_level": 10,
         "combat_lifepoints": 100,
         "inventory": dict(carried),
@@ -45,14 +44,14 @@ def _player(target="pickpocket_man"):
 
 
 class TestWinterStorageRollback(unittest.TestCase):
-    def _answer(self, player, rolls=(0.999, 0.0), *, completed_step=False):
+    def _answer(self, player, rolls=(0.999, 0.0)):
         ctx, calls = _context(player, random_values=rolls)
         saves = []
         ctx = dataclasses.replace(
             ctx, save_player_data=lambda: saves.append(copy.deepcopy(player)),
         )
         result = run_answer_with_carried_overlay(ctx, "thieving", handle_thieving_answer)
-        self.assertIs(result, completed_step)
+        self.assertTrue(result)
         self.assertEqual(saves[-1], player)
         self.assertEqual(calls["errors"], [])
         target = player["current_thieving"]
@@ -68,7 +67,7 @@ class TestWinterStorageRollback(unittest.TestCase):
         player = _player()
         self._answer(player)
         self.assertEqual(player["combat_lifepoints"], 90)
-        self.assertTrue(player["thieving_stunned"])
+        self.assertEqual(player["card_tick_debt"], 8)
         self.assertEqual(player["thieving_attempt_count"], 1)
         self.assertEqual(player["thieving_failure_count"], 1)
         self.assertEqual(player["thieving_exp"], 0.0)
@@ -79,17 +78,9 @@ class TestWinterStorageRollback(unittest.TestCase):
         player = _player("wall_safe")
         self._answer(player, (85 / 255, 0.0))
         self.assertEqual(player["combat_lifepoints"], 80)
-        self.assertTrue(player["thieving_stunned"])
+        self.assertEqual(player["card_tick_debt"], 8)
         self.assertEqual(player["thieving_failure_count"], 1)
         self.assertEqual(player["cadence_profiles"]["thieving:wall_safe"]["assigned_reviews"], 1)
-
-    def test_stun_recovery_is_not_undone(self):
-        player = _player()
-        player["thieving_stunned"] = True
-        self._answer(player, ())
-        self.assertFalse(player["thieving_stunned"])
-        self.assertEqual(player["thieving_attempt_count"], 0)
-        self.assertEqual(player["combat_lifepoints"], 100)
 
     def test_fatal_failure_keeps_the_grave_and_lost_familiar(self):
         player = _player()
@@ -101,7 +92,7 @@ class TestWinterStorageRollback(unittest.TestCase):
         self.assertEqual(player["combat_grave"]["items"], ["Bronze sword"])
         self.assertEqual(player["summoning_state"]["active_follower"], {})
         self.assertEqual(player["summoning_state"]["event_log"][-1]["kind"], "unsafe_player_death")
-        self.assertTrue(player["thieving_stunned"])
+        self.assertNotIn("card_tick_debt", player)
         self.assertEqual(player["thieving_failure_count"], 1)
 
     def test_failure_keeps_auto_eaten_food_consumed(self):
@@ -115,7 +106,7 @@ class TestWinterStorageRollback(unittest.TestCase):
         self._answer(player)
         self.assertEqual(player["combat_lifepoints"], 100)
         self.assertEqual(player["combat_supply_loadout"]["food"], {})
-        self.assertTrue(player["thieving_stunned"])
+        self.assertEqual(player["card_tick_debt"], 8)
 
     def test_blackjack_steps_keep_progress(self):
         cases = (
@@ -133,7 +124,7 @@ class TestWinterStorageRollback(unittest.TestCase):
                     equipment={"weapon": "Willow blackjack"},
                     quests={"the_feud": {"completed": True}},
                 )
-                self._answer(player, (0.0,), completed_step=True)
+                self._answer(player, (0.0,))
                 self.assertEqual(player["thieving_attempt_count"], 1)
                 self.assertEqual(player["thieving_blackjack_phase"], expected_phase)
                 self.assertEqual(player["inventory"].get("Coins", 0), coins)

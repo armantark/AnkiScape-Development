@@ -51,7 +51,8 @@ class TestWinterStorageReview(unittest.TestCase):
 
         player = addon._state.player_data
         self.assertEqual(player["combat_lifepoints"], 80)
-        self.assertTrue(player["thieving_stunned"])
+        # Speed 3: the 8-tick trap stun is paid inside the stopped card.
+        self.assertNotIn("card_tick_debt", player)
         self.assertEqual(player["thieving_attempt_count"], 1)
         self.assertEqual(player["thieving_failure_count"], 1)
         self.assertEqual(player["cadence_profiles"]["thieving:wall_safe"]["assigned_reviews"], 1)

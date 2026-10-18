@@ -488,8 +488,7 @@ def _sanitize_thieving_state(data: Dict[str, Any]) -> None:
     ):
         value = data.get(key, 0)
         data[key] = value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else 0
-    stunned = data.get("thieving_stunned", False)
-    data["thieving_stunned"] = stunned if isinstance(stunned, bool) else False
+    data.pop("thieving_stunned", None)
     fight_back = data.get("thieving_fight_back_when_caught", False)
     data["thieving_fight_back_when_caught"] = fight_back if isinstance(fight_back, bool) else False
     phase = data.get("thieving_blackjack_phase", "needs_lure")
@@ -695,7 +694,6 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["thieving_attempt_count"] = 0
     data["thieving_success_count"] = 0
     data["thieving_failure_count"] = 0
-    data["thieving_stunned"] = False
     data["thieving_fight_back_when_caught"] = False
     data["thieving_blackjack_phase"] = "needs_lure"
     data["thieving_blackjack_picks_remaining"] = 0
@@ -2061,7 +2059,6 @@ def migrate_loaded_data(
         data.setdefault("thieving_attempt_count", 0)
         data.setdefault("thieving_success_count", 0)
         data.setdefault("thieving_failure_count", 0)
-        data.setdefault("thieving_stunned", False)
         data.setdefault("thieving_fight_back_when_caught", False)
         data.setdefault("thieving_blackjack_phase", "needs_lure")
         data.setdefault("thieving_blackjack_picks_remaining", 0)

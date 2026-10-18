@@ -187,6 +187,13 @@ BLACKJACK_TARGETS = {
     },
 }
 
+# Wall safes and blackjacking stun on a failure, but neither 2011Scape enum
+# gives a stun length; the 8-tick stun most pickpocket rows carry stands in.
+PLACEHOLDER_STUN_TICKS_BY_KIND = {
+    "wall_safe": 8,  # PLACEHOLDER(thieving.wall_safe_stun_ticks): 2011Scape wall-safe trap code
+    "blackjack": 8,  # PLACEHOLDER(thieving.blackjack_stun_ticks): 2011Scape blackjack failure code
+}
+
 SOURCE_BLOCKED_TARGETS = {
     "chest_dorgesh_kaan": {"display_name":"Dorgesh-Kaan chest","kind":"source_blocked","group":"safes","level":52,"xp":0,"quest_gate":"death_to_the_dorgeshuun","source_blocked":True,"source_blocked_reason":"success and loot values are not source-closed"},
     "pickpocket_lletya_elf": {"display_name":"Lletya elf","kind":"source_blocked","group":"pickpocketing","level":85,"xp":0,"quest_gate":"mournings_end_part_i","source_blocked":True,"source_blocked_reason":"2011Scape is silent; Darkan is only a lead"},

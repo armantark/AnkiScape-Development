@@ -4,6 +4,7 @@ Owner decision 4 (2026-10-15): a card buys six game ticks per unit of game
 speed. Combat receives the whole budget in one call and spends it inside its own
 tick loop; every other handler takes one six-tick kernel step per call until the
 card is spent, the action stops, or a step ends the card through ``stop_card``.
+A stun owes its ticks to the running budget, and the next card pays them first.
 Split out of runtime_actions.py; see that module's header.
 """
 
@@ -20,6 +21,10 @@ from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
 # obstacles have no tick time yet, so Agility keeps one obstacle per card until
 # it can be charged in ticks.
 ONE_PER_CARD_HANDLER_KEYS = frozenset({"quest", "dungeoneering", "agility"})
+
+# Ticks the running budget owes the next card: a stun's length, or the part of a
+# step that started with fewer than six ticks left.
+CARD_TICK_DEBT_KEY = "card_tick_debt"
 
 
 @dataclass
@@ -79,6 +84,37 @@ def stop_card(ctx: RuntimeActionContext, reason: str) -> None:
     ctx.card.stop_reason = reason
 
 
+def _card_tick_debt(player_data: Mapping[str, Any]) -> int:
+    debt = player_data.get(CARD_TICK_DEBT_KEY, 0)
+    return debt if type(debt) is int and debt > 0 else 0
+
+
+def stun_card(ctx: RuntimeActionContext, ticks: int) -> None:
+    """A stun ends the card and owes its ticks to the running budget (decision 5).
+
+    Once the stunning step is charged, the card's unspent ticks pay the stun
+    first; only the rest carries to the next card.
+    """
+    ctx.player_data[CARD_TICK_DEBT_KEY] = _card_tick_debt(ctx.player_data) + ticks
+    stop_card(ctx, "stun")
+
+
+def _settle_card_tick_debt(ctx: RuntimeActionContext) -> bool:
+    """Pay the tick debt from the card, then report whether a step may start.
+
+    A step starts once the debt is paid, even with fewer than six ticks left, and
+    its overrun becomes the next card's debt, so no tick is forfeited.
+    """
+    budget = ctx.card
+    balance = budget.ticks_remaining - _card_tick_debt(ctx.player_data)
+    budget.ticks_remaining = max(balance, 0)
+    if balance < 0:
+        ctx.player_data[CARD_TICK_DEBT_KEY] = -balance
+    else:
+        ctx.player_data.pop(CARD_TICK_DEBT_KEY, None)
+    return budget.ticks_remaining > 0 and not budget.stop_reason
+
+
 def activity_session_cleared(
     before: Optional[Mapping[str, Any]],
     after: Optional[Mapping[str, Any]],
@@ -98,22 +134,21 @@ def spend_card_on_farm_queue(
     ctx: RuntimeActionContext,
     first_step: Callable[[RuntimeActionContext], Any],
     next_step: Callable[[RuntimeActionContext], Any],
-) -> None:
+) -> bool:
     """Queued Farming steps take the card's first six-tick steps.
 
-    ``first_step`` also carries the card's one background farm-clock tick. The
-    rest of the budget falls to the selected action in the same transaction,
-    unless a step ended the card.
+    ``first_step`` also carries the card's one background farm-clock tick, so
+    the return value says whether it ran: a card the tick debt holds whole must
+    still move the farm clock. The rest of the budget falls to the selected
+    action in the same transaction, unless a step ended the card.
     """
     step = first_step
-    while (
-        ctx.player_data.get("farm_queue")
-        and ctx.card.ticks_remaining >= LIVE_COMBAT_TICKS_PER_REVIEW
-        and not ctx.card.stop_reason
-    ):
+    while ctx.player_data.get("farm_queue") and _settle_card_tick_debt(ctx):
         step(ctx)
         ctx.card.ticks_remaining -= LIVE_COMBAT_TICKS_PER_REVIEW
         step = next_step
+    _settle_card_tick_debt(ctx)
+    return step is next_step
 
 
 def spend_card_budget(
@@ -130,7 +165,7 @@ def spend_card_budget(
     """
     budget = ctx.card
     progressed = False
-    while budget.ticks_remaining >= LIVE_COMBAT_TICKS_PER_REVIEW and not budget.stop_reason:
+    while _settle_card_tick_debt(ctx):
         if progressed and not can_continue():
             break
         before_session = dict(ctx.player_data.get("activity_session") or {})
@@ -145,4 +180,5 @@ def spend_card_budget(
         progressed = True
         if activity_session_cleared(before_session, ctx.player_data.get("activity_session")):
             break
+    _settle_card_tick_debt(ctx)
     return progressed

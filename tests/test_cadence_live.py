@@ -482,7 +482,6 @@ class TestCadenceLiveCoverage(unittest.TestCase):
             "thieving_level": 99,
             "thieving_exp": 0.0,
             "current_thieving": "stall_silver",
-            "thieving_stunned": False,
             "cadence_profiles": {
                 "thieving:stall_silver": default_cadence_profile_state_pure(
                     opening_ready=False

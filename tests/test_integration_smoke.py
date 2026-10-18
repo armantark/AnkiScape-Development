@@ -2432,7 +2432,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "thieving_attempt_count": 0,
             "thieving_success_count": 0,
             "thieving_failure_count": 0,
-            "thieving_stunned": False,
             "combat_lifepoints": 100,
             "completed_achievements": [],
         }
@@ -2453,7 +2452,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.player_data["thieving_attempt_count"], 1)
         self.assertEqual(addon._state.player_data["thieving_failure_count"], 1)
         self.assertEqual(addon._state.player_data["combat_lifepoints"], 90)
-        self.assertTrue(addon._state.player_data["thieving_stunned"])
+        self.assertNotIn("card_tick_debt", addon._state.player_data)  # stun paid in-card
         self.assertEqual(addon._state.player_data["thieving_exp"], 0.0)
         self.assertEqual(len(addon._state.review_undo_stack), 1)
 
@@ -2487,8 +2486,7 @@ class TestIntegrationSmoke(unittest.TestCase):
                 "thieving_attempt_count": 0,
                 "thieving_success_count": 0,
                 "thieving_failure_count": 0,
-                "thieving_stunned": False,
-                "combat_lifepoints": 100,
+                    "combat_lifepoints": 100,
                 "completed_achievements": [],
             }
             addon._state.card_turned = True
@@ -2509,8 +2507,7 @@ class TestIntegrationSmoke(unittest.TestCase):
                 "thieving_attempt_count": 0,
                 "thieving_success_count": 0,
                 "thieving_failure_count": 0,
-                "thieving_stunned": False,
-                "cadence_profiles": {},
+                    "cadence_profiles": {},
                 "combat_lifepoints": 100,
                 "completed_achievements": [],
             }
@@ -2549,7 +2546,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "thieving_attempt_count": 0,
             "thieving_success_count": 0,
             "thieving_failure_count": 0,
-            "thieving_stunned": False,
             "cadence_profiles": {},
             "combat_lifepoints": 100,
             "completed_achievements": [],
@@ -2571,7 +2567,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.player_data["thieving_attempt_count"], 1)
         self.assertEqual(addon._state.player_data["thieving_failure_count"], 1)
         self.assertEqual(addon._state.player_data["combat_lifepoints"], 80)
-        self.assertTrue(addon._state.player_data["thieving_stunned"])
+        self.assertNotIn("card_tick_debt", addon._state.player_data)  # stun paid in-card
         self.assertEqual(
             addon._state.player_data["cadence_profiles"]["thieving:wall_safe"]["assigned_reviews"],
             1,

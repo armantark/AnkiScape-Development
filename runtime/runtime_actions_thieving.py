@@ -166,7 +166,11 @@ from ..data.construction_data import (
 from ..data.shop_data import SHOP_PLAYER_BUY_PRICES
 from ..data.smithing_data import DEFAULT_SMITHING_TARGET
 from ..data.urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure
-from ..data.thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS
+from ..data.thieving_data import (
+    DEFAULT_THIEVING_TARGET,
+    PLACEHOLDER_STUN_TICKS_BY_KIND,
+    THIEVING_TARGETS,
+)
 from ..data.agility_data import AGILITY_TARGETS_BY_ID, DEFAULT_AGILITY_TARGET
 from ..logic.agility_logic import (
     agility_target_locked_reasons_pure,
@@ -409,6 +413,7 @@ from .runtime_actions_shared import (
 
 from .runtime_actions_context import (
     RuntimeActionContext,
+    stun_card,
 )
 
 
@@ -431,6 +436,9 @@ def _thieving_grant_outputs(
     return granted_outputs, clue_refusal_reason
 
 
+_FAILURE_LABELS = {"wall_safe": "Trap sprung"}
+
+
 def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, Any]) -> bool:
     player_data = ctx.player_data
     wall_safe = spec.get("kind") == "wall_safe"
@@ -449,7 +457,6 @@ def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, An
             player_data, damage, source="thieving_failure"
         )
         player_data.update(damaged_data)
-    player_data["thieving_stunned"] = True
     player_data["thieving_failure_count"] = int(player_data.get("thieving_failure_count", 0) or 0) + 1
     _record_action(
         ctx, "thieving", target, False,
@@ -467,10 +474,11 @@ def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, An
     elif damage_result.get("died"):
         ctx.deactivate_current_skill()
         ctx.show_activity_gain("☠ YOU DIED — Thieving failure; gear moved to grave")
-    elif wall_safe:
-        ctx.show_activity_gain(f"Trap sprung — {damage_result['damage']} LP damage; next review clears the stun")
     else:
-        ctx.show_activity_gain(f"Caught — {damage_result['damage']} LP damage; next review clears the stun")
+        # Only a player still thieving is stunned; the thug fight or a death replaces it.
+        stun_card(ctx, spec.get("stun_ticks", PLACEHOLDER_STUN_TICKS_BY_KIND.get(spec["kind"])))
+        caught = _FAILURE_LABELS.get(spec["kind"], "Caught")
+        ctx.show_activity_gain(f"{caught} — {damage_result['damage']} LP damage; next review clears the stun")
     food_used = damage_result.get("food_used")
     if food_used:
         ctx.show_activity_gain(
@@ -478,7 +486,7 @@ def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, An
         )
     ctx.check_achievements(player_data)
     ctx.save_player_data()
-    return False
+    return True
 
 
 def _thieving_award_success(
@@ -538,12 +546,6 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    if player_data.get("thieving_stunned"):
-        player_data["thieving_stunned"] = False
-        ctx.show_activity_gain("Recovered from the stun — no Thieving attempt this review")
-        ctx.save_player_data()
-        return False
-
     kind = spec.get("kind")
     if kind in {"stall", "wall_safe"}:
         profile = thieving_stall_cadence_profile_pure(target, spec)
@@ -561,8 +563,8 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
                 target,
             )
             # Restock is a routine cadence tick with nothing to act on; the
-            # stun-recovery and failure lines below stay visible because those
-            # are state changes the player would otherwise misread.
+            # failure lines below stay visible because those are state changes
+            # the player would otherwise misread.
             ctx.save_player_data()
             return True
 

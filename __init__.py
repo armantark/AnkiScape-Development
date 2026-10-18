@@ -5176,12 +5176,10 @@ def on_good_answer(before_state=None, *, defer_commit=False):
         review_ctx.save_player_data = lambda: None
         _begin_review_feedback_context(before_state.get("player_data", before_state))
         try:
-            if has_farm_step:
-                runtime_actions.spend_card_on_farm_queue(
-                    review_ctx,
-                    runtime_actions.handle_farming_review_answer,
-                    runtime_actions.handle_farming_queue_answer,
-                )
+            if has_farm_step and not runtime_actions.spend_card_on_farm_queue(
+                review_ctx, runtime_actions.handle_farming_review_answer, runtime_actions.handle_farming_queue_answer,
+            ):
+                runtime_actions.advance_farming_clock_for_review(review_ctx)
             if handler:
                 _spend_card_on_action(review_ctx, handler_key, handler)
         finally:

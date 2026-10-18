@@ -94,7 +94,6 @@ def _blackjack_state(*, fight_back=False):
         "thieving_attempt_count": 0,
         "thieving_success_count": 0,
         "thieving_failure_count": 0,
-        "thieving_stunned": False,
         "thieving_fight_back_when_caught": fight_back,
         "thieving_blackjack_phase": "needs_lure",
         "thieving_blackjack_picks_remaining": 0,
@@ -129,8 +128,7 @@ class TestThievingPureMechanics(unittest.TestCase):
             "thieving_attempt_count": 0,
             "thieving_success_count": 0,
             "thieving_failure_count": 0,
-            "thieving_stunned": False,
-            "inventory": {},
+                "inventory": {},
             "completed_achievements": [],
         }
         ctx, _calls = _context(
@@ -245,9 +243,10 @@ class TestThievingPureMechanics(unittest.TestCase):
         fails = _blackjack_state()
         fails["thieving_blackjack_phase"] = "ready_to_knockout"
         fails_ctx, _calls = _context(fails, random_values=(231 / 255, 0.0))
-        self.assertFalse(handle_thieving_answer(fails_ctx))
+        self.assertTrue(handle_thieving_answer(fails_ctx))
         self.assertEqual(fails["thieving_blackjack_phase"], "ready_to_knockout")
-        self.assertTrue(fails["thieving_stunned"])
+        self.assertEqual(fails["card_tick_debt"], 8)
+        self.assertEqual(fails_ctx.card.stop_reason, "stun")
 
     def test_multi_pick_threshold_edges_match_2011scape(self):
         target_level = 40
@@ -284,8 +283,7 @@ class TestThievingPureMechanics(unittest.TestCase):
             "thieving_attempt_count": 0,
             "thieving_success_count": 0,
             "thieving_failure_count": 0,
-            "thieving_stunned": False,
-            "inventory": {},
+                "inventory": {},
             "completed_achievements": [],
         }
         ctx, _calls = _context(player_data, random_values=(0.0, 0.13))
@@ -359,8 +357,7 @@ class TestThievingRuntime(unittest.TestCase):
             "thieving_attempt_count": 0,
             "thieving_success_count": 0,
             "thieving_failure_count": 0,
-            "thieving_stunned": False,
-            "inventory": {"Clue scroll (hard)": 1},
+                "inventory": {"Clue scroll (hard)": 1},
             "completed_achievements": [],
         }
         ctx, calls = _context(
@@ -404,8 +401,7 @@ class TestThievingRuntime(unittest.TestCase):
             "thieving_attempt_count": 0,
             "thieving_success_count": 0,
             "thieving_failure_count": 0,
-            "thieving_stunned": False,
-            "inventory": {},
+                "inventory": {},
             "completed_achievements": [],
         }
         ctx, calls = _context(
@@ -432,7 +428,7 @@ class TestThievingRuntime(unittest.TestCase):
             calls["activity"],
         )
 
-    def test_failed_pickpocket_deals_damage_then_next_review_only_clears_stun(self):
+    def test_failed_pickpocket_deals_damage_and_owes_its_stun_ticks(self):
         player_data = {
             "current_thieving": "pickpocket_man",
             "thieving_level": 1,
@@ -440,27 +436,21 @@ class TestThievingRuntime(unittest.TestCase):
             "thieving_attempt_count": 0,
             "thieving_success_count": 0,
             "thieving_failure_count": 0,
-            "thieving_stunned": False,
-            "combat_lifepoints": 100,
+                "combat_lifepoints": 100,
             "inventory": {},
             "quests": {},
             "completed_achievements": [],
         }
         ctx, calls = _context(player_data, random_values=(0.999, 0.0))
 
-        self.assertFalse(handle_thieving_answer(ctx))
+        self.assertTrue(handle_thieving_answer(ctx))
         self.assertEqual(player_data["combat_lifepoints"], 90)
-        self.assertTrue(player_data["thieving_stunned"])
+        self.assertEqual(player_data["card_tick_debt"], 8)
+        self.assertEqual(ctx.card.stop_reason, "stun")
         self.assertEqual(player_data["thieving_attempt_count"], 1)
         self.assertEqual(player_data["thieving_failure_count"], 1)
         self.assertEqual(player_data["thieving_exp"], 0.0)
-
-        self.assertFalse(handle_thieving_answer(ctx))
-        self.assertFalse(player_data["thieving_stunned"])
-        self.assertEqual(player_data["combat_lifepoints"], 90)
-        self.assertEqual(player_data["thieving_attempt_count"], 1)
-        self.assertEqual(player_data["thieving_failure_count"], 1)
-        self.assertEqual(calls["saves"], 2)
+        self.assertEqual(calls["saves"], 1)
 
     def test_failed_wall_safe_trap_deals_20_to_60_damage_and_stuns(self):
         for damage_roll, expected_damage in ((0.0, 20), (0.999999, 60)):
@@ -472,8 +462,7 @@ class TestThievingRuntime(unittest.TestCase):
                     "thieving_attempt_count": 0,
                     "thieving_success_count": 0,
                     "thieving_failure_count": 0,
-                    "thieving_stunned": False,
-                    "combat_lifepoints": 100,
+                                "combat_lifepoints": 100,
                     "cadence_profiles": {},
                     "inventory": {},
                     "quests": {},
@@ -483,22 +472,15 @@ class TestThievingRuntime(unittest.TestCase):
                     player_data, random_values=(85 / 255, damage_roll)
                 )
 
-                self.assertFalse(handle_thieving_answer(ctx))
+                self.assertTrue(handle_thieving_answer(ctx))
                 self.assertEqual(
                     player_data["combat_lifepoints"], 100 - expected_damage
                 )
-                self.assertTrue(player_data["thieving_stunned"])
+                self.assertEqual(player_data["card_tick_debt"], 8)
                 self.assertEqual(player_data["thieving_attempt_count"], 1)
                 self.assertEqual(player_data["thieving_failure_count"], 1)
                 self.assertEqual(player_data["thieving_exp"], 0.0)
                 self.assertIn("Trap sprung", calls["activity"][-1])
-
-                self.assertFalse(handle_thieving_answer(ctx))
-                self.assertFalse(player_data["thieving_stunned"])
-                self.assertEqual(
-                    player_data["combat_lifepoints"], 100 - expected_damage
-                )
-                self.assertEqual(player_data["thieving_attempt_count"], 1)
 
     def test_menaphite_lure_knockout_and_two_picks_are_four_six_tick_steps(self):
         player_data = _blackjack_state()
@@ -609,7 +591,8 @@ class TestThievingFightBackReview(unittest.TestCase):
             {"target_id": "menaphite_thug", "enemy_lifepoints": 600},
         )
         self.assertEqual(player["combat_lifepoints"], 100)
-        self.assertTrue(player["thieving_stunned"])
+        # The thug fight replaces the stun, so the next card fights at once.
+        self.assertNotIn("card_tick_debt", player)
         self.assertIn("Menaphite Thug fight started", activity[-1])
 
         addon.random.random = lambda: 0.0
@@ -655,7 +638,7 @@ class TestThievingStorage(unittest.TestCase):
         self.assertEqual(migrated["thieving_attempt_count"], 0)
         self.assertEqual(migrated["thieving_success_count"], 0)
         self.assertEqual(migrated["thieving_failure_count"], 0)
-        self.assertFalse(migrated["thieving_stunned"])
+        self.assertNotIn("thieving_stunned", migrated)
         self.assertFalse(migrated["thieving_fight_back_when_caught"])
         self.assertEqual(migrated["thieving_blackjack_phase"], "needs_lure")
         self.assertEqual(migrated["thieving_blackjack_picks_remaining"], 0)
@@ -700,7 +683,7 @@ class TestNoOpMessageBoundary(unittest.TestCase):
     otherwise misread.
     """
 
-    def _stall_player(self, *, stunned=False):
+    def _stall_player(self):
         return {
             "current_thieving": "stall_crafting",
             "thieving_level": 99,
@@ -708,7 +691,6 @@ class TestNoOpMessageBoundary(unittest.TestCase):
             "thieving_attempt_count": 0,
             "thieving_success_count": 0,
             "thieving_failure_count": 0,
-            "thieving_stunned": stunned,
             "inventory": {},
             "completed_achievements": [],
             "cadence_profiles": {},
@@ -734,19 +716,6 @@ class TestNoOpMessageBoundary(unittest.TestCase):
             ],
             0,
             "the silenced tick must still be recorded in telemetry",
-        )
-
-    def test_recovering_from_a_stun_still_reports_itself(self):
-        # Unlike a restock tick this is a state change: the player was blocked
-        # last review and is not any more, which no other surface says.
-        player_data = self._stall_player(stunned=True)
-        ctx, calls = _context(player_data)
-
-        self.assertFalse(handle_thieving_answer(ctx))
-        self.assertFalse(player_data["thieving_stunned"])
-        self.assertTrue(
-            any("Recovered from the stun" in message for message in calls["activity"]),
-            calls["activity"],
         )
 
     def test_a_locked_thieving_target_still_raises_an_error_dialog(self):
