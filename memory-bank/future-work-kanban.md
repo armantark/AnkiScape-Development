@@ -1080,8 +1080,8 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   normalized art, and a compact card. Exact score/pass/throw/tackle server
   rolls remain data-depth source gaps. See
   `memory-bank/source-audits/gnome-ball-loop-2026-07-17.md`.
-- Fish Flingers is mechanic-complete as an Activities-only six-review Fishing
-  event. It ships answered-card ticket accrual, automatic tackle discovery,
+- Fish Flingers is mechanic-complete as an Activities-only ten-minute,
+  eight-catch Fishing event. It ships answered-card ticket accrual, automatic tackle discovery,
   catches/weight/stock rotation, big fish and assists, terminal XP/tokens/
   medals, the complete outfit and tackle-box shop, ordinary-Fishing outfit
   effects, persistence, activity arbitration, undo, cadence, normalized art,

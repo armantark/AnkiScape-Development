@@ -107,7 +107,7 @@ class FishFlingersDataTests(unittest.TestCase):
         ):
             self.assertIn(item, registered)
 
-    def test_cadence_ledger_names_the_finite_six_catch_handler(self):
+    def test_cadence_ledger_names_the_ten_minute_eight_catch_handler(self):
         row = next(
             row
             for row in cadence_coverage.cadence_coverage_rows_pure()
@@ -115,7 +115,7 @@ class FishFlingersDataTests(unittest.TestCase):
             and row["action_id"] == FISH_FLINGERS_ACTIVITY_ID
         )
         self.assertEqual(row["route_kind"], "activity")
-        self.assertIn("six-review", row["source_reason"])
+        self.assertIn("ten-minute competition", row["source_reason"])
 
     def test_outfit_is_equippable_and_all_assets_are_period_normalized(self):
         item = constants.EQUIPMENT_ITEM_DATA["Fishing hat"]

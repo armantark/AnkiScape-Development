@@ -492,20 +492,20 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                     "source_status": "sourced_with_disclosed_translation",
                     "source_row": str(spec.get("source", "")),
                     "source_reason": (
-                        "One successful review resolves one productive catch in the "
-                        "settled six-review event. The three-step tackle ramp and event "
+                        "The event lasts the source's ten-minute competition, 1,000 ticks; "
+                        "its eight catches land every 125 ticks. The tackle ramp and event "
                         "XP curve are disclosed pacing translations of the source event."
                     ),
                     "includes": (
-                        "one productive catch and automatic communal pressure",
-                        "one terminal XP, token, and medal payout after six catches",
+                        "one productive catch per 125 ticks and automatic communal pressure",
+                        "one terminal XP, token, and medal payout after eight catches",
                     ),
                     "multiplier_behavior": (
-                        "M catches within the current event, stopping after its sixth; "
-                        "the same answer cannot begin another event"
+                        "Up to M six-tick steps of the current event per card, stopping "
+                        "when it ends; the same answer cannot begin another event"
                     ),
                     "undo_boundary": "one answered-card transaction",
-                    "flag_off_behavior": "same six-catch event handler",
+                    "flag_off_behavior": "same eight-catch event handler",
                     "profile": None,
                     "condition": "disclosed finite-event and XP translations",
                     "route_kind": "activity",

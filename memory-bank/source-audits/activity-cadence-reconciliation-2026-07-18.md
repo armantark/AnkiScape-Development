@@ -60,7 +60,7 @@ boundary.
 |---|---|---|
 | Tears of Guthix | `source_blocked_activity` | The automatic collection beat survives. Exact beat count and reward magnitude remain blocked; no legacy review count may be treated as parity. |
 | Circus | `activity_group` | Whole 6- or 10-trick performance remains a deliberate weekly grouping. It pays the exact bounded routine once and cannot be interpreted as ten repeatable skilling steps. |
-| Fish Flingers | `source_action` inside a finite activity | One review is one catch opportunity. The six-catch event length is a labeled pacing abstraction; completion rewards must be calibrated to that finite score model rather than to source minutes. |
+| Fish Flingers | `source_action` inside a finite activity | The event lasts the source's ten minutes, 1,000 ticks of the card budget, and its eight catches land every 125 ticks (decision 7 and Q4, 2026-10-18). The eight-catch count is a labeled abstraction; completion rewards follow that finite score model. |
 | Flash Powder Factory | `activity_group` | One A+B+catalyst+mix production circuit is the declared beat. The eight/nine-slot session remains an activity abstraction and may not replay hidden subactions or claim source minutes. |
 | Gnome Ball | `source_blocked_activity` | The three match beats remain, but their grouped goal XP and any throw XP are one declared fixed activity result. Missing tackle, score, and throw rolls remain blocked. |
 | Pyramid Plunder | `activity_group` | One room is the bounded beat. Its selected-priority object bundle and XP resolve once; there is no hidden urn loop and no second Thieving cadence gate. |

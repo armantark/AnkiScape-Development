@@ -33,12 +33,13 @@ The source's tackle deduction survives as a visible automatic efficiency ramp,
 not as controls the player must babysit:
 
 - neither Casual nor Advanced exposes bait, hook, or weight selection;
-- the first three successful reviews all produce catches;
-- those reviews successively discover bait, hook, and weight, visibly raising
-  catch efficiency until the third review reaches full efficiency;
-- one event lasts six successful reviews, leaving three catches at full
-  efficiency after the discovery ramp;
-- the sixth review atomically closes the event and awards XP, medals, and
+- the first three catches successively discover bait, hook, and weight,
+  visibly raising catch efficiency until the third catch reaches full
+  efficiency;
+- one event lasts the source's ten minutes, 1,000 ticks, and lands eight
+  catches, one every 125 ticks, leaving five catches at full efficiency after
+  the discovery ramp (see "The 2012 competition length" below);
+- the eighth catch atomically closes the event and awards XP, medals, and
   tokens;
 - the exact intermediate efficiency percentages are labeled AnkiScape balance
   values rather than source claims;
@@ -52,9 +53,10 @@ discovery step, current stock/rotation, score, and earned reward counters. Do
 not persist competitors, tackle candidates, search history, or background
 workers. All changes are answered-card-driven and undoable.
 
-The six-review length is an AnkiScape pacing abstraction, not a conversion of
-the source duration into wall-clock or answered-card minutes. It provides one
-compact sweep matching the source's six-species structure.
+The event lasts the source's ten minutes (decision 7, 2026-10-15). The
+eight-catch count inside it is an AnkiScape abstraction of the competition's
+many casts; the section "Event length raised to eight reviews" below explains
+why eight.
 
 ## Horizontal implementation harvest (`2026-07-21`)
 
@@ -78,10 +80,9 @@ images are recorded by `tools/fetch_fish_flingers_assets.py` and
 `assets_provenance.json`.
 
 The automatic tackle ramp counts only catches made at full efficiency as
-perfect-tackle credits. Because the settled six-review compression discovers
-the final component on catch three, one event can earn four such credits; it
-does not fabricate a six-perfect Master Angler medal during the two partial
-efficiency catches.
+perfect-tackle credits. The ramp discovers the final component on catch three,
+so one eight-catch event earns six such credits and Master Angler; that award
+is a declared abstraction (see "The 2012 competition length" below).
 
 The implemented event XP curve remains a disclosed balance translation:
 oldid `6529096` says XP scales with score and Fishing level and approaches
@@ -174,7 +175,9 @@ medal is reachable and no sourced value changed.
 
 The discovery ramp is untouched: bait, hook and weight still land on the first
 three reviews, and the two extra reviews run at full efficiency. Rewards scale
-with fish caught, so the longer event pays proportionally more.
+with fish caught, so the longer event pays proportionally more. The section
+below supersedes the "reviews" unit: the event now lasts the source's ten
+minutes, and the eight are catches spread across them.
 
 ## The 2012 competition length (`2026-10-18`)
 
