@@ -90,6 +90,17 @@ class FishFlingersGameLengthTests(unittest.TestCase):
         self.assertEqual(results[2], results[0])
         self.assertEqual(results[0][0]["medals"], 2, "Junior and Master Angler are automatic")
 
+    def _weight_discovery_card(self, speed: int) -> int:
+        addon = self._addon(speed, seed=5)
+        for card in range(1, 100):
+            if "Best weight discovered" in self._answer(addon)["fish_flingers_last_result"]:
+                return card
+        self.fail(f"the ramp at x{speed} did not finish within 100 cards")
+
+    def test_the_discovery_ramp_spans_three_eighths_of_the_game_at_every_speed(self):
+        # Bait, hook and weight land at ticks 125, 250 and 375 of the 1,000.
+        self.assertEqual({speed: self._weight_discovery_card(speed) for speed in (10, 1)}, {10: 7, 1: 63})
+
     def test_undo_restores_the_game_exactly(self):
         addon = self._addon(10, seed=3)
         for _card in range(2):

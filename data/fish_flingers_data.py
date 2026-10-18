@@ -62,10 +62,10 @@ FISH_FLINGERS_COMMUNAL_DEPLETION = 3
 
 # These are disclosed AnkiScape pacing values. The source proves that each
 # correct tackle component contributes one third of the rating, while the
-# owner-settled contract compresses automatic discovery into three reviews.
-# One entry per review. The ramp itself is unchanged — bait, hook and weight are
-# still discovered on the first three reviews — the event simply runs two more
-# reviews at full efficiency so six perfect tackles fit.
+# owner-settled contract compresses automatic discovery into the first three
+# catches. One entry per catch, so the ramp scales with the game: bait, hook and
+# weight land at ticks 125, 250 and 375, three eighths of the ten minutes at
+# every speed, and the last five catches run at full efficiency.
 FISH_FLINGERS_EFFICIENCY = (0.50, 0.75, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00)
 FISH_FLINGERS_DISCOVERY_LABELS = (
     "Best bait discovered",
