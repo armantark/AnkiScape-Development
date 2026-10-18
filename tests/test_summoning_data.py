@@ -2,13 +2,13 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.summoning_data import (
-    SOURCE_DURATION_UNITS_PER_REVIEW,
     SUMMONING_ACTIONS,
     SUMMONING_ACTIONS_BY_ID,
     SUMMONING_POUCHES,
     SUMMONING_POUCHES_BY_ID,
     summoning_extra_items_as_dict,
 )
+from ankiscape.logic.pace.summoning_clock import familiar_lifetime_ticks
 from ankiscape.generated.summoning_data_generated import (
     SUMMONING_FAMILIAR_OLDID,
     SUMMONING_POUCH_OLDID,
@@ -115,22 +115,13 @@ class SummoningDataTests(unittest.TestCase):
         self.assertEqual(ghast.scroll_use_xp, 0.9)
         self.assertEqual(ghast.special_points, 20)
 
-    def test_review_lifetime_mapping_is_bounded_and_ratio_preserving(self):
-        self.assertEqual(SOURCE_DURATION_UNITS_PER_REVIEW, 2)
+    def test_familiar_lifetime_is_its_source_minutes_in_ticks(self):
         dreadfowl = SUMMONING_POUCHES_BY_ID["dreadfowl"]
         pack_yak = SUMMONING_POUCHES_BY_ID["packyak"]
         rune_minotaur = SUMMONING_POUCHES_BY_ID["runeminotaur"]
-        self.assertEqual(dreadfowl.lifetime_reviews, 2)
-        self.assertEqual(pack_yak.lifetime_reviews, 29)
-        self.assertEqual(rune_minotaur.lifetime_reviews, 76)
-        self.assertLess(
-            dreadfowl.lifetime_reviews,
-            pack_yak.lifetime_reviews,
-        )
-        self.assertLess(
-            pack_yak.lifetime_reviews,
-            rune_minotaur.lifetime_reviews,
-        )
+        self.assertEqual(familiar_lifetime_ticks(dreadfowl), 400)
+        self.assertEqual(familiar_lifetime_ticks(pack_yak), 5_800)
+        self.assertEqual(familiar_lifetime_ticks(rune_minotaur), 15_100)
 
     def test_generated_items_preserve_source_ids(self):
         items = summoning_extra_items_as_dict()

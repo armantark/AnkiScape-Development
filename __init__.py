@@ -5214,6 +5214,7 @@ def _active_review_carried_target():
 
 
 def _advance_clocks_for_answer(successful_answer) -> None:
+    card_ticks = runtime_actions.card_ticks_pure(_review_action_multiplier())
     _state.player_data.update(advance_gnome_restaurant_clock_pure(
         _state.player_data, successful_answer=successful_answer,
         delivering=not _state.player_data.get("farm_queue")
@@ -5251,15 +5252,13 @@ def _advance_clocks_for_answer(successful_answer) -> None:
         _state.player_data.update(ge_updated)
     except Exception:
         pass
-    try:
-        summoning_updated, _events = advance_summoning_world_tick_pure(
-            _state.player_data,
-            successful_answer=successful_answer,
-            active_carried_target=_active_review_carried_target(),
-        )
-        _state.player_data.update(summoning_updated)
-    except Exception:
-        pass
+    summoning_updated, _events = advance_summoning_world_tick_pure(
+        _state.player_data,
+        successful_answer=successful_answer,
+        active_carried_target=_active_review_carried_target(),
+        card_ticks=card_ticks,
+    )
+    _state.player_data.update(summoning_updated)
 
 
 def _advance_effects_for_answer(successful_answer) -> None:

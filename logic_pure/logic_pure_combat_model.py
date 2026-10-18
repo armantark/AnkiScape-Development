@@ -2640,13 +2640,9 @@ def _combat_roll_drops(
 
 
 def _combat_apply_triple_charm_reward(data, drops):
-    state = data.get("summoning_state", {}) or {}
-    if (
-        not isinstance(state, Mapping)
-        or _non_negative_int(
-            state.get("triple_charm_reviews_remaining", 0), 0
-        ) <= 0
-    ):
+    from ..logic.summoning_logic import triple_charms_active_pure
+
+    if not triple_charms_active_pure(data):
         return drops
     eligible = {
         "Gold charm",

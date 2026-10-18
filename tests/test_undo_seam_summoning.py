@@ -133,7 +133,7 @@ class SummoningUndoSeamTest(unittest.TestCase):
         before_claim = copy.deepcopy(self.addon._state.player_data)
         self.assertTrue(self.handler("claim_familiarisation", {"choice": "triple_charms"})["ok"])
         claimed = copy.deepcopy(self.addon._state.player_data)
-        self.assertEqual(claimed["summoning_state"]["triple_charm_reviews_remaining"], 20)
+        self.assertEqual(claimed["summoning_state"]["triple_charm_ticks_remaining"], 4_000)
         self.assertEqual(claimed["activity_session"], {"active_id": ""})
         self.assertFalse(self.handler("claim_familiarisation", {"choice": "triple_charms"})["ok"])
         self.addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))

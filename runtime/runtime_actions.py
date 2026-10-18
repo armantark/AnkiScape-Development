@@ -609,6 +609,7 @@ from .runtime_actions_shared import (  # noqa: F401  (re-export)
 from .runtime_actions_context import (  # noqa: F401  (re-export)
     RuntimeActionContext,
     activity_session_cleared,
+    card_ticks_pure,
     spend_card_budget,
     spend_card_on_farm_queue,
 )

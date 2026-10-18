@@ -3,15 +3,17 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.summoning_data import SUMMONING_POUCHES_BY_ID
+from ankiscape.logic.pace.short_timers import STEP_TICKS
 from ankiscape.logic.pace.summoning_clock import (
-    ANSWER_EFFECT_TICKS,
     BUNYIP_HEAL_LIFEPOINTS,
     BUNYIP_HEAL_TICKS,
+    CARGO_RECLAIM_TICKS,
+    RENEWAL_WINDOW_TICKS,
     SPECIAL_MOVE_RECHARGE_POINTS,
     SPECIAL_MOVE_RECHARGE_TICKS,
+    familiar_lifetime_ticks,
 )
 from ankiscape.logic.summoning_logic import (
-    CARGO_RECLAIM_REVIEWS,
     FAMILIARISATION_ACTIVITY_ID,
     FAMILIARISATION_COOLDOWN_REVIEWS,
     FAMILIARISATION_INGREDIENT_REWARD_ROWS,
@@ -146,13 +148,13 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(active["inventory"]["Spirit wolf pouch"], 0)
         state = active["summoning_state"]
         self.assertEqual(state["summoning_points_current"], 0)
-        self.assertEqual(state["active_follower"]["remaining_reviews"], 3)
+        self.assertEqual(state["active_follower"]["remaining_ticks"], 600)
 
         advanced, tick = advance_summoning_world_tick_pure(active)
         self.assertIsNone(tick["expired_familiar"])
         self.assertEqual(
-            advanced["summoning_state"]["active_follower"]["remaining_reviews"],
-            2,
+            advanced["summoning_state"]["active_follower"]["remaining_ticks"],
+            600 - STEP_TICKS,
         )
         self.assertEqual(
             advanced["summoning_state"]["summoning_points_current"], 0
@@ -165,7 +167,7 @@ class SummoningLogicTests(unittest.TestCase):
         current, ok, _ = summon_familiar_pure(data, pouch.id)
         self.assertTrue(ok)
         after_summon = current["summoning_state"]["summoning_points_current"]
-        for _ in range(pouch.lifetime_reviews):
+        for _ in range(-(-familiar_lifetime_ticks(pouch) // STEP_TICKS)):
             current, _ = advance_summoning_world_tick_pure(current)
 
         self.assertEqual(
@@ -185,20 +187,20 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertTrue(ok)
         current["summoning_state"]["summoning_points_current"] = 0
 
-        for _ in range(5):
+        drain_per_card = STEP_TICKS * (pouch.level - pouch.summoning_point_cost)
+        for _ in range(11):
             current, _ = advance_summoning_world_tick_pure(current)
         follower = current["summoning_state"]["active_follower"]
         self.assertEqual(
             follower["summoning_point_drain_residual"],
-            (5 * (pouch.level - pouch.summoning_point_cost))
-            % pouch.lifetime_reviews,
+            (11 * drain_per_card) % familiar_lifetime_ticks(pouch),
         )
 
         current["summoning_state"]["summoning_points_current"] = 99
         current, _ = advance_summoning_world_tick_pure(current)
         self.assertEqual(
             current["summoning_state"]["summoning_points_current"],
-            96,
+            98,
         )
 
     def test_renewal_is_gated_and_preserves_cargo(self):
@@ -213,15 +215,15 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(result["reason"], "too_early")
         self.assertEqual(unchanged, active)
 
-        active["summoning_state"]["active_follower"]["remaining_reviews"] = 2
+        active["summoning_state"]["active_follower"]["remaining_ticks"] = RENEWAL_WINDOW_TICKS
         active["summoning_state"]["active_follower"][
             "summoning_point_drain_residual"
-        ] = pouch.lifetime_reviews - 1
+        ] = familiar_lifetime_ticks(pouch) - 1
         renewed, ok, result = renew_familiar_pure(active)
         self.assertTrue(ok)
         self.assertEqual(result["reason"], "renewed")
         follower = renewed["summoning_state"]["active_follower"]
-        self.assertEqual(follower["remaining_reviews"], pouch.lifetime_reviews)
+        self.assertEqual(follower["remaining_ticks"], familiar_lifetime_ticks(pouch))
         self.assertEqual(follower["summoning_point_drain_residual"], 0)
         self.assertEqual(follower["storage"], {"Raw shark": 3})
         self.assertEqual(renewed["inventory"]["Pack yak pouch"], 0)
@@ -297,15 +299,15 @@ class SummoningLogicTests(unittest.TestCase):
         data = player(inventory={"Pack yak pouch": 1, "Raw shark": 2})
         active, ok, _ = summon_familiar_pure(data, "packyak")
         self.assertTrue(ok)
-        active["summoning_state"]["active_follower"]["remaining_reviews"] = 1
+        active["summoning_state"]["active_follower"]["remaining_ticks"] = STEP_TICKS
         active["summoning_state"]["active_follower"]["storage"] = {"Raw shark": 2}
 
         expired, result = advance_summoning_world_tick_pure(active)
 
         self.assertEqual(result["expired_familiar"], "packyak")
         self.assertEqual(
-            result["expired_cargo_event"]["remaining_reviews"],
-            CARGO_RECLAIM_REVIEWS,
+            result["expired_cargo_event"]["remaining_ticks"],
+            CARGO_RECLAIM_TICKS,
         )
         self.assertEqual(expired["summoning_state"]["active_follower"], {})
         event = expired["summoning_state"]["cargo_events"][0]
@@ -326,14 +328,14 @@ class SummoningLogicTests(unittest.TestCase):
                 "event_id": 1,
                 "familiar_id": "packyak",
                 "items": {"Raw shark": 1},
-                "remaining_reviews": 1,
+                "remaining_ticks": STEP_TICKS,
                 "source": "expiry",
             },
             {
                 "event_id": 2,
                 "familiar_id": "wartortoise",
                 "items": {"Coal": 2},
-                "remaining_reviews": 3,
+                "remaining_ticks": 3 * STEP_TICKS,
                 "source": "dismissal",
             },
         ]
@@ -348,7 +350,7 @@ class SummoningLogicTests(unittest.TestCase):
         )
         retained = updated["summoning_state"]["cargo_events"]
         self.assertEqual(retained[0]["event_id"], 2)
-        self.assertEqual(retained[0]["remaining_reviews"], 2)
+        self.assertEqual(retained[0]["remaining_ticks"], 2 * STEP_TICKS)
 
     def test_dismissal_does_not_refund_pouch_and_drops_storage(self):
         data = player(inventory={"War tortoise pouch": 1})
@@ -503,9 +505,9 @@ class SummoningLogicTests(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual(result["raw_shards"], 60)
-        self.assertEqual(result["reviews"], 20)
+        self.assertEqual(result["ticks"], 4_000)
         self.assertEqual(
-            charmed["summoning_state"]["triple_charm_reviews_remaining"], 20
+            charmed["summoning_state"]["triple_charm_ticks_remaining"], 4_000
         )
         self.assertEqual(charmed["activity_session"], {"active_id": ""})
         unchanged, ok, result = claim_familiarisation_reward_pure(
@@ -618,7 +620,7 @@ class SummoningLogicTests(unittest.TestCase):
             current["summoning_state"]["active_follower"][
                 "bunyip_heal_residual"
             ],
-            (9 * ANSWER_EFFECT_TICKS) % BUNYIP_HEAL_TICKS,
+            (9 * STEP_TICKS) % BUNYIP_HEAL_TICKS,
         )
 
     def test_special_move_recharge_uses_global_exact_answer_tick_residual(self):
@@ -641,7 +643,7 @@ class SummoningLogicTests(unittest.TestCase):
         )
         self.assertEqual(
             current["summoning_state"]["special_move_recharge_residual"],
-            (9 * ANSWER_EFFECT_TICKS) % SPECIAL_MOVE_RECHARGE_TICKS,
+            (9 * STEP_TICKS) % SPECIAL_MOVE_RECHARGE_TICKS,
         )
 
     def test_familiar_invisible_boosts_change_roll_level_not_base_state(self):

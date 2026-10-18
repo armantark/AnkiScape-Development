@@ -7,7 +7,6 @@ and the item registry.
 
 from __future__ import annotations
 
-import math
 import re
 from dataclasses import dataclass
 from types import MappingProxyType
@@ -20,7 +19,6 @@ ActionFamily = Literal["infuse", "scroll"]
 TertiaryMode = Literal["all", "any"]
 
 DEFAULT_SUMMONING_TARGET = "infuse_spiritwolf"
-SOURCE_DURATION_UNITS_PER_REVIEW = 2
 SUMMONING_RENEWAL_SOURCE_MINUTES = 2.5
 SCROLLS_PER_POUCH = 10
 
@@ -52,7 +50,6 @@ class SummoningPouch:
     creation_xp: Optional[float]
     summon_xp: float
     duration_source_minutes: int
-    lifetime_reviews: int
     summoning_point_cost: int
     combat: str
     lifepoints: Optional[int]
@@ -75,11 +72,6 @@ class SummoningPouch:
     bogrog_shards: Optional[int]
     source: str
     scroll_source: str
-
-    @property
-    def renewal_window_reviews(self) -> int:
-        ratio = SUMMONING_RENEWAL_SOURCE_MINUTES / SOURCE_DURATION_UNITS_PER_REVIEW
-        return max(1, math.ceil(ratio))
 
 
 @dataclass(frozen=True)
@@ -118,7 +110,6 @@ def _pouch_from_row(row: Mapping[str, object]) -> SummoningPouch:
         ),
         summon_xp=float(row["summon_xp"]),
         duration_source_minutes=duration,
-        lifetime_reviews=max(2, math.ceil(duration / SOURCE_DURATION_UNITS_PER_REVIEW)),
         summoning_point_cost=int(row["summoning_point_cost"]),
         combat=str(row["combat"]),
         lifepoints=int(row["lifepoints"]) if row.get("lifepoints") is not None else None,

@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Mapping, Optional
 
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
+from ..logic.pace.short_timers import card_ticks_pure
 
 # Quests and Dungeoneering already run faster than 2012 at speed 1, so they keep
 # one stage or one room per card at every speed (owner-accepted).
@@ -73,8 +74,7 @@ class RuntimeActionContext:
 
     def __post_init__(self) -> None:
         if self.card is None:
-            speed = max(1, int(self.review_action_multiplier or 1))
-            self.card = CardBudget(LIVE_COMBAT_TICKS_PER_REVIEW * speed)
+            self.card = CardBudget(card_ticks_pure(self.review_action_multiplier))
 
 
 def stop_card(ctx: RuntimeActionContext, reason: str) -> None:

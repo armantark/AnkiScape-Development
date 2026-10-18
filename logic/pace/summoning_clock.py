@@ -8,24 +8,29 @@ what a familiar's expiry does to the rest of the save.
 
 from __future__ import annotations
 
-import math
 from typing import Any, Mapping, Optional
 
-from ...data.summoning_data import SOURCE_DURATION_UNITS_PER_REVIEW, SUMMONING_POUCHES_BY_ID
+from ...data.summoning_data import SUMMONING_POUCHES_BY_ID, SUMMONING_RENEWAL_SOURCE_MINUTES
+from .short_timers import STEP_TICKS, TICKS_PER_LEGACY_SHORT_REVIEW, TICKS_PER_SOURCE_MINUTE
 
 
 SPECIAL_MOVE_POINTS_MAX = 60
-ANSWER_EFFECT_TICKS = 6
 SPECIAL_MOVE_RECHARGE_TICKS = 50
 SPECIAL_MOVE_RECHARGE_POINTS = 15
 BUNYIP_HEAL_TICKS = 25
 BUNYIP_HEAL_LIFEPOINTS = 20
-CARGO_RECLAIM_SOURCE_MINUTES = 5
-CARGO_RECLAIM_REVIEWS = math.ceil(
-    CARGO_RECLAIM_SOURCE_MINUTES / SOURCE_DURATION_UNITS_PER_REVIEW
+CARGO_RECLAIM_TICKS = 5 * TICKS_PER_SOURCE_MINUTE
+RENEWAL_WINDOW_TICKS = round(SUMMONING_RENEWAL_SOURCE_MINUTES * TICKS_PER_SOURCE_MINUTE)
+CARGO_TIMER_KEY = "remaining_ticks"
+TRIPLE_CHARM_TIMER_KEY = "triple_charm_ticks_remaining"
+# The card counts a save from before ticks still holds, with their tick fields.
+_LEGACY_FAMILIAR_FIELDS = (
+    ("remaining_reviews", "remaining_ticks"),
+    ("max_reviews", "max_ticks"),
+    ("summoning_point_drain_residual", "summoning_point_drain_residual"),
 )
-CARGO_TIMER_KEY = "remaining_reviews"
-TRIPLE_CHARM_TIMER_KEY = "triple_charm_reviews_remaining"
+_LEGACY_CARGO_KEY = "remaining_reviews"
+_LEGACY_TRIPLE_CHARM_KEY = "triple_charm_reviews_remaining"
 
 
 def _clean_int(
@@ -46,23 +51,43 @@ def _clean_int(
     return clean
 
 
+def _legacy_ticks(raw: Mapping[str, Any], key: str, legacy_key: str) -> int:
+    if key in raw or legacy_key not in raw:
+        return _clean_int(raw.get(key), 0, minimum=0)
+    return _clean_int(raw.get(legacy_key), 0, minimum=0) * TICKS_PER_LEGACY_SHORT_REVIEW
+
+
+def familiar_lifetime_ticks(pouch: Any) -> int:
+    return pouch.duration_source_minutes * TICKS_PER_SOURCE_MINUTE
+
+
 def sanitize_familiar_timers(follower: dict[str, Any]) -> None:
-    """Clamp an active follower's timer fields to their periods, in place."""
-    follower["remaining_reviews"] = _clean_int(
-        follower.get("remaining_reviews"), 0, minimum=0
-    )
-    follower["max_reviews"] = _clean_int(
-        follower.get("max_reviews"), follower["remaining_reviews"], minimum=0
-    )
+    """Clamp an active follower's timer fields to their periods, in place.
+
+    A follower saved before ticks converts its card counts here, so a running
+    familiar keeps its remaining time.
+    """
+    if "remaining_ticks" not in follower:
+        for legacy_key, key in _LEGACY_FAMILIAR_FIELDS:
+            if legacy_key in follower:
+                follower[key] = (
+                    _clean_int(follower.pop(legacy_key), 0, minimum=0)
+                    * TICKS_PER_LEGACY_SHORT_REVIEW
+                )
+    pouch = SUMMONING_POUCHES_BY_ID.get(str(follower.get("entity_id", "")))
+    remaining = _clean_int(follower.get("remaining_ticks"), 0, minimum=0)
+    if pouch is not None:
+        remaining = min(remaining, familiar_lifetime_ticks(pouch))
+    follower["remaining_ticks"] = remaining
+    follower["max_ticks"] = _clean_int(follower.get("max_ticks"), remaining, minimum=0)
     follower["bunyip_heal_residual"] = _clean_int(
         follower.get("bunyip_heal_residual"),
         0,
         minimum=0,
         maximum=BUNYIP_HEAL_TICKS - 1,
     )
-    pouch = SUMMONING_POUCHES_BY_ID.get(str(follower.get("entity_id", "")))
     drain_period = (
-        pouch.lifetime_reviews if pouch is not None else follower["max_reviews"]
+        familiar_lifetime_ticks(pouch) if pouch is not None else follower["max_ticks"]
     )
     follower["summoning_point_drain_residual"] = _clean_int(
         follower.get("summoning_point_drain_residual"),
@@ -74,15 +99,16 @@ def sanitize_familiar_timers(follower: dict[str, Any]) -> None:
 
 def familiar_lifetime(pouch: Any) -> dict[str, int]:
     """A freshly summoned or renewed familiar's whole lifetime."""
+    lifetime = familiar_lifetime_ticks(pouch)
     return {
-        "remaining_reviews": pouch.lifetime_reviews,
-        "max_reviews": pouch.lifetime_reviews,
+        "remaining_ticks": lifetime,
+        "max_ticks": lifetime,
         "summoning_point_drain_residual": 0,
     }
 
 
-def renewal_window_open(follower: Mapping[str, Any], pouch: Any) -> bool:
-    return follower["remaining_reviews"] <= pouch.renewal_window_reviews
+def renewal_window_open(follower: Mapping[str, Any]) -> bool:
+    return follower["remaining_ticks"] <= RENEWAL_WINDOW_TICKS
 
 
 def sanitize_summoning_timers(source: Mapping[str, Any]) -> dict[str, int]:
@@ -94,8 +120,8 @@ def sanitize_summoning_timers(source: Mapping[str, Any]) -> dict[str, int]:
             minimum=0,
             maximum=SPECIAL_MOVE_RECHARGE_TICKS - 1,
         ),
-        TRIPLE_CHARM_TIMER_KEY: _clean_int(
-            source.get(TRIPLE_CHARM_TIMER_KEY), 0, minimum=0
+        TRIPLE_CHARM_TIMER_KEY: _legacy_ticks(
+            source, TRIPLE_CHARM_TIMER_KEY, _LEGACY_TRIPLE_CHARM_KEY
         ),
     }
 
@@ -111,7 +137,9 @@ def _clean_inventory(raw: Any) -> dict[str, int]:
 
 
 def sanitize_cargo_timer(raw: Mapping[str, Any]) -> int:
-    return _clean_int(raw.get(CARGO_TIMER_KEY), 0, minimum=0)
+    return min(
+        CARGO_RECLAIM_TICKS, _legacy_ticks(raw, CARGO_TIMER_KEY, _LEGACY_CARGO_KEY)
+    )
 
 
 def sanitize_cargo_events(raw: Any) -> list[dict[str, Any]]:
@@ -153,7 +181,7 @@ def drop_familiar_storage(
         "event_id": state["cargo_next_event_id"],
         "familiar_id": str(follower.get("entity_id", "")),
         "items": storage,
-        CARGO_TIMER_KEY: CARGO_RECLAIM_REVIEWS,
+        CARGO_TIMER_KEY: CARGO_RECLAIM_TICKS,
         "source": source,
     }
     state["cargo_next_event_id"] += 1
@@ -164,12 +192,11 @@ def drop_familiar_storage(
 
 def triple_charm_duration(shards: int) -> int:
     """Triple charm drops for 40 seconds per raw shard, rounded to the minute."""
-    source_minutes = round(shards * 40.0 / 60.0)
-    return max(1, math.ceil(source_minutes / SOURCE_DURATION_UNITS_PER_REVIEW))
+    return round(shards * 40.0 / 60.0) * TICKS_PER_SOURCE_MINUTE
 
 
 def _advance_bunyip_heal(
-    player_data: dict[str, Any], follower: dict[str, Any]
+    player_data: dict[str, Any], follower: dict[str, Any], ticks: int
 ) -> int:
     # An ordinary familiar stays summoned through a Frozen floor, but its heal
     # must not reach Daemonheim, where survival rests on floor supplies alone.
@@ -178,8 +205,7 @@ def _advance_bunyip_heal(
     if follower.get("entity_id") != "bunyip" or in_floor:
         return 0
     heal_steps, follower["bunyip_heal_residual"] = divmod(
-        _clean_int(follower.get("bunyip_heal_residual"), 0, minimum=0)
-        + ANSWER_EFFECT_TICKS,
+        _clean_int(follower.get("bunyip_heal_residual"), 0, minimum=0) + ticks,
         BUNYIP_HEAL_TICKS,
     )
     maximum = max(
@@ -195,25 +221,27 @@ def _advance_bunyip_heal(
 
 
 def _advance_familiar_lifetime(
-    state: dict[str, Any], follower: dict[str, Any]
+    state: dict[str, Any], follower: dict[str, Any], ticks: int
 ) -> None:
-    follower["remaining_reviews"] = max(
-        0, _clean_int(follower.get("remaining_reviews"), 0) - 1
-    )
+    remaining = max(0, _clean_int(follower.get("remaining_ticks"), 0))
+    lived = min(ticks, remaining)
+    follower["remaining_ticks"] = remaining - lived
     pouch = SUMMONING_POUCHES_BY_ID.get(str(follower["entity_id"]))
     if pouch is None:
         return
-    lifetime_reviews = max(1, pouch.lifetime_reviews)
+    # The drain spreads over the ticks the familiar actually lives, so a card
+    # that outlasts it cannot drain past the source total.
+    lifetime = max(1, familiar_lifetime_ticks(pouch))
     drain_per_lifetime = max(0, pouch.level - pouch.summoning_point_cost)
     drain_steps, follower["summoning_point_drain_residual"] = divmod(
         _clean_int(
             follower.get("summoning_point_drain_residual"),
             0,
             minimum=0,
-            maximum=lifetime_reviews - 1,
+            maximum=lifetime - 1,
         )
-        + drain_per_lifetime,
-        lifetime_reviews,
+        + drain_per_lifetime * lived,
+        lifetime,
     )
     state["summoning_points_current"] = max(
         0, state["summoning_points_current"] - drain_steps
@@ -221,9 +249,9 @@ def _advance_familiar_lifetime(
 
 
 def advance_summoning_timers(
-    player_data: dict[str, Any], state: dict[str, Any]
+    player_data: dict[str, Any], state: dict[str, Any], ticks: int = STEP_TICKS
 ) -> dict[str, Any]:
-    """Advance every timer of a sanitized Summoning state by one answered card.
+    """Advance every timer of a sanitized Summoning state by one card's ticks.
 
     Returns the cargo events whose window closed, the Bunyip's healing, and
     the familiar whose lifetime ran out, still in ``state`` for its owner to
@@ -233,12 +261,12 @@ def advance_summoning_timers(
     lost: list[dict[str, Any]] = []
     for event in state["cargo_events"]:
         event = dict(event)
-        event[CARGO_TIMER_KEY] -= 1
+        event[CARGO_TIMER_KEY] -= ticks
         (retained if event[CARGO_TIMER_KEY] > 0 else lost).append(event)
     state["cargo_events"] = retained
 
     recharge_steps, state["special_move_recharge_residual"] = divmod(
-        state["special_move_recharge_residual"] + ANSWER_EFFECT_TICKS,
+        state["special_move_recharge_residual"] + ticks,
         SPECIAL_MOVE_RECHARGE_TICKS,
     )
     state["special_move_points_current"] = min(
@@ -246,16 +274,16 @@ def advance_summoning_timers(
         state["special_move_points_current"]
         + recharge_steps * SPECIAL_MOVE_RECHARGE_POINTS,
     )
-    state[TRIPLE_CHARM_TIMER_KEY] = max(0, state[TRIPLE_CHARM_TIMER_KEY] - 1)
+    state[TRIPLE_CHARM_TIMER_KEY] = max(0, state[TRIPLE_CHARM_TIMER_KEY] - ticks)
 
     healing = 0
     expired = None
     follower = state["active_follower"]
     if follower.get("kind") == "familiar":
         follower = dict(follower)
-        healing = _advance_bunyip_heal(player_data, follower)
-        _advance_familiar_lifetime(state, follower)
+        healing = _advance_bunyip_heal(player_data, follower, ticks)
+        _advance_familiar_lifetime(state, follower, ticks)
         state["active_follower"] = follower
-        if follower["remaining_reviews"] <= 0:
+        if follower["remaining_ticks"] <= 0:
             expired = follower
     return {"lost_cargo_events": lost, "passive_healing": healing, "expired": expired}

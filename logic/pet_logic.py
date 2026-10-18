@@ -144,8 +144,8 @@ def let_out_pet_pure(
     state["active_follower"] = {
         "kind": "pet",
         "entity_id": instance_id,
-        "remaining_reviews": 0,
-        "max_reviews": 0,
+        "remaining_ticks": 0,
+        "max_ticks": 0,
         "storage": {},
         "hidden_in_spirit_plane": False,
         "policy_lapse_reason": "",

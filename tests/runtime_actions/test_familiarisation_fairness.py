@@ -6,8 +6,9 @@ import unittest
 
 from tests import test_farming_dispatch as farming
 from tests.test_integration_smoke import _FakeReviewer, _load_addon_as_package
+from ankiscape.logic.pace.summoning_clock import CARGO_RECLAIM_TICKS
 from ankiscape.logic.summoning_logic import (
-    CARGO_RECLAIM_REVIEWS, familiar_storage_transfer_pure, summon_familiar_pure,
+    familiar_storage_transfer_pure, summon_familiar_pure,
 )
 from tests.test_summoning_logic import (
     ORE_DATA, default_player_data, migrate_loaded_data, start_familiarisation_pure,
@@ -36,13 +37,14 @@ class FamiliarisationReviewTests(unittest.TestCase):
         data, ok = familiar_storage_transfer_pure(data, "Raw shark", 2, to_familiar=True)
         self.assertTrue(ok)
         summoning = data["summoning_state"]
-        summoning["active_follower"]["remaining_reviews"] = 2
+        # Speed 1: each answer spends six ticks of every Summoning timer.
+        summoning["active_follower"]["remaining_ticks"] = 12
         summoning["special_move_points_current"] = 0
         summoning["special_move_recharge_residual"] = 44
-        summoning["triple_charm_reviews_remaining"] = 3
+        summoning["triple_charm_ticks_remaining"] = 18
         summoning["cargo_events"] = [{
             "event_id": 1, "familiar_id": "packyak", "items": {"Coal": 1},
-            "remaining_reviews": 1, "source": "dismissal",
+            "remaining_ticks": 6, "source": "dismissal",
         }]
         summoning["cargo_next_event_id"] = 2
         data, ok = start_familiarisation_pure(data)
@@ -70,17 +72,17 @@ class FamiliarisationReviewTests(unittest.TestCase):
             clocks = addon._state.player_data["summoning_state"]
             self.assertEqual(clocks["special_move_points_current"], 15)
             self.assertEqual(clocks["special_move_recharge_residual"], (44 + index * 6) % 50)
-            self.assertEqual(clocks["triple_charm_reviews_remaining"], max(0, 3 - index))
+            self.assertEqual(clocks["triple_charm_ticks_remaining"], max(0, 18 - 6 * index))
             if index == 1:
-                self.assertEqual(clocks["active_follower"]["remaining_reviews"], 1)
+                self.assertEqual(clocks["active_follower"]["remaining_ticks"], 6)
                 self.assertEqual(clocks["active_follower"]["storage"], {"Raw shark": 2})
                 self.assertEqual(clocks["cargo_events"], [])
             else:
                 self.assertEqual(clocks["active_follower"], {})
-                deadline = CARGO_RECLAIM_REVIEWS - (index - 2)
+                deadline = CARGO_RECLAIM_TICKS - 6 * (index - 2)
                 expected_cargo = [{
                     "event_id": 2, "familiar_id": "packyak", "items": {"Raw shark": 2},
-                    "remaining_reviews": deadline, "source": "expiry",
+                    "remaining_ticks": deadline, "source": "expiry",
                 }] if deadline > 0 else []
                 self.assertEqual(clocks["cargo_events"], expected_cargo)
             successes += int(ease > 1)

@@ -14,8 +14,8 @@ from ..data.summoning_data import (
     SUMMONING_POUCHES_BY_ID,
     SUMMONING_POUCHES_BY_NAME,
 )
+from .pace.short_timers import STEP_TICKS, steps_for_ticks_pure
 from .pace.summoning_clock import (
-    CARGO_RECLAIM_REVIEWS,
     SPECIAL_MOVE_POINTS_MAX,
     TRIPLE_CHARM_TIMER_KEY,
     advance_summoning_timers,
@@ -254,10 +254,27 @@ def familiarisation_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             and not activity["awaiting_reward"]
             and activity["cooldown_reviews_remaining"] <= 0
         ),
-        TRIPLE_CHARM_TIMER_KEY: state[TRIPLE_CHARM_TIMER_KEY],
+        "triple_charm_reviews_remaining": steps_for_ticks_pure(
+            state[TRIPLE_CHARM_TIMER_KEY]
+        ),
         "max_segments": FAMILIARISATION_MAX_SEGMENTS,
         "shard_cap": FAMILIARISATION_SHARD_CAP,
     }
+
+
+def familiar_reviews_remaining_pure(follower: Mapping[str, Any]) -> int:
+    """The cards a familiar still lasts at speed 1."""
+    timers = dict(follower)
+    sanitize_familiar_timers(timers)
+    return steps_for_ticks_pure(timers["remaining_ticks"])
+
+
+def triple_charms_active_pure(player_data: Mapping[str, Any]) -> bool:
+    state = player_data.get("summoning_state")
+    return (
+        isinstance(state, Mapping)
+        and sanitize_summoning_timers(state)[TRIPLE_CHARM_TIMER_KEY] > 0
+    )
 
 
 def _copy_player_data(player_data: Mapping[str, Any]) -> dict[str, Any]:
@@ -605,7 +622,7 @@ def renew_familiar_pure(
     pouch = SUMMONING_POUCHES_BY_ID.get(str(follower["entity_id"]))
     if pouch is None:
         return dict(player_data), False, {"reason": "unknown_familiar"}
-    if not renewal_window_open(follower, pouch):
+    if not renewal_window_open(follower):
         return dict(player_data), False, {"reason": "too_early"}
     inventory = dict(updated.get("inventory", {}) or {})
     if _clean_int(inventory.get(pouch.pouch_name), 0, minimum=0) <= 0:
@@ -777,9 +794,9 @@ def claim_familiarisation_reward_pure(
         "raw_shards": shards,
     }
     if choice == "triple_charms":
-        reviews = triple_charm_duration(shards)
-        state[TRIPLE_CHARM_TIMER_KEY] = max(state[TRIPLE_CHARM_TIMER_KEY], reviews)
-        result["reviews"] = reviews
+        ticks = triple_charm_duration(shards)
+        state[TRIPLE_CHARM_TIMER_KEY] = max(state[TRIPLE_CHARM_TIMER_KEY], ticks)
+        result["ticks"] = ticks
     else:
         reward_row = max(
             (
@@ -883,7 +900,9 @@ def advance_summoning_world_tick_pure(
     *,
     successful_answer: Optional[bool] = None,
     active_carried_target: Optional[str] = None,
+    card_ticks: int = STEP_TICKS,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Advance the Summoning world over one answered card's time budget."""
     updated = _copy_player_data(player_data)
     level = _clean_int(updated.get("summoning_level"), 1, minimum=1)
     state = sanitize_summoning_state_pure(
@@ -904,7 +923,7 @@ def advance_summoning_world_tick_pure(
     state = updated["summoning_state"]
     if familiarisation_result is not None:
         result["familiarisation"] = familiarisation_result
-    timers = advance_summoning_timers(updated, state)
+    timers = advance_summoning_timers(updated, state, card_ticks)
     result["lost_cargo_events"] = timers["lost_cargo_events"]
     result["passive_healing"] = timers["passive_healing"]
     if expired := timers["expired"]:
@@ -966,5 +985,4 @@ def use_familiar_special_pure(
     return effected, True, result
 
 
-assert CARGO_RECLAIM_REVIEWS == 3
 assert DEFAULT_SUMMONING_TARGET in SUMMONING_ACTIONS_BY_ID

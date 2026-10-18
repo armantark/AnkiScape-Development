@@ -609,7 +609,7 @@ from ..logic.dnd_favourites_logic import (
     dnd_favourite_context_menu_view_pure,
     dnd_favourite_detail_button_view_pure,
 )
-from ..logic.summoning_logic import familiarisation_view_pure
+from ..logic.summoning_logic import familiar_reviews_remaining_pure, familiarisation_view_pure
 from ..logic.skilling_boost_logic import (
     skilling_potion_target_enabled_pure,
 )
@@ -26242,7 +26242,7 @@ def show_main_menu(
         )
         if kind == "familiar" and entity_id in SUMMONING_POUCHES_BY_ID:
             pouch = SUMMONING_POUCHES_BY_ID[entity_id]
-            remaining = max(0, int(follower.get("remaining_reviews", 0) or 0))
+            remaining = familiar_reviews_remaining_pure(follower)
             storage = follower.get("storage", {}) or {}
             cargo = ", ".join(
                 f"{name} ×{amount}" for name, amount in storage.items() if amount

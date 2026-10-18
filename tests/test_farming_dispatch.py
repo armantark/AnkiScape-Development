@@ -141,7 +141,8 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         self.assertEqual(order, ["shop", "summoning", "farm"])
         follower = addon._state.player_data["summoning_state"]["active_follower"]
-        self.assertEqual(follower["remaining_reviews"], 2)
+        # The saved three cards migrate to 600 ticks; one speed-1 Again spends 6.
+        self.assertEqual(follower["remaining_ticks"], 594)
         self.assertEqual(
             addon._state.player_data["summoning_state"]["summoning_points_current"],
             10,
@@ -163,7 +164,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         data["summoning_state"]["summoning_points_current"] = 68
         data, summoned, _ = summoning.summon_familiar_pure(data, "bunyip")
         self.assertTrue(summoned)
-        lifetime = data["summoning_state"]["active_follower"]["remaining_reviews"]
+        lifetime = data["summoning_state"]["active_follower"]["remaining_ticks"]
         points = data["summoning_state"]["summoning_points_current"]
         data, entered, _ = dungeon.apply_dungeoneering_command_pure(
             data, "enter", {"floor": 1}
@@ -184,8 +185,11 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         self.assertEqual(data["combat_lifepoints"], 50)
         follower = data["summoning_state"]["active_follower"]
         self.assertEqual(follower["entity_id"], "bunyip")
-        self.assertEqual(follower["remaining_reviews"], lifetime - 5)
-        self.assertLess(data["summoning_state"]["summoning_points_current"], points)
+        self.assertEqual(follower["remaining_ticks"], lifetime - 5 * 6)
+        # Thirty ticks of a 44-minute lifetime drain less than one point; the
+        # drain still runs inside the floor.
+        self.assertEqual(data["summoning_state"]["summoning_points_current"], points)
+        self.assertGreater(follower["summoning_point_drain_residual"], 0)
 
         data, abandoned, _ = dungeon.apply_dungeoneering_command_pure(data, "abandon")
         self.assertTrue(abandoned)
@@ -201,7 +205,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         data = addon._state.player_data
         self.assertEqual(data["combat_lifepoints"], 70)
         self.assertEqual(
-            data["summoning_state"]["active_follower"]["remaining_reviews"], lifetime - 10
+            data["summoning_state"]["active_follower"]["remaining_ticks"], lifetime - 10 * 6
         )
 
     def test_ge_fill_undo_and_reanswer_replay_the_same_market_transaction(self):
