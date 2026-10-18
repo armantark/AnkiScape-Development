@@ -1,13 +1,13 @@
 # Relicym's mix stackability contract — 2026-10-17
 
-Status: qualified for backend implementation. Base: `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`.
+Status: backend implementation complete on the slice branch; promotion and native acceptance remain with root. Qualification base: `3c1f481e51a015432a52a3b1b5b2c205e8d0d2a7`.
 Cutoff: `2012-11-20T00:00:00Z`. Backend scope only.
 Preserve the current storage key, interface, icons, recipe, output quantity and review rate.
 Root owns promotion, native verification and peer notices.
 
 ## Required result
 
-The live `Relicym's mix (2)` row has tradeable=true, stackable=true and source_item_id=None.
+At qualification, the live `Relicym's mix (2)` row had tradeable=true, stackable=true and source_item_id=None.
 The drinkable period item is ID `11437`, tradeable=true and stackable=false.
 Its existing GE row is correct: guide price `268`, buy limit `1000`, cache value `150`.
 Keep that GE row and its provenance. Do not apply the stackability of the noted item to the drinkable item.
@@ -60,4 +60,12 @@ Run `python3 run_tests.py` and the standing documentation, test-quality, item-re
 Root runs both full lanes on the merged commit through the promotion gate.
 Drive the real Herblore recipe with a nearly full carried inventory and check the existing capacity rule for separate nonstackable outputs.
 Check the real registry and retained GE row, save/reload and review Undo. Add behavior coverage only for a real coverage gap.
-This research contract does not claim implementation, native proof or gameplay acceptance.
+The original research qualification did not claim implementation, native proof or gameplay acceptance.
+
+## Implementation
+
+The existing metadata row now supplies item_id11437, stackable=false, tradeable=true and the accepted non-beta oldid5503026 citation. The merged metadata and real registry retain these flags; the existing GE row retains price268, limit1000 and cache150. No inventory key, recipe, dose, review rate, potion effect or interface changed. No catalog pin changes: the 1445 guide-price and 1840 buy-limit equalities remain exact because this is an existing row.
+
+Ordinary merge `55855c28bae837e9ebb2977445c96fe74401cfa6` brings in the accepted shared pack repair `8936d93baba43734d37212def0931d699f93fea4`; both source-ledger histories remain intact. No duplicate capacity repair or migration was added.
+
+`tests/test_herblore_data.py` covers final metadata/registry/GE consumers, the real recipe with 26 existing mixes plus its two ingredients in a full custom pack, exact ingredient/output/XP deltas, complete player/current-skill review Undo and replay, and an old active 30-mix pack capped at28 with all ownership and the saved layout preserved. The same scenarios use both the existing fake collection fixture and real Anki collection save/close/reopen. Focused plain:21 tests, exit0, no skips; focused offscreen Qt:9 tests, exit0, no skips. Raw branch verification and final commands are in `/Users/armantarkhanian/Documents/ankiscape-goal-evidence-2026-10-17/harvest-9/relicym-implementation/`. Source pins, cache evidence and accepted Mystic proof were reused without fetch, hash or replay; root still owns promotion/full Qt and native acceptance.
