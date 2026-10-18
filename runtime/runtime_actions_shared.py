@@ -760,6 +760,21 @@ def advance_farming_clock_for_review(ctx: RuntimeActionContext) -> dict[str, Any
     return info
 
 
+def _stop_card_at_farm_danger(ctx: RuntimeActionContext, info: Mapping[str, Any]) -> None:
+    """A Wild jade vine bind is a stun; it, a death or a flee ends the card (decision 5).
+
+    The vine's step details carry the bind flag and the Combat engine's result.
+    """
+    combat = info.get("combat_result")
+    combat = combat if isinstance(combat, Mapping) else {}
+    if info.get("bound"):
+        stop_card(ctx, "stun")
+    elif combat.get("died"):
+        stop_card(ctx, "death")
+    elif combat.get("fled"):
+        stop_card(ctx, "flee")
+
+
 def _apply_farming_queue_result(
     ctx: RuntimeActionContext,
     old_levels: dict[str, int],
@@ -772,6 +787,7 @@ def _apply_farming_queue_result(
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     if info.get("status") in {"executed", "continuing"}:
+        _stop_card_at_farm_danger(ctx, info)
         rock_info = {}
         rock_skill_id = next(
             (

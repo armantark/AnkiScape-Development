@@ -2,6 +2,7 @@ import copy
 import sys
 import types
 import unittest
+from unittest.mock import patch
 
 from tests.test_integration_smoke import (
     _DummyCol,
@@ -620,6 +621,72 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         self.assertEqual(addon._state.player_data, before)
         self.assertEqual(addon._state.review_undo_stack, [])
+
+    # A Wild jade vine bind, death or flee in a queued step ends the card (decision 5).
+    def _fight_wild_jade_vine(self, lifepoints):
+        addon = _load_addon_as_package("ankiscape_jade_vine_danger_stop")
+        self._configure(addon)
+        addon._review_action_multiplier = lambda: 3
+        # At this fixed roll the vine first hits in the second six-tick slice,
+        # and every hit rolls the one-in-six bind.
+        self.enterContext(patch.object(addon.random, "random", lambda: 0.05))
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
+        state = {
+            "inventory": {"Secateurs": 1, "Logs": 1},
+            "toolbelt": {"woodcutting": ["bronze_hatchet"]},
+            "equipment": {"weapon": "Bronze hatchet"},
+            "quests": {"back_to_my_roots": {"completed": True}},
+            "farming_level": 99,
+            "woodcutting_level": 99,
+            "slayer_level": 99,
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": lifepoints,
+            "combat_auto_flee": False,
+            "fletching_level": 1,
+            "fletching_exp": 0.0,
+            "current_fletch": "arrow_shafts",
+            "completed_achievements": [],
+        }
+        state.update(farming_logic.default_farming_state_pure())
+        state["farm_patches"]["handelmort_jade_vine"].update(
+            {"crop_id": "jade_vine", "last_crop_id": "jade_vine", "stage": 6, "health_checked": True, "jade_state": "wild"}
+        )
+        state, _, _ = farming_logic.add_farm_queue_step_pure(state, "chop", "handelmort_jade_vine")
+        addon._state.player_data = state
+        addon._state.current_skill = "Fletching"
+        return addon
+
+    def _answer_card(self, addon):
+        addon._state.card_turned = True
+        addon._state.answer_shown = True
+        addon._state.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        return addon._state.player_data
+
+    def test_a_bind_ends_the_card_and_holds_one_step_of_the_next(self):
+        addon = self._fight_wild_jade_vine(990)
+
+        data = self._answer_card(addon)
+        self.assertEqual(data["farm_patches"]["handelmort_jade_vine"]["jade_bound_reviews_remaining"], 1)
+        self.assertEqual(data["combat_lifepoints"], 982)
+
+        # The hold takes the next card's first step; the fight goes on in the rest.
+        data = self._answer_card(addon)
+        self.assertEqual(data["farm_patches"]["handelmort_jade_vine"]["jade_bound_reviews_remaining"], 1)
+        self.assertEqual(data["combat_lifepoints"], 974)
+        self.assertEqual(data["inventory"]["Logs"], 1)
+
+    def test_a_death_ends_the_card_before_the_selected_skill_runs(self):
+        addon = self._fight_wild_jade_vine(5)
+
+        data = self._answer_card(addon)
+
+        self.assertEqual(data["farm_queue"], [])
+        self.assertEqual(data["inventory"]["Logs"], 1)
+        self.assertNotIn("Arrow shafts", data["inventory"])
 
 
 if __name__ == "__main__":

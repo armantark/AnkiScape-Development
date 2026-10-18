@@ -102,12 +102,14 @@ def spend_card_on_farm_queue(
     """Queued Farming steps take the card's first six-tick steps.
 
     ``first_step`` also carries the card's one background farm-clock tick. The
-    rest of the budget falls to the selected action in the same transaction.
+    rest of the budget falls to the selected action in the same transaction,
+    unless a step ended the card.
     """
     step = first_step
     while (
         ctx.player_data.get("farm_queue")
         and ctx.card.ticks_remaining >= LIVE_COMBAT_TICKS_PER_REVIEW
+        and not ctx.card.stop_reason
     ):
         step(ctx)
         ctx.card.ticks_remaining -= LIVE_COMBAT_TICKS_PER_REVIEW
