@@ -2,6 +2,7 @@
 
 import sys
 import unittest
+from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
@@ -62,7 +63,8 @@ class SpeedIsSpentOncePerCardTests(unittest.TestCase):
         addon._state.current_skill = "Utility / Activities"
         addon._state.exp_awarded = False
         addon._review_action_multiplier = lambda: SPEED
-        addon.random.random = lambda: 0.01
+        # addon.random is the process-wide module, so the fixed roll must not outlive the test.
+        self.enterContext(patch.object(addon.random, "random", lambda: 0.01))
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
