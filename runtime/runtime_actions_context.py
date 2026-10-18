@@ -1,10 +1,10 @@
 """The per-card runtime context and the time budget a successful card buys.
 
-Decision 4: a card buys six game ticks per unit of game speed. Combat receives
-the whole budget in one call and spends it inside its own tick loop; every other
-handler takes one six-tick kernel step per call until the card is spent, the
-action stops, or a step ends the card through ``stop_card``. Split out of
-runtime_actions.py; see that module's header.
+Owner decision 4 (2026-10-15): a card buys six game ticks per unit of game
+speed. Combat receives the whole budget in one call and spends it inside its own
+tick loop; every other handler takes one six-tick kernel step per call until the
+card is spent, the action stops, or a step ends the card through ``stop_card``.
+Split out of runtime_actions.py; see that module's header.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from typing import Any, Callable, Mapping, Optional
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
 
 # Quests and Dungeoneering already run faster than 2012 at speed 1, so they keep
-# one stage or one room per card at every speed (assumption 5). Thieving's stun
+# one stage or one room per card at every speed (owner-accepted). Thieving's stun
 # still costs a whole card and Agility obstacles have no tick time yet, so both
 # keep one attempt per card until they can be charged in ticks.
 ONE_PER_CARD_HANDLER_KEYS = frozenset({"quest", "dungeoneering", "thieving", "agility"})
@@ -99,7 +99,7 @@ def spend_card_on_farm_queue(
     first_step: Callable[[RuntimeActionContext], Any],
     next_step: Callable[[RuntimeActionContext], Any],
 ) -> None:
-    """Queued Farming steps take the card's first six-tick steps (Q3).
+    """Queued Farming steps take the card's first six-tick steps.
 
     ``first_step`` also carries the card's one background farm-clock tick. The
     rest of the budget falls to the selected action in the same transaction.

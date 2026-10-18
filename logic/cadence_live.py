@@ -105,7 +105,7 @@ def _uses_fire_staff(player_data: Mapping[str, Any] | None) -> bool:
 # Handlers the dispatcher calls once per card instead of once per six-tick step.
 _ONE_PER_CARD_BEHAVIOR = {
     "agility": "one established Agility stage; never foreground-multiplied",
-    "dungeoneering": "one room per card at every speed (assumption 5)",
+    "dungeoneering": "one room per card at every speed; a declared divergence",
 }
 
 

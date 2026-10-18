@@ -903,7 +903,7 @@ def _stop_card_at_slice_boundary(
     result: Mapping[str, Any],
     *activity_boundaries: str,
 ) -> None:
-    """End the card at an activity's kill, death, flee, wave or round (Q13).
+    """End the card at an activity's kill, death, flee, wave or round.
 
     A slice reports the Combat engine's flags at the top level or under
     ``"combat"``; ``activity_boundaries`` name the activity's own terminal

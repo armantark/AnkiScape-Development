@@ -1,4 +1,4 @@
-"""One successful card buys six game ticks per unit of game speed (decision 4)."""
+"""One successful card buys six game ticks per unit of game speed (owner decision 4)."""
 
 import sys
 import unittest
@@ -116,7 +116,7 @@ class SpeedIsSpentOncePerCardTests(_ReviewDispatcherCase):
 
 
 class ActivityKillEndsTheCardTests(_ReviewDispatcherCase):
-    """Q13: a kill inside an activity's Combat slice ends the card; the next enemy waits."""
+    """A kill inside an activity's Combat slice ends the card; the next enemy waits."""
 
     def test_each_speed_ten_fight_cave_card_ends_at_its_kill(self):
         addon = self._addon(_fight_caves_player(), 10, 0.5)
@@ -128,8 +128,8 @@ class EveryRouteSpendsTheWholeCardTests(unittest.TestCase):
     """With nothing stopping it, a card at speed M spends all 6 x M ticks.
 
     Combat receives the whole budget in one call and spends it in its own tick
-    loop. Quests and Dungeoneering take one stage or room per card (assumption
-    5), and Thieving and Agility keep one attempt per card; each of those calls
+    loop. Quests and Dungeoneering take one stage or room per card, a declared
+    divergence, and Thieving and Agility keep one attempt per card; each call
     sees the whole budget too. Every other route takes M six-tick steps.
     """
 
