@@ -8758,7 +8758,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.player_data, initial)
         self.assertEqual(addon._state.direct_action_undo_stack, [])
 
-    def test_clan_wars_review_advances_once_per_answer_at_high_multiplier(self):
+    def test_a_speed_ten_card_plays_clan_wars_beats_until_the_match_ends(self):
         addon = _load_addon_as_package("ankiscape_clan_wars_multiplier")
         logic = sys.modules[f"{addon.__name__}.logic.clan_wars_logic"]
         storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
@@ -8786,7 +8786,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_good_answer(before)
 
-        self.assertEqual(addon._state.player_data["clan_wars"]["review"], 1)
+        self.assertEqual(addon._state.player_data["clan_wars_losses"], 1)
 
     def test_phoenix_lair_loaded_addon_chain_rewards_daily_charge_and_review_undo(self):
         addon = _load_addon_as_package("ankiscape_phoenix_lair_e2e")

@@ -33,6 +33,7 @@ from .runtime_actions_shared import (
     _award_skill_xp_rows,
     _record_action,
     _refresh_combat_levels,
+    _stop_card_at_slice_boundary,
 )
 from .runtime_actions_context import RuntimeActionContext
 
@@ -169,6 +170,7 @@ def handle_pest_control_answer(
     ctx.show_activity_gain(
         str(result.get("message") or result.get("status") or "Pest Control beat resolved")
     )
+    _stop_card_at_slice_boundary(ctx, result)
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
@@ -257,6 +259,7 @@ def handle_barbarian_assault_answer(
             or "Barbarian Assault beat resolved"
         )
     )
+    _stop_card_at_slice_boundary(ctx, result, "wave_completed", "queen_started")
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
@@ -302,6 +305,7 @@ def handle_soul_wars_answer(
     ctx.show_activity_gain(
         str(result.get("message") or "Soul Wars beat resolved")
     )
+    _stop_card_at_slice_boundary(ctx, result)
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
@@ -385,6 +389,7 @@ def handle_clan_wars_answer(
     ctx.show_activity_gain(
         str(result.get("message") or "Clan Wars combat beat resolved")
     )
+    _stop_card_at_slice_boundary(ctx, result)
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
@@ -444,6 +449,7 @@ def handle_troll_invasion_answer(
     if awarded_skill_xp > 0:
         ctx.show_exp(awarded_skill_xp)
     ctx.show_activity_gain(str(result.get("message") or "Troll Invasion beat resolved"))
+    _stop_card_at_slice_boundary(ctx, result)
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

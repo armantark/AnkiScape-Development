@@ -52,7 +52,7 @@ from .runtime_actions_shared import (
     _record_action,
     _switch_material_failure_to_bankstanding,
 )
-from .runtime_actions_context import RuntimeActionContext
+from .runtime_actions_context import RuntimeActionContext, stop_card
 
 
 def _evil_tree_reward_rolls(ctx: RuntimeActionContext) -> tuple[float, ...]:
@@ -625,6 +625,9 @@ def _handle_circus_answer(ctx: RuntimeActionContext) -> bool:
     if gained > 0:
         ctx.show_exp(gained)
     ctx.show_activity_gain(str(result.get("status", "Circus performance resolved")))
+    if result.get("completed_performance"):
+        # The next performance of the week waits for the next card.
+        stop_card(ctx, "performance")
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

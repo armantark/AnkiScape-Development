@@ -517,6 +517,7 @@ class TrollInvasionRuntimeLayerTest(unittest.TestCase):
         calls = {"errors": [], "activity": [], "xp": [], "saves": 0, "deactivated": False, "rng": lambda: 0.0}
         ctx = _context(combat, calls)
         self.assertTrue(handle_utility_answer(ctx))
+        self.assertEqual(ctx.card.stop_reason, "kill")
         self.assertEqual(combat["troll_invasion"]["waves_completed"], 1)
         self.assertEqual(combat["troll_invasion"]["wave"], 2)
         self.assertEqual(

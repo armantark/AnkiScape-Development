@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Mapping, Optional
 
 from ..logic_pure.quest_action_proofs import record_runtime_quest_action_proofs_pure
 from ..logic_pure.achievement_diary_events import record_farming_diary_event_pure
@@ -390,6 +390,7 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
 
 from .runtime_actions_context import (
     RuntimeActionContext,
+    stop_card,
 )
 
 
@@ -892,6 +893,28 @@ def _combat_review_ticks(ctx: RuntimeActionContext) -> int:
     except (TypeError, ValueError):
         multiplier = 1
     return COMBAT_BURST_TICKS * max(1, multiplier)
+
+
+_COMBAT_SLICE_STOPS = (("killed", "kill"), ("died", "died"), ("fled", "fled"))
+
+
+def _stop_card_at_slice_boundary(
+    ctx: RuntimeActionContext,
+    result: Mapping[str, Any],
+    *activity_boundaries: str,
+) -> None:
+    """End the card at an activity's kill, death, flee, wave or round (Q13).
+
+    A slice reports the Combat engine's flags at the top level or under
+    ``"combat"``; ``activity_boundaries`` name the activity's own terminal
+    flags, so a finished round never runs into the next one in the same card.
+    """
+    combat = result.get("combat")
+    flags = combat if isinstance(combat, Mapping) else result
+    reasons = [reason for flag, reason in _COMBAT_SLICE_STOPS if flags.get(flag)]
+    reasons += [flag for flag in activity_boundaries if result.get(flag)]
+    if reasons:
+        stop_card(ctx, reasons[0])
 
 
 def _refresh_combat_levels(ctx: RuntimeActionContext, xp_rewards: Any) -> None:

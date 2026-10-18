@@ -16,6 +16,7 @@ from ankiscape.runtime.runtime_actions import (
     _combat_review_ticks,
     spend_card_budget,
 )
+from tests.test_fight_caves import _entered as _fight_caves_player
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 from tests.test_livid_farm_logic import _player as _livid_farm_player
 from tests.test_runtime_actions import _context
@@ -53,8 +54,8 @@ def _livid_farm_cycles(after: dict) -> tuple[int, int]:
     return state["cycles_completed"], state["cadence_credit"]
 
 
-class SpeedIsSpentOncePerCardTests(unittest.TestCase):
-    """Activities that read the speed themselves must not be repeated by the dispatcher too."""
+class _ReviewDispatcherCase(unittest.TestCase):
+    """Answers activity cards through the review dispatcher of a freshly loaded add-on."""
 
     def setUp(self):
         self._orig_modules = dict(sys.modules)
@@ -64,14 +65,13 @@ class SpeedIsSpentOncePerCardTests(unittest.TestCase):
         sys.modules.clear()
         sys.modules.update(self._orig_modules)
 
-    def _answer_one_card(self, player: dict) -> dict:
-        addon = _load_addon_as_package("ankiscape_card_budget_speed")
+    def _addon(self, player: dict, speed: int, roll: float):
+        addon = _load_addon_as_package("ankiscape_card_budget_dispatch")
         addon._state.player_data = player
         addon._state.current_skill = "Utility / Activities"
-        addon._state.exp_awarded = False
-        addon._review_action_multiplier = lambda: SPEED
+        addon._review_action_multiplier = lambda: speed
         # addon.random is the process-wide module, so the fixed roll must not outlive the test.
-        self.enterContext(patch.object(addon.random, "random", lambda: 0.01))
+        self.enterContext(patch.object(addon.random, "random", lambda: roll))
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -82,8 +82,16 @@ class SpeedIsSpentOncePerCardTests(unittest.TestCase):
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
         addon._remember_review_award_snapshot = lambda _before: None
+        return addon
+
+    def _answer(self, addon) -> dict:
+        addon._state.exp_awarded = False
         addon.on_good_answer()
         return addon._state.player_data
+
+
+class SpeedIsSpentOncePerCardTests(_ReviewDispatcherCase):
+    """Activities that read the speed themselves must not be repeated by the dispatcher too."""
 
     def test_a_card_at_speed_three_runs_three_units_not_nine(self):
         tears = _tears_of_guthix_player()
@@ -104,7 +112,16 @@ class SpeedIsSpentOncePerCardTests(unittest.TestCase):
         )
         for activity_id, player, units, expected in cases:
             with self.subTest(activity_id):
-                self.assertEqual(units(self._answer_one_card(player)), expected)
+                self.assertEqual(units(self._answer(self._addon(player, SPEED, 0.01))), expected)
+
+
+class ActivityKillEndsTheCardTests(_ReviewDispatcherCase):
+    """Q13: a kill inside an activity's Combat slice ends the card; the next enemy waits."""
+
+    def test_each_speed_ten_fight_cave_card_ends_at_its_kill(self):
+        addon = self._addon(_fight_caves_player(), 10, 0.5)
+        kills = [self._answer(addon)["fight_caves"]["total_kills"] for _card in range(3)]
+        self.assertEqual(kills, [1, 2, 3])
 
 
 class EveryRouteSpendsTheWholeCardTests(unittest.TestCase):

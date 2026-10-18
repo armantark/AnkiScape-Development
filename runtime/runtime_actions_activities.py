@@ -449,6 +449,7 @@ from .runtime_actions_shared import (
     _award_action_xp_rewards,
     _record_action,
     _refresh_combat_levels,
+    _stop_card_at_slice_boundary,
     _switch_material_failure_to_bankstanding,
 )
 
@@ -544,6 +545,7 @@ def _handle_fist_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
             f"+{int(result.get('charge_gained', 0))} charges · "
             f"{int(result.get('charge_total', 0)):,}/5,000"
         )
+    _stop_card_at_slice_boundary(ctx, result, "round_complete")
     return True
 
 
@@ -588,6 +590,7 @@ def _handle_dagannoth_kings_answer(ctx: RuntimeActionContext) -> bool:
     ctx.show_activity_gain(
         str(result.get("status", "Dagannoth Kings review complete"))
     )
+    _stop_card_at_slice_boundary(ctx, result)
     return True
 
 
@@ -695,6 +698,7 @@ def handle_castle_wars_answer(
     if xp_total > 0:
         ctx.show_exp(xp_total)
     ctx.show_activity_gain(str(result.get("message") or result.get("status") or "Castle Wars beat resolved"))
+    _stop_card_at_slice_boundary(ctx, result)
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True
