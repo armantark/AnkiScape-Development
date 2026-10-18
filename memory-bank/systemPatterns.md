@@ -702,12 +702,18 @@ source/test snapshot imported when discovery began. Before recording or
 committing a long verification run, compare source and test modification times
 against the run start and rerun if another thread wrote during discovery.
 
-Failure state that must consume exactly one outer review returns `False` from
-the handler after mutation. That stops review multipliers from clearing a stun
-or repeating damage in the same card. The next review clears the persisted stun
-and also returns `False`. Skills whose failures use shared combat LP must be
-excluded from post-review safe combat recovery, or the integration layer will
-silently heal away the failure stake.
+A stun ends the card and owes its ticks to the card's running budget
+(`stun_card` in `runtime/runtime_actions_context.py`, owner decision 5 and
+ruling F4). The stunning step is charged first; the card's unspent ticks then
+pay the stun, and only the rest carries in the saved `card_tick_debt`, which
+the next card pays before any step starts. A step may start with fewer than six
+ticks left, and its overrun carries too, so no tick is forfeited. A Thieving
+failure costs the target's `stun_ticks`, and a Wild jade vine bind costs 6.
+Handlers return `False` only for a review they reject; a failure that really
+happened is a completed step and stops the card through the budget. Skills
+whose failures use shared combat LP must be excluded from post-review safe
+combat recovery, or the integration layer will silently heal away the failure
+stake.
 
 ## Public derivative release pattern
 

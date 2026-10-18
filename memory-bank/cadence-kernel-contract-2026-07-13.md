@@ -31,7 +31,9 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
    kernel step per call until the card is spent or a boundary stops it; ratios are
    preserved. Quests and Dungeoneering keep one stage or room per card at every
    speed, a deliberate divergence because they already outpace 2012 at `M = 1`
-   (owner-accepted assumption, 2026-10-15). The speed is a game-speed override
+   (owner-accepted assumption, 2026-10-15). A stun ends the card and owes its
+   ticks to the running budget, which the next card pays first, so no tick is
+   forfeited (owner decision 5, ruling F4). The speed is a game-speed override
    and is explicitly **not** part of source parity.
 3. **The `0.20 + 0.72·√p` adapter is a BUG, not a feature.** It was intended to
    make the no-Grand-Exchange ironman experience less miserable (you must mine your
@@ -205,8 +207,8 @@ has no classification.
 | Runtime family | Live classification |
 |---|---|
 | Combat | `combat_ticks`: `6 × M` immediate ticks with continuous encounter state |
-| Thieving | Existing exact canary scheduler; no second admission gate; one attempt per card while a stun still costs a whole card |
-| Agility | Approved passthrough; one obstacle stage per card while obstacles have no tick time |
+| Thieving | Existing exact canary scheduler; no second admission gate; one attempt or stall step per six ticks of the card; a stun ends the card and owes its `stun_ticks` to the running budget |
+| Agility | Approved passthrough; one obstacle stage per six ticks of the card (placeholder `agility.obstacle_ticks`) |
 | Source-compatible gathering | `rate_limited` exact residual using the conservative lower endpoint of a sourced range |
 | Source-compatible Cooking/Firemaking | `embedded_probability`: one authentic attempt and roll, no second gate |
 | Exact deterministic artisan rows | `rate_limited` when the runtime conditions match the cited row |
