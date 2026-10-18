@@ -10,6 +10,7 @@ from typing import Any, Mapping
 from ..core.constants import FLETCHING_DATA, RUNECRAFTING_DATA, TREE_DATA
 from ..data.agility_data import AGILITY_TARGETS_BY_ID
 from ..data.evil_tree_data import EVIL_TREE_ELIGIBLE_BLESSING_TARGETS
+from ..logic.evil_tree_logic import evil_tree_blessing_active_pure
 from ..data.potion_data import skilling_potion_items_for_skill
 from ..data.urn_data import URN_STATE_ITEM_NAMES
 from ..logic import inventory_pure
@@ -808,16 +809,10 @@ def _select_bank_trip_schedule(
 def _evil_tree_overflow_active(
     player_data: dict[str, Any], handler_key: str, target_id: str,
 ) -> bool:
-    evil_tree_state = player_data.get("evil_tree")
-    if not isinstance(evil_tree_state, dict):
-        evil_tree_state = {}
-    return bool(
+    return (
         handler_key == "woodcutting"
         and target_id in EVIL_TREE_ELIGIBLE_BLESSING_TARGETS
-        and int(
-            evil_tree_state.get("blessing_reviews_remaining", 0) or 0
-        )
-        > 0
+        and evil_tree_blessing_active_pure(player_data)
     )
 
 

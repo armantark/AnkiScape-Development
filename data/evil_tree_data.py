@@ -44,7 +44,7 @@ class EvilTreeTier:
     firemaking_xp: float
     max_logs: Tuple[Tuple[str, int], ...]
     max_coins: int
-    blessing_reviews: int
+    blessing_minutes: int
     reward_seed: str
     source: str = EVIL_TREE_SOURCE
 
@@ -62,7 +62,7 @@ EVIL_TREE_TIERS: Tuple[EvilTreeTier, ...] = (
         200.0,
         (("Logs", 12),),
         185,
-        1,
+        6,
         "Acorn",
     ),
     EvilTreeTier(
@@ -77,7 +77,7 @@ EVIL_TREE_TIERS: Tuple[EvilTreeTier, ...] = (
         300.0,
         (("Oak logs", 24),),
         326,
-        2,
+        10,
         "Acorn",
     ),
     EvilTreeTier(
@@ -92,7 +92,7 @@ EVIL_TREE_TIERS: Tuple[EvilTreeTier, ...] = (
         450.0,
         (("Willow logs", 226),),
         1_127,
-        2,
+        14,
         "Willow seed",
     ),
     EvilTreeTier(
@@ -107,7 +107,7 @@ EVIL_TREE_TIERS: Tuple[EvilTreeTier, ...] = (
         675.0,
         (("Maple logs", 131),),
         1_280,
-        3,
+        18,
         "Maple seed",
     ),
     EvilTreeTier(
@@ -122,7 +122,7 @@ EVIL_TREE_TIERS: Tuple[EvilTreeTier, ...] = (
         1_012.5,
         (("Yew logs", 17),),
         2_334,
-        4,
+        22,
         "Yew seed",
     ),
     EvilTreeTier(
@@ -137,7 +137,7 @@ EVIL_TREE_TIERS: Tuple[EvilTreeTier, ...] = (
         1_517.5,
         (("Magic logs", 10),),
         4_737,
-        4,
+        26,
         "Magic seed",
     ),
     EvilTreeTier(
@@ -157,7 +157,7 @@ EVIL_TREE_TIERS: Tuple[EvilTreeTier, ...] = (
             ("Magic logs", 18),
         ),
         8_694,
-        5,
+        30,
         "Magic seed",
     ),
 )

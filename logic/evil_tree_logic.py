@@ -16,11 +16,15 @@ from ..data.evil_tree_data import (
     EVIL_TREE_TIERS,
     EVIL_TREE_TIERS_BY_ID,
 )
+from .pace.short_timers import STEP_TICKS, TICKS_PER_SOURCE_MINUTE, steps_for_ticks_pure
 from .pace.world_clock import world_day_index_pure
 
 
 EVIL_TREE_STATE_VERSION = 1
 EVIL_TREE_PHASES = ("nurture", "prepare", "fell")
+_BLESSING_MAX_TICKS = max(tier.blessing_minutes for tier in EVIL_TREE_TIERS) * TICKS_PER_SOURCE_MINUTE
+# Saves from before ticks counted the blessing in cards of six period minutes.
+_LEGACY_BLESSING_REVIEW_TICKS = 6 * TICKS_PER_SOURCE_MINUTE
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
@@ -58,12 +62,23 @@ def default_evil_tree_state_pure() -> dict[str, Any]:
         "participation_day": 0,
         "participations_today": 0,
         "participated_event_ids": [],
-        "blessing_reviews_remaining": 0,
+        "blessing_ticks_remaining": 0,
         "blessing_tier": "",
         "blessing_granted_card": 0,
         "last_result": "",
         "event_log": [],
     }
+
+
+def _blessing_ticks(source: Mapping[str, Any]) -> int:
+    if "blessing_ticks_remaining" in source:
+        return _int(source.get("blessing_ticks_remaining"))
+    return _int(source.get("blessing_reviews_remaining")) * _LEGACY_BLESSING_REVIEW_TICKS
+
+
+def evil_tree_blessing_active_pure(player_data: Mapping[str, Any]) -> bool:
+    state = player_data.get("evil_tree")
+    return isinstance(state, Mapping) and _blessing_ticks(state) > 0
 
 
 def sanitize_evil_tree_state_pure(raw: Any) -> dict[str, Any]:
@@ -138,9 +153,7 @@ def sanitize_evil_tree_state_pure(raw: Any) -> dict[str, Any]:
             _int(source.get("participations_today")),
         ),
         "participated_event_ids": list(dict.fromkeys(participated_ids))[-8:],
-        "blessing_reviews_remaining": min(
-            5, _int(source.get("blessing_reviews_remaining"))
-        ),
+        "blessing_ticks_remaining": min(_BLESSING_MAX_TICKS, _blessing_ticks(source)),
         "blessing_tier": (
             str(source.get("blessing_tier", ""))
             if str(source.get("blessing_tier", "")) in EVIL_TREE_TIERS_BY_ID
@@ -178,6 +191,7 @@ def advance_evil_tree_world_clock_pure(
     *,
     tier_roll: Any = 0.0,
     location_roll: Any = 0.0,
+    card_ticks: int = STEP_TICKS,
 ) -> tuple[dict[str, Any], tuple[dict[str, Any], ...]]:
     """Advance expiry, daily allowance, blessing, and the next event.
 
@@ -222,11 +236,11 @@ def advance_evil_tree_world_clock_pure(
         answered
         - max(previous, int(state.get("blessing_granted_card", 0) or 0)),
     )
-    if blessing_elapsed and int(state["blessing_reviews_remaining"]) > 0:
+    if blessing_elapsed and int(state["blessing_ticks_remaining"]) > 0:
         remaining = max(
-            0, int(state["blessing_reviews_remaining"]) - blessing_elapsed
+            0, int(state["blessing_ticks_remaining"]) - blessing_elapsed * card_ticks
         )
-        state["blessing_reviews_remaining"] = remaining
+        state["blessing_ticks_remaining"] = remaining
         if remaining <= 0:
             state["blessing_tier"] = ""
             state["blessing_granted_card"] = 0
@@ -318,8 +332,8 @@ def evil_tree_view_pure(
             "next_reviews": max(0, int(state["next_spawn_card"]) - answered),
             "participations_today": int(state["participations_today"]),
             "interaction_limit": EVIL_TREE_DAILY_INTERACTIONS,
-            "blessing_reviews_remaining": int(
-                state["blessing_reviews_remaining"]
+            "blessing_reviews_remaining": steps_for_ticks_pure(
+                state["blessing_ticks_remaining"]
             ),
             "blessing_tier": str(state["blessing_tier"]),
             "last_result": str(state["last_result"]),
@@ -353,8 +367,8 @@ def evil_tree_view_pure(
         ),
         "participations_today": int(state["participations_today"]),
         "interaction_limit": EVIL_TREE_DAILY_INTERACTIONS,
-        "blessing_reviews_remaining": int(
-            state["blessing_reviews_remaining"]
+        "blessing_reviews_remaining": steps_for_ticks_pure(
+            state["blessing_ticks_remaining"]
         ),
         "blessing_tier": str(state["blessing_tier"]),
         "last_result": str(state["last_result"]),
@@ -506,15 +520,15 @@ def apply_evil_tree_review_pure(
         }
         result["completed"] = True
         result["contribution_percent"] = 100
-        result["blessing_reviews"] = tier.blessing_reviews
+        blessing_ticks = tier.blessing_minutes * TICKS_PER_SOURCE_MINUTE
+        result["blessing_reviews"] = steps_for_ticks_pure(blessing_ticks)
 
         answered = _answered_cards(data)
         state["session"] = {}
         state["active_event"] = {}
         state["next_spawn_card"] = answered + EVIL_TREE_SPAWN_REVIEWS
-        state["blessing_reviews_remaining"] = max(
-            int(state["blessing_reviews_remaining"]),
-            tier.blessing_reviews,
+        state["blessing_ticks_remaining"] = max(
+            int(state["blessing_ticks_remaining"]), blessing_ticks
         )
         state["blessing_tier"] = tier.id
         state["blessing_granted_card"] = answered

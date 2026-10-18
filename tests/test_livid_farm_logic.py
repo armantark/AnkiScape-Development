@@ -606,7 +606,7 @@ class TestLividFarmLogic(unittest.TestCase):
         }
         self.assertNotIn(LIVID_FARM_ALLOTMENT_PATCH_ID, hidden_patch_ids)
 
-    def test_more_planks_uses_ten_answered_card_world_ticks(self):
+    def test_more_planks_lasts_twenty_minutes_of_answered_card_ticks(self):
         player = _player()
         player["livid_farm"].update(
             {"borrowed_power_claimed": True, "produce_points": 18_000}
@@ -614,16 +614,17 @@ class TestLividFarmLogic(unittest.TestCase):
         player, ok, _ = apply_livid_farm_wish_pure(player, "more_planks")
         self.assertTrue(ok)
 
-        for remaining in range(9, -1, -1):
-            player = advance_livid_farm_wish_effects_pure(player)
+        # 2,000 ticks: the 34th speed-10 card is the last inside the window.
+        for card in range(1, 35):
+            player = advance_livid_farm_wish_effects_pure(player, 60)
             self.assertTrue(
                 player["livid_farm"]["more_planks_active_this_review"]
             )
             self.assertEqual(
-                player["livid_farm"]["more_planks_reviews_remaining"],
-                remaining,
+                player["livid_farm"]["more_planks_ticks_remaining"],
+                max(0, 2_000 - 60 * card),
             )
-        player = advance_livid_farm_wish_effects_pure(player)
+        player = advance_livid_farm_wish_effects_pure(player, 60)
         self.assertFalse(
             player["livid_farm"]["more_planks_active_this_review"]
         )

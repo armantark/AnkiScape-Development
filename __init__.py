@@ -5113,12 +5113,12 @@ def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> 
 
 def _advance_world_events_after_review() -> None:
     """Advance silent world events inside the persisted answer transaction."""
-
     spawn_due = evil_tree_spawn_due_pure(_state.player_data)
     updated, _events = advance_evil_tree_world_clock_pure(
         _state.player_data,
         tier_roll=random.random() if spawn_due else 0.0,
         location_roll=random.random() if spawn_due else 0.0,
+        card_ticks=runtime_actions.card_ticks_pure(_review_action_multiplier()),
     )
     _state.player_data.update(updated)
 
@@ -5222,7 +5222,7 @@ def _advance_clocks_for_answer(successful_answer) -> None:
         and _state.player_data.get("current_utility") == GNOME_RESTAURANT_ACTIVITY_ID,
         card_ticks=card_ticks))
     runtime_actions.advance_shared_review_state_for_review(_runtime_action_context())
-    _state.player_data.update(advance_livid_farm_wish_effects_pure(_state.player_data, 1))
+    _state.player_data.update(advance_livid_farm_wish_effects_pure(_state.player_data, card_ticks))
     _state.player_data.update(advance_shop_market_clock_pure(_state.player_data))
     _state.player_data.update(advance_world_clock_pure(_state.player_data))
     try:

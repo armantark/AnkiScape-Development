@@ -104,16 +104,18 @@ class TestEvilTreeWorldClock(unittest.TestCase):
                 reward_rolls=(0.0, 0.0, 0.0, 0.0),
             )
             self.assertTrue(ok)
-        granted = int(result["blessing_reviews"])
+        # The Normal tier's six source minutes: 600 ticks, 100 cards at speed 1.
+        granted = player["evil_tree"]["blessing_ticks_remaining"]
+        self.assertEqual((granted, result["blessing_reviews"]), (600, 100))
 
         same_card, _ = advance_evil_tree_world_clock_pure(player)
         self.assertEqual(
-            same_card["evil_tree"]["blessing_reviews_remaining"], granted
+            same_card["evil_tree"]["blessing_ticks_remaining"], granted
         )
         same_card["shop_market_clock"]["answered_cards"] += 1
-        next_card, _ = advance_evil_tree_world_clock_pure(same_card)
+        next_card, _ = advance_evil_tree_world_clock_pure(same_card, card_ticks=60)
         self.assertEqual(
-            next_card["evil_tree"]["blessing_reviews_remaining"], granted - 1
+            next_card["evil_tree"]["blessing_ticks_remaining"], granted - 60
         )
 
 
@@ -188,7 +190,7 @@ class TestEvilTreeSession(unittest.TestCase):
         self.assertEqual(sanitized["active_event"], {})
         self.assertEqual(sanitized["session"], {})
         self.assertEqual(sanitized["participations_today"], 2)
-        self.assertEqual(sanitized["blessing_reviews_remaining"], 5)
+        self.assertEqual(sanitized["blessing_ticks_remaining"], 3_000)
 
         view = evil_tree_view_pure(
             _player(answered_cards=7), has_usable_hatchet=True

@@ -108,11 +108,10 @@ trees are less likely to be felled after a log, bird nests are more likely, and
 logs are sent to the Bank when the inventory is full. Its tier-based source
 duration is six to thirty minutes.
 
-AnkiScape converts that duration through the global answered-card clock,
-yielding approximately one to five review opportunities. Every answered card
-after collection consumes the duration, regardless of the active target;
-answering nothing pauses it. This follows the source's logged-in timer and
-logout pause without reading the wall clock. The existing review-world status
+AnkiScape keeps that duration in game ticks: every answered card after
+collection spends its time budget, six ticks per unit of game speed, regardless
+of the active target; answering nothing pauses it. This follows the source's
+logged-in timer and logout pause without reading the wall clock. The existing review-world status
 strip shows the blessing and remaining review-clock duration.
 
 The nest boost and overflow banking apply directly to eligible ordinary-tree

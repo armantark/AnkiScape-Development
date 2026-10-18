@@ -12342,7 +12342,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
         )
         active, _ = advance_evil_tree_world_clock_pure(pd)
-        active["evil_tree"]["blessing_reviews_remaining"] = 2
+        active["evil_tree"]["blessing_ticks_remaining"] = 12  # two speed-1 cards
         active["evil_tree"]["blessing_tier"] = "normal"
         active, _ = advance_shooting_star_world_clock_pure(active)
         dialog = self._open(active)
@@ -12386,7 +12386,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
         )
         active, _ = advance_evil_tree_world_clock_pure(pd)
-        active["evil_tree"]["blessing_reviews_remaining"] = 2
+        active["evil_tree"]["blessing_ticks_remaining"] = 12  # two speed-1 cards
         active["evil_tree"]["blessing_tier"] = "normal"
         hud = self._ui.ReviewHUD(None)
 

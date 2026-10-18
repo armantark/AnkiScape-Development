@@ -301,7 +301,7 @@ from ..data.evil_tree_data import (
     EVIL_TREE_NEST_MULTIPLIER,
     EVIL_TREE_UTILITY_ID,
 )
-from ..logic.evil_tree_logic import apply_evil_tree_review_pure
+from ..logic.evil_tree_logic import apply_evil_tree_review_pure, evil_tree_blessing_active_pure
 from ..data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
 from ..logic.big_chinchompa_logic import (
     apply_big_chinchompa_review_pure,
@@ -764,15 +764,9 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
     r_nest_drop = ctx.random_random()
     r_nest_type = ctx.random_random()
     r_inferno_adze = ctx.random_random() if axe_spec.get("incinerates_logs", False) and spec.get("output_item") else None
-    evil_tree_state = player_data.get("evil_tree")
-    if not isinstance(evil_tree_state, dict):
-        evil_tree_state = {}
-    blessing_active = bool(
+    blessing_active = (
         tree in EVIL_TREE_ELIGIBLE_BLESSING_TARGETS
-        and int(
-            evil_tree_state.get("blessing_reviews_remaining", 0) or 0
-        )
-        > 0
+        and evil_tree_blessing_active_pure(player_data)
     )
     nest_drop_chance = min(
         1.0,

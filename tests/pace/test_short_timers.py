@@ -10,11 +10,13 @@ import unittest
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.data.summoning_data import SUMMONING_POUCHES_BY_ID
+from ankiscape.logic.evil_tree_logic import sanitize_evil_tree_state_pure
 from ankiscape.logic.gnome_restaurant_logic import (
     apply_gnome_restaurant_command_pure,
     gnome_restaurant_view_pure,
     sanitize_gnome_restaurant_state_pure,
 )
+from ankiscape.logic.livid_farm_logic import sanitize_livid_farm_state_pure
 from ankiscape.logic.summoning_logic import (
     advance_summoning_world_tick_pure,
     default_summoning_state_pure,
@@ -218,6 +220,28 @@ class TemporaryEffectTests(_HostCase):
                 player["magic_charge_ticks_remaining"], max(0, 700 - 60 * card)
             )
             self.assertEqual(player["magic_charge_active"], card < 12)
+
+
+class WishAndBlessingTests(_HostCase):
+    def test_more_planks_lasts_34_answered_cards_at_speed_ten(self):
+        # Twenty minutes, 2,000 ticks; every answer spends it, Again included.
+        addon = self._addon(
+            10, {"inventory": {}, "livid_farm": {"more_planks_ticks_remaining": 2_000}}
+        )
+        for card in range(1, 36):
+            state = self._answer(addon, 1 if card % 2 else 3)["livid_farm"]
+            self.assertEqual(state["more_planks_active_this_review"], card <= 34, card)
+        self.assertEqual(state["more_planks_ticks_remaining"], 0)
+
+    def test_saved_wish_and_blessing_cards_keep_their_remaining_minutes(self):
+        # More Planks counted two source minutes a card; the blessing six.
+        livid = sanitize_livid_farm_state_pure({"more_planks_reviews_remaining": 4})
+        self.assertEqual(livid["more_planks_ticks_remaining"], 800)
+        blessing = sanitize_evil_tree_state_pure(
+            {"blessing_reviews_remaining": 3, "blessing_tier": "maple"}
+        )
+        self.assertEqual(blessing["blessing_ticks_remaining"], 1_800)
+        self.assertNotIn("blessing_reviews_remaining", blessing)
 
 
 if __name__ == "__main__":

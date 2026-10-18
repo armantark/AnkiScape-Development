@@ -10,7 +10,15 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from ...data.livid_farm_data import LIVID_FARM_MORE_PLANKS_REVIEWS
+from ...data.livid_farm_data import LIVID_FARM_MORE_PLANKS_MINUTES
+from .short_timers import (
+    STEP_TICKS,
+    TICKS_PER_LEGACY_SHORT_REVIEW,
+    TICKS_PER_SOURCE_MINUTE,
+    steps_for_ticks_pure,
+)
+
+MORE_PLANKS_TICKS = LIVID_FARM_MORE_PLANKS_MINUTES * TICKS_PER_SOURCE_MINUTE
 
 
 def _non_negative_int(value: Any) -> int:
@@ -21,12 +29,20 @@ def _non_negative_int(value: Any) -> int:
 
 
 def more_planks_timer(source: Mapping[str, Any]) -> dict[str, Any]:
-    """The wish's timer fields of a Livid Farm state, clamped."""
+    """The wish's timer fields of a Livid Farm state, clamped.
+
+    A state saved before ticks counted cards of two source minutes; it converts
+    here, so a running wish keeps its remaining time.
+    """
+    if "more_planks_ticks_remaining" in source:
+        ticks = _non_negative_int(source["more_planks_ticks_remaining"])
+    else:
+        ticks = (
+            _non_negative_int(source.get("more_planks_reviews_remaining", 0))
+            * TICKS_PER_LEGACY_SHORT_REVIEW
+        )
     return {
-        "more_planks_reviews_remaining": min(
-            LIVID_FARM_MORE_PLANKS_REVIEWS,
-            _non_negative_int(source.get("more_planks_reviews_remaining", 0)),
-        ),
+        "more_planks_ticks_remaining": min(MORE_PLANKS_TICKS, ticks),
         "more_planks_active_this_review": bool(
             source.get("more_planks_active_this_review", False)
         ),
@@ -35,17 +51,19 @@ def more_planks_timer(source: Mapping[str, Any]) -> dict[str, Any]:
 
 def start_more_planks() -> dict[str, Any]:
     return {
-        "more_planks_reviews_remaining": LIVID_FARM_MORE_PLANKS_REVIEWS,
+        "more_planks_ticks_remaining": MORE_PLANKS_TICKS,
         "more_planks_active_this_review": False,
     }
 
 
-def advance_more_planks(state: dict[str, Any], answered_cards: Any) -> None:
-    cards = _non_negative_int(answered_cards)
-    remaining = state["more_planks_reviews_remaining"]
-    state["more_planks_active_this_review"] = cards > 0 and remaining > 0
-    state["more_planks_reviews_remaining"] = max(0, remaining - cards)
+def advance_more_planks(state: dict[str, Any], card_ticks: Any = STEP_TICKS) -> None:
+    """Spend one answered card's time budget from the wish."""
+    ticks = _non_negative_int(card_ticks)
+    remaining = state["more_planks_ticks_remaining"]
+    state["more_planks_active_this_review"] = ticks > 0 and remaining > 0
+    state["more_planks_ticks_remaining"] = max(0, remaining - ticks)
 
 
 def more_planks_reviews_left_pure(state: Mapping[str, Any]) -> int:
-    return int(state["more_planks_reviews_remaining"])
+    """The cards the wish still lasts at speed 1."""
+    return steps_for_ticks_pure(int(state["more_planks_ticks_remaining"]))

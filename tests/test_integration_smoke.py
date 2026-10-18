@@ -5142,7 +5142,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {},
             "livid_farm": {
                 "borrowed_power_claimed": True,
-                "more_planks_reviews_remaining": 1,
+                "more_planks_ticks_remaining": 6,  # one speed-1 card
             },
         }
         addon._state.player_data = copy.deepcopy(initial)
@@ -5158,7 +5158,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
 
         state = addon._state.player_data["livid_farm"]
-        self.assertEqual(state["more_planks_reviews_remaining"], 0)
+        self.assertEqual(state["more_planks_ticks_remaining"], 0)
         self.assertTrue(state["more_planks_active_this_review"])
         self.assertEqual(len(addon._state.review_undo_stack), 1)
 

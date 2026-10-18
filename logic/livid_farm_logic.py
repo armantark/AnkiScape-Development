@@ -1008,10 +1008,10 @@ def apply_livid_farm_wish_pure(
 
 def advance_livid_farm_wish_effects_pure(
     player_data: Mapping[str, Any],
-    answered_cards: Any = 1,
+    card_ticks: Any,
 ) -> dict[str, Any]:
     data = dict(player_data)
     state = sanitize_livid_farm_state_pure(data.get("livid_farm"))
-    advance_more_planks(state, answered_cards)
+    advance_more_planks(state, card_ticks)
     data["livid_farm"] = state
     return data

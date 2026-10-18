@@ -2031,7 +2031,7 @@ class TestStoragePure(unittest.TestCase):
         )
         self.assertEqual(migrated["livid_farm"]["lunar_lumber_residual"], 0)
         self.assertEqual(
-            migrated["livid_farm"]["more_planks_reviews_remaining"],
+            migrated["livid_farm"]["more_planks_ticks_remaining"],
             0,
         )
         self.assertFalse(migrated["farm_livid_patch_active"])

@@ -141,9 +141,10 @@ period evidence supersedes this note:
 - **Ordinary item slot:** an even tree-seed versus bird's-nest choice. Clue,
   key-half, and Squeal-of-Fortune rolls remain excluded until their exact
   activity table and any dependent system are source-ready.
-- **Blessing conversion:** period minutes divided by six and rounded to the
-  nearest answered-card opportunity, yielding `1, 2, 2, 3, 4, 4, 5` reviews
-  from Normal through Elder.
+- **Blessing duration:** the period minutes as game ticks (100 a minute),
+  `600` to `3,000` from Normal through Elder, spent by every answered card's
+  time budget (owner assumption 4, 2026-10-15). Saves that counted cards of
+  six minutes convert at 600 ticks a card.
 - **Nest boost:** double the ordinary eligible-tree bird-nest probability.
   This is the smallest bounded multiplier consistent with the source's
   “significantly increased” description.

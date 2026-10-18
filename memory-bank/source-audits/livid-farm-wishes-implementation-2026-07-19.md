@@ -18,10 +18,9 @@ boundary from `livid-farm-loop-2026-07-18.md`.
   carried Lunar lumber. One persisted 0–27 lumber residual makes arbitrary
   partial conversions add to the exact 28-lumber output of 25 Astral runes and
   10 each Nature, Death, Earth, Cosmic, and Water runes.
-- `More Planks Please` spends 18,000 Produce and installs ten answered-card
-  world ticks, preserving the settled two-source-minutes-per-review
-  short-duration mapping. Every answered card, including Again, spends one
-  tick. An eligible Plank Make cast during an active tick uses the source
+- `More Planks Please` spends 18,000 Produce and installs its sourced twenty
+  minutes as 2,000 game ticks. Every answered card, including Again, spends its
+  time budget (owner assumption 4, 2026-10-15). An eligible Plank Make cast during an active tick uses the source
   approximately-one-in-ten extra-output roll.
 - `Gimme Herbs` spends 18,000 Produce and grants the exact canonical Bank
   bundle: 3 grimy kwuarm, 3 grimy irit, 2 grimy cadantine, 2 grimy avantoe,
