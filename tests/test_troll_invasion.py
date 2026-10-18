@@ -486,8 +486,7 @@ class TrollInvasionRuntimeLayerTest(unittest.TestCase):
         self.assertTrue(ok, info)
         calls = {"errors": [], "activity": [], "xp": [], "saves": 0, "deactivated": False, "rng": random.Random(14).random}
         ctx = _context(player, calls)
-        ctx.review_action_multiplier = 3
-        for _ in range(10):
+        for _ in range(30):
             self.assertTrue(handle_utility_answer(ctx))
         for skill_id in ("construction", "crafting", "firemaking"):
             with self.subTest(skill=skill_id):
@@ -498,17 +497,16 @@ class TrollInvasionRuntimeLayerTest(unittest.TestCase):
             30,
         )
 
-    def test_multiplier_repeats_repair_actions_but_never_spills_combat_into_next_wave(self):
+    def test_each_call_is_one_repair_action_or_one_combat_slice_in_one_wave(self):
         repair, ok, info = enter_troll_invasion_pure(_player(), {"mode": TROLL_INVASION_REPAIR_MODE})
         self.assertTrue(ok, info)
         calls = {"errors": [], "activity": [], "xp": [], "saves": 0, "deactivated": False, "rng": random.Random(0).random}
         ctx = _context(repair, calls)
-        ctx.review_action_multiplier = 3
         self.assertTrue(handle_utility_answer(ctx))
-        self.assertEqual(repair["troll_invasion"]["repair_actions"], 3)
+        self.assertEqual(repair["troll_invasion"]["repair_actions"], 1)
         self.assertEqual(
             repair["action_telemetry"]["actions"][f"utility:{TROLL_INVASION_ACTIVITY_ID}"]["attempts"],
-            3,
+            1,
         )
 
         combat, ok, info = enter_troll_invasion_pure(
@@ -518,7 +516,6 @@ class TrollInvasionRuntimeLayerTest(unittest.TestCase):
         combat["troll_invasion"]["enemy_lifepoints"] = 1
         calls = {"errors": [], "activity": [], "xp": [], "saves": 0, "deactivated": False, "rng": lambda: 0.0}
         ctx = _context(combat, calls)
-        ctx.review_action_multiplier = 3
         self.assertTrue(handle_utility_answer(ctx))
         self.assertEqual(combat["troll_invasion"]["waves_completed"], 1)
         self.assertEqual(combat["troll_invasion"]["wave"], 2)

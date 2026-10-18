@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
 from ..core.constants import EQUIPMENT_DATA
 from ..data.trouble_brewing_data import TROUBLE_BREWING_ACTIVITY_ID
 from ..logic.trouble_brewing_logic import (
@@ -21,10 +20,7 @@ from ..logic.soul_wars_logic import apply_soul_wars_review_pure
 from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from ..logic.duel_arena_logic import apply_duel_arena_review_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
-from ..data.troll_invasion_data import (
-    TROLL_INVASION_ACTIVITY_ID,
-    TROLL_INVASION_REPAIR_MODE,
-)
+from ..data.troll_invasion_data import TROLL_INVASION_ACTIVITY_ID
 from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
 from ..logic.clan_wars_logic import apply_clan_wars_review_pure
 from ..logic.troll_invasion_logic import apply_troll_invasion_review_pure
@@ -394,14 +390,6 @@ def handle_clan_wars_answer(
     return True
 
 
-def _troll_invasion_steps(ctx: RuntimeActionContext, productive: bool) -> int:
-    # Only repair work repeats with the review multiplier; a combat beat
-    # resolves once so it never spills into the next wave.
-    session = ctx.player_data.get("troll_invasion")
-    repair = isinstance(session, Mapping) and session.get("mode") == TROLL_INVASION_REPAIR_MODE
-    return max(1, int(ctx.review_action_multiplier)) if productive and repair else 1
-
-
 def handle_troll_invasion_answer(
     ctx: RuntimeActionContext,
     *,
@@ -412,7 +400,6 @@ def handle_troll_invasion_answer(
         ctx.random_random,
         equipment_data=EQUIPMENT_DATA,
         productive=productive,
-        steps=_troll_invasion_steps(ctx, productive),
     )
     if not ok:
         ctx.deactivate_current_skill()

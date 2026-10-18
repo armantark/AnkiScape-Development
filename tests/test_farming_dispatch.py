@@ -269,7 +269,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         self.assertEqual(addon._state.player_data, first_answer)
 
-    def test_success_consumes_one_farm_step_and_preempts_active_skill_multiplier(self):
+    def test_success_runs_the_farm_step_first_and_the_rest_of_the_card_on_the_skill(self):
         addon = _load_addon_as_package("ankiscape_farming_queue_dispatch")
         self._configure(addon)
         addon._review_action_multiplier = lambda: 10
@@ -284,8 +284,8 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         self.assertEqual(addon._state.player_data["farm_clock_minutes"], 6)
         self.assertEqual(addon._state.player_data["farm_queue"], [])
         self.assertEqual(addon._state.player_data["farm_patches"]["falador_allotment_north"]["crop_id"], "potato")
-        self.assertEqual(addon._state.player_data["inventory"]["Logs"], 1)
-        self.assertNotIn("Arrow shafts", addon._state.player_data["inventory"])
+        self.assertEqual(addon._state.player_data["inventory"]["Logs"], 0)
+        self.assertEqual(addon._state.player_data["inventory"]["Arrow shafts"], 15)
         self.assertEqual(len(addon._state.review_undo_stack), 1)
 
     def test_farm_combat_xp_uses_one_review_combat_level_boundary(self):

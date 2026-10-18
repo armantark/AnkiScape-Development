@@ -1278,7 +1278,7 @@ class TestRuntimeActions(unittest.TestCase):
             calls["activity"][-1],
         )
 
-    def test_big_chinchompa_runtime_groups_multiplier_into_whole_jars(self):
+    def test_big_chinchompa_runtime_step_is_one_whole_jar(self):
         from ankiscape.logic.big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
@@ -1297,22 +1297,14 @@ class TestRuntimeActions(unittest.TestCase):
         }
         player_data, _ = advance_big_chinchompa_world_clock_pure(player_data)
 
-        self.assertTrue(
-            handle_utility_answer(
-                _context(
-                    player_data,
-                    calls,
-                    review_action_multiplier=2,
-                )
-            )
-        )
+        self.assertTrue(handle_utility_answer(_context(player_data, calls)))
 
         event = player_data["big_chinchompa"]["active_event"]
-        self.assertEqual(event["circuits_completed"], 2)
-        self.assertEqual(event["event_points"], 30)
-        self.assertAlmostEqual(player_data["hunter_exp"], 450.0)
-        self.assertEqual(calls["xp"], [450.0])
-        self.assertIn("Released 30 red soporith moths", calls["activity"][-1])
+        self.assertEqual(event["circuits_completed"], 1)
+        self.assertEqual(event["event_points"], 15)
+        self.assertAlmostEqual(player_data["hunter_exp"], 225.0)
+        self.assertEqual(calls["xp"], [225.0])
+        self.assertIn("Released 15 red soporith moths", calls["activity"][-1])
         telemetry = player_data["action_telemetry"]["actions"][
             "utility:big_chinchompa"
         ]

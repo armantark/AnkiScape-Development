@@ -94,6 +94,26 @@ def activity_session_cleared(
     return bool(before_active) and not after_active
 
 
+def spend_card_on_farm_queue(
+    ctx: RuntimeActionContext,
+    first_step: Callable[[RuntimeActionContext], Any],
+    next_step: Callable[[RuntimeActionContext], Any],
+) -> None:
+    """Queued Farming steps take the card's first six-tick steps (Q3).
+
+    ``first_step`` also carries the card's one background farm-clock tick. The
+    rest of the budget falls to the selected action in the same transaction.
+    """
+    step = first_step
+    while (
+        ctx.player_data.get("farm_queue")
+        and ctx.card.ticks_remaining >= LIVE_COMBAT_TICKS_PER_REVIEW
+    ):
+        step(ctx)
+        ctx.card.ticks_remaining -= LIVE_COMBAT_TICKS_PER_REVIEW
+        step = next_step
+
+
 def spend_card_budget(
     ctx: RuntimeActionContext,
     handler_key: str,

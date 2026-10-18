@@ -1397,11 +1397,7 @@ def _jade_vine_combat(
         updated,
         {JADE_VINE_COMBAT_TARGET_ID: enemy},
         EQUIPMENT_DATA,
-        ticks=_int(
-            step.get("jade_combat_ticks", JADE_VINE_COMBAT_TICKS),
-            default=JADE_VINE_COMBAT_TICKS,
-            minimum=1,
-        ),
+        ticks=JADE_VINE_COMBAT_TICKS,
         rng=random_random,
         live_cadence=True,
         stop_after_first_kill=True,
@@ -1921,18 +1917,11 @@ def queue_full_run_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, Any],
 def _consume_next_farm_queue_step_in_place(
     updated: dict[str, Any],
     random_random: Callable[[], float],
-    review_multiplier: int = 1,
 ) -> tuple[bool, dict[str, Any]]:
     if not updated["farm_queue"]:
         return False, {"status": "empty", "message": "farm queue is empty"}
     step = updated["farm_queue"].pop(0)
-    execution_step = step
-    if step.get("kind") == "chop" and step.get("patch_id") == JADE_VINE_PATCH_ID:
-        execution_step = dict(step)
-        execution_step["jade_combat_ticks"] = JADE_VINE_COMBAT_TICKS * max(
-            1, _int(review_multiplier, default=1, minimum=1)
-        )
-    ok, info = _execute_farm_field_step_in_place(updated, execution_step, random_random)
+    ok, info = _execute_farm_field_step_in_place(updated, step, random_random)
     info["step_id"] = step["id"]
     continuing = bool(ok and info.get("repeat_queue_step"))
     info["status"] = "continuing" if continuing else "executed" if ok else "skipped"
@@ -1951,19 +1940,15 @@ def _consume_next_farm_queue_step_in_place(
 def consume_next_farm_queue_step_pure(
     player_data: Mapping[str, Any],
     random_random: Callable[[], float] = lambda: 1.0,
-    review_multiplier: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     updated = _copy_with_farm_state(player_data)
-    consumed, info = _consume_next_farm_queue_step_in_place(
-        updated, random_random, review_multiplier
-    )
+    consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random)
     return updated, consumed, info
 
 
 def apply_farming_review_with_queue_pure(
     player_data: Mapping[str, Any],
     random_random: Callable[[], float] = lambda: 1.0,
-    review_multiplier: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     """Advance one successful review and consume its queued detour with one copy."""
 
@@ -1971,11 +1956,11 @@ def apply_farming_review_with_queue_pure(
     queue = updated["farm_queue"]
     cure_first = bool(queue and queue[0].get("kind") == "cure")
     if cure_first:
-        consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random, review_multiplier)
+        consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random)
         _advance_one_farm_card(updated, random_random)
     else:
         _advance_one_farm_card(updated, random_random)
-        consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random, review_multiplier)
+        consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random)
     return updated, consumed, info
 
 

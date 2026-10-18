@@ -2079,7 +2079,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
 
         with patch("ankiscape.logic.farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
             fighting, consumed, info = apply_farming_review_with_queue_pure(
-                queued, lambda: 1.0, 3
+                queued, lambda: 1.0
             )
         self.assertTrue(consumed)
         self.assertEqual(info["status"], "continuing")
@@ -2090,16 +2090,16 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         )
         self.assertEqual(fighting["current_combat_target"], "chicken")
         self.assertEqual(fighting["combat_encounter"]["enemy_lifepoints"], 12)
-        self.assertEqual(burst.call_args.kwargs["ticks"], 18)
+        self.assertEqual(burst.call_args.kwargs["ticks"], 6)
         self.assertTrue(burst.call_args.kwargs["stop_after_first_kill"])
 
         with patch("ankiscape.logic.farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
             _, consumed, info = consume_next_farm_queue_step_pure(
-                queued, lambda: 1.0, 4
+                queued, lambda: 1.0
             )
         self.assertTrue(consumed)
         self.assertEqual(info["status"], "continuing")
-        self.assertEqual(burst.call_args.kwargs["ticks"], 24)
+        self.assertEqual(burst.call_args.kwargs["ticks"], 6)
 
         def killed(player, *_args, **_kwargs):
             result = copy.deepcopy(player)

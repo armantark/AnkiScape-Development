@@ -851,7 +851,6 @@ def handle_farming_queue_answer(ctx: RuntimeActionContext) -> bool:
     updated, consumed, info = consume_next_farm_queue_step_pure(
         ctx.player_data,
         ctx.random_random,
-        ctx.review_action_multiplier,
     )
     consumed = _apply_farming_queue_result(ctx, old_levels, updated, consumed, info)
     if consumed:
@@ -866,7 +865,6 @@ def handle_farming_review_answer(ctx: RuntimeActionContext) -> bool:
     updated, consumed, info = apply_farming_review_with_queue_pure(
         ctx.player_data,
         ctx.random_random,
-        ctx.review_action_multiplier,
     )
     consumed = _apply_farming_queue_result(ctx, old_levels, updated, consumed, info)
     if consumed:

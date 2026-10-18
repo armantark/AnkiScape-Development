@@ -5177,10 +5177,12 @@ def on_good_answer(before_state=None, *, defer_commit=False):
         _begin_review_feedback_context(before_state.get("player_data", before_state))
         try:
             if has_farm_step:
-                # A consumed or execution-time-invalid Farming step owns this
-                # successful review and is never multiplied by skill bonuses.
-                runtime_actions.handle_farming_queue_answer(review_ctx)
-            else:
+                runtime_actions.spend_card_on_farm_queue(
+                    review_ctx,
+                    runtime_actions.handle_farming_review_answer,
+                    runtime_actions.handle_farming_queue_answer,
+                )
+            if handler:
                 _spend_card_on_action(review_ctx, handler_key, handler)
         finally:
             _finish_review_feedback_context()
@@ -5277,26 +5279,16 @@ def _advance_effects_for_answer(successful_answer) -> None:
             _state.player_data["combat_encounter"] = {**encounter, "disengaged": True}
 
 
-def _advance_farming_for_answer(answers_farm_step) -> bool:
-    """Return whether the Farming step consumed this answer."""
+def _advance_farming_for_answer(answers_farm_step) -> None:
+    # A card whose queued Farming step answers it moves the farm clock with
+    # that first step, inside the card's budget (on_good_answer).
     if not answers_farm_step:
         runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
-        return False
-    _begin_review_feedback_context()
-    try:
-        return runtime_actions.handle_farming_review_answer(_runtime_action_context())
-    finally:
-        _finish_review_feedback_context()
 
 
-def _dispatch_review_answer(successful_answer, farm_preempted, context_xp, before_state) -> None:
+def _dispatch_review_answer(successful_answer, answers_farm_step, context_xp, before_state) -> None:
     awards_review = successful_answer and not _state.exp_awarded
-    if awards_review and farm_preempted:
-        if context_xp > 0:
-            _show_exp(context_xp)
-        _advance_world_events_after_review()
-        _state.exp_awarded = True
-    elif awards_review and is_review_action(_state.current_skill):
+    if awards_review and (answers_farm_step or is_review_action(_state.current_skill)):
         _state.review_feedback_initial_xp = context_xp
         on_good_answer(before_state, defer_commit=True)
         _state.exp_awarded = True
@@ -5327,11 +5319,15 @@ def on_answer_card(self, ease, _old):
     if review_answered:
         before_state = _capture_player_data_snapshot(review_answer=True)
         context_xp = _resolve_ignored_review_context_for_answer()
-        had_farm_step = bool(_state.player_data.get("farm_queue"))
+        answers_farm_step = (
+            successful_answer
+            and not _state.exp_awarded
+            and bool(_state.player_data.get("farm_queue"))
+        )
         _advance_clocks_for_answer(successful_answer)
         _advance_effects_for_answer(successful_answer)
-        farm_preempted = _advance_farming_for_answer(successful_answer and had_farm_step)
-        _dispatch_review_answer(successful_answer, farm_preempted, context_xp, before_state)
+        _advance_farming_for_answer(answers_farm_step)
+        _dispatch_review_answer(successful_answer, answers_farm_step, context_xp, before_state)
     _state.card_turned = False
     _state.answer_shown = False  # Reset for the next card
     try:

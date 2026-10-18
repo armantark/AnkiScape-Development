@@ -279,14 +279,14 @@ class VinesweeperIntegrationTests(unittest.TestCase):
             ["Upgraded 1 Compost to Supercompost · Compost potion (3) remains"],
         )
 
-    def test_runtime_multiplier_is_atomic_and_awards_hunter_xp(self):
+    def test_runtime_operation_is_atomic_and_awards_hunter_xp(self):
         player = _entered()
         player["inventory"]["Coins"] = 10
         gains = []
         deactivated = []
         ctx = RuntimeActionContext(
             player_data=player,
-            random_random=iter((0.01, 0.99)).__next__,
+            random_random=iter((0.99,)).__next__,
             show_error_message=lambda *_args: self.fail("unexpected runtime error"),
             deactivate_current_skill=lambda _reason=None: deactivated.append(True),
             award_skill_exp=lambda key, amount: player.__setitem__(
@@ -301,10 +301,9 @@ class VinesweeperIntegrationTests(unittest.TestCase):
             show_activity_gain=lambda *_args: None,
             implemented_exp_keys_snapshot=lambda: {},
             show_quest_exp_delta=lambda *_args: None,
-            review_action_multiplier=2,
         )
         self.assertTrue(handle_utility_answer(ctx))
-        self.assertEqual(player["vinesweeper"]["operations"], 2)
+        self.assertEqual(player["vinesweeper"]["operations"], 1)
         self.assertEqual(player["hunter_exp"], 30.0)
         self.assertEqual(gains, [30.0])
         self.assertEqual(deactivated, [])

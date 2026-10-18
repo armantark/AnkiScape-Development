@@ -173,7 +173,6 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
 def _handle_big_chinchompa_answer(ctx: RuntimeActionContext) -> bool:
     updated, ok, result = apply_big_chinchompa_review_pure(
         ctx.player_data,
-        circuits=max(1, int(ctx.review_action_multiplier or 1)),
     )
     if not ok:
         ctx.deactivate_current_skill()
@@ -345,7 +344,7 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
 
 
 def _handle_tears_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
-    """One answered card is one collection beat; the multiplier repeats beats."""
+    """One six-tick step is one collection beat."""
     updated, ok, result = apply_tears_of_guthix_review_pure(
         ctx.player_data,
         ctx.random_random,
@@ -357,16 +356,6 @@ def _handle_tears_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
             str(result.get("reason", "Enter Juna's cavern before collecting.")),
         )
         return False
-    for _ in range(max(1, int(ctx.review_action_multiplier or 1)) - 1):
-        if result.get("completed"):
-            break
-        updated, repeated_ok, repeated = apply_tears_of_guthix_review_pure(
-            updated,
-            ctx.random_random,
-        )
-        if not repeated_ok:
-            break
-        result = repeated
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     xp_rewards = dict(result.get("xp_rewards", {}) or {})
@@ -501,11 +490,9 @@ def _handle_penguin_answer(ctx: RuntimeActionContext) -> bool:
 
 
 def _handle_vinesweeper_answer(ctx: RuntimeActionContext) -> bool:
-    operations = max(1, int(ctx.review_action_multiplier or 1))
     updated, result = apply_vinesweeper_review_pure(
         ctx.player_data,
-        tuple(ctx.random_random() for _ in range(operations)),
-        operations=operations,
+        (ctx.random_random(),),
     )
     if not result.get("allowed"):
         ctx.deactivate_current_skill()

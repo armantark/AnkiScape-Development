@@ -610,6 +610,7 @@ from .runtime_actions_context import (  # noqa: F401  (re-export)
     RuntimeActionContext,
     activity_session_cleared,
     spend_card_budget,
+    spend_card_on_farm_queue,
 )
 
 

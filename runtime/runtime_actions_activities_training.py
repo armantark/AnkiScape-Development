@@ -211,7 +211,6 @@ def _livid_farm_gain_message(result: dict) -> str:
 def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
     updated, ok, result = apply_livid_farm_reviews_pure(
         ctx.player_data,
-        ctx.review_action_multiplier,
         rng=ctx.random_random,
     )
     if not ok:
@@ -283,7 +282,6 @@ def _handle_pyramid_plunder_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_pyramid_plunder_review_pure(
         ctx.player_data,
         ctx.random_random,
-        rooms=max(1, int(ctx.review_action_multiplier or 1)),
     )
     if not result.get("allowed"):
         ctx.deactivate_current_skill()
