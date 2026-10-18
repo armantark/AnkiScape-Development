@@ -923,12 +923,12 @@ These are approved design decisions, not shipped behavior. The [decision queue](
 - The global speed rule replaces the earlier deferral. Per-method balancing remains deferred; sourced XP amounts stay fixed.
 - Each card supplies 6 game ticks × speed. Handlers spend this budget. Quests and Dungeoneering deliberately keep one stage/room per card.
 - Danger stops the card at every condition in decision 5. Combat can chain only within the budget and before danger.
-- Fish Flingers uses the sourced2012 duration, provisionally ten minutes/17 cards at ×10. No past XP rollback. Confirm the period duration or register a placeholder before the build claims source parity.
+- Fish Flingers must use its period duration. The code comment suggests ten minutes/17 cards at ×10; this duration is not yet period-qualified. No past XP rollback. Confirm the period duration or register a placeholder before the build claims source parity.
 - Adaptive World day uses the 60-day active-study median, bounded 100–1,000 cards. Fewer than 7 active days uses 240. Fixed override remains available.
 - Change day length only at a boundary. Share it across reset, growth and restock consumers. Undo must restore the boundary and length exactly.
 - Each card advances 3.6 seconds × speed inside a day. The boundary skips the remaining 24-hour span as logged-out time.
 - Timers use the same budget. Thieving stuns spend stun_ticks; Restaurant fairness spends the actual successful-card budget. Again advances only the clock.
-- One pace dialog covers first launch or the single update. Defaults, current values, hours and close behavior follow decision 10; the owner save has no special path.
+- Show one pace dialog at first launch for a new player, or once after this update for an existing player. Defaults, current values, hours and close behavior follow decision 10; the owner save has no special path.
 - Ship all pace/calendar parts together after rate/lump/daily-share/danger/chain/Undo/native proof. Only the approved Settings changes and dialog receive new UI. Opus authors UI and a taste-qualified model reviews it.
 
 The2026-10-15 nit rulings settle sourced text/gates (R1), first performed-deed endpoints (R2), enforceable constraints (R3), and clipped text defects (R4). The [owner decision queue](design-thread-queue.md) retains each application and its evidence. No rule authorizes unrelated layouts or erases source disputes.

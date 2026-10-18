@@ -82,7 +82,7 @@ Historical 2026-10-13 Salt startup evidence in dc4036df83a2f95146c0f2748833e5c42
 
 ## Cold War ordinary route — current per-slice hold, 2026-10-14
 
-Current disposition after the owner rulings, 2026-10-15: The owner settled the greeting on 2026-10-14: retain it in the quest journal; the player need not produce it. Only the book prerequisite and suit IDs 10595/10596 remain source disputes. The ordinary stage-1 emitter remains implementation work. The personal greeting is no longer an owner blocker. See [the answered decisions](design-thread-queue.md).
+Current disposition after the owner rulings, 2026-10-15: The owner settled the greeting on 2026-10-14: retain it in the quest journal; the player need not produce it. The book prerequisite and suit IDs 10595/10596 remain source disputes. The absent ordinary stage-1 emitter also blocks the complete dependent route. The greeting ruling does not qualify that route or supply an emitter. The personal greeting is no longer an owner blocker. See [the answered decisions](design-thread-queue.md).
 
 Evidence before these rulings:
 

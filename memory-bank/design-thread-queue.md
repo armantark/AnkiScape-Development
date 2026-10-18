@@ -3323,10 +3323,10 @@ Authority: [the pace and calendar handoff](/Users/armantarkhanian/Documents/anki
 4. A card buys 6 game ticks × speed. Action handlers spend that budget; remove the once-per-review list. Owner: "10. A, frick it".
 5. Danger ends the card: auto-eat threshold with no food, stun, poison onset, familiar expiry, no ammunition, no runes, zero Prayer, death, flee, bank trip, or the last Slayer-task kill.
 6. Combat chains into another enemy of the same target until the budget ends or danger stops it.
-7. Fish Flingers uses its 2012 duration: ten minutes means 17 cards at ×10. Do not roll back past game XP.
+7. Fish Flingers must use its period duration. The code comment suggests ten minutes, or 17 cards at ×10. Confirm that duration against a period source or register a placeholder before the build claims source parity. Do not roll back past game XP.
 8. Follow the median answered cards per active study day over the last60 days, bounded 100–1,000. Default on. Provide "Follow my study volume" and a cards field. When off, allow a fixed100–1,000 and show the suggestion.
 9. Within a world day, advance 3.6 seconds × speed per card. At its boundary, skip the rest of 24 hours as logged-out time.
-10. Show the pace dialog at first launch and once after this update. Preselect recommendations, show current values and2012 hours/day, and offer "Keep my current settings". Closing uses recommendations for new players and current values for existing players. Never show it again.
+10. Show the pace dialog at first launch for a new player, or once after this update for an existing player. Preselect recommendations, show current values and2012 hours/day, and offer "Keep my current settings". Closing uses recommendations for new players and current values for existing players. Never show it again.
 11. The owner’s save uses the same path as every save. Preselect recommended values.
 
 Accepted assumptions: count only days with answered reviews, excluding manual reschedules. Fewer than 7 study days uses 240 cards. Change day length only at a boundary. All daily/weekly resets, crops and restocks use one shared day value. Short timers spend the card budget; the Restaurant six-minute window takes10 reviews at ×10, and Again-fairness uses the actual card budget. Quests and Dungeoneering retain one stage/room per card as a deliberate divergence. Agility and Thieving spend time; a stun costs its stun_ticks. Scale Fish Flingers discoveries with game length. Again advances the clock without a foreground action.
