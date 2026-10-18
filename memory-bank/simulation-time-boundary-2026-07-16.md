@@ -114,6 +114,43 @@ own source-shaped accumulation rules.
 - Add one dispatcher-level contract test proving Again advances world consumers but not
   foreground actions, then focused tests for each reclassified consumer.
 
+### Short timers on the card's time budget (2026-10-18)
+
+Owner assumption 4 of the pace decisions (2026-10-15): short timers count down by the
+time budget of each card, `6 × speed` game ticks, so a timer lasts the same play time
+at every speed. The rule applied to each countdown: it becomes a tick count only when
+its source value is a duration of time; a count of actions stays a count; a calendar
+duration (a day or longer) stays on the shared world clock; a countdown in cards with
+no sourced duration stays in cards. One source minute is 100 ticks of 0.6 seconds. A
+timer keeps the answers that drain it (every answer, or successful answers only).
+
+| Timer | Source value | Class | Result |
+|---|---|---|---|
+| Familiar lifetime | Per-familiar `Time (minutes)` column, wiki oldid 6579789 (`summoning-familiar-lifecycle-2026-07-16.md:38`); `duration_minutes` in the generated catalog | Short duration | Ticks: `duration × 100`, every answer. A 44-minute familiar lasts 74 cards at ×10 and 734 at ×1. |
+| Summoning-point drain | `required level − initial cost` over the familiar's life, oldid 6542597 (`summoning-familiar-lifecycle-2026-07-16.md:41`) | Follows the lifetime | Spread over the lifetime in ticks; residual in point-ticks. |
+| Special-move recharge | 15 points every 30 seconds, oldid 5907879 (`summoning-familiar-lifecycle-2026-07-16.md:51`) | Short duration, already 15 per 50 ticks | Every answer adds the card's ticks instead of a flat 6. |
+| Bunyip healing | 20 life points every 15 seconds (`summoning-familiar-effects-2026-07-17.md:23-24`) | Short duration, already 20 per 25 ticks | Every answer adds the card's ticks instead of a flat 6. |
+| Triple charms | 40 seconds per raw shard, rounded to the minute (`summoning-familiarisation-2026-07-16.md:24-25`) | Short duration | Ticks: `minutes × 100`, every answer. |
+| Cargo reclaim | Five-minute retrieval window after expiry, oldid 6288415 (`summoning-familiar-lifecycle-2026-07-16.md:49`) | Short duration | 500 ticks, every answer. |
+| Renewal window | Renew at 2:30 or less, oldid 6093772 (`summoning-familiar-lifecycle-2026-07-16.md:47`) | Short duration | 250 ticks of lifetime left. |
+| Gnome Restaurant delivery window | Easy six and hard eleven source minutes (`data/gnome_restaurant_data.py:29-34`) | Short duration | 600 and 1,100 ticks, successful other-target answers only; Again still pauses (2026-10-14 ruling). The easy window is 10 cards at ×10. |
+| Gnome Restaurant hard-decline wait | Five source minutes (`data/gnome_restaurant_data.py:36-37`) | Short duration | 500 ticks, every answer. |
+| Magic charge, antifire, super antifire, Shooting Star ore bonus, skilling temporary levels | Charge seven minutes (`magic-charge-reconciliation-2026-07-17.md:21`); antifire six minutes (`parity-deviation-ledger-2026-07-06.md:30`); ore bonus fifteen minutes (`data/shooting_star_data.py:25-27`); all stored in ticks | Short duration, already ticks | Successful non-Combat cards drain the card's ticks instead of 50 per unit of speed; live Combat keeps its elapsed ticks. |
+| Thieving stun | `stun_ticks` per target (`data/thieving_data.py`) | Short duration, already ticks | Already a tick debt on the running budget; unchanged here. |
+| Wild jade vine bind | Six ticks on the same debt | Short duration, already ticks | Already a tick debt; unchanged here. |
+| Evil Tree blessing | Six to thirty minutes by tier, wiki Evil Tree oldid 6569638 (`evil-tree-implementation-harvest-2026-07-19.md:39-47`) | Short duration | Ticks: `minutes × 100`, every answer. |
+| Livid Farm More Planks Please | Twenty minutes (`livid-farm-loop-2026-07-18.md:301`) | Short duration | 2,000 ticks, every answer. |
+| Surefooted and Greater Surefooted window and cooldown | 20 and 40 minutes, two-hour cooldown, oldids 5832212 and 6151870 (`agility-complete-content-inventory-2026-07-15.md:198`) | Short duration, already in six-tick Agility steps (333, 667, 2,000) | Unchanged: Agility spends one six-tick step per obstacle, so both drain by the budget while Agility runs. Their "reviews" labels count Agility steps. |
+| Shades of Mort'ton sanctity decay | About one point per 30 seconds (`shades-of-mortton-loop-2026-07-18.md:19`) | Short duration, already one point per ten six-tick steps | Unchanged: one decay beat per Shades step. |
+| Prayer hosted-house search, 1 to 10 | Modeled review friction, no source duration (`action-unit-normalisation-2026-08-22.md:59`, `:63`) | Count of Prayer steps | Unchanged. |
+| Pet growth and hunger | 25 cards per stage, 6 or 3 hunger per card; per-pet rates remain harvest work (`summoning-pets-2026-07-16.md:75-76`) | Cards, no sourced duration | Unchanged. |
+| Familiarisation segments | Four successful answers of 15 shards, a balance abstraction (`summoning-familiarisation-2026-07-16.md`, "Settled AnkiScape translation") | Count of successes | Unchanged. |
+| Familiarisation cooldown | One week after participation (`summoning-familiarisation-2026-07-16.md:27-28`); 1,680 cards | Calendar duration | Unchanged here; belongs on world days with the calendar. |
+| Court Cases Batch 2 cooldown | Fourteen days (`data/court_cases_data.py:9`); `14 ×` the default world day | Calendar duration | Unchanged here; belongs on world days with the calendar. |
+
+Bank trips, graves and rest healing count cards with no sourced trip length and stay
+in cards. World events that spawn and expire on the card clock follow the calendar.
+
 ## Chronology moved from systemPatterns.md — 2026-09-16
 
 ### Simulation clock and eligibility decision
