@@ -1544,7 +1544,7 @@ def migrate_loaded_data(
     _migrate_equipment(data)
     data.update(sanitize_shop_state_pure(data))
     # v51: Red sandstone's source daily allowance is translated onto the
-    # established 240-answer world day; no wall-clock value is persisted.
+    # shared world day; no wall-clock value is persisted.
     data["red_sandstone_daily"] = red_sandstone_daily_state_pure(data)
     if loaded_config_version < 109 and "ironman_account_type" not in data:
         data["ironman_account_type"] = (

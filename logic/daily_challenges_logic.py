@@ -19,13 +19,13 @@ from ..data.daily_challenges_data import (
     DAILY_CHALLENGE_DATA,
     DAILY_CHALLENGE_LAMP_SKILLS,
     DAILY_CHALLENGE_MYSTERY_BAG_ITEM,
-    DAILY_CHALLENGE_REVIEW_DAY,
     DAILY_CHALLENGE_SKILL_EXP_KEYS,
     DAILY_CHALLENGE_SKILL_LABELS,
     DAILY_CHALLENGE_SKILL_LEVEL_KEYS,
     DAILY_CHALLENGE_XP_LAMP_ITEM,
     DAILY_CHALLENGES_SOURCE,
 )
+from .pace.world_clock import cards_until_world_day_pure, world_day_index_pure
 
 
 DAILY_CHALLENGES_STATE_VERSION = 1
@@ -176,13 +176,11 @@ def advance_daily_challenges_day_pure(
     player_data: Mapping[str, Any],
     rng: Callable[[], float] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Hand out one challenge per elapsed 240-answered-card day."""
+    """Hand out one challenge per elapsed world day."""
     data = dict(player_data)
     state = sanitize_daily_challenges_state_pure(data)
     data.update(state)
-    clock = data.get("shop_market_clock")
-    answered = _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-    current_day = answered // DAILY_CHALLENGE_REVIEW_DAY
+    current_day = world_day_index_pure(data)
     last_day = int(state["daily_challenge_day"])
     if current_day <= last_day:
         return data, {"assigned": (), "expired": ()}
@@ -621,8 +619,6 @@ def daily_challenges_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]
                 else "",
             }
         )
-    clock = player_data.get("shop_market_clock")
-    answered = _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
     blocked = set(state["daily_challenge_blocked_skills"])
     return {
         **state,
@@ -632,8 +628,8 @@ def daily_challenges_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]
         # Whether a new challenge can arrive, and which slot it would displace,
         # are decided here so no panel has to reproduce the queue rule.
         "next_challenge_day": int(state["daily_challenge_day"]) + 1,
-        "reviews_until_next_challenge": (
-            (int(state["daily_challenge_day"]) + 1) * DAILY_CHALLENGE_REVIEW_DAY - answered
+        "reviews_until_next_challenge": cards_until_world_day_pure(
+            player_data, int(state["daily_challenge_day"]) + 1
         ),
         "next_assignment_displaces": rows[0]["instance_id"] if len(rows) >= DAILY_CHALLENGE_ACTIVE_LIMIT else "",
         "next_assignment_displaces_name": rows[0]["name"] if len(rows) >= DAILY_CHALLENGE_ACTIVE_LIMIT else "",

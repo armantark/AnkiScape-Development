@@ -13,12 +13,12 @@ from ..data.shooting_star_data import (
     SHOOTING_STAR_LEGACY_LOCATION_ALIASES,
     SHOOTING_STAR_LOCATIONS,
     SHOOTING_STAR_ORE_BONUS_TICKS,
-    SHOOTING_STAR_REWARD_DAY_REVIEWS,
     SHOOTING_STAR_REWARD_MAXIMA,
     SHOOTING_STAR_SPRITE_REVIEWS,
     SHOOTING_STAR_STARDUST,
     SHOOTING_STAR_STARDUST_CAP,
 )
+from .pace.world_clock import DEFAULT_WORLD_DAY_CARDS, world_day_index_pure
 from .world_population_logic import (
     naturalized_population_target_bps_pure,
     seeded_unit_pure,
@@ -303,11 +303,8 @@ def _apply_crowd_target(
     ) / SHOOTING_STAR_INTERVAL_REVIEWS
     target_bps = naturalized_population_target_bps_pure(
         phase=phase,
-        day_phase=(
-            _int(event.get("slot_card"))
-            % SHOOTING_STAR_REWARD_DAY_REVIEWS
-        )
-        / SHOOTING_STAR_REWARD_DAY_REVIEWS,
+        day_phase=(_int(event.get("slot_card")) % DEFAULT_WORLD_DAY_CARDS)
+        / DEFAULT_WORLD_DAY_CARDS,
         seed=_int(event.get("seed")),
         base_ceiling=SHOOTING_STAR_POPULATION_BASE_CEILING,
     )
@@ -735,7 +732,7 @@ def apply_shooting_star_exchange_pure(
     if not event or not event.get("sprite_released"):
         return data, False, {"reason": "No Star sprite is available."}
 
-    reward_day = _answered_cards(data) // SHOOTING_STAR_REWARD_DAY_REVIEWS
+    reward_day = world_day_index_pure(data)
     if _signed_int(state.get("last_exchange_day"), -1) == reward_day:
         return data, False, {
             "reason": "The Star sprite has already rewarded this review day."
@@ -796,7 +793,7 @@ def shooting_star_view_pure(
     dust = _int(
         (data.get("inventory") or {}).get(SHOOTING_STAR_STARDUST)
     )
-    reward_day = answered // SHOOTING_STAR_REWARD_DAY_REVIEWS
+    reward_day = world_day_index_pure(data)
     tag_available = bool(
         mineable
         and not event.get("player_attempted")

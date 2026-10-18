@@ -16,6 +16,7 @@ from .inventory_pure import (
     carried_advanced_for,
     clamp_carried_view_to_bank,
 )
+from .pace.world_clock import cards_to_next_world_day_pure, world_day_index_pure
 from .pet_logic import acquire_pet_pure
 from ..data.item_values import STACKABLE_ITEM_NAMES
 from ..data.pet_data import PETS_BY_ID
@@ -32,7 +33,6 @@ from ..data.phoenix_lair_data import (
     PHOENIX_LAIR_GUARDIANS,
     PHOENIX_LAIR_PHOENIX,
     PHOENIX_LAIR_PHOENIX_TARGET_ID,
-    PHOENIX_LAIR_WORLD_DAY_REVIEWS,
     PHOENIX_QUILL_ITEM,
 )
 from ..core.review_context import remember_review_context_choice_pure
@@ -58,15 +58,6 @@ def _float(value: Any, default: float = 0.0) -> float:
         return float(value)
     except (TypeError, ValueError, OverflowError):
         return default
-
-
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    return _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-
-
-def _world_day(player_data: Mapping[str, Any]) -> int:
-    return _answered_cards(player_data) // PHOENIX_LAIR_WORLD_DAY_REVIEWS
 
 
 def default_phoenix_lair_state_pure() -> dict[str, Any]:
@@ -230,8 +221,7 @@ def phoenix_lair_view_pure(
         missing.append("Complete In Pyre Need")
     if _int(player_data.get("slayer_level"), 1, minimum=1) < 51:
         missing.append("Slayer level 51")
-    current_day = _world_day(player_data)
-    daily_ready = current_day > state["last_completed_world_day"]
+    daily_ready = world_day_index_pure(player_data) > state["last_completed_world_day"]
     current_guardian = ""
     current_attack_style = ""
     if state["guardian_roster"]:
@@ -244,12 +234,7 @@ def phoenix_lair_view_pure(
         "requirements_met": not missing,
         "missing_requirements": tuple(missing),
         "daily_ready": daily_ready,
-        "reviews_to_reset": (
-            0
-            if daily_ready
-            else PHOENIX_LAIR_WORLD_DAY_REVIEWS
-            - (_answered_cards(player_data) % PHOENIX_LAIR_WORLD_DAY_REVIEWS)
-        ),
+        "reviews_to_reset": 0 if daily_ready else cards_to_next_world_day_pure(player_data),
         "current_guardian": current_guardian,
         "current_attack_style": current_attack_style,
         "egg_chance_label": "1 in 1,000 per completion",
@@ -298,7 +283,7 @@ def apply_phoenix_lair_command_pure(
             return data, False, {"reason": "Complete In Pyre Need first."}
         if _int(data.get("slayer_level"), 1, minimum=1) < 51:
             return data, False, {"reason": "Phoenix Lair requires Slayer level 51."}
-        if _world_day(data) <= state["last_completed_world_day"]:
+        if world_day_index_pure(data) <= state["last_completed_world_day"]:
             return data, False, {"reason": "The Phoenix has already rewarded you this world day."}
         if carried_advanced_for(data, PHOENIX_LAIR_ACTIVITY_ID):
             carried_root = dict(data.get("carried_inventory") or {})
@@ -523,7 +508,7 @@ def apply_phoenix_lair_review_pure(
         egg_dropped = False
     state["pending_egg"] = egg_dropped
     state["runs_completed"] += 1
-    state["last_completed_world_day"] = _world_day(data)
+    state["last_completed_world_day"] = world_day_index_pure(data)
     message = (
         "Phoenix Lair complete · +7,500 Firemaking XP · +3,000 Fletching XP · "
         "+1,000 Crafting XP · +"

@@ -20,7 +20,6 @@ SHOOTING_STAR_STARDUST_ITEM_ID = 13727
 
 # Owner-settled translations onto AnkiScape's answered-card clocks.
 SHOOTING_STAR_INTERVAL_REVIEWS = 20
-SHOOTING_STAR_REWARD_DAY_REVIEWS = 240
 SHOOTING_STAR_SPRITE_REVIEWS = 2
 
 # Fifteen source minutes at one RuneScape tick per 0.6 seconds. The live

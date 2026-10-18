@@ -12,7 +12,6 @@ from ..data.shattered_heart_data import (
     SHATTERED_HEART_KUDOS_REWARD,
     SHATTERED_HEART_PLINTH_ITEM,
     SHATTERED_HEART_REPLICA_PIECE_LIMIT,
-    SHATTERED_HEART_REVIEWS_PER_DAY,
     SHATTERED_HEART_ROCK_CHANCE,
     SHATTERED_HEART_ROCK_ITEMS,
     SHATTERED_HEART_SOURCE,
@@ -20,6 +19,7 @@ from ..data.shattered_heart_data import (
     SHATTERED_HEART_SKILLS,
     SHATTERED_HEART_SKILLS_BY_ID,
 )
+from .pace.world_clock import world_day_index_pure
 
 
 SHATTERED_HEART_STATE_VERSION = 1
@@ -39,12 +39,6 @@ def _int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
 def _inventory(player_data: Mapping[str, Any]) -> Mapping[str, Any]:
     inventory = player_data.get("inventory")
     return inventory if isinstance(inventory, Mapping) else {}
-
-
-def _world_day(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    answered = _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-    return answered // SHATTERED_HEART_REVIEWS_PER_DAY
 
 
 def _known_unique(raw: Any, known: set[str]) -> list[str]:
@@ -198,7 +192,7 @@ def shattered_heart_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     inventory = _inventory(player_data)
     bag_rocks = set(state["bag_rocks"])
     complete_pairs = _complete_pair_ids(inventory, bag_rocks)
-    current_day = _world_day(player_data)
+    current_day = world_day_index_pure(player_data)
     addable_pairs = _addable_pair_ids(state, complete_pairs, current_day)
     placed_count = len(state["placed_pairs"])
     final_ready = _final_pair_ready(state, current_day)
@@ -526,14 +520,14 @@ def apply_shattered_heart_command_pure(
     if action_id == "add_completed_pairs":
         bag_rocks = set(state["bag_rocks"])
         complete = _complete_pair_ids(inventory, bag_rocks)
-        addable = _addable_pair_ids(state, complete, _world_day(data))
+        addable = _addable_pair_ids(state, complete, world_day_index_pure(data))
         if not addable:
             final_blocked = (
                 len(state["placed_pairs"]) == 14
                 and any(
                     skill_id not in state["placed_pairs"] for skill_id in complete
                 )
-                and not _final_pair_ready(state, _world_day(data))
+                and not _final_pair_ready(state, world_day_index_pure(data))
             )
             reason = (
                 "The final pair is still on its seven-day cooldown."
@@ -557,7 +551,7 @@ def apply_shattered_heart_command_pure(
                 continue
 
             state["statues_completed"] += 1
-            state["completion_day"] = _world_day(data)
+            state["completion_day"] = world_day_index_pure(data)
             state["placed_pairs"] = []
             if state["statues_completed"] == 1:
                 inventory[SHATTERED_HEART_PLINTH_ITEM] = (

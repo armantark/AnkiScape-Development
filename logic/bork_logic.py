@@ -36,7 +36,6 @@ from ..data.bork_data import (
     BORK_RING_OF_WEALTH_ITEM,
     BORK_TARGET_ID,
     BORK_VARROCK_ELITE_TIER_ID,
-    BORK_WORLD_DAY_REVIEWS,
     bork_enemy_pure,
     bork_guaranteed_drops_pure,
     ork_legion_enemy_pure,
@@ -49,6 +48,7 @@ from ..logic_pure.logic_pure import (
     prayer_effect_state_pure,
 )
 from .achievement_diary_logic import diary_tier_by_id_pure, tier_claim_state_pure
+from .pace.world_clock import cards_to_next_world_day_pure, world_day_index_pure
 from .treasure_trails_logic import (
     clue_refusal_reason_pure,
     filter_clue_scroll_outputs_pure,
@@ -83,15 +83,6 @@ def _roll(rng) -> float:
 def _uniform_int(rng, low: int, high: int) -> int:
     """Inclusive uniform draw, matching Darkan's `Utils.random(low, high + 1)`."""
     return low + min(high - low, int(_roll(rng) * (high - low + 1)))
-
-
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    return _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-
-
-def _world_day(player_data: Mapping[str, Any]) -> int:
-    return _answered_cards(player_data) // BORK_WORLD_DAY_REVIEWS
 
 
 def _quest_complete(player_data: Mapping[str, Any]) -> bool:
@@ -188,8 +179,7 @@ def bork_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     missing = []
     if not _quest_complete(player_data):
         missing.append("Complete The Hunt for Surok")
-    current_day = _world_day(player_data)
-    daily_ready = current_day > state["last_completed_world_day"]
+    daily_ready = world_day_index_pure(player_data) > state["last_completed_world_day"]
     varrock_elite = varrock_elite_complete_pure(player_data)
     ring_of_wealth = _ring_of_wealth_equipped(player_data)
     coin_low, coin_high = (
@@ -200,12 +190,7 @@ def bork_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "requirements_met": not missing,
         "missing_requirements": tuple(missing),
         "daily_ready": daily_ready,
-        "reviews_to_reset": (
-            0
-            if daily_ready
-            else BORK_WORLD_DAY_REVIEWS
-            - (_answered_cards(player_data) % BORK_WORLD_DAY_REVIEWS)
-        ),
+        "reviews_to_reset": 0 if daily_ready else cards_to_next_world_day_pure(player_data),
         "varrock_elite": varrock_elite,
         "ring_of_wealth": ring_of_wealth,
         "slayer_xp": (
@@ -509,7 +494,7 @@ def apply_bork_review_pure(
     _award_drops(data, drops)
     _award_drops(data, rare_drops)
     state["kills"] += 1
-    state["last_completed_world_day"] = _world_day(data)
+    state["last_completed_world_day"] = world_day_index_pure(data)
     message = (
         f"Bork defeated · +{int(slayer_xp):,} Slayer XP · "
         f"{coins:,} coins · "

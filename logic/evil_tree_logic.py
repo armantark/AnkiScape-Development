@@ -11,12 +11,12 @@ from ..data.evil_tree_data import (
     EVIL_TREE_DAILY_INTERACTIONS,
     EVIL_TREE_KINDLING,
     EVIL_TREE_LOCATIONS,
-    EVIL_TREE_REVIEW_DAY,
     EVIL_TREE_REWARD_MINIMUM_SHARE,
     EVIL_TREE_SPAWN_REVIEWS,
     EVIL_TREE_TIERS,
     EVIL_TREE_TIERS_BY_ID,
 )
+from .pace.world_clock import world_day_index_pure
 
 
 EVIL_TREE_STATE_VERSION = 1
@@ -192,7 +192,7 @@ def advance_evil_tree_world_clock_pure(
     elapsed = answered - previous
     events: list[dict[str, Any]] = []
 
-    day = answered // EVIL_TREE_REVIEW_DAY
+    day = world_day_index_pure(data)
     if day != int(state["participation_day"]):
         state["participation_day"] = day
         state["participations_today"] = 0

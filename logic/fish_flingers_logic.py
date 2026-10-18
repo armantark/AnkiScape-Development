@@ -20,8 +20,8 @@ from ..data.fish_flingers_data import (
     FISH_FLINGERS_TICKET_CAP,
     FISH_FLINGERS_TICKETS_PER_DAY,
     FISH_FLINGERS_TOKEN_CAP,
-    FISH_FLINGERS_WORLD_DAY_REVIEWS,
 )
+from .pace.world_clock import world_day_index_pure
 
 
 FISH_FLINGERS_STATE_VERSION = 2
@@ -48,13 +48,6 @@ def _roll(value: Any) -> float:
     except (TypeError, ValueError, OverflowError):
         parsed = 0.5
     return max(0.0, min(parsed, 0.999999))
-
-
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    if not isinstance(clock, Mapping):
-        return 0
-    return _int(clock.get("answered_cards"))
 
 
 def default_fish_flingers_state_pure() -> dict[str, Any]:
@@ -197,7 +190,7 @@ def sync_fish_flingers_tickets_pure(
     # this writes, and the ticket counters are plain ints.
     data = dict(player_data)
     data.update(sanitize_fish_flingers_state_pure(data))
-    current_day = _answered_cards(data) // FISH_FLINGERS_WORLD_DAY_REVIEWS
+    current_day = world_day_index_pure(data)
     previous_day = _signed_int(data.get("fish_flingers_last_ticket_day"), -1)
     if previous_day < 0:
         grants = FISH_FLINGERS_TICKETS_PER_DAY

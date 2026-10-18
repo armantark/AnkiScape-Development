@@ -13,8 +13,12 @@ from ..data.managing_miscellania_data import (
     MISCELLANIA_RESOURCE_BY_ID,
     MISCELLANIA_RESOURCE_FAMILIES,
     MISCELLANIA_REPRESENTATIVE_NEST,
-    MISCELLANIA_REVIEWS_PER_DAY,
     ROYAL_TROUBLE_QUEST_ID,
+)
+from .pace.world_clock import (
+    DEFAULT_WORLD_DAY_CARDS,
+    cards_to_next_world_day_pure,
+    world_day_index_pure,
 )
 
 
@@ -33,11 +37,6 @@ def _quest_completed(player_data: Mapping[str, Any], quest_id: str) -> bool:
     quests = player_data.get("quests")
     quest = quests.get(quest_id) if isinstance(quests, Mapping) else None
     return isinstance(quest, Mapping) and bool(quest.get("completed"))
-
-
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    return _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
 
 
 def miscellania_limits_pure(player_data: Mapping[str, Any]) -> dict[str, int]:
@@ -59,7 +58,9 @@ def default_managing_miscellania_state_pure(
             "approval_basis_points": 10000,
             "coffer": 0,
             "production_credit": 0,
-            "last_world_day": _int(answered_cards) // MISCELLANIA_REVIEWS_PER_DAY,
+            # Only the v67 migration passes a card count, from saves older
+            # than the world clock, so they still run on the default day.
+            "last_world_day": _int(answered_cards) // DEFAULT_WORLD_DAY_CARDS,
             "allocations": {family.id: 0 for family in MISCELLANIA_RESOURCE_FAMILIES},
             "variants": {
                 family.id: family.variants[0].id
@@ -76,7 +77,7 @@ def default_managing_miscellania_state_pure(
 def sanitize_managing_miscellania_state_pure(
     raw: Any,
     *,
-    answered_cards: int = 0,
+    world_day: int = 0,
 ) -> dict[str, Any]:
     source = raw if isinstance(raw, Mapping) else {}
     allocations_raw = source.get("allocations")
@@ -94,7 +95,7 @@ def sanitize_managing_miscellania_state_pure(
         variants[family.id] = selected if selected in valid else family.variants[0].id
     chore_ids = {str(row["id"]) for row in MISCELLANIA_APPROVAL_CHORES}
     chore = str(source.get("approval_chore", MISCELLANIA_APPROVAL_CHORES[0]["id"]))
-    current_day = _int(answered_cards) // MISCELLANIA_REVIEWS_PER_DAY
+    current_day = _int(world_day)
     return {
         "version": MISCELLANIA_STATE_VERSION,
         "approval_basis_points": min(
@@ -120,7 +121,7 @@ def sanitize_managing_miscellania_player_state_pure(
     data = dict(player_data or {})
     state = sanitize_managing_miscellania_state_pure(
         data.get("managing_miscellania"),
-        answered_cards=_answered_cards(data),
+        world_day=world_day_index_pure(data),
     )
     limits = miscellania_limits_pure(data)
     remaining = limits["subjects"]
@@ -175,7 +176,7 @@ def advance_managing_miscellania_world_clock_pure(
     data = dict(player_data)
     sanitized = sanitize_managing_miscellania_player_state_pure(data)
     state = sanitized["managing_miscellania"]
-    current_day = _answered_cards(data) // MISCELLANIA_REVIEWS_PER_DAY
+    current_day = world_day_index_pure(data)
     events: list[dict[str, Any]] = []
     if current_day <= state["last_world_day"]:
         data.update(sanitized)
@@ -451,8 +452,6 @@ def managing_miscellania_view_pure(player_data: Mapping[str, Any]) -> dict[str, 
     )
     chore_eligible = _eligible_chore(player_data, state["approval_chore"]) is not None
     preview = miscellania_collection_outputs_pure(state)
-    answered_cards = _answered_cards(player_data)
-    reviews_into_day = answered_cards % MISCELLANIA_REVIEWS_PER_DAY
     return {
         "eligible": not locked,
         "locked_reasons": locked,
@@ -465,7 +464,7 @@ def managing_miscellania_view_pure(player_data: Mapping[str, Any]) -> dict[str, 
         "idle_subjects": limits["subjects"] - assigned,
         "production_credit": state["production_credit"],
         "production_days": state["production_credit"] / MISCELLANIA_CREDIT_SCALE,
-        "reviews_to_next_day": MISCELLANIA_REVIEWS_PER_DAY - reviews_into_day,
+        "reviews_to_next_day": cards_to_next_world_day_pure(player_data),
         "approval_decay_percent": limits["approval_decay_bp"] / 100,
         "royal_trouble_completed": _quest_completed(
             player_data, ROYAL_TROUBLE_QUEST_ID

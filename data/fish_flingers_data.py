@@ -26,7 +26,6 @@ FISH_FLINGERS_EVENT_REVIEWS = 8
 FISH_FLINGERS_TICKETS_PER_DAY = 2
 FISH_FLINGERS_TICKET_CAP = 10
 FISH_FLINGERS_TOKEN_CAP = 2000
-FISH_FLINGERS_WORLD_DAY_REVIEWS = 240
 
 # Oldid 6529096 establishes these six species, four locations, and the
 # one/one/two/two location distribution. The integer modifiers, stock maximum,

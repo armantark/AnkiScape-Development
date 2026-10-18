@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from .inventory_pure import CARRIED_CAPACITY, carried_slots_used
+from .pace.world_clock import world_day_index_pure
 from ..data.item_values import STACKABLE_ITEM_NAMES
 from ..data.quest.serializers import quest_unlock_rules_as_dict
 from ..logic_pure.quest_runtime_rules import quest_unlock_locked_reasons_pure
@@ -16,7 +17,6 @@ from ..data.runecrafting_data import ALTARS_BY_ID, STANDARD_RUNE_TARGETS_BY_ID
 _QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
 
 WICKED_HOOD_ITEM = "Wicked hood"
-WICKED_HOOD_WORLD_DAY_REVIEWS = 240
 WICKED_HOOD_OUTFIT_UPGRADES = (
     "Wicked cape",
     "Wicked robe top",
@@ -130,13 +130,7 @@ def _non_negative_int(value: Any, default: int = 0) -> int:
 
 
 def wicked_hood_review_day_pure(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    answered = (
-        _non_negative_int(clock.get("answered_cards"))
-        if isinstance(clock, Mapping)
-        else 0
-    )
-    return answered // WICKED_HOOD_WORLD_DAY_REVIEWS
+    return world_day_index_pure(player_data)
 
 
 def wicked_hood_caps_pure(state: Mapping[str, Any]) -> dict[str, int]:
@@ -251,7 +245,7 @@ def ensure_wicked_hood_state_pure(player_data: Mapping[str, Any]) -> dict[str, A
 def advance_wicked_hood_review_day_pure(
     player_data: Mapping[str, Any]
 ) -> dict[str, Any]:
-    """Refill fixed allowances at a shared 240-answer day boundary."""
+    """Refill fixed allowances at the world day boundary."""
     return ensure_wicked_hood_state_pure(player_data)
 
 

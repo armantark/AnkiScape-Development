@@ -5,7 +5,8 @@ from math import comb, floor, sqrt
 
 from typing import Iterable, Mapping, Optional
 
-from ..data.mining_data import MINING_REVIEW_DAY_CARDS, RED_SANDSTONE_DAILY_CAP
+from ..data.mining_data import RED_SANDSTONE_DAILY_CAP
+from ..logic.pace.world_clock import world_day_index_pure
 
 from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
@@ -365,13 +366,7 @@ def default_red_sandstone_daily_state_pure():
 
 
 def red_sandstone_review_day_pure(player_data):
-    clock = player_data.get("shop_market_clock")
-    answered = (
-        _non_negative_int(clock.get("answered_cards"), 0)
-        if isinstance(clock, Mapping)
-        else 0
-    )
-    return answered // MINING_REVIEW_DAY_CARDS
+    return world_day_index_pure(player_data)
 
 
 def sanitize_red_sandstone_daily_state_pure(raw_state, current_review_day=0):
