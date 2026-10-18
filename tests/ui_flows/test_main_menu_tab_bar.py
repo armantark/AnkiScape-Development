@@ -8,12 +8,30 @@ import pkg_alias  # noqa: F401
 from tests import test_main_menu_widget as _main_menu
 
 if _main_menu.HAS_AQT:
-    from aqt.qt import QApplication, QStyleFactory, Qt, QToolButton
+    from aqt.qt import QApplication, QStyle, QStyleFactory, QStyleOptionTab, Qt, QToolButton
 
 
 def _pump() -> None:
     for _ in range(30):
         QApplication.processEvents()
+
+
+def _label_is_whole(bar: "QTabBar", index: int) -> bool:
+    option = QStyleOptionTab()
+    option.initFrom(bar)
+    option.rect = bar.tabRect(index)
+    option.text = bar.tabText(index)
+    option.icon = bar.tabIcon(index)
+    option.iconSize = bar.iconSize()
+    option.shape = bar.shape()
+    option.documentMode = bar.documentMode()
+    # QTabBar's paint event elides each label to exactly this rectangle, so the
+    # check sees the tab's padding, icon and margins the way Qt draws them.
+    text_rect = bar.style().subElementRect(QStyle.SubElement.SE_TabBarTabText, option, bar)
+    elided = option.fontMetrics.elidedText(
+        option.text, Qt.TextElideMode.ElideRight, text_rect.width(), Qt.TextFlag.TextShowMnemonic.value
+    )
+    return elided == option.text
 
 
 def _scroll_to_end(arrow: "QToolButton", tab_count: int) -> None:
@@ -53,10 +71,8 @@ class MainMenuTabBarTest(unittest.TestCase):
                 bar.setStyle(style)
                 _pump()
 
-                for index in range(bar.count()):
-                    label = bar.tabText(index)
-                    text_width = bar.fontMetrics().horizontalAdvance(label) + tabs.iconSize().width()
-                    self.assertGreaterEqual(bar.tabRect(index).width(), text_width, label)
+                cut = [bar.tabText(index) for index in range(bar.count()) if not _label_is_whole(bar, index)]
+                self.assertEqual(cut, [])
 
                 arrows = {button.arrowType(): button for button in bar.findChildren(QToolButton)}
                 right, left = arrows[Qt.ArrowType.RightArrow], arrows[Qt.ArrowType.LeftArrow]
