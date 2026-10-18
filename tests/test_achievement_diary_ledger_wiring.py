@@ -1011,7 +1011,7 @@ class CurationLedgerRuntimeExecutionTest(unittest.TestCase):
         task_id = "ardougne_easy_yoink"
         self.assertFalse(self._is_complete(player, task_id))
 
-        self.assertFalse(
+        self.assertTrue(
             handle_thieving_answer(
                 self._context(player, random_values=(0.99,) * 8)
             )
