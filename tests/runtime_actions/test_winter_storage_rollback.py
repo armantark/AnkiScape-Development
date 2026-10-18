@@ -45,14 +45,14 @@ def _player(target="pickpocket_man"):
 
 
 class TestWinterStorageRollback(unittest.TestCase):
-    def _answer(self, player, rolls=(0.999, 0.0)):
+    def _answer(self, player, rolls=(0.999, 0.0), *, completed_step=False):
         ctx, calls = _context(player, random_values=rolls)
         saves = []
         ctx = dataclasses.replace(
             ctx, save_player_data=lambda: saves.append(copy.deepcopy(player)),
         )
         result = run_answer_with_carried_overlay(ctx, "thieving", handle_thieving_answer)
-        self.assertFalse(result)
+        self.assertIs(result, completed_step)
         self.assertEqual(saves[-1], player)
         self.assertEqual(calls["errors"], [])
         target = player["current_thieving"]
@@ -117,7 +117,7 @@ class TestWinterStorageRollback(unittest.TestCase):
         self.assertEqual(player["combat_supply_loadout"]["food"], {})
         self.assertTrue(player["thieving_stunned"])
 
-    def test_blackjack_steps_keep_progress_despite_false_return(self):
+    def test_blackjack_steps_keep_progress(self):
         cases = (
             ("needs_lure", "ready_to_knockout", 0, 0.0),
             ("ready_to_knockout", "knocked_out", 0, 10.0),
@@ -133,7 +133,7 @@ class TestWinterStorageRollback(unittest.TestCase):
                     equipment={"weapon": "Willow blackjack"},
                     quests={"the_feud": {"completed": True}},
                 )
-                self._answer(player, (0.0,))
+                self._answer(player, (0.0,), completed_step=True)
                 self.assertEqual(player["thieving_attempt_count"], 1)
                 self.assertEqual(player["thieving_blackjack_phase"], expected_phase)
                 self.assertEqual(player["inventory"].get("Coins", 0), coins)

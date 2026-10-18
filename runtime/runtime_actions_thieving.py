@@ -574,7 +574,7 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
             player_data["thieving_blackjack_phase"] = "ready_to_knockout"
             ctx.show_activity_gain("Menaphite thug lured — next review attempts the knockout")
             ctx.save_player_data()
-            return False
+            return True
         if phase == "knocked_out":
             _thieving_award_success(
                 ctx, target, spec,
@@ -585,7 +585,7 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
             if remaining <= 0:
                 player_data["thieving_blackjack_phase"] = "ready_to_knockout"
             ctx.save_player_data()
-            return False
+            return True
         threshold = thieving_blackjack_threshold_pure(
             player_data.get("thieving_level", 1),
             spec.get("knockout_min_chance", 185),
@@ -602,7 +602,7 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(gained)
         ctx.show_activity_gain("Knockout succeeded — two guaranteed picks available")
         ctx.save_player_data()
-        return False
+        return True
 
     level = effective_roll_level_pure(
         player_data, "thieving", player_data.get("thieving_level", 1)

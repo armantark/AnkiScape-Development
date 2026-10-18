@@ -166,14 +166,14 @@ class TestCadenceLiveCoverage(unittest.TestCase):
         )
         self.assertIn("wave boundary ends the card", row["multiplier_behavior"])
 
-    def test_declared_multiplier_behavior_matches_single_step_exemptions(self):
+    def test_declared_multiplier_behavior_matches_the_card_budget(self):
         thieving = resolve_live_cadence_route_pure(
             "thieving", "stall_silver", {}
         )
         agility = resolve_live_cadence_route_pure(
             "agility", "burthorpe_course", {}
         )
-        self.assertIn("never foreground-multiplied", thieving.multiplier_behavior)
+        self.assertEqual("M six-tick steps of the card's budget", thieving.multiplier_behavior)
         self.assertIn("never foreground-multiplied", agility.multiplier_behavior)
 
     def test_exact_seed_profiles_and_range_policy_are_auditable(self):

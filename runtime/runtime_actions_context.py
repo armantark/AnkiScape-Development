@@ -16,10 +16,10 @@ from typing import Any, Callable, Mapping, Optional
 from ..logic.cadence_live import LIVE_COMBAT_TICKS_PER_REVIEW
 
 # Quests and Dungeoneering already run faster than 2012 at speed 1, so they keep
-# one stage or one room per card at every speed (owner-accepted). Thieving's stun
-# still costs a whole card and Agility obstacles have no tick time yet, so both
-# keep one attempt per card until they can be charged in ticks.
-ONE_PER_CARD_HANDLER_KEYS = frozenset({"quest", "dungeoneering", "thieving", "agility"})
+# one stage or one room per card at every speed (owner-accepted). Agility
+# obstacles have no tick time yet, so Agility keeps one obstacle per card until
+# it can be charged in ticks.
+ONE_PER_CARD_HANDLER_KEYS = frozenset({"quest", "dungeoneering", "agility"})
 
 
 @dataclass

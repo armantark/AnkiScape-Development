@@ -141,10 +141,7 @@ def resolve_live_cadence_route_pure(
 
     if skill_id == "thieving":
         return CadenceRouteDeclaration(
-            **{
-                **common,
-                "multiplier_behavior": "one established Thieving canary step; never foreground-multiplied",
-            },
+            **common,
             mode=PASSTHROUGH,
             source_status=SOURCE_READY,
             source_row="existing Thieving canary",

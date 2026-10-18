@@ -239,7 +239,7 @@ class TestThievingPureMechanics(unittest.TestCase):
         succeeds = _blackjack_state()
         succeeds["thieving_blackjack_phase"] = "ready_to_knockout"
         succeeds_ctx, _calls = _context(succeeds, random_values=(230 / 255,))
-        self.assertFalse(handle_thieving_answer(succeeds_ctx))
+        self.assertTrue(handle_thieving_answer(succeeds_ctx))
         self.assertEqual(succeeds["thieving_blackjack_phase"], "knocked_out")
 
         fails = _blackjack_state()
@@ -500,24 +500,24 @@ class TestThievingRuntime(unittest.TestCase):
                 )
                 self.assertEqual(player_data["thieving_attempt_count"], 1)
 
-    def test_menaphite_lure_knockout_and_two_picks_are_four_review_actions(self):
+    def test_menaphite_lure_knockout_and_two_picks_are_four_six_tick_steps(self):
         player_data = _blackjack_state()
         ctx, calls = _context(player_data, random_values=(0.0,))
 
-        self.assertFalse(handle_thieving_answer(ctx))
+        self.assertTrue(handle_thieving_answer(ctx))
         self.assertEqual(player_data["thieving_blackjack_phase"], "ready_to_knockout")
         self.assertEqual(player_data["thieving_exp"], 0.0)
 
-        self.assertFalse(handle_thieving_answer(ctx))
+        self.assertTrue(handle_thieving_answer(ctx))
         self.assertEqual(player_data["thieving_blackjack_phase"], "knocked_out")
         self.assertEqual(player_data["thieving_blackjack_picks_remaining"], 2)
         self.assertEqual(player_data["thieving_exp"], 10.0)
 
-        self.assertFalse(handle_thieving_answer(ctx))
+        self.assertTrue(handle_thieving_answer(ctx))
         self.assertEqual(player_data["inventory"]["Coins"], 60)
         self.assertEqual(player_data["thieving_blackjack_picks_remaining"], 1)
 
-        self.assertFalse(handle_thieving_answer(ctx))
+        self.assertTrue(handle_thieving_answer(ctx))
         self.assertEqual(player_data["inventory"]["Coins"], 120)
         self.assertEqual(player_data["thieving_blackjack_picks_remaining"], 0)
         self.assertEqual(player_data["thieving_blackjack_phase"], "ready_to_knockout")

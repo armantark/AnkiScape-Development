@@ -2463,7 +2463,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.current_skill, "Thieving")
         self.assertEqual(addon._state.review_undo_stack, [])
 
-    def test_thieving_success_and_stall_cadence_ignore_review_multiplier(self):
+    def test_thieving_success_and_stall_cadence_spend_each_six_tick_step(self):
         addon = _load_addon_as_package("ankiscape_thieving_multiplier_cap_integration")
 
         addon.level_up_check = lambda _skill, _data: None
@@ -2496,10 +2496,10 @@ class TestIntegrationSmoke(unittest.TestCase):
             addon._state.exp_awarded = False
             addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-            self.assertEqual(addon._state.player_data["thieving_attempt_count"], 1)
-            self.assertEqual(addon._state.player_data["thieving_success_count"], 1)
-            self.assertEqual(addon._state.player_data["inventory"]["Coins"], 3)
-            self.assertEqual(addon._state.player_data["thieving_exp"], 8.0)
+            self.assertEqual(addon._state.player_data["thieving_attempt_count"], 3)
+            self.assertEqual(addon._state.player_data["thieving_success_count"], 3)
+            self.assertEqual(addon._state.player_data["inventory"]["Coins"], 9)
+            self.assertEqual(addon._state.player_data["thieving_exp"], 24.0)
 
             addon._state.player_data = {
                 "inventory": {},
@@ -2525,9 +2525,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._state.player_data["thieving_success_count"], 1)
         self.assertEqual(addon._state.player_data["inventory"]["Silver ore"], 1)
         self.assertEqual(addon._state.player_data["thieving_exp"], 54.0)
-        self.assertEqual(
+        self.assertEqual(  # the stall restocks over 50 ticks, so two steps wait
             addon._state.player_data["cadence_profiles"]["thieving:stall_silver"]["assigned_reviews"],
-            1,
+            3,
         )
 
     def test_wall_safe_failure_consumes_one_multiplied_review_and_undoes_cadence(self):

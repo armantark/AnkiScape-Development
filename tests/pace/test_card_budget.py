@@ -129,11 +129,11 @@ class EveryRouteSpendsTheWholeCardTests(unittest.TestCase):
 
     Combat receives the whole budget in one call and spends it in its own tick
     loop. Quests and Dungeoneering take one stage or room per card, a declared
-    divergence, and Thieving and Agility keep one attempt per card; each call
-    sees the whole budget too. Every other route takes M six-tick steps.
+    divergence, and Agility keeps one obstacle per card; each call sees the
+    whole budget too. Every other route takes M six-tick steps.
     """
 
-    WHOLE_CARD_HANDLER_KEYS = frozenset({"combat", "quest", "dungeoneering", "thieving", "agility"})
+    WHOLE_CARD_HANDLER_KEYS = frozenset({"combat", "quest", "dungeoneering", "agility"})
 
     def _spend(self, handler_key: str, action_id: str, speed: int) -> tuple[list[int], int]:
         player = {"current_utility": action_id} if handler_key == "utility" else {}
