@@ -17,10 +17,15 @@ from ..data.livid_farm_data import (
     LIVID_FARM_DISTRACTIONS,
     LIVID_FARM_DUTIES,
     LIVID_FARM_ENTRY_LEVELS,
-    LIVID_FARM_MORE_PLANKS_REVIEWS,
     LIVID_FARM_UNLOCKS,
     LIVID_FARM_WALLET_CAP,
     LIVID_FARM_WISHES,
+)
+from .pace.more_planks import (
+    advance_more_planks,
+    more_planks_reviews_left_pure,  # noqa: F401  (re-export)
+    more_planks_timer,
+    start_more_planks,
 )
 
 
@@ -54,8 +59,7 @@ def default_livid_farm_state_pure() -> dict[str, Any]:
         "arcane_capacitor_spell": "",
         "arcane_capacitor_charges": 0,
         "lunar_lumber_residual": 0,
-        "more_planks_reviews_remaining": 0,
-        "more_planks_active_this_review": False,
+        **more_planks_timer({}),
     }
 
 
@@ -103,13 +107,7 @@ def sanitize_livid_farm_state_pure(raw: Any) -> dict[str, Any]:
     state["lunar_lumber_residual"] = (
         _non_negative_int(source.get("lunar_lumber_residual", 0)) % 28
     )
-    state["more_planks_reviews_remaining"] = min(
-        LIVID_FARM_MORE_PLANKS_REVIEWS,
-        _non_negative_int(source.get("more_planks_reviews_remaining", 0)),
-    )
-    state["more_planks_active_this_review"] = bool(
-        source.get("more_planks_active_this_review", False)
-    )
+    state.update(more_planks_timer(source))
     if claimed:
         state["unlocked_spells"] = [
             unlock_id for unlock_id, _name, _threshold in LIVID_FARM_UNLOCKS
@@ -972,10 +970,7 @@ def apply_livid_farm_wish_pure(
         )
         outputs = {LIVID_FARM_PROTECTION_SCROLL: 1}
     elif selected == "more_planks":
-        state["more_planks_reviews_remaining"] = (
-            LIVID_FARM_MORE_PLANKS_REVIEWS
-        )
-        state["more_planks_active_this_review"] = False
+        state.update(start_more_planks())
     elif selected == "gimme_herbs":
         outputs = {
             "Grimy kwuarm": 3,
@@ -1017,9 +1012,6 @@ def advance_livid_farm_wish_effects_pure(
 ) -> dict[str, Any]:
     data = dict(player_data)
     state = sanitize_livid_farm_state_pure(data.get("livid_farm"))
-    cards = _non_negative_int(answered_cards)
-    remaining = state["more_planks_reviews_remaining"]
-    state["more_planks_active_this_review"] = cards > 0 and remaining > 0
-    state["more_planks_reviews_remaining"] = max(0, remaining - cards)
+    advance_more_planks(state, answered_cards)
     data["livid_farm"] = state
     return data

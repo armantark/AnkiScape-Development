@@ -535,6 +535,7 @@ from ..logic.livid_farm_logic import (
     livid_farm_cycle_projection_pure,
     livid_farm_locked_reasons_pure,
     livid_farm_wish_rows_pure,
+    more_planks_reviews_left_pure,
     sanitize_livid_farm_state_pure,
 )
 
@@ -19440,9 +19441,7 @@ def show_main_menu(
                     f"{int(livid_state['produce_points']):,} banked · "
                     f"{int(livid_state['cycles_completed']):,} cycles"
                 )
-                remaining = int(
-                    livid_state["more_planks_reviews_remaining"]
-                )
+                remaining = more_planks_reviews_left_pure(livid_state)
                 if remaining > 0:
                     status_text += f" · More Planks {remaining} left"
                 livid_status.setText(status_text)
