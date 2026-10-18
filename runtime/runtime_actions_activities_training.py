@@ -408,10 +408,7 @@ def _handle_gnome_ball_answer(ctx: RuntimeActionContext) -> bool:
 
 def _handle_fish_flingers_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_fish_flingers_review_pure(
-        ctx.player_data,
-        ctx.random_random(),
-        ctx.random_random(),
-        ctx.random_random(),
+        ctx.player_data, ctx.random_random
     )
     if not result.get("allowed"):
         ctx.deactivate_current_skill()
@@ -422,6 +419,8 @@ def _handle_fish_flingers_answer(ctx: RuntimeActionContext) -> bool:
         return False
     ctx.player_data.clear()
     ctx.player_data.update(updated)
+    if not result["catch_landed"]:
+        return True
     # Fish Flingers' event payout is already settled by the Darkan formula.
     # The Fishing outfit remains relevant to other Fishing activities, but
     # Darkan's FishFlingers.settle path applies no outfit multiplier here.

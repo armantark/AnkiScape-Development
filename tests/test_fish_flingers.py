@@ -14,8 +14,9 @@ from ankiscape.logic import cadence_coverage
 from ankiscape.logic import fish_flingers_logic
 from ankiscape.core import constants
 from ankiscape.data.fish_flingers_data import (
+    FISH_FLINGERS_CATCH_TICKS,
     FISH_FLINGERS_EFFICIENCY,
-    FISH_FLINGERS_EVENT_REVIEWS,
+    FISH_FLINGERS_EVENT_CATCHES,
     FISH_FLINGERS_ACTIVITY_ID,
     FISH_FLINGERS_COMMUNAL_DEPLETION,
     FISH_FLINGERS_LOCATIONS,
@@ -57,6 +58,15 @@ def _player(**updates):
     }
     player.update(updates)
     return player
+
+
+def _catch(player, catch_roll, big_fish_roll, assist_roll):
+    """Play six-tick steps until the next catch lands on these rolls."""
+    rolls = iter((catch_roll, big_fish_roll, assist_roll))
+    while True:
+        player, result = apply_fish_flingers_review_pure(player, lambda: next(rolls))
+        if not result["allowed"] or result["catch_landed"]:
+            return player, result
 
 
 class FishFlingersDataTests(unittest.TestCase):
@@ -200,9 +210,9 @@ class FishFlingersLogicTests(unittest.TestCase):
         efficiencies = []
         rolls = [(0.0, 0.0, 0.0)] + [
             (0.0, 0.0, 0.999)
-        ] * (FISH_FLINGERS_EVENT_REVIEWS - 1)
+        ] * (FISH_FLINGERS_EVENT_CATCHES - 1)
         for catch_roll, big_fish_roll, assist_roll in rolls:
-            player, result = apply_fish_flingers_review_pure(
+            player, result = _catch(
                 player, catch_roll, big_fish_roll, assist_roll
             )
             efficiencies.append(result["efficiency"])
@@ -215,7 +225,7 @@ class FishFlingersLogicTests(unittest.TestCase):
         # the ramp finishes on review three, so perfect tackles equal the event
         # length minus two.
         self.assertEqual(
-            result["perfect_tackles"], FISH_FLINGERS_EVENT_REVIEWS - 2
+            result["perfect_tackles"], FISH_FLINGERS_EVENT_CATCHES - 2
         )
         self.assertEqual(
             result["tokens"],
@@ -238,7 +248,7 @@ class FishFlingersLogicTests(unittest.TestCase):
         active, ok, info = enter_fish_flingers_pure(_player())
         self.assertTrue(ok, info)
         for _review in range(3):
-            active, _result = apply_fish_flingers_review_pure(
+            active, _result = _catch(
                 active, 0.999, 0.999, 0.999
             )
         active_view = fish_flingers_view_pure(active)
@@ -251,7 +261,7 @@ class FishFlingersLogicTests(unittest.TestCase):
             changed[index].update(updates)
             return tuple(changed)
 
-        _baseline_player, baseline = apply_fish_flingers_review_pure(
+        _baseline_player, baseline = _catch(
             active, 0.999, 0.999, 0.999
         )
         with patch.object(
@@ -259,7 +269,7 @@ class FishFlingersLogicTests(unittest.TestCase):
             "FISH_FLINGERS_SPECIES",
             changed_rows(FISH_FLINGERS_SPECIES, 1, catch_modifier=3),
         ):
-            _changed_player, species_catch = apply_fish_flingers_review_pure(
+            _changed_player, species_catch = _catch(
                 active, 0.999, 0.999, 0.999
             )
         self.assertNotEqual(species_catch["fish_caught"], baseline["fish_caught"])
@@ -270,16 +280,16 @@ class FishFlingersLogicTests(unittest.TestCase):
             "FISH_FLINGERS_LOCATIONS",
             changed_rows(FISH_FLINGERS_LOCATIONS, 1, catch_modifier=2),
         ):
-            _changed_player, location_catch = apply_fish_flingers_review_pure(
+            _changed_player, location_catch = _catch(
                 active, 0.999, 0.999, 0.999
             )
         self.assertNotEqual(location_catch["fish_caught"], baseline["fish_caught"])
 
 
-        fading_player, rich_catch = apply_fish_flingers_review_pure(
+        fading_player, rich_catch = _catch(
             active, 0.999, 0.999, 0.999
         )
-        _low_player, fading_catch = apply_fish_flingers_review_pure(
+        _low_player, fading_catch = _catch(
             fading_player, 0.999, 0.999, 0.999
         )
         self.assertEqual(rich_catch["species"], fading_catch["species"])
@@ -296,7 +306,7 @@ class FishFlingersLogicTests(unittest.TestCase):
                 pressure,
             ):
                 for _review in range(4):
-                    player, result = apply_fish_flingers_review_pure(
+                    player, result = _catch(
                         player, 0.0, 0.999, 0.999
                     )
                     rows.append(result)
@@ -327,8 +337,8 @@ class FishFlingersLogicTests(unittest.TestCase):
             }
             player, ok, info = enter_fish_flingers_pure(player)
             self.assertTrue(ok, info)
-            for review_index in range(FISH_FLINGERS_EVENT_REVIEWS):
-                player, result = apply_fish_flingers_review_pure(
+            for review_index in range(FISH_FLINGERS_EVENT_CATCHES):
+                player, result = _catch(
                     player, 0.01, 0.999, 0.999
                 )
                 route_seen.add((result["species"], result["location"]))
@@ -364,7 +374,7 @@ class FishFlingersLogicTests(unittest.TestCase):
     def test_leave_forfeits_progress_without_refunding_ticket(self):
         player, ok, _info = enter_fish_flingers_pure(_player())
         self.assertTrue(ok)
-        player, _result = apply_fish_flingers_review_pure(player, 0.5, 0.5, 0.5)
+        player, _result = _catch(player, 0.5, 0.5, 0.5)
         tickets = player["fish_flingers_tickets"]
         left, left_ok, info = leave_fish_flingers_pure(player)
         self.assertTrue(left_ok, info)
@@ -388,8 +398,8 @@ class FishFlingersLogicTests(unittest.TestCase):
             }
             player, entered, info = enter_fish_flingers_pure(player)
             self.assertTrue(entered, info)
-            for _ in range(FISH_FLINGERS_EVENT_REVIEWS):
-                player, _result = apply_fish_flingers_review_pure(
+            for _ in range(FISH_FLINGERS_EVENT_CATCHES):
+                player, _result = _catch(
                     player, 0.999, 0.999, 0.999
                 )
         earned_tokens = int(player["fish_flingers_tokens"])
@@ -451,7 +461,7 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertEqual(view["communal_pressure"], FISH_FLINGERS_COMMUNAL_DEPLETION)
         self.assertIn("per review", view["communal_pressure_label"])
 
-        player, result = apply_fish_flingers_review_pure(
+        player, result = _catch(
             player, 0.5, 0.999, 0.999
         )
         weighted_view = fish_flingers_view_pure(player)
@@ -463,9 +473,9 @@ class FishFlingersLogicTests(unittest.TestCase):
         # ledger records is the already-verified 4593.
         rolls = [(0.0, 0.0, 0.0)] + [
             (0.0, 0.0, 0.999)
-        ] * (FISH_FLINGERS_EVENT_REVIEWS - 1)
+        ] * (FISH_FLINGERS_EVENT_CATCHES - 1)
         for catch_roll, big_fish_roll, assist_roll in rolls:
-            player, result = apply_fish_flingers_review_pure(
+            player, result = _catch(
                 player, catch_roll, big_fish_roll, assist_roll
             )
         self.assertTrue(result["terminal"])
@@ -477,7 +487,7 @@ class FishFlingersLogicTests(unittest.TestCase):
                 "score": result["score"],
                 "xp": result["xp"],
                 "fishing_level": 25,
-                "review_index": FISH_FLINGERS_EVENT_REVIEWS,
+                "review_index": FISH_FLINGERS_EVENT_CATCHES,
                 "medals": result["medals"],
             },
         )
@@ -489,7 +499,7 @@ class FishFlingersLogicTests(unittest.TestCase):
         player = _player()
         existing = [
             {"score": index, "xp": index, "fishing_level": 1,
-             "review_index": FISH_FLINGERS_EVENT_REVIEWS, "medals": 0}
+             "review_index": FISH_FLINGERS_EVENT_CATCHES, "medals": 0}
             for index in range(50)
         ]
         player["fish_flingers_game_log"] = existing
@@ -498,21 +508,21 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertTrue(ok, info)
         for catch_roll, big_fish_roll, assist_roll in [
             (0.0, 0.0, 0.999)
-        ] * FISH_FLINGERS_EVENT_REVIEWS:
-            entered, _result = apply_fish_flingers_review_pure(
+        ] * FISH_FLINGERS_EVENT_CATCHES:
+            entered, _result = _catch(
                 entered, catch_roll, big_fish_roll, assist_roll
             )
         log = entered["fish_flingers_game_log"]
         self.assertEqual(len(log), 50)
         self.assertEqual(log[0]["score"], 1)
-        self.assertEqual(log[-1]["review_index"], FISH_FLINGERS_EVENT_REVIEWS)
+        self.assertEqual(log[-1]["review_index"], FISH_FLINGERS_EVENT_CATCHES)
 
     def test_a_populated_log_round_trips_through_the_save_migration(self):
         record = {
             "score": 38,
             "xp": 4593,
             "fishing_level": 25,
-            "review_index": FISH_FLINGERS_EVENT_REVIEWS,
+            "review_index": FISH_FLINGERS_EVENT_CATCHES,
             "medals": 3,
         }
         migrated = migrate_loaded_data(
@@ -541,7 +551,7 @@ class FishFlingersLogicTests(unittest.TestCase):
         for catch_roll, big_fish_roll, assist_roll in [
             (0.0, 0.0, 0.999)
         ] * 3:
-            player, _result = apply_fish_flingers_review_pure(
+            player, _result = _catch(
                 player, catch_roll, big_fish_roll, assist_roll
             )
         left, ok, info = leave_fish_flingers_pure(player)
@@ -590,9 +600,10 @@ class FishFlingersStorageTests(unittest.TestCase):
             constants.ITEM_DEFINITIONS,
         )
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
-        # The sanitizer clamps to the last review index of an event.
+        # The sanitizer clamps to the last catch of an event.
         self.assertEqual(
-            migrated["fish_flingers"]["review"], FISH_FLINGERS_EVENT_REVIEWS - 1
+            migrated["fish_flingers"]["ticks_elapsed"],
+            (FISH_FLINGERS_EVENT_CATCHES - 1) * FISH_FLINGERS_CATCH_TICKS,
         )
         self.assertEqual(migrated["fish_flingers"]["fish_caught"], 0)
         self.assertEqual(
@@ -652,17 +663,23 @@ class FishFlingersHookTests(unittest.TestCase):
         addon._show_exp = lambda _amount: None
         addon._advance_world_events_after_review = lambda: None
         addon._save_player_data_if_anki_ready = lambda: None
-        before = copy.deepcopy(addon._state.player_data)
-        before_xp = float(before["fishing_exp"])
         with patch.object(addon.random, "random", return_value=0.999) as rng:
             with patch.object(
                 activities,
                 "fishing_outfit_multiplier_pure",
                 side_effect=AssertionError("Fish Flingers must not use outfit XP"),
             ):
+                # A card at x9 is 54 ticks, so the 1,000-tick game ends on card 19.
+                for _card in range(18):
+                    addon._state.exp_awarded = False
+                    addon.on_good_answer(copy.deepcopy(addon._state.player_data))
+                self.assertEqual(addon._state.player_data["fish_flingers_events_completed"], 0)
+                before = copy.deepcopy(addon._state.player_data)
+                before_xp = float(before["fishing_exp"])
+                addon._state.exp_awarded = False
                 addon.on_good_answer(before)
-        # Three rolls per review: catch, big fish, assist.
-        self.assertEqual(rng.call_count, FISH_FLINGERS_EVENT_REVIEWS * 3)
+        # Three rolls per catch: catch, big fish, assist.
+        self.assertEqual(rng.call_count, FISH_FLINGERS_EVENT_CATCHES * 3)
         self.assertEqual(addon._state.player_data["fish_flingers_events_completed"], 1)
         self.assertEqual(addon._state.player_data["fish_flingers"], {})
         self.assertGreater(addon._state.player_data["fishing_exp"], before_xp)

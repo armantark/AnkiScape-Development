@@ -305,7 +305,7 @@ from ..logic.gnome_ball_logic import gnome_ball_view_pure
 
 from ..data.fish_flingers_data import (
     FISH_FLINGERS_ACTIVITY_ID,
-    FISH_FLINGERS_EVENT_REVIEWS,
+    FISH_FLINGERS_EVENT_CATCHES,
 )
 from ..logic.fish_flingers_logic import fish_flingers_view_pure
 
@@ -13338,10 +13338,10 @@ def show_main_menu(
 
         fish_flingers_progress = QProgressBar()
         fish_flingers_progress.setObjectName("fishFlingersProgress")
-        fish_flingers_progress.setRange(0, FISH_FLINGERS_EVENT_REVIEWS)
+        fish_flingers_progress.setRange(0, FISH_FLINGERS_EVENT_CATCHES)
         fish_flingers_progress.setTextVisible(True)
         fish_flingers_progress.setFormat(
-            f"%v of {FISH_FLINGERS_EVENT_REVIEWS} landed"
+            f"%v of {FISH_FLINGERS_EVENT_CATCHES} landed"
         )
         fish_flingers_progress.setStyleSheet(
             "QProgressBar { color: palette(text); text-align: center;"
@@ -13418,7 +13418,7 @@ def show_main_menu(
             )
             if active:
                 fish_flingers_summary.setText(
-                    f"Catch {int(view['review']) + 1}/{FISH_FLINGERS_EVENT_REVIEWS} · "
+                    f"Catch {int(view['catches']) + 1}/{FISH_FLINGERS_EVENT_CATCHES} · "
                     f"{view['species']} at {view['location']} · "
                     f"stock {int(view['stock'])}/{int(view['stock_max'])} "
                     f"({int(view['stock_percent'])}%, {view['stock_label']}) · "
@@ -13431,7 +13431,7 @@ def show_main_menu(
                 )
             else:
                 summary_lines = [
-                    f"{FISH_FLINGERS_EVENT_REVIEWS} successful reviews · tackle discovery improves every catch · "
+                    f"{FISH_FLINGERS_EVENT_CATCHES} successful reviews · tackle discovery improves every catch · "
                     "fish stocks rotate automatically · big-fish help and rewards at the finish"
                 ]
                 completed = int(view["events_completed"])
@@ -13454,7 +13454,7 @@ def show_main_menu(
                 fish_flingers_summary.sizeHint().height()
             )
             fish_flingers_summary.setToolTip(str(view["last_result"]))
-            fish_flingers_progress.setValue(int(view["review"]) if active else 0)
+            fish_flingers_progress.setValue(int(view["catches"]) if active else 0)
             fish_flingers_progress.setVisible(active)
             selected = (
                 active

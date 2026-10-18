@@ -46,7 +46,7 @@ from ..data.enchanted_key_data import ENCHANTED_KEY_ACTIVITY_ID
 from ..data.evil_tree_data import EVIL_TREE_UTILITY_ID
 from ..data.fish_flingers_data import (
     FISH_FLINGERS_ACTIVITY_ID,
-    FISH_FLINGERS_EVENT_REVIEWS,
+    FISH_FLINGERS_EVENT_CATCHES,
 )
 from ..data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
 from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
@@ -486,7 +486,7 @@ def _fish_flingers_notification_statuses(
     view = fish_flingers_view_pure(player_data)
     if view["active"]:
         return (
-            f"Review {int(view['review_number'])}/{FISH_FLINGERS_EVENT_REVIEWS} · "
+            f"Review {int(view['catch_number'])}/{FISH_FLINGERS_EVENT_CATCHES} · "
             f"{view['location']} · {int(view['stock'])}/{int(view['stock_max'])} stock · "
             f"{int(view['tickets'])} tickets remaining",
         )

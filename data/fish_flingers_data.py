@@ -13,16 +13,19 @@ FISH_FLINGERS_SOURCE = (
     "(2012-11-03T16:37:15Z)"
 )
 
-# Eight, not six. The medal table is sourced (three perfect tackles for Junior
-# Angler, six for Master Angler, oldid 6529096); the event length is our own
-# pacing abstraction, as this family's audit says outright. A six-review event
-# fixes perfect tackles at exactly four forever, which made Master Angler
-# permanently unearnable and Team Player nearly so. Bending our abstraction to
-# fit the source is the right way round: at eight reviews a flawless event yields
-# exactly six perfect tackles, so all four sourced medals are reachable and no
-# sourced number moved. Rewards scale with fish caught, so the longer event earns
-# proportionally more rather than diluting the pace.
-FISH_FLINGERS_EVENT_REVIEWS = 8
+# Eight catches, not six. The medal table is sourced (three perfect tackles for
+# Junior Angler, six for Master Angler, oldid 6529096); the catch count is our own
+# abstraction of the competition's many casts, as this family's audit says
+# outright. Six catches fix perfect tackles at exactly four forever, which made
+# Master Angler permanently unearnable and Team Player nearly so. At eight a
+# flawless event yields exactly six perfect tackles, so all four sourced medals
+# are reachable and no sourced number moved.
+FISH_FLINGERS_EVENT_CATCHES = 8
+# The competition lasts its 2012 ten minutes (Darkan ACTIVE_MILLIS; oldid 6529096
+# wikitext lines 9, 40 and 435), in 0.6-second game ticks, and the eight catches
+# land at even intervals across it (owner, Q4, 2026-10-18).
+FISH_FLINGERS_EVENT_TICKS = 1_000
+FISH_FLINGERS_CATCH_TICKS = FISH_FLINGERS_EVENT_TICKS // FISH_FLINGERS_EVENT_CATCHES
 FISH_FLINGERS_TICKETS_PER_DAY = 2
 FISH_FLINGERS_TICKET_CAP = 10
 FISH_FLINGERS_TOKEN_CAP = 2000
