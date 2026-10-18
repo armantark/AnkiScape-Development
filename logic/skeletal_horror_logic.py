@@ -18,13 +18,13 @@ from ..data.skeletal_horror_data import (
     SKELETAL_HORROR_PHASES,
     SKELETAL_HORROR_REPEAT_REWARDS,
     SKELETAL_HORROR_TARGET_ID,
-    SKELETAL_HORROR_WEEK_REVIEWS,
     skeletal_horror_enemy_pure,
 )
 from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     combat_target_locked_reasons_pure,
 )
+from .pace.world_clock import cards_to_next_world_week_pure, world_week_index_pure
 from .treasure_trails_logic import (
     clue_refusal_reason_pure,
     filter_clue_scroll_outputs_pure,
@@ -50,15 +50,6 @@ def _float(value: Any, default: float = 0.0) -> float:
         return float(value)
     except (TypeError, ValueError, OverflowError):
         return default
-
-
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    return _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-
-
-def _world_week(player_data: Mapping[str, Any]) -> int:
-    return _answered_cards(player_data) // SKELETAL_HORROR_WEEK_REVIEWS
 
 
 def _quest_complete(player_data: Mapping[str, Any], quest_id: str) -> bool:
@@ -148,7 +139,7 @@ def _sync_entries(
     synced = dict(state)
     if _int(synced.get("kills")) <= 0:
         return synced
-    current_week = _world_week(player_data)
+    current_week = world_week_index_pure(player_data)
     previous_week = _int(
         synced.get("allowance_week_index"),
         current_week,
@@ -196,8 +187,7 @@ def skeletal_horror_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     entry_ready = first_ready or state["available_entries"] > 0
     reviews_to_entry = 0
     if state["kills"] > 0 and state["available_entries"] <= 0:
-        remainder = _answered_cards(player_data) % SKELETAL_HORROR_WEEK_REVIEWS
-        reviews_to_entry = SKELETAL_HORROR_WEEK_REVIEWS - remainder
+        reviews_to_entry = cards_to_next_world_week_pure(player_data)
     phase = SKELETAL_HORROR_PHASES[state["phase_index"]]
     return {
         **state,
@@ -486,7 +476,7 @@ def apply_skeletal_horror_review_pure(
             )
             data["inventory"] = inventory
     state["kills"] += 1
-    state["allowance_week_index"] = _world_week(data)
+    state["allowance_week_index"] = world_week_index_pure(data)
     if not first_completion:
         state["available_entries"] = max(0, state["available_entries"] - 1)
     message = (

@@ -23,9 +23,9 @@ from ..data.tears_of_guthix_data import (
     TEARS_OF_GUTHIX_TEARS_PER_TICK,
     TEARS_OF_GUTHIX_TICKS_PER_QUEST_POINT,
     TEARS_OF_GUTHIX_TICKS_PER_REVIEW,
-    TEARS_OF_GUTHIX_WEEK_REVIEWS,
     TEARS_OF_GUTHIX_XP_PER_LEVEL,
 )
+from .pace.world_clock import cards_to_next_world_week_pure, world_week_index_pure
 
 
 TEARS_OF_GUTHIX_STATE_VERSION = 1
@@ -44,15 +44,6 @@ def _float(value: Any, default: float = 0.0) -> float:
         return float(value)
     except (TypeError, ValueError, OverflowError):
         return default
-
-
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    return _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-
-
-def _world_week(player_data: Mapping[str, Any]) -> int:
-    return _answered_cards(player_data) // TEARS_OF_GUTHIX_WEEK_REVIEWS
 
 
 def _quest_complete(player_data: Mapping[str, Any], quest_id: str) -> bool:
@@ -174,7 +165,7 @@ def _sync_entries(
     synced = dict(state)
     if _int(synced.get("visits")) <= 0:
         return synced
-    current_week = _world_week(player_data)
+    current_week = world_week_index_pure(player_data)
     previous_week = _int(
         synced.get("allowance_week_index"),
         current_week,
@@ -211,8 +202,7 @@ def tears_of_guthix_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     week_ready = first_visit or state["available_entries"] > 0
     reviews_to_entry = 0
     if not week_ready:
-        remainder = _answered_cards(player_data) % TEARS_OF_GUTHIX_WEEK_REVIEWS
-        reviews_to_entry = TEARS_OF_GUTHIX_WEEK_REVIEWS - remainder
+        reviews_to_entry = cards_to_next_world_week_pure(player_data)
 
     missing: list[str] = []
     if not quest_done:
@@ -428,7 +418,7 @@ def apply_tears_of_guthix_review_pure(
     # towards the next visit's requirement.
     state["last_visit_exp"] = total_experience_pure(data)
     state["visits"] += 1
-    state["allowance_week_index"] = _world_week(data)
+    state["allowance_week_index"] = world_week_index_pure(data)
     state["last_visit_quest_points"] = _int(data.get("quest_points"))
     message = (
         f"Juna accepts {tears} tears · +{awarded:,.0f} "

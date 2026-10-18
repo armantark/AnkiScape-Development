@@ -317,12 +317,6 @@ def agility_effective_level_pure(player_data: Mapping[str, Any]) -> int:
     return effective_roll_level_pure(player_data, "agility", level + temporary_boost)
 
 
-def _answered_card_week(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    answered = _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-    return answered // (240 * 7)
-
-
 def agility_target_locked_reasons_pure(player_data: Mapping[str, Any], target_id: str) -> tuple[str, ...]:
     target = AGILITY_TARGETS_BY_ID.get(target_id)
     if target is None:

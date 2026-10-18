@@ -17,7 +17,6 @@ from ..data.troll_invasion_data import (
     TROLL_INVASION_HARD,
     TROLL_INVASION_HARD_WAVES,
     TROLL_INVASION_MODES,
-    TROLL_INVASION_MONTH_REVIEWS,
     TROLL_INVASION_MORALE_PER_ACTION,
     TROLL_INVASION_MORALE_POWER_REPAIR,
     TROLL_INVASION_MORALE_POWER_THRESHOLD,
@@ -42,6 +41,7 @@ from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     combat_max_lifepoints_pure,
 )
+from .pace.world_clock import world_month_index_pure
 
 
 TROLL_INVASION_STATE_VERSION = 1
@@ -69,15 +69,6 @@ def _float(value: Any, default: float = 0.0) -> float:
     except (TypeError, ValueError, OverflowError):
         return default
     return parsed if parsed == parsed and parsed not in (float("inf"), float("-inf")) else default
-
-
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    return _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-
-
-def _world_month(player_data: Mapping[str, Any]) -> int:
-    return _answered_cards(player_data) // TROLL_INVASION_MONTH_REVIEWS
 
 
 def default_troll_invasion_state_pure() -> dict[str, Any]:
@@ -188,7 +179,7 @@ def sanitize_troll_invasion_state_pure(player_data: Mapping[str, Any] | None) ->
 
 def _sync_reward_allowances(state: Mapping[str, Any], player_data: Mapping[str, Any]) -> dict[str, Any]:
     synced = dict(state)
-    current = _world_month(player_data)
+    current = world_month_index_pure(player_data)
     previous = _int(synced.get("troll_invasion_reward_month_index"), -1, minimum=-1)
     if previous < 0:
         synced["troll_invasion_reward_month_index"] = current

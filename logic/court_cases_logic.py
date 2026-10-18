@@ -9,12 +9,13 @@ from ..logic_pure.achievement_diary_events import record_direct_diary_event_pure
 from ..logic_pure.logic_pure_prayer import active_prayer_selection_pure
 
 from ..data.court_cases_data import (
-    COURT_CASES_BATCH2_COOLDOWN_REVIEWS,
+    COURT_CASES_BATCH2_COOLDOWN_DAYS,
     COURT_CASE_ORDER,
     COURT_CASES,
     COURT_CASES_ACTIVITY_ID,
     COURT_ROLE_LABELS,
 )
+from .pace.world_clock import DEFAULT_WORLD_DAY_CARDS
 
 
 COURT_CASES_STATE_VERSION = 1
@@ -502,7 +503,7 @@ def apply_court_case_review_pure(
     data["court_cases_completed_ids"] = completed
     if not spec["starter"]:
         data["court_cases_batch2_ready_at_review"] = (
-            _answered_cards(data) + COURT_CASES_BATCH2_COOLDOWN_REVIEWS
+            _answered_cards(data) + COURT_CASES_BATCH2_COOLDOWN_DAYS * DEFAULT_WORLD_DAY_CARDS
         )
     _finish_session(data)
     verdict = "guilty" if role == "prosecution" else "not guilty"

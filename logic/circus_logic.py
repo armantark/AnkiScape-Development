@@ -11,10 +11,10 @@ from ..data.circus_data import (
     CIRCUS_PERFORMANCES,
     CIRCUS_REWARDS,
     CIRCUS_STRATEGIES,
-    CIRCUS_WEEK_REVIEWS,
     CircusPerformance,
     CircusTrick,
 )
+from .pace.world_clock import world_week_index_pure
 
 
 CIRCUS_STATE_VERSION = 2
@@ -53,12 +53,6 @@ def _quest_complete(player_data: Mapping[str, Any], quest_id: str) -> bool:
     quests = player_data.get("quests")
     state = quests.get(quest_id) if isinstance(quests, Mapping) else None
     return isinstance(state, Mapping) and bool(state.get("completed", False))
-
-
-def _answered_card_week(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    answered = _int(clock.get("answered_cards")) if isinstance(clock, Mapping) else 0
-    return answered // CIRCUS_WEEK_REVIEWS
 
 
 def default_circus_state_pure() -> dict[str, Any]:
@@ -259,7 +253,7 @@ def _performance_locked_reasons(
                 performance.quest_gate.replace("_", " ").title(),
             )
         )
-    if state["used_week_by_performance"].get(performance.id) == _answered_card_week(player_data):
+    if state["used_week_by_performance"].get(performance.id) == world_week_index_pure(player_data):
         reasons.append("next answered-card week")
     return tuple(reasons)
 
@@ -388,7 +382,7 @@ def _next_executing_performance(
     *,
     exclude_performance_id: str = "",
 ) -> CircusPerformance | None:
-    current_week = _answered_card_week(player_data)
+    current_week = world_week_index_pure(player_data)
     queue = state["performance_queue"]
     for performance_id in queue["executing"]:
         if performance_id == exclude_performance_id:
@@ -424,7 +418,7 @@ def _inventory(player_data: Mapping[str, Any]) -> dict[str, int]:
 
 def circus_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     state = sanitize_circus_state_pure(player_data.get("circus"))
-    current_week = _answered_card_week(player_data)
+    current_week = world_week_index_pure(player_data)
     performance_rows = []
     for performance_id in CIRCUS_PERFORMANCE_ORDER:
         performance = CIRCUS_PERFORMANCES[performance_id]
@@ -642,7 +636,7 @@ def apply_circus_command_pure(
             locked = _performance_locked_reasons(data, performance, state)
             if locked:
                 return data, False, {"reason": ", ".join(locked)}
-        state["used_week_by_performance"][performance_id] = _answered_card_week(data)
+        state["used_week_by_performance"][performance_id] = world_week_index_pure(data)
         if (
             isinstance(active_session, Mapping)
             and active_session.get("active_performance") == performance_id
@@ -787,7 +781,7 @@ def apply_circus_review_pure(
             inventory[reward] = inventory.get(reward, 0) + 1
             data["inventory"] = inventory
             outputs[reward] = 1
-        state["used_week_by_performance"][performance.id] = _answered_card_week(data)
+        state["used_week_by_performance"][performance.id] = world_week_index_pure(data)
         state["lifetime_performances"] += 1
         state["lifetime_score"] += score
         summary_event = f"{performance.display_name} complete · score {score:,}"

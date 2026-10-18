@@ -9,7 +9,6 @@ from typing import Any
 SKELETAL_HORROR_ACTIVITY_ID = "skeletal_horror"
 SKELETAL_HORROR_TARGET_ID = "skeletal_horror"
 SKELETAL_HORROR_ELITE_CLUE_ITEM = "Clue scroll (elite)"
-SKELETAL_HORROR_WEEK_REVIEWS = 1680
 # The source says repeat availability *resets* each simulated week, so a missed
 # week is forfeited rather than banked; one entry is the whole allowance.
 SKELETAL_HORROR_ENTRY_CAP = 1

@@ -11,10 +11,10 @@ from ..data.penguin_hide_and_seek_data import (
     PENGUIN_POINT_CAP,
     PENGUIN_POLAR_BEAR_LOCATIONS,
     PENGUIN_TWO_POINT_SPAWNS,
-    PENGUIN_WEEK_REVIEWS,
     PENGUIN_XP_PER_LEVEL_POINT,
     PenguinSpawn,
 )
+from .pace.world_clock import world_week_index_pure
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
 
@@ -73,17 +73,6 @@ def _has_ring_of_visibility(player_data: Mapping[str, Any]) -> bool:
     )
 
 
-def _answered_cards(player_data: Mapping[str, Any]) -> int:
-    clock = player_data.get("shop_market_clock")
-    if not isinstance(clock, Mapping):
-        return 0
-    return _int(clock.get("answered_cards"))
-
-
-def penguin_week_index_pure(player_data: Mapping[str, Any]) -> int:
-    return _answered_cards(player_data) // PENGUIN_WEEK_REVIEWS
-
-
 def default_penguin_state_pure() -> dict[str, Any]:
     return {
         "version": PENGUIN_STATE_VERSION,
@@ -123,7 +112,7 @@ def sanitize_penguin_state_pure(raw: Any) -> dict[str, Any]:
 
 def _sync_week(player_data: Mapping[str, Any], state: Mapping[str, Any]) -> dict[str, Any]:
     synced = dict(state)
-    week_index = penguin_week_index_pure(player_data)
+    week_index = world_week_index_pure(player_data)
     if synced.get("week_index") != week_index:
         synced.update({"week_index": week_index, "spotted_ids": [], "selected_id": ""})
     return synced
