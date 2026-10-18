@@ -106,6 +106,7 @@ def _uses_fire_staff(player_data: Mapping[str, Any] | None) -> bool:
 _ONE_PER_CARD_BEHAVIOR = {
     "agility": "one established Agility stage; never foreground-multiplied",
     "dungeoneering": "one room per card at every speed; a declared divergence",
+    "quest": "one stage per card at every speed; a declared divergence",
 }
 
 
