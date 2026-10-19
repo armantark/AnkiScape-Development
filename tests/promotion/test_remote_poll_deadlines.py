@@ -34,13 +34,20 @@ class RemotePollDeadlineTests(unittest.TestCase):
         complete = 'running\nfinished λ\nRan 1 test in 0.1s\n\nOK\n'
         stopped = False
         commands = []
-        execute = subprocess.run
+        report_polls = [0]
 
-        def transport(command, **kwargs):
-            commands.append(command[-1])
-            if str(log) in command[-1]:
+        def transport(command, *, timeout=None):
+            remote = command[-1]
+            commands.append(remote)
+            if str(log) in remote:
                 self.assertTrue(stopped, 'live log must not be reread while polling')
-            return execute(command, **kwargs)
+            if str(report) in remote:
+                # The first poll finds no report, as before the lane's exit lands.
+                report_polls[0] += 1
+                body = '' if report_polls[0] == 1 else '0\n'
+            else:
+                body = complete
+            return subprocess.CompletedProcess(command, 0, body)
 
         def stop():
             nonlocal stopped
@@ -50,8 +57,7 @@ class RemotePollDeadlineTests(unittest.TestCase):
 
         with (
             patch.object(run_remote_tests, '_on_test_host', return_value=True),
-            patch.object(run_remote_tests.subprocess, 'run', side_effect=transport),
-            patch.object(run_remote_tests.time, 'sleep', side_effect=lambda _: report.write_text('0\n')),
+            patch.object(run_remote_tests, '_run_transport_attempt', side_effect=transport),
             patch.object(run_remote_tests, 'stop_pending_lane', side_effect=stop) as stop_lane,
             contextlib.redirect_stdout(io.StringIO()) as stdout,
         ):

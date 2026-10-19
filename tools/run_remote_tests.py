@@ -12,6 +12,7 @@ report paths, and never infer success or relaunch solely because that record dis
 from __future__ import annotations
 
 import argparse
+import contextlib
 import errno
 import fcntl
 import functools
@@ -52,6 +53,9 @@ MIN_TESTS = 4_506
 MIN_PLAIN_ACTIVE_TESTS = 3_994
 MIN_QT_ACTIVE_TESTS = 4_503
 NETWORK_ATTEMPTS = 3
+# A deadline-passed local command stops as a group: SIGTERM first, and whatever a
+# descendant needs this long to turn into an exit gets SIGKILL after the grace.
+GROUP_STOP_GRACE = 0.5
 PHASE_NAMES = ("Remote preparation", "Sync", "Test execution")
 MAX_PROOF_FILE_BYTES = 256 * 1024 * 1024
 LANE_GROUP_LEADER = (
@@ -249,13 +253,51 @@ def _host_shell() -> tuple[str, ...]:
     return ("/usr/bin/env", "-i", *variables, account.pw_shell, "-c")
 
 
+def _stop_process_group(process: subprocess.Popen[str]) -> None:
+    """Stop every member of the command's group, not only the shell that started them."""
+    group = os.getpgid(process.pid)
+    for stop in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(group, stop)
+        except ProcessLookupError:
+            return
+        try:
+            process.wait(timeout=GROUP_STOP_GRACE)
+        except subprocess.TimeoutExpired:
+            continue
+        break
+    # Reap whatever the stop produced; a straggler that left the group is its own session.
+    with contextlib.suppress(subprocess.TimeoutExpired):
+        process.communicate(timeout=GROUP_STOP_GRACE)
+
+
+def _run_transport_attempt(
+    command: Sequence[str], *, timeout: float | None,
+) -> subprocess.CompletedProcess[str]:
+    """One round-trip; on the test host the deadline stops the whole process group."""
+    if not _on_test_host():
+        return subprocess.run(
+            command, text=True, capture_output=True, check=False, timeout=timeout,
+        )
+    process = subprocess.Popen(
+        command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        start_new_session=True,
+    )
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        _stop_process_group(process)
+        raise subprocess.TimeoutExpired(command, timeout) from None
+    return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+
+
 def _ssh(
     remote_command: str, *, label: str, repeat_safe: bool = False, deadline: float | None = None,
 ) -> str:
     for attempt in range(1, NETWORK_ATTEMPTS + 1):
         try:
-            result = subprocess.run(
-                (*_host_shell(), remote_command), text=True, capture_output=True, check=False,
+            result = _run_transport_attempt(
+                (*_host_shell(), remote_command),
                 timeout=None if deadline is None else max(deadline - time.monotonic(), 0.0),
             )
         except subprocess.TimeoutExpired as exc:

@@ -3,7 +3,10 @@ import io
 import hashlib
 import json
 import os
+import shlex
 import shutil
+import signal
+import subprocess
 import sys
 import tempfile
 import time
@@ -38,7 +41,21 @@ unittest.main(argv=["run_tests.py"])
 """
 
 
+def _live_pids() -> set[str]:
+    table = subprocess.run(("/bin/ps", "-Ao", "pid="), capture_output=True, text=True, check=True)
+    return set(table.stdout.splitlines())
+
+
+def _kill_exiting(survivors: set[int]) -> None:
+    # A survivor can exit on its own between its last sighting and cleanup.
+    live = _live_pids()
+    for pid in survivors:
+        if str(pid) in live:
+            os.kill(pid, signal.SIGKILL)
+
+
 class LocalTestHostTests(unittest.TestCase):
+
     def setUp(self):
         self.root = Path(self.enterContext(tempfile.TemporaryDirectory())).resolve()
         self.lock = self.root / "mirror.lock"
@@ -151,6 +168,48 @@ class LocalTestHostTests(unittest.TestCase):
                                 for call in calls), calls)
             self.assertEqual([call.split()[5] for call in calls], ["test", "mkdir", *["rsync"] * 3])
             self.assertEqual({path.name for path in mirror.iterdir()}, {"stale.txt"})
+
+    def test_deadline_stops_the_whole_group_of_a_local_command(self):
+        with self._host(local=True):
+            reports = run_remote_tests.REMOTE_ROOT / "reports"
+            # A pipe held open for writing and never written stalls open() forever, so the
+            # command's descendant, not just its shell, is what has to die at the deadline.
+            stall = reports / "deadline-stall.fifo"
+            os.mkfifo(stall)
+            group_file = self.root / "deadline-stall.group"
+            command = (
+                # Its own group membership, not $$, is the truth to record: a command the
+                # runner never sessioned shares the runner's group, so the shell's pid is
+                # not its pgid there.
+                f"printf '%s\\n' \"$(/bin/ps -o pgid= -p $$)\" "
+                f"> {shlex.quote(str(group_file))}; cat {shlex.quote(str(stall))}"
+            )
+            before = set(_live_pids())
+            started = time.monotonic()
+            with self.assertRaisesRegex(
+                run_remote_tests.SSHDeadlineExceeded,
+                "stalled group did not finish before its deadline",
+            ):
+                run_remote_tests._ssh(
+                    command, label="stalled group", deadline=time.monotonic() + 1.0,
+                )
+            self.assertLess(time.monotonic() - started, 5.0)
+            group = int(group_file.read_text().split()[-1])
+            for _ in range(10):
+                table = subprocess.run(
+                    ("/bin/ps", "-Ao", "pgid=,pid="),
+                    capture_output=True, text=True, check=True,
+                ).stdout
+                survivors = {
+                    int(line.split()[1]) for line in table.splitlines()
+                    if line.split() and int(line.split()[0]) == group
+                    and str(line.split()[1]) not in before
+                }
+                if not survivors:
+                    break
+                time.sleep(0.2)
+            self.addCleanup(_kill_exiting, survivors)
+            self.assertEqual(survivors, set(), f"group {group} outlived its deadline: {survivors}")
 
     def test_stalled_local_command_cannot_hold_the_mirror_past_its_deadline(self):
         with self._host(local=True) as (_source, _mirror, ssh_calls):
