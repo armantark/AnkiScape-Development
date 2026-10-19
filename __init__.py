@@ -3991,7 +3991,7 @@ def _on_main_menu(
                 current,
                 str(action_id),
                 payload if isinstance(payload, dict) else {},
-                random.random,
+                random.random, speed=_review_action_multiplier(),
             )
             return updated, ok
 

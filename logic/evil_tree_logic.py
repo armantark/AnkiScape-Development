@@ -16,7 +16,7 @@ from ..data.evil_tree_data import (
     EVIL_TREE_TIERS,
     EVIL_TREE_TIERS_BY_ID,
 )
-from .pace.short_timers import STEP_TICKS, TICKS_PER_SOURCE_MINUTE, steps_for_ticks_pure
+from .pace.short_timers import STEP_TICKS, TICKS_PER_SOURCE_MINUTE, cards_for_ticks_pure
 from .pace.world_clock import world_day_index_pure
 
 
@@ -319,6 +319,7 @@ def evil_tree_view_pure(
     player_data: Mapping[str, Any],
     *,
     has_usable_hatchet: bool,
+    speed: int = 1,
 ) -> dict[str, Any]:
     data = ensure_evil_tree_state_pure(player_data)
     state = data["evil_tree"]
@@ -332,8 +333,8 @@ def evil_tree_view_pure(
             "next_reviews": max(0, int(state["next_spawn_card"]) - answered),
             "participations_today": int(state["participations_today"]),
             "interaction_limit": EVIL_TREE_DAILY_INTERACTIONS,
-            "blessing_reviews_remaining": steps_for_ticks_pure(
-                state["blessing_ticks_remaining"]
+            "blessing_reviews_remaining": cards_for_ticks_pure(
+                state["blessing_ticks_remaining"], speed
             ),
             "blessing_tier": str(state["blessing_tier"]),
             "last_result": str(state["last_result"]),
@@ -367,8 +368,8 @@ def evil_tree_view_pure(
         ),
         "participations_today": int(state["participations_today"]),
         "interaction_limit": EVIL_TREE_DAILY_INTERACTIONS,
-        "blessing_reviews_remaining": steps_for_ticks_pure(
-            state["blessing_ticks_remaining"]
+        "blessing_reviews_remaining": cards_for_ticks_pure(
+            state["blessing_ticks_remaining"], speed
         ),
         "blessing_tier": str(state["blessing_tier"]),
         "last_result": str(state["last_result"]),
@@ -395,6 +396,7 @@ def apply_evil_tree_review_pure(
     *,
     has_usable_hatchet: bool,
     reward_rolls: Sequence[Any] = (),
+    speed: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     """Perform exactly one Nurture, Prepare, or Fell phase action."""
 
@@ -521,7 +523,7 @@ def apply_evil_tree_review_pure(
         result["completed"] = True
         result["contribution_percent"] = 100
         blessing_ticks = tier.blessing_minutes * TICKS_PER_SOURCE_MINUTE
-        result["blessing_reviews"] = steps_for_ticks_pure(blessing_ticks)
+        result["blessing_reviews"] = cards_for_ticks_pure(blessing_ticks, speed)
 
         answered = _answered_cards(data)
         state["session"] = {}

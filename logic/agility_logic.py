@@ -37,7 +37,7 @@ from .werewolf_skullball_logic import (
 
 from .agility_travel import agility_carried_weight_pure
 from .cape_logic import effective_roll_level_pure, purchase_cape_pure
-
+from .pace.short_timers import cards_for_steps_pure
 from .inventory_pure import clamp_carried_view_to_bank
 
 from ..data.flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
@@ -1138,7 +1138,7 @@ def agility_panel_activity_view_pure(player_data: Mapping[str, Any]) -> dict[str
     return {"active": True, "buttons": tuple(buttons)}
 
 
-def agility_aura_rows_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
+def agility_aura_rows_pure(player_data: Mapping[str, Any], speed: int) -> tuple[dict[str, Any], ...]:
     """Own the aura inventory rows for the Equipment tab.
 
     Auras are the activated cousins of passive skillcapes (the cooldown is the
@@ -1161,9 +1161,9 @@ def agility_aura_rows_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, An
         if aura_name not in owned:
             continue
         if cooldown > 0:
-            state_text = f"Recharging · {cooldown:,} reviews"
+            state_text = f"Recharging · {cards_for_steps_pure(cooldown, speed):,} reviews"
         elif active_reviews > 0:
-            state_text = f"Active · {active_reviews:,} reviews left"
+            state_text = f"Active · {cards_for_steps_pure(active_reviews, speed):,} reviews left"
         else:
             state_text = "Ready"
         rows.append(

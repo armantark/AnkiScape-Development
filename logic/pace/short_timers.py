@@ -26,9 +26,15 @@ def card_ticks_pure(speed: int) -> int:
     return STEP_TICKS * max(1, int(speed or 1))
 
 
-def steps_for_ticks_pure(ticks: int) -> int:
-    """The six-tick steps a countdown still lasts: its cards at speed 1."""
-    return math.ceil(max(0, ticks) / STEP_TICKS)
+def cards_for_steps_pure(steps: int, speed: int) -> int:
+    """The cards that many six-tick steps take at this game speed."""
+    return math.ceil(max(0, steps) / max(1, int(speed or 1)))
+
+
+def cards_for_ticks_pure(ticks: int, speed: int) -> int:
+    """The cards a countdown still lasts at this game speed: every counter the
+    player reads says cards, so it must be true at the speed being played."""
+    return math.ceil(max(0, ticks) / card_ticks_pure(speed))
 
 
 def minutes_for_ticks_pure(ticks: int) -> int:

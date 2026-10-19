@@ -419,10 +419,10 @@ def _has_usable_pickaxe(player_data: Mapping[str, Any]) -> bool:
 
 def _evil_tree_notification_statuses(
     player_data: Mapping[str, Any],
+    speed: int,
 ) -> tuple[str, ...]:
     view = evil_tree_view_pure(
-        player_data,
-        has_usable_hatchet=_has_usable_hatchet(player_data),
+        player_data, has_usable_hatchet=_has_usable_hatchet(player_data), speed=speed
     )
     rows = []
     if view["active"]:
@@ -583,8 +583,9 @@ def _enchanted_key_notification_statuses(
 
 def _familiarisation_notification_statuses(
     player_data: Mapping[str, Any],
+    speed: int,
 ) -> tuple[str, ...]:
-    view = familiarisation_view_pure(player_data)
+    view = familiarisation_view_pure(player_data, speed)
     if view["active"]:
         return (
             f"{int(view['segments'])}/{int(view['max_segments'])} segments · "
@@ -689,26 +690,33 @@ def _troll_invasion_notification_statuses(
     return ()
 
 
+def _at_every_speed(
+    projection: Callable[[Mapping[str, Any]], tuple[str, ...]],
+) -> Callable[[Mapping[str, Any], int], tuple[str, ...]]:
+    """A status projection with no counter that the game speed changes."""
+    return lambda player_data, _speed: projection(player_data)
+
+
 DND_NOTIFICATION_STATUS_PROJECTIONS: dict[
-    str, Callable[[Mapping[str, Any]], tuple[str, ...]]
+    str, Callable[[Mapping[str, Any], int], tuple[str, ...]]
 ] = {
-    BIG_CHINCHOMPA_UTILITY_ID: _big_chinchompa_notification_statuses,
-    CIRCUS_ACTIVITY_ID: _circus_notification_statuses,
-    BORK_ACTIVITY_ID: _bork_notification_statuses,
-    COURT_CASES_ACTIVITY_ID: _court_cases_notification_statuses,
-    ENCHANTED_KEY_ACTIVITY_ID: _enchanted_key_notification_statuses,
+    BIG_CHINCHOMPA_UTILITY_ID: _at_every_speed(_big_chinchompa_notification_statuses),
+    CIRCUS_ACTIVITY_ID: _at_every_speed(_circus_notification_statuses),
+    BORK_ACTIVITY_ID: _at_every_speed(_bork_notification_statuses),
+    COURT_CASES_ACTIVITY_ID: _at_every_speed(_court_cases_notification_statuses),
+    ENCHANTED_KEY_ACTIVITY_ID: _at_every_speed(_enchanted_key_notification_statuses),
     EVIL_TREE_UTILITY_ID: _evil_tree_notification_statuses,
     FAMILIARISATION_ACTIVITY_ID: _familiarisation_notification_statuses,
-    FISH_FLINGERS_ACTIVITY_ID: _fish_flingers_notification_statuses,
-    GOBLIN_RAIDS_ACTIVITY_ID: _goblin_raids_notification_statuses,
-    PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID: _penguin_notification_statuses,
-    PHOENIX_LAIR_ACTIVITY_ID: _phoenix_lair_notification_statuses,
-    SHATTERED_HEART_ACTIVITY_ID: _shattered_heart_notification_statuses,
-    SHOOTING_STAR_ACTIVITY_ID: _shooting_star_notification_statuses,
-    SKELETAL_HORROR_ACTIVITY_ID: _skeletal_horror_notification_statuses,
-    TEARS_OF_GUTHIX_ACTIVITY_ID: _tears_of_guthix_notification_statuses,
-    TREASURE_TRAILS_ACTIVITY_ID: _treasure_trails_notification_statuses,
-    TROLL_INVASION_ACTIVITY_ID: _troll_invasion_notification_statuses,
+    FISH_FLINGERS_ACTIVITY_ID: _at_every_speed(_fish_flingers_notification_statuses),
+    GOBLIN_RAIDS_ACTIVITY_ID: _at_every_speed(_goblin_raids_notification_statuses),
+    PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID: _at_every_speed(_penguin_notification_statuses),
+    PHOENIX_LAIR_ACTIVITY_ID: _at_every_speed(_phoenix_lair_notification_statuses),
+    SHATTERED_HEART_ACTIVITY_ID: _at_every_speed(_shattered_heart_notification_statuses),
+    SHOOTING_STAR_ACTIVITY_ID: _at_every_speed(_shooting_star_notification_statuses),
+    SKELETAL_HORROR_ACTIVITY_ID: _at_every_speed(_skeletal_horror_notification_statuses),
+    TEARS_OF_GUTHIX_ACTIVITY_ID: _at_every_speed(_tears_of_guthix_notification_statuses),
+    TREASURE_TRAILS_ACTIVITY_ID: _at_every_speed(_treasure_trails_notification_statuses),
+    TROLL_INVASION_ACTIVITY_ID: _at_every_speed(_troll_invasion_notification_statuses),
 }
 DND_NOTIFICATION_ACTIVITY_IDS = frozenset(DND_NOTIFICATION_STATUS_PROJECTIONS)
 if DND_NOTIFICATION_ACTIVITY_IDS != DND_ACTIVITY_IDS:
@@ -719,40 +727,30 @@ def dnd_notification_rows_pure(
     player_data: Mapping[str, Any],
     *,
     activity_ids: Collection[str] | None = None,
+    speed: int = 1,
 ) -> tuple[tuple[str, str], ...]:
     """Active or actionable status rows for the requested D&D catalog slice."""
 
-    requested = (
-        DND_NOTIFICATION_STATUS_PROJECTIONS
-        if activity_ids is None
-        else activity_ids
-    )
+    requested = DND_NOTIFICATION_STATUS_PROJECTIONS if activity_ids is None else activity_ids
     rows = []
     for activity_id in requested:
         projection = DND_NOTIFICATION_STATUS_PROJECTIONS.get(activity_id)
         if projection is None:
             continue
-        rows.extend((activity_id, status) for status in projection(player_data))
+        rows.extend((activity_id, status) for status in projection(player_data, speed))
     return tuple(rows)
 
 
 def world_event_rows_pure(
-    player_data: Mapping[str, Any], *, suppress_id: str = ""
+    player_data: Mapping[str, Any], *, suppress_id: str = "", speed: int = 1
 ) -> tuple[tuple[str, str], ...]:
     """The review-clock events shown in the Activities hub's live strip."""
 
-    world_event_ids = (
-        EVIL_TREE_UTILITY_ID,
-        SHOOTING_STAR_ACTIVITY_ID,
-        BIG_CHINCHOMPA_UTILITY_ID,
-    )
+    world_event_ids = (EVIL_TREE_UTILITY_ID, SHOOTING_STAR_ACTIVITY_ID, BIG_CHINCHOMPA_UTILITY_ID)
     return dnd_notification_rows_pure(
         player_data,
-        activity_ids=tuple(
-            activity_id
-            for activity_id in world_event_ids
-            if activity_id != suppress_id
-        ),
+        activity_ids=tuple(activity_id for activity_id in world_event_ids if activity_id != suppress_id),
+        speed=speed,
     )
 
 
@@ -942,7 +940,7 @@ def _quiet_favourite_status_pure(row: Any) -> str:
 
 
 def review_status_badges_view_pure(
-    player_data: Mapping[str, Any]
+    player_data: Mapping[str, Any], *, speed: int = 1
 ) -> dict[str, dict[str, Any]]:
     """Separate persistent D&D and Farming badge projections.
 
@@ -954,7 +952,7 @@ def review_status_badges_view_pure(
     live_by_id: dict[str, list[str]] = {}
     if favourites:
         for activity_id, text in dnd_notification_rows_pure(
-            player_data, activity_ids=favourites
+            player_data, activity_ids=favourites, speed=speed
         ):
             live_by_id.setdefault(activity_id, []).append(text)
     metadata_favourites = [

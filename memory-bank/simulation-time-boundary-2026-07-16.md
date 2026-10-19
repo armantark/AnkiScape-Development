@@ -123,6 +123,10 @@ its source value is a duration of time; a count of actions stays a count; a cale
 duration (a day or longer) stays on the shared world clock; a countdown in cards with
 no sourced duration stays in cards. One source minute is 100 ticks of 0.6 seconds. A
 timer keeps the answers that drain it (every answer, or successful answers only).
+A counter shown to the player keeps its wording and counts cards at the speed being
+played, `ceil(ticks / (6 × speed))` (`cards_for_ticks_pure`), with the speed passed in
+by the caller; a count of six-tick steps shows `ceil(steps / speed)` (root ruling,
+2026-10-18, after a review found these counters printing ×1 cards).
 
 | Timer | Source value | Class | Result |
 |---|---|---|---|

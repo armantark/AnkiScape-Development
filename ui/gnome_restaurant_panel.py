@@ -47,10 +47,12 @@ if HAS_QT:
             on_command: Callable[[str, Mapping[str, Any]], Mapping[str, Any]] | None = None,
             on_select: Callable[[str], bool] | None = None,
             on_changed: Callable[[], None] | None = None,
+            game_speed: Callable[[], int] = lambda: 1,
             parent: QWidget | None = None,
         ) -> None:
             super().__init__(parent)
             self._player_data = player_data
+            self._game_speed = game_speed
             self._on_command = on_command
             self._on_select = on_select
             self._on_changed = on_changed
@@ -203,7 +205,7 @@ if HAS_QT:
             )
 
         def _primary(self) -> None:
-            view = gnome_restaurant_view_pure(self._player_data)
+            view = gnome_restaurant_view_pure(self._player_data, speed=self._game_speed())
             if not view["service_open"]:
                 self._run_command("open_service")
                 return
@@ -225,7 +227,7 @@ if HAS_QT:
                 self._run_command("leave")
 
         def refresh(self) -> None:
-            view = gnome_restaurant_view_pure(self._player_data)
+            view = gnome_restaurant_view_pure(self._player_data, speed=self._game_speed())
             enabled = self._on_command is not None
             blocked = self.difficulty_combo.blockSignals(True)
             index = self.difficulty_combo.findData(str(view["difficulty_policy"]))

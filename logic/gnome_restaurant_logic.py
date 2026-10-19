@@ -44,8 +44,8 @@ from ..data.gnome_restaurant_data import (
 from .pace.short_timers import (
     STEP_TICKS,
     TICKS_PER_SOURCE_MINUTE,
+    cards_for_ticks_pure,
     minutes_for_ticks_pure,
-    steps_for_ticks_pure,
 )
 
 
@@ -248,7 +248,7 @@ def _entry_reasons(player_data: Mapping[str, Any], state: Mapping[str, Any]) -> 
 
 
 def _accept_reason(
-    player_data: Mapping[str, Any], state: Mapping[str, Any], difficulty: str
+    player_data: Mapping[str, Any], state: Mapping[str, Any], difficulty: str, speed: int
 ) -> str:
     if not state["service_open"]:
         return "Ask Aluft Gianne Jr for the job first."
@@ -261,7 +261,7 @@ def _accept_reason(
     if active_id and active_id != GNOME_RESTAURANT_ACTIVITY_ID:
         return "Finish the active persistent activity."
     if difficulty == "hard" and state["hard_decline_ticks_left"] > 0:
-        waiting = steps_for_ticks_pure(state["hard_decline_ticks_left"])
+        waiting = cards_for_ticks_pure(state["hard_decline_ticks_left"], speed)
         return f"Aluft Gianne Jr will hold another hard job for {waiting} more review(s)."
     if not gnome_restaurant_customers_for_pure(
         difficulty,
@@ -314,7 +314,7 @@ def gnome_restaurant_can_review_pure(player_data: Mapping[str, Any]) -> bool:
     return _int(_inventory(player_data).get(str(order["item"]))) > 0
 
 
-def gnome_restaurant_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+def gnome_restaurant_view_pure(player_data: Mapping[str, Any], *, speed: int = 1) -> dict[str, Any]:
     state = sanitize_gnome_restaurant_state_pure(player_data.get("gnome_restaurant"))
     training = gnome_restaurant_training_pure(player_data)
     entry_reasons = _entry_reasons(player_data, state)
@@ -332,8 +332,8 @@ def gnome_restaurant_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]
             "display_name": label,
             "points": _DELIVERY_POINTS[difficulty],
             "limit_minutes": _LIMIT_MINUTES[difficulty],
-            "accept_enabled": not _accept_reason(player_data, state, difficulty),
-            "accept_reason": _accept_reason(player_data, state, difficulty),
+            "accept_enabled": not _accept_reason(player_data, state, difficulty, speed),
+            "accept_reason": _accept_reason(player_data, state, difficulty, speed),
         }
         for difficulty, label in GNOME_RESTAURANT_DIFFICULTIES
     )
@@ -384,7 +384,7 @@ def gnome_restaurant_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]
                 and (
                     not order
                     and not _accept_reason(
-                        player_data, state, str(state["difficulty_policy"])
+                        player_data, state, str(state["difficulty_policy"]), speed
                     )
                     or (bool(order) and not selected_for_reviews)
                 )
@@ -447,6 +447,7 @@ def accept_gnome_restaurant_order_pure(
     player_data: Mapping[str, Any],
     payload: Mapping[str, Any] | None = None,
     rng: Callable[[], float] | None = None,
+    speed: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
     state = sanitize_gnome_restaurant_state_pure(data.get("gnome_restaurant"))
@@ -454,7 +455,7 @@ def accept_gnome_restaurant_order_pure(
     difficulty = str(body.get("difficulty", state["difficulty_policy"]))
     if difficulty not in _VALID_DIFFICULTIES:
         return data, False, {"reason": "Unknown Gnome Restaurant job difficulty."}
-    reason = _accept_reason(data, state, difficulty)
+    reason = _accept_reason(data, state, difficulty, speed)
     if reason:
         return data, False, {"reason": reason}
     state["difficulty_policy"] = difficulty
@@ -469,6 +470,7 @@ def accept_gnome_restaurant_order_pure(
 def decline_gnome_restaurant_order_pure(
     player_data: Mapping[str, Any],
     rng: Callable[[], float] | None = None,
+    speed: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
     state = sanitize_gnome_restaurant_state_pure(data.get("gnome_restaurant"))
@@ -481,7 +483,7 @@ def decline_gnome_restaurant_order_pure(
     if difficulty == "hard":
         state["hard_decline_ticks_left"] = _HARD_DECLINE_WAIT_TICKS
         waited = True
-    replacement_reason = _accept_reason(data, state, state["difficulty_policy"])
+    replacement_reason = _accept_reason(data, state, state["difficulty_policy"], speed)
     if replacement_reason:
         state["last_result"] = f"Declined the {difficulty} job. {replacement_reason}"
     else:
@@ -555,6 +557,8 @@ def apply_gnome_restaurant_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
     rng: Callable[[], float] | None = None,
+    *,
+    speed: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     body = payload if isinstance(payload, Mapping) else {}
     if action_id == "open_service":
@@ -562,9 +566,9 @@ def apply_gnome_restaurant_command_pure(
     if action_id == "set_policy":
         return set_gnome_restaurant_policy_pure(player_data, body)
     if action_id == "accept_order":
-        return accept_gnome_restaurant_order_pure(player_data, body, rng)
+        return accept_gnome_restaurant_order_pure(player_data, body, rng, speed)
     if action_id == "decline_order":
-        return decline_gnome_restaurant_order_pure(player_data, rng)
+        return decline_gnome_restaurant_order_pure(player_data, rng, speed)
     if action_id == "leave":
         return leave_gnome_restaurant_pure(player_data)
     if action_id == "reclaim_token":
@@ -642,6 +646,7 @@ def apply_gnome_restaurant_review_pure(
     rng: Callable[[], float] | None = None,
     *,
     productive: bool = True,
+    speed: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
     state = sanitize_gnome_restaurant_state_pure(data.get("gnome_restaurant"))
@@ -704,7 +709,7 @@ def apply_gnome_restaurant_review_pure(
         message += f" · {GNOME_RESTAURANT_TOKEN_ITEM} earned"
     elif thresholds > 0:
         message += f" · token now holds {state['token_meals']} meal(s)"
-    replacement_reason = _accept_reason(data, state, str(state["difficulty_policy"]))
+    replacement_reason = _accept_reason(data, state, str(state["difficulty_policy"]), speed)
     if not replacement_reason:
         _assign_order(data, state, str(state["difficulty_policy"]), rng)
         message += f" · next: {_order_text(state)}"

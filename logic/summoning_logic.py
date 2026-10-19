@@ -14,7 +14,7 @@ from ..data.summoning_data import (
     SUMMONING_POUCHES_BY_ID,
     SUMMONING_POUCHES_BY_NAME,
 )
-from .pace.short_timers import STEP_TICKS, steps_for_ticks_pure
+from .pace.short_timers import STEP_TICKS, cards_for_ticks_pure
 from .pace.summoning_clock import (
     SPECIAL_MOVE_POINTS_MAX,
     TRIPLE_CHARM_TIMER_KEY,
@@ -239,7 +239,7 @@ def sanitize_summoning_state_pure(
     }
 
 
-def familiarisation_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
+def familiarisation_view_pure(player_data: Mapping[str, Any], speed: int) -> dict[str, Any]:
     """The complete Familiarisation status consumed by every UI surface."""
 
     state = sanitize_summoning_state_pure(
@@ -254,19 +254,19 @@ def familiarisation_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
             and not activity["awaiting_reward"]
             and activity["cooldown_reviews_remaining"] <= 0
         ),
-        "triple_charm_reviews_remaining": steps_for_ticks_pure(
-            state[TRIPLE_CHARM_TIMER_KEY]
+        "triple_charm_reviews_remaining": cards_for_ticks_pure(
+            state[TRIPLE_CHARM_TIMER_KEY], speed
         ),
         "max_segments": FAMILIARISATION_MAX_SEGMENTS,
         "shard_cap": FAMILIARISATION_SHARD_CAP,
     }
 
 
-def familiar_reviews_remaining_pure(follower: Mapping[str, Any]) -> int:
-    """The cards a familiar still lasts at speed 1."""
+def familiar_reviews_remaining_pure(follower: Mapping[str, Any], speed: int) -> int:
+    """The cards a familiar still lasts at this game speed."""
     timers = dict(follower)
     sanitize_familiar_timers(timers)
-    return steps_for_ticks_pure(timers["remaining_ticks"])
+    return cards_for_ticks_pure(timers["remaining_ticks"], speed)
 
 
 def triple_charms_active_pure(player_data: Mapping[str, Any]) -> bool:

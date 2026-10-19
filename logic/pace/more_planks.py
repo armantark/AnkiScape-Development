@@ -15,7 +15,7 @@ from .short_timers import (
     STEP_TICKS,
     TICKS_PER_LEGACY_SHORT_REVIEW,
     TICKS_PER_SOURCE_MINUTE,
-    steps_for_ticks_pure,
+    cards_for_ticks_pure,
 )
 
 MORE_PLANKS_TICKS = LIVID_FARM_MORE_PLANKS_MINUTES * TICKS_PER_SOURCE_MINUTE
@@ -64,6 +64,6 @@ def advance_more_planks(state: dict[str, Any], card_ticks: Any = STEP_TICKS) -> 
     state["more_planks_ticks_remaining"] = max(0, remaining - ticks)
 
 
-def more_planks_reviews_left_pure(state: Mapping[str, Any]) -> int:
-    """The cards the wish still lasts at speed 1."""
-    return steps_for_ticks_pure(int(state["more_planks_ticks_remaining"]))
+def more_planks_reviews_left_pure(state: Mapping[str, Any], speed: int) -> int:
+    """The cards the wish still lasts at this game speed."""
+    return cards_for_ticks_pure(int(state["more_planks_ticks_remaining"]), speed)

@@ -862,6 +862,7 @@ def handle_gnome_restaurant_answer(
         ctx.player_data,
         ctx.random_random,
         productive=productive,
+        speed=ctx.review_action_multiplier,
     )
     if not ok:
         state = ctx.player_data.get("gnome_restaurant")

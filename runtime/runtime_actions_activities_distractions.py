@@ -143,6 +143,7 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
         player_data,
         has_usable_hatchet=has_hatchet,
         reward_rolls=_evil_tree_reward_rolls(ctx),
+        speed=ctx.review_action_multiplier,
     )
     if not ok:
         ctx.show_error_message(

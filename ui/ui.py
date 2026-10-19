@@ -1260,6 +1260,17 @@ def get_config_bool(key: str, default: bool = True) -> bool:
         pass
     return bool(default)
 
+
+def _game_speed() -> int:
+    """The game speed every counter shown to the player is measured in."""
+    try:
+        legacy = mw.col.get_config(_LEGACY_XP_MULTIPLIER_CONFIG_KEY, 1)
+        return sanitize_review_action_multiplier(
+            mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, legacy)
+        )
+    except Exception:
+        return 1
+
 _SMITH_EXPANDED_CONFIG_KEY = "ankiscape_smith_expanded_tiers"
 
 
@@ -2677,10 +2688,7 @@ if HAS_QT:
                 )
                 is not None
             )
-            evil_tree_view = evil_tree_view_pure(
-                player_data,
-                has_usable_hatchet=has_hatchet,
-            )
+            evil_tree_view = evil_tree_view_pure(player_data, has_usable_hatchet=has_hatchet)
             # All three review-clock world events (Evil Tree, Shooting Star,
             # Big Chinchompa) moved to the Activities hub's "Live world events"
             # strip and the D&D badge: none can be acted on from the reviewer,
@@ -4229,7 +4237,7 @@ def update_review_status_badge(
         hide_review_status_badge()
         return
     ensure_review_status_badge()
-    views = review_status_badges_view_pure(player_data)
+    views = review_status_badges_view_pure(player_data, speed=_game_speed())
     if _DND_BADGE is not None:
         _DND_BADGE.set_data(views["distractions"], open_activity)
     if _FARMING_BADGE is not None:
@@ -8478,7 +8486,7 @@ def show_main_menu(
         cards_stack.addWidget(familiarisation_box)
 
         def _refresh_familiarisation_panel() -> None:
-            view = familiarisation_view_pure(player_data)
+            view = familiarisation_view_pure(player_data, _game_speed())
             active = bool(view["active"])
             awaiting_reward = bool(view["awaiting_reward"])
             cooldown = int(view["cooldown_reviews_remaining"])
@@ -8664,13 +8672,12 @@ def show_main_menu(
             view = evil_tree_view_pure(
                 player_data,
                 has_usable_hatchet=_evil_tree_has_hatchet(),
+                speed=_game_speed(),
             )
             selected = (
                 player_data.get("current_utility") == EVIL_TREE_UTILITY_ID
             )
-            blessing = int(
-                view.get("blessing_reviews_remaining", 0) or 0
-            )
+            blessing = int(view["blessing_reviews_remaining"])
             if not view["active"]:
                 evil_box.setStyleSheet(
                     "QFrame#evilTreePanel { border: 1px solid palette(mid);"
@@ -17204,6 +17211,7 @@ def show_main_menu(
             on_command=on_gnome_restaurant_command,
             on_select=lambda activity_id: _request_utility_selection(activity_id),
             on_changed=lambda: _fit_current_activity_detail(),
+            game_speed=_game_speed,
             parent=cards_stack,
         )
         cards_stack.addWidget(gnome_restaurant_box)
@@ -19441,7 +19449,7 @@ def show_main_menu(
                     f"{int(livid_state['produce_points']):,} banked · "
                     f"{int(livid_state['cycles_completed']):,} cycles"
                 )
-                remaining = more_planks_reviews_left_pure(livid_state)
+                remaining = more_planks_reviews_left_pure(livid_state, _game_speed())
                 if remaining > 0:
                     status_text += f" · More Planks {remaining} left"
                 livid_status.setText(status_text)
@@ -20886,7 +20894,7 @@ def show_main_menu(
                 # already shows the same state in more detail.
                 rows = _world_event_rows(
                     player_data,
-                    suppress_id=str(visible_detail_id["id"] or ""),
+                    suppress_id=str(visible_detail_id["id"] or ""), speed=_game_speed(),
                 )
                 world_events_body.setText("\n".join(text for _id, text in rows))
                 world_events_box.setVisible(bool(rows))
@@ -26241,7 +26249,7 @@ def show_main_menu(
         )
         if kind == "familiar" and entity_id in SUMMONING_POUCHES_BY_ID:
             pouch = SUMMONING_POUCHES_BY_ID[entity_id]
-            remaining = familiar_reviews_remaining_pure(follower)
+            remaining = familiar_reviews_remaining_pure(follower, _game_speed())
             storage = follower.get("storage", {}) or {}
             cargo = ", ".join(
                 f"{name} ×{amount}" for name, amount in storage.items() if amount
@@ -26502,7 +26510,7 @@ def show_main_menu(
 
     def _populate_aura_inventory() -> None:
         _clear_layout(aura_rows_layout)
-        rows = agility_aura_rows_pure(player_data)
+        rows = agility_aura_rows_pure(player_data, _game_speed())
         aura_group.setVisible(bool(rows))
         for row in rows:
             row_widget = QWidget()
@@ -26908,15 +26916,7 @@ def show_main_menu(
             set_layout.addWidget(div)
 
     # ---- Gameplay: review action multiplier + experience HUD ----
-    current_multiplier = 1
-    try:
-        if mw and getattr(mw, "col", None):
-            raw_multiplier = mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, None)
-            if raw_multiplier is None:
-                raw_multiplier = mw.col.get_config(_LEGACY_XP_MULTIPLIER_CONFIG_KEY, 1)
-            current_multiplier = sanitize_review_action_multiplier(raw_multiplier)
-    except Exception:
-        current_multiplier = 1
+    current_multiplier = _game_speed()
 
     xp_mult_row = QWidget()
     xmr = QHBoxLayout(xp_mult_row)
