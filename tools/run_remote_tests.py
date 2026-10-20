@@ -260,13 +260,13 @@ def _stop_process_group(process: subprocess.Popen[str]) -> None:
     for stop in (signal.SIGTERM, signal.SIGKILL):
         try:
             os.killpg(group, stop)
-        except ProcessLookupError:
+        except (ProcessLookupError, PermissionError):
+            # macOS returns EPERM if this owned group contains only zombies.
             break
         if stop == signal.SIGTERM:
             # A leader exit does not prove that its children stopped.
             time.sleep(GROUP_STOP_GRACE)
-            # macOS can refuse killpg when the group contains only an unreaped leader.
-            process.poll()
+    # Reap only after the signal requests end, so the launch ID stays reserved.
     # A descendant outside the group can retain a pipe after the group stops.
     with contextlib.suppress(subprocess.TimeoutExpired):
         process.communicate(timeout=GROUP_STOP_GRACE)

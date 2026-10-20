@@ -701,3 +701,5 @@
 
 - 2026-10-20T10:28:38-07:00: Deadline fix source search used an unmatched zsh glob `tests/promotion/test_promotion_gate*.py`; zsh returned `no matches found`. Use `rg` directory paths.
 - 2026-10-20T10:31:38-07:00: Deadline fix read the promotion skip report before the run finished; `cat` returned `No such file or directory`. Read the report after the process exits.
+
+- 2026-10-20T10:49:14-07:00: Deadline fix round 2 searched the full review export and truncated the file list, then guessed two script names that returned `No such file or directory`. The verdict names the exact root scripts `poll_lane_race.py` and `zombie_race.py`; use those paths.

@@ -13,7 +13,7 @@ import time
 import unittest
 from collections.abc import Iterator
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from tools import run_remote_tests
 from tools.native import freeze_source
@@ -267,6 +267,36 @@ os.waitpid(child, 0)
 
     def test_deadline_kills_child_after_leader_exits_before_deadline(self):
         self._assert_deadline_stops_child(early_exit=True)
+
+    def test_group_id_stays_reserved_until_the_last_signal(self):
+        owner = ["original"]
+        signals = []
+        process = Mock(pid=123456789)
+
+        def reap(*_args, **_kwargs):
+            owner[0] = "replacement"
+            return -signal.SIGTERM
+
+        def communicate(*_args, **_kwargs):
+            reap()
+            return "", ""
+
+        process.poll.side_effect = reap
+        process.wait.side_effect = reap
+        process.communicate.side_effect = communicate
+        with (
+            patch.object(run_remote_tests.os, "killpg", side_effect=lambda group, stop: signals.append(
+                (group, stop, owner[0]),
+            )),
+            patch.object(run_remote_tests.time, "sleep"),
+        ):
+            run_remote_tests._stop_process_group(process)
+        self.assertEqual(signals, [
+            (process.pid, signal.SIGTERM, "original"),
+            (process.pid, signal.SIGKILL, "original"),
+        ])
+        self.assertEqual(owner[0], "replacement")
+        process.communicate.assert_called_once_with(timeout=run_remote_tests.GROUP_STOP_GRACE)
 
     def test_stalled_local_command_cannot_hold_the_mirror_past_its_deadline(self):
         with self._host(local=True) as (_source, _mirror, ssh_calls):

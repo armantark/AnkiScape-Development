@@ -1,6 +1,10 @@
 import contextlib
 import io
+import json
+import os
+import subprocess
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -128,6 +132,60 @@ class RemotePollDeadlineTests(unittest.TestCase):
         self.assertEqual(deadlines, [("remote lane launch", None)])
         self.assertEqual(report_poll.call_args.args[1], 13.0)
         stop_lane.assert_called_once_with()
+
+    def test_report_poll_exit_before_sigterm_still_stops_the_lane(self):
+        root = self._worktree()
+        receipt = run_remote_tests._pending_path()
+        receipt.write_text(json.dumps({"run_id": "owned-fixture"}))
+        lane = subprocess.Popen(("/bin/sleep", "6"), start_new_session=True)
+        polls = []
+        cleanup = run_remote_tests._stop_process_group
+
+        def after_report_exit(process):
+            polls.append(process)
+            self.assertNotEqual(process.pid, os.getpgrp())
+            # Let the real report read exit after its timeout, without a wait or reap.
+            for _ in range(100):
+                row = subprocess.run(
+                    ("/bin/ps", "-p", str(process.pid), "-o", "stat="),
+                    capture_output=True, text=True, check=True,
+                ).stdout.strip()
+                if row.startswith("Z"):
+                    break
+                time.sleep(0.01)
+            self.assertTrue(row.startswith("Z"), row)
+            return cleanup(process)
+
+        def stop_owned_lane():
+            lane.terminate()
+            lane.wait(timeout=2)
+            receipt.unlink()
+            return "Stopped owned fixture"
+
+        try:
+            with (
+                patch.object(run_remote_tests, "_on_test_host", return_value=True),
+                patch.object(run_remote_tests, "_stop_process_group", side_effect=after_report_exit),
+                patch.object(run_remote_tests, "stop_pending_lane", side_effect=stop_owned_lane) as stop,
+                contextlib.redirect_stdout(io.StringIO()),
+                contextlib.redirect_stderr(io.StringIO()),
+                self.assertRaises(TimeoutError) as raised,
+            ):
+                run_remote_tests._wait_for_remote_run(
+                    "plain", timeout=0.000001, poll_interval=0.01, selectors=(),
+                    collect_only=False, log_path=root / "lane.log", report_path=root / "lane.report",
+                    skip_report_path=root / "skips.json",
+                )
+            self.assertIsInstance(raised.exception.__cause__, run_remote_tests.SSHDeadlineExceeded)
+            stop.assert_called_once_with()
+            self.assertIsNotNone(lane.poll())
+            self.assertFalse(receipt.exists())
+        finally:
+            if lane.poll() is None:
+                lane.terminate()
+            lane.wait(timeout=2)
+            for process in polls:
+                process.communicate(timeout=2)
 
     def test_stalled_report_poll_stops_the_lane(self):
         stall = run_remote_tests.SSHDeadlineExceeded("poll did not finish before its deadline")
