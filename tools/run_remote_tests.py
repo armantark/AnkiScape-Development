@@ -255,18 +255,19 @@ def _host_shell() -> tuple[str, ...]:
 
 def _stop_process_group(process: subprocess.Popen[str]) -> None:
     """Stop every member of the command's group, not only the shell that started them."""
-    group = os.getpgid(process.pid)
+    # start_new_session makes the launch PID the group ID, even after the leader exits.
+    group = process.pid
     for stop in (signal.SIGTERM, signal.SIGKILL):
         try:
             os.killpg(group, stop)
         except ProcessLookupError:
-            return
-        try:
-            process.wait(timeout=GROUP_STOP_GRACE)
-        except subprocess.TimeoutExpired:
-            continue
-        break
-    # Reap whatever the stop produced; a straggler that left the group is its own session.
+            break
+        if stop == signal.SIGTERM:
+            # A leader exit does not prove that its children stopped.
+            time.sleep(GROUP_STOP_GRACE)
+            # macOS can refuse killpg when the group contains only an unreaped leader.
+            process.poll()
+    # A descendant outside the group can retain a pipe after the group stops.
     with contextlib.suppress(subprocess.TimeoutExpired):
         process.communicate(timeout=GROUP_STOP_GRACE)
 

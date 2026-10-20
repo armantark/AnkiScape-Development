@@ -211,6 +211,63 @@ class LocalTestHostTests(unittest.TestCase):
             self.addCleanup(_kill_exiting, survivors)
             self.assertEqual(survivors, set(), f"group {group} outlived its deadline: {survivors}")
 
+    def _assert_deadline_stops_child(self, *, early_exit: bool) -> None:
+        state = self.root / "child.json"
+        program = f"""
+import json, os, signal, time
+from pathlib import Path
+child = os.fork()
+if child == 0:
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    Path({str(state)!r}).write_text(json.dumps(dict(pid=os.getpid(), group=os.getpgrp())))
+    time.sleep(4)
+    os._exit(0)
+while not Path({str(state)!r}).exists():
+    time.sleep(0.01)
+if {early_exit!r}:
+    os._exit(0)
+os.waitpid(child, 0)
+"""
+        owned = []
+        create = subprocess.Popen
+
+        def start(*args, **kwargs):
+            process = create(*args, **kwargs)
+            owned.append(process)
+            return process
+
+        try:
+            with (
+                patch.object(run_remote_tests, "_on_test_host", return_value=True),
+                patch.object(run_remote_tests, "_host_shell", return_value=(sys.executable, "-c")),
+                patch.object(run_remote_tests.subprocess, "Popen", side_effect=start),
+                patch.object(run_remote_tests.os, "getpgid", wraps=os.getpgid) as lookup,
+                self.assertRaisesRegex(run_remote_tests.SSHDeadlineExceeded, "child deadline"),
+            ):
+                run_remote_tests._ssh(program, label="child deadline", deadline=time.monotonic() + 1.0)
+            record = json.loads(state.read_text())
+            self.assertEqual(record["group"], owned[0].pid)
+            self.assertNotEqual(record["group"], os.getpgrp())
+            table = subprocess.run(
+                ("/bin/ps", "-p", str(record["pid"]), "-o", "stat="),
+                capture_output=True, text=True, check=False,
+            )
+            self.assertFalse(
+                table.stdout.strip() and not table.stdout.strip().startswith("Z"),
+                f"child {record['pid']} survived the deadline: {table.stdout!r}",
+            )
+            lookup.assert_not_called()
+        finally:
+            # A failed cleanup must still let this fixture's finite child reach its exit.
+            for process in owned:
+                process.communicate(timeout=6)
+
+    def test_deadline_kills_child_after_leader_exits_on_sigterm(self):
+        self._assert_deadline_stops_child(early_exit=False)
+
+    def test_deadline_kills_child_after_leader_exits_before_deadline(self):
+        self._assert_deadline_stops_child(early_exit=True)
+
     def test_stalled_local_command_cannot_hold_the_mirror_past_its_deadline(self):
         with self._host(local=True) as (_source, _mirror, ssh_calls):
             reports = run_remote_tests.REMOTE_ROOT / "reports"

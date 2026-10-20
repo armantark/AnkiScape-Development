@@ -1,6 +1,5 @@
 import contextlib
 import io
-import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -35,6 +34,7 @@ class RemotePollDeadlineTests(unittest.TestCase):
         stopped = False
         commands = []
         report_polls = [0]
+        run_transport = run_remote_tests._run_transport_attempt
 
         def transport(command, *, timeout=None):
             remote = command[-1]
@@ -44,10 +44,9 @@ class RemotePollDeadlineTests(unittest.TestCase):
             if str(report) in remote:
                 # The first poll finds no report, as before the lane's exit lands.
                 report_polls[0] += 1
-                body = '' if report_polls[0] == 1 else '0\n'
-            else:
-                body = complete
-            return subprocess.CompletedProcess(command, 0, body)
+                if report_polls[0] == 2:
+                    report.write_text('0\n', encoding='utf-8')
+            return run_transport(command, timeout=timeout)
 
         def stop():
             nonlocal stopped
