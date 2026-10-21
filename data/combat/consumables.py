@@ -206,42 +206,42 @@ for _name, _heal, _boosts, _drains, _source in _GNOME_COCKTAILS:
 COMBAT_ANTIPOISON_POTION_DATA: Dict[str, dict] = {
     "Antipoison (4)": {
         "replacement": "Antipoison (3)",
-        "immunity_ticks": 1500,
-        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON4; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON",
+        "immunity_ticks": 150,  # PLACEHOLDER(combat.antipoison_immunity_ticks): resolve 150 versus 300 ticks and obtain independent period corroboration
+        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON4; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON; immunity: Antipoison oldid 5606640 line 22, 90s = 150 ticks; conflicting Herblore oldid 6569702 line 71, 180s = 300 ticks; provisional",
     },
     "Antipoison (3)": {
         "replacement": "Antipoison (2)",
-        "immunity_ticks": 1500,
-        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON3; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON",
+        "immunity_ticks": 150,  # PLACEHOLDER(combat.antipoison_immunity_ticks): resolve 150 versus 300 ticks and obtain independent period corroboration
+        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON3; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON; immunity: Antipoison oldid 5606640 line 22, 90s = 150 ticks; conflicting Herblore oldid 6569702 line 71, 180s = 300 ticks; provisional",
     },
     "Antipoison (2)": {
         "replacement": "Antipoison (1)",
-        "immunity_ticks": 1500,
-        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON2; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON",
+        "immunity_ticks": 150,  # PLACEHOLDER(combat.antipoison_immunity_ticks): resolve 150 versus 300 ticks and obtain independent period corroboration
+        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON2; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON; immunity: Antipoison oldid 5606640 line 22, 90s = 150 ticks; conflicting Herblore oldid 6569702 line 71, 180s = 300 ticks; provisional",
     },
     "Antipoison (1)": {
         "replacement": "Vial",
-        "immunity_ticks": 1500,
-        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON1; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON",
+        "immunity_ticks": 150,  # PLACEHOLDER(combat.antipoison_immunity_ticks): resolve 150 versus 300 ticks and obtain independent period corroboration
+        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON1; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON; immunity: Antipoison oldid 5606640 line 22, 90s = 150 ticks; conflicting Herblore oldid 6569702 line 71, 180s = 300 ticks; provisional",
     },
     "Super antipoison (4)": {
         "replacement": "Super antipoison (3)",
-        "immunity_ticks": 6000,
-        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON4; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON",
+        "immunity_ticks": 600,  # PLACEHOLDER(combat.super_antipoison_immunity_ticks): obtain independent period corroboration for 600 ticks
+        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON4; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON; immunity: Super antipoison oldid 5819437 line 22, 360s = 600 ticks; provisional pending independent period corroboration",
     },
     "Super antipoison (3)": {
         "replacement": "Super antipoison (2)",
-        "immunity_ticks": 6000,
-        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON3; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON",
+        "immunity_ticks": 600,  # PLACEHOLDER(combat.super_antipoison_immunity_ticks): obtain independent period corroboration for 600 ticks
+        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON3; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON; immunity: Super antipoison oldid 5819437 line 22, 360s = 600 ticks; provisional pending independent period corroboration",
     },
     "Super antipoison (2)": {
         "replacement": "Super antipoison (1)",
-        "immunity_ticks": 6000,
-        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON2; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON",
+        "immunity_ticks": 600,  # PLACEHOLDER(combat.super_antipoison_immunity_ticks): obtain independent period corroboration for 600 ticks
+        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON2; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON; immunity: Super antipoison oldid 5819437 line 22, 360s = 600 ticks; provisional pending independent period corroboration",
     },
     "Super antipoison (1)": {
         "replacement": "Vial",
-        "immunity_ticks": 6000,
-        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON1; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON",
+        "immunity_ticks": 600,  # PLACEHOLDER(combat.super_antipoison_immunity_ticks): obtain independent period corroboration for 600 ticks
+        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON1; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON; immunity: Super antipoison oldid 5819437 line 22, 360s = 600 ticks; provisional pending independent period corroboration",
     },
 }

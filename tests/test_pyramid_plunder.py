@@ -178,8 +178,9 @@ class PyramidPlunderPureTests(unittest.TestCase):
         self.assertEqual(result["hazards"][0]["poison"], 38)
         self.assertEqual(result["hazards"][0]["antipoison"], "Super antipoison (4)")
         self.assertNotIn("poison", updated["combat_status_effects"])
-        self.assertIn("poison_immunity", updated["combat_status_effects"])
+        self.assertEqual(updated["combat_status_effects"]["poison_immunity"]["ticks_left"], 600)
         self.assertEqual(updated["inventory"]["Super antipoison (3)"], 1)
+        self.assertEqual(pyramid_plunder_view_pure(updated)["poison_immunity_ticks"], 600)
 
     def test_death_uses_grave_and_ends_the_run(self):
         player = _player(

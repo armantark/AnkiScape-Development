@@ -657,10 +657,7 @@ def _combat_carried_slot_counts(data, target_id):
             depositable[item_name] = remaining
         else:
             depositable.pop(item_name, None)
-    return (
-        carried_slots_used(view, STACKABLE_ITEM_NAMES),
-        carried_slots_used(depositable, STACKABLE_ITEM_NAMES),
-    )
+    return (carried_slots_used(view, STACKABLE_ITEM_NAMES), carried_slots_used(depositable, STACKABLE_ITEM_NAMES))
 
 
 def _combat_deposit_loot(data, target_id):
@@ -1425,13 +1422,14 @@ def _combat_consume_antipoison_if_needed(data):
     return None
 
 
+# Poison (historical) oldid 5979526 lines 8, 10; owner 2026-10-21 excludes the 10-LP hit; ticks_left counts hits.
 def combat_poison_ticks_for_initial_damage_pure(initial_damage):
     damage = _positive_int(initial_damage, 0)
-    return max(0, damage * 5 - 4)
+    return max(0, damage * 5 - 5)
 
 
 def combat_poison_damage_for_ticks_pure(ticks_left):
-    return ((_non_negative_int(ticks_left, 0) // 5) + 1) * 10
+    return 10 + 2 * remaining if (remaining := _non_negative_int(ticks_left, 0)) > 0 else 0
 
 
 def _combat_apply_poison_effect_to_data(data, initial_damage):

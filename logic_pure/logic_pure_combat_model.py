@@ -283,7 +283,7 @@ COMBAT_OBSERVED_DROP_COUNT_LIMIT = 2_147_483_647
 
 COMBAT_STAT_DRAIN_RECOVERY_TICKS = 100
 
-
+# Poison (historical) oldid 5979526 line 6: 18 seconds = 30 ticks; owner choice 2026-10-21.
 COMBAT_POISON_TICK_DELAY = 30
 
 
@@ -291,8 +291,7 @@ COMBAT_POISON_NPC_ATTACK_CHANCE = 0.4
 
 
 COMBAT_POISON_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/mechanics/poison/Poison.kt"
+    "https://runescape.wiki/w/index.php?title=Poison_(historical)&oldid=5979526"
 )
 
 
